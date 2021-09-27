@@ -238,6 +238,7 @@ private:
     void rehighlight();
 
     virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
+    virtual void handleDocumentOpened(TextEditor::TextDocument *) {}
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,

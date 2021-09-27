@@ -91,6 +91,7 @@ signals:
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+    void handleDocumentOpened(TextEditor::TextDocument *doc) override;
     void handleDocumentClosed(TextEditor::TextDocument *doc) override;
 
     class Private;

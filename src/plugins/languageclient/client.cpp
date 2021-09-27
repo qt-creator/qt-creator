@@ -394,6 +394,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         m_documentVersions[filePath] = 0;
     item.setVersion(m_documentVersions[filePath]);
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
+    handleDocumentOpened(document);
 
     const Client *currentClient = LanguageClientManager::clientForDocument(document);
     if (currentClient == this) {

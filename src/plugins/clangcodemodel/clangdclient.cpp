@@ -89,32 +89,6 @@ static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarni
 static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
-class AstParams : public JsonObject
-{
-public:
-    AstParams() {}
-    AstParams(const TextDocumentIdentifier &document, const Range &range = {})
-    {
-        setTextDocument(document);
-        if (range.isValid())
-            setRange(range);
-    }
-
-    using JsonObject::JsonObject;
-
-    // The open file to inspect.
-    TextDocumentIdentifier textDocument() const
-    { return typedValue<TextDocumentIdentifier>(textDocumentKey); }
-    void setTextDocument(const TextDocumentIdentifier &id) { insert(textDocumentKey, id); }
-
-    // The region of the source code whose AST is fetched. The highest-level node that entirely
-    // contains the range is returned.
-    Utils::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
-    void setRange(const Range &range) { insert(rangeKey, range); }
-
-    bool isValid() const override { return contains(textDocumentKey); }
-};
-
 class AstNode : public JsonObject
 {
 public:
@@ -329,6 +303,14 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
     return path;
 }
 
+static AstNode getAstNode(const AstNode &root, const Range &range)
+{
+    const QList<AstNode> path = getAstPath(root, range);
+    if (!path.isEmpty())
+        return path.last();
+    return {};
+}
+
 static Usage::Type getUsageType(const QList<AstNode> &path)
 {
     bool potentialWrite = false;
@@ -400,13 +382,6 @@ static Usage::Type getUsageType(const QList<AstNode> &path)
 
     return Usage::Type::Other;
 }
-
-class AstRequest : public Request<AstNode, std::nullptr_t, AstParams>
-{
-public:
-    using Request::Request;
-    explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
-};
 
 class SymbolDetails : public JsonObject
 {
@@ -713,6 +688,58 @@ private:
     const unsigned m_completionOperator;
 };
 
+
+static qint64 getRevision(const TextEditor::TextDocument *doc)
+{
+    return doc->document()->revision();
+}
+static qint64 getRevision(const Utils::FilePath &fp)
+{
+    return fp.lastModified().toMSecsSinceEpoch();
+}
+
+template<typename DocType, typename DataType> class VersionedDocData
+{
+public:
+    VersionedDocData(const DocType &doc, const DataType &data) :
+        revision(getRevision(doc)), data(data) {}
+
+    const qint64 revision;
+    const DataType data;
+};
+
+template<typename DocType, typename DataType> class VersionedDataCache
+{
+public:
+    void insert(const DocType &doc, const DataType &data)
+    {
+        m_data.emplace(std::make_pair(doc, VersionedDocData(doc, data)));
+    }
+    void remove(const DocType &doc) { m_data.erase(doc); }
+    Utils::optional<VersionedDocData<DocType, DataType>> take(const DocType &doc)
+    {
+        const auto it = m_data.find(doc);
+        if (it == m_data.end())
+            return {};
+        const auto data = it->second;
+        m_data.erase(it);
+        return data;
+    }
+    Utils::optional<DataType> get(const DocType &doc)
+    {
+        const auto it = m_data.find(doc);
+        if (it == m_data.end())
+            return {};
+        if (it->second.revision != getRevision(doc)) {
+            m_data.erase(it);
+            return {};
+        }
+        return it->second.data;
+    }
+private:
+    std::unordered_map<DocType, VersionedDocData<DocType, DataType>> m_data;
+};
+
 class ClangdClient::Private
 {
 public:
@@ -749,6 +776,12 @@ public:
     void handleSemanticTokens(TextEditor::TextDocument *doc,
                               const QList<ExpandedSemanticToken> &tokens);
 
+    enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
+    using TextDocOrFile = const Utils::variant<const TextEditor::TextDocument *, Utils::FilePath>;
+    using AstHandler = const std::function<void(const AstNode &ast, const MessageId &)>;
+    MessageId getAndHandleAst(TextDocOrFile &doc, AstHandler &astHandler,
+                              AstCallbackMode callbackMode);
+
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
     QHash<quint64, ReferencesData> runningFindUsages;
@@ -757,6 +790,8 @@ public:
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
     std::unordered_map<TextEditor::TextDocument *, CppEditor::SemanticHighlighter> highlighters;
+    VersionedDataCache<const TextEditor::TextDocument *, AstNode> astCache;
+    VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
@@ -1048,9 +1083,19 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
     }
 }
 
+void ClangdClient::handleDocumentOpened(TextEditor::TextDocument *doc)
+{
+    const auto data = d->externalAstCache.take(doc->filePath());
+    if (!data)
+        return;
+    if (data->revision == getRevision(doc->filePath()))
+       d->astCache.insert(doc, data->data);
+}
+
 void ClangdClient::handleDocumentClosed(TextEditor::TextDocument *doc)
 {
     d->highlighters.erase(doc);
+    d->astCache.remove(doc);
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -1199,27 +1244,22 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     }
 
     for (auto it = refData->fileData.begin(); it != refData->fileData.end(); ++it) {
-        const bool extraOpen = !q->documentForFilePath(it.key().toFilePath());
-        if (extraOpen)
+        const TextEditor::TextDocument * const doc = q->documentForFilePath(it.key().toFilePath());
+        if (!doc)
             q->openExtraFile(it.key().toFilePath(), it->fileContent);
         it->fileContent.clear();
-
-        AstParams params;
-        params.setTextDocument(TextDocumentIdentifier(it.key()));
-        AstRequest request(params);
-        request.setResponseCallback([this, key, loc = it.key(), request]
-                                    (AstRequest::Response response) {
-            qCDebug(clangdLog) << "AST response for" << loc.toFilePath();
+        const auto docVariant = doc ? TextDocOrFile(doc) : TextDocOrFile(it.key().toFilePath());
+        const auto astHandler = [this, key, loc = it.key()](const AstNode &ast,
+                                                            const MessageId &reqId) {
+            qCDebug(clangdLog) << "AST for" << loc.toFilePath();
             const auto refData = runningFindUsages.find(key);
             if (refData == runningFindUsages.end())
                 return;
             if (!refData->search || refData->canceled)
                 return;
             ReferencesFileData &data = refData->fileData[loc];
-            const auto result = response.result();
-            if (result)
-                data.ast = *result;
-            refData->pendingAstRequests.removeOne(request.id());
+            data.ast = ast;
+            refData->pendingAstRequests.removeOne(reqId);
             qCDebug(clangdLog) << refData->pendingAstRequests.size()
                                << "AST requests still pending";
             addSearchResultsForFile(*refData, loc.toFilePath(), data);
@@ -1228,12 +1268,11 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
                 qDebug(clangdLog) << "retrieved all ASTs";
                 finishSearch(*refData, false);
             }
-        });
-        qCDebug(clangdLog) << "requesting AST for" << it.key().toFilePath();
-        refData->pendingAstRequests << request.id();
-        q->sendContent(request, SendDocUpdates::Ignore);
-
-        if (extraOpen)
+        };
+        const MessageId reqId = getAndHandleAst(docVariant, astHandler,
+                                                AstCallbackMode::AlwaysAsync);
+        refData->pendingAstRequests << reqId;
+        if (!doc)
             q->closeExtraFile(it.key().toFilePath());
     }
 }
@@ -1373,22 +1412,16 @@ void ClangdClient::followSymbol(TextEditor::TextDocument *document,
         return;
     }
 
-    AstRequest astRequest(AstParams(TextDocumentIdentifier(d->followSymbolData->uri),
-                                    Range(cursor)));
-    astRequest.setResponseCallback([this, id = d->followSymbolData->id](
-                                   const AstRequest::Response &response) {
+    const auto astHandler = [this, id = d->followSymbolData->id, range = Range(cursor)]
+            (const AstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for cursor";
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
-        const auto result = response.result();
-        if (result)
-            d->followSymbolData->cursorNode = *result;
-        else
-            d->followSymbolData->cursorNode.emplace(AstNode());
+        d->followSymbolData->cursorNode = getAstNode(ast, range);
         if (d->followSymbolData->defLink.hasValidTarget())
             d->handleGotoDefinitionResult();
-    });
-    sendContent(astRequest, SendDocUpdates::Ignore);
+    };
+    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::SyncIfPossible);
 }
 
 void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QTextCursor &cursor,
@@ -1403,28 +1436,23 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
                                  std::move(callback));
 
     // Retrieve AST and document symbols.
-    AstParams astParams;
-    astParams.setTextDocument(TextDocumentIdentifier(d->switchDeclDefData->uri));
-    AstRequest astRequest(astParams);
-    astRequest.setResponseCallback([this, id = d->switchDeclDefData->id]
-                                   (const AstRequest::Response &response) {
+    const auto astHandler = [this, id = d->switchDeclDefData->id](const AstNode &ast,
+                                                                  const MessageId &) {
         qCDebug(clangdLog) << "received ast for decl/def switch";
         if (!d->switchDeclDefData || d->switchDeclDefData->id != id
                 || !d->switchDeclDefData->document)
             return;
-        const auto result = response.result();
-        if (!result) {
+        if (!ast.isValid()) {
             d->switchDeclDefData.reset();
             return;
         }
-        d->switchDeclDefData->ast = *result;
+        d->switchDeclDefData->ast = ast;
         if (d->switchDeclDefData->docSymbols)
             d->handleDeclDefSwitchReplies();
 
-    });
-    sendContent(astRequest, SendDocUpdates::Ignore);
+    };
+    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::SyncIfPossible);
     documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri, Schedule::Now);
-
 }
 
 void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
@@ -1454,19 +1482,17 @@ void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTe
         }
 
         // Step 2: Get AST and check whether it's a local variable.
-        AstRequest astRequest(AstParams(TextDocumentIdentifier(d->localRefsData->uri)));
-        astRequest.setResponseCallback([this, link, id](const AstRequest::Response &response) {
+        const auto astHandler = [this, link, id](const AstNode &ast, const MessageId &) {
             qCDebug(clangdLog) << "received ast response";
             if (!d->localRefsData || id != d->localRefsData->id)
                 return;
-            const auto result = response.result();
-            if (!result || !d->localRefsData->document) {
+            if (!ast.isValid() || !d->localRefsData->document) {
                 d->localRefsData.reset();
                 return;
             }
 
             const Position linkPos(link.targetLine - 1, link.targetColumn);
-            const QList<AstNode> astPath = getAstPath(*result, Range(linkPos, linkPos));
+            const QList<AstNode> astPath = getAstPath(ast, Range(linkPos, linkPos));
             bool isVar = false;
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
                 if (it->role() == "declaration" && it->kind() == "Function") {
@@ -1507,9 +1533,10 @@ void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTe
                 }
             }
             d->localRefsData.reset();
-        });
+        };
         qCDebug(clangdLog) << "sending ast request for link";
-        sendContent(astRequest, SendDocUpdates::Ignore);
+        d->getAndHandleAst(d->localRefsData->document, astHandler,
+                           Private::AstCallbackMode::SyncIfPossible);
     };
     symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
 }
@@ -1551,10 +1578,10 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
     }
 
-    AstRequest req((AstParams(TextDocumentIdentifier(uri))));
-    req.setResponseCallback([this, uri, hoverResponse](const AstRequest::Response &response) {
+    const TextEditor::TextDocument * const doc = documentForFilePath(uri.toFilePath());
+    QTC_ASSERT(doc, return);
+    const auto astHandler = [this, uri, hoverResponse](const AstNode &ast, const MessageId &) {
         const MessageId id = hoverResponse.id();
-        const AstNode ast = response.result().value_or(AstNode());
         const Range range = hoverResponse.result()->range().value_or(Range());
         const QList<AstNode> path = getAstPath(ast, range);
         if (path.isEmpty()) {
@@ -1672,8 +1699,8 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
             return;
         }
         d->setHelpItemForTooltip(id);
-    });
-    sendContent(req, SendDocUpdates::Ignore);
+    };
+    d->getAndHandleAst(doc, astHandler, Private::AstCallbackMode::SyncIfPossible);
 }
 
 void ClangdClient::Private::handleGotoDefinitionResult()
@@ -1838,27 +1865,24 @@ void ClangdClient::Private::handleGotoImplementationResult(
         q->sendContent(defReq, SendDocUpdates::Ignore);
     }
 
-    const DocumentUri defLinkUri
-            = DocumentUri::fromFilePath(followSymbolData->defLink.targetFilePath);
+    const Utils::FilePath defLinkFilePath = followSymbolData->defLink.targetFilePath;
+    const TextEditor::TextDocument * const defLinkDoc = q->documentForFilePath(defLinkFilePath);
+    const auto defLinkDocVariant = defLinkDoc ? TextDocOrFile(defLinkDoc)
+                                              : TextDocOrFile(defLinkFilePath);
     const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
                               followSymbolData->defLink.targetColumn);
-    AstRequest astRequest(AstParams(TextDocumentIdentifier(defLinkUri),
-                                    Range(defLinkPos, defLinkPos)));
-    astRequest.setResponseCallback([this, id = followSymbolData->id](
-                                   const AstRequest::Response &response) {
+    const auto astHandler = [this, range = Range(defLinkPos, defLinkPos), id = followSymbolData->id]
+            (const AstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for def link";
         if (!followSymbolData || followSymbolData->id != id)
             return;
-        const auto result = response.result();
-        if (result)
-            followSymbolData->defLinkNode = *result;
+        followSymbolData->defLinkNode = getAstNode(ast, range);
         if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
                 && followSymbolData->pendingGotoDefRequests.isEmpty()) {
             handleDocumentInfoResults();
         }
-    });
-    qCDebug(clangdLog) << "sending ast request for def link";
-    q->sendContent(astRequest, SendDocUpdates::Ignore);
+    };
+    getAndHandleAst(defLinkDocVariant, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
 void ClangdClient::Private::handleDocumentInfoResults()
@@ -2603,23 +2627,18 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
 
-    // TODO: Cache ASTs
-    AstParams params(TextDocumentIdentifier(DocumentUri::fromFilePath(doc->filePath())));
-    AstRequest astReq(params);
-    astReq.setResponseCallback([this, tokens, doc](const AstRequest::Response &response) {
+    const auto astHandler = [this, tokens, doc](const AstNode &ast, const MessageId &) {
         if (!q->documentOpen(doc))
             return;
-        const Utils::optional<AstNode> ast = response.result();
-        if (ast && clangdLogAst().isDebugEnabled())
-            ast->print();
+        if (clangdLogAst().isDebugEnabled())
+            ast.print();
 
         IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
                 [doc](const IEditor *editor) { return editor->document() == doc; });
         const auto editorWidget = TextEditor::TextEditorWidget::fromEditor(editor);
-        const auto runner = [tokens, text = doc->document()->toPlainText(),
-                             theAst = ast ? *ast : AstNode(), w = QPointer(editorWidget),
-                             rev = doc->document()->revision()] {
-            return Utils::runAsync(semanticHighlighter, tokens, text, theAst, w, rev);
+        const auto runner = [tokens, text = doc->document()->toPlainText(), ast,
+                             w = QPointer(editorWidget), rev = doc->document()->revision()] {
+            return Utils::runAsync(semanticHighlighter, tokens, text, ast, w, rev);
         };
 
         if (isTesting) {
@@ -2641,8 +2660,8 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
         }
         it->second.setHighlightingRunner(runner);
         it->second.run();
-    });
-    q->sendContent(astReq, SendDocUpdates::Ignore);
+    };
+    getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
 void ClangdClient::VirtualFunctionAssistProcessor::cancel()
@@ -2947,6 +2966,85 @@ void ClangdClient::ClangdCompletionAssistProcessor::applyCompletionItem(
         for (const auto &edit : *additionalEdits)
             applyTextEdit(manipulator, edit);
     }
+}
+
+MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
+                                                 const AstHandler &astHandler,
+                                                 AstCallbackMode callbackMode)
+{
+    const auto textDocPtr = std::get_if<const TextEditor::TextDocument *>(&doc);
+    const TextEditor::TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
+    const Utils::FilePath filePath = textDoc ? textDoc->filePath() : std::get<Utils::FilePath>(doc);
+
+    // If the document's AST is in the cache and is up to date, call the handler.
+    if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
+        qCDebug(clangdLog) << "using AST from cache";
+        switch (callbackMode) {
+        case AstCallbackMode::SyncIfPossible:
+            astHandler(*ast, {});
+            break;
+        case AstCallbackMode::AlwaysAsync:
+            QMetaObject::invokeMethod(q, [ast, astHandler] { astHandler(*ast, {}); },
+                                      Qt::QueuedConnection);
+            break;
+        }
+        return {};
+    }
+
+    // Otherwise retrieve the AST from clangd.
+
+    class AstParams : public JsonObject
+    {
+    public:
+        AstParams() {}
+        AstParams(const TextDocumentIdentifier &document, const Range &range = {})
+        {
+            setTextDocument(document);
+            if (range.isValid())
+                setRange(range);
+        }
+
+        using JsonObject::JsonObject;
+
+        // The open file to inspect.
+        TextDocumentIdentifier textDocument() const
+        { return typedValue<TextDocumentIdentifier>(textDocumentKey); }
+        void setTextDocument(const TextDocumentIdentifier &id) { insert(textDocumentKey, id); }
+
+        // The region of the source code whose AST is fetched. The highest-level node that entirely
+        // contains the range is returned.
+        Utils::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
+        void setRange(const Range &range) { insert(rangeKey, range); }
+
+        bool isValid() const override { return contains(textDocumentKey); }
+    };
+
+    class AstRequest : public Request<AstNode, std::nullptr_t, AstParams>
+    {
+    public:
+        using Request::Request;
+        explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
+    };
+
+    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath))));
+    request.setResponseCallback([this, filePath, guardedTextDoc = QPointer(textDoc), astHandler,
+                                docRev = textDoc ? getRevision(textDoc) : -1,
+                                fileRev = getRevision(filePath), reqId = request.id()]
+                                (AstRequest::Response response) {
+        qCDebug(clangdLog) << "retrieved AST from clangd";
+        const auto result = response.result();
+        const AstNode ast = result ? *result : AstNode();
+        if (guardedTextDoc) {
+            if (docRev == getRevision(guardedTextDoc))
+                astCache.insert(guardedTextDoc, ast);
+        } else if (fileRev == getRevision(filePath) && !q->documentForFilePath(filePath)) {
+            externalAstCache.insert(filePath, ast);
+        }
+        astHandler(ast, reqId);
+    });
+    qCDebug(clangdLog) << "requesting AST for" << filePath;
+    q->sendContent(request, SendDocUpdates::Ignore);
+    return request.id();
 }
 
 } // namespace Internal
