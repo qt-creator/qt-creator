@@ -147,7 +147,7 @@ DesignerSettings SettingsPageWidget::settings() const
     settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
         m_ui.debugPuppetComboBox->currentText());
 
-    QString newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->path();
+    QString newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->filePath().toString();
     QTC_CHECK(PuppetCreator::defaultPuppetFallbackDirectory() ==
               m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
     if (newFallbackPuppetPath.isEmpty())
@@ -163,10 +163,10 @@ DesignerSettings SettingsPageWidget::settings() const
         settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, QString());
     }
 
-    if (!m_ui.puppetBuildPathLineEdit->path().isEmpty() &&
-        m_ui.puppetBuildPathLineEdit->path() != PuppetCreator::defaultPuppetToplevelBuildDirectory()) {
+    if (!m_ui.puppetBuildPathLineEdit->filePath().isEmpty() &&
+        m_ui.puppetBuildPathLineEdit->filePath().toString() != PuppetCreator::defaultPuppetToplevelBuildDirectory()) {
         settings.insert(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
-            m_ui.puppetBuildPathLineEdit->path());
+            m_ui.puppetBuildPathLineEdit->filePath().toString());
     }
     settings.insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR,
         m_ui.alwaysSaveSubcomponentsCheckBox->isChecked());

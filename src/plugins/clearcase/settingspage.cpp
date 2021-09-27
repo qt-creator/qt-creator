@@ -101,7 +101,7 @@ void SettingsPageWidget::apply()
 {
     ClearCaseSettings rc;
     rc.ccCommand = m_ui.commandPathChooser->rawPath();
-    rc.ccBinaryPath = m_ui.commandPathChooser->path();
+    rc.ccBinaryPath = m_ui.commandPathChooser->filePath().toString();
     rc.timeOutS = m_ui.timeOutSpinBox->value();
     rc.autoCheckOut = m_ui.autoCheckOutCheckBox->isChecked();
     rc.noComment = m_ui.noCommentCheckBox->isChecked();

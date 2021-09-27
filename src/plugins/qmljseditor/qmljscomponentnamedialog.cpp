@@ -168,7 +168,7 @@ QString ComponentNameDialog::isValid() const
     if (!ui->pathEdit->isValid())
         return tr("Invalid path.");
 
-    if (QDir(ui->pathEdit->path()).exists(compName + ".qml"))
+    if (ui->pathEdit->filePath().pathAppended(compName + ".qml").exists())
         return tr("Component already exists.");
 
     return QString();

@@ -1077,12 +1077,12 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
                     if (d->m_blockAutoApply)
                         return;
                     d->m_blockAutoApply = true;
-                    setValue(d->m_pathChooserDisplay->path());
+                    setValue(d->m_pathChooserDisplay->filePath().toString());
                     d->m_blockAutoApply = false;
                 });
             } else {
                 connect(d->m_pathChooserDisplay, &PathChooser::pathChanged, this, [this] {
-                    setValue(d->m_pathChooserDisplay->path());
+                    setValue(d->m_pathChooserDisplay->filePath().toString());
                 });
             }
         }
@@ -1163,7 +1163,7 @@ QVariant StringAspect::volatileValue() const
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         QTC_ASSERT(d->m_pathChooserDisplay, return {});
-        return d->m_pathChooserDisplay->path();
+        return d->m_pathChooserDisplay->filePath().toString();
     case LineEditDisplay:
         QTC_ASSERT(d->m_lineEditDisplay, return {});
         return d->m_lineEditDisplay->text();
