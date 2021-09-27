@@ -1305,7 +1305,8 @@ Tasks McuDependenciesKitAspect::validate(const Kit *k) const
         if (!environment.hasKey(dependency.name)) {
             result << BuildSystemTask(Task::Warning, tr("Environment variable %1 not defined.").arg(dependency.name));
         } else {
-            const auto path = Utils::FilePath::fromString(environment.value(dependency.name) + "/" + dependency.value);
+            const auto path = Utils::FilePath::fromUserInput(
+                        environment.value(dependency.name) + "/" + dependency.value);
             if (!path.exists()) {
                 result << BuildSystemTask(Task::Warning, tr("%1 not found.").arg(path.toUserOutput()));
             }

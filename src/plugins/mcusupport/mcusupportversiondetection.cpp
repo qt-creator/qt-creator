@@ -62,14 +62,13 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
     if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
         return QString();
 
-    QString binaryPath = QDir::toNativeSeparators(packagePath + "/" + m_detectionPath);
-    if (!Utils::FilePath::fromString(binaryPath).exists())
+    const Utils::FilePath binaryPath = Utils::FilePath::fromString(packagePath) / m_detectionPath;
+    if (!binaryPath.exists())
         return QString();
-
 
     const int execTimeout = 3000; // usually runs below 1s, but we want to be on the safe side
     QProcess binaryProcess;
-    binaryProcess.start(binaryPath, m_detectionArgs);
+    binaryProcess.start(binaryPath.toString(), m_detectionArgs);
     if (!binaryProcess.waitForStarted())
         return QString();
     binaryProcess.waitForFinished(execTimeout);
