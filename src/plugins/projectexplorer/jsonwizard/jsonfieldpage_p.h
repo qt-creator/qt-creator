@@ -216,21 +216,18 @@ private:
     {
         QString result;
         QTextStream out(&result);
-        out << "PathChooser{path:" << m_path
+        out << "PathChooser{path:" << m_path.toString()
             << "; base:" << m_basePath
             << "; historyId:" << m_historyId
             << "; kind:" << (int)Utils::PathChooser::ExistingDirectory
-            << "; currentPath:" << m_currentPath
             << "}";
         return result;
     }
 
-    QString m_path;
-    QString m_basePath;
+    Utils::FilePath m_path;
+    Utils::FilePath m_basePath;
     QString m_historyId;
     Utils::PathChooser::Kind m_kind = Utils::PathChooser::ExistingDirectory;
-
-    QString m_currentPath;
 };
 
 class CheckBoxField : public JsonFieldPage::Field
