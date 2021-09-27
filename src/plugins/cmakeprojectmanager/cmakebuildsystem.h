@@ -37,7 +37,10 @@
 #include <utils/temporarydirectory.h>
 
 namespace CppEditor { class CppProjectUpdater; }
-namespace ProjectExplorer { class ExtraCompiler; }
+namespace ProjectExplorer {
+    class ExtraCompiler;
+    class FolderNode;
+}
 
 namespace CMakeProjectManager {
 
@@ -113,8 +116,7 @@ private:
         REPARSE_FORCE_INITIAL_CONFIGURATION
         = (1 << 1), // Force initial configuration arguments to cmake
         REPARSE_FORCE_EXTRA_CONFIGURATION = (1 << 2), // Force extra configuration arguments to cmake
-        REPARSE_SCAN = (1 << 3),                      // Run filesystem scan
-        REPARSE_URGENT = (1 << 4),                    // Do not delay the parser run by 1s
+        REPARSE_URGENT = (1 << 3),                    // Do not delay the parser run by 1s
     };
     QString reparseParametersString(int reparseFlags);
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
@@ -132,9 +134,6 @@ private:
 
     // Combining Treescanner and Parser states:
     void combineScanAndParse(bool restoredFromBackup);
-
-    std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const ProjectExplorer::TreeScanner::Result &allFiles, bool failedToParse);
     void checkAndReportError(QString &errorMessage);
 
     void updateCMakeConfiguration(QString &errorMessage);
@@ -145,6 +144,8 @@ private:
     void updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
                               const QList<QByteArray> &moduleMappings);
     void updateInitialCMakeExpandableVars();
+
+    void updateFileSystemNodes();
 
     void handleParsingSucceeded(bool restoredFromBackup);
     void handleParsingFailed(const QString &msg);
@@ -161,10 +162,9 @@ private:
     void runCTest();
 
     ProjectExplorer::TreeScanner m_treeScanner;
-    ProjectExplorer::TreeScanner::Result m_allFiles;
+    std::shared_ptr<ProjectExplorer::FolderNode> m_allFiles;
     QHash<QString, bool> m_mimeBinaryCache;
 
-    bool m_waitingForScan = false;
     bool m_waitingForParse = false;
     bool m_combinedScanAndParseResult = false;
 

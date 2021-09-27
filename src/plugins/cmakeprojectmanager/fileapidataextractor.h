@@ -75,10 +75,6 @@ public:
 FileApiQtcData extractData(FileApiData &data,
                            const Utils::FilePath &sourceDirectory,
                            const Utils::FilePath &buildDirectory);
-FileApiQtcData generateFallbackData(const Utils::FilePath &topCmakeFile,
-                                    const Utils::FilePath &sourceDirectory,
-                                    const Utils::FilePath &buildDirectory,
-                                    QString errorMessage);
 
 } // namespace Internal
 } // namespace CMakeProjectManager

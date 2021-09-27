@@ -27,7 +27,6 @@
 
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
-#include "projecttreehelper.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -214,15 +213,6 @@ bool FileApiReader::usesAllCapsTargets() const
     return m_usesAllCapsTargets;
 }
 
-std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
-    const ProjectExplorer::TreeScanner::Result &allFiles, bool failedToParse)
-{
-    if (failedToParse)
-        addFileSystemNodes(m_rootProjectNode.get(), allFiles.folderNode);
-
-    return std::exchange(m_rootProjectNode, {});
-}
-
 RawProjectParts FileApiReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -250,37 +240,29 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.buildDirectory;
-    const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? (*m_cmakeFiles.begin()).path : FilePath{};
     const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
 
     QTC_CHECK(!replyFilePath.needsDevice());
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                        [replyFilePath, sourceDirectory, buildDirectory, topCmakeFile, cmakeBuildType](
+                        [replyFilePath, sourceDirectory, buildDirectory, cmakeBuildType](
                             QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi) {
                             auto result = std::make_shared<FileApiQtcData>();
                             FileApiData data = FileApiParser::parseData(fi,
                                                                         replyFilePath,
                                                                         cmakeBuildType,
                                                                         result->errorMessage);
-                            if (!result->errorMessage.isEmpty()) {
-                                *result = generateFallbackData(topCmakeFile,
-                                                               sourceDirectory,
-                                                               buildDirectory,
-                                                               result->errorMessage);
-                            } else {
+                            if (result->errorMessage.isEmpty())
                                 *result = extractData(data, sourceDirectory, buildDirectory);
-                            }
-                            if (!result->errorMessage.isEmpty()) {
+                            else
                                 qWarning() << result->errorMessage;
-                            }
 
                             fi.reportResult(result);
                         });
     onResultReady(m_future.value(),
                   this,
-                  [this, topCmakeFile, sourceDirectory, buildDirectory, restoredFromBackup](
+                  [this, sourceDirectory, buildDirectory, restoredFromBackup](
                       const std::shared_ptr<FileApiQtcData> &value) {
                       m_isParsing = false;
                       m_cache = std::move(value->cache);
@@ -346,6 +328,16 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
 
     const FilePath settingsFile = buildDir / "qtcsettings.cmake";
     QTC_CHECK(settingsFile.writeFileContents(contents));
+}
+
+std::unique_ptr<CMakeProjectNode> FileApiReader::rootProjectNode()
+{
+    return std::exchange(m_rootProjectNode, {});
+}
+
+FilePath FileApiReader::topCmakeFile() const
+{
+    return m_cmakeFiles.size() == 1 ? (*m_cmakeFiles.begin()).path : FilePath{};
 }
 
 int FileApiReader::lastCMakeExitCode() const
