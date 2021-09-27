@@ -29,6 +29,7 @@
 #include <coreplugin/externaltool.h>
 
 using namespace Core::Internal;
+using namespace Utils;
 
 static const char TEST_XML1[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -124,7 +125,7 @@ void ExternaltoolTest::testRead1()
     QCOMPARE(tool->executables().at(1), QString::fromLatin1("lupdate"));
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentProjectFilePath}"));
     QCOMPARE(tool->input(), QString());
-    QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentProjectPath}"));
+    QCOMPARE(tool->workingDirectory(), FilePath::fromString("%{CurrentProjectPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
     QCOMPARE(tool->errorHandling(), ExternalTool::Ignore);
     delete tool;
@@ -145,7 +146,7 @@ void ExternaltoolTest::testRead2()
     QCOMPARE(tool->executables().at(0), QString::fromLatin1("sort"));
     QCOMPARE(tool->arguments(), QString());
     QCOMPARE(tool->input(), QString::fromLatin1("%{CurrentSelection}"));
-    QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
+    QCOMPARE(tool->workingDirectory(), FilePath::fromString("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ReplaceSelection);
     QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);
     delete tool;
@@ -166,7 +167,7 @@ void ExternaltoolTest::testRead3()
     QCOMPARE(tool->executables().at(0), QString::fromLatin1("xterm"));
     QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
     QCOMPARE(tool->input(), QString());
-    QCOMPARE(tool->workingDirectory(), QString::fromLatin1("%{CurrentPath}"));
+    QCOMPARE(tool->workingDirectory(), FilePath::fromString("%{CurrentPath}"));
     QCOMPARE(tool->outputHandling(), ExternalTool::ShowInPane);
     QCOMPARE(tool->modifiesCurrentDocument(), true);
     QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);

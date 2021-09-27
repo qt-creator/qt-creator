@@ -67,7 +67,7 @@ public:
     QStringList executables() const;
     QString arguments() const;
     QString input() const;
-    QString workingDirectory() const;
+    Utils::FilePath workingDirectory() const;
     Utils::Id baseEnvironmentProviderId() const;
     Utils::Environment baseEnvironment() const;
     Utils::EnvironmentItems environmentUserChanges() const;
@@ -98,7 +98,7 @@ public:
     void setExecutables(const QStringList &executables);
     void setArguments(const QString &arguments);
     void setInput(const QString &input);
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setBaseEnvironmentProviderId(Utils::Id id);
     void setEnvironmentUserChanges(const Utils::EnvironmentItems &items);
 
@@ -111,7 +111,7 @@ private:
     QStringList m_executables;
     QString m_arguments;
     QString m_input;
-    QString m_workingDirectory;
+    Utils::FilePath m_workingDirectory;
     Utils::Id m_baseEnvironmentProviderId;
     Utils::EnvironmentItems m_environment;
     OutputHandling m_outputHandling = ShowInPane;
@@ -146,7 +146,7 @@ private:
     Utils::FilePath m_resolvedExecutable;
     QString m_resolvedArguments;
     QString m_resolvedInput;
-    QString m_resolvedWorkingDirectory;
+    Utils::FilePath m_resolvedWorkingDirectory;
     Utils::Environment m_resolvedEnvironment;
     Utils::QtcProcess *m_process;
     QTextCodec *m_outputCodec;

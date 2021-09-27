@@ -582,7 +582,7 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
         executables << m_ui.executable->rawPath();
     tool->setExecutables(executables);
     tool->setArguments(m_ui.arguments->text());
-    tool->setWorkingDirectory(m_ui.workingDirectory->rawPath());
+    tool->setWorkingDirectory(m_ui.workingDirectory->rawFilePath());
     tool->setBaseEnvironmentProviderId(Id::fromSetting(m_ui.baseEnvironment->currentData()));
     tool->setEnvironmentUserChanges(m_environment);
     tool->setOutputHandling(ExternalTool::OutputHandling(m_ui.outputBehavior->currentIndex()));
@@ -610,7 +610,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     m_ui.executable->setPath(tool->executables().isEmpty() ? QString()
                                                           : tool->executables().constFirst());
     m_ui.arguments->setText(tool->arguments());
-    m_ui.workingDirectory->setPath(tool->workingDirectory());
+    m_ui.workingDirectory->setFilePath(tool->workingDirectory());
     m_ui.outputBehavior->setCurrentIndex(int(tool->outputHandling()));
     m_ui.errorOutputBehavior->setCurrentIndex(int(tool->errorHandling()));
     m_ui.modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());

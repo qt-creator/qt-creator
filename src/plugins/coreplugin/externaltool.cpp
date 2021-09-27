@@ -169,7 +169,7 @@ QString ExternalTool::input() const
     return m_input;
 }
 
-QString ExternalTool::workingDirectory() const
+FilePath ExternalTool::workingDirectory() const
 {
     return m_workingDirectory;
 }
@@ -287,7 +287,7 @@ void ExternalTool::setInput(const QString &input)
 }
 
 
-void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
+void ExternalTool::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
 }
@@ -435,7 +435,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                         reader.raiseError("only one <workingdirectory> element allowed");
                         break;
                     }
-                    tool->m_workingDirectory = reader.readElementText();
+                    tool->m_workingDirectory = FilePath::fromString(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kBaseEnvironmentId)) {
                     if (tool->m_baseEnvironmentProviderId.isValid()) {
                         reader.raiseError("only one <baseEnvironmentId> element allowed");
@@ -526,7 +526,7 @@ bool ExternalTool::save(QString *errorMessage) const
         if (!m_input.isEmpty())
             out.writeTextElement(kInput, m_input);
         if (!m_workingDirectory.isEmpty())
-            out.writeTextElement(kWorkingDirectory, m_workingDirectory);
+            out.writeTextElement(kWorkingDirectory, m_workingDirectory.toString());
         if (m_baseEnvironmentProviderId.isValid())
             out.writeTextElement(kBaseEnvironmentId, m_baseEnvironmentProviderId.toString());
         if (!m_environment.isEmpty()) {
