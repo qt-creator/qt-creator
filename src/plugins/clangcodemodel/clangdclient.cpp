@@ -807,45 +807,19 @@ public:
     }
 };
 
-QList<LanguageServerProtocol::CompletionItem> completionItemsTransformer(
-    const Utils::FilePath &filePath,
-    const QString &content,
-    int pos,
-    const QList<CompletionItem> &items)
+class ClangdCompletionItem : public LanguageClientCompletionItem
 {
-    qCDebug(clangdLog) << "received" << items.count() << "completions";
-
-    // If there are signals among the candidates, we employ the built-in code model to find out
-    // whether the cursor was on the second argument of a (dis)connect() call.
-    // If so, we offer only signals, as nothing else makes sense in that context.
-    static const auto criterion = [](const CompletionItem &ci) {
-        const Utils::optional<MarkupOrString> doc = ci.documentation();
-        if (!doc)
-            return false;
-        QString docText;
-        if (Utils::holds_alternative<QString>(*doc))
-            docText = Utils::get<QString>(*doc);
-        else if (Utils::holds_alternative<MarkupContent>(*doc))
-            docText = Utils::get<MarkupContent>(*doc).content();
-        return docText.contains("Annotation: qt_signal");
-    };
-    if (pos != -1 && Utils::anyOf(items, criterion)
-        && CppEditor::CppModelManager::instance()->positionRequiresSignal(filePath.toString(),
-                                                                          content.toUtf8(),
-                                                                          pos)) {
-        return Utils::filtered(items, criterion);
-    }
-    return items;
+public:
+    using LanguageClientCompletionItem::LanguageClientCompletionItem;
+    void apply(TextDocumentManipulatorInterface &manipulator,
+               int basePosition) const override;
 };
 
 class ClangdClient::ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
 {
 public:
     ClangdCompletionAssistProcessor(ClangdClient *client, const QString &snippetsGroup)
-        : LanguageClientCompletionAssistProcessor(client,
-                                                  &completionItemsTransformer,
-                                                  &applyCompletionItem,
-                                                  snippetsGroup)
+        : LanguageClientCompletionAssistProcessor(client, snippetsGroup)
         , m_client(client)
     {
     }
@@ -861,12 +835,52 @@ private:
         return LanguageClientCompletionAssistProcessor::perform(interface);
     }
 
-    static void applyCompletionItem(const CompletionItem &item,
-                                    TextDocumentManipulatorInterface &manipulator,
-                                    QChar typedChar);
+    QList<AssistProposalItemInterface *> generateCompletionItems(
+        const QList<LanguageServerProtocol::CompletionItem> &items) const override;
 
     ClangdClient * const m_client;
 };
+
+QList<AssistProposalItemInterface *>
+ClangdClient::ClangdCompletionAssistProcessor::generateCompletionItems(
+    const QList<LanguageServerProtocol::CompletionItem> &items) const
+{
+    qCDebug(clangdLog) << "received" << items.count() << "completions";
+
+    auto itemGenerator = [](const QList<LanguageServerProtocol::CompletionItem> &items) {
+        return Utils::transform<QList<AssistProposalItemInterface *>>(
+            items, [](const LanguageServerProtocol::CompletionItem &item) {
+                return new ClangdCompletionItem(item);
+            });
+    };
+
+    // If there are signals among the candidates, we employ the built-in code model to find out
+    // whether the cursor was on the second argument of a (dis)connect() call.
+    // If so, we offer only signals, as nothing else makes sense in that context.
+    static const auto criterion = [](const CompletionItem &ci) {
+        const Utils::optional<MarkupOrString> doc = ci.documentation();
+        if (!doc)
+            return false;
+        QString docText;
+        if (Utils::holds_alternative<QString>(*doc))
+            docText = Utils::get<QString>(*doc);
+        else if (Utils::holds_alternative<MarkupContent>(*doc))
+            docText = Utils::get<MarkupContent>(*doc).content();
+        return docText.contains("Annotation: qt_signal");
+    };
+    const QTextDocument *doc = document();
+    const int pos = basePos();
+    if (!doc || pos < 0 || !Utils::anyOf(items, criterion))
+        return itemGenerator(items);
+    const QString content = doc->toPlainText();
+    const bool requiresSignal = CppEditor::CppModelManager::instance()
+                                    ->positionRequiresSignal(filePath().toString(),
+                                                             content.toUtf8(),
+                                                             pos);
+    if (requiresSignal)
+        return itemGenerator(Utils::filtered(items, criterion));
+    return itemGenerator(items);
+}
 
 class ClangdClient::ClangdCompletionAssistProvider : public LanguageClientCompletionAssistProvider
 {
@@ -2837,9 +2851,11 @@ bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QCha
     return CppEditor::isValidIdentifierChar(c);
 }
 
-void ClangdClient::ClangdCompletionAssistProcessor::applyCompletionItem(const CompletionItem &item,
-        TextDocumentManipulatorInterface &manipulator, QChar typedChar)
+void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
+                                 int /*basePosition*/) const
 {
+    const LanguageServerProtocol::CompletionItem item = this->item();
+    QChar typedChar = triggeredCommitCharacter();
     const auto edit = item.textEdit();
     if (!edit)
         return;
