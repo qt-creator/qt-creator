@@ -95,7 +95,7 @@ static SshConnectionParameters getParameters()
     params.setPort(getPortFromEnvironment());
     params.setUserName(getUserFromEnvironment());
     params.timeout = 10;
-    params.privateKeyFile = getKeyFileFromEnvironment();
+    params.privateKeyFile = Utils::FilePath::fromUserInput(getKeyFileFromEnvironment());
     params.authenticationType = !params.privateKeyFile.isEmpty()
             ? SshConnectionParameters::AuthenticationTypeSpecificKey
             : SshConnectionParameters::AuthenticationTypeAll;
@@ -185,7 +185,7 @@ void tst_Ssh::errorHandling()
     params.setUserName(user);
     params.timeout = 3;
     params.authenticationType = authType;
-    params.privateKeyFile = keyFile;
+    params.privateKeyFile = Utils::FilePath::fromString(keyFile);
     SshConnection connection(params);
     QEventLoop loop;
     bool disconnected = false;

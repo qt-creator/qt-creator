@@ -235,7 +235,7 @@ bool GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::validatePage()
     if (!d->defaultKeys().contains(d->keyFileChooser.filePath().toString())) {
         SshConnectionParameters sshParams = d->device->sshParameters();
         sshParams.authenticationType = SshConnectionParameters::AuthenticationTypeSpecificKey;
-        sshParams.privateKeyFile = d->keyFileChooser.filePath().toString();
+        sshParams.privateKeyFile = d->keyFileChooser.filePath();
         d->device->setSshParameters(sshParams);
     }
     return true;

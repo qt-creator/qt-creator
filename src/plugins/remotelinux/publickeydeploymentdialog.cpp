@@ -49,7 +49,7 @@ using namespace Internal;
 PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
         const IDevice::ConstPtr &deviceConfig, QWidget *parent)
 {
-    const FilePath dir = FilePath::fromString(deviceConfig->sshParameters().privateKeyFile).parentDir();
+    const FilePath dir = deviceConfig->sshParameters().privateKeyFile.parentDir();
     const FilePath publicKeyFileName = FileUtils::getOpenFilePath(nullptr,
         tr("Choose Public Key File"), dir,
         tr("Public Key Files (*.pub);;All Files (*)"));

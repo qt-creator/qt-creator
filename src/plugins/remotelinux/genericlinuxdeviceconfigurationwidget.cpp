@@ -123,7 +123,7 @@ void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.privateKeyFile = m_ui->keyFileLineEdit->filePath().toString();
+    sshParams.privateKeyFile = m_ui->keyFileLineEdit->filePath();
     device()->setSshParameters(sshParams);
 }
 
@@ -211,7 +211,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->portsLineEdit->setText(device()->freePorts().toString());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->userLineEdit->setText(sshParams.userName());
-    m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
+    m_ui->keyFileLineEdit->setFilePath(sshParams.privateKeyFile);
     m_ui->gdbServerLineEdit->setText(device()->debugServerPath().toString());
     updatePortsWarningLabel();
 }

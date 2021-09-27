@@ -625,7 +625,8 @@ void IDevice::fromMap(const QVariantMap &map)
             ? QSsh::SshConnectionParameters::AuthenticationTypeAll
             : static_cast<AuthType>(storedAuthType);
 
-    d->sshParameters.privateKeyFile = map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()).toString();
+    d->sshParameters.privateKeyFile =
+        FilePath::fromVariant(map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()));
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
     d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
             (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
@@ -661,7 +662,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(SshPortKey), d->sshParameters.port());
     map.insert(QLatin1String(UserNameKey), d->sshParameters.userName());
     map.insert(QLatin1String(AuthKey), d->sshParameters.authenticationType);
-    map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile);
+    map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile.toVariant());
     map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
     map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
 
