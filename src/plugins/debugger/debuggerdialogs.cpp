@@ -130,7 +130,7 @@ public:
     FilePath sysRoot;
     QString serverInitCommands;
     QString serverResetCommands;
-    QString debugInfoLocation;
+    FilePath debugInfoLocation;
 };
 
 bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) const
@@ -181,7 +181,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastExternalUseTargetExtended", useTargetExtendedRemote);
     settings->setValue("LastServerInitCommands", serverInitCommands);
     settings->setValue("LastServerResetCommands", serverResetCommands);
-    settings->setValue("LastDebugInfoLocation", debugInfoLocation);
+    settings->setValue("LastDebugInfoLocation", debugInfoLocation.toVariant());
     settings->setValue("LastSysRoot", sysRoot.toVariant());
 }
 
@@ -198,7 +198,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     useTargetExtendedRemote = settings->value("LastExternalUseTargetExtended").toBool();
     serverInitCommands = settings->value("LastServerInitCommands").toString();
     serverResetCommands = settings->value("LastServerResetCommands").toString();
-    debugInfoLocation = settings->value("LastDebugInfoLocation").toString();
+    debugInfoLocation = FilePath::fromVariant(settings->value("LastDebugInfoLocation"));
     sysRoot = FilePath::fromVariant(settings->value("LastSysRoot"));
 }
 
@@ -487,7 +487,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.serverInitCommands = d->serverInitCommandsTextEdit->toPlainText();
     result.serverResetCommands = d->serverResetCommandsTextEdit->toPlainText();
     result.kitId = d->kitChooser->currentKitId();
-    result.debugInfoLocation = d->debuginfoPathChooser->filePath().toString();
+    result.debugInfoLocation = d->debuginfoPathChooser->filePath();
     result.runnable.command.setArguments(d->arguments->text());
     result.runnable.workingDirectory = d->workingDirectory->filePath();
     result.breakAtMain = d->breakAtMainCheckBox->isChecked();
@@ -505,7 +505,7 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->sysRootPathChooser->setFilePath(p.sysRoot);
     d->serverInitCommandsTextEdit->setPlainText(p.serverInitCommands);
     d->serverResetCommandsTextEdit->setPlainText(p.serverResetCommands);
-    d->debuginfoPathChooser->setPath(p.debugInfoLocation);
+    d->debuginfoPathChooser->setFilePath(p.debugInfoLocation);
     d->arguments->setText(p.runnable.command.arguments());
     d->workingDirectory->setFilePath(p.runnable.workingDirectory);
     d->breakAtMainCheckBox->setChecked(p.breakAtMain);

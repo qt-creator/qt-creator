@@ -339,8 +339,7 @@ void DebuggerRunTool::setCommandsForReset(const QString &commands)
 {
     m_runParameters.commandsForReset = commands;
 }
-
-void DebuggerRunTool::setDebugInfoLocation(const QString &debugInfoLocation)
+ void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;
 }
@@ -776,11 +775,11 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (!debuggerSettings()->autoEnrichParameters.value()) {
-        const QString sysroot = rp.sysRoot.toString();
+        const FilePath sysroot = rp.sysRoot;
         if (rp.debugInfoLocation.isEmpty())
-            rp.debugInfoLocation = sysroot + "/usr/lib/debug";
+            rp.debugInfoLocation = sysroot / "/usr/lib/debug";
         if (rp.debugSourceLocation.isEmpty()) {
-            QString base = sysroot + "/usr/src/debug/";
+            QString base = sysroot.toString() + "/usr/src/debug/";
             rp.debugSourceLocation.append(base + "qt5base/src/corelib");
             rp.debugSourceLocation.append(base + "qt5base/src/gui");
             rp.debugSourceLocation.append(base + "qt5base/src/network");

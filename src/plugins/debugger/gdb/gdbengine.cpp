@@ -4149,10 +4149,10 @@ void GdbEngine::handleInferiorPrepared()
 void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
-        const QString debugInfoLocation = runParameters().debugInfoLocation;
-        if (!debugInfoLocation.isEmpty() && QFile::exists(debugInfoLocation)) {
+        const FilePath debugInfoLocation = runParameters().debugInfoLocation;
+        if (!debugInfoLocation.isEmpty() && debugInfoLocation.exists()) {
             const QString curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
-            QString cmd = "set debug-file-directory " + debugInfoLocation;
+            QString cmd = "set debug-file-directory " + debugInfoLocation.toString();
             if (!curDebugInfoLocations.isEmpty())
                 cmd += HostOsInfo::pathListSeparator() + curDebugInfoLocations;
             runCommand({cmd});

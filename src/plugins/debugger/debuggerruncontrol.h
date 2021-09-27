@@ -114,7 +114,7 @@ public:
     void setCommandsForReset(const QString &commands);
 
     void setServerStartScript(const Utils::FilePath &serverStartScript);
-    void setDebugInfoLocation(const QString &debugInfoLocation);
+    void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
     void setQmlServer(const QUrl &qmlServer);
     QUrl qmlServer() const; // Used in GammaRay integration.

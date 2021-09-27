@@ -174,7 +174,7 @@ public:
     ProjectExplorer::Runnable debugger;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
-    QString debugInfoLocation; // Gdb "set-debug-file-directory".
+    Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     QString qtPackageSourceLocation;
     bool isSnapshot = false; // Set if created internally.
