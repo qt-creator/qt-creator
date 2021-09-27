@@ -45,6 +45,7 @@
 #include <QGridLayout>
 #include <QLineEdit>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 constexpr char languageServerKey[] = "languageServer";
@@ -61,7 +62,6 @@ public:
     QString name() const { return m_name->text(); }
     FilePath java() const { return m_java->filePath(); }
     FilePath languageServer() const { return m_ls->filePath(); }
-    QString workspace() const { return m_workspace->filePath().toString(); }
 
 private:
     QLineEdit *m_name = nullptr;
@@ -84,12 +84,12 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     chooser->addSupportedWidget(m_name);
 
     mainLayout->addWidget(new QLabel(tr("Java:")), ++row, 0);
-    m_java->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_java->setExpectedKind(PathChooser::ExistingCommand);
     m_java->setFilePath(settings->m_executable);
     mainLayout->addWidget(m_java, row, 1);
 
     mainLayout->addWidget(new QLabel(tr("Java Language Server:")), ++row, 0);
-    m_ls->setExpectedKind(Utils::PathChooser::File);
+    m_ls->setExpectedKind(PathChooser::File);
     m_ls->lineEdit()->setPlaceholderText(tr("Path to equinox launcher jar"));
     m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
     m_ls->setFilePath(settings->m_languageServer);
@@ -104,7 +104,7 @@ JLSSettings::JLSSettings()
     m_name = "Java Language Server";
     m_startBehavior = RequiresProject;
     m_languageFilter.mimeTypes = QStringList(Constants::JAVA_MIMETYPE);
-    const FilePath &javaPath = Utils::Environment::systemEnvironment().searchInPath("java");
+    const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
         m_executable = javaPath;
 }
@@ -203,12 +203,12 @@ public:
     using Client::Client;
 
     void executeCommand(const LanguageServerProtocol::Command &command) override;
-    void setCurrentProject(ProjectExplorer::Project *project) override;
+    void setCurrentProject(Project *project) override;
     void updateProjectFiles();
-    void updateTarget(ProjectExplorer::Target *target);
+    void updateTarget(Target *target);
 
 private:
-    ProjectExplorer::Target *m_currentTarget = nullptr;
+    Target *m_currentTarget = nullptr;
 };
 
 void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
@@ -227,14 +227,13 @@ void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
     }
 }
 
-void JLSClient::setCurrentProject(ProjectExplorer::Project *project)
+void JLSClient::setCurrentProject(Project *project)
 {
     Client::setCurrentProject(project);
     QTC_ASSERT(project, return);
     updateTarget(project->activeTarget());
     updateProjectFiles();
-    connect(project, &ProjectExplorer::Project::activeTargetChanged,
-            this, &JLSClient::updateTarget);
+    connect(project, &Project::activeTargetChanged, this, &JLSClient::updateTarget);
 }
 
 static void generateProjectFile(const FilePath &projectDir,
@@ -299,7 +298,6 @@ static void generateClassPathFile(const FilePath &projectDir,
 
 void JLSClient::updateProjectFiles()
 {
-    using namespace ProjectExplorer;
     if (!m_currentTarget)
         return;
     if (Target *target = m_currentTarget) {
@@ -332,17 +330,16 @@ void JLSClient::updateProjectFiles()
     }
 }
 
-void JLSClient::updateTarget(ProjectExplorer::Target *target)
+void JLSClient::updateTarget(Target *target)
 {
-    if (m_currentTarget) {
-        disconnect(m_currentTarget, &ProjectExplorer::Target::parsingFinished,
-                   this, &JLSClient::updateProjectFiles);
-    }
+    if (m_currentTarget)
+        disconnect(m_currentTarget, &Target::parsingFinished, this, &JLSClient::updateProjectFiles);
+
     m_currentTarget = target;
-    if (m_currentTarget) {
-        connect(m_currentTarget, &ProjectExplorer::Target::parsingFinished,
-                this, &JLSClient::updateProjectFiles);
-    }
+
+    if (m_currentTarget)
+        connect(m_currentTarget, &Target::parsingFinished, this, &JLSClient::updateProjectFiles);
+
     updateProjectFiles();
 }
 
