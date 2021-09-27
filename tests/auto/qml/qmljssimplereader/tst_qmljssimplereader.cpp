@@ -77,13 +77,13 @@ void tst_SimpleReader::testWellFormed()
         QCOMPARE(rootNode->properties().count(), 1);
 
         QVERIFY(rootNode->properties().contains("propertyBlah"));
-        QCOMPARE(rootNode->property("property01").toBool(), false);
+        QCOMPARE(rootNode->property("property01").value.toBool(), false);
 
         QVERIFY(rootNode->children().first()->isValid());
         QVERIFY(!rootNode->children().first()->isRoot());
 
         QVERIFY(rootNode->children().first()->properties().contains("property01"));
-        QCOMPARE(rootNode->children().first()->property("property01").toInt(), 10);
+        QCOMPARE(rootNode->children().first()->property("property01").value.toInt(), 10);
 
         SimpleReaderNode::Ptr secondChild = rootNode->children().at(1);
 
@@ -93,7 +93,7 @@ void tst_SimpleReader::testWellFormed()
         QCOMPARE(secondChild->name(), QLatin1String("ChildNode"));
 
         QVERIFY(secondChild->properties().contains("propertyString"));
-        QCOMPARE(secondChild->property("propertyString").toString(), QLatin1String("str"));
+        QCOMPARE(secondChild->property("propertyString").value.toString(), QLatin1String("str"));
 
         QCOMPARE(secondChild->children().count(), 1);
 
@@ -105,7 +105,7 @@ void tst_SimpleReader::testWellFormed()
         QCOMPARE(innerChild->name(), QLatin1String("InnerChild"));
 
         QVERIFY(innerChild->properties().contains("test"));
-        QCOMPARE(innerChild->property("test").toString(), QLatin1String("test"));
+        QCOMPARE(innerChild->property("test").value.toString(), QLatin1String("test"));
 
         weak01 = rootNode;
         weak02 = secondChild;
@@ -170,7 +170,7 @@ void tst_SimpleReader::testIllFormed02()
 
         QCOMPARE(firstChild->properties().count(), 1);
         QVERIFY(firstChild->properties().contains("property01"));
-        QCOMPARE(firstChild->property("property01").toString(), QLatin1String("20"));
+        QCOMPARE(firstChild->property("property01").value.toString(), QLatin1String("20"));
 }
 
 void tst_SimpleReader::testArrays()
@@ -194,7 +194,7 @@ void tst_SimpleReader::testArrays()
         QVERIFY(rootNode->isValid());
         QVERIFY(rootNode->isRoot());
 
-        QCOMPARE(rootNode->property("propertyArray"), variant);
+        QCOMPARE(rootNode->property("propertyArray").value, variant);
 
 
         SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
@@ -202,13 +202,13 @@ void tst_SimpleReader::testArrays()
         QVERIFY(firstChild);
         QVERIFY(firstChild->isValid());
         QVERIFY(!firstChild->isRoot());
-        QCOMPARE(firstChild->property("propertyArray"), variant);
+        QCOMPARE(firstChild->property("propertyArray").value, variant);
 
         QList<QVariant> variantList2;
         variantList2 << QVariant(QLatin1String("string03")) << variant;
         const QVariant variant2 = variantList2;
 
-        QCOMPARE(firstChild->property("propertyArrayMixed"), variant2);
+        QCOMPARE(firstChild->property("propertyArrayMixed").value, variant2);
 }
 
 void tst_SimpleReader::testBug01()

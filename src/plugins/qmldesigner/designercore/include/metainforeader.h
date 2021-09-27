@@ -54,9 +54,12 @@ public:
     void setQualifcation(const TypeName &qualification);
 
 protected:
-    void elementStart(const QString &name) override;
+    void elementStart(const QString &name, const QmlJS::SourceLocation &nameLocation) override;
     void elementEnd() override;
-    void propertyDefinition(const QString &name, const QVariant &value) override;
+    void propertyDefinition(const QString &name,
+                            const QmlJS::SourceLocation &nameLocation,
+                            const QVariant &value,
+                            const QmlJS::SourceLocation &valueLocation) override;
 
 private:
     enum ParserSate { Error,

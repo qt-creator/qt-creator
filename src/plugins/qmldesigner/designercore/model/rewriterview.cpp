@@ -1161,7 +1161,7 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
     if (!node->propertyNames().contains("i"))
         return;
 
-    const int index = node->property("i").toInt();
+    const int index = node->property("i").value.toInt();
 
     const ModelNode modelNode = view->getNodeForCanonicalIndex(index);
 
@@ -1174,7 +1174,7 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
         if (i.key() != "i") {
             const PropertyName name = fixUpIllegalChars(i.key()).toUtf8();
             if (!modelNode.hasAuxiliaryData(name))
-                modelNode.setAuxiliaryData(name, i.value());
+                modelNode.setAuxiliaryData(name, i.value().value);
         }
     }
 
