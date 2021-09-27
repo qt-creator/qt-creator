@@ -1968,6 +1968,14 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
             insert(result);
             continue;
         }
+        if (node.role() == "attribute" && (node.kind() == "Override" || node.kind() == "Final")) {
+            TextEditor::HighlightingResult result;
+            result.useTextSyles = true;
+            result.textStyles.mainStyle = TextEditor::C_KEYWORD;
+            setFromRange(result, node.range());
+            insert(result);
+            continue;
+        }
 
         const bool isExpression = node.role() == "expression";
         const bool isDeclaration = node.role() == "declaration";

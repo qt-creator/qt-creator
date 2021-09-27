@@ -1236,6 +1236,8 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("static function call (argument)") << 819 << 18 << 819 << 19
         << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("override attribute") << 186 << 28 << 186 << 36 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("final attribute") << 187 << 33 << 187 << 38 << QList<int>{C_KEYWORD} << 0;
 }
 
 void ClangdTestHighlighting::test()
