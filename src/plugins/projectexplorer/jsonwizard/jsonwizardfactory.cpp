@@ -540,7 +540,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
 
     errorMessage->clear();
 
-    m_wizardDir = baseDir.absolutePath();
+    m_wizardDir = baseDir.absoluteFilePath();
 
     m_enabledExpression = data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true);
 
