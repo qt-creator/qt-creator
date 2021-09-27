@@ -60,7 +60,7 @@ public:
 
     QString name() const { return m_name->text(); }
     FilePath java() const { return m_java->filePath(); }
-    QString languageServer() const { return m_ls->filePath().toString(); }
+    FilePath languageServer() const { return m_ls->filePath(); }
     QString workspace() const { return m_workspace->filePath().toString(); }
 
 private:
@@ -92,7 +92,7 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     m_ls->setExpectedKind(Utils::PathChooser::File);
     m_ls->lineEdit()->setPlaceholderText(tr("Path to equinox launcher jar"));
     m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
-    m_ls->setPath(QDir::toNativeSeparators(settings->m_languageServer));
+    m_ls->setFilePath(settings->m_languageServer);
     mainLayout->addWidget(m_ls, row, 1);
 
     setLayout(mainLayout);
@@ -131,8 +131,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
                         "-jar \"%1\" "
                         "-configuration \"%2\"";
 
-    QFileInfo languageServerFileInfo(m_languageServer);
-    QDir configDir = languageServerFileInfo.absoluteDir();
+    QDir configDir = m_languageServer.toFileInfo().absoluteDir();
     if (configDir.exists()) {
         configDir.cdUp();
         if constexpr (HostOsInfo::hostOs() == OsTypeWindows)
@@ -143,7 +142,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
             configDir.cd("config_mac");
     }
     if (configDir.exists()) {
-        arguments = arguments.arg(m_languageServer, configDir.absolutePath());
+        arguments = arguments.arg(m_languageServer.toString(), configDir.absolutePath());
         changed |= m_arguments != arguments;
         m_arguments = arguments;
     }
@@ -163,14 +162,14 @@ bool JLSSettings::isValid() const
 QVariantMap JLSSettings::toMap() const
 {
     QVariantMap map = StdIOSettings::toMap();
-    map.insert(languageServerKey, m_languageServer);
+    map.insert(languageServerKey, m_languageServer.toVariant());
     return map;
 }
 
 void JLSSettings::fromMap(const QVariantMap &map)
 {
     StdIOSettings::fromMap(map);
-    m_languageServer = map[languageServerKey].toString();
+    m_languageServer = FilePath::fromVariant(map[languageServerKey]);
 }
 
 LanguageClient::BaseSettings *JLSSettings::copy() const
@@ -269,8 +268,8 @@ static void generateProjectFile(const FilePath &projectDir,
 }
 
 static void generateClassPathFile(const FilePath &projectDir,
-                                  const QString &sourceDir,
-                                  const QStringList &libs)
+                                  const FilePath &sourceDir,
+                                  const FilePaths &libs)
 {
     const FilePath classPathFilePath = projectDir.pathAppended(".classpath");
     QFile classPathFile(classPathFilePath.toString());
@@ -283,14 +282,14 @@ static void generateClassPathFile(const FilePath &projectDir,
         writer.writeStartElement("classpath");
         writer.writeEmptyElement("classpathentry");
         writer.writeAttribute("kind", "src");
-        writer.writeAttribute("path", sourceDir);
+        writer.writeAttribute("path", sourceDir.toString());
         writer.writeEmptyElement("classpathentry");
         writer.writeAttribute("kind", "src");
         writer.writeAttribute("path", "qtSrc");
-        for (const QString &lib : libs) {
+        for (const FilePath &lib : libs) {
             writer.writeEmptyElement("classpathentry");
             writer.writeAttribute("kind", "lib");
-            writer.writeAttribute("path", lib);
+            writer.writeAttribute("path", lib.toString());
         }
         writer.writeEndElement(); // classpath
         writer.writeEndDocument();
@@ -323,14 +322,12 @@ void JLSClient::updateProjectFiles()
             sourceDir = sourceDir.relativeChildPath(projectDir);
             const FilePath &sdkLocation = AndroidConfigurations::currentConfig().sdkLocation();
             const QString &targetSDK = AndroidManager::buildTargetSDK(m_currentTarget);
-            const QString androidJar = QString("%1/platforms/%2/android.jar")
-                                           .arg(sdkLocation.toString(), targetSDK);
-            QStringList libs(androidJar);
-            QDir libDir(packageSourceDir.pathAppended("libs").toString());
-            libs << Utils::transform(libDir.entryInfoList({"*.jar"}, QDir::Files),
-                                     &QFileInfo::absoluteFilePath);
+            const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
+                                           .arg(targetSDK);
+            FilePaths libs = {androidJar};
+            libs << packageSourceDir.pathAppended("libs").dirEntries({"*.jar"}, QDir::Files);
             generateProjectFile(projectDir, qtSrc, project()->displayName());
-            generateClassPathFile(projectDir, sourceDir.toString(), libs);
+            generateClassPathFile(projectDir, sourceDir, libs);
         }
     }
 }

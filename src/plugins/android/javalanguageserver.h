@@ -42,9 +42,9 @@ public:
     void fromMap(const QVariantMap &map) final;
     LanguageClient::BaseSettings *copy() const final;
     LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
-    LanguageClient::BaseClientInterface *createInterface() const override;
+    LanguageClient::BaseClientInterface *createInterface() const final;
 
-    QString m_languageServer;
+    Utils::FilePath m_languageServer;
 
 private:
     JLSSettings(const JLSSettings &other) = default;
