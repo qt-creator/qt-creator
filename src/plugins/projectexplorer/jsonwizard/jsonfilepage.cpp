@@ -27,13 +27,17 @@
 
 #include "jsonwizard.h"
 
-#include <QFileInfo>
-#include <QVariant>
+#include <utils/filepath.h>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 
-JsonFilePage::JsonFilePage(QWidget *parent) : Utils::FileWizardPage(parent)
-{ }
+JsonFilePage::JsonFilePage(QWidget *parent)
+    : FileWizardPage(parent)
+{
+    setAllowDirectoriesInFileSelector(true);
+}
 
 void JsonFilePage::initializePage()
 {
@@ -53,16 +57,13 @@ bool JsonFilePage::validatePage()
     if (path().isEmpty() || fileName().isEmpty())
         return false;
 
-    QFileInfo d(path());
-    if (!d.isDir())
+    const FilePath dir = FilePath::fromString(path());
+    if (!dir.isDir())
         return false;
 
-    QString target = d.absoluteFilePath();
-    if (!target.endsWith(QLatin1Char('/')))
-        target += QLatin1Char('/');
-    target += fileName();
+    const FilePath target = dir.resolvePath(fileName());
 
-    wizard()->setProperty("TargetPath", target);
+    wizard()->setProperty("TargetPath", target.toString());
     return true;
 }
 

@@ -95,6 +95,11 @@ void FileWizardPage::setFileName(const QString &name)
     d->m_ui.nameLineEdit->setText(name);
 }
 
+void FileWizardPage::setAllowDirectoriesInFileSelector(bool allow)
+{
+    d->m_ui.nameLineEdit->setAllowDirectories(allow);
+}
+
 bool FileWizardPage::isComplete() const
 {
     return d->m_complete;

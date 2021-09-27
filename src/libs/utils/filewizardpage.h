@@ -54,6 +54,7 @@ public:
 
     bool forceFirstCapitalLetterForFileName() const;
     void setForceFirstCapitalLetterForFileName(bool b);
+    void setAllowDirectoriesInFileSelector(bool allow);
 
     // Validate a base name entry field (potentially containing extension)
     static bool validateBaseName(const QString &name, QString *errorMessage = nullptr);
