@@ -694,7 +694,7 @@ bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPa
         for (const auto &key: qAsConst(keys)) {
             if (valueForKey(key, line, &value)) {
                 if (key == installLocationKey)
-                    output.installedLocation = Utils::FilePath::fromString(value);
+                    output.installedLocation = Utils::FilePath::fromUserInput(value);
                 else if (key == revisionKey)
                     output.revision = QVersionNumber::fromString(value);
                 else if (key == descriptionKey)
