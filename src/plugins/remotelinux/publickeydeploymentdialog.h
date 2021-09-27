@@ -43,7 +43,7 @@ public:
         QWidget *parent = nullptr);
 
     PublicKeyDeploymentDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
-                              const QString &publicKeyFileName, QWidget *parent = nullptr);
+                              const Utils::FilePath &publicKeyFileName, QWidget *parent = nullptr);
 
     ~PublicKeyDeploymentDialog() override;
 

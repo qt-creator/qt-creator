@@ -30,6 +30,7 @@
 #include <QObject>
 
 namespace QSsh { class SshConnectionParameters; }
+namespace Utils { class FilePath; }
 
 namespace RemoteLinux {
 namespace Internal { class SshKeyDeployerPrivate; }
@@ -43,7 +44,7 @@ public:
     ~SshKeyDeployer() override;
 
     void deployPublicKey(const QSsh::SshConnectionParameters &sshParams,
-        const QString &keyFilePath);
+                         const Utils::FilePath &keyFilePath);
     void stopDeployment();
 
 signals:
