@@ -66,8 +66,14 @@ public:
 
     bool validateProjectName(const QString &name, QString *errorMessage);
 
+    // Calls slotChanged() - i.e. tell the page that some of its fields have been updated.
+    // This function is useful if you programmatically update the fields of the page (i.e. from
+    // your client code).
+    void fieldsUpdated();
+
 signals:
     void activated();
+    void statusMessageChanged(InfoLabel::InfoType type, const QString &message);
 
 public slots:
     void setFilePath(const FilePath &path);
