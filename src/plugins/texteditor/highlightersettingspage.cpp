@@ -34,20 +34,23 @@
 #include <QMessageBox>
 #include <QPointer>
 
-using namespace TextEditor;
-using namespace Internal;
+using namespace TextEditor::Internal;
+using namespace Utils;
 
-struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
+namespace TextEditor {
+
+class HighlighterSettingsPage::HighlighterSettingsPagePrivate
 {
     Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
 
 public:
-    HighlighterSettingsPagePrivate();
+    HighlighterSettingsPagePrivate() = default;
+
     void ensureInitialized();
     void migrateGenericHighlighterFiles();
 
     bool m_initialized = false;
-    const QString m_settingsPrefix;
+    const QString m_settingsPrefix{"Text"};
 
     HighlighterSettings m_settings;
 
@@ -55,13 +58,10 @@ public:
     Ui::HighlighterSettingsPage *m_page = nullptr;
 };
 
-HighlighterSettingsPage::HighlighterSettingsPagePrivate::HighlighterSettingsPagePrivate()
-    : m_settingsPrefix("Text")
-{}
 
 void HighlighterSettingsPage::HighlighterSettingsPagePrivate::migrateGenericHighlighterFiles()
 {
-    QDir userDefinitionPath(m_settings.definitionFilesPath());
+    QDir userDefinitionPath(m_settings.definitionFilesPath().toString());
     if (userDefinitionPath.mkdir("syntax")) {
         const auto link = Utils::HostOsInfo::isAnyUnixHost()
                               ? static_cast<bool(*)(const QString &, const QString &)>(&QFile::link)
@@ -82,7 +82,7 @@ void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized(
 }
 
 HighlighterSettingsPage::HighlighterSettingsPage()
-    : m_d(new HighlighterSettingsPagePrivate)
+    : d(new HighlighterSettingsPagePrivate)
 {
     setId(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
     setDisplayName(HighlighterSettingsPagePrivate::tr("Generic Highlighter"));
@@ -93,40 +93,40 @@ HighlighterSettingsPage::HighlighterSettingsPage()
 
 HighlighterSettingsPage::~HighlighterSettingsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QWidget *HighlighterSettingsPage::widget()
 {
-    if (!m_d->m_widget) {
-        m_d->m_widget = new QWidget;
-        m_d->m_page = new Ui::HighlighterSettingsPage;
-        m_d->m_page->setupUi(m_d->m_widget);
-        m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-        m_d->m_page->definitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
-        connect(m_d->m_page->downloadDefinitions,
+    if (!d->m_widget) {
+        d->m_widget = new QWidget;
+        d->m_page = new Ui::HighlighterSettingsPage;
+        d->m_page->setupUi(d->m_widget);
+        d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        d->m_page->definitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
+        connect(d->m_page->downloadDefinitions,
                 &QPushButton::pressed,
-                [label = QPointer<QLabel>(m_d->m_page->updateStatus)]() {
+                [label = QPointer<QLabel>(d->m_page->updateStatus)]() {
                     Highlighter::downloadDefinitions([label](){
                         if (label)
                             label->setText(HighlighterSettingsPagePrivate::tr("Download finished"));
                     });
                 });
-        connect(m_d->m_page->reloadDefinitions, &QPushButton::pressed, []() {
+        connect(d->m_page->reloadDefinitions, &QPushButton::pressed, []() {
             Highlighter::reload();
         });
-        connect(m_d->m_page->resetCache, &QPushButton::clicked, []() {
+        connect(d->m_page->resetCache, &QPushButton::clicked, []() {
             Highlighter::clearDefinitionForDocumentCache();
         });
 
         settingsToUI();
     }
-    return m_d->m_widget;
+    return d->m_widget;
 }
 
 void HighlighterSettingsPage::apply()
 {
-    if (!m_d->m_page) // page was not shown
+    if (!d->m_page) // page was not shown
         return;
     if (settingsChanged())
         settingsFromUI();
@@ -134,37 +134,39 @@ void HighlighterSettingsPage::apply()
 
 void HighlighterSettingsPage::finish()
 {
-    delete m_d->m_widget;
-    if (!m_d->m_page) // page was not shown
+    delete d->m_widget;
+    if (!d->m_page) // page was not shown
         return;
-    delete m_d->m_page;
-    m_d->m_page = nullptr;
+    delete d->m_page;
+    d->m_page = nullptr;
 }
 
 const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const
 {
-    m_d->ensureInitialized();
-    return m_d->m_settings;
+    d->ensureInitialized();
+    return d->m_settings;
 }
 
 void HighlighterSettingsPage::settingsFromUI()
 {
-    m_d->ensureInitialized();
-    m_d->m_settings.setDefinitionFilesPath(m_d->m_page->definitionFilesPath->filePath().toString());
-    m_d->m_settings.setIgnoredFilesPatterns(m_d->m_page->ignoreEdit->text());
-    m_d->m_settings.toSettings(m_d->m_settingsPrefix, Core::ICore::settings());
+    d->ensureInitialized();
+    d->m_settings.setDefinitionFilesPath(d->m_page->definitionFilesPath->filePath());
+    d->m_settings.setIgnoredFilesPatterns(d->m_page->ignoreEdit->text());
+    d->m_settings.toSettings(d->m_settingsPrefix, Core::ICore::settings());
 }
 
 void HighlighterSettingsPage::settingsToUI()
 {
-    m_d->ensureInitialized();
-    m_d->m_page->definitionFilesPath->setPath(m_d->m_settings.definitionFilesPath());
-    m_d->m_page->ignoreEdit->setText(m_d->m_settings.ignoredFilesPatterns());
+    d->ensureInitialized();
+    d->m_page->definitionFilesPath->setFilePath(d->m_settings.definitionFilesPath());
+    d->m_page->ignoreEdit->setText(d->m_settings.ignoredFilesPatterns());
 }
 
 bool HighlighterSettingsPage::settingsChanged() const
 {
-    m_d->ensureInitialized();
-    return (m_d->m_settings.definitionFilesPath() != m_d->m_page->definitionFilesPath->filePath().toString())
-            || (m_d->m_settings.ignoredFilesPatterns() != m_d->m_page->ignoreEdit->text());
+    d->ensureInitialized();
+    return d->m_settings.definitionFilesPath() != d->m_page->definitionFilesPath->filePath()
+        || d->m_settings.ignoredFilesPatterns() != d->m_page->ignoreEdit->text();
 }
+
+} // TextEditor

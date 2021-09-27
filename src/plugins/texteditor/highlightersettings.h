@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QString>
 #include <QStringList>
 #include <QList>
@@ -44,14 +46,20 @@ public:
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, QSettings *s);
 
-    void setDefinitionFilesPath(const QString &path) { m_definitionFilesPath = path; }
-    const QString &definitionFilesPath() const { return m_definitionFilesPath; }
+    void setDefinitionFilesPath(const Utils::FilePath &path) { m_definitionFilesPath = path; }
+    const Utils::FilePath &definitionFilesPath() const { return m_definitionFilesPath; }
 
     void setIgnoredFilesPatterns(const QString &patterns);
     QString ignoredFilesPatterns() const;
     bool isIgnoredFilePattern(const QString &fileName) const;
 
     bool equals(const HighlighterSettings &highlighterSettings) const;
+
+    friend bool operator==(const HighlighterSettings &a, const HighlighterSettings &b)
+    { return a.equals(b); }
+
+    friend bool operator!=(const HighlighterSettings &a, const HighlighterSettings &b)
+    { return !a.equals(b); }
 
 private:
     void assignDefaultIgnoredPatterns();
@@ -60,18 +68,12 @@ private:
     void setExpressionsFromList(const QStringList &patterns);
     QStringList listFromExpressions() const;
 
-    QString m_definitionFilesPath;
+    Utils::FilePath m_definitionFilesPath;
     QList<QRegularExpression> m_ignoredFiles;
 };
 
-inline bool operator==(const HighlighterSettings &a, const HighlighterSettings &b)
-{ return a.equals(b); }
-
-inline bool operator!=(const HighlighterSettings &a, const HighlighterSettings &b)
-{ return !a.equals(b); }
-
 namespace Internal {
-QString findFallbackDefinitionsLocation();
+Utils::FilePath findFallbackDefinitionsLocation();
 }
 
 } // namespace TextEditor

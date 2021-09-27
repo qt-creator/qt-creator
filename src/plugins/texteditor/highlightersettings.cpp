@@ -35,21 +35,16 @@
 #include <utils/stringutils.h>
 
 #include <QSettings>
-#include <QLatin1String>
-#include <QLatin1Char>
-#include <QDir>
-#include <QFile>
 #include <QStringList>
+
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
 
-QString findFallbackDefinitionsLocation()
+FilePath findFallbackDefinitionsLocation()
 {
-    QDir dir;
-    dir.setNameFilters(QStringList(QLatin1String("*.xml")));
-
-    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
         static const QLatin1String kateSyntaxPaths[] = {
             QLatin1String("/share/apps/katepart/syntax"),
             QLatin1String("/share/kde4/apps/katepart/syntax")
@@ -57,69 +52,61 @@ QString findFallbackDefinitionsLocation()
 
         // Some wild guesses.
         for (const auto &kateSyntaxPath : kateSyntaxPaths) {
-            const QStringList paths = {
-                QLatin1String("/usr") + kateSyntaxPath,
-                QLatin1String("/usr/local") + kateSyntaxPath,
-                QLatin1String("/opt") + kateSyntaxPath
+            const FilePath paths[] = {
+                FilePath("/usr") / kateSyntaxPath,
+                FilePath("/usr/local") / kateSyntaxPath,
+                FilePath("/opt") / kateSyntaxPath
             };
-            for (const auto &path : paths) {
-                dir.setPath(path);
-                if (dir.exists() && !dir.entryInfoList().isEmpty())
-                    return dir.path();
+            for (const FilePath &path : paths) {
+                if (path.exists() && !path.dirEntries({"*.xml"}).isEmpty())
+                    return path;
             }
         }
 
         // Try kde-config.
-        const Utils::FilePath programs[] = {"kde-config", "kde4-config"};
-        for (const auto &program : programs) {
-            Utils::QtcProcess process;
+        const FilePath programs[] = {"kde-config", "kde4-config"};
+        for (const FilePath &program : programs) {
+            QtcProcess process;
             process.setTimeoutS(5);
             process.setCommand({program, {"--prefix"}});
             process.runBlocking();
-            if (process.result() == Utils::QtcProcess::FinishedWithSuccess) {
+            if (process.result() == QtcProcess::FinishedWithSuccess) {
                 QString output = process.stdOut();
-                output.remove(QLatin1Char('\n'));
+                output.remove('\n');
+                const FilePath dir = FilePath::fromString(output);
                 for (auto &kateSyntaxPath : kateSyntaxPaths) {
-                    dir.setPath(output + kateSyntaxPath);
-                    if (dir.exists() && !dir.entryInfoList().isEmpty())
-                        return dir.path();
+                    const FilePath path = dir / kateSyntaxPath;
+                    if (path.exists() && !path.dirEntries({"*.xml"}).isEmpty())
+                        return path;
                 }
             }
         }
     }
 
-    dir.setPath(Core::ICore::resourcePath("generic-highlighter").toString());
-    if (dir.exists() && !dir.entryInfoList().isEmpty())
-        return dir.path();
+    const FilePath dir = Core::ICore::resourcePath("generic-highlighter");
+    if (dir.exists() && !dir.dirEntries({"*.xml"}).isEmpty())
+        return dir;
 
-    return QString();
+    return {};
 }
 
 } // namespace Internal
-} // namespace TextEditor
 
-namespace {
+const QLatin1String kDefinitionFilesPath("UserDefinitionFilesPath");
+const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
 
-static const QLatin1String kDefinitionFilesPath("UserDefinitionFilesPath");
-static const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
-
-QString groupSpecifier(const QString &postFix, const QString &category)
+static QString groupSpecifier(const QString &postFix, const QString &category)
 {
     if (category.isEmpty())
         return postFix;
     return QString(category + postFix);
 }
 
-} // namespace anonymous
-
-using namespace TextEditor;
-using namespace Internal;
-
 void HighlighterSettings::toSettings(const QString &category, QSettings *s) const
 {
     const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
-    s->setValue(kDefinitionFilesPath, m_definitionFilesPath);
+    s->setValue(kDefinitionFilesPath, m_definitionFilesPath.toVariant());
     s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
     s->endGroup();
 }
@@ -128,11 +115,11 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 {
     const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
-    m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
+    m_definitionFilesPath = FilePath::fromVariant(s->value(kDefinitionFilesPath));
     if (!s->contains(kDefinitionFilesPath))
         assignDefaultDefinitionsPath();
     else
-        m_definitionFilesPath = s->value(kDefinitionFilesPath).toString();
+        m_definitionFilesPath = FilePath::fromVariant(s->value(kDefinitionFilesPath));
     if (!s->contains(kIgnoredFilesPatterns))
         assignDefaultIgnoredPatterns();
     else
@@ -142,31 +129,29 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 
 void HighlighterSettings::setIgnoredFilesPatterns(const QString &patterns)
 {
-    setExpressionsFromList(patterns.split(QLatin1Char(','), Qt::SkipEmptyParts));
+    setExpressionsFromList(patterns.split(',', Qt::SkipEmptyParts));
 }
 
 QString HighlighterSettings::ignoredFilesPatterns() const
 {
-    return listFromExpressions().join(QLatin1Char(','));
+    return listFromExpressions().join(',');
 }
 
 void HighlighterSettings::assignDefaultIgnoredPatterns()
 {
-    QStringList patterns;
-    patterns << QLatin1String("*.txt")
-        << QLatin1String("LICENSE*")
-        << QLatin1String("README")
-        << QLatin1String("INSTALL")
-        << QLatin1String("COPYING")
-        << QLatin1String("NEWS")
-        << QLatin1String("qmldir");
-    setExpressionsFromList(patterns);
+    setExpressionsFromList({"*.txt",
+                            "LICENSE*",
+                            "README",
+                            "INSTALL",
+                            "COPYING",
+                            "NEWS",
+                            "qmldir"});
 }
 
 void HighlighterSettings::assignDefaultDefinitionsPath()
 {
-    const QString path = Core::ICore::userResourcePath("generic-highlighter").toString();
-    if (QFile::exists(path) || QDir().mkpath(path))
+    const FilePath path = Core::ICore::userResourcePath("generic-highlighter");
+    if (path.exists() || path.ensureWritableDir())
         m_definitionFilesPath = path;
 }
 
@@ -203,3 +188,5 @@ QStringList HighlighterSettings::listFromExpressions() const
         patterns.append(regExp.pattern());
     return patterns;
 }
+
+} // TextEditor

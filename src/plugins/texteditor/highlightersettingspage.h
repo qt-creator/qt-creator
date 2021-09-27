@@ -49,8 +49,8 @@ private:
 
     bool settingsChanged() const;
 
-    struct HighlighterSettingsPagePrivate;
-    HighlighterSettingsPagePrivate *m_d;
+    class HighlighterSettingsPagePrivate;
+    HighlighterSettingsPagePrivate *d;
 };
 
 } // namespace TextEditor
