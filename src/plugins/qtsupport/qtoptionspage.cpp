@@ -799,7 +799,7 @@ static QString qtVersionsFile(const QString &baseDir)
            + Core::Constants::IDE_ID + '/' + "qtversion.xml";
 }
 
-static Utils::optional<QString> currentlyLinkedQtDir(bool *hasInstallSettings)
+static Utils::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
     const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
     const bool installSettingsExist = QFile::exists(installSettingsFilePath);
@@ -809,7 +809,7 @@ static Utils::optional<QString> currentlyLinkedQtDir(bool *hasInstallSettings)
         const QVariant value = QSettings(installSettingsFilePath, QSettings::IniFormat)
                                    .value(kInstallSettingsKey);
         if (value.isValid())
-            return value.toString();
+            return FilePath::fromVariant(value);
     }
     return {};
 }
@@ -826,7 +826,7 @@ static bool canLinkWithQt(QString *toolTip)
 {
     bool canLink = true;
     bool installSettingsExist;
-    const Utils::optional<QString> installSettingsValue = currentlyLinkedQtDir(
+    const Utils::optional<FilePath> installSettingsValue = currentlyLinkedQtDir(
         &installSettingsExist);
     QStringList tip;
     tip << linkingPurposeText();
@@ -843,10 +843,10 @@ static bool canLinkWithQt(QString *toolTip)
         tip << QtOptionsPageWidget::tr("%1 is part of a Qt installation.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);
     }
-    const QString link = installSettingsValue ? *installSettingsValue : QString();
+    const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
     if (!link.isEmpty())
         tip << QtOptionsPageWidget::tr("%1 is currently linked to \"%2\".")
-                   .arg(QString(Core::Constants::IDE_DISPLAY_NAME), QDir::toNativeSeparators(link));
+                   .arg(QString(Core::Constants::IDE_DISPLAY_NAME), link.toUserOutput());
     if (toolTip)
         *toolTip = tip.join("\n\n");
     return canLink;
@@ -943,11 +943,11 @@ static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
     return true;
 }
 
-static QString defaultQtInstallationPath()
+static FilePath defaultQtInstallationPath()
 {
     if (HostOsInfo::isWindowsHost())
-        return {"C:/Qt"};
-    return QDir::homePath() + "/Qt";
+        return FilePath::fromString({"C:/Qt"});
+    return FileUtils::homePath() / "Qt";
 }
 
 void QtOptionsPageWidget::linkWithQt()
@@ -980,8 +980,8 @@ void QtOptionsPageWidget::linkWithQt()
             return false;
         return validateQtInstallDir(input, errorString);
     });
-    const Utils::optional<QString> currentLink = currentlyLinkedQtDir(nullptr);
-    pathInput->setPath(currentLink ? *currentLink : defaultQtInstallationPath());
+    const Utils::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);
+    pathInput->setFilePath(currentLink ? *currentLink : defaultQtInstallationPath());
     auto buttons = new QDialogButtonBox;
     layout->addStretch(10);
     layout->addWidget(buttons);
