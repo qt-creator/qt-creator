@@ -65,6 +65,8 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
             this, &GitSubmitEditorWidget::authorInformationChanged);
     connect(m_gitSubmitPanelUi.emailLineEdit, &QLineEdit::textChanged,
             this, &GitSubmitEditorWidget::authorInformationChanged);
+    connect(m_gitSubmitPanelUi.showHeadLabel, &QLabel::linkActivated,
+            this, [this] { emit showRequested("HEAD"); });
 }
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
@@ -99,6 +101,8 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     if (m_isInitialized)
         return;
     m_isInitialized = true;
+    if (commitType != AmendCommit)
+        m_gitSubmitPanelUi.showHeadLabel->hide();
     if (commitType == FixupCommit) {
         auto logChangeGroupBox = new QGroupBox(tr("Select Change"));
         auto logChangeLayout = new QVBoxLayout;
