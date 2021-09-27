@@ -2632,7 +2632,7 @@ QString DebuggerEngine::formatStartParameters() const
     if (!sp.debugger.command.isEmpty())
         str << "Debugger: " << sp.debugger.command.toUserOutput() << '\n';
     if (!sp.coreFile.isEmpty())
-        str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
+        str << "Core: " << sp.coreFile.toUserOutput() << '\n';
     if (sp.attachPID.isValid())
         str << "PID: " << sp.attachPID.pid() << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {

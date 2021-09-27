@@ -48,9 +48,9 @@ public:
     int exec() override;
 
     Utils::FilePath symbolFile() const;
-    QString localCoreFile() const;
-    QString remoteCoreFile() const;
-    QString overrideStartScript() const;
+    Utils::FilePath localCoreFile() const;
+    Utils::FilePath remoteCoreFile() const;
+    Utils::FilePath overrideStartScript() const;
     Utils::FilePath sysRoot() const;
     bool useLocalCoreFile() const;
     bool forcesLocalCoreFile() const;
@@ -58,11 +58,11 @@ public:
 
     // For persistance.
     ProjectExplorer::Kit *kit() const;
-    void setSymbolFile(const QString &symbolFileName);
-    void setLocalCoreFile(const QString &core);
-    void setRemoteCoreFile(const QString &core);
-    void setOverrideStartScript(const QString &scriptName);
-    void setSysRoot(const QString &sysRoot);
+    void setSymbolFile(const Utils::FilePath &symbolFilePath);
+    void setLocalCoreFile(const Utils::FilePath &coreFilePath);
+    void setRemoteCoreFile(const Utils::FilePath &coreFilePath);
+    void setOverrideStartScript(const Utils::FilePath &scriptName);
+    void setSysRoot(const Utils::FilePath &sysRoot);
     void setKitId(Utils::Id id);
     void setForceLocalCoreFile(bool on);
 

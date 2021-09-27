@@ -119,13 +119,13 @@ public:
     void setQmlServer(const QUrl &qmlServer);
     QUrl qmlServer() const; // Used in GammaRay integration.
 
-    void setCoreFileName(const QString &core, bool isSnapshot = false);
+    void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);
 
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
     void setTestCase(int testCase);
-    void setOverrideStartScript(const QString &script);
+    void setOverrideStartScript(const Utils::FilePath &script);
 
     void setAbi(const ProjectExplorer::Abi &abi);
 

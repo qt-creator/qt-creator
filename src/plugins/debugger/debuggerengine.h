@@ -158,7 +158,7 @@ public:
     Utils::FilePath sysRoot;
 
     // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
-    QString coreFile;
+    Utils::FilePath coreFile;
 
     // Macro-expanded and passed to debugger startup.
     QString additionalStartupCommands;
@@ -172,7 +172,7 @@ public:
     bool runAsRoot = false;
 
     ProjectExplorer::Runnable debugger;
-    QString overrideStartScript; // Used in attach to core and remote debugging
+    Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
