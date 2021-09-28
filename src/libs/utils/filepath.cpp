@@ -477,12 +477,14 @@ void FileUtils::setDeviceFileHooks(const DeviceFileHooks &hooks)
 }
 
 /// \returns a QString to display to the user
-/// Converts the separators to the native format
+/// Converts the separators to the native format of the system
+/// this path belongs to.
 QString FilePath::toUserOutput() const
 {
-    if (m_scheme.isEmpty())
-        return QDir::toNativeSeparators(m_data);
-    return toString();
+    FilePath tmp = *this;
+    if (osType() == OsTypeWindows)
+        tmp.m_data.replace('/', '\\');
+    return tmp.toString();
 }
 
 QString FilePath::fileName() const
