@@ -34,6 +34,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/fileutils.h>
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
@@ -369,6 +370,11 @@ void IWizardFactory::requestNewItemDialog(const QString &title,
     s_reopenData.setData(title, factories, defaultLocation, extraVariables);
 }
 
+QIcon IWizardFactory::themedIcon(const Utils::FilePath &iconMaskPath)
+{
+    return Utils::Icon({{iconMaskPath, Theme::PanelTextColorDark}}, Icon::Tint).icon();
+}
+
 void IWizardFactory::destroyFeatureProvider()
 {
     qDeleteAll(s_providerList);
@@ -445,6 +451,7 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
         font.setPixelSize(fontSize);
         font.setStretch(85);
         QPainter p(&pixmap);
+        p.setPen(Utils::creatorTheme()->color(Theme::PanelTextColorDark));
         p.setFont(font);
         QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
         textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
