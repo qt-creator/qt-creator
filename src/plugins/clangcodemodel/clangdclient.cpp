@@ -40,6 +40,7 @@
 #include <cplusplus/MatchingText.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppcompletionassistprocessor.h>
 #include <cppeditor/cppcompletionassistprovider.h>
 #include <cppeditor/cppdoxygen.h>
 #include <cppeditor/cppeditorwidget.h>
@@ -654,25 +655,47 @@ public:
     { insert("publishDiagnostics", caps); }
 };
 
-class DoxygenAssistProcessor : public IAssistProcessor
+
+enum class CustomAssistMode { Doxygen, Preprocessor };
+class CustomAssistProcessor : public IAssistProcessor
 {
 public:
-    DoxygenAssistProcessor(ClangdClient *client, int position, unsigned completionOperator)
+    CustomAssistProcessor(ClangdClient *client, int position, unsigned completionOperator,
+                          CustomAssistMode mode)
         : m_client(client)
         , m_position(position)
         , m_completionOperator(completionOperator)
+        , m_mode(mode)
     {}
 
 private:
-    IAssistProposal *perform(const AssistInterface *) override
+    IAssistProposal *perform(const AssistInterface *interface) override
     {
         QList<AssistProposalItemInterface *> completions;
-        for (int i = 1; i < CppEditor::T_DOXY_LAST_TAG; ++i) {
-            const auto item = new ClangPreprocessorAssistProposalItem;
-            item->setText(QLatin1String(CppEditor::doxygenTagSpell(i)));
-            item->setIcon(CPlusPlus::Icons::keywordIcon());
-            item->setCompletionOperator(m_completionOperator);
-            completions.append(item);
+        switch (m_mode) {
+        case CustomAssistMode::Doxygen:
+            for (int i = 1; i < CppEditor::T_DOXY_LAST_TAG; ++i) {
+                completions << createItem(QLatin1String(CppEditor::doxygenTagSpell(i)),
+                                          CPlusPlus::Icons::keywordIcon());
+            }
+            break;
+        case CustomAssistMode::Preprocessor:
+            static QIcon macroIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro);
+            for (const QString &completion
+                 : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions())
+                completions << createItem(completion, macroIcon);
+            const CppEditor::ProjectFile::Kind fileType
+                    = CppEditor::ProjectFile::classify(interface->filePath().toString());
+            switch (fileType) {
+            case CppEditor::ProjectFile::ObjCHeader:
+            case CppEditor::ProjectFile::ObjCXXHeader:
+            case CppEditor::ProjectFile::ObjCSource:
+            case CppEditor::ProjectFile::ObjCXXSource:
+                completions << createItem("import", macroIcon);
+                break;
+            default:
+                break;
+            }
         }
         GenericProposalModelPtr model(new GenericProposalModel);
         model->loadContent(completions);
@@ -684,11 +707,20 @@ private:
         return proposal;
     }
 
+    AssistProposalItemInterface *createItem(const QString &text, const QIcon &icon) const
+    {
+        const auto item = new ClangPreprocessorAssistProposalItem;
+        item->setText(text);
+        item->setIcon(icon);
+        item->setCompletionOperator(m_completionOperator);
+        return item;
+    }
+
     ClangdClient * const m_client;
     const int m_position;
     const unsigned m_completionOperator;
+    const CustomAssistMode m_mode;
 };
-
 
 static qint64 getRevision(const TextDocument *doc)
 {
@@ -2813,9 +2845,15 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
         qCDebug(clangdLog) << "completion changed to function hint";
         return new ClangdFunctionHintProcessor(m_client);
     case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
-        return new DoxygenAssistProcessor(m_client,
-                                          contextAnalyzer.positionForProposal(),
-                                          contextAnalyzer.completionOperator());
+        return new CustomAssistProcessor(m_client,
+                                         contextAnalyzer.positionForProposal(),
+                                         contextAnalyzer.completionOperator(),
+                                         CustomAssistMode::Doxygen);
+    case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
+        return new CustomAssistProcessor(m_client,
+                                         contextAnalyzer.positionForProposal(),
+                                         contextAnalyzer.completionOperator(),
+                                         CustomAssistMode::Preprocessor);
     default:
         break;
     }

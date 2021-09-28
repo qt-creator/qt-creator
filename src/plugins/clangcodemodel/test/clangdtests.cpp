@@ -1462,20 +1462,19 @@ void ClangdTestCompletion::testCompletePreprocessorKeywords()
     ProposalModelPtr proposal;
     getProposal("preprocessorKeywordsCompletion.cpp", proposal);
     QVERIFY(proposal);
-    QVERIFY(hasItem(proposal, " ifdef macro"));
+    QVERIFY(hasItem(proposal, "ifdef"));
     QVERIFY(!hasSnippet(proposal, "class "));
 
     proposal.clear();
     getProposal("preprocessorKeywordsCompletion2.cpp", proposal);
     QVERIFY(proposal);
-    QVERIFY(hasItem(proposal, " endif"));
+    QVERIFY(hasItem(proposal, "endif"));
     QVERIFY(!hasSnippet(proposal, "class "));
 
     proposal.clear();
     getProposal("preprocessorKeywordsCompletion3.cpp", proposal);
     QVERIFY(proposal);
-    QEXPECT_FAIL("", "TODO: Fix in clangd", Continue);
-    QVERIFY(hasItem(proposal, " endif"));
+    QVERIFY(hasItem(proposal, "endif"));
     QVERIFY(!hasSnippet(proposal, "class "));
 }
 

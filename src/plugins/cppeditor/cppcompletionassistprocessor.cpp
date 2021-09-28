@@ -41,18 +41,22 @@ using namespace CPlusPlus;
 namespace CppEditor {
 
 CppCompletionAssistProcessor::CppCompletionAssistProcessor(int snippetItemOrder)
-    : m_preprocessorCompletions(
-          QStringList({"define", "error", "include", "line", "pragma", "pragma once",
-                       "pragma omp atomic", "pragma omp parallel", "pragma omp for",
-                       "pragma omp ordered", "pragma omp parallel for", "pragma omp section",
-                       "pragma omp sections", "pragma omp parallel sections", "pragma omp single",
-                       "pragma omp master", "pragma omp critical", "pragma omp barrier",
-                       "pragma omp flush", "pragma omp threadprivate", "undef", "if", "ifdef",
-                       "ifndef", "elif", "else", "endif"}))
-    , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
+    : m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
                          QIcon(QLatin1String(":/texteditor/images/snippet.png")),
                          snippetItemOrder)
 {
+}
+
+const QStringList CppCompletionAssistProcessor::preprocessorCompletions()
+{
+    static QStringList list{"define", "error", "include", "line", "pragma", "pragma once",
+                            "pragma omp atomic", "pragma omp parallel", "pragma omp for",
+                            "pragma omp ordered", "pragma omp parallel for", "pragma omp section",
+                            "pragma omp sections", "pragma omp parallel sections", "pragma omp single",
+                            "pragma omp master", "pragma omp critical", "pragma omp barrier",
+                            "pragma omp flush", "pragma omp threadprivate", "undef", "if", "ifdef",
+                            "ifndef", "elif", "else", "endif"};
+    return list;
 }
 
 void CppCompletionAssistProcessor::addSnippets()

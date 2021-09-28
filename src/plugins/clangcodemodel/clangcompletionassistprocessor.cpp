@@ -568,7 +568,7 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
 
 bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 {
-    foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
+    foreach (const QString &preprocessorCompletion, preprocessorCompletions())
         addCompletionItem(preprocessorCompletion,
                           Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro));
 
