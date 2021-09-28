@@ -934,7 +934,7 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag) {
 } // namespace ClangTools
 
 namespace QmlDesigner {
-
+namespace {
 const char *sourceTypeToText(SourceType sourceType)
 {
     switch (sourceType) {
@@ -950,6 +950,7 @@ const char *sourceTypeToText(SourceType sourceType)
 
     return "";
 }
+} // namespace
 
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus)
 {
@@ -1015,8 +1016,8 @@ TypeAccessSemantics cleanFlags(TypeAccessSemantics accessSemantics)
 const char *typeAccessSemanticsToString(TypeAccessSemantics accessSemantics)
 {
     switch (cleanFlags(accessSemantics)) {
-    case TypeAccessSemantics::Invalid:
-        return "Invalid";
+    case TypeAccessSemantics::None:
+        return "None";
     case TypeAccessSemantics::Reference:
         return "Reference";
     case TypeAccessSemantics::Sequence:
@@ -1050,6 +1051,20 @@ const char *isQualifiedToString(IsQualified isQualified)
         return "no";
     case IsQualified::Yes:
         return "yes";
+    }
+
+    return "";
+}
+
+const char *importKindToText(ImportKind kind)
+{
+    switch (kind) {
+    case ImportKind::Module:
+        return "Module";
+    case ImportKind::Directory:
+        return "Directory";
+    case ImportKind::QmlTypesDependency:
+        return "QmlTypesDependency";
     }
 
     return "";
@@ -1176,9 +1191,15 @@ std::ostream &operator<<(std::ostream &out, const Module &module)
     return out << "(" << module.name << ", " << module.sourceId << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const ImportKind &importKind)
+{
+    return out << importKindToText(importKind);
+}
+
 std::ostream &operator<<(std::ostream &out, const Import &import)
 {
-    return out << "(" << import.name << ", " << import.version << ", " << import.sourceId << ")";
+    return out << "(" << import.name << ", " << import.version << ", " << import.sourceId << ", "
+               << import.moduleId << ", " << import.kind << ")";
 }
 
 } // namespace Storage

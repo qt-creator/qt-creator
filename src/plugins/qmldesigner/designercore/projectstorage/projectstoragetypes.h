@@ -35,10 +35,10 @@
 
 namespace QmlDesigner::Storage {
 
-enum class TypeAccessSemantics : int { Invalid, Reference, Value, Sequence, IsEnum = 1 << 8 };
+enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
 
 enum class PropertyDeclarationTraits : unsigned int {
-    Non = 0,
+    None = 0,
     IsReadOnly = 1 << 0,
     IsPointer = 1 << 1,
     IsList = 1 << 2
@@ -165,14 +165,26 @@ inline int operator<(IsQualified first, IsQualified second)
     return static_cast<int>(first) < static_cast<int>(second);
 }
 
+enum class ImportKind : char { Module, Directory, QmlTypesDependency };
+
 class Import
 {
 public:
     explicit Import() = default;
 
-    explicit Import(Utils::SmallStringView name, Version version, SourceId sourceId)
+    explicit Import(Utils::SmallStringView name,
+                    Version version,
+                    SourceId sourceId,
+                    ImportKind kind = ImportKind::Module)
         : name{name}
         , version{version}
+        , sourceId{sourceId}
+        , kind{kind}
+    {}
+
+    explicit Import(Version version, ModuleId moduleId, SourceId sourceId)
+        : version{version}
+        , moduleId{moduleId}
         , sourceId{sourceId}
     {}
 
@@ -185,14 +197,16 @@ public:
     friend bool operator==(const Import &first, const Import &second)
     {
         return first.name == second.name && first.version == second.version
-               && first.sourceId == second.sourceId;
+               && first.sourceId == second.sourceId && first.moduleId.id == second.moduleId.id;
     }
 
 public:
-    Utils::PathString name;
+    Utils::SmallString name;
     Version version;
     ModuleId moduleId;
     SourceId sourceId;
+    Utils::SmallString aliasName;
+    ImportKind kind = ImportKind::Module;
 };
 
 using Imports = std::vector<Import>;
@@ -269,6 +283,12 @@ public:
         , version{version}
     {}
 
+    explicit ExportedType(ModuleId moduleId, Utils::SmallStringView name, Version version = Version{})
+        : name{name}
+        , version{version}
+        , moduleId{moduleId}
+    {}
+
     explicit ExportedType(Utils::SmallStringView name, Version version, TypeId typeId, ModuleId moduleId)
         : name{name}
         , version{version}
@@ -299,6 +319,11 @@ class ExportedTypeView
 {
 public:
     explicit ExportedTypeView() = default;
+    explicit ExportedTypeView(ModuleId moduleId, Utils::SmallStringView name, Storage::Version version)
+        : name{name}
+        , version{version}
+        , moduleId{moduleId}
+    {}
     explicit ExportedTypeView(int moduleId,
                               Utils::SmallStringView name,
                               int majorVersion,
@@ -702,7 +727,7 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
-    TypeAccessSemantics accessSemantics = TypeAccessSemantics::Invalid;
+    TypeAccessSemantics accessSemantics = TypeAccessSemantics::None;
     SourceId sourceId;
     TypeId typeId;
     ModuleId moduleId;

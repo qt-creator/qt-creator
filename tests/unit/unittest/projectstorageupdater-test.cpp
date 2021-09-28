@@ -305,8 +305,8 @@ TEST_F(ProjectStorageUpdater, ParseQmlTypes)
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example2.qmltypes"))))
         .WillByDefault(Return(qmltypes2));
 
-    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _));
-    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes2, _, _, _));
+    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, _));
+    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes2, _, _, _, _));
 
     updater.update();
 }
@@ -334,8 +334,8 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
     QString qmltypes{"Module {\ndependencies: []}"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
-    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
-        .WillByDefault([&](auto, auto &imports, auto &types, auto &sourceIds) {
+    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, _))
+        .WillByDefault([&](auto, auto &imports, auto &types, auto, auto) {
             types.push_back(objectType);
             imports.push_back(import);
         });
@@ -356,10 +356,9 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
     QString qmltypes{"Module {\ndependencies: []}"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
-    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
-        .WillByDefault([&](auto, auto &imports, auto &types, auto &sourceIds) {
-            types.push_back(objectType);
-        });
+    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, _))
+        .WillByDefault(
+            [&](auto, auto &imports, auto &types, auto, auto) { types.push_back(objectType); });
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypesPathSourceId)))
         .WillByDefault(Return(FileStatus{qmltypesPathSourceId, 2, 421}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypes2PathSourceId)))

@@ -1096,7 +1096,7 @@ private:
             json.append(parameter.name);
             json.append("\",\"tn\":\"");
             json.append(parameter.typeName);
-            if (parameter.traits == Storage::PropertyDeclarationTraits::Non) {
+            if (parameter.traits == Storage::PropertyDeclarationTraits::None) {
                 json.append("\"}");
             } else {
                 json.append("\",\"tr\":");

@@ -37,7 +37,7 @@ public:
 
     constexpr explicit BasicId() = default;
 
-    BasicId(const char *) = delete;
+    constexpr BasicId(const char *) = delete;
 
     constexpr explicit BasicId(InternalIntergerType id)
         : id{id}

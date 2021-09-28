@@ -88,16 +88,19 @@ private:
 
     void parseTypeInfos(const QStringList &typeInfos,
                         SourceContextId directoryId,
+                        ModuleId moduleId,
                         Storage::Imports &imports,
                         Storage::Types &types,
                         SourceIds &sourceIds,
                         FileStatuses &fileStatuses);
-    void parseTypeInfos(const SourceIds &qmltypesSourceIds,
+    void parseTypeInfos(ModuleId moduleId,
+                        const SourceIds &qmltypesSourceIds,
                         Storage::Imports &imports,
                         Storage::Types &types,
                         SourceIds &sourceIds,
                         FileStatuses &fileStatuses);
     void parseTypeInfo(SourceId sourceId,
+                       ModuleId moduleId,
                        const QString &qmltypesPath,
                        Storage::Imports &imports,
                        Storage::Types &types,

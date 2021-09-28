@@ -25,19 +25,37 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "nonlockingmutex.h"
+#include "qmldocumentparserinterface.h"
 
-#include <projectstorage/qmltypesparserinterface.h>
+namespace Sqlite {
+class Database;
+}
 
-class QmlTypesParserMock : public QmlDesigner::QmlTypesParserInterface
+namespace QmlDesigner {
+
+template<typename Database>
+class ProjectStorage;
+
+template<typename ProjectStorage, typename Mutex>
+class SourcePathCache;
+
+class QmlDocumentParser
 {
 public:
-    MOCK_METHOD(void,
-                parse,
-                (const QString &sourceContent,
-                 QmlDesigner::Storage::Imports &imports,
-                 QmlDesigner::Storage::Types &types,
-                 QmlDesigner::SourceId sourceId,
-                 QmlDesigner::ModuleId moduleId),
-                (override));
+    using PathCache = QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>,
+                                                   NonLockingMutex>;
+
+    QmlDocumentParser(PathCache &pathCache)
+        : m_pathCache{pathCache}
+    {}
+
+    virtual Storage::Type parse(const QString &sourceContent,
+                                Storage::Imports &imports,
+                                SourceId sourceId,
+                                SourceContextId sourceContextId);
+
+private:
+    PathCache &m_pathCache;
 };
+} // namespace QmlDesigner

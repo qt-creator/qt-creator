@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,29 +23,40 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#pragma once
 
-// cast of the top level items (DomEnvironments,...)
-#include <qmldom/qqmldomtop_p.h>
+#include "nonlockingmutex.h"
+#include "qmltypesparserinterface.h"
 
-// everything is in the QQmlJS::Dom namespace
-using namespace QQmlJS::Dom;
-
-namespace {
-
-class QmlDom : public ::testing::Test
-{
-public:
-//    static void SetUpTestCase();
-//    static void TearDownTestCase();
-
-protected:
-};
-
-TEST_F(QmlDom, First)
-{
-    DomItem env = DomEnvironment::create({}, DomEnvironment::Option::SingleThreaded
-                                             | DomEnvironment::Option::NoDependencies);
+namespace Sqlite {
+class Database;
 }
 
-} // anonymous
+namespace QmlDesigner {
+
+template<typename Database>
+class ProjectStorage;
+
+template<typename ProjectStorage, typename Mutex>
+class SourcePathCache;
+
+class QmlTypesParser : public QmlTypesParserInterface
+{
+public:
+    using PathCache = QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>,
+                                                   NonLockingMutex>;
+
+    QmlTypesParser(PathCache &pathCache)
+        : m_pathCache{pathCache}
+    {}
+
+    void parse(const QString &sourceContent,
+               Storage::Imports &imports,
+               Storage::Types &types,
+               SourceId sourceId,
+               ModuleId moduleId) override;
+
+private:
+    PathCache &m_pathCache;
+};
+} // namespace QmlDesigner
