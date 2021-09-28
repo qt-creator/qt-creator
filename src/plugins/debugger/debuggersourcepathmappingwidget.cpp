@@ -55,7 +55,7 @@ class SourcePathMappingModel;
 
 enum { SourceColumn, TargetColumn, ColumnCount };
 
-using Mapping = QPair<QString, QString>;
+using Mapping = QPair<FilePath, FilePath>;
 
 class DebuggerSourcePathMappingWidget : public QGroupBox
 {
@@ -79,7 +79,7 @@ private:
     void updateEnabled();
     QString editSourceField() const;
     QString editTargetField() const;
-    void setEditFieldMapping(const QPair<QString, QString> &m);
+    void setEditFieldMapping(const Mapping &m);
     int currentRow() const;
     void setCurrentRow(int r);
 
@@ -162,9 +162,9 @@ SourcePathMap SourcePathMappingModel::sourcePathMap() const
     SourcePathMap rc;
     const int rows = rowCount();
     for (int r = 0; r < rows; ++r) {
-        const QPair<QString, QString> m = mappingAt(r); // Skip placeholders.
+        const Mapping m = mappingAt(r); // Skip placeholders.
         if (!m.first.isEmpty() && !m.second.isEmpty())
-            rc.insert(m.first, m.second);
+            rc.insert(m.first.toString(), m.second.toString());
     }
     return rc;
 }
@@ -176,17 +176,17 @@ bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
     const QChar greaterThan('>');
     return m.first.isEmpty() || m.first.startsWith(lessThan)
            || m.first.endsWith(greaterThan)
-           || m.first == m_newSourcePlaceHolder
+           || m.first.toString() == m_newSourcePlaceHolder
            || m.second.isEmpty() || m.second.startsWith(lessThan)
            || m.second.endsWith(greaterThan)
-           || m.second == m_newTargetPlaceHolder;
+           || m.second.toString() == m_newTargetPlaceHolder;
 }
 
 // Return raw, unfixed mapping
 Mapping SourcePathMappingModel::rawMappingAt(int row) const
 {
-    return Mapping(QDir::fromNativeSeparators(item(row, SourceColumn)->text()),
-                   QDir::fromNativeSeparators(item(row, TargetColumn)->text()));
+    return Mapping(FilePath::fromUserInput(item(row, SourceColumn)->text()),
+                   FilePath::fromUserInput(item(row, TargetColumn)->text()));
 }
 
 // Return mapping, empty if it is the place holder.
@@ -337,15 +337,14 @@ QString DebuggerSourcePathMappingWidget::editTargetField() const
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
 {
-    m_sourceLineEdit->setText(m.first);
-    m_targetChooser->setPath(m.second);
+    m_sourceLineEdit->setText(m.first.toUserOutput());
+    m_targetChooser->setFilePath(m.second);
 }
 
 void DebuggerSourcePathMappingWidget::slotCurrentRowChanged
     (const QModelIndex &current, const QModelIndex &)
 {
-    setEditFieldMapping(current.isValid()
-        ? m_model->mappingAt(current.row()) : Mapping());
+    setEditFieldMapping(current.isValid() ? m_model->mappingAt(current.row()) : Mapping());
     updateEnabled();
 }
 
