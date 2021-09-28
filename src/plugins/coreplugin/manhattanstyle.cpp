@@ -47,6 +47,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
+#include <QSpinBox>
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <QStyleOption>
@@ -302,6 +303,10 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setPalette(palette);
             widget->setMaximumHeight(height - 2);
             widget->setAttribute(Qt::WA_Hover);
+        } else if (qobject_cast<QSpinBox*>(widget)) {
+            const bool isLightColored = lightColored(widget);
+            QPalette palette = panelPalette(widget->palette(), isLightColored);
+            widget->setPalette(palette);
         }
     }
 }
