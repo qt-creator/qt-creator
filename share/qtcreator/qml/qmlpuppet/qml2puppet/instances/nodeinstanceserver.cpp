@@ -1287,8 +1287,15 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
     QVector<ImageContainer> imageVector;
 
     for (const ServerNodeInstance &instance : instanceList) {
-        if (instance.isValid() && instance.hasContent())
-            imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage(), instance.instanceId()));
+        if (!instance.isValid())
+            continue;
+
+        QImage renderImage;
+        // We need to return empty image if instance has no content to correctly update the
+        // item image in case the instance changed from having content to not having content.
+        if (instance.hasContent())
+            renderImage = instance.renderImage();
+        imageVector.append(ImageContainer(instance.instanceId(), renderImage, instance.instanceId()));
     }
 
     return PixmapChangedCommand(imageVector);

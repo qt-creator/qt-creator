@@ -91,6 +91,9 @@ void FormEditorView::modelAttached(Model *model)
 //This function does the setup of the initial FormEditorItem tree in the scene
 void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 {
+    if (!qmlItemNode.hasFormEditorItem())
+        return;
+
     if (qmlItemNode.isFlowTransition()) {
         m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowTransition);
         if (qmlItemNode.hasNodeParent())

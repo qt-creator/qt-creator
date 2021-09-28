@@ -395,6 +395,11 @@ bool QmlItemNode::modelIsInLayout() const
     return false;
 }
 
+bool QmlItemNode::hasFormEditorItem() const
+{
+    return NodeHints::fromModelNode(modelNode()).hasFormEditorItem();
+}
+
 QRectF  QmlItemNode::instanceBoundingRect() const
 {
     return QRectF(QPointF(0, 0), nodeInstance().size());

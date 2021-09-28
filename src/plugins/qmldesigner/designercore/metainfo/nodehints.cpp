@@ -183,6 +183,11 @@ bool NodeHints::isResizable() const
     return evaluateBooleanExpression("isResizable", true);
 }
 
+bool NodeHints::hasFormEditorItem() const
+{
+    return evaluateBooleanExpression("hasFormEditorItem", true);
+}
+
 bool NodeHints::isStackedContainer() const
 {
     if (!isValid())
