@@ -199,6 +199,7 @@ bool RemoteModel::refresh(const FilePath &workingDirectory, QString *errorMessag
         m_remotes.push_back(newRemote);
     }
     endResetModel();
+    emit refreshed();
     return true;
 }
 
