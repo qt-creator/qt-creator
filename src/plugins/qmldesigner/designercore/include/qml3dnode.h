@@ -55,11 +55,11 @@ public:
     void setBindingProperty(const PropertyName &name, const QString &expression) override;
     bool isBlocked(const PropertyName &propName) const override;
 
+    friend auto qHash(const Qml3DNode &node) { return qHash(node.modelNode()); }
+
 private:
     void handleEulerRotationSet();
 };
-
-QMLDESIGNERCORE_EXPORT uint qHash(const Qml3DNode &node);
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<Qml3DNode> &fxItemNodeList);
 QMLDESIGNERCORE_EXPORT QList<Qml3DNode> toQml3DNodeList(const QList<ModelNode> &modelNodeList);

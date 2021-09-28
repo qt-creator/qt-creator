@@ -357,13 +357,6 @@ bool operator !=(const AbstractProperty &property1, const AbstractProperty &prop
     return !(property1 == property2);
 }
 
-uint qHash(const AbstractProperty &property)
-{
-    //### to do
-    return ::qHash(property.m_internalNode.data())
-            ^ ::qHash(property.m_propertyName);
-}
-
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
     return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';

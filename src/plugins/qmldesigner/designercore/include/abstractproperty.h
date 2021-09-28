@@ -66,7 +66,6 @@ class QMLDESIGNERCORE_EXPORT AbstractProperty
 
     friend QMLDESIGNERCORE_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);
     friend QMLDESIGNERCORE_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
-    friend QMLDESIGNERCORE_EXPORT uint qHash(const AbstractProperty& property);
 
 public:
     AbstractProperty();
@@ -103,6 +102,11 @@ public:
     Model *model() const;
     AbstractView *view() const;
 
+    friend auto qHash(const AbstractProperty &property)
+    {
+        return ::qHash(property.m_internalNode.data()) ^ ::qHash(property.m_propertyName);
+    }
+
 protected:
     AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model, AbstractView *view);
@@ -118,7 +122,6 @@ private:
 
 QMLDESIGNERCORE_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);
 QMLDESIGNERCORE_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
-QMLDESIGNERCORE_EXPORT uint qHash(const AbstractProperty& property);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const AbstractProperty &AbstractProperty);
 }

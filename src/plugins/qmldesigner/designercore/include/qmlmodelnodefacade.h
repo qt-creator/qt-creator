@@ -37,8 +37,7 @@ class QMLDESIGNERCORE_EXPORT QmlModelNodeFacade
 {
 public:
     operator ModelNode() const;
-    ModelNode modelNode();
-    const ModelNode modelNode() const;
+    ModelNode modelNode() const { return m_modelNode; }
     bool hasModelNode() const;
     static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
     virtual bool isValid() const;

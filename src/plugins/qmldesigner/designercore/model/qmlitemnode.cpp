@@ -480,11 +480,6 @@ QPixmap QmlItemNode::instanceBlurredRenderPixmap() const
     return nodeInstance().blurredRenderPixmap();
 }
 
-uint qHash(const QmlItemNode &node)
-{
-    return qHash(node.modelNode());
-}
-
 QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &qmlItemNodeList)
 {
     QList<ModelNode> modelNodeList;

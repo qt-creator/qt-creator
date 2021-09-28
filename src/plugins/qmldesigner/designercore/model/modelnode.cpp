@@ -768,12 +768,6 @@ Internal::InternalNodePointer ModelNode::internalNode() const
     return m_internalNode;
 }
 
-
-uint qHash(const ModelNode &node)
-{
-    return ::qHash(node.internalId());
-}
-
 /*!
 \brief returns the model of the node
 \return returns the model of the node
