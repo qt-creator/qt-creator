@@ -251,6 +251,10 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("Type cannot be instantiated recursively (%1)."), 1);
     newMsg(WarnLogicalValueDoesNotDependOnValues, Warning,
            tr("Logical value does not depend on actual values"));
+    newMsg(ErrToManyComponentChildren, Error,
+           tr("Components are only allowed to have a single child element."));
+    newMsg(WarnComponentRequiresChildren, Warning,
+           tr("Components require a child element."));
 }
 
 } // anonymous namespace
