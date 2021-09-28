@@ -41,7 +41,7 @@ private:
     QList<Utils::Id> migratableSteps() const final;
     QString id() const final { return "MakeCommandBuilder"; }
     QString displayName() const final { return tr("Make"); }
-    QString defaultCommand() const final;
+    Utils::FilePath defaultCommand() const final;
     QString setMultiProcessArg(QString args) final;
 };
 

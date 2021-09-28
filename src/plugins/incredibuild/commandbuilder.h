@@ -50,20 +50,20 @@ public:
     virtual void fromMap(const QVariantMap &map);
     virtual void toMap(QVariantMap *map) const;
 
-    virtual QString defaultCommand() const { return QString(); }
+    virtual Utils::FilePath defaultCommand() const { return {}; }
     virtual QString defaultArguments() const { return QString(); }
     virtual QString setMultiProcessArg(QString args) { return args; }
 
-    QString command() const { return m_command; }
-    void setCommand(const QString &command);
-    QString effectiveCommand() const { return m_command.isEmpty() ? defaultCommand() : m_command; }
+    Utils::FilePath command() const { return m_command; }
+    void setCommand(const Utils::FilePath &command);
+    Utils::FilePath effectiveCommand() const { return m_command.isEmpty() ? defaultCommand() : m_command; }
 
     QString arguments() { return m_args.isEmpty() ? defaultArguments() : m_args; }
     void setArguments(const QString &arguments);
 
 private:
     ProjectExplorer::BuildStep *m_buildStep{};
-    QString m_command;
+    Utils::FilePath m_command;
     QString m_args;
 };
 

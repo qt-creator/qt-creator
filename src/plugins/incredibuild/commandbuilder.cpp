@@ -25,27 +25,27 @@
 
 #include "commandbuilder.h"
 
+using namespace Utils;
+
 namespace IncrediBuild {
 namespace Internal {
 
-namespace Constants {
-const QLatin1String CUSTOMCOMMANDBUILDER_COMMAND("IncrediBuild.BuildConsole.%1.Command");
-const QLatin1String CUSTOMCOMMANDBUILDER_ARGS("IncrediBuild.BuildConsole.%1.Arguments");
-} // namespace Constants
+const char CUSTOMCOMMANDBUILDER_COMMAND[] = "IncrediBuild.BuildConsole.%1.Command";
+const char CUSTOMCOMMANDBUILDER_ARGS[] = "IncrediBuild.BuildConsole.%1.Arguments";
 
 void CommandBuilder::fromMap(const QVariantMap &map)
 {
-    m_command = map.value(QString(Constants::CUSTOMCOMMANDBUILDER_COMMAND).arg(id())).toString();
-    m_args = map.value(QString(Constants::CUSTOMCOMMANDBUILDER_ARGS).arg(id())).toString();
+    m_command = FilePath::fromVariant(map.value(QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())));
+    m_args = map.value(QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())).toString();
 }
 
 void CommandBuilder::toMap(QVariantMap *map) const
 {
-    (*map)[QString(Constants::CUSTOMCOMMANDBUILDER_COMMAND).arg(id())] = QVariant(m_command);
-    (*map)[QString(Constants::CUSTOMCOMMANDBUILDER_ARGS).arg(id())] = QVariant(m_args);
+    (*map)[QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())] = m_command.toVariant();
+    (*map)[QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())] = QVariant(m_args);
 }
 
-void CommandBuilder::setCommand(const QString &command)
+void CommandBuilder::setCommand(const FilePath &command)
 {
     m_command = command;
 }
