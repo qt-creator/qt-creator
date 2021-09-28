@@ -4209,6 +4209,10 @@ AllProjectFilesFilter::AllProjectFilesFilter()
     setDefaultIncludedByDefault(false); // but not included in default
     setFilters({});
     setIsCustomFilter(false);
+    setDescription(ProjectExplorerPluginPrivate::tr(
+        "Matches all files from all project directories. Append \"+<number>\" or "
+        "\":<number>\" to jump to the given line number. Append another "
+        "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 }
 
 const char kDirectoriesKey[] = "directories";
