@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFormLayout>
@@ -288,7 +289,8 @@ void ManhattanStyle::polish(QWidget *widget)
         if (qobject_cast<QToolButton*>(widget) || qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(height - 2);
-        } else if (qobject_cast<QLabel*>(widget)) {
+        } else if (qobject_cast<QLabel*>(widget) || qobject_cast<QSpinBox*>(widget)
+                   || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
         } else if (widget->property("panelwidget_singlerow").toBool()) {
             widget->setFixedHeight(height);
@@ -303,10 +305,6 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setPalette(palette);
             widget->setMaximumHeight(height - 2);
             widget->setAttribute(Qt::WA_Hover);
-        } else if (qobject_cast<QSpinBox*>(widget)) {
-            const bool isLightColored = lightColored(widget);
-            QPalette palette = panelPalette(widget->palette(), isLightColored);
-            widget->setPalette(palette);
         }
     }
 }
