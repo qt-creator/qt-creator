@@ -112,6 +112,8 @@ def printOutUnexported(svgIDs, scaleFactors):
 def exportPngs(svgIDs, svgFile, scaleFactors, inkscape):
     inkscapeProcess = subprocess.Popen([inkscape, '--shell'],
                                        stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE,
                                        cwd=qtcRoot())
     actions = ["file-open:" + svgFile]
     for id in svgIDs:
