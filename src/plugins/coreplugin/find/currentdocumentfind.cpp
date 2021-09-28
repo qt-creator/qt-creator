@@ -81,6 +81,13 @@ bool CurrentDocumentFind::supportsReplace() const
     return m_currentFind->supportsReplace();
 }
 
+bool CurrentDocumentFind::supportsSelectAll() const
+{
+    if (!m_currentFind)
+        return false;
+    return m_currentFind->supportsSelectAll();
+}
+
 FindFlags CurrentDocumentFind::supportedFindFlags() const
 {
     QTC_ASSERT(m_currentFind, return {});
@@ -117,6 +124,12 @@ IFindSupport::Result CurrentDocumentFind::findStep(const QString &txt, FindFlags
 {
     QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
     return m_currentFind->findStep(txt, findFlags);
+}
+
+void CurrentDocumentFind::selectAll(const QString &txt, FindFlags findFlags)
+{
+    QTC_ASSERT(m_currentFind && m_currentFind->supportsSelectAll(), return);
+    m_currentFind->selectAll(txt, findFlags);
 }
 
 void CurrentDocumentFind::replace(const QString &before, const QString &after, FindFlags findFlags)

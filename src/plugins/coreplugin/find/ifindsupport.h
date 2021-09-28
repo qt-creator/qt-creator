@@ -43,6 +43,7 @@ public:
     ~IFindSupport() override = default;
 
     virtual bool supportsReplace() const = 0;
+    virtual bool supportsSelectAll() const;
     virtual FindFlags supportedFindFlags() const = 0;
     virtual void resetIncrementalSearch() = 0;
     virtual void clearHighlights() = 0;
@@ -58,6 +59,7 @@ public:
         FindFlags findFlags);
     virtual int replaceAll(const QString &before, const QString &after,
         FindFlags findFlags);
+    virtual void selectAll(const QString &txt, FindFlags findFlags);
 
     virtual void defineFindScope(){}
     virtual void clearFindScope(){}

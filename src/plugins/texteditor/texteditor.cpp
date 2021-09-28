@@ -825,6 +825,76 @@ public:
     QStack<UndoMultiCursor> m_undoCursorStack;
 };
 
+class TextEditorWidgetFind : public BaseTextFind
+{
+public:
+    TextEditorWidgetFind(TextEditorWidget *editor)
+        : BaseTextFind(editor)
+        , m_editor(editor)
+    {
+        setMultiTextCursorProvider([editor]() { return editor->multiTextCursor(); });
+    }
+
+    bool supportsSelectAll() const override { return true; }
+    void selectAll(const QString &txt, FindFlags findFlags) override;
+
+    static void cancelCurrentSelectAll();
+
+private:
+    TextEditorWidget * const m_editor;
+    static QFutureWatcher<FileSearchResultList> *m_selectWatcher;
+};
+
+QFutureWatcher<FileSearchResultList> *TextEditorWidgetFind::m_selectWatcher = nullptr;
+
+void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
+{
+    if (txt.isEmpty())
+        return;
+
+    cancelCurrentSelectAll();
+
+    m_selectWatcher = new QFutureWatcher<FileSearchResultList>();
+    connect(m_selectWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
+            this, [this]() {
+                const FileSearchResultList &results = m_selectWatcher->result();
+                const QTextCursor c(m_editor->document());
+                auto cursorForResult = [c](const FileSearchResult &r) {
+                    return Utils::Text::selectAt(c, r.lineNumber, r.matchStart + 1, r.matchLength);
+                };
+                QList<QTextCursor> cursors = Utils::transform(results, cursorForResult);
+                cursors = Utils::filtered(cursors, [this](const QTextCursor &c) {
+                    return m_editor->inFindScope(c);
+                });
+                m_editor->setMultiTextCursor(MultiTextCursor(cursors));
+                m_editor->setFocus();
+            });
+
+    const QString &fileName = m_editor->textDocument()->filePath().toString();
+    QMap<QString, QString> fileToContentsMap;
+    fileToContentsMap[fileName] = m_editor->textDocument()->plainText();
+
+    FileListIterator *it = new FileListIterator({fileName},
+                                                {const_cast<QTextCodec *>(
+                                                    m_editor->textDocument()->codec())});
+    const QTextDocument::FindFlags findFlags2 = textDocumentFlagsForFindFlags(findFlags);
+
+    if (findFlags & FindRegularExpression)
+        m_selectWatcher->setFuture(findInFilesRegExp(txt, it, findFlags2, fileToContentsMap));
+    else
+        m_selectWatcher->setFuture(findInFiles(txt, it, findFlags2, fileToContentsMap));
+}
+
+void TextEditorWidgetFind::cancelCurrentSelectAll()
+{
+    if (m_selectWatcher) {
+        m_selectWatcher->disconnect();
+        m_selectWatcher->cancel();
+        m_selectWatcher->deleteLater();
+        m_selectWatcher = nullptr;
+    }
+}
+
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
   : q(parent),
     m_marksVisible(false),
@@ -841,8 +911,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_autoCompleter(new AutoCompleter)
 {
     auto aggregate = new Aggregation::Aggregate;
-    m_find = new BaseTextFind(q);
-    m_find->setMultiTextCursorProvider([this]() { return m_cursors; });
+    m_find = new TextEditorWidgetFind(q);
     connect(m_find, &BaseTextFind::highlightAllRequested,
             this, &TextEditorWidgetPrivate::highlightSearchResultsSlot);
     connect(m_find, &BaseTextFind::findScopeChanged,
@@ -2307,6 +2376,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     } else {
         d->m_maybeFakeTooltipEvent = false;
         if (e->key() == Qt::Key_Escape ) {
+            TextEditorWidgetFind::cancelCurrentSelectAll();
             if (d->m_snippetOverlay->isVisible()) {
                 e->accept();
                 d->m_snippetOverlay->accept();
@@ -7823,7 +7893,7 @@ void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
         emit requestBlockUpdate(marker.cursor.block());
 }
 
-bool TextEditorWidget::inFindScope(const QTextCursor &cursor)
+bool TextEditorWidget::inFindScope(const QTextCursor &cursor) const
 {
     return d->m_find->inScope(cursor);
 }

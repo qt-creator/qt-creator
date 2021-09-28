@@ -104,6 +104,7 @@ private:
     void openFind(bool focus = true);
     void findNextSelected();
     void findPreviousSelected();
+    void selectAll();
     void updateActions();
     void updateToolBar();
     void findFlagsChanged();
@@ -149,6 +150,7 @@ private:
     QAction *m_findInDocumentAction = nullptr;
     QAction *m_findNextSelectedAction = nullptr;
     QAction *m_findPreviousSelectedAction = nullptr;
+    QAction *m_selectAllAction = nullptr;
     QAction *m_enterFindStringAction = nullptr;
     QAction *m_findNextAction = nullptr;
     QAction *m_findPreviousAction = nullptr;
@@ -163,6 +165,7 @@ private:
 
     QAction *m_localFindNextAction = nullptr;
     QAction *m_localFindPreviousAction = nullptr;
+    QAction *m_localSelectAllAction = nullptr;
     QAction *m_localReplaceAction = nullptr;
     QAction *m_localReplaceNextAction = nullptr;
     QAction *m_localReplacePreviousAction = nullptr;

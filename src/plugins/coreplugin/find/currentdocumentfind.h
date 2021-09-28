@@ -42,6 +42,7 @@ public:
     void resetIncrementalSearch();
     void clearHighlights();
     bool supportsReplace() const;
+    bool supportsSelectAll() const;
     FindFlags supportedFindFlags() const;
     QString currentFindString() const;
     QString completedFindString() const;
@@ -51,6 +52,7 @@ public:
     void highlightAll(const QString &txt, FindFlags findFlags);
     IFindSupport::Result findIncremental(const QString &txt, FindFlags findFlags);
     IFindSupport::Result findStep(const QString &txt, FindFlags findFlags);
+    void selectAll(const QString &txt, FindFlags findFlags);
     void replace(const QString &before, const QString &after, FindFlags findFlags);
     bool replaceStep(const QString &before, const QString &after, FindFlags findFlags);
     int replaceAll(const QString &before, const QString &after, FindFlags findFlags);

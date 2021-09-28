@@ -222,6 +222,17 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(m_findPreviousSelectedAction, &QAction::triggered,
             this, &FindToolBar::findPreviousSelected);
 
+    m_selectAllAction = new QAction(tr("Select All"), this);
+    cmd = ActionManager::registerAction(m_selectAllAction, Constants::FIND_SELECT_ALL);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
+    mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
+    connect(m_selectAllAction, &QAction::triggered, this, &FindToolBar::selectAll);
+    m_localSelectAllAction = new QAction(m_selectAllAction->text(), this);
+    cmd = ActionManager::registerAction(m_localSelectAllAction, Constants::FIND_SELECT_ALL, findcontext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
+    connect(m_localSelectAllAction, &QAction::triggered, this, &FindToolBar::selectAll);
+    m_ui.selectAllButton->setDefaultAction(m_localSelectAllAction);
+
     m_replaceAction = new QAction(tr("Replace"), this);
     cmd = ActionManager::registerAction(m_replaceAction, Constants::REPLACE);
     cmd->setDefaultKeySequence(QKeySequence());
@@ -400,6 +411,7 @@ void FindToolBar::updateActions()
     if (m_enterFindStringAction)
         m_enterFindStringAction->setEnabled(enabled);
     updateFindReplaceEnabled();
+    m_selectAllAction->setEnabled(m_currentDocumentFind->supportsSelectAll());
 }
 
 void FindToolBar::updateToolBar()
@@ -869,6 +881,15 @@ void FindToolBar::findPreviousSelected()
     invokeFindPrevious();
 }
 
+void FindToolBar::selectAll()
+{
+    if (m_currentDocumentFind->isEnabled()) {
+        const FindFlags ef = effectiveFindFlags();
+        Find::updateFindCompletion(getFindText(), ef);
+        m_currentDocumentFind->selectAll(getFindText(), ef);
+    }
+}
+
 bool FindToolBar::focusNextPrevChild(bool next)
 {
     QAbstractButton *optionsButton = m_ui.findEdit->button(Utils::FancyLineEdit::Left);
@@ -1000,6 +1021,7 @@ void FindToolBar::updateFindReplaceEnabled()
         m_localFindPreviousAction->setEnabled(enabled);
         m_findEnabled = enabled;
     }
+    m_localSelectAllAction->setEnabled(enabled && m_currentDocumentFind->supportsSelectAll());
     m_findNextAction->setEnabled(enabled && m_findInDocumentAction->isEnabled());
     m_findPreviousAction->setEnabled(enabled && m_findInDocumentAction->isEnabled());
 

@@ -564,6 +564,8 @@ public:
     void contextHelpItem(const Core::IContext::HelpCallback &callback);
     void setContextHelpItem(const Core::HelpItem &item);
 
+    Q_INVOKABLE bool inFindScope(const QTextCursor &cursor) const;
+
     static TextEditorWidget *currentTextEditorWidget();
     static TextEditorWidget *fromEditor(const Core::IEditor *editor);
 
@@ -609,8 +611,6 @@ signals:
 protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
-
-    Q_INVOKABLE bool inFindScope(const QTextCursor &cursor);
 
 private:
     Internal::TextEditorWidgetPrivate *d;

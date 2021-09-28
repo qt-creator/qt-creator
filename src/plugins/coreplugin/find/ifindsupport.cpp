@@ -67,6 +67,15 @@ using namespace Core;
 */
 
 /*!
+    \fn bool Core::IFindSupport::supportsSelectAll() const
+    Returns whether the find filter supports selecting all results.
+*/
+bool IFindSupport::supportsSelectAll() const
+{
+    return false;
+}
+
+/*!
     \fn Core::FindFlags Core::IFindSupport::supportedFindFlags() const
     Returns the find flags, such as whole words or regular expressions,
     that this find filter supports.
@@ -163,6 +172,15 @@ int IFindSupport::replaceAll(const QString &before, const QString &after, FindFl
     Q_UNUSED(after)
     Q_UNUSED(findFlags)
     return 0;
+}
+
+/*!
+    Finds and selects all instances of \a txt with specified \a findFlags.
+*/
+void IFindSupport::selectAll(const QString &txt, FindFlags findFlags)
+{
+    Q_UNUSED(txt)
+    Q_UNUSED(findFlags)
 }
 
 /*!

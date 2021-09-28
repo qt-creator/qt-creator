@@ -74,6 +74,13 @@
        <widget class="QToolButton" name="findNextButton"/>
       </item>
       <item>
+       <widget class="QToolButton" name="selectAllButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
