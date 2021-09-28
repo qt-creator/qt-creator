@@ -27,6 +27,7 @@
 
 #include "clangformatconstants.h"
 #include "clangformatindenter.h"
+#include "clangformatfile.h"
 #include "clangformatsettings.h"
 #include "clangformatutils.h"
 #include "ui_clangformatchecks.h"
@@ -121,6 +122,12 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
 {
     m_ui->setupUi(this);
 
+    Utils::FilePath filePath = Core::ICore::userResourcePath();
+    if (m_project)
+        filePath = filePath / "clang-format/" / currentProjectUniqueId();
+    filePath = filePath / QLatin1String(Constants::SETTINGS_FILE_NAME);
+    m_config = std::make_unique<ClangFormatFile>(filePath);
+
     initChecksAndPreview();
 
     if (m_project) {
@@ -146,6 +153,8 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
 
     connectChecks();
 }
+
+ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
 
 void ClangFormatConfigWidget::initChecksAndPreview()
 {
@@ -191,7 +200,7 @@ void ClangFormatConfigWidget::connectChecks()
             continue;
         }
 
-        auto button = qobject_cast<QPushButton *>(child);
+        const auto button = qobject_cast<QPushButton *>(child);
         if (button != nullptr)
             connect(button, &QPushButton::clicked, this, &ClangFormatConfigWidget::onTableChanged);
     }
@@ -202,15 +211,7 @@ void ClangFormatConfigWidget::onTableChanged()
     if (m_disableTableUpdate)
         return;
 
-    const std::string newConfig = tableToString(sender());
-    if (newConfig.empty())
-        return;
-    const std::string oldConfig = m_project ? currentProjectConfigText()
-                                            : currentGlobalConfigText();
-    saveConfig(newConfig);
-    fillTable();
-    updatePreview();
-    saveConfig(oldConfig);
+    saveChanges(sender());
 }
 
 void ClangFormatConfigWidget::hideGlobalCheckboxes()
@@ -379,16 +380,20 @@ void ClangFormatConfigWidget::fillTable()
     }
 }
 
-std::string ClangFormatConfigWidget::tableToString(QObject *sender)
+void ClangFormatConfigWidget::saveChanges(QObject *sender)
 {
     std::stringstream content;
     content << "---";
 
     if (sender->objectName() == "BasedOnStyle") {
-        auto *basedOnStyle = m_checksWidget->findChild<QComboBox *>("BasedOnStyle");
-        content << "\nBasedOnStyle: " << basedOnStyle->currentText().toStdString() << '\n';
+        const auto *basedOnStyle = m_checksWidget->findChild<QComboBox *>("BasedOnStyle");
+        m_config->setBasedOnStyle(basedOnStyle->currentText());
     } else {
+        QList<ClangFormatFile::Field> fields;
+
         for (QObject *child : m_checksWidget->children()) {
+            if (child->objectName() == "BasedOnStyle")
+                continue;
             auto *label = qobject_cast<QLabel *>(child);
             if (!label)
                 continue;
@@ -396,7 +401,7 @@ std::string ClangFormatConfigWidget::tableToString(QObject *sender)
             QWidget *valueWidget = m_checksWidget->findChild<QWidget *>(label->text().trimmed());
             if (!valueWidget) {
                 // Currently BraceWrapping only.
-                content << '\n' << label->text().toStdString() << ":";
+                fields.append({label->text(), ""});
                 continue;
             }
 
@@ -410,45 +415,33 @@ std::string ClangFormatConfigWidget::tableToString(QObject *sender)
                 if (plainText->toPlainText().trimmed().isEmpty())
                     continue;
 
-                content << '\n' << label->text().toStdString() << ":";
+
+                std::stringstream content;
                 QStringList list = plainText->toPlainText().split('\n');
                 for (const QString &line : list)
                     content << "\n  " << line.toStdString();
+
+                fields.append({label->text(), QString::fromStdString(content.str())});
             } else {
-                auto *comboBox = qobject_cast<QComboBox *>(valueWidget);
-                std::string text;
-                if (comboBox) {
-                    text = comboBox->currentText().toStdString();
+                QString text;
+                if (auto *comboBox = qobject_cast<QComboBox *>(valueWidget)) {
+                    text = comboBox->currentText();
                 } else {
                     auto *lineEdit = qobject_cast<QLineEdit *>(valueWidget);
                     QTC_ASSERT(lineEdit, continue;);
-                    text = lineEdit->text().toStdString();
+                    text = lineEdit->text();
                 }
 
-                if (!text.empty() && text != "Default")
-                    content << '\n' << label->text().toStdString() << ": " << text;
+                if (!text.isEmpty() && text != "Default")
+                    fields.append({label->text(), text});
             }
         }
-        content << '\n';
+        m_config->changeFields(fields);
     }
 
-    std::string text = content.str();
-    clang::format::FormatStyle style;
-    style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = clang::format::parseConfiguration(text, &style);
-    if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
-        QMessageBox::warning(this,
-                             tr("Error in ClangFormat configuration"),
-                             QString::fromStdString(error.message()));
-        fillTable();
-        updatePreview();
-        return std::string();
-    }
-
-    return text;
+    fillTable();
+    updatePreview();
 }
-
-ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
 
 void ClangFormatConfigWidget::apply()
 {
@@ -466,28 +459,7 @@ void ClangFormatConfigWidget::apply()
     if (!m_checksWidget->isVisible())
         return;
 
-    const std::string config = tableToString(this);
-    if (config.empty())
-        return;
-
-    saveConfig(config);
-    fillTable();
-    updatePreview();
-}
-
-void ClangFormatConfigWidget::saveConfig(const std::string &text) const
-{
-    QString filePath = Core::ICore::userResourcePath().toString();
-    if (m_project)
-        filePath += "/clang-format/" + currentProjectUniqueId();
-    filePath += "/" + QLatin1String(Constants::SETTINGS_FILE_NAME);
-
-    QFile file(filePath);
-    if (!file.open(QFile::WriteOnly))
-        return;
-
-    file.write(text.c_str());
-    file.close();
+    saveChanges(this);
 }
 
 } // namespace ClangFormat

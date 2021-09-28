@@ -8,6 +8,7 @@ add_qtc_plugin(ClangFormat
     clangformatchecks.ui
     clangformatconfigwidget.cpp clangformatconfigwidget.h clangformatconfigwidget.ui
     clangformatconstants.h
+    clangformatfile.cpp clangformatfile.h
     clangformatindenter.cpp clangformatindenter.h
     clangformatplugin.cpp clangformatplugin.h
     clangformatsettings.cpp clangformatsettings.h

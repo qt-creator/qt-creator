@@ -44,6 +44,7 @@ namespace Ui {
 class ClangFormatConfigWidget;
 class ClangFormatChecksWidget;
 }
+class ClangFormatFile;
 
 class ClangFormatConfigWidget : public TextEditor::CodeStyleEditorWidget
 {
@@ -66,18 +67,17 @@ private:
     void connectChecks();
 
     void fillTable();
-    std::string tableToString(QObject *sender);
+    void saveChanges(QObject *sender);
 
     void hideGlobalCheckboxes();
     void showGlobalCheckboxes();
-
-    void saveConfig(const std::string &text) const;
     void updatePreview();
 
     ProjectExplorer::Project *m_project;
     QWidget *m_checksWidget;
     QScrollArea *m_checksScrollArea;
     TextEditor::SnippetEditorWidget *m_preview;
+    std::unique_ptr<ClangFormatFile> m_config;
     std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
     bool m_disableTableUpdate = false;
