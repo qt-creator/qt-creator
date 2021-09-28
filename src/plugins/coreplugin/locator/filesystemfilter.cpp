@@ -175,24 +175,21 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
                               int *selectionLength) const
 {
     Q_UNUSED(selectionLength)
-    QFileInfo info = selection.filePath.toFileInfo();
-    if (info.isDir()) {
+    if (selection.filePath.isDir()) {
         const QString value = shortcutString() + ' '
-                + QDir::toNativeSeparators(info.absoluteFilePath() + '/');
+                + selection.filePath.absoluteFilePath().toUserOutput() + '/';
         *newText = value;
         *selectionStart = value.length();
     } else {
         // Don't block locator filter execution with dialog
-        QMetaObject::invokeMethod(EditorManager::instance(), [info, selection] {
-            const QString targetFile = selection.internalData.toString();
-            if (!info.exists()) {
+        QMetaObject::invokeMethod(EditorManager::instance(), [selection] {
+            const FilePath targetFile = FilePath::fromVariant(selection.internalData);
+            if (!selection.filePath.exists()) {
                 if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
                     CheckableMessageBox messageBox(ICore::dialogParent());
                     messageBox.setWindowTitle(tr("Create File"));
                     messageBox.setIcon(QMessageBox::Question);
-                    messageBox.setText(
-                        tr("Create \"%1\"?")
-                            .arg(FilePath::fromString(targetFile).shortNativePath()));
+                    messageBox.setText(tr("Create \"%1\"?").arg(targetFile.shortNativePath()));
                     messageBox.setCheckBoxVisible(true);
                     messageBox.setCheckBoxText(tr("Always create"));
                     messageBox.setChecked(false);
@@ -206,10 +203,10 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
                     if (messageBox.isChecked())
                         CheckableMessageBox::doNotAskAgain(ICore::settings(), kAlwaysCreate);
                 }
-                QFile file(targetFile);
+                QFile file(targetFile.toString());
                 file.open(QFile::WriteOnly);
                 file.close();
-                VcsManager::promptToAdd(QFileInfo(targetFile).absolutePath(), { targetFile });
+                VcsManager::promptToAdd(targetFile.absolutePath(), {targetFile});
             }
             BaseFileFilter::openEditorAt(selection);
         }, Qt::QueuedConnection);
