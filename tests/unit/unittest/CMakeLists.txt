@@ -481,8 +481,16 @@ get_filename_component(
     ABSOLUTE
 )
 
-if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS})
-    add_subdirectory(${QMLDOM_STANDALONE_CMAKELISTS} qmldom_standalone)
+
+if (EXISTS ../../../../qmldom_standalone/src/qmldom/standalone)
+  add_subdirectory(
+    ../../../../qmldom_standalone/src/qmldom/standalone
+    ${CMAKE_CURRENT_BINARY_DIR}/qmldom_standalone)
+
+  set_target_properties(qmldomlib PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
+    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
+
     extend_qtc_test(unittest
       DEPENDS qmldomlib
       SOURCES
