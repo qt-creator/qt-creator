@@ -81,6 +81,18 @@ void CurveEditor::clearCanvas()
     m_view->reset({});
 }
 
+void CurveEditor::showEvent(QShowEvent *event)
+{
+    emit viewEnabledChanged(true);
+    QWidget::showEvent(event);
+}
+
+void CurveEditor::hideEvent(QHideEvent *event)
+{
+    emit viewEnabledChanged(false);
+    QWidget::hideEvent(event);
+}
+
 QToolBar *CurveEditor::createToolBar(CurveEditorModel *model)
 {
     auto *bar = new QToolBar;

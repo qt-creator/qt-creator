@@ -49,6 +49,13 @@ public:
 
     void clearCanvas();
 
+signals:
+    void viewEnabledChanged(const bool);
+
+protected:
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+
 private:
     QToolBar *createToolBar(CurveEditorModel *model);
 

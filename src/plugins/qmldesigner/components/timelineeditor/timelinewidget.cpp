@@ -606,13 +606,7 @@ void TimelineWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
 
-    /*
     m_timelineView->setEnabled(true);
-     TODO See QDS-4191
-    */
-
-    if (m_timelineView->model())
-        init();
 
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
     graphicsScene()->invalidateLayout();
@@ -620,6 +614,10 @@ void TimelineWidget::showEvent(QShowEvent *event)
     graphicsScene()->onShow();
 
     QWidget::showEvent(event);
+
+    //All the events have to be fully processed before we call init()
+    if (m_timelineView->model())
+        QTimer::singleShot(0, [this]() { init(); });
 }
 
 void TimelineWidget::resizeEvent(QResizeEvent *event)
@@ -630,7 +628,7 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::hideEvent(QHideEvent *event)
 {
-    /* m_timelineView->setEnabled(false); TODO See QDS-4191 */
+    m_timelineView->setEnabled(false);
     QWidget::hideEvent(event);
 }
 

@@ -51,6 +51,13 @@ CurveEditorView::CurveEditorView(QObject *parent)
     connect(m_model, &CurveEditorModel::commitStartFrame, this, &CurveEditorView::commitStartFrame);
     connect(m_model, &CurveEditorModel::commitEndFrame, this, &CurveEditorView::commitEndFrame);
     connect(m_model, &CurveEditorModel::curveChanged, this, &CurveEditorView::commitKeyframes);
+
+    connect(m_editor, &CurveEditor::viewEnabledChanged, this, [this](bool enabled){
+        setEnabled(enabled);
+        if (enabled)
+            init();
+    });
+    setEnabled(false);
 }
 
 CurveEditorView::~CurveEditorView() {}
@@ -70,10 +77,8 @@ void CurveEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    QmlTimeline timeline = activeTimeline();
-    if (timeline.isValid()) {
-        m_model->setTimeline(timeline);
-    }
+    if (isEnabled())
+        init();
 }
 
 void CurveEditorView::modelAboutToBeDetached(Model *model)
@@ -387,6 +392,15 @@ void CurveEditorView::commitEndFrame(int frame)
     QmlTimeline timeline = activeTimeline();
     if (timeline.isValid())
         timeline.modelNode().variantProperty("endFrame").setValue(frame);
+}
+
+void CurveEditorView::init()
+{
+    QmlTimeline timeline = activeTimeline();
+    if (timeline.isValid()) {
+        m_model->setTimeline(timeline);
+    }
+
 }
 
 } // namespace QmlDesigner
