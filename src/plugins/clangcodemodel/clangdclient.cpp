@@ -2479,7 +2479,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const QList<ExpandedSemanticToken> &tokens,
                                 const QString &docContents, const AstNode &ast,
                                 const QPointer<TextEditorWidget> &widget,
-                                int docRevision)
+                                int docRevision, const QVersionNumber &clangdVersion)
 {
     if (future.isCanceled()) {
         future.reportFinished();
@@ -2513,7 +2513,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         return false;
     };
 
-    const auto toResult = [&ast, &isOutputParameter](const ExpandedSemanticToken &token) {
+    const auto toResult = [&ast, &isOutputParameter, &clangdVersion]
+            (const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains("functionScope")) {
@@ -2532,11 +2533,10 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 if (path.length() > 1) {
                     const AstNode declNode = path.at(path.length() - 2);
                     if (declNode.kind() == "Function" || declNode.kind() == "CXXMethod") {
-
-                        // TODO: Remove this once we can assume clangd >= 14.
-                        if (declNode.arcanaContains("' virtual"))
+                        if (clangdVersion < QVersionNumber(14)
+                                && declNode.arcanaContains("' virtual")) {
                             styles.mainStyle = C_VIRTUAL_METHOD;
-
+                        }
                         if (declNode.hasChildWithRole("statement"))
                             styles.mixinStyles.push_back(C_FUNCTION_DEFINITION);
                     }
@@ -2640,8 +2640,9 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                 [doc](const IEditor *editor) { return editor->document() == doc; });
         const auto editorWidget = TextEditorWidget::fromEditor(editor);
         const auto runner = [tokens, text = doc->document()->toPlainText(), ast,
-                             w = QPointer(editorWidget), rev = doc->document()->revision()] {
-            return Utils::runAsync(semanticHighlighter, tokens, text, ast, w, rev);
+                             w = QPointer(editorWidget), rev = doc->document()->revision(),
+                             clangdVersion = q->versionNumber()] {
+            return Utils::runAsync(semanticHighlighter, tokens, text, ast, w, rev, clangdVersion);
         };
 
         if (isTesting) {
