@@ -240,12 +240,16 @@ void tst_offsets::offsets_data()
     OFFSET_TEST(QFileInfoPrivate, fileEntry) << 4 << 8;
 
     // Qt5: vptr + 3 ptr + 2 int + ptr
-    // Qt6: vptr + objectlist + 8 unit:1 + uint:24 + int + ptr + bindingstorage + ptr
-    int size32 = qtVersion >= 0x60000 ? 60 : 28;
-    int size64 = qtVersion >= 0x60000 ? 80 : 48;
+    // Qt6: vptr + objectlist + 8 unit:1 + uint:24 + int + ptr + bindingstorage (+ ptr)
+    int size32 = qtVersion >= 0x60000 ? 56 : 28;
+    int size64 = qtVersion >= 0x60000 ? 72 : 48;
+    if (qtTypeVersion >= 21) { // the additional ptr was introduced with qtTypeVersion 21
+        size32 += 4;
+        size64 += 8;
+    }
     QTest::newRow("sizeof(QObjectData)") << int(sizeof(QObjectData)) << size32 << size64;
 
-    if (qtVersion >= 0x50000 && qtTypeVersion < 21)
+    if (qtVersion >= 0x50000)
         OFFSET_TEST(QObjectPrivate, extraData) << size32 << size64; // sizeof(QObjectData)
     else
         OFFSET_TEST(QObjectPrivate, extraData) << size32 + 4 << size64 + 8; // sizeof(QObjectData) + 1 ptr
