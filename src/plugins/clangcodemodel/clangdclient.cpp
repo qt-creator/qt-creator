@@ -79,6 +79,7 @@ using namespace Core;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
+using namespace TextEditor;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -462,7 +463,7 @@ public:
 using SymbolData = QPair<QString, Utils::Link>;
 using SymbolDataList = QList<SymbolData>;
 
-class ClangdClient::VirtualFunctionAssistProcessor : public TextEditor::IAssistProcessor
+class ClangdClient::VirtualFunctionAssistProcessor : public IAssistProcessor
 {
 public:
     VirtualFunctionAssistProcessor(ClangdClient::Private *data) : m_data(data) {}
@@ -474,34 +475,34 @@ public:
     void finalize();
 
 private:
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *) override
+    IAssistProposal *perform(const AssistInterface *) override
     {
         return nullptr;
     }
 
-    TextEditor::IAssistProposal *immediateProposal(const TextEditor::AssistInterface *) override
+    IAssistProposal *immediateProposal(const AssistInterface *) override
     {
         return createProposal(false);
     }
 
     void resetData();
 
-    TextEditor::IAssistProposal *immediateProposalImpl() const;
-    TextEditor::IAssistProposal *createProposal(bool final) const;
+    IAssistProposal *immediateProposalImpl() const;
+    IAssistProposal *createProposal(bool final) const;
     CppEditor::VirtualFunctionProposalItem *createEntry(const QString &name,
                                                        const Utils::Link &link) const;
 
     ClangdClient::Private *m_data = nullptr;
 };
 
-class ClangdClient::VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
+class ClangdClient::VirtualFunctionAssistProvider : public IAssistProvider
 {
 public:
     VirtualFunctionAssistProvider(ClangdClient::Private *data) : m_data(data) {}
 
 private:
     RunType runType() const override { return Asynchronous; }
-    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
+    IAssistProcessor *createProcessor(const AssistInterface *) const override;
 
     ClangdClient::Private * const m_data;
 };
@@ -563,7 +564,7 @@ public:
 
 class SwitchDeclDefData {
 public:
-    SwitchDeclDefData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
+    SwitchDeclDefData(quint64 id, TextDocument *doc, const QTextCursor &cursor,
                       CppEditor::CppEditorWidget *editorWidget,
                       Utils::ProcessLinkCallback &&callback)
         : id(id), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
@@ -604,7 +605,7 @@ public:
     }
 
     const quint64 id;
-    const QPointer<TextEditor::TextDocument> document;
+    const QPointer<TextDocument> document;
     const DocumentUri uri;
     const QTextCursor cursor;
     const QPointer<CppEditor::CppEditorWidget> editorWidget;
@@ -615,8 +616,8 @@ public:
 
 class LocalRefsData {
 public:
-    LocalRefsData(quint64 id, TextEditor::TextDocument *doc, const QTextCursor &cursor,
-                      CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
+    LocalRefsData(quint64 id, TextDocument *doc, const QTextCursor &cursor,
+                  CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
         : id(id), document(doc), cursor(cursor), callback(std::move(callback)),
           uri(DocumentUri::fromFilePath(doc->filePath())), revision(doc->document()->revision())
     {}
@@ -628,7 +629,7 @@ public:
     }
 
     const quint64 id;
-    const QPointer<TextEditor::TextDocument> document;
+    const QPointer<TextDocument> document;
     const QTextCursor cursor;
     CppEditor::RefactoringEngineInterface::RenameCallback callback;
     const DocumentUri uri;
@@ -653,7 +654,7 @@ public:
     { insert("publishDiagnostics", caps); }
 };
 
-class DoxygenAssistProcessor : public TextEditor::IAssistProcessor
+class DoxygenAssistProcessor : public IAssistProcessor
 {
 public:
     DoxygenAssistProcessor(ClangdClient *client, int position, unsigned completionOperator)
@@ -663,9 +664,9 @@ public:
     {}
 
 private:
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *) override
+    IAssistProposal *perform(const AssistInterface *) override
     {
-        QList<TextEditor::AssistProposalItemInterface *> completions;
+        QList<AssistProposalItemInterface *> completions;
         for (int i = 1; i < CppEditor::T_DOXY_LAST_TAG; ++i) {
             const auto item = new ClangPreprocessorAssistProposalItem;
             item->setText(QLatin1String(CppEditor::doxygenTagSpell(i)));
@@ -673,9 +674,9 @@ private:
             item->setCompletionOperator(m_completionOperator);
             completions.append(item);
         }
-        TextEditor::GenericProposalModelPtr model(new TextEditor::GenericProposalModel);
+        GenericProposalModelPtr model(new GenericProposalModel);
         model->loadContent(completions);
-        const auto proposal = new TextEditor::GenericProposal(m_position, model);
+        const auto proposal = new GenericProposal(m_position, model);
         if (m_client->testingEnabled()) {
             emit m_client->proposalReady(proposal);
             return nullptr;
@@ -689,7 +690,7 @@ private:
 };
 
 
-static qint64 getRevision(const TextEditor::TextDocument *doc)
+static qint64 getRevision(const TextDocument *doc)
 {
     return doc->document()->revision();
 }
@@ -746,7 +747,7 @@ public:
     Private(ClangdClient *q, Project *project)
         : q(q), settings(CppEditor::ClangdProjectSettings(project).settings()) {}
 
-    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+    void findUsages(TextDocument *document, const QTextCursor &cursor,
                     const QString &searchTerm, const Utils::optional<QString> &replacement,
                     bool categorize);
     void handleFindUsagesResult(quint64 key, const QList<Location> &locations);
@@ -773,11 +774,10 @@ public:
                                HelpItem::Category category = HelpItem::Unknown,
                                const QString &type = {});
 
-    void handleSemanticTokens(TextEditor::TextDocument *doc,
-                              const QList<ExpandedSemanticToken> &tokens);
+    void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens);
 
     enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
-    using TextDocOrFile = const Utils::variant<const TextEditor::TextDocument *, Utils::FilePath>;
+    using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
     using AstHandler = const std::function<void(const AstNode &ast, const MessageId &)>;
     MessageId getAndHandleAst(TextDocOrFile &doc, AstHandler &astHandler,
                               AstCallbackMode callbackMode);
@@ -789,8 +789,8 @@ public:
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
-    std::unordered_map<TextEditor::TextDocument *, CppEditor::SemanticHighlighter> highlighters;
-    VersionedDataCache<const TextEditor::TextDocument *, AstNode> astCache;
+    std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter> highlighters;
+    VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
@@ -851,10 +851,10 @@ public:
     }
 
 private:
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override
+    IAssistProposal *perform(const AssistInterface *interface) override
     {
         if (m_client->d->isTesting) {
-            setAsyncCompletionAvailableHandler([this](TextEditor::IAssistProposal *proposal) {
+            setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {
                 emit m_client->proposalReady(proposal);
             });
         }
@@ -862,7 +862,7 @@ private:
     }
 
     static void applyCompletionItem(const CompletionItem &item,
-                                    TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                    TextDocumentManipulatorInterface &manipulator,
                                     QChar typedChar);
 
     ClangdClient * const m_client;
@@ -874,8 +874,7 @@ public:
     ClangdCompletionAssistProvider(ClangdClient *client);
 
 private:
-    TextEditor::IAssistProcessor *createProcessor(
-        const TextEditor::AssistInterface *assistInterface) const override;
+    IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const override;
 
     int activationCharSequenceLength() const override { return 3; }
     bool isActivationCharSequence(const QString &sequence) const override;
@@ -958,12 +957,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         }
     };
     setSymbolStringifier(symbolStringifier);
-
-    setSemanticTokensHandler([this](TextEditor::TextDocument *doc,
-                                    const QList<ExpandedSemanticToken> &tokens) {
+    setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens) {
         d->handleSemanticTokens(doc, tokens);
     });
-
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const DocumentUri &uri) {
         gatherHelpItemForTooltip(response, uri);
@@ -1038,7 +1034,7 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
                 SendDocUpdates::Ignore);
 }
 
-void ClangdClient::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
                               const Utils::optional<QString> &replacement)
 {
     // Quick check: Are we even on anything searchable?
@@ -1083,7 +1079,7 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
     }
 }
 
-void ClangdClient::handleDocumentOpened(TextEditor::TextDocument *doc)
+void ClangdClient::handleDocumentOpened(TextDocument *doc)
 {
     const auto data = d->externalAstCache.take(doc->filePath());
     if (!data)
@@ -1092,7 +1088,7 @@ void ClangdClient::handleDocumentOpened(TextEditor::TextDocument *doc)
        d->astCache.insert(doc, data->data);
 }
 
-void ClangdClient::handleDocumentClosed(TextEditor::TextDocument *doc)
+void ClangdClient::handleDocumentClosed(TextDocument *doc)
 {
     d->highlighters.erase(doc);
     d->astCache.remove(doc);
@@ -1118,7 +1114,7 @@ QVersionNumber ClangdClient::versionNumber() const
 
 CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }
 
-void ClangdClient::Private::findUsages(TextEditor::TextDocument *document,
+void ClangdClient::Private::findUsages(TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
         const Utils::optional<QString> &replacement, bool categorize)
 {
@@ -1244,7 +1240,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     }
 
     for (auto it = refData->fileData.begin(); it != refData->fileData.end(); ++it) {
-        const TextEditor::TextDocument * const doc = q->documentForFilePath(it.key().toFilePath());
+        const TextDocument * const doc = q->documentForFilePath(it.key().toFilePath());
         if (!doc)
             q->openExtraFile(it.key().toFilePath(), it->fileContent);
         it->fileContent.clear();
@@ -1283,9 +1279,8 @@ void ClangdClient::Private::handleRenameRequest(const SearchResult *search,
                                                 const QList<SearchResultItem> &checkedItems,
                                                 bool preserveCase)
 {
-    const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(newSymbolName,
-                                                                            checkedItems,
-                                                                            preserveCase);
+    const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
+                                                                preserveCase);
     if (!filePaths.isEmpty())
         SearchResultWindow::instance()->hide();
 
@@ -1369,7 +1364,7 @@ void ClangdClient::Private::finishSearch(const ReferencesData &refData, bool can
     runningFindUsages.remove(refData.key);
 }
 
-void ClangdClient::followSymbol(TextEditor::TextDocument *document,
+void ClangdClient::followSymbol(TextDocument *document,
         const QTextCursor &cursor,
         CppEditor::CppEditorWidget *editorWidget,
         Utils::ProcessLinkCallback &&callback,
@@ -1424,7 +1419,7 @@ void ClangdClient::followSymbol(TextEditor::TextDocument *document,
     d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::SyncIfPossible);
 }
 
-void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QTextCursor &cursor,
+void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
                                  CppEditor::CppEditorWidget *editorWidget,
                                  Utils::ProcessLinkCallback &&callback)
 {
@@ -1455,7 +1450,7 @@ void ClangdClient::switchDeclDef(TextEditor::TextDocument *document, const QText
     documentSymbolCache()->requestSymbols(d->switchDeclDefData->uri, Schedule::Now);
 }
 
-void ClangdClient::findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cursor,
         CppEditor::RefactoringEngineInterface::RenameCallback &&callback)
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
@@ -1578,7 +1573,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
     }
 
-    const TextEditor::TextDocument * const doc = documentForFilePath(uri.toFilePath());
+    const TextDocument * const doc = documentForFilePath(uri.toFilePath());
     QTC_ASSERT(doc, return);
     const auto astHandler = [this, uri, hoverResponse](const AstNode &ast, const MessageId &) {
         const MessageId id = hoverResponse.id();
@@ -1778,8 +1773,8 @@ void ClangdClient::Private::handleGotoImplementationResult(
     // procedure, to let the user know that things are happening.
     if (followSymbolData->allLinks.size() > 1 && !followSymbolData->virtualFuncAssistProcessor
             && followSymbolData->editorWidget) {
-        followSymbolData->editorWidget->invokeTextEditorWidgetAssist(
-                    TextEditor::FollowSymbol, &followSymbolData->virtualFuncAssistProvider);
+        followSymbolData->editorWidget->invokeTextEditorWidgetAssist(FollowSymbol,
+                &followSymbolData->virtualFuncAssistProvider);
     }
 
     if (!followSymbolData->pendingGotoImplRequests.isEmpty())
@@ -1866,7 +1861,7 @@ void ClangdClient::Private::handleGotoImplementationResult(
     }
 
     const Utils::FilePath defLinkFilePath = followSymbolData->defLink.targetFilePath;
-    const TextEditor::TextDocument * const defLinkDoc = q->documentForFilePath(defLinkFilePath);
+    const TextDocument * const defLinkDoc = q->documentForFilePath(defLinkFilePath);
     const auto defLinkDocVariant = defLinkDoc ? TextDocOrFile(defLinkDoc)
                                               : TextDocOrFile(defLinkFilePath);
     const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
@@ -1972,19 +1967,19 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token, const 
         q->hoverHandler()->setHelpItem(token, helpItem);
 }
 
-static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult> &future,
-                                TextEditor::HighlightingResults &results, const AstNode &ast,
+static void collectExtraResults(QFutureInterface<HighlightingResult> &future,
+                                HighlightingResults &results, const AstNode &ast,
                                 QTextDocument *doc, const QString &docContent)
 {
     if (!ast.isValid())
         return;
 
-    static const auto lessThan = [](const TextEditor::HighlightingResult &r1,
-                                    const TextEditor::HighlightingResult &r2) {
+    static const auto lessThan = [](const HighlightingResult &r1,
+                                    const HighlightingResult &r2) {
         return r1.line < r2.line || (r1.line == r2.line && r1.column < r2.column)
                 || (r1.line == r2.line && r1.column == r2.column && r1.length < r2.length);
     };
-    const auto insert = [&](const TextEditor::HighlightingResult &result) {
+    const auto insert = [&](const HighlightingResult &result) {
         if (!result.isValid()) // Some nodes don't have a range.
             return;
         const auto it = std::lower_bound(results.begin(), results.end(), result, lessThan);
@@ -1996,14 +1991,14 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
         }
 
         // This is for conversion operators, whose type part is only reported as a type by clangd.
-        if ((it->textStyles.mainStyle == TextEditor::C_TYPE
-             || it->textStyles.mainStyle == TextEditor::C_PRIMITIVE_TYPE)
+        if ((it->textStyles.mainStyle == C_TYPE
+             || it->textStyles.mainStyle == C_PRIMITIVE_TYPE)
                 && !result.textStyles.mixinStyles.empty()
-                && result.textStyles.mixinStyles.at(0) == TextEditor::C_OPERATOR) {
+                && result.textStyles.mixinStyles.at(0) == C_OPERATOR) {
             it->textStyles.mixinStyles = result.textStyles.mixinStyles;
         }
     };
-    const auto setFromRange = [doc](TextEditor::HighlightingResult &result, const Range &range) {
+    const auto setFromRange = [doc](HighlightingResult &result, const Range &range) {
         if (!range.isValid())
             return;
         const Position startPos = range.start();
@@ -2033,28 +2028,27 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
         nodes << children;
 
         if (node.kind().endsWith("Literal")) {
-            TextEditor::HighlightingResult result;
+            HighlightingResult result;
             result.useTextSyles = true;
             const bool isStringLike = node.kind().startsWith("String")
                     || node.kind().startsWith("Character");
-            result.textStyles.mainStyle = isStringLike
-                    ? TextEditor::C_STRING : TextEditor::C_NUMBER;
+            result.textStyles.mainStyle = isStringLike ? C_STRING : C_NUMBER;
             setFromRange(result, node.range());
             insert(result);
             continue;
         }
         if (node.role() == "type" && node.kind() == "Builtin") {
-            TextEditor::HighlightingResult result;
+            HighlightingResult result;
             result.useTextSyles = true;
-            result.textStyles.mainStyle = TextEditor::C_PRIMITIVE_TYPE;
+            result.textStyles.mainStyle = C_PRIMITIVE_TYPE;
             setFromRange(result, node.range());
             insert(result);
             continue;
         }
         if (node.role() == "attribute" && (node.kind() == "Override" || node.kind() == "Final")) {
-            TextEditor::HighlightingResult result;
+            HighlightingResult result;
             result.useTextSyles = true;
-            result.textStyles.mainStyle = TextEditor::C_KEYWORD;
+            result.textStyles.mainStyle = C_KEYWORD;
             setFromRange(result, node.range());
             insert(result);
             continue;
@@ -2104,10 +2098,10 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
             if (absQuestionMarkPos > absColonPos)
                 continue;
 
-            TextEditor::HighlightingResult result;
+            HighlightingResult result;
             result.useTextSyles = true;
-            result.textStyles.mainStyle = TextEditor::C_PUNCTUATION;
-            result.textStyles.mixinStyles.push_back(TextEditor::C_OPERATOR);
+            result.textStyles.mainStyle = C_PUNCTUATION;
+            result.textStyles.mixinStyles.push_back(C_OPERATOR);
             Utils::Text::convertPosition(doc, absQuestionMarkPos, &result.line, &result.column);
             result.length = 1;
             result.kind = CppEditor::SemanticHighlighter::TernaryIf;
@@ -2142,9 +2136,9 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
             if (absOpeningAngleBracketPos > absClosingAngleBracketPos)
                 return;
 
-            TextEditor::HighlightingResult result;
+            HighlightingResult result;
             result.useTextSyles = true;
-            result.textStyles.mainStyle = TextEditor::C_PUNCTUATION;
+            result.textStyles.mainStyle = C_PUNCTUATION;
             Utils::Text::convertPosition(doc, absOpeningAngleBracketPos,
                                          &result.line, &result.column);
             result.length = 1;
@@ -2295,21 +2289,21 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
         if (!isCallToNew && !isCallToDelete)
             detail.remove(0, operatorPrefix.length());
 
-        TextEditor::HighlightingResult result;
+        HighlightingResult result;
         result.useTextSyles = true;
         const bool isConversionOp = node.kind() == "CXXConversion";
         const bool isOverloaded = !isConversionOp
                 && (isDeclaration || ((!isCallToNew && !isCallToDelete)
                                       || node.arcanaContains("CXXMethod")));
         result.textStyles.mainStyle = isConversionOp
-                ? TextEditor::C_PRIMITIVE_TYPE
+                ? C_PRIMITIVE_TYPE
                 : isCallToNew || isCallToDelete || detail.at(0).isSpace()
-                  ? TextEditor::C_KEYWORD : TextEditor::C_PUNCTUATION;
-        result.textStyles.mixinStyles.push_back(TextEditor::C_OPERATOR);
+                  ? C_KEYWORD : C_PUNCTUATION;
+        result.textStyles.mixinStyles.push_back(C_OPERATOR);
         if (isOverloaded)
-            result.textStyles.mixinStyles.push_back(TextEditor::C_OVERLOADED_OPERATOR);
+            result.textStyles.mixinStyles.push_back(C_OVERLOADED_OPERATOR);
         if (isDeclaration)
-            result.textStyles.mixinStyles.push_back(TextEditor::C_DECLARATION);
+            result.textStyles.mixinStyles.push_back(C_DECLARATION);
 
         const QStringView nodeText = QStringView(docContent)
                 .mid(nodeStartPos, nodeEndPos - nodeStartPos);
@@ -2327,7 +2321,7 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
                 if (closingBracketOffset == -1 || closingBracketOffset < openingBracketOffset)
                     continue;
 
-                result.textStyles.mainStyle = TextEditor::C_PUNCTUATION;
+                result.textStyles.mainStyle = C_PUNCTUATION;
                 result.length = 1;
                 Utils::Text::convertPosition(doc,
                                              nodeStartPos + openingBracketOffset,
@@ -2390,7 +2384,7 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
         if (!isArray && !isCall && !isArrayNew && !isArrayDelete)
             continue;
 
-        result.textStyles.mainStyle = TextEditor::C_PUNCTUATION;
+        result.textStyles.mainStyle = C_PUNCTUATION;
         result.length = 1;
         const int openingParenOffset = nodeText.indexOf(
                     isCall ? '(' : '[', prefixOffset + operatorPrefix.length());
@@ -2412,18 +2406,17 @@ static void collectExtraResults(QFutureInterface<TextEditor::HighlightingResult>
 // and not even in a consistent manner. We don't want this, so we have to clean up here.
 // But note that we require this behavior, as otherwise we would not be able to grey out
 // e.g. empty lines after an #fdef, due to the lack of symbols.
-static QList<TextEditor::BlockRange>
-cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextDocument *doc,
-                    const QString &docContent)
+static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, QTextDocument *doc,
+                                             const QString &docContent)
 {
-    QList<TextEditor::BlockRange> ifdefedOutRanges;
+    QList<BlockRange> ifdefedOutRanges;
     int rangeStartPos = -1;
     for (auto it = results.begin(); it != results.end();) {
         const bool wasIfdefedOut = rangeStartPos != -1;
-        if (it->textStyles.mainStyle != TextEditor::C_DISABLED_CODE) {
+        if (it->textStyles.mainStyle != C_DISABLED_CODE) {
             if (wasIfdefedOut) {
                 const QTextBlock block = doc->findBlockByNumber(it->line - 1);
-                ifdefedOutRanges << TextEditor::BlockRange(rangeStartPos, block.position());
+                ifdefedOutRanges << BlockRange(rangeStartPos, block.position());
                 rangeStartPos = -1;
             }
             ++it;
@@ -2451,10 +2444,10 @@ cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextDocument *doc
         }
 
         if (wasIfdefedOut && (it + 1 == results.end()
-                || (it + 1)->textStyles.mainStyle != TextEditor::C_DISABLED_CODE)) {
+                || (it + 1)->textStyles.mainStyle != C_DISABLED_CODE)) {
             // The #else or #endif that ends disabled code should not be disabled.
             const QTextBlock block = doc->findBlockByNumber(it->line - 1);
-            ifdefedOutRanges << TextEditor::BlockRange(rangeStartPos, block.position());
+            ifdefedOutRanges << BlockRange(rangeStartPos, block.position());
             rangeStartPos = -1;
             it = results.erase(it);
             continue;
@@ -2463,15 +2456,15 @@ cleanupDisabledCode(TextEditor::HighlightingResults &results, QTextDocument *doc
     }
 
     if (rangeStartPos != -1)
-        ifdefedOutRanges << TextEditor::BlockRange(rangeStartPos, doc->characterCount());
+        ifdefedOutRanges << BlockRange(rangeStartPos, doc->characterCount());
 
     return ifdefedOutRanges;
 }
 
-static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult> &future,
+static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const QList<ExpandedSemanticToken> &tokens,
                                 const QString &docContents, const AstNode &ast,
-                                const QPointer<TextEditor::TextEditorWidget> &widget,
+                                const QPointer<TextEditorWidget> &widget,
                                 int docRevision)
 {
     if (future.isCanceled()) {
@@ -2507,21 +2500,18 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
     };
 
     const auto toResult = [&ast, &isOutputParameter](const ExpandedSemanticToken &token) {
-        TextEditor::TextStyles styles;
+        TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains("functionScope")) {
-                styles.mainStyle = TextEditor::C_LOCAL;
+                styles.mainStyle = C_LOCAL;
             } else if (token.modifiers.contains("classScope")) {
-                styles.mainStyle = TextEditor::C_FIELD;
+                styles.mainStyle = C_FIELD;
             } else if (token.modifiers.contains("fileScope")
                        || token.modifiers.contains("globalScope")) {
-                styles.mainStyle = TextEditor::C_GLOBAL;
+                styles.mainStyle = C_GLOBAL;
             }
         } else if (token.type == "function" || token.type == "method") {
-            if (token.modifiers.contains("virtual"))
-                styles.mainStyle = TextEditor::C_VIRTUAL_METHOD;
-            else
-                styles.mainStyle = TextEditor::C_FUNCTION;
+            styles.mainStyle = token.modifiers.contains("virtual") ? C_VIRTUAL_METHOD : C_FUNCTION;
             if (ast.isValid()) {
                 const Position pos(token.line - 1, token.column - 1);
                 const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
@@ -2531,15 +2521,15 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
 
                         // TODO: Remove this once we can assume clangd >= 14.
                         if (declNode.arcanaContains("' virtual"))
-                            styles.mainStyle = TextEditor::C_VIRTUAL_METHOD;
+                            styles.mainStyle = C_VIRTUAL_METHOD;
 
                         if (declNode.hasChildWithRole("statement"))
-                            styles.mixinStyles.push_back(TextEditor::C_FUNCTION_DEFINITION);
+                            styles.mixinStyles.push_back(C_FUNCTION_DEFINITION);
                     }
                 }
             }
         } else if (token.type == "class") {
-            styles.mainStyle = TextEditor::C_TYPE;
+            styles.mainStyle = C_TYPE;
 
             // clang hardly ever differentiates between constructors and the associated class,
             // whereas we highlight constructors as functions.
@@ -2549,51 +2539,50 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
                 if (!path.isEmpty()) {
                     if (path.last().kind() == "CXXConstructor") {
                         if (!path.last().arcanaContains("implicit"))
-                            styles.mainStyle = TextEditor::C_FUNCTION;
+                            styles.mainStyle = C_FUNCTION;
                     } else if (path.last().kind() == "Record" && path.length() > 1) {
                         const AstNode node = path.at(path.length() - 2);
                         if (node.kind() == "CXXDestructor" && !node.arcanaContains("implicit")) {
-                            styles.mainStyle = TextEditor::C_FUNCTION;
+                            styles.mainStyle = C_FUNCTION;
 
                             // https://github.com/clangd/clangd/issues/872
                             if (node.role() == "declaration")
-                                styles.mixinStyles.push_back(TextEditor::C_DECLARATION);
+                                styles.mixinStyles.push_back(C_DECLARATION);
                         }
                     }
                 }
             }
         } else if (token.type == "comment") { // "comment" means code disabled via the preprocessor
-            styles.mainStyle = TextEditor::C_DISABLED_CODE;
+            styles.mainStyle = C_DISABLED_CODE;
         } else if (token.type == "namespace") {
-            styles.mainStyle = TextEditor::C_TYPE;
+            styles.mainStyle = C_TYPE;
         } else if (token.type == "property") {
-            styles.mainStyle = TextEditor::C_FIELD;
+            styles.mainStyle = C_FIELD;
         } else if (token.type == "enum") {
-            styles.mainStyle = TextEditor::C_TYPE;
-            styles.mixinStyles.push_back(TextEditor::C_ENUMERATION);
+            styles.mainStyle = C_TYPE;
+            styles.mixinStyles.push_back(C_ENUMERATION);
         } else if (token.type == "enumMember") {
-            styles.mainStyle = TextEditor::C_ENUMERATION;
+            styles.mainStyle = C_ENUMERATION;
         } else if (token.type == "parameter") {
-            styles.mainStyle = TextEditor::C_PARAMETER;
+            styles.mainStyle = C_PARAMETER;
         } else if (token.type == "macro") {
-            styles.mainStyle = TextEditor::C_PREPROCESSOR;
+            styles.mainStyle = C_PREPROCESSOR;
         } else if (token.type == "type") {
-            styles.mainStyle = TextEditor::C_TYPE;
+            styles.mainStyle = C_TYPE;
         } else if (token.type == "typeParameter") {
-            styles.mainStyle = TextEditor::C_TYPE;
+            styles.mainStyle = C_TYPE;
         }
         if (token.modifiers.contains("declaration"))
-            styles.mixinStyles.push_back(TextEditor::C_DECLARATION);
+            styles.mixinStyles.push_back(C_DECLARATION);
         if (isOutputParameter(token))
-            styles.mixinStyles.push_back(TextEditor::C_OUTPUT_ARGUMENT);
+            styles.mixinStyles.push_back(C_OUTPUT_ARGUMENT);
         qCDebug(clangdLogHighlight) << "adding highlighting result"
                            << token.line << token.column << token.length << int(styles.mainStyle);
-        return TextEditor::HighlightingResult(token.line, token.column, token.length, styles);
+        return HighlightingResult(token.line, token.column, token.length, styles);
     };
 
-    TextEditor::HighlightingResults results = Utils::transform(tokens, toResult);
-    const QList<TextEditor::BlockRange> ifdefedOutBlocks
-            = cleanupDisabledCode(results, &doc, docContents);
+    HighlightingResults results = Utils::transform(tokens, toResult);
+    const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
     QMetaObject::invokeMethod(widget, [widget, ifdefedOutBlocks, docRevision] {
         if (widget && widget->textDocument()->document()->revision() == docRevision)
             widget->setIfdefedOutBlocks(ifdefedOutBlocks);
@@ -2601,7 +2590,7 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
     collectExtraResults(future, results, ast, &doc, docContents);
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
-        future.reportResults(QVector<TextEditor::HighlightingResult>(results.cbegin(),
+        future.reportResults(QVector<HighlightingResult>(results.cbegin(),
                                                                      results.cend()));
     }
     future.reportFinished();
@@ -2619,7 +2608,7 @@ static void semanticHighlighter(QFutureInterface<TextEditor::HighlightingResult>
 //    - We consider most other tokens to be simple enough to be handled by the built-in code model.
 //      Sometimes we have no choice, as for #include directives, which appear neither
 //      in the semantic tokens nor in the AST.
-void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
+void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                                                  const QList<ExpandedSemanticToken> &tokens)
 {
     qCDebug(clangdLog()) << "handling LSP tokens" << doc->filePath() << tokens.size();
@@ -2635,15 +2624,15 @@ void ClangdClient::Private::handleSemanticTokens(TextEditor::TextDocument *doc,
 
         IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
                 [doc](const IEditor *editor) { return editor->document() == doc; });
-        const auto editorWidget = TextEditor::TextEditorWidget::fromEditor(editor);
+        const auto editorWidget = TextEditorWidget::fromEditor(editor);
         const auto runner = [tokens, text = doc->document()->toPlainText(), ast,
                              w = QPointer(editorWidget), rev = doc->document()->revision()] {
             return Utils::runAsync(semanticHighlighter, tokens, text, ast, w, rev);
         };
 
         if (isTesting) {
-            const auto watcher = new QFutureWatcher<TextEditor::HighlightingResult>(q);
-            connect(watcher, &QFutureWatcher<TextEditor::HighlightingResult>::finished,
+            const auto watcher = new QFutureWatcher<HighlightingResult>(q);
+            connect(watcher, &QFutureWatcher<HighlightingResult>::finished,
                     q, [this, watcher, fp = doc->filePath()] {
                 emit q->highlightingResultsReady(watcher->future().results(), fp);
                 watcher->deleteLater();
@@ -2700,11 +2689,11 @@ void ClangdClient::VirtualFunctionAssistProcessor::resetData()
     m_data = nullptr;
 }
 
-TextEditor::IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::createProposal(bool final) const
+IAssistProposal *ClangdClient::VirtualFunctionAssistProcessor::createProposal(bool final) const
 {
     QTC_ASSERT(m_data && m_data->followSymbolData, return nullptr);
 
-    QList<TextEditor::AssistProposalItemInterface *> items;
+    QList<AssistProposalItemInterface *> items;
     bool needsBaseDeclEntry = !m_data->followSymbolData->defLinkNode.range()
             .contains(Position(m_data->followSymbolData->cursor));
     for (const SymbolData &symbol : qAsConst(m_data->followSymbolData->symbolsToDisplay)) {
@@ -2754,8 +2743,8 @@ ClangdClient::VirtualFunctionAssistProcessor::createEntry(const QString &name,
     return item;
 }
 
-TextEditor::IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor(
-    const TextEditor::AssistInterface *) const
+IAssistProcessor *ClangdClient::VirtualFunctionAssistProvider::createProcessor(
+    const AssistInterface *) const
 {
     return m_data->followSymbolData->virtualFuncAssistProcessor
             = new VirtualFunctionAssistProcessor(m_data);
@@ -2780,10 +2769,10 @@ public:
     {}
 
 private:
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override
+    IAssistProposal *perform(const AssistInterface *interface) override
     {
         if (m_client->d->isTesting) {
-            setAsyncCompletionAvailableHandler([this](TextEditor::IAssistProposal *proposal) {
+            setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {
                 emit m_client->proposalReady(proposal);
             });
         }
@@ -2798,8 +2787,8 @@ ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(Cla
     , m_client(client)
 {}
 
-TextEditor::IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
-    const TextEditor::AssistInterface *assistInterface) const
+IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
+    const AssistInterface *assistInterface) const
 {
     ClangCompletionContextAnalyzer contextAnalyzer(assistInterface->textDocument(),
                                                    assistInterface->position(), false, {});
@@ -2848,9 +2837,8 @@ bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QCha
     return CppEditor::isValidIdentifierChar(c);
 }
 
-void ClangdClient::ClangdCompletionAssistProcessor::applyCompletionItem(
-        const CompletionItem &item, TextEditor::TextDocumentManipulatorInterface &manipulator,
-        QChar typedChar)
+void ClangdClient::ClangdCompletionAssistProcessor::applyCompletionItem(const CompletionItem &item,
+        TextDocumentManipulatorInterface &manipulator, QChar typedChar)
 {
     const auto edit = item.textEdit();
     if (!edit)
@@ -2873,8 +2861,7 @@ void ClangdClient::ClangdCompletionAssistProcessor::applyCompletionItem(
     }
 
     const QString detail = item.detail().value_or(QString());
-    const TextEditor::CompletionSettings &completionSettings
-            = TextEditor::TextEditorSettings::completionSettings();
+    const CompletionSettings &completionSettings = TextEditorSettings::completionSettings();
     QString textToBeInserted = rawInsertText.left(firstParenOffset);
     QString extraCharacters;
     int cursorOffset = 0;
@@ -2972,8 +2959,8 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
                                                  const AstHandler &astHandler,
                                                  AstCallbackMode callbackMode)
 {
-    const auto textDocPtr = std::get_if<const TextEditor::TextDocument *>(&doc);
-    const TextEditor::TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
+    const auto textDocPtr = std::get_if<const TextDocument *>(&doc);
+    const TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
     const Utils::FilePath filePath = textDoc ? textDoc->filePath() : std::get<Utils::FilePath>(doc);
 
     // If the document's AST is in the cache and is up to date, call the handler.
