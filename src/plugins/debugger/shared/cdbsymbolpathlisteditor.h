@@ -27,13 +27,7 @@
 
 #include <utils/pathlisteditor.h>
 
-#include <QDialog>
-
-namespace Utils { class PathChooser; }
-
-QT_BEGIN_NAMESPACE
-class QDialogButtonBox;
-QT_END_NAMESPACE
+namespace Utils { class FilePath; }
 
 namespace Debugger {
 namespace Internal {
@@ -44,21 +38,6 @@ namespace Internal {
 // a non-existent folder, which is in turn automatically
 // created. This is done here (suggest $TEMP\symbolcache
 // regardless of its existence).
-
-class CacheDirectoryDialog : public QDialog {
-    Q_OBJECT
-public:
-   explicit CacheDirectoryDialog(QWidget *parent = nullptr);
-
-   void setPath(const QString &p);
-   QString path() const;
-
-   void accept() override;
-
-private:
-   Utils::PathChooser *m_chooser;
-   QDialogButtonBox *m_buttonBox;
-};
 
 class CdbSymbolPathListEditor : public Utils::PathListEditor
 {
@@ -71,12 +50,7 @@ public:
 
     explicit CdbSymbolPathListEditor(QWidget *parent = nullptr);
 
-    static bool promptCacheDirectory(QWidget *parent, QString *cacheDirectory);
-
-    // Pre- and Postfix used to build a symbol server path specification
-    static const char *symbolServerPrefixC;
-    static const char *symbolServerPostfixC;
-    static const char *symbolCachePrefixC;
+    static bool promptCacheDirectory(QWidget *parent, Utils::FilePath *cacheDirectory);
 
     // Format a symbol path specification
     static QString symbolPath(const QString &cacheDir, SymbolPathMode mode);
