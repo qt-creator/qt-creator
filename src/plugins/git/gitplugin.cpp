@@ -87,6 +87,7 @@
 #include <QClipboard>
 #include <QFileDialog>
 #include <QMenu>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
@@ -477,8 +478,11 @@ void GitPluginPrivate::onApplySettings()
     bool gitFoundOk;
     QString errorMessage;
     m_settings.gitExecutable(&gitFoundOk, &errorMessage);
-    if (!gitFoundOk)
-        Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
+    if (!gitFoundOk) {
+        QTimer::singleShot(0, this, [this, errorMessage] {
+            Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
+        });
+    }
 }
 
 void GitPluginPrivate::cleanCommitMessageFile()
