@@ -25,6 +25,7 @@
 
 #include "gitsettings.h"
 
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -140,6 +141,12 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
         errorMessage->clear();
 
     FilePath binPath = binaryPath.filePath();
+    if (!binPath.isAbsolutePath()) {
+        FilePaths searchPath = binPath.deviceEnvironment().path();
+        if (!path.filePath().isEmpty())
+            searchPath.prepend(path.filePath());
+        binPath = binPath.searchInPath(searchPath);
+    }
     if (binPath.isEmpty()) {
         if (ok)
             *ok = false;

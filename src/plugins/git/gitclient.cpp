@@ -981,7 +981,7 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     QTC_ASSERT(document, return);
     GitBaseDiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
-    controller->setVcsBinary(settings().binaryPath.filePath());
+    controller->setVcsBinary(settings().gitExecutable());
     controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
