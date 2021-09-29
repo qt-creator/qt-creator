@@ -54,5 +54,6 @@
         <file>completion/preprocessorKeywordsCompletion2.cpp</file>
         <file>completion/preprocessorKeywordsCompletion3.cpp</file>
         <file>completion/privateFuncDefCompletion.cpp</file>
+        <file>highlighting/highlightingmarks.h</file>
     </qresource>
 </RCC>
