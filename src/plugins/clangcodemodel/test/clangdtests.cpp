@@ -1275,7 +1275,7 @@ void ClangdTestHighlighting::test()
     const TextEditor::HighlightingResults results = findResults();
 
     QEXPECT_FAIL("typedef as underlying type in enum declaration",
-                 "FIXME: clangd does not report this symbol",
+                 "https://github.com/clangd/clangd/issues/878",
                  Abort);
     QEXPECT_FAIL("Q_PROPERTY (property name)", "FIXME: How to do this?", Abort);
     QEXPECT_FAIL("Q_PROPERTY (getter)", "FIXME: How to do this?", Abort);
