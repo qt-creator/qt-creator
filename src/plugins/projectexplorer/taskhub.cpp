@@ -34,6 +34,7 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QThread>
 
 using namespace Utils;
 
