@@ -2975,9 +2975,10 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
                                                  const AstHandler &astHandler,
                                                  AstCallbackMode callbackMode)
 {
-    const auto textDocPtr = std::get_if<const TextDocument *>(&doc);
+    const auto textDocPtr = Utils::get_if<const TextDocument *>(&doc);
     const TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
-    const Utils::FilePath filePath = textDoc ? textDoc->filePath() : std::get<Utils::FilePath>(doc);
+    const Utils::FilePath filePath = textDoc ? textDoc->filePath()
+                                             : Utils::get<Utils::FilePath>(doc);
 
     // If the document's AST is in the cache and is up to date, call the handler.
     if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
