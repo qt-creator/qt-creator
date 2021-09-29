@@ -29,12 +29,13 @@
 #include "qmakevfs.h"
 #include "proitems.h"
 
-#include <qhash.h>
 #include <qstack.h>
 #ifdef PROPARSER_THREAD_SAFE
 # include <qmutex.h>
 # include <qwaitcondition.h>
 #endif
+
+#include <unordered_map>
 
 QT_BEGIN_NAMESPACE
 class QMAKE_EXPORT QMakeParserHandler
@@ -208,16 +209,16 @@ private:
         ProFile *pro;
 #ifdef PROPARSER_THREAD_SAFE
         struct Locker {
-            Locker() : waiters(0), done(false) {}
             QWaitCondition cond;
-            int waiters;
-            bool done;
+            int waiters = 0;
+            bool done = false;
+            bool removeOnLastWaiter = false;
         };
         Locker *locker;
 #endif
     };
 
-    QHash<int, Entry> parsed_files;
+    std::unordered_map<int, Entry> parsed_files;
 #ifdef PROPARSER_THREAD_SAFE
     QMutex mutex;
 #endif
