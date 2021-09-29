@@ -45,6 +45,10 @@ Item {
 
     onFocusChanged: restoreCursor()
 
+    function readValue() {
+        spinBox.realValue = gradientLine.model.readGradientProperty(wrapper.propertyName)
+    }
+
     StudioControls.RealSpinBox {
         id: spinBox
 
@@ -56,9 +60,7 @@ Item {
         realStepSize: 1
         decimals: 0
 
-        Component.onCompleted: {
-            spinBox.realValue = gradientLine.model.readGradientProperty(wrapper.propertyName)
-        }
+        Component.onCompleted: wrapper.readValue()
         onCompressedRealValueModified: {
             gradientLine.model.setGradientProperty(wrapper.propertyName, spinBox.realValue)
         }
