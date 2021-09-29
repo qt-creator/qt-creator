@@ -65,6 +65,9 @@ public:
     Utils::FilePath workingDirectory() const;
     int findRemoteByName(const QString &name) const;
 
+signals:
+    void refreshed();
+
 protected:
     class Remote {
     public:

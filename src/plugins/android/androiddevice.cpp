@@ -604,50 +604,20 @@ AndroidDeviceFactory::AndroidDeviceFactory()
 
 IDevice::Ptr AndroidDeviceFactory::create() const
 {
-    AndroidSdkManager sdkManager = AndroidSdkManager(m_androidConfig);
-    const CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(Core::ICore::dialogParent(),
-                                                              &sdkManager, m_androidConfig);
-    if (!info.isValid()) {
-        if (!info.cancelled) {
-            AndroidDeviceWidget::criticalDialog(
-                        QObject::tr("The returned device info is invalid."));
-        }
-        return nullptr;
+    AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
+    if (dialog.exec() != QDialog::Accepted)
+        return ProjectExplorer::IDevice::Ptr();
+
+    const ProjectExplorer::IDevice::Ptr dev = dialog.device();
+    const AndroidDevice *androidDev = static_cast<AndroidDevice*>(dev.data());
+    if (androidDev) {
+        qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
+                qPrintable(androidDev->avdName()));
+    } else {
+        AndroidDeviceWidget::criticalDialog(
+                    QObject::tr("The device info returned from AvdDialog is invalid."));
     }
 
-    const AndroidAvdManager avdManager = AndroidAvdManager(m_androidConfig);
-    QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
-    createAvdFutureWatcher.setFuture(avdManager.createAvd(info));
-
-    QEventLoop loop;
-    QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::finished,
-                     &loop, &QEventLoop::quit);
-    QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::canceled,
-                     &loop, &QEventLoop::quit);
-    loop.exec(QEventLoop::ExcludeUserInputEvents);
-
-    QFuture<CreateAvdInfo> future = createAvdFutureWatcher.future();
-    if (!(future.isResultReadyAt(0) && future.result().isValid())) {
-        AndroidDeviceWidget::criticalDialog(QObject::tr("The device info returned by "
-                        "avdmanager tool is invalid for the device name \"%1\".").arg(info.name));
-        return nullptr;
-    }
-
-    const CreateAvdInfo newAvdInfo = createAvdFutureWatcher.result();
-
-    AndroidDevice *dev = new AndroidDevice();
-    const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(newAvdInfo);
-    dev->setupId(IDevice::AutoDetected, deviceId);
-    dev->setMachineType(IDevice::Emulator);
-    dev->setDisplayName(newAvdInfo.name);
-    dev->setDeviceState(IDevice::DeviceConnected);
-    dev->setExtraData(Constants::AndroidAvdName, newAvdInfo.name);
-    dev->setExtraData(Constants::AndroidCpuAbi, {newAvdInfo.abi});
-    dev->setExtraData(Constants::AndroidSdk, newAvdInfo.systemImage->apiLevel());
-    dev->setExtraData(Constants::AndroidAvdSdcard, QString("%1 MB").arg(newAvdInfo.sdcardSize));
-    dev->setExtraData(Constants::AndroidAvdDevice, newAvdInfo.deviceDefinition);
-
-    qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".", qPrintable(newAvdInfo.name));
     return IDevice::Ptr(dev);
 }
 

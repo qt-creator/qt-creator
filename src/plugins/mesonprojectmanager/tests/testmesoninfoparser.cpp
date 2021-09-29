@@ -27,7 +27,7 @@
 #include "mesoninfoparser/mesoninfoparser.h"
 
 #include <utils/launcherinterface.h>
-#include <utils/processreaper.h>
+#include <utils/singleton.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -79,9 +79,8 @@ class AMesonInfoParser : public QObject
 private slots:
     void initTestCase()
     {
-        Utils::LauncherInterface::startLauncher(
-                    QCoreApplication::instance()->applicationDirPath() + '/'
-                    + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+        Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                                    + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     }
 
     void shouldListTargets_data()
@@ -121,11 +120,10 @@ private slots:
 
     void cleanupTestCase()
     {
-        Utils::LauncherInterface::stopLauncher();
+        Utils::Singleton::deleteAll();
     }
 
 private:
-    Utils::ProcessReaper processReaper;
 };
 
 QTEST_MAIN(AMesonInfoParser)

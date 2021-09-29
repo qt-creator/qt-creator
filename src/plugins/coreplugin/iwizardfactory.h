@@ -115,6 +115,8 @@ public:
                                      const Utils::FilePath &defaultLocation,
                                      const QVariantMap &extraVariables);
 
+    static QIcon themedIcon(const Utils::FilePath &iconMaskPath);
+
 protected:
     static QSet<Utils::Id> pluginFeatures();
     static QSet<Utils::Id> availableFeatures(Utils::Id platformId);

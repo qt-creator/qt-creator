@@ -241,7 +241,7 @@ void AndroidSettingsWidget::updateNdkList()
     const auto installedPkgs = m_sdkManager.installedNdkPackages();
     for (const Ndk *ndk : installedPkgs) {
         m_ui.ndkListWidget->addItem(new QListWidgetItem(Icons::LOCKED.icon(),
-                                                        ndk->installedLocation().toString()));
+                                                        ndk->installedLocation().toUserOutput()));
     }
 
     const auto customNdks = m_androidConfig.getCustomNdkList();

@@ -185,8 +185,6 @@ public:
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
-    void setCompletionProposalHandler(const ProposalHandler &handler);
-    void setFunctionHintProposalHandler(const ProposalHandler &handler);
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
 
@@ -240,6 +238,7 @@ private:
     void rehighlight();
 
     virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
+    virtual void handleDocumentOpened(TextEditor::TextDocument *) {}
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,

@@ -30,7 +30,7 @@
 
 #include <sqliteglobal.h>
 #include <utils/launcherinterface.h>
-#include <utils/processreaper.h>
+#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QGuiApplication>
@@ -61,10 +61,8 @@ int main(int argc, char *argv[])
     Sqlite::Database::activateLogging();
 
     QGuiApplication application(argc, argv);
-    Utils::ProcessReaper processReaper;
-    Utils::LauncherInterface::startLauncher(qApp->applicationDirPath() + '/'
-                                            + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    auto cleanup = qScopeGuard([] { Utils::LauncherInterface::stopLauncher(); });
+    Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                                + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     testing::InitGoogleTest(&argc, argv);
 #ifdef WITH_BENCHMARKS
     benchmark::Initialize(&argc, argv);
@@ -75,6 +73,7 @@ int main(int argc, char *argv[])
 
     int testsHaveErrors = RUN_ALL_TESTS();
 
+    Utils::Singleton::deleteAll();
 #ifdef WITH_BENCHMARKS
     if (testsHaveErrors == 0  && application.arguments().contains(QStringLiteral("--with-benchmarks")))
         benchmark::RunSpecifiedBenchmarks();

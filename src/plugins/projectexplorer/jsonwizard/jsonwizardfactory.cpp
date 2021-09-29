@@ -73,6 +73,7 @@ const char DISPLAY_NAME_KEY[] = "trDisplayName";
 const char ICON_KEY[] = "icon";
 const char ICON_TEXT_KEY[] = "iconText";
 const char IMAGE_KEY[] = "image";
+const char ICON_KIND_KEY[] = "iconKind";
 const char DESCRIPTION_KEY[] = "trDescription";
 const char REQUIRED_FEATURES_KEY[] = "featuresRequired";
 const char SUGGESTED_FEATURES_KEY[] = "featuresSuggested";
@@ -586,7 +587,12 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
         return false;
     }
     const QString iconText = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
-    setIcon(strVal.isEmpty() ? QIcon() : QIcon(iconPath.toString()), iconText);
+    const bool iconIsThemed = data.value(QLatin1String(ICON_KIND_KEY)).toString()
+            .compare("Themed", Qt::CaseInsensitive) == 0;
+    setIcon(iconIsThemed ? themedIcon(iconPath)
+                         : strVal.isEmpty() ? QIcon()
+                                            : QIcon(iconPath.toString()),
+            iconText);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {

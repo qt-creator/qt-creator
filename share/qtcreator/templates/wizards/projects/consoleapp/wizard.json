@@ -7,6 +7,7 @@
     "trDisplayName": "Qt Console Application",
     "trDisplayCategory": "Application (Qt)",
     "icon": "../../global/consoleapplication.png",
+    "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
     "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0}",
 

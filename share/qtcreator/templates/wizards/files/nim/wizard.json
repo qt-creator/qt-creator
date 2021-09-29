@@ -7,6 +7,7 @@
     "trDisplayName": "Nim File",
     "trDisplayCategory": "Nim",
     "icon": "../../projects/nim/icon.png",
+    "iconKind": "Themed",
     "enabled": "%{JS: value('Plugins').indexOf('Nim') >= 0}",
 
     "options": { "key": "DefaultSuffix", "value": "nim" },

@@ -48,7 +48,7 @@ CustomWidgetWizard::CustomWidgetWizard()
              ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
     setDisplayName(tr("Qt Custom Designer Widget"));
     setDescription(tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
-    setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
+    setIcon(themedIcon(":/wizards/images/gui.png"));
     setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }
 

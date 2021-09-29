@@ -32,16 +32,13 @@
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
 
-#include <ssh/sshconnectionmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/launcherinterface.h>
 #include <utils/optional.h>
-#include <utils/processreaper.h>
 #include <utils/qtcsettings.h>
+#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDebug>
@@ -537,10 +534,7 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));
     QGuiApplication::setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
-    Utils::ProcessReaper processReaper;
-    Utils::LauncherInterface::startLauncher();
-    auto cleanup = qScopeGuard([] { Utils::LauncherInterface::stopLauncher(); });
-    QSsh::SshConnectionManager sshConnectionManager;
+    auto cleanup = qScopeGuard([] { Utils::Singleton::deleteAll(); });
 
     const QStringList pluginArguments = app.arguments();
 

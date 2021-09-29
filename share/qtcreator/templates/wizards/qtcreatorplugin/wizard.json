@@ -7,6 +7,7 @@
     "trDisplayName": "Qt Creator Plugin",
     "trDisplayCategory": "Library",
     "icon": "qtcreatorplugin.png",
+    "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
     "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
 

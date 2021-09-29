@@ -77,6 +77,7 @@ using Range = std::tuple<int, int, int>;
 } // namespace ClangCodeModel
 
 Q_DECLARE_METATYPE(ClangCodeModel::Internal::Tests::Range)
+Q_DECLARE_METATYPE(IAssistProposal *)
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -392,7 +393,7 @@ void ClangdTestFollowSymbol::test()
     timer.stop();
 
     QCOMPARE(actualLink.targetFilePath, filePath(targetFile));
-    QEXPECT_FAIL("union member ref", "FIXME: clangd points to union", Abort);
+    QEXPECT_FAIL("union member ref", "https://github.com/clangd/clangd/issues/877", Abort);
     QCOMPARE(actualLink.targetLine, targetLine);
     QCOMPARE(actualLink.targetColumn + 1, targetColumn);
 }
@@ -1274,7 +1275,7 @@ void ClangdTestHighlighting::test()
     const TextEditor::HighlightingResults results = findResults();
 
     QEXPECT_FAIL("typedef as underlying type in enum declaration",
-                 "FIXME: clangd does not report this symbol",
+                 "https://github.com/clangd/clangd/issues/878",
                  Abort);
     QEXPECT_FAIL("Q_PROPERTY (property name)", "FIXME: How to do this?", Abort);
     QEXPECT_FAIL("Q_PROPERTY (getter)", "FIXME: How to do this?", Abort);
@@ -1461,20 +1462,19 @@ void ClangdTestCompletion::testCompletePreprocessorKeywords()
     ProposalModelPtr proposal;
     getProposal("preprocessorKeywordsCompletion.cpp", proposal);
     QVERIFY(proposal);
-    QVERIFY(hasItem(proposal, " ifdef macro"));
+    QVERIFY(hasItem(proposal, "ifdef"));
     QVERIFY(!hasSnippet(proposal, "class "));
 
     proposal.clear();
     getProposal("preprocessorKeywordsCompletion2.cpp", proposal);
     QVERIFY(proposal);
-    QVERIFY(hasItem(proposal, " endif"));
+    QVERIFY(hasItem(proposal, "endif"));
     QVERIFY(!hasSnippet(proposal, "class "));
 
     proposal.clear();
     getProposal("preprocessorKeywordsCompletion3.cpp", proposal);
     QVERIFY(proposal);
-    QEXPECT_FAIL("", "TODO: Fix in clangd", Continue);
-    QVERIFY(hasItem(proposal, " endif"));
+    QVERIFY(hasItem(proposal, "endif"));
     QVERIFY(!hasSnippet(proposal, "class "));
 }
 
@@ -1885,7 +1885,7 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
     connect(client(), &ClangdClient::proposalReady, &loop, [&proposal, &loop](IAssistProposal *p) {
         proposal = p;
         loop.quit();
-    });
+    }, Qt::QueuedConnection);
     editor->editorWidget()->invokeAssist(Completion, nullptr);
     timer.start(5000);
     loop.exec();

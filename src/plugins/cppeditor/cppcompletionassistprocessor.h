@@ -45,6 +45,8 @@ class CPPEDITOR_EXPORT CppCompletionAssistProcessor : public TextEditor::IAssist
 public:
     explicit CppCompletionAssistProcessor(int snippetItemOrder = 0);
 
+    static const QStringList preprocessorCompletions();
+
 protected:
     void addSnippets();
 
@@ -60,7 +62,6 @@ protected:
 
     int m_positionForProposal = -1;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
-    QStringList m_preprocessorCompletions;
     TextEditor::IAssistProposal *m_hintProposal = nullptr;
 
 private:

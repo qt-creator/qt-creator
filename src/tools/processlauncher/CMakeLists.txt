@@ -18,4 +18,6 @@ add_qtc_executable(qtcreator_processlauncher
     ${UTILSDIR}/processutils.h
     ${UTILSDIR}/qtcassert.cpp
     ${UTILSDIR}/qtcassert.h
+    ${UTILSDIR}/singleton.cpp
+    ${UTILSDIR}/singleton.h
     )

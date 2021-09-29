@@ -27,6 +27,9 @@
 
 #include "ssh_global.h"
 
+#include <utils/launcherinterface.h>
+#include <utils/singleton.h>
+
 namespace QSsh {
 
 class SshConnection;
@@ -35,18 +38,21 @@ class SshConnectionParameters;
 namespace Internal { class SshConnectionManagerPrivate; }
 
 class QSSH_EXPORT SshConnectionManager final
+        : public Utils::SingletonWithOptionalDependencies<SshConnectionManager,
+                                                          Utils::LauncherInterface>
 {
 public:
-    SshConnectionManager();
-    ~SshConnectionManager();
-
     static SshConnection *acquireConnection(const SshConnectionParameters &sshParams);
     static void releaseConnection(SshConnection *connection);
     // Make sure the next acquireConnection with the given parameters will return a new connection.
     static void forceNewConnection(const SshConnectionParameters &sshParams);
 
 private:
+    SshConnectionManager();
+    ~SshConnectionManager();
+
     Internal::SshConnectionManagerPrivate *d;
+    friend class Utils::SingletonWithOptionalDependencies<SshConnectionManager, Utils::LauncherInterface>;
 };
 
 } // namespace QSsh

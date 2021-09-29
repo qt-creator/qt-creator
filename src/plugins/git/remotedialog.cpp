@@ -145,6 +145,8 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
 
     connect(m_ui->remoteView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &RemoteDialog::updateButtonState);
+    connect(m_remoteModel, &RemoteModel::refreshed,
+            this, &RemoteDialog::updateButtonState);
 
     updateButtonState();
 }

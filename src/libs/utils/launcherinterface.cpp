@@ -28,7 +28,6 @@
 #include "filepath.h"
 #include "launcherpackets.h"
 #include "launchersocket.h"
-#include "processreaper.h"
 #include "qtcassert.h"
 
 #include <QCoreApplication>
@@ -42,7 +41,6 @@
 #endif
 
 namespace Utils {
-
 namespace Internal {
 
 class LauncherProcess : public QProcess
@@ -185,92 +183,73 @@ void LauncherInterfacePrivate::handleProcessStderr()
 using namespace Utils::Internal;
 
 static QMutex s_instanceMutex;
-static LauncherInterface *s_instance = nullptr;
+static QString s_pathToLauncher;
+static std::atomic_bool s_started = false;
 
 LauncherInterface::LauncherInterface()
     : m_private(new LauncherInterfacePrivate())
 {
     m_private->moveToThread(&m_thread);
-    connect(m_private, &LauncherInterfacePrivate::errorOccurred,
-            this, &LauncherInterface::errorOccurred);
-    connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
+    QObject::connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
     m_thread.start();
-}
+    m_thread.moveToThread(qApp->thread());
 
-LauncherInterface::~LauncherInterface()
-{
-    m_thread.quit();
-    m_thread.wait();
-}
-
-// Called from main thread
-void LauncherInterface::startLauncher(const QString &pathToLauncher)
-{
-    QMutexLocker locker(&s_instanceMutex);
-    QTC_ASSERT(s_instance == nullptr, return);
-    s_instance = new LauncherInterface();
-    LauncherInterfacePrivate *p = s_instance->m_private;
-    p->setPathToLauncher(pathToLauncher);
-    const FilePath launcherFilePath = FilePath::fromString(p->launcherFilePath())
+    m_private->setPathToLauncher(s_pathToLauncher);
+    const FilePath launcherFilePath = FilePath::fromString(m_private->launcherFilePath())
             .cleanPath().withExecutableSuffix();
     auto launcherIsNotExecutable = [&launcherFilePath]() {
         qWarning() << "The Creator's process launcher"
                    << launcherFilePath << "is not executable.";
     };
     QTC_ASSERT(launcherFilePath.isExecutableFile(), launcherIsNotExecutable(); return);
+    s_started = true;
     // Call in launcher's thread.
-    QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStart);
+    QMetaObject::invokeMethod(m_private, &LauncherInterfacePrivate::doStart);
 }
 
-// Called from main thread
-void LauncherInterface::stopLauncher()
+LauncherInterface::~LauncherInterface()
 {
     QMutexLocker locker(&s_instanceMutex);
-    QTC_ASSERT(s_instance != nullptr, return);
-    LauncherInterfacePrivate *p = s_instance->m_private;
+    LauncherInterfacePrivate *p = instance()->m_private;
     // Call in launcher's thread.
     QMetaObject::invokeMethod(p, &LauncherInterfacePrivate::doStop, Qt::BlockingQueuedConnection);
-    delete s_instance;
-    s_instance = nullptr;
+    m_thread.quit();
+    m_thread.wait();
+}
+
+void LauncherInterface::setPathToLauncher(const QString &pathToLauncher)
+{
+    s_pathToLauncher = pathToLauncher;
 }
 
 bool LauncherInterface::isStarted()
 {
-    QMutexLocker locker(&s_instanceMutex);
-    return s_instance != nullptr;
+    return s_started;
 }
 
 bool LauncherInterface::isReady()
 {
     QMutexLocker locker(&s_instanceMutex);
-    QTC_ASSERT(s_instance != nullptr, return false);
-
-    return s_instance->m_private->socket()->isReady();
+    return instance()->m_private->socket()->isReady();
 }
 
 void LauncherInterface::sendData(const QByteArray &data)
 {
     QMutexLocker locker(&s_instanceMutex);
-    QTC_ASSERT(s_instance != nullptr, return);
-
-    s_instance->m_private->socket()->sendData(data);
+    instance()->m_private->socket()->sendData(data);
 }
 
 Utils::Internal::CallerHandle *LauncherInterface::registerHandle(QObject *parent, quintptr token,
                                                                  ProcessMode mode)
 {
     QMutexLocker locker(&s_instanceMutex);
-    QTC_ASSERT(s_instance != nullptr, return nullptr);
-
-    return s_instance->m_private->socket()->registerHandle(parent, token, mode);
+    return instance()->m_private->socket()->registerHandle(parent, token, mode);
 }
 
 void LauncherInterface::unregisterHandle(quintptr token)
 {
     QMutexLocker locker(&s_instanceMutex);
-    QTC_ASSERT(s_instance != nullptr, return);
-
-    s_instance->m_private->socket()->unregisterHandle(token);
+    instance()->m_private->socket()->unregisterHandle(token);
 }
 
 } // namespace Utils

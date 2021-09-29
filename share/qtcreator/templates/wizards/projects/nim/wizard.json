@@ -8,6 +8,7 @@
     "trDisplayCategory": "Non-Qt Project",
     "featuresRequired": [ "ToolChain.Nim.NimToolChain" ],
     "icon": "icon.png",
+    "iconKind": "Themed",
     "enabled": "%{JS: value('Plugins').indexOf('Nim') >= 0 }",
 
     "options":

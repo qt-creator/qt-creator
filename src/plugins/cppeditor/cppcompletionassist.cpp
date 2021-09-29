@@ -1302,7 +1302,7 @@ void InternalCppCompletionAssistProcessor::completeInclude(const QString &realPa
 
 void InternalCppCompletionAssistProcessor::completePreprocessor()
 {
-    foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
+    foreach (const QString &preprocessorCompletion, preprocessorCompletions())
         addCompletionItem(preprocessorCompletion);
 
     if (objcKeywordsWanted())

@@ -7,6 +7,7 @@
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application (Qt)",
     "icon": "icon.png",
+    "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.6" ],
     "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0}",
 

@@ -48,7 +48,7 @@ SubdirsProjectWizard::SubdirsProjectWizard()
     setDisplayName(tr("Subdirs Project"));
     setDescription(tr("Creates a qmake-based subdirs project. This allows you to group "
                 "your projects in a tree structure."));
-    setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
+    setIcon(themedIcon(":/wizards/images/gui.png"));
     setRequiredFeatures({QtSupport::Constants::FEATURE_QT_PREFIX});
 }
 

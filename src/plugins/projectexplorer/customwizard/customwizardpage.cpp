@@ -303,7 +303,7 @@ void CustomWizardFieldPage::initializePage()
 {
     QWizardPage::initializePage();
     clearError();
-    foreach (const LineEditData &led, m_lineEdits) {
+    for (const LineEditData &led : qAsConst(m_lineEdits)) {
         if (!led.userChange.isNull()) {
             led.lineEdit->setText(led.userChange);
         } else if (!led.defaultText.isEmpty()) {
@@ -314,7 +314,7 @@ void CustomWizardFieldPage::initializePage()
         if (!led.placeholderText.isEmpty())
             led.lineEdit->setPlaceholderText(led.placeholderText);
     }
-    foreach (const TextEditData &ted, m_textEdits) {
+    for (const TextEditData &ted : qAsConst(m_textEdits)) {
         if (!ted.userChange.isNull()) {
             ted.textEdit->setText(ted.userChange);
         } else if (!ted.defaultText.isEmpty()) {
@@ -323,13 +323,13 @@ void CustomWizardFieldPage::initializePage()
             ted.textEdit->setText(defaultText);
         }
     }
-    foreach (const PathChooserData &ped, m_pathChoosers) {
+    for (const PathChooserData &ped : qAsConst(m_pathChoosers)) {
         if (!ped.userChange.isNull()) {
-            ped.pathChooser->setPath(ped.userChange);
+            ped.pathChooser->setFilePath(FilePath::fromUserInput(ped.userChange));
         } else if (!ped.defaultText.isEmpty()) {
             QString defaultText = ped.defaultText;
             CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
-            ped.pathChooser->setPath(defaultText);
+            ped.pathChooser->setFilePath(FilePath::fromUserInput(defaultText));
         }
     }
 }

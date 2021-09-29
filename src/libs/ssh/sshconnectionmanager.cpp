@@ -53,16 +53,11 @@ bool operator!=(const UnacquiredConnection &c1, const UnacquiredConnection &c2) 
     return !(c1 == c2);
 }
 
-static class SshConnectionManagerPrivate *s_instance = nullptr;
-
 class SshConnectionManagerPrivate : public QObject
 {
 public:
     SshConnectionManagerPrivate()
     {
-        QTC_ASSERT(s_instance == nullptr, return);
-        s_instance = this;
-
         connect(&m_removalTimer, &QTimer::timeout,
                 this, &SshConnectionManagerPrivate::removeInactiveConnections);
         m_removalTimer.start(SshSettings::connectionSharingTimeout() * 1000 * 60 / 2);
@@ -70,8 +65,6 @@ public:
 
     ~SshConnectionManagerPrivate() override
     {
-        QTC_ASSERT(s_instance == this, return);
-
         for (const UnacquiredConnection &connection : qAsConst(m_unacquiredConnections)) {
             disconnect(connection.connection, nullptr, this, nullptr);
             delete connection.connection;
@@ -79,8 +72,6 @@ public:
 
         QTC_CHECK(m_acquiredConnections.isEmpty());
         QTC_CHECK(m_deprecatedConnections.isEmpty());
-
-        s_instance = nullptr;
     }
 
     SshConnection *acquireConnection(const SshConnectionParameters &sshParams)
@@ -213,6 +204,7 @@ private:
 SshConnectionManager::SshConnectionManager()
     : d(new Internal::SshConnectionManagerPrivate())
 {
+    QTC_CHECK(QThread::currentThread() == qApp->thread());
 }
 
 SshConnectionManager::~SshConnectionManager()
@@ -222,20 +214,17 @@ SshConnectionManager::~SshConnectionManager()
 
 SshConnection *SshConnectionManager::acquireConnection(const SshConnectionParameters &sshParams)
 {
-    QTC_ASSERT(Internal::s_instance, return nullptr);
-    return Internal::s_instance->acquireConnection(sshParams);
+    return instance()->d->acquireConnection(sshParams);
 }
 
 void SshConnectionManager::releaseConnection(SshConnection *connection)
 {
-    QTC_ASSERT(Internal::s_instance, return);
-    Internal::s_instance->releaseConnection(connection);
+    instance()->d->releaseConnection(connection);
 }
 
 void SshConnectionManager::forceNewConnection(const SshConnectionParameters &sshParams)
 {
-    QTC_ASSERT(Internal::s_instance, return);
-    Internal::s_instance->forceNewConnection(sshParams);
+    instance()->d->forceNewConnection(sshParams);
 }
 
 } // namespace QSsh

@@ -394,6 +394,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         m_documentVersions[filePath] = 0;
     item.setVersion(m_documentVersions[filePath]);
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
+    handleDocumentOpened(document);
 
     const Client *currentClient = LanguageClientManager::clientForDocument(document);
     if (currentClient == this) {
@@ -1045,22 +1046,6 @@ void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifie
 SymbolStringifier Client::symbolStringifier() const
 {
     return m_symbolStringifier;
-}
-
-void Client::setCompletionProposalHandler(const ProposalHandler &handler)
-{
-    if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
-                m_clientProviders.completionAssistProvider)) {
-        provider->setProposalHandler(handler);
-    }
-}
-
-void Client::setFunctionHintProposalHandler(const ProposalHandler &handler)
-{
-    if (const auto provider = qobject_cast<FunctionHintAssistProvider *>(
-                m_clientProviders.functionHintProvider)) {
-        provider->setProposalHandler(handler);
-    }
 }
 
 void Client::setSnippetsGroup(const QString &group)

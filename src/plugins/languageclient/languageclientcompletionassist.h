@@ -28,6 +28,7 @@
 #include "languageclient_global.h"
 
 #include <languageserverprotocol/completion.h>
+#include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 
@@ -46,14 +47,6 @@ namespace LanguageClient {
 
 class Client;
 
-using CompletionItemsTransformer = std::function<QList<LanguageServerProtocol::CompletionItem>(
-        const Utils::FilePath &, const QString &, int,
-        const QList<LanguageServerProtocol::CompletionItem> &)>;
-using CompletionApplyHelper = std::function<void(
-        const LanguageServerProtocol::CompletionItem &,
-        TextEditor::TextDocumentManipulatorInterface &, QChar)>;
-using ProposalHandler = std::function<void(TextEditor::IAssistProposal *)>;
-
 class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProvider
     : public TextEditor::CompletionAssistProvider
 {
@@ -71,20 +64,13 @@ public:
 
     void setTriggerCharacters(const Utils::optional<QList<QString>> triggerChars);
 
-    void setProposalHandler(const ProposalHandler &handler) { m_proposalHandler = handler; }
     void setSnippetsGroup(const QString &group) { m_snippetsGroup = group; }
 
 protected:
-    void setItemsTransformer(const CompletionItemsTransformer &transformer);
-    void setApplyHelper(const CompletionApplyHelper &applyHelper);
     Client *client() const { return m_client; }
-    const ProposalHandler &proposalHandler() const { return m_proposalHandler; }
 
 private:
     QList<QString> m_triggerChars;
-    CompletionItemsTransformer m_itemsTransformer;
-    CompletionApplyHelper m_applyHelper;
-    ProposalHandler m_proposalHandler;
     QString m_snippetsGroup;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
@@ -94,16 +80,19 @@ class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProcessor
     : public TextEditor::IAssistProcessor
 {
 public:
-    LanguageClientCompletionAssistProcessor(Client *client,
-                                            const CompletionItemsTransformer &itemsTransformer,
-                                            const CompletionApplyHelper &applyHelper,
-                                            const ProposalHandler &proposalHandler,
-                                            const QString &snippetsGroup);
+    LanguageClientCompletionAssistProcessor(Client *client, const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
     bool running() override;
     bool needsRestart() const override { return true; }
     void cancel() override;
+
+protected:
+    QTextDocument *document() const;
+    Utils::FilePath filePath() const { return m_filePath; }
+    int basePos() const { return m_basePos; }
+    virtual QList<TextEditor::AssistProposalItemInterface *> generateCompletionItems(
+        const QList<LanguageServerProtocol::CompletionItem> &items) const;
 
 private:
     void handleCompletionResponse(const LanguageServerProtocol::CompletionRequest::Response &response);
@@ -113,12 +102,45 @@ private:
     QPointer<Client> m_client;
     Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     QMetaObject::Connection m_postponedUpdateConnection;
-    const CompletionItemsTransformer m_itemsTransformer;
-    const CompletionApplyHelper m_applyHelper;
-    const ProposalHandler m_proposalHandler;
     const QString m_snippetsGroup;
     int m_pos = -1;
     int m_basePos = -1;
+};
+
+class LANGUAGECLIENT_EXPORT LanguageClientCompletionItem
+    : public TextEditor::AssistProposalItemInterface
+{
+public:
+    LanguageClientCompletionItem(LanguageServerProtocol::CompletionItem item);
+
+    // AssistProposalItemInterface interface
+    QString text() const override;
+    QString filterText() const override;
+    bool implicitlyApplies() const override;
+    bool prematurelyApplies(const QChar &typedCharacter) const override;
+    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+               int basePosition) const override;
+    QIcon icon() const override;
+    QString detail() const override;
+    bool isSnippet() const override;
+    bool isValid() const override;
+    quint64 hash() const override;
+
+    LanguageServerProtocol::CompletionItem item() const;
+    QChar triggeredCommitCharacter() const;
+
+    const QString &sortText() const;
+    bool hasSortText() const;
+
+    bool operator <(const LanguageClientCompletionItem &other) const;
+
+    bool isPerfectMatch(int pos, QTextDocument *doc) const;
+
+private:
+    LanguageServerProtocol::CompletionItem m_item;
+    mutable QChar m_triggeredCommitCharacter;
+    mutable QString m_sortText;
+    mutable QString m_filterText;
 };
 
 } // namespace LanguageClient

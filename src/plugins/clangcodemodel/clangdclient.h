@@ -77,6 +77,7 @@ public:
             const LanguageServerProtocol::DocumentUri &uri);
 
     void enableTesting();
+    bool testingEnabled() const;
 
 signals:
     void indexingFinished();
@@ -90,12 +91,15 @@ signals:
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+    void handleDocumentOpened(TextEditor::TextDocument *doc) override;
     void handleDocumentClosed(TextEditor::TextDocument *doc) override;
 
     class Private;
     class FollowSymbolData;
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
+    class ClangdFunctionHintProcessor;
+    class ClangdCompletionAssistProcessor;
     class ClangdCompletionAssistProvider;
     Private * const d;
 };

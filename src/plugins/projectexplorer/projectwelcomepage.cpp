@@ -562,8 +562,7 @@ public:
 
         auto manageSessionsButton = new WelcomePageButton(this);
         manageSessionsButton->setText(ProjectWelcomePage::tr("Manage"));
-        const Icon icon({{":/utils/images/settings.png", Theme::Welcome_ForegroundSecondaryColor}}, Icon::Tint);
-        manageSessionsButton->setIcon(icon.pixmap());
+        manageSessionsButton->setIcon(pixmap("settings", Theme::Welcome_ForegroundSecondaryColor));
         manageSessionsButton->setOnClicked([] { ProjectExplorerPlugin::showSessionManager(); });
 
         auto newButton = new WelcomePageButton(this);
@@ -614,14 +613,12 @@ public:
 
         auto vbox1 = new QVBoxLayout;
         vbox1->setContentsMargins(0, 0, 0, 0);
-        vbox1->addStrut(200);
         vbox1->addItem(hbox11);
         vbox1->addSpacing(16);
         vbox1->addWidget(sessionsList);
 
         auto vbox2 = new QVBoxLayout;
         vbox2->setContentsMargins(0, 0, 0, 0);
-        vbox1->addStrut(200);
         vbox2->addItem(hbox21);
         vbox2->addSpacing(16);
         vbox2->addWidget(projectsList);
@@ -629,9 +626,10 @@ public:
         auto hbox = new QHBoxLayout(this);
         hbox->setContentsMargins(30, 27, 0, 27);
         hbox->addItem(vbox1);
+        hbox->setStretchFactor(vbox1, 1);
         hbox->addSpacing(16);
         hbox->addItem(vbox2);
-        hbox->setStretchFactor(vbox2, 2);
+        hbox->setStretchFactor(vbox2, 3);
     }
 
     SessionDelegate m_sessionDelegate;
