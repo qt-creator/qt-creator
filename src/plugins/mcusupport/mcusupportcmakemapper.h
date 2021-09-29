@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,32 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include <QVector>
-
-namespace Utils {
-class FilePath;
-}
+#include "cmakeprojectmanager/cmakeconfigitem.h"
+#include "utils/environmentfwd.h"
 
 namespace McuSupport {
 namespace Internal {
-
-#define MAX_COMPATIBILITY_VERSION 1
-
-class McuSdkRepository;
-class McuToolChainPackage;
-namespace Sdk {
-
-McuPackage *createQtForMCUsPackage();
-
-bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
-
-void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
-
-Utils::FilePath kitsPath(const Utils::FilePath &dir);
-
-} // namespace Sdk
-} // namespace Internal
+QList<CMakeProjectManager::CMakeConfigItem> mapEnvVarsToQul2xCmakeVars(
+    const Utils::EnvironmentItems &envVars);
+}
 } // namespace McuSupport

@@ -190,7 +190,7 @@ void McuSupportOptionsWidget::updateStatus()
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());
         m_kitCreationGroupBox->setVisible(ready);
-        m_mcuTargetsInfoLabel->setVisible(valid && m_options.mcuTargets.isEmpty());
+        m_mcuTargetsInfoLabel->setVisible(valid && m_options.sdkRepository.mcuTargets.isEmpty());
         if (m_mcuTargetsInfoLabel->isVisible()) {
             m_mcuTargetsInfoLabel->setType(Utils::InfoLabel::NotOk);
             const Utils::FilePath sdkPath = m_options.qtForMCUsSdkPackage->basePath();
@@ -261,7 +261,7 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         row.fieldItem->widget()->hide();
     }
 
-    for (auto package : qAsConst(m_options.packages)) {
+    for (auto package : qAsConst(m_options.sdkRepository.packages)) {
         QWidget *packageWidget = package->widget();
         if (!mcuTarget->packages().contains(package))
             continue;
@@ -275,9 +275,9 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
 McuTarget *McuSupportOptionsWidget::currentMcuTarget() const
 {
     const int mcuTargetIndex = m_mcuTargetsComboBox->currentIndex();
-    return (mcuTargetIndex == -1 || m_options.mcuTargets.isEmpty())
+    return (mcuTargetIndex == -1 || m_options.sdkRepository.mcuTargets.isEmpty())
             ? nullptr
-            : m_options.mcuTargets.at(mcuTargetIndex);
+            : m_options.sdkRepository.mcuTargets.at(mcuTargetIndex);
 }
 
 void McuSupportOptionsWidget::showEvent(QShowEvent *event)
@@ -292,7 +292,7 @@ void McuSupportOptionsWidget::apply()
 
     m_options.qtForMCUsSdkPackage->writeGeneralSettings();
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
-    for (auto package : qAsConst(m_options.packages))
+    for (auto package : qAsConst(m_options.sdkRepository.packages))
         pathsChanged |= package->writeToSettings();
 
     if (pathsChanged) {
@@ -306,7 +306,7 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
     m_options.populatePackagesAndTargets();
     m_mcuTargetsComboBox->clear();
     m_mcuTargetsComboBox->addItems(
-                Utils::transform<QStringList>(m_options.mcuTargets, [](McuTarget *t) {
+                Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets, [](McuTarget *t) {
                     return McuSupportOptions::kitName(t);
                 }));
     updateStatus();

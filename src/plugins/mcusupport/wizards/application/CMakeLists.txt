@@ -14,6 +14,10 @@ else()
 endif()
 
 qul_target_qml_sources(%{ProjectName} %{MainQmlFile})
-
 app_target_setup_os(%{ProjectName})
-app_target_default_main(%{ProjectName} %{RootItemName})
+
+if(Qul_VERSION VERSION_GREATER_EQUAL "2.0")
+    app_target_default_entrypoint(%{ProjectName} %{RootItemName})
+else()
+    app_target_default_main(%{ProjectName} %{RootItemName})
+endif()
