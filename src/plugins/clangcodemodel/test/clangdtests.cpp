@@ -1627,7 +1627,7 @@ void ClangdTestCompletion::testFunctionHintsFiltered()
     QVERIFY(proposal);
     QCOMPARE(proposal->size(), 2);
     QVERIFY(hasItem(proposal, "func(const S &amp;s, <b>int j</b>) -&gt; void"));
-    QEXPECT_FAIL("", "FIXME: LanguageClient handles active parameter only in active signature", Abort);
+    QEXPECT_FAIL("", "QTCREATORBUG-26346", Abort);
     QVERIFY(hasItem(proposal, "func(const S &amp;s, <b>int j</b>, int k) -&gt; void"));
 }
 
@@ -1640,7 +1640,7 @@ void ClangdTestCompletion::testFunctionHintConstructor()
     QVERIFY(!hasItem(proposal, "globalVariable"));
     QVERIFY(!hasItem(proposal, " class"));
     QVERIFY(hasItem(proposal, "Foo(<b>int</b>)"));
-    QEXPECT_FAIL("", "FIXME: LanguageClient handles active parameter only in active signature", Abort);
+    QEXPECT_FAIL("", "QTCREATORBUG-26346", Abort);
     QVERIFY(hasItem(proposal, "Foo(<b>int</b>, double)"));
 }
 
@@ -1669,8 +1669,7 @@ void ClangdTestCompletion::testCompletePrivateFunctionDefinition()
     getProposal("privateFuncDefCompletion.cpp", proposal);
 
     QVERIFY(proposal);
-    QEXPECT_FAIL("", "FIXME: clangd needs to differentiate "
-                     "between function call and function definiton", Abort);
+    QEXPECT_FAIL("", "https://github.com/clangd/clangd/issues/880", Abort);
     QCOMPARE(proposal->size(), 1);
     QVERIFY(hasItem(proposal, " theFunc()"));
 }
