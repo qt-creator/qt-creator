@@ -155,6 +155,7 @@ void TaskHub::addTask(Task task)
     QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
     QTC_ASSERT(task.m_mark.isNull(), return);
+    QTC_ASSERT(QThread::currentThread() == qApp->thread(), return);
 
     if (task.file.isEmpty() || task.line <= 0)
         task.line = -1;
