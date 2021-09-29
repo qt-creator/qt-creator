@@ -2616,7 +2616,9 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         } else if (token.type == "type") {
             styles.mainStyle = C_TYPE;
         } else if (token.type == "typeParameter") {
-            styles.mainStyle = C_TYPE;
+            // clangd reports both type and non-type template parameters as type parameters,
+            // but the latter can be distinguished by the readonly modifier.
+            styles.mainStyle = token.modifiers.contains("readonly") ? C_PARAMETER : C_TYPE;
         }
         if (token.modifiers.contains("declaration"))
             styles.mixinStyles.push_back(C_DECLARATION);

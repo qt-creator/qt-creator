@@ -909,7 +909,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("template parameter default argument") << 265 << 41 << 265 << 44
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("template non-type parameter") << 265 << 50 << 265 << 74
-        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+        << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
     QTest::newRow("template non-type parameter default argument") << 265 << 77 << 265 << 78
         << QList<int>{C_NUMBER} << 0;
     QTest::newRow("template template parameter") << 265 << 103 << 265 << 128
@@ -935,7 +935,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("local var declaration of template parameter type") << 268 << 27 << 268 << 57
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("reference to non-type template parameter") << 269 << 46 << 269 << 70
-        << QList<int>{C_LOCAL} << 0;
+        << QList<int>{C_PARAMETER} << 0;
     QTest::newRow("local var declaration initialized with non-type template parameter")
         << 269 << 10 << 269 << 43
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
@@ -1331,12 +1331,6 @@ void ClangdTestHighlighting::test()
         QEXPECT_FAIL("non-final virtual function call via pointer",
                      "clangd < 14 does not send virtual modifier", Continue);
     }
-    QEXPECT_FAIL("template non-type parameter",
-                 "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
-                 Continue);
-    QEXPECT_FAIL("reference to non-type template parameter",
-                 "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
-                 Continue);
     QEXPECT_FAIL("non-const reference via member function call as output argument (function)",
                  "Without punctuation and comment tokens from clangd, it's not possible "
                  "to highlight entire expressions. But do we really want this? What about nested "
