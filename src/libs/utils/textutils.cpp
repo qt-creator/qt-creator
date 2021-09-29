@@ -88,9 +88,9 @@ QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length)
     if (column < 1)
         column = 1;
 
-    const int anchorPosition = positionInText(textCursor.document(), line, column + length);
+    const int anchorPosition = positionInText(textCursor.document(), line, column);
     textCursor.setPosition(anchorPosition);
-    textCursor.setPosition(anchorPosition - length, QTextCursor::KeepAnchor);
+    textCursor.setPosition(anchorPosition + int(length), QTextCursor::KeepAnchor);
 
     return textCursor;
 }
