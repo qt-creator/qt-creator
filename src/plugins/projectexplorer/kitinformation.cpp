@@ -51,8 +51,6 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDir>
-#include <QFileInfo>
 #include <QFontMetrics>
 #include <QGridLayout>
 #include <QLabel>
@@ -133,18 +131,16 @@ Tasks SysRootKitAspect::validate(const Kit *k) const
     if (dir.isEmpty())
         return result;
 
-    if (dir.toString().startsWith("target:") || dir.toString().startsWith("remote:"))
+    if (dir.startsWith("target:") || dir.startsWith("remote:"))
         return result;
 
-    const QFileInfo fi = dir.toFileInfo();
-
-    if (!fi.exists()) {
+    if (!dir.exists()) {
         result << BuildSystemTask(Task::Warning,
                     tr("Sys Root \"%1\" does not exist in the file system.").arg(dir.toUserOutput()));
-    } else if (!fi.isDir()) {
+    } else if (!dir.isDir()) {
         result << BuildSystemTask(Task::Warning,
                     tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()));
-    } else if (QDir(dir.toString()).entryList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
+    } else if (dir.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
         result << BuildSystemTask(Task::Warning,
                     tr("Sys Root \"%1\" is empty.").arg(dir.toUserOutput()));
     }
@@ -626,11 +622,10 @@ QList<ToolChain *> ToolChainKitAspect::toolChains(const Kit *k)
 
     const QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
     const QList<ToolChain *> tcList
-            = Utils::transform<QList>(ToolChainManager::allLanguages(),
-                               [&value](Utils::Id l) -> ToolChain * {
-                                   return ToolChainManager::findToolChain(value.value(l.toString()).toByteArray());
-                               });
-    return Utils::filtered(tcList, [](ToolChain *tc) { return tc; });
+            = transform<QList>(ToolChainManager::allLanguages(), [&value](Id l) {
+                return ToolChainManager::findToolChain(value.value(l.toString()).toByteArray());
+            });
+    return filtered(tcList, [](ToolChain *tc) { return tc; });
 }
 
 void ToolChainKitAspect::setToolChain(Kit *k, ToolChain *tc)
@@ -664,7 +659,7 @@ void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
     QVariantMap result = k->value(ToolChainKitAspect::id()).toMap();
     result.insert(tc->language().toString(), tc->id());
 
-    for (Utils::Id l : ToolChainManager::allLanguages()) {
+    for (const Id l : ToolChainManager::allLanguages()) {
         if (l == tc->language())
             continue;
 
@@ -692,7 +687,7 @@ void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
     k->setValue(id(), result);
 }
 
-void ToolChainKitAspect::clearToolChain(Kit *k, Utils::Id language)
+void ToolChainKitAspect::clearToolChain(Kit *k, Id language)
 {
     QTC_ASSERT(language.isValid(), return);
     QTC_ASSERT(k, return);
@@ -710,7 +705,7 @@ Abi ToolChainKitAspect::targetAbi(const Kit *k)
     QHash<Abi, int> abiCount;
     foreach (ToolChain *tc, tcList) {
         Abi ta = tc->targetAbi();
-        if (tc->language() == Utils::Id(Constants::CXX_LANGUAGE_ID))
+        if (tc->language() == Id(Constants::CXX_LANGUAGE_ID))
             cxxAbi = tc->targetAbi();
         abiCount[ta] = (abiCount.contains(ta) ? abiCount[ta] + 1 : 1);
     }
@@ -799,7 +794,7 @@ private:
 
     void refresh() override
     {
-        Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(m_kit);
+        Id devType = DeviceTypeKitAspect::deviceTypeId(m_kit);
         if (!devType.isValid())
             m_comboBox->setCurrentIndex(-1);
         for (int i = 0; i < m_comboBox->count(); ++i) {
@@ -812,7 +807,7 @@ private:
 
     void currentTypeChanged(int idx)
     {
-        Utils::Id type = idx < 0 ? Utils::Id() : Utils::Id::fromSetting(m_comboBox->itemData(idx));
+        Id type = idx < 0 ? Id() : Id::fromSetting(m_comboBox->itemData(idx));
         DeviceTypeKitAspect::setDeviceTypeId(m_kit, type);
     }
 
@@ -851,7 +846,7 @@ KitAspectWidget *DeviceTypeKitAspect::createConfigWidget(Kit *k) const
 KitAspect::ItemList DeviceTypeKitAspect::toUserOutput(const Kit *k) const
 {
     QTC_ASSERT(k, return {});
-    Utils::Id type = deviceTypeId(k);
+    Id type = deviceTypeId(k);
     QString typeDisplayName = tr("Unknown device type");
     if (type.isValid()) {
         if (IDeviceFactory *factory = IDeviceFactory::find(type))
@@ -860,33 +855,33 @@ KitAspect::ItemList DeviceTypeKitAspect::toUserOutput(const Kit *k) const
     return {{tr("Device type"), typeDisplayName}};
 }
 
-const Utils::Id DeviceTypeKitAspect::id()
+const Id DeviceTypeKitAspect::id()
 {
     return "PE.Profile.DeviceType";
 }
 
-const Utils::Id DeviceTypeKitAspect::deviceTypeId(const Kit *k)
+const Id DeviceTypeKitAspect::deviceTypeId(const Kit *k)
 {
-    return k ? Utils::Id::fromSetting(k->value(DeviceTypeKitAspect::id())) : Utils::Id();
+    return k ? Id::fromSetting(k->value(DeviceTypeKitAspect::id())) : Id();
 }
 
-void DeviceTypeKitAspect::setDeviceTypeId(Kit *k, Utils::Id type)
+void DeviceTypeKitAspect::setDeviceTypeId(Kit *k, Id type)
 {
     QTC_ASSERT(k, return);
     k->setValue(DeviceTypeKitAspect::id(), type.toSetting());
 }
 
-QSet<Utils::Id> DeviceTypeKitAspect::supportedPlatforms(const Kit *k) const
+QSet<Id> DeviceTypeKitAspect::supportedPlatforms(const Kit *k) const
 {
     return {deviceTypeId(k)};
 }
 
-QSet<Utils::Id> DeviceTypeKitAspect::availableFeatures(const Kit *k) const
+QSet<Id> DeviceTypeKitAspect::availableFeatures(const Kit *k) const
 {
-    Utils::Id id = DeviceTypeKitAspect::deviceTypeId(k);
+    Id id = DeviceTypeKitAspect::deviceTypeId(k);
     if (id.isValid())
         return {id.withPrefix("DeviceType.")};
-    return QSet<Utils::Id>();
+    return {};
 }
 
 // --------------------------------------------------------------------------
@@ -1225,7 +1220,7 @@ private:
     QComboBox *m_comboBox;
     QWidget *m_manageButton;
     DeviceManagerModel *m_model;
-    Utils::Id m_selectedId;
+    Id m_selectedId;
 };
 } // namespace Internal
 
