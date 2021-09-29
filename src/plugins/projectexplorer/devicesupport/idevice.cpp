@@ -532,6 +532,11 @@ bool IDevice::isCompatibleWith(const Kit *k) const
     return DeviceTypeKitAspect::deviceTypeId(k) == type();
 }
 
+QVector<Task> IDevice::validate() const
+{
+    return {};
+}
+
 void IDevice::addDeviceAction(const DeviceAction &deviceAction)
 {
     d->deviceActions.append(deviceAction);
