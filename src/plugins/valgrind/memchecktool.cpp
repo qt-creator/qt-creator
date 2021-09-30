@@ -1425,13 +1425,13 @@ void HeobDialog::updateProfile()
     int leakRecording = settings->value(heobLeakRecordingC, 2).toInt();
     bool attach = settings->value(heobAttachC, false).toBool();
     const QString extraArgs = settings->value(heobExtraArgsC).toString();
-    QString path = settings->value(heobPathC).toString();
+    FilePath path = FilePath::fromVariant(settings->value(heobPathC));
     settings->endGroup();
 
     if (path.isEmpty()) {
         const QString heobPath = QStandardPaths::findExecutable("heob32.exe");
         if (!heobPath.isEmpty())
-            path = QFileInfo(heobPath).path();
+            path = FilePath::fromUserInput(heobPath);
     }
 
     m_xmlEdit->setText(xml);
@@ -1444,7 +1444,7 @@ void HeobDialog::updateProfile()
     m_leakRecordingCombo->setCurrentIndex(leakRecording);
     m_attachCheck->setChecked(attach);
     m_extraArgsEdit->setText(extraArgs);
-    m_pathChooser->setPath(path);
+    m_pathChooser->setFilePath(path);
 }
 
 void HeobDialog::updateEnabled()
