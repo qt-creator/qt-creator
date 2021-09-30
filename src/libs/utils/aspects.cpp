@@ -1181,7 +1181,7 @@ void StringAspect::setVolatileValue(const QVariant &val)
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         if (d->m_pathChooserDisplay)
-            d->m_pathChooserDisplay->setPath(val.toString());
+            d->m_pathChooserDisplay->setFilePath(FilePath::fromVariant(val));
         break;
     case LineEditDisplay:
         if (d->m_lineEditDisplay)
