@@ -66,15 +66,15 @@ public:
         ValidPackage
     };
 
-    McuPackage(const QString &label, const QString &defaultPath,
+    McuPackage(const QString &label, const Utils::FilePath &defaultPath,
                const QString &detectionPath, const QString &settingsKey,
                const McuPackageVersionDetector *versionDetector = nullptr);
     virtual ~McuPackage() = default;
 
-    QString basePath() const;
-    QString path() const;
+    Utils::FilePath basePath() const;
+    Utils::FilePath path() const;
     QString label() const;
-    QString defaultPath() const;
+    Utils::FilePath defaultPath() const;
     QString detectionPath() const;
     QString statusText() const;
     void updateStatus();
@@ -110,12 +110,12 @@ private:
     Utils::InfoLabel *m_infoLabel = nullptr;
 
     const QString m_label;
-    const QString m_defaultPath;
+    const Utils::FilePath m_defaultPath;
     const QString m_detectionPath;
     const QString m_settingsKey;
     const McuPackageVersionDetector *m_versionDetector;
 
-    QString m_path;
+    Utils::FilePath m_path;
     QString m_relativePathModifier; // relative path to m_path to be returned by path()
     QString m_detectedVersion;
     QVector<QString> m_versions;
@@ -142,7 +142,7 @@ public:
     };
 
     McuToolChainPackage(const QString &label,
-                        const QString &defaultPath,
+                        const Utils::FilePath &defaultPath,
                         const QString &detectionPath,
                         const QString &settingsKey,
                         Type type,

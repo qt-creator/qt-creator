@@ -193,7 +193,7 @@ void McuSupportOptionsWidget::updateStatus()
         m_mcuTargetsInfoLabel->setVisible(valid && m_options.mcuTargets.isEmpty());
         if (m_mcuTargetsInfoLabel->isVisible()) {
             m_mcuTargetsInfoLabel->setType(Utils::InfoLabel::NotOk);
-            const auto sdkPath = Utils::FilePath::fromString(m_options.qtForMCUsSdkPackage->basePath());
+            const Utils::FilePath sdkPath = m_options.qtForMCUsSdkPackage->basePath();
             QString deprecationMessage;
             if (Sdk::checkDeprecatedSdkError(sdkPath, deprecationMessage))
                 m_mcuTargetsInfoLabel->setText(deprecationMessage);
