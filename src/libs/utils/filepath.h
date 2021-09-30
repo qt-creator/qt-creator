@@ -164,12 +164,15 @@ public:
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePath(const FilePath &anchor) const;
     [[nodiscard]] FilePath searchInDirectories(const QList<FilePath> &dirs) const;
-    [[nodiscard]] FilePath searchInPath(const QList<FilePath> &additionalDirs = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     void iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
                           const FileFilter &filter) const;
+
+    enum PathAmending { AppendToPath, PrependToPath };
+    [[nodiscard]] FilePath searchInPath(const QList<FilePath> &additionalDirs = {},
+                                        PathAmending = AppendToPath) const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.

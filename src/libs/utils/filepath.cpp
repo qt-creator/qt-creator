@@ -1307,9 +1307,16 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
     return Environment::systemEnvironment().searchInDirectories(path(), dirs);
 }
 
-FilePath FilePath::searchInPath(const QList<FilePath> &additionalDirs) const
+FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending amending) const
 {
-    return searchInDirectories(deviceEnvironment().path() + additionalDirs);
+    FilePaths directories = deviceEnvironment().path();
+    if (!additionalDirs.isEmpty()) {
+        if (amending == AppendToPath)
+            directories.append(additionalDirs);
+        else
+            directories = additionalDirs + directories;
+    }
+    return searchInDirectories(directories);
 }
 
 Environment FilePath::deviceEnvironment() const
