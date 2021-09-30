@@ -29,6 +29,7 @@ namespace LanguageServerProtocol {
 
 constexpr char actionsKey[] = "actions";
 constexpr char activeParameterKey[] = "activeParameter";
+constexpr char activeParameterSupportKey[] = "activeParameterSupport";
 constexpr char activeSignatureKey[] = "activeSignature";
 constexpr char addedKey[] = "added";
 constexpr char additionalTextEditsKey[] = "additionalTextEdits";

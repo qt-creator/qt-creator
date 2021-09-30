@@ -248,6 +248,7 @@ static ClientCapabilities generateClientCapabilities()
     signatureHelp.setDynamicRegistration(true);
     TextDocumentClientCapabilities::SignatureHelpCapabilities::SignatureInformationCapabilities info;
     info.setDocumentationFormat({MarkupKind::markdown, MarkupKind::plaintext});
+    info.setActiveParameterSupport(true);
     signatureHelp.setSignatureInformation(info);
     documentCapabilities.setSignatureHelp(signatureHelp);
 
