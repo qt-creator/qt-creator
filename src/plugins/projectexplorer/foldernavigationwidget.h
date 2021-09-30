@@ -77,6 +77,10 @@ public:
     static void insertRootDirectory(const RootDirectory &directory);
     static void removeRootDirectory(const QString &id);
 
+    static void setFallbackSyncFilePath(const Utils::FilePath &filePath);
+
+    static const Utils::FilePath &fallbackSyncFilePath();
+
 signals:
     void rootDirectoryAdded(const RootDirectory &directory);
     void rootDirectoryRemoved(const QString &id);
@@ -87,6 +91,7 @@ private:
     void registerActions();
 
     static QVector<RootDirectory> m_rootDirectories;
+    static Utils::FilePath m_fallbackSyncFilePath;
 };
 
 class FolderNavigationWidget : public QWidget

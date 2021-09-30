@@ -32,9 +32,8 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <utils/mimetypes/mimedatabase.h>
-#
-#include <QDebug>
 
+#include <QDebug>
 #include <QMessageBox>
 
 namespace Designer {
@@ -88,20 +87,20 @@ void FormClassWizardPage::setClassName(const QString &suggestedClassName)
     slotValidChanged();
 }
 
-QString FormClassWizardPage::path() const
+Utils::FilePath FormClassWizardPage::filePath() const
 {
-    return m_ui->newClassWidget->path();
+    return m_ui->newClassWidget->filePath();
 }
 
-void FormClassWizardPage::setPath(const QString &p)
+void FormClassWizardPage::setFilePath(const Utils::FilePath &p)
 {
-    m_ui->newClassWidget->setPath(p);
+    m_ui->newClassWidget->setFilePath(p);
 }
 
 void FormClassWizardPage::getParameters(FormClassWizardParameters *p) const
 {
     p->className = m_ui->newClassWidget->className();
-    p->path = path();
+    p->path = filePath();
     p->sourceFile = m_ui->newClassWidget->sourceFileName();
     p->headerFile = m_ui->newClassWidget->headerFileName();
     p->uiFile = m_ui->newClassWidget-> formFileName();

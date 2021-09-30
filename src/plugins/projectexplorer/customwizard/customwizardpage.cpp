@@ -437,9 +437,9 @@ FilePath CustomWizardPage::filePath() const
     return m_pathChooser->filePath();
 }
 
-void CustomWizardPage::setPath(const QString &path)
+void CustomWizardPage::setFilePath(const FilePath &path)
 {
-    m_pathChooser->setPath(path);
+    m_pathChooser->setFilePath(path);
 }
 
 bool CustomWizardPage::isComplete() const

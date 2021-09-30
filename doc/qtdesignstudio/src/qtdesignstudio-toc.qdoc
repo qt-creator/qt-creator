@@ -153,6 +153,11 @@
                                     \li \l{Setting Up Qt Bridge for Adobe Photoshop}
                                     \li \l{Using Qt Bridge for Adobe Photoshop}
                                 \endlist
+                            \li \l{Exporting Designs from Adobe XD}
+                                \list
+                                    \li \l{Setting Up Qt Bridge for Adobe XD}
+                                    \li \l{Using Qt Bridge for Adobe XD}
+                                \endlist
                             \li \l{Exporting Designs from Sketch}
                                 \list
                                     \li \l{Setting Up Qt Bridge for Sketch}

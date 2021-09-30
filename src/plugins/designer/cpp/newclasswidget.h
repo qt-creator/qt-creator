@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QWidget>
 
 namespace Designer {
@@ -52,14 +54,14 @@ public:
     QString sourceFileName() const;
     QString headerFileName() const;
     QString formFileName() const;
-    QString path() const;
+    Utils::FilePath filePath() const;
     QString sourceExtension() const;
     QString headerExtension() const;
     QString formExtension() const;
 
     bool isValid(QString *error = nullptr) const;
 
-    QStringList files() const;
+    Utils::FilePaths files() const;
 
 signals:
     void validChanged();
@@ -72,7 +74,7 @@ public slots:
      * valid class name.
      */
     void setClassName(const QString &suggestedName);
-    void setPath(const QString &path);
+    void setFilePath(const Utils::FilePath &filePath);
     void setSourceExtension(const QString &e);
     void setHeaderExtension(const QString &e);
     void setLowerCaseFiles(bool v);

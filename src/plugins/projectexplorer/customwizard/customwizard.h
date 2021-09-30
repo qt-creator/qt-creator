@@ -141,7 +141,7 @@ protected:
 
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const override;
 
-    void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,
+    void initProjectWizardDialog(BaseProjectWizardDialog *w, const Utils::FilePath &defaultPath,
                                  const QList<QWizardPage *> &extensionPages) const;
 
 private:

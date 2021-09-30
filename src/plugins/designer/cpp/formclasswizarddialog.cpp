@@ -26,9 +26,13 @@
 #include "formclasswizarddialog.h"
 #include "formclasswizardpage.h"
 #include "formclasswizardparameters.h"
+
 #include <cppeditor/abstracteditorsupport.h>
 #include <designer/formtemplatewizardpage.h>
 #include <qtsupport/codegenerator.h>
+#include <utils/filepath.h>
+
+using namespace Utils;
 
 enum { FormPageId, ClassPageId };
 
@@ -52,14 +56,14 @@ FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *
         addPage(p);
 }
 
-QString FormClassWizardDialog::path() const
+FilePath FormClassWizardDialog::filePath() const
 {
-    return m_classPage->path();
+    return m_classPage->filePath();
 }
 
-void FormClassWizardDialog::setPath(const QString &p)
+void FormClassWizardDialog::setFilePath(const FilePath &p)
 {
-    m_classPage->setPath(p);
+    m_classPage->setFilePath(p);
 }
 
 void FormClassWizardDialog::initializePage(int id)

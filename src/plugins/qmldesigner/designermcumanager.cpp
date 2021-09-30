@@ -37,20 +37,20 @@ namespace QmlDesigner {
 
 static QString readProperty(const QString property, const QmlJS::SimpleReaderNode::Ptr &node)
 {
-    const QVariant propertyVar = node->property(property);
+    const auto propertyVar = node->property(property);
 
-    if (!propertyVar.isNull() && propertyVar.isValid())
-        return propertyVar.value<QString>();
+    if (propertyVar.isValid())
+        return propertyVar.value.value<QString>();
 
     return {};
 }
 
 static QStringList readPropertyList(const QString &property, const QmlJS::SimpleReaderNode::Ptr &node)
 {
-    const QVariant propertyVar = node->property(property);
+    const auto propertyVar = node->property(property);
 
-    if (!propertyVar.isNull() && propertyVar.isValid())
-        return propertyVar.value<QStringList>();
+    if (propertyVar.isValid())
+        return propertyVar.value.value<QStringList>();
 
     return {};
 }
@@ -99,30 +99,31 @@ void DesignerMcuManager::readMetadata()
         return;
     }
 
-    const QVariant defaultVersion = metadata->property("defaultVersion");
-    if (!defaultVersion.isNull() && defaultVersion.isValid()) {
+    const QmlJS::SimpleReaderNode::Property defaultVersion = metadata->property("defaultVersion");
+
+    if (defaultVersion.isValid()) {
         for (const auto& version : versions) {
             Version newVersion;
 
-            const QVariant vId = version->property("id");
-            if (vId.isNull() || !vId.isValid())
+            const auto vId = version->property("id");
+            if (!vId.isValid())
                 continue;
 
-            const QVariant vName = version->property("name");
-            if (!vName.isNull() && vName.isValid())
-                newVersion.name = vName.value<QString>();
+            const auto vName = version->property("name");
+            if (vName.isValid())
+                newVersion.name = vName.value.value<QString>();
             else
                 continue;
 
-            const QVariant vPath = version->property("path");
-            if (!vPath.isNull() && vPath.isValid())
-                newVersion.fileName = vPath.value<QString>();
+            const auto vPath = version->property("path");
+            if (vPath.isValid())
+                newVersion.fileName = vPath.value.value<QString>();
             else
                 continue;
 
             m_versionsList.push_back(newVersion);
 
-            if (vId == defaultVersion)
+            if (vId.value == defaultVersion.value)
                 m_defaultVersion = newVersion;
         }
     }
@@ -172,10 +173,10 @@ void DesignerMcuManager::readVersionData(const DesignerMcuManager::Version &vers
         if (child->propertyNames().contains("allowedProperties")) {
             ItemProperties allowedProperties;
 
-            const QVariant childrenPropertyVar = child->property("allowChildren");
+            const auto childrenPropertyVar = child->property("allowChildren");
 
-            if (!childrenPropertyVar.isNull() && childrenPropertyVar.isValid())
-                allowedProperties.allowChildren = childrenPropertyVar.toBool();
+            if (childrenPropertyVar.isValid())
+                allowedProperties.allowChildren = childrenPropertyVar.value.toBool();
 
             allowedProperties.properties = readPropertyList("allowedProperties", child);
 

@@ -32,6 +32,8 @@
 
 #include <QDebug>
 
+using namespace Utils;
+
 namespace Designer {
 namespace Internal {
 
@@ -58,7 +60,7 @@ QString FormClassWizard::formSuffix() const
 Core::BaseFileWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     auto wizardDialog = new FormClassWizardDialog(this, parent);
-    wizardDialog->setPath(parameters.defaultPath());
+    wizardDialog->setFilePath(parameters.defaultPath());
     return wizardDialog;
 }
 
@@ -73,9 +75,9 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     }
 
     // header
-    const QString formFileName = buildFileName(params.path, params.uiFile, formSuffix());
-    const QString headerFileName = buildFileName(params.path, params.headerFile, headerSuffix());
-    const QString sourceFileName = buildFileName(params.path, params.sourceFile, sourceSuffix());
+    const FilePath formFileName = buildFileName(params.path, params.uiFile, formSuffix());
+    const FilePath headerFileName = buildFileName(params.path, params.headerFile, headerSuffix());
+    const FilePath sourceFileName = buildFileName(params.path, params.sourceFile, sourceSuffix());
 
     Core::GeneratedFile headerFile(headerFileName);
     headerFile.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
@@ -102,5 +104,5 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     return  Core::GeneratedFiles() << headerFile << sourceFile << uiFile;
 }
 
-}
-}
+} // Internal
+} // Designer

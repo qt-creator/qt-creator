@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <QString>
+#include <utils/filepath.h>
+
 #include <QMetaType>
 
 namespace Designer {
@@ -39,7 +40,7 @@ class FormClassWizardParameters
 public:
     QString uiTemplate;
     QString className;
-    QString path;
+    Utils::FilePath path;
     QString sourceFile;
     QString headerFile;
     QString uiFile;

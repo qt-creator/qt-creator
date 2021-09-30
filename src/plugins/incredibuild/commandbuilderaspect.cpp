@@ -101,7 +101,7 @@ QString CommandBuilderAspect::fullCommandFlag(bool keepJobNum) const
         argsLine = d->m_activeCommandBuilder->setMultiProcessArg(argsLine);
 
     QString fullCommand("\"%1\" %2");
-    fullCommand = fullCommand.arg(d->m_activeCommandBuilder->effectiveCommand(), argsLine);
+    fullCommand = fullCommand.arg(d->m_activeCommandBuilder->effectiveCommand().toUserOutput(), argsLine);
 
     return fullCommand;
 }
@@ -153,7 +153,7 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
         d->makePathChooser->setBaseDirectory(PathChooser::homePath());
         d->makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
         connect(d->makePathChooser, &PathChooser::rawPathChanged, this, [this] {
-            d->m_activeCommandBuilder->setCommand(d->makePathChooser->rawPath());
+            d->m_activeCommandBuilder->setCommand(d->makePathChooser->rawFilePath());
             updateGui();
         });
     }
@@ -212,9 +212,9 @@ void CommandBuilderAspect::updateGui()
 
     d->commandBuilder->setCurrentText(d->m_activeCommandBuilder->displayName());
 
-    const QString defaultCommand = d->m_activeCommandBuilder->defaultCommand();
-    d->makePathChooser->setPath(d->m_activeCommandBuilder->command());
-    d->makePathChooser->setDefaultValue(defaultCommand);
+    const FilePath defaultCommand = d->m_activeCommandBuilder->defaultCommand();
+    d->makePathChooser->setFilePath(d->m_activeCommandBuilder->command());
+    d->makePathChooser->setDefaultValue(defaultCommand.toUserOutput());
 
     const QString defaultArgs = d->m_activeCommandBuilder->defaultArguments();
     d->makeArgumentsLineEdit->setPlaceholderText(defaultArgs);

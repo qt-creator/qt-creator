@@ -45,8 +45,8 @@ public:
 
     explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = nullptr);
 
-    QString path() const;
-    void setPath(const QString &);
+    Utils::FilePath filePath() const;
+    void setFilePath(const Utils::FilePath &);
 
     Designer::FormClassWizardParameters parameters() const;
 

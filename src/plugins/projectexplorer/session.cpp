@@ -386,6 +386,8 @@ void SessionManager::setStartupProject(Project *startupProject)
         ModeManager::activateMode(Constants::MODE_SESSION);
         ModeManager::setFocusToCurrentMode();
     }
+    FolderNavigationWidgetFactory::setFallbackSyncFilePath(
+        startupProject ? startupProject->projectFilePath().parentDir() : FilePath());
     emit m_instance->startupProjectChanged(startupProject);
 }
 

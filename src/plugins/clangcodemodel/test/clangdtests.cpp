@@ -1298,11 +1298,6 @@ void ClangdTestHighlighting::test()
                  "check if and how we want to support this", Abort);
     QEXPECT_FAIL("old-style signal with complex parameter (signal parameter part 3)",
                  "check if and how we want to support this", Abort);
-    QEXPECT_FAIL("alias template instantiation (type)", "FIXME: clangd doesn't report this", Abort);
-    QEXPECT_FAIL("alias template instantiation (opening angle bracket)",
-                 "FIXME: This construct does not appear in the AST", Abort);
-    QEXPECT_FAIL("alias template instantiation (closing angle bracket)",
-                 "FIXME: This construct does not appear in the AST", Abort);
     QEXPECT_FAIL("function template specialization (opening angle bracket 1)",
                  "specialization appears as a normal function in the AST", Abort);
     QEXPECT_FAIL("function template specialization (closing angle bracket 1)",

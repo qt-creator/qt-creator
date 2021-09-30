@@ -41,6 +41,7 @@
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace IncrediBuild {
 namespace Internal {
@@ -50,35 +51,32 @@ QList<Utils::Id> MakeCommandBuilder::migratableSteps() const
     return {QmakeProjectManager::Constants::MAKESTEP_BS_ID};
 }
 
-QString MakeCommandBuilder::defaultCommand() const
+Utils::FilePath MakeCommandBuilder::defaultCommand() const
 {
     BuildConfiguration *buildConfig = buildStep()->buildConfiguration();
     if (buildConfig) {
-        Target *target = buildStep()->target();
-        if (target) {
-            ToolChain *toolChain = ToolChainKitAspect::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-            if (toolChain)
-                return toolChain->makeCommand(buildConfig->environment()).toUserOutput();
+        if (Target *target = buildStep()->target()) {
+            if (ToolChain *toolChain = ToolChainKitAspect::cxxToolChain(target->kit()))
+                return toolChain->makeCommand(buildConfig->environment());
         }
     }
 
-    return QString();
+    return {};
 }
 
 QString MakeCommandBuilder::setMultiProcessArg(QString args)
 {
-    QString cmd = command();
-    QFileInfo fileInfo(cmd);
+    const FilePath cmd = command();
 
     // jom -j 200
-    if (fileInfo.baseName().compare("jom", Qt::CaseSensitivity::CaseInsensitive) == 0) {
+    if (cmd.baseName().compare("jom", Qt::CaseSensitivity::CaseInsensitive) == 0) {
         QRegularExpression regExp("\\s*\\-j\\s+\\d+");
         args.remove(regExp);
         args.append(" -j 200");
      }
     // make -j200
-    else if ((fileInfo.baseName().compare("make", Qt::CaseSensitivity::CaseInsensitive) == 0)
-          || (fileInfo.baseName().compare("gmake", Qt::CaseSensitivity::CaseInsensitive) == 0)) {
+    else if ((cmd.baseName().compare("make", Qt::CaseSensitivity::CaseInsensitive) == 0)
+          || (cmd.baseName().compare("gmake", Qt::CaseSensitivity::CaseInsensitive) == 0)) {
         QRegularExpression regExp("\\s*\\-j\\d+");
         args.remove(regExp);
         args.append(" -j200");

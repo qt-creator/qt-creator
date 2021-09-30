@@ -46,13 +46,14 @@
 #include <QPixmap>
 #include <QStyle>
 
+using namespace Utils;
+
 namespace GenericProjectManager {
 namespace Internal {
 
-static const char *const ConfigFileTemplate =
+const char ConfigFileTemplate[] =
         "// Add predefined macros for your project here. For example:\n"
-        "// #define THE_ANSWER 42\n"
-        ;
+        "// #define THE_ANSWER 42\n";
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -79,24 +80,24 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(const Core::BaseFileWizar
     addPage(m_secondPage);
 }
 
-QString GenericProjectWizardDialog::path() const
+FilePath GenericProjectWizardDialog::filePath() const
 {
-    return m_firstPage->path();
+    return m_firstPage->filePath();
 }
 
-Utils::FilePaths GenericProjectWizardDialog::selectedPaths() const
+FilePaths GenericProjectWizardDialog::selectedPaths() const
 {
     return m_secondPage->selectedPaths();
 }
 
-Utils::FilePaths GenericProjectWizardDialog::selectedFiles() const
+FilePaths GenericProjectWizardDialog::selectedFiles() const
 {
     return m_secondPage->selectedFiles();
 }
 
-void GenericProjectWizardDialog::setPath(const QString &path)
+void GenericProjectWizardDialog::setFilePath(const FilePath &path)
 {
-    m_firstPage->setPath(path);
+    m_firstPage->setFilePath(path);
 }
 
 QString GenericProjectWizardDialog::projectName() const
@@ -129,7 +130,7 @@ Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent,
 {
     auto wizard = new GenericProjectWizardDialog(this, parent);
 
-    wizard->setPath(parameters.defaultPath());
+    wizard->setFilePath(parameters.defaultPath());
 
     foreach (QWizardPage *p, wizard->extensionPages())
         wizard->addPage(p);
@@ -143,15 +144,14 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     Q_UNUSED(errorMessage)
 
     auto wizard = qobject_cast<const GenericProjectWizardDialog *>(w);
-    const QString projectPath = wizard->path();
-    const QDir dir(projectPath);
+    const FilePath projectPath = wizard->filePath();
     const QString projectName = wizard->projectName();
-    const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".creator")).absoluteFilePath();
-    const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
-    const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
-    const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
-    const QString cxxflagsFileName = QFileInfo(dir, projectName + QLatin1String(".cxxflags")).absoluteFilePath();
-    const QString cflagsFileName = QFileInfo(dir, projectName + QLatin1String(".cflags")).absoluteFilePath();
+    const FilePath creatorFileName = projectPath.pathAppended(projectName + ".creator");
+    const FilePath filesFileName = projectPath.pathAppended(projectName + ".files");
+    const FilePath includesFileName = projectPath.pathAppended(projectName + ".includes");
+    const FilePath configFileName = projectPath.pathAppended(projectName + ".config");
+    const FilePath cxxflagsFileName = projectPath.pathAppended(projectName + ".cxxflags");
+    const FilePath cflagsFileName = projectPath.pathAppended(projectName + ".cflags");
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FilePath::toString);
 
     Utils::MimeType headerTy = Utils::mimeTypeForName(QLatin1String("text/x-chdr"));
@@ -159,6 +159,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     QStringList nameFilters = headerTy.globPatterns();
 
     QStringList includePaths;
+    const QDir dir(projectPath.toString());
     foreach (const QString &path, paths) {
         QFileInfo fileInfo(path);
         QDir thisDir(fileInfo.absoluteFilePath());

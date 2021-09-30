@@ -65,6 +65,7 @@ class DeviceProcess;
 class DeviceProcessList;
 class Kit;
 class Runnable;
+class Task;
 
 namespace Internal { class IDevicePrivate; }
 
@@ -159,6 +160,7 @@ public:
     Utils::Id id() const;
 
     virtual bool isCompatibleWith(const Kit *k) const;
+    virtual QVector<Task> validate() const;
 
     QString displayType() const;
     Utils::OsType osType() const;

@@ -55,7 +55,7 @@ QtProjectParameters SubdirsProjectWizardDialog::parameters() const
     QtProjectParameters rc;
     rc.type = QtProjectParameters::EmptyProject;
     rc.fileName = projectName();
-    rc.path = filePath().toString();
+    rc.path = filePath();
     return rc;
 }
 

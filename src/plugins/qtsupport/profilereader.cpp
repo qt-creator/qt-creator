@@ -58,15 +58,22 @@ ProMessageHandler::~ProMessageHandler()
         Core::MessageManager::writeFlashing(m_messages);
 }
 
-
+static void addTask(Task::TaskType type,
+                    const QString &description,
+                    const Utils::FilePath &file = {},
+                    int line = -1)
+{
+    QMetaObject::invokeMethod(TaskHub::instance(), [=]() {
+        TaskHub::addTask(BuildSystemTask(type, description, file, line));
+    });
+}
 
 void ProMessageHandler::message(int type, const QString &msg, const QString &fileName, int lineNo)
 {
     if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose)) {
         // parse error in qmake files
         if (m_exact) {
-            TaskHub::addTask(
-                BuildSystemTask(Task::Error, msg, Utils::FilePath::fromString(fileName), lineNo));
+            addTask(Task::Error, msg, Utils::FilePath::fromString(fileName), lineNo);
         } else {
             appendMessage(format(fileName, lineNo, msg));
         }
@@ -79,9 +86,9 @@ void ProMessageHandler::fileMessage(int type, const QString &msg)
     if (!m_verbose)
         return;
     if (m_exact && type == QMakeHandler::ErrorMessage)
-        TaskHub::addTask(BuildSystemTask(Task::Error, msg));
+        addTask(Task::Error, msg);
     else if (m_exact && type == QMakeHandler::WarningMessage)
-        TaskHub::addTask(BuildSystemTask(Task::Warning, msg));
+        addTask(Task::Warning, msg);
     else
         appendMessage(msg);
 }

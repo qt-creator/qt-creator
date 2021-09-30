@@ -47,17 +47,17 @@ void JsonFilePage::initializePage()
 
     if (fileName().isEmpty())
         setFileName(wiz->stringValue(QLatin1String("InitialFileName")));
-    if (path().isEmpty())
+    if (filePath().isEmpty())
         setPath(wiz->stringValue(QLatin1String("InitialPath")));
     setDefaultSuffix(wiz->stringValue("DefaultSuffix"));
 }
 
 bool JsonFilePage::validatePage()
 {
-    if (path().isEmpty() || fileName().isEmpty())
+    if (filePath().isEmpty() || fileName().isEmpty())
         return false;
 
-    const FilePath dir = FilePath::fromString(path());
+    const FilePath dir = filePath();
     if (!dir.isDir())
         return false;
 

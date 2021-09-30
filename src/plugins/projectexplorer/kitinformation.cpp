@@ -1005,6 +1005,9 @@ Tasks DeviceKitAspect::validate(const Kit *k) const
     else if (!dev->isCompatibleWith(k))
         result.append(BuildSystemTask(Task::Error, tr("Device is incompatible with this kit.")));
 
+    if (dev)
+        result.append(dev->validate());
+
     return result;
 }
 

@@ -39,24 +39,30 @@ namespace   {
 
 QmlProjectManager::FileFilterBaseItem *setupFileFilterItem(QmlProjectManager::FileFilterBaseItem *fileFilterItem, const QmlJS::SimpleReaderNode::Ptr &node)
 {
-    const QVariant directoryProperty = node->property(QLatin1String("directory"));
+    const auto directoryProperty = node->property(QLatin1String("directory"));
     if (directoryProperty.isValid())
-        fileFilterItem->setDirectory(directoryProperty.toString());
+        fileFilterItem->setDirectory(directoryProperty.value.toString());
 
-    const QVariant recursiveProperty = node->property(QLatin1String("recursive"));
+    const auto recursiveProperty = node->property(QLatin1String("recursive"));
     if (recursiveProperty.isValid())
-        fileFilterItem->setRecursive(recursiveProperty.toBool());
+        fileFilterItem->setRecursive(recursiveProperty.value.toBool());
 
-    const QVariant pathsProperty = node->property(QLatin1String("paths"));
+    const auto pathsProperty = node->property(QLatin1String("paths"));
     if (pathsProperty.isValid())
-        fileFilterItem->setPathsProperty(pathsProperty.toStringList());
+        fileFilterItem->setPathsProperty(pathsProperty.value.toStringList());
 
-    const QVariant filterProperty = node->property(QLatin1String("filter"));
+    // "paths" and "files" have the same functionality
+    const auto filesProperty = node->property(QLatin1String("files"));
+    if (filesProperty.isValid())
+        fileFilterItem->setPathsProperty(filesProperty.value.toStringList());
+
+    const auto filterProperty = node->property(QLatin1String("filter"));
     if (filterProperty.isValid())
-        fileFilterItem->setFilter(filterProperty.toString());
+        fileFilterItem->setFilter(filterProperty.value.toString());
 
     if (debug)
-        qDebug() << "directory:" << directoryProperty << "recursive" << recursiveProperty << "paths" << pathsProperty;
+        qDebug() << "directory:" << directoryProperty.value << "recursive" << recursiveProperty.value
+                 << "paths" << pathsProperty.value << "files" << filesProperty.value;
     return fileFilterItem;
 }
 
@@ -81,36 +87,36 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
     if (rootNode->name() == QLatin1String("Project")) {
         auto projectItem = new QmlProjectItem;
 
-        const QVariant mainFileProperty = rootNode->property(QLatin1String("mainFile"));
+        const auto mainFileProperty = rootNode->property(QLatin1String("mainFile"));
         if (mainFileProperty.isValid())
-            projectItem->setMainFile(mainFileProperty.toString());
+            projectItem->setMainFile(mainFileProperty.value.toString());
 
-        const QVariant importPathsProperty = rootNode->property(QLatin1String("importPaths"));
+        const auto importPathsProperty = rootNode->property(QLatin1String("importPaths"));
         if (importPathsProperty.isValid())
-            projectItem->setImportPaths(importPathsProperty.toStringList());
+            projectItem->setImportPaths(importPathsProperty.value.toStringList());
 
-        const QVariant fileSelectorsProperty = rootNode->property(QLatin1String("fileSelectors"));
+        const auto fileSelectorsProperty = rootNode->property(QLatin1String("fileSelectors"));
         if (fileSelectorsProperty.isValid())
-            projectItem->setFileSelectors(fileSelectorsProperty.toStringList());
+            projectItem->setFileSelectors(fileSelectorsProperty.value.toStringList());
 
-        const QVariant forceFreeTypeProperty = rootNode->property("forceFreeType");
+        const auto forceFreeTypeProperty = rootNode->property("forceFreeType");
         if (forceFreeTypeProperty.isValid())
-            projectItem->setForceFreeType(forceFreeTypeProperty.toBool());
+            projectItem->setForceFreeType(forceFreeTypeProperty.value.toBool());
 
-        const QVariant targetDirectoryPropery = rootNode->property("targetDirectory");
+        const auto targetDirectoryPropery = rootNode->property("targetDirectory");
         if (targetDirectoryPropery.isValid())
-            projectItem->setTargetDirectory(targetDirectoryPropery.toString());
+            projectItem->setTargetDirectory(targetDirectoryPropery.value.toString());
 
-        const QVariant qtForMCUProperty = rootNode->property("qtForMCUs");
-        if (qtForMCUProperty.isValid() && qtForMCUProperty.toBool())
-            projectItem->setQtForMCUs(qtForMCUProperty.toBool());
+        const auto qtForMCUProperty = rootNode->property("qtForMCUs");
+        if (qtForMCUProperty.isValid() && qtForMCUProperty.value.toBool())
+            projectItem->setQtForMCUs(qtForMCUProperty.value.toBool());
 
-        const QVariant qt6ProjectProperty = rootNode->property("qt6Project");
-        if (qt6ProjectProperty.isValid() && qt6ProjectProperty.toBool())
-            projectItem->setQt6Project(qt6ProjectProperty.toBool());
+        const auto qt6ProjectProperty = rootNode->property("qt6Project");
+        if (qt6ProjectProperty.isValid() && qt6ProjectProperty.value.toBool())
+            projectItem->setQt6Project(qt6ProjectProperty.value.toBool());
 
         if (debug)
-            qDebug() << "importPath:" << importPathsProperty << "mainFile:" << mainFileProperty;
+            qDebug() << "importPath:" << importPathsProperty.value << "mainFile:" << mainFileProperty.value;
 
         foreach (const QmlJS::SimpleReaderNode::Ptr &childNode, rootNode->children()) {
             if (debug)
@@ -132,7 +138,7 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
                 const auto properties = childNode->properties();
                 auto i = properties.constBegin();
                 while (i != properties.constEnd()) {
-                    projectItem->addToEnviroment(i.key(), i.value().toString());
+                    projectItem->addToEnviroment(i.key(), i.value().value.toString());
                     ++i;
                 }
             } else {

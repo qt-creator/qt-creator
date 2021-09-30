@@ -36,6 +36,7 @@
 #include <QStandardPaths>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace IncrediBuild {
 namespace Internal {
@@ -45,11 +46,11 @@ QList<Utils::Id> CMakeCommandBuilder::migratableSteps() const
     return {CMakeProjectManager::Constants::CMAKE_BUILD_STEP_ID};
 }
 
-QString CMakeCommandBuilder::defaultCommand() const
+FilePath CMakeCommandBuilder::defaultCommand() const
 {
     const QString defaultCMake = "cmake";
     const QString cmake = QStandardPaths::findExecutable(defaultCMake);
-    return cmake.isEmpty() ? defaultCMake : cmake;
+    return FilePath::fromString(cmake.isEmpty() ? defaultCMake : cmake);
 }
 
 QString CMakeCommandBuilder::defaultArguments() const

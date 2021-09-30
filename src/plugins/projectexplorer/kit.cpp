@@ -34,7 +34,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/displayname.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
 #include <utils/optional.h>
@@ -42,10 +42,7 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QFileInfo>
 #include <QIcon>
-#include <QStyle>
 #include <QTextStream>
 #include <QUuid>
 

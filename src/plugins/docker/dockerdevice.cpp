@@ -473,6 +473,18 @@ IDeviceWidget *DockerDevice::createWidget()
     return new DockerDeviceWidget(sharedFromThis());
 }
 
+Tasks DockerDevice::validate() const
+{
+    Tasks result;
+    if (d->m_data.mounts.isEmpty()) {
+        result << Task(Task::Error,
+                       tr("The Docker device has not set up shared directories."
+                          "This will not work for building."),
+                       {}, -1, {});
+    }
+    return result;
+}
+
 
 // DockerDevice
 

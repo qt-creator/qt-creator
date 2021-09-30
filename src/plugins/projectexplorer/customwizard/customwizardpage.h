@@ -127,7 +127,7 @@ public:
                               QWidget *parent = nullptr);
 
     Utils::FilePath filePath() const;
-    void setPath(const QString &path);
+    void setFilePath(const Utils::FilePath &path);
 
     bool isComplete() const override;
 

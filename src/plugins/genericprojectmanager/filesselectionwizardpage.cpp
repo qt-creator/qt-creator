@@ -59,8 +59,7 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
 
 void FilesSelectionWizardPage::initializePage()
 {
-    m_filesWidget->resetModel(Utils::FilePath::fromString(m_genericProjectWizardDialog->path()),
-                              Utils::FilePaths());
+    m_filesWidget->resetModel(m_genericProjectWizardDialog->filePath(), Utils::FilePaths());
 }
 
 void FilesSelectionWizardPage::cleanupPage()

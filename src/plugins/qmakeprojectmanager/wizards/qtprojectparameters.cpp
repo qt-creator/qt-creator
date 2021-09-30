@@ -32,19 +32,17 @@
 #include <QDateTime>
 #include <QDebug>
 
+using namespace Utils;
+
 namespace QmakeProjectManager {
 namespace Internal {
 
 // ----------- QtProjectParameters
 QtProjectParameters::QtProjectParameters() = default;
 
-QString QtProjectParameters::projectPath() const
+FilePath QtProjectParameters::projectPath() const
 {
-    QString rc = path;
-    if (!rc.isEmpty())
-        rc += QLatin1Char('/');
-    rc += fileName;
-    return rc;
+    return path / fileName;
 }
 
 // Write out a QT module line.

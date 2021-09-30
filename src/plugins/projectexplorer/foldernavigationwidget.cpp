@@ -98,6 +98,7 @@ static FolderNavigationWidgetFactory *m_instance = nullptr;
 QVector<FolderNavigationWidgetFactory::RootDirectory>
     FolderNavigationWidgetFactory::m_rootDirectories;
 
+Utils::FilePath FolderNavigationWidgetFactory::m_fallbackSyncFilePath;
 
 static QWidget *createHLine()
 {
@@ -653,7 +654,8 @@ int FolderNavigationWidget::bestRootForFile(const Utils::FilePath &filePath)
     int commonLength = 0;
     for (int i = 1; i < m_rootSelector->count(); ++i) {
         const auto root = m_rootSelector->itemData(i).value<Utils::FilePath>();
-        if (filePath.isChildOf(root) && root.toString().size() > commonLength) {
+        if ((filePath == root || filePath.isChildOf(root))
+                && root.toString().size() > commonLength) {
             index = i;
             commonLength = root.toString().size();
         }
@@ -893,6 +895,8 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
             &FolderNavigationWidgetFactory::rootDirectoryRemoved,
             fnw,
             &FolderNavigationWidget::removeRootDirectory);
+    if (!Core::EditorManager::currentDocument() && !m_fallbackSyncFilePath.isEmpty())
+        fnw->syncWithFilePath(m_fallbackSyncFilePath);
 
     Core::NavigationView n;
     n.widget = fnw;
@@ -963,6 +967,11 @@ void FolderNavigationWidgetFactory::removeRootDirectory(const QString &id)
     QTC_ASSERT(index >= 0, return );
     m_rootDirectories.removeAt(index);
     emit m_instance->rootDirectoryRemoved(id);
+}
+
+void FolderNavigationWidgetFactory::setFallbackSyncFilePath(const FilePath &filePath)
+{
+    m_fallbackSyncFilePath = filePath;
 }
 
 int FolderNavigationWidgetFactory::rootIndex(const QString &id)

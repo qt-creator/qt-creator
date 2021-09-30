@@ -595,9 +595,9 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
 
     for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
         if (node->propertyNames().contains("separateSection"))
-            separateSectionTypes.append(variantToStringList(node->property("typeNames")));
+            separateSectionTypes.append(variantToStringList(node->property("typeNames").value));
 
-        allTypes.append(variantToStringList(node->property("typeNames")));
+        allTypes.append(variantToStringList(node->property("typeNames").value));
     }
 
     const QList<PropertyName> allProperties = type.propertyNames();
@@ -666,8 +666,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
         QString filledTemplate;
         for (const QmlJS::SimpleReaderNode::Ptr &n : nodes) {
             // Check if we have a template for the type
-            if (variantToStringList(n->property(QStringLiteral("typeNames"))).contains(QString::fromLatin1(typeName))) {
-                const QString fileName = propertyTemplatesPath() + n->property(QStringLiteral("sourceFile")).toString();
+            if (variantToStringList(n->property(QStringLiteral("typeNames")).value).contains(QString::fromLatin1(typeName))) {
+                const QString fileName = propertyTemplatesPath() + n->property(QStringLiteral("sourceFile")).value.toString();
                 QFile file(fileName);
                 if (file.open(QIODevice::ReadOnly)) {
                     QString source = QString::fromUtf8(file.readAll());
@@ -682,7 +682,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     };
 
     // QML specfics preparation
-    QStringList imports = variantToStringList(templateConfiguration()->property(QStringLiteral("imports")));
+    QStringList imports = variantToStringList(templateConfiguration()->property(QStringLiteral("imports")).value);
     QString qmlTemplate = imports.join(QLatin1Char('\n')) + QLatin1Char('\n');
     bool emptyTemplate = true;
 

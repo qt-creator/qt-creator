@@ -64,7 +64,7 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFacto
     Core::BaseFileWizard(factory, parameters.extraValues(), parent),
     d(std::make_unique<BaseProjectWizardDialogPrivate>(new ProjectIntroPage))
 {
-    setFilePath(FilePath::fromString(parameters.defaultPath()));
+    setFilePath(parameters.defaultPath());
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
     init();
@@ -77,7 +77,7 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(const Core::BaseFileWizardFacto
     Core::BaseFileWizard(factory, parameters.extraValues(), parent),
     d(std::make_unique<BaseProjectWizardDialogPrivate>(introPage, introId))
 {
-    setFilePath(FilePath::fromString(parameters.defaultPath()));
+    setFilePath(parameters.defaultPath());
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
     init();
@@ -157,9 +157,9 @@ ProjectIntroPage *BaseProjectWizardDialog::introPage() const
     return d->introPage;
 }
 
-QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
+QString BaseProjectWizardDialog::uniqueProjectName(const FilePath &path)
 {
-    const QDir pathDir(path);
+    const QDir pathDir(path.toString());
     //: File path suggestion for a new project. If you choose
     //: to translate it, make sure it is a valid path name without blanks
     //: and using only ascii chars.

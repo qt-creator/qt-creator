@@ -8546,14 +8546,14 @@ static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
 {
     QVERIFY(node);
     QVERIFY(node->propertyNames().contains("i"));
-    const int internalId = node->property("i").toInt();
+    const int internalId = node->property("i").value.toInt();
     const ModelNode modelNode = view->modelNodeForInternalId(internalId);
     QVERIFY(modelNode.isValid());
     auto properties = node->properties();
 
     for (auto i = properties.begin(); i != properties.end(); ++i) {
         if (i.key() != "i")
-            QCOMPARE(i.value(), modelNode.auxiliaryData(i.key().toUtf8()));
+            QCOMPARE(i.value().value, modelNode.auxiliaryData(i.key().toUtf8()));
     }
 
     checkChildNodes(node, view);

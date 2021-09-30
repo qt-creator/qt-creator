@@ -27,6 +27,8 @@
 
 #include <QWizardPage>
 
+namespace Utils { class FilePath; }
+
 namespace Designer {
 
 class FormClassWizardParameters;
@@ -49,8 +51,8 @@ public:
     bool validatePage() override;
 
     void setClassName(const QString &suggestedClassName);
-    void setPath(const QString &);
-    QString path() const;
+    void setFilePath(const Utils::FilePath &);
+    Utils::FilePath filePath() const;
 
     // Fill out applicable parameters
     void getParameters(FormClassWizardParameters *) const;
