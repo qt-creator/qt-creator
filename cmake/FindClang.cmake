@@ -34,7 +34,13 @@ if (WIN32 AND TARGET clangTooling)
     llvm::cl::OptionCategory CheckToolCategory("check tool options");
     int main(int argc, const char **argv)
     {
-        CommonOptionsParser OptionsParser(argc, argv, CheckToolCategory);
+        class Parser : public CommonOptionsParser {
+        public:
+          Parser(int &argc, const char **argv, llvm::cl::OptionCategory &Category) :
+            CommonOptionsParser(argc, argv, Category) {}
+        };
+
+        Parser OptionsParser(argc, argv, CheckToolCategory);
         ClangTool Tool(OptionsParser.getCompilations(),
                        OptionsParser.getSourcePathList());
         return 0;
