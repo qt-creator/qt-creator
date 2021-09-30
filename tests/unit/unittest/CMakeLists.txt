@@ -474,3 +474,18 @@ extend_qtc_test(unittest
   SOURCES
     clangformat-test.cpp
 )
+
+get_filename_component(
+    QMLDOM_STANDALONE_CMAKELISTS
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../../qmldom_standalone/src/qmldom/standalone/"
+    ABSOLUTE
+)
+
+if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS})
+    add_subdirectory(${QMLDOM_STANDALONE_CMAKELISTS} qmldom_standalone)
+    extend_qtc_test(unittest
+      DEPENDS qmldomlib
+      SOURCES
+        qmldom-test.cpp
+    )
+endif()

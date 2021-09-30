@@ -75,7 +75,7 @@ private:
     bool isComplete() const override;
     bool validatePage() override;
 
-    QString privateKeyFilePath() const;
+    Utils::FilePath privateKeyFilePath() const;
     void createKey();
     void deployKey();
 

@@ -27,6 +27,8 @@
 
 #include "ssh_global.h"
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 namespace QSsh {
@@ -40,14 +42,14 @@ public:
     SshKeyCreationDialog(QWidget *parent = nullptr);
     ~SshKeyCreationDialog();
 
-    QString privateKeyFilePath() const;
-    QString publicKeyFilePath() const;
+    Utils::FilePath privateKeyFilePath() const;
+    Utils::FilePath publicKeyFilePath() const;
 
 private:
     void keyTypeChanged();
     void generateKeys();
     void handleBrowseButtonClicked();
-    void setPrivateKeyFile(const QString &filePath);
+    void setPrivateKeyFile(const Utils::FilePath &filePath);
     void showError(const QString &details);
 
 private:

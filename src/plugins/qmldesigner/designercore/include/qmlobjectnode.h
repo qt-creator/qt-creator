@@ -127,6 +127,8 @@ public:
 
     virtual bool isBlocked(const PropertyName &propName) const;
 
+    friend auto qHash(const QmlObjectNode &node) { return qHash(node.modelNode()); }
+
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;
@@ -136,7 +138,6 @@ protected:
     QList<QmlModelState> allDefinedStates() const;
 };
 
-QMLDESIGNERCORE_EXPORT uint qHash(const QmlObjectNode &node);
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList);
 QMLDESIGNERCORE_EXPORT QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList);
 }// QmlDesigner

@@ -3619,10 +3619,10 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     if (subProjectFilePaths.empty())
         return;
     FilePaths failedProjects;
-    QStringList addedProjects;
+    FilePaths addedProjects;
     for (const FilePath &filePath : qAsConst(subProjectFilePaths)) {
         if (projectNode->addSubProject(filePath))
-            addedProjects << filePath.toString();
+            addedProjects << filePath;
         else
             failedProjects << filePath;
     }
@@ -3633,7 +3633,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
                              message + "\n  " + FilePath::formatFilePaths(failedProjects, "\n  "));
         return;
     }
-    VcsManager::promptToAdd(dir.toString(), addedProjects);
+    VcsManager::promptToAdd(dir, addedProjects);
 }
 
 void ProjectExplorerPluginPrivate::handleAddExistingFiles()
@@ -3685,7 +3685,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const FileP
                                     [&notAdded](const FilePath &f) { return !notAdded.contains(f); });
     }
 
-    VcsManager::promptToAdd(dir.toString(), Utils::transform(fileNames, &FilePath::toString));
+    VcsManager::promptToAdd(dir, fileNames);
 }
 
 void ProjectExplorerPluginPrivate::removeProject()
@@ -4209,6 +4209,10 @@ AllProjectFilesFilter::AllProjectFilesFilter()
     setDefaultIncludedByDefault(false); // but not included in default
     setFilters({});
     setIsCustomFilter(false);
+    setDescription(ProjectExplorerPluginPrivate::tr(
+        "Matches all files from all project directories. Append \"+<number>\" or "
+        "\":<number>\" to jump to the given line number. Append another "
+        "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 }
 
 const char kDirectoriesKey[] = "directories";

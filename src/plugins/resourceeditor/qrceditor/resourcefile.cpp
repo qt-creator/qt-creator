@@ -30,7 +30,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <utils/fileutils.h>
+
+#include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/removefiledialog.h>
 #include <utils/theme/theme.h>
 
@@ -995,7 +997,8 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     firstFile = cnt;
     lastFile = cnt + unique_list.count() - 1;
 
-    Core::VcsManager::promptToAdd(m_resource_file.filePath().absolutePath().toString(), fileNames);
+    Core::VcsManager::promptToAdd(m_resource_file.filePath().absolutePath(),
+                                  Utils::transform(fileNames, &FilePath::fromString));
 }
 
 

@@ -61,7 +61,7 @@ struct CoreInfo
     bool isCore = false;
 
     static CoreInfo readExecutableNameFromCore(const ProjectExplorer::Runnable &debugger,
-                                               const QString &coreFile);
+                                               const Utils::FilePath &coreFile);
 };
 
 class GdbEngine final : public CppDebuggerEngine

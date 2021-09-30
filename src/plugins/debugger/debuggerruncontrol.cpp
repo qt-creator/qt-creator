@@ -108,11 +108,11 @@ static QString noDebuggerInKitMessage()
 class CoreUnpacker final : public RunWorker
 {
 public:
-    CoreUnpacker(RunControl *runControl, const QString &coreFileName)
-        : RunWorker(runControl), m_coreFileName(coreFileName)
+    CoreUnpacker(RunControl *runControl, const FilePath &coreFilePath)
+        : RunWorker(runControl), m_coreFilePath(coreFilePath)
     {}
 
-    QString coreFileName() const { return m_tempCoreFileName; }
+    FilePath coreFileName() const { return m_tempCoreFilePath; }
 
 private:
     ~CoreUnpacker() final
@@ -123,7 +123,7 @@ private:
         if (m_tempCoreFile.isOpen())
             m_tempCoreFile.close();
 
-        QFile::remove(m_tempCoreFileName);
+        m_tempCoreFilePath.removeFile();
     }
 
     void start() final
@@ -131,40 +131,41 @@ private:
         {
             Utils::TemporaryFile tmp("tmpcore-XXXXXX");
             tmp.open();
-            m_tempCoreFileName = tmp.fileName();
+            m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
         }
 
         m_coreUnpackProcess.setWorkingDirectory(FilePath::fromString(TemporaryDirectory::masterDirectoryPath()));
         connect(&m_coreUnpackProcess, &QtcProcess::finished, this, &CoreUnpacker::reportStarted);
 
         const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
-        appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
+        appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
 
-        if (m_coreFileName.endsWith(".lzo")) {
-            m_coreUnpackProcess.setCommand({"lzop", {"-o", m_tempCoreFileName, "-x", m_coreFileName}});
+        if (m_coreFilePath.endsWith(".lzo")) {
+            m_coreUnpackProcess.setCommand({"lzop", {"-o", m_tempCoreFilePath.path(),
+                                                     "-x", m_coreFilePath.path()}});
             m_coreUnpackProcess.start();
             return;
         }
 
-        if (m_coreFileName.endsWith(".gz")) {
-            appendMessage(msg.arg(m_tempCoreFileName), LogMessageFormat);
-            m_tempCoreFile.setFileName(m_tempCoreFileName);
+        if (m_coreFilePath.endsWith(".gz")) {
+            appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
+            m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
             m_tempCoreFile.open(QFile::WriteOnly);
             connect(&m_coreUnpackProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
                 m_tempCoreFile.write(m_coreUnpackProcess.readAllStandardOutput());
             });
-            m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFileName}});
+            m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
             m_coreUnpackProcess.start();
             return;
         }
 
         QTC_CHECK(false);
-        reportFailure("Unknown file extension in " + m_coreFileName);
+        reportFailure("Unknown file extension in " + m_coreFilePath.toUserOutput());
     }
 
     QFile m_tempCoreFile;
-    QString m_coreFileName;
-    QString m_tempCoreFileName;
+    FilePath m_coreFilePath;
+    FilePath m_tempCoreFilePath;
     QtcProcess m_coreUnpackProcess;
 };
 
@@ -369,7 +370,7 @@ void DebuggerRunTool::setTestCase(int testCase)
     m_runParameters.testCase = testCase;
 }
 
-void DebuggerRunTool::setOverrideStartScript(const QString &script)
+void DebuggerRunTool::setOverrideStartScript(const FilePath &script)
 {
     m_runParameters.overrideStartScript = script;
 }
@@ -409,7 +410,7 @@ void DebuggerRunTool::setStartMessage(const QString &msg)
     m_runParameters.startMessage = msg;
 }
 
-void DebuggerRunTool::setCoreFileName(const QString &coreFile, bool isSnapshot)
+void DebuggerRunTool::setCoreFilePath(const FilePath &coreFile, bool isSnapshot)
 {
     if (coreFile.endsWith(".gz") || coreFile.endsWith(".lzo")) {
         d->coreUnpacker = new CoreUnpacker(runControl(), coreFile);
@@ -588,7 +589,7 @@ void DebuggerRunTool::start()
         auto debugger = new DebuggerRunTool(rc);
         debugger->setStartMode(AttachToCore);
         debugger->setRunControlName(name);
-        debugger->setCoreFileName(coreFile, true);
+        debugger->setCoreFilePath(FilePath::fromString(coreFile), true);
         debugger->startRunControl();
     });
 
@@ -962,7 +963,7 @@ void DebuggerRunTool::addSolibSearchDir(const QString &str)
 DebuggerRunTool::~DebuggerRunTool()
 {
     if (m_runParameters.isSnapshot && !m_runParameters.coreFile.isEmpty())
-        QFile::remove(m_runParameters.coreFile);
+        m_runParameters.coreFile.removeFile();
 
     delete m_engine2;
     m_engine2 = nullptr;

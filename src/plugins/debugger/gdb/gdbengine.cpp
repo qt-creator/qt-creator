@@ -4018,17 +4018,17 @@ void GdbEngine::handleGdbStartFailed()
 
 void GdbEngine::loadInitScript()
 {
-    const QString script = runParameters().overrideStartScript;
+    const FilePath script = runParameters().overrideStartScript;
     if (!script.isEmpty()) {
-        if (QFileInfo(script).isReadable()) {
-            runCommand({"source " + script});
+        if (script.isReadableFile()) {
+            runCommand({"source " + script.path()});
         } else {
             AsynchronousMessageBox::warning(
             tr("Cannot Find Debugger Initialization Script"),
             tr("The debugger settings point to a script file at \"%1\", "
                "which is not accessible. If a script file is not needed, "
                "consider clearing that entry to avoid this warning."
-              ).arg(script));
+              ).arg(script.toUserOutput()));
         }
     } else {
         const QString commands = nativeStartupCommands().trimmed();
@@ -4537,7 +4537,7 @@ void GdbEngine::runEngine()
     } else if (isCoreEngine()) {
 
         claimInitialBreakpoints();
-        runCommand({"target core " + runParameters().coreFile, CB(handleTargetCore)});
+        runCommand({"target core " + runParameters().coreFile.path(), CB(handleTargetCore)});
 
     } else if (isTermEngine()) {
 
@@ -4714,12 +4714,12 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
 
     } else  if (isCoreEngine()) {
 
-        QString core = runParameters().coreFile;
+        const FilePath core = runParameters().coreFile;
         if (response.resultClass == ResultDone) {
             showMessage(tr("Symbols found."), StatusBar);
             handleInferiorPrepared();
         } else {
-            QString msg = tr("No symbols found in the core file \"%1\".").arg(core)
+            QString msg = tr("No symbols found in the core file \"%1\".").arg(core.toUserOutput())
                     + ' ' + tr("This can be caused by a path length limitation "
                                "in the core file.")
                     + ' ' + tr("Try to specify the binary in "
@@ -4956,41 +4956,35 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
     }
 }
 
-static QString findExecutableFromName(const QString &fileNameFromCore, const QString &coreFile)
+static FilePath findExecutableFromName(const QString &fileNameFromCore, const FilePath &coreFile)
 {
     if (fileNameFromCore.isEmpty())
-        return fileNameFromCore;
-    QFileInfo fi(fileNameFromCore);
-    if (fi.isFile())
-        return fileNameFromCore;
+        return {};
+
+    FilePath filePathFromCore = FilePath::fromUserInput(fileNameFromCore);
+    if (filePathFromCore.isFile())
+        return filePathFromCore;
 
     // turn the filename into an absolute path, using the location of the core as a hint
-    QString absPath;
-    if (fi.isAbsolute()) {
-        absPath = fileNameFromCore;
-    } else {
-        QFileInfo coreInfo(coreFile);
-        FilePath coreDir = FilePath::fromString(coreInfo.dir().absolutePath());
-        absPath = coreDir.resolvePath(fileNameFromCore).toString();
-    }
-    if (QFileInfo(absPath).isFile() || absPath.isEmpty())
+    const FilePath coreDir = coreFile.absoluteFilePath().parentDir();
+    const FilePath absPath = coreDir.resolvePath(fileNameFromCore);
+
+    if (absPath.isFile() || absPath.isEmpty())
         return absPath;
 
     // remove possible trailing arguments
-    QChar sep(' ');
-    QStringList pathFragments = absPath.split(sep);
+    QStringList pathFragments = absPath.path().split(' ');
     while (pathFragments.size() > 0) {
-        QString joined_path = pathFragments.join(sep);
-        if (QFileInfo(joined_path).isFile()) {
+        const FilePath joined_path = FilePath::fromString(pathFragments.join(' '));
+        if (joined_path.isFile())
             return joined_path;
-        }
         pathFragments.pop_back();
     }
 
-    return QString();
+    return {};
 }
 
-CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QString &coreFile)
+CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const FilePath &coreFile)
 {
     CoreInfo cinfo;
 #if 0
@@ -5002,7 +4996,7 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
     // Multiarch GDB on Windows crashes if osabi is cygwin (the default) when opening a core dump.
     if (HostOsInfo::isWindowsHost())
         args += {"-ex", "set osabi GNU/Linux"};
-    args += {"-ex", "core " + coreFile};
+    args += {"-ex", "core " + coreFile.toUserOutput()};
 
     QtcProcess proc;
     Environment envLang(Environment::systemEnvironment());
@@ -5022,8 +5016,7 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
             if (pos2 != -1) {
                 cinfo.isCore = true;
                 cinfo.rawStringFromCore = output.mid(pos1, pos2 - pos1);
-                cinfo.foundExecutableName =
-                        FilePath::fromString(findExecutableFromName(cinfo.rawStringFromCore, coreFile));
+                cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
             }
         }
     }
@@ -5040,7 +5033,7 @@ void GdbEngine::handleTargetCore(const DebuggerResponse &response)
         // We'll accept any kind of error e.g. &"Cannot access memory at address 0x2abc2a24\n"
         // Even without the stack, the user can find interesting stuff by exploring
         // the memory, globals etc.
-        showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile)
+        showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile.toUserOutput())
                           + '\n' + response.data["msg"].data()
                 + '\n' + tr("Continuing nevertheless."));
     }

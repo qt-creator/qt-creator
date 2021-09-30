@@ -80,7 +80,7 @@ public:
 
     // Shows a confirmation dialog, whether the files in the list should be
     // added to revision control. Calls vcsAdd for each file.
-    static void promptToAdd(const QString &directory, const QStringList &fileNames);
+    static void promptToAdd(const Utils::FilePath &directory, const Utils::FilePaths &filePaths);
 
     static void emitRepositoryChanged(const Utils::FilePath &repository);
 
