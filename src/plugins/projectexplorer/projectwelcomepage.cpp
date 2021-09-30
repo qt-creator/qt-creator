@@ -320,14 +320,14 @@ public:
             QFontMetrics fm(option.widget->font());
             for (const QString &project : projects) {
                 // Project name.
-                QFileInfo fi(project);
-                QString completeBase = fi.completeBaseName();
+                FilePath projectPath = FilePath::fromString(project);
+                QString completeBase = projectPath.completeBaseName();
                 painter->setPen(textColor);
                 painter->drawText(x1, yy, completeBase);
                 yy += 18;
 
                 // Project path.
-                QString pathWithTilde = Utils::withTildeHomePath(QDir::toNativeSeparators(project));
+                QString pathWithTilde = Utils::withTildeHomePath(projectPath.toUserOutput());
                 painter->setPen(foregroundColor1);
                 painter->drawText(x1, yy, fm.elidedText(pathWithTilde, Qt::ElideMiddle, rc.width() - 40));
                 yy += 22;
@@ -454,7 +454,7 @@ public:
         painter->drawPixmap(x + 11, y + 6, projectIcon);
 
         QString projectName = idx.data(Qt::DisplayRole).toString();
-        QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
+        FilePath projectPath = FilePath::fromVariant(idx.data(ProjectModel::FilePathRole));
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundSecondaryColor));
         painter->setFont(sizedFont(10, option.widget));
@@ -468,7 +468,7 @@ public:
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundPrimaryColor));
         painter->setFont(sizedFont(13, option.widget));
-        QString pathWithTilde = Utils::withTildeHomePath(QDir::toNativeSeparators(projectPath));
+        QString pathWithTilde = Utils::withTildeHomePath(projectPath.toUserOutput());
         painter->drawText(x + 36, secondBase, pathWithTilde);
     }
 
