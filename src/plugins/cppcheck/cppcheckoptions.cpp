@@ -39,8 +39,9 @@
 #include <debugger/analyzer/analyzericons.h>
 
 #include <QCheckBox>
-#include <QDir>
 #include <QFormLayout>
+
+using namespace Utils;
 
 namespace Cppcheck {
 namespace Internal {
@@ -102,7 +103,7 @@ OptionsWidget::OptionsWidget(QWidget *parent)
 
 void OptionsWidget::load(const CppcheckOptions &options)
 {
-    m_binary->setPath(options.binary);
+    m_binary->setFilePath(options.binary);
     m_customArguments->setText(options.customArguments);
     m_ignorePatterns->setText(options.ignoredPatterns);
     m_warning->setChecked(options.warning);
@@ -121,7 +122,7 @@ void OptionsWidget::load(const CppcheckOptions &options)
 
 void OptionsWidget::save(CppcheckOptions &options) const
 {
-    options.binary = m_binary->filePath().toString();
+    options.binary = m_binary->filePath();
     options.customArguments = m_customArguments->text();
     options.ignoredPatterns = m_ignorePatterns->text();
     options.warning = m_warning->isChecked();
@@ -149,14 +150,13 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 
     CppcheckOptions options;
-    if (Utils::HostOsInfo::isAnyUnixHost()) {
+    if (HostOsInfo::isAnyUnixHost()) {
         options.binary = "cppcheck";
     } else {
-        QString programFiles = QDir::fromNativeSeparators(
-                    QString::fromLocal8Bit(qgetenv("PROGRAMFILES")));
+        FilePath programFiles = FilePath::fromUserInput(qEnvironmentVariable("PROGRAMFILES"));
         if (programFiles.isEmpty())
             programFiles = "C:/Program Files";
-        options.binary = programFiles + "/Cppcheck/cppcheck.exe";
+        options.binary = programFiles / "Cppcheck/cppcheck.exe";
     }
 
     load(options);
@@ -190,7 +190,7 @@ void CppcheckOptionsPage::save(const CppcheckOptions &options) const
     QSettings *s = Core::ICore::settings();
     QTC_ASSERT(s, return);
     s->beginGroup(Constants::SETTINGS_ID);
-    s->setValue(Constants::SETTINGS_BINARY, options.binary);
+    s->setValue(Constants::SETTINGS_BINARY, options.binary.toString());
     s->setValue(Constants::SETTINGS_CUSTOM_ARGUMENTS, options.customArguments);
     s->setValue(Constants::SETTINGS_IGNORE_PATTERNS, options.ignoredPatterns);
     s->setValue(Constants::SETTINGS_WARNING, options.warning);
@@ -213,8 +213,8 @@ void CppcheckOptionsPage::load(CppcheckOptions &options) const
     QSettings *s = Core::ICore::settings();
     QTC_ASSERT(s, return);
     s->beginGroup(Constants::SETTINGS_ID);
-    options.binary = s->value(Constants::SETTINGS_BINARY,
-                              options.binary).toString();
+    options.binary = FilePath::fromString(s->value(Constants::SETTINGS_BINARY,
+                                                   options.binary.toString()).toString());
     options.customArguments = s->value(Constants::SETTINGS_CUSTOM_ARGUMENTS,
                                        options.customArguments).toString();
     options.ignoredPatterns = s->value(Constants::SETTINGS_IGNORE_PATTERNS,

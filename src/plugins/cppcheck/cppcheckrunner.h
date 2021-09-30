@@ -45,7 +45,7 @@ public:
     explicit CppcheckRunner(CppcheckTool &tool);
     ~CppcheckRunner() override;
 
-    void reconfigure(const QString &binary, const QString &arguments);
+    void reconfigure(const Utils::FilePath &binary, const QString &arguments);
     void addToQueue(const Utils::FilePaths &files,
                     const QString &additionalArguments = {});
     void removeFromQueue(const Utils::FilePaths &files);
@@ -63,7 +63,7 @@ private:
 
     CppcheckTool &m_tool;
     Utils::QtcProcess *m_process = nullptr;
-    QString m_binary;
+    Utils::FilePath m_binary;
     QString m_arguments;
     QHash<QString, Utils::FilePaths> m_queue;
     Utils::FilePaths m_currentFiles;

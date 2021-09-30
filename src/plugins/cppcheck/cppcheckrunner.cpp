@@ -74,7 +74,7 @@ CppcheckRunner::~CppcheckRunner()
     m_queueTimer.stop();
 }
 
-void CppcheckRunner::reconfigure(const QString &binary, const QString &arguments)
+void CppcheckRunner::reconfigure(const FilePath &binary, const QString &arguments)
 {
     m_binary = binary;
     m_arguments = arguments;
@@ -157,7 +157,7 @@ void CppcheckRunner::checkQueued()
     else
         m_queue.begin().value() = files;
 
-    m_process->setCommand(CommandLine(FilePath::fromString(m_binary), arguments, CommandLine::Raw));
+    m_process->setCommand(CommandLine(m_binary, arguments, CommandLine::Raw));
     m_process->start();
 }
 
