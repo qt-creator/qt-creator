@@ -52,11 +52,13 @@
     \row
         \li \inlineimage ai-logo.png
         \li \inlineimage ps-logo.png
+        \li \inlineimage xd-logo.png
         \li \inlineimage sketch-logo.png
         \li \inlineimage figma-logo.png
     \row
         \li \l{Exporting Designs from Adobe Illustrator}{Adobe Illustrator}
         \li \l{Exporting Designs from Adobe Photoshop}{Adobe Photoshop}
+        \li \l{Exporting Designs from Adobe XD}{Adobe XD}
         \li \l{Exporting Designs from Sketch}{Sketch}
         \li \l{Exporting Designs from Figma}{Figma}
     \endtable
