@@ -1,0 +1,57 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Bridge documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage xdqtbridge.html
+    \page qtbridge-xd-setup.html
+    \nextpage qtbridge-xd-using.html
+
+    \title Setting Up \QBXD
+
+    You can purchase a \QBXD license from the \l{https://marketplace.qt.io/}
+    {Qt Marketplace}, and then use the Qt Installer to have the \QBXD
+    plugin package copied to the following path in your Qt installation
+    folder:
+
+    \list
+        \li On Windows:
+            \c {Tools\QtDesignStudio\xd_bridge\qtbridge.xdx}
+        \li On \macos:
+            \c {QtDesignStudio/xd_bridge/qtbridge.xdx}.
+    \endlist
+
+    \note Install Adobe XD before installing the plugin.
+
+    To install the \QBXD plugin to Adobe XD, double-click \c qtbridge.xdx in the
+    \c xd_bridge folder in the installation directory of \QDS. Adobe XD will
+    automatically install \QBXD.
+
+    \note Since the plugin is not distributed through Adobe's marketplace, during
+    the installation Adobe XD might warn about the third-party developer.
+
+    \image qt-bridge-xd-warn.png
+
+    You can launch the plugin from \uicontrol Plugins > \uicontrol {\QB}.
+*/

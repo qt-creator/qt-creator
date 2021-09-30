@@ -40,10 +40,10 @@
 
      \image studio-qtquick-3d-components.png "Qt Quick 3D components in Library"
 
-    You can add a camera to your scene by dragging-and-dropping one from
+    Add a camera by dragging-and-dropping one of the camera components from
     \l Library > \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol
     {Qt Quick 3D} to \l {3D Editor} or to a 3D view in \l Navigator.
-    If the cameras are not displayed in \uicontrol Library, you should add the
+    If the cameras are not displayed in \uicontrol Library, add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
@@ -51,20 +51,21 @@
     projection:
 
     \list
-        \li \l{PerspectiveCamera}{Camera Perspective} - is the standard camera
-            type, which uses field of view and near and far clip planes to
-            specify the projection.
-        \li \l{OrthographicCamera}{Camera Orthographic} - renders all contents
-            with no perspective. It is ideal for rendering 2D elements, because
+        \li \l{PerspectiveCamera}{Camera Perspective} is the standard camera
+            type, which gives a realistic projection of the scene since distant
+            objects are perceived as smaller. It uses field of view and near and
+            far clip planes to specify the projection.
+        \li \l{OrthographicCamera}{Camera Orthographic} renders all contents
+            with no perspective. It is ideal for rendering 2D elements because
             your images are guaranteed to be the right size on the screen, and
             you can use the z position of components to bring them closer to or
             take them farther from the camera (\e z-sorting) with no
             foreshortening artifacts.
-        \li \l{FrustumCamera}{Camera Frustum} - enables finer grain control of
+        \li \l{FrustumCamera}{Camera Frustum} enables finer grain control of
             how the frustum is defined, by setting the number of degrees between
             the top and bottom or left and right edges of the camera frustum.
             This is useful when creating asymmetrical frustums.
-        \li \l{CustomCamera}{Camera Custom} - provides  full control over how
+        \li \l{CustomCamera}{Camera Custom} provides  full control over how
             the projection matrix is created.
     \endlist
 
@@ -83,6 +84,10 @@
    \image studio-qtquick-camera-properties "Properties view for Perspective Camera"
 
     \section1 Setting Camera Field of View
+
+    \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
+    when \l {Creating Projects}{creating your project}, the camera properties
+    will be slightly different.
 
     The camera frustum can be obtained by taking a frustum (that is, a
     truncation with parallel planes) of the cone of vision that a camera or eye
@@ -108,12 +113,26 @@
     This value is the number of degrees between the top and bottom edges
     of the camera frustum.
 
-    The horizontal FOV determines the number of degrees between the left and
-    right edges of the camera frustum. It is automatically calculated based on
-    the aspect ratio of the scene when the FOV orientation is set to vertical.
-    You can set the orientation to horizontal to translate FOV values from
-    graphics tools such as Maya and Blender, which use horizontal FOV by
-    default.
+    The \uicontrol {FOV orientation} property specifies either a
+    \uicontrol Vertical (the default setting) or a \uicontrol Horizontal
+    orientation for the field of view. The horizontal FOV determines the number
+    of degrees between the left and right edges of the camera frustum. It is
+    automatically calculated based on the aspect ratio of the scene when the
+    FOV orientation is set to vertical. You can set the orientation to horizontal
+    to translate FOV values from graphics tools such as Maya and Blender, which
+    use horizontal FOV by default.
+
+    The \uicontrol {Horizontal magnification} and \uicontrol {Vertical magnification}
+    properties determine the horizontal and vertical magnification of the camera
+    frustum.
+    \note The \uicontrol {Horizontal magnification} and
+    \uicontrol {Vertical magnification} properties are not available in Qt 5.
+
+    The \uicontrol {Frustum culling enabled} property determines whether the
+    objects outside the camera frustum will be culled, which means they will not
+    be passed to the renderer.
+    \note The \uicontrol {Frustum culling enabled} property is not available in
+    Qt 5.
 
     The default values are intended to cause anything within the view
     of the camera to be rendered. Aside from special clipping effects, you
