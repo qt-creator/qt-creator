@@ -26,12 +26,11 @@
 #include "clangmodelmanagersupport.h"
 
 #include "clangconstants.h"
-#include "clangcurrentdocumentfilter.h"
 #include "clangdclient.h"
 #include "clangdquickfixfactory.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangfollowsymbol.h"
-#include "clanggloballocatorfilters.h"
+#include "clangdlocatorfilters.h"
 #include "clanghoverhandler.h"
 #include "clangoverviewmodel.h"
 #include "clangprojectsettings.h"
@@ -113,8 +112,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     m_instance = this;
 
     watchForExternalChanges();
-    CppEditor::CppModelManager::instance()->setCurrentDocumentFilter(
-                std::make_unique<ClangCurrentDocumentFilter>());
+    cppModelManager()->setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
     cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
     cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
     cppModelManager()->setFunctionsFilter(std::make_unique<ClangFunctionsFilter>());

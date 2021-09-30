@@ -36,7 +36,7 @@ add_qtc_plugin(ClangCodeModel
     clangfixitoperationsextractor.cpp clangfixitoperationsextractor.h
     clangfollowsymbol.cpp clangfollowsymbol.h
     clangfunctionhintmodel.cpp clangfunctionhintmodel.h
-    clanggloballocatorfilters.cpp clanggloballocatorfilters.h
+    clangdlocatorfilters.cpp clangdlocatorfilters.h
     clanghighlightingresultreporter.cpp clanghighlightingresultreporter.h
     clanghoverhandler.cpp clanghoverhandler.h
     clangisdiagnosticrelatedtolocation.h

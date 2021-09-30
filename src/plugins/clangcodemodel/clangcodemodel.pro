@@ -43,7 +43,7 @@ SOURCES += \
     clangoverviewmodel.cpp \
     clangdclient.cpp \
     clangdquickfixfactory.cpp \
-    clanggloballocatorfilters.cpp \
+    clangdlocatorfilters.cpp \
 
 HEADERS += \
     clangactivationsequencecontextprocessor.h \
@@ -85,7 +85,7 @@ HEADERS += \
     clangoverviewmodel.h \
     clangdclient.h \
     clangdquickfixfactory.h \
-    clanggloballocatorfilters.h \
+    clangdlocatorfilters.h \
 
 FORMS += clangprojectsettingswidget.ui
 

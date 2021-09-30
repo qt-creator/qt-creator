@@ -978,31 +978,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     };
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
-
-    static const auto symbolStringifier = [](SymbolKind kind, const QString &name,
-            const QString &detail) -> QString
-    {
-        switch (kind) {
-        case LanguageServerProtocol::SymbolKind::Constructor:
-            return name + detail;
-        case LanguageServerProtocol::SymbolKind::Method:
-        case LanguageServerProtocol::SymbolKind::Function: {
-            const int parenOffset = detail.indexOf(" (");
-            if (parenOffset == -1)
-                return name;
-            return name + detail.mid(parenOffset + 1) + " -> " + detail.mid(0, parenOffset);
-        }
-        case LanguageServerProtocol::SymbolKind::Variable:
-        case LanguageServerProtocol::SymbolKind::Field:
-        case LanguageServerProtocol::SymbolKind::Constant:
-            if (detail.isEmpty())
-                return name;
-            return name + " -> " + detail;
-        default:
-            return name;
-        }
-    };
-    setSymbolStringifier(symbolStringifier);
+    setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens) {
         d->handleSemanticTokens(doc, tokens);
     });
@@ -1234,6 +1210,30 @@ void ClangdClient::enableTesting()
 bool ClangdClient::testingEnabled() const
 {
     return d->isTesting;
+}
+
+QString ClangdClient::displayNameFromDocumentSymbol(SymbolKind kind, const QString &name,
+                                                    const QString &detail)
+{
+    switch (kind) {
+    case SymbolKind::Constructor:
+        return name + detail;
+    case SymbolKind::Method:
+    case LanguageServerProtocol::SymbolKind::Function: {
+        const int parenOffset = detail.indexOf(" (");
+        if (parenOffset == -1)
+            return name;
+        return name + detail.mid(parenOffset + 1) + " -> " + detail.mid(0, parenOffset);
+    }
+    case SymbolKind::Variable:
+    case SymbolKind::Field:
+    case SymbolKind::Constant:
+        if (detail.isEmpty())
+            return name;
+        return name + " -> " + detail;
+    default:
+        return name;
+    }
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)

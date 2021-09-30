@@ -60,5 +60,22 @@ public:
     ClangFunctionsFilter();
 };
 
+class ClangdCurrentDocumentFilter : public Core::ILocatorFilter
+{
+public:
+    ClangdCurrentDocumentFilter();
+    ~ClangdCurrentDocumentFilter() override;
+
+private:
+    void prepareSearch(const QString &entry) override;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection, QString *newText,
+                int *selectionStart, int *selectionLength) const override;
+
+    class Private;
+    Private * const d;
+};
+
 } // namespace Internal
 } // namespace ClangCodeModel

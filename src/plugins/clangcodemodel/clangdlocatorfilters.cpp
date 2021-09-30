@@ -23,21 +23,25 @@
 **
 ****************************************************************************/
 
-#include "clanggloballocatorfilters.h"
+#include "clangdlocatorfilters.h"
 
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
+#include "clangcurrentdocumentfilter.h"
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
+#include <languageclient/languageclientutils.h>
 #include <languageclient/locatorfilter.h>
 #include <projectexplorer/session.h>
 #include <utils/link.h>
 
 #include <set>
 #include <tuple>
+
+using namespace LanguageServerProtocol;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -220,6 +224,105 @@ ClangFunctionsFilter::ClangFunctionsFilter()
     setDisplayName(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
+}
+
+class CppCurrentDocumentFilter : public ClangCurrentDocumentFilter
+{
+public:
+    CppCurrentDocumentFilter()
+    {
+        setId({});
+        setDisplayName({});
+        setDefaultShortcutString({});
+        setEnabled(false);
+        setHidden(true);
+    }
+};
+
+class LspCurrentDocumentFilter : public LanguageClient::DocumentLocatorFilter
+{
+public:
+    LspCurrentDocumentFilter()
+    {
+        setId({});
+        setDisplayName({});
+        setDefaultShortcutString({});
+        setEnabled(false);
+        setHidden(true);
+        forceUse();
+    }
+
+private:
+    Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
+                                                  const Core::LocatorFilterEntry &parent) override
+    {
+        Core::LocatorFilterEntry entry;
+        entry.filter = this;
+        entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
+                    static_cast<SymbolKind>(info.kind()), info.name(),
+                    info.detail().value_or(QString()));
+        const Position &pos = info.range().start();
+        entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
+        entry.extraInfo = parent.extraInfo;
+        if (!entry.extraInfo.isEmpty())
+            entry.extraInfo.append("::");
+        entry.extraInfo.append(parent.displayName);
+
+        // TODO: Can we extend clangd to send visibility information?
+        entry.displayIcon = LanguageClient::symbolIcon(info.kind());
+
+        return entry;
+    }
+};
+
+class ClangdCurrentDocumentFilter::Private
+{
+public:
+    CppCurrentDocumentFilter cppFilter;
+    LspCurrentDocumentFilter lspFilter;
+    Core::ILocatorFilter *activeFilter = nullptr;
+};
+
+
+ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
+{
+    setId(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_ID);
+    setDisplayName(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setDefaultShortcutString(".");
+    setPriority(High);
+    setDefaultIncludedByDefault(false);
+    setEnabled(false);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, [this](const Core::IEditor *editor) { setEnabled(editor); });
+}
+
+ClangdCurrentDocumentFilter::~ClangdCurrentDocumentFilter() { delete d; }
+
+void ClangdCurrentDocumentFilter::prepareSearch(const QString &entry)
+{
+    const auto doc = TextEditor::TextDocument::currentTextDocument();
+    QTC_ASSERT(doc, return);
+    if (const ClangdClient * const client = ClangModelManagerSupport::instance()
+            ->clientForFile(doc->filePath()); client && client->reachable()) {
+        d->activeFilter = &d->lspFilter;
+    } else {
+        d->activeFilter = &d->cppFilter;
+    }
+    d->activeFilter->prepareSearch(entry);
+}
+
+QList<Core::LocatorFilterEntry> ClangdCurrentDocumentFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+{
+    QTC_ASSERT(d->activeFilter, return {});
+    return d->activeFilter->matchesFor(future, entry);
+}
+
+void ClangdCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection, QString *newText,
+                                         int *selectionStart, int *selectionLength) const
+{
+    QTC_ASSERT(d->activeFilter, return);
+    d->activeFilter->accept(selection, newText, selectionStart, selectionLength);
 }
 
 } // namespace Internal
