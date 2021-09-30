@@ -121,8 +121,8 @@ void ExternaltoolTest::testRead1()
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Linguist"));
     QCOMPARE(tool->order(), 1);
     QCOMPARE(tool->executables().size(), 2);
-    QCOMPARE(tool->executables().at(0), QString::fromLatin1("%{QT_INSTALL_BINS}/lupdate"));
-    QCOMPARE(tool->executables().at(1), QString::fromLatin1("lupdate"));
+    QCOMPARE(tool->executables().at(0), FilePath::fromString("%{QT_INSTALL_BINS}/lupdate"));
+    QCOMPARE(tool->executables().at(1), FilePath::fromString("lupdate"));
     QCOMPARE(tool->arguments(), QString::fromLatin1("%{CurrentProjectFilePath}"));
     QCOMPARE(tool->input(), QString());
     QCOMPARE(tool->workingDirectory(), FilePath::fromString("%{CurrentProjectPath}"));
@@ -143,7 +143,7 @@ void ExternaltoolTest::testRead2()
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Text"));
     QCOMPARE(tool->order(), -1);
     QCOMPARE(tool->executables().size(), 1);
-    QCOMPARE(tool->executables().at(0), QString::fromLatin1("sort"));
+    QCOMPARE(tool->executables().at(0), FilePath::fromString("sort"));
     QCOMPARE(tool->arguments(), QString());
     QCOMPARE(tool->input(), QString::fromLatin1("%{CurrentSelection}"));
     QCOMPARE(tool->workingDirectory(), FilePath::fromString("%{CurrentPath}"));
@@ -164,7 +164,7 @@ void ExternaltoolTest::testRead3()
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Text"));
     QCOMPARE(tool->order(), -1);
     QCOMPARE(tool->executables().size(), 1);
-    QCOMPARE(tool->executables().at(0), QString::fromLatin1("xterm"));
+    QCOMPARE(tool->executables().at(0), FilePath::fromString("xterm"));
     QVERIFY(tool->arguments().startsWith(QLatin1String("-geom %{")));
     QCOMPARE(tool->input(), QString());
     QCOMPARE(tool->workingDirectory(), FilePath::fromString("%{CurrentPath}"));

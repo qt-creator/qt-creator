@@ -575,11 +575,11 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     if (!tool)
         return;
     tool->setDescription(m_ui.description->text());
-    QStringList executables = tool->executables();
+    FilePaths executables = tool->executables();
     if (executables.size() > 0)
-        executables[0] = m_ui.executable->rawPath();
+        executables[0] = m_ui.executable->rawFilePath();
     else
-        executables << m_ui.executable->rawPath();
+        executables << m_ui.executable->rawFilePath();
     tool->setExecutables(executables);
     tool->setArguments(m_ui.arguments->text());
     tool->setWorkingDirectory(m_ui.workingDirectory->rawFilePath());
@@ -607,8 +607,8 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     }
     m_ui.infoWidget->setEnabled(true);
     m_ui.description->setText(tool->description());
-    m_ui.executable->setPath(tool->executables().isEmpty() ? QString()
-                                                          : tool->executables().constFirst());
+    m_ui.executable->setFilePath(tool->executables().isEmpty() ? FilePath()
+                                                               : tool->executables().constFirst());
     m_ui.arguments->setText(tool->arguments());
     m_ui.workingDirectory->setFilePath(tool->workingDirectory());
     m_ui.outputBehavior->setCurrentIndex(int(tool->outputHandling()));
