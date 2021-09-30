@@ -48,6 +48,7 @@
 #include <utils/runextensions.h>
 
 #include <QDateTime>
+#include <QDeadlineTimer>
 #include <QThread>
 
 namespace Android {
