@@ -38,7 +38,7 @@ class LibraryDetailsController : public QObject
     Q_OBJECT
 public:
     explicit LibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                      const QString &proFile,
+                                      const Utils::FilePath &proFile,
                                       QObject *parent = nullptr);
     virtual bool isComplete() const = 0;
     virtual QString snippet() const = 0;
@@ -54,7 +54,7 @@ protected:
     AddLibraryWizard::MacLibraryType macLibraryType() const;
     Utils::OsType libraryPlatformType() const;
     QString libraryPlatformFilter() const;
-    QString proFile() const;
+    Utils::FilePath proFile() const;
     bool isIncludePathChanged() const;
     bool guiSignalsIgnored() const;
 
@@ -99,7 +99,7 @@ private:
     AddLibraryWizard::LinkageType m_linkageType = AddLibraryWizard::NoLinkage;
     AddLibraryWizard::MacLibraryType m_macLibraryType = AddLibraryWizard::NoLibraryType;
 
-    QString m_proFile;
+    Utils::FilePath m_proFile;
 
     bool m_ignoreGuiSignals = false;
     bool m_includePathChanged = false;
@@ -118,7 +118,7 @@ class NonInternalLibraryDetailsController : public LibraryDetailsController
     Q_OBJECT
 public:
     explicit NonInternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                                 const QString &proFile,
+                                                 const Utils::FilePath &proFile,
                                                  QObject *parent = nullptr);
     bool isComplete() const override;
     QString snippet() const override;
@@ -143,7 +143,7 @@ class PackageLibraryDetailsController : public NonInternalLibraryDetailsControll
     Q_OBJECT
 public:
     explicit PackageLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                             const QString &proFile,
+                                             const Utils::FilePath &proFile,
                                              QObject *parent = nullptr);
     bool isComplete() const override;
     QString snippet() const override;
@@ -160,7 +160,7 @@ class SystemLibraryDetailsController : public NonInternalLibraryDetailsControlle
     Q_OBJECT
 public:
     explicit SystemLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                            const QString &proFile,
+                                            const Utils::FilePath &proFile,
                                             QObject *parent = nullptr);
 protected:
     void updateWindowsOptionsEnablement() override final {
@@ -173,7 +173,7 @@ class ExternalLibraryDetailsController : public NonInternalLibraryDetailsControl
     Q_OBJECT
 public:
     explicit ExternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                              const QString &proFile,
+                                              const Utils::FilePath &proFile,
                                               QObject *parent = nullptr);
 protected:
     void updateWindowsOptionsEnablement() override final;
@@ -184,7 +184,7 @@ class InternalLibraryDetailsController : public LibraryDetailsController
     Q_OBJECT
 public:
     explicit InternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
-                                              const QString &proFile,
+                                              const Utils::FilePath &proFile,
                                               QObject *parent = nullptr);
     bool isComplete() const override;
     QString snippet() const override;

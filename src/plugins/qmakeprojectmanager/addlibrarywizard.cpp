@@ -38,8 +38,8 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
+namespace QmakeProjectManager {
+namespace Internal {
 
 const char qt_file_dialog_filter_reg_exp[] =
 "^(.*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
@@ -79,8 +79,8 @@ static bool validateLibraryPath(const Utils::FilePath &filePath,
     return false;
 }
 
-AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
-    Utils::Wizard(parent), m_proFile(fileName)
+AddLibraryWizard::AddLibraryWizard(const Utils::FilePath &proFile, QWidget *parent) :
+    Utils::Wizard(parent), m_proFile(proFile)
 {
     setWindowTitle(tr("Add Library"));
     m_libraryTypePage = new LibraryTypePage(this);
@@ -93,7 +93,7 @@ AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
 
 AddLibraryWizard::~AddLibraryWizard() = default;
 
-QString AddLibraryWizard::proFile() const
+Utils::FilePath AddLibraryWizard::proFile() const
 {
     return m_proFile;
 }
@@ -294,10 +294,9 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
 void SummaryPage::initializePage()
 {
     m_snippet = m_libraryWizard->snippet();
-    QFileInfo fi(m_libraryWizard->proFile());
     m_summaryLabel->setText(
             tr("The following snippet will be added to the<br><b>%1</b> file:")
-            .arg(fi.fileName()));
+            .arg(m_libraryWizard->proFile().fileName()));
     QString richSnippet;
     {
         QTextStream str(&richSnippet);
@@ -316,3 +315,6 @@ QString SummaryPage::snippet() const
 {
     return m_snippet;
 }
+
+} // Internal
+} // QmakeProjectManager

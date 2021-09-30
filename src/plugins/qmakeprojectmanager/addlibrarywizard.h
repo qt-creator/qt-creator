@@ -76,20 +76,18 @@ public:
 
     Q_DECLARE_FLAGS(Platforms, Platform)
 
-    explicit AddLibraryWizard(const QString &fileName, QWidget *parent = nullptr);
+    explicit AddLibraryWizard(const Utils::FilePath &proFile, QWidget *parent = nullptr);
     ~AddLibraryWizard() override;
 
     LibraryKind libraryKind() const;
-    QString proFile() const;
+    Utils::FilePath proFile() const;
     QString snippet() const;
-
-signals:
 
 private:
     LibraryTypePage *m_libraryTypePage = nullptr;
     DetailsPage *m_detailsPage = nullptr;
     SummaryPage *m_summaryPage = nullptr;
-    QString m_proFile;
+    Utils::FilePath m_proFile;
 };
 
 class LibraryTypePage : public QWizardPage
