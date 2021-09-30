@@ -308,7 +308,8 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
 
     ConfigurationErrors result = NoConfigurationError;
     const FilePath debugger = item->command();
-    if (!debugger.exists() || debugger.isDir())
+    const bool found = debugger.exists() && !debugger.isDir();
+    if (!found)
         result |= DebuggerNotFound;
     else if (!debugger.isExecutableFile())
         result |= DebuggerNotExecutable;
@@ -321,7 +322,7 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
             result |= DebuggerDoesNotMatch;
     }
 
-    if (!debugger.exists() || debugger.isDir()) {
+    if (!found) {
         if (item->engineType() == NoEngineType)
             return NoDebugger;
 
