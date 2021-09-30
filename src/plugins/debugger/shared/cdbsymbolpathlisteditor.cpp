@@ -35,7 +35,6 @@
 #include "symbolpathsdialog.h"
 
 #include <QCheckBox>
-#include <QDir>
 #include <QDebug>
 #include <QAction>
 #include <QFormLayout>
@@ -165,7 +164,7 @@ void CdbSymbolPathListEditor::addSymbolPath(CdbSymbolPathListEditor::SymbolPathM
 {
     FilePath cacheDir;
     if (promptCacheDirectory(this, &cacheDir))
-        insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(cacheDir.path(), mode));
+        insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(cacheDir, mode));
 }
 
 void CdbSymbolPathListEditor::setupSymbolPaths()
@@ -174,13 +173,13 @@ void CdbSymbolPathListEditor::setupSymbolPaths()
     const int indexOfSymbolServer = indexOfSymbolPath(currentPaths, SymbolServerPath);
     const int indexOfSymbolCache = indexOfSymbolPath(currentPaths, SymbolCachePath);
 
-    QString path;
+    FilePath path;
     if (indexOfSymbolServer != -1)
-        path = currentPaths.at(indexOfSymbolServer);
+        path = FilePath::fromString(currentPaths.at(indexOfSymbolServer));
     if (path.isEmpty() && indexOfSymbolCache != -1)
-        path = currentPaths.at(indexOfSymbolCache);
+        path = FilePath::fromString(currentPaths.at(indexOfSymbolCache));
     if (path.isEmpty())
-        path = TemporaryDirectory::masterDirectoryPath() + "/symbolcache";
+        path = FilePath::fromString(TemporaryDirectory::masterDirectoryPath() + "/symbolcache");
 
     bool useSymbolServer = true;
     bool useSymbolCache = true;
@@ -193,20 +192,20 @@ void CdbSymbolPathListEditor::setupSymbolPaths()
     if (useSymbolCache) {
         insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(path, SymbolCachePath));
         if (useSymbolServer)
-            insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(QString(), SymbolServerPath));
+            insertPathAtCursor(CdbSymbolPathListEditor::symbolPath({}, SymbolServerPath));
     } else if (useSymbolServer) {
         insertPathAtCursor(CdbSymbolPathListEditor::symbolPath(path, SymbolServerPath));
     }
 }
 
-QString CdbSymbolPathListEditor::symbolPath(const QString &cacheDir,
+QString CdbSymbolPathListEditor::symbolPath(const FilePath &cacheDir,
                                             CdbSymbolPathListEditor::SymbolPathMode mode)
 {
     if (mode == SymbolCachePath)
-        return symbolCachePrefixC + QDir::toNativeSeparators(cacheDir);
+        return symbolCachePrefixC + cacheDir.toUserOutput();
     QString s = QLatin1String(symbolServerPrefixC);
     if (!cacheDir.isEmpty())
-        s += QDir::toNativeSeparators(cacheDir) + '*';
+        s += cacheDir.toUserOutput() + '*';
     s += QLatin1String(symbolServerPostfixC);
     return s;
 }
