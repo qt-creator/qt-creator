@@ -73,8 +73,8 @@ public:
     explicit SelectRemoteFileDialog(QWidget *parent);
 
     void attachToDevice(Kit *k);
-    QString localFile() const { return m_localFile; }
-    QString remoteFile() const { return m_remoteFile; }
+    FilePath localFile() const { return m_localFile; }
+    FilePath remoteFile() const { return m_remoteFile; }
 
 private:
     void handleSftpOperationFinished(SftpJobId, const QString &error);
@@ -88,8 +88,8 @@ private:
     QTreeView *m_fileSystemView;
     QTextBrowser *m_textBrowser;
     QDialogButtonBox *m_buttonBox;
-    QString m_localFile;
-    QString m_remoteFile;
+    FilePath m_localFile;
+    FilePath m_remoteFile;
     SftpJobId m_sftpJobId;
 };
 
@@ -185,12 +185,12 @@ void SelectRemoteFileDialog::selectFile()
     {
         Utils::TemporaryFile localFile("remotecore-XXXXXX");
         localFile.open();
-        m_localFile = localFile.fileName();
+        m_localFile = FilePath::fromString(localFile.fileName());
     }
 
     idx = idx.sibling(idx.row(), 1);
-    m_remoteFile = m_fileSystemModel.data(idx, SftpFileSystemModel::PathRole).toString();
-    m_sftpJobId = m_fileSystemModel.downloadFile(idx, m_localFile);
+    m_remoteFile = FilePath::fromVariant(m_fileSystemModel.data(idx, SftpFileSystemModel::PathRole));
+    m_sftpJobId = m_fileSystemModel.downloadFile(idx, m_localFile.toString());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -372,11 +372,12 @@ bool AttachCoreDialog::useLocalCoreFile() const
 
 void AttachCoreDialog::coreFileChanged(const QString &core)
 {
-    if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
+    const FilePath coreFile = FilePath::fromUserInput(core);
+    if (coreFile.osType() != OsType::OsTypeWindows && coreFile.exists()) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
         Runnable debugger = DebuggerKitAspect::runnable(k);
-        CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
+        CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, coreFile);
         if (!cinfo.foundExecutableName.isEmpty())
             d->symbolFileName->setFilePath(cinfo.foundExecutableName);
         else if (!d->symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
@@ -413,14 +414,14 @@ void AttachCoreDialog::selectRemoteCoreFile()
     dlg.attachToDevice(d->kitChooser->currentKit());
     if (dlg.exec() == QDialog::Rejected)
         return;
-    d->localCoreFileName->setPath(dlg.localFile());
-    d->remoteCoreFileName->setText(dlg.remoteFile());
+    d->localCoreFileName->setFilePath(dlg.localFile());
+    d->remoteCoreFileName->setText(dlg.remoteFile().toUserOutput());
     changed();
 }
 
-QString AttachCoreDialog::localCoreFile() const
+FilePath AttachCoreDialog::localCoreFile() const
 {
-    return d->localCoreFileName->filePath().toString();
+    return d->localCoreFileName->filePath();
 }
 
 FilePath AttachCoreDialog::symbolFile() const
@@ -428,24 +429,24 @@ FilePath AttachCoreDialog::symbolFile() const
     return d->symbolFileName->filePath();
 }
 
-void AttachCoreDialog::setSymbolFile(const QString &symbolFileName)
+void AttachCoreDialog::setSymbolFile(const FilePath &symbolFilePath)
 {
-    d->symbolFileName->setPath(symbolFileName);
+    d->symbolFileName->setFilePath(symbolFilePath);
 }
 
-void AttachCoreDialog::setLocalCoreFile(const QString &fileName)
+void AttachCoreDialog::setLocalCoreFile(const FilePath &coreFilePath)
 {
-    d->localCoreFileName->setPath(fileName);
+    d->localCoreFileName->setFilePath(coreFilePath);
 }
 
-void AttachCoreDialog::setRemoteCoreFile(const QString &fileName)
+void AttachCoreDialog::setRemoteCoreFile(const FilePath &coreFilePath)
 {
-    d->remoteCoreFileName->setText(fileName);
+    d->remoteCoreFileName->setText(coreFilePath.toUserOutput());
 }
 
-QString AttachCoreDialog::remoteCoreFile() const
+FilePath AttachCoreDialog::remoteCoreFile() const
 {
-    return d->remoteCoreFileName->text();
+    return FilePath::fromUserInput(d->remoteCoreFileName->text());
 }
 
 void AttachCoreDialog::setKitId(Id id)
@@ -468,14 +469,14 @@ Kit *AttachCoreDialog::kit() const
     return d->kitChooser->currentKit();
 }
 
-QString AttachCoreDialog::overrideStartScript() const
+FilePath AttachCoreDialog::overrideStartScript() const
 {
-    return d->overrideStartScriptFileName->filePath().toString();
+    return d->overrideStartScriptFileName->filePath();
 }
 
-void AttachCoreDialog::setOverrideStartScript(const QString &scriptName)
+void AttachCoreDialog::setOverrideStartScript(const FilePath &scriptName)
 {
-    d->overrideStartScriptFileName->setPath(scriptName);
+    d->overrideStartScriptFileName->setFilePath(scriptName);
 }
 
 FilePath AttachCoreDialog::sysRoot() const
@@ -483,9 +484,9 @@ FilePath AttachCoreDialog::sysRoot() const
     return d->sysRootDirectory->filePath();
 }
 
-void AttachCoreDialog::setSysRoot(const QString &sysRoot)
+void AttachCoreDialog::setSysRoot(const FilePath &sysRoot)
 {
-    d->sysRootDirectory->setPath(sysRoot);
+    d->sysRootDirectory->setFilePath(sysRoot);
 }
 
 } // namespace Internal

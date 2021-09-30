@@ -1070,7 +1070,7 @@ void DeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expande
     expander->registerVariable("Device:KeyFile", tr("Private key file"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().privateKeyFile : QString();
+            return device ? device->sshParameters().privateKeyFile.toString() : QString();
     });
     expander->registerVariable("Device:Name", tr("Device name"),
         [kit]() -> QString {
@@ -1297,7 +1297,7 @@ void BuildDeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *ex
     expander->registerVariable("BuildDevice:KeyFile", tr("Build private key file"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
-            return device ? device->sshParameters().privateKeyFile : QString();
+            return device ? device->sshParameters().privateKeyFile.toString() : QString();
     });
     expander->registerVariable("BuildDevice:Name", tr("Build device name"),
         [kit]() -> QString {

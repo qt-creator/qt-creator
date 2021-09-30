@@ -62,6 +62,8 @@
 
 using namespace Utils;
 
+namespace ProjectExplorer {
+
 const char NAME_KEY[] = "name";
 const char DISPLAY_NAME_KEY[] = "trDisplayName";
 const char TOOLTIP_KEY[] = "trToolTip";
@@ -75,8 +77,7 @@ const char DATA_KEY[] = "data";
 const char IS_COMPLETE_KEY[] = "isComplete";
 const char IS_COMPLETE_MESSAGE_KEY[] = "trIncompleteMessage";
 
-namespace {
-QVariant consumeValue(QVariantMap &map, const QString &key, const QVariant &defaultValue = QVariant())
+static QVariant consumeValue(QVariantMap &map, const QString &key, const QVariant &defaultValue = {})
 {
     QVariantMap::iterator i = map.find(key);
     if (i != map.end()) {
@@ -87,7 +88,7 @@ QVariant consumeValue(QVariantMap &map, const QString &key, const QVariant &defa
     return defaultValue;
 }
 
-void warnAboutUnsupportedKeys(const QVariantMap &map, const QString &name, const QString &type = QString())
+static void warnAboutUnsupportedKeys(const QVariantMap &map, const QString &name, const QString &type = {})
 {
     if (!map.isEmpty()) {
 
@@ -98,9 +99,7 @@ void warnAboutUnsupportedKeys(const QVariantMap &map, const QString &name, const
         qWarning().noquote() << QString("Field %1 has unsupported keys: %2").arg(typeAndName, map.keys().join(", "));
     }
 }
-} // namespace
 
-namespace ProjectExplorer {
 
 // --------------------------------------------------------------------
 // Helper:
@@ -811,8 +810,8 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_path = consumeValue(tmp, "path").toString();
-    m_basePath = consumeValue(tmp, "basePath").toString();
+    m_path = FilePath::fromVariant(consumeValue(tmp, "path"));
+    m_basePath = FilePath::fromVariant(consumeValue(tmp, "basePath"));
     m_historyId = consumeValue(tmp, "historyId").toString();
 
     QString kindStr = consumeValue(tmp, "kind", "existingDirectory").toString();
@@ -851,7 +850,7 @@ QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPag
     if (!m_historyId.isEmpty())
         w->setHistoryCompleter(m_historyId);
     QObject::connect(w, &PathChooser::pathChanged, [this, w] {
-        if (w->filePath().toString() != m_path)
+        if (w->filePath() != m_path)
             setHasUserChanges();
     });
     return w;
@@ -887,23 +886,19 @@ void PathChooserField::initializeData(MacroExpander *expander)
 {
     auto w = qobject_cast<PathChooser *>(widget());
     QTC_ASSERT(w, return);
-    w->setBaseDirectory(expander->expand(FilePath::fromString(m_basePath)));
+    w->setBaseDirectory(expander->expand(m_basePath));
     w->setExpectedKind(m_kind);
-
-    if (m_currentPath.isNull())
-        w->setPath(expander->expand(m_path));
-    else
-        w->setPath(m_currentPath);
+    w->setFilePath(expander->expand(m_path));
 }
 
 void PathChooserField::fromSettings(const QVariant &value)
 {
-    m_path = value.toString();
+    m_path = FilePath::fromVariant(value);
 }
 
 QVariant PathChooserField::toSettings() const
 {
-    return qobject_cast<PathChooser *>(widget())->filePath().toString();
+    return qobject_cast<PathChooser *>(widget())->filePath().toVariant();
 }
 
 // --------------------------------------------------------------------

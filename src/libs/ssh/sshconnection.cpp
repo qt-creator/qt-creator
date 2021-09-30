@@ -130,7 +130,7 @@ struct SshConnection::SshConnectionPrivate
                 SshConnectionParameters::AuthenticationTypeSpecificKey;
         if (keyOnly) {
             args << "-o" << "IdentitiesOnly=yes";
-            args << "-i" << connParams.privateKeyFile;
+            args << "-i" << connParams.privateKeyFile.path();
         }
         if (keyOnly || SshSettings::askpassFilePath().isEmpty())
             args << "-o" << "BatchMode=yes";

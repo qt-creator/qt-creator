@@ -1255,7 +1255,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         DebuggerStartMode startMode = StartExternal;
         FilePath executable;
         QString remoteChannel;
-        QString coreFile;
+        FilePath coreFile;
         QString sysRoot;
         bool useTerminal = false;
 
@@ -1281,7 +1281,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     remoteChannel = val;
                 } else if (key == "core") {
                     startMode = AttachToCore;
-                    coreFile = val;
+                    coreFile = FilePath::fromUserInput(val);
                 } else if (key == "terminal") {
                     useTerminal = true;
                 } else if (key == "sysroot") {
@@ -1312,9 +1312,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         } else if (startMode == AttachToCore) {
             debugger->setStartMode(AttachToCore);
             debugger->setCloseMode(DetachAtClose);
-            debugger->setCoreFileName(coreFile);
-            debugger->setRunControlName(tr("Core file \"%1\"").arg(coreFile));
-            debugger->setStartMessage(tr("Attaching to core file %1.").arg(coreFile));
+            debugger->setCoreFilePath(coreFile);
+            debugger->setRunControlName(tr("Core file \"%1\"").arg(coreFile.toUserOutput()));
+            debugger->setStartMessage(tr("Attaching to core file %1.").arg(coreFile.toUserOutput()));
         } else {
             debugger->setStartMode(StartExternal);
             debugger->setRunControlName(tr("Executable file \"%1\"").arg(executable.toUserOutput()));
@@ -1521,31 +1521,32 @@ void DebuggerPluginPrivate::attachCore()
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
         dlg.setKitId(Id::fromString(lastExternalKit));
-    dlg.setSymbolFile(configValue("LastExternalExecutableFile").toString());
-    dlg.setLocalCoreFile(configValue("LastLocalCoreFile").toString());
-    dlg.setRemoteCoreFile(configValue("LastRemoteCoreFile").toString());
-    dlg.setOverrideStartScript(configValue("LastExternalStartScript").toString());
-    dlg.setSysRoot(configValue("LastSysRoot").toString());
+    dlg.setSymbolFile(FilePath::fromVariant(configValue("LastExternalExecutableFile")));
+    dlg.setLocalCoreFile(FilePath::fromVariant(configValue("LastLocalCoreFile")));
+    dlg.setRemoteCoreFile(FilePath::fromVariant(configValue("LastRemoteCoreFile")));
+    dlg.setOverrideStartScript(FilePath::fromVariant(configValue("LastExternalStartScript")));
+    dlg.setSysRoot(FilePath::fromVariant(configValue("LastSysRoot")));
     dlg.setForceLocalCoreFile(configValue("LastForceLocalCoreFile").toBool());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
     setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toVariant());
-    setConfigValue("LastLocalCoreFile", dlg.localCoreFile());
-    setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile());
+    setConfigValue("LastLocalCoreFile", dlg.localCoreFile().toVariant());
+    setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile().toVariant());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
-    setConfigValue("LastExternalStartScript", dlg.overrideStartScript());
-    setConfigValue("LastSysRoot", dlg.sysRoot().toString());
+    setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toVariant());
+    setConfigValue("LastSysRoot", dlg.sysRoot().toVariant());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(dlg.kit());
     runControl->setDisplayName(tr("Core file \"%1\"")
-        .arg(dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile()));
+        .arg(dlg.useLocalCoreFile() ? dlg.localCoreFile().toUserOutput()
+                                    : dlg.remoteCoreFile().toUserOutput()));
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setInferiorExecutable(dlg.symbolFile());
-    debugger->setCoreFileName(dlg.localCoreFile());
+    debugger->setCoreFilePath(dlg.localCoreFile());
     debugger->setStartMode(AttachToCore);
     debugger->setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());

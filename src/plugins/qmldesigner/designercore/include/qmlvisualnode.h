@@ -118,8 +118,6 @@ private:
     void setDoubleProperty(const PropertyName &name, double value);
 };
 
-QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
-
 class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
 {
     friend class QmlVisualNode;

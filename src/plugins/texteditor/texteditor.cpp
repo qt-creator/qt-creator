@@ -5173,7 +5173,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton) {
         MultiTextCursor multiCursor = multiTextCursor();
         const QTextCursor &cursor = cursorForPosition(e->pos());
-        if (e->modifiers() & Qt::AltModifier) {
+        if (e->modifiers() & Qt::AltModifier && !(e->modifiers() & Qt::ControlModifier)) {
             if (e->modifiers() & Qt::ShiftModifier) {
                 QTextCursor c = multiCursor.mainCursor();
                 c.setPosition(cursor.position(), QTextCursor::KeepAnchor);

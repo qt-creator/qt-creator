@@ -147,6 +147,8 @@ public:
     bool isFlowItem() const;
     bool isFlowActionArea() const;
     ModelNode rootModelNode() const;
+
+    friend auto qHash(const QmlItemNode &node) { return qHash(node.modelNode()); }
 };
 
 class QmlFlowItemNode;
@@ -217,8 +219,6 @@ protected:
     QList<ModelNode> transitionsForProperty(const PropertyName &propertyName, const ModelNode &modelNode);
 };
 
-
-QMLDESIGNERCORE_EXPORT uint qHash(const QmlItemNode &node);
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);
 QMLDESIGNERCORE_EXPORT QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList);

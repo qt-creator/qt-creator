@@ -60,16 +60,6 @@ QmlModelNodeFacade::operator ModelNode() const
     return m_modelNode;
 }
 
-ModelNode QmlModelNodeFacade::modelNode()
-{
-    return m_modelNode;
-}
-
-const ModelNode QmlModelNodeFacade::modelNode() const
-{
-    return m_modelNode;
-}
-
 bool QmlModelNodeFacade::hasModelNode() const
 {
     return m_modelNode.isValid();

@@ -61,7 +61,7 @@ public:
     bool forceSubProject() const;
     void setForceSubProject(bool force);
     void setProjectList(const QStringList &projectList);
-    void setProjectDirectories(const QStringList &directoryList);
+    void setProjectDirectories(const Utils::FilePaths &directoryList);
     int projectIndex() const;
 
     bool validateProjectName(const QString &name, QString *errorMessage);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,44 +23,29 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "googletest.h"
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
+// cast of the top level items (DomEnvironments,...)
+#include <qmldom/qqmldomtop_p.h>
 
-#include "remotelinux_export.h"
+// everything is in the QQmlJS::Dom namespace
+using namespace QQmlJS::Dom;
 
-namespace RemoteLinux {
+namespace {
 
-namespace Ui { class GenericLinuxDeviceConfigurationWidget; }
-
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
-        : public ProjectExplorer::IDeviceWidget
+class QmlDom : public ::testing::Test
 {
-    Q_OBJECT
-
 public:
-    explicit GenericLinuxDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig);
-    ~GenericLinuxDeviceConfigurationWidget() override;
+//    static void SetUpTestCase();
+//    static void TearDownTestCase();
 
-private:
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void keyFileEditingFinished();
-    void gdbServerEditingFinished();
-    void handleFreePortsChanged();
-    void setPrivateKey(const Utils::FilePath &path);
-    void createNewKey();
-    void hostKeyCheckingChanged(bool doCheck);
-
-    void updateDeviceFromUi() override;
-    void updatePortsWarningLabel();
-    void initGui();
-
-    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
+protected:
 };
 
-} // namespace RemoteLinux
+TEST_F(QmlDom, First)
+{
+    DomItem env = DomEnvironment::create({}, DomEnvironment::Option::SingleThreaded
+                                             | DomEnvironment::Option::NoDependencies);
+}
+
+} // anonymous

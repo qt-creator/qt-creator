@@ -419,7 +419,7 @@ void CdbEngine::setupEngine()
         }
         break;
     case AttachToCore:
-        debugger.addArgs({"-z", sp.coreFile});
+        debugger.addArgs({"-z", sp.coreFile.path()});
         break;
     default:
         handleSetupFailure(QString("Internal error: Unsupported start mode %1.").arg(sp.startMode));

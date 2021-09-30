@@ -431,13 +431,13 @@ QStringList VcsManager::additionalToolsPath()
     return d->m_cachedAdditionalToolsPaths;
 }
 
-void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNames)
+void VcsManager::promptToAdd(const FilePath &directory, const FilePaths &filePaths)
 {
-    IVersionControl *vc = findVersionControlForDirectory(FilePath::fromString(directory));
+    IVersionControl *vc = findVersionControlForDirectory(directory);
     if (!vc || !vc->supportsOperation(IVersionControl::AddOperation))
         return;
 
-    const FilePaths unmanagedFiles = vc->unmanagedFiles(Utils::transform(fileNames, &FilePath::fromString));
+    const FilePaths unmanagedFiles = vc->unmanagedFiles(filePaths);
     if (unmanagedFiles.isEmpty())
         return;
 
@@ -446,7 +446,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
         for (const FilePath &file : unmanagedFiles) {
-            if (!vc->vcsAdd(FilePath::fromString(QDir(directory).filePath(file.path()))))
+            if (!vc->vcsAdd(directory.resolvePath(file)))
                 notAddedToVc << file.toUserOutput();
         }
 

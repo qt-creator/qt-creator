@@ -26,9 +26,10 @@
 #include "sshkeydeployer.h"
 
 #include <ssh/sshremoteprocessrunner.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 using namespace QSsh;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -53,12 +54,12 @@ SshKeyDeployer::~SshKeyDeployer()
 }
 
 void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
-    const QString &keyFilePath)
+                                     const FilePath &keyFilePath)
 {
     cleanup();
 
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(keyFilePath))) {
+    FileReader reader;
+    if (!reader.fetch(keyFilePath)) {
         emit error(tr("Public key error: %1").arg(reader.errorString()));
         return;
     }

@@ -71,7 +71,6 @@ class QMLDESIGNERCORE_EXPORT ModelNode
 {
     friend QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend QMLDESIGNERCORE_EXPORT uint qHash(const ModelNode & node);
     friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
     friend QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
@@ -248,6 +247,8 @@ public:
         swap(first.m_view, second.m_view);
     }
 
+    friend auto qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.data()); }
+
 private: // functions
     Internal::InternalNodePointer internalNode() const;
 
@@ -261,7 +262,6 @@ private: // variables
 
 QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
 QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
-QMLDESIGNERCORE_EXPORT uint qHash(const ModelNode & node);
 QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);

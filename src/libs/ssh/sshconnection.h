@@ -28,19 +28,18 @@
 #include "sftpdefs.h"
 #include "ssh_global.h"
 
+#include <utils/filepath.h>
 #include <utils/processutils.h>
 
 #include <QByteArray>
 #include <QFlags>
+#include <QHostAddress>
 #include <QMetaType>
 #include <QObject>
 #include <QString>
-#include <QHostAddress>
 #include <QUrl>
 
 #include <memory>
-
-namespace Utils { class FilePath; }
 
 namespace QSsh {
 class SshRemoteProcess;
@@ -69,7 +68,7 @@ public:
     void setUserName(const QString &name) { url.setUserName(name); }
 
     QUrl url;
-    QString privateKeyFile;
+    Utils::FilePath privateKeyFile;
     QString x11DisplayName;
     int timeout = 0; // In seconds.
     AuthenticationType authenticationType = AuthenticationTypeAll;
