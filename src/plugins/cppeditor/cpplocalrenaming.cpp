@@ -243,9 +243,15 @@ void CppLocalRenaming::forgetRenamingSelection()
     m_renameSelectionIndex = -1;
 }
 
+bool CppLocalRenaming::isWithinSelection(const QTextEdit::ExtraSelection &selection, int position)
+{
+    return selection.cursor.selectionStart() <= position
+           && position <= selection.cursor.selectionEnd();
+}
+
 bool CppLocalRenaming::isWithinRenameSelection(int position)
 {
-    return renameSelectionBegin() <= position && position <= renameSelectionEnd();
+    return isWithinSelection(renameSelection(), position);
 }
 
 bool CppLocalRenaming::isSameSelection(int cursorPosition) const
@@ -254,14 +260,14 @@ bool CppLocalRenaming::isSameSelection(int cursorPosition) const
         return false;
 
     const QTextEdit::ExtraSelection &sel = m_selections[m_renameSelectionIndex];
-    return (sel.cursor.position() <= cursorPosition && cursorPosition <= sel.cursor.anchor());
+    return isWithinSelection(sel, cursorPosition);
 }
 
 bool CppLocalRenaming::findRenameSelection(int cursorPosition)
 {
     for (int i = 0, total = m_selections.size(); i < total; ++i) {
         const QTextEdit::ExtraSelection &sel = m_selections.at(i);
-        if (sel.cursor.position() <= cursorPosition && cursorPosition <= sel.cursor.anchor()) {
+        if (isWithinSelection(sel, cursorPosition)) {
             m_renameSelectionIndex = i;
             return true;
         }
