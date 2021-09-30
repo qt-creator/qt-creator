@@ -58,6 +58,7 @@
 #include <QGraphicsLinearLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QMimeData>
 
 #include <exception>
 
@@ -239,6 +240,56 @@ ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(
         }
     }
     return op;
+}
+
+bool DesignerActionManager::externalDragHasSupportedAssets(const QMimeData *mimeData) const
+{
+    if (!mimeData->hasUrls())
+        return false;
+
+    QSet<QString> filtersSet;
+    const QList<AddResourceHandler> handlers = addResourceHandler();
+    for (const AddResourceHandler &handler : handlers)
+        filtersSet.insert(handler.filter);
+
+    const QList<QUrl> urls = mimeData->urls();
+    for (const QUrl &url : urls) {
+        QString suffix = "*." + url.fileName().split('.').last().toLower();
+        if (filtersSet.contains(suffix)) // accept drop if it contains a valid file
+            return true;
+    }
+
+    return false;
+}
+
+void DesignerActionManager::handleExternalAssetsDrop(const QMimeData *mimeData) const
+{
+    const QList<AddResourceHandler> handlers = addResourceHandler();
+    // create suffix to categry and category to operation hashes
+    QHash<QString, QString> suffixCategory;
+    QHash<QString, AddResourceOperation> categoryOperation;
+    for (const AddResourceHandler &handler : handlers) {
+        suffixCategory.insert(handler.filter, handler.category);
+        categoryOperation.insert(handler.category, handler.operation);
+    }
+
+    // add files grouped by categories (so that files under same category run under 1 operation)
+    QHash<QString, QStringList> categoryFiles;
+    const QList<QUrl> urls = mimeData->urls();
+    for (const QUrl &url : urls) {
+        QString suffix = "*." + url.fileName().split('.').last().toLower();
+        QString category = suffixCategory.value(suffix);
+        if (!category.isEmpty())
+            categoryFiles[category].append(url.toLocalFile());
+    }
+
+    // run operations
+    const QStringList categories = categoryFiles.keys();
+    for (const QString &category : categories) {
+        AddResourceOperation operation = categoryOperation.value(category);
+        QStringList files = categoryFiles.value(category);
+        operation(files, {});
+    }
 }
 
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction

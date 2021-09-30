@@ -53,6 +53,8 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     , m_textEditorView(textEditorView)
     , m_statusBar(new TextEditorStatusBar(this))
 {
+    setAcceptDrops(true);
+
     QBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -179,7 +181,7 @@ void TextEditorWidget::setBlockCursorSelectionSynchronisation(bool b)
     m_blockCursorSelectionSynchronisation = b;
 }
 
-bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
+bool TextEditorWidget::eventFilter(QObject *, QEvent *event)
 {
     static std::vector<int> overrideKeys = { Qt::Key_Delete, Qt::Key_Backspace, Qt::Key_Insert,
                                              Qt::Key_Escape };
@@ -216,5 +218,19 @@ bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
     return false;
 }
 
+void TextEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData()))
+        dragEnterEvent->acceptProposedAction();
+}
+
+void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+}
 
 } // namespace QmlDesigner

@@ -63,6 +63,8 @@ public:
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
+    void dropEvent(QDropEvent *dropEvent) override;
 
 private:
     void updateSelectionByCursorPosition();

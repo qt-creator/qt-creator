@@ -48,6 +48,10 @@ public:
 
     void showCanvas(bool show);
 
+protected:
+    void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
+    void dropEvent(QDropEvent *dropEvent) override;
+
 private:
     void linkActivated(const QString &link);
 

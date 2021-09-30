@@ -49,6 +49,7 @@ class QmlItemNode;
 class FormEditorWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     FormEditorWidget(FormEditorView *view);
 
@@ -93,6 +94,8 @@ protected:
     DocumentWarningWidget *errorWidget();
     void hideEvent(QHideEvent *event) override;
     void showEvent(QShowEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
+    void dropEvent(QDropEvent *dropEvent) override;
 
 private:
     void changeTransformTool(bool checked);

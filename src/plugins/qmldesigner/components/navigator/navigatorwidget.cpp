@@ -49,6 +49,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     : m_treeView(new NavigatorTreeView)
     , m_navigatorView(view)
 {
+    setAcceptDrops(true);
+
     m_treeView->setDragEnabled(true);
     m_treeView->setAcceptDrops(true);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -182,6 +184,21 @@ void NavigatorWidget::enableNavigator()
 NavigatorView *NavigatorWidget::navigatorView() const
 {
     return m_navigatorView.data();
+}
+
+void NavigatorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData()))
+        dragEnterEvent->acceptProposedAction();
+}
+
+void NavigatorWidget::dropEvent(QDropEvent *dropEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
 }
 
 }

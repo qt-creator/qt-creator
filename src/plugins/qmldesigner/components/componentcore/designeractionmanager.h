@@ -38,6 +38,7 @@
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QGraphicsWidget;
+class QMimeData;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -135,6 +136,8 @@ public:
     void registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler);
     bool hasModelNodePreviewHandler(const ModelNode &node) const;
     ModelNodePreviewImageOperation modelNodePreviewOperation(const ModelNode &node) const;
+    bool externalDragHasSupportedAssets(const QMimeData *data) const;
+    void handleExternalAssetsDrop(const QMimeData *data) const;
 
 private:
     void addTransitionEffectAction(const TypeName &typeName);
