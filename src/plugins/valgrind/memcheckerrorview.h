@@ -28,6 +28,8 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 
+#include <utils/filepath.h>
+
 #include <QListView>
 
 namespace Valgrind {
@@ -43,8 +45,8 @@ public:
     MemcheckErrorView(QWidget *parent = nullptr);
     ~MemcheckErrorView() override;
 
-    void setDefaultSuppressionFile(const QString &suppFile);
-    QString defaultSuppressionFile() const;
+    void setDefaultSuppressionFile(const Utils::FilePath &suppFile);
+    Utils::FilePath defaultSuppressionFile() const;
     ValgrindBaseSettings *settings() const { return m_settings; }
     void settingsChanged(ValgrindBaseSettings *settings);
 
@@ -53,7 +55,7 @@ private:
     QList<QAction *> customActions() const override;
 
     QAction *m_suppressAction;
-    QString m_defaultSuppFile;
+    Utils::FilePath m_defaultSuppFile;
     ValgrindBaseSettings *m_settings = nullptr;
 };
 

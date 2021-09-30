@@ -73,9 +73,9 @@ public:
     QStandardItemModel m_model; // The volatile value of this aspect.
 };
 
-void SuppressionAspect::addSuppressionFile(const QString &suppression)
+void SuppressionAspect::addSuppressionFile(const FilePath &suppression)
 {
-    QStringList val = value();
+    FilePaths val = value();
     val.append(suppression);
     setValue(val);
 }
@@ -141,14 +141,14 @@ SuppressionAspect::~SuppressionAspect()
     delete d;
 }
 
-QStringList SuppressionAspect::value() const
+FilePaths SuppressionAspect::value() const
 {
-    return BaseAspect::value().toStringList();
+    return Utils::transform(BaseAspect::value().toStringList(), &FilePath::fromString);
 }
 
-void SuppressionAspect::setValue(const QStringList &val)
+void SuppressionAspect::setValue(const FilePaths &val)
 {
-    BaseAspect::setValue(val);
+    BaseAspect::setValue(Utils::transform<QStringList>(val, &FilePath::toString));
 }
 
 void SuppressionAspect::addToLayout(LayoutBuilder &builder)
@@ -180,7 +180,7 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
     };
     builder.addItem(Span { 2, group });
 
-    setVolatileValue(value());
+    setVolatileValue(BaseAspect::value());
 }
 
 void SuppressionAspect::fromMap(const QVariantMap &map)

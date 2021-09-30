@@ -128,7 +128,7 @@ public:
     void start() override;
     void stop() override;
 
-    const QStringList suppressionFiles() const;
+    const Utils::FilePaths suppressionFiles() const;
 
 signals:
     void internalParserError(const QString &errorString);
@@ -212,8 +212,8 @@ QStringList MemcheckToolRunner::toolArguments() const
     }
     arguments << "--leak-check=" + leakCheckValue;
 
-    for (const QString &file : m_settings.suppressions.value())
-        arguments << QString("--suppressions=%1").arg(file);
+    for (const FilePath &file : m_settings.suppressions.value())
+        arguments << QString("--suppressions=%1").arg(file.path());
 
     arguments << QString("--num-callers=%1").arg(m_settings.numCallers.value());
 
@@ -225,7 +225,7 @@ QStringList MemcheckToolRunner::toolArguments() const
     return arguments;
 }
 
-const QStringList MemcheckToolRunner::suppressionFiles() const
+const FilePaths MemcheckToolRunner::suppressionFiles() const
 {
     return m_settings.suppressions.value();
 }
@@ -991,15 +991,15 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
 
-    QString dir = runControl->project()->projectDirectory().toString() + '/';
+    const FilePath dir = runControl->project()->projectDirectory();
     const QString name = runTool->executable().fileName();
 
-    m_errorView->setDefaultSuppressionFile(dir + name + ".supp");
+    m_errorView->setDefaultSuppressionFile(dir.pathAppended(name + ".supp"));
 
-    const QStringList suppressionFiles = runTool->suppressionFiles();
-    for (const QString &file : suppressionFiles) {
-        QAction *action = m_filterMenu->addAction(FilePath::fromString(file).fileName());
-        action->setToolTip(file);
+    const FilePaths suppressionFiles = runTool->suppressionFiles();
+    for (const FilePath &file : suppressionFiles) {
+        QAction *action = m_filterMenu->addAction(file.fileName());
+        action->setToolTip(file.toUserOutput());
         connect(action, &QAction::triggered, this, [file] {
             EditorManager::openEditorAt(file, 0);
         });
