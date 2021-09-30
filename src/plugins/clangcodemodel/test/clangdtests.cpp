@@ -506,9 +506,6 @@ void ClangdTestLocalReferences::test()
     client()->findLocalUsages(doc, cursor, std::move(handler));
     timer.start(10000);
     loop.exec();
-    QEXPECT_FAIL("cursor not on identifier", "clangd bug: go to definition does not return", Abort);
-    QEXPECT_FAIL("template parameter member access",
-                 "clangd bug: go to definition does not return", Abort);
     QVERIFY(timer.isActive());
     timer.stop();
 

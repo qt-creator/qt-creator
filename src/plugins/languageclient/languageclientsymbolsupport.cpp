@@ -78,14 +78,18 @@ static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &
 {
     if (Utils::optional<GotoResult> _result = response.result()) {
         const GotoResult result = _result.value();
-        if (Utils::holds_alternative<std::nullptr_t>(result))
-            return;
-        if (auto ploc = Utils::get_if<Location>(&result)) {
+        if (Utils::holds_alternative<std::nullptr_t>(result)) {
+            callback({});
+        } else if (auto ploc = Utils::get_if<Location>(&result)) {
             callback(linkUnderCursor.value_or(ploc->toLink()));
         } else if (auto plloc = Utils::get_if<QList<Location>>(&result)) {
             if (!plloc->isEmpty())
                 callback(linkUnderCursor.value_or(plloc->value(0).toLink()));
+            else
+                callback({});
         }
+    } else {
+        callback({});
     }
 }
 
