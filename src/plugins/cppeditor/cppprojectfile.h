@@ -53,6 +53,9 @@ public:
     static Kind classifyByMimeType(const QString &mt);
     static Kind classify(const QString &filePath);
 
+    static Kind sourceForHeaderKind(Kind kind);
+    static Kind sourceKind(Kind kind);
+
     static bool isSource(Kind kind);
     static bool isHeader(Kind kind);
     static bool isC(Kind kind);

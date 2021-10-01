@@ -340,9 +340,12 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
             if (file.path == CppEditor::CppModelManager::configurationFileName())
                 continue;
 
-            if (file.active && CppEditor::ProjectFile::isSource(file.kind)) {
+            if (file.active
+                && (CppEditor::ProjectFile::isSource(file.kind)
+                    || CppEditor::ProjectFile::isHeader(file.kind))) {
+                ProjectFile::Kind sourceKind = CppEditor::ProjectFile::sourceKind(file.kind);
                 fileInfos.emplace_back(Utils::FilePath::fromString(file.path),
-                                       file.kind,
+                                       sourceKind,
                                        projectPart);
             }
         }

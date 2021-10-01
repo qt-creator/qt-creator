@@ -87,6 +87,37 @@ bool ProjectFile::isAmbiguousHeader(const QString &filePath)
     return filePath.endsWith(".h");
 }
 
+ProjectFile::Kind ProjectFile::sourceForHeaderKind(ProjectFile::Kind kind)
+{
+    ProjectFile::Kind sourceKind;
+    switch (kind) {
+    case ProjectFile::CHeader:
+        sourceKind = ProjectFile::CSource;
+        break;
+    case ProjectFile::ObjCHeader:
+        sourceKind = ProjectFile::ObjCSource;
+        break;
+    case ProjectFile::ObjCXXHeader:
+        sourceKind = ProjectFile::ObjCXXSource;
+        break;
+    case ProjectFile::Unsupported: // no file extension, e.g. stl headers
+    case ProjectFile::AmbiguousHeader:
+    case ProjectFile::CXXHeader:
+    default:
+        sourceKind = ProjectFile::CXXSource;
+    }
+
+    return sourceKind;
+}
+
+ProjectFile::Kind ProjectFile::sourceKind(Kind kind)
+{
+    ProjectFile::Kind sourceKind = kind;
+    if (ProjectFile::isHeader(kind))
+        sourceKind = ProjectFile::sourceForHeaderKind(kind);
+    return sourceKind;
+}
+
 bool ProjectFile::isHeader(ProjectFile::Kind kind)
 {
     switch (kind) {
