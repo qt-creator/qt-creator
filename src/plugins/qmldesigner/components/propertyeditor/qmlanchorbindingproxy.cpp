@@ -861,6 +861,7 @@ void QmlAnchorBindingProxy::anchorVertical()
         m_qmlItemNode.anchors().setAnchor(AnchorLineVerticalCenter, m_verticalTarget, AnchorLineVerticalCenter);
 
     }
+    backupPropertyAndRemove(modelNode(), "y");
     m_locked = false;
 }
 
@@ -874,6 +875,7 @@ void QmlAnchorBindingProxy::anchorHorizontal()
     } else if (m_relativeVerticalTarget == Center) {
         m_qmlItemNode.anchors().setAnchor(AnchorLineHorizontalCenter, m_horizontalTarget, AnchorLineHorizontalCenter);
     }
+     backupPropertyAndRemove(modelNode(), "x");
     m_locked = false;
 }
 
@@ -993,6 +995,7 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
         if (!centered) {
             m_qmlItemNode.anchors().removeAnchor(AnchorLineVerticalCenter);
             m_qmlItemNode.anchors().removeMargin(AnchorLineVerticalCenter);
+           restoreProperty(m_qmlItemNode, "y");
         } else {
             m_relativeVerticalTarget = Center;
 
@@ -1020,6 +1023,7 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
         if (!centered) {
             m_qmlItemNode.anchors().removeAnchor(AnchorLineHorizontalCenter);
             m_qmlItemNode.anchors().removeMargin(AnchorLineHorizontalCenter);
+           restoreProperty(m_qmlItemNode, "x");
         } else {
             m_relativeHorizontalTarget = Center;
 
