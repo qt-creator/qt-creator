@@ -66,6 +66,8 @@
 #include <utils/runextensions.h>
 
 #include <QCheckBox>
+#include <QDateTime>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QHash>
 #include <QPair>
@@ -89,6 +91,7 @@ static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogTiming, "qtc.clangcodemodel.clangd.timing", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
 class AstNode : public JsonObject
@@ -779,6 +782,109 @@ private:
     std::unordered_map<DocType, VersionedDocData<DocType, DataType>> m_data;
 };
 
+class TaskTimer
+{
+public:
+    TaskTimer(const QString &task) : m_task(task) {}
+
+    void stopTask()
+    {
+        // This can happen due to the RAII mechanism employed with SubtaskTimer.
+        // The subtask timers will expire immediately after, so this does not distort
+        // the timing data.
+        if (m_subtasks > 0) {
+            QTC_CHECK(m_timer.isValid());
+            m_elapsedMs += m_timer.elapsed();
+            m_timer.invalidate();
+            m_subtasks = 0;
+        }
+        m_started = false;
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": took " << m_elapsedMs
+                                                     << " ms in UI thread";
+    }
+    void startSubtask()
+    {
+        // We have some callbacks that are either synchronous or asynchronous, depending on
+        // dynamic conditions. In the sync case, we will have nested subtasks, in which case
+        // the inner ones must not collect timing data, as their code blocks are already covered.
+        if (++m_subtasks > 1)
+            return;
+        if (!m_started) {
+            QTC_ASSERT(m_elapsedMs == 0, m_elapsedMs = 0);
+            m_started = true;
+            m_finalized = false;
+            qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": starting";
+        }
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": subtask started at "
+                                                     << QDateTime::currentDateTime().toString();
+        QTC_CHECK(!m_timer.isValid());
+        m_timer.start();
+    }
+    void stopSubtask(bool isFinalizing)
+    {
+        if (m_subtasks == 0) // See stopTask().
+            return;
+        if (isFinalizing)
+            m_finalized = true;
+        if (--m_subtasks > 0) // See startSubtask().
+            return;
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": subtask stopped at "
+                                                     << QDateTime::currentDateTime().toString();
+        QTC_CHECK(m_timer.isValid());
+        m_elapsedMs += m_timer.elapsed();
+        m_timer.invalidate();
+        if (m_finalized)
+            stopTask();
+    }
+
+private:
+    const QString m_task;
+    QElapsedTimer m_timer;
+    qint64 m_elapsedMs = 0;
+    int m_subtasks = 0;
+    bool m_started = false;
+    bool m_finalized = false;
+};
+
+class SubtaskTimer
+{
+public:
+    SubtaskTimer(TaskTimer &timer) : m_timer(timer) { m_timer.startSubtask(); }
+    ~SubtaskTimer() { m_timer.stopSubtask(m_isFinalizing); }
+
+protected:
+    void makeFinalizing() { m_isFinalizing = true; }
+
+private:
+    TaskTimer &m_timer;
+    bool m_isFinalizing = false;
+};
+
+class FinalizingSubtaskTimer : public SubtaskTimer
+{
+public:
+    FinalizingSubtaskTimer(TaskTimer &timer) : SubtaskTimer(timer) { makeFinalizing(); }
+};
+
+class ThreadedSubtaskTimer
+{
+public:
+    ThreadedSubtaskTimer(const QString &task) : m_task(task)
+    {
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": starting thread";
+        m_timer.start();
+    }
+
+    ~ThreadedSubtaskTimer()
+    {
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": took " << m_timer.elapsed()
+                                                     << " ms in dedicated thread";
+    }
+private:
+    const QString m_task;
+    QElapsedTimer m_timer;
+};
+
 class ClangdClient::Private
 {
 public:
@@ -830,6 +936,7 @@ public:
     std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter> highlighters;
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
+    TaskTimer highlightingTimer{"highlighting"};
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
@@ -2110,6 +2217,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const QPointer<TextEditorWidget> &widget,
                                 int docRevision, const QVersionNumber &clangdVersion)
 {
+    ThreadedSubtaskTimer t("highlighting");
     if (future.isCanceled()) {
         future.reportFinished();
         return;
@@ -2256,12 +2364,14 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                                                  const QList<ExpandedSemanticToken> &tokens)
 {
+    SubtaskTimer t(highlightingTimer);
     qCDebug(clangdLog()) << "handling LSP tokens" << doc->filePath() << tokens.size();
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
 
     const auto astHandler = [this, tokens, doc](const AstNode &ast, const MessageId &) {
+        FinalizingSubtaskTimer t(highlightingTimer);
         if (!q->documentOpen(doc))
             return;
         if (clangdLogAst().isDebugEnabled())
