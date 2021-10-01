@@ -111,6 +111,15 @@ Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
     return entry;
 }
 
+QList<Core::LocatorFilterEntry> generateLocatorEntries(const SymbolInformation &info,
+                                                       Core::ILocatorFilter *filter,
+                                                       const QRegularExpression &regexp)
+{
+    if (!regexp.match(info.name()).hasMatch())
+        return { generateLocatorEntry(info, filter) };
+    return {};
+}
+
 Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
                                               Core::ILocatorFilter *filter)
 {
@@ -123,6 +132,19 @@ Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
     const Position &pos = info.range().start();
     entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
     return entry;
+}
+
+QList<Core::LocatorFilterEntry> generateLocatorEntries(const DocumentSymbol &info,
+                                                       Core::ILocatorFilter *filter,
+                                                       const QRegularExpression &regexp)
+{
+    QList<Core::LocatorFilterEntry> entries;
+    if (regexp.match(info.name()).hasMatch())
+        entries << generateLocatorEntry(info, filter);
+    const QList<DocumentSymbol> children = info.children().value_or(QList<DocumentSymbol>());
+    for (const DocumentSymbol &child : children)
+        entries << generateLocatorEntries(child, filter, regexp);
+    return entries;
 }
 
 template<class T>
@@ -138,11 +160,8 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateEntries(const QLi
     if (!regexp.isValid())
         return entries;
 
-    for (const T &item : list) {
-        QRegularExpressionMatch match = regexp.match(item.name());
-        if (match.hasMatch())
-            entries << generateLocatorEntry(item, this);
-    }
+    for (const T &item : list)
+        entries << generateLocatorEntries(item, this, regexp);
     return entries;
 }
 
