@@ -34,6 +34,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QTextDocument>
 
@@ -165,6 +166,8 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         return; // aborted
 
     qCDebug(log) << "onHighlighterResultAvailable()" << from << to;
+    QElapsedTimer t;
+    t.start();
 
     SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
@@ -234,11 +237,17 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     }
     if (parentheses.first.isValid())
         TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
+
+    qCDebug(log) << "onHighlighterResultAvailable() took" << t.elapsed() << "ms";
 }
 
 void SemanticHighlighter::onHighlighterFinished()
 {
     QTC_ASSERT(m_watcher, return);
+
+    QElapsedTimer t;
+    t.start();
+
     if (!m_watcher->isCanceled() && documentRevision() == m_revision) {
         SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
         if (QTC_GUARD(highlighter)) {
@@ -273,6 +282,7 @@ void SemanticHighlighter::onHighlighterFinished()
     }
 
     m_watcher.reset();
+    qCDebug(log) << "onHighlighterFinished() took" << t.elapsed() << "ms";
 }
 
 void SemanticHighlighter::connectWatcher()
