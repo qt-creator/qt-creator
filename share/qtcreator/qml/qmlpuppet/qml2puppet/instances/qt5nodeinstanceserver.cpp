@@ -199,11 +199,24 @@ void Qt5NodeInstanceServer::markRepeaterParentDirty(qint32 id) const
     if (!hasInstanceForId(id))
         return;
 
-    // If a Repeater instance was moved/removed, the old parent must be marked dirty to rerender it
     ServerNodeInstance instance = instanceForId(id);
-    if (instance.isValid() && instance.isSubclassOf("QQuickRepeater") && instance.hasParent()) {
-        ServerNodeInstance parentInstance = instance.parent();
+    if (!instance.isValid())
+        return;
+
+    ServerNodeInstance parentInstance = instance.parent();
+    if (!parentInstance.isValid())
+        return;
+
+    // If a Repeater instance was moved/removed, the old parent must be marked dirty to rerender it
+    const QByteArray type("QQuickRepeater");
+    if (ServerNodeInstance::isSubclassOf(instance.internalObject(), type))
         DesignerSupport::addDirty(parentInstance.rootQuickItem(), QQuickDesignerSupport::Content);
+
+    // Repeater's parent must also be dirtied when a child of a repeater was moved/removed.
+    if (ServerNodeInstance::isSubclassOf(parentInstance.internalObject(), type)) {
+        ServerNodeInstance parentsParent = parentInstance.parent();
+        if (parentsParent.isValid())
+            DesignerSupport::addDirty(parentsParent.rootQuickItem(), QQuickDesignerSupport::Content);
     }
 }
 

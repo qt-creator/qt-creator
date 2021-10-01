@@ -415,6 +415,16 @@ bool ObjectNodeInstance::isLockedInEditor() const
     return m_isLockedInEditor;
 }
 
+bool ObjectNodeInstance::isComponentWrap() const
+{
+    return m_isComponentWrap;
+}
+
+void ObjectNodeInstance::setComponentWrap(bool wrap)
+{
+    m_isComponentWrap = wrap;
+}
+
 void ObjectNodeInstance::setModifiedFlag(bool b)
 {
     m_isModified = b;
@@ -732,6 +742,10 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
     QQmlComponent *component = new QQmlComponent(context->engine());
 
     QByteArray data(nodeSource.toUtf8());
+    if (data.isEmpty()) {
+        // Add a fake root element as an empty component is not valid and crashes in some cases
+        data.append("QtObject{}");
+    }
     data.prepend(importCode);
     component->setData(data, context->baseUrl().resolved(QUrl("createComponent.qml")));
     QObject *object = component;

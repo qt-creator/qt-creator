@@ -1191,6 +1191,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (isComponentType(typeName) || isImplicitComponent)
         setupComponentDelayed(modelNode, differenceHandler.isAmender());
+    else if (!modelNode.nodeSource().isEmpty() || modelNode.nodeSourceType() != ModelNode::NodeWithoutSource)
+        clearImplicitComponentDelayed(modelNode, differenceHandler.isAmender());
 
     if (isCustomParserType(typeName))
         setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
@@ -2079,16 +2081,21 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
 
     QString componentText = m_rewriterView->extractText({node}).value(node);
 
-    if (componentText.isEmpty())
+    if (componentText.isEmpty() && node.nodeSource().isEmpty())
         return;
 
     QString result = extractComponentFromQml(componentText);
 
-    if (result.isEmpty())
+    if (result.isEmpty() && node.nodeSource().isEmpty())
         return; //No object definition found
 
     if (node.nodeSource() != result)
         ModelNode(node).setNodeSource(result, ModelNode::NodeWithComponentSource);
+}
+
+void TextToModelMerger::clearImplicitComponent(const ModelNode &node)
+{
+    ModelNode(node).setNodeSource({}, ModelNode::NodeWithoutSource);
 }
 
 void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt)
@@ -2237,9 +2244,9 @@ void TextToModelMerger::addIsoIconQrcMapping(const QUrl &fileUrl)
     } while (dir.cdUp());
 }
 
-void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchron)
+void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchronous)
 {
-    if (synchron) {
+    if (synchronous) {
         setupComponent(node);
     } else {
         m_setupComponentList.insert(node);
@@ -2254,7 +2261,7 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 
     QString modelText = m_rewriterView->extractText({node}).value(node);
 
-    if (modelText.isEmpty())
+    if (modelText.isEmpty() && node.nodeSource().isEmpty())
         return;
 
     if (node.nodeSource() != modelText)
@@ -2262,11 +2269,11 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 
 }
 
-void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool synchron)
+void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool synchronous)
 {
     Q_ASSERT(isCustomParserType(node.type()));
 
-    if (synchron) {
+    if (synchronous) {
         setupCustomParserNode(node);
     } else {
         m_setupCustomParserList.insert(node);
@@ -2274,15 +2281,32 @@ void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool
     }
 }
 
+void TextToModelMerger::clearImplicitComponentDelayed(const ModelNode &node, bool synchronous)
+{
+    Q_ASSERT(!isComponentType(node.type()));
+
+    if (synchronous) {
+        clearImplicitComponent(node);
+    } else {
+        m_clearImplicitComponentList.insert(node);
+        m_setupTimer.start();
+    }
+}
+
 void TextToModelMerger::delayedSetup()
 {
-    foreach (const ModelNode node, m_setupComponentList)
+    for (const ModelNode &node : std::as_const(m_setupComponentList))
         setupComponent(node);
 
-    foreach (const ModelNode node, m_setupCustomParserList)
+    for (const ModelNode &node : std::as_const(m_setupCustomParserList))
         setupCustomParserNode(node);
+
+    for (const ModelNode &node : std::as_const(m_clearImplicitComponentList))
+        clearImplicitComponent(node);
+
     m_setupCustomParserList.clear();
     m_setupComponentList.clear();
+    m_clearImplicitComponentList.clear();
 }
 
 QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const

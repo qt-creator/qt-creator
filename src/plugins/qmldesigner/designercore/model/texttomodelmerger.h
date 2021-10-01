@@ -128,8 +128,9 @@ public:
                                       ReadingContext *context,
                                       DifferenceHandler &differenceHandler);
 
-    void setupComponentDelayed(const ModelNode &node, bool synchron);
-    void setupCustomParserNodeDelayed(const ModelNode &node, bool synchron);
+    void setupComponentDelayed(const ModelNode &node, bool synchronous);
+    void setupCustomParserNodeDelayed(const ModelNode &node, bool synchronous);
+    void clearImplicitComponentDelayed(const ModelNode &node, bool synchronous);
 
     void delayedSetup();
 
@@ -140,6 +141,7 @@ public:
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);
+    void clearImplicitComponent(const ModelNode &node);
     void collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt);
     void collectImportErrors(QList<DocumentMessage> *errors);
     void collectSemanticErrorsAndWarnings(QList<DocumentMessage> *errors,
@@ -163,6 +165,7 @@ private:
     QTimer m_setupTimer;
     QSet<ModelNode> m_setupComponentList;
     QSet<ModelNode> m_setupCustomParserList;
+    QSet<ModelNode> m_clearImplicitComponentList;
     QmlJS::ViewerContext m_vContext;
     QSet<QPair<QString, QString> > m_qrcMapping;
     QSet<QmlJS::ImportKey> m_possibleImportKeys;

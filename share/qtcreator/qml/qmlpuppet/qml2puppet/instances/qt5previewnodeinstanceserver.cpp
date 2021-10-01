@@ -101,6 +101,10 @@ void Qt5PreviewNodeInstanceServer::changeState(const ChangeStateCommand &/*comma
 
 QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
 {
+    // Ensure the state preview image is always clipped properly to root item dimensions
+    if (auto rootItem = qobject_cast<QQuickItem *>(rootNodeInstance().internalObject()))
+        rootItem->setClip(true);
+
     rootNodeInstance().updateDirtyNodeRecursive();
 
     QRectF boundingRect = rootNodeInstance().boundingRect();

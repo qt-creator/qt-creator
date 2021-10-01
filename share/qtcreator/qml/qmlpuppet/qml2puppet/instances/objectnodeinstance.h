@@ -202,6 +202,9 @@ public:
     virtual void setLockedInEditor(bool b);
     bool isLockedInEditor() const;
 
+    bool isComponentWrap() const;
+    void setComponentWrap(bool wrap);
+
     void setModifiedFlag(bool b);
 
 protected:
@@ -234,6 +237,7 @@ private:
     bool m_isModified = false;
     bool m_isLockedInEditor = false;
     bool m_isHiddenInEditor = false;
+    bool m_isComponentWrap = false;
     static QHash<EnumerationName, QVariant> m_enumationValueHash;
 };
 

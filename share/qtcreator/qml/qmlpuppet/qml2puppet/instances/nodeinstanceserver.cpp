@@ -397,8 +397,19 @@ void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &con
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(),
-                                  instanceForId(container.newParentInstanceId()), container.newParentProperty());
+                ServerNodeInstance newParent = instanceForId(container.newParentInstanceId());
+                PropertyName newParentProperty = container.newParentProperty();
+                if (!isInformationServer()) {
+                    // Children of the component wraps are left out of the node tree to avoid
+                    // incorrectly rendering them
+                    if (newParent.isComponentWrap()) {
+                        newParent = {};
+                        newParentProperty.clear();
+                    }
+                }
+                instance.reparent(instanceForId(container.oldParentInstanceId()),
+                                  container.oldParentProperty(),
+                                  newParent, newParentProperty);
             }
         }
     }
