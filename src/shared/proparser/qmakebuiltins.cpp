@@ -474,12 +474,8 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
     }
 # endif
 # ifdef PROEVALUATOR_THREAD_SAFE
-    m_option->mutex.lock();
-    if (m_option->canceled) {
-        m_option->mutex.unlock();
+    if (m_option->canceled)
         return;
-    }
-    m_option->runningProcs << proc;
 # endif
 # ifdef Q_OS_WIN
     proc->setNativeArguments(QLatin1String("/v:off /s /c \"") + command + QLatin1Char('"'));
@@ -488,12 +484,21 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
     proc->start(QLatin1String("/bin/sh"), QStringList() << QLatin1String("-c") << command);
 # endif
 # ifdef PROEVALUATOR_THREAD_SAFE
-    m_option->mutex.unlock();
-# endif
-    proc->waitForFinished(-1);
-# ifdef PROEVALUATOR_THREAD_SAFE
-    QMutexLocker(&m_option->mutex);
-    m_option->runningProcs.removeOne(proc);
+    while (true) {
+        if (proc->waitForFinished(100))
+            break;
+        if (m_option->canceled) {
+            proc->terminate();
+            if (proc->waitForFinished(1000))
+                break;
+            proc->kill();
+            proc->waitForFinished(1000);
+            break;
+        }
+    }
+# else
+    proc->waitForFinished(-1); // If have have single thread we can't cancel it using
+                               // synchronous API of QProcess
 # endif
 }
 #endif

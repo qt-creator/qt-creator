@@ -674,8 +674,9 @@ void QmakeBuildSystem::asyncUpdate()
     connect(watcher, &QFutureWatcher<void>::canceled, this, [this, watcher] {
         if (!m_qmakeGlobals)
             return;
-        watcher->disconnect();
         m_qmakeGlobals->killProcesses();
+        watcher->disconnect();
+        watcher->deleteLater();
     });
     connect(watcher, &QFutureWatcher<void>::finished, this, [watcher] {
         watcher->disconnect();

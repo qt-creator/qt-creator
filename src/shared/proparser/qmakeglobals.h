@@ -159,8 +159,7 @@ private:
 
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
-    bool canceled = false;
-    QList<QProcess *> runningProcs;
+    std::atomic_bool canceled = false;
 #endif
     QHash<QMakeBaseKey, QMakeBaseEnv *> baseEnvs;
 
