@@ -1321,9 +1321,8 @@ void AndroidConfigurations::updateAutomaticKitList()
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis));
 
-                k->setSticky(ToolChainKitAspect::id(), true);
+                BuildDeviceKitAspect::setDeviceId(k, DeviceManager::defaultDesktopDevice()->id());
                 k->setSticky(QtKitAspect::id(), true);
-                k->setSticky(DeviceKitAspect::id(), true);
                 k->setMutable(DeviceKitAspect::id(), true);
                 k->setSticky(DeviceTypeKitAspect::id(), true);
 
