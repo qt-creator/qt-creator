@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "android_global.h"
-
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/processparameters.h>
+
+#include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -52,6 +52,9 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
+    QVersionNumber buildToolsVersion() const;
+    void setBuildToolsVersion(const QVersionNumber &version);
+
     QVariant data(Utils::Id id) const override;
 
 private:
@@ -68,6 +71,7 @@ private:
     void stdError(const QString &output);
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
+    void updateBuildToolsVersionInJsonFile();
 
     bool m_buildAAB = false;
     bool m_signPackage = false;
@@ -76,6 +80,7 @@ private:
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;
     QString m_buildTargetSdk;
+    QVersionNumber m_buildToolsVersion;
 
     Utils::FilePath m_keystorePath;
     QString m_keystorePasswd;
