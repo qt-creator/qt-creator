@@ -196,7 +196,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
    });
 
     auto formLayout = new QFormLayout(group);
-    formLayout->addRow(tr("Android build SDK:"), targetSDKComboBox);
+    formLayout->addRow(tr("Android build platform SDK:"), targetSDKComboBox);
 
     auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
     createAndroidTemplatesButton->setToolTip(
