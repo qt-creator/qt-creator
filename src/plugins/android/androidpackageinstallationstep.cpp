@@ -72,6 +72,8 @@ private:
     void setupOutputFormatter(OutputFormatter *formatter) final;
     void doRun() final;
 
+    void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
+
     QStringList m_androidDirsToClean;
 };
 
@@ -89,11 +91,16 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 
 bool AndroidPackageInstallationStep::init()
 {
-    if (!AbstractProcessStep::init())
+    if (!AbstractProcessStep::init()) {
+        reportWarningOrError(tr("\"%1\" step failed initialization.").arg(displayName()),
+                             Task::TaskType::Error);
         return false;
+    }
 
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
-    QTC_ASSERT(tc, return false);
+    QTC_ASSERT(tc, reportWarningOrError(tr("\"%1\" step has an invalid C++ toolchain.")
+                                        .arg(displayName()), Task::TaskType::Error);
+            return false);
 
     QString dirPath = nativeAndroidBuildPath();
     const QString innerQuoted = ProcessArgs::quoteArg(dirPath);
@@ -140,8 +147,9 @@ void AndroidPackageInstallationStep::doRun()
         if (!dir.isEmpty() && androidDir.exists()) {
             emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
             if (!androidDir.removeRecursively(&error)) {
-                emit addOutput(error, OutputFormat::Stderr);
-                TaskHub::addTask(BuildSystemTask(Task::Error, error));
+                reportWarningOrError(tr("Failed to clean \"%1\" from the previous build, with "
+                                        "error:\n%2").arg(androidDir.toUserOutput()).arg(error),
+                                     Task::TaskType::Error);
                 emit finished(false);
                 return;
             }
@@ -167,11 +175,19 @@ void AndroidPackageInstallationStep::doRun()
                         qPrintable(file.fileName()));
             } else {
                 qCDebug(packageInstallationStepLog,
-                        "Cound't add %s to the package. The QML debugger might not work properly.",
+                        "Cannot add %s to the package. The QML debugger might not work properly.",
                         qPrintable(file.fileName()));
             }
         }
     }
+}
+
+void AndroidPackageInstallationStep::reportWarningOrError(const QString &message,
+                                                          Task::TaskType type)
+{
+    qCDebug(packageInstallationStepLog) << message;
+    emit addOutput(message, OutputFormat::ErrorMessage);
+    TaskHub::addTask(BuildSystemTask(type, message));
 }
 
 //

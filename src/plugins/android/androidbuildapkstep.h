@@ -92,6 +92,8 @@ private:
 
     void doRun() override;
 
+    void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
+
     bool m_buildAAB = false;
     bool m_signPackage = false;
     bool m_verbose = false;
