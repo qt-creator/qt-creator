@@ -262,7 +262,7 @@ bool DesignerActionManager::externalDragHasSupportedAssets(const QMimeData *mime
     return false;
 }
 
-void DesignerActionManager::handleExternalAssetsDrop(const QMimeData *mimeData) const
+QHash<QString, QStringList> DesignerActionManager::handleExternalAssetsDrop(const QMimeData *mimeData) const
 {
     const QList<AddResourceHandler> handlers = addResourceHandler();
     // create suffix to categry and category to operation hashes
@@ -283,13 +283,19 @@ void DesignerActionManager::handleExternalAssetsDrop(const QMimeData *mimeData) 
             categoryFiles[category].append(url.toLocalFile());
     }
 
+    QHash<QString, QStringList> addedCategoryFiles;
+
     // run operations
     const QStringList categories = categoryFiles.keys();
     for (const QString &category : categories) {
         AddResourceOperation operation = categoryOperation.value(category);
         QStringList files = categoryFiles.value(category);
-        operation(files, {});
+        bool success = operation(files, {});
+        if (success)
+            addedCategoryFiles.insert(category, files);
     }
+
+    return addedCategoryFiles;
 }
 
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
