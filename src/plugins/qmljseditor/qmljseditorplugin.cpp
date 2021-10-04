@@ -110,6 +110,7 @@ QmlJSEditorPlugin::QmlJSEditorPlugin()
 
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
 {
+    delete QmlJS::Icons::instance(); // delete object held by singleton
     delete d;
     d = nullptr;
     m_instance = nullptr;
@@ -226,8 +227,6 @@ void QmlJSEditorPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
 {
-    delete QmlJS::Icons::instance(); // delete object held by singleton
-
     return IPlugin::aboutToShutdown();
 }
 
