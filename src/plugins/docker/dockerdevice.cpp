@@ -1288,12 +1288,8 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
         return res;
     }
 
-    QtcProcess proc;
-    proc.setCommand({"stat", {"-c", "%Y", filePath.path()}});
-    runProcess(proc);
-    proc.waitForFinished();
-
-    const qint64 secs = proc.rawStdOut().toLongLong();
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
 }
@@ -1615,6 +1611,12 @@ void DockerDevice::aboutToBeRemoved() const
 
 void DockerDevicePrivate::fetchSystemEnviroment()
 {
+    if (m_shell) {
+        const QString remoteOutput = outputForRunInShell({"env", {}});
+        m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+        return;
+    }
+
     QtcProcess proc;
     proc.setCommand({"env", {}});
 
