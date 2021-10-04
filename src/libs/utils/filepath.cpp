@@ -1208,7 +1208,7 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
         QTC_ASSERT(s_deviceHooks.searchInPath, return {});
         return s_deviceHooks.searchInPath(*this, dirs);
     }
-    return Environment::systemEnvironment().searchInPath(path(), dirs);
+    return Environment::systemEnvironment().searchInDirectories(path(), dirs);
 }
 
 FilePath FilePath::searchInPath(const QList<FilePath> &additionalDirs) const
