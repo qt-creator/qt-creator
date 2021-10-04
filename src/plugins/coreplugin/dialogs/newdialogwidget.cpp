@@ -32,7 +32,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QAbstractProxyModel>
 #include <QDebug>
 #include <QItemDelegate>
 #include <QKeyEvent>
