@@ -195,6 +195,11 @@ bool ProjectIntroPage::validate()
     return false;
 }
 
+void ProjectIntroPage::fieldsUpdated()
+{
+    slotChanged();
+}
+
 void ProjectIntroPage::slotChanged()
 {
     const bool newComplete = validate();
@@ -286,6 +291,8 @@ void ProjectIntroPage::displayStatusMessage(InfoLabel::InfoType t, const QString
 {
     d->m_ui.stateLabel->setType(t);
     d->m_ui.stateLabel->setText(s);
+
+    emit statusMessageChanged(t, s);
 }
 
 void ProjectIntroPage::hideStatusLabel()

@@ -72,11 +72,12 @@ private:
     // The "rename selection" is the local use selection on which the user started the renaming
     bool findRenameSelection(int cursorPosition);
     void forgetRenamingSelection();
+    static bool isWithinSelection(const QTextEdit::ExtraSelection &selection, int position);
     bool isWithinRenameSelection(int position);
 
     QTextEdit::ExtraSelection &renameSelection();
-    int renameSelectionBegin() { return renameSelection().cursor.position(); }
-    int renameSelectionEnd() { return renameSelection().cursor.anchor(); }
+    int renameSelectionBegin() { return renameSelection().cursor.selectionStart(); }
+    int renameSelectionEnd() { return renameSelection().cursor.selectionEnd(); }
 
     void updateRenamingSelectionCursor(const QTextCursor &cursor);
     void updateRenamingSelectionFormat(const QTextCharFormat &format);

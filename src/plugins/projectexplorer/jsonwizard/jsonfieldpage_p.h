@@ -230,10 +230,12 @@ private:
     Utils::PathChooser::Kind m_kind = Utils::PathChooser::ExistingDirectory;
 };
 
-class CheckBoxField : public JsonFieldPage::Field
+class PROJECTEXPLORER_EXPORT CheckBoxField : public JsonFieldPage::Field
 {
 public:
     bool suppressName() const override { return true; }
+
+    void setChecked(bool);
 
 private:
     bool parseData(const QVariant &data, QString *errorMessage) override;

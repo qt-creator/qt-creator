@@ -145,6 +145,10 @@ public:
     void setParameters(const QList<ParameterInformation> &parameters)
     { insertArray(parametersKey, parameters); }
     void clearParameters() { remove(parametersKey); }
+
+    Utils::optional<int> activeParameter() const { return optionalValue<int>(activeParameterKey); }
+    void setActiveParameter(int activeParameter) { insert(activeParameterKey, activeParameter); }
+    void clearActiveParameter() { remove(activeParameterKey); }
 };
 
 /**

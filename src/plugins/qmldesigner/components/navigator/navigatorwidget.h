@@ -43,6 +43,7 @@ class NavigatorView;
 class NavigatorWidget: public QFrame
 {
     Q_OBJECT
+
 public:
     NavigatorWidget(NavigatorView *view);
 
@@ -63,10 +64,13 @@ signals:
     void filterToggled(bool);
     void reverseOrderToggled(bool);
 
-private: // functions
+protected:
+    void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
+    void dropEvent(QDropEvent *dropEvent) override;
+
+private:
     NavigatorView *navigatorView() const;
 
-private: // variables
     NavigatorTreeView *m_treeView;
     QPointer<NavigatorView> m_navigatorView;
 };

@@ -336,6 +336,12 @@ public:
             Utils::optional<QList<MarkupKind>> documentationFormat() const;
             void setDocumentationFormat(const QList<MarkupKind> &documentationFormat);
             void clearDocumentationFormat() { remove(documentationFormatKey); }
+
+            Utils::optional<bool> activeParameterSupport() const
+            { return optionalValue<bool>(activeParameterSupportKey); }
+            void setActiveParameterSupport(bool activeParameterSupport)
+            { insert(activeParameterSupportKey, activeParameterSupport); }
+            void clearActiveParameterSupport() { remove(activeParameterSupportKey); }
         };
 
         // The client supports the following `SignatureInformation` specific properties.

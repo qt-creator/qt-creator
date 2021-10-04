@@ -26,6 +26,7 @@
 #include "itemlibrarycategory.h"
 
 #include "itemlibraryitem.h"
+#include "itemlibrarywidget.h"
 
 namespace QmlDesigner {
 
@@ -44,6 +45,11 @@ QString ItemLibraryCategory::categoryName() const
 bool ItemLibraryCategory::categoryExpanded() const
 {
     return m_categoryExpanded;
+}
+
+bool ItemLibraryCategory::categorySelected() const
+{
+    return m_categorySelected;
 }
 
 QString ItemLibraryCategory::sortingName() const
@@ -84,6 +90,10 @@ bool ItemLibraryCategory::updateItemVisibility(const QString &searchText, bool *
             hasVisibleItems = true;
     }
 
+    // update item model in horizontal view so search text matches item grid
+    if (ItemLibraryWidget::isHorizontalLayout)
+        m_itemModel.resetModel();
+
     // expand category if it has an item matching search criteria
     if (!searchText.isEmpty() && hasVisibleItems && !categoryExpanded())
         setExpanded(true);
@@ -122,6 +132,11 @@ void ItemLibraryCategory::sortItems()
 void ItemLibraryCategory::setExpanded(bool expanded)
 {
     m_categoryExpanded = expanded;
+}
+
+void ItemLibraryCategory::setCategorySelected(bool selected)
+{
+    m_categorySelected = selected;
 }
 
 } // namespace QmlDesigner

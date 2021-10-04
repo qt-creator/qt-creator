@@ -616,7 +616,7 @@ bool FilePath::isWritableFile() const
         return s_deviceHooks.isWritableFile(*this);
     }
     const QFileInfo fi{m_data};
-    return fi.exists() && fi.isWritable() && !fi.isDir();
+    return fi.isWritable() && !fi.isDir();
 }
 
 bool FilePath::ensureWritableDir() const
@@ -626,7 +626,7 @@ bool FilePath::ensureWritableDir() const
         return s_deviceHooks.ensureWritableDir(*this);
     }
     const QFileInfo fi{m_data};
-    if (exists() && fi.isDir() && fi.isWritable())
+    if (fi.isDir() && fi.isWritable())
         return true;
     return QDir().mkpath(m_data);
 }
@@ -652,7 +652,7 @@ bool FilePath::isExecutableFile() const
         return s_deviceHooks.isExecutableFile(*this);
     }
     const QFileInfo fi{m_data};
-    return fi.exists() && fi.isExecutable() && !fi.isDir();
+    return fi.isExecutable() && !fi.isDir();
 }
 
 bool FilePath::isReadableFile() const
@@ -662,7 +662,7 @@ bool FilePath::isReadableFile() const
         return s_deviceHooks.isReadableFile(*this);
     }
     const QFileInfo fi{m_data};
-    return fi.exists() && fi.isReadable() && !fi.isDir();
+    return fi.isReadable() && !fi.isDir();
 }
 
 bool FilePath::isReadableDir() const
@@ -672,7 +672,7 @@ bool FilePath::isReadableDir() const
         return s_deviceHooks.isReadableDir(*this);
     }
     const QFileInfo fi{m_data};
-    return fi.exists() && fi.isReadable() && fi.isDir();
+    return fi.isReadable() && fi.isDir();
 }
 
 bool FilePath::isFile() const
@@ -682,7 +682,7 @@ bool FilePath::isFile() const
         return s_deviceHooks.isFile(*this);
     }
     const QFileInfo fi{m_data};
-    return fi.exists() && fi.isFile();
+    return fi.isFile();
 }
 
 bool FilePath::isDir() const
@@ -692,7 +692,7 @@ bool FilePath::isDir() const
         return s_deviceHooks.isDir(*this);
     }
     const QFileInfo fi{m_data};
-    return fi.exists() && fi.isDir();
+    return fi.isDir();
 }
 
 bool FilePath::createDir() const

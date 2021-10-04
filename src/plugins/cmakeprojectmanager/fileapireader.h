@@ -71,14 +71,16 @@ public:
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
     CMakeConfig takeParsedConfiguration(QString &errorMessage);
     QString ctestPath() const;
-    std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const ProjectExplorer::TreeScanner::Result &allFiles, bool failedToParse);
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);
 
     bool isMultiConfig() const;
     bool usesAllCapsTargets() const;
 
     int lastCMakeExitCode() const;
+
+    std::unique_ptr<CMakeProjectNode> rootProjectNode();
+
+    Utils::FilePath topCmakeFile() const;
 
 signals:
     void configurationStarted() const;

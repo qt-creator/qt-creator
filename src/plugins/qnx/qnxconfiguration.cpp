@@ -225,7 +225,7 @@ QnxQtVersion *QnxConfiguration::qnxQtVersion(const Target &target) const
              QtVersionManager::instance()->versions(Utils::equal(&BaseQtVersion::type,
                                                                          QString::fromLatin1(Constants::QNX_QNX_QT)))) {
         auto qnxQt = dynamic_cast<QnxQtVersion *>(version);
-        if (qnxQt && FilePath::fromString(qnxQt->sdpPath()) == sdpPath()) {
+        if (qnxQt && qnxQt->sdpPath() == sdpPath()) {
             foreach (const Abi &qtAbi, version->qtAbis()) {
                 if ((qtAbi == target.m_abi) && (qnxQt->cpuDir() == target.cpuDir()))
                     return qnxQt;
@@ -240,7 +240,7 @@ QList<ToolChain *> QnxConfiguration::autoDetect(const QList<ToolChain *> &alread
 {
     QList<ToolChain *> result;
 
-    foreach (const Target &target, m_targets)
+    for (const Target &target : qAsConst(m_targets))
         result += findToolChain(alreadyKnown, target.m_abi);
 
     return result;
@@ -286,7 +286,7 @@ QnxConfiguration::QnxToolChainMap QnxConfiguration::createToolChain(const Target
                         "QCC for %1 (%2)")
                     .arg(displayName())
                     .arg(target.shortDescription()));
-        toolChain->setSdpPath(sdpPath().toString());
+        toolChain->setSdpPath(sdpPath());
         toolChain->setCpuDir(target.cpuDir());
         toolChain->resetToolChain(qccCompilerPath());
         ToolChainManager::registerToolChain(toolChain);
@@ -372,11 +372,11 @@ void QnxConfiguration::setVersion(const QnxVersionNumber &version)
 void QnxConfiguration::readInformation()
 {
     const QString qConfigPath = m_qnxConfiguration.pathAppended("qconfig").toString();
-    QList <ConfigInstallInformation> installInfoList = QnxUtils::installedConfigs(qConfigPath);
+    const QList <ConfigInstallInformation> installInfoList = QnxUtils::installedConfigs(qConfigPath);
     if (installInfoList.isEmpty())
         return;
 
-    foreach (const ConfigInstallInformation &info, installInfoList) {
+    for (const ConfigInstallInformation &info : installInfoList) {
         if (m_qnxHost == FilePath::fromString(info.host).canonicalPath()
                 && m_qnxTarget == FilePath::fromString(info.target).canonicalPath()) {
             m_configName = info.name;
@@ -386,11 +386,11 @@ void QnxConfiguration::readInformation()
     }
 }
 
-void QnxConfiguration::setDefaultConfiguration(const Utils::FilePath &envScript)
+void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
 {
     QTC_ASSERT(!envScript.isEmpty(), return);
     m_envFile = envScript;
-    m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile.toString());
+    m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile);
     foreach (const EnvironmentItem &item, m_qnxEnv) {
         if (item.name == QNXConfiguration)
             m_qnxConfiguration = FilePath::fromString(item.value).canonicalPath();

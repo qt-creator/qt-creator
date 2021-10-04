@@ -63,15 +63,15 @@ public:
     bool isValid() const override;
     QString invalidReason() const override;
 
-    QString sdpPath() const;
-    void setSdpPath(const QString &sdpPath);
+    Utils::FilePath sdpPath() const;
+    void setSdpPath(const Utils::FilePath &sdpPath);
 
 private:
     void updateEnvironment() const;
 
     Utils::EnvironmentItems environment() const;
 
-    QString m_sdpPath;
+    Utils::FilePath m_sdpPath;
 
     mutable QString m_cpuDir;
     mutable bool m_environmentUpToDate = false;

@@ -62,7 +62,9 @@ void DocumentLocatorFilter::updateCurrentClient()
     disconnect(m_resetSymbolsConnection);
 
     TextEditor::TextDocument *document = TextEditor::TextDocument::currentTextDocument();
-    if (Client *client = LanguageClientManager::clientForDocument(document)) {
+    if (Client *client = LanguageClientManager::clientForDocument(document);
+            client && client->locatorsEnabled()) {
+        setEnabled(true);
         if (m_symbolCache != client->documentSymbolCache()) {
             disconnect(m_updateSymbolsConnection);
             m_symbolCache = client->documentSymbolCache();
@@ -76,6 +78,7 @@ void DocumentLocatorFilter::updateCurrentClient()
         disconnect(m_updateSymbolsConnection);
         m_symbolCache.clear();
         m_currentUri.clear();
+        setEnabled(false);
     }
 }
 

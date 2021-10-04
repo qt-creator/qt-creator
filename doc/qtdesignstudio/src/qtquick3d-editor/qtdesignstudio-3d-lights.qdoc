@@ -44,38 +44,75 @@
     \uicontrol {Qt Quick 3D} module to your project as instructed in
     \l {Adding and Removing Modules}.
 
+   \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
+    when \l {Creating Projects}{creating your project}, the available light
+    components and their properties will be slightly different. The properties
+    may also be situated differently in the \uicontrol Properties view.
+
     By default, all imported scenes are created with one directional light.
     You can use the following components to add lights:
 
-    \list
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Qt 5 Only
+        \li More Information
+
+    \row
+        \li \inlineimage spot.png
+        \li Directional Light
+        \li
         \li \l{DirectionalLight}{Light Directional}
+
+    \row
+        \li \inlineimage point.png
+        \li Point Light
+        \li
         \li \l{PointLight}{Light Point}
+
+    \row
+        \li \inlineimage spot.png
+        \li Spot Light
+        \li
         \li \l{SpotLight}{Light Spot}
+
+    \row
+        \li \inlineimage area.png
+        \li Area Light
+        \li \inlineimage ok.png
         \li \l{AreaLight}{Light Area}
-    \endlist
+    \endtable
 
     \note Each additional light negatively effects the rendering performance
     of your scene. Keep scenes as simple as possible and use lights sparingly.
     Use a \l{SceneEnvironment}{Scene Environment} component to apply image-based
     lighting that can produce soft and subtle lighting.
 
-    You can edit light properties in the \uicontrol Properties view. The
-    \uicontrol Scope property specifies which node, with it's children,
-    is illuminated by a light.
+    To edit light properties, select a light component in \uicontrol Navigator,
+    or \uicontrol {3D Editor}, and then adjust its properties in the
+    \uicontrol Properties view or by dragging the yellow light gizmo handles in
+    \uicontrol {3D Editor}.
 
-    Set the \uicontrol {Color} property to specify the color applied to models
+    To specify an overall multiplier for a light component's effects, adjust the
+    \uicontrol Brightness property. The \uicontrol Scope property specifies which
+    component, with its children, is illuminated by the light. Set the
+    \l{Picking Colors}{Color} property to specify the color applied to models
     illuminated by a light. Set the \uicontrol {Ambient color} property to
     specify the ambient color applied to materials before being illuminated by
     the light.
 
-    You can animate light properties in the \uicontrol Timeline view.
+    You can animate light properties in the \l Timeline view.
 
     \section1 Directional Light
 
-    A directional light emits light in one direction from a unidentifiable
+    A directional light emits light in one direction from an unidentifiable
     source located infinitely far away. This is similar to sunlight.
 
-    \image studio-3d-directional-light.png "Models lit by a dirctional light"
+    Use the \uicontrol Brightness handle of the light gizmo (1) to adjust the
+    \uicontrol Brightness property of any of the light components.
+
+    \image studio-3d-directional-light.png "Models lit by a directional light."
 
     If the \uicontrol {Casts shadow} property is enabled, shadows are positioned
     parallel to the light direction. A directional light has infinite range and
@@ -96,19 +133,16 @@
 
     \section1 Point Light
 
-    A point light can be described as a sphere, emitting light with equal
+    A point light can be described as a sphere that emits light with equal
     strength in all directions from the center of the light. This is similar
     to the way a light bulb emits light.
 
-    \image studio-3d-point-light.png "Models lit by a point light"
+    \image studio-3d-point-light.png "Models lit by a point light."
 
     Lighting is applied outwards from the center of a point light, becoming
     increasingly dim away from the center. Moving a point light changes the
     position from where the light is emitted. Rotating or scaling a point
     light does not have any effect.
-
-    To specify an overall multiplier for a point light's effects, set the
-    \uicontrol Brightness property.
 
     To control the fade-off and range of a point light, set the
     \uicontrol {Constant fade}, \uicontrol {Linear fade}, and
@@ -125,7 +159,8 @@
     dims on surfaces that are far away from the light. The value 1.0 means that
     the point light fade exactly follows the inverse square law. For example,
     when the distance to a component doubles, the light intensity decreases to
-    one fourth.
+    one fourth. Adjust the \uicontrol {Quadratic fade} in the Properties view,
+    or by using the light gizmo handle (2).
 
     Aside from fade, a point light has the same properties as a directional
     light.
@@ -136,7 +171,13 @@
     The light intensity diminishes when approaching the value of the
     \uicontrol {Cone angle} property. The angle at which the light
     intensity starts to diminish is defined by the
-    \uicontrol {Inner cone angle} property. Both angles are defined in degrees.
+    \uicontrol {Inner cone angle} property. Both angles are defined in degrees
+    in the \uicontrol Properties view. Use the Properties view or the light gizmo
+    handles to adjust the \uicontrol {Cone angle} (3),
+    \uicontrol {Inner cone angle} (4), and \uicontrol {Quadratic fade} (5)
+    properties.
+
+    \image studio-3d-spot-light.png "A model lit by a spot light."
 
     Inside the inner cone angle, the spot light behaves similarly to the point
     light. There the light intensity diminishes according to inverse-square-law.
@@ -144,23 +185,23 @@
     \uicontrol {Constant fade}, \uicontrol {Linear fade}, and
     \uicontrol {Quadratic fade} properties.
 
-    \image studio-3d-spot-light.png
-
     \section1 Area Light
+
+    \note The \uicontrol {Area Light} component is only available in Qt 5.
 
     An area light is similar to the directional light. However, instead of
     emitting an equally bright light across the whole scene, the area light
-    emits directional light from a rectangle shaped component. You can set the
-    \uicontrol Width and \uicontrol Height properties to determine the size
-    of the area light.
+    emits directional light from a rectangle shaped component. Use the light
+    gizmo or the \uicontrol Properties view to set the \uicontrol Width (6)
+    and \uicontrol Height (7) properties to determine the size of the area light.
+
+   \image studio-3d-area-light.png "A model lit by two area lights."
 
     Aside from the size, an area light has the same properties as a directional
     light.
 
     The image below shows an example on how to light a component with different
     colors using two different area lights.
-
-    \image studio-3d-area-light.png
 
     You can rotate, scale, and move area lights.
 

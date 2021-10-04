@@ -53,6 +53,7 @@
 
 #include <QActionGroup>
 #include <QFileDialog>
+#include <QMimeData>
 #include <QPainter>
 #include <QPicture>
 #include <QVBoxLayout>
@@ -63,6 +64,8 @@ namespace QmlDesigner {
 FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : m_formEditorView(view)
 {
+    setAcceptDrops(true);
+
     Core::Context context(Constants::C_QMLFORMEDITOR);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
@@ -580,6 +583,21 @@ void FormEditorWidget::showEvent(QShowEvent *event)
         if (rootNode.isValid())
             setRootItemRect(rootNode.instanceBoundingRect());
     }
+}
+
+void FormEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData()))
+        dragEnterEvent->acceptProposedAction();
+}
+
+void FormEditorWidget::dropEvent(QDropEvent *dropEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
 }
 
 } // namespace QmlDesigner

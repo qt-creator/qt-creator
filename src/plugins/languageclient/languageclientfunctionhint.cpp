@@ -61,11 +61,12 @@ QString FunctionHintProposalModel::text(int index) const
     if (index < 0 || m_sigis.signatures().size() <= index)
         return {};
     const SignatureInformation signature = m_sigis.signatures().at(index);
+    int parametersIndex = signature.activeParameter().value_or(-1);
+    if (parametersIndex < 0) {
+        if (index == m_sigis.activeSignature().value_or(-1))
+            parametersIndex = m_sigis.activeParameter().value_or(-1);
+    }
     QString label = signature.label();
-    if (index != m_sigis.activeSignature().value_or(-1))
-        return label;
-
-    const int parametersIndex = m_sigis.activeParameter().value_or(-1);
     if (parametersIndex < 0)
         return label;
 

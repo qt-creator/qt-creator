@@ -144,6 +144,17 @@ void ItemLibraryCategoriesModel::resetModel()
     endResetModel();
 }
 
+bool ItemLibraryCategoriesModel::isAllCategoriesHidden() const
+{
+    for (const auto &category : std::as_const(m_categoryList)) {
+        // ignore "All Other Components" as its categoryVisible is always true
+        if (category->isCategoryVisible() && category->categoryName() != "All Other Components")
+            return false;
+    }
+
+    return true;
+}
+
 void ItemLibraryCategoriesModel::showAllCategories(bool show)
 {
     for (const auto &category : std::as_const(m_categoryList)) {
@@ -153,7 +164,41 @@ void ItemLibraryCategoriesModel::showAllCategories(bool show)
                                                        category->ownerImport()->importName());
         }
     }
+
     emit dataChanged(index(0), index(m_categoryList.size() - 1), {m_roleNames.key("categoryVisible")});
+}
+
+QObject *ItemLibraryCategoriesModel::selectFirstVisibleCategory()
+{
+    for (int i = 0; i < m_categoryList.length(); ++i) {
+        const auto category = m_categoryList.at(i);
+
+        if (category->isCategoryVisible()) {
+            category->setCategorySelected(true);
+            emit dataChanged(index(i),index(i), {m_roleNames.key("categorySelected")});
+            return category;
+        }
+    }
+
+    return nullptr;
+}
+
+void ItemLibraryCategoriesModel::clearSelectedCategories()
+{
+    for (const auto &category : std::as_const(m_categoryList))
+        category->setCategorySelected(false);
+
+    emit dataChanged(index(0), index(m_categoryList.size() - 1), {m_roleNames.key("categorySelected")});
+}
+
+void ItemLibraryCategoriesModel::selectCategory(int categoryIndex)
+{
+    const auto category = m_categoryList.at(categoryIndex);
+    if (!category->categorySelected()) {
+        clearSelectedCategories();
+        category->setCategorySelected(true);
+        emit dataChanged(index(categoryIndex),index(categoryIndex), {m_roleNames.key("categorySelected")});
+    }
 }
 
 void ItemLibraryCategoriesModel::addRoleNames()

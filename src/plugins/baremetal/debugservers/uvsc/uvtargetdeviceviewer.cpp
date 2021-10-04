@@ -123,7 +123,7 @@ void DeviceSelectorDetailsPanel::refresh()
     m_memoryView->refresh();
     m_algorithmView->refresh();
     m_algorithmView->setAlgorithm(m_selection.algorithmIndex);
-    m_peripheralDescriptionFileChooser->setPath(m_selection.svd);
+    m_peripheralDescriptionFileChooser->setFilePath(Utils::FilePath::fromString(m_selection.svd));
 }
 
 // DeviceSelector

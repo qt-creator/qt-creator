@@ -52,9 +52,13 @@ public:
 
     const QList<QPointer<ItemLibraryCategory>> &categorySections() const;
 
+    bool isAllCategoriesHidden() const;
     void sortCategorySections();
     void resetModel();
     void showAllCategories(bool show = true);
+    void clearSelectedCategories();
+    QObject *selectFirstVisibleCategory();
+    void selectCategory(int categoryIndex);
 
 private:
     void addRoleNames();

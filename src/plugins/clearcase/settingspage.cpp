@@ -67,7 +67,7 @@ SettingsPageWidget::SettingsPageWidget()
 
     const ClearCaseSettings &s = ClearCasePlugin::settings();
 
-    m_ui.commandPathChooser->setPath(s.ccCommand);
+    m_ui.commandPathChooser->setFilePath(FilePath::fromString(s.ccCommand));
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.autoCheckOutCheckBox->setChecked(s.autoCheckOut);
     m_ui.noCommentCheckBox->setChecked(s.noComment);

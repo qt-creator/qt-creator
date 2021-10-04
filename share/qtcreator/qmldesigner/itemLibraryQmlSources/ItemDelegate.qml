@@ -41,7 +41,7 @@ Item {
         anchors.topMargin: 1
         anchors.fill: parent
 
-        color: StudioTheme.Values.themePanelBackground
+        color: mouseRegion.containsMouse ? StudioTheme.Values.themeControlBackgroundHover : StudioTheme.Values.themePanelBackground
 
         Image {
             id: itemIcon // to be set by model

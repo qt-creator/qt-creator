@@ -506,9 +506,6 @@ void ClangdTestLocalReferences::test()
     client()->findLocalUsages(doc, cursor, std::move(handler));
     timer.start(10000);
     loop.exec();
-    QEXPECT_FAIL("cursor not on identifier", "clangd bug: go to definition does not return", Abort);
-    QEXPECT_FAIL("template parameter member access",
-                 "clangd bug: go to definition does not return", Abort);
     QVERIFY(timer.isActive());
     timer.stop();
 
@@ -909,7 +906,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("template parameter default argument") << 265 << 41 << 265 << 44
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("template non-type parameter") << 265 << 50 << 265 << 74
-        << QList<int>{C_LOCAL, C_DECLARATION} << 0;
+        << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
     QTest::newRow("template non-type parameter default argument") << 265 << 77 << 265 << 78
         << QList<int>{C_NUMBER} << 0;
     QTest::newRow("template template parameter") << 265 << 103 << 265 << 128
@@ -935,7 +932,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("local var declaration of template parameter type") << 268 << 27 << 268 << 57
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("reference to non-type template parameter") << 269 << 46 << 269 << 70
-        << QList<int>{C_LOCAL} << 0;
+        << QList<int>{C_PARAMETER} << 0;
     QTest::newRow("local var declaration initialized with non-type template parameter")
         << 269 << 10 << 269 << 43
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
@@ -1331,12 +1328,6 @@ void ClangdTestHighlighting::test()
         QEXPECT_FAIL("non-final virtual function call via pointer",
                      "clangd < 14 does not send virtual modifier", Continue);
     }
-    QEXPECT_FAIL("template non-type parameter",
-                 "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
-                 Continue);
-    QEXPECT_FAIL("reference to non-type template parameter",
-                 "FIXME: clangd reports non-type template parameters at \"typeParameter\"",
-                 Continue);
     QEXPECT_FAIL("non-const reference via member function call as output argument (function)",
                  "Without punctuation and comment tokens from clangd, it's not possible "
                  "to highlight entire expressions. But do we really want this? What about nested "
@@ -1627,7 +1618,7 @@ void ClangdTestCompletion::testFunctionHintsFiltered()
     QVERIFY(proposal);
     QCOMPARE(proposal->size(), 2);
     QVERIFY(hasItem(proposal, "func(const S &amp;s, <b>int j</b>) -&gt; void"));
-    QEXPECT_FAIL("", "FIXME: LanguageClient handles active parameter only in active signature", Abort);
+    QEXPECT_FAIL("", "QTCREATORBUG-26346", Abort);
     QVERIFY(hasItem(proposal, "func(const S &amp;s, <b>int j</b>, int k) -&gt; void"));
 }
 
@@ -1640,7 +1631,7 @@ void ClangdTestCompletion::testFunctionHintConstructor()
     QVERIFY(!hasItem(proposal, "globalVariable"));
     QVERIFY(!hasItem(proposal, " class"));
     QVERIFY(hasItem(proposal, "Foo(<b>int</b>)"));
-    QEXPECT_FAIL("", "FIXME: LanguageClient handles active parameter only in active signature", Abort);
+    QEXPECT_FAIL("", "QTCREATORBUG-26346", Abort);
     QVERIFY(hasItem(proposal, "Foo(<b>int</b>, double)"));
 }
 
@@ -1669,8 +1660,7 @@ void ClangdTestCompletion::testCompletePrivateFunctionDefinition()
     getProposal("privateFuncDefCompletion.cpp", proposal);
 
     QVERIFY(proposal);
-    QEXPECT_FAIL("", "FIXME: clangd needs to differentiate "
-                     "between function call and function definiton", Abort);
+    QEXPECT_FAIL("", "https://github.com/clangd/clangd/issues/880", Abort);
     QCOMPARE(proposal->size(), 1);
     QVERIFY(hasItem(proposal, " theFunc()"));
 }

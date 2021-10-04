@@ -40,6 +40,7 @@
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>
+#include <QMimeData>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -47,6 +48,8 @@ namespace QmlDesigner {
 Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     m_view(view)
 {
+    setAcceptDrops(true);
+
     Core::Context context(Constants::C_QMLEDITOR3D);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
@@ -159,4 +162,19 @@ Edit3DView *Edit3DWidget::view() const
     return m_view.data();
 }
 
+void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData()))
+        dragEnterEvent->acceptProposedAction();
 }
+
+void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
+{
+    const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
+                                                     ->viewManager().designerActionManager();
+    actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+}
+
+} // namespace QmlDesigner

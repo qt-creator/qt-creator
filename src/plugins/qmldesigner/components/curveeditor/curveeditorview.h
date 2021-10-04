@@ -85,6 +85,7 @@ private:
     void commitCurrentFrame(int frame);
     void commitStartFrame(int frame);
     void commitEndFrame(int frame);
+    void init();
 
 private:
     bool m_block;

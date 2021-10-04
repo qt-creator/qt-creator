@@ -71,6 +71,7 @@ TimelineView::TimelineView(QObject *parent)
     , m_timelineWidget(nullptr)
 {
     EasingCurve::registerStreamOperators();
+    setEnabled(false);
 }
 
 TimelineView::~TimelineView() = default;

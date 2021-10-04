@@ -41,8 +41,8 @@ using namespace Utils;
 namespace Qnx {
 namespace Internal {
 
-static const char CompilerSdpPath[] = "Qnx.QnxToolChain.NDKPath";
-static const char CpuDirKey[] = "Qnx.QnxToolChain.CpuDir";
+const char CompilerSdpPath[] = "Qnx.QnxToolChain.NDKPath";
+const char CpuDirKey[] = "Qnx.QnxToolChain.CpuDir";
 
 static Abis detectTargetAbis(const FilePath &sdpPath)
 {
@@ -50,8 +50,8 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
     FilePath qnxTarget;
 
     if (!sdpPath.fileName().isEmpty()) {
-        Utils::EnvironmentItems environment = QnxUtils::qnxEnvironment(sdpPath.toString());
-        foreach (const Utils::EnvironmentItem &item, environment) {
+        const EnvironmentItems environment = QnxUtils::qnxEnvironment(sdpPath);
+        for (const EnvironmentItem &item : environment) {
             if (item.name == QLatin1String("QNX_TARGET"))
                 qnxTarget = FilePath::fromString(item.value);
         }
@@ -137,7 +137,7 @@ QStringList QnxToolChain::suggestedMkspecList() const
 QVariantMap QnxToolChain::toMap() const
 {
     QVariantMap data = GccToolChain::toMap();
-    data.insert(QLatin1String(CompilerSdpPath), m_sdpPath);
+    data.insert(QLatin1String(CompilerSdpPath), m_sdpPath.toVariant());
     data.insert(QLatin1String(CpuDirKey), m_cpuDir);
     return data;
 }
@@ -147,7 +147,7 @@ bool QnxToolChain::fromMap(const QVariantMap &data)
     if (!GccToolChain::fromMap(data))
         return false;
 
-    m_sdpPath = data.value(QLatin1String(CompilerSdpPath)).toString();
+    m_sdpPath = FilePath::fromVariant(data.value(CompilerSdpPath));
     m_cpuDir = data.value(QLatin1String(CpuDirKey)).toString();
 
     // Make the ABIs QNX specific (if they aren't already).
@@ -157,12 +157,12 @@ bool QnxToolChain::fromMap(const QVariantMap &data)
     return true;
 }
 
-QString QnxToolChain::sdpPath() const
+FilePath QnxToolChain::sdpPath() const
 {
     return m_sdpPath;
 }
 
-void QnxToolChain::setSdpPath(const QString &sdpPath)
+void QnxToolChain::setSdpPath(const FilePath &sdpPath)
 {
     if (m_sdpPath == sdpPath)
         return;
@@ -185,7 +185,7 @@ void QnxToolChain::setCpuDir(const QString &cpuDir)
 
 GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
 {
-    return detectTargetAbis(FilePath::fromString(m_sdpPath));
+    return detectTargetAbis(m_sdpPath);
 }
 
 bool QnxToolChain::operator ==(const ToolChain &other) const
@@ -243,7 +243,7 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
 
     m_sdpPath->setExpectedKind(PathChooser::ExistingDirectory);
     m_sdpPath->setHistoryCompleter(QLatin1String("Qnx.Sdp.History"));
-    m_sdpPath->setPath(tc->sdpPath());
+    m_sdpPath->setFilePath(tc->sdpPath());
     m_sdpPath->setEnabled(!tc->isAutoDetected());
 
     const Abis abiList = detectTargetAbis(m_sdpPath->filePath());
@@ -270,7 +270,7 @@ void QnxToolChainConfigWidget::applyImpl()
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setDisplayName(displayName); // reset display name
-    tc->setSdpPath(m_sdpPath->filePath().toString());
+    tc->setSdpPath(m_sdpPath->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->resetToolChain(m_compilerCommand->filePath());
 }
@@ -281,7 +281,7 @@ void QnxToolChainConfigWidget::discardImpl()
     QSignalBlocker blocker(this);
     auto tc = static_cast<const QnxToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_sdpPath->setPath(tc->sdpPath());
+    m_sdpPath->setFilePath(tc->sdpPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     if (!m_compilerCommand->filePath().toString().isEmpty())
         m_abiWidget->setEnabled(true);
@@ -292,7 +292,7 @@ bool QnxToolChainConfigWidget::isDirtyImpl() const
     auto tc = static_cast<const QnxToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_sdpPath->filePath().toString() != tc->sdpPath()
+            || m_sdpPath->filePath() != tc->sdpPath()
             || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 

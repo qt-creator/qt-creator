@@ -34,10 +34,13 @@
 
 #include <QCoreApplication>
 
+using namespace Core;
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
-    enum { UseCurrentDirectory, UseProjectDirectory };
+enum { UseCurrentDirectory, UseProjectDirectory };
 
 class ProjectExplorerSettingsWidget : public QWidget
 {
@@ -49,8 +52,8 @@ public:
     ProjectExplorerSettings settings() const;
     void setSettings(const ProjectExplorerSettings  &s);
 
-    QString projectsDirectory() const;
-    void setProjectsDirectory(const QString &pd);
+    FilePath projectsDirectory() const;
+    void setProjectsDirectory(const FilePath &pd);
 
     bool useProjectsDirectory();
     void setUseProjectsDirectory(bool v);
@@ -68,7 +71,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    setJomVisible(Utils::HostOsInfo::isWindowsHost());
+    setJomVisible(HostOsInfo::isWindowsHost());
     m_ui.stopBeforeBuildComboBox->addItem(tr("None"), int(StopBeforeBuild::None));
     m_ui.stopBeforeBuildComboBox->addItem(tr("All"), int(StopBeforeBuild::All));
     m_ui.stopBeforeBuildComboBox->addItem(tr("Same Project"), int(StopBeforeBuild::SameProject));
@@ -135,14 +138,14 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.lowBuildPriorityCheckBox->setChecked(m_settings.lowBuildPriority);
 }
 
-QString ProjectExplorerSettingsWidget::projectsDirectory() const
+FilePath ProjectExplorerSettingsWidget::projectsDirectory() const
 {
-    return m_ui.projectsDirectoryPathChooser->filePath().toString();
+    return m_ui.projectsDirectoryPathChooser->filePath();
 }
 
-void ProjectExplorerSettingsWidget::setProjectsDirectory(const QString &pd)
+void ProjectExplorerSettingsWidget::setProjectsDirectory(const FilePath &pd)
 {
-    m_ui.projectsDirectoryPathChooser->setPath(pd);
+    m_ui.projectsDirectoryPathChooser->setFilePath(pd);
 }
 
 bool ProjectExplorerSettingsWidget::useProjectsDirectory()
@@ -179,8 +182,8 @@ QWidget *ProjectExplorerSettingsPage::widget()
     if (!m_widget) {
         m_widget = new ProjectExplorerSettingsWidget;
         m_widget->setSettings(ProjectExplorerPlugin::projectExplorerSettings());
-        m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory().toString());
-        m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
+        m_widget->setProjectsDirectory(DocumentManager::projectsDirectory());
+        m_widget->setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
     }
     return m_widget;
 }
@@ -189,9 +192,8 @@ void ProjectExplorerSettingsPage::apply()
 {
     if (m_widget) {
         ProjectExplorerPlugin::setProjectExplorerSettings(m_widget->settings());
-        Core::DocumentManager::setProjectsDirectory(
-            Utils::FilePath::fromString(m_widget->projectsDirectory()));
-        Core::DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
+        DocumentManager::setProjectsDirectory(m_widget->projectsDirectory());
+        DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
     }
 }
 

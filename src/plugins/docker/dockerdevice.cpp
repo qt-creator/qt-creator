@@ -897,7 +897,10 @@ void DockerDevicePrivate::startContainer()
 
 void DockerDevicePrivate::tryCreateLocalFileAccess()
 {
-    if (!m_container.isEmpty() || DockerPlugin::isDaemonRunning().value_or(true) == false)
+    if (!m_container.isEmpty())
+        return;
+
+    if (DockerPlugin::isDaemonRunning().value_or(true) == false)
         return;
 
     if (!m_shell)

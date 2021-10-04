@@ -92,6 +92,8 @@ public:
     void setFlowMode(bool b);
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
 
+    inline static bool isHorizontalLayout = false;
+
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
@@ -110,6 +112,7 @@ signals:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     void reloadQmlSource();
@@ -149,6 +152,8 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
+
+    inline static int HORIZONTAL_LAYOUT_WIDTH_LIMIT = 600;
 };
 
 } // namespace QmlDesigner

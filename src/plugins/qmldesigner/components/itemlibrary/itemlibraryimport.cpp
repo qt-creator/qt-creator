@@ -138,6 +138,26 @@ void ItemLibraryImport::showAllCategories(bool show)
     m_categoryModel.showAllCategories(show);
 }
 
+void ItemLibraryImport::selectCategory(int categoryIndex)
+{
+    m_categoryModel.selectCategory(categoryIndex);
+}
+
+QObject *ItemLibraryImport::selectFirstVisibleCategory()
+{
+    return m_categoryModel.selectFirstVisibleCategory();
+}
+
+void ItemLibraryImport::clearSelectedCategories()
+{
+    m_categoryModel.clearSelectedCategories();
+}
+
+bool ItemLibraryImport::isAllCategoriesHidden() const
+{
+    return m_categoryModel.isAllCategoriesHidden();
+}
+
 Import ItemLibraryImport::importEntry() const
 {
     return m_import;
