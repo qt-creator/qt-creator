@@ -248,7 +248,7 @@ void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &itemList)
 {
     const QList<FormEditorItem *> current = items();
 
-    QList<FormEditorItem *> remaining = Utils::filtered(current, [&itemList](const FormEditorItem *item) {
+    QList<FormEditorItem *> remaining = Utils::filtered(current, [&itemList](FormEditorItem *item) {
         return !itemList.contains(item);
     });
 
