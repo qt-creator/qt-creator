@@ -1191,11 +1191,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (isComponentType(typeName) || isImplicitComponent)
         setupComponentDelayed(modelNode, differenceHandler.isAmender());
+    else if (isCustomParserType(typeName))
+        setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
     else if (!modelNode.nodeSource().isEmpty() || modelNode.nodeSourceType() != ModelNode::NodeWithoutSource)
         clearImplicitComponentDelayed(modelNode, differenceHandler.isAmender());
 
-    if (isCustomParserType(typeName))
-        setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
 
     context->enterScope(astNode);
 
