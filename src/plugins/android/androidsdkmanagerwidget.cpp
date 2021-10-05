@@ -59,10 +59,12 @@ public:
     PackageFilterModel(AndroidSdkModel* sdkModel);
 
     void setAcceptedPackageState(AndroidSdkPackage::PackageState state);
+    void setAcceptedSearchPackage(const QString &text);
     bool filterAcceptsRow(int source_row, const QModelIndex &sourceParent) const override;
 
 private:
     AndroidSdkPackage::PackageState m_packageState =  AndroidSdkPackage::AnyValidState;
+    QString m_searchText;
 };
 
 AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
@@ -127,6 +129,15 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Available);
             m_sdkModel->resetSelection();
         }
+    });
+
+    m_ui->searchField->setPlaceholderText("Filter");
+    connect(m_ui->searchField, &QLineEdit::textChanged, [this, proxyModel](const QString &text) {
+        const bool isExpanded = m_ui->expandCheck->isChecked();
+        proxyModel->setAcceptedSearchPackage(text);
+        m_sdkModel->resetSelection();
+        // It is more convenient to expand the view with the results
+        m_ui->expandCheck->setChecked(!text.isEmpty());
     });
 
     connect(m_ui->applySelectionButton, &QPushButton::clicked,
@@ -469,6 +480,12 @@ void PackageFilterModel::setAcceptedPackageState(AndroidSdkPackage::PackageState
     invalidateFilter();
 }
 
+void PackageFilterModel::setAcceptedSearchPackage(const QString &name)
+{
+    m_searchText = name;
+    invalidateFilter();
+}
+
 bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QModelIndex srcIndex = sourceModel()->index(sourceRow, 0, sourceParent);
@@ -479,19 +496,24 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
       return (AndroidSdkPackage::PackageState)i.data(AndroidSdkModel::PackageStateRole).toInt();
     };
 
+    auto packageFound = [this](const QModelIndex& i) {
+        return i.data(AndroidSdkModel::packageNameColumn).toString()
+                .contains(m_searchText, Qt::CaseInsensitive);
+    };
+
     bool showTopLevel = false;
     if (!sourceParent.isValid()) {
         // Top Level items
         for (int row = 0; row < sourceModel()->rowCount(srcIndex); ++row) {
             QModelIndex childIndex = sourceModel()->index(row, 0, srcIndex);
-            if (m_packageState & packageState(childIndex)) {
+            if ((m_packageState & packageState(childIndex) && packageFound(childIndex))) {
                 showTopLevel = true;
                 break;
             }
         }
     }
 
-    return showTopLevel || (packageState(srcIndex) & m_packageState);
+    return showTopLevel || (packageState(srcIndex) & m_packageState) && packageFound(srcIndex);
 }
 
 OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,

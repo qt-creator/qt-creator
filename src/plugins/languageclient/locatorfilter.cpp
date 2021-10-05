@@ -63,8 +63,8 @@ void DocumentLocatorFilter::updateCurrentClient()
 
     TextEditor::TextDocument *document = TextEditor::TextDocument::currentTextDocument();
     if (Client *client = LanguageClientManager::clientForDocument(document);
-            client && client->locatorsEnabled()) {
-        setEnabled(true);
+            client && (client->locatorsEnabled() || m_forced)) {
+        setEnabled(!m_forced);
         if (m_symbolCache != client->documentSymbolCache()) {
             disconnect(m_updateSymbolsConnection);
             m_symbolCache = client->documentSymbolCache();
@@ -98,8 +98,8 @@ void DocumentLocatorFilter::resetSymbols()
     m_currentSymbols.reset();
 }
 
-Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
-                                              Core::ILocatorFilter *filter)
+static Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
+                                                     Core::ILocatorFilter *filter)
 {
     Core::LocatorFilterEntry entry;
     entry.filter = filter;
@@ -109,13 +109,31 @@ Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
     entry.displayIcon = symbolIcon(info.kind());
     entry.internalData = QVariant::fromValue(info.location().toLink());
     return entry;
+
 }
 
-Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
-                                              Core::ILocatorFilter *filter)
+Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const SymbolInformation &info)
 {
+    return LanguageClient::generateLocatorEntry(info, this);
+}
+
+QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
+        const SymbolInformation &info, const QRegularExpression &regexp,
+        const Core::LocatorFilterEntry &parent)
+{
+    Q_UNUSED(parent)
+    if (regexp.match(info.name()).hasMatch())
+        return {generateLocatorEntry(info)};
+    return {};
+}
+
+Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(
+        const DocumentSymbol &info,
+        const Core::LocatorFilterEntry &parent)
+{
+    Q_UNUSED(parent)
     Core::LocatorFilterEntry entry;
-    entry.filter = filter;
+    entry.filter = this;
     entry.displayName = info.name();
     if (Utils::optional<QString> detail = info.detail())
         entry.extraInfo = detail.value_or(QString());
@@ -123,6 +141,23 @@ Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
     const Position &pos = info.range().start();
     entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
     return entry;
+}
+
+QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
+        const DocumentSymbol &info, const QRegularExpression &regexp,
+        const Core::LocatorFilterEntry &parent)
+{
+    QList<Core::LocatorFilterEntry> entries;
+    const QList<DocumentSymbol> children = info.children().value_or(QList<DocumentSymbol>());
+    const bool hasMatch = regexp.match(info.name()).hasMatch();
+    Core::LocatorFilterEntry entry;
+    if (hasMatch || !children.isEmpty())
+        entry = generateLocatorEntry(info, parent);
+    if (hasMatch)
+        entries << entry;
+    for (const DocumentSymbol &child : children)
+        entries << generateLocatorEntries(child, regexp, entry);
+    return entries;
 }
 
 template<class T>
@@ -138,11 +173,8 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateEntries(const QLi
     if (!regexp.isValid())
         return entries;
 
-    for (const T &item : list) {
-        QRegularExpressionMatch match = regexp.match(item.name());
-        if (match.hasMatch())
-            entries << generateLocatorEntry(item, this);
-    }
+    for (const T &item : list)
+        entries << generateLocatorEntries(item, regexp, {});
     return entries;
 }
 

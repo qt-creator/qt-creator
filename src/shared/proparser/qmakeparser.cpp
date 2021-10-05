@@ -49,9 +49,9 @@ ProFileCache::ProFileCache()
 
 ProFileCache::~ProFileCache()
 {
-    foreach (const Entry &ent, parsed_files)
-        if (ent.pro)
-            ent.pro->deref();
+    for (const auto &keyValuePair : parsed_files)
+        if (keyValuePair.second.pro)
+            keyValuePair.second.pro->deref();
     QMakeVfs::deref();
 }
 
@@ -72,20 +72,37 @@ void ProFileCache::discardFile(int id)
 #endif
     auto it = parsed_files.find(id);
     if (it != parsed_files.end()) {
+        Entry &entry = it->second;
 #ifdef PROPARSER_THREAD_SAFE
-        if (it->locker) {
-            if (!it->locker->done) {
-                ++it->locker->waiters;
-                it->locker->cond.wait(&mutex);
-                if (!--it->locker->waiters) {
-                    delete it->locker;
-                    it->locker = 0;
+        Entry::Locker *locker = entry.locker;
+        if (locker) { // Either it's still being prepared or it's already done but someone
+                      // else started waiting for it when it wasn't ready yet
+                      // and is still waiting.
+            if (!locker->done) {
+                ++locker->waiters;
+                locker->cond.wait(&mutex);          // Mutex is unlocked and relocked,
+                                                    // everything may happen in this time window
+                it = parsed_files.find(id);         // In meantime the iterator could have
+                                                    // been invalidated, search for it again
+                Q_ASSERT(it != parsed_files.end()); // This would mean that some other
+                                                    // waiter removed our entry, but only
+                                                    // the last waiter should do it
+                if (!--locker->waiters) {
+                    delete locker;
+                } else {
+                    // There are still other waiters. Do nothing now.
+                    locker->removeOnLastWaiter = true;
+                    return;
                 }
+            } else if (locker->waiters) {
+                // It's done but some waiters are still awaiting to be woken.
+                locker->removeOnLastWaiter = true; // Mark it for other waiters
+                return;
             }
         }
 #endif
-        if (it->pro)
-            it->pro->deref();
+        if (entry.pro)
+            entry.pro->deref();
         parsed_files.erase(it);
     }
 }
@@ -95,26 +112,53 @@ void ProFileCache::discardFiles(const QString &prefix, QMakeVfs *vfs)
 #ifdef PROPARSER_THREAD_SAFE
     QMutexLocker lck(&mutex);
 #endif
-    auto it = parsed_files.begin(), end = parsed_files.end();
-    while (it != end) {
+    auto it = parsed_files.begin();
+    while (it != parsed_files.end()) {
+        const int id = it->first;
         // Note: this is empty for virtual files from other VFSes.
-        QString fn = vfs->fileNameForId(it.key());
+        const QString fn = vfs->fileNameForId(id);
         if (fn.startsWith(prefix)) {
+            bool continueFromScratch = false;
+            Entry &entry = it->second;
 #ifdef PROPARSER_THREAD_SAFE
-            if (it->locker) {
-                if (!it->locker->done) {
-                    ++it->locker->waiters;
-                    it->locker->cond.wait(&mutex);
-                    if (!--it->locker->waiters) {
-                        delete it->locker;
-                        it->locker = 0;
+            Entry::Locker *locker = entry.locker;
+            if (locker) { // Either it's still being prepared or it's already done but someone
+                          // else started waiting for it when it wasn't ready yet
+                          // and is still waiting.
+                if (!locker->done) { // It's still being prepared.
+                    ++locker->waiters;
+                    locker->cond.wait(&mutex);          // Mutex is unlocked and relocked,
+                                                        // everything may happen in this time window
+                    it = parsed_files.find(id);         // In meantime the iterator could have
+                                                        // been invalidated, search for it again
+                    Q_ASSERT(it != parsed_files.end()); // This would mean that some other
+                                                        // waiter removed our entry, but only
+                                                        // the last waiter should do it
+                    if (!--locker->waiters) {
+                        delete locker;                  // No more waiters, remove locker and entry
+                        continueFromScratch = true;
+                    } else {
+                        // There are still other waiters. Do nothing now
+                        locker->removeOnLastWaiter = true;
+                        it = parsed_files.begin();      // Start from scratch, as new matching
+                                                        // entries could have appeared.
+                                                        // If we hit it again, we will skip it
+                                                        // as the locker is already marked as done
+                        continue;
                     }
+                } else if (locker->waiters) {
+                    // It's done but some waiters are still awaiting to be woken.
+                    locker->removeOnLastWaiter = true; // Mark it for other waiters
+                    ++it; // We skip it for now, other waiter will do the job
+                    continue;
                 }
             }
 #endif
-            if (it->pro)
-                it->pro->deref();
+            if (entry.pro)
+                entry.pro->deref();
             it = parsed_files.erase(it);
+            if (continueFromScratch)
+                it = parsed_files.begin();
         } else {
             ++it;
         }
@@ -187,20 +231,44 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
     if ((flags & ParseUseCache) && m_cache) {
         ProFileCache::Entry *ent;
 #ifdef PROPARSER_THREAD_SAFE
-        QMutexLocker locker(&m_cache->mutex);
+        QMutexLocker lck(&m_cache->mutex);
 #endif
         auto it = m_cache->parsed_files.find(id);
         if (it != m_cache->parsed_files.end()) {
-            ent = &*it;
+            ent = &it->second;
 #ifdef PROPARSER_THREAD_SAFE
-            if (ent->locker && !ent->locker->done) {
-                ++ent->locker->waiters;
-                QThreadPool::globalInstance()->releaseThread();
-                ent->locker->cond.wait(locker.mutex());
-                QThreadPool::globalInstance()->reserveThread();
-                if (!--ent->locker->waiters) {
-                    delete ent->locker;
-                    ent->locker = 0;
+            ProFileCache::Entry::Locker *locker = ent->locker;
+            if (locker) { // Either it's still being prepared or it's already done but someone
+                          // else started waiting for it when it wasn't ready yet
+                          // and is still waiting.
+                if (!locker->done) { // It's still being prepared.
+                    ++locker->waiters;
+                    QThreadPool::globalInstance()->releaseThread();
+                    locker->cond.wait(lck.mutex());  // Mutex is unlocked and relocked,
+                                                     // everything may happen in this time window
+                    QThreadPool::globalInstance()->reserveThread();
+
+                    it = m_cache->parsed_files.find(id);         // In meantime the iterator could have
+                                                                 // been invalidated, search for it again
+                    Q_ASSERT(it != m_cache->parsed_files.end()); // This would mean that some other
+                                                                 // waiter removed our entry, but only
+                                                                 // the last waiter should do it
+                    const bool remove = locker->removeOnLastWaiter; // Some waiter marked this
+                                                                    // entry for removal.
+                    if (!--locker->waiters) {                    // If we were the last waiter
+                        delete locker;                           // we do it now
+                        ent->locker = 0;
+                        if (remove) {
+                            if (ent->pro)
+                                ent->pro->deref();
+                            m_cache->parsed_files.erase(it);
+                            return nullptr;
+                        }
+                    }
+                    if (remove)
+                        return nullptr;
+                } else if (locker->removeOnLastWaiter) {
+                    return nullptr;
                 }
             }
 #endif
@@ -210,7 +278,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
             ent = &m_cache->parsed_files[id];
 #ifdef PROPARSER_THREAD_SAFE
             ent->locker = new ProFileCache::Entry::Locker;
-            locker.unlock();
+            lck.unlock(); // We unlock the mutex and open a time window
 #endif
             QString contents;
             if (readFile(id, flags, &contents)) {
@@ -222,11 +290,17 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
             }
             ent->pro = pro;
 #ifdef PROPARSER_THREAD_SAFE
-            locker.relock();
-            if (ent->locker->waiters) {
-                ent->locker->done = true;
+            lck.relock(); // We relock it back and close the window. Someone could have added a new
+                          // entry to the parsed_files list (or removed one). However, no one
+                          // was awoken for our id in this time window.
+            it = m_cache->parsed_files.find(id);         // In meantime the iterator could have
+                                                         // been invalidated, search for it again
+            Q_ASSERT(it != m_cache->parsed_files.end()); // This would mean that our reference
+                                                         // is also invalid
+            if (ent->locker->waiters) {             // Someone runs getter or wants to remove it
+                ent->locker->done = true;           // The structure is ready
                 ent->locker->cond.wakeAll();
-            } else {
+            } else {          // No one was interested, remove locker as everything is ready now
                 delete ent->locker;
                 ent->locker = 0;
             }

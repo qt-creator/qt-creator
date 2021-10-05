@@ -393,7 +393,8 @@ void ClangdTestFollowSymbol::test()
     timer.stop();
 
     QCOMPARE(actualLink.targetFilePath, filePath(targetFile));
-    QEXPECT_FAIL("union member ref", "https://github.com/clangd/clangd/issues/877", Abort);
+    if (client()->versionNumber() < QVersionNumber(14))
+        QEXPECT_FAIL("union member ref", "https://github.com/clangd/clangd/issues/877", Abort);
     QCOMPARE(actualLink.targetLine, targetLine);
     QCOMPARE(actualLink.targetColumn + 1, targetColumn);
 }

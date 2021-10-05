@@ -61,6 +61,6 @@ updateCodeActionRefactoringMarker(Client *client,
                                   const LanguageServerProtocol::CodeAction &action,
                                   const LanguageServerProtocol::DocumentUri &uri);
 void updateEditorToolBar(Core::IEditor *editor);
-const QIcon symbolIcon(int type);
+const QIcon LANGUAGECLIENT_EXPORT symbolIcon(int type);
 
 } // namespace LanguageClient

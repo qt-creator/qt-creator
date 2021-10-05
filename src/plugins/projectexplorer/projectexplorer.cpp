@@ -3313,7 +3313,7 @@ void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
 {
     if (!fileName.isEmpty()) {
         ProjectExplorerPlugin::OpenProjectResult result
-                = ProjectExplorerPlugin::openProject(FilePath::fromString(fileName));
+                = ProjectExplorerPlugin::openProject(FilePath::fromUserInput(fileName));
         if (!result)
             ProjectExplorerPlugin::showOpenProjectError(result);
     }

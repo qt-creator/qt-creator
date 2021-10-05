@@ -213,7 +213,7 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
     for (const CMakeTool *item : cmakeTools) {
         Utils::FilePath fi = item->cmakeExecutable();
 
-        if (fi.isExecutableFile()) {
+        if (fi.needsDevice() || fi.isExecutableFile()) { // be graceful for device related stuff
             QVariantMap tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;

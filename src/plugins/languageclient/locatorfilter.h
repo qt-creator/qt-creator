@@ -26,6 +26,7 @@
 #pragma once
 
 #include "client.h"
+#include "languageclient_global.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 #include <languageserverprotocol/lsptypes.h>
@@ -38,7 +39,7 @@ namespace Core { class IEditor; }
 
 namespace LanguageClient {
 
-class DocumentLocatorFilter : public Core::ILocatorFilter
+class LANGUAGECLIENT_EXPORT DocumentLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
@@ -57,6 +58,8 @@ signals:
     void symbolsUpToDate(QPrivateSignal);
 
 protected:
+    void forceUse() { m_forced = true; }
+
     QPointer<DocumentSymbolCache> m_symbolCache;
     LanguageServerProtocol::DocumentUri m_currentUri;
 
@@ -67,11 +70,25 @@ private:
 
     template<class T>
     QList<Core::LocatorFilterEntry> generateEntries(const QList<T> &list, const QString &filter);
+    QList<Core::LocatorFilterEntry> generateLocatorEntries(
+            const LanguageServerProtocol::SymbolInformation &info,
+            const QRegularExpression &regexp,
+            const Core::LocatorFilterEntry &parent);
+    QList<Core::LocatorFilterEntry> generateLocatorEntries(
+            const LanguageServerProtocol::DocumentSymbol &info,
+            const QRegularExpression &regexp,
+            const Core::LocatorFilterEntry &parent);
+    virtual Core::LocatorFilterEntry generateLocatorEntry(
+            const LanguageServerProtocol::DocumentSymbol &info,
+            const Core::LocatorFilterEntry &parent);
+    virtual Core::LocatorFilterEntry generateLocatorEntry(
+            const LanguageServerProtocol::SymbolInformation &info);
 
     QMutex m_mutex;
     QMetaObject::Connection m_updateSymbolsConnection;
     QMetaObject::Connection m_resetSymbolsConnection;
     Utils::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
+    bool m_forced = false;
 };
 
 class LANGUAGECLIENT_EXPORT WorkspaceLocatorFilter : public Core::ILocatorFilter

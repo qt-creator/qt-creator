@@ -1075,6 +1075,20 @@ SecondColumnLayout {
                             Layout.fillWidth: true
                             spacing: 0
 
+                            Connections {
+                                target: ceMode
+                                function onActivated() {
+                                    spinBox.readValue()
+                                }
+                            }
+
+                            Connections {
+                                target: modelNodeBackend
+                                function onSelectionChanged() {
+                                    spinBox.readValue()
+                                }
+                            }
+
                             GradientPropertySpinBox {
                                 id: spinBox
                                 implicitWidth: StudioTheme.Values.controlGap

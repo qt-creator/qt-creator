@@ -136,8 +136,10 @@ void Environment::setupEnglishOutput()
     set("LANGUAGE", "en_US:en");
 }
 
-FilePath Environment::searchInDirectory(const QStringList &execs, const FilePath &directory,
-                                        QSet<FilePath> &alreadyChecked)
+static FilePath searchInDirectory(const Environment &env,
+                                  const QStringList &execs,
+                                  const FilePath &directory,
+                                  QSet<FilePath> &alreadyChecked)
 {
     const int checkedCount = alreadyChecked.count();
     alreadyChecked.insert(directory);
@@ -199,17 +201,19 @@ QString Environment::expandedValueForKey(const QString &key) const
     return expandVariables(value(key));
 }
 
-FilePath Environment::searchInPath(const QString &executable,
-                                   const FilePaths &additionalDirs,
-                                   const PathFilter &func) const
+static FilePath searchInDirectoriesHelper(const Environment &env,
+                                          const QString &executable,
+                                          const FilePaths &dirs,
+                                          const Environment::PathFilter &func,
+                                          bool usePath)
 {
     if (executable.isEmpty())
         return FilePath();
 
-    const QString exec = QDir::cleanPath(expandVariables(executable));
+    const QString exec = QDir::cleanPath(env.expandVariables(executable));
     const QFileInfo fi(exec);
 
-    const QStringList execs = appendExeExtensions(exec);
+    const QStringList execs = env.appendExeExtensions(exec);
 
     if (fi.isAbsolute()) {
         for (const QString &path : execs) {
@@ -221,21 +225,36 @@ FilePath Environment::searchInPath(const QString &executable,
     }
 
     QSet<FilePath> alreadyChecked;
-    for (const FilePath &dir : additionalDirs) {
-        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
+    for (const FilePath &dir : dirs) {
+        FilePath tmp = searchInDirectory(env, execs, dir, alreadyChecked);
         if (!tmp.isEmpty() && (!func || func(tmp)))
             return tmp;
     }
 
-    if (executable.contains('/'))
-        return FilePath();
+    if (usePath) {
+        if (executable.contains('/'))
+            return FilePath();
 
-    for (const FilePath &p : path()) {
-        FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp)))
-            return tmp;
+        for (const FilePath &p : env.path()) {
+            FilePath tmp = searchInDirectory(env, execs, p, alreadyChecked);
+            if (!tmp.isEmpty() && (!func || func(tmp)))
+                return tmp;
+        }
     }
     return FilePath();
+}
+
+FilePath Environment::searchInDirectories(const QString &executable,
+                                          const FilePaths &dirs) const
+{
+    return searchInDirectoriesHelper(*this, executable, dirs, {}, false);
+}
+
+FilePath Environment::searchInPath(const QString &executable,
+                                   const FilePaths &additionalDirs,
+                                   const PathFilter &func) const
+{
+    return searchInDirectoriesHelper(*this, executable, additionalDirs, func, true);
 }
 
 FilePaths Environment::findAllInPath(const QString &executable,
@@ -262,14 +281,14 @@ FilePaths Environment::findAllInPath(const QString &executable,
     QSet<FilePath> result;
     QSet<FilePath> alreadyChecked;
     for (const FilePath &dir : additionalDirs) {
-        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
+        FilePath tmp = searchInDirectory(*this, execs, dir, alreadyChecked);
         if (!tmp.isEmpty() && (!func || func(tmp)))
             result << tmp;
     }
 
     if (!executable.contains('/')) {
         for (const FilePath &p : path()) {
-            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
+            FilePath tmp = searchInDirectory(*this, execs, p, alreadyChecked);
             if (!tmp.isEmpty() && (!func || func(tmp)))
                 result << tmp;
         }

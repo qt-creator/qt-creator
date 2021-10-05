@@ -79,6 +79,9 @@ public:
     void enableTesting();
     bool testingEnabled() const;
 
+    static QString displayNameFromDocumentSymbol(LanguageServerProtocol::SymbolKind kind,
+                                                 const QString &name, const QString &detail);
+
 signals:
     void indexingFinished();
     void foundReferences(const QList<Core::SearchResultItem> &items);

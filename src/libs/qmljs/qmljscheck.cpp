@@ -1747,7 +1747,7 @@ bool Check::visit(CallExpression *ast)
     static const QStringList colorFunctions = {"lighter", "darker", "rgba",  "tint", "hsla", "hsva"};
 
     static const QStringList qtFunction = {"point", "rect", "size", "vector2d", "vector3d", "vector4d", "quaternion" "matrix4x4", "formatDate",
-                                           "formatDateTime", "formatTime"};
+                                           "formatDateTime", "formatTime", "resolvedUrl"};
 
     const bool whiteListedFunction =  translationFunctions.contains(name) || whiteListedFunctions.contains(name) || colorFunctions.contains(name) || qtFunction.contains(name);
 

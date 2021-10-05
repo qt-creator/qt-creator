@@ -63,6 +63,8 @@ public:
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
                           const PathFilter &func = PathFilter()) const;
+    FilePath searchInDirectories(const QString &executable,
+                                 const FilePaths &dirs) const;
     FilePaths findAllInPath(const QString &executable,
                                const FilePaths &additionalDirs = FilePaths(),
                                const PathFilter &func = PathFilter()) const;
@@ -80,10 +82,6 @@ public:
 
     static void modifySystemEnvironment(const EnvironmentItems &list); // use with care!!!
     static void setSystemEnvironment(const Environment &environment);  // don't use at all!!!
-
-private:
-    static FilePath searchInDirectory(const QStringList &execs, const FilePath &directory,
-                                      QSet<FilePath> &alreadyChecked);
 };
 
 class QTCREATOR_UTILS_EXPORT EnvironmentChange final

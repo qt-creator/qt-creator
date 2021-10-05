@@ -160,11 +160,12 @@ static FileInfo getFileInfo(const FilePath &file, Project *project)
             if (!projectFile.active)
                 continue;
             // found the best candidate, early return
+            ProjectFile::Kind sourceKind = ProjectFile::sourceKind(projectFile.kind);
             if (projectPart->buildTargetType != BuildTargetType::Unknown)
-                return FileInfo(projectFilePath, projectFile.kind, projectPart);
+                return FileInfo(projectFilePath, sourceKind, projectPart);
             // found something but keep looking for better candidates
             if (candidate.projectPart.isNull())
-                candidate = FileInfo(projectFilePath, projectFile.kind, projectPart);
+                candidate = FileInfo(projectFilePath, sourceKind, projectPart);
         }
     }
 
