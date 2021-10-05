@@ -72,8 +72,8 @@ void ProFileCache::discardFile(int id)
 #endif
     auto it = parsed_files.find(id);
     if (it != parsed_files.end()) {
-#ifdef PROPARSER_THREAD_SAFE
         Entry &entry = it->second;
+#ifdef PROPARSER_THREAD_SAFE
         Entry::Locker *locker = entry.locker;
         if (locker) { // Either it's still being prepared or it's already done but someone
                       // else started waiting for it when it wasn't ready yet
@@ -118,9 +118,9 @@ void ProFileCache::discardFiles(const QString &prefix, QMakeVfs *vfs)
         // Note: this is empty for virtual files from other VFSes.
         const QString fn = vfs->fileNameForId(id);
         if (fn.startsWith(prefix)) {
-#ifdef PROPARSER_THREAD_SAFE
             bool continueFromScratch = false;
             Entry &entry = it->second;
+#ifdef PROPARSER_THREAD_SAFE
             Entry::Locker *locker = entry.locker;
             if (locker) { // Either it's still being prepared or it's already done but someone
                           // else started waiting for it when it wasn't ready yet
