@@ -57,7 +57,8 @@ else()
   find_package(Qt6 CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
 endif()
 
-foreach(comp IN LISTS Qt5_FIND_COMPONENTS)
+set(__additional_imported_components ATSPI2_nolink) # Work around QTBUG-97023
+foreach(comp IN LISTS Qt5_FIND_COMPONENTS __additional_imported_components)
   if(TARGET Qt6::${comp})
     if (NOT TARGET Qt5::${comp})
       set_property(TARGET Qt6::${comp} PROPERTY IMPORTED_GLOBAL TRUE)

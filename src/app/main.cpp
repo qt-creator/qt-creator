@@ -494,6 +494,11 @@ int main(int argc, char **argv)
         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
     }
 
+    if (Utils::HostOsInfo::isRunningUnderRosetta()) {
+        // work around QTBUG-97085: QRegularExpression jitting is not reentrant under Rosetta
+        qputenv("QT_ENABLE_REGEXP_JIT", "0");
+    }
+
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 
 #ifdef Q_OS_MACOS
