@@ -36,63 +36,30 @@
 
     \title Developing Qt Quick Applications
 
+    You can develop Qt Quick applications in the \uicontrol Edit mode or use
+    a separate visual editor, \QDS.
+
+    If you have installed \QDS, and open a .ui.qml or a .qml file in \QC, it
+    asks you whether you would like to open the file in \QDS instead. Select
+    \uicontrol {Open in \QDS} to open the file in \QDS. To continue editing
+    the file in \QC, close the info bar. However, we do not recommend editing
+    \l{UI Files}{UI files} in the \uicontrol Edit mode, because it is easy to
+    add code that is not supported by \QDS. To hide the question, select
+    \uicontrol {Do Not Show Again}.
+
+    For more information about using \QDS, see \l{Qt Design Studio Manual}.
+
+    For more information about \l{Qt QML}, \l{Qt Quick}, and \l{All QML Types}
+    {QML types}, see the Qt reference documentation available online and
+    in the \uicontrol Help mode.
+
+    The following topics describe Qt Quick application development using \QC:
+
     \list
 
         \li \l {Creating Qt Quick Projects}
 
             You can use wizards to create Qt Quick projects.
-
-        \li \l {Design Views}
-
-            You can use several different editors and views in the
-            Design mode to develop Qt Quick applications.
-
-        \li \l {Wireframing}
-
-            Plan your UI properly. Know what elements, such as screens,
-            components, and states, you need. Create a descriptive wireframe
-            and acquire a detailed UI specification before you start to make
-            the process of creating the UI more efficient.
-
-        \li \l {Prototyping}
-
-            After your UI wireframe has been approved, you can turn it into
-            an interactive prototype to ensure that you and the developers
-            share a common vision about the UI appearance and functionality.
-
-        \li \l{Motion Design}
-
-            After the wireframing and prototyping phases, you can use the
-            supported motion design techniques to fine-tune your UI for
-            production. You can use different animation techniques for
-            different purposes. \QC supports common motion design techniques,
-            such as timeline and keyframe based animation and easing curves,
-            as well as screen-to-screen or state-to-state application flows
-            and data-driven UI logic animation.
-
-    \endlist
-
-    For more information, watch a video that shows how to perform the tasks
-    above:
-
-    \youtube pEETxSxYazg
-
-    \section1 Related Topics
-
-    \list
-
-        \li \l {Browsing ISO 7000 Icons}
-
-            You can add ISO 7000 icons from a library delivered with \QC to
-            UIs and change their color.
-
-        \li \l {Using QML Modules with Plugins}
-
-            QML modules may use plugins to expose components defined in C++ to
-            QML applications. \QC cannot load the plugins to determine the
-            details of the contained components, and therefore, the modules must
-            provide extra type information for code completion and the semantic
-            checks to work correctly.
 
         \li \l {Converting UI Projects to Applications}
 
@@ -101,11 +68,15 @@
             convert them to Qt Quick Application projects that contain .pro,
             .cpp, and .qrc files.
 
-        \li \l {Exporting Components}
+        \li \l {UI Files}
 
-            \l{UI Files}{UI files} (.ui.qml) can be exported to
-            JSON metadata format and PNG assets.
+            If you switch between \QC and \QDS or cooperate with designers on
+            a project, you might encounter .ui.qml files. They are intended to
+            be edited in \QDS only, so you need to be careful not to break the
+            code.
 
+        \li \l{Using QML Modules with Plugins}
+
+            You can load C++ plugins for QML to simulate data.
     \endlist
-
 */

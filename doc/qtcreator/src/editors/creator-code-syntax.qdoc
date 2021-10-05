@@ -433,45 +433,44 @@
     \row
         \li M203
         \li Warning
-        \li Imperative code is not supported in the Design mode
+        \li Imperative code is not supported in \QDS
         \li
 
     \row
         \li M204
         \li Warning
-        \li This QML type is not supported in the Design mode
+        \li This QML type is not supported in \QDS
         \li
     \row
         \li M205
         \li Warning
-        \li Reference to parent QML type cannot be resolved correctly by the
-            Design mode
+        \li Reference to parent QML type cannot be resolved correctly by \QDS
         \li
 
     \row
         \li M206
         \li Warning
         \li This visual property binding cannot be evaluated in the local
-            context and might not show up in Design mode as expected
+            context and might not show up in \QDS as expected
         \li
 
     \row
         \li M207
         \li Warning
-        \li Design mode only supports states in the root QML type
+        \li \QDS only supports states in the root QML type
         \li
 
     \row
         \li M208
         \li Error
-        \li This id might be ambiguous and is not supported in the Design mode.
+        \li This id might be ambiguous and is not supported in \QDS.
         \li
 
     \row
         \li M209
         \li Error
-        \li This type (type name) is not supported as a root element in the
-            Design mode.
+        \li This type (type name) is not supported as a root element in
+            \QDS.
         \li
 
     \row
@@ -691,8 +690,7 @@
     instead of Qt Quick 2}.
 
     You can see the error message when you move the mouse pointer over code that
-    \QC underlines in the code editor or when you open a QML file in the Design
-    mode.
+    \QC underlines in the code editor or when you open a QML file in \QDS.
 
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model}.
@@ -700,7 +698,7 @@
     \if defined(qtcreator)
     If this does not help, try changing the QML emulation layer to the one that
     was built with the same Qt version as the one selected in the build and run
-    kit. For more information, see \l{Running QML Modules in Design Mode}.
+    kit.
     \endif
 
     \section1 Inspecting QML and JavaScript

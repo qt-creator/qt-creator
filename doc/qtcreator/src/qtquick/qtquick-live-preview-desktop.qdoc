@@ -30,6 +30,12 @@
 
     \title Previewing on Desktop
 
+    \if defined(qtcreator)
+    To preview the currently active QML file on the desktop, select
+    \uicontrol Build > \uicontrol {QML Preview}.
+
+    \image qtcreator-live-preview.png
+    \else
     To preview the currently active QML file on the desktop:
 
     \list
@@ -39,24 +45,21 @@
         \li Press \key {Alt+P}.
     \endlist
 
-    \if defined(qtcreator)
-    \image qtcreator-live-preview.png
-    \else
     \image studio-live-preview.png
     \endif
 
     To preview any QML file that belongs to the project, right-click the project
-    name in the \uicontrol Projects view, and select \uicontrol {Preview file}.
+    name in the \l Projects view, and select \uicontrol {Preview File}.
 
+    \if defined(qtdesignstudio)
     To preview the whole UI, select \uicontrol {Show Live Preview}
-    when viewing the main QML UI file of the project.
+    when viewing the main QML file of the project.
 
     To view the UI in different sizes, select the zooming level on the toolbar.
 
     The frames-per-second (FPS) refresh rate of animations is displayed in the
     \uicontrol FPS field.
 
-    \if defined(qtdesignstudio)
     \section1 Selecting the Preview Tool
 
     By default, the QML runtime is used for previewing. To use some

@@ -104,7 +104,7 @@
 
     \b {What should I do when \QC complains about missing OpenGL support?}
 
-    Some parts of \QC, such as the Design mode and QML Profiler, use Qt Quick 2, which
+    Some parts of \QC, such as QML Profiler, use Qt Quick 2, which
     relies on OpenGL API for drawing. Unfortunately, the use of OpenGL can cause
     problems, especially in remote setups and with outdated drivers. In these
     cases, \QC displays OpenGL-related error messages on the console or records

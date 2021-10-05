@@ -580,10 +580,11 @@
     \endtable
     \endif
 
+    \if defined(qtdesignstudio)
     \section2 Design Mode Keyboard Shortcuts
 
     You can use the following keyboard shortcuts when editing QML files in the
-    Design mode.
+    \uicontrol Design mode.
 
     \table
         \header
@@ -603,6 +604,7 @@
             \li  Toggle right sidebar
             \li  Ctrl+Alt+Shift+0
     \endtable
+    \endif
 
     \section2 Debugging Keyboard Shortcuts
 

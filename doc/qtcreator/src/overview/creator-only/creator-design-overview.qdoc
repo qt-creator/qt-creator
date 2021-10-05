@@ -38,16 +38,19 @@
 
     \image front-ui.png
 
-    \QC provides integrated visual editors for designing Qt Quick and
-    widget-based applications in the Design mode. The integration
-    includes project management and code completion.
+    \QC provides an integrated visual editor designing widget-based applications
+    in the \uicontrol Design mode. The integration includes project management
+    and code completion.
+
+    You can develop Qt Quick applications in the \uicontrol Edit mode or use
+    a separate visual editor, \QDS.
 
     \list
 
         \li \l{Developing Qt Quick Applications}
 
             You can use wizards to create Qt Quick projects containing
-            boiler-plate code that you can edit in the Design mode.
+            boiler-plate code that you can edit in the \uicontrol Edit mode.
 
         \li \l{Developing Widget Based Applications}
 

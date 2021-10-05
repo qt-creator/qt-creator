@@ -70,10 +70,10 @@
             files are included in the current file and which files include
             the current file.
     \endlist
-    \endif
-
+    \else
     For more information about views that are only available when editing QML
-    files in the Design mode, see \l{Design Views}.
+    files in the \uicontrol Design mode, see \l{Design Views}.
+    \endif
 
     The additional options in a particular view are described in the following
     sections.

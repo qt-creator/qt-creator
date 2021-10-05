@@ -30,14 +30,11 @@
 
     \title Simulating Complex Experiences
 
-
     \QDS enables you to connect UIs to different forms of data from various
     sources, such as QML-based data models, JavaScript files, and backend
-    services.
-    \if definded(qtdesignstudio)
-    You can also connect your UI to Simulink to load live data from a
+    services. You can also connect your UI to Simulink to load live data from a
     Simulink simulation.
-    \endif
+
 
     \list
         \li \l{Loading Placeholder Data}
@@ -46,7 +43,6 @@
             you can test grid, list, or path views, even though you don't
             have access to real data.
 
-        \if defined(qtdesignstudio)
         \li \l{Simulating Application Logic}
 
         You can use JavaScript to generate mock data for your UI.
@@ -56,7 +52,6 @@
         Use the Simulink connector to connect a Simulink Simulation Model to
         your UI. Simulink is a MATLAB-based graphical programming environment
         for modeling, simulating, and analyzing multi-domain dynamic systems.
-        \endif
 
         \li \l{Using QML Modules with Plugins}
 
