@@ -834,9 +834,18 @@ void DockerDevicePrivate::startContainer()
         dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
-    for (const QString &mount : qAsConst(m_data.mounts)) {
-        if (!mount.isEmpty())
-            dockerRun.addArgs({"-v", mount + ':' + mount});
+    for (QString mount : qAsConst(m_data.mounts)) {
+        if (mount.isEmpty())
+            continue;
+        // make sure to convert windows style paths to unix style paths with the file system case:
+        // C:/dev/src -> /c/dev/src
+        if (const FilePath mountPath = FilePath::fromUserInput(mount).normalizedPathName();
+            mountPath.startsWithDriveLetter()) {
+            const QChar lowerDriveLetter = mountPath.path().at(0).toLower();
+            const FilePath path = FilePath::fromUserInput(mountPath.path().mid(2)); // strip C:
+            mount = '/' + lowerDriveLetter + path.path();
+        }
+        dockerRun.addArgs({"-v", mount + ':' + mount});
     }
 
     dockerRun.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
