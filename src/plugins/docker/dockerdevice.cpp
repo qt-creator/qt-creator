@@ -49,17 +49,18 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/utilsicons.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overridecursor.h>
+#include <utils/pathlisteditor.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/treemodel.h>
-#include <utils/fileutils.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -394,15 +395,13 @@ public:
             dockerDevice->tryCreateLocalFileAccess();
         });
 
-        m_pathsLineEdit = new QLineEdit;
-        m_pathsLineEdit->setText(data.repo);
-        m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
-            "mapped one-to-one into the Docker container."));
-        m_pathsLineEdit->setText(data.mounts.join(';'));
-        m_pathsLineEdit->setPlaceholderText(tr("List project source directories here"));
+        m_pathsListEdit = new PathListEditor;
+        m_pathsListEdit->setToolTip(tr("Paths in this list will be mapped one-to-one into the "
+                                       "Docker container."));
+        m_pathsListEdit->setPathList(data.mounts);
 
-        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
-            dockerDevice->setMounts(text.split(';', Qt::SkipEmptyParts));
+        connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, this]() {
+            dockerDevice->setMounts(m_pathsListEdit->pathList());
         });
 
         auto logView = new QTextBrowser;
@@ -443,7 +442,10 @@ public:
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
             m_usePathMapping, Break(),
-            tr("Paths to mount:"), m_pathsLineEdit, Break(),
+            Column {
+                new QLabel(tr("Paths to mount:")),
+                m_pathsListEdit,
+            }, Break(),
             Column {
                 Space(20),
                 Row { autoDetectButton, undoAutoDetectButton, listAutoDetectedButton, Stretch() },
@@ -463,7 +465,7 @@ private:
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
     QCheckBox *m_usePathMapping;
-    QLineEdit *m_pathsLineEdit;
+    Utils::PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
 };

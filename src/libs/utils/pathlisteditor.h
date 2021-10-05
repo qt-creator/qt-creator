@@ -58,6 +58,9 @@ public:
     void setPathList(const QString &pathString);
     void setFileDialogTitle(const QString &l);
 
+signals:
+    void changed();
+
 protected:
     // Index after which to insert further "Add" buttons
     static const int lastInsertButtonIndex;
