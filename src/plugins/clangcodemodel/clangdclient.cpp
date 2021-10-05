@@ -73,6 +73,7 @@
 #include <QPair>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QtConcurrent>
 
 #include <set>
 #include <unordered_map>
@@ -2131,7 +2132,7 @@ class ExtraHighlightingResultsCollector
 public:
     ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
                                       HighlightingResults &results, const AstNode &ast,
-                                      QTextDocument *doc, const QString &docContent);
+                                      const QTextDocument *doc, const QString &docContent);
 
     void collect();
 private:
@@ -2156,7 +2157,7 @@ private:
 // and not even in a consistent manner. We don't want this, so we have to clean up here.
 // But note that we require this behavior, as otherwise we would not be able to grey out
 // e.g. empty lines after an #fdef, due to the lack of symbols.
-static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, QTextDocument *doc,
+static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const QTextDocument *doc,
                                              const QString &docContent)
 {
     QList<BlockRange> ifdefedOutRanges;
@@ -2223,7 +2224,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         return;
     }
 
-    QTextDocument doc(docContents);
+    const QTextDocument doc(docContents);
     const auto isOutputParameter = [&ast](const ExpandedSemanticToken &token) {
         if (token.modifiers.contains("usedAsMutableReference"))
             return true;
@@ -2250,8 +2251,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         return false;
     };
 
-    const auto toResult = [&ast, &isOutputParameter, &clangdVersion]
-            (const ExpandedSemanticToken &token) {
+    const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
+            = [&ast, &isOutputParameter, &clangdVersion](const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains("functionScope")) {
@@ -2334,7 +2335,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         return HighlightingResult(token.line, token.column, token.length, styles);
     };
 
-    HighlightingResults results = Utils::transform(tokens, toResult);
+    auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, toResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
     QMetaObject::invokeMethod(widget, [widget, ifdefedOutBlocks, docRevision] {
         if (widget && widget->textDocument()->document()->revision() == docRevision)
@@ -2801,7 +2802,7 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
 
 ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
         QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
-        const AstNode &ast, QTextDocument *doc, const QString &docContent)
+        const AstNode &ast, const QTextDocument *doc, const QString &docContent)
     : m_future(future), m_results(results), m_ast(ast), m_doc(doc), m_docContent(docContent)
 {
 
