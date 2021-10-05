@@ -90,6 +90,7 @@ public:
 
     int toPositionInDocument(const QTextDocument *doc) const;
     QTextCursor toTextCursor(QTextDocument *doc) const;
+    Position withOffset(int offset, const QTextDocument *doc) const;
 };
 
 inline bool operator<(const Position &first, const Position &second)
@@ -101,6 +102,11 @@ inline bool operator<(const Position &first, const Position &second)
 inline bool operator>(const Position &first, const Position &second)
 {
     return second < first;
+}
+
+inline bool operator>=(const Position &first, const Position &second)
+{
+    return !(first < second);
 }
 
 inline bool operator<=(const Position &first, const Position &second)
@@ -124,9 +130,12 @@ public:
     Position end() const { return typedValue<Position>(endKey); }
     void setEnd(const Position &end) { insert(endKey, end); }
 
+    bool isEmpty() const { return start() == end(); }
     bool contains(const Position &pos) const { return start() <= pos && pos <= end(); }
     bool contains(const Range &other) const;
     bool overlaps(const Range &range) const;
+    bool isLeftOf(const Range &other) const
+    { return isEmpty() || other.isEmpty() ? end() < other.start() : end() <= other.start(); }
 
     bool isValid() const override
     { return JsonObject::contains(startKey) && JsonObject::contains(endKey); }

@@ -298,6 +298,7 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
     QList<AstNode> path;
     QList<AstNode> queue{root};
     bool isRoot = true;
+
     while (!queue.isEmpty()) {
         AstNode curNode = queue.takeFirst();
         if (!isRoot && !curNode.hasRange())
@@ -309,11 +310,37 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
             const auto children = curNode.children();
             if (!children)
                 break;
-            queue = children.value();
+            if (curNode.kind() == "Function" || curNode.role() == "expression") {
+                // Functions and expressions can contain implicit nodes that make the list unsorted.
+                // They cannot be ignored, as we need to consider them in certain contexts.
+                // Therefore, the binary search cannot be used here.
+                queue = *children;
+            } else {
+                queue.clear();
+
+                // Class and struct nodes can contain implicit constructors, destructors and
+                // operators, which appear at the end of the list, but whose range is the same
+                // as the class name. Therefore, we must force them not to compare less to
+                // anything else.
+                static const auto leftOfRange = [](const AstNode &node, const Range &range) {
+                    return node.range().isLeftOf(range) && !node.arcanaContains(" implicit ");
+                };
+
+                for (auto it = std::lower_bound(children->cbegin(), children->cend(), range,
+                                                leftOfRange);
+                     it != children->cend() && !range.isLeftOf(it->range()); ++it) {
+                    queue << *it;
+                }
+            }
         }
         isRoot = false;
     }
     return path;
+}
+
+static QList<AstNode> getAstPath(const AstNode &root, const Position &pos)
+{
+    return getAstPath(root, Range(pos, pos));
 }
 
 static Usage::Type getUsageType(const QList<AstNode> &path)
@@ -1643,7 +1670,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
             }
 
             const Position linkPos(link.targetLine - 1, link.targetColumn);
-            const QList<AstNode> astPath = getAstPath(ast, Range(linkPos, linkPos));
+            const QList<AstNode> astPath = getAstPath(ast, linkPos);
             bool isVar = false;
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
                 if (it->role() == "declaration" && it->kind() == "Function") {
@@ -2222,13 +2249,17 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
     }
 
     const QTextDocument doc(docContents);
-    const auto isOutputParameter = [&ast](const ExpandedSemanticToken &token) {
+    const auto tokenRange = [&doc](const ExpandedSemanticToken &token) {
+        const Position startPos(token.line - 1, token.column - 1);
+        const Position endPos = startPos.withOffset(token.length, &doc);
+        return Range(startPos, endPos);
+    };
+    const auto isOutputParameter = [&ast, &doc, &tokenRange](const ExpandedSemanticToken &token) {
         if (token.modifiers.contains("usedAsMutableReference"))
             return true;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
-        const Position pos(token.line - 1, token.column - 1);
-        const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
+        const QList<AstNode> path = getAstPath(ast, tokenRange(token));
         if (path.size() < 2)
             return false;
         if (path.last().hasConstType())
@@ -2249,7 +2280,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
     };
 
     const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
-            = [&ast, &isOutputParameter, &clangdVersion](const ExpandedSemanticToken &token) {
+            = [&ast, &isOutputParameter, &clangdVersion, &tokenRange]
+              (const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains("functionScope")) {
@@ -2263,8 +2295,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         } else if (token.type == "function" || token.type == "method") {
             styles.mainStyle = token.modifiers.contains("virtual") ? C_VIRTUAL_METHOD : C_FUNCTION;
             if (ast.isValid()) {
-                const Position pos(token.line - 1, token.column - 1);
-                const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
+                const QList<AstNode> path = getAstPath(ast, tokenRange(token));
                 if (path.length() > 1) {
                     const AstNode declNode = path.at(path.length() - 2);
                     if (declNode.kind() == "Function" || declNode.kind() == "CXXMethod") {
@@ -2283,8 +2314,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             // clang hardly ever differentiates between constructors and the associated class,
             // whereas we highlight constructors as functions.
             if (ast.isValid()) {
-                const Position pos(token.line - 1, token.column - 1);
-                const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
+                const QList<AstNode> path = getAstPath(ast, tokenRange(token));
                 if (!path.isEmpty()) {
                     if (path.last().kind() == "CXXConstructor") {
                         if (!path.last().arcanaContains("implicit"))
