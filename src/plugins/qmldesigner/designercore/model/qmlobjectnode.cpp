@@ -368,6 +368,14 @@ static void removeLayerEnabled(const ModelNode &node)
     }
 }
 
+static void deleteAllReferencesToNodeAndChildren(const ModelNode &node)
+{
+    BindingProperty::deleteAllReferencesTo(node);
+    const auto subNodes = node.allSubModelNodes();
+    for (const ModelNode &child : subNodes)
+        BindingProperty::deleteAllReferencesTo(child);
+}
+
 /*!
     Deletes this object's node and its dependencies from the model.
     Everything that belongs to this Object, the ModelNode, and ChangeOperations
@@ -406,7 +414,7 @@ void QmlObjectNode::destroy()
     }
 
     removeStateOperationsForChildren(modelNode());
-    BindingProperty::deleteAllReferencesTo(modelNode());
+    deleteAllReferencesToNodeAndChildren(modelNode());
 
     QmlFlowViewNode root(view()->rootModelNode());
 
