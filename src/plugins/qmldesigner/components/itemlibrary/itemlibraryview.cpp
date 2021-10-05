@@ -242,14 +242,13 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
 
         // All things importable by QSSGAssetImportManager are considered to be in the same category
         // so we don't get multiple separate import dialogs when different file types are imported.
-        const QString category = tr("3D Assets");
 
         if (!m_importableExtensions3DMap.isEmpty())
-            actionManager->unregisterAddResourceHandlers(category);
+            actionManager->unregisterAddResourceHandlers(ComponentCoreConstants::add3DAssetsDisplayString);
 
         m_importableExtensions3DMap = extMap;
 
-        auto handle3DModel = [this](const QStringList &fileNames, const QString &defaultDir) -> bool {
+        auto import3DModelOperation = [this](const QStringList &fileNames, const QString &defaultDir) -> bool {
             auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir,
                                                               m_importableExtensions3DMap,
                                                               m_importOptions3DMap, {}, {},
@@ -258,17 +257,18 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
             return true;
         };
 
-        auto add3DHandler = [&](const QString &category, const QString &ext) {
+        auto add3DHandler = [&](const QString &ext) {
             const QString filter = QStringLiteral("*.%1").arg(ext);
             actionManager->registerAddResourceHandler(
-                        AddResourceHandler(category, filter, handle3DModel, 10));
+                        AddResourceHandler(ComponentCoreConstants::add3DAssetsDisplayString, filter,
+                                           import3DModelOperation, 10));
         };
 
         const auto groups = extMap.keys();
         for (const auto &group : groups) {
             const QStringList exts = extMap[group].toStringList();
             for (const auto &ext : exts)
-                add3DHandler(category, ext);
+                add3DHandler(ext);
         }
     }
 
