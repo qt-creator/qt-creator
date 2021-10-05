@@ -43,6 +43,7 @@ CORE_EXPORT extern const Utils::Icon MODE_EDIT_FLAT_ACTIVE;
 CORE_EXPORT extern const Utils::Icon MODE_DESIGN_CLASSIC;
 CORE_EXPORT extern const Utils::Icon MODE_DESIGN_FLAT;
 CORE_EXPORT extern const Utils::Icon MODE_DESIGN_FLAT_ACTIVE;
+CORE_EXPORT extern const Utils::Icon DESKTOP_DEVICE_SMALL;
 
 } // namespace Icons
 } // namespace Core

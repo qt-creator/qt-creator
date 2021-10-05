@@ -54,5 +54,9 @@ const Icon MODE_DESIGN_FLAT({
 const Icon MODE_DESIGN_FLAT_ACTIVE({
         {":/fancyactionbar/images/mode_design_mask.png", Theme::IconsModeDesignActiveColor}});
 
+const Icon DESKTOP_DEVICE_SMALL({{":/utils/images/desktopdevicesmall.png",
+                                  Theme::PanelTextColorDark}},
+                                Icon::Tint);
+
 } // namespace Icons
 } // namespace Core

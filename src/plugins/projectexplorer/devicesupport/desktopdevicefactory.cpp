@@ -28,6 +28,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 
+#include <coreplugin/coreicons.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 
@@ -42,9 +43,9 @@ DesktopDeviceFactory::DesktopDeviceFactory()
     setConstructionFunction([] { return IDevice::Ptr(new DesktopDevice); });
     setDisplayName(DesktopDevice::tr("Desktop"));
     setIcon(Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
-            ? Utils::Icon::combinedIcon({Icons::DESKTOP_DEVICE.icon(),
-                                         Icons::DESKTOP_DEVICE_SMALL.icon()})
-            : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
+                ? Utils::Icon::combinedIcon(
+                    {Icons::DESKTOP_DEVICE.icon(), Core::Icons::DESKTOP_DEVICE_SMALL.icon()})
+                : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
 } // namespace Internal

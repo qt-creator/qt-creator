@@ -24,14 +24,10 @@
 ****************************************************************************/
 
 #include "foldernavigationwidget.h"
-#include "projectexplorer.h"
-#include "projectexplorerconstants.h"
-#include "projectexplorericons.h"
-#include "projectnodes.h"
-#include "projecttree.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -89,6 +85,10 @@ const char kHiddenFilesKey[] = ".HiddenFilesFilter";
 const char kSyncKey[] = ".SyncWithEditor";
 const char kShowBreadCrumbs[] = ".ShowBreadCrumbs";
 const char kSyncRootWithEditor[] = ".SyncRootWithEditor";
+
+const char ADDNEWFILE[] = "QtCreator.FileSystem.AddNewFile";
+const char RENAMEFILE[] = "QtCreator.FileSystem.RenameFile";
+const char REMOVEFILE[] = "QtCreator.FileSystem.RemoveFile";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -199,29 +199,6 @@ Qt::ItemFlags FolderNavigationModel::flags(const QModelIndex &index) const
     return QFileSystemModel::flags(index);
 }
 
-static QVector<FolderNode *> renamableFolderNodes(const Utils::FilePath &before,
-                                                  const Utils::FilePath &after)
-{
-    QVector<FolderNode *> folderNodes;
-    ProjectTree::forEachNode([&](Node *node) {
-        if (node->asFileNode()
-                && node->filePath() == before
-                && node->parentFolderNode()
-                && node->parentFolderNode()->canRenameFile(before, after)) {
-            folderNodes.append(node->parentFolderNode());
-        }
-    });
-    return folderNodes;
-}
-
-static QStringList projectNames(const QVector<FolderNode *> &folders)
-{
-    const QStringList names = Utils::transform<QList>(folders, [](FolderNode *n) {
-        return n->managingProject()->filePath().fileName();
-    });
-    return Utils::filteredUnique(names);
-}
-
 bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     QTC_ASSERT(index.isValid() && parent(index).isValid() && index.column() == 0
@@ -238,25 +215,7 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
     // for files we can do more than just rename on disk, for directories the user is on his/her own
     if (success && fileInfo(index).isFile()) {
         Core::DocumentManager::renamedFile(beforeFilePath, afterFilePath);
-        const QVector<FolderNode *> folderNodes = renamableFolderNodes(beforeFilePath,
-                                                                       afterFilePath);
-        QVector<FolderNode *> failedNodes;
-        for (FolderNode *folder : folderNodes) {
-            if (!folder->renameFile(beforeFilePath, afterFilePath))
-                failedNodes.append(folder);
-        }
-        if (!failedNodes.isEmpty()) {
-            const QString projects = projectNames(failedNodes).join(", ");
-            const QString errorMessage
-                = FolderNavigationWidget::tr("The file \"%1\" was renamed to \"%2\", "
-                     "but the following projects could not be automatically changed: %3")
-                      .arg(beforeFilePath.toUserOutput(), afterFilePath.toUserOutput(), projects);
-            QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     ProjectExplorerPlugin::tr("Project Editing Failed"),
-                                     errorMessage);
-            });
-        }
+        emit m_instance->fileRenamed(beforeFilePath, afterFilePath);
     }
     return success;
 }
@@ -509,7 +468,7 @@ void FolderNavigationWidget::addNewItem()
         return;
     const auto filePath = Utils::FilePath::fromString(m_fileSystemModel->filePath(current));
     const Utils::FilePath path = filePath.isDir() ? filePath : filePath.parentDir();
-    Core::ICore::showNewItemDialog(ProjectExplorerPlugin::tr("New File", "Title of dialog"),
+    Core::ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                                    Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                    Utils::equal(&Core::IWizardFactory::kind,
                                                                 Core::IWizardFactory::FileWizard)),
@@ -523,20 +482,6 @@ void FolderNavigationWidget::editCurrentItem()
         m_listView->edit(current);
 }
 
-static QVector<FolderNode *> removableFolderNodes(const Utils::FilePath &filePath)
-{
-    QVector<FolderNode *> folderNodes;
-    ProjectTree::forEachNode([&](Node *node) {
-        if (node->asFileNode()
-                && node->filePath() == filePath
-                && node->parentFolderNode()
-                && node->parentFolderNode()->supportsAction(RemoveFile, node)) {
-            folderNodes.append(node->parentFolderNode());
-        }
-    });
-    return folderNodes;
-}
-
 void FolderNavigationWidget::removeCurrentItem()
 {
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
@@ -546,24 +491,9 @@ void FolderNavigationWidget::removeCurrentItem()
     RemoveFileDialog dialog(filePath, Core::ICore::dialogParent());
     dialog.setDeleteFileVisible(false);
     if (dialog.exec() == QDialog::Accepted) {
-        const QVector<FolderNode *> folderNodes = removableFolderNodes(filePath);
-        const QVector<FolderNode *> failedNodes = Utils::filtered(folderNodes,
-                [filePath](FolderNode *folder) {
-                    return folder->removeFiles({filePath}) != RemovedFilesFromProject::Ok;
-        });
+        emit m_instance->aboutToRemoveFile(filePath);
         Core::FileChangeBlocker changeGuard(filePath);
         Core::FileUtils::removeFiles({filePath}, true /*delete from disk*/);
-        if (!failedNodes.isEmpty()) {
-            const QString projects = projectNames(failedNodes).join(", ");
-            const QString errorMessage
-                = tr("The following projects failed to automatically remove the file: %1")
-                      .arg(projects);
-            QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     ProjectExplorerPlugin::tr("Project Editing Failed"),
-                                     errorMessage);
-            });
-        }
     }
 }
 
@@ -674,24 +604,6 @@ void FolderNavigationWidget::openItem(const QModelIndex &index)
     Core::EditorManager::openEditor(path);
 }
 
-QStringList FolderNavigationWidget::projectsInDirectory(const QModelIndex &index) const
-{
-    QTC_ASSERT(index.isValid() && m_fileSystemModel->isDir(index), return {});
-    const QFileInfo fi = m_fileSystemModel->fileInfo(index);
-    if (!fi.isReadable() || !fi.isExecutable())
-        return {};
-    const QString path = m_fileSystemModel->filePath(index);
-    // Try to find project files in directory and open those.
-    return FolderNavigationWidget::projectFilesInDirectory(path);
-}
-
-void FolderNavigationWidget::openProjectsInDirectory(const QModelIndex &index)
-{
-    const QStringList projectFiles = projectsInDirectory(index);
-    if (!projectFiles.isEmpty())
-        Core::ICore::openFiles(Utils::transform(projectFiles, &FilePath::fromString));
-}
-
 void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
 {
     static const QString baseName = tr("New Folder");
@@ -748,24 +660,15 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     const bool hasCurrentItem = current.isValid();
     QAction *actionOpenFile = nullptr;
-    QAction *actionOpenProjects = nullptr;
-    QAction *actionOpenAsProject = nullptr;
     QAction *newFolder = nullptr;
     const bool isDir = m_fileSystemModel->isDir(current);
     const Utils::FilePath filePath = hasCurrentItem ? Utils::FilePath::fromString(
                                                           m_fileSystemModel->filePath(current))
                                                     : Utils::FilePath();
     if (hasCurrentItem) {
-        const QString fileName = m_fileSystemModel->fileName(current);
-        if (isDir) {
-            actionOpenProjects = menu.addAction(tr("Open Project in \"%1\"").arg(fileName));
-            if (projectsInDirectory(current).isEmpty())
-                actionOpenProjects->setEnabled(false);
-        } else {
-            actionOpenFile = menu.addAction(tr("Open \"%1\"").arg(fileName));
-            if (ProjectExplorerPlugin::isProjectFile(Utils::FilePath::fromString(fileName)))
-                actionOpenAsProject = menu.addAction(tr("Open Project \"%1\"").arg(fileName));
-        }
+        if (!isDir)
+            actionOpenFile = menu.addAction(tr("Open \"%1\"").arg(filePath.toUserOutput()));
+        emit m_instance->aboutToShowContextMenu(&menu, filePath, isDir);
     }
 
     // we need dummy DocumentModel::Entry with absolute file path in it
@@ -777,11 +680,11 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     Core::EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
     if (hasCurrentItem) {
-        menu.addAction(Core::ActionManager::command(Constants::ADDNEWFILE)->action());
+        menu.addAction(Core::ActionManager::command(ADDNEWFILE)->action());
         if (!isDir)
-            menu.addAction(Core::ActionManager::command(Constants::REMOVEFILE)->action());
+            menu.addAction(Core::ActionManager::command(REMOVEFILE)->action());
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
-            menu.addAction(Core::ActionManager::command(Constants::RENAMEFILE)->action());
+            menu.addAction(Core::ActionManager::command(RENAMEFILE)->action());
         newFolder = menu.addAction(tr("New Folder"));
         if (!isDir && Core::DiffService::instance()) {
             menu.addAction(
@@ -792,7 +695,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     menu.addSeparator();
-    QAction * const collapseAllAction = menu.addAction(ProjectExplorerPlugin::tr("Collapse All"));
+    QAction *const collapseAllAction = menu.addAction(tr("Collapse All"));
 
     QAction *action = menu.exec(ev->globalPos());
     if (!action)
@@ -801,11 +704,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     ev->accept();
     if (action == actionOpenFile) {
         openItem(current);
-    } else if (action == actionOpenAsProject) {
-        ProjectExplorerPlugin::openProject(filePath);
-    } else if (action == actionOpenProjects)
-        openProjectsInDirectory(current);
-    else if (action == newFolder) {
+    } else if (action == newFolder) {
         if (isDir)
             createNewFolder(current);
         else
@@ -846,15 +745,6 @@ bool FolderNavigationWidget::isShowingFoldersOnTop() const
     return m_showFoldersOnTopAction->isChecked();
 }
 
-QStringList FolderNavigationWidget::projectFilesInDirectory(const QString &path)
-{
-    QDir dir(path);
-    QStringList projectFiles;
-    foreach (const QFileInfo &i, dir.entryInfoList(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files))
-        projectFiles.append(i.absoluteFilePath());
-    return projectFiles;
-}
-
 // --------------------FolderNavigationWidgetFactory
 FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
@@ -868,7 +758,7 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
                          0 /*sortValue*/,
                          FolderNavigationWidget::tr("Computer"),
                          Utils::FilePath(),
-                         Icons::DESKTOP_DEVICE_SMALL.icon()});
+                         Core::Icons::DESKTOP_DEVICE_SMALL.icon()});
     insertRootDirectory({QLatin1String("A.Home"),
                          10 /*sortValue*/,
                          FolderNavigationWidget::tr("Home"),
@@ -999,21 +889,21 @@ void FolderNavigationWidgetFactory::registerActions()
     Core::Context context(C_FOLDERNAVIGATIONWIDGET);
 
     auto add = new QAction(tr("Add New..."), this);
-    Core::ActionManager::registerAction(add, Constants::ADDNEWFILE, context);
+    Core::ActionManager::registerAction(add, ADDNEWFILE, context);
     connect(add, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->addNewItem();
     });
 
     auto rename = new QAction(tr("Rename..."), this);
-    Core::ActionManager::registerAction(rename, Constants::RENAMEFILE, context);
+    Core::ActionManager::registerAction(rename, RENAMEFILE, context);
     connect(rename, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->editCurrentItem();
     });
 
     auto remove = new QAction(tr("Remove..."), this);
-    Core::ActionManager::registerAction(remove, Constants::REMOVEFILE, context);
+    Core::ActionManager::registerAction(remove, REMOVEFILE, context);
     connect(remove, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->removeCurrentItem();

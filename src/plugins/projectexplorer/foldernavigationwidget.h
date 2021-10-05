@@ -46,6 +46,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
 class QFileSystemModel;
+class QMenu;
 class QModelIndex;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
@@ -85,6 +86,10 @@ signals:
     void rootDirectoryAdded(const RootDirectory &directory);
     void rootDirectoryRemoved(const QString &id);
 
+    void aboutToShowContextMenu(QMenu *menu, const Utils::FilePath &filePath, bool isDir);
+    void fileRenamed(const Utils::FilePath &before, const Utils::FilePath &after);
+    void aboutToRemoveFile(const Utils::FilePath &filePath);
+
 private:
     static int rootIndex(const QString &id);
     void updateProjectsDirectoryRoot();
@@ -100,8 +105,6 @@ class FolderNavigationWidget : public QWidget
     Q_PROPERTY(bool autoSynchronization READ autoSynchronization WRITE setAutoSynchronization)
 public:
     explicit FolderNavigationWidget(QWidget *parent = nullptr);
-
-    static QStringList projectFilesInDirectory(const QString &path);
 
     bool autoSynchronization() const;
     bool hiddenFilesFilter() const;
@@ -138,8 +141,6 @@ private:
     void setRootDirectory(const Utils::FilePath &directory);
     int bestRootForFile(const Utils::FilePath &filePath);
     void openItem(const QModelIndex &index);
-    QStringList projectsInDirectory(const QModelIndex &index) const;
-    void openProjectsInDirectory(const QModelIndex &index);
     void createNewFolder(const QModelIndex &parent);
 
     Utils::NavigationTreeView *m_listView = nullptr;

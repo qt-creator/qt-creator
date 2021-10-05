@@ -94,8 +94,6 @@ const Icon BUILDSTEP_REMOVE({
 
 const Icon DESKTOP_DEVICE({
         {":/projectexplorer/images/desktopdevice.png", Theme::IconsBaseColor}});
-const Icon DESKTOP_DEVICE_SMALL({
-        {":/utils/images/desktopdevicesmall.png", Theme::PanelTextColorDark}}, Icon::Tint);
 
 const Icon MODE_PROJECT_CLASSIC(":/projectexplorer/images/mode_project.png");
 const Icon MODE_PROJECT_FLAT({

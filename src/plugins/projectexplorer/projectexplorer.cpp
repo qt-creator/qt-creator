@@ -491,6 +491,8 @@ public:
 
     QList<QPair<QString, QString> > recentProjects() const;
 
+    void extendFolderNavigationWidgetFactory();
+
 public:
     QMenu *m_sessionMenu;
     QMenu *m_openWithMenu;
@@ -692,6 +694,57 @@ public:
 static ProjectExplorerPlugin *m_instance = nullptr;
 static ProjectExplorerPluginPrivate *dd = nullptr;
 
+static FilePaths projectFilesInDirectory(const FilePath &path)
+{
+    return path.dirEntries(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files);
+}
+
+static FilePaths projectsInDirectory(const FilePath &filePath)
+{
+    if (!filePath.isReadableDir())
+        return {};
+    return projectFilesInDirectory(filePath);
+}
+
+static void openProjectsInDirectory(const FilePath &filePath)
+{
+    const FilePaths projectFiles = projectsInDirectory(filePath);
+    if (!projectFiles.isEmpty())
+        Core::ICore::openFiles(projectFiles);
+}
+
+static QStringList projectNames(const QVector<FolderNode *> &folders)
+{
+    const QStringList names = Utils::transform<QList>(folders, [](FolderNode *n) {
+        return n->managingProject()->filePath().fileName();
+    });
+    return Utils::filteredUnique(names);
+}
+
+static QVector<FolderNode *> renamableFolderNodes(const FilePath &before, const FilePath &after)
+{
+    QVector<FolderNode *> folderNodes;
+    ProjectTree::forEachNode([&](Node *node) {
+        if (node->asFileNode() && node->filePath() == before && node->parentFolderNode()
+            && node->parentFolderNode()->canRenameFile(before, after)) {
+            folderNodes.append(node->parentFolderNode());
+        }
+    });
+    return folderNodes;
+}
+
+static QVector<FolderNode *> removableFolderNodes(const Utils::FilePath &filePath)
+{
+    QVector<FolderNode *> folderNodes;
+    ProjectTree::forEachNode([&](Node *node) {
+        if (node->asFileNode() && node->filePath() == filePath && node->parentFolderNode()
+            && node->parentFolderNode()->supportsAction(RemoveFile, node)) {
+            folderNodes.append(node->parentFolderNode());
+        }
+    });
+    return folderNodes;
+}
+
 ProjectExplorerPlugin::ProjectExplorerPlugin()
 {
     m_instance = this;
@@ -725,6 +778,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Q_UNUSED(error)
 
     dd = new ProjectExplorerPluginPrivate;
+
+    dd->extendFolderNavigationWidgetFactory();
 
     qRegisterMetaType<ProjectExplorer::BuildSystem *>();
     qRegisterMetaType<ProjectExplorer::RunControl *>();
@@ -1377,7 +1432,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
 
     // add new file action
-    dd->m_addNewFileAction = new QAction(this);
+    dd->m_addNewFileAction = new QAction(tr("Add New..."), this);
     cmd = ActionManager::registerAction(dd->m_addNewFileAction, Constants::ADDNEWFILE,
                        projectTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -1446,7 +1501,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // remove file action
-    dd->m_removeFileAction = new QAction(this);
+    dd->m_removeFileAction = new QAction(tr("Remove..."), this);
     cmd = ActionManager::registerAction(dd->m_removeFileAction, Constants::REMOVEFILE,
                        projectTreeContext);
     cmd->setDefaultKeySequences({QKeySequence::Delete, QKeySequence::Backspace});
@@ -1472,7 +1527,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // renamefile action
-    dd->m_renameFileAction = new QAction(this);
+    dd->m_renameFileAction = new QAction(tr("Rename..."), this);
     cmd = ActionManager::registerAction(dd->m_renameFileAction, Constants::RENAMEFILE,
                        projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
@@ -2116,10 +2171,9 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     dd->m_documentFactory.setOpener([](FilePath filePath) {
         if (filePath.isDir()) {
-            const QStringList files =
-                FolderNavigationWidget::projectFilesInDirectory(filePath.absoluteFilePath().toString());
+            const FilePaths files = projectFilesInDirectory(filePath.absoluteFilePath());
             if (!files.isEmpty())
-                filePath = FilePath::fromString(files.front());
+                filePath = files.front();
         }
 
         OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
@@ -2876,11 +2930,76 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     return true;
 }
 
-//NBS handle case where there is no activeBuildConfiguration
-// because someone delete all build configurations
+ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() {}
 
-ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate()
+void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
 {
+    connect(&m_folderNavigationWidgetFactory,
+            &FolderNavigationWidgetFactory::aboutToShowContextMenu,
+            this,
+            [this](QMenu *menu, const FilePath &filePath, bool isDir) {
+                if (isDir) {
+                    QAction *actionOpenProjects = menu->addAction(
+                        ProjectExplorerPlugin::tr("Open Project in \"%1\"")
+                            .arg(filePath.toUserOutput()));
+                    connect(actionOpenProjects, &QAction::triggered, this, [filePath] {
+                        openProjectsInDirectory(filePath);
+                    });
+                    if (projectsInDirectory(filePath).isEmpty())
+                        actionOpenProjects->setEnabled(false);
+                } else if (ProjectExplorerPlugin::isProjectFile(filePath)) {
+                    QAction *actionOpenAsProject = menu->addAction(
+                        tr("Open Project \"%1\"").arg(filePath.toUserOutput()));
+                    connect(actionOpenAsProject, &QAction::triggered, this, [filePath] {
+                        ProjectExplorerPlugin::openProject(filePath);
+                    });
+                }
+            });
+    connect(&m_folderNavigationWidgetFactory,
+            &FolderNavigationWidgetFactory::fileRenamed,
+            this,
+            [](const FilePath &before, const FilePath &after) {
+                const QVector<FolderNode *> folderNodes = renamableFolderNodes(before, after);
+                QVector<FolderNode *> failedNodes;
+                for (FolderNode *folder : folderNodes) {
+                    if (!folder->renameFile(before, after))
+                        failedNodes.append(folder);
+                }
+                if (!failedNodes.isEmpty()) {
+                    const QString projects = projectNames(failedNodes).join(", ");
+                    const QString errorMessage
+                        = ProjectExplorerPlugin::tr(
+                              "The file \"%1\" was renamed to \"%2\", "
+                              "but the following projects could not be automatically changed: %3")
+                              .arg(before.toUserOutput(), after.toUserOutput(), projects);
+                    QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
+                        QMessageBox::warning(Core::ICore::dialogParent(),
+                                             ProjectExplorerPlugin::tr("Project Editing Failed"),
+                                             errorMessage);
+                    });
+                }
+            });
+    connect(&m_folderNavigationWidgetFactory,
+            &FolderNavigationWidgetFactory::aboutToRemoveFile,
+            this,
+            [](const FilePath &filePath) {
+                const QVector<FolderNode *> folderNodes = removableFolderNodes(filePath);
+                const QVector<FolderNode *> failedNodes
+                    = Utils::filtered(folderNodes, [filePath](FolderNode *folder) {
+                          return folder->removeFiles({filePath}) != RemovedFilesFromProject::Ok;
+                      });
+                if (!failedNodes.isEmpty()) {
+                    const QString projects = projectNames(failedNodes).join(", ");
+                    const QString errorMessage
+                        = tr("The following projects failed to automatically remove the file: %1")
+                              .arg(projects);
+                    QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
+                        QMessageBox::warning(Core::ICore::dialogParent(),
+                                             tr("Project Editing Failed"),
+                                             errorMessage);
+                    });
+                }
+            });
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
