@@ -109,6 +109,9 @@ def get_arguments():
     parser.add_argument('--zip-threads', help='Sets number of threads to use for 7z. Use "+" for turning threads on '
                         'without a specific number of threads. This is directly passed to the "-mmt" option of 7z.',
                         default='2')
+    parser.add_argument('--add-sanitize-flags', help="Sets flags for sanitizer compilation flags used in Debug builds",
+                        action='append', dest='sanitize_flags', default=[] )
+
     args = parser.parse_args()
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
 
@@ -184,6 +187,10 @@ def build_qtcreator(args, paths):
         cmake_args += ['-DIDE_REVISION=ON',
                        '-DIDE_REVISION_STR=' + ide_revision[:10],
                        '-DIDE_REVISION_URL=https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=' + ide_revision]
+
+    if not args.build_type.lower() == 'release' and args.sanitize_flags:
+        cmake_args += ['-DWITH_SANITIZE=ON',
+                       '-DSANITIZE_FLAGS=' + ",".join(args.sanitize_flags)]
 
     cmake_args += args.config_args
 

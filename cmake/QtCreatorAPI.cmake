@@ -299,6 +299,10 @@ function(add_qtc_library name)
 
   qtc_enable_separate_debug_info(${name} "${IDE_LIBRARY_PATH}")
 
+  if (WITH_SANITIZE)
+    qtc_enable_sanitize(${SANITIZE_FLAGS})
+  endif()
+
   if (NAMELINK_OPTION)
     install(TARGETS ${name}
       LIBRARY
@@ -455,6 +459,10 @@ function(add_qtc_plugin target_name)
 
   if (WITH_TESTS)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  endif()
+
+  if (WITH_SANITIZE)
+    qtc_enable_sanitize(${SANITIZE_FLAGS})
   endif()
 
   extend_qtc_target(${target_name}

@@ -154,6 +154,13 @@ function(qtc_enable_release_for_debug_configuration)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" PARENT_SCOPE)
 endfunction()
 
+function(qtc_enable_sanitize _sanitize_flags)
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=${_sanitize_flags}")
+  endif()
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" PARENT_SCOPE)
+endfunction()
+
 function(append_extra_translations target_name)
   if(NOT ARGN)
     return()

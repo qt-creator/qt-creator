@@ -56,6 +56,8 @@ def get_arguments():
                         action='append', dest='config_args', default=[])
     parser.add_argument('--with-docs', help='Build and install documentation.',
                         action='store_true', default=False)
+    parser.add_argument('--add-sanitize-flags', help="Sets flags for sanitizer compilation flags used in Debug builds",
+                        action='append', dest='sanitize_flags', default=[] )
     parser.add_argument('--deploy', help='Installs the "Dependencies" component of the plugin.',
                         action='store_true', default=False)
     parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
@@ -109,6 +111,10 @@ def build(args, paths):
         cmake_args += ['-DQTC_PLUGIN_REVISION=' + ide_revision]
         with open(os.path.join(paths.result, args.name + '.7z.git_sha'), 'w') as f:
             f.write(ide_revision)
+
+    if not args.build_type.lower() == 'release' and args.sanitize_flags:
+        cmake_args += ['-DWITH_SANITIZE=ON',
+                       '-DSANITIZE_FLAGS=' + ",".join(args.sanitize_flags)]
 
     cmake_args += args.config_args
     common.check_print_call(cmake_args + [paths.src], paths.build)
