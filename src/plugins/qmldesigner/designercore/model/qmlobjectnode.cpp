@@ -328,11 +328,11 @@ QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
 static void removeStateOperationsForChildren(const QmlObjectNode &node)
 {
     if (node.isValid()) {
-        foreach (QmlModelStateOperation stateOperation, node.allAffectingStatesOperations()) {
+        for (QmlModelStateOperation stateOperation : node.allAffectingStatesOperations()) {
             stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
         }
 
-        foreach (const QmlObjectNode &childNode, node.modelNode().directSubModelNodes()) {
+        for (const QmlObjectNode &childNode : node.modelNode().directSubModelNodes()) {
             removeStateOperationsForChildren(childNode);
         }
     }
