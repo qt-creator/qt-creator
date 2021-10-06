@@ -36,6 +36,7 @@ ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
         return;
     }
 
+    m_style.Language = clang::format::FormatStyle::LK_Cpp;
     const std::error_code error
         = clang::format::parseConfiguration(m_filePath.fileContents().toStdString(), &m_style);
     if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
@@ -72,7 +73,6 @@ void ClangFormatFile::setBasedOnStyle(QString styleName)
 
 QString ClangFormatFile::setStyle(QString style)
 {
-    m_style.Language = clang::format::FormatStyle::LK_Cpp;
     const std::error_code error = clang::format::parseConfiguration(style.toStdString(), &m_style);
     if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
         return QString::fromStdString(error.message());

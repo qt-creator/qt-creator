@@ -382,9 +382,6 @@ void ClangFormatConfigWidget::fillTable()
 
 void ClangFormatConfigWidget::saveChanges(QObject *sender)
 {
-    std::stringstream content;
-    content << "---";
-
     if (sender->objectName() == "BasedOnStyle") {
         const auto *basedOnStyle = m_checksWidget->findChild<QComboBox *>("BasedOnStyle");
         m_config->setBasedOnStyle(basedOnStyle->currentText());
