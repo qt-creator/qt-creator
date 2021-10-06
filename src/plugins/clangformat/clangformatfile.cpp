@@ -105,7 +105,7 @@ void ClangFormatFile::saveNewFormat()
 
     // workaround: configurationAsText() add comment "# " before BasedOnStyle line
     const int pos = style.find("# BasedOnStyle");
-    if (pos < style.size())
+    if (pos < int(style.size()))
         style.erase(pos, 2);
     m_filePath.writeFileContents(QByteArray::fromStdString(style));
 }

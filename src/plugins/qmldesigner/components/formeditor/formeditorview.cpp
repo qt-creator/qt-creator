@@ -344,6 +344,7 @@ void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractPro
 
 void FormEditorView::nodeSourceChanged(const ModelNode &node, const QString &newNodeSource)
 {
+    Q_UNUSED(newNodeSource)
     addOrRemoveFormEditorItem(node);
 }
 

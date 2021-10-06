@@ -650,9 +650,9 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
-        , moduleId{moduleId}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
+        , moduleId{moduleId}
         , changeLevel{changeLevel}
     {}
 
@@ -663,9 +663,9 @@ public:
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
-        , moduleId{moduleId}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
+        , moduleId{moduleId}
 
     {}
 
@@ -677,10 +677,10 @@ public:
                   int sourceId)
         : typeName{typeName}
         , prototype{NativeType{prototype}}
-        , moduleId{moduleId}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
+        , moduleId{moduleId}
     {}
 
     friend bool operator==(const Type &first, const Type &second) noexcept

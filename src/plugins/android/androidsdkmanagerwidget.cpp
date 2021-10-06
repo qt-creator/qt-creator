@@ -133,7 +133,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     m_ui->searchField->setPlaceholderText("Filter");
     connect(m_ui->searchField, &QLineEdit::textChanged, [this, proxyModel](const QString &text) {
-        const bool isExpanded = m_ui->expandCheck->isChecked();
         proxyModel->setAcceptedSearchPackage(text);
         m_sdkModel->resetSelection();
         // It is more convenient to expand the view with the results
@@ -513,7 +512,7 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
         }
     }
 
-    return showTopLevel || (packageState(srcIndex) & m_packageState) && packageFound(srcIndex);
+    return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
 }
 
 OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,

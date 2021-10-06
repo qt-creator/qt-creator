@@ -89,6 +89,7 @@ void MetaInfoReader::setQualifcation(const TypeName &qualification)
 
 void MetaInfoReader::elementStart(const QString &name, const QmlJS::SourceLocation &nameLocation)
 {
+    Q_UNUSED(nameLocation)
     switch (parserState()) {
     case ParsingDocument: setParserState(readDocument(name)); break;
     case ParsingMetaInfo: setParserState(readMetaInfoRootElement(name)); break;
@@ -133,6 +134,8 @@ void MetaInfoReader::propertyDefinition(const QString &name,
                         const QVariant &value,
                         const QmlJS::SourceLocation &valueLocation)
 {
+    Q_UNUSED(nameLocation)
+    Q_UNUSED(valueLocation)
     switch (parserState()) {
     case ParsingType: readTypeProperty(name, value); break;
     case ParsingImports: readImportsProperty(name, value); break;
