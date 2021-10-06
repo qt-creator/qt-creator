@@ -50,6 +50,7 @@ public:
     QList<QmlModelStateOperation> stateOperations(const ModelNode &node) const;
     QList<QmlPropertyChanges> propertyChanges() const;
     QList<QmlModelStateOperation> stateOperations() const;
+    QList<QmlModelStateOperation> allInvalidStateOperations() const;
 
     bool hasPropertyChanges(const ModelNode &node) const;
 

@@ -72,6 +72,7 @@ public:
     static bool isValidKeyframe(const ModelNode &node);
     static bool checkKeyframesType(const ModelNode &node);
     static QmlTimelineKeyframeGroup keyframeGroupForKeyframe(const ModelNode &node);
+    static QList<QmlTimelineKeyframeGroup> allInvalidTimelineKeyframeGroups(AbstractView *view);
 
     void moveAllKeyframes(qreal offset);
     void scaleAllKeyframes(qreal factor);
@@ -84,6 +85,8 @@ public:
     void toogleRecording(bool b) const;
 
     QmlTimeline timeline() const;
+
+    bool isDangling() const;
 };
 
 } // namespace QmlDesigner

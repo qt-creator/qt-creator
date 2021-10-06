@@ -34,6 +34,7 @@
 #include "qmlitemnode.h"
 #include "annotation.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -136,6 +137,12 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
     return returnList;
 }
 
+QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations() const
+{
+    return Utils::filtered(stateOperations(), [](const QmlModelStateOperation &operation) {
+        return !operation.target().isValid();
+    });
+}
 
 /*!
     Adds a change set for \a node to this state, but only if it does not

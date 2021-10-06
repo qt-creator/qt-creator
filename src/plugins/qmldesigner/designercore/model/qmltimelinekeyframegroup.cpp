@@ -153,6 +153,13 @@ QmlTimeline QmlTimelineKeyframeGroup::timeline() const
     return {};
 }
 
+bool QmlTimelineKeyframeGroup::isDangling() const
+{
+    QTC_ASSERT(isValid(), return false);
+
+    return !target().isValid() || keyframes().isEmpty();
+}
+
 void QmlTimelineKeyframeGroup::setValue(const QVariant &value, qreal currentFrame)
 {
     QTC_ASSERT(isValid(), return );
@@ -292,6 +299,22 @@ QmlTimelineKeyframeGroup QmlTimelineKeyframeGroup::keyframeGroupForKeyframe(cons
     }
 
     return QmlTimelineKeyframeGroup();
+}
+
+QList<QmlTimelineKeyframeGroup> QmlTimelineKeyframeGroup::allInvalidTimelineKeyframeGroups(AbstractView *view)
+{
+    QList<QmlTimelineKeyframeGroup> ret;
+
+    QTC_ASSERT(view, return ret);
+    QTC_ASSERT(view->model(), return ret);
+    QTC_ASSERT(view->rootModelNode().isValid(), return ret);
+
+    const auto groups = view->rootModelNode().subModelNodesOfType("QtQuick.Timeline.KeyframeGroup");
+    for (const QmlTimelineKeyframeGroup &group : groups) {
+        if (group.isDangling())
+            ret.append(group);
+    }
+    return ret;
 }
 
 void QmlTimelineKeyframeGroup::moveAllKeyframes(qreal offset)

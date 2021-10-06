@@ -523,6 +523,16 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
     return returnList;
 }
 
+QList<QmlModelStateOperation> QmlObjectNode::allInvalidStateOperations() const
+{
+    QList<QmlModelStateOperation> result;
+
+    const auto allStates =  allDefinedStates();
+    for (const auto &state : allStates)
+        result.append(state.allInvalidStateOperations());
+    return result;
+}
+
 
 /*!
     Removes a variant property of the object specified by \a name from the
