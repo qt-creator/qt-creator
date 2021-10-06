@@ -61,7 +61,7 @@
         \"        <!-- Find include guards of header files without extension, for\",
         \"             example, STL ones like <string>. Those can have a big initial\",
         \"             comment exceeding 1000 chars, though. -->\",
-        \"        <magic priority=\'50\'>\",
+        \"        <magic priority=\'40\'>\",
         \"            <match value=\'#ifndef \' type=\'string\' offset=\'0:2000\'/>\",
         \"            <match value=\'#if \' type=\'string\' offset=\'0:2000\'/>\",
         \"            <match value=\'#include \' type=\'string\' offset=\'0:2000\'/>\",
