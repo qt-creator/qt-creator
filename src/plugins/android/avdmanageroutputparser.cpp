@@ -134,10 +134,10 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
             }
         } else if (Utils::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
             // armeabi-v7a devices can also run armeabi code
-            if (avd->cpuAbi.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A))
-                avd->cpuAbi << ProjectExplorer::Constants::ANDROID_ABI_ARMEABI;
-            avd->state = AndroidDeviceInfo::OkState;
-            avd->type = AndroidDeviceInfo::Emulator;
+            if (avd->cpuAbi.contains(Constants::ANDROID_ABI_ARMEABI_V7A))
+                avd->cpuAbi << Constants::ANDROID_ABI_ARMEABI;
+            avd->state = IDevice::DeviceConnected;
+            avd->type = IDevice::Emulator;
             return AvdResult(*avd);
         } else {
             qCDebug(avdOutputParserLog) << "Avd Parsing: Parsing failed: " << avdInfo;

@@ -55,7 +55,6 @@ public:
     static QString displayNameFromInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);
-    static IDevice::DeviceState deviceStateFromInfo(AndroidDeviceInfo::State state);
 
     QStringList supportedAbis() const;
     bool canSupportAbis(const QStringList &abis) const;

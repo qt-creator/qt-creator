@@ -63,9 +63,9 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     "",
                                                     "512 MB",
                                                     -1,
-                                                    AndroidDeviceInfo::OkState,
+                                                    IDevice::DeviceConnected,
                                                     false,
-                                                    AndroidDeviceInfo::Emulator}})
+                                                    IDevice::Emulator}})
                          << QStringList();
 
     QTest::newRow("two") << "Available Android Virtual Devices:\n"
@@ -90,9 +90,9 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     "",
                                                     "512 MB",
                                                     -1,
-                                                    AndroidDeviceInfo::OkState,
+                                                    IDevice::DeviceConnected,
                                                     false,
-                                                    AndroidDeviceInfo::Emulator},
+                                                    IDevice::Emulator},
                                                    {"",
                                                     "TestTablet",
                                                     {"x86"},
@@ -101,9 +101,9 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     "",
                                                     "256 MB",
                                                     -1,
-                                                    AndroidDeviceInfo::OkState,
+                                                    IDevice::DeviceConnected,
                                                     false,
-                                                    AndroidDeviceInfo::Emulator}})
+                                                    IDevice::Emulator}})
                          << QStringList();
 }
 
