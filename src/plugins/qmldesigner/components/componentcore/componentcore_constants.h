@@ -223,6 +223,8 @@ const char addFontsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources"
 const char addSoundsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Sound Files");
 const char addShadersDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Shader Files");
 const char add3DAssetsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "3D Assets");
+const char addQt3DSPresentationsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources",
+                                                                    "Qt 3D Studio Presentations");
 
 const char addCustomEffectDialogDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Add Custom Effect");
 

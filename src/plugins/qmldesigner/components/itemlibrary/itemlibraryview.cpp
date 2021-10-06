@@ -240,9 +240,6 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
         DesignerActionManager *actionManager =
                  &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 
-        // All things importable by QSSGAssetImportManager are considered to be in the same category
-        // so we don't get multiple separate import dialogs when different file types are imported.
-
         if (!m_importableExtensions3DMap.isEmpty())
             actionManager->unregisterAddResourceHandlers(ComponentCoreConstants::add3DAssetsDisplayString);
 
@@ -253,22 +250,28 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
                                                               m_importableExtensions3DMap,
                                                               m_importOptions3DMap, {}, {},
                                                               Core::ICore::mainWindow());
-            importDlg->show();
+            importDlg->exec();
             return true;
         };
 
-        auto add3DHandler = [&](const QString &ext) {
+        auto add3DHandler = [&](const QString &group, const QString &ext) {
             const QString filter = QStringLiteral("*.%1").arg(ext);
             actionManager->registerAddResourceHandler(
-                        AddResourceHandler(ComponentCoreConstants::add3DAssetsDisplayString, filter,
+                        AddResourceHandler(group, filter,
                                            import3DModelOperation, 10));
+        };
+
+        const QHash<QString, QString> groupNames {
+            {"3D Scene",                  ComponentCoreConstants::add3DAssetsDisplayString},
+            {"Qt 3D Studio Presentation", ComponentCoreConstants::addQt3DSPresentationsDisplayString}
         };
 
         const auto groups = extMap.keys();
         for (const auto &group : groups) {
             const QStringList exts = extMap[group].toStringList();
+            const QString grp = groupNames.contains(group) ? groupNames.value(group) : group;
             for (const auto &ext : exts)
-                add3DHandler(ext);
+                add3DHandler(grp, ext);
         }
     }
 
