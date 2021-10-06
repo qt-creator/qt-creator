@@ -27,6 +27,7 @@ add_qtc_plugin(QmlDesigner
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
     generateresource.cpp generateresource.h
+    generatecmakelists.cpp generatecmakelists.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
     qmldesignerconstants.h
     qmldesignericons.h
