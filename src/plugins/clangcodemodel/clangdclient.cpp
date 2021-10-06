@@ -77,6 +77,7 @@
 
 #include <set>
 #include <unordered_map>
+#include <utility>
 
 using namespace CPlusPlus;
 using namespace Core;
@@ -934,7 +935,10 @@ public:
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
-    std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter> highlighters;
+
+    //  The highlighters are owned by their respective documents.
+    std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
+
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
     TaskTimer highlightingTimer{"highlighting"};
@@ -2400,12 +2404,13 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
         auto it = highlighters.find(doc);
         if (it == highlighters.end()) {
-            it = highlighters.emplace(doc, doc).first;
+            it = highlighters.insert(std::make_pair(doc, new CppEditor::SemanticHighlighter(doc)))
+                    .first;
         } else {
-            it->second.updateFormatMapFromFontSettings();
+            it->second->updateFormatMapFromFontSettings();
         }
-        it->second.setHighlightingRunner(runner);
-        it->second.run();
+        it->second->setHighlightingRunner(runner);
+        it->second->run();
     };
     getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
