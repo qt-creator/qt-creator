@@ -236,7 +236,7 @@ static QString displayText(const QString &line)
     QString result = line;
     auto end = result.end();
     for (auto it = result.begin(); it != end; ++it) {
-        if (!it->isPrint())
+        if (!it->isSpace() && !it->isPrint())
             *it = QChar('?');
     }
     return result;
