@@ -70,12 +70,9 @@
 
 namespace QmlDesigner {
 
-static int deleteKey()
+static bool isDeleteKey(int key)
 {
-    if (Utils::HostOsInfo::isMacHost())
-        return Qt::Key_Backspace;
-
-    return Qt::Key_Delete;
+    return (key == Qt::Key_Backspace) | (key == Qt::Key_Delete);
 }
 
 QList<QmlTimelineKeyframeGroup> allTimelineFrames(const QmlTimeline &timeline)
@@ -674,7 +671,7 @@ void TimelineGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
         return;
     }
 
-    if (deleteKey() == keyEvent->key())
+    if (isDeleteKey(keyEvent->key()))
         handleKeyframeDeletion();
 
     QGraphicsScene::keyReleaseEvent(keyEvent);
@@ -838,7 +835,7 @@ bool TimelineGraphicsScene::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent *>(event)->key() == deleteKey()) {
+        if (isDeleteKey(static_cast<QKeyEvent *>(event)->key())) {
             QGraphicsScene::keyPressEvent(static_cast<QKeyEvent *>(event));
             event->accept();
             return true;
