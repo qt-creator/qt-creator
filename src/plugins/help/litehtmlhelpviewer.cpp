@@ -235,8 +235,10 @@ bool LiteHtmlHelpViewer::eventFilter(QObject *src, QEvent *e)
 {
     if (isScrollWheelZoomingEnabled() && e->type() == QEvent::Wheel) {
         auto we = static_cast<QWheelEvent *>(e);
-        if (we->modifiers() == Qt::ControlModifier)
+        if (we->modifiers() == Qt::ControlModifier) {
+            e->ignore();
             return true;
+        }
     }
     return HelpViewer::eventFilter(src, e);
 }
