@@ -203,6 +203,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
     QtcProcess proc;
     proc.setTimeoutS(5);
+    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     proc.setCommand(command);
     proc.runBlocking();
     return proc.result() == QtcProcess::FinishedWithSuccess;
