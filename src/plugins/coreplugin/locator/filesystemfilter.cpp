@@ -176,8 +176,9 @@ void FileSystemFilter::accept(LocatorFilterEntry selection,
 {
     Q_UNUSED(selectionLength)
     if (selection.filePath.isDir()) {
-        const QString value = shortcutString() + ' '
-                + selection.filePath.absoluteFilePath().toUserOutput() + '/';
+        const QString value
+            = shortcutString() + ' '
+              + selection.filePath.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
         *newText = value;
         *selectionStart = value.length();
     } else {
