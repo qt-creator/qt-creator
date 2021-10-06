@@ -39,6 +39,8 @@
 #include <modelnodepositionstorage.h>
 #include <modelnode.h>
 #include <nodeproperty.h>
+#include <qmlobjectnode.h>
+#include <qmltimelinekeyframegroup.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -57,6 +59,7 @@
 
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 using namespace QmlDesigner::Internal;
 
@@ -656,6 +659,36 @@ QString RewriterView::auxiliaryDataAsQML() const
 ModelNode RewriterView::getNodeForCanonicalIndex(int index)
 {
     return m_canonicalIntModelNode.value(index);
+}
+
+void RewriterView::sanitizeModel()
+{
+    if (inErrorState())
+        return;
+
+    QmlObjectNode root = rootModelNode();
+
+    QTC_ASSERT(root.isValid(), return);
+
+    QList<ModelNode> danglingNodes;
+
+    const auto danglingStates = root.allInvalidStateOperations();
+    const auto danglingKeyframeGroups =  QmlTimelineKeyframeGroup::allInvalidTimelineKeyframeGroups(this);
+
+    std::transform(danglingStates.begin(),
+                   danglingStates.end(),
+                   std::back_inserter(danglingNodes),
+                   [](const auto &node) { return node.modelNode(); });
+
+    std::transform(danglingKeyframeGroups.begin(),
+                   danglingKeyframeGroups.end(),
+                   std::back_inserter(danglingNodes),
+                   [](const auto &node) { return node.modelNode(); });
+
+    executeInTransaction("RewriterView::sanitizeModel", [&]() {
+        for (auto node : std::as_const(danglingNodes))
+            node.destroy();
+    });
 }
 
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
