@@ -585,15 +585,10 @@ FilePath AndroidConfig::keytoolPath() const
 
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 {
-    return connectedDevices(adbToolPath(), error);
-}
-
-QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbToolPath, QString *error)
-{
     QVector<AndroidDeviceInfo> devices;
     QtcProcess adbProc;
     adbProc.setTimeoutS(30);
-    CommandLine cmd{adbToolPath, {"devices"}};
+    CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
     if (adbProc.result() != QtcProcess::FinishedWithSuccess) {
@@ -619,8 +614,8 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
         AndroidDeviceInfo dev;
         dev.serialNumber = serialNo;
         dev.type = serialNo.startsWith(QLatin1String("emulator")) ? AndroidDeviceInfo::Emulator : AndroidDeviceInfo::Hardware;
-        dev.sdk = getSDKVersion(adbToolPath, dev.serialNumber);
-        dev.cpuAbi = getAbis(adbToolPath, dev.serialNumber);
+        dev.sdk = getSDKVersion(dev.serialNumber);
+        dev.cpuAbi = getAbis(dev.serialNumber);
         if (deviceType == QLatin1String("unauthorized"))
             dev.state = AndroidDeviceInfo::UnAuthorizedState;
         else if (deviceType == QLatin1String("offline"))
@@ -655,10 +650,11 @@ bool AndroidConfig::isConnected(const QString &serialNumber) const
     return false;
 }
 
-QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QString &device, const QString &property)
+QString AndroidConfig::getDeviceProperty(const QString &device, const QString &property)
 {
     // workaround for '????????????' serial numbers
-    CommandLine cmd(adbToolPath, AndroidDeviceInfo::adbSelector(device));
+    CommandLine cmd(AndroidConfigurations::currentConfig().adbToolPath(),
+                    AndroidDeviceInfo::adbSelector(device));
     cmd.addArgs({"shell", "getprop", property});
 
     QtcProcess adbProc;
@@ -671,9 +667,9 @@ QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QStr
     return adbProc.allOutput();
 }
 
-int AndroidConfig::getSDKVersion(const FilePath &adbToolPath, const QString &device)
+int AndroidConfig::getSDKVersion(const QString &device)
 {
-    QString tmp = getDeviceProperty(adbToolPath, device, "ro.build.version.sdk");
+    QString tmp = getDeviceProperty(device, "ro.build.version.sdk");
     if (tmp.isEmpty())
         return -1;
     return tmp.trimmed().toInt();
@@ -786,7 +782,7 @@ QString AndroidConfig::getProductModel(const QString &device) const
     if (m_serialNumberToDeviceName.contains(device))
         return m_serialNumberToDeviceName.value(device);
 
-    QString model = getDeviceProperty(adbToolPath(), device, "ro.product.model").trimmed();
+    QString model = getDeviceProperty(device, "ro.product.model").trimmed();
     if (model.isEmpty())
         return device;
 
@@ -795,15 +791,16 @@ QString AndroidConfig::getProductModel(const QString &device) const
     return model;
 }
 
-QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &device)
+QStringList AndroidConfig::getAbis(const QString &device)
 {
+    const FilePath adbTool = AndroidConfigurations::currentConfig().adbToolPath();
     QStringList result;
     // First try via ro.product.cpu.abilist
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
     QtcProcess adbProc;
     adbProc.setTimeoutS(10);
-    adbProc.setCommand({adbToolPath, arguments});
+    adbProc.setCommand({adbTool, arguments});
     adbProc.runBlocking();
     if (adbProc.result() != QtcProcess::FinishedWithSuccess)
         return result;
@@ -826,7 +823,7 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
 
         QtcProcess abiProc;
         abiProc.setTimeoutS(10);
-        abiProc.setCommand({adbToolPath, arguments});
+        abiProc.setCommand({adbTool, arguments});
         abiProc.runBlocking();
         if (abiProc.result() != QtcProcess::FinishedWithSuccess)
             return result;
