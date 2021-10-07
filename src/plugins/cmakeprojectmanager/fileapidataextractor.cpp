@@ -653,9 +653,16 @@ std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
 
 void setupLocationInfoForTargets(CMakeProjectNode *rootNode, const QList<CMakeBuildTarget> &targets)
 {
+    const QSet<QString> titles = Utils::transform<QSet>(targets, &CMakeBuildTarget::title);
+    QHash<QString, FolderNode *> buildKeyToNode;
+    rootNode->forEachGenericNode([&buildKeyToNode, &titles](Node *node) {
+        FolderNode *folderNode = node->asFolderNode();
+        const QString &buildKey = node->buildKey();
+        if (folderNode && titles.contains(buildKey))
+            buildKeyToNode.insert(buildKey, folderNode);
+    });
     for (const CMakeBuildTarget &t : targets) {
-        FolderNode *folderNode = static_cast<FolderNode *>(
-            rootNode->findNode(Utils::equal(&Node::buildKey, t.title)));
+        FolderNode *folderNode = buildKeyToNode.value(t.title);
         if (folderNode) {
             QSet<std::pair<FilePath, int>> locations;
             auto dedup = [&locations](const Backtrace &bt) {
