@@ -316,14 +316,6 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
     return path;
 }
 
-static AstNode getAstNode(const AstNode &root, const Range &range)
-{
-    const QList<AstNode> path = getAstPath(root, range);
-    if (!path.isEmpty())
-        return path.last();
-    return {};
-}
-
 static Usage::Type getUsageType(const QList<AstNode> &path)
 {
     bool potentialWrite = false;
@@ -926,7 +918,7 @@ public:
     using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
     using AstHandler = const std::function<void(const AstNode &ast, const MessageId &)>;
     MessageId getAndHandleAst(TextDocOrFile &doc, AstHandler &astHandler,
-                              AstCallbackMode callbackMode);
+                              AstCallbackMode callbackMode, const Range &range = {});
 
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
@@ -1571,16 +1563,16 @@ void ClangdClient::followSymbol(TextDocument *document,
         return;
     }
 
-    const auto astHandler = [this, id = d->followSymbolData->id, range = Range(cursor)]
+    const auto astHandler = [this, id = d->followSymbolData->id]
             (const AstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for cursor";
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
-        d->followSymbolData->cursorNode = getAstNode(ast, range);
+        d->followSymbolData->cursorNode = ast;
         if (d->followSymbolData->defLink.hasValidTarget())
             d->handleGotoDefinitionResult();
     };
-    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::SyncIfPossible);
+    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::AlwaysAsync, Range(cursor));
 }
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
@@ -2030,18 +2022,19 @@ void ClangdClient::Private::handleGotoImplementationResult(
                                               : TextDocOrFile(defLinkFilePath);
     const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
                               followSymbolData->defLink.targetColumn);
-    const auto astHandler = [this, range = Range(defLinkPos, defLinkPos), id = followSymbolData->id]
+    const auto astHandler = [this, id = followSymbolData->id]
             (const AstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for def link";
         if (!followSymbolData || followSymbolData->id != id)
             return;
-        followSymbolData->defLinkNode = getAstNode(ast, range);
+        followSymbolData->defLinkNode = ast;
         if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
                 && followSymbolData->pendingGotoDefRequests.isEmpty()) {
             handleDocumentInfoResults();
         }
     };
-    getAndHandleAst(defLinkDocVariant, astHandler, AstCallbackMode::SyncIfPossible);
+    getAndHandleAst(defLinkDocVariant, astHandler, AstCallbackMode::AlwaysAsync,
+                    Range(defLinkPos, defLinkPos));
 }
 
 void ClangdClient::Private::handleDocumentInfoResults()
@@ -2727,26 +2720,30 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
                                                  const AstHandler &astHandler,
-                                                 AstCallbackMode callbackMode)
+                                                 AstCallbackMode callbackMode, const Range &range)
 {
     const auto textDocPtr = Utils::get_if<const TextDocument *>(&doc);
     const TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
     const Utils::FilePath filePath = textDoc ? textDoc->filePath()
                                              : Utils::get<Utils::FilePath>(doc);
 
-    // If the document's AST is in the cache and is up to date, call the handler.
-    if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
-        qCDebug(clangdLog) << "using AST from cache";
-        switch (callbackMode) {
-        case AstCallbackMode::SyncIfPossible:
-            astHandler(*ast, {});
-            break;
-        case AstCallbackMode::AlwaysAsync:
-            QMetaObject::invokeMethod(q, [ast, astHandler] { astHandler(*ast, {}); },
+    // If the entire AST is requested and the document's AST is in the cache and it is up to date,
+    // call the handler.
+    const bool fullAstRequested = !range.isValid();
+    if (fullAstRequested) {
+        if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
+            qCDebug(clangdLog) << "using AST from cache";
+            switch (callbackMode) {
+            case AstCallbackMode::SyncIfPossible:
+                astHandler(*ast, {});
+                break;
+            case AstCallbackMode::AlwaysAsync:
+                QMetaObject::invokeMethod(q, [ast, astHandler] { astHandler(*ast, {}); },
                                       Qt::QueuedConnection);
-            break;
+                break;
+            }
+            return {};
         }
-        return {};
     }
 
     // Otherwise retrieve the AST from clangd.
@@ -2754,7 +2751,6 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
     class AstParams : public JsonObject
     {
     public:
-        AstParams() {}
         AstParams(const TextDocumentIdentifier &document, const Range &range = {})
         {
             setTextDocument(document);
@@ -2784,19 +2780,22 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
         explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
     };
 
-    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath))));
+    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)),
+                                 range));
     request.setResponseCallback([this, filePath, guardedTextDoc = QPointer(textDoc), astHandler,
-                                docRev = textDoc ? getRevision(textDoc) : -1,
+                                fullAstRequested, docRev = textDoc ? getRevision(textDoc) : -1,
                                 fileRev = getRevision(filePath), reqId = request.id()]
                                 (AstRequest::Response response) {
         qCDebug(clangdLog) << "retrieved AST from clangd";
         const auto result = response.result();
         const AstNode ast = result ? *result : AstNode();
-        if (guardedTextDoc) {
-            if (docRev == getRevision(guardedTextDoc))
-                astCache.insert(guardedTextDoc, ast);
-        } else if (fileRev == getRevision(filePath) && !q->documentForFilePath(filePath)) {
-            externalAstCache.insert(filePath, ast);
+        if (fullAstRequested) {
+            if (guardedTextDoc) {
+                if (docRev == getRevision(guardedTextDoc))
+                    astCache.insert(guardedTextDoc, ast);
+            } else if (fileRev == getRevision(filePath) && !q->documentForFilePath(filePath)) {
+                externalAstCache.insert(filePath, ast);
+            }
         }
         astHandler(ast, reqId);
     });
