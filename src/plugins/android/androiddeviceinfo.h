@@ -46,10 +46,8 @@ public:
     QString avdDevice;
     QString avdSkin;
     QString avdSdcardSize;
-
     int sdk = -1;
     IDevice::DeviceState state = IDevice::DeviceDisconnected;
-    bool unauthorized = false;
     IDevice::MachineType type = IDevice::Emulator;
 
     static QStringList adbSelector(const QString &serialNumber);

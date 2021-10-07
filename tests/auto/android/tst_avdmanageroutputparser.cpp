@@ -64,7 +64,6 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     "512 MB",
                                                     -1,
                                                     IDevice::DeviceConnected,
-                                                    false,
                                                     IDevice::Emulator}})
                          << QStringList();
 
@@ -91,7 +90,6 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     "512 MB",
                                                     -1,
                                                     IDevice::DeviceConnected,
-                                                    false,
                                                     IDevice::Emulator},
                                                    {"",
                                                     "TestTablet",
@@ -102,7 +100,6 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     "256 MB",
                                                     -1,
                                                     IDevice::DeviceConnected,
-                                                    false,
                                                     IDevice::Emulator}})
                          << QStringList();
 }

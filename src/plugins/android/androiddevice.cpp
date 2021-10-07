@@ -99,6 +99,12 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     const auto osString = QString("%1 (SDK %2)").arg(dev->androidVersion()).arg(dev->sdkLevel());
     formLayout->addRow(AndroidDevice::tr("OS version:"), new QLabel(osString));
 
+    if (dev->machineType() == IDevice::Hardware) {
+        const QString authorizedStr = dev->deviceState() == IDevice::DeviceReadyToUse ? tr("Yes")
+                                                                                      : tr("No");
+        formLayout->addRow(AndroidDevice::tr("Authorized:"), new QLabel(authorizedStr));
+    }
+
     if (dev->machineType() == IDevice::Emulator) {
         const QString targetName = dev->androidTargetName();
         formLayout->addRow(AndroidDevice::tr("Android target flavor:"), new QLabel(targetName));
