@@ -24,6 +24,7 @@ Editing
 
 ### C++
 
+* Updated to LLVM 13
 * Added completion and function hint to `clangd` support
 * Added option for saving open files automatically after refactoring
   (QTCREATORBUG-25924)
@@ -35,6 +36,11 @@ Editing
 
 * Improved wizards for Qt 6.2 (QTCREATORBUG-26170)
 * Simplified wizards
+
+### Language Server Protocol
+
+* Added support for `activeParameter` of signature information
+  (QTCREATORBUG-26346)
 
 Projects
 --------
@@ -56,7 +62,13 @@ Projects
   `Issues` pane (QTCREATORBUG-26231)
 * Fixed header file handling when mentioned in target sources
   (QTCREATORBUG-23783, QTCREATORBUG-23843, QTCREATORBUG-26201,
-  QTCREATORBUG-26238)
+  QTCREATORBUG-26238, QTCREATORBUG-21452, QTCREATORBUG-25644,
+  QTCREATORBUG-25782)
+* Fixed that generated files were selected for analyzing (QTCREATORBUG-25125)
+
+### qmake
+
+* Fixed crash when canceling parsing (QTCREATORBUG-26333)
 
 Version Control Systems
 -----------------------
@@ -87,6 +99,7 @@ Platforms
 * Removed device selection dialog in favor of device selection in target
   selector (QTCREATORBUG-23991)
 * Added details to device settings (QTCREATORBUG-23991)
+* Added filter field for Android SDK manager
 
 ### Docker
 
@@ -103,6 +116,7 @@ André Pönitz
 Artem Sokolovskii  
 Artur Shepilko  
 Assam Boudjelthia  
+Christiaan Janssen  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
@@ -112,14 +126,17 @@ Fawzi Mohamed
 Henning Gruendl  
 Ihor Dutchak  
 Jaroslaw Kobus  
+Johanna Vanhatapio  
 Jonas Karlsson  
 Kai Köhne  
 Kama Wójcik  
+Knud Dollereder  
 Li Xi  
 Loren Burkholder  
 Mahmoud Badri  
 Marco Bubke  
 Martin Kampas  
+Miikka Heikkinen  
 Miina Puuronen  
 Orgad Shaneh  
 Petar Perisin  
@@ -129,6 +146,7 @@ Shantanu Tushar
 Tasuku Suzuki  
 Thiago Macieira  
 Thomas Hartmann  
+Tim Jenssen  
 Tony Leinonen  
 Tor Arne Vestbø  
 Vladimir Serdyuk  
