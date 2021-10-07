@@ -238,12 +238,15 @@ void KitManager::restoreKits()
     kitsToCheck.clear();
 
     // Remove replacement kits for which the original kit has turned up again.
-    Utils::erase(resultList, [&resultList](const std::unique_ptr<Kit> &k) {
-        return k->isReplacementKit()
-               && contains(resultList, [&k](const std::unique_ptr<Kit> &other) {
-                      return other->id() == k->id() && other != k;
-                  });
-    });
+    for (auto it = resultList.begin(); it != resultList.end();) {
+        const auto &k = *it;
+        if (k->isReplacementKit() && contains(resultList, [&k](const std::unique_ptr<Kit> &other) {
+                                              return other->id() == k->id() && other != k; })) {
+            it = resultList.erase(it);
+        } else {
+            ++it;
+        }
+    }
 
     static const auto kitMatchesAbiList = [](const Kit *kit, const Abis &abis) {
         const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
