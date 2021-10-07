@@ -885,7 +885,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     QTC_ASSERT(kit, return);
 
     m_runParameters.sysRoot = SysRootKitAspect::sysRoot(kit);
-    m_runParameters.macroExpander = kit->macroExpander();
+    m_runParameters.macroExpander = runControl->macroExpander();
     m_runParameters.debugger = DebuggerKitAspect::runnable(kit);
     m_runParameters.cppEngineType = DebuggerKitAspect::engineType(kit);
 
