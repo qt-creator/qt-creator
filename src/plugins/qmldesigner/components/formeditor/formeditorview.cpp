@@ -339,26 +339,12 @@ static inline bool hasNodeSourceParent(const ModelNode &node)
 
 void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    // If node is not connected to scene root, don't do anything yet to avoid duplicated effort,
-    // as any removal or addition will remove or add descendants as well.
-    if (!node.isInHierarchy())
-        return;
+    addOrRemoveFormEditorItem(node);
+}
 
-    QmlItemNode itemNode(node);
-    if (hasNodeSourceParent(node)) {
-        if (FormEditorItem *item = m_scene->itemForQmlItemNode(itemNode)) {
-            QList<FormEditorItem *> removed = scene()->itemsForQmlItemNodes(itemNode.allSubModelNodes());
-            removed.append(item);
-            m_currentTool->itemsAboutToRemoved(removed);
-            removeNodeFromScene(itemNode);
-        }
-    } else if (itemNode.isValid() && node.nodeSourceType() == ModelNode::NodeWithoutSource) {
-        if (!m_scene->itemForQmlItemNode(itemNode)) {
-            setupFormEditorItemTree(itemNode);
-            // Simulate selection change to refresh tools
-            selectedNodesChanged(selectedModelNodes(), {});
-        }
-    }
+void FormEditorView::nodeSourceChanged(const ModelNode &node, const QString &newNodeSource)
+{
+    addOrRemoveFormEditorItem(node);
 }
 
 WidgetInfo FormEditorView::widgetInfo()
@@ -861,6 +847,38 @@ void FormEditorView::resetNodeInstanceView()
 {
     setCurrentStateNode(rootModelNode());
     resetPuppet();
+}
+
+void FormEditorView::addOrRemoveFormEditorItem(const ModelNode &node)
+{
+    // If node is not connected to scene root, don't do anything yet to avoid duplicated effort,
+    // as any removal or addition will remove or add descendants as well.
+    if (!node.isInHierarchy())
+        return;
+
+    QmlItemNode itemNode(node);
+
+    auto removeItemFromScene = [this, &itemNode]() {
+        if (FormEditorItem *item = m_scene->itemForQmlItemNode(itemNode)) {
+            QList<FormEditorItem *> removed = scene()->itemsForQmlItemNodes(itemNode.allSubModelNodes());
+            removed.append(item);
+            m_currentTool->itemsAboutToRemoved(removed);
+            removeNodeFromScene(itemNode);
+        }
+    };
+    if (hasNodeSourceParent(node)) {
+        removeItemFromScene();
+    } else if (itemNode.isValid()) {
+        if (node.nodeSourceType() == ModelNode::NodeWithoutSource) {
+            if (!m_scene->itemForQmlItemNode(itemNode)) {
+                setupFormEditorItemTree(itemNode);
+                // Simulate selection change to refresh tools
+                selectedNodesChanged(selectedModelNodes(), {});
+            }
+        } else {
+            removeItemFromScene();
+        }
+    }
 }
 
 void FormEditorView::reset()
