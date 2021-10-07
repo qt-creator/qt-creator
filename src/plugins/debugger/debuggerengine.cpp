@@ -1891,7 +1891,7 @@ QString DebuggerEngine::nativeStartupCommands() const
         return !trimmed.isEmpty() && !trimmed.startsWith('#');
     });
 
-    return lines.join('\n');
+    return expand(lines.join('\n'));
 }
 
 Perspective *DebuggerEngine::perspective() const
