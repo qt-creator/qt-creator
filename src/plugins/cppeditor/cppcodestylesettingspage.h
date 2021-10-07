@@ -56,6 +56,7 @@ public:
     ~CppCodeStylePreferencesWidget() override;
 
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
+    void addTab(QWidget *page, QString tabName);
 
 private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);

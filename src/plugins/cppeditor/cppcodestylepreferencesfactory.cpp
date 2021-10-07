@@ -104,6 +104,12 @@ QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePref
     if (!cppPreferences)
         return nullptr;
     auto widget = new Internal::CppCodeStylePreferencesWidget(parent);
+
+    const auto tab = additionalTab(parent);
+    if (tab.first) {
+        widget->addTab(tab.first, tab.second);
+    }
+
     widget->layout()->setContentsMargins(0, 0, 0, 0);
     widget->setCodeStyle(cppPreferences);
     return widget;
@@ -122,6 +128,12 @@ QString CppCodeStylePreferencesFactory::snippetProviderGroupId() const
 QString CppCodeStylePreferencesFactory::previewText() const
 {
     return QLatin1String(defaultPreviewText);
+}
+
+std::pair<QWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(QWidget *parent) const
+{
+    Q_UNUSED(parent)
+    return {nullptr, ""};
 }
 
 } // namespace CppEditor

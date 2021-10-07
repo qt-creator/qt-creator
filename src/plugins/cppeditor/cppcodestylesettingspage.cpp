@@ -337,6 +337,10 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
     }
 }
 
+void CppCodeStylePreferencesWidget::addTab(QWidget *page, QString tabName)
+{
+    m_ui->categoryTab->addTab(page, tabName);
+}
 
 // ------------------ CppCodeStyleSettingsPage
 

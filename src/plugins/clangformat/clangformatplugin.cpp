@@ -75,24 +75,18 @@ namespace ClangFormat {
 
 class ClangFormatStyleFactory : public CppEditor::CppCodeStylePreferencesFactory
 {
+    Q_DECLARE_TR_FUNCTIONS(ClangFormatStyleFactory)
 public:
-    TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
-        TextEditor::ICodeStylePreferences *preferences, QWidget *parent) override
-    {
-        Q_UNUSED(preferences);
-        if (!parent)
-            return new ClangFormatConfigWidget;
-        return new ClangFormatConfigWidget(SessionManager::startupProject());
-    }
-
-    QWidget *createEditor(TextEditor::ICodeStylePreferences *, QWidget *) const override
-    {
-        return nullptr;
-    }
-
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override
     {
         return new ClangFormatIndenter(doc);
+    }
+
+    std::pair<QWidget *, QString> additionalTab(QWidget *parent) const override
+    {
+        if (!parent)
+            return {new ClangFormatConfigWidget(),  tr("ClangFormat")};
+        return {new ClangFormatConfigWidget(SessionManager::startupProject()), tr("ClangFormat")};
     }
 };
 
