@@ -28,9 +28,10 @@
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
-#include <cppeditor/cppprojectfilecategorizer.h>
+#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -336,16 +337,6 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
     int counter = 0;
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
-
-        // Do not tread generated files and CMake precompiled headers as project files
-        const auto sourceFiles = Utils::filtered(t.sources, [buildDirectory](const SourceInfo &si) {
-            return !si.isGenerated && !isPchFile(buildDirectory, FilePath::fromString(si.path));
-        });
-        CppEditor::ProjectFileCategorizer
-            categorizer({}, transform<QList>(sourceFiles, [&sourceDir](const SourceInfo &si) {
-                            return sourceDir.absoluteFilePath(si.path);
-                        }));
-
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
         for (const CompileInfo &ci : t.compileGroups) {
@@ -387,20 +378,45 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
 
             QStringList fragments = splitFragments(ci.fragments);
 
+            // Get all sources from the compiler group, except generated sources
+            QStringList sources;
+            for (auto idx: ci.sources) {
+                SourceInfo si = t.sources.at(idx);
+                if (si.isGenerated)
+                    continue;
+                sources.push_back(sourceDir.absoluteFilePath(si.path));
+            }
+
+            // If we are not in a pch compiler group, add all the headers that are not generated
+            const bool hasPchSource = anyOf(sources, [buildDirectory](const QString &path) {
+                return isPchFile(buildDirectory, FilePath::fromString(path));
+            });
+            if (!hasPchSource) {
+                QString headerMimeType;
+                if (ci.language == "C")
+                    headerMimeType = CppEditor::Constants::C_HEADER_MIMETYPE;
+                else if (ci.language == "CXX")
+                    headerMimeType = CppEditor::Constants::CPP_HEADER_MIMETYPE;
+
+                for (const SourceInfo &si : t.sources) {
+                    if (si.isGenerated)
+                        continue;
+                    const auto mimeTypes = Utils::mimeTypesForFileName(si.path);
+                    for (auto mime : mimeTypes)
+                        if (mime.name() == headerMimeType)
+                            sources.push_back(sourceDir.absoluteFilePath(si.path));
+                }
+            }
+
+            // Set project files except pch files
+            rpp.setFiles(Utils::filtered(sources, [buildDirectory](const QString &path) {
+                return !isPchFile(buildDirectory, FilePath::fromString(path));
+            }));
+
             FilePath precompiled_header
                 = FilePath::fromString(findOrDefault(t.sources, [&ending](const SourceInfo &si) {
                                            return si.path.endsWith(ending);
                                        }).path);
-
-            CppEditor::ProjectFiles sources;
-            if (ci.language == "C")
-                sources = categorizer.cSources();
-            else if (ci.language == "CXX")
-                sources = categorizer.cxxSources();
-
-            rpp.setFiles(transform<QList>(sources, [](const CppEditor::ProjectFile &pf) {
-                return pf.path;
-            }));
             if (!precompiled_header.isEmpty()) {
                 if (precompiled_header.toFileInfo().isRelative()) {
                     const FilePath parentDir = FilePath::fromString(sourceDir.absolutePath());
