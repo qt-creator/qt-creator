@@ -60,7 +60,7 @@
         \li More Information
 
     \row
-        \li \inlineimage spot.png
+        \li \inlineimage directional.png
         \li Directional Light
         \li
         \li \l{DirectionalLight}{Light Directional}

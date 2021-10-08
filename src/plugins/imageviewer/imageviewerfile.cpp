@@ -126,7 +126,15 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
         m_type = TypeMovie;
         m_movie = new QMovie(fileName, QByteArray(), this);
         m_movie->setCacheMode(QMovie::CacheAll);
-        connect(m_movie, &QMovie::finished, m_movie, &QMovie::start);
+        connect(
+            m_movie,
+            &QMovie::finished,
+            m_movie,
+            [this] {
+                if (m_movie->isValid())
+                    m_movie->start();
+            },
+            Qt::QueuedConnection);
         connect(m_movie, &QMovie::resized, this, &ImageViewerFile::imageSizeChanged);
         m_movie->start();
         m_isPaused = false; // force update
