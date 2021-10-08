@@ -595,9 +595,20 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
                 const FilePath &sourceDir,
                 const FilePath &buildDir)
 {
+    QHash<QString, const TargetDetails *> targetDetailsHash;
+    for (const TargetDetails &t : targetDetails)
+        targetDetailsHash.insert(t.id, &t);
+    const TargetDetails defaultTargetDetails;
+    auto getTargetDetails = [&targetDetailsHash, &defaultTargetDetails](const QString &id)
+            -> const TargetDetails & {
+        auto it = targetDetailsHash.constFind(id);
+        if (it != targetDetailsHash.constEnd())
+            return *it.value();
+        return defaultTargetDetails;
+    };
+
     for (const FileApiDetails::Target &t : config.targets) {
-        const TargetDetails &td = Utils::findOrDefault(targetDetails,
-                                                       Utils::equal(&TargetDetails::id, t.id));
+        const TargetDetails &td = getTargetDetails(t.id);
 
         const FilePath dir = directorySourceDir(config, sourceDir, t.directory);
 
