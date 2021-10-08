@@ -130,6 +130,7 @@ protected:
     double x() const;
     double y() const;
     bool checkIfRefFromEffect(qint32 id);
+    void markRepeaterParentDirty() const;
 
 private: //variables
     QPointer<QQuickItem> m_contentItem;
