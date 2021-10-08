@@ -62,6 +62,7 @@ public:
     bool canBeDroppedInView3D() const;
     bool isMovable() const;
     bool isResizable() const;
+    bool hasFormEditorItem() const;
     bool isStackedContainer() const;
     bool canBeReparentedTo(const ModelNode &potenialParent);
     QString indexPropertyForStackedContainer() const;

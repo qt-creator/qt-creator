@@ -4433,7 +4433,11 @@ namespace qvariant {
         // FIXME: Known to break
         //QString type = var.typeName();
         var.setValue(my);
+#if QT_VERSION >= 0x051500
+        const char *name = QMetaType(var.userType()).name();
+#else
         const char *name = QMetaType::typeName(var.userType());
+#endif
         BREAK_HERE;
         // Expand my my.0 my.0.value my.1 my.1.value var var.data var.data.0 var.data.0.value var.data.1 var.data.1.value.
         // Check my <2 items> qvariant::MyType.
@@ -4706,6 +4710,7 @@ namespace noargs {
     {
     public:
        Goo(const QString &str, const int n) : str_(str), n_(n) {}
+       int n() {return n_;}
     private:
        QString str_;
        int n_;
@@ -5459,7 +5464,7 @@ namespace basic {
         const int &b = a;
         typedef int &Ref;
         const int c = 44;
-        const Ref d = a;
+        Ref d = a;
         BREAK_HERE;
         // Check a 43 int.
         // Check b 43 int &.
@@ -5475,7 +5480,7 @@ namespace basic {
         const QString &b = fooxx();
         typedef QString &Ref;
         const QString c = "world";
-        const Ref d = a;
+        Ref d = a;
         BREAK_HERE;
         // Check a "hello" QString.
         // Check b "bababa" QString &.
@@ -5489,7 +5494,7 @@ namespace basic {
     {
         const QString &b = a;
         typedef QString &Ref;
-        const Ref d = const_cast<Ref>(a);
+        Ref d = const_cast<Ref>(a);
         BREAK_HERE;
         // Check a "hello" QString &.
         // Check b "hello" QString &.

@@ -23,14 +23,15 @@
 **
 ****************************************************************************/
 
-#include "edit3dwidget.h"
-#include "edit3dview.h"
-#include "edit3dcanvas.h"
-#include "edit3dactions.h"
-
-#include "qmldesignerplugin.h"
 #include "designersettings.h"
+#include "edit3dactions.h"
+#include "edit3dcanvas.h"
+#include "edit3dview.h"
+#include "edit3dwidget.h"
+#include "metainfo.h"
 #include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
+#include "qmlvisualnode.h"
 #include "viewmanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -174,7 +175,20 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
-    actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+    QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+
+    // add 3D assets to 3d editor (QtQuick3D import will be added if missing)
+    ItemLibraryInfo *itemLibInfo = m_view->model()->metaInfo().itemLibraryInfo();
+
+    const QStringList added3DAssets = addedAssets.value(ComponentCoreConstants::add3DAssetsDisplayString);
+    for (const QString &assetPath : added3DAssets) {
+        QString fileName = QFileInfo(assetPath).baseName();
+        fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
+        QString type = QString("Quick3DAssets.%1.%1").arg(fileName);
+        QList<ItemLibraryEntry> entriesForType = itemLibInfo->entriesForType(type.toLatin1());
+        if (!entriesForType.isEmpty()) // should always be true, but just in case
+            QmlVisualNode::createQml3DNode(view(), entriesForType.at(0), m_canvas->activeScene()).modelNode();
+    }
 }
 
 } // namespace QmlDesigner

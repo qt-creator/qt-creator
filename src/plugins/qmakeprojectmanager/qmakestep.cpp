@@ -632,7 +632,7 @@ void QMakeStep::abisChanged()
 
     if (BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit())) {
         if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
-            const QString prefix = "ANDROID_ABIS=";
+            const QString prefix = QString("%1=").arg(Android::Constants::ANDROID_ABIS);
             QStringList args = m_extraArgs;
             for (auto it = args.begin(); it != args.end(); ++it) {
                 if (it->startsWith(prefix)) {
@@ -643,8 +643,7 @@ void QMakeStep::abisChanged()
             if (!m_selectedAbis.isEmpty())
                 args << prefix + '"' + m_selectedAbis.join(' ') + '"';
             setExtraArguments(args);
-
-            buildSystem()->setProperty(Android::Constants::ANDROID_ABIS, m_selectedAbis);
+            buildSystem()->setProperty(Android::Constants::AndroidAbis, m_selectedAbis);
         } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit())) {
             const QString prefix = "QMAKE_APPLE_DEVICE_ARCHS=";
             QStringList args = m_extraArgs;

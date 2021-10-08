@@ -82,13 +82,13 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
         if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
             const QString buildKey = target->activeBuildKey();
             target->buildSystem()->setExtraData(buildKey,
-                                                Android::Constants::ANDROID_APPLICATION_ARGUMENTS,
-                                                extraAppArgsAspect->arguments(target->macroExpander()));
+                                            Android::Constants::AndroidApplicationArgs,
+                                            extraAppArgsAspect->arguments(target->macroExpander()));
         }
     });
 
     auto amStartArgsAspect = addAspect<StringAspect>();
-    amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);
+    amStartArgsAspect->setId(Constants::ANDROID_AM_START_ARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
     amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
     amStartArgsAspect->setDisplayStyle(StringAspect::LineEditDisplay);

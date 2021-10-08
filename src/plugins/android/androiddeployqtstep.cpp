@@ -149,14 +149,14 @@ bool AndroidDeployQtStep::init()
         info = androidDeployQtStep->m_deviceInfo;
 
     const BuildSystem *bs = buildSystem();
-    auto selectedAbis = bs->property(Constants::ANDROID_ABIS).toStringList();
+    auto selectedAbis = bs->property(Constants::AndroidAbis).toStringList();
 
     const QString buildKey = target()->activeBuildKey();
     if (selectedAbis.isEmpty())
-        selectedAbis = bs->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
+        selectedAbis = bs->extraData(buildKey, Constants::AndroidAbis).toStringList();
 
     if (selectedAbis.isEmpty())
-        selectedAbis.append(bs->extraData(buildKey, Constants::AndroidArch).toString());
+        selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
     if (!info.isValid()) {
         const IDevice *dev = DeviceKitAspect::device(kit()).data();

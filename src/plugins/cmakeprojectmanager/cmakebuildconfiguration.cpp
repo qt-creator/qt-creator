@@ -936,7 +936,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             initialArgs.append("-DCMAKE_TOOLCHAIN_FILE:PATH="
                    + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
 
-            auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
+            auto androidAbis = bs->data(Android::Constants::AndroidMkSpecAbis).toStringList();
             QString preferredAbi;
             if (androidAbis.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)) {
                 preferredAbi = ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A;

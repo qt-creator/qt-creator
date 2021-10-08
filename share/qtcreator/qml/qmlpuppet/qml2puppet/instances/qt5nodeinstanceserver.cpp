@@ -37,6 +37,7 @@
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
+#include <removeinstancescommand.h>
 #include <clearscenecommand.h>
 
 #include <QDebug>
@@ -191,6 +192,32 @@ QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
         return rootNodeInstance().allItemsRecursive();
 
     return QList<QQuickItem*>();
+}
+
+void Qt5NodeInstanceServer::markRepeaterParentDirty(qint32 id) const
+{
+    if (!hasInstanceForId(id))
+        return;
+
+    ServerNodeInstance instance = instanceForId(id);
+    if (!instance.isValid())
+        return;
+
+    ServerNodeInstance parentInstance = instance.parent();
+    if (!parentInstance.isValid())
+        return;
+
+    // If a Repeater instance was moved/removed, the old parent must be marked dirty to rerender it
+    const QByteArray type("QQuickRepeater");
+    if (ServerNodeInstance::isSubclassOf(instance.internalObject(), type))
+        DesignerSupport::addDirty(parentInstance.rootQuickItem(), QQuickDesignerSupport::Content);
+
+    // Repeater's parent must also be dirtied when a child of a repeater was moved/removed.
+    if (ServerNodeInstance::isSubclassOf(parentInstance.internalObject(), type)) {
+        ServerNodeInstance parentsParent = parentInstance.parent();
+        if (parentsParent.isValid())
+            DesignerSupport::addDirty(parentsParent.rootQuickItem(), QQuickDesignerSupport::Content);
+    }
 }
 
 bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
@@ -523,7 +550,21 @@ void Qt5NodeInstanceServer::clearScene(const ClearSceneCommand &command)
 
 void Qt5NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
 {
+    const QVector<ReparentContainer> &containerVector = command.reparentInstances();
+    for (const ReparentContainer &container : containerVector)
+        markRepeaterParentDirty(container.instanceId());
+
     NodeInstanceServer::reparentInstances(command.reparentInstances());
+    startRenderTimer();
+}
+
+void Qt5NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
+{
+    const QVector<qint32> &idVector = command.instanceIds();
+    for (const qint32 id : idVector)
+        markRepeaterParentDirty(id);
+
+    NodeInstanceServer::removeInstances(command);
     startRenderTimer();
 }
 

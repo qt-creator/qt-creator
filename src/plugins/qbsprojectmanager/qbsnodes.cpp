@@ -218,7 +218,7 @@ QVariant QbsProductNode::data(Id role) const
         return m_productData.value("module-properties").toObject()
                 .value("Qt.core.enableKeywords").toBool();
 
-    if (role == Android::Constants::ANDROID_ABIS) {
+    if (role == Android::Constants::AndroidAbis) {
         // Try using qbs.architectures
         QStringList qbsAbis;
         QMap<QString, QString> archToAbi {

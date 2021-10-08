@@ -397,8 +397,19 @@ void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &con
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(),
-                                  instanceForId(container.newParentInstanceId()), container.newParentProperty());
+                ServerNodeInstance newParent = instanceForId(container.newParentInstanceId());
+                PropertyName newParentProperty = container.newParentProperty();
+                if (!isInformationServer()) {
+                    // Children of the component wraps are left out of the node tree to avoid
+                    // incorrectly rendering them
+                    if (newParent.isComponentWrap()) {
+                        newParent = {};
+                        newParentProperty.clear();
+                    }
+                }
+                instance.reparent(instanceForId(container.oldParentInstanceId()),
+                                  container.oldParentProperty(),
+                                  newParent, newParentProperty);
             }
         }
     }
@@ -1287,8 +1298,15 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
     QVector<ImageContainer> imageVector;
 
     for (const ServerNodeInstance &instance : instanceList) {
-        if (instance.isValid() && instance.hasContent())
-            imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage(), instance.instanceId()));
+        if (!instance.isValid())
+            continue;
+
+        QImage renderImage;
+        // We need to return empty image if instance has no content to correctly update the
+        // item image in case the instance changed from having content to not having content.
+        if (instance.hasContent())
+            renderImage = instance.renderImage();
+        imageVector.append(ImageContainer(instance.instanceId(), renderImage, instance.instanceId()));
     }
 
     return PixmapChangedCommand(imageVector);

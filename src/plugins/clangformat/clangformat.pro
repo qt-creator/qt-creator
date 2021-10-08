@@ -15,6 +15,7 @@ unix:!macos:QMAKE_LFLAGS += -Wl,--exclude-libs,ALL
 
 SOURCES += \
     clangformatconfigwidget.cpp \
+    clangformatfile.cpp \
     clangformatindenter.cpp \
     clangformatplugin.cpp \
     clangformatsettings.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     clangformatconfigwidget.h \
+    clangformatfile.h \
     clangformatindenter.h \
     clangformatplugin.h \
     clangformatsettings.h \

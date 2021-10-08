@@ -105,6 +105,14 @@
                                 \li \l{Morph Target}
                                 \li \l{Repeater3D}
                                 \li \l{Loader3D}
+                                \li \l{Particles}
+                                        \list
+                                            \li \l {Particle System}
+                                            \li \l {Logical Particles}
+                                            \li \l {Particle Emitters}
+                                            \li \l {Particle Affectors}
+                                            \li \l {Particle Directions}
+                                        \endlist
                             \endlist
                         \li \l {Creating Component Instances}
                         \li \l {Creating Custom Components}

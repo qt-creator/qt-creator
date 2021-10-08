@@ -1,0 +1,1088 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-particles.html
+    \previouspage studio-3d-loader-3d.html
+    \nextpage studio-3d-particle-system.html
+
+    \title Particles
+
+    A \e {particle system} enables you to use sprites, 3D models, or images to
+    create effects that are hard to reproduce with conventional rendering
+    techniques. This includes chaotic systems, natural phenomena, or processes
+    caused by chemical reactions. For example, you can simulate fire, smoke,
+    sparks, explosions, flowing water, fog, snow, stars, and galaxies.
+
+    The \QDS particle system contains the following main types of components:
+
+    \list
+        \li \l {Particle System}
+        \li \l {Logical Particles}
+        \li \l {Particle Emitters}
+        \li \l {Particle Affectors}
+        \li \l {Particle Directions}
+    \endlist
+
+    \section1 Adding a Particle System
+
+    Preset particle components are available in \l Library >
+    \uicontrol Components > \uicontrol {Qt Quick 3D Particles 3D}
+    after you add the \uicontrol {QtQuick3D.Particles3D} module to
+    your project, as instructed in \l{Adding and Removing Modules}.
+
+    \image studio-3d-particles.png "3D Particles"
+
+    When you add an instance of the \uicontrol {Particle System} component to a
+    scene, \QDS automatically adds instances of the \uicontrol {Sprite Particle},
+    \uicontrol Emitter, and \uicontrol {Vector Direction} components for you.
+
+    \image studio-3d-particle-system-navigator.png "Particle System in Navigator"
+
+    The \uicontrol {Sprite Particle} is a visual \l{Textures}{2D texture}
+    particle. To use \l{3D Models}{3D model} particles, add instances of the
+    \uicontrol {Model Particle} component to the particle system. It is
+    important to define the amount of particles to use in \uicontrol Properties
+    > \uicontrol Particle > \uicontrol {Max amount}, so that the optimal buffer
+    sizes get allocated. You can also specify the color and opacity of the
+    particles, as well as the speed at which they fade in and out.
+
+    The \uicontrol Emitter component emits the sprite or model particles.
+    You can specify particle shape and the area where they are emitted. Use
+    variation in particle size and rotation for more natural results. Further,
+    define the life span and initial direction of speed of the emitted
+    particles.
+
+    Usually, affectors are used to make particle movement more interesting.
+    For example, you could add an instance of the \uicontrol Gravity component
+    to simulate falling objects, an instance of the \uicontrol Wander component
+    to simulate flying objects that follow wavy curves, or an instance of the
+    \uicontrol {Point Rotator} to simulate windy weather.
+
+    To add a particle system that emits sprite particles:
+
+    \list 1
+        \li Select \uicontrol Library > \uicontrol Assets > \inlineimage plus.png
+            to add your sprites, 3D models, textures, and other graphical
+            \l{Assets}{assets} to the project.
+        \li Drag-and-drop an instance of the \uicontrol {Particle System}
+            component from \uicontrol Library to a scene component instance
+            in \l Navigator.
+        \li Drag-and-drop an instance of the \uicontrol Texture component
+            from \uicontrol Library > \uicontrol Components >
+            \uicontrol {Qt Quick 3D} to the sprite particle instance
+            in \uicontrol Navigator.
+        \li Drag-and-drop the sprite image from \uicontrol Library >
+            \uicontrol Assets to the texture instance in \uicontrol Navigator.
+        \li Select the sprite particle instance in \uicontrol Navigator to
+            display its properties in \l Properties.
+        \li In \uicontrol Sprite, select the texture instance.
+        \li Select the emitter instance in \uicontrol Navigator to
+            display its properties in \uicontrol Properties.
+        \li In \uicontrol Particle, select the particle instance to emit.
+        \li Select the vector 3D instance in \uicontrol Navigator to
+            display its properties in \uicontrol Properties.
+        \li In \uicontrol Direction, set the emitted particle velocity
+            towards the target vector.
+    \endlist
+
+    Add instances of other components according to your use case. The following
+    section describes how to modify particle system component property values by
+    using the simulation of fire as an example.
+
+    \section1 Example: Fire
+
+    \image studio-3d-particles-fire.gif "Fire simulated by using particles"
+
+    In this section, we explore using particle system components and modifying
+    their property values, such as particle source images and their color, life
+    span, and fading effects, to simulate fire.
+
+    We will need the following \l{Assets}{assets}:
+
+    \list
+        \li Two images of flames: \e flame_01.png and \e flame_03.png
+        \li An image of smoke: \e smoke_01.png
+    \endlist
+
+    \image studio-3d-particles-fire-assets.png "The assets in Library"
+
+    We will also need instances of the following components:
+
+    \list
+        \li \l {Particle System} (one instance)
+        \li \l {Sprite Particle} (four instances)
+        \li \l {Emitter} (four instances)
+        \li \l {Vector Direction} (four instances)
+        \li \l {Textures}{Texture} (four instances)
+    \endlist
+
+    We start by creating a \l{Using Project Wizards}{Qt Quick 3D Application}
+    project and adding the assets to it. We then follow the instructions above
+    to add the \uicontrol {Particle System} component instance, which provides
+    us with our first \uicontrol Emitter, \uicontrol {Sprite Particle}, and
+    \uicontrol {Vector Direction} instances.
+
+    We add a \uicontrol Texture component instance with \e flame_01.png as the
+    source, and then add the texture as the sprite to use for the sprite
+    particle. We now have all the component instances we need for our first
+    emitter. To keep all the component instances together, we drag-and-drop the
+    sprite particle instance to the emitter instance in \uicontrol Navigator.
+
+    \image studio-3d-particles-fire-emitter1.png "First emitter in fire example in Navigator"
+
+    We need more than one particle to realistically simulate a fire, so we will
+    add three more emitter instances to the particle system. We can copy-paste
+    the first instance in \uicontrol Navigator, and just modify two of the
+    texture instances to use \e flame_03.png as the source and one of them to
+    use \e smoke_01.png as the source. We use three different flame particles
+    to be able to layer them and to hide the fact that two of them actually use
+    the same texture.
+
+    \image studio-3d-particles-fire-components.png "Fire particle system component instances in Navigator"
+
+    We can now start playing with the particle system component properties to
+    achieve the artistic effect that we want. To see how the changes in property
+    values affect the simulation, we will open the live preview by selecting
+    \inlineimage live_preview.png
+    on the main toolbar (or by pressing \key {Alt+P}).
+
+    First, we will specify property values for the \uicontrol {Particle System}
+    component. We want to spawn some particles before the simulation starts, so
+    that the fire will be roaring at start. To achieve this, we set the value of
+    \uicontrol Properties > \uicontrol {Particle System} >
+    \uicontrol {Start Time} to \e 2000 milliseconds. We will
+    use the default values for the other properties.
+
+    \image studio-3d-particles-fire-properties-particle-system.png "Particle System properties"
+
+    Then, we will specify how individual particles are spawned. We set the
+    value of \uicontrol Properties > \uicontrol {Particle Emitter} >
+    \uicontrol {Emit rate} to \e 40.00 for the flame particles and \e 20.00
+    for the smoke particle, because we want to have more flames than smoke.
+
+    \image studio-3d-particles-fire-properties-particle-emitter.png "Particle Emitter properties"
+
+    To increase the visibility of the smoke at the top, we set the value of
+    \uicontrol {Life span} to \e 1200 milliseconds for the smoke particles
+    and \e 900, \e 1000, and \e 600 milliseconds for the flame particles.
+    Further, we set \uicontrol {Life span variation} to \e 100, \e 200, and
+    \e 300 for the flame particles to have some of them expire sooner than
+    others.
+
+    To scale the particles during their lifespan, we set
+    \uicontrol {Particle scale} to \e 2.00 for all particles and
+    \uicontrol {Particle end scale} to \e 5.00 for the flame
+    particles and to \e 6.00 for the smoke particles.
+
+    We can now modify the appearance of the particles by setting their color in
+    \uicontrol Properties > \uicontrol Particle. We select transparent yellow,
+    orange, and transparent gray in \uicontrol Color and set values for
+    \uicontrol {Color variation} to use slightly different colors for the
+    individual particles.
+
+    \image studio-3d-particles-fire-properties-particle.png "Particle properties"
+
+    We set \uicontrol {Fade in effect} and \uicontrol {Fade out effect} values
+    to \uicontrol FadeOpacity to change particle opacity between 0 and 1 over
+    the time specified in milliseconds in \uicontrol {Fade in duration} and
+    \uicontrol {Fade out duration}. Fading duration is calculated into the
+    particle lifespan, and therefore the smoke particles are actually never
+    fully visible with our settings.
+
+    To specify that the particle texture should always be aligned face towards
+    the screen, we enable \uicontrol Properties > \uicontrol {Sprite Particle} >
+    \uicontrol Billboard for all the particle component instances.
+
+    \image studio-3d-particles-fire-properties-sprite-particle.png "Sprite Particle properties"
+
+    Finally, we will specify the direction in which the particles move by
+    modifying the property values of the \uicontrol {Vector Direction} component
+    instances in \uicontrol Properties > \uicontrol {Particle Vector Direction}.
+
+    In \uicontrol Direction, we set \uicontrol Y to \e 100.00 to make particles
+    move \e up, and \uicontrol Z to \e -100.00 to make them move in the
+    direction opposite to the target vector. We set the \uicontrol Direction
+    value to \e -50.00 for one of the flame particles and to \e -80.00 for the
+    smoke particle.
+
+    \image studio-3d-particles-fire-properties-vector-direction.png "Vector Direction properties"
+
+    We set the \uicontrol {Direction Variation} values for the different
+    vector direction instances to \e 10.00, \e 8.00, and \e 12.00 to make some
+    flames spread wider than others. You can try different values until you
+    get the effect you want.
+
+    \section1 Performance Considerations
+
+    The particles are designed to be usable on a variety of hardware on
+    desktops, as well as mobile and embedded devices. However, in addition
+    to rendering the maximum amount of particle elements on the screen,
+    extensibility to different use-cases, rendering quality, integration
+    with the other UI elements, are also important.
+
+    Currently, the rendering runs on GPU, while the particle system logic
+    runs on CPU. However, the \e {stateless particle system} enables you
+    to move the system logic onto GPU if that seems beneficial. The initial
+    measurements indicate that the system is quite well balanced between
+    CPU and GPU. The stateless system also enables animating particles by
+    using a \l{Timeline}{timeline}. The model particles use instanced rendering
+    to boost the performance. Therefore, OpenGL ES 2.0 isn't sufficient to make
+    rendering performant, and at least OpenGL ES 3.0, Vulkan, or some other
+    modern backend is required.
+
+    To get a more concrete view on the actual performance, the video below shows
+    a particles Testbed application running on four different Android devices.
+    These devices and their chipsets and GPUs could be considered to be
+    lower-end to mid-range, confirming that the particles can perform well also
+    on affordable hardware.
+
+    \youtube 9MqUCP6JLCQ
+
+    \section1 Summary of 3D Particles
+
+    \note The \uicontrol {Particles 3D} components are released as a tech
+    preview feature in \QDS 2.2, and their functionality will be improved
+    in future releases.
+
+    The following table lists preset particle components.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Purpose
+    \row
+        \li \inlineimage icons/attractor-16px.png
+        \li Attractor
+        \li Attracts particles towards a specific point.
+    \row
+        \li \inlineimage icons/emit-burst-16px.png
+        \li Emit Burst
+        \li Generates declarative emitter bursts.
+    \row
+        \li \inlineimage icons/emitter-16px.png
+        \li Emitter
+        \li Emits logical particles.
+    \row
+        \li \inlineimage icons/gravity-16px.png
+        \li Gravity
+        \li Accelerates particles to a vector of the specified magnitude in the
+            specified direction.
+    \row
+        \li \inlineimage icons/model-blend-particle-16px.png
+        \li Model Blend Particle
+        \li Blends a particle effect with an instance of a \uicontrol Model
+            component.
+    \row
+        \li \inlineimage icons/model-particle-16px.png
+        \li Model Particle
+        \li Creates a particle that uses an instance of a \uicontrol Model
+            component.
+    \row
+        \li \inlineimage icons/model-shape-16px.png
+        \li Model Shape
+        \li Provides 3D shapes from a model to emitters and affectors.
+    \row
+        \li \inlineimage icons/particle-shape-16px.png
+        \li Particle Shape
+        \li Provides 3D shapes to emitters and affectors.
+    \row
+        \li \inlineimage icons/particle-system-16px.png
+        \li Particle System
+        \li Creates a particle system that includes particle, emitter, and
+            affector components.
+    \row
+        \li \inlineimage icons/point-rotator-16px.png
+        \li Point Rotator
+        \li Rotates particles around a pivot point.
+    \row
+        \li \inlineimage icons/sprite-particle-16px.png
+        \li Sprite Particle
+        \li Creates particles that use a 2D sprite texture.
+    \row
+        \li \inlineimage icons/sprite-sequence-16px.png
+        \li Sprite Sequence
+        \li Provides image sequence features for \uicontrol {Sprite Particle}
+            component instances.
+    \row
+        \li \inlineimage icons/target-direction-16px.png
+        \li Target Direction
+        \li Specifies a direction towards the target position.
+    \row
+        \li \inlineimage icons/trail-emitter-16px.png
+        \li Trail Emitter
+        \li Emits logical particles from other particles.
+    \row
+        \li \inlineimage icons/vector-direction-16px.png
+        \li Vector Direction
+        \li Specifies a direction towards the target direction.
+    \row
+        \li \inlineimage icons/wander-16px.png
+        \li Wander
+        \li Applies random wave curves to particles.
+    \endtable
+*/
+
+/*!
+    \page studio-3d-particle-system.html
+    \previouspage studio-3d-particles.html
+    \nextpage studio-3d-logical-particles.html
+
+    \title Particle System
+
+    The preset \uicontrol {Particle System} component is the root of the
+    particle system. It ties all the other components together and manages
+    the shared progression in time. Emitters and affectors must either be
+    children of the same \uicontrol {Particle System} component or refer
+    to the same \uicontrol System to be able to interact with each other.
+
+    You can add several \uicontrol {Particle System} components. Typically, you
+    would use separate \uicontrol {Particle System} instances for the components
+    that interact with each other. Or, you can use just one instance if the
+    total number of components is small enough to be controllable.
+
+    Specify settings for the particle system in \l Properties >
+    \uicontrol {Particle System}.
+
+    \image studio-3d-properties-particle-system.png "Particle System properties"
+
+    You can freely animate the particle system property values using a timeline,
+    which enables you to synchronize particles with other animations, for
+    example.
+
+    In \uicontrol {Start time}, set the time in milliseconds where the system
+    starts. This can be useful to warm up the system so that a set of particles
+    has already been emitted when the simulation starts. For example, if you set
+    the start time to 2000 and animate \uicontrol Time from 0 to 1000, the
+    animation shows particles from 2000 ms to 3000 ms.
+
+    In \uicontrol Time, set the time in milliseconds for the system. If
+    you modify the value of this property, you should usually disable
+    \uicontrol Running to stop the simulation. All particles are destroyed
+    when you select it again.
+
+    To temporarily stop the simulation, select \uicontrol Paused. Particles
+    are not destroyed, and when you deselect the check box, the simulation
+    resumes from the point where you paused it.
+
+    Select \uicontrol Logging to collect particle system statistics, such as
+    the current and maximum amounts of particles in the system or the average
+    time in milliseconds used for emitting and animating particles in each
+    frame. Logging data can be useful when developing and optimizing the
+    particle effects.
+
+    \note Logging can negatively affect performance, so it should be disabled
+    before packaging applications for release and delivery to users.
+
+    Select \uicontrol {Use random seed} to randomize the particle system
+    with the seed that you specify in \uicontrol Seed to get an identical
+    pixel-perfect particle effect on every run. You should not modify the
+    seed value during particle animation.
+*/
+
+/*!
+    \page studio-3d-logical-particles.html
+    \previouspage studio-3d-particle-system.html
+    \nextpage studio-3d-particle-emitters.html
+
+    \title Logical Particles
+
+    All the particle system components act on \e {logical particles}. Each
+    particle has a logical representation within the particle system, and this
+    is what the components act upon. Not every logical particle needs to be
+    visualized, and some logical particles could lead to multiple visual
+    particles being drawn on screen.
+
+    Two different logical particle components are supported:
+    \uicontrol {Sprite Particle} for \l{Textures}{2D texture} particles and
+    \uicontrol {Model Particle} for \l{3D Models}{3D model} particles. Model
+    particles use \l{Instanced Rendering}{instanced rendering} to enabled the
+    rendering of thousands of particles, with full \l{3D Materials}{materials}
+    and \l{Lights}{lights} support.
+
+    The following components are available for adding logical particles and
+    for modifying their actions and appearance:
+
+    \list
+        \li \l{Sprite Particle}
+        \li \l{Sprite Sequence}
+        \li \l{Model Particle}
+        \li \l{Model Blend Particle}
+    \endlist
+
+    \section1 Sprite Particle
+
+    Specify properties for sprite particles in \uicontrol Properties >
+    \uicontrol {Sprite Particle}.
+
+    \image studio-3d-properties-sprite-particle.png "Sprite Particle properties"
+
+    \uicontrol {Blend mode} determines whether particles are blended using
+    source over, screen, or multiply mode. If you select \uicontrol SourceOver,
+    the pixel component values from a foreground source are written over the
+    source by using alpha blending. If you select \uicontrol Screen, the values
+    are negated, then multiplied, negated again, and written. If you select
+    \uicontrol Multiply, they are multiplied and written.
+
+    \uicontrol Sprite defines the \l{Textures}{Texture} component used for the
+    particles. For example, to use an image of a snowflake to simulate snow,
+    create an instance of the \uicontrol Texture component with the image
+    as the \uicontrol Source.
+
+    In \uicontrol {Sprite sequence}, select the \l{Sprite Sequence} component
+    instance for the particle if the sprite texture contains a frame sequence.
+    If your image only has a single sprite frame, don't set this value.
+
+    Select \uicontrol Billboard to specify that the particle texture should
+    always be aligned face towards the screen. Enabling this property
+    automatically disables \uicontrol Particle > \uicontrol {Align mode}.
+
+    \uicontrol {Particle scale} specifies the scale multiplier of the particles.
+    To adjust particle sizes in the emitter, set \uicontrol {Particle Emitter}
+    properties.
+
+    In \uicontrol {Color table}, select the \uicontrol Texture component that is
+    used for coloring the particles. The image can be a 1D or a 2D texture.
+    Horizontal pixels determine the particle color over the value you set in
+    \uicontrol {Particle Emitter} > \uicontrol {Life span}. For example, when
+    the particle is halfway through its life, it will have the color specified
+    halfway across the image. If the image is 2D, a vertical row is randomly
+    selected for each particle. For example, a \c {256 x 4} image contains 4
+    different coloring options for particles.
+
+    \section1 Sprite Sequence
+
+    Specify properties for a sprite particle sequence that contains a frame
+    sequence in \uicontrol Properties > \uicontrol {Particle Sprite Sequence}.
+
+    \image studio-3d-properties-particle-sprite-sequence.png "Particle Sprite Sequence properties"
+
+    \uicontrol {Frame count} specifies the amount of image frames in a sprite.
+    A particle animates through these frames during its duration. The frames
+    should be laid out horizontally in the same image file. For example, the
+    sprite could be a 512x64 image, with the frame count of 8. This would make
+    each particle frame size 64x64 pixels.
+
+    \uicontrol {Frame index} specifies the initial index of the frame.
+    This is the position between frames where the animation is started. For
+    example, when the frame index is 5 and \uicontrol {Animation direction} is
+    set to \uicontrol Normal, the first rendered frame is 5. If the animation
+    direction is set to \uicontrol Reverse, the first rendered frame is 4.
+
+    The value of \uicontrol {Frame index} must be between 0 and the value of
+    \uicontrol {Frame count} minus 1. When \uicontrol {Animation direction} is
+    set to \uicontrol SingleFrame and \uicontrol {Random start} is disabled, all
+    the particles will render sprites with the frame index.
+
+    Enable \uicontrol {Random start} to start the animation from a random frame
+    between 0 and \uicontrol {Frame count} minus 1. This allows animations to
+    not look like they all just started when the animation begins.
+
+    \uicontrol Interpolate determines whether sprites are blended
+    between frames to make the animation appear smoother.
+
+    \uicontrol Duration specifies the time in milliseconds that it
+    takes for the sprite sequence to animate. For example, if the duration
+    is 400 and the \uicontrol {Frame count} is 8, each frame will be shown
+    for 50 milliseconds. When the value is -1, \uicontrol Particle >
+    \uicontrol {Life span} is used as the duration.
+
+    \uicontrol {Duration variation} defines the duration variation in
+    milliseconds. The actual duration of the animation is between
+    duration minus duration variation and duration plus duration variation.
+
+    \uicontrol {Animation direction} defines the animation playback direction
+    of the sequence. Select \uicontrol Normal to play the animation from the
+    first frame to the last frame and to jump back to the first frame from the
+    last one. Select \uicontrol Reverse to reverse the normal order. Select
+    \uicontrol Alternate or \uicontrol AlternateReverse to alternate between
+    normal and reversed orders.
+
+    If you don't want to animate the frame, select \uicontrol SingleFrame.
+    When \uicontrol {Random start} is disabled, the frame set in
+    \uicontrol {Frame index} is rendered. When it is enabled, each particle
+    renders a random frame.
+
+    \section1 Model Particle
+
+    Specify properties for model particles in \uicontrol Properties >
+    \uicontrol {Model Particle}.
+
+    \image studio-3d-properties-model-particle.png "Model Particle properties"
+
+    In \uicontrol Delegate, select the \uicontrol {3D Model} component that
+    defines each object instantiated by the particle.
+
+    \uicontrol {Instance table} provides you with access to the internal
+    instancing table of the model particle that is used to implement efficient
+    rendering. This table can be applied to the instancing property of models
+    that are not part of the particle system.
+
+    You can use this feature also to provide an instancing table without
+    showing any particles. This is done by omitting the delegate.
+
+    \section1 Model Blend Particle
+
+    Specify properties for model blend particles in \uicontrol Properties >
+    \uicontrol {Model Blend Particle}.
+
+    \image studio-3d-properties-model-blend-particle.png "Model Blend Particle properties"
+
+    The \uicontrol {Model Blend Particle} component blends a particle effect
+    with a \uicontrol {3D Model} component. The provided model needs to be
+    triangle-based. Each triangle in the model is converted into a particle,
+    which are then used by the emitter. Instead of particle shader, the model
+    is shaded using the material specified in the model. The way the effect is
+    blended is determined by \uicontrol {Model blend mode}.
+
+    The possible blend modes are:
+
+    \list
+        \li \uicontrol Construct, where the model is constructed from the
+            particles.
+        \li \uicontrol Explode, where the model is converted into particles.
+        \li \uicontrol Transfer, where \uicontrol Construct and
+            \uicontrol Explode are combined to create an effect where the
+            model is transferred from one place to another.
+    \endlist
+
+    The particles are emitted in the order they are specified in the model
+    unless \uicontrol {Activation node} is set or \uicontrol Random is enabled.
+
+    In \uicontrol Delegate, select the \uicontrol {3D Model} component that
+    defines each object instantiated by the particle.
+
+    \uicontrol {End node} specifies the transformation for the model at the end
+    of a particle effect. It defines the size, position, and rotation where the
+    model is constructed when you set \uicontrol {Model blend mode} to
+    \uicontrol Construct or \uicontrol Explode.
+
+    \uicontrol {End time} specifies the end time of the particle in
+    milliseconds. The end time is used during construction and defines
+    duration from particle lifetime at the end where the effect is blended
+    with the model positions. Before the end time, the particles' positions
+    are defined only by the particle effect, but during the end time the
+    particle position is blended linearly with the model end position.
+
+    In \uicontrol {Activation node}, select the component instance that
+    activates particles and overrides the regular emit routine. The activation
+    node can be used to control how the particles are emitted spatially when
+    the model is exploded or constructed from the particles. The activation
+    node emits a particle if the center of that particle is on the positive
+    half of the z-axis of the activation node. Animating the activation node
+    to move trough the model will cause the particles to be emitted sequentially
+    along the path the activation node moves.
+
+    To emit particles in random order instead of in the order in which they are
+    specified in the model, select \uicontrol Random.
+
+    \section1 Common Particle Properties
+
+    The properties that you specify for logical particles in
+    \uicontrol Properties > \uicontrol Particle determine the common
+    appearance of all particles.
+
+    \image studio-3d-properties-particle.png "Particle properties"
+
+    \uicontrol {Max amount} allocates data for particles. Setting this value
+    instead of just growing the data based on \uicontrol {Particle Emitter} >
+    \uicontrol {Emit rate}, \uicontrol {Life span}, and \uicontrol {Emit Bursts}
+    enables you to optimize memory usage and to modify the emit rate and life
+    span without reallocation.
+
+    \uicontrol Color determines the base color for particles. You can use the
+    \l{Picking Colors}{Color Picker} to select colors. For color variation, set
+    values in \uicontrol {Color variation}. The values are in RGBA order (X=red,
+    Y=green, Z=blue, and W=alpha), and each value should be between 0.00
+    (no variation) and 1.00 (full variation).
+
+    To apply color variation uniformly for all the color channels, enable
+    \uicontrol {Unified color variation}. This applies all variations with
+    the same random amount.
+
+    \uicontrol {Fade in effect} and \uicontrol {Fade out effect} define the
+    fading effect used when the particles appear. Fading is implemented by
+    changing the value of opacity or scale between 0 and 1 over the time
+    specified in milliseconds in \uicontrol {Fade in duration} and
+    \uicontrol {Fade out duration}. Fading duration is calculated into the
+    particle lifespan. For example, if \uicontrol {Particle Emitter} >
+    \uicontrol {Life span} is 3000, \uicontrol {Fade in duration} is 500, and
+    \uicontrol {Fade out duration} is 500, the particle will be fully visible
+    for 2000 ms.
+
+    \uicontrol {Align mode} determines the direction that particles face:
+
+    \list
+        \li Select \uicontrol AlignNone to use the value set for the emitter
+            component in \uicontrol {Particle Rotation} > \uicontrol Rotation.
+        \li Select \uicontrol AlignTowardsTarget to align the particles towards
+            the direction set in \uicontrol {Align target position}.
+        \li Select \uicontrol AlignTowardsStartVelocity to align the particles
+        towards their starting velocity direction.
+    \endlist
+
+    This value takes no effect if \uicontrol {Sprite Particle} >
+    \uicontrol Billboard is enabled.
+
+    Unlike the materials used with the models, particles default to being
+    rendered with assuming semi-transparency, and so with blending enabled.
+    This is the desired behavior most of the time due to particle textures,
+    color (alpha) variations, fadings, and so on. If you don't need the
+    blending, disable \uicontrol {Has transparency} for possible performance
+    gain.
+
+    \uicontrol {Sort mode} determines the order in which the particles are
+    drawn. You can sort particles based on their distance from the camera,
+    farthest first, or lifetime, newest or oldest first.
+
+    The particles are emitted from the location of the \l Emitter or
+    \l {Trail Emitter} component instance.
+*/
+
+/*!
+    \page studio-3d-particle-emitters.html
+    \previouspage studio-3d-logical-particles.html
+    \nextpage studio-3d-particle-affectors.html
+
+    \title Particle Emitters
+
+    The \uicontrol {Particle Emitter} component emits logical particles into
+    the system. You can determine how individual particles will look like and
+    how they are emitted. Many of the properties have \e variation counterparts,
+    such as \uicontrol {Color variation}, for adding variation to the particles.
+
+    The \uicontrol {Trail Emitter} component emits particles from the location
+    of other logicial particles. Any logical particle of the followed component
+    within the bounds of a trail emitter will cause particle emission from its
+    location, as if there were an emitter on it with the same properties as the
+    trail emitter.
+
+    Emitter components can use instances of the \l {Particle Shape} or
+    \l {Model Shape} component to emit particles from the surface of the
+    selected shape.
+
+    You always need one emitter. If the \uicontrol {Particle System} component
+    instance is the direct parent of the emitter component instance, you don't
+    need to specify the particle system separately. However, you always need
+    to select the logical particle to emit, or nothing is emitted.
+
+    The following components are available for emitting particles:
+
+    \list
+        \li \l Emitter
+        \li \l {Trail Emitter}
+        \li \l {Emit Burst}
+        \li \l {Model Shape}
+        \li \l {Particle Shape}
+    \endlist
+
+    \section1 Emitter
+
+    Specify properties for particle emitters in \uicontrol Properties >
+    \uicontrol {Particle Emitter}. You need at least one emitter.
+
+    \image studio-3d-properties-particle-emitter.png "Particle Emitter properties"
+
+    \uicontrol Emitter emits \l{Logical Particles}{logical particles} that you
+    select in \uicontrol Particle, as defined by the other properties. If the
+    \uicontrol {Particle System} component instance is not the direct parent of
+    the emitter component instance, you need to select it in \uicontrol System.
+
+    You can control the amount of particles emitted per second by setting the
+    value of \uicontrol {Emit rate} or add \uicontrol {Emit Burst} component
+    instances in \uicontrol {Emit bursts} to emit bursts of specified amounts
+    of particles at the specified point in time for the specified duration.
+
+    In \uicontrol Velocity, set a starting velocity for emitted particles.
+    If velocity is not set, particles start motionless, and velocity is
+    determined by \l{Particle Affectors}{particle affectors}.
+
+    Use \uicontrol Enabled to turn an emitter on or off. Usually, this property
+    is used in code to conditionally turn emitters on and off. To continue
+    emitting bursts, set \uicontrol {Emit rate} to 0 instead of disabling
+    \uicontrol Enabled.
+
+    In \uicontrol Shape, select the instance of the \l {Particle Shape} or
+    \l {Model Shape} component to use. The shape is scaled, positioned, and
+    rotated based on the emitter node properties. When the shape \uicontrol Fill
+    property is set to false, particles are emitted only from the surface of the
+    shape. When the shape is not defined, particles are emitted from the center
+    point of the emitter.
+
+    In \uicontrol {Life span}, specify the lifespan of a single particle
+    in milliseconds. Specify variation in the particle lifespan in
+    \uicontrol {Life span variation}. For example, to emit particles that
+    will exist from three to four seconds, set \uicontrol {Life span} to
+    3500 ms and \uicontrol {Life span variation} to 500 ms.
+
+    \uicontrol {Particle scale} and \uicontrol {Particle end scale} specify the
+    scale multiplier of the particles at the beginning and end. For variation
+    in particle size, specify values for \uicontrol {Particle scale variation}
+    and \uicontrol {Particle end scale variation}.
+
+    \uicontrol {Depth bias} specifies the the depth bias of the emitter. Depth
+    bias is added to the object's distance from camera when sorting objects.
+    This can be used to force the rendering order of objects that are located
+    close to each other if it might otherwise change between frames. Negative
+    values cause the sorting value to move closer to the camera while positive
+    values move it further from the camera.
+
+    \section1 Trail Emitter
+
+    Specify additional properties for particle trail emitters in
+    \uicontrol Properties > \uicontrol {Particle Trail Emitter}.
+
+    Select the logical particle component to follow in \uicontrol Follow.
+
+    \section1 Particle Rotation
+
+    Specify properties for the rotation of particles in \uicontrol Properties >
+    \uicontrol {Particle Rotation}
+
+    \image studio-3d-properties-particle-rotation.png "Particle Rotation properties"
+
+    \uicontrol Rotation specifies the rotation of the particles in the
+    beginning. Rotation is defined as degrees in euler angles. For variation
+    in rotation, specify values for \uicontrol Variation.
+
+    \uicontrol Velocity specifies the rotation velocity of the particles in the
+    beginning. Rotation velocity is defined as degrees per second in euler
+    angles. For variation in velocity, specify values in
+    \uicontrol {Velocity variation}.
+
+    \section1 Emit Burst
+
+    Specify properties for emit bursts in \uicontrol Properties >
+    \uicontrol {Emit Burst}.
+
+    \image studio-3d-properties-particle-emit-burst.png "Particle Emit Burst properties"
+
+    \uicontrol Time specifies the time in milliseconds when emitting the burst
+    starts, and \uicontrol Amount specifies the amount of particles emitted
+    during the time specified in milliseconds in \uicontrol Duration.
+
+    For example, you could use two \uicontrol {Emit Burst} instances to emit 100
+    particles at the beginning and 50 particles at 2 seconds, so that both
+    bursts take 200 milliseconds. For one instance, set \uicontrol Time to 0,
+    \uicontrol Amount to 100, and \uicontrol Duration to 200. For the other
+    instance, set \uicontrol Time to 2000, \uicontrol Amount to 50, and
+    \uicontrol Duration to 200.
+
+    \section1 Particle Shape
+
+    The \uicontrol {Particle Shape} component supports shapes, such as cube,
+    sphere, and cylinder, for emitting particles from their area.
+
+    Specify properties for particle shape in \uicontrol Properties >
+    \uicontrol {Particle Shape}.
+
+    \image studio-3d-properties-particle-shape.png "Particle Shape properties"
+
+    In \uicontrol Type, select the shape to use.
+
+    Select \uicontrol Fill to fill the shape instead of just displaying its
+    outline.
+
+    \uicontrol Extents determines the extent coordinates of the shape geometry.
+
+    \section1 Model Shape
+
+    The \uicontrol {Model Shape} component specifies a template for defining the
+    model.
+
+    Specify properties for model shape in \uicontrol Properties >
+    \uicontrol {Particle Model Shape}.
+
+    \image studio-3d-properties-particle-model-shape.png "Particle Model Shape properties"
+
+    In \uicontrol Delegate, select the \uicontrol {3D Model} component that
+    defines each object instantiated by the particle.
+
+    Select \uicontrol Fill to fill the shape instead of just displaying its
+    outline.
+*/
+
+/*!
+    \page studio-3d-particle-affectors.html
+    \previouspage studio-3d-particle-emitters.html
+    \nextpage studio-3d-particle-directions.html
+
+    \title Particle Affectors
+
+    Affectors are an optional component of a particle system. They can perform
+    a variety of manipulations to the simulation, such as altering the
+    trajectory of particles or prematurely ending their life in the simulation.
+    For performance reasons, it is recommended not to use affectors in
+    high-volume particle systems.
+
+    The following affector components control how the particles are animated
+    during their lifetime:
+
+    \list
+        \li \l Attractor attracts particles towards a specific point.
+        \li \l Gravity accelerates particles to a vector of the specified
+            magnitude in the specified direction.
+        \li \l {Point Rotator} rotates particles around a pivot point.
+        \li \l Wander applies random wave curves to particles.
+    \endlist
+
+    If the system has multiple affectors, the order of affectors may result in
+    different outcome, as affectors are applied one after another.
+
+    By default, affectors affect all particles in the system, but you can limit
+    this to the particles listed in \l Properties > \l {Particle Affector} >
+    \uicontrol Particles.
+
+    \section1 Attractor
+
+    The \uicontrol Attractor component attracts particles towards a position
+    inside the \l{3D Views}{View 3D} component instance. To model the gravity
+    of a massive object whose center of gravity is far away, use an instance of
+    the \l Gravity component.
+
+    The attraction position is defined either by using the position of the
+    attractor and the value of \uicontrol {Position variation} or by selecting
+    an instance of the \uicontrol {Particle Shape} or \uicontrol {Model Shape}
+    component in \uicontrol Shape. If both position and shape are defined, the
+    shape is used.
+
+    Specify settings for \uicontrol Attractor components in
+    \uicontrol Properties > \uicontrol {Particle Attractor}.
+
+    \image studio-3d-properties-particle-attractor.png "Particle Attractor properties"
+
+    \uicontrol {Position variation} specifies the variation on attract position.
+    Instead of attracting particles into a single point, it attracts them
+    randomly towards a wider area. For example, to attract particles into some
+    random point inside a (50, 50, 50) cube at position (100, 0, 0) within 2 to
+    4 seconds, set \uicontrol X, \uicontrol Y, and \uicontrol Z to 50.00,
+    \uicontrol Duration to 3000, and \uicontrol {Duration variation} to 1000.
+
+    In \uicontrol Shape, select an instance of the \l {Particle Shape} or
+    \l {Model Shape} component to attract particles into a random position
+    inside the shape.
+
+    \uicontrol Duration specifies the duration in milliseconds that it takes
+    for particles to reach the attraction position. When the value is -1,
+    \uicontrol {Particle Emitter} > \uicontrol {Life span} is used as
+    the duration. If you specify \uicontrol {Duration variation}, the actual
+    duration to reach the attractor is between duration minus duration variation
+    and duration plus duration variation.
+
+    Select \uicontrol {Hide at end} to make the particle disappear when it
+    reaches the attractor.
+
+    Select \uicontrol {Use cached positions} to cache possible positions within
+    the attractor's \uicontrol Shape. Cached positions give less random results
+    but are better for performance.
+
+    \uicontrol {Positions amount} specifies the amount of possible positions
+    stored within the attractor's \uicontrol Shape. By default, the amount
+    equals the particle count, but you can specify a lower amount for a smaller
+    cache. Specify a higher amount for additional randomization.
+
+    \section1 Gravity
+
+    The \uicontrol Gravity component models the gravity of a massive object
+    whose center of gravity is far away, and thus the gravitational pull is
+    effectively constant across the scene. To model the gravity of an object
+    near or inside the scene, use an \l Attractor component instance.
+
+    Specify settings for \uicontrol Gravity component instances in
+    \uicontrol Properties > \uicontrol {Particle Gravity}.
+
+    \image studio-3d-properties-particle-gravity.png "Particle Gravity properties"
+
+    \uicontrol Magnitude defines the magnitude in particle position change in
+    degrees per second. A negative value accelerates in the opposite way from
+    the direction specified in \uicontrol Direction. Direction \uicontrol X,
+    \uicontrol Y, and \uicontrol Z values are automatically normalized to a unit
+    vector.
+
+    \section1 Point Rotator
+
+    Specify settings for \uicontrol {Point Rotator} component instances in
+    \uicontrol Properties > \uicontrol {Point Rotator}.
+
+    \image studio-3d-properties-particle-point-rotator.png "Particle Point Rotator properties"
+
+    The \uicontrol {Point Rotator} component rotates particles around the
+    pivot point specified in \uicontrol {Pivot point} towards the direction
+    specified in \uicontrol Direction. Direction \uicontrol X, \uicontrol Y, and
+    \uicontrol Z values are automatically normalized to a unit vector.
+
+    \uicontrol Magnitude defines the magnitude in particle position change in
+    degrees per second. A negative value accelerates in the opposite way from
+    the direction specified in \uicontrol Direction.
+
+    \section1 Wander
+
+    The \uicontrol Wander component applies random wave curves to particles.
+    Curves can combine \l {Global Wander Properties}{global} values that are
+    the same for all particles and \l{Unique Wander Properties}{unique} values
+    that differ randomly.
+
+    Specify settings for \uicontrol Wander component instances in
+    \uicontrol Properties > \uicontrol {Particle Wander}.
+
+    \image studio-3d-properties-particle-wander.png "Particle Wander properties"
+
+    \uicontrol {Fade in duration} specifies the duration in milliseconds for
+    fading in the affector. After this duration, the wandering will be in full
+    effect. Setting this value can be useful to emit from a specific position or
+    shape, otherwise wander will affect the position also at the beginning.
+
+    \uicontrol {Fade out duration} specifies the duration in milliseconds for
+    fading out the affector. Setting this value can be useful to reduce the
+    wander when the particle life time ends, for example when combined with an
+    instance of the \l Attractor component so that the end positions will match
+    the shape.
+
+    \section2 Global Wander Properties
+
+    Specify global settings for \uicontrol Wander component instances in
+    \uicontrol Properties > \uicontrol {Global}.
+
+    \image studio-3d-properties-particle-wander-global.png "Global Particle Wander properties"
+
+    \uicontrol Amount specifies the distance that each particle moves
+    at the ends of curves. For example, if you set the value of \uicontrol X to
+    100.00, \uicontrol Y to 10.00, and \uicontrol Z to 0.00, all particles
+    wander between (100, 10, 0) and (-100, -10, 0).
+
+    \uicontrol Pace defines the frequency at which each particle wanders in
+    curves per second, starting from \uicontrol {Pace start}. The meaningful
+    range for pace start is between 0 .. 2 * PI.
+
+    \section2 Unique Wander Properties
+
+    Specify unique settings for the \uicontrol Wander component instances in
+    \uicontrol Properties > \uicontrol {Unique}.
+
+    \image studio-3d-properties-particle-wander-unique.png "Unique Particle Wander properties"
+
+    \uicontrol Amount specifies the distance that each particle moves
+    at the ends of curves. Specify amount variation for each particle between
+    0.00 and 1.00 in \uicontrol {Amount variation}. When the amount variation is
+    0.00, all particles reach the maximum amount. When it is 0.50, every
+    particle reaches between 0.50 and 1.50 of the amount. For example, if you
+    set \uicontrol Amount \uicontrol X to 100.00, \uicontrol Y to 50.00, and
+    \uicontrol Z to 20.00) and \uicontrol {Amount variation} to 0.10, the
+    particles' maximum wave distances are something random between (110, 55, 22)
+    and (90, 45, 18).
+
+    \uicontrol Pace defines the frequency at which each particle wanders in
+    curves per second. Specify unique pace variation for each particle between
+    0.00 and 1.00 in \uicontrol {Pace variation}. When the variation is 0.00,
+    all particles wander at the same frequency. For example, if you set
+    \uicontrol Pace \uicontrol X to 1.00, \uicontrol Y to 2.00, and \uicontrol Z
+    to 4.00 and \uicontrol {Pace variation} to 0.50, the particles' wave paces
+    are something random between (2.00, 4.00, 8.00) and (0.50, 1.00, 2.00).
+
+    \section1 Particle Affector
+
+    Specify common settings for particle affectors in \uicontrol Properties >
+    \l {Particle Affector}.
+
+    \image studio-3d-properties-particle-affector.png "Affector properties"
+
+    If the affector is not a direct child component of the particle system,
+    select the \uicontrol {Particle System} component instance to affect in
+    \uicontrol System.
+
+    To only affect some of the particles in the particle system, select
+    them in \uicontrol Particles. Select \inlineimage plus.png
+    to add logical particles to the list.
+
+    Deselect \uicontrol Enabled to turn the affector off. Usually, this
+    property is used in code to conditionally turn affectors off and on.
+*/
+
+/*!
+    \page studio-3d-particle-directions.html
+    \previouspage studio-3d-particle-affectors.html
+    \nextpage quick-component-instances.html
+
+    \title Particle Directions
+
+    Directions can be specified by specifying the emitted particle velocity
+    towards either the target position or the target vector.
+
+    \section1 Target Direction
+
+    The \uicontrol {Target Direction} component sets emitted particle velocity
+    towards the target position.
+
+    Specify common settings for particle target direction in
+    \uicontrol Properties > \uicontrol {Particle Target Direction}.
+
+    \image studio-3d-properties-particle-target-direction.png "Particle Target Direction properties"
+
+    \uicontrol Position specifies the position of the target of
+    the particle. For variation in the target position, specify
+    \uicontrol {Position variation}.
+
+    \uicontrol Normalized determines whether the distance to the position
+    affects the magnitude of the particle's velocity. Enable
+    \uicontrol Normalize to derive the velocity amount only from
+    \uicontrol Magnitude and \uicontrol {Magnitude variation}.
+
+    \uicontrol Magnitude specifies the magnitude in \uicontrol Position change
+    per second. A negative value accelerates the in the opposite direction
+    from the position. When \uicontrol Normalized is disabled, this value is
+    multiplied with the distance to the target position. For variation in the
+    magnitude, specify \uicontrol {Magnitude variation}.
+
+    For example, to emit particles towards the target position (100, 0, 0) with
+    random magnitude between 10..20, set \uicontrol Magnitude to 15.00 and
+    \uicontrol {Magnitude variation} to 5.00. Further, enable
+    \uicontrol Normalized.
+
+    \section1 Vector Direction
+
+    The \uicontrol {Vector Direction} component sets emitted particle velocity
+    towards the target vector. The length of the direction vector is used as
+    the velocity magnitude.
+
+    Specify common settings for particle vector direction in
+    \uicontrol Properties > \uicontrol {Particle Vector Direction}.
+
+    \image studio-3d-properties-particle-vector-direction.png "Vector Direction properties"
+
+    \uicontrol Direction specifies the direction of the target of the particle.
+    A positive \uicontrol Y value means \e up, while a negative value means
+    \e down. A negative \uicontrol Z value causes the particles to move in the
+    direction opposite to the target vector.
+
+    For variation in the target direction, specify
+    \uicontrol {Direction variation}. Enable \uicontrol Normalized to
+    normalize direction after applying the variation. When it is disabled,
+    variation affects the magnitude of the particles' velocity. When
+    it is enabled, variation affects the direction, but the magnitude is
+    determined by the original direction length.
+*/

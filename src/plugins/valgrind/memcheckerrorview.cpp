@@ -46,6 +46,7 @@
 
 #include <QAction>
 
+using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
@@ -56,10 +57,10 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
 {
     m_suppressAction = new QAction(this);
     m_suppressAction->setText(tr("Suppress Error"));
-    const QIcon icon = Utils::Icon({
-            {":/utils/images/eye_open.png", Utils::Theme::TextColorNormal},
-            {":/valgrind/images/suppressoverlay.png", Utils::Theme::IconsErrorColor}},
-            Utils::Icon::Tint | Utils::Icon::PunchEdges).icon();
+    const QIcon icon = Icon({
+            {":/utils/images/eye_open.png", Theme::TextColorNormal},
+            {":/valgrind/images/suppressoverlay.png", Theme::IconsErrorColor}},
+            Icon::Tint | Icon::PunchEdges).icon();
     m_suppressAction->setIcon(icon);
     m_suppressAction->setShortcuts({QKeySequence::Delete, QKeySequence::Backspace});
     m_suppressAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -69,12 +70,12 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
 
 MemcheckErrorView::~MemcheckErrorView() = default;
 
-void MemcheckErrorView::setDefaultSuppressionFile(const QString &suppFile)
+void MemcheckErrorView::setDefaultSuppressionFile(const FilePath &suppFile)
 {
     m_defaultSuppFile = suppFile;
 }
 
-QString MemcheckErrorView::defaultSuppressionFile() const
+FilePath MemcheckErrorView::defaultSuppressionFile() const
 {
     return m_defaultSuppFile;
 }

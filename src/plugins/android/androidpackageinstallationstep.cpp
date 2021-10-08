@@ -196,7 +196,7 @@ void AndroidPackageInstallationStep::doRun()
 
 AndroidPackageInstallationFactory::AndroidPackageInstallationFactory()
 {
-    registerStep<AndroidPackageInstallationStep>(Constants::ANDROID_PACKAGE_INSTALLATION_STEP_ID);
+    registerStep<AndroidPackageInstallationStep>(Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
     setRepeatable(false);

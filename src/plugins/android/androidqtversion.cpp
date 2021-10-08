@@ -197,7 +197,7 @@ void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     m_androidAbis = evaluator->values("ALL_ANDROID_ABIS");
     if (m_androidAbis.isEmpty())
-        m_androidAbis = QStringList{evaluator->value("ANDROID_TARGET_ARCH")};
+        m_androidAbis = QStringList{evaluator->value(Constants::ANDROID_TARGET_ARCH)};
     const QString androidPlatform = evaluator->value("ANDROID_PLATFORM");
     if (!androidPlatform.isEmpty()) {
         const QRegularExpression regex("android-(\\d+)");
@@ -232,7 +232,7 @@ QSet<Utils::Id> AndroidQtVersion::targetDeviceTypes() const
 AndroidQtVersionFactory::AndroidQtVersionFactory()
 {
     setQtVersionCreator([] { return new AndroidQtVersion; });
-    setSupportedType(Constants::ANDROIDQT);
+    setSupportedType(Constants::ANDROID_QT_TYPE);
     setPriority(90);
 
     setRestrictionChecker([](const SetupData &setup) {

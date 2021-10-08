@@ -322,8 +322,14 @@ static QStringList splitFragments(const QStringList &fragments)
     return result;
 }
 
+bool isPchFile(const FilePath &buildDirectory, const FilePath &path)
+{
+    return path.isChildOf(buildDirectory) && path.fileName().startsWith("cmake_pch");
+}
+
 RawProjectParts generateRawProjectParts(const PreprocessedData &input,
-                                        const FilePath &sourceDirectory)
+                                        const FilePath &sourceDirectory,
+                                        const FilePath &buildDirectory)
 {
     RawProjectParts rpps;
 
@@ -331,8 +337,12 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
 
+        // Do not tread generated files and CMake precompiled headers as project files
+        const auto sourceFiles = Utils::filtered(t.sources, [buildDirectory](const SourceInfo &si) {
+            return !si.isGenerated && !isPchFile(buildDirectory, FilePath::fromString(si.path));
+        });
         CppEditor::ProjectFileCategorizer
-            categorizer({}, transform<QList>(t.sources, [&sourceDir](const SourceInfo &si) {
+            categorizer({}, transform<QList>(sourceFiles, [&sourceDir](const SourceInfo &si) {
                             return sourceDir.absoluteFilePath(si.path);
                         }));
 
@@ -531,6 +541,11 @@ void addCompileGroups(ProjectNode *targetRoot,
         auto node = std::make_unique<FileNode>(sourcePath, Node::fileTypeForFileName(sourcePath));
         node->setIsGenerated(si.isGenerated);
 
+        // CMake pch files are generated at configured time, but not marked as generated
+        // so that a "clean" step won't remove them and at a subsequent build they won't exist.
+        if (isPchFile(buildDirectory, sourcePath))
+            node->setIsGenerated(true);
+
         // Where does the file node need to go?
         if (sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
             buildFileNodes.emplace_back(std::move(node));
@@ -638,9 +653,16 @@ std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
 
 void setupLocationInfoForTargets(CMakeProjectNode *rootNode, const QList<CMakeBuildTarget> &targets)
 {
+    const QSet<QString> titles = Utils::transform<QSet>(targets, &CMakeBuildTarget::title);
+    QHash<QString, FolderNode *> buildKeyToNode;
+    rootNode->forEachGenericNode([&buildKeyToNode, &titles](Node *node) {
+        FolderNode *folderNode = node->asFolderNode();
+        const QString &buildKey = node->buildKey();
+        if (folderNode && titles.contains(buildKey))
+            buildKeyToNode.insert(buildKey, folderNode);
+    });
     for (const CMakeBuildTarget &t : targets) {
-        FolderNode *folderNode = static_cast<FolderNode *>(
-            rootNode->findNode(Utils::equal(&Node::buildKey, t.title)));
+        FolderNode *folderNode = buildKeyToNode.value(t.title);
         if (folderNode) {
             QSet<std::pair<FilePath, int>> locations;
             auto dedup = [&locations](const Backtrace &bt) {
@@ -705,7 +727,7 @@ FileApiQtcData extractData(FileApiData &input,
 
     result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory, haveLibrariesRelativeToBuildDirectory);
     result.cmakeFiles = std::move(data.cmakeFiles);
-    result.projectParts = generateRawProjectParts(data, sourceDirectory);
+    result.projectParts = generateRawProjectParts(data, sourceDirectory, buildDirectory);
 
     auto rootProjectNode = generateRootProjectNode(data, sourceDirectory, buildDirectory);
     ProjectTree::applyTreeManager(rootProjectNode.get()); // QRC nodes

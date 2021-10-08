@@ -309,7 +309,11 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                 }
             }
 
-            newQmlObjectNode = QmlObjectNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
+            ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
+            if (itemLibraryEntry.typeName() == "QtQml.Component")
+                nodeSourceType = ModelNode::NodeWithComponentSource;
+
+            newQmlObjectNode = QmlObjectNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList, {}, {}, nodeSourceType));
         } else {
             newQmlObjectNode = createQmlObjectNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
         }

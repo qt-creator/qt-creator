@@ -98,6 +98,10 @@ void TransitionEditorView::nodeRemoved(const ModelNode & removedNode,
 {
     if (parentProperty.name() == "transitions")
         widget()->updateData(removedNode);
+
+    const ModelNode parent = parentProperty.parentModelNode();
+    if (parent.isValid() && parent.metaInfo().isSubclassOf("QtQuick.Transition"))
+        asyncUpdate(parent);
 }
 
 void TransitionEditorView::nodeReparented(const ModelNode &node,
@@ -110,7 +114,6 @@ void TransitionEditorView::nodeReparented(const ModelNode &node,
 
     const ModelNode parent = newPropertyParent.parentModelNode();
 
-    // qDebug() << Q_FUNC_INFO << parent;
     if (parent.isValid() && parent.metaInfo().isValid()
         && parent.metaInfo().isSubclassOf("QtQuick.Transition")) {
         asyncUpdate(parent);

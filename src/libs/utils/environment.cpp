@@ -136,8 +136,7 @@ void Environment::setupEnglishOutput()
     set("LANGUAGE", "en_US:en");
 }
 
-static FilePath searchInDirectory(const Environment &env,
-                                  const QStringList &execs,
+static FilePath searchInDirectory(const QStringList &execs,
                                   const FilePath &directory,
                                   QSet<FilePath> &alreadyChecked)
 {
@@ -226,7 +225,7 @@ static FilePath searchInDirectoriesHelper(const Environment &env,
 
     QSet<FilePath> alreadyChecked;
     for (const FilePath &dir : dirs) {
-        FilePath tmp = searchInDirectory(env, execs, dir, alreadyChecked);
+        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
         if (!tmp.isEmpty() && (!func || func(tmp)))
             return tmp;
     }
@@ -236,7 +235,7 @@ static FilePath searchInDirectoriesHelper(const Environment &env,
             return FilePath();
 
         for (const FilePath &p : env.path()) {
-            FilePath tmp = searchInDirectory(env, execs, p, alreadyChecked);
+            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
             if (!tmp.isEmpty() && (!func || func(tmp)))
                 return tmp;
         }
@@ -281,14 +280,14 @@ FilePaths Environment::findAllInPath(const QString &executable,
     QSet<FilePath> result;
     QSet<FilePath> alreadyChecked;
     for (const FilePath &dir : additionalDirs) {
-        FilePath tmp = searchInDirectory(*this, execs, dir, alreadyChecked);
+        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
         if (!tmp.isEmpty() && (!func || func(tmp)))
             result << tmp;
     }
 
     if (!executable.contains('/')) {
         for (const FilePath &p : path()) {
-            FilePath tmp = searchInDirectory(*this, execs, p, alreadyChecked);
+            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
             if (!tmp.isEmpty() && (!func || func(tmp)))
                 result << tmp;
         }

@@ -92,11 +92,7 @@ QMakeGlobals::~QMakeGlobals()
 void QMakeGlobals::killProcesses()
 {
 #ifdef PROEVALUATOR_THREAD_SAFE
-    QMutexLocker lock(&mutex);
     canceled = true;
-    for (QProcess * const proc : runningProcs)
-        proc->kill();
-    runningProcs.clear();
 #endif
 }
 

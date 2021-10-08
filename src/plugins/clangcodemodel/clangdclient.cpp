@@ -66,14 +66,18 @@
 #include <utils/runextensions.h>
 
 #include <QCheckBox>
+#include <QDateTime>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QHash>
 #include <QPair>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QtConcurrent>
 
 #include <set>
 #include <unordered_map>
+#include <utility>
 
 using namespace CPlusPlus;
 using namespace Core;
@@ -89,6 +93,7 @@ static Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogTiming, "qtc.clangcodemodel.clangd.timing", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
 class AstNode : public JsonObject
@@ -170,6 +175,12 @@ public:
     }
 
     bool isNamespace() const { return role() == "declaration" && kind() == "Namespace"; }
+
+    bool isTemplateParameterDeclaration() const
+    {
+        return role() == "declaration" && (kind() == "TemplateTypeParm"
+                                           || kind() == "NonTypeTemplateParm");
+    };
 
     QString type() const
     {
@@ -303,14 +314,6 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
         isRoot = false;
     }
     return path;
-}
-
-static AstNode getAstNode(const AstNode &root, const Range &range)
-{
-    const QList<AstNode> path = getAstPath(root, range);
-    if (!path.isEmpty())
-        return path.last();
-    return {};
 }
 
 static Usage::Type getUsageType(const QList<AstNode> &path)
@@ -773,6 +776,109 @@ private:
     std::unordered_map<DocType, VersionedDocData<DocType, DataType>> m_data;
 };
 
+class TaskTimer
+{
+public:
+    TaskTimer(const QString &task) : m_task(task) {}
+
+    void stopTask()
+    {
+        // This can happen due to the RAII mechanism employed with SubtaskTimer.
+        // The subtask timers will expire immediately after, so this does not distort
+        // the timing data.
+        if (m_subtasks > 0) {
+            QTC_CHECK(m_timer.isValid());
+            m_elapsedMs += m_timer.elapsed();
+            m_timer.invalidate();
+            m_subtasks = 0;
+        }
+        m_started = false;
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": took " << m_elapsedMs
+                                                     << " ms in UI thread";
+    }
+    void startSubtask()
+    {
+        // We have some callbacks that are either synchronous or asynchronous, depending on
+        // dynamic conditions. In the sync case, we will have nested subtasks, in which case
+        // the inner ones must not collect timing data, as their code blocks are already covered.
+        if (++m_subtasks > 1)
+            return;
+        if (!m_started) {
+            QTC_ASSERT(m_elapsedMs == 0, m_elapsedMs = 0);
+            m_started = true;
+            m_finalized = false;
+            qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": starting";
+        }
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": subtask started at "
+                                                     << QDateTime::currentDateTime().toString();
+        QTC_CHECK(!m_timer.isValid());
+        m_timer.start();
+    }
+    void stopSubtask(bool isFinalizing)
+    {
+        if (m_subtasks == 0) // See stopTask().
+            return;
+        if (isFinalizing)
+            m_finalized = true;
+        if (--m_subtasks > 0) // See startSubtask().
+            return;
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": subtask stopped at "
+                                                     << QDateTime::currentDateTime().toString();
+        QTC_CHECK(m_timer.isValid());
+        m_elapsedMs += m_timer.elapsed();
+        m_timer.invalidate();
+        if (m_finalized)
+            stopTask();
+    }
+
+private:
+    const QString m_task;
+    QElapsedTimer m_timer;
+    qint64 m_elapsedMs = 0;
+    int m_subtasks = 0;
+    bool m_started = false;
+    bool m_finalized = false;
+};
+
+class SubtaskTimer
+{
+public:
+    SubtaskTimer(TaskTimer &timer) : m_timer(timer) { m_timer.startSubtask(); }
+    ~SubtaskTimer() { m_timer.stopSubtask(m_isFinalizing); }
+
+protected:
+    void makeFinalizing() { m_isFinalizing = true; }
+
+private:
+    TaskTimer &m_timer;
+    bool m_isFinalizing = false;
+};
+
+class FinalizingSubtaskTimer : public SubtaskTimer
+{
+public:
+    FinalizingSubtaskTimer(TaskTimer &timer) : SubtaskTimer(timer) { makeFinalizing(); }
+};
+
+class ThreadedSubtaskTimer
+{
+public:
+    ThreadedSubtaskTimer(const QString &task) : m_task(task)
+    {
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": starting thread";
+        m_timer.start();
+    }
+
+    ~ThreadedSubtaskTimer()
+    {
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": took " << m_timer.elapsed()
+                                                     << " ms in dedicated thread";
+    }
+private:
+    const QString m_task;
+    QElapsedTimer m_timer;
+};
+
 class ClangdClient::Private
 {
 public:
@@ -812,7 +918,7 @@ public:
     using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
     using AstHandler = const std::function<void(const AstNode &ast, const MessageId &)>;
     MessageId getAndHandleAst(TextDocOrFile &doc, AstHandler &astHandler,
-                              AstCallbackMode callbackMode);
+                              AstCallbackMode callbackMode, const Range &range = {});
 
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
@@ -821,9 +927,13 @@ public:
     Utils::optional<SwitchDeclDefData> switchDeclDefData;
     Utils::optional<LocalRefsData> localRefsData;
     Utils::optional<QVersionNumber> versionNumber;
-    std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter> highlighters;
+
+    //  The highlighters are owned by their respective documents.
+    std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
+
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
+    TaskTimer highlightingTimer{"highlighting"};
     quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
@@ -1453,16 +1563,16 @@ void ClangdClient::followSymbol(TextDocument *document,
         return;
     }
 
-    const auto astHandler = [this, id = d->followSymbolData->id, range = Range(cursor)]
+    const auto astHandler = [this, id = d->followSymbolData->id]
             (const AstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for cursor";
         if (!d->followSymbolData || d->followSymbolData->id != id)
             return;
-        d->followSymbolData->cursorNode = getAstNode(ast, range);
+        d->followSymbolData->cursorNode = ast;
         if (d->followSymbolData->defLink.hasValidTarget())
             d->handleGotoDefinitionResult();
     };
-    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::SyncIfPossible);
+    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::AlwaysAsync, Range(cursor));
 }
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
@@ -1912,18 +2022,19 @@ void ClangdClient::Private::handleGotoImplementationResult(
                                               : TextDocOrFile(defLinkFilePath);
     const Position defLinkPos(followSymbolData->defLink.targetLine - 1,
                               followSymbolData->defLink.targetColumn);
-    const auto astHandler = [this, range = Range(defLinkPos, defLinkPos), id = followSymbolData->id]
+    const auto astHandler = [this, id = followSymbolData->id]
             (const AstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for def link";
         if (!followSymbolData || followSymbolData->id != id)
             return;
-        followSymbolData->defLinkNode = getAstNode(ast, range);
+        followSymbolData->defLinkNode = ast;
         if (followSymbolData->pendingSymbolInfoRequests.isEmpty()
                 && followSymbolData->pendingGotoDefRequests.isEmpty()) {
             handleDocumentInfoResults();
         }
     };
-    getAndHandleAst(defLinkDocVariant, astHandler, AstCallbackMode::SyncIfPossible);
+    getAndHandleAst(defLinkDocVariant, astHandler, AstCallbackMode::AlwaysAsync,
+                    Range(defLinkPos, defLinkPos));
 }
 
 void ClangdClient::Private::handleDocumentInfoResults()
@@ -2013,446 +2124,37 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token, const 
         q->hoverHandler()->setHelpItem(token, helpItem);
 }
 
-static void collectExtraResults(QFutureInterface<HighlightingResult> &future,
-                                HighlightingResults &results, const AstNode &ast,
-                                QTextDocument *doc, const QString &docContent)
+class ExtraHighlightingResultsCollector
 {
-    if (!ast.isValid())
-        return;
+public:
+    ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
+                                      HighlightingResults &results, const AstNode &ast,
+                                      const QTextDocument *doc, const QString &docContent);
 
-    static const auto lessThan = [](const HighlightingResult &r1,
-                                    const HighlightingResult &r2) {
-        return r1.line < r2.line || (r1.line == r2.line && r1.column < r2.column)
-                || (r1.line == r2.line && r1.column == r2.column && r1.length < r2.length);
-    };
-    const auto insert = [&](const HighlightingResult &result) {
-        if (!result.isValid()) // Some nodes don't have a range.
-            return;
-        const auto it = std::lower_bound(results.begin(), results.end(), result, lessThan);
-        if (it == results.end() || *it != result) {
-            qCDebug(clangdLogHighlight) << "adding additional highlighting result"
-                               << result.line << result.column << result.length;
-            results.insert(it, result);
-            return;
-        }
+    void collect();
+private:
+    static bool lessThan(const HighlightingResult &r1, const HighlightingResult &r2);
+    static int onlyIndexOf(const QStringView &text, const QStringView &subString, int from = 0);
+    int posForNodeStart(const AstNode &node) const;
+    int posForNodeEnd(const AstNode &node) const;
+    void insertResult(const HighlightingResult &result);
+    void insertAngleBracketInfo(int searchStart1, int searchEnd1, int searchStart2, int searchEnd2);
+    void setResultPosFromRange(HighlightingResult &result, const Range &range);
+    void collectFromNode(const AstNode &node);
+    void visitNode(const AstNode&node);
 
-        // This is for conversion operators, whose type part is only reported as a type by clangd.
-        if ((it->textStyles.mainStyle == C_TYPE
-             || it->textStyles.mainStyle == C_PRIMITIVE_TYPE)
-                && !result.textStyles.mixinStyles.empty()
-                && result.textStyles.mixinStyles.at(0) == C_OPERATOR) {
-            it->textStyles.mixinStyles = result.textStyles.mixinStyles;
-        }
-    };
-    const auto setFromRange = [doc](HighlightingResult &result, const Range &range) {
-        if (!range.isValid())
-            return;
-        const Position startPos = range.start();
-        const Position endPos = range.end();
-        result.line = startPos.line() + 1;
-        result.column = startPos.character() + 1;
-        result.length = endPos.toPositionInDocument(doc) - startPos.toPositionInDocument(doc);
-    };
-    static const auto onlyIndexOf = [](const QStringView &view, const QStringView &s,
-                                       int from = 0) {
-        const int firstIndex = view.indexOf(s, from);
-        if (firstIndex == -1)
-            return -1;
-        const int nextIndex = view.indexOf(s, firstIndex + 1);
-
-        // The second condion deals with the off-by-one error in TemplateSpecialization nodes;
-        // see below.
-        return nextIndex == -1 || nextIndex == firstIndex + 1 ? firstIndex : -1;
-    };
-
-    QList<AstNode> nodes = {ast};
-    while (!nodes.isEmpty()) {
-        if (future.isCanceled())
-            return;
-        const AstNode node = nodes.takeFirst();
-        const QList<AstNode> children = node.children().value_or(QList<AstNode>());
-        nodes << children;
-
-        if (node.kind().endsWith("Literal")) {
-            HighlightingResult result;
-            result.useTextSyles = true;
-            const bool isStringLike = node.kind().startsWith("String")
-                    || node.kind().startsWith("Character");
-            result.textStyles.mainStyle = isStringLike ? C_STRING : C_NUMBER;
-            setFromRange(result, node.range());
-            insert(result);
-            continue;
-        }
-        if (node.role() == "type" && node.kind() == "Builtin") {
-            HighlightingResult result;
-            result.useTextSyles = true;
-            result.textStyles.mainStyle = C_PRIMITIVE_TYPE;
-            setFromRange(result, node.range());
-            insert(result);
-            continue;
-        }
-        if (node.role() == "attribute" && (node.kind() == "Override" || node.kind() == "Final")) {
-            HighlightingResult result;
-            result.useTextSyles = true;
-            result.textStyles.mainStyle = C_KEYWORD;
-            setFromRange(result, node.range());
-            insert(result);
-            continue;
-        }
-
-        const bool isExpression = node.role() == "expression";
-        const bool isDeclaration = node.role() == "declaration";
-
-        // Unfortunately, the exact position of a specific token is usually not
-        // recorded in the AST, so if we need that, we have to search for it textually.
-        // In corner cases, this might get sabotaged by e.g. comments, in which case we give up.
-        const auto posForNodeStart = [doc](const AstNode &node) {
-            return Utils::Text::positionInText(doc, node.range().start().line() + 1,
-                                               node.range().start().character() + 1);
-        };
-        const auto posForNodeEnd = [doc](const AstNode &node) {
-            return Utils::Text::positionInText(doc, node.range().end().line() + 1,
-                                               node.range().end().character() + 1);
-        };
-        const int nodeStartPos = posForNodeStart(node);
-        const int nodeEndPos = posForNodeEnd(node);
-
-        // Match question mark and colon in ternary operators.
-        if (isExpression && node.kind() == "ConditionalOperator") {
-            if (children.size() != 3)
-                continue;
-
-            // The question mark is between sub-expressions 1 and 2, the colon is between
-            // sub-expressions 2 and 3.
-            const int searchStartPosQuestionMark = posForNodeEnd(children.first());
-            const int searchEndPosQuestionMark = posForNodeStart(children.at(1));
-            QStringView content = QStringView(docContent).mid(searchStartPosQuestionMark,
-                searchEndPosQuestionMark - searchStartPosQuestionMark);
-            const int questionMarkPos = onlyIndexOf(content, QStringView(QStringLiteral("?")));
-            if (questionMarkPos == -1)
-                continue;
-            const int searchStartPosColon = posForNodeEnd(children.at(1));
-            const int searchEndPosColon = posForNodeStart(children.at(2));
-            content = QStringView(docContent).mid(searchStartPosColon,
-                searchEndPosColon - searchStartPosColon);
-            const int colonPos = onlyIndexOf(content, QStringView(QStringLiteral(":")));
-            if (colonPos == -1)
-                continue;
-
-            const int absQuestionMarkPos = searchStartPosQuestionMark + questionMarkPos;
-            const int absColonPos = searchStartPosColon + colonPos;
-            if (absQuestionMarkPos > absColonPos)
-                continue;
-
-            HighlightingResult result;
-            result.useTextSyles = true;
-            result.textStyles.mainStyle = C_PUNCTUATION;
-            result.textStyles.mixinStyles.push_back(C_OPERATOR);
-            Utils::Text::convertPosition(doc, absQuestionMarkPos, &result.line, &result.column);
-            result.length = 1;
-            result.kind = CppEditor::SemanticHighlighter::TernaryIf;
-            insert(result);
-            Utils::Text::convertPosition(doc, absColonPos, &result.line, &result.column);
-            result.kind = CppEditor::SemanticHighlighter::TernaryElse;
-            insert(result);
-            continue;
-        }
-
-        // The following functions are for matching the "<" and ">" brackets of template
-        // declarations, specializations and instantiations.
-        const auto insertAngleBracketInfo = [&docContent, doc, &insert](
-                int searchStart1, int searchEnd1, int searchStart2, int searchEnd2) {
-            const int openingAngleBracketPos = onlyIndexOf(
-                        QStringView(docContent).mid(searchStart1, searchEnd1 - searchStart1),
-                        QStringView(QStringLiteral("<")));
-            if (openingAngleBracketPos == -1)
-                return;
-            const int absOpeningAngleBracketPos = searchStart1 + openingAngleBracketPos;
-            if (absOpeningAngleBracketPos > searchStart2)
-                searchStart2 = absOpeningAngleBracketPos + 1;
-            if (searchStart2 >= searchEnd2)
-                return;
-            const int closingAngleBracketPos = onlyIndexOf(
-                        QStringView(docContent).mid(searchStart2, searchEnd2 - searchStart2),
-                        QStringView(QStringLiteral(">")));
-            if (closingAngleBracketPos == -1)
-                return;
-
-            const int absClosingAngleBracketPos = searchStart2 + closingAngleBracketPos;
-            if (absOpeningAngleBracketPos > absClosingAngleBracketPos)
-                return;
-
-            HighlightingResult result;
-            result.useTextSyles = true;
-            result.textStyles.mainStyle = C_PUNCTUATION;
-            Utils::Text::convertPosition(doc, absOpeningAngleBracketPos,
-                                         &result.line, &result.column);
-            result.length = 1;
-            result.kind = CppEditor::SemanticHighlighter::AngleBracketOpen;
-            insert(result);
-            Utils::Text::convertPosition(doc, absClosingAngleBracketPos,
-                                         &result.line, &result.column);
-            result.kind = CppEditor::SemanticHighlighter::AngleBracketClose;
-            insert(result);
-        };
-
-        if (isDeclaration && (node.kind() == "FunctionTemplate"
-                              || node.kind() == "ClassTemplate")) {
-            // The child nodes are the template parameters and and the function or class.
-            // The opening angle bracket is before the first child node, the closing angle
-            // bracket is before the function child node and after the last param node.
-            const QString classOrFunctionKind = QLatin1String(node.kind() == "FunctionTemplate"
-                    ? "Function" : "CXXRecord");
-            const auto functionOrClassIt = std::find_if(children.begin(), children.end(),
-                                                 [&classOrFunctionKind](const AstNode &n) {
-                return n.role() == "declaration" && n.kind() == classOrFunctionKind;
-            });
-            if (functionOrClassIt == children.end() || functionOrClassIt == children.begin())
-                continue;
-            const int firstTemplateParamStartPos = posForNodeStart(children.first());
-            const int lastTemplateParamEndPos = posForNodeEnd(*(functionOrClassIt - 1));
-            const int functionOrClassStartPos = posForNodeStart(*functionOrClassIt);
-            insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
-                                   lastTemplateParamEndPos, functionOrClassStartPos);
-            continue;
-        }
-
-        static const auto findTemplateParam = [](const AstNode &n) {
-            return n.role() == "declaration" && (n.kind() == "TemplateTypeParm"
-                                                 || n.kind() == "NonTypeTemplateParm");
-        };
-
-        if (isDeclaration && node.kind() == "TypeAliasTemplate") {
-            // Children are one node of type TypeAlias and the template parameters.
-            // The opening angle bracket is before the first parameter and the closing
-            // angle bracket is after the last parameter.
-            // The TypeAlias node seems to appear first in the AST, even though lexically
-            // is comes after the parameters. We don't rely on the order here.
-            // Note that there is a second pair of angle brackets. That one is part of
-            // a TemplateSpecialization, which is handled further below.
-            const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
-                                                         findTemplateParam);
-            if (firstTemplateParam == children.end())
-                continue;
-            const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
-                                                        findTemplateParam);
-            QTC_ASSERT(lastTemplateParam != children.rend(), continue);
-            const auto typeAlias = std::find_if(children.begin(), children.end(),
-                [](const AstNode &n) { return n.kind() == "TypeAlias"; });
-            if (typeAlias == children.end())
-                continue;
-
-            const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
-            const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
-            const int searchEndPos = posForNodeStart(*typeAlias);
-            insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
-                                   lastTemplateParamEndPos, searchEndPos);
-            continue;
-        }
-
-        if (isDeclaration && node.kind() == "ClassTemplateSpecialization") {
-            // There is one child of kind TemplateSpecialization. The first pair
-            // of angle brackets comes before that.
-            if (children.size() == 1) {
-                const int childNodePos = posForNodeStart(children.first());
-                insertAngleBracketInfo(nodeStartPos, childNodePos, nodeStartPos, childNodePos);
-            }
-            continue;
-        }
-
-        if (isDeclaration && node.kind() == "TemplateTemplateParm") {
-            // The child nodes are template arguments and template parameters.
-            // Arguments seem to appear before parameters in the AST, even though they
-            // come after them in the source code. We don't rely on the order here.
-            const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
-                                                         findTemplateParam);
-            if (firstTemplateParam == children.end())
-                continue;
-            const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
-                                                        findTemplateParam);
-            QTC_ASSERT(lastTemplateParam != children.rend(), continue);
-            const auto templateArg = std::find_if(children.begin(), children.end(),
-                [](const AstNode &n) { return n.role() == "template argument"; });
-
-            const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
-            const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
-            const int searchEndPos = templateArg == children.end()
-                    ? nodeEndPos : posForNodeStart(*templateArg);
-            insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
-                                   lastTemplateParamEndPos, searchEndPos);
-            continue;
-        }
-
-        // {static,dynamic,reinterpret}_cast<>().
-        if (isExpression && node.kind().startsWith("CXX") && node.kind().endsWith("Cast")) {
-            // First child is type, second child is expression.
-            // The opening angle bracket is before the first child, the closing angle bracket
-            // is between the two children.
-            if (children.size() == 2) {
-                insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.first()),
-                                       posForNodeEnd(children.first()),
-                                       posForNodeStart(children.last()));
-            }
-            continue;
-        }
-
-        if (node.kind() == "TemplateSpecialization") {
-            // First comes the template type, then the template arguments.
-            // The opening angle bracket is before the first template argument,
-            // the closing angle bracket is after the last template argument.
-            // The first child node has no range, so we start searching at the parent node.
-            if (children.size() >= 2) {
-                int searchStart2 = posForNodeEnd(children.last());
-                int searchEnd2 = nodeEndPos;
-
-                // There is a weird off-by-one error on the clang side: If there is a
-                // nested template instantiation *and* there is no space between
-                // the closing angle brackets, then the inner TemplateSpecialization node's range
-                // will extend one character too far, covering the outer's closing angle bracket.
-                // This is what we are correcting for here.
-                // This issue is tracked at https://github.com/clangd/clangd/issues/871.
-                if (searchStart2 == searchEnd2)
-                    --searchStart2;
-                insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.at(1)),
-                                       searchStart2, searchEnd2);
-            }
-            continue;
-        }
-
-        if (!isExpression && !isDeclaration)
-            continue;
-
-        // Operators, overloaded ones in particular.
-        static const QString operatorPrefix = "operator";
-        QString detail = node.detail().value_or(QString());
-        const bool isCallToNew = node.kind() == "CXXNew";
-        const bool isCallToDelete = node.kind() == "CXXDelete";
-        if (!isCallToNew && !isCallToDelete
-                && (!detail.startsWith(operatorPrefix) || detail == operatorPrefix)) {
-            continue;
-        }
-
-        if (!isCallToNew && !isCallToDelete)
-            detail.remove(0, operatorPrefix.length());
-
-        HighlightingResult result;
-        result.useTextSyles = true;
-        const bool isConversionOp = node.kind() == "CXXConversion";
-        const bool isOverloaded = !isConversionOp
-                && (isDeclaration || ((!isCallToNew && !isCallToDelete)
-                                      || node.arcanaContains("CXXMethod")));
-        result.textStyles.mainStyle = isConversionOp
-                ? C_PRIMITIVE_TYPE
-                : isCallToNew || isCallToDelete || detail.at(0).isSpace()
-                  ? C_KEYWORD : C_PUNCTUATION;
-        result.textStyles.mixinStyles.push_back(C_OPERATOR);
-        if (isOverloaded)
-            result.textStyles.mixinStyles.push_back(C_OVERLOADED_OPERATOR);
-        if (isDeclaration)
-            result.textStyles.mixinStyles.push_back(C_DECLARATION);
-
-        const QStringView nodeText = QStringView(docContent)
-                .mid(nodeStartPos, nodeEndPos - nodeStartPos);
-
-        if (isCallToNew || isCallToDelete) {
-            result.line = node.range().start().line() + 1;
-            result.column = node.range().start().character() + 1;
-            result.length = isCallToNew ? 3 : 6;
-            insert(result);
-            if (node.arcanaContains("array")) {
-                const int openingBracketOffset = nodeText.indexOf('[');
-                if (openingBracketOffset == -1)
-                    continue;
-                const int closingBracketOffset = nodeText.lastIndexOf(']');
-                if (closingBracketOffset == -1 || closingBracketOffset < openingBracketOffset)
-                    continue;
-
-                result.textStyles.mainStyle = C_PUNCTUATION;
-                result.length = 1;
-                Utils::Text::convertPosition(doc,
-                                             nodeStartPos + openingBracketOffset,
-                                             &result.line, &result.column);
-                insert(result);
-                Utils::Text::convertPosition(doc,
-                                             nodeStartPos + closingBracketOffset,
-                                             &result.line, &result.column);
-                insert(result);
-            }
-            continue;
-        }
-
-        if (isExpression && (detail == QLatin1String("()") || detail == QLatin1String("[]"))) {
-            result.line = node.range().start().line() + 1;
-            result.column = node.range().start().character() + 1;
-            result.length = 1;
-            insert(result);
-            result.line = node.range().end().line() + 1;
-            result.column = node.range().end().character();
-            insert(result);
-            continue;
-        }
-
-        const int opStringLen = detail.at(0).isSpace() ? detail.length() - 1 : detail.length();
-
-        // The simple case: Call to operator+, +=, * etc.
-        if (nodeEndPos - nodeStartPos == opStringLen) {
-            setFromRange(result, node.range());
-            insert(result);
-            continue;
-        }
-
-        const int prefixOffset = nodeText.indexOf(operatorPrefix);
-        if (prefixOffset == -1)
-            continue;
-
-        const bool isArray = detail == "[]";
-        const bool isCall = detail == "()";
-        const bool isArrayNew = detail == " new[]";
-        const bool isArrayDelete = detail == " delete[]";
-        const QStringView searchTerm = isArray || isCall
-                ? QStringView(detail).chopped(1) : isArrayNew || isArrayDelete
-                  ? QStringView(detail).chopped(2) : detail;
-        const int opStringOffset = nodeText.indexOf(searchTerm, prefixOffset
-                                                    + operatorPrefix.length());
-        if (opStringOffset == -1 || nodeText.indexOf(operatorPrefix, opStringOffset) != -1)
-            continue;
-
-        const int opStringOffsetInDoc = nodeStartPos + opStringOffset
-                + detail.length() - opStringLen;
-        Utils::Text::convertPosition(doc, opStringOffsetInDoc, &result.line, &result.column);
-        result.length = opStringLen;
-        if (isArray || isCall)
-            result.length = 1;
-        else if (isArrayNew || isArrayDelete)
-            result.length -= 2;
-        if (!isArray && !isCall)
-            insert(result);
-        if (!isArray && !isCall && !isArrayNew && !isArrayDelete)
-            continue;
-
-        result.textStyles.mainStyle = C_PUNCTUATION;
-        result.length = 1;
-        const int openingParenOffset = nodeText.indexOf(
-                    isCall ? '(' : '[', prefixOffset + operatorPrefix.length());
-        if (openingParenOffset == -1)
-            continue;
-        const int closingParenOffset = nodeText.indexOf(isCall ? ')' : ']', openingParenOffset + 1);
-        if (closingParenOffset == -1 || closingParenOffset < openingParenOffset)
-            continue;
-        Utils::Text::convertPosition(doc, nodeStartPos + openingParenOffset,
-                                     &result.line, &result.column);
-        insert(result);
-        Utils::Text::convertPosition(doc, nodeStartPos + closingParenOffset,
-                                     &result.line, &result.column);
-        insert(result);
-    }
-}
+    QFutureInterface<HighlightingResult> &m_future;
+    HighlightingResults &m_results;
+    const AstNode &m_ast;
+    const QTextDocument * const m_doc;
+    const QString &m_docContent;
+};
 
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
 // and not even in a consistent manner. We don't want this, so we have to clean up here.
 // But note that we require this behavior, as otherwise we would not be able to grey out
 // e.g. empty lines after an #fdef, due to the lack of symbols.
-static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, QTextDocument *doc,
+static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const QTextDocument *doc,
                                              const QString &docContent)
 {
     QList<BlockRange> ifdefedOutRanges;
@@ -2513,12 +2215,13 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const QPointer<TextEditorWidget> &widget,
                                 int docRevision, const QVersionNumber &clangdVersion)
 {
+    ThreadedSubtaskTimer t("highlighting");
     if (future.isCanceled()) {
         future.reportFinished();
         return;
     }
 
-    QTextDocument doc(docContents);
+    const QTextDocument doc(docContents);
     const auto isOutputParameter = [&ast](const ExpandedSemanticToken &token) {
         if (token.modifiers.contains("usedAsMutableReference"))
             return true;
@@ -2545,8 +2248,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         return false;
     };
 
-    const auto toResult = [&ast, &isOutputParameter, &clangdVersion]
-            (const ExpandedSemanticToken &token) {
+    const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
+            = [&ast, &isOutputParameter, &clangdVersion](const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains("functionScope")) {
@@ -2629,13 +2332,13 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         return HighlightingResult(token.line, token.column, token.length, styles);
     };
 
-    HighlightingResults results = Utils::transform(tokens, toResult);
+    auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, toResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
     QMetaObject::invokeMethod(widget, [widget, ifdefedOutBlocks, docRevision] {
         if (widget && widget->textDocument()->document()->revision() == docRevision)
             widget->setIfdefedOutBlocks(ifdefedOutBlocks);
     }, Qt::QueuedConnection);
-    collectExtraResults(future, results, ast, &doc, docContents);
+    ExtraHighlightingResultsCollector(future, results, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
         future.reportResults(QVector<HighlightingResult>(results.cbegin(),
@@ -2659,12 +2362,14 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                                                  const QList<ExpandedSemanticToken> &tokens)
 {
+    SubtaskTimer t(highlightingTimer);
     qCDebug(clangdLog()) << "handling LSP tokens" << doc->filePath() << tokens.size();
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
 
     const auto astHandler = [this, tokens, doc](const AstNode &ast, const MessageId &) {
+        FinalizingSubtaskTimer t(highlightingTimer);
         if (!q->documentOpen(doc))
             return;
         if (clangdLogAst().isDebugEnabled())
@@ -2692,12 +2397,13 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
         auto it = highlighters.find(doc);
         if (it == highlighters.end()) {
-            it = highlighters.emplace(doc, doc).first;
+            it = highlighters.insert(std::make_pair(doc, new CppEditor::SemanticHighlighter(doc)))
+                    .first;
         } else {
-            it->second.updateFormatMapFromFontSettings();
+            it->second->updateFormatMapFromFontSettings();
         }
-        it->second.setHighlightingRunner(runner);
-        it->second.run();
+        it->second->setHighlightingRunner(runner);
+        it->second->run();
     };
     getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
@@ -3014,26 +2720,30 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
                                                  const AstHandler &astHandler,
-                                                 AstCallbackMode callbackMode)
+                                                 AstCallbackMode callbackMode, const Range &range)
 {
     const auto textDocPtr = Utils::get_if<const TextDocument *>(&doc);
     const TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
     const Utils::FilePath filePath = textDoc ? textDoc->filePath()
                                              : Utils::get<Utils::FilePath>(doc);
 
-    // If the document's AST is in the cache and is up to date, call the handler.
-    if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
-        qCDebug(clangdLog) << "using AST from cache";
-        switch (callbackMode) {
-        case AstCallbackMode::SyncIfPossible:
-            astHandler(*ast, {});
-            break;
-        case AstCallbackMode::AlwaysAsync:
-            QMetaObject::invokeMethod(q, [ast, astHandler] { astHandler(*ast, {}); },
+    // If the entire AST is requested and the document's AST is in the cache and it is up to date,
+    // call the handler.
+    const bool fullAstRequested = !range.isValid();
+    if (fullAstRequested) {
+        if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
+            qCDebug(clangdLog) << "using AST from cache";
+            switch (callbackMode) {
+            case AstCallbackMode::SyncIfPossible:
+                astHandler(*ast, {});
+                break;
+            case AstCallbackMode::AlwaysAsync:
+                QMetaObject::invokeMethod(q, [ast, astHandler] { astHandler(*ast, {}); },
                                       Qt::QueuedConnection);
-            break;
+                break;
+            }
+            return {};
         }
-        return {};
     }
 
     // Otherwise retrieve the AST from clangd.
@@ -3041,7 +2751,6 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
     class AstParams : public JsonObject
     {
     public:
-        AstParams() {}
         AstParams(const TextDocumentIdentifier &document, const Range &range = {})
         {
             setTextDocument(document);
@@ -3071,25 +2780,487 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
         explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
     };
 
-    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath))));
+    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)),
+                                 range));
     request.setResponseCallback([this, filePath, guardedTextDoc = QPointer(textDoc), astHandler,
-                                docRev = textDoc ? getRevision(textDoc) : -1,
+                                fullAstRequested, docRev = textDoc ? getRevision(textDoc) : -1,
                                 fileRev = getRevision(filePath), reqId = request.id()]
                                 (AstRequest::Response response) {
         qCDebug(clangdLog) << "retrieved AST from clangd";
         const auto result = response.result();
         const AstNode ast = result ? *result : AstNode();
-        if (guardedTextDoc) {
-            if (docRev == getRevision(guardedTextDoc))
-                astCache.insert(guardedTextDoc, ast);
-        } else if (fileRev == getRevision(filePath) && !q->documentForFilePath(filePath)) {
-            externalAstCache.insert(filePath, ast);
+        if (fullAstRequested) {
+            if (guardedTextDoc) {
+                if (docRev == getRevision(guardedTextDoc))
+                    astCache.insert(guardedTextDoc, ast);
+            } else if (fileRev == getRevision(filePath) && !q->documentForFilePath(filePath)) {
+                externalAstCache.insert(filePath, ast);
+            }
         }
         astHandler(ast, reqId);
     });
     qCDebug(clangdLog) << "requesting AST for" << filePath;
     q->sendContent(request, SendDocUpdates::Ignore);
     return request.id();
+}
+
+ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
+        QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
+        const AstNode &ast, const QTextDocument *doc, const QString &docContent)
+    : m_future(future), m_results(results), m_ast(ast), m_doc(doc), m_docContent(docContent)
+{
+
+}
+
+void ExtraHighlightingResultsCollector::collect()
+{
+    if (!m_ast.isValid())
+        return;
+    visitNode(m_ast);
+}
+
+bool ExtraHighlightingResultsCollector::lessThan(const HighlightingResult &r1,
+                                                 const HighlightingResult &r2)
+{
+    return r1.line < r2.line || (r1.line == r2.line && r1.column < r2.column)
+            || (r1.line == r2.line && r1.column == r2.column && r1.length < r2.length);
+}
+
+int ExtraHighlightingResultsCollector::onlyIndexOf(const QStringView &text,
+                                                   const QStringView &subString, int from)
+{
+    const int firstIndex = text.indexOf(subString, from);
+    if (firstIndex == -1)
+        return -1;
+    const int nextIndex = text.indexOf(subString, firstIndex + 1);
+
+    // The second condion deals with the off-by-one error in TemplateSpecialization nodes;
+    // see collectFromNode().
+    return nextIndex == -1 || nextIndex == firstIndex + 1 ? firstIndex : -1;
+}
+
+// Unfortunately, the exact position of a specific token is usually not
+// recorded in the AST, so if we need that, we have to search for it textually.
+// In corner cases, this might get sabotaged by e.g. comments, in which case we give up.
+int ExtraHighlightingResultsCollector::posForNodeStart(const AstNode &node) const
+{
+    return Utils::Text::positionInText(m_doc, node.range().start().line() + 1,
+                                       node.range().start().character() + 1);
+}
+
+int ExtraHighlightingResultsCollector::posForNodeEnd(const AstNode &node) const
+{
+    return Utils::Text::positionInText(m_doc, node.range().end().line() + 1,
+                                       node.range().end().character() + 1);
+}
+
+void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &result)
+{
+    if (!result.isValid()) // Some nodes don't have a range.
+        return;
+    const auto it = std::lower_bound(m_results.begin(), m_results.end(), result, lessThan);
+    if (it == m_results.end() || *it != result) {
+        qCDebug(clangdLogHighlight) << "adding additional highlighting result"
+                                    << result.line << result.column << result.length;
+        m_results.insert(it, result);
+        return;
+    }
+
+    // This is for conversion operators, whose type part is only reported as a type by clangd.
+    if ((it->textStyles.mainStyle == C_TYPE
+         || it->textStyles.mainStyle == C_PRIMITIVE_TYPE)
+            && !result.textStyles.mixinStyles.empty()
+            && result.textStyles.mixinStyles.at(0) == C_OPERATOR) {
+        it->textStyles.mixinStyles = result.textStyles.mixinStyles;
+    }
+}
+
+// For matching the "<" and ">" brackets of template declarations, specializations
+// and instantiations.
+void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1, int searchEnd1,
+                                                               int searchStart2, int searchEnd2)
+{
+    const int openingAngleBracketPos = onlyIndexOf(
+                QStringView(m_docContent).mid(searchStart1, searchEnd1 - searchStart1),
+                QStringView(QStringLiteral("<")));
+    if (openingAngleBracketPos == -1)
+        return;
+    const int absOpeningAngleBracketPos = searchStart1 + openingAngleBracketPos;
+    if (absOpeningAngleBracketPos > searchStart2)
+        searchStart2 = absOpeningAngleBracketPos + 1;
+    if (searchStart2 >= searchEnd2)
+        return;
+    const int closingAngleBracketPos = onlyIndexOf(
+                QStringView(m_docContent).mid(searchStart2, searchEnd2 - searchStart2),
+                QStringView(QStringLiteral(">")));
+    if (closingAngleBracketPos == -1)
+        return;
+
+    const int absClosingAngleBracketPos = searchStart2 + closingAngleBracketPos;
+    if (absOpeningAngleBracketPos > absClosingAngleBracketPos)
+        return;
+
+    HighlightingResult result;
+    result.useTextSyles = true;
+    result.textStyles.mainStyle = C_PUNCTUATION;
+    Utils::Text::convertPosition(m_doc, absOpeningAngleBracketPos, &result.line, &result.column);
+    result.length = 1;
+    result.kind = CppEditor::SemanticHighlighter::AngleBracketOpen;
+    insertResult(result);
+    Utils::Text::convertPosition(m_doc, absClosingAngleBracketPos, &result.line, &result.column);
+    result.kind = CppEditor::SemanticHighlighter::AngleBracketClose;
+    insertResult(result);
+}
+
+void ExtraHighlightingResultsCollector::setResultPosFromRange(HighlightingResult &result,
+                                                              const Range &range)
+{
+    if (!range.isValid())
+        return;
+    const Position startPos = range.start();
+    const Position endPos = range.end();
+    result.line = startPos.line() + 1;
+    result.column = startPos.character() + 1;
+    result.length = endPos.toPositionInDocument(m_doc) - startPos.toPositionInDocument(m_doc);
+}
+
+void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
+{
+    if (node.kind().endsWith("Literal")) {
+        HighlightingResult result;
+        result.useTextSyles = true;
+        const bool isStringLike = node.kind().startsWith("String")
+                || node.kind().startsWith("Character");
+        result.textStyles.mainStyle = isStringLike ? C_STRING : C_NUMBER;
+        setResultPosFromRange(result, node.range());
+        insertResult(result);
+        return;
+    }
+    if (node.role() == "type" && node.kind() == "Builtin") {
+        HighlightingResult result;
+        result.useTextSyles = true;
+        result.textStyles.mainStyle = C_PRIMITIVE_TYPE;
+        setResultPosFromRange(result, node.range());
+        insertResult(result);
+        return;
+    }
+    if (node.role() == "attribute" && (node.kind() == "Override" || node.kind() == "Final")) {
+        HighlightingResult result;
+        result.useTextSyles = true;
+        result.textStyles.mainStyle = C_KEYWORD;
+        setResultPosFromRange(result, node.range());
+        insertResult(result);
+        return;
+    }
+
+    const bool isExpression = node.role() == "expression";
+    const bool isDeclaration = node.role() == "declaration";
+
+    const int nodeStartPos = posForNodeStart(node);
+    const int nodeEndPos = posForNodeEnd(node);
+    const QList<AstNode> children = node.children().value_or(QList<AstNode>());
+
+    // Match question mark and colon in ternary operators.
+    if (isExpression && node.kind() == "ConditionalOperator") {
+        if (children.size() != 3)
+            return;
+
+        // The question mark is between sub-expressions 1 and 2, the colon is between
+        // sub-expressions 2 and 3.
+        const int searchStartPosQuestionMark = posForNodeEnd(children.first());
+        const int searchEndPosQuestionMark = posForNodeStart(children.at(1));
+        QStringView content = QStringView(m_docContent).mid(
+                    searchStartPosQuestionMark,
+                    searchEndPosQuestionMark - searchStartPosQuestionMark);
+        const int questionMarkPos = onlyIndexOf(content, QStringView(QStringLiteral("?")));
+        if (questionMarkPos == -1)
+            return;
+        const int searchStartPosColon = posForNodeEnd(children.at(1));
+        const int searchEndPosColon = posForNodeStart(children.at(2));
+        content = QStringView(m_docContent).mid(searchStartPosColon,
+                                                searchEndPosColon - searchStartPosColon);
+        const int colonPos = onlyIndexOf(content, QStringView(QStringLiteral(":")));
+        if (colonPos == -1)
+            return;
+
+        const int absQuestionMarkPos = searchStartPosQuestionMark + questionMarkPos;
+        const int absColonPos = searchStartPosColon + colonPos;
+        if (absQuestionMarkPos > absColonPos)
+            return;
+
+        HighlightingResult result;
+        result.useTextSyles = true;
+        result.textStyles.mainStyle = C_PUNCTUATION;
+        result.textStyles.mixinStyles.push_back(C_OPERATOR);
+        Utils::Text::convertPosition(m_doc, absQuestionMarkPos, &result.line, &result.column);
+        result.length = 1;
+        result.kind = CppEditor::SemanticHighlighter::TernaryIf;
+        insertResult(result);
+        Utils::Text::convertPosition(m_doc, absColonPos, &result.line, &result.column);
+        result.kind = CppEditor::SemanticHighlighter::TernaryElse;
+        insertResult(result);
+        return;
+    }
+
+    if (isDeclaration && (node.kind() == "FunctionTemplate"
+                          || node.kind() == "ClassTemplate")) {
+        // The child nodes are the template parameters and and the function or class.
+        // The opening angle bracket is before the first child node, the closing angle
+        // bracket is before the function child node and after the last param node.
+        const QString classOrFunctionKind = QLatin1String(node.kind() == "FunctionTemplate"
+                                                          ? "Function" : "CXXRecord");
+        const auto functionOrClassIt = std::find_if(children.begin(), children.end(),
+                                                    [&classOrFunctionKind](const AstNode &n) {
+            return n.role() == "declaration" && n.kind() == classOrFunctionKind;
+        });
+        if (functionOrClassIt == children.end() || functionOrClassIt == children.begin())
+            return;
+        const int firstTemplateParamStartPos = posForNodeStart(children.first());
+        const int lastTemplateParamEndPos = posForNodeEnd(*(functionOrClassIt - 1));
+        const int functionOrClassStartPos = posForNodeStart(*functionOrClassIt);
+        insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
+                               lastTemplateParamEndPos, functionOrClassStartPos);
+        return;
+    }
+
+    const auto isTemplateParamDecl = [](const AstNode &node) {
+        return node.isTemplateParameterDeclaration();
+    };
+    if (isDeclaration && node.kind() == "TypeAliasTemplate") {
+        // Children are one node of type TypeAlias and the template parameters.
+        // The opening angle bracket is before the first parameter and the closing
+        // angle bracket is after the last parameter.
+        // The TypeAlias node seems to appear first in the AST, even though lexically
+        // is comes after the parameters. We don't rely on the order here.
+        // Note that there is a second pair of angle brackets. That one is part of
+        // a TemplateSpecialization, which is handled further below.
+        const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
+                                                     isTemplateParamDecl);
+        if (firstTemplateParam == children.end())
+            return;
+        const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
+                                                    isTemplateParamDecl);
+        QTC_ASSERT(lastTemplateParam != children.rend(), return);
+        const auto typeAlias = std::find_if(children.begin(), children.end(),
+                [](const AstNode &n) { return n.kind() == "TypeAlias"; });
+        if (typeAlias == children.end())
+            return;
+
+        const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
+        const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
+        const int searchEndPos = posForNodeStart(*typeAlias);
+        insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
+                               lastTemplateParamEndPos, searchEndPos);
+        return;
+    }
+
+    if (isDeclaration && node.kind() == "ClassTemplateSpecialization") {
+        // There is one child of kind TemplateSpecialization. The first pair
+        // of angle brackets comes before that.
+        if (children.size() == 1) {
+            const int childNodePos = posForNodeStart(children.first());
+            insertAngleBracketInfo(nodeStartPos, childNodePos, nodeStartPos, childNodePos);
+        }
+        return;
+    }
+
+    if (isDeclaration && node.kind() == "TemplateTemplateParm") {
+        // The child nodes are template arguments and template parameters.
+        // Arguments seem to appear before parameters in the AST, even though they
+        // come after them in the source code. We don't rely on the order here.
+        const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
+                                                     isTemplateParamDecl);
+        if (firstTemplateParam == children.end())
+            return;
+        const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
+                                                    isTemplateParamDecl);
+        QTC_ASSERT(lastTemplateParam != children.rend(), return);
+        const auto templateArg = std::find_if(children.begin(), children.end(),
+                [](const AstNode &n) { return n.role() == "template argument"; });
+
+        const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
+        const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
+        const int searchEndPos = templateArg == children.end()
+                ? nodeEndPos : posForNodeStart(*templateArg);
+        insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
+                               lastTemplateParamEndPos, searchEndPos);
+        return;
+    }
+
+    // {static,dynamic,reinterpret}_cast<>().
+    if (isExpression && node.kind().startsWith("CXX") && node.kind().endsWith("Cast")) {
+        // First child is type, second child is expression.
+        // The opening angle bracket is before the first child, the closing angle bracket
+        // is between the two children.
+        if (children.size() == 2) {
+            insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.first()),
+                                   posForNodeEnd(children.first()),
+                                   posForNodeStart(children.last()));
+        }
+        return;
+    }
+
+    if (node.kind() == "TemplateSpecialization") {
+        // First comes the template type, then the template arguments.
+        // The opening angle bracket is before the first template argument,
+        // the closing angle bracket is after the last template argument.
+        // The first child node has no range, so we start searching at the parent node.
+        if (children.size() >= 2) {
+            int searchStart2 = posForNodeEnd(children.last());
+            int searchEnd2 = nodeEndPos;
+
+            // There is a weird off-by-one error on the clang side: If there is a
+            // nested template instantiation *and* there is no space between
+            // the closing angle brackets, then the inner TemplateSpecialization node's range
+            // will extend one character too far, covering the outer's closing angle bracket.
+            // This is what we are correcting for here.
+            // This issue is tracked at https://github.com/clangd/clangd/issues/871.
+            if (searchStart2 == searchEnd2)
+                --searchStart2;
+            insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.at(1)),
+                                   searchStart2, searchEnd2);
+        }
+        return;
+    }
+
+    if (!isExpression && !isDeclaration)
+        return;
+
+    // Operators, overloaded ones in particular.
+    static const QString operatorPrefix = "operator";
+    QString detail = node.detail().value_or(QString());
+    const bool isCallToNew = node.kind() == "CXXNew";
+    const bool isCallToDelete = node.kind() == "CXXDelete";
+    if (!isCallToNew && !isCallToDelete
+            && (!detail.startsWith(operatorPrefix) || detail == operatorPrefix)) {
+        return;
+    }
+
+    if (!isCallToNew && !isCallToDelete)
+        detail.remove(0, operatorPrefix.length());
+
+    HighlightingResult result;
+    result.useTextSyles = true;
+    const bool isConversionOp = node.kind() == "CXXConversion";
+    const bool isOverloaded = !isConversionOp
+            && (isDeclaration || ((!isCallToNew && !isCallToDelete)
+                                  || node.arcanaContains("CXXMethod")));
+    result.textStyles.mainStyle = isConversionOp
+            ? C_PRIMITIVE_TYPE
+            : isCallToNew || isCallToDelete || detail.at(0).isSpace()
+              ? C_KEYWORD : C_PUNCTUATION;
+    result.textStyles.mixinStyles.push_back(C_OPERATOR);
+    if (isOverloaded)
+        result.textStyles.mixinStyles.push_back(C_OVERLOADED_OPERATOR);
+    if (isDeclaration)
+        result.textStyles.mixinStyles.push_back(C_DECLARATION);
+
+    const QStringView nodeText = QStringView(m_docContent)
+            .mid(nodeStartPos, nodeEndPos - nodeStartPos);
+
+    if (isCallToNew || isCallToDelete) {
+        result.line = node.range().start().line() + 1;
+        result.column = node.range().start().character() + 1;
+        result.length = isCallToNew ? 3 : 6;
+        insertResult(result);
+        if (node.arcanaContains("array")) {
+            const int openingBracketOffset = nodeText.indexOf('[');
+            if (openingBracketOffset == -1)
+                return;
+            const int closingBracketOffset = nodeText.lastIndexOf(']');
+            if (closingBracketOffset == -1 || closingBracketOffset < openingBracketOffset)
+                return;
+
+            result.textStyles.mainStyle = C_PUNCTUATION;
+            result.length = 1;
+            Utils::Text::convertPosition(m_doc,
+                                         nodeStartPos + openingBracketOffset,
+                                         &result.line, &result.column);
+            insertResult(result);
+            Utils::Text::convertPosition(m_doc,
+                                         nodeStartPos + closingBracketOffset,
+                                         &result.line, &result.column);
+            insertResult(result);
+        }
+        return;
+    }
+
+    if (isExpression && (detail == QLatin1String("()") || detail == QLatin1String("[]"))) {
+        result.line = node.range().start().line() + 1;
+        result.column = node.range().start().character() + 1;
+        result.length = 1;
+        insertResult(result);
+        result.line = node.range().end().line() + 1;
+        result.column = node.range().end().character();
+        insertResult(result);
+        return;
+    }
+
+    const int opStringLen = detail.at(0).isSpace() ? detail.length() - 1 : detail.length();
+
+    // The simple case: Call to operator+, +=, * etc.
+    if (nodeEndPos - nodeStartPos == opStringLen) {
+        setResultPosFromRange(result, node.range());
+        insertResult(result);
+        return;
+    }
+
+    const int prefixOffset = nodeText.indexOf(operatorPrefix);
+    if (prefixOffset == -1)
+        return;
+
+    const bool isArray = detail == "[]";
+    const bool isCall = detail == "()";
+    const bool isArrayNew = detail == " new[]";
+    const bool isArrayDelete = detail == " delete[]";
+    const QStringView searchTerm = isArray || isCall
+            ? QStringView(detail).chopped(1) : isArrayNew || isArrayDelete
+              ? QStringView(detail).chopped(2) : detail;
+    const int opStringOffset = nodeText.indexOf(searchTerm, prefixOffset
+                                                + operatorPrefix.length());
+    if (opStringOffset == -1 || nodeText.indexOf(operatorPrefix, opStringOffset) != -1)
+        return;
+
+    const int opStringOffsetInDoc = nodeStartPos + opStringOffset
+            + detail.length() - opStringLen;
+    Utils::Text::convertPosition(m_doc, opStringOffsetInDoc, &result.line, &result.column);
+    result.length = opStringLen;
+    if (isArray || isCall)
+        result.length = 1;
+    else if (isArrayNew || isArrayDelete)
+        result.length -= 2;
+    if (!isArray && !isCall)
+        insertResult(result);
+    if (!isArray && !isCall && !isArrayNew && !isArrayDelete)
+        return;
+
+    result.textStyles.mainStyle = C_PUNCTUATION;
+    result.length = 1;
+    const int openingParenOffset = nodeText.indexOf(
+                isCall ? '(' : '[', prefixOffset + operatorPrefix.length());
+    if (openingParenOffset == -1)
+        return;
+    const int closingParenOffset = nodeText.indexOf(isCall ? ')' : ']', openingParenOffset + 1);
+    if (closingParenOffset == -1 || closingParenOffset < openingParenOffset)
+        return;
+    Utils::Text::convertPosition(m_doc, nodeStartPos + openingParenOffset,
+                                 &result.line, &result.column);
+    insertResult(result);
+    Utils::Text::convertPosition(m_doc, nodeStartPos + closingParenOffset,
+                                 &result.line, &result.column);
+    insertResult(result);
+}
+
+void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
+{
+    if (m_future.isCanceled())
+        return;
+    collectFromNode(node);
+    const auto children = node.children();
+    if (!children)
+        return;
+    for (const AstNode &childNode : *children)
+        visitNode(childNode);
 }
 
 } // namespace Internal

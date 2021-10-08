@@ -597,7 +597,14 @@ void FormEditorWidget::dropEvent(QDropEvent *dropEvent)
 {
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
-    actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+    QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+
+    // add image assets to Form Editor
+    const QStringList addedImages = addedAssets.value(ComponentCoreConstants::addImagesDisplayString);
+    for (const QString &imgPath : addedImages) {
+        QmlItemNode::createQmlItemNodeFromImage(m_formEditorView, imgPath, {},
+                                                m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode());
+    }
 }
 
 } // namespace QmlDesigner

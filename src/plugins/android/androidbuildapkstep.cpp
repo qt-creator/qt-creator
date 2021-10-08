@@ -196,7 +196,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
    });
 
     auto formLayout = new QFormLayout(group);
-    formLayout->addRow(tr("Android build SDK:"), targetSDKComboBox);
+    formLayout->addRow(tr("Android build platform SDK:"), targetSDKComboBox);
 
     auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
     createAndroidTemplatesButton->setToolTip(
@@ -939,7 +939,8 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
     }
     if (id == Constants::SdkLocation)
         return QVariant::fromValue(AndroidConfigurations::currentConfig().sdkLocation());
-    if (id == Constants::AndroidABIs)
+
+    if (id == Constants::AndroidMkSpecAbis)
         return AndroidManager::applicationAbis(target());
 
     return AbstractProcessStep::data(id);

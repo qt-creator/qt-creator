@@ -67,6 +67,7 @@ public:
     void createScene(const CreateSceneCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
     void reparentInstances(const ReparentInstancesCommand &command) override;
+    void removeInstances(const RemoveInstancesCommand &command) override;
 
     QImage grabWindow() override;
     QImage grabItem(QQuickItem *item) override;
@@ -79,6 +80,7 @@ protected:
     void resetAllItems();
     void setupScene(const CreateSceneCommand &command) override;
     QList<QQuickItem*> allItems() const;
+    void markRepeaterParentDirty(qint32 id) const;
 
     struct RenderViewData {
         QPointer<QQuickWindow> window = nullptr;

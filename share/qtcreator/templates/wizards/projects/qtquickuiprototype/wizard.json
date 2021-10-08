@@ -14,6 +14,7 @@
     "options":
     [
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qmlproject')}" },
+        { "key": "IsQt6", "value": "%{JS: value('QtVersion').IsQt6}" },
         { "key": "MainQmlFileName", "value": "%{JS: Util.fileName(value('ProjectName'), 'qml')}" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
@@ -50,7 +51,8 @@
                                 {
                                     "QtQuickVersion": "",
                                     "QtQuickWindowVersion": "",
-                                    "QtQuickVirtualKeyboardImport": ""
+                                    "QtQuickVirtualKeyboardImport": "",
+                                    "IsQt6": true
                                 }
                             },
                             {
@@ -59,7 +61,8 @@
                                 {
                                     "QtQuickVersion": "2.15",
                                     "QtQuickWindowVersion": "2.15",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15",
+                                    "IsQt6": false
                                 }
                             },
                             {
@@ -68,7 +71,8 @@
                                 {
                                     "QtQuickVersion": "2.14",
                                     "QtQuickWindowVersion": "2.14",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14",
+                                    "IsQt6": false
                                 }
                             },
                             {
@@ -77,7 +81,8 @@
                                 {
                                     "QtQuickVersion": "2.13",
                                     "QtQuickWindowVersion": "2.13",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
+                                    "IsQt6": false
                                 }
                             },
                             {
@@ -86,7 +91,8 @@
                                 {
                                     "QtQuickVersion": "2.12",
                                     "QtQuickWindowVersion": "2.12",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
+                                    "IsQt6": false
                                 }
                             }
                         ]

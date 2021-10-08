@@ -100,7 +100,8 @@ class QMLDESIGNERCORE_EXPORT ItemLibraryInfo : public QObject
 public:
 
     QList<ItemLibraryEntry> entries() const;
-    QList<ItemLibraryEntry> entriesForType(const QByteArray &typeName, int majorVersion, int minorVersion) const;
+    QList<ItemLibraryEntry> entriesForType(const QByteArray &typeName, int majorVersion = 1,
+                                           int minorVersion = 0) const;
 
     void addEntries(const QList<ItemLibraryEntry> &entries, bool overwriteDuplicate = false);
     bool containsEntry(const ItemLibraryEntry &entry);

@@ -779,6 +779,9 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
 
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
+    if (!newParentInstance)
+        quickItem()->setParentItem(nullptr);
+
     if (instanceIsValidLayoutable(newParentInstance, newParentProperty)) {
         setInLayoutable(true);
         setMovable(false);

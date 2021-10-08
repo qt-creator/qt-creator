@@ -39,6 +39,11 @@ namespace TimelineUtils {
 
 enum class Side { Top, Right, Bottom, Left };
 
+inline bool isDeleteKey(int key)
+{
+    return (key == Qt::Key_Backspace) || (key == Qt::Key_Delete);
+}
+
 template<typename T>
 inline T clamp(const T &value, const T &lo, const T &hi)
 {

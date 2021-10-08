@@ -178,6 +178,8 @@ public:
     void updateDirtyNodeRecursive();
     bool holdsGraphical() const;
 
+    bool isComponentWrap() const;
+
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

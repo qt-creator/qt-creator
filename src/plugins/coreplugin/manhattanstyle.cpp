@@ -73,14 +73,20 @@ bool styleEnabled(const QWidget *widget)
     return true;
 }
 
+static bool isInDialogOrPopup(const QWidget *widget)
+{
+    // Do not style dialogs or explicitly ignored widgets
+    const Qt::WindowType windowType = widget->window()->windowType();
+    return (windowType == Qt::Dialog || windowType == Qt::Popup);
+}
+
 // Consider making this a QStyle state
 bool panelWidget(const QWidget *widget)
 {
     if (!widget)
         return false;
 
-    // Do not style dialogs or explicitly ignored widgets
-    if ((widget->window()->windowFlags() & Qt::WindowType_Mask) == Qt::Dialog)
+    if (isInDialogOrPopup(widget))
         return false;
 
     if (qobject_cast<const FancyMainWindow *>(widget))
@@ -107,8 +113,7 @@ bool lightColored(const QWidget *widget)
     if (!widget)
         return false;
 
-    // Don't style dialogs or explicitly ignored widgets
-    if ((widget->window()->windowFlags() & Qt::WindowType_Mask) == Qt::Dialog)
+    if (isInDialogOrPopup(widget))
         return false;
 
     const QWidget *p = widget;

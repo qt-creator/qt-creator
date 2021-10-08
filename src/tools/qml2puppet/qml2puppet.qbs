@@ -16,6 +16,7 @@ QtcTool {
         ]
     }
     Depends { name: "Qt.quick3d-private"; required: false }
+    Depends { name: "Qt.quick3dparticles-private"; required: false }
     property bool useQuick3d: Utilities.versionCompare(Qt.core.version, "5.15") >= 0
                               && Qt["quick3d-private"].present
     property bool useParticle3d: Utilities.versionCompare(Qt.core.version, "6.2") >= 0

@@ -732,17 +732,22 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     ModelNode targetNode = targetProperty.parentModelNode();
                     NodeMetaInfo metaInfo = targetNode.metaInfo();
                     TypeName typeName = newModelNode.type();
-                    const PropertyNameList nameList = targetNode.metaInfo().directPropertyNames();
-                    for (const auto &propertyName : nameList) {
-                        auto testType = metaInfo.propertyTypeName(propertyName);
-                        if (testType == typeName || newModelNode.isSubclassOf(testType)) {
-                            ChooseFromPropertyListDialog *dialog = nullptr;
-                            dialog = new ChooseFromPropertyListDialog(targetNode, testType, Core::ICore::dialogParent());
-                            dialog->exec();
-                            if (dialog->result() == QDialog::Accepted)
-                                targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
-                            delete dialog;
-                            break;
+
+                    // Empty components are not supported and having one as property value is generally
+                    // unstable, so let's not offer user to put a fresh Component into a property
+                    if (typeName != "QtQml.Component") {
+                        const PropertyNameList nameList = targetNode.metaInfo().directPropertyNames();
+                        for (const auto &propertyName : nameList) {
+                            auto testType = metaInfo.propertyTypeName(propertyName);
+                            if (testType == typeName || newModelNode.isSubclassOf(testType)) {
+                                ChooseFromPropertyListDialog *dialog = nullptr;
+                                dialog = new ChooseFromPropertyListDialog(targetNode, testType, Core::ICore::dialogParent());
+                                dialog->exec();
+                                if (dialog->result() == QDialog::Accepted)
+                                    targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
+                                delete dialog;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1085,9 +1090,23 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
             if (modelNode.isValid()
                     && modelNode != parentProperty.parentModelNode()
                     && !modelNode.isAncestorOf(parentProperty.parentModelNode())
-                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType) || propertyQmlType == "alias")) {
+                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType)
+                        || propertyQmlType == "alias"
+                        || parentProperty.name() == "data"
+                        || (parentProperty.parentModelNode().metaInfo().defaultPropertyName() == parentProperty.name()
+                            && propertyQmlType == "<cpp>.QQmlComponent"))) {
                 //### todo: allowing alias is just a heuristic
                 //once the MetaInfo is part of instances we can do this right
+
+                // We assume above that "data" property in parent accepts all types.
+                // This is a workaround for Component parents to accept children, even though they
+                // do not have an actual "data" property or apparently any other default property.
+                // When the actual reparenting happens, model will create the "data" property if
+                // it is missing.
+
+                // We allow move even if target property type doesn't match, if the target property
+                // is the default property of the parent and is of Component type.
+                // In that case an implicit component will be created.
 
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
                 if (nodeCanBeMovedToParentProperty) {

@@ -105,6 +105,7 @@ public:
     bool modelIsResizable() const;
     bool modelIsRotatable() const;
     bool modelIsInLayout() const;
+    bool hasFormEditorItem() const;
 
     QRectF instanceBoundingRect() const;
     QRectF instanceSceneBoundingRect() const;

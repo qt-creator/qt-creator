@@ -28,6 +28,8 @@
 #include <QDialog>
 #include <QString>
 
+namespace Utils { class FilePath; }
+
 namespace Debugger {
 namespace Internal {
 
@@ -43,15 +45,15 @@ public:
 
     bool useSymbolCache() const;
     bool useSymbolServer() const;
-    QString path() const;
+    Utils::FilePath path() const;
     bool doNotAskAgain() const;
 
     void setUseSymbolCache(bool useSymbolCache);
     void setUseSymbolServer(bool useSymbolServer);
-    void setPath(const QString &path);
+    void setPath(const Utils::FilePath &path);
     void setDoNotAskAgain(bool doNotAskAgain) const;
 
-    static bool useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer, QString &path);
+    static bool useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer, Utils::FilePath &path);
 
 private:
     Ui::SymbolPathsDialog *ui;

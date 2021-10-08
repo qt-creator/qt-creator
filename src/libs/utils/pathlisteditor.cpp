@@ -130,6 +130,7 @@ PathListEditor::PathListEditor(QWidget *parent) :
     });
     addButton(tr("Delete Line"), this, [this] { deletePathAtCursor(); });
     addButton(tr("Clear"), this, [this] { d->edit->clear(); });
+    connect(d->edit, &QPlainTextEdit::textChanged, this, &PathListEditor::changed);
 }
 
 PathListEditor::~PathListEditor()

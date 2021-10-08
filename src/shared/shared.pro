@@ -6,9 +6,12 @@ QBS_DIRS = \
     qbslibexec \
     qbsmsbuildlib \
     qbsplugins \
-    qbsstatic
+    qbsstatic \
+    qbspkgconfig
 
+qbspkgconfig.subdir = qbs/src/lib/pkgconfig
 qbscorelib.subdir = qbs/src/lib/corelib
+qbscorelib.depends = qbspkgconfig
 qbsapps.subdir = qbs/src/app
 qbsapps.depends = qbscorelib
 qbslibexec.subdir = qbs/src/libexec

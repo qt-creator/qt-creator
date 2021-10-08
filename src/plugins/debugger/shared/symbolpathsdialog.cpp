@@ -26,10 +26,14 @@
 #include "symbolpathsdialog.h"
 #include "ui_symbolpathsdialog.h"
 
+#include <utils/filepath.h>
+
 #include <QMessageBox>
 
-using namespace Debugger;
-using namespace Internal;
+using namespace Utils;
+
+namespace Debugger {
+namespace Internal {
 
 SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     QDialog(parent),
@@ -54,9 +58,9 @@ bool SymbolPathsDialog::useSymbolServer() const
     return ui->useSymbolServer->isChecked();
 }
 
-QString SymbolPathsDialog::path() const
+FilePath SymbolPathsDialog::path() const
 {
-    return ui->pathChooser->filePath().toString();
+    return ui->pathChooser->filePath();
 }
 
 void SymbolPathsDialog::setUseSymbolCache(bool useSymbolCache)
@@ -69,13 +73,13 @@ void SymbolPathsDialog::setUseSymbolServer(bool useSymbolServer)
     ui->useSymbolServer->setChecked(useSymbolServer);
 }
 
-void SymbolPathsDialog::setPath(const QString &path)
+void SymbolPathsDialog::setPath(const FilePath &path)
 {
-    ui->pathChooser->setPath(path);
+    ui->pathChooser->setFilePath(path);
 }
 
 bool SymbolPathsDialog::useCommonSymbolPaths(bool &useSymbolCache, bool &useSymbolServer,
-                                             QString &path)
+                                             FilePath &path)
 {
     SymbolPathsDialog dialog;
     dialog.setUseSymbolCache(useSymbolCache);
@@ -87,3 +91,6 @@ bool SymbolPathsDialog::useCommonSymbolPaths(bool &useSymbolCache, bool &useSymb
     path = dialog.path();
     return ret == QDialog::Accepted;
 }
+
+} // Internal
+} // Debugger

@@ -328,12 +328,54 @@ QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
 static void removeStateOperationsForChildren(const QmlObjectNode &node)
 {
     if (node.isValid()) {
-        foreach (QmlModelStateOperation stateOperation, node.allAffectingStatesOperations()) {
+        for (QmlModelStateOperation stateOperation : node.allAffectingStatesOperations()) {
             stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
         }
 
-        foreach (const QmlObjectNode &childNode, node.modelNode().directSubModelNodes()) {
+        for (const QmlObjectNode &childNode : node.modelNode().directSubModelNodes()) {
             removeStateOperationsForChildren(childNode);
+        }
+    }
+}
+
+static void removeAnimationsFromAnimation(const ModelNode &animation)
+{
+    QTC_ASSERT(animation.isValid(), return);
+
+    const QList<ModelNode> propertyAnimations = animation.subModelNodesOfType(
+        "QtQuick.PropertyAnimation");
+
+    for (const ModelNode &child : propertyAnimations) {
+        if (!child.hasBindingProperty("target")) {
+            ModelNode nonConst = animation;
+            nonConst.destroy();
+            return;
+        }
+    }
+}
+
+static void removeAnimationsFromTransition(const ModelNode &transition, const QmlObjectNode &node)
+{
+    QTC_ASSERT(node.isValid(), return);
+    QTC_ASSERT(transition.isValid(), return);
+
+    const auto children = transition.directSubModelNodes();
+    for (const ModelNode &parallel : children)
+        removeAnimationsFromAnimation(parallel);
+}
+
+static void removeDanglingAnimationsFromTransitions(const QmlObjectNode &node)
+{
+    QTC_ASSERT(node.isValid(), return);
+
+    auto root = node.view()->rootModelNode();
+
+    if (root.isValid() && root.hasProperty("transitions")) {
+        NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions");
+        if (transitions.isValid()) {
+            const auto transitionNodes = transitions.directSubNodes();
+            for (const auto &transition : transitionNodes)
+                removeAnimationsFromTransition(transition, node);
         }
     }
 }
@@ -366,6 +408,14 @@ static void removeLayerEnabled(const ModelNode &node)
         if (parent.isValid() && parent.hasProperty("layer.enabled"))
             parent.removeProperty("layer.enabled");
     }
+}
+
+static void deleteAllReferencesToNodeAndChildren(const ModelNode &node)
+{
+    BindingProperty::deleteAllReferencesTo(node);
+    const auto subNodes = node.allSubModelNodes();
+    for (const ModelNode &child : subNodes)
+        BindingProperty::deleteAllReferencesTo(child);
 }
 
 /*!
@@ -406,7 +456,9 @@ void QmlObjectNode::destroy()
     }
 
     removeStateOperationsForChildren(modelNode());
-    BindingProperty::deleteAllReferencesTo(modelNode());
+    deleteAllReferencesToNodeAndChildren(modelNode());
+
+    removeDanglingAnimationsFromTransitions(modelNode());
 
     QmlFlowViewNode root(view()->rootModelNode());
 
@@ -513,6 +565,16 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
         returnList.append(node.states().allStates());
 
     return returnList;
+}
+
+QList<QmlModelStateOperation> QmlObjectNode::allInvalidStateOperations() const
+{
+    QList<QmlModelStateOperation> result;
+
+    const auto allStates =  allDefinedStates();
+    for (const auto &state : allStates)
+        result.append(state.allInvalidStateOperations());
+    return result;
 }
 
 

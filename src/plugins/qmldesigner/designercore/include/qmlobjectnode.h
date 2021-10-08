@@ -128,14 +128,13 @@ public:
     virtual bool isBlocked(const PropertyName &propName) const;
 
     friend auto qHash(const QmlObjectNode &node) { return qHash(node.modelNode()); }
+    QList<QmlModelState> allDefinedStates() const;
+    QList<QmlModelStateOperation> allInvalidStateOperations() const;
 
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;
     QmlItemNode itemForInstance(const NodeInstance &instance) const;
-
-protected:
-    QList<QmlModelState> allDefinedStates() const;
 };
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlObjectNode> &fxObjectNodeList);

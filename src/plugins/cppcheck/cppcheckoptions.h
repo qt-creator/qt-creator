@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/filepath.h>
 
 #include <QCoreApplication>
 #include <QPointer>
@@ -36,9 +37,7 @@ class QLineEdit;
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace Cppcheck {
 namespace Internal {
@@ -50,7 +49,7 @@ class OptionsWidget;
 class CppcheckOptions final
 {
 public:
-    QString binary;
+    Utils::FilePath binary;
 
     bool warning = true;
     bool style = true;

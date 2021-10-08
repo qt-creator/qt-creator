@@ -53,7 +53,7 @@ public:
     static bool promptCacheDirectory(QWidget *parent, Utils::FilePath *cacheDirectory);
 
     // Format a symbol path specification
-    static QString symbolPath(const QString &cacheDir, SymbolPathMode mode);
+    static QString symbolPath(const Utils::FilePath &cacheDir, SymbolPathMode mode);
     // Check for a symbol server path and extract local cache directory
     static bool isSymbolServerPath(const QString &path, QString *cacheDir = nullptr);
     // Check for a symbol cache path and extract local cache directory

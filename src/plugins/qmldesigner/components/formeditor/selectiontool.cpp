@@ -34,6 +34,8 @@
 
 #include <nodemetainfo.h>
 
+#include <utils/algorithm.h>
+
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 
@@ -242,9 +244,23 @@ void SelectionTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGr
 {
 }
 
-void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &/*itemList*/)
+void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &itemList)
 {
+    const QList<FormEditorItem *> current = items();
 
+    QList<FormEditorItem *> remaining = Utils::filtered(current, [&itemList](FormEditorItem *item) {
+        return !itemList.contains(item);
+    });
+
+    if (!remaining.isEmpty()) {
+        m_selectionIndicator.setItems(remaining);
+        m_resizeIndicator.setItems(remaining);
+        m_rotationIndicator.setItems(remaining);
+        m_anchorIndicator.setItems(remaining);
+        m_bindingIndicator.setItems(remaining);
+    } else {
+        clear();
+    }
 }
 
 void SelectionTool::clear()

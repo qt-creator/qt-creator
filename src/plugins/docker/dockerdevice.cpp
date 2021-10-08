@@ -49,17 +49,18 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/utilsicons.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overridecursor.h>
+#include <utils/pathlisteditor.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/treemodel.h>
-#include <utils/fileutils.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -75,8 +76,8 @@
 #include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QTextBrowser>
-#include <QToolButton>
 #include <QThread>
+#include <QToolButton>
 
 #include <numeric>
 
@@ -394,15 +395,13 @@ public:
             dockerDevice->tryCreateLocalFileAccess();
         });
 
-        m_pathsLineEdit = new QLineEdit;
-        m_pathsLineEdit->setText(data.repo);
-        m_pathsLineEdit->setToolTip(tr("Paths in this semi-colon separated list will be "
-            "mapped one-to-one into the Docker container."));
-        m_pathsLineEdit->setText(data.mounts.join(';'));
-        m_pathsLineEdit->setPlaceholderText(tr("List project source directories here"));
+        m_pathsListEdit = new PathListEditor;
+        m_pathsListEdit->setToolTip(tr("Paths in this list will be mapped one-to-one into the "
+                                       "Docker container."));
+        m_pathsListEdit->setPathList(data.mounts);
 
-        connect(m_pathsLineEdit, &QLineEdit::textChanged, this, [dockerDevice](const QString &text) {
-            dockerDevice->setMounts(text.split(';', Qt::SkipEmptyParts));
+        connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, this]() {
+            dockerDevice->setMounts(m_pathsListEdit->pathList());
         });
 
         auto logView = new QTextBrowser;
@@ -443,7 +442,10 @@ public:
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
             m_usePathMapping, Break(),
-            tr("Paths to mount:"), m_pathsLineEdit, Break(),
+            Column {
+                new QLabel(tr("Paths to mount:")),
+                m_pathsListEdit,
+            }, Break(),
             Column {
                 Space(20),
                 Row { autoDetectButton, undoAutoDetectButton, listAutoDetectedButton, Stretch() },
@@ -463,7 +465,7 @@ private:
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
     QCheckBox *m_usePathMapping;
-    QLineEdit *m_pathsLineEdit;
+    Utils::PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
 };
@@ -813,34 +815,51 @@ static QString getLocalIPv4Address()
 
 void DockerDevicePrivate::startContainer()
 {
-    QString tempFileName;
-
-    {
-        TemporaryFile temp("qtc-docker-XXXXXX");
-        temp.open();
-        tempFileName = temp.fileName();
-    }
-
     const QString display = HostOsInfo::isWindowsHost() ? QString(getLocalIPv4Address() + ":0.0")
                                                         : QString(":0");
-    CommandLine dockerRun{"docker", {"run", "-i", "--cidfile=" + tempFileName,
-                                    "--rm",
-                                    "-e", QString("DISPLAY=%1").arg(display),
-                                    "-e", "XAUTHORITY=/.Xauthority",
-                                    "--net", "host"}};
+    CommandLine dockerCreate{"docker", {"create",
+                                        "-i",
+                                        "--rm",
+                                        "-e", QString("DISPLAY=%1").arg(display),
+                                        "-e", "XAUTHORITY=/.Xauthority",
+                                        "--net", "host"}};
 
 #ifdef Q_OS_UNIX
+    // no getuid() and getgid() on Windows.
     if (m_data.useLocalUidGid)
-        dockerRun.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
+        dockerCreate.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
-    for (const QString &mount : qAsConst(m_data.mounts)) {
-        if (!mount.isEmpty())
-            dockerRun.addArgs({"-v", mount + ':' + mount});
+    for (QString mount : qAsConst(m_data.mounts)) {
+        if (mount.isEmpty())
+            continue;
+        // make sure to convert windows style paths to unix style paths with the file system case:
+        // C:/dev/src -> /c/dev/src
+        if (const FilePath mountPath = FilePath::fromUserInput(mount).normalizedPathName();
+            mountPath.startsWithDriveLetter()) {
+            const QChar lowerDriveLetter = mountPath.path().at(0).toLower();
+            const FilePath path = FilePath::fromUserInput(mountPath.path().mid(2)); // strip C:
+            mount = '/' + lowerDriveLetter + path.path();
+        }
+        dockerCreate.addArgs({"-v", mount + ':' + mount});
     }
 
-    dockerRun.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
+    dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
 
+    LOG("RUNNING: " << dockerCreate.toUserOutput());
+    QtcProcess createProcess;
+    createProcess.setCommand(dockerCreate);
+    createProcess.runBlocking();
+
+    if (createProcess.result() != QtcProcess::FinishedWithSuccess)
+        return;
+
+    m_container = createProcess.stdOut().trimmed();
+    if (m_container.isEmpty())
+        return;
+    LOG("Container via process: " << m_container);
+
+    CommandLine dockerRun{"docker", {"container" , "start", "-i", "-a", m_container}};
     LOG("RUNNING: " << dockerRun.toUserOutput());
     QPointer<QtcProcess> shell = new QtcProcess(ProcessMode::Writer);
     connect(shell, &QtcProcess::finished, this, [this, shell] {
@@ -875,23 +894,6 @@ void DockerDevicePrivate::startContainer()
         return;
     }
 
-    LOG("CHECKING: " << tempFileName);
-    for (int i = 0; i <= 20; ++i) {
-        QFile file(tempFileName);
-        if (file.open(QIODevice::ReadOnly)) {
-            m_container = QString::fromUtf8(file.readAll()).trimmed();
-            if (!m_container.isEmpty()) {
-                LOG("Container: " << m_container);
-                break;
-            }
-        }
-        if (i == 20 || !DockerPlugin::isDaemonRunning().value_or(true)) {
-            qWarning("Docker cid file empty.");
-            return; // No
-        }
-        qApp->processEvents(); // FIXME turn this for-loop into
-        QThread::msleep(100);
-    }
     DockerPlugin::setGlobalDaemonState(true);
 }
 
@@ -1288,12 +1290,8 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
         return res;
     }
 
-    QtcProcess proc;
-    proc.setCommand({"stat", {"-c", "%Y", filePath.path()}});
-    runProcess(proc);
-    proc.waitForFinished();
-
-    const qint64 secs = proc.rawStdOut().toLongLong();
+    const QString output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
 }
@@ -1615,6 +1613,12 @@ void DockerDevice::aboutToBeRemoved() const
 
 void DockerDevicePrivate::fetchSystemEnviroment()
 {
+    if (m_shell) {
+        const QString remoteOutput = outputForRunInShell({"env", {}});
+        m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+        return;
+    }
+
     QtcProcess proc;
     proc.setCommand({"env", {}});
 

@@ -995,9 +995,8 @@ Utils::FilePath projectFilePath()
 static bool addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
-
     if (directory.isEmpty())
-        return true;
+        return false;
 
     bool allSuccessful = true;
     QList<QPair<QString, QString>> copyList;

@@ -46,6 +46,7 @@
 #include <qmlstate.h>
 #include <annotationeditor/annotationeditor.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 
 namespace QmlDesigner {
@@ -103,6 +104,7 @@ void StatesEditorView::removeState(int nodeId)
                 const auto propertyChanges = modelState.propertyChanges();
                 for (const QmlPropertyChanges &change : propertyChanges) {
                     const ModelNode target = change.target();
+                    QTC_ASSERT(target.isValid(), continue);
                     if (target.locked())
                         lockedTargets.push_back(target.id());
                 }

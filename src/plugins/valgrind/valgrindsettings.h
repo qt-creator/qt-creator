@@ -46,8 +46,8 @@ public:
     explicit SuppressionAspect(bool global);
     ~SuppressionAspect() final;
 
-    QStringList value() const;
-    void setValue(const QStringList &val);
+    Utils::FilePaths value() const;
+    void setValue(const Utils::FilePaths &val);
 
     void addToLayout(Utils::LayoutBuilder &builder) final;
 
@@ -57,7 +57,7 @@ public:
     QVariant volatileValue() const final;
     void setVolatileValue(const QVariant &val) final;
 
-    void addSuppressionFile(const QString &suppressionFile);
+    void addSuppressionFile(const Utils::FilePath &suppressionFile);
 
 private:
     friend class ValgrindBaseSettings;

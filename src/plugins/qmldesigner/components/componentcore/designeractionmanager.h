@@ -137,7 +137,7 @@ public:
     bool hasModelNodePreviewHandler(const ModelNode &node) const;
     ModelNodePreviewImageOperation modelNodePreviewOperation(const ModelNode &node) const;
     bool externalDragHasSupportedAssets(const QMimeData *data) const;
-    void handleExternalAssetsDrop(const QMimeData *data) const;
+    QHash<QString, QStringList> handleExternalAssetsDrop(const QMimeData *data) const;
 
 private:
     void addTransitionEffectAction(const TypeName &typeName);

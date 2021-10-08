@@ -150,6 +150,11 @@ bool ServerNodeInstance::holdsGraphical() const
     return m_nodeInstance->isQuickItem();
 }
 
+bool ServerNodeInstance::isComponentWrap() const
+{
+    return m_nodeInstance->isComponentWrap();
+}
+
 void ServerNodeInstance::updateDirtyNodeRecursive()
 {
     m_nodeInstance->updateAllDirtyNodesRecursive();
@@ -279,6 +284,8 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     instance.internalInstance()->setNodeInstanceServer(nodeInstanceServer);
 
     instance.internalInstance()->setInstanceId(instanceContainer.instanceId());
+
+    instance.internalInstance()->setComponentWrap(componentWrap == WrapAsComponent);
 
     instance.internalInstance()->initialize(instance.m_nodeInstance, instanceContainer.metaFlags());
 
