@@ -35,9 +35,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
+#include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FindUsages.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
+#include <cplusplus/SimpleLexer.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppcompletionassistprocessor.h>
@@ -712,20 +714,12 @@ private:
         case CustomAssistMode::Preprocessor:
             static QIcon macroIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro);
             for (const QString &completion
-                 : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions())
+                 : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions()) {
                 completions << createItem(completion, macroIcon);
-            const CppEditor::ProjectFile::Kind fileType
-                    = CppEditor::ProjectFile::classify(interface->filePath().toString());
-            switch (fileType) {
-            case CppEditor::ProjectFile::ObjCHeader:
-            case CppEditor::ProjectFile::ObjCXXHeader:
-            case CppEditor::ProjectFile::ObjCSource:
-            case CppEditor::ProjectFile::ObjCXXSource:
-                completions << createItem("import", macroIcon);
-                break;
-            default:
-                break;
             }
+            if (CppEditor::ProjectFile::isObjC(interface->filePath().toString()))
+                completions << createItem("import", macroIcon);
+            break;
         }
         GenericProposalModelPtr model(new GenericProposalModel);
         model->loadContent(completions);
@@ -1057,11 +1051,13 @@ public:
     ClangdCompletionAssistProvider(ClangdClient *client);
 
 private:
-    IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const override;
+    IAssistProcessor *createProcessor(const AssistInterface *interface) const override;
 
     int activationCharSequenceLength() const override { return 3; }
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
+
+    bool isInCommentOrString(const AssistInterface *interface) const;
 
     ClangdClient * const m_client;
 };
@@ -2573,10 +2569,10 @@ ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(Cla
 {}
 
 IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
-    const AssistInterface *assistInterface) const
+    const AssistInterface *interface) const
 {
-    ClangCompletionContextAnalyzer contextAnalyzer(assistInterface->textDocument(),
-                                                   assistInterface->position(), false, {});
+    ClangCompletionContextAnalyzer contextAnalyzer(interface->textDocument(),
+                                                   interface->position(), false, {});
     contextAnalyzer.analyze();
     switch (contextAnalyzer.completionAction()) {
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
@@ -2595,7 +2591,7 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
     default:
         break;
     }
-    const QString snippetsGroup = contextAnalyzer.addSnippets()
+    const QString snippetsGroup = contextAnalyzer.addSnippets() && !isInCommentOrString(interface)
                                       ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID
                                       : QString();
     return new ClangdCompletionAssistProcessor(m_client, snippetsGroup);
@@ -2626,6 +2622,43 @@ bool ClangdClient::ClangdCompletionAssistProvider::isActivationCharSequence(cons
 bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QChar &c) const
 {
     return CppEditor::isValidIdentifierChar(c);
+}
+
+bool ClangdClient::ClangdCompletionAssistProvider::isInCommentOrString(
+        const AssistInterface *interface) const
+{
+    QTextCursor tc(interface->textDocument());
+    tc.setPosition(interface->position());
+
+    SimpleLexer tokenize;
+    tokenize.setSkipComments(false);
+    const Tokens &tokens = tokenize(tc.block().text(),
+                                    BackwardsScanner::previousBlockState(tc.block()));
+    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
+    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
+
+    if (tk.isComment())
+        return true;
+    if (!tk.isLiteral())
+        return false;
+    if (tokens.size() == 3 && tokens.at(0).kind() == T_POUND
+            && tokens.at(1).kind() == T_IDENTIFIER) {
+        const QString &line = tc.block().text();
+        const Token &idToken = tokens.at(1);
+        QStringView identifier = idToken.utf16charsEnd() > line.size()
+                                            ? QStringView(line).mid(
+                                                idToken.utf16charsBegin())
+                                            : QStringView(line)
+                                                  .mid(idToken.utf16charsBegin(),
+                                                       idToken.utf16chars());
+        if (identifier == QLatin1String("include")
+                || identifier == QLatin1String("include_next")
+                || (CppEditor::ProjectFile::isObjC(interface->filePath().toString())
+                    && identifier == QLatin1String("import"))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
