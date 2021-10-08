@@ -819,6 +819,24 @@ FilePath FilePath::symLinkTarget() const
     return FilePath::fromString(info.symLinkTarget());
 }
 
+FilePath FilePath::mapToGlobalPath() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.mapToGlobalPath, return {});
+        return s_deviceHooks.mapToGlobalPath(*this);
+    }
+    return *this;
+}
+
+QString FilePath::mapToDevicePath() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.mapToDevicePath, return {});
+        return s_deviceHooks.mapToDevicePath(*this);
+    }
+    return m_data;
+}
+
 FilePath FilePath::withExecutableSuffix() const
 {
     FilePath res = *this;

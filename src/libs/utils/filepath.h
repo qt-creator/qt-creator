@@ -161,6 +161,9 @@ public:
                           QDir::Filters filters = QDir::NoFilter,
                           QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;
 
+    [[nodiscard]] FilePath mapToGlobalPath() const;
+    [[nodiscard]] QString mapToDevicePath() const;
+
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
     [[nodiscard]] FilePath normalizedPathName() const;

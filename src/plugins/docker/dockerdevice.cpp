@@ -1069,6 +1069,17 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
     return result;
 }
 
+QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
+{
+    const FilePath normalized = globalPath.normalizedPathName();
+    QString path = normalized.path();
+    if (normalized.startsWithDriveLetter()) {
+        const QChar lowerDriveLetter = path.at(0).toLower();
+        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
+    }
+    return path;
+}
+
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
     return filePath.scheme() == "docker" && filePath.host() == d->m_data.imageId;

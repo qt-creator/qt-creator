@@ -78,6 +78,8 @@ public:
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &, const QList<FilePath> &)> searchInPath;
     std::function<FilePath(const FilePath &)> symLinkTarget;
+    std::function<FilePath(const FilePath &)> mapToGlobalPath;
+    std::function<QString(const FilePath &)> mapToDevicePath;
     std::function<QList<FilePath>(const FilePath &, const QStringList &,
                                   QDir::Filters, QDir::SortFlags)> dirEntries;
     std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
