@@ -238,6 +238,18 @@ public:
 protected:
     void resetOptimalWidth()
     {
+        if (m_resetScheduled)
+            return;
+        m_resetScheduled = true;
+        QMetaObject::invokeMethod(this, &SelectorView::doResetOptimalWidth, Qt::QueuedConnection);
+    }
+
+private:
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void doResetOptimalWidth()
+    {
+        m_resetScheduled = false;
         int width = 0;
         QFontMetrics fn(font());
         theModel()->forItemsAtLevel<1>([this, &width, &fn](const GenericItem *item) {
@@ -246,12 +258,9 @@ protected:
         setOptimalWidth(width);
     }
 
-private:
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
-
     int m_maxCount = 0;
     int m_optimalWidth = 0;
+    bool m_resetScheduled = false;
 };
 
 class ProjectListView : public SelectorView
