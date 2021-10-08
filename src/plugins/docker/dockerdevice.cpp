@@ -833,14 +833,7 @@ void DockerDevicePrivate::startContainer()
     for (QString mount : qAsConst(m_data.mounts)) {
         if (mount.isEmpty())
             continue;
-        // make sure to convert windows style paths to unix style paths with the file system case:
-        // C:/dev/src -> /c/dev/src
-        if (const FilePath mountPath = FilePath::fromUserInput(mount).normalizedPathName();
-            mountPath.startsWithDriveLetter()) {
-            const QChar lowerDriveLetter = mountPath.path().at(0).toLower();
-            const FilePath path = FilePath::fromUserInput(mountPath.path().mid(2)); // strip C:
-            mount = '/' + lowerDriveLetter + path.path();
-        }
+        mount = q->mapToDevicePath(FilePath::fromUserInput(mount));
         dockerCreate.addArgs({"-v", mount + ':' + mount});
     }
 
@@ -1071,6 +1064,8 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 
 QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
 {
+    // make sure to convert windows style paths to unix style paths with the file system case:
+    // C:/dev/src -> /c/dev/src
     const FilePath normalized = globalPath.normalizedPathName();
     QString path = normalized.path();
     if (normalized.startsWithDriveLetter()) {
