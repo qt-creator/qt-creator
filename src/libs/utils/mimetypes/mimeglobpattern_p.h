@@ -73,12 +73,17 @@ public:
     static const unsigned DefaultWeight = 50;
     static const unsigned MinWeight = 1;
 
-    explicit MimeGlobPattern(const QString &thePattern, const QString &theMimeType, unsigned theWeight = DefaultWeight, Qt::CaseSensitivity s = Qt::CaseInsensitive) :
-        m_pattern(thePattern), m_mimeType(theMimeType), m_weight(theWeight), m_caseSensitivity(s)
+    explicit MimeGlobPattern(const QString &thePattern, const QString &theMimeType,
+                             unsigned theWeight = DefaultWeight,
+                             Qt::CaseSensitivity s = Qt::CaseInsensitive) :
+        m_pattern(s == Qt::CaseInsensitive ? thePattern.toLower() : thePattern),
+        m_mimeType(theMimeType),
+        m_weight(theWeight),
+        m_starCount(m_pattern.count(QLatin1Char('*'))),
+        m_openingSquareBracketPos(m_pattern.indexOf(QLatin1Char('['))),
+        m_questionMarkPos(m_pattern.indexOf(QLatin1Char('?'))),
+        m_caseSensitivity(s)
     {
-        if (s == Qt::CaseInsensitive) {
-            m_pattern = m_pattern.toLower();
-        }
     }
     ~MimeGlobPattern() {}
 
@@ -93,6 +98,9 @@ private:
     QString m_pattern;
     QString m_mimeType;
     int m_weight;
+    int m_starCount;
+    int m_openingSquareBracketPos;
+    int m_questionMarkPos;
     Qt::CaseSensitivity m_caseSensitivity;
 };
 

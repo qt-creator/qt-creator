@@ -104,12 +104,10 @@ bool MimeGlobPattern::matchFileName(const QString &inputFilename) const
         return false;
     const int len = filename.length();
 
-    const int starCount = m_pattern.count(QLatin1Char('*'));
-
     // Patterns like "*~", "*.extension"
-    if (m_pattern[0] == QLatin1Char('*') && m_pattern.indexOf(QLatin1Char('[')) == -1 && starCount == 1)
-    {
-        if (len + 1 < pattern_len) return false;
+    if (m_pattern[0] == QLatin1Char('*') && m_openingSquareBracketPos == -1 && m_starCount == 1) {
+        if (len + 1 < pattern_len)
+            return false;
 
         const QChar *c1 = m_pattern.unicode() + pattern_len - 1;
         const QChar *c2 = filename.unicode() + len - 1;
@@ -120,8 +118,9 @@ bool MimeGlobPattern::matchFileName(const QString &inputFilename) const
     }
 
     // Patterns like "README*" (well this is currently the only one like that...)
-    if (starCount == 1 && m_pattern.at(pattern_len - 1) == QLatin1Char('*')) {
-        if (len + 1 < pattern_len) return false;
+    if (m_starCount == 1 && m_pattern.at(pattern_len - 1) == QLatin1Char('*')) {
+        if (len + 1 < pattern_len)
+            return false;
         if (m_pattern.at(0) == QLatin1Char('*'))
             return filename.indexOf(QStringView(m_pattern).mid(1, pattern_len - 2)) != -1;
 
@@ -134,7 +133,7 @@ bool MimeGlobPattern::matchFileName(const QString &inputFilename) const
     }
 
     // Names without any wildcards like "README"
-    if (m_pattern.indexOf(QLatin1Char('[')) == -1 && starCount == 0 && m_pattern.indexOf(QLatin1Char('?')))
+    if (m_openingSquareBracketPos == -1 && m_starCount == 0 && m_questionMarkPos == -1)
         return (m_pattern == filename);
 
     // Other (quite rare) patterns, like "*.anim[1-9j]": use slow but correct method
