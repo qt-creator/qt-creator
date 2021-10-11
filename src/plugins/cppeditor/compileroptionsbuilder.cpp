@@ -123,7 +123,7 @@ CompilerOptionsBuilder::~CompilerOptionsBuilder() = default;
 QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
                                           UsePrecompiledHeaders usePrecompiledHeaders)
 {
-    m_options.clear();
+    reset();
     evaluateCompilerFlags();
 
     if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
@@ -251,9 +251,12 @@ void CompilerOptionsBuilder::addWordWidth()
 
 void CompilerOptionsBuilder::addTargetTriple()
 {
+    const QString target = m_explicitTarget.isEmpty()
+            ? m_projectPart.toolChainTargetTriple : m_explicitTarget;
+
     // Only "--target=" style is accepted in both g++ and cl driver modes.
-    if (!m_projectPart.toolChainTargetTriple.isEmpty())
-        add("--target=" + m_projectPart.toolChainTargetTriple);
+    if (!target.isEmpty())
+        add("--target=" + target);
 }
 
 void CompilerOptionsBuilder::addExtraCodeModelFlags()
@@ -771,6 +774,7 @@ void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
 void CompilerOptionsBuilder::reset()
 {
     m_options.clear();
+    m_explicitTarget.clear();
 }
 
 // Some example command lines for a "Qt Console Application":
@@ -786,10 +790,16 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
     const Id toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
     bool skipNext = false;
-    const QStringList allFlags = m_projectPart.compilerFlags + m_projectPart.extraCodeModelFlags;
+    bool nextIsTarget = false;
+    const QStringList allFlags = m_projectPart.extraCodeModelFlags + m_projectPart.compilerFlags;
     for (const QString &option : allFlags) {
         if (skipNext) {
             skipNext = false;
+            continue;
+        }
+        if (nextIsTarget) {
+            nextIsTarget = false;
+            m_explicitTarget = option;
             continue;
         }
 
@@ -812,14 +822,15 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
-        // As we always set the target explicitly, filter out target args.
-        if (!m_projectPart.toolChainTargetTriple.isEmpty()) {
-            if (option.startsWith("--target="))
-                continue;
-            if (option == "-target") {
-                skipNext = true;
-                continue;
-            }
+        // An explicit target triple from the build system takes precedence over the generic one
+        // from the toolchain.
+        if (option.startsWith("--target=")) {
+            m_explicitTarget = option.mid(9);
+            continue;
+        }
+        if (option == "-target") {
+            nextIsTarget = true;
+            continue;
         }
 
         if (option == includeUserPathOption || option == includeSystemPathOption
