@@ -349,7 +349,7 @@ public:
     IDevice::ConstPtr device;
     Utils::Id runMode;
     Utils::Icon icon;
-    const MacroExpander *macroExpander;
+    const MacroExpander *macroExpander = nullptr;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     QString buildKey;
     QMap<Utils::Id, QVariantMap> settingsData;
@@ -389,11 +389,12 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     d->runConfigId = runConfig->id();
     d->runnable = runConfig->runnable();
     d->displayName = runConfig->expandedDisplayName();
-    d->macroExpander = runConfig->macroExpander();
     d->buildKey = runConfig->buildKey();
     d->settingsData = runConfig->aspectData();
 
     setTarget(runConfig->target());
+
+    d->macroExpander = runConfig->macroExpander();
 }
 
 void RunControl::setTarget(Target *target)
@@ -412,6 +413,7 @@ void RunControl::setTarget(Target *target)
     }
 
     setKit(target->kit());
+    d->macroExpander = target->macroExpander();
     d->project = target->project();
 }
 
@@ -420,6 +422,7 @@ void RunControl::setKit(Kit *kit)
     QTC_ASSERT(kit, return);
     QTC_CHECK(!d->kit);
     d->kit = kit;
+    d->macroExpander = kit->macroExpander();
 
     if (d->runnable.device)
         setDevice(d->runnable.device);
