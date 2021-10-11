@@ -147,6 +147,11 @@ bool ScxmlEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTy
     return success;
 }
 
+bool ScxmlEditorDocument::supportsCodec(const QTextCodec *codec) const
+{
+    return codec == QTextCodec::codecForName("UTF-8");
+}
+
 QString ScxmlEditorDocument::designWidgetContents() const
 {
     return m_designWidget->contents();
