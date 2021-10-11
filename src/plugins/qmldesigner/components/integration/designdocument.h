@@ -145,6 +145,8 @@ private: // functions
 
     Model *createInFileComponentModel();
 
+    bool pasteSVG();
+
 private: // variables
     QScopedPointer<Model> m_documentModel;
     QScopedPointer<Model> m_inFileComponentModel;

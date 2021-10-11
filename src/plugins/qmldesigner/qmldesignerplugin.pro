@@ -1,4 +1,4 @@
-QT += quickwidgets core-private
+QT += quickwidgets core-private xml svg
 CONFIG += exceptions
 
 INCLUDEPATH += $$PWD
