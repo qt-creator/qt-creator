@@ -83,6 +83,39 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
     }
 }
 
+MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(const QString &pattern) const
+{
+    const int patternLength = pattern.length();
+    if (!patternLength)
+        return OtherPattern;
+
+    const bool starCount = pattern.count(QLatin1Char('*')) == 1;
+    const bool hasSquareBracket = pattern.indexOf(QLatin1Char('[')) != -1;
+    const bool hasQuestionMark = pattern.indexOf(QLatin1Char('?')) != -1;
+
+    if (!hasSquareBracket && !hasQuestionMark) {
+        if (starCount == 1) {
+            // Patterns like "*~", "*.extension"
+            if (pattern.at(0) == QLatin1Char('*'))
+                return SuffixPattern;
+            // Patterns like "README*" (well this is currently the only one like that...)
+            if (pattern.at(patternLength - 1) == QLatin1Char('*'))
+                return PrefixPattern;
+        }
+        // Names without any wildcards like "README"
+        if (starCount == 0)
+            return LiteralPattern;
+    }
+
+    if (pattern == QLatin1String("[0-9][0-9][0-9].vdr"))
+        return VdrPattern;
+
+    if (pattern == QLatin1String("*.anim[1-9j]"))
+        return AnimPattern;
+
+    return OtherPattern;
+}
+
 /*!
     \internal
     \class MimeGlobPattern
@@ -92,54 +125,63 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
     \sa MimeType, MimeDatabase, MimeMagicRuleMatcher, MimeMagicRule
 */
 
-bool MimeGlobPattern::matchFileName(const QString &inputFilename) const
+bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
 {
     // "Applications MUST match globs case-insensitively, except when the case-sensitive
     // attribute is set to true."
     // The constructor takes care of putting case-insensitive patterns in lowercase.
-    const QString filename = m_caseSensitivity == Qt::CaseInsensitive ? inputFilename.toLower() : inputFilename;
+    const QString fileName = m_caseSensitivity == Qt::CaseInsensitive
+            ? inputFileName.toLower() : inputFileName;
 
-    const int pattern_len = m_pattern.length();
-    if (!pattern_len)
+    const int patternLength = m_pattern.length();
+    if (!patternLength)
         return false;
-    const int len = filename.length();
+    const int fileNameLength = fileName.length();
 
-    // Patterns like "*~", "*.extension"
-    if (m_pattern[0] == QLatin1Char('*') && m_openingSquareBracketPos == -1 && m_starCount == 1) {
-        if (len + 1 < pattern_len)
+    switch (m_patternType) {
+    case SuffixPattern: {
+        if (fileNameLength + 1 < patternLength)
             return false;
 
-        const QChar *c1 = m_pattern.unicode() + pattern_len - 1;
-        const QChar *c2 = filename.unicode() + len - 1;
+        const QChar *c1 = m_pattern.unicode() + patternLength - 1;
+        const QChar *c2 = fileName.unicode() + fileNameLength - 1;
         int cnt = 1;
-        while (cnt < pattern_len && *c1-- == *c2--)
+        while (cnt < patternLength && *c1-- == *c2--)
             ++cnt;
-        return cnt == pattern_len;
+        return cnt == patternLength;
     }
-
-    // Patterns like "README*" (well this is currently the only one like that...)
-    if (m_starCount == 1 && m_pattern.at(pattern_len - 1) == QLatin1Char('*')) {
-        if (len + 1 < pattern_len)
+    case PrefixPattern: {
+        if (fileNameLength + 1 < patternLength)
             return false;
-        if (m_pattern.at(0) == QLatin1Char('*'))
-            return filename.indexOf(QStringView(m_pattern).mid(1, pattern_len - 2)) != -1;
 
         const QChar *c1 = m_pattern.unicode();
-        const QChar *c2 = filename.unicode();
+        const QChar *c2 = fileName.unicode();
         int cnt = 1;
-        while (cnt < pattern_len && *c1++ == *c2++)
+        while (cnt < patternLength && *c1++ == *c2++)
            ++cnt;
-        return cnt == pattern_len;
+        return cnt == patternLength;
     }
-
-    // Names without any wildcards like "README"
-    if (m_openingSquareBracketPos == -1 && m_starCount == 0 && m_questionMarkPos == -1)
-        return (m_pattern == filename);
-
-    // Other (quite rare) patterns, like "*.anim[1-9j]": use slow but correct method
-    const QRegularExpression rx(QRegularExpression::anchoredPattern(
+    case LiteralPattern:
+        return (m_pattern == fileName);
+    case VdrPattern: // "[0-9][0-9][0-9].vdr" case
+        return fileNameLength == 7
+                && fileName.at(0).isDigit() && fileName.at(1).isDigit() && fileName.at(2).isDigit()
+                && QStringView{fileName}.mid(3, 4) == QLatin1String(".vdr");
+    case AnimPattern: { // "*.anim[1-9j]" case
+        if (fileNameLength < 6)
+            return false;
+        const QChar lastChar = fileName.at(fileNameLength - 1);
+        const bool lastCharOK = (lastChar.isDigit() && lastChar != QLatin1Char('0'))
+                              || lastChar == QLatin1Char('j');
+        return lastCharOK && QStringView{fileName}.mid(fileNameLength - 6, 5) == QLatin1String(".anim");
+    }
+    case OtherPattern:
+        // Other fallback patterns: slow but correct method
+        const QRegularExpression rx(QRegularExpression::anchoredPattern(
                                     QRegularExpression::wildcardToRegularExpression(m_pattern)));
-    return rx.match(filename).hasMatch();
+        return rx.match(fileName).hasMatch();
+    }
+    return false;
 }
 
 static bool isFastPattern(const QString &pattern)

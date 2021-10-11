@@ -79,15 +79,21 @@ public:
         m_pattern(s == Qt::CaseInsensitive ? thePattern.toLower() : thePattern),
         m_mimeType(theMimeType),
         m_weight(theWeight),
-        m_starCount(m_pattern.count(QLatin1Char('*'))),
-        m_openingSquareBracketPos(m_pattern.indexOf(QLatin1Char('['))),
-        m_questionMarkPos(m_pattern.indexOf(QLatin1Char('?'))),
-        m_caseSensitivity(s)
+        m_caseSensitivity(s),
+        m_patternType(detectPatternType(m_pattern))
     {
     }
-    ~MimeGlobPattern() {}
 
-    bool matchFileName(const QString &filename) const;
+    void swap(MimeGlobPattern &other) noexcept
+    {
+        qSwap(m_pattern,         other.m_pattern);
+        qSwap(m_mimeType,        other.m_mimeType);
+        qSwap(m_weight,          other.m_weight);
+        qSwap(m_caseSensitivity, other.m_caseSensitivity);
+        qSwap(m_patternType,     other.m_patternType);
+    }
+
+    bool matchFileName(const QString &inputFileName) const;
 
     inline const QString &pattern() const { return m_pattern; }
     inline unsigned weight() const { return m_weight; }
@@ -95,13 +101,21 @@ public:
     inline bool isCaseSensitive() const { return m_caseSensitivity == Qt::CaseSensitive; }
 
 private:
+    enum PatternType {
+        SuffixPattern,
+        PrefixPattern,
+        LiteralPattern,
+        VdrPattern,        // special handling for "[0-9][0-9][0-9].vdr" pattern
+        AnimPattern,       // special handling for "*.anim[1-9j]" pattern
+        OtherPattern
+    };
+    PatternType detectPatternType(const QString &pattern) const;
+
     QString m_pattern;
     QString m_mimeType;
     int m_weight;
-    int m_starCount;
-    int m_openingSquareBracketPos;
-    int m_questionMarkPos;
     Qt::CaseSensitivity m_caseSensitivity;
+    PatternType m_patternType;
 };
 
 class MimeGlobPatternList : public QList<MimeGlobPattern>
