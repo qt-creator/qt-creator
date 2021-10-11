@@ -52,7 +52,6 @@ ComponentReferences createComponentReferences(const QMultiHash<QString, QmlDirPa
 
 void ProjectUpdater::update()
 {
-    Storage::Modules modules;
     Storage::Imports imports;
     Storage::Types types;
     SourceIds sourceIds;
@@ -67,22 +66,17 @@ void ProjectUpdater::update()
             QmlDirParser parser;
             parser.parse(m_fileSystem.contentAsQString(qmldirPath));
 
-            modules.emplace_back(parser.typeNamespace(), qmlDirSourceId);
-
             sourceIds.push_back(qmlDirSourceId);
 
             SourceContextId directoryId = m_pathCache.sourceContextId(qmlDirSourceId);
 
-            parseTypeInfos(parser.typeInfos(),
-                           directoryId,
-                           ModuleId{&qmlDirSourceId},
-                           imports,
-                           types,
-                           sourceIds,
-                           fileStatuses);
+            ModuleId moduleId = m_projectStorage.moduleId(Utils::PathString{parser.typeNamespace()});
+
+            parseTypeInfos(
+                parser.typeInfos(), directoryId, moduleId, imports, types, sourceIds, fileStatuses);
             parseQmlComponents(createComponentReferences(parser.components()),
                                directoryId,
-                               ModuleId{&qmlDirSourceId},
+                               moduleId,
                                imports,
                                types,
                                sourceIds,
@@ -106,8 +100,7 @@ void ProjectUpdater::update()
         }
     }
 
-    m_projectStorage.synchronize(std::move(modules),
-                                 std::move(imports),
+    m_projectStorage.synchronize(std::move(imports),
                                  std::move(types),
                                  std::move(sourceIds),
                                  std::move(fileStatuses));
@@ -197,11 +190,11 @@ void ProjectUpdater::parseQmlComponents(ComponentReferences components,
         auto type = m_qmlDocumentParser.parse(content, imports);
 
         type.typeName = fileName;
-        type.moduleId = moduleId;
         type.accessSemantics = Storage::TypeAccessSemantics::Reference;
         type.sourceId = sourceId;
         type.exportedTypes.push_back(
-            Storage::ExportedType{Utils::SmallString{component.typeName},
+            Storage::ExportedType{moduleId,
+                                  Utils::SmallString{component.typeName},
                                   Storage::Version{component.majorVersion, component.minorVersion}});
 
         types.push_back(std::move(type));

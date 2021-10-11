@@ -45,15 +45,20 @@ namespace QmlDom = QQmlJS::Dom;
 namespace {
 void addType(const QQmlJSScope::Ptr &object, Storage::Types &types) {}
 
-Storage::Import createImport(const QString &dependency, SourceId sourceId)
+void appendImports(Storage::Imports &imports,
+                   const QString &dependency,
+                   SourceId sourceId,
+                   QmlTypesParser::ProjectStorage &storage)
 {
-    Storage::Import import;
-    import.kind = Storage::ImportKind::QmlTypesDependency;
-    import.sourceId = sourceId;
     auto spaceFound = std::find_if(dependency.begin(), dependency.end(), [](QChar c) {
         return c.isSpace();
     });
-    import.name = Utils::SmallString{QStringView(dependency.begin(), spaceFound)};
+
+    Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
+    ModuleId moduleId = storage.moduleId(moduleName);
+
+    moduleName.append("-cppnative");
+    ModuleId cppModuleId = storage.moduleId(moduleName);
 
     auto majorVersionFound = std::find_if(spaceFound, dependency.end(), [](QChar c) {
         return c.isDigit();
@@ -61,33 +66,39 @@ Storage::Import createImport(const QString &dependency, SourceId sourceId)
     auto majorVersionEnd = std::find_if(majorVersionFound, dependency.end(), [](QChar c) {
         return !c.isDigit();
     });
+
+    Storage::Version version;
+
     QStringView majorVersionString(majorVersionFound, majorVersionEnd);
-    if (majorVersionString.isEmpty())
-        return import;
-    import.version.major.value = majorVersionString.toInt();
+    if (!majorVersionString.isEmpty()) {
+        version.major.value = majorVersionString.toInt();
 
-    auto minorVersionFound = std::find_if(majorVersionEnd, dependency.end(), [](QChar c) {
-        return c.isDigit();
-    });
-    auto minorVersionEnd = std::find_if(minorVersionFound, dependency.end(), [](QChar c) {
-        return !c.isDigit();
-    });
-    QStringView minorVersionString(minorVersionFound, minorVersionEnd);
-    if (minorVersionString.isEmpty())
-        return import;
-    import.version.minor.value = QStringView(minorVersionFound, minorVersionEnd).toInt();
-
-    return import;
-}
-
-void addImports(Storage::Imports &imports, SourceId sourceId, const QStringList &dependencies)
-{
-    for (const QString &dependency : dependencies) {
-        imports.push_back(createImport(dependency, sourceId));
+        auto minorVersionFound = std::find_if(majorVersionEnd, dependency.end(), [](QChar c) {
+            return c.isDigit();
+        });
+        auto minorVersionEnd = std::find_if(minorVersionFound, dependency.end(), [](QChar c) {
+            return !c.isDigit();
+        });
+        QStringView minorVersionString(minorVersionFound, minorVersionEnd);
+        if (!minorVersionString.isEmpty())
+            version.minor.value = QStringView(minorVersionFound, minorVersionEnd).toInt();
     }
 
-    imports.emplace_back("QML", Storage::Version{}, sourceId, Storage::ImportKind::QmlTypesDependency);
-    imports.emplace_back("QtQml", Storage::Version{}, sourceId, Storage::ImportKind::QmlTypesDependency);
+    imports.emplace_back(moduleId, version, sourceId);
+    imports.emplace_back(cppModuleId, version, sourceId);
+}
+
+void addImports(Storage::Imports &imports,
+                SourceId sourceId,
+                const QStringList &dependencies,
+                QmlTypesParser::ProjectStorage &storage)
+{
+    for (const QString &dependency : dependencies)
+        appendImports(imports, dependency, sourceId, storage);
+
+    imports.emplace_back(storage.moduleId("QML"), Storage::Version{}, sourceId);
+    imports.emplace_back(storage.moduleId("QtQml"), Storage::Version{}, sourceId);
+    imports.emplace_back(storage.moduleId("QtQml-cppnative"), Storage::Version{}, sourceId);
 }
 
 Storage::TypeAccessSemantics createTypeAccessSemantics(QQmlJSScope::AccessSemantics accessSematics)
@@ -249,8 +260,7 @@ Storage::EnumerationDeclarations createEnumeration(const QHash<QString, QQmlJSMe
 void addType(Storage::Types &types, SourceId sourceId, ModuleId moduleId, const QQmlJSScope &component)
 {
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(component.ownMethods());
-    types.emplace_back(moduleId,
-                       Utils::SmallString{component.internalName()},
+    types.emplace_back(Utils::SmallString{component.internalName()},
                        Storage::NativeType{Utils::SmallString{component.baseTypeName()}},
                        createTypeAccessSemantics(component.accessSemantics()),
                        sourceId,
@@ -287,7 +297,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
     if (!isValid)
         throw CannotParseQmlTypesFile{};
 
-    addImports(imports, sourceId, dependencies);
+    addImports(imports, sourceId, dependencies, m_storage);
     addTypes(types, sourceId, moduleId, components);
 }
 

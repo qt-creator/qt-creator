@@ -39,18 +39,16 @@ using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 
-MATCHER_P4(IsImport,
-           name,
+MATCHER_P3(IsImport,
+           moduleId,
            version,
            sourceId,
-           kind,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Import{name, version, sourceId, kind}))
+               + PrintToString(Storage::Import{moduleId, version, sourceId}))
 {
     const Storage::Import &import = arg;
 
-    return import.name == name && import.version == version && import.sourceId == sourceId
-           && import.kind == kind;
+    return import.moduleId == moduleId && import.version == version && import.sourceId == sourceId;
 }
 
 MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + PrintToString(prototype))
@@ -60,19 +58,17 @@ MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + Pr
     return Storage::ImportedTypeName{prototype} == type.prototype;
 }
 
-MATCHER_P5(IsType,
-           moduleId,
+MATCHER_P4(IsType,
            typeName,
            prototype,
            accessSemantics,
            sourceId,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Type{moduleId, typeName, prototype, accessSemantics, sourceId}))
+               + PrintToString(Storage::Type{typeName, prototype, accessSemantics, sourceId}))
 {
     const Storage::Type &type = arg;
 
-    return type.moduleId == moduleId && type.typeName == typeName
-           && type.prototype == Storage::ImportedTypeName{prototype}
+    return type.typeName == typeName && type.prototype == Storage::ImportedTypeName{prototype}
            && type.accessSemantics == accessSemantics && type.sourceId == sourceId;
 }
 
@@ -173,13 +169,12 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
-    QmlDesigner::QmlTypesParser parser{sourcePathCache};
+    QmlDesigner::QmlTypesParser parser{sourcePathCache, storage};
     Storage::Imports imports;
     Storage::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
     SourceContextId qmltypesFileSourceContextId{sourcePathCache.sourceContextId(qmltypesFileSourceId)};
-    SourceId directorySourceId{sourcePathCache.sourceId("path/to/.")};
-    ModuleId directoryModuleId{&directorySourceId};
+    ModuleId directoryModuleId{storage.moduleId("path/to/")};
 };
 
 TEST_F(QmlTypesParser, Imports)
@@ -191,27 +186,20 @@ TEST_F(QmlTypesParser, Imports)
 
     parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(IsImport("QtQuick",
-                                              Storage::Version{2, 15},
-                                              qmltypesFileSourceId,
-                                              Storage::ImportKind::QmlTypesDependency),
-                                     IsImport("QtQuick.Window",
-                                              Storage::Version{2, 1},
-                                              qmltypesFileSourceId,
-                                              Storage::ImportKind::QmlTypesDependency),
-                                     IsImport("QML",
-                                              Storage::Version{},
-                                              qmltypesFileSourceId,
-                                              Storage::ImportKind::QmlTypesDependency),
-                                     IsImport("QtQml",
-                                              Storage::Version{},
-                                              qmltypesFileSourceId,
-                                              Storage::ImportKind::QmlTypesDependency),
-                                     IsImport("QtFoo",
-                                              Storage::Version{6},
-                                              qmltypesFileSourceId,
-                                              Storage::ImportKind::QmlTypesDependency)));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            IsImport(storage.moduleId("QML"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQml"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQml-cppnative"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQuick"), Storage::Version{2, 15}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{2, 15}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQuick.Window"), Storage::Version{2, 1}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQuick.Window-cppnative"),
+                     Storage::Version{2, 1},
+                     qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtFoo"), Storage::Version{6}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{6}, qmltypesFileSourceId)));
 }
 
 TEST_F(QmlTypesParser, Types)
@@ -225,13 +213,11 @@ TEST_F(QmlTypesParser, Types)
     parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
 
     ASSERT_THAT(types,
-                UnorderedElementsAre(IsType(directoryModuleId,
-                                            "QObject",
+                UnorderedElementsAre(IsType("QObject",
                                             Storage::NativeType{},
                                             Storage::TypeAccessSemantics::Reference,
                                             qmltypesFileSourceId),
-                                     IsType(directoryModuleId,
-                                            "QQmlComponent",
+                                     IsType("QQmlComponent",
                                             Storage::NativeType{"QObject"},
                                             Storage::TypeAccessSemantics::Reference,
                                             qmltypesFileSourceId)));

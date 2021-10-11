@@ -129,7 +129,7 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
-    QmlDesigner::QmlDocumentParser parser{sourcePathCache};
+    QmlDesigner::QmlDocumentParser parser{sourcePathCache, storage};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("path/to/qmlfile.qml")};
     SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
@@ -146,6 +146,7 @@ TEST_F(QmlDocumentParser, Prototype)
 
 TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
 {
+    auto exampleModuleId = storage.moduleId("Example");
     auto type = parser.parse("import Example as Example\n Example.Item{}",
                              imports,
                              qmlFileSourceId,
@@ -153,7 +154,7 @@ TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
 
     ASSERT_THAT(type,
                 HasPrototype(Storage::QualifiedImportedType(
-                    "Item", Storage::Import{"Example", Storage::Version{}, qmlFileSourceId})));
+                    "Item", Storage::Import{exampleModuleId, Storage::Version{}, qmlFileSourceId})));
 }
 
 TEST_F(QmlDocumentParser, Properties)
@@ -171,7 +172,10 @@ TEST_F(QmlDocumentParser, Properties)
 
 TEST_F(QmlDocumentParser, DISABLED_Imports)
 {
-    ModuleId fooDirectoryModuleId{&sourcePathCache.sourceId("path/to/foo/.")};
+    ModuleId fooDirectoryModuleId = storage.moduleId("path/to/foo/.");
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
     auto type = parser.parse("import QtQuick\n import \"../foo\"\nExample{}",
                              imports,
                              qmlFileSourceId,
@@ -179,11 +183,11 @@ TEST_F(QmlDocumentParser, DISABLED_Imports)
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
-                    Storage::Import{Storage::Version{}, directoryModuleId, qmlFileSourceId},
-                    Storage::Import{Storage::Version{}, fooDirectoryModuleId, qmlFileSourceId},
-                    Storage::Import{"QML", Storage::Version{1, 0}, qmlFileSourceId},
-                    Storage::Import{"QtQml", Storage::Version{6, 0}, qmlFileSourceId},
-                    Storage::Import{"QtQuick", Storage::Version{}, qmlFileSourceId}));
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
+                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, Functions)

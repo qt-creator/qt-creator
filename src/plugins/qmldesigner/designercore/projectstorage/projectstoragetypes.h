@@ -121,38 +121,6 @@ public:
     VersionNumber minor;
 };
 
-class Module
-{
-public:
-    explicit Module() = default;
-
-    explicit Module(Utils::SmallStringView name, SourceId sourceId = SourceId{})
-        : name{name}
-        , sourceId{sourceId}
-    {}
-
-    explicit Module(QStringView name, SourceId sourceId = SourceId{})
-        : name{name}
-        , sourceId{sourceId}
-    {}
-
-    explicit Module(Utils::SmallStringView name, int sourceId)
-        : name{name}
-        , sourceId{sourceId}
-    {}
-
-    friend bool operator==(const Module &first, const Module &second)
-    {
-        return first.name == second.name;
-    }
-
-public:
-    Utils::PathString name;
-    SourceId sourceId;
-};
-
-using Modules = std::vector<Module>;
-
 enum class IsQualified : int { No, Yes };
 
 inline int operator-(IsQualified first, IsQualified second)
@@ -172,41 +140,29 @@ class Import
 public:
     explicit Import() = default;
 
-    explicit Import(Utils::SmallStringView name,
-                    Version version,
-                    SourceId sourceId,
-                    ImportKind kind = ImportKind::Module)
-        : name{name}
-        , version{version}
-        , sourceId{sourceId}
-        , kind{kind}
-    {}
-
-    explicit Import(Version version, ModuleId moduleId, SourceId sourceId)
+    explicit Import(ModuleId moduleId, Version version, SourceId sourceId)
         : version{version}
         , moduleId{moduleId}
         , sourceId{sourceId}
     {}
 
-    explicit Import(Utils::SmallStringView name, int majorVersion, int minorVersion, int sourceId)
-        : name{name}
+    explicit Import(int moduleId, int majorVersion, int minorVersion, int sourceId)
+        : moduleId{moduleId}
         , version{majorVersion, minorVersion}
         , sourceId{sourceId}
     {}
 
     friend bool operator==(const Import &first, const Import &second)
     {
-        return first.name == second.name && first.version == second.version
-               && first.sourceId == second.sourceId && first.moduleId.id == second.moduleId.id;
+        return first.moduleId == second.moduleId && first.version == second.version
+               && first.sourceId == second.sourceId;
     }
 
 public:
-    Utils::SmallString name;
     Version version;
     ModuleId moduleId;
     SourceId sourceId;
     Utils::SmallString aliasName;
-    ImportKind kind = ImportKind::Module;
 };
 
 using Imports = std::vector<Import>;
@@ -296,9 +252,10 @@ public:
         , moduleId{moduleId}
     {}
 
-    explicit ExportedType(Utils::SmallStringView name, int majorVersion, int minorVersion)
+    explicit ExportedType(int moduleId, Utils::SmallStringView name, int majorVersion, int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
+        , moduleId{moduleId}
     {}
 
     friend bool operator==(const ExportedType &first, const ExportedType &second)
@@ -577,6 +534,15 @@ public:
     {}
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
+                                 TypeId propertyTypeId,
+                                 PropertyDeclarationTraits traits)
+        : name{name}
+        , traits{traits}
+        , propertyTypeId{propertyTypeId}
+        , kind{PropertyKind::Property}
+    {}
+
+    explicit PropertyDeclaration(Utils::SmallStringView name,
                                  ImportedTypeName typeName,
                                  PropertyDeclarationTraits traits,
                                  Utils::SmallStringView aliasPropertyName)
@@ -588,13 +554,24 @@ public:
     {}
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
-                                 Utils::SmallStringView typeName,
+                                 TypeId propetyTypeId,
+                                 PropertyDeclarationTraits traits,
+                                 Utils::SmallStringView aliasPropertyName)
+        : name{name}
+        , aliasPropertyName{aliasPropertyName}
+        , traits{traits}
+        , propertyTypeId{propertyTypeId}
+        , kind{PropertyKind::Property}
+    {}
+
+    explicit PropertyDeclaration(Utils::SmallStringView name,
+                                 long long propertyTypeId,
                                  int traits,
                                  Utils::SmallStringView aliasPropertyName)
         : name{name}
-        , typeName{NativeType{typeName}}
         , aliasPropertyName{aliasPropertyName}
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
+        , propertyTypeId{propertyTypeId}
         , kind{PropertyKind::Property}
     {}
 
@@ -619,6 +596,7 @@ public:
     ImportedTypeName typeName;
     Utils::SmallString aliasPropertyName;
     PropertyDeclarationTraits traits = {};
+    TypeId propertyTypeId;
     TypeId typeId;
     PropertyKind kind = PropertyKind::Property;
 };
@@ -657,8 +635,7 @@ class Type
 {
 public:
     explicit Type() = default;
-    explicit Type(ModuleId moduleId,
-                  Utils::SmallStringView typeName,
+    explicit Type(Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
                   TypeAccessSemantics accessSemantics,
                   SourceId sourceId,
@@ -677,12 +654,20 @@ public:
         , enumerationDeclarations{std::move(enumerationDeclarations)}
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
-        , moduleId{moduleId}
         , changeLevel{changeLevel}
     {}
 
-    explicit Type(ModuleId moduleId,
-                  Utils::SmallStringView typeName,
+    explicit Type(Utils::SmallStringView typeName,
+                  TypeId prototypeId,
+                  TypeAccessSemantics accessSemantics,
+                  SourceId sourceId)
+        : typeName{typeName}
+        , accessSemantics{accessSemantics}
+        , sourceId{sourceId}
+        , prototypeId{prototypeId}
+    {}
+
+    explicit Type(Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
                   int sourceId)
@@ -690,22 +675,19 @@ public:
         , prototype{NativeType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
-        , moduleId{moduleId}
 
     {}
 
-    explicit Type(int moduleId,
+    explicit Type(int sourceId,
                   Utils::SmallStringView typeName,
                   long long typeId,
-                  Utils::SmallStringView prototype,
-                  int accessSemantics,
-                  int sourceId)
+                  long long prototypeId,
+                  int accessSemantics)
         : typeName{typeName}
-        , prototype{NativeType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
-        , moduleId{moduleId}
+        , prototypeId{prototypeId}
     {}
 
     friend bool operator==(const Type &first, const Type &second) noexcept
@@ -715,7 +697,6 @@ public:
                && first.propertyDeclarations == second.propertyDeclarations
                && first.functionDeclarations == second.functionDeclarations
                && first.signalDeclarations == second.signalDeclarations
-               && first.moduleId == second.moduleId && first.sourceId == second.sourceId
                && first.sourceId == second.sourceId;
     }
 
@@ -730,28 +711,10 @@ public:
     TypeAccessSemantics accessSemantics = TypeAccessSemantics::None;
     SourceId sourceId;
     TypeId typeId;
-    ModuleId moduleId;
+    TypeId prototypeId;
     ChangeLevel changeLevel = ChangeLevel::Full;
 };
 
 using Types = std::vector<Type>;
-
-class ModuleView
-{
-public:
-    explicit ModuleView(Utils::SmallStringView name, int sourceId)
-        : name{name}
-        , sourceId{sourceId}
-    {}
-
-    friend bool operator==(const ModuleView &first, const ModuleView &second)
-    {
-        return first.name == second.name && first.sourceId == second.sourceId;
-    }
-
-public:
-    Utils::SmallStringView name;
-    SourceId sourceId;
-};
 
 } // namespace QmlDesigner::Storage

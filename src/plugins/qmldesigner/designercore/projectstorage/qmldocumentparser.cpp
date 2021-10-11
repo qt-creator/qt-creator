@@ -69,19 +69,19 @@ void addImports(Storage::Imports &imports,
                 const QList<QmlDom::Import> &qmlImports,
                 SourceId sourceId,
                 SourceContextId sourceContextId,
-                QmlDocumentParser::PathCache &pathCache)
+                QmlDocumentParser::PathCache &pathCache,
+                QmlDocumentParser::ProjectStorage &storage)
 {
     for (const QmlDom::Import &qmlImport : qmlImports) {
         if (qmlImport.uri == u"file://.") {
-            SourceId directorySourceId = pathCache.sourceId(sourceContextId, ".");
-            imports.emplace_back(Storage::Version{}, ModuleId{&directorySourceId}, sourceId);
+            auto moduleId = storage.moduleId(pathCache.sourceContextPath(sourceContextId));
+            imports.emplace_back(moduleId, Storage::Version{}, sourceId);
         } else if (qmlImport.uri.startsWith(u"file://")) {
-            SourceId uriSourceId = pathCache.sourceId(sourceContextId, convertUri(qmlImport.uri));
-            imports.emplace_back(Storage::Version{}, ModuleId{&uriSourceId}, sourceId);
+            auto moduleId = storage.moduleId(convertUri(qmlImport.uri));
+            imports.emplace_back(moduleId, Storage::Version{}, sourceId);
         } else {
-            imports.emplace_back(Utils::SmallString{qmlImport.uri},
-                                 convertVersion(qmlImport.version),
-                                 sourceId);
+            auto moduleId = storage.moduleId(Utils::SmallString{qmlImport.uri});
+            imports.emplace_back(moduleId, convertVersion(qmlImport.version), sourceId);
         }
     }
 }
@@ -185,7 +185,7 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
 
     type.prototype = Storage::ImportedType{Utils::SmallString{qmlObject.name()}};
 
-    addImports(imports, qmlFile->imports(), sourceId, sourceContextId, m_pathCache);
+    addImports(imports, qmlFile->imports(), sourceId, sourceContextId, m_pathCache, m_storage);
 
     addPropertyDeclarations(type, qmlObject);
     addFunctionAndSignalDeclarations(type, qmlObject);
