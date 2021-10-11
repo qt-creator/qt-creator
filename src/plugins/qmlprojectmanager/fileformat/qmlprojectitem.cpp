@@ -77,6 +77,12 @@ void QmlProjectItem::setFileSelectors(const QStringList &selectors)
         m_fileSelectors = selectors;
 }
 
+void QmlProjectItem::setSupportedLanguages(const QStringList &languages)
+{
+    if (m_supportedLanguages != languages)
+        m_supportedLanguages = languages;
+}
+
 /* Returns list of absolute paths */
 QStringList QmlProjectItem::files() const
 {

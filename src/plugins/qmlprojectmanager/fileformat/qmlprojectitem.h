@@ -63,6 +63,9 @@ public:
     QStringList fileSelectors() const { return m_fileSelectors; }
     void setFileSelectors(const QStringList &selectors);
 
+    QStringList supportedLanguages() const { return m_supportedLanguages; }
+    void setSupportedLanguages(const QStringList &languages);
+
     QStringList files() const;
     bool matchesFile(const QString &filePath) const;
 
@@ -85,6 +88,7 @@ protected:
     QString m_targetDirectory;
     QStringList m_importPaths;
     QStringList m_fileSelectors;
+    QStringList m_supportedLanguages;
     QString m_mainFile;
     Utils::EnvironmentItems m_environment;
     QVector<QmlProjectContentItem *> m_content; // content property
