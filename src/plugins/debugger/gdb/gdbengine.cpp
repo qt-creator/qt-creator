@@ -3846,6 +3846,7 @@ void GdbEngine::setupEngine()
         gdbCommand.addArg("-n");
 
     Environment gdbEnv = rp.debugger.environment;
+    gdbEnv.setupEnglishOutput();
     if (rp.runAsRoot) {
         CommandLine wrapped("sudo", {"-A"});
         wrapped.addCommandLineAsArgs(gdbCommand);
