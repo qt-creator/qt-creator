@@ -2651,35 +2651,27 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     if (!edit)
         return;
 
-    const auto kind = static_cast<CompletionItemKind::Kind>(
-                item.kind().value_or(CompletionItemKind::Text));
-    if (kind != CompletionItemKind::Function && kind != CompletionItemKind::Method
-            && kind != CompletionItemKind::Constructor) {
-        applyTextEdit(manipulator, *edit, true);
-        return;
-    }
-
     const QString rawInsertText = edit->newText();
     const int firstParenOffset = rawInsertText.indexOf('(');
     const int lastParenOffset = rawInsertText.lastIndexOf(')');
-    if (firstParenOffset == -1 || lastParenOffset == -1) {
-        applyTextEdit(manipulator, *edit, true);
-        return;
-    }
-
     const QString detail = item.detail().value_or(QString());
     const CompletionSettings &completionSettings = TextEditorSettings::completionSettings();
     QString textToBeInserted = rawInsertText.left(firstParenOffset);
     QString extraCharacters;
+    int extraLength = 0;
     int cursorOffset = 0;
     bool setAutoCompleteSkipPos = false;
-    const QTextDocument * const doc = manipulator.textCursorAt(
-                manipulator.currentPosition()).document();
+    int currentPos = manipulator.currentPosition();
+    const QTextDocument * const doc = manipulator.textCursorAt(currentPos).document();
     const Range range = edit->range();
     const int rangeStart = range.start().toPositionInDocument(doc);
-    const int rangeLength = range.end().toPositionInDocument(doc) - rangeStart;
 
-    if (completionSettings.m_autoInsertBrackets) {
+    const auto kind = static_cast<CompletionItemKind::Kind>(
+                item.kind().value_or(CompletionItemKind::Text));
+    const bool isFunctionLike = kind == CompletionItemKind::Function
+            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
+            || (firstParenOffset != -1 && lastParenOffset != -1);
+    if (isFunctionLike && completionSettings.m_autoInsertBrackets) {
         // If the user typed the opening parenthesis, they'll likely also type the closing one,
         // in which case it would be annoying if we put the cursor after the already automatically
         // inserted closing parenthesis.
@@ -2707,7 +2699,7 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
 
             // If the function doesn't return anything, automatically place the semicolon,
             // unless we're doing a scope completion (then it might be function definition).
-            const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
+            const QChar characterAtCursor = manipulator.characterAt(currentPos);
             bool endWithSemicolon = typedChar == ';';
             const QChar semicolon = typedChar.isNull() ? QLatin1Char(';') : typedChar;
             if (endWithSemicolon && characterAtCursor == semicolon) {
@@ -2723,7 +2715,7 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
                     typedChar = {};
                 }
             } else {
-                const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
+                const QChar lookAhead = manipulator.characterAt(currentPos + 1);
                 if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                     extraCharacters += ')';
                     --cursorOffset;
@@ -2745,9 +2737,26 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
             --cursorOffset;
     }
 
-    textToBeInserted += extraCharacters;
+    // Avoid inserting characters that are already there
+    QTextCursor cursor = manipulator.textCursorAt(rangeStart);
+    cursor.movePosition(QTextCursor::EndOfWord);
+    const QString textAfterCursor = manipulator.textAt(currentPos, cursor.position() - currentPos);
+    if (textToBeInserted != textAfterCursor
+            && textToBeInserted.indexOf(textAfterCursor, currentPos - rangeStart) >= 0) {
+        currentPos = cursor.position();
+    }
+    for (int i = 0; i < extraCharacters.length(); ++i) {
+        const QChar a = extraCharacters.at(i);
+        const QChar b = manipulator.characterAt(currentPos + i);
+        if (a == b)
+            ++extraLength;
+        else
+            break;
+    }
 
-    const bool isReplaced = manipulator.replace(rangeStart, rangeLength, textToBeInserted);
+    textToBeInserted += extraCharacters;
+    const int length = currentPos - rangeStart + extraLength;
+    const bool isReplaced = manipulator.replace(rangeStart, length, textToBeInserted);
     manipulator.setCursorPosition(rangeStart + textToBeInserted.length());
     if (isReplaced) {
         if (cursorOffset)
