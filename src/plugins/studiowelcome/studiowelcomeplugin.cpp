@@ -340,11 +340,6 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
     qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
 
-    m_welcomeMode = new WelcomeMode;
-
-    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
-    QFont systemFont("Titillium Web", QApplication::font().pointSize());
-    QApplication::setFont(systemFont);
 
     m_removeSplashTimer.setSingleShot(true);
     m_removeSplashTimer.setInterval(15000);
