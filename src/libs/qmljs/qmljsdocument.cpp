@@ -632,6 +632,10 @@ LibraryInfo Snapshot::libraryInfo(const QString &path) const
     return _libraries.value(QDir::cleanPath(path));
 }
 
+LibraryInfo Snapshot::libraryInfo(const Utils::FilePath &path) const
+{
+    return _libraries.value(path.cleanPath().toString());
+}
 
 void ModuleApiInfo::addToHash(QCryptographicHash &hash) const
 {
