@@ -39,6 +39,7 @@
 #include <QAction>
 #include <QRegularExpression>
 #include <QStringList>
+#include <QTextStream>
 
 using namespace Utils;
 
