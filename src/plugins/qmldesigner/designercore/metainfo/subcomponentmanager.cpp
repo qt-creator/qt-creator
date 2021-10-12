@@ -134,8 +134,11 @@ void SubComponentManager::parseDirectories()
         if (dirInfo.exists() && dirInfo.isDir())
             parseDirectory(canonicalPath);
 
-        foreach (const QString &subDir, QDir(QFileInfo(file).path()).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot)) {
-            parseDirectory(canonicalPath + QLatin1Char('/') + subDir, true, subDir.toUtf8());
+        const QStringList subDirs = QDir(QFileInfo(file).path()).entryList(QDir::Dirs | QDir::NoDot
+                                                                           | QDir::NoDotDot);
+        for (const QString &subDir : subDirs) {
+            const QString canSubPath = canonicalPath + QLatin1Char('/') + subDir;
+            parseDirectory(canSubPath, true, resolveDirQualifier(canSubPath));
         }
     }
 
@@ -146,8 +149,10 @@ void SubComponentManager::parseDirectories()
     foreach (const Import &import, m_imports) {
         if (import.isFileImport()) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
-            if (dirInfo.exists() && dirInfo.isDir())
-                parseDirectory(dirInfo.canonicalFilePath(), true, dirInfo.baseName().toUtf8());
+            if (dirInfo.exists() && dirInfo.isDir()) {
+                const QString canPath = dirInfo.canonicalFilePath();
+                parseDirectory(canPath, true, resolveDirQualifier(canPath));
+            }
         } else {
             QString url = import.url();
             url.replace(QLatin1Char('.'), QLatin1Char('/'));
@@ -445,6 +450,11 @@ QStringList SubComponentManager::quick3DAssetPaths() const
     return retPaths;
 }
 
+TypeName SubComponentManager::resolveDirQualifier(const QString &dirPath) const
+{
+    return m_filePathDir.relativeFilePath(dirPath).toUtf8();
+}
+
 /*!
   \class SubComponentManager
 
@@ -472,10 +482,12 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
     if (!m_filePath.isEmpty()) {
         const QString file = m_filePath.toLocalFile();
         oldDir = QFileInfo(QFileInfo(file).path());
+        m_filePathDir = {};
     }
     if (!filePath.isEmpty()) {
         const QString file = filePath.toLocalFile();
         newDir = QFileInfo(QFileInfo(file).path());
+        m_filePathDir = {newDir.absoluteFilePath()};
     }
 
     m_filePath = filePath;
@@ -538,8 +550,10 @@ void SubComponentManager::updateImport(const Import &import)
 
     if (import.isFileImport()) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
-        if (dirInfo.exists() && dirInfo.isDir())
-            parseDirectory(dirInfo.canonicalFilePath(), true, dirInfo.baseName().toUtf8());
+        if (dirInfo.exists() && dirInfo.isDir()) {
+            const QString canPath = dirInfo.canonicalFilePath();
+            parseDirectory(canPath, true, resolveDirQualifier(canPath));
+        }
     } else {
         QString url = import.url();
 

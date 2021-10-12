@@ -36,6 +36,7 @@
 #include <QMultiHash>
 #include <QPointer>
 #include <QFileInfo>
+#include <QDir>
 
 namespace QmlDesigner {
 
@@ -69,6 +70,7 @@ private: // functions
     void parseQuick3DAssetsDir(const QString &quick3DAssetsPath);
     void parseQuick3DAssetsItem(const QString &importUrl, const QString &quick3DAssetsPath = {});
     QStringList quick3DAssetPaths() const;
+    TypeName resolveDirQualifier(const QString &dirPath) const;
 
 private: // variables
     QFileSystemWatcher m_watcher;
@@ -76,6 +78,7 @@ private: // variables
     // key: canonical directory path
     QMultiHash<QString,QString> m_dirToQualifier;
     QUrl m_filePath;
+    QDir m_filePathDir;
     QPointer<Model> m_model;
 };
 

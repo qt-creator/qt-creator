@@ -914,16 +914,30 @@ static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &pat
         usedImportsSet.insert(i.info.path());
 
     QList<QmlDesigner::Import> possibleImports;
+    const QStringList qmlList("*.qml");
+    const QStringList qmldirList("qmldir");
 
-    foreach (const QString &subDir, QDir(path).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot)) {
-        QDir dir(path + "/" + subDir);
-        if (!dir.entryInfoList(QStringList("*.qml"), QDir::Files).isEmpty()
-                && dir.entryInfoList(QStringList("qmldir"), QDir::Files).isEmpty()
-                && !usedImportsSet.contains(dir.path())) {
-            QmlDesigner::Import import = QmlDesigner::Import::createFileImport(subDir);
-            possibleImports.append(import);
+    QStringList fileImportPaths;
+    const QChar delimeter('/');
+
+    std::function<void(const QString &)> checkDir;
+    checkDir = [&](const QString &checkPath) {
+        const QStringList entries = QDir(checkPath).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
+        const QString checkPathDelim = checkPath + delimeter;
+        for (const QString &entry : entries) {
+            QDir dir(checkPathDelim + entry);
+            const QString dirPath = dir.path();
+            if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
+                    && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
+                    && !usedImportsSet.contains(dirPath)) {
+                const QString importName = dir.path().mid(path.size() + 1);
+                QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
+                possibleImports.append(import);
+            }
+            checkDir(dirPath);
         }
-    }
+    };
+    checkDir(path);
 
     return possibleImports;
 }
