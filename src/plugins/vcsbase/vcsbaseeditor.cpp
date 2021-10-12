@@ -984,8 +984,10 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             handler->fillContextMenu(menu, d->m_parameters->type);
         }
     }
-    if (!menu)
-        menu = createStandardContextMenu();
+    if (!menu) {
+        menu = new QMenu;
+        appendStandardContextMenuActions(menu);
+    }
     switch (d->m_parameters->type) {
     case LogOutput: // log might have diff
     case DiffOutput: {
