@@ -4343,11 +4343,18 @@ Module {
             values: {
                 "ImhNone": 0,
                 "ImhHiddenText": 1,
-                "ImhNoAutoUppercase": 2,
-                "ImhPreferNumbers": 4,
-                "ImhPreferUppercase": 8,
-                "ImhPreferLowercase": 16,
-                "ImhNoPredictiveText": 32,
+                "ImhSensitiveData": 2,
+                "ImhNoAutoUppercase": 4,
+                "ImhPreferNumbers": 8,
+                "ImhPreferUppercase": 16,
+                "ImhPreferLowercase": 32,
+                "ImhNoPredictiveText": 64,
+                "ImhDate": 128,
+                "ImhTime": 256,
+                "ImhPreferLatin": 512,
+                "ImhMultiLine": 1024,
+                "ImhNoEditMenu": 2048,
+                "ImhNoTextHandles": 4096,
                 "ImhDigitsOnly": 65536,
                 "ImhFormattedNumbersOnly": 131072,
                 "ImhUppercaseOnly": 262144,
@@ -4355,6 +4362,7 @@ Module {
                 "ImhDialableCharactersOnly": 1048576,
                 "ImhEmailCharactersOnly": 2097152,
                 "ImhUrlCharactersOnly": 4194304,
+                "ImhLatinOnly": 8388608,
                 "ImhExclusiveInputMask": -65536
             }
         }
@@ -4363,11 +4371,18 @@ Module {
             values: {
                 "ImhNone": 0,
                 "ImhHiddenText": 1,
-                "ImhNoAutoUppercase": 2,
-                "ImhPreferNumbers": 4,
-                "ImhPreferUppercase": 8,
-                "ImhPreferLowercase": 16,
-                "ImhNoPredictiveText": 32,
+                "ImhSensitiveData": 2,
+                "ImhNoAutoUppercase": 4,
+                "ImhPreferNumbers": 8,
+                "ImhPreferUppercase": 16,
+                "ImhPreferLowercase": 32,
+                "ImhNoPredictiveText": 64,
+                "ImhDate": 128,
+                "ImhTime": 256,
+                "ImhPreferLatin": 512,
+                "ImhMultiLine": 1024,
+                "ImhNoEditMenu": 2048,
+                "ImhNoTextHandles": 4096,
                 "ImhDigitsOnly": 65536,
                 "ImhFormattedNumbersOnly": 131072,
                 "ImhUppercaseOnly": 262144,
@@ -4375,6 +4390,7 @@ Module {
                 "ImhDialableCharactersOnly": 1048576,
                 "ImhEmailCharactersOnly": 2097152,
                 "ImhUrlCharactersOnly": 4194304,
+                "ImhLatinOnly": 8388608,
                 "ImhExclusiveInputMask": -65536
             }
         }
