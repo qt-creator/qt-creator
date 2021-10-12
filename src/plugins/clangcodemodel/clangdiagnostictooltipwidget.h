@@ -48,7 +48,8 @@ public:
 
     static QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                                  const Destination &destination,
-                                 const std::function<bool()> &canApplyFixIt);
+                                 const std::function<bool()> &canApplyFixIt,
+                                 const QString &source);
 };
 
 } // namespace Internal

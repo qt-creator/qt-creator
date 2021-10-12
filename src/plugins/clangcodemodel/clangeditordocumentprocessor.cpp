@@ -506,7 +506,8 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
         vbox->setSpacing(2);
 
         vbox->addWidget(ClangDiagnosticWidget::createWidget({firstHeaderErrorDiagnostic},
-                                                            ClangDiagnosticWidget::InfoBar, {}));
+                                                            ClangDiagnosticWidget::InfoBar, {},
+                                                            "libclang"));
 
         auto widget = new QWidget;
         widget->setLayout(vbox);
