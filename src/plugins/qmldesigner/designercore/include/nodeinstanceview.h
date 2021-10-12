@@ -154,6 +154,9 @@ public:
         m_crashCallback = std::move(crashCallback);
     }
 
+    void startNanotrace();
+    void endNanotrace();
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 

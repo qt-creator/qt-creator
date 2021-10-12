@@ -122,6 +122,11 @@ void ConnectionManager::writeCommand(const QVariant &command)
     m_writeCommandCounter++;
 }
 
+quint32 ConnectionManager::writeCounter() const
+{
+    return m_writeCommandCounter;
+}
+
 void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName)
 {
     qWarning() << "Process" << connectionName <<(exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")

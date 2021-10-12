@@ -76,6 +76,8 @@
 #include "valueschangedcommand.h"
 #include "view3dactioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
+#include "nanotracecommand.h"
+#include "nanotrace/nanotrace.h"
 
 namespace QmlDesigner {
 
@@ -198,6 +200,21 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
             exit(-1);
         }
     } else if (m_outputIoDevice) {
+#ifdef NANOTRACE_ENABLED
+        if (command.userType() != QMetaType::type("PuppetAliveCommand")) {
+            if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+                SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
+                NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
+                    {"name", cmd.name().toStdString()},
+                    {"counter", m_writeCommandCounter});
+
+            } else {
+                NANOTRACE_INSTANT_ARGS("Update", "writeCommand",
+                    {"name", command.typeName()},
+                    {"counter", m_writeCommandCounter});
+            }
+        }
+#endif
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_8);
@@ -355,6 +372,25 @@ void NodeInstanceClientProxy::changePreviewImageSize(const ChangePreviewImageSiz
     nodeInstanceServer()->changePreviewImageSize(command);
 }
 
+void NodeInstanceClientProxy::startNanotrace(const StartNanotraceCommand &command)
+{
+    QString name = qApp->arguments().at(2);
+    std::string directory = command.path().toStdString();
+    std::string processName = name.toStdString();
+    std::string fullFilePath =
+        directory + std::string("/nanotrace_qmlpuppet_") + processName + std::string(".json");
+
+    for (size_t i=0; i<processName.length(); ++i) {
+        if (i==0 || processName[i]=='m')
+            processName[i] = std::toupper(processName[i]);
+    }
+    processName = processName + std::string("Puppet");
+
+    NANOTRACE_INIT(processName.c_str(), "MainThread", fullFilePath);
+
+    writeCommand(QVariant::fromValue(SyncNanotraceCommand(name)));
+}
+
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
@@ -367,7 +403,23 @@ void NodeInstanceClientProxy::readDataStream()
         static quint32 blockSize = 0;
 
         QVariant command = readCommandFromIOStream(m_inputIoDevice, &readCommandCounter, &blockSize);
+#ifdef NANOTRACE_ENABLED
+        if (command.userType() != QMetaType::type("EndNanotraceCommand")) {
+            if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+                SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
+                NANOTRACE_INSTANT_ARGS("Sync", "readCommand",
+                    {"name", cmd.name().toStdString()},
+                    {"counter", readCommandCounter});
+                // Do not dispatch this command.
+                continue;
 
+            } else {
+                NANOTRACE_INSTANT_ARGS("Update", "readCommand",
+                    {"name", command.typeName()},
+                    {"counter", readCommandCounter});
+            }
+        }
+#endif
         if (command.isValid())
             commandList.append(command);
         else
@@ -500,6 +552,8 @@ void NodeInstanceClientProxy::changeSelection(const ChangeSelectionCommand &comm
 
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
+    NANOTRACE_SCOPE_ARGS("Update", "dispatchCommand", {"name", command.typeName()});
+
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
     static const int update3dViewStateCommand = QMetaType::type("Update3dViewStateCommand");
     static const int changeFileUrlCommandType = QMetaType::type("ChangeFileUrlCommand");
@@ -526,6 +580,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeLanguageCommand = QMetaType::type("ChangeLanguageCommand");
     static const int changePreviewImageSizeCommand = QMetaType::type(
         "ChangePreviewImageSizeCommand");
+    static const int startNanotraceCommandType = QMetaType::type("StartNanotraceCommand");
+    static const int endNanotraceCommandType = QMetaType::type("EndNanotraceCommand");
 
     const int commandType = command.userType();
 
@@ -581,6 +637,10 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         changeLanguage(command.value<ChangeLanguageCommand>());
     } else if (command.userType() == changePreviewImageSizeCommand) {
         changePreviewImageSize(command.value<ChangePreviewImageSizeCommand>());
+    } else if (command.userType() == startNanotraceCommandType) {
+        startNanotrace(command.value<StartNanotraceCommand>());
+    } else if (command.userType() == endNanotraceCommandType) {
+        NANOTRACE_SHUTDOWN();
     } else {
         Q_ASSERT(false);
     }

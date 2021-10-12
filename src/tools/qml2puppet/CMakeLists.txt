@@ -76,6 +76,7 @@ extend_qtc_library(qml2puppet_static
     debugoutputcommand.cpp debugoutputcommand.h
     endpuppetcommand.cpp endpuppetcommand.h
     informationchangedcommand.cpp informationchangedcommand.h
+    nanotracecommand.cpp nanotracecommand.h
     pixmapchangedcommand.cpp pixmapchangedcommand.h
     puppetalivecommand.cpp puppetalivecommand.h
     removeinstancescommand.cpp removeinstancescommand.h
@@ -94,6 +95,14 @@ extend_qtc_library(qml2puppet_static
     valueschangedcommand.cpp
     captureddatacommand.h
     scenecreatedcommand.h
+)
+
+extend_qtc_library(qml2puppet_static
+  PUBLIC_INCLUDES "${PROJECT_SOURCE_DIR}/src/libs"
+)
+extend_qtc_library(qml2puppet_static
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
 )
 
 add_qtc_executable(qml2puppet
@@ -246,6 +255,15 @@ extend_qtc_executable(qml2puppet
     CONDITION TARGET QtCreator::multilanguage-support
     DEPENDS QtCreator::multilanguage-support
     FEATURE_INFO "multilanguage-support in qml2puppet"
+)
+
+extend_qtc_executable(qml2puppet
+  PUBLIC_INCLUDES "${PROJECT_SOURCE_DIR}/src/libs"
+)
+
+extend_qtc_executable(qml2puppet
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
 )
 
 # Crashpad

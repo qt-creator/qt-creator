@@ -66,6 +66,7 @@ class View3DActionCommand;
 class RequestModelNodePreviewImageCommand;
 class ChangeLanguageCommand;
 class ChangePreviewImageSizeCommand;
+class StartNanotraceCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
@@ -127,6 +128,7 @@ protected:
     void requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command);
     void changeLanguage(const ChangeLanguageCommand &command);
     void changePreviewImageSize(const ChangePreviewImageSizeCommand &command);
+    void startNanotrace(const StartNanotraceCommand& command);
 
 protected slots:
     void readDataStream();

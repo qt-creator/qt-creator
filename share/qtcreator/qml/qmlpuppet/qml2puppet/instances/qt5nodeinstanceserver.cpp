@@ -38,6 +38,7 @@
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
 #include <clearscenecommand.h>
+#include <nanotrace/nanotrace.h>
 
 #include <QDebug>
 #include <QOpenGLContext>
@@ -280,6 +281,8 @@ bool Qt5NodeInstanceServer::initRhi(RenderViewData &viewData)
 
 QImage Qt5NodeInstanceServer::grabRenderControl(RenderViewData &viewData)
 {
+    NANOTRACE_SCOPE("Update", "GrabRenderControl");
+
     QImage renderImage;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (viewData.bufferDirty && !initRhi(viewData))

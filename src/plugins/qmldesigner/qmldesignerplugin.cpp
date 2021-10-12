@@ -85,6 +85,9 @@
 #include <QWindow>
 #include <QApplication>
 
+#include "nanotrace/nanotrace.h"
+#include <modelnodecontextmenu_helper.h>
+
 static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
 using namespace QmlDesigner::Internal;
@@ -232,6 +235,40 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
               .toString();
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
+
+#ifdef NANOTRACE_ENABLED
+    auto handleShutdownNanotraceAction = [](const SelectionContext &) {};
+    auto shutdownNanotraceIcon = []() { return QIcon(); };
+    auto startNanotraceAction = new ModelNodeAction("Start Nanotrace",
+                     QObject::tr("Start Nanotrace"),
+                     shutdownNanotraceIcon(),
+                     QObject::tr("Start Nanotrace"),
+                     ComponentCoreConstants::eventListCategory,
+                     QKeySequence(),
+                     220,
+                     handleShutdownNanotraceAction);
+
+    connect(startNanotraceAction->defaultAction(), &QAction::triggered, [this]() {
+        d->viewManager.nodeInstanceView()->startNanotrace();
+    });
+
+    designerActionManager().addDesignerAction(startNanotraceAction);
+
+    auto shutDownNanotraceAction = new ModelNodeAction("ShutDown Nanotrace",
+                      QObject::tr("ShutDown Nanotrace"),
+                      shutdownNanotraceIcon(),
+                      QObject::tr("ShutDown Nanotrace"),
+                      ComponentCoreConstants::eventListCategory,
+                      QKeySequence(),
+                      220,
+                      handleShutdownNanotraceAction);
+
+    connect(shutDownNanotraceAction->defaultAction(), &QAction::triggered, [this]() {
+        d->viewManager.nodeInstanceView()->endNanotrace();
+    });
+
+    designerActionManager().addDesignerAction(shutDownNanotraceAction);
+#endif
 
     return true;
 }

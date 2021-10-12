@@ -502,17 +502,6 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   from Florian Loitsch which is licensed under the MIT License (see above).
   Copyright © 2009 Florian Loitsch
 
-### minitrace
-
-  Simple C/C++ library for producing JSON traces.
-
-  The sources can be found in:
-    * QtCreator/src/libs/3rdparty/minitrace/private
-    * https://github.com/hrydgard/minitrace
-
-  Copyright 2014 by Henrik Rydgård
-  Released under the MIT license.
-
 ### litehtml
 
   The litehtml HTML/CSS rendering engine is used as a help viewer backend

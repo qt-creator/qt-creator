@@ -556,3 +556,8 @@ extend_qtc_plugin(QmlDesigner
     connectsignaldialog.cpp connectsignaldialog.h
     shortcutwidget.cpp shortcutwidget.h
 )
+
+extend_qtc_plugin(QmlDesigner
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
+)

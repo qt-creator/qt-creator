@@ -56,6 +56,8 @@ public:
 
     void writeCommand(const QVariant &command) override;
 
+    quint32 writeCounter() const override;
+
 protected:
     using BaseConnectionManager::processFinished;
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName) override;
