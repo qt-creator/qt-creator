@@ -246,9 +246,18 @@ QVariant JsonWizardFactory::mergeDataValueMaps(const QVariant &valueMap, const Q
 {
     QVariantMap retVal;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    const QVariantMap &map = defaultValueMap.toMap();
+    for (auto it = map.begin(), end = map.end(); it != end; ++it)
+        retVal.insert(it.key(), it.value());
+
+    const QVariantMap &map2 = valueMap.toMap();
+    for (auto it = map2.begin(), end = map2.end(); it != end; ++it)
+        retVal.insert(it.key(), it.value());
+#else
     retVal.insert(defaultValueMap.toMap());
     retVal.insert(valueMap.toMap());
-
+#endif
     return retVal;
 }
 
@@ -318,16 +327,12 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
     QVariant defaultSubData = defaultData.value(QLatin1String(DATA_KEY));
     QVariant subData;
 
-    if (specifiedSubData.isNull()) {
+    if (specifiedSubData.isNull())
         subData = defaultSubData;
-    } else if (specifiedSubData.type() == QVariant::Map) {
-        QVariantMap subDataMap;
-        subDataMap.insert(defaultSubData.toMap());
-        subDataMap.insert(specifiedSubData.toMap());
-        subData = subDataMap;
-    } else if (specifiedSubData.type() == QVariant::List) {
+    else if (specifiedSubData.type() == QVariant::Map)
+        subData = mergeDataValueMaps(specifiedSubData.toMap(), defaultSubData.toMap());
+    else if (specifiedSubData.type() == QVariant::List)
         subData = specifiedSubData;
-    }
 
     if (!factory->validateData(typeId, subData, errorMessage))
         return p;
