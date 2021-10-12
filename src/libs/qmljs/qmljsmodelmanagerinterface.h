@@ -78,10 +78,10 @@ public:
         // whether trying to run qmldump makes sense
         bool tryQmlDump = false;
         bool qmlDumpHasRelocatableFlag = true;
-        QString qmlDumpPath;
-        ::Utils::Environment qmlDumpEnvironment;
+        Utils::FilePath qmlDumpPath;
+        Utils::Environment qmlDumpEnvironment;
 
-        QString qtQmlPath;
+        Utils::FilePath qtQmlPath;
         QString qtVersionString;
         QmlJS::QmlLanguageBundles activeBundle;
         QmlJS::QmlLanguageBundles extendedBundle;

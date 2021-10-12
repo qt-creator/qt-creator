@@ -83,7 +83,7 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
     if (projectInfo.project)
         activeTarget = projectInfo.project->activeTarget();
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
-    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath}};
+    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath.toString()}};
 
     for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
         bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
@@ -146,17 +146,17 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     }
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-        projectInfo.qtQmlPath = qtVersion->qmlPath().toFileInfo().canonicalFilePath();
+        projectInfo.qtQmlPath = qtVersion->qmlPath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else if (!activeKit || !activeKit->value(QtSupport::SuppliesQtQuickImportPath::id(), false).toBool()) {
-        projectInfo.qtQmlPath = QFileInfo(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
+        projectInfo.qtQmlPath = FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }
 
     projectInfo.qmlDumpPath.clear();
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(activeKit);
     if (version && projectInfo.tryQmlDump) {
-        projectInfo.qmlDumpPath = version->qmlplugindumpFilePath().toString();
+        projectInfo.qmlDumpPath = version->qmlplugindumpFilePath();
         projectInfo.qmlDumpHasRelocatableFlag = version->hasQmlDumpWithRelocatableFlag();
     }
 
