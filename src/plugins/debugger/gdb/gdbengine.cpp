@@ -1613,6 +1613,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
                         QString path = filePath.path();
                         m_baseNameToFullName.insert(name, path);
                     }
+                    return true;
                 },
                 {"*"},
                 QDir::NoFilter,
