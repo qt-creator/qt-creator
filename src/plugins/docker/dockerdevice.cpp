@@ -1576,7 +1576,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
 
     CommandLine cmd{"docker", {"exec"}};
     if (!workingDir.isEmpty()) {
-        cmd.addArgs({"-w", workingDir.path()});
+        cmd.addArgs({"-w", mapToDevicePath(workingDir)});
         if (QTC_GUARD(workingDir.needsDevice())) // warn on local working directory for docker cmd
             process.setWorkingDirectory(FileUtils::homePath()); // reset working dir for docker exec
     }
