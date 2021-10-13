@@ -1505,6 +1505,8 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
         return variant.toFloat();
     } else if (typeName == "<cpp>.int") {
         return variant.toInt();
+    } else if (typeName == "<cpp>.bool") {
+        return variant.toBool();
     } else if (copyVariant.convert(typeId)) {
         return copyVariant;
     }
