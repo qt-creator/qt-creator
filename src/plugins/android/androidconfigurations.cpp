@@ -753,28 +753,6 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     return QString::fromLatin1(name).trimmed();
 }
 
-AndroidConfig::OpenGl AndroidConfig::getOpenGLEnabled(const QString &emulator) const
-{
-    QDir dir = QDir::home();
-    if (!dir.cd(QLatin1String(".android")))
-        return OpenGl::Unknown;
-    if (!dir.cd(QLatin1String("avd")))
-        return OpenGl::Unknown;
-    if (!dir.cd(emulator + QLatin1String(".avd")))
-        return OpenGl::Unknown;
-    QFile file(dir.filePath(QLatin1String("config.ini")));
-    if (!file.exists())
-        return OpenGl::Unknown;
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return OpenGl::Unknown;
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-        if (line.contains("hw.gpu.enabled") && line.contains("yes"))
-            return OpenGl::Enabled;
-    }
-    return OpenGl::Disabled;
-}
-
 //!
 //! \brief AndroidConfigurations::getProductModel
 //! \param device serial number

@@ -145,10 +145,6 @@ ProjectExplorer::IDevice::Ptr AvdDialog::device() const
     dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
     dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});
     dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.systemImage->apiLevel());
-    dev->setExtraData(Constants::AndroidAvdSdcard, QString("%1 MB")
-                      .arg(m_createdAvdInfo.sdcardSize));
-    dev->setExtraData(Constants::AndroidAvdDevice, m_createdAvdInfo.deviceDefinition);
-
     return IDevice::Ptr(dev);
 }
 

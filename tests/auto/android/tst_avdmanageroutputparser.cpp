@@ -58,13 +58,10 @@ void tst_AvdManagerOutputParser::parse_data()
                          << AndroidDeviceInfoList({{"",
                                                     "Test",
                                                     {"x86"},
-                                                    "Google APIs (Google Inc.)",
-                                                    "Galaxy Nexus (Google)",
-                                                    "",
-                                                    "512 MB",
                                                     -1,
                                                     IDevice::DeviceConnected,
-                                                    IDevice::Emulator}})
+                                                    IDevice::Emulator,
+                                                    Utils::FilePath::fromString(":Test.avd")}})
                          << QStringList();
 
     QTest::newRow("two") << "Available Android Virtual Devices:\n"
@@ -84,23 +81,18 @@ void tst_AvdManagerOutputParser::parse_data()
                          << AndroidDeviceInfoList({{"",
                                                     "Test",
                                                     {"x86"},
-                                                    "Google APIs (Google Inc.)",
-                                                    "Galaxy Nexus (Google)",
-                                                    "",
-                                                    "512 MB",
                                                     -1,
                                                     IDevice::DeviceConnected,
-                                                    IDevice::Emulator},
+                                                    IDevice::Emulator,
+                                                    Utils::FilePath::fromString(":Test.avd")},
                                                    {"",
                                                     "TestTablet",
                                                     {"x86"},
-                                                    "Google APIs (Google Inc.)",
-                                                    "7in WSVGA (Tablet) (Generic)",
-                                                    "",
-                                                    "256 MB",
                                                     -1,
                                                     IDevice::DeviceConnected,
-                                                    IDevice::Emulator}})
+                                                    IDevice::Emulator,
+                                                    Utils::FilePath::fromString(":TestTablet.avd")}}
+                                                  )
                          << QStringList();
 }
 

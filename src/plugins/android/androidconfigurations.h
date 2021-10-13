@@ -156,8 +156,6 @@ public:
     static QLatin1String displayName(const ProjectExplorer::Abi &abi);
 
     QString getProductModel(const QString &device) const;
-    enum class OpenGl { Enabled, Disabled, Unknown };
-    OpenGl getOpenGLEnabled(const QString &emulator) const;
     bool isConnected(const QString &serialNumber) const;
 
     bool isCmdlineSdkToolsInstalled() const;

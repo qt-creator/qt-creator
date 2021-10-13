@@ -54,10 +54,9 @@ bool AndroidDeviceInfo::operator<(const AndroidDeviceInfo &other) const
 
 bool AndroidDeviceInfo::operator==(const AndroidDeviceInfo &other) const
 {
-    return serialNumber == other.serialNumber && avdname == other.avdname && cpuAbi == other.cpuAbi
-           && avdTarget == other.avdTarget && avdDevice == other.avdDevice
-           && avdSkin == other.avdSkin && avdSdcardSize == other.avdSdcardSize && sdk == other.sdk
-           && state == other.state && type == other.type;
+    return serialNumber == other.serialNumber && avdname == other.avdname
+            && avdPath == other.avdPath && cpuAbi == other.cpuAbi
+            && sdk == other.sdk && state == other.state && type == other.type;
 }
 
 QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device)

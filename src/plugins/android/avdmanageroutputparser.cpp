@@ -46,10 +46,6 @@ const char avdInfoPathKey[] = "Path:";
 const char avdInfoAbiKey[] = "abi.type";
 const char avdInfoTargetKey[] = "target";
 const char avdInfoErrorKey[] = "Error:";
-const char avdInfoSdcardKey[] = "Sdcard";
-const char avdInfoTargetTypeKey[] = "Target";
-const char avdInfoDeviceKey[] = "Device";
-const char avdInfoSkinKey[] = "Skin";
 
 namespace Android {
 namespace Internal {
@@ -81,6 +77,7 @@ static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo
             avd.avdname = value;
         } else if (valueForKey(avdInfoPathKey, line, &value)) {
             const Utils::FilePath avdPath = Utils::FilePath::fromUserInput(value);
+            avd.avdPath = avdPath;
             if (avdPath.exists()) {
                 // Get ABI.
                 const Utils::FilePath configFile = avdPath.pathAppended("config.ini");
@@ -103,14 +100,6 @@ static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo
                     qCDebug(avdOutputParserLog)
                         << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toString();
             }
-        } else if (valueForKey(avdInfoDeviceKey, line, &value)) {
-            avd.avdDevice = value.remove(0, 2);
-        } else if (valueForKey(avdInfoTargetTypeKey, line, &value)) {
-            avd.avdTarget = value.remove(0, 2);
-        } else if (valueForKey(avdInfoSkinKey, line, &value)) {
-            avd.avdSkin = value.remove(0, 2);
-        } else if (valueForKey(avdInfoSdcardKey, line, &value)) {
-            avd.avdSdcardSize = value.remove(0, 2);
         }
     }
     if (avd != AndroidDeviceInfo())

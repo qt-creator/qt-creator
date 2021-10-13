@@ -42,13 +42,10 @@ public:
     QString serialNumber;
     QString avdname;
     QStringList cpuAbi;
-    QString avdTarget;
-    QString avdDevice;
-    QString avdSkin;
-    QString avdSdcardSize;
     int sdk = -1;
     IDevice::DeviceState state = IDevice::DeviceDisconnected;
     IDevice::MachineType type = IDevice::Emulator;
+    Utils::FilePath avdPath;
 
     static QStringList adbSelector(const QString &serialNumber);
 
