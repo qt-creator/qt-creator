@@ -83,6 +83,12 @@ void QmlProjectItem::setSupportedLanguages(const QStringList &languages)
         m_supportedLanguages = languages;
 }
 
+void QmlProjectItem::setPrimaryLanguage(const QString &language)
+{
+    if (m_primaryLanguage != language)
+        m_primaryLanguage = language;
+}
+
 /* Returns list of absolute paths */
 QStringList QmlProjectItem::files() const
 {
