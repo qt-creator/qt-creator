@@ -31,6 +31,7 @@ DSpanelBackground=ff323232
 
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
+DSwarningColor=warning
 DSdisabledColor=ff707070
 
 DScontrolBackground=ff323232
@@ -157,6 +158,9 @@ DStoolTipOutline=ffdadada
 DStoolTipText=ffdadada
 
 DSUnimportedModuleColor=ffe33c2e
+
+DSBackgroundColorAlternate=alternateBackground
+DSBackgroundColorNormal=normalBackground
 
 ;DS controls theme END
 
