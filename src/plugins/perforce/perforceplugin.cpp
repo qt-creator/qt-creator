@@ -36,6 +36,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -1043,7 +1044,12 @@ bool PerforcePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &f
         flags |= SilentStdOut;
     }
     const PerforceResponse result = runP4Cmd(workingDir, args, flags);
-    return !result.error;
+    if (result.error)
+        return false;
+    const FilePath absPath = workingDir.resolvePath(fileName);
+    if (DocumentModel::Entry *e = DocumentModel::entryForFilePath(absPath))
+        e->document->checkPermissions();
+    return true;
 }
 
 bool PerforcePluginPrivate::vcsAdd(const FilePath &workingDir, const QString &fileName)
