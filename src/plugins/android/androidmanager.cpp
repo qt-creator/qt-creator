@@ -573,7 +573,7 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
 
     QString deviceSerialNumber = info.serialNumber;
     if (info.type == IDevice::Emulator) {
-        deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
+        deviceSerialNumber = AndroidAvdManager().startAvd(info.avdName);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::writeDisrupting(tr("Starting Android virtual device failed."));
     }

@@ -74,7 +74,7 @@ static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo
             qCDebug(avdOutputParserLog) << "Avd Parsing: Skip avd device. Error key found:" << line;
             return {};
         } else if (valueForKey(avdInfoNameKey, line, &value)) {
-            avd.avdname = value;
+            avd.avdName = value;
         } else if (valueForKey(avdInfoPathKey, line, &value)) {
             const Utils::FilePath avdPath = Utils::FilePath::fromUserInput(value);
             avd.avdPath = avdPath;
@@ -89,7 +89,7 @@ static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo
                     qCDebug(avdOutputParserLog) << "Avd Parsing: Cannot find ABI:" << configFile;
 
                 // Get Target
-                const QString avdInfoFileName = avd.avdname + ".ini";
+                const QString avdInfoFileName = avd.avdName + ".ini";
                 const Utils::FilePath avdInfoFile = avdPath.parentDir().pathAppended(
                     avdInfoFileName);
                 QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);

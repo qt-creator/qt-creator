@@ -669,9 +669,9 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
             dev.state = IDevice::DeviceReadyToUse;
 
         if (dev.type == IDevice::Emulator) {
-            dev.avdname = getAvdName(dev.serialNumber);
-            if (dev.avdname.isEmpty())
-                dev.avdname = serialNo;
+            dev.avdName = getAvdName(dev.serialNumber);
+            if (dev.avdName.isEmpty())
+                dev.avdName = serialNo;
         }
 
         devices.push_back(dev);

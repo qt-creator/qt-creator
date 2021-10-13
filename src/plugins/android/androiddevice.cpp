@@ -231,7 +231,7 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
 {
     AndroidDeviceInfo info;
     info.state = dev->deviceState();
-    info.avdname = dev->extraData(Constants::AndroidAvdName).toString();
+    info.avdName = dev->extraData(Constants::AndroidAvdName).toString();
     info.serialNumber = dev->extraData(Constants::AndroidSerialNumber).toString();
     info.cpuAbi = dev->extraData(Constants::AndroidCpuAbi).toStringList();
     const QString avdPath = dev->extraData(Constants::AndroidAvdPath).toString();
@@ -246,12 +246,12 @@ QString AndroidDevice::displayNameFromInfo(const AndroidDeviceInfo &info)
 {
     return info.type == IDevice::Hardware
             ? AndroidConfigurations::currentConfig().getProductModel(info.serialNumber)
-            : info.avdname;
+            : info.avdName;
 }
 
 Id AndroidDevice::idFromDeviceInfo(const AndroidDeviceInfo &info)
 {
-    const QString id = (info.type == IDevice::Hardware ? info.serialNumber : info.avdname);
+    const QString id = (info.type == IDevice::Hardware ? info.serialNumber : info.avdName);
     return  Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + id);
 }
 
@@ -640,7 +640,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
                 devMgr->removeDevice(dev->id());
             } else {
                 // Find the state of the AVD retrieved from the AVD watcher
-                const QString serial = getRunningAvdsSerialNumber(item.avdname);
+                const QString serial = getRunningAvdsSerialNumber(item.avdName);
                 const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
                 if (dev->deviceState() != state) {
                     devMgr->setDeviceState(dev->id(), state);
@@ -658,7 +658,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
         newDev->setMachineType(item.type);
         newDev->setDeviceState(item.state);
 
-        newDev->setExtraData(Constants::AndroidAvdName, item.avdname);
+        newDev->setExtraData(Constants::AndroidAvdName, item.avdName);
         newDev->setExtraData(Constants::AndroidSerialNumber, item.serialNumber);
         newDev->setExtraData(Constants::AndroidCpuAbi, item.cpuAbi);
         newDev->setExtraData(Constants::AndroidSdk, item.sdk);

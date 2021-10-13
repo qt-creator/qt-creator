@@ -208,7 +208,7 @@ bool AndroidDeployQtStep::init()
                 .arg(info.cpuAbi.first())));
     }
 
-    m_avdName = info.avdname;
+    m_avdName = info.avdName;
     m_serialNumber = info.serialNumber;
     qCDebug(deployStepLog) << "Selected device info:" << info;
 

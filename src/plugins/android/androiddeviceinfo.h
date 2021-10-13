@@ -40,7 +40,7 @@ class AndroidDeviceInfo
 {
 public:
     QString serialNumber;
-    QString avdname;
+    QString avdName;
     QStringList cpuAbi;
     int sdk = -1;
     IDevice::DeviceState state = IDevice::DeviceDisconnected;
@@ -49,7 +49,7 @@ public:
 
     static QStringList adbSelector(const QString &serialNumber);
 
-    bool isValid() const { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
+    bool isValid() const { return !serialNumber.isEmpty() || !avdName.isEmpty(); }
     bool operator<(const AndroidDeviceInfo &other) const;
     bool operator==(const AndroidDeviceInfo &other) const; // should be = default with C++20
     bool operator!=(const AndroidDeviceInfo &other) const { return !(*this == other); }

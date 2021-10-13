@@ -250,7 +250,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         if (devInfoLocal.isValid()) {
             if (dev->machineType() == IDevice::Emulator) {
                 appendMessage(tr("Launching AVD."), NormalMessageFormat);
-                devInfoLocal.serialNumber = avdMananager.startAvd(devInfoLocal.avdname);
+                devInfoLocal.serialNumber = avdMananager.startAvd(devInfoLocal.avdName);
             }
             if (devInfoLocal.serialNumber.isEmpty()) {
                 appendMessage(tr("Could not start AVD."), ErrorMessageFormat);
