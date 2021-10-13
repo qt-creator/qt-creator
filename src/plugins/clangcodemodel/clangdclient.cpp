@@ -98,6 +98,25 @@ static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlig
 static Q_LOGGING_CATEGORY(clangdLogTiming, "qtc.clangcodemodel.clangd.timing", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
+static QStringView subView(const QString &s, qsizetype start)
+{
+    if (start < 0 || start > s.length())
+        return {};
+    return QStringView(s).mid(start);
+}
+
+static QStringView subViewLen(const QString &s, qsizetype start, qsizetype length)
+{
+    if (start < 0 || length < 0 || start + length > s.length())
+        return {};
+    return QStringView(s).mid(start, length);
+}
+
+static QStringView subViewEnd(const QString &s, qsizetype start, qsizetype end)
+{
+    return subViewLen(s, start, end - start);
+}
+
 class AstNode : public JsonObject
 {
 public:
@@ -2197,7 +2216,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
         if (!wasIfdefedOut)
             rangeStartPos = doc->findBlockByNumber(it->line - 1).position();
         const int pos = Utils::Text::positionInText(doc, it->line, it->column);
-        const QStringView content(QStringView(docContent).mid(pos, it->length).trimmed());
+        const QStringView content = subViewLen(docContent, pos, it->length).trimmed();
         if (!content.startsWith(QLatin1String("#if"))
                 && !content.startsWith(QLatin1String("#elif"))
                 && !content.startsWith(QLatin1String("#else"))
@@ -2646,11 +2665,9 @@ bool ClangdClient::ClangdCompletionAssistProvider::isInCommentOrString(
         const QString &line = tc.block().text();
         const Token &idToken = tokens.at(1);
         QStringView identifier = idToken.utf16charsEnd() > line.size()
-                                            ? QStringView(line).mid(
-                                                idToken.utf16charsBegin())
-                                            : QStringView(line)
-                                                  .mid(idToken.utf16charsBegin(),
-                                                       idToken.utf16chars());
+                                            ? subView(line, idToken.utf16charsBegin())
+                                            : subViewLen(line, idToken.utf16charsBegin(),
+                                                         idToken.utf16chars());
         if (identifier == QLatin1String("include")
                 || identifier == QLatin1String("include_next")
                 || (CppEditor::ProjectFile::isObjC(interface->filePath().toString())
@@ -2944,7 +2961,7 @@ void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1,
                                                                int searchStart2, int searchEnd2)
 {
     const int openingAngleBracketPos = onlyIndexOf(
-                QStringView(m_docContent).mid(searchStart1, searchEnd1 - searchStart1),
+                subViewEnd(m_docContent, searchStart1, searchEnd1),
                 QStringView(QStringLiteral("<")));
     if (openingAngleBracketPos == -1)
         return;
@@ -2954,7 +2971,7 @@ void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1,
     if (searchStart2 >= searchEnd2)
         return;
     const int closingAngleBracketPos = onlyIndexOf(
-                QStringView(m_docContent).mid(searchStart2, searchEnd2 - searchStart2),
+                subViewEnd(m_docContent, searchStart2, searchEnd2),
                 QStringView(QStringLiteral(">")));
     if (closingAngleBracketPos == -1)
         return;
@@ -3032,16 +3049,14 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
         // sub-expressions 2 and 3.
         const int searchStartPosQuestionMark = posForNodeEnd(children.first());
         const int searchEndPosQuestionMark = posForNodeStart(children.at(1));
-        QStringView content = QStringView(m_docContent).mid(
-                    searchStartPosQuestionMark,
-                    searchEndPosQuestionMark - searchStartPosQuestionMark);
+        QStringView content = subViewEnd(m_docContent, searchStartPosQuestionMark,
+                                         searchEndPosQuestionMark);
         const int questionMarkPos = onlyIndexOf(content, QStringView(QStringLiteral("?")));
         if (questionMarkPos == -1)
             return;
         const int searchStartPosColon = posForNodeEnd(children.at(1));
         const int searchEndPosColon = posForNodeStart(children.at(2));
-        content = QStringView(m_docContent).mid(searchStartPosColon,
-                                                searchEndPosColon - searchStartPosColon);
+        content = subViewEnd(m_docContent, searchStartPosColon, searchEndPosColon);
         const int colonPos = onlyIndexOf(content, QStringView(QStringLiteral(":")));
         if (colonPos == -1)
             return;
@@ -3218,8 +3233,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     if (isDeclaration)
         result.textStyles.mixinStyles.push_back(C_DECLARATION);
 
-    const QStringView nodeText = QStringView(m_docContent)
-            .mid(nodeStartPos, nodeEndPos - nodeStartPos);
+    const QStringView nodeText = subViewEnd(m_docContent, nodeStartPos, nodeEndPos);
 
     if (isCallToNew || isCallToDelete) {
         result.line = node.range().start().line() + 1;
