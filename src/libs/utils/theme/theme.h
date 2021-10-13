@@ -309,6 +309,7 @@ public:
         DSpanelBackground,
         DSinteraction,
         DSerrorColor,
+        DSwarningColor,
         DSdisabledColor,
         DScontrolBackground,
         DScontrolBackgroundInteraction,
@@ -421,6 +422,9 @@ public:
         DStoolTipBackground,
         DStoolTipOutline,
         DStoolTipText,
+
+        DSBackgroundColorNormal,
+        DSBackgroundColorAlternate,
 
         DSUnimportedModuleColor
     };

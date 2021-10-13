@@ -205,6 +205,7 @@ QtObject {
 
     property string themeInteraction: Theme.color(Theme.DSinteraction)
     property string themeError: Theme.color(Theme.DSerrorColor)
+    property string themeWarning: Theme.color(Theme.DSwarningColor)
     property string themeDisabled: Theme.color(Theme.DSdisabledColor)
 
     property string themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
@@ -219,6 +220,10 @@ QtObject {
     property string themeControlOutline: Theme.color(Theme.DScontrolOutline)
     property string themeControlOutlineInteraction: Theme.color(Theme.DScontrolOutlineInteraction)
     property string themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
+
+    // Panels & Panes
+    property string themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
+    property string themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
 
     // Text colors
     property string themeTextColor: Theme.color(Theme.DStextColor)
