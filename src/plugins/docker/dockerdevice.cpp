@@ -1066,7 +1066,7 @@ QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
 {
     // make sure to convert windows style paths to unix style paths with the file system case:
     // C:/dev/src -> /c/dev/src
-    const FilePath normalized = globalPath.normalizedPathName();
+    const FilePath normalized = FilePath::fromString(globalPath.path()).normalizedPathName();
     QString path = normalized.path();
     if (normalized.startsWithDriveLetter()) {
         const QChar lowerDriveLetter = path.at(0).toLower();
