@@ -72,6 +72,7 @@ const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
 const char DISPLAY_NAME_KEY[] = "trDisplayName";
 const char ICON_KEY[] = "icon";
 const char ICON_TEXT_KEY[] = "iconText";
+const char FONT_ICON_CODE_KEY[] = "fontIconCode";
 const char IMAGE_KEY[] = "image";
 const char ICON_KIND_KEY[] = "iconKind";
 const char DESCRIPTION_KEY[] = "trDescription";
@@ -596,6 +597,9 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
                          : strVal.isEmpty() ? QIcon()
                                             : QIcon(iconPath.toString()),
             iconText);
+
+    const QString fontIconCode = data.value(QLatin1String(FONT_ICON_CODE_KEY)).toString();
+    setFontIconCode(fontIconCode);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {

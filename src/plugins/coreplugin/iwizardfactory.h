@@ -64,6 +64,7 @@ public:
     Utils::Id id() const { return m_id; }
     WizardKind kind() const { return m_supportedProjectTypes.isEmpty() ? FileWizard : ProjectWizard; }
     QIcon icon() const { return m_icon; }
+    QString fontIcondCode() const { return m_fontIconCode; }
     QString description() const { return m_description; }
     QString displayName() const { return m_displayName; }
     QString category() const { return m_category; }
@@ -78,6 +79,7 @@ public:
     void setId(const Utils::Id id) { m_id = id; }
     void setSupportedProjectTypes(const QSet<Utils::Id> &projectTypes) { m_supportedProjectTypes = projectTypes; }
     void setIcon(const QIcon &icon, const QString &iconText = {});
+    void setFontIconCode(const QString &code) { m_fontIconCode = code; }
     void setDescription(const QString &description) { m_description = description; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setCategory(const QString &category) { m_category = category; }
@@ -135,6 +137,7 @@ private:
 
     QAction *m_action = nullptr;
     QIcon m_icon;
+    QString m_fontIconCode;
     QString m_description;
     QString m_displayName;
     QString m_category;
