@@ -86,7 +86,7 @@ Rectangle {
         if (n === s) {} // 325 15 17
         if (n === n) {}
         if (n === N) {} // 325 15 17
-        if (n === u) {} // 325 15 17
+        if (n === u) {}
         if (n === b) {} // 325 15 17
         if (n === o) {} // 325 15 17
         if (n === k) {}
@@ -101,7 +101,7 @@ Rectangle {
         if (N === k) {}
 
         if (u === s) {} // 325 15 17
-        if (u === n) {} // 325 15 17
+        if (u === n) {}
         if (u === N) {}
         if (u === u) {}
         if (u === b) {} // 325 15 17
@@ -132,5 +132,25 @@ Rectangle {
         if (k === b) {}
         if (k === o) {}
         if (k === k) {}
+
+        var nObj = Number("0")
+        var nNum = Number.fromLocaleString("0")
+        if (n === 1) {}
+        if (nObj === 1) {}
+        if (nNum === 1) {}
+
+    }
+
+    ListView {
+        model: ListModel{ id: myModel }
+        delegate: Item {
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    if (index === -1) {}
+                }
+            }
+        }
     }
 }
