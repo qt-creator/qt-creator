@@ -1186,10 +1186,10 @@ void DocumentManager::checkForReload()
         bool success = true;
         QString errorString;
         // we've got some modification
+        document->checkPermissions();
         // check if it's contents or permissions:
         if (!type) {
             // Only permission change
-            document->checkPermissions();
             success = true;
             // now we know it's a content change or file was removed
         } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeContents
