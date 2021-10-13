@@ -2268,7 +2268,6 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
         return;
 
     if (!versionControl->vcsOpen(document->filePath())) {
-        // TODO: wrong dialog parent
         QMessageBox::warning(ICore::dialogParent(), tr("Cannot Open File"),
                              tr("Cannot open the file for editing with VCS."));
     }
