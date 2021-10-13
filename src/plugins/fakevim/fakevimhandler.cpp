@@ -6598,12 +6598,11 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     while (!file.atEnd() || !line.isEmpty()) {
         QByteArray nextline = !file.atEnd() ? file.readLine() : QByteArray();
 
-        //  remove comment
-        int i = nextline.lastIndexOf('"');
-        if (i != -1)
-            nextline = nextline.remove(i, nextline.size() - i);
-
         nextline = nextline.trimmed();
+
+        // remove full line comment. for being precise, check :help comment in vim.
+        if (nextline.startsWith('"'))
+            continue;
 
         // multi-line command?
         if (nextline.startsWith('\\')) {
