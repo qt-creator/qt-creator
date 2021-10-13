@@ -127,7 +127,7 @@
         \li Second level group layers are merged to their parent.
         \li Asset layers are exported as merged.
         \li Text layers are always exported as child items.
-        \li Images are exported in JPG, PNG, or SVG format, depending on your
+        \li Images are exported in PNG or JPG format, depending on your
             selection.
     \endlist
 
