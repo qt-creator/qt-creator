@@ -295,6 +295,19 @@ void BindingEditor::updateWindowName()
     }
 }
 
+QString BindingEditor::targetName() const
+{
+    return m_targetName;
+}
+
+QString BindingEditor::stateName() const
+{
+    if (m_targetName.endsWith(".when"))
+        return m_targetName.chopped(5);
+
+    return {};
+}
+
 QVariant BindingEditor::backendValue() const
 {
     return m_backendValue;

@@ -44,7 +44,7 @@ class BindingEditor : public QObject
     Q_PROPERTY(QVariant backendValueProperty READ backendValue WRITE setBackendValue NOTIFY backendValueChanged)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QVariant stateModelNodeProperty READ stateModelNode WRITE setStateModelNode NOTIFY stateModelNodeChanged)
-    Q_PROPERTY(QString stateNameProperty WRITE setStateName)
+    Q_PROPERTY(QString stateNameProperty READ stateName WRITE setStateName)
 
 public:
     BindingEditor(QObject *parent = nullptr);
@@ -76,6 +76,9 @@ public:
 
     Q_INVOKABLE void prepareBindings();
     Q_INVOKABLE void updateWindowName();
+
+    QString targetName() const;
+    QString stateName() const;
 
 signals:
     void accepted();
