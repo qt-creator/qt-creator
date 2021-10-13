@@ -40,25 +40,32 @@ using namespace Utils;
 namespace WebAssembly {
 namespace Internal {
 
+static FilePath pythonInterpreter(const Environment &env)
+{
+    const QString emsdkPythonEnvVarKey("EMSDK_PYTHON");
+    if (env.hasKey(emsdkPythonEnvVarKey))
+        return FilePath::fromUserInput(env.value(emsdkPythonEnvVarKey));
+
+    // FIXME: Centralize addPythonsFromPath() from the Python plugin and use that
+    for (const char *interpreterCandidate : {"python3", "python", "python2"}) {
+        const FilePath interpereter = env.searchInPath(QLatin1String(interpreterCandidate));
+        if (interpereter.isExecutableFile())
+            return interpereter;
+    }
+    return {};
+}
+
 static CommandLine emrunCommand(Target *target, const QString &browser, const QString &port)
 {
     if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        const QFileInfo emrun = bc->environment().searchInPath("emrun").toFileInfo();
-        auto html = bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
+        const Environment env = bc->environment();
+        const FilePath emrun = env.searchInPath("emrun");
+        const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
+        const FilePath html =
+                bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
 
-        // On Windows, we need to use the python interpreter (it comes with the emsdk) to ensure
-        // that the web server is killed when the application is stopped in Qt Creator.
-        // On Non-windows, we prefer using the shell script, because that knows how to find the
-        // right python (not part of emsdk). The shell script stays attached to the server process.
-        const FilePath interpreter = HostOsInfo::isWindowsHost()
-                ? FilePath::fromUserInput(bc->environment().value("EMSDK_PYTHON"))
-                : bc->environment().searchInPath("sh");
-        const QString emrunLaunchScript = HostOsInfo::isWindowsHost()
-                ? emrun.absolutePath() + "/" + emrun.baseName() + ".py"
-                : emrun.absoluteFilePath();
-
-        return CommandLine(interpreter, {
-                emrunLaunchScript,
+        return CommandLine(pythonInterpreter(env), {
+                emrunPy.path(),
                 "--browser", browser,
                 "--port", port,
                 "--no_emrun_detect",
