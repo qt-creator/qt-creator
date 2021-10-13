@@ -36,6 +36,7 @@
 
 #include <cppeditor/cppdoxygen.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/editordocumenthandle.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -44,10 +45,7 @@
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
-#include <cplusplus/SimpleLexer.h>
 
 #include <clangsupport/filecontainer.h>
 
@@ -431,37 +429,8 @@ bool ClangCompletionAssistProcessor::accepts() const
             if (pos - startOfName >= TextEditorSettings::completionSettings().m_characterThreshold) {
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
                 if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
-                    // Finally check that we're not inside a comment or string (code copied from startOfOperator)
-                    QTextCursor tc(m_interface->textDocument());
-                    tc.setPosition(pos);
-
-                    SimpleLexer tokenize;
-                    LanguageFeatures lf = tokenize.languageFeatures();
-                    lf.qtMocRunEnabled = true;
-                    lf.objCEnabled = true;
-                    tokenize.setLanguageFeatures(lf);
-                    tokenize.setSkipComments(false);
-                    const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
-                    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
-                    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
-
-                    if (!tk.isComment() && !tk.isLiteral()) {
-                        return true;
-                    } else if (tk.isLiteral()
-                               && tokens.size() == 3
-                               && tokens.at(0).kind() == T_POUND
-                               && tokens.at(1).kind() == T_IDENTIFIER) {
-                        const QString &line = tc.block().text();
-                        const Token &idToken = tokens.at(1);
-                        QStringView identifier = Utils::midView(line,
-                                                                       idToken.utf16charsBegin(),
-                                                                       idToken.utf16chars());
-                        if (identifier == QLatin1String("include")
-                                || identifier == QLatin1String("include_next")
-                                || (m_interface->objcEnabled() && identifier == QLatin1String("import"))) {
-                            return true;
-                        }
-                    }
+                    return !CppEditor::isInCommentOrString(m_interface.data(),
+                                                           m_interface->languageFeatures());
                 }
             }
         }

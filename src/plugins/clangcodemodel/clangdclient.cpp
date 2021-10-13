@@ -35,11 +35,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
-#include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FindUsages.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
-#include <cplusplus/SimpleLexer.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppcompletionassistprocessor.h>
@@ -97,13 +95,6 @@ static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarni
 static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogTiming, "qtc.clangcodemodel.clangd.timing", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
-
-static QStringView subView(const QString &s, qsizetype start)
-{
-    if (start < 0 || start > s.length())
-        return {};
-    return QStringView(s).mid(start);
-}
 
 static QStringView subViewLen(const QString &s, qsizetype start, qsizetype length)
 {
@@ -2646,36 +2637,9 @@ bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QCha
 bool ClangdClient::ClangdCompletionAssistProvider::isInCommentOrString(
         const AssistInterface *interface) const
 {
-    QTextCursor tc(interface->textDocument());
-    tc.setPosition(interface->position());
-
-    SimpleLexer tokenize;
-    tokenize.setSkipComments(false);
-    const Tokens &tokens = tokenize(tc.block().text(),
-                                    BackwardsScanner::previousBlockState(tc.block()));
-    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
-    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
-
-    if (tk.isComment())
-        return true;
-    if (!tk.isLiteral())
-        return false;
-    if (tokens.size() == 3 && tokens.at(0).kind() == T_POUND
-            && tokens.at(1).kind() == T_IDENTIFIER) {
-        const QString &line = tc.block().text();
-        const Token &idToken = tokens.at(1);
-        QStringView identifier = idToken.utf16charsEnd() > line.size()
-                                            ? subView(line, idToken.utf16charsBegin())
-                                            : subViewLen(line, idToken.utf16charsBegin(),
-                                                         idToken.utf16chars());
-        if (identifier == QLatin1String("include")
-                || identifier == QLatin1String("include_next")
-                || (CppEditor::ProjectFile::isObjC(interface->filePath().toString())
-                    && identifier == QLatin1String("import"))) {
-            return false;
-        }
-    }
-    return true;
+    LanguageFeatures features = LanguageFeatures::defaultFeatures();
+    features.objCEnabled = CppEditor::ProjectFile::isObjC(interface->filePath().toString());
+    return CppEditor::isInCommentOrString(interface, features);
 }
 
 void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,

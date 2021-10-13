@@ -35,6 +35,7 @@
 
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/Token.h>
 
 QT_BEGIN_NAMESPACE
 class QChar;
@@ -47,6 +48,8 @@ class Macro;
 class Symbol;
 class LookupContext;
 } // namespace CPlusPlus
+
+namespace TextEditor { class AssistInterface; }
 
 namespace CppEditor {
 class CppRefactoringFile;
@@ -70,6 +73,9 @@ bool CPPEDITOR_EXPORT isOwnershipRAIIType(CPlusPlus::Symbol *symbol,
 
 const CPlusPlus::Macro CPPEDITOR_EXPORT *findCanonicalMacro(const QTextCursor &cursor,
                                                            CPlusPlus::Document::Ptr document);
+
+bool CPPEDITOR_EXPORT isInCommentOrString(const TextEditor::AssistInterface *interface,
+                                          CPlusPlus::LanguageFeatures features);
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 
