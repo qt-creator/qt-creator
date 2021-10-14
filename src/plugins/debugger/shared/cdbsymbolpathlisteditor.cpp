@@ -215,9 +215,9 @@ bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *c
     if (!path.startsWith(QLatin1String(symbolServerPrefixC)) || !path.endsWith(QLatin1String(symbolServerPostfixC)))
         return false;
     if (cacheDir) {
-        static const unsigned prefixLength = qstrlen(symbolServerPrefixC);
-        static const unsigned postfixLength = qstrlen(symbolServerPostfixC);
-        if (path.length() == int(prefixLength + postfixLength))
+        static const unsigned prefixLength = unsigned(qstrlen(symbolServerPrefixC));
+        static const unsigned postfixLength = unsigned(qstrlen(symbolServerPostfixC));
+        if (unsigned(path.length()) == prefixLength + postfixLength)
             return true;
         // Split apart symbol server post/prefixes
         *cacheDir = path.mid(prefixLength, path.size() - prefixLength - qstrlen(symbolServerPostfixC) + 1);
@@ -230,7 +230,7 @@ bool CdbSymbolPathListEditor::isSymbolCachePath(const QString &path, QString *ca
     if (!path.startsWith(QLatin1String(symbolCachePrefixC)))
         return false;
     if (cacheDir) {
-        static const unsigned prefixLength = qstrlen(symbolCachePrefixC);
+        static const unsigned prefixLength = unsigned(qstrlen(symbolCachePrefixC));
         // Split apart symbol cach prefixes
         *cacheDir = path.mid(prefixLength);
     }

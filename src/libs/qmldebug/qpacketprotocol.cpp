@@ -225,7 +225,7 @@ void QPacketProtocol::send(const QByteArray &p)
         return;
     }
 
-    const qint32 sendSize = p.size() + sizeof(qint32);
+    const qint32 sendSize = qint32(p.size() + sizeof(qint32));
     d->sendingPackets.append(sendSize);
 
     const qint32 sendSizeLE = qToLittleEndian(sendSize);
