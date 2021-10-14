@@ -3799,7 +3799,7 @@ static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParamete
     for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it) {
         // Entries that start with parenthesis are handled in CppDebuggerEngine::validateRunParameters
         if (!it.key().startsWith('('))
-            rc.insert(it.key(), it.value());
+            rc.insert(it.key(), sp.macroExpander->expand(it.value()));
     }
     return rc;
 }
