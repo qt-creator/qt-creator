@@ -136,8 +136,10 @@ bool OutputLineParser::demoteErrorsToWarnings() const
 
 FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath) const
 {
-    if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
+    if (filePath.isEmpty())
         return filePath;
+    if (filePath.toFileInfo().isAbsolute())
+        return filePath.cleanPath();
     FilePaths candidates;
     for (const FilePath &dir : searchDirectories()) {
         FilePath candidate = dir.pathAppended(filePath.toString());

@@ -1367,6 +1367,14 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                    CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", ".pch/Qt6Core5Compat"),
                    CompileTask(Task::Warning, "-Wformat-security ignored without -Wformat [-Wformat-security]")}
             << QString();
+
+    QTest::newRow("clean path")
+            << QString("/home/tim/path/to/sources/./and/more.h:15:22: error: blubb")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks{CompileTask(Task::Error, "blubb", "/home/tim/path/to/sources/and/more.h",
+                                 15, 22)}
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
