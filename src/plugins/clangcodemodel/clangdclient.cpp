@@ -3006,6 +3006,8 @@ void ExtraHighlightingResultsCollector::setResultPosFromRange(HighlightingResult
 
 void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
 {
+    if (node.kind() == "UserDefinedLiteral")
+        return;
     if (node.kind().endsWith("Literal")) {
         HighlightingResult result;
         result.useTextSyles = true;
