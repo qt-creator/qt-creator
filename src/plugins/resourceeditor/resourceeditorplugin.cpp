@@ -46,6 +46,7 @@
 #include <utils/algorithm.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/threadutils.h>
 
 #include <QCoreApplication>
 #include <QAction>
@@ -247,21 +248,33 @@ ResourceEditorPluginPrivate::ResourceEditorPluginPrivate(ResourceEditorPlugin *q
 
 void ResourceEditorPlugin::extensionsInitialized()
 {
-    ProjectTree::registerTreeManager([](FolderNode *folder) {
-        QList<FileNode *> toReplace;
-        folder->forEachNode([&toReplace](FileNode *fn) {
-            if (fn->fileType() == FileType::Resource)
-                toReplace.append(fn);
-        });
-
-        for (FileNode *file : qAsConst(toReplace)) {
-            FolderNode *const pn = file->parentFolderNode();
-            QTC_ASSERT(pn, continue);
-            const Utils::FilePath path = file->filePath();
-            auto topLevel = std::make_unique<ResourceTopLevelNode>(path, pn->filePath());
-            topLevel->setEnabled(file->isEnabled());
-            topLevel->setIsGenerated(file->isGenerated());
-            pn->replaceSubtree(file, std::move(topLevel));
+    ProjectTree::registerTreeManager([](FolderNode *folder, ProjectTree::ConstructionPhase phase) {
+        switch (phase) {
+        case ProjectTree::AsyncPhase: {
+            QList<FileNode *> toReplace;
+            folder->forEachNode([&toReplace](FileNode *fn) {
+                if (fn->fileType() == FileType::Resource)
+                    toReplace.append(fn);
+            });
+            for (FileNode *file : qAsConst(toReplace)) {
+                FolderNode *const pn = file->parentFolderNode();
+                QTC_ASSERT(pn, continue);
+                const Utils::FilePath path = file->filePath();
+                auto topLevel = std::make_unique<ResourceTopLevelNode>(path, pn->filePath());
+                topLevel->setEnabled(file->isEnabled());
+                topLevel->setIsGenerated(file->isGenerated());
+                pn->replaceSubtree(file, std::move(topLevel));
+            }
+            break;
+        }
+        case ProjectTree::FinalPhase: {
+            folder->forEachNode({}, [](FolderNode *fn) {
+                auto *topLevel = dynamic_cast<ResourceTopLevelNode *>(fn);
+                if (topLevel)
+                    topLevel->setupWatcherIfNeeded();
+            });
+            break;
+        }
         }
     });
 }

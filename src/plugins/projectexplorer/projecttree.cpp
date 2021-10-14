@@ -402,13 +402,13 @@ void ProjectTree::registerTreeManager(const TreeManagerFunction &treeChange)
         s_instance->m_treeManagers.append(treeChange);
 }
 
-void ProjectTree::applyTreeManager(FolderNode *folder)
+void ProjectTree::applyTreeManager(FolderNode *folder, ConstructionPhase phase)
 {
     if (!folder)
         return;
 
     for (TreeManagerFunction &f : s_instance->m_treeManagers)
-        f(folder);
+        f(folder, phase);
 }
 
 bool ProjectTree::hasNode(const Node *node)

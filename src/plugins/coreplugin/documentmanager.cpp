@@ -55,6 +55,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
+#include <utils/threadutils.h>
 
 #include <QStringList>
 #include <QDateTime>
@@ -326,6 +327,7 @@ static void addFileInfo(IDocument *document, const FilePath &filePath, const Fil
    (The added file names are guaranteed to be absolute and cleaned.) */
 static void addFileInfos(const QList<IDocument *> &documents)
 {
+    QTC_ASSERT(isMainThread(), return);
     FilePaths pathsToWatch;
     FilePaths linkPathsToWatch;
     for (IDocument *document : documents) {
@@ -400,6 +402,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
 */
 static void removeFileInfo(IDocument *document)
 {
+    QTC_ASSERT(isMainThread(), return);
     if (!d->m_documentsWithWatch.contains(document))
         return;
     foreach (const FilePath &filePath, d->m_documentsWithWatch.value(document)) {

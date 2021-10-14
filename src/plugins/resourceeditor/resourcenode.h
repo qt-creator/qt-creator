@@ -39,6 +39,7 @@ public:
                          const QString &contents = {});
     ~ResourceTopLevelNode() override;
 
+    void setupWatcherIfNeeded();
     void addInternalNodes();
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;

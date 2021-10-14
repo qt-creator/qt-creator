@@ -757,7 +757,7 @@ FileApiQtcData extractData(FileApiData &input,
     result.projectParts = generateRawProjectParts(data, sourceDirectory, buildDirectory);
 
     auto rootProjectNode = generateRootProjectNode(data, sourceDirectory, buildDirectory);
-    ProjectTree::applyTreeManager(rootProjectNode.get()); // QRC nodes
+    ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes
     result.rootProjectNode = std::move(rootProjectNode);
 
     setupLocationInfoForTargets(result.rootProjectNode.get(), result.buildTargets);

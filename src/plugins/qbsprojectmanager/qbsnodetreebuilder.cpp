@@ -232,7 +232,7 @@ QbsProjectNode *QbsNodeTreeBuilder::buildTree(const QString &projectName,
     }
     buildSystemFiles->compress();
     root->addNode(std::move(buildSystemFiles));
-    ProjectTree::applyTreeManager(root.get()); // QRC nodes
+    ProjectTree::applyTreeManager(root.get(), ProjectTree::AsyncPhase); // QRC nodes
     return root.release();
 }
 

@@ -36,6 +36,7 @@
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/threadutils.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -251,10 +252,8 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
     setShowWhenEmpty(true);
 
     if (!filePath.isEmpty()) {
-        if (filePath.isReadableFile()) {
-            m_document = new ResourceFileWatcher(this);
-            DocumentManager::addDocument(m_document);
-        }
+        if (filePath.isReadableFile())
+            setupWatcherIfNeeded();
     } else {
         m_contents = contents;
     }
@@ -265,6 +264,15 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
         setDisplayName(filePath.toUserOutput());
 
     addInternalNodes();
+}
+
+void ResourceTopLevelNode::setupWatcherIfNeeded()
+{
+    if (m_document || !isMainThread())
+        return;
+
+    m_document = new ResourceFileWatcher(this);
+    DocumentManager::addDocument(m_document);
 }
 
 ResourceTopLevelNode::~ResourceTopLevelNode()

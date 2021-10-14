@@ -586,7 +586,8 @@ void Project::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
     }
 
     if (root) {
-        ProjectTree::applyTreeManager(root.get());
+        ProjectTree::applyTreeManager(root.get(), ProjectTree::AsyncPhase);
+        ProjectTree::applyTreeManager(root.get(), ProjectTree::FinalPhase);
         root->setParentFolderNode(d->m_containerNode.get());
     }
 
