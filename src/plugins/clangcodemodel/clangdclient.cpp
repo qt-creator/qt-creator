@@ -291,6 +291,58 @@ public:
                                  - openingQuoteOffset - 1);
     }
 
+    enum class FileStatus { Ours, Foreign, Mixed, Unknown };
+    FileStatus fileStatus(const Utils::FilePath &thisFile) const
+    {
+        const Utils::optional<QString> arcanaString = arcana();
+        if (!arcanaString)
+            return FileStatus::Unknown;
+
+        // Example arcanas:
+        // "FunctionDecl 0x7fffb5d0dbd0 </tmp/test.cpp:1:1, line:5:1> line:1:6 func 'void ()'"
+        // "VarDecl 0x7fffb5d0dcf0 </tmp/test.cpp:2:5, /tmp/test.h:1:1> /tmp/test.cpp:2:10 b 'bool' cinit"
+        // The second one is for a particularly silly construction where the RHS of an
+        // initialization comes from an included header.
+        const int openPos = arcanaString->indexOf('<');
+        if (openPos == -1)
+            return FileStatus::Unknown;
+        const int closePos = arcanaString->indexOf('>', openPos + 1);
+        if (closePos == -1)
+            return FileStatus::Unknown;
+        bool hasOurs = false;
+        bool hasOther = false;
+        for (int startPos = openPos + 1; startPos < closePos;) {
+            int colon1Pos = arcanaString->indexOf(':', startPos);
+            if (colon1Pos == -1 || colon1Pos > closePos)
+                break;
+            if (Utils::HostOsInfo::isWindowsHost())
+                colon1Pos = arcanaString->indexOf(':', colon1Pos + 1);
+            if (colon1Pos == -1 || colon1Pos > closePos)
+                break;
+            const int colon2Pos = arcanaString->indexOf(':', colon1Pos + 2);
+            if (colon2Pos == -1 || colon2Pos > closePos)
+                break;
+            const int line = subViewEnd(*arcanaString, colon1Pos + 1, colon2Pos).toString().toInt(); // TODO: Drop toString() once we require >= Qt 5.15
+            if (line == 0)
+                break;
+            const QStringView fileOrLineString = subViewEnd(*arcanaString, startPos, colon1Pos);
+            if (fileOrLineString != QLatin1String("line")) {
+                if (Utils::FilePath::fromUserInput(fileOrLineString.toString()) == thisFile)
+                    hasOurs = true;
+                else
+                    hasOther = true;
+            }
+            const int commaPos = arcanaString->indexOf(',', colon2Pos + 2);
+            if (commaPos != -1)
+                startPos = commaPos + 2;
+            else
+                break;
+        }
+        if (hasOurs)
+            return hasOther ? FileStatus::Mixed : FileStatus::Ours;
+        return hasOther ? FileStatus::Foreign : FileStatus::Unknown;
+    }
+
     // For debugging.
     void print(int indent = 0) const
     {
@@ -2164,7 +2216,8 @@ class ExtraHighlightingResultsCollector
 {
 public:
     ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
-                                      HighlightingResults &results, const AstNode &ast,
+                                      HighlightingResults &results,
+                                      const Utils::FilePath &filePath, const AstNode &ast,
                                       const QTextDocument *doc, const QString &docContent);
 
     void collect();
@@ -2181,6 +2234,7 @@ private:
 
     QFutureInterface<HighlightingResult> &m_future;
     HighlightingResults &m_results;
+    const Utils::FilePath m_filePath;
     const AstNode &m_ast;
     const QTextDocument * const m_doc;
     const QString &m_docContent;
@@ -2246,6 +2300,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 }
 
 static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
+                                const Utils::FilePath &filePath,
                                 const QList<ExpandedSemanticToken> &tokens,
                                 const QString &docContents, const AstNode &ast,
                                 const QPointer<TextEditorWidget> &widget,
@@ -2377,7 +2432,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         if (widget && widget->textDocument()->document()->revision() == docRevision)
             widget->setIfdefedOutBlocks(ifdefedOutBlocks);
     }, Qt::QueuedConnection);
-    ExtraHighlightingResultsCollector(future, results, ast, &doc, docContents).collect();
+    ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
         future.reportResults(QVector<HighlightingResult>(results.cbegin(),
@@ -2417,10 +2472,12 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
                 [doc](const IEditor *editor) { return editor->document() == doc; });
         const auto editorWidget = TextEditorWidget::fromEditor(editor);
-        const auto runner = [tokens, text = doc->document()->toPlainText(), ast,
+        const auto runner = [tokens, filePath = doc->filePath(),
+                             text = doc->document()->toPlainText(), ast,
                              w = QPointer(editorWidget), rev = doc->document()->revision(),
                              clangdVersion = q->versionNumber()] {
-            return Utils::runAsync(semanticHighlighter, tokens, text, ast, w, rev, clangdVersion);
+            return Utils::runAsync(semanticHighlighter, filePath, tokens, text, ast, w, rev,
+                                   clangdVersion);
         };
 
         if (isTesting) {
@@ -2872,10 +2929,11 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
 
 ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
         QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
-        const AstNode &ast, const QTextDocument *doc, const QString &docContent)
-    : m_future(future), m_results(results), m_ast(ast), m_doc(doc), m_docContent(docContent)
+        const Utils::FilePath &filePath, const AstNode &ast, const QTextDocument *doc,
+        const QString &docContent)
+    : m_future(future), m_results(results), m_filePath(filePath), m_ast(ast), m_doc(doc),
+      m_docContent(docContent)
 {
-
 }
 
 void ExtraHighlightingResultsCollector::collect()
@@ -3320,12 +3378,22 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
 {
     if (m_future.isCanceled())
         return;
-    collectFromNode(node);
-    const auto children = node.children();
-    if (!children)
+    switch (node.fileStatus(m_filePath)) {
+    case AstNode::FileStatus::Foreign:
         return;
-    for (const AstNode &childNode : *children)
-        visitNode(childNode);
+    case AstNode::FileStatus::Ours:
+    case AstNode::FileStatus::Unknown:
+        collectFromNode(node);
+        [[fallthrough]];
+    case ClangCodeModel::Internal::AstNode::FileStatus::Mixed: {
+        const auto children = node.children();
+        if (!children)
+            return;
+        for (const AstNode &childNode : *children)
+            visitNode(childNode);
+        break;
+    }
+    }
 }
 
 } // namespace Internal
