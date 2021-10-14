@@ -113,7 +113,7 @@ bool ElfMapper::map()
         return fdlen > 0;
     }
 
-    file.setFileName(binary.fileName());
+    file.setFileName(binary.path());
     if (!file.open(QIODevice::ReadOnly))
         return false;
 
