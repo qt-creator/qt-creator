@@ -155,7 +155,7 @@ using namespace ExtensionSystem::Internal;
     \fn uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
     \internal
 */
-uint ExtensionSystem::qHash(const PluginDependency &value)
+Utils::QHashValueType ExtensionSystem::qHash(const PluginDependency &value)
 {
     return qHash(value.name);
 }

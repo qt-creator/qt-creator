@@ -31,6 +31,7 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <languageutils/fakemetaobject.h>
+#include <utils/porting.h>
 
 #include <QFileInfoList>
 #include <QHash>
@@ -734,7 +735,7 @@ public:
     bool operator ==(const FakeMetaObjectWithOrigin &o) const;
 };
 
-QMLJS_EXPORT uint qHash(const FakeMetaObjectWithOrigin &fmoo);
+QMLJS_EXPORT Utils::QHashValueType qHash(const FakeMetaObjectWithOrigin &fmoo);
 
 class QMLJS_EXPORT CppQmlTypes
 {

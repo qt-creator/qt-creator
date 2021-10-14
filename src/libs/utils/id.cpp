@@ -84,7 +84,7 @@ static bool operator==(const StringHolder &sh1, const StringHolder &sh2)
 }
 
 
-static uint qHash(const StringHolder &sh)
+static auto qHash(const StringHolder &sh)
 {
     return QT_PREPEND_NAMESPACE(qHash)(sh.h, 0);
 }

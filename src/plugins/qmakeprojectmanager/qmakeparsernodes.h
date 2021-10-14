@@ -31,6 +31,7 @@
 
 #include <coreplugin/idocument.h>
 #include <cppeditor/generatedcodemodelsupport.h>
+#include <utils/porting.h>
 #include <utils/textfileformat.h>
 
 #include <QFutureWatcher>
@@ -109,7 +110,7 @@ enum class Variable {
     QmakeCc,
     QmakeCxx
 };
-uint qHash(Variable key, uint seed = 0);
+Utils::QHashValueType qHash(Variable key, uint seed = 0);
 
 namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(qmakeNodesLog)
@@ -121,7 +122,7 @@ class QmakePriFileEvalResult;
 class InstallsList;
 
 enum class FileOrigin { ExactParse, CumulativeParse };
-uint qHash(FileOrigin fo);
+Utils::QHashValueType qHash(FileOrigin fo);
 using SourceFile = QPair<Utils::FilePath, FileOrigin>;
 using SourceFiles = QSet<SourceFile>;
 

@@ -62,7 +62,7 @@ QIcon Diagnostic::icon() const
     return {};
 }
 
-quint32 qHash(const Diagnostic &diagnostic)
+Utils::QHashValueType qHash(const Diagnostic &diagnostic)
 {
     return qHash(diagnostic.name)
          ^ qHash(diagnostic.description)

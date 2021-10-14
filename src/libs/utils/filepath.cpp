@@ -1298,7 +1298,7 @@ FilePath FilePath::stringAppended(const QString &str) const
     return fn;
 }
 
-uint FilePath::hash(uint seed) const
+QHashValueType FilePath::hash(uint seed) const
 {
     if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return qHash(m_data.toUpper(), seed);

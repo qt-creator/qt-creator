@@ -61,7 +61,7 @@ public:
     QString sysroot;
 };
 
-uint qHash(const DeployParameters &p) {
+auto qHash(const DeployParameters &p) {
     return qHash(qMakePair(qMakePair(p.file, p.host), p.sysroot));
 }
 

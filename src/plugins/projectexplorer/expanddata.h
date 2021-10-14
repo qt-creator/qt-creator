@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QString>
 #include <QHash>
 #include <QDebug>
@@ -46,7 +48,7 @@ public:
     QString displayName;
 };
 
-int qHash(const ExpandData &data);
+Utils::QHashValueType qHash(const ExpandData &data);
 
 } // namespace Internal
 } // namespace ProjectExplorer

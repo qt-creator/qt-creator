@@ -104,7 +104,7 @@ QMakeBaseKey::QMakeBaseKey(const QString &_root, const QString &_stash, bool _ho
 {
 }
 
-uint qHash(const QMakeBaseKey &key)
+Utils::QHashValueType qHash(const QMakeBaseKey &key)
 {
     return qHash(key.root) ^ qHash(key.stash) ^ (uint)key.hostBuild;
 }

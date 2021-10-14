@@ -34,7 +34,7 @@ bool Diagnostic::operator==(const Diagnostic &r) const
            == std::tie(r.severity, r.message, r.fileName, r.lineNumber);
 }
 
-quint32 qHash(const Diagnostic &diagnostic)
+Utils::QHashValueType qHash(const Diagnostic &diagnostic)
 {
     return qHash(diagnostic.message) ^ qHash(diagnostic.fileName) ^ diagnostic.lineNumber;
 }

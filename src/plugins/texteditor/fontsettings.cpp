@@ -141,7 +141,7 @@ bool FontSettings::equals(const FontSettings &f) const
             && m_scheme == f.m_scheme;
 }
 
-uint qHash(const TextStyle &textStyle)
+auto qHash(const TextStyle &textStyle)
 {
     return ::qHash(quint8(textStyle));
 }
@@ -202,7 +202,7 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     return tf;
 }
 
-uint qHash(TextStyles textStyles)
+auto qHash(TextStyles textStyles)
 {
     return ::qHash(reinterpret_cast<quint64&>(textStyles));
 }

@@ -38,6 +38,7 @@
 #include "qmt/infrastructure/qmtassert.h"
 
 #include <utils/algorithm.h>
+#include <utils/porting.h>
 
 #include <QSet>
 
@@ -82,7 +83,7 @@ public:
     ObjectVisuals m_objectVisuals;
 };
 
-uint qHash(const ObjectStyleKey &styleKey)
+Utils::QHashValueType qHash(const ObjectStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_elementType) ^ qHash(styleKey.m_objectVisuals);
 }
@@ -106,7 +107,7 @@ public:
     DObject::VisualPrimaryRole m_visualPrimaryRole = DObject::PrimaryRoleNormal;
 };
 
-uint qHash(const RelationStyleKey &styleKey)
+Utils::QHashValueType qHash(const RelationStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_elementType) ^ ::qHash(styleKey.m_visualPrimaryRole);
 }
@@ -127,7 +128,7 @@ public:
     DAnnotation::VisualRole m_visualRole = DAnnotation::RoleNormal;
 };
 
-uint qHash(const AnnotationStyleKey &styleKey)
+Utils::QHashValueType qHash(const AnnotationStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_visualRole);
 }
@@ -142,11 +143,11 @@ class BoundaryStyleKey
 {
 };
 
-uint qHash(const BoundaryStyleKey &styleKey)
+Utils::QHashValueType qHash(const BoundaryStyleKey &styleKey)
 {
     Q_UNUSED(styleKey)
 
-    return 1;
+    return ::qHash(1);
 }
 
 bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
@@ -162,11 +163,11 @@ class SwimlaneStyleKey
 {
 };
 
-uint qHash(const SwimlaneStyleKey &styleKey)
+Utils::QHashValueType qHash(const SwimlaneStyleKey &styleKey)
 {
     Q_UNUSED(styleKey)
 
-    return 1;
+    return ::qHash(1);
 }
 
 bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)

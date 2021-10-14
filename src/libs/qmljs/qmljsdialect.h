@@ -28,6 +28,7 @@
 #include "qmljs_global.h"
 
 #include <utils/fileutils.h>
+#include <utils/porting.h>
 
 #include <QDebug>
 #include <QString>
@@ -73,7 +74,7 @@ private:
     Enum m_dialect;
 };
 
-QMLJS_EXPORT uint qHash(const Dialect &o);
+QMLJS_EXPORT Utils::QHashValueType qHash(const Dialect &o);
 
 QMLJS_EXPORT QDebug operator << (QDebug &dbg, const Dialect &dialect);
 

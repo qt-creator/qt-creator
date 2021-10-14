@@ -41,6 +41,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/link.h>
 #include <utils/multitextcursor.h>
+#include <utils/porting.h>
 #include <utils/uncommentselection.h>
 
 #include <QPlainTextEdit>
@@ -685,6 +686,6 @@ private:
 
 QT_BEGIN_NAMESPACE
 
-uint qHash(const QColor &color);
+Utils::QHashValueType qHash(const QColor &color);
 
 QT_END_NAMESPACE

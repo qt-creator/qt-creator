@@ -29,6 +29,7 @@
 
 #include <utils/id.h>
 #include <utils/fileutils.h>
+#include <utils/porting.h>
 
 #include <QIcon>
 #include <QMetaType>
@@ -135,13 +136,13 @@ public:
 
 using Tasks = QVector<Task>;
 
-bool PROJECTEXPLORER_EXPORT operator==(const Task &t1, const Task &t2);
-uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
+PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
+PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const Task &task);
 
-bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
+PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
 
-QString PROJECTEXPLORER_EXPORT toHtml(const Tasks &issues);
-bool PROJECTEXPLORER_EXPORT containsType(const Tasks &issues, Task::TaskType);
+PROJECTEXPLORER_EXPORT QString toHtml(const Tasks &issues);
+PROJECTEXPLORER_EXPORT bool containsType(const Tasks &issues, Task::TaskType);
 
 } //namespace ProjectExplorer
 

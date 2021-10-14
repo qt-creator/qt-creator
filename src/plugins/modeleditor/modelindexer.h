@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QObject>
 
 namespace qmt { class Uid; }
@@ -50,7 +52,7 @@ class ModelIndexer :
     class DiagramsCollectorVisitor;
     class ModelIndexerPrivate;
 
-    friend uint qHash(const ModelIndexer::QueuedFile &queuedFile);
+    friend Utils::QHashValueType qHash(const ModelIndexer::QueuedFile &queuedFile);
     friend bool operator==(const ModelIndexer::QueuedFile &lhs,
                            const ModelIndexer::QueuedFile &rhs);
 

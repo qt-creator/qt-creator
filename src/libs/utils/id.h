@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+#include "porting.h"
 
 #include <QList>
 #include <QMetaType>
@@ -79,7 +80,7 @@ private:
     quintptr m_id = 0;
 };
 
-inline uint qHash(Id id) { return static_cast<uint>(id.uniqueIdentifier()); }
+inline QHashValueType qHash(Id id) { return static_cast<QHashValueType>(id.uniqueIdentifier()); }
 
 } // namespace Utils
 

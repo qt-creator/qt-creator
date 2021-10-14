@@ -67,6 +67,13 @@ namespace Internal {
 
 class ServerNodeInstance
 {
+public:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using QHashValueType = uint;
+#else
+using QHashValueType = size_t;
+#endif
+
     friend class NodeInstanceServer;
     friend class Qt4NodeInstanceServer;
     friend class Qt4PreviewNodeInstanceServer;
@@ -76,7 +83,7 @@ class ServerNodeInstance
     friend class Qt5CapturePreviewNodeInstanceServer;
     friend class Qt5TestNodeInstanceServer;
     friend class QHash<qint32, ServerNodeInstance>;
-    friend uint qHash(const ServerNodeInstance &instance);
+    friend QHashValueType qHash(const ServerNodeInstance &instance);
     friend bool operator==(const ServerNodeInstance &first, const ServerNodeInstance &second);
     friend QDebug operator<<(QDebug debug, const ServerNodeInstance &instance);
     friend class NodeMetaInfo;
@@ -220,7 +227,7 @@ private: // variables
     QSharedPointer<Internal::ObjectNodeInstance> m_nodeInstance;
 };
 
-uint qHash(const ServerNodeInstance &instance);
+ServerNodeInstance::QHashValueType qHash(const ServerNodeInstance &instance);
 bool operator ==(const ServerNodeInstance &first, const ServerNodeInstance &second);
 bool operator <(const ServerNodeInstance &first, const ServerNodeInstance &second);
 QDebug operator <<(QDebug debug, const ServerNodeInstance &instance);

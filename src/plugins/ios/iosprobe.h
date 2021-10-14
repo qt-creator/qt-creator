@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #pragma once
+
+#include <utils/porting.h>
+
 #include <QSettings>
 #include <QSharedPointer>
 #include <QString>
@@ -61,8 +64,8 @@ public:
     bool operator==(const XcodePlatform &other) const;
 };
 
-uint qHash(const XcodePlatform &platform);
-uint qHash(const XcodePlatform::ToolchainTarget &target);
+Utils::QHashValueType qHash(const XcodePlatform &platform);
+Utils::QHashValueType qHash(const XcodePlatform::ToolchainTarget &target);
 
 class XcodeProbe
 {

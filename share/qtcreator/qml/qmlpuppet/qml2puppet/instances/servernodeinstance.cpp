@@ -517,7 +517,7 @@ QDebug operator <<(QDebug debug, const ServerNodeInstance &instance)
     return debug.space();
 }
 
-uint qHash(const ServerNodeInstance &instance)
+ServerNodeInstance::QHashValueType qHash(const ServerNodeInstance &instance)
 {
     return ::qHash(instance.instanceId());
 }

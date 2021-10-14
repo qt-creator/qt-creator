@@ -8255,7 +8255,7 @@ IEditor *BaseTextEditor::duplicate()
 
 QT_BEGIN_NAMESPACE
 
-uint qHash(const QColor &color)
+Utils::QHashValueType qHash(const QColor &color)
 {
     return color.rgba();
 }
