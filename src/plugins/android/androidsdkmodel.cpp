@@ -220,7 +220,7 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::TextAlignmentRole && index.column() == packageRevisionColumn)
-        return Qt::AlignHCenter;
+        return Qt::AlignRight;
 
     if (role == Qt::ToolTipRole)
         return QString("%1 - (%2)").arg(p->descriptionText()).arg(p->sdkStylePath());
