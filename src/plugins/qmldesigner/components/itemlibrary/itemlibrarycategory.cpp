@@ -137,6 +137,7 @@ void ItemLibraryCategory::setExpanded(bool expanded)
 void ItemLibraryCategory::setCategorySelected(bool selected)
 {
     m_categorySelected = selected;
+    emit categorySelectedChanged();
 }
 
 } // namespace QmlDesigner

@@ -43,7 +43,7 @@ class ItemLibraryImport : public QObject
     Q_PROPERTY(bool importExpanded READ importExpanded WRITE setImportExpanded NOTIFY importExpandChanged FINAL)
     Q_PROPERTY(bool importRemovable READ importRemovable NOTIFY importRemovableChanged FINAL)
     Q_PROPERTY(bool importUnimported READ importUnimported FINAL)
-    Q_PROPERTY(bool importCatVisibleState READ importCatVisibleState WRITE setImportCatVisibleState NOTIFY importCatVisibleStateChanged FINAL)
+    Q_PROPERTY(bool allCategoriesVisible READ allCategoriesVisible WRITE setAllCategoriesVisible NOTIFY allCategoriesVisibleChanged FINAL)
     Q_PROPERTY(QObject *categoryModel READ categoryModel NOTIFY categoryModelChanged FINAL)
 
 public:
@@ -65,11 +65,12 @@ public:
     bool importVisible() const;
     bool importUsed() const;
     bool importRemovable() const;
-    bool importCatVisibleState() const;
+    bool allCategoriesVisible() const;
     bool hasCategories() const;
     bool hasSingleCategory() const;
     bool isAllCategoriesHidden() const;
-    ItemLibraryCategory *getCategorySection(const QString &categoryName) const;
+    ItemLibraryCategory *getCategoryByName(const QString &categoryName) const;
+    ItemLibraryCategory *getCategoryAt(int categoryIndex) const;
 
     void addCategory(ItemLibraryCategory *category);
     QObject *categoryModel();
@@ -78,12 +79,14 @@ public:
     void setImportUsed(bool importUsed);
     void sortCategorySections();
     void setImportExpanded(bool expanded = true);
-    void setImportCatVisibleState(bool show);
+    void setAllCategoriesVisible(bool visible);
     void expandCategories(bool expand = true);
-    void showAllCategories(bool show = true);
-    void selectCategory(int categoryIndex);
-    QObject *selectFirstVisibleCategory();
-    void clearSelectedCategories();
+    void showAllCategories();
+    void hideCategory(const QString &categoryName);
+    ItemLibraryCategory *selectCategory(int categoryIndex);
+    int selectFirstVisibleCategory();
+    void clearSelectedCategory(int categoryIndex);
+    bool importUnimported() const { return m_sectionType == SectionType::Unimported; }
 
     static QString userComponentsTitle();
     static QString quick3DAssetsTitle();
@@ -97,17 +100,17 @@ signals:
     void importUsedChanged();
     void importExpandChanged();
     void importRemovableChanged();
-    void importCatVisibleStateChanged();
+    void allCategoriesVisibleChanged();
 
 private:
     void updateRemovable();
-    bool importUnimported() const { return m_sectionType == SectionType::Unimported; }
 
     Import m_import;
     bool m_importExpanded = true;
     bool m_isVisible = true;
     bool m_importUsed = false;
     bool m_importRemovable = false;
+    bool m_allCategoriesVisible = true;
     SectionType m_sectionType = SectionType::Default;
     ItemLibraryCategoriesModel m_categoryModel;
 };

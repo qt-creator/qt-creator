@@ -59,8 +59,8 @@ bool ItemLibraryModel::loadExpandedState(const QString &sectionName)
     return expandedStateHash.value(sectionName, true);
 }
 
-void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName, const
-                                                QString &importName)
+void ItemLibraryModel::saveCategoryVisibleState(bool isVisible, const QString &categoryName,
+                                                const QString &importName)
 {
     categoryVisibleStateHash.insert(categoryName + '_' + importName, isVisible);
 }
@@ -70,58 +70,61 @@ bool ItemLibraryModel::loadCategoryVisibleState(const QString &categoryName, con
     return categoryVisibleStateHash.value(categoryName + '_' + importName, true);
 }
 
-void ItemLibraryModel::showHiddenCategories()
+void ItemLibraryModel::selectImportCategory(const QString &importUrl, int categoryIndex)
 {
+    clearSelectedCategory();
+
+    m_selectedImportUrl = importUrl;
+    m_selectedCategoryIndex = categoryIndex;
+
+    updateSelection();
+}
+
+void ItemLibraryModel::clearSelectedCategory()
+{
+    if (m_selectedCategoryIndex != -1) {
+        ItemLibraryImport *selectedImport = importByUrl(m_selectedImportUrl);
+        if (selectedImport)
+            selectedImport->clearSelectedCategory(m_selectedCategoryIndex);
+    }
+}
+
+void ItemLibraryModel::selectImportFirstVisibleCategory()
+{
+    if (m_selectedCategoryIndex != -1) {
+        ItemLibraryImport *selectedImport = importByUrl(m_selectedImportUrl);
+        if (selectedImport) {
+            ItemLibraryCategory *selectedCategory = selectedImport->getCategoryAt(m_selectedCategoryIndex);
+            if (selectedCategory) {
+                bool isUnimported = selectedImport->sectionType() == ItemLibraryImport::SectionType::Unimported;
+                // unimported category is always visible so checking its Import visibility instead
+                bool isVisible = isUnimported ? selectedImport->importVisible()
+                                              : selectedCategory->isCategoryVisible();
+                if (isVisible)
+                    return; // there is already a selected visible category
+
+                clearSelectedCategory();
+            }
+        }
+    }
+
     for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
-        if (import->hasCategories())
-            import->showAllCategories(true);
+        if (!import->isAllCategoriesHidden()) {
+            m_selectedImportUrl = import->importUrl();
+            m_selectedCategoryIndex = import->selectFirstVisibleCategory();
+
+            ItemLibraryCategory *selectedCategory = import->getCategoryAt(m_selectedCategoryIndex);
+            if (selectedCategory) {
+                setItemsModel(selectedCategory->itemModel());
+                setImportUnimportedSelected(import->importUnimported());
+                return;
+            }
+        }
     }
 
-    categoryVisibleStateHash.clear();
-}
-
-bool ItemLibraryModel::getIsAnyCategoryHidden() const
-{
-    for (const bool &catState : std::as_const(categoryVisibleStateHash)) {
-        if (!catState)
-            return true;
-    }
-
-    return false;
-}
-
-void ItemLibraryModel::selectImportCategory(const QString importUrl, int categoryIndex)
-{
-    ItemLibraryImport *selectedCategoryImport = importByUrl(importUrl);
-
-    for (int i = 0; i < m_importList.length(); ++i) {
-        const auto importToSelect = m_importList.at(i);
-
-        if (selectedCategoryImport == importToSelect)
-            importToSelect->selectCategory(categoryIndex);
-        else
-            importToSelect->clearSelectedCategories();
-    }
-}
-
-bool ItemLibraryModel::isAllCategoriesHidden() const
-{
-    for (int i = 0; i < m_importList.length(); ++i) {
-        if (!m_importList.at(i)->isAllCategoriesHidden())
-            return false;
-    }
-
-    return true;
-}
-
-QObject *ItemLibraryModel::selectImportFirstVisibleCategory()
-{
-    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
-        if (!import->isAllCategoriesHidden())
-            return import->selectFirstVisibleCategory();
-    }
-
-    return nullptr;
+    m_selectedImportUrl.clear();
+    m_selectedCategoryIndex = -1;
+    setItemsModel(nullptr);
 }
 
 bool ItemLibraryModel::isAnyCategoryHidden() const
@@ -135,6 +138,30 @@ void ItemLibraryModel::setIsAnyCategoryHidden(bool state)
         m_isAnyCategoryHidden = state;
         emit isAnyCategoryHiddenChanged();
     }
+}
+
+bool ItemLibraryModel::importUnimportedSelected() const
+{
+    return m_importUnimportedSelected;
+}
+
+void ItemLibraryModel::setImportUnimportedSelected(bool state)
+{
+    if (state != m_importUnimportedSelected) {
+        m_importUnimportedSelected = state;
+        emit importUnimportedSelectedChanged();
+    }
+}
+
+QObject *ItemLibraryModel::itemsModel() const
+{
+    return m_itemsModel;
+}
+
+void ItemLibraryModel::setItemsModel(QObject *model)
+{
+    m_itemsModel = model;
+    emit itemsModelChanged();
 }
 
 void ItemLibraryModel::expandAll()
@@ -162,6 +189,46 @@ void ItemLibraryModel::collapseAll()
         }
         ++i;
     }
+}
+
+void ItemLibraryModel::hideCategory(const QString &importUrl, const QString &categoryName)
+{
+    ItemLibraryImport *import = importByUrl(importUrl);
+    if (!import)
+        return;
+
+    import->hideCategory(categoryName);
+
+    selectImportFirstVisibleCategory();
+    setIsAnyCategoryHidden(true);
+}
+
+void ItemLibraryModel::showImportHiddenCategories(const QString &importUrl)
+{
+    ItemLibraryImport *targetImport = nullptr;
+    bool hiddenCatsExist = false;
+    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList)) {
+        if (import->importUrl() == importUrl)
+            targetImport = import;
+        else
+            hiddenCatsExist |= !import->allCategoriesVisible();
+    }
+
+    if (targetImport) {
+        targetImport->showAllCategories();
+        updateSelection(); // useful when all categories are hidden
+        setIsAnyCategoryHidden(hiddenCatsExist);
+    }
+}
+
+void ItemLibraryModel::showAllHiddenCategories()
+{
+    for (const QPointer<ItemLibraryImport> &import : std::as_const(m_importList))
+        import->showAllCategories();
+
+    updateSelection(); // useful when all categories are hidden
+    setIsAnyCategoryHidden(false);
+    categoryVisibleStateHash.clear();
 }
 
 void ItemLibraryModel::setFlowMode(bool b)
@@ -242,6 +309,8 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
 
         bool changed = false;
         updateVisibility(&changed);
+
+        selectImportFirstVisibleCategory();
     }
 }
 
@@ -411,7 +480,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             }
 
             // get or create category section
-            ItemLibraryCategory *categorySection = importSection->getCategorySection(catName);
+            ItemLibraryCategory *categorySection = importSection->getCategoryByName(catName);
             if (!categorySection) {
                 categorySection = new ItemLibraryCategory(catName, importSection);
                 importSection->addCategory(categorySection);
@@ -428,8 +497,11 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     }
 
     sortSections();
+
     bool changed = false;
     updateVisibility(&changed);
+
+    updateSelection();
     endResetModel();
 }
 
@@ -451,6 +523,23 @@ void ItemLibraryModel::clearSections()
 {
     qDeleteAll(m_importList);
     m_importList.clear();
+}
+
+void ItemLibraryModel::updateSelection()
+{
+    if (m_selectedCategoryIndex != -1) {
+        ItemLibraryImport *selectedImport = importByUrl(m_selectedImportUrl);
+        if (selectedImport) {
+            ItemLibraryCategory *selectedCategory = selectedImport->selectCategory(m_selectedCategoryIndex);
+            if (selectedCategory) {
+                setItemsModel(selectedCategory->itemModel());
+                setImportUnimportedSelected(selectedImport->importUnimported());
+                return;
+            }
+        }
+    }
+
+    selectImportFirstVisibleCategory();
 }
 
 void ItemLibraryModel::registerQmlTypes()
