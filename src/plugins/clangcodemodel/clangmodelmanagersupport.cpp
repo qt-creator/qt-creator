@@ -286,7 +286,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
             if (const ProjectExplorer::BuildConfiguration * const bc
                     = target->activeBuildConfiguration()) {
-                return bc->buildDirectory();
+                return bc->buildDirectory() / ".qtc_clangd";
             }
         }
         return Utils::FilePath();
@@ -363,7 +363,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         });
 
     });
-    auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+    auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo, jsonDbDir,
                                   CompilationDbPurpose::CodeModel,
                                   warningsConfigForProject(project),
                                   optionsForProject(project));

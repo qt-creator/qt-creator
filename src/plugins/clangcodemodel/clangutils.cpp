@@ -372,18 +372,15 @@ static QJsonObject createFileObject(const FilePath &buildDir,
 }
 
 GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
+                                                  const Utils::FilePath &baseDir,
                                                   CompilationDbPurpose purpose,
                                                   const ClangDiagnosticConfig &warningsConfig,
                                                   const QStringList &projectOptions)
 {
-    const FilePath buildDir = projectInfo->buildRoot();
-    QTC_ASSERT(!buildDir.isEmpty(), return GenerateCompilationDbResult(QString(),
+    QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
-
-    QDir dir(buildDir.toString());
-    if (!dir.exists())
-        dir.mkpath(dir.path());
-    QFile compileCommandsFile(buildDir.toString() + "/compile_commands.json");
+    QTC_CHECK(baseDir.ensureWritableDir());
+    QFile compileCommandsFile(baseDir.toString() + "/compile_commands.json");
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!fileOpened) {
         return GenerateCompilationDbResult(QString(),
@@ -397,7 +394,7 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
         if (purpose == CompilationDbPurpose::Project)
             args = projectPartArguments(*projectPart);
         for (const ProjectFile &projFile : projectPart->files) {
-            const QJsonObject json = createFileObject(buildDir, args, *projectPart, projFile,
+            const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
                                                       purpose, warningsConfig, projectOptions);
             if (compileCommandsFile.size() > 1)
                 compileCommandsFile.write(",");
