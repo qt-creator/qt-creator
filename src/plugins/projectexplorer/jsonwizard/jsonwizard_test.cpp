@@ -270,7 +270,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
         QJsonObject{
            {"trKey", "item no1"},
            {"condition", true},
-           {"icon", iconInsideResource("templates/wizards/qtquickstyleicons/default.png")}
+           {"icon", iconInsideResource("templates/wizards/global/lib.png")}
         },
         QJsonObject{
            {"trKey", "item no2"},
@@ -282,7 +282,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
             {"trKey", "item no3"},
             {"condition", true},
             {"trToolTip", "MyToolTip"},
-            {"icon", iconInsideResource("templates/wizards/qtquickstyleicons/default.png")}
+            {"icon", iconInsideResource("templates/wizards/global/lib.png")}
         }
     });
 
