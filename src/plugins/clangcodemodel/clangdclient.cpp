@@ -1081,6 +1081,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
             "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
     setSupportedLanguage(langFilter);
     setActivateDocumentAutomatically(true);
+    setLogTarget(LogTarget::Console);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     if (!project) {
         QJsonObject initOptions;

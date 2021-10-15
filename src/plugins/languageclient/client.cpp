@@ -1133,7 +1133,14 @@ void Client::handleMessage(const BaseMessage &message)
 
 void Client::log(const QString &message) const
 {
-    Core::MessageManager::writeFlashing(QString("LanguageClient %1: %2").arg(name(), message));
+    switch (m_logTarget) {
+    case LogTarget::Ui:
+        Core::MessageManager::writeFlashing(QString("LanguageClient %1: %2").arg(name(), message));
+        break;
+    case LogTarget::Console:
+        qCDebug(LOGLSPCLIENT) << message;
+        break;
+    }
 }
 
 const ServerCapabilities &Client::capabilities() const
