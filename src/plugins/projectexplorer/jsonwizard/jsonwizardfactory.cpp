@@ -400,14 +400,12 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                                       .arg(currentFile.fileName())
                                       .arg(line).arg(column)
                                       .arg(error.errorString()));
-                    qWarning() << "Failed to parse wizard: " << currentFile.fileName();
                     continue;
                 }
 
                 if (!json.isObject()) {
                     verboseLog.append(tr("* Did not find a JSON object in \"%1\".\n")
                                       .arg(currentFile.fileName()));
-                    qWarning() << "Failed to parse wizard: " << currentFile.fileName();
                     continue;
                 }
 
@@ -425,7 +423,6 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                 JsonWizardFactory *factory = createWizardFactory(data, currentDir, &errorMessage);
                 if (!factory) {
                     verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
-                    qWarning() << "Failed to create wizard: " << currentFile.fileName();
                     continue;
                 }
 
