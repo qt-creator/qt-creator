@@ -502,6 +502,7 @@ public:
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
+    void setClipboardSelection();
 
     void ctor(const QSharedPointer<TextDocument> &doc);
     void handleHomeKey(bool anchor, bool block);
@@ -5217,7 +5218,8 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
 
 void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (d->m_linkPressed && d->isMouseNavigationEvent(e) && e->button() == Qt::LeftButton) {
+    const Qt::MouseButton button = e->button();
+    if (d->m_linkPressed && d->isMouseNavigationEvent(e) && button == Qt::LeftButton) {
         EditorManager::addCurrentPositionToNavigationHistory();
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
@@ -5227,12 +5229,22 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
             if (self && self->openLink(symbolLink, inNextSplit))
                 self->d->clearLink();
         }, true, inNextSplit);
+    } else if (button == Qt::MiddleButton
+               && !isReadOnly()
+               && QGuiApplication::clipboard()->supportsSelection()) {
+        if (!(e->modifiers() & Qt::AltModifier))
+            doSetTextCursor(cursorForPosition(e->pos()));
+        if (const QMimeData *md = QGuiApplication::clipboard()->mimeData(QClipboard::Selection))
+            insertFromMimeData(md);
+        e->accept();
+        return;
     }
 
     if (!HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
 
     QPlainTextEdit::mouseReleaseEvent(e);
+    d->setClipboardSelection();
 }
 
 void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -5247,6 +5259,14 @@ void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     }
 
     QPlainTextEdit::mouseDoubleClickEvent(e);
+    d->setClipboardSelection();
+}
+
+void TextEditorWidgetPrivate::setClipboardSelection()
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    if (m_cursors.hasSelection() && clipboard->supportsSelection())
+        clipboard->setMimeData(q->createMimeDataFromSelection(), QClipboard::Selection);
 }
 
 void TextEditorWidget::leaveEvent(QEvent *e)
