@@ -684,6 +684,10 @@ CppModelManager::CppModelManager()
 
     connect(KitManager::instance(), &KitManager::kitsChanged, this,
             &CppModelManager::setupFallbackProjectPart);
+    connect(this, &CppModelManager::projectPartsRemoved, this,
+            &CppModelManager::setupFallbackProjectPart);
+    connect(this, &CppModelManager::projectPartsUpdated, this,
+            &CppModelManager::setupFallbackProjectPart);
     setupFallbackProjectPart();
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");

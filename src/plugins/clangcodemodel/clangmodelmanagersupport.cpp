@@ -415,10 +415,6 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 
         // TODO: Ensure that not fully loaded documents are updated?
 
-        // TODO: If the file does not belong to any project and it is a header file,
-        //       it might make sense to check whether the file is included by any file
-        //       that does belong to a project, and if so, use the respective client
-        //       instead. Is this feasible?
         ProjectExplorer::Project * const project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
         if (Client * const client = clientForProject(project))
