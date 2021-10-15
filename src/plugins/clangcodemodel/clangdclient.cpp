@@ -94,6 +94,8 @@ static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", Q
 static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogTiming, "qtc.clangcodemodel.clangd.timing", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.completion",
+                          QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
 static QStringView subViewLen(const QString &s, qsizetype start, qsizetype length)
@@ -2582,19 +2584,26 @@ ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(Cla
 IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
     const AssistInterface *interface) const
 {
+    qCDebug(clangdLogCompletion) << "completion processor requested for" << interface->filePath();
+    qCDebug(clangdLogCompletion) << "text before cursor is"
+                                 << interface->textAt(interface->position(), -10);
+    qCDebug(clangdLogCompletion) << "text after cursor is"
+                                 << interface->textAt(interface->position(), 10);
     ClangCompletionContextAnalyzer contextAnalyzer(interface->textDocument(),
                                                    interface->position(), false, {});
     contextAnalyzer.analyze();
     switch (contextAnalyzer.completionAction()) {
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
-        qCDebug(clangdLog) << "completion changed to function hint";
+        qCDebug(clangdLogCompletion) << "creating function hint processor";
         return new ClangdFunctionHintProcessor(m_client);
     case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
+        qCDebug(clangdLogCompletion) << "creating doxygen processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Doxygen);
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
+        qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
                                          contextAnalyzer.completionOperator(),
@@ -2605,6 +2614,8 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
     const QString snippetsGroup = contextAnalyzer.addSnippets() && !isInCommentOrString(interface)
                                       ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID
                                       : QString();
+    qCDebug(clangdLogCompletion) << "creating proper completion processor"
+                                 << (snippetsGroup.isEmpty() ? "without" : "with") << "snippets";
     return new ClangdCompletionAssistProcessor(m_client, snippetsGroup);
 }
 
@@ -2625,6 +2636,7 @@ bool ClangdClient::ClangdCompletionAssistProvider::isActivationCharSequence(cons
     // contexts, such as '(', '<' or '/'.
     switch (kind) {
     case T_DOT: case T_COLON_COLON: case T_ARROW: case T_DOT_STAR: case T_ARROW_STAR: case T_POUND:
+        qCDebug(clangdLogCompletion) << "detected" << sequence << "as activation char sequence";
         return true;
     }
     return false;
