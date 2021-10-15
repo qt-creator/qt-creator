@@ -340,6 +340,7 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
     qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
 
+    m_welcomeMode = new WelcomeMode;
 
     m_removeSplashTimer.setSingleShot(true);
     m_removeSplashTimer.setInterval(15000);
