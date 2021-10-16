@@ -557,6 +557,8 @@ void SearchResultWindow::clearContents()
     d->m_widget->currentWidget()->setFocus();
     d->m_expandCollapseAction->setEnabled(false);
     navigateStateChanged();
+
+    d->m_newSearchButton->setEnabled(false);
 }
 
 /*!
