@@ -138,6 +138,7 @@ public:
     void paintEvent(QPaintEvent*) override;
     void flash(int count = 3);
     void setIconBadgeNumber(int number);
+    bool isPaneVisible() const;
 
 private:
     void updateToolTip();

@@ -79,7 +79,6 @@ public:
     Id id;
     OutputPaneToggleButton *button = nullptr;
     QAction *action = nullptr;
-    bool buttonVisible = false;
 };
 
 static QVector<OutputPaneData> g_outputPanes;
@@ -511,7 +510,6 @@ void OutputPaneManager::initialize()
 
         bool visible = outPane->priorityInStatusBar() != -1;
         data.button->setVisible(visible);
-        data.buttonVisible = visible;
 
         connect(data.action, &QAction::triggered, m_instance, [i] {
             m_instance->shortcutTriggered(i);
@@ -595,7 +593,6 @@ void OutputPaneManager::readSettings()
         if (idx < 0) // happens for e.g. disabled plugins (with outputpanes) that were loaded before
             continue;
         const bool visible = settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool();
-        g_outputPanes[idx].buttonVisible = visible;
         g_outputPanes[idx].button->setVisible(visible);
     }
     settings->endArray();
@@ -707,7 +704,6 @@ void OutputPaneManager::setCurrentIndex(int idx)
         OutputPaneData &data = g_outputPanes[idx];
         IOutputPane *pane = data.pane;
         data.button->show();
-        data.buttonVisible = true;
         pane->visibilityChanged(true);
 
         bool canNavigate = pane->canNavigate();
@@ -727,7 +723,7 @@ void OutputPaneManager::popupMenu()
     for (OutputPaneData &data : g_outputPanes) {
         QAction *act = menu.addAction(data.pane->displayName());
         act->setCheckable(true);
-        act->setChecked(data.buttonVisible);
+        act->setChecked(data.button->isPaneVisible());
         act->setData(idx);
         ++idx;
     }
@@ -737,11 +733,10 @@ void OutputPaneManager::popupMenu()
     idx = result->data().toInt();
     QTC_ASSERT(idx >= 0 && idx < g_outputPanes.size(), return);
     OutputPaneData &data = g_outputPanes[idx];
-    if (data.buttonVisible) {
+    if (data.button->isPaneVisible()) {
         data.pane->visibilityChanged(false);
         data.button->setChecked(false);
         data.button->hide();
-        data.buttonVisible = false;
     } else {
         showPage(idx, IOutputPane::ModeSwitch);
     }
@@ -756,7 +751,7 @@ void OutputPaneManager::saveSettings() const
         const OutputPaneData &data = g_outputPanes.at(i);
         settings->setArrayIndex(i);
         settings->setValue(QLatin1String(outputPaneIdKeyC), data.id.toSetting());
-        settings->setValue(QLatin1String(outputPaneVisibleKeyC), data.buttonVisible);
+        settings->setValue(QLatin1String(outputPaneVisibleKeyC), data.button->isPaneVisible());
     }
     settings->endArray();
     int heightSetting = m_outputPaneHeightSetting;
@@ -931,6 +926,11 @@ void OutputPaneToggleButton::setIconBadgeNumber(int number)
     QString text = (number ? QString::number(number) : QString());
     m_badgeNumberLabel.setText(text);
     updateGeometry();
+}
+
+bool OutputPaneToggleButton::isPaneVisible() const
+{
+    return isVisibleTo(parentWidget());
 }
 
 
