@@ -225,6 +225,8 @@ private: // functions
     void updateWatcher(const QString &path);
 
     void updateRotationBlocks();
+    void maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
+                                    PropertyChangeFlags flags);
 
 private:
     QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
