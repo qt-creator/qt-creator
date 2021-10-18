@@ -1056,6 +1056,8 @@ void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
     d->m_device = runControl->device();
     if (!d->m_device)
         d->m_device = d->m_runParameters.inferior.device;
+    if (d->m_device)
+        d->m_runParameters.dumperPath = d->m_device->debugDumperPath();
     d->m_terminalRunner = runTool->terminalRunner();
 
     validateRunParameters(d->m_runParameters);

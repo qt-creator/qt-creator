@@ -237,9 +237,9 @@ void LldbEngine::setupEngine()
 
     showStatusMessage(tr("Setting up inferior..."));
 
-    const QByteArray dumperSourcePath = ICore::resourcePath("debugger/").toString().toLocal8Bit();
+    const DebuggerRunParameters &rp = runParameters();
 
-    executeCommand("script sys.path.insert(1, '" + dumperSourcePath + "')");
+    executeCommand("script sys.path.insert(1, '" + rp.dumperPath.path().toLocal8Bit() + "')");
     // This triggers reportState("enginesetupok") or "enginesetupfailed":
     executeCommand("script from lldbbridge import *");
 
@@ -267,8 +267,6 @@ void LldbEngine::setupEngine()
         watchHandler()->addDumpers(response.data["dumpers"]);
     };
     runCommand(cmd1);
-
-    const DebuggerRunParameters &rp = runParameters();
 
     const SourcePathMap sourcePathMap =
             mergePlatformQtPath(rp, debuggerSettings()->sourcePathMap.value());

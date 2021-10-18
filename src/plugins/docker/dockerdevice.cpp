@@ -839,6 +839,9 @@ void DockerDevicePrivate::startContainer()
         mount = q->mapToDevicePath(FilePath::fromUserInput(mount));
         dockerCreate.addArgs({"-v", mount + ':' + mount});
     }
+    FilePath dumperPath = FilePath::fromString("/tmp/qtcreator/debugger");
+    dockerCreate.addArgs({"-v", q->debugDumperPath().toUserOutput() + ':' + dumperPath.path()});
+    q->setDebugDumperPath(dumperPath);
 
     dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
 

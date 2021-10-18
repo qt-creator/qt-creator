@@ -946,6 +946,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
             m_engine = createPdbEngine();
         }
     }
+
+    m_runParameters.dumperPath = Core::ICore::resourcePath("debugger/");
 }
 
 void DebuggerRunTool::startRunControl()

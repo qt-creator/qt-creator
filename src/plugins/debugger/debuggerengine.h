@@ -203,6 +203,8 @@ public:
     int testCase = 0;
 
     QStringList validationErrors;
+
+    Utils::FilePath dumperPath;
 };
 
 class UpdateParameters

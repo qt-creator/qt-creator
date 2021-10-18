@@ -2753,7 +2753,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
 
-    QString dumperPath = Core::ICore::resourcePath("debugger").toUserOutput();
+    QString dumperPath = runParameters().dumperPath.toUserOutput();
     dumperPath.replace('\\', "\\\\");
     runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
     runCommand({"from cdbbridge import Dumper", ScriptCommand});
