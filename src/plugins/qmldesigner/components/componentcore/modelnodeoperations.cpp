@@ -996,7 +996,7 @@ static bool addFilesToProject(const QStringList &fileNames, const QString &defau
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
     if (directory.isEmpty())
-        return false;
+        return true; // cancelling the dialog is considered success
 
     bool allSuccessful = true;
     QList<QPair<QString, QString>> copyList;
