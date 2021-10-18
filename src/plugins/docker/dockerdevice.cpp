@@ -147,7 +147,10 @@ void DockerDeviceProcess::start(const Runnable &runnable)
 
     disconnect(&m_process);
 
-    m_process.setCommand(runnable.command);
+    CommandLine command = runnable.command;
+    command.setExecutable(
+        command.executable().withNewPath(dockerDevice->mapToDevicePath(command.executable())));
+    m_process.setCommand(command);
     m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
     connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
@@ -158,7 +161,7 @@ void DockerDeviceProcess::start(const Runnable &runnable)
             this, &DeviceProcess::readyReadStandardError);
     connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
 
-    LOG("Running process:" << runnable.command.toUserOutput()
+    LOG("Running process:" << command.toUserOutput()
             << "in" << runnable.workingDirectory.toUserOutput());
     dockerDevice->runProcess(m_process);
 }
