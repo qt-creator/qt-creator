@@ -72,7 +72,11 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     CMakeTool *cmake = parameters.cmakeTool();
     QTC_ASSERT(parameters.isValid() && cmake, return);
 
-    const FilePath buildDirectory = parameters.buildDirectory;
+    const FilePath cmakeExecutable = cmake->cmakeExecutable();
+
+    const FilePath sourceDirectory = parameters.sourceDirectory.onDevice(cmakeExecutable);
+    const FilePath buildDirectory = parameters.buildDirectory.onDevice(cmakeExecutable);
+
     if (!buildDirectory.exists()) {
         QString msg = tr("The build directory \"%1\" does not exist")
                 .arg(buildDirectory.toUserOutput());
@@ -119,12 +123,8 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
-    const FilePath cmakeExecutable = cmake->cmakeExecutable();
-    const FilePath sourceDirectory = parameters.sourceDirectory.onDevice(cmakeExecutable);
-
     CommandLine commandLine(cmakeExecutable);
-    commandLine.addArgs({"-S", sourceDirectory.mapToDevicePath(),
-                         "-B", buildDirectory.mapToDevicePath()});
+    commandLine.addArgs({"-S", sourceDirectory.path(), "-B", buildDirectory.path()});
     commandLine.addArgs(arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
