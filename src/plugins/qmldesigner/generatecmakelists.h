@@ -38,6 +38,7 @@ void generateSubdirCmake(const Utils::FilePath &dir);
 QString generateModuleCmake(const Utils::FilePath &dir);
 QStringList processDirectory(const Utils::FilePath &dir);
 QStringList getSingletonsFromQmldirFile(const Utils::FilePath &filePath);
+QStringList getDirectoryTreeQmls(const Utils::FilePath &dir);
 QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
 void createCmakeFile(const Utils::FilePath &filePath, const QString &content);
 bool isFileBlacklisted(const QString &fileName);

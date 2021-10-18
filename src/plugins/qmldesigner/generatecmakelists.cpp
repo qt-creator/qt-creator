@@ -149,9 +149,7 @@ const char MODULEFILE_CREATE_MODULE[] = "qt6_add_qml_module(%1\n\tURI \"%1\"\n\t
 QString generateModuleCmake(const FilePath &dir)
 {
     QString fileContent;
-    const QStringList qmlFilesOnly("*.qml");
     const QStringList qmldirFilesOnly(QMLDIRFILENAME);
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
 
     FilePaths qmldirFileList = dir.dirEntries(qmldirFilesOnly, FILES_ONLY);
     if (!qmldirFileList.isEmpty()) {
@@ -161,18 +159,15 @@ QString generateModuleCmake(const FilePath &dir)
         }
     }
 
-    FilePaths qmlFileList = dir.dirEntries(qmlFilesOnly, FILES_ONLY);
+    QStringList qmlFileList = getDirectoryTreeQmls(dir);
     QString qmlFiles;
-    for (FilePath &qmlFile : qmlFileList) {
-        if (project->isKnownFile(qmlFile))
-            qmlFiles.append(QString("\t\t%1\n").arg(qmlFile.fileName()));
-    }
+    for (QString &qmlFile : qmlFileList)
+        qmlFiles.append(QString("\t\t%1\n").arg(qmlFile));
 
     QStringList resourceFileList = getDirectoryTreeResources(dir);
     QString resourceFiles;
-    for (QString &resourceFile : resourceFileList) {
+    for (QString &resourceFile : resourceFileList)
         resourceFiles.append(QString("\t\t%1\n").arg(resourceFile));
-    }
 
     QString moduleContent;
     if (!qmlFiles.isEmpty()) {
@@ -224,6 +219,31 @@ QStringList getSingletonsFromQmldirFile(const FilePath &filePath)
     f.close();
 
     return singletons;
+}
+
+QStringList getDirectoryTreeQmls(const FilePath &dir)
+{
+    const QStringList qmlFilesOnly("*.qml");
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    QStringList qmlFileList;
+
+    FilePaths thisDirFiles = dir.dirEntries(qmlFilesOnly, FILES_ONLY);
+    for (FilePath &file : thisDirFiles) {
+        if (!isFileBlacklisted(file.fileName()) &&
+            project->isKnownFile(file)) {
+            qmlFileList.append(file.fileName());
+        }
+    }
+
+    FilePaths subDirsList = dir.dirEntries(DIRS_ONLY);
+    for (FilePath &subDir : subDirsList) {
+        QStringList subDirQmlFiles = getDirectoryTreeQmls(subDir);
+        for (QString &qmlFile : subDirQmlFiles) {
+            qmlFileList.append(subDir.fileName().append('/').append(qmlFile));
+        }
+    }
+
+    return qmlFileList;
 }
 
 QStringList getDirectoryTreeResources(const FilePath &dir)
