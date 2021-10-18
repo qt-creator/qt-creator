@@ -376,7 +376,7 @@ void Project::setExtraProjectFiles(const QSet<FilePath> &projectDocumentPaths,
     const QSet<FilePath> toAdd = uniqueNewFiles - existingWatches;
     const QSet<FilePath> toRemove = existingWatches - uniqueNewFiles;
 
-    erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<IDocument> &d) {
+    Utils::erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<IDocument> &d) {
         return toRemove.contains(d->filePath());
     });
     if (docUpdater) {
