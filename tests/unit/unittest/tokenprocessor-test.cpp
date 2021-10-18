@@ -1794,11 +1794,10 @@ TEST_F(TokenProcessor, TemplateSeparateDeclDef)
     ASSERT_THAT(infos[37], IsHighlightingMark(764u, 5u, 9u, HighlightingType::GlobalVariable));
 }
 
-TEST_F(TokenProcessor, NestedTemplate)
+TEST_F(TokenProcessor, NestedTemplateIncorrect)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(773, 44));
-    ASSERT_THAT(infos[12], HasTwoTypes(HighlightingType::Punctuation,
-                                       HighlightingType::DoubleAngleBracketClose));
+    ASSERT_THAT(infos[12], HasOnlyType(HighlightingType::Punctuation));
 }
 
 TEST_F(TokenProcessor, OperatorInTemplate)
@@ -1817,6 +1816,32 @@ TEST_F(TokenProcessor, PreProcessorInStruct)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(795, 14));
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
+}
+
+TEST_F(TokenProcessor, DefinitionWithComparison)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(798, 39));
+    ASSERT_THAT(infos[13], HasOnlyType(HighlightingType::Punctuation));
+}
+
+TEST_F(TokenProcessor, GlobalVariableWithComparison)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(800, 18));
+    ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Punctuation));
+}
+
+TEST_F(TokenProcessor, VariableWithComparison)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(803, 22));
+    ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Punctuation));
+}
+
+
+TEST_F(TokenProcessor, NestedTemplate)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(811, 44));
+    ASSERT_THAT(infos[12], HasTwoTypes(HighlightingType::Punctuation,
+                                       HighlightingType::DoubleAngleBracketClose));
 }
 
 Data *TokenProcessor::d;
