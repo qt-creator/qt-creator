@@ -32,123 +32,282 @@
 
     \title Scene Environment
 
-    You can use the SceneEnvironment type to specify how the scene is rendered
-    globally. You can specify settings for antialiasing, scene background,
-    ambient occlusion, and image based lighting in the \uicontrol Properties
-    view.
+    You can use the \uicontrol {Scene Environment} component to specify
+    how a scene is rendered globally. You can specify settings for antialiasing,
+    scene background, ambient occlusion, and image-based lighting in the
+    \l Properties view. The \uicontrol {Scene Environment} component is available
+    in \l Library > \uicontrol Components > \uicontrol {Qt Quick 3D}. It is
+    automatically included under the 3D view component in \l{Creating Projects}
+    {projects created} using the \uicontrol {Qt Quick 3D Application} wizard
+    template.
 
-    \section1 Antialiasing
+    \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
+    when \l {Creating Projects}{creating your project}, the available properties
+    for this component will be slightly different. The properties may also be
+    situated differently in the \uicontrol Properties view.
 
-    You can apply temporal, progressive, or multisample antialiasing to
-    scenes. Temporal and progressive antialiasing jiggle the camera very
-    slightly between frames and blend the result of each new frame with
-    the previous frames, while multisample antialiasing super-samples
-    the edges of geometry.
+    \section1 Setting the Scene Environment
 
-    Temporal antialiasing finds real details that would otherwise be lost
-    and has a low impact on performance, but fast-moving objects cause
-    one-frame ghosting. To enable temporal antialiasing, select the
-    \uicontrol {Temporal AA} check box.
+    In the \uicontrol {Scene Environment} section of the \uicontrol Properties
+    view, you can specify whether and how the background of the scene should be
+    cleared, specify whether you wish to perform depth-tests on the scene,
+    apply post-processing effects to the scene, and define how colors are
+    tonemapped before the scene is rendered.
 
-    Progressive antialiasing jiggles the camera after all the content of the
-    scene has stopped moving. The more frames you accumulate, the better the
-    result looks. This provides detailed static images with no performance cost,
-    but does not take effect if any visual changes are occurring.
+    \image studio-3d-scene-environment-properties.png "The Scene Environment properties"
 
-    To apply progressive antialiasing, set the number of frames to use for the
-    final image in the \uicontrol {Progressive AA} field. Note that at the
-    value of 8x, progressive antialiasing takes one eighth of a second to finish
-    rendering at 60 FTPS, which may be noticeable.
+    The \uicontrol {Clear color} property specifies which color will be used to
+    clear the background of the scene if \uicontrol {Background mode} is defined
+    as \uicontrol Color. Use the \l{Picking Colors}{color picker} to select the
+    color of your choice.
 
-    Multisample antialiasing results in smoother silhouettes, but has no effect
-    on the materials inside geometry. It provides good results on geometry
-    silhouettes, where aliasing is often most noticeable and works smoothly with
-    fast animation. However, it can be expensive to use and does not help with
-    texture or reflection issues.
+    The \uicontrol {Background mode} property defines whether the background
+    of the scene should be cleared as well as the manner of clearing it.
+    Use the dropdown menu to select one of the available modes:
+        \table
+            \header
+                \li Background Mode
+                \li Description
+            \row
+                \li Transparent
+                \li The scene is cleared to be transparent, which is useful
+                    for rendering 3D content on top of another item. This mode
+                    has no effect when the \uicontrol View3D component is using
+                    \uicontrol Underlay or \uicontrol Overlay as the render mode.
+            \row
+                \li Color
+                \li The scene is cleared with the color specified by the
+                    \uicontrol {Clear color} property. This mode has no effect
+                    when the \uicontrol View3D component is using the
+                    \uicontrol Underlay or \uicontrol Overlay as the render
+                    mode.
+            \row
+                \li SkyBox
+                \li The scene will not be cleared, but instead a
+                    \uicontrol SkyBox or Skydome will be rendered. Define an
+                    image as a \uicontrol SkyBox using the
+                    \uicontrol Image property in the \uicontrol {Light probe}
+                    section (In Qt 5, the \uicontrol {Light Probe} property in
+                    the \uicontrol {Image-Based Lighting} group.
+        \endtable
 
-    To apply multisample antialiasing, set the number of samples to use per
-    pixel in the \uicontrol {Multisample AA} field.
+    To leave the scene uncleared, select \uicontrol {Unspecified} as the
+    \uicontrol {Background mode}.
 
-    \section1 Clearing the Scene Background
-
-    To clear the background of the scene to be transparent, select
-    \uicontrol Transparent in the \uicontrol {Background mode} field.
-    To clear the background using a color, select \uicontrol Color,
-    and select the color in the \uicontrol {Clear Color} field.
-
-    To render a Skybox or Skydome instead of clearing the scene,
-    select \uicontrol SkyBox. You can specify the image to use as
-    a value of the \l{SceneEnvironment::lightProbe}{lightProbe}
-    property in \l{Text Editor}.
-
-    To leave the scene uncleared, select \uicontrol {Unspecified}.
-
-    \section1 Performing Depth Tests
-
-    You can perform depth tests to optimize the scene environment. To skip depth
-    tests, deselect the \uicontrol {Enable depth test} checkbox. Note that
+    You can perform depth tests to optimize the scene environment. To skip the
+    depth tests, deselect the \uicontrol {Enable depth test} checkbox. Note that
     skipping the tests can cause rendering errors.
 
     To have the renderer write to the depth buffer as part of the color pass,
-    deselect the \uicontrol {Enable depth prepass} checkbox. Disable depth
-    prepass on GPU's that use a tiled rendering architecture.
+    deselect the \uicontrol {Enable depth prepass} checkbox. Deselecting the
+    checkbox disables the depth prepass on any GPU that uses tiled rendering
+    architecture.
 
-    \section1 Ambient Occlusion
+    The \uicontrol Effect property defines a post-processing effect to the
+    scene. Use the dropdown menu to select one of the effects that will be
+    applied to the entire scene. The order of the effects is significant since
+    the result of each effect is fed to the next.
+
+    The \uicontrol {Tonemap mode} property defines how colors are tonemapped
+    before rendering. Select \uicontrol ToneMapModeLinear to apply linear
+    tonemapping, which gamma corrects colors and returns them in sRGB color
+    space. You can also select \uicontrol ToneMapModeAces to apply Academy Color
+    Encoding System, \uicontrol ToneMapModeHejlDawson to apply the Hejl-Dawson
+    tonemapping, or \uicontrol ToneMapModeFilmic to apply filmic tonemapping.
+    \note The \uicontrol {Tonemap mode} property is not available in Qt 5.
+
+    \section1 Applying Antialiasing
+
+    Antialiasing is used to make curved lines smoother on the screen. In the
+    \uicontrol Antialiasing section of the \uicontrol Properties view, you can
+    specify the mode and quality of antialiasing and also enable temporal
+    antialiasing and define its strength.
+
+    \image studio-3d-scene-environment-antialiasing.png "The Antialiasing properties"
+
+    The \uicontrol {Antialiasing mode} property specifies the mode of
+    antialiasing applied when the scene is rendered. Select one of the following
+    modes using the dropdown menu:
+        \table
+            \header
+                \li Mode of Antialiasing
+                \li Description
+            \row
+                \li MSAA
+                \li Applies multisample antialiasing. The scene is rendered in a
+                    higher resolution and then scaled down to actual resolution.
+            \row
+                \li NoAA
+                \li No antialiasing is applied.
+            \row
+                \li SSAA
+                \li Supersample antialiasing is applied. The edges of geometry
+                    are supersampled, resulting in smoother silhouettes. This
+                    technique has no effect on the materials inside geometry.
+            \row
+                \li ProgressiveAA
+                \li Progressive antialiasing is applied. When the content of the
+                    scene has stopped moving, the camera is jiggled very slightly
+                    between frames, and the result of each new frame is blended
+                    with the previous frames. The more frames you accumulate,
+                    the better looking the result.
+        \endtable
+
+    The \uicontrol {Antialiasing quality} property sets the level of antialiasing
+    applied to the scene. Define the quality of antialiasing as \uicontrol Medium,
+    \uicontrol High, or \uicontrol {Very High}. The effect of the selected
+    \uicontrol {Antialiasing quality} depends on the selected
+    \uicontrol {Antialiasing mode}, as you can see from the table below.
+    In the \uicontrol SSAA mode the selected quality affects the supersampling
+    resolution, in \uicontrol MSAA it determines the number or samples per
+    pixel, and in \uicontrol ProgressiveAA it defines the number of frames for
+    final image.
+        \table
+            \header
+                \li Level of Antialiasing
+                \li Supersampling Resolution used in SSAA
+                \li Number of samples per pixel in MSAA
+                \li Number of frames for final image in ProgressiveAA
+            \row
+                \li Medium
+                \li 1.2x
+                \li 2
+                \li 2
+            \row
+                \li High
+                \li 1.5x
+                \li 4
+                \li 4
+            \row
+                \li Very High
+                \li 2.0x
+                \li 8
+                \li 8
+        \endtable
+
+    \note With \uicontrol {Antialiasing mode} set to \uicontrol NoAA,
+    \uicontrol {Antialiasing quality} does not affect antialiasing.
+
+    The \uicontrol {Temporal AA} property enables temporal antialiasing.
+    This means that the camera is jiggled very slightly between frames, and the
+    result of each new frame is blended with the previous frame.
+    \note Temporal antialiasing does not have an effect when the \uicontrol MSAA
+    mode is used.
+    \note When combined with \uicontrol ProgressiveAA mode, temporal antialising
+    is used for animations, and \uicontrol ProgressiveAA is used once
+    animations stop.
+
+    The \uicontrol {Temporal AA strength} property modifies the amount of
+    temporal movement in antialiasing. This property only has an effect when
+    the \uicontrol {Temporal AA} property is set to true.
+
+    \note In Qt 5, the antialiasing properties are located in
+    \uicontrol Properties > \uicontrol {Scene Environment}.
+
+    \section1 Applying Ambient Occlusion
 
     Ambient occlusion is a form of approximated global illumination that causes
-    non-directional self-shadowing where objects are close together.
+    non-directional self-shadowing where objects are close together. You can
+    define the \uicontrol Strength, \uicontrol Distance, \uicontrol Softness,
+    \uicontrol {Sample rate}, and \uicontrol Bias properties in the
+    \uicontrol {Ambient Occlusion} section of the \uicontrol Properties view.
 
-    You can set the strength of the shadows in the \uicontrol {AO strength}
-    field. A value of 100 causes full darkness shadows, while lower values
-    cause the shadowing to appear lighter. A value of 0 disables ambient
-    occlusion entirely, improving performance at a cost to the visual realism
-    of 3D objects rendered in the scene. All values other than 0 have the same
-    impact on performance.
+    \image studio-3d-scene-environment-ambient-occlusion.png "The Ambient Occlusion properties"
 
-    To specify roughly how far ambient occlusion shadows spread away from
-    objects, select the distance in \uicontrol {AO distance} field. Greater
-    distances cause increasing impact to performance.
+    You can set the strength of the shadows using the \uicontrol Strength
+    property, which defines the amount of ambient occlusion applied. A value of
+    100 causes full darkness shadows, while lower values cause the shadowing to
+    appear lighter. A value of 0 disables ambient occlusion entirely, thus
+    improving performance at a cost to the visual realism of 3D objects rendered
+    in the scene. All values other than 0 have the same impact on performance.
 
-    To prevent components from exhibiting ambient occlusion at close distances,
-    set the cutoff distance in the \uicontrol {AO bias} field. The higher the
-    value, the greater the distance that is required between objects before
-    ambient occlusion occurs.
+    The \uicontrol Distance property defines roughly how far the ambient occlusion
+    shadows spread away from objects. Greater distances cause increasing impact
+    to performance.
 
-    \note If you see ambient occlusion shadowing on objects where there should
-    be no shadowing, increase the value slightly to clip away close results.
-
-    To specify how smooth the edges of the ambient occlusion shading are, set
-    the softness in the \uicontrol {AO softness} field. To improve smoothness at
-    the risk of sometimes producing obvious patterned artifacts, you can scatter
-    the edges of the ambient occlusion shadow bands by selecting the
-    \uicontrol {AO dither} check box.
-
-    To specify the ambient occlusion quality, at the expense of performance,
-    select the number of shades of gray to use in the
-    \uicontrol {AO sample rate} field.
+    The \uicontrol Softness property specifies how smooth the edges of the
+    ambient occlusion shading are. The value set for the property must be
+    between 0.0 and 50.0. To improve smoothness at the risk of sometimes
+    producing obvious patterned artifacts, you can scatter the edges of the
+    ambient occlusion shadow bands by selecting the \uicontrol {Dither} check
+    box.
 
     \note Large distances between the clipping planes of your camera may cause
     problems with ambient occlusion. If you are seeing odd banding in ambient
     occlusion, try adjusting the value in the \uicontrol {Clip far} field in
     the \l{Cameras}{scene camera} properties.
 
-    \section1 Using Image-based Lighting
+    The \uicontrol {Sample rate} property specifies the number of shades of gray,
+    thus defining the quality of ambient occlusion at the expense of performance.
 
-    In the material properties, you can specify an image (preferably
-    a high-dynamic range image) to use to light the scene, either
-    instead of or in addition to \l{Lights}{scene lights}. In the
-    \uicontrol {Probe brightness} field, you can modify the amount of
-    light emitted by the light probe.
+    The \uicontrol Bias property defines a cutoff distance preventing objects
+    from exhibiting ambient occlusion at close distances. The higher the
+    value, the greater the distance required between objects before ambient
+    occlusion occurs.
+    \note If you see ambient occlusion shadowing on objects where there should
+    be no shadowing, increase the value slightly to clip away close results.
 
-    To take shortcuts to approximate the light contributes of the light
-    probe at the expense of quality, select the \uicontrol {Fast IBL}
-    check box.
+    \note In Qt 5, some the ambient occlusion properties are named slightly
+    differently: \uicontrol {AO strength}, \uicontrol {AO distance},
+    \uicontrol {AO softness}, \uicontrol {AO dither}, and \uicontrol {AO bias}.
 
-    To add darkness (black) to the bottom half of the environment, force
-    the lighting to come predominantly from the top of the image, and
-    remove specific reflections from the lower half, increase the value
-    of the \uicontrol {Probe horizon} field.
+    \section1 Setting the Light Probe
 
-    To specify the image source field of view when using a camera source as
-    the light probe, set the angle in the \uicontrol {Probe FOV} field.
+    In the \uicontrol {Light Probe} section of the \uicontrol Properties view,
+    you can set the \uicontrol Image, \uicontrol Exposure, \uicontrol Horizon,
+    and \uicontrol Orientation properties for image-based lighting.
+
+    \image studio-3d-scene-environment-light-probe.png "The Light Probe properties"
+
+    The \uicontrol Image property defines an image used to light the scene
+    instead of or in addition to standard lights. The image is preferably a
+    high-dynamic range image or a pre-generated cubemap. Pre-baking provides
+    significant performance improvements at run time because no time is spent on
+    filtering and mipmap generation. If the source is a .hdr or other image,
+    the GPU-based pre-processing happens at run time after loading the image
+    file, which can be potentially time consuming, in particular on embedded and
+    mobile hardware. Therefore, it is strongly recommended that applications
+    pre-process .hdr images at latest at build time, as described here.
+
+    \note In Qt 6, using a \uicontrol Texture component with \uicontrol Image >
+    \uicontrol Source is not supported in combination with this property.
+    Pre-filtering of all mip levels for dynamic Qt Quick content is typically not
+    reasonable in practice due to performance implications. In Qt 5, the
+    \uicontrol Image property is referred to as \uicontrol {Light probe}, which
+    defines a texture for overriding or setting an image based lighting texture
+    for use with the skybox of the scene.
+
+    The \uicontrol Exposure property modifies the amount of light emitted by the
+    light probe.
+
+    When defined with increasing values, the \uicontrol Horizon property adds
+    darkness (black) to the bottom half of the environment, thus forcing the
+    lighting to come predominantly from the top of the image (and removing
+    specific reflections from the lower half). This property is useful for
+    accounting for a ground plane that would have the effect of obscuring the
+    reflection of the light probe from the ground. This is necessary because
+    light probe contributions come directily from the image without consideration
+    for the content of the scene. You can set the value of the
+    \uicontrol Horizon property between 0.0 and 1.0. Using the default value of
+    the property applies the entire light probe without adjustment.
+    \note The \uicontrol Horizon property only affects materials lighting and
+    has no effect on the rendering of the sky box.
+    \note In Qt 5, the \uicontrol Horizon property is referred to as
+    \uicontrol {Probe horizon}.
+
+    The \uicontrol Orientation property defines the orientation of the light
+    probe. Orientation is defined in terms of euler angles in degrees over the
+    x, y, and z axes.
+
+    \section2 Additional Light Probe Properties in Qt 5
+
+    The \uicontrol {Probe Brightness} property modifies the amount of light
+    emitted by the light probe.
+
+    When the \uicontrol {Fast IBL} (Fast image-based lighting) property is
+    enabled, more shortcuts are taken to approximate the light contribution of
+    the light probe at the expense of quality.
+
+    The value of the \uicontrol {Probe FOV} property sets the angle of the
+    image source field of view when using a camera source as the IBL probe.
 */

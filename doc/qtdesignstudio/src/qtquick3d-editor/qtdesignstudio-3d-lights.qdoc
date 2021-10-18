@@ -33,7 +33,7 @@
     \title Lights
 
     Light components are the primary source of lighting in a \QDS scene.
-    As a secondary light source, you can use \l{Using Image-based Lighting}
+    As a secondary light source, you can use \l{Setting the Light Probe}
     {image-based lighting}.
 
     To add light components to your UI, drag-and-drop them from \l Library
