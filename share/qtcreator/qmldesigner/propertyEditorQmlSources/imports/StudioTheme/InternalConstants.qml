@@ -162,10 +162,17 @@ QtObject {
     readonly property string visibilityOff: "\u009D" // visibilityOff2
     readonly property string visibilityOn: "\u009E"
     readonly property string wildcard: "\u009F"
-    readonly property string zoomAll: "\u00A0"
-    readonly property string zoomIn: "\u00A1"
-    readonly property string zoomOut: "\u00A2"
-    readonly property string zoomSelection: "\u00A3"
+    readonly property string wizardsAutomotive: "\u00A0"
+    readonly property string wizardsDesktop: "\u00A1"
+    readonly property string wizardsGeneric: "\u00A2"
+    readonly property string wizardsMcuEmpty: "\u00A3"
+    readonly property string wizardsMcuGraph: "\u00A4"
+    readonly property string wizardsMobile: "\u00A5"
+    readonly property string wizardsUnknown: "\u00A6"
+    readonly property string zoomAll: "\u00A7"
+    readonly property string zoomIn: "\u00A8"
+    readonly property string zoomOut: "\u00A9"
+    readonly property string zoomSelection: "\u00AA"
 
     readonly property font iconFont: Qt.font({
                                                  "family": controlIcons.name,
