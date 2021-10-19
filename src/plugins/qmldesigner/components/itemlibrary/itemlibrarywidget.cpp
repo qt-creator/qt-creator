@@ -560,45 +560,31 @@ void ItemLibraryWidget::addImportForItem(const QString &importUrl)
 
 void ItemLibraryWidget::addResources(const QStringList &files)
 {
-    auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
 
     QTC_ASSERT(document, return);
 
-    QList<AddResourceHandler> handlers = QmlDesignerPlugin::instance()->viewManager().designerActionManager().addResourceHandler();
-
-    QMultiMap<QString, QString> map;
-    for (const AddResourceHandler &handler : handlers) {
-        map.insert(handler.category, handler.filter);
-    }
-
-    QMap<QString, QString> reverseMap;
-    for (const AddResourceHandler &handler : handlers) {
-        reverseMap.insert(handler.filter, handler.category);
-    }
-
-    QMap<QString, int> priorities;
-    for (const AddResourceHandler &handler : handlers) {
-        priorities.insert(handler.category, handler.piority);
-    }
-
-    QStringList sortedKeys = map.uniqueKeys();
-    Utils::sort(sortedKeys, [&priorities](const QString &first,
-                const QString &second){
-        return priorities.value(first) < priorities.value(second);
-    });
+    const QList<AddResourceHandler> handlers = QmlDesignerPlugin::instance()->viewManager()
+                                                   .designerActionManager().addResourceHandler();
 
     QStringList fileNames = files;
-    if (fileNames.isEmpty()) {
-        QStringList filters;
-
-        for (const QString &key : qAsConst(sortedKeys)) {
-            QString str = key + " (";
-            str.append(map.values(key).join(" "));
-            str.append(")");
-            filters.append(str);
+    if (fileNames.isEmpty()) { // if no files, show the "add assets" dialog
+        QMultiMap<QString, QString> map;
+        QHash<QString, int> priorities;
+        for (const AddResourceHandler &handler : handlers) {
+            map.insert(handler.category, handler.filter);
+            priorities.insert(handler.category, handler.piority);
         }
 
-        filters.prepend(tr("All Files (%1)").arg(map.values().join(" ")));
+        QStringList sortedKeys = map.uniqueKeys();
+        Utils::sort(sortedKeys, [&priorities](const QString &first, const QString &second) {
+            return priorities.value(first) < priorities.value(second);
+        });
+
+        QStringList filters { tr("All Files (%1)").arg(map.values().join(' ')) };
+        QString filterTemplate = "%1 (%2)";
+        for (const QString &key : qAsConst(sortedKeys))
+            filters.append(filterTemplate.arg(key, map.values(key).join(' ')));
 
         static QString lastDir;
         const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
@@ -616,24 +602,27 @@ void ItemLibraryWidget::addResources(const QStringList &files)
         }
     }
 
-    QMultiMap<QString, QString> partitionedFileNames;
+    QHash<QString, QString> filterToCategory;
+    QHash<QString, AddResourceOperation> categoryToOperation;
+    for (const AddResourceHandler &handler : handlers) {
+        filterToCategory.insert(handler.filter, handler.category);
+        categoryToOperation.insert(handler.category, handler.operation);
+    }
+
+    QMultiMap<QString, QString> categoryFileNames; // filenames grouped by category
 
     for (const QString &fileName : qAsConst(fileNames)) {
         const QString suffix = "*." + QFileInfo(fileName).suffix().toLower();
-        const QString category = reverseMap.value(suffix);
-        partitionedFileNames.insert(category, fileName);
+        const QString category = filterToCategory.value(suffix);
+        categoryFileNames.insert(category, fileName);
     }
 
-    for (const QString &category : partitionedFileNames.uniqueKeys()) {
-         for (const AddResourceHandler &handler : handlers) {
-             QStringList fileNames = partitionedFileNames.values(category);
-             if (handler.category == category) {
-                 QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
-                 if (!handler.operation(fileNames, document->fileName().parentDir().toString()))
-                     Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"), tr("Could not add %1 to project.").arg(fileNames.join(" ")));
-                 break;
-             }
-         }
+    for (const QString &category : categoryFileNames.uniqueKeys()) {
+        QStringList fileNames = categoryFileNames.values(category);
+        AddResourceOperation operation = categoryToOperation.value(category);
+        QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
+        if (!operation(fileNames, document->fileName().parentDir().toString()))
+            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"), tr("Could not add %1 to project.").arg(fileNames.join(' ')));
     }
 }
 
