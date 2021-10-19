@@ -717,4 +717,13 @@ public:
 
 using Types = std::vector<Type>;
 
+class ProjectData
+{
+public:
+    ModuleId extraModuleId;
+    SourceId sourceId;
+};
+
+using ProjectDatas = std::vector<ProjectData>;
+
 } // namespace QmlDesigner::Storage

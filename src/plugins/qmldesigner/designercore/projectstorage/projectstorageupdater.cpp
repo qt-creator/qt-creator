@@ -70,10 +70,10 @@ void ProjectUpdater::update()
 
             SourceContextId directoryId = m_pathCache.sourceContextId(qmlDirSourceId);
 
-            ModuleId moduleId = m_projectStorage.moduleId(Utils::PathString{parser.typeNamespace()});
+            Utils::PathString moduleName{parser.typeNamespace()};
+            ModuleId moduleId = m_projectStorage.moduleId(moduleName);
 
-            parseTypeInfos(
-                parser.typeInfos(), directoryId, moduleId, imports, types, sourceIds, fileStatuses);
+            parseTypeInfos(parser.typeInfos(), directoryId, imports, types, sourceIds, fileStatuses);
             parseQmlComponents(createComponentReferences(parser.components()),
                                directoryId,
                                moduleId,
@@ -84,13 +84,8 @@ void ProjectUpdater::update()
             break;
         }
         case FileState::NotChanged: {
-            SourceIds qmltypesSourceIds = m_projectStorage.fetchSourceDependencieIds(qmlDirSourceId);
-            parseTypeInfos(ModuleId{&qmlDirSourceId},
-                           qmltypesSourceIds,
-                           imports,
-                           types,
-                           sourceIds,
-                           fileStatuses);
+            auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(qmlDirSourceId);
+            parseTypeInfos(qmlProjectDatas, imports, types, sourceIds, fileStatuses);
             break;
         }
         case FileState::NotExists: {
@@ -110,7 +105,6 @@ void ProjectUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) {}
 
 void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
                                     SourceContextId directoryId,
-                                    ModuleId moduleId,
                                     Storage::Imports &imports,
                                     Storage::Types &types,
                                     SourceIds &sourceIds,
@@ -122,36 +116,36 @@ void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
         SourceId sourceId = m_pathCache.sourceId(directoryId, Utils::SmallString{typeInfo});
         QString qmltypesPath = directory + "/" + typeInfo;
 
-        parseTypeInfo(sourceId, moduleId, qmltypesPath, imports, types, sourceIds, fileStatuses);
+        Storage::ProjectData projectData{ModuleId{}, sourceId};
+
+        parseTypeInfo(projectData, qmltypesPath, imports, types, sourceIds, fileStatuses);
     }
 }
 
-void ProjectUpdater::parseTypeInfos(ModuleId moduleId,
-                                    const SourceIds &qmltypesSourceIds,
+void ProjectUpdater::parseTypeInfos(const Storage::ProjectDatas &projectDatas,
                                     Storage::Imports &imports,
                                     Storage::Types &types,
                                     SourceIds &sourceIds,
                                     FileStatuses &fileStatuses)
 {
-    for (SourceId sourceId : qmltypesSourceIds) {
-        QString qmltypesPath = m_pathCache.sourcePath(sourceId).toQString();
+    for (const Storage::ProjectData &projectData : projectDatas) {
+        QString qmltypesPath = m_pathCache.sourcePath(projectData.sourceId).toQString();
 
-        parseTypeInfo(sourceId, moduleId, qmltypesPath, imports, types, sourceIds, fileStatuses);
+        parseTypeInfo(projectData, qmltypesPath, imports, types, sourceIds, fileStatuses);
     }
 }
 
-void ProjectUpdater::parseTypeInfo(SourceId sourceId,
-                                   ModuleId moduleId,
+void ProjectUpdater::parseTypeInfo(const Storage::ProjectData &projectData,
                                    const QString &qmltypesPath,
                                    Storage::Imports &imports,
                                    Storage::Types &types,
                                    SourceIds &sourceIds,
                                    FileStatuses &fileStatuses)
 {
-    if (fileState(sourceId, fileStatuses) == FileState::Changed) {
-        sourceIds.push_back(sourceId);
+    if (fileState(projectData.sourceId, fileStatuses) == FileState::Changed) {
+        sourceIds.push_back(projectData.sourceId);
         const auto content = m_fileSystem.contentAsQString(qmltypesPath);
-        m_qmlTypesParser.parse(content, imports, types, sourceId, moduleId);
+        m_qmlTypesParser.parse(content, imports, types, projectData);
     }
 }
 

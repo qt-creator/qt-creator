@@ -43,7 +43,6 @@ namespace QmlDesigner {
 namespace QmlDom = QQmlJS::Dom;
 
 namespace {
-void addType(const QQmlJSScope::Ptr &object, Storage::Types &types) {}
 
 void appendImports(Storage::Imports &imports,
                    const QString &dependency,
@@ -55,8 +54,6 @@ void appendImports(Storage::Imports &imports,
     });
 
     Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
-    ModuleId moduleId = storage.moduleId(moduleName);
-
     moduleName.append("-cppnative");
     ModuleId cppModuleId = storage.moduleId(moduleName);
 
@@ -84,7 +81,6 @@ void appendImports(Storage::Imports &imports,
             version.minor.value = QStringView(minorVersionFound, minorVersionEnd).toInt();
     }
 
-    imports.emplace_back(moduleId, version, sourceId);
     imports.emplace_back(cppModuleId, version, sourceId);
 }
 
@@ -97,7 +93,6 @@ void addImports(Storage::Imports &imports,
         appendImports(imports, dependency, sourceId, storage);
 
     imports.emplace_back(storage.moduleId("QML"), Storage::Version{}, sourceId);
-    imports.emplace_back(storage.moduleId("QtQml"), Storage::Version{}, sourceId);
     imports.emplace_back(storage.moduleId("QtQml-cppnative"), Storage::Version{}, sourceId);
 }
 
@@ -122,16 +117,21 @@ Storage::Version createVersion(QTypeRevision qmlVersion)
     return Storage::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
 }
 
-Storage::ExportedTypes createExports(ModuleId moduleId, const QList<QQmlJSScope::Export> &qmlExports)
+Storage::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
+                                     const QQmlJSScope &component,
+                                     QmlTypesParser::ProjectStorage &storage,
+                                     ModuleId cppModuleId)
 {
     Storage::ExportedTypes exportedTypes;
     exportedTypes.reserve(Utils::usize(qmlExports));
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
-        exportedTypes.emplace_back(moduleId,
+        exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()}),
                                    Utils::SmallString{qmlExport.type()},
                                    createVersion(qmlExport.version()));
     }
+
+    exportedTypes.emplace_back(cppModuleId, Utils::SmallString{component.internalName()});
 
     return exportedTypes;
 }
@@ -257,14 +257,18 @@ Storage::EnumerationDeclarations createEnumeration(const QHash<QString, QQmlJSMe
     return enumerationDeclarations;
 }
 
-void addType(Storage::Types &types, SourceId sourceId, ModuleId moduleId, const QQmlJSScope &component)
+void addType(Storage::Types &types,
+             SourceId sourceId,
+             ModuleId cppModuleId,
+             const QQmlJSScope &component,
+             QmlTypesParser::ProjectStorage &storage)
 {
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(component.ownMethods());
     types.emplace_back(Utils::SmallString{component.internalName()},
                        Storage::NativeType{Utils::SmallString{component.baseTypeName()}},
                        createTypeAccessSemantics(component.accessSemantics()),
                        sourceId,
-                       createExports(moduleId, component.exports()),
+                       createExports(component.exports(), component, storage, cppModuleId),
                        createProperties(component.ownProperties()),
                        std::move(functionsDeclarations),
                        std::move(signalDeclarations),
@@ -272,14 +276,14 @@ void addType(Storage::Types &types, SourceId sourceId, ModuleId moduleId, const 
 }
 
 void addTypes(Storage::Types &types,
-              SourceId sourceId,
-              ModuleId moduleId,
-              const QHash<QString, QQmlJSScope::Ptr> &objects)
+              const Storage::ProjectData &projectData,
+              const QHash<QString, QQmlJSScope::Ptr> &objects,
+              QmlTypesParser::ProjectStorage &storage)
 {
     types.reserve(Utils::usize(objects) + types.size());
 
     for (const auto &object : objects)
-        addType(types, sourceId, moduleId, *object.get());
+        addType(types, projectData.sourceId, projectData.extraModuleId, *object.get(), storage);
 }
 
 } // namespace
@@ -287,8 +291,7 @@ void addTypes(Storage::Types &types,
 void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Imports &imports,
                            Storage::Types &types,
-                           SourceId sourceId,
-                           ModuleId moduleId)
+                           const Storage::ProjectData &projectData)
 {
     QQmlJSTypeDescriptionReader reader({}, sourceContent);
     QHash<QString, QQmlJSScope::Ptr> components;
@@ -297,8 +300,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
     if (!isValid)
         throw CannotParseQmlTypesFile{};
 
-    addImports(imports, sourceId, dependencies, m_storage);
-    addTypes(types, sourceId, moduleId, components);
+    addImports(imports, projectData.sourceId, dependencies, m_storage);
+    addTypes(types, projectData, components, m_storage);
 }
 
 } // namespace QmlDesigner

@@ -51,8 +51,8 @@ public:
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::SourceIds,
-                fetchSourceDependencieIds,
+    MOCK_METHOD(QmlDesigner::Storage::ProjectDatas,
+                fetchProjectDatas,
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 

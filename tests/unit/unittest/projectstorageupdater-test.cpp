@@ -126,8 +126,10 @@ public:
         ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
             .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 2, 421}));
 
-        ON_CALL(projectStorageMock, fetchSourceDependencieIds(Eq(qmlDirPathSourceId)))
-            .WillByDefault(Return(QmlDesigner::SourceIds{qmltypesPathSourceId, qmltypes2PathSourceId}));
+        ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+            .WillByDefault(
+                Return(QmlDesigner::Storage::ProjectDatas{{ModuleId{}, qmltypesPathSourceId},
+                                                          {ModuleId{}, qmltypes2PathSourceId}}));
 
         QString qmldir{"module Example\ntypeinfo example.qmltypes\n"};
         ON_CALL(projectManagerMock, qtQmlDirs()).WillByDefault(Return(QStringList{"/path/qmldir"}));
@@ -300,8 +302,8 @@ TEST_F(ProjectStorageUpdater, ParseQmlTypes)
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example2.qmltypes"))))
         .WillByDefault(Return(qmltypes2));
 
-    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, _));
-    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes2, _, _, _, _));
+    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _));
+    EXPECT_CALL(qmlTypesParserMock, parse(qmltypes2, _, _, _));
 
     updater.update();
 }
@@ -328,8 +330,8 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
     QString qmltypes{"Module {\ndependencies: []}"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
-    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, _))
-        .WillByDefault([&](auto, auto &imports, auto &types, auto, auto) {
+    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
+        .WillByDefault([&](auto, auto &imports, auto &types, auto) {
             types.push_back(objectType);
             imports.push_back(import);
         });
@@ -350,9 +352,8 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
     QString qmltypes{"Module {\ndependencies: []}"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
-    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _, _))
-        .WillByDefault(
-            [&](auto, auto &imports, auto &types, auto, auto) { types.push_back(objectType); });
+    ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
+        .WillByDefault([&](auto, auto &, auto &types, auto) { types.push_back(objectType); });
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypesPathSourceId)))
         .WillByDefault(Return(FileStatus{qmltypesPathSourceId, 2, 421}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypes2PathSourceId)))

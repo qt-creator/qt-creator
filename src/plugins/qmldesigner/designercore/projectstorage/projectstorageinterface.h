@@ -42,7 +42,7 @@ public:
     virtual ModuleId moduleId(Utils::SmallStringView name) = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
-    virtual SourceIds fetchSourceDependencieIds(SourceId sourceId) const = 0;
+    virtual Storage::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
 
 protected:
     ~ProjectStorageInterface() = default;

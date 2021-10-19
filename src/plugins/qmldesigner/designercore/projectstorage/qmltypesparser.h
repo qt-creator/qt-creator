@@ -54,8 +54,7 @@ public:
     void parse(const QString &sourceContent,
                Storage::Imports &imports,
                Storage::Types &types,
-               SourceId sourceId,
-               ModuleId moduleId) override;
+               const Storage::ProjectData &projectData) override;
 
 private:
     PathCache &m_pathCache;

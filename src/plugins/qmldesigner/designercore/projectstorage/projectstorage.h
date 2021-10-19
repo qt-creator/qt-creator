@@ -308,7 +308,10 @@ public:
             &sourceId);
     }
 
-    SourceIds fetchSourceDependencieIds(SourceId sourceId) const override { return {}; }
+    Storage::ProjectDatas fetchProjectDatas(SourceId sourceId) const override
+    {
+        return Storage::ProjectDatas{};
+    }
 
 private:
     class ModuleStorageAdapter

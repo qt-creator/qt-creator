@@ -173,6 +173,8 @@ protected:
     Storage::Imports imports;
     Storage::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
+    QmlDesigner::Storage::ProjectData projectData{storage.moduleId("QtQml-cppnative"),
+                                                  qmltypesFileSourceId};
     SourceContextId qmltypesFileSourceContextId{sourcePathCache.sourceContextId(qmltypesFileSourceId)};
     ModuleId directoryModuleId{storage.moduleId("path/to/")};
 };
@@ -184,21 +186,17 @@ TEST_F(QmlTypesParser, Imports)
                         dependencies:
                           ["QtQuick 2.15", "QtQuick.Window 2.1", "QtFoo 6"]})"};
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(
         imports,
         UnorderedElementsAre(
             IsImport(storage.moduleId("QML"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQml"), Storage::Version{}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQml-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick"), Storage::Version{2, 15}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{2, 15}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick.Window"), Storage::Version{2, 1}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQuick.Window-cppnative"),
                      Storage::Version{2, 1},
                      qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtFoo"), Storage::Version{6}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{6}, qmltypesFileSourceId)));
 }
 
@@ -210,7 +208,7 @@ TEST_F(QmlTypesParser, Types)
                         Component { name: "QQmlComponent"
                                     prototype: "QObject"}})"};
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
                 UnorderedElementsAre(IsType("QObject",
@@ -228,17 +226,20 @@ TEST_F(QmlTypesParser, ExportedTypes)
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
                         Component { name: "QObject"
-                          exports: ["QtQml/QtObject 1.0", "QtQml/QtObject 2.1"]
+                          exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
                       }})"};
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
+    ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml-cppnative");
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(
-        types,
-        ElementsAre(
-            Field(&Storage::Type::exportedTypes,
-                  ElementsAre(IsExportedType(directoryModuleId, "QtObject", Storage::Version{1, 0}),
-                              IsExportedType(directoryModuleId, "QtObject", Storage::Version{2, 1})))));
+    ASSERT_THAT(types,
+                ElementsAre(Field(
+                    &Storage::Type::exportedTypes,
+                    ElementsAre(IsExportedType(qmlModuleId, "QtObject", Storage::Version{1, 0}),
+                                IsExportedType(qtQmlModuleId, "QtObject", Storage::Version{2, 1}),
+                                IsExportedType(qtQmlNativeModuleId, "QObject", Storage::Version{})))));
 }
 
 TEST_F(QmlTypesParser, Properties)
@@ -252,7 +253,7 @@ TEST_F(QmlTypesParser, Properties)
                           Property { name: "targets"; type: "QQuickItem"; isList: true; isReadonly: true; isPointer: true }
                       }})"};
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
                 ElementsAre(Field(
@@ -296,7 +297,7 @@ TEST_F(QmlTypesParser, Functions)
                           }
                       }})"};
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
                 ElementsAre(
@@ -337,7 +338,7 @@ TEST_F(QmlTypesParser, Signals)
                           }
                       }})"};
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
                 ElementsAre(Field(&Storage::Type::signalDeclarations,
@@ -375,7 +376,7 @@ TEST_F(QmlTypesParser, Enumerations)
                           }
                       }})"};
 
-    parser.parse(source, imports, types, qmltypesFileSourceId, directoryModuleId);
+    parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types,
                 ElementsAre(
