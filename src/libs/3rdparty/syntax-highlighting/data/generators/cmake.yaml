@@ -1,3 +1,5 @@
+version: 34
+
 global-properties:
     - ALLOW_DUPLICATE_CUSTOM_TARGETS
     - AUTOGEN_SOURCE_GROUP
@@ -56,6 +58,7 @@ directory-properties:
     - DEFINITIONS
     - EXCLUDE_FROM_ALL
     - IMPLICIT_DEPENDS_INCLUDE_TRANSFORM
+    - IMPORTED_TARGETS                                      # Since 3.21
     - INCLUDE_DIRECTORIES
     - INCLUDE_REGULAR_EXPRESSION
     - INTERPROCEDURAL_OPTIMIZATION_<CONFIG>
@@ -172,6 +175,7 @@ target-properties:
     - EXCLUDE_FROM_ALL
     - EXCLUDE_FROM_DEFAULT_BUILD_<CONFIG>
     - EXCLUDE_FROM_DEFAULT_BUILD
+    - EXPORT_COMPILE_COMMANDS                               # Since 3.20
     - EXPORT_NAME
     - EXPORT_PROPERTIES                                     # Since 3.12
     - FOLDER
@@ -243,6 +247,7 @@ target-properties:
     - <LANG>_CPPCHECK                                       # Since 3.10
     - <LANG>_CPPLINT
     - <LANG>_INCLUDE_WHAT_YOU_USE
+    - <LANG>_LINKER_LAUNCHER                                # Sine 3.21
     - <LANG>_VISIBILITY_PRESET
     - LIBRARY_OUTPUT_DIRECTORY_<CONFIG>
     - LIBRARY_OUTPUT_DIRECTORY
@@ -284,7 +289,6 @@ target-properties:
     - OBJCXX_STANDARD                                       # Since 3.16
     - OBJCXX_STANDARD_REQUIRED                              # Since 3.16
     - OPTIMIZE_DEPENDENCIES                                 # Since 3.19
-    - OBJC_STANDARD
     - OSX_ARCHITECTURES_<CONFIG>
     - OSX_ARCHITECTURES
     - OSX_CURRENT_VERSION                                   # Since 3.17
@@ -329,6 +333,7 @@ target-properties:
     - UNITY_BUILD_CODE_AFTER_INCLUDE                        # Since 3.16
     - UNITY_BUILD_CODE_BEFORE_INCLUDE                       # Since 3.16
     - UNITY_BUILD_MODE                                      # Since 3.18
+    - UNITY_BUILD_UNIQUE_ID                                 # Since 3.20
     - VERSION
     - VISIBILITY_INLINES_HIDDEN
     - VS_CONFIGURATION_TYPE
@@ -372,6 +377,10 @@ target-properties:
     - WIN32_EXECUTABLE
     - WINDOWS_EXPORT_ALL_SYMBOLS
     - XCODE_ATTRIBUTE_<an-attribute>
+    - XCODE_EMBED_<type>_CODE_SIGN_ON_COPY                  # Since 3.20
+    - XCODE_EMBED_<type>_PATH                               # Since 3.20
+    - XCODE_EMBED_<type>_REMOVE_HEADERS_ON_COPY             # Since 3.20
+    - XCODE_EMBED_<type>                                    # Since 3.20
     - XCODE_EXPLICIT_FILE_TYPE
     - XCODE_GENERATE_SCHEME                                 # Since 3.15
     - XCODE_LINK_BUILD_PHASE_MODE                           # Since 3.19
@@ -572,6 +581,7 @@ generator-expressions:
     - TARGET_BUNDLE_DIR
     - TARGET_BUNDLE_CONTENT_DIR
     - TARGET_PROPERTY
+    - TARGET_RUNTIME_DLLS                                   # Since 3.21
     - INSTALL_PREFIX
     # Output-Related Expressions
     - TARGET_NAME
@@ -581,6 +591,8 @@ generator-expressions:
     - MAKE_C_IDENTIFIER
     - TARGET_OBJECTS
     - SHELL_PATH
+    - OUTPUT_CONFIG                                         # Since 3.20
+    - COMMAND_CONFIG                                        # Since 3.20
 
 variables:
     # Variables that Provide Information
@@ -687,6 +699,7 @@ variables:
     - CMAKE_XCODE_PLATFORM_TOOLSET
     - <PROJECT-NAME>_BINARY_DIR
     - <PROJECT-NAME>_DESCRIPTION                            # Since 3.12
+    - <PROJECT-NAME>_IS_TOP_LEVEL                           # Since 3.21
     - <PROJECT-NAME>_HOMEPAGE_URL                           # Since 3.12
     - <PROJECT-NAME>_SOURCE_DIR
     - <PROJECT-NAME>_VERSION
@@ -696,6 +709,7 @@ variables:
     - <PROJECT-NAME>_VERSION_TWEAK
     - PROJECT_BINARY_DIR
     - PROJECT_DESCRIPTION                                   # Since 3.9
+    - PROJECT_IS_TOP_LEVEL                                  # Since 3.21
     - PROJECT_HOMEPAGE_URL                                  # Since 3.12
     - PROJECT_NAME
     - PROJECT_SOURCE_DIR
@@ -819,6 +833,7 @@ variables:
     - ANDROID
     - APPLE
     - BORLAND
+    - CMAKE_ANDROID_NDK_VERSION                             # Since 3.20
     - CMAKE_CL_64
     - CMAKE_COMPILER_2005
     - CMAKE_HOST_APPLE
@@ -949,6 +964,9 @@ variables:
     - CMAKE_<LANG>_CPPCHECK                                 # Since 3.10
     - CMAKE_<LANG>_CPPLINT
     - CMAKE_<LANG>_INCLUDE_WHAT_YOU_USE
+    - CMAKE_<LANG>_LINKER_LAUNCHER                          # Sine 3.21
+    - CMAKE_<LANG>_LINK_LIBRARY_FILE_FLAG                   # Sine 3.16
+    - CMAKE_<LANG>_LINK_LIBRARY_FLAG                        # Sine 3.16
     - CMAKE_<LANG>_VISIBILITY_PRESET
     - CMAKE_LIBRARY_OUTPUT_DIRECTORY
     - CMAKE_LIBRARY_OUTPUT_DIRECTORY_<CONFIG>
@@ -1046,6 +1064,7 @@ variables:
     - CMAKE_<LANG>_ARCHIVE_APPEND
     - CMAKE_<LANG>_ARCHIVE_CREATE
     - CMAKE_<LANG>_ARCHIVE_FINISH
+    - CMAKE_<LANG>_BYTE_ORDER                               # Since 3.20
     - CMAKE_<LANG>_COMPILER
     - CMAKE_<LANG>_COMPILER_EXTERNAL_TOOLCHAIN
     - CMAKE_<LANG>_COMPILER_ID
@@ -1173,6 +1192,7 @@ variables:
     # Variables for CPack
     - CPACK_ABSOLUTE_DESTINATION_FILES
     - CPACK_COMPONENT_INCLUDE_TOPLEVEL_DIRECTORY
+    - CPACK_CUSTOM_INSTALL_VARIABLES                        # Since 3.21
     - CPACK_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION
     - CPACK_INCLUDE_TOPLEVEL_DIRECTORY
     - CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS           # Since 3.11
@@ -1182,32 +1202,57 @@ variables:
     - CPACK_WARN_ON_ABSOLUTE_INSTALL_DESTINATION
     # Variables for `find_package()`
     - PACKAGE_FIND_NAME
-    - PACKAGE_FIND_VERSION
-    - PACKAGE_FIND_VERSION_MAJOR
-    - PACKAGE_FIND_VERSION_MINOR
-    - PACKAGE_FIND_VERSION_PATCH
-    - PACKAGE_FIND_VERSION_TWEAK
+    # NOTE <SMTH>_VERSION and components already defined above, so skipped here
     - PACKAGE_FIND_VERSION_COUNT
+    - PACKAGE_FIND_VERSION_RANGE
+    - PACKAGE_FIND_VERSION_RANGE_MIN
+    - PACKAGE_FIND_VERSION_RANGE_MAX
+    - PACKAGE_FIND_VERSION_MIN
+    - PACKAGE_FIND_VERSION_MIN_MAJOR
+    - PACKAGE_FIND_VERSION_MIN_MINOR
+    - PACKAGE_FIND_VERSION_MIN_PATCH
+    - PACKAGE_FIND_VERSION_MIN_TWEAK
+    - PACKAGE_FIND_VERSION_MIN_COUNT
+    - PACKAGE_FIND_VERSION_MAX
+    - PACKAGE_FIND_VERSION_MAX_MAJOR
+    - PACKAGE_FIND_VERSION_MAX_MINOR
+    - PACKAGE_FIND_VERSION_MAX_PATCH
+    - PACKAGE_FIND_VERSION_MAX_TWEAK
+    - PACKAGE_FIND_VERSION_MAX_COUNT
+    - PACKAGE_FIND_VERSION_COMPLETE
     - PACKAGE_VERSION
     - PACKAGE_VERSION_EXACT
     - PACKAGE_VERSION_COMPATIBLE
     - PACKAGE_VERSION_UNSUITABLE
-    # NOTE <SMTH>_VERSION and components already defined above, so skipped here
+    # Package File Interface Variables
     - <package>_FOUND
-    - <package>_VERSION_COUNT
     - <package>_FIND_REQUIRED
     - <package>_FIND_QUIETLY
-    - <package>_FIND_VERSION
-    - <package>_FIND_VERSION_MAJOR
-    - <package>_FIND_VERSION_MINOR
-    - <package>_FIND_VERSION_PATCH
-    - <package>_FIND_VERSION_TWEAK
-    - <package>_FIND_VERSION_COUNT
-    - <package>_FIND_VERSION_EXACT
-    - <package>_FIND_COMPONENTS
-    - <package>_FIND_REQUIRED_<c>
-    - <package>_CONSIDERED_CONFIGS
-    - <package>_CONSIDERED_VERSIONS
+    - <package>_VERSION_COUNT
+    # NOTE <SMTH>_VERSION and components already defined above, so skipped here
+    - <PackageName>_FIND_VERSION_COUNT
+    - <PackageName>_FIND_VERSION_EXACT
+    - <PackageName>_FIND_COMPONENTS
+    - <PackageName>_FIND_REQUIRED_<c>
+    - <PackageName>_FIND_VERSION_RANGE
+    - <PackageName>_FIND_VERSION_RANGE_MIN
+    - <PackageName>_FIND_VERSION_RANGE_MAX
+    - <PackageName>_FIND_VERSION_MIN
+    - <PackageName>_FIND_VERSION_MIN_MAJOR
+    - <PackageName>_FIND_VERSION_MIN_MINOR
+    - <PackageName>_FIND_VERSION_MIN_PATCH
+    - <PackageName>_FIND_VERSION_MIN_TWEAK
+    - <PackageName>_FIND_VERSION_MIN_COUNT
+    - <PackageName>_FIND_VERSION_MAX
+    - <PackageName>_FIND_VERSION_MAX_MAJOR
+    - <PackageName>_FIND_VERSION_MAX_MINOR
+    - <PackageName>_FIND_VERSION_MAX_PATCH
+    - <PackageName>_FIND_VERSION_MAX_TWEAK
+    - <PackageName>_FIND_VERSION_MAX_COUNT
+    - <PackageName>_FIND_VERSION_COMPLETE
+    - <PackageName>_CONFIG
+    - <PackageName>_CONSIDERED_CONFIGS
+    - <PackageName>_CONSIDERED_VERSIONS
     - <PackageName>_ROOT                                    # Since 3.12
     # Other standard variables/patterns
     # - `try_run`
@@ -1220,6 +1265,10 @@ variables:
     # - `cmake_parse_arguments`
     - <pfx>_UNPARSED_ARGUMENTS
     - <pfx>_KEYWORDS_MISSING_VALUES
+    # Variables that control `file(GET_RUNTIME_DEPENDENCIES)` behavior
+    - CMAKE_GET_RUNTIME_DEPENDENCIES_PLATFORM
+    - CMAKE_GET_RUNTIME_DEPENDENCIES_TOOL
+    - CMAKE_GET_RUNTIME_DEPENDENCIES_COMMAND
     # Well known CMake's official module's variables
     # - CheckCompilerFlag
     # - CheckCCompilerFlag
@@ -1327,6 +1376,7 @@ variables:
     - CPACK_DEBIAN_PACKAGE_HOMEPAGE
     - CPACK_DEBIAN_PACKAGE_SHLIBDEPS
     - CPACK_DEBIAN_<COMPONENT>_PACKAGE_SHLIBDEPS
+    - CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS           # Since 3.20
     - CPACK_DEBIAN_PACKAGE_DEBUG
     - CPACK_DEBIAN_PACKAGE_PREDEPENDS
     - CPACK_DEBIAN_<COMPONENT>_PACKAGE_PREDEPENDS
@@ -1364,6 +1414,7 @@ variables:
     - CPACK_DMG_SLA_DIR
     - CPACK_DMG_SLA_LANGUAGES
     - CPACK_DMG_<component>_FILE_NAME                       # Since 3.17
+    - CPACK_DMG_FILESYSTEM                                  # Since 3.21
     - CPACK_COMMAND_HDIUTIL
     - CPACK_COMMAND_SETFILE
     - CPACK_COMMAND_REZ
@@ -1389,6 +1440,7 @@ variables:
     - CPACK_IFW_PACKAGE_STYLE_SHEET                         # Since 3.15
     - CPACK_IFW_PACKAGE_WIZARD_DEFAULT_WIDTH
     - CPACK_IFW_PACKAGE_WIZARD_DEFAULT_HEIGHT
+    - CPACK_IFW_PACKAGE_WIZARD_SHOW_PAGE_LIST               # Since 3.20
     - CPACK_IFW_PACKAGE_TITLE_COLOR
     - CPACK_IFW_PACKAGE_START_MENU_DIRECTORY
     - CPACK_IFW_TARGET_DIRECTORY
@@ -1443,6 +1495,9 @@ variables:
     - CPACK_NSIS_FINISH_TITLE_3LINES                        # Since 3.17
     - CPACK_NSIS_MUI_HEADERIMAGE                            # Since 3.17
     - CPACK_NSIS_MANIFEST_DPI_AWARE                         # Since 3.18
+    - CPACK_NSIS_BRANDING_TEXT                              # Since 3.20
+    - CPACK_NSIS_BRANDING_TEXT_TRIM_POSITION                # Since 3.20
+    - CPACK_NSIS_EXECUTABLE                                 # Since 3.21
     # - CPackNuGet (since 3.12)
     - CPACK_NUGET_COMPONENT_INSTALL
     - CPACK_NUGET_PACKAGE_NAME
@@ -1461,14 +1516,22 @@ variables:
     - CPACK_NUGET_<compName>_PACKAGE_HOMEPAGE_URL
     - CPACK_NUGET_PACKAGE_LICENSEURL
     - CPACK_NUGET_<compName>_PACKAGE_LICENSEURL
+    - CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION                # Since 3.20
+    - CPACK_NUGET_<compName>_PACKAGE_LICENSE_EXPRESSION     # Since 3.20
+    - CPACK_NUGET_PACKAGE_LICENSE_FILE_NAME                 # Since 3.20
+    - CPACK_NUGET_<compName>_PACKAGE_LICENSE_FILE_NAME      # Since 3.20
     - CPACK_NUGET_PACKAGE_ICONURL
     - CPACK_NUGET_<compName>_PACKAGE_ICONURL
+    - CPACK_NUGET_PACKAGE_ICON                              # Since 3.20
+    - CPACK_NUGET_<compName>_PACKAGE_ICON                   # Since 3.20
     - CPACK_NUGET_PACKAGE_DESCRIPTION_SUMMARY
     - CPACK_NUGET_<compName>_PACKAGE_DESCRIPTION_SUMMARY
     - CPACK_NUGET_PACKAGE_RELEASE_NOTES
     - CPACK_NUGET_<compName>_PACKAGE_RELEASE_NOTES
     - CPACK_NUGET_PACKAGE_COPYRIGHT
     - CPACK_NUGET_<compName>_PACKAGE_COPYRIGHT
+    - CPACK_NUGET_PACKAGE_LANGUAGE                          # Since 3.20
+    - CPACK_NUGET_<compName>_PACKAGE_LANGUAGE               # Since 3.20
     - CPACK_NUGET_PACKAGE_TAGS
     - CPACK_NUGET_<compName>_PACKAGE_TAGS
     - CPACK_NUGET_PACKAGE_DEPENDENCIES
@@ -1617,6 +1680,7 @@ variables:
     - CPACK_PACKAGE_EXECUTABLES
     - CPACK_STRIP_FILES
     - CPACK_VERBATIM_VARIABLES
+    - CPACK_THREADS                                         # Since 3.20
     - CPACK_SOURCE_PACKAGE_FILE_NAME
     - CPACK_SOURCE_STRIP_FILES
     - CPACK_SOURCE_GENERATOR
@@ -1754,12 +1818,19 @@ variables:
     - CMAKE_NO_ANSI_STRING_STREAM
     # - TestForSTDNamespace
     - CMAKE_NO_STD_NAMESPACE
+    # - UseJava
+    - CMAKE_JAVA_COMPILE_FLAGS
+    - CMAKE_JAVA_INCLUDE_PATH
+    - CMAKE_JNI_TARGET
+    - CMAKE_JAR_CLASSES_PREFIX
     # - UseSWIG
+    - UseSWIG_MODULE_VERSION                                # Since 3.12
     - CMAKE_SWIG_FLAGS
     - CMAKE_SWIG_OUTDIR
     - SWIG_OUTFILE_DIR
     - SWIG_MODULE_<name>_EXTRA_DEPS
     - SWIG_SOURCE_FILE_EXTENSIONS                           # Since 3.14
+    - SWIG_USE_SWIG_DEPENDENCIES                            # Since 3.20
 
 deprecated-or-internal-variables:
     - CMAKE_HOME_DIRECTORY
@@ -1784,6 +1855,10 @@ deprecated-or-internal-variables:
     - CPACK_TEMPORARY_DIRECTORY
     - CPACK_TOPLEVEL_DIRECTORY
     - CPACK_INSTALL_PREFIX
+    # Mentioned in `file(GET_RUNTIME_DEPENDENCIES)` docs
+    - CMAKE_OBJDUMP
+    # Mentioned in "Deprecated and Removed Features" of release notes 3.21
+    - CMAKE_SYSTEM_ARCH
 
 # https://cmake.org/cmake/help/latest/manual/cmake-env-variables.7.html
 # NOTE Added to syntax file version 14 at 3.15.0 version of CMake
@@ -1801,6 +1876,7 @@ environment-variables:
     - CMAKE_MSVCIDE_RUN_PATH
     - CMAKE_NO_VERBOSE
     - CMAKE_OSX_ARCHITECTURES
+    - CMAKE_TOOLCHAIN_FILE                                  # Since 3.21
     - DESTDIR
     - LDFLAGS
     - MACOSX_DEPLOYMENT_TARGET
@@ -1812,6 +1888,7 @@ environment-variables:
     - CC
     - CFLAGS
     - CSFLAGS
+    - CUDAARCHS                                             # Since 3.20
     - CUDACXX
     - CUDAFLAGS
     - CUDAHOSTCXX
@@ -1897,6 +1974,55 @@ scripting-commands:
         name: cmake_parse_arguments
         named-args: [PARSE_ARGV]
     -
+        name: cmake_path                                    # Since 3.20
+        named-args: [
+            # Decomposition
+            GET
+          , ROOT_NAME
+          , ROOT_DIRECTORY
+          , ROOT_PATH
+          , FILENAME
+          , EXTENSION
+          , LAST_ONLY
+          , STEM
+          , RELATIVE_PART
+          , PARENT_PATH
+            # Query
+          , HAS_ROOT_NAME
+          , HAS_ROOT_DIRECTORY
+          , HAS_ROOT_PATH
+          , HAS_FILENAME
+          , HAS_EXTENSION
+          , HAS_STEM
+          , HAS_RELATIVE_PART
+          , HAS_PARENT_PATH
+          , IS_ABSOLUTE
+          , IS_RELATIVE
+          , IS_PREFIX
+          , NORMALIZE
+            # Modification
+          , SET
+          , APPEND
+          , OUTPUT_VARIABLE
+          , APPEND_STRING
+          , REMOVE_FILENAME
+          , REPLACE_FILENAME
+          , REMOVE_EXTENSION
+          , REPLACE_EXTENSION
+            # Generation
+          , NORMAL_PATH
+          , RELATIVE_PATH
+          , BASE_DIRECTORY
+          , ABSOLUTE_PATH
+            # Native Conversion
+          , NATIVE_PATH
+          , CONVERT
+          , TO_CMAKE_PATH_LIST
+          , TO_NATIVE_PATH_LIST
+            # Hashing
+          , HASH
+        ]
+    -
         name: cmake_policy
         named-args: [GET, SET, PUSH, POP, VERSION]
         special-args: [OLD, NEW]
@@ -1908,6 +2034,8 @@ scripting-commands:
           , NO_SOURCE_PERMISSIONS                           # Since 3.19
           , "@ONLY"
           , NEWLINE_STYLE
+          , USE_SOURCE_PERMISSIONS                          # Since 3.20
+          , FILE_PERMISSIONS                                # Since 3.20
           ]
         special-args: [UNIX, DOS, WIN32, LF, CRLF]
     -
@@ -2098,6 +2226,19 @@ scripting-commands:
           , SIZE
             # New sub-options since 3.16
           , GET_RUNTIME_DEPENDENCIES
+          , RESOLVED_DEPENDENCIES_VAR
+          , UNRESOLVED_DEPENDENCIES_VAR
+          , EXECUTABLES
+          , LIBRARIES
+          , MODULES
+          , DIRECTORIES
+          , BUNDLE_EXECUTABLE
+          , PRE_INCLUDE_REGEXES
+          , PRE_EXCLUDE_REGEXES
+          , POST_INCLUDE_REGEXES
+          , POST_EXCLUDE_REGEXES
+          , POST_INCLUDE_FILES                              # Since 3.21
+          , POST_EXCLUDE_FILES                              # Since 3.21
             # New sub-options since 3.18
           , ARCHIVE_CREATE
           , FILES
@@ -2112,10 +2253,17 @@ scripting-commands:
           , ESCAPE_QUOTES
           , "@ONLY"
           , NEWLINE_STYLE
-          , CHMOD                                           # Since 3.19
-          , CHMOD_RECURSE                                   # Since 3.19
-          , REAL_PATH                                       # Since 3.19
-          , BASE_DIRECTORY                                  # Since 3.19
+            # New sub-options since 3.19
+          , CHMOD
+          , CHMOD_RECURSE
+          , REAL_PATH
+          , BASE_DIRECTORY
+            # New sub-options since 3.21
+          , COPY_FILE
+          , RESULT
+          , ONLY_IF_DIFFERENT
+          , EXPAND_TILDE
+          , NO_REPLACE
           ]
         special-args: [
             UTF-8
@@ -2169,6 +2317,7 @@ scripting-commands:
           , PATHS
           , PATH_SUFFIXES
           , DOC
+          , NO_CACHE                                        # Since 3.21
           , REQUIRED                                        # Since 3.18
           , NO_DEFAULT_PATH
           , NO_PACKAGE_ROOT_PATH
@@ -2189,6 +2338,7 @@ scripting-commands:
           , PATHS
           , PATH_SUFFIXES
           , DOC
+          , NO_CACHE                                        # Since 3.21
           , REQUIRED                                        # Since 3.18
           , NO_DEFAULT_PATH
           , NO_PACKAGE_ROOT_PATH
@@ -2595,7 +2745,11 @@ project-commands:
         name: aux_source_directory
     -
         name: build_command
-        named-args: [CONFIGURATION, TARGET]
+        named-args: [
+            CONFIGURATION
+          , PARALLEL_LEVEL                                  # Since 3.21
+          , TARGET
+          ]
     -
         name: create_test_sourcelist
         named-args: [EXTRA_INCLUDE, FUNCTION]
@@ -2615,6 +2769,7 @@ project-commands:
           , CSharp
           , CXX
           , CUDA
+          , HIP                                             # Since 3.21
           , ISPC                                            # Since 3.19
           , Java
           , OBJC                                            # Since 3.16
@@ -2664,6 +2819,7 @@ project-commands:
           , EXCLUDE_FROM_ALL
           , RENAME
           , OPTIONAL
+          , TYPE                                            # Since 3.20
             # Installing Targets
           , TARGETS
           , EXPORT
@@ -2679,6 +2835,7 @@ project-commands:
           , INCLUDES
           , NAMELINK_ONLY
           , NAMELINK_SKIP
+          , RUNTIME_DEPENDENCIES                            # Since 3.21
             # Installing Files
           , FILES
           , PROGRAMS
@@ -2700,6 +2857,17 @@ project-commands:
           , FILE
           , EXPORT_ANDROID_MK
           , EXPORT_LINK_INTERFACE_LIBRARIES
+            # Installing Imported Runtime Artifacts (since 3.21)
+          , IMPORTED_RUNTIME_ARTIFACTS
+          , RUNTIME_DEPENDENCY_SET
+            # Installing Runtime Dependencies (since 3.21)
+          , PRE_INCLUDE_REGEXES
+          , PRE_EXCLUDE_REGEXES
+          , POST_INCLUDE_REGEXES
+          , POST_EXCLUDE_REGEXES
+          , POST_INCLUDE_FILES
+          , POST_EXCLUDE_FILES
+          , DIRECTORIES
           ]
         special-args: &valid_permissions [
             OWNER_READ
@@ -2740,6 +2908,7 @@ project-commands:
           , CSharp
           , CXX
           , CUDA
+          , HIP                                             # Since 3.21
           , ISPC                                            # Since 3.19
           , Java
           , OBJC                                            # Since 3.16
@@ -2787,6 +2956,7 @@ project-commands:
           , cxx_std_14
           , cxx_std_17
           , cxx_std_20                                      # Since 3.12
+          , cxx_std_23                                      # Since 3.20
           , cxx_aggregate_default_initializers
           , cxx_alias_templates
           , cxx_alignas
@@ -2848,6 +3018,8 @@ project-commands:
           , c_std_90
           , c_std_99
           , c_std_11
+          , c_std_17                                        # Since 3.21
+          , c_std_23                                        # Since 3.21
           , c_function_prototypes
           , c_restrict
           , c_static_assert
@@ -2858,13 +3030,21 @@ project-commands:
           , cuda_std_14
           , cuda_std_17
           , cuda_std_20
+          , cuda_std_23                                     # Since 3.21
           ]
     -
         name: target_compile_options
         named-args: &target_compile_options [BEFORE, INTERFACE, PUBLIC, PRIVATE]
     -
         name: target_include_directories
-        named-args: [BEFORE, SYSTEM, INTERFACE, PUBLIC, PRIVATE]
+        named-args: [
+            AFTER                                           # Since 3.20
+          , BEFORE
+          , SYSTEM
+          , INTERFACE
+          , PUBLIC
+          , PRIVATE
+          ]
     -
         # Since 3.13
         name: target_link_directories
@@ -2910,6 +3090,7 @@ project-commands:
           , COMPILE_OUTPUT_VARIABLE
           , RUN_OUTPUT_VARIABLE
           , OUTPUT_VARIABLE
+          , WORKING_DIRECTORY                               # Since 3.20
           , ARGS
           ]
 

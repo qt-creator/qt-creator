@@ -5,7 +5,7 @@
             "SPDX-FileCopyrightText: 2016 Dominik Haumann <dhaumann@kde.org>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 8,
+        "revision" : 9,
         "name" : "Breeze Light"
     },
     "text-styles": {
@@ -70,7 +70,7 @@
             "selected-text-color" : "#9c0e0e"
         },
         "VerbatimString" : {
-            "text-color" : "#bf0303",
+            "text-color" : "#e31616",
             "selected-text-color" : "#9c0e0e"
         },
         "SpecialString" : {

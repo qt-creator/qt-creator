@@ -1,6 +1,8 @@
+add_library(KF5SyntaxHighlighting)
+
 ecm_create_qm_loader(syntax_highlighting_QM_LOADER syntaxhighlighting5_qt)
 
-set(syntax_highlighting_srcs
+target_sources(KF5SyntaxHighlighting PRIVATE
     abstracthighlighter.cpp
     context.cpp
     contextswitch.cpp
@@ -20,8 +22,9 @@ set(syntax_highlighting_srcs
     themedata.cpp
     worddelimiters.cpp
     ${syntax_highlighting_QM_LOADER}
+    $<TARGET_OBJECTS:SyntaxHighlightingData>
 )
-ecm_qt_declare_logging_category(syntax_highlighting_srcs
+ecm_qt_declare_logging_category(KF5SyntaxHighlighting
     HEADER ksyntaxhighlighting_logging.h
     IDENTIFIER KSyntaxHighlighting::Log
     CATEGORY_NAME kf.syntaxhighlighting
@@ -30,16 +33,27 @@ ecm_qt_declare_logging_category(syntax_highlighting_srcs
     EXPORT KSYNTAXHIGHLIGHTING
 )
 
-add_library(KF5SyntaxHighlighting ${syntax_highlighting_srcs} $<TARGET_OBJECTS:SyntaxHighlightingData>)
-generate_export_header(KF5SyntaxHighlighting BASE_NAME KSyntaxHighlighting)
+ecm_generate_export_header(KF5SyntaxHighlighting
+    BASE_NAME KSyntaxHighlighting
+    GROUP_BASE_NAME KF
+    VERSION ${KF_VERSION}
+    DEPRECATED_BASE_VERSION 0
+    DEPRECATION_VERSIONS 5.87
+    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
+)
 set_target_properties(KF5SyntaxHighlighting PROPERTIES
-    VERSION ${SyntaxHighlighting_VERSION_STRING}
+    VERSION ${SyntaxHighlighting_VERSION}
     SOVERSION ${SyntaxHighlighting_SOVERSION}
     EXPORT_NAME SyntaxHighlighting
 )
 target_include_directories(KF5SyntaxHighlighting INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}/KSyntaxHighlighting;${KDE_INSTALL_INCLUDEDIR_KF5}>")
 target_include_directories(KF5SyntaxHighlighting PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR};>")
-target_link_libraries(KF5SyntaxHighlighting LINK_PUBLIC Qt5::Gui LINK_PRIVATE Qt5::Network)
+target_link_libraries(KF5SyntaxHighlighting
+    PUBLIC
+        Qt5::Gui
+    PRIVATE
+        Qt5::Network
+)
 
 ecm_generate_headers(SyntaxHighlighting_HEADERS
     HEADER_NAMES
@@ -52,6 +66,7 @@ ecm_generate_headers(SyntaxHighlighting_HEADERS
         State
         SyntaxHighlighter
         Theme
+        WildcardMatcher
     REQUIRED_HEADERS SyntaxHighlighting_HEADERS
 )
 

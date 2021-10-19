@@ -108,6 +108,15 @@ protected:
     AbstractHighlighter();
     AbstractHighlighter(AbstractHighlighterPrivate *dd);
 
+#if KSYNTAXHIGHLIGHTING_ENABLE_DEPRECATED_SINCE(5, 87)
+    /**
+     * @copydoc highlightLine(QStringView,const State&)
+     * @deprecated since 5.87, use highlightLine(QStringView, const State&) instead.
+     */
+    // no deprecation warning, as removal of this will automatically "port" the using code
+    State highlightLine(const QString &text, const State &state);
+#endif
+
     // TODO KF6: add an optional void* context argument that is passed through
     // to the applyX() calls, so highlighters dealing with some form of line object
     // (such as QSyntaxHighlighter or KTextEditor) can avoid some ugly hacks to have
@@ -120,14 +129,14 @@ protected:
      * @param state The highlighting state handle returned by the call
      *        to highlightLine() for the previous line. For the very first line,
      *        just pass a default constructed State().
-     * @returns The state of the highlighing engine after processing the
+     * @returns The state of the highlighting engine after processing the
      *        given line. This needs to passed into highlightLine() for the
      *        next line. You can store the state for efficient partial
      *        re-highlighting for example during editing.
      *
      * @see applyFormat(), applyFolding()
      */
-    State highlightLine(const QString &text, const State &state);
+    State highlightLine(QStringView text, const State &state);
 
     /**
      * Reimplement this to apply formats to your output. The provided @p format

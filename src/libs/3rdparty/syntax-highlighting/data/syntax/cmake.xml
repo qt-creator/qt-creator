@@ -22,7 +22,7 @@
 
 <language
     name="CMake"
-    version="31"
+    version="34"
     kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -39,6 +39,7 @@
         <item>cmake_language</item>
         <item>cmake_minimum_required</item>
         <item>cmake_parse_arguments</item>
+        <item>cmake_path</item>
         <item>cmake_policy</item>
         <item>configure_file</item>
         <item>continue</item>
@@ -196,6 +197,47 @@
     <list name="cmake_parse_arguments_nargs">
       <item>PARSE_ARGV</item>
     </list>
+    <list name="cmake_path_nargs">
+      <item>ABSOLUTE_PATH</item>
+      <item>APPEND</item>
+      <item>APPEND_STRING</item>
+      <item>BASE_DIRECTORY</item>
+      <item>CONVERT</item>
+      <item>EXTENSION</item>
+      <item>FILENAME</item>
+      <item>GET</item>
+      <item>HASH</item>
+      <item>HAS_EXTENSION</item>
+      <item>HAS_FILENAME</item>
+      <item>HAS_PARENT_PATH</item>
+      <item>HAS_RELATIVE_PART</item>
+      <item>HAS_ROOT_DIRECTORY</item>
+      <item>HAS_ROOT_NAME</item>
+      <item>HAS_ROOT_PATH</item>
+      <item>HAS_STEM</item>
+      <item>IS_ABSOLUTE</item>
+      <item>IS_PREFIX</item>
+      <item>IS_RELATIVE</item>
+      <item>LAST_ONLY</item>
+      <item>NATIVE_PATH</item>
+      <item>NORMALIZE</item>
+      <item>NORMAL_PATH</item>
+      <item>OUTPUT_VARIABLE</item>
+      <item>PARENT_PATH</item>
+      <item>RELATIVE_PART</item>
+      <item>RELATIVE_PATH</item>
+      <item>REMOVE_EXTENSION</item>
+      <item>REMOVE_FILENAME</item>
+      <item>REPLACE_EXTENSION</item>
+      <item>REPLACE_FILENAME</item>
+      <item>ROOT_DIRECTORY</item>
+      <item>ROOT_NAME</item>
+      <item>ROOT_PATH</item>
+      <item>SET</item>
+      <item>STEM</item>
+      <item>TO_CMAKE_PATH_LIST</item>
+      <item>TO_NATIVE_PATH_LIST</item>
+    </list>
     <list name="cmake_policy_nargs">
       <item>GET</item>
       <item>POP</item>
@@ -211,8 +253,10 @@
       <item>@ONLY</item>
       <item>COPYONLY</item>
       <item>ESCAPE_QUOTES</item>
+      <item>FILE_PERMISSIONS</item>
       <item>NEWLINE_STYLE</item>
       <item>NO_SOURCE_PERMISSIONS</item>
+      <item>USE_SOURCE_PERMISSIONS</item>
     </list>
     <list name="configure_file_sargs">
       <item>CRLF</item>
@@ -291,6 +335,7 @@
       <item>ARCHIVE_CREATE</item>
       <item>ARCHIVE_EXTRACT</item>
       <item>BASE_DIRECTORY</item>
+      <item>BUNDLE_EXECUTABLE</item>
       <item>CHMOD</item>
       <item>CHMOD_RECURSE</item>
       <item>COMPRESSION</item>
@@ -300,13 +345,17 @@
       <item>CONFIGURE_DEPENDS</item>
       <item>CONTENT</item>
       <item>COPY</item>
+      <item>COPY_FILE</item>
       <item>DESTINATION</item>
+      <item>DIRECTORIES</item>
       <item>DIRECTORY</item>
       <item>DIRECTORY_PERMISSIONS</item>
       <item>DOWNLOAD</item>
       <item>ENCODING</item>
       <item>ESCAPE_QUOTES</item>
       <item>EXCLUDE</item>
+      <item>EXECUTABLES</item>
+      <item>EXPAND_TILDE</item>
       <item>EXPECTED_HASH</item>
       <item>EXPECTED_MD5</item>
       <item>FILES</item>
@@ -327,6 +376,7 @@
       <item>INSTALL</item>
       <item>LENGTH_MAXIMUM</item>
       <item>LENGTH_MINIMUM</item>
+      <item>LIBRARIES</item>
       <item>LIMIT</item>
       <item>LIMIT_COUNT</item>
       <item>LIMIT_INPUT</item>
@@ -337,17 +387,26 @@
       <item>LOG</item>
       <item>MAKE_DIRECTORY</item>
       <item>MD5</item>
+      <item>MODULES</item>
       <item>MTIME</item>
       <item>NETRC</item>
       <item>NETRC_FILE</item>
       <item>NEWLINE_CONSUME</item>
       <item>NEWLINE_STYLE</item>
       <item>NO_HEX_CONVERSION</item>
+      <item>NO_REPLACE</item>
       <item>NO_SOURCE_PERMISSIONS</item>
       <item>OFFSET</item>
+      <item>ONLY_IF_DIFFERENT</item>
       <item>OUTPUT</item>
       <item>PATTERN</item>
       <item>PERMISSIONS</item>
+      <item>POST_EXCLUDE_FILES</item>
+      <item>POST_EXCLUDE_REGEXES</item>
+      <item>POST_INCLUDE_FILES</item>
+      <item>POST_INCLUDE_REGEXES</item>
+      <item>PRE_EXCLUDE_REGEXES</item>
+      <item>PRE_INCLUDE_REGEXES</item>
       <item>READ</item>
       <item>READ_SYMLINK</item>
       <item>REAL_PATH</item>
@@ -358,6 +417,8 @@
       <item>REMOVE</item>
       <item>REMOVE_RECURSE</item>
       <item>RENAME</item>
+      <item>RESOLVED_DEPENDENCIES_VAR</item>
+      <item>RESULT</item>
       <item>RESULT_VARIABLE</item>
       <item>SHA1</item>
       <item>SHA224</item>
@@ -381,6 +442,7 @@
       <item>TOUCH_NOCREATE</item>
       <item>TO_CMAKE_PATH</item>
       <item>TO_NATIVE_PATH</item>
+      <item>UNRESOLVED_DEPENDENCIES_VAR</item>
       <item>UPLOAD</item>
       <item>USERPWD</item>
       <item>USE_SOURCE_PERMISSIONS</item>
@@ -433,6 +495,7 @@
       <item>DOC</item>
       <item>HINTS</item>
       <item>NAMES</item>
+      <item>NO_CACHE</item>
       <item>NO_CMAKE_ENVIRONMENT_PATH</item>
       <item>NO_CMAKE_FIND_ROOT_PATH</item>
       <item>NO_CMAKE_PATH</item>
@@ -451,6 +514,7 @@
       <item>HINTS</item>
       <item>NAMES</item>
       <item>NAMES_PER_DIR</item>
+      <item>NO_CACHE</item>
       <item>NO_CMAKE_ENVIRONMENT_PATH</item>
       <item>NO_CMAKE_FIND_ROOT_PATH</item>
       <item>NO_CMAKE_PATH</item>
@@ -495,6 +559,7 @@
       <item>DOC</item>
       <item>HINTS</item>
       <item>NAMES</item>
+      <item>NO_CACHE</item>
       <item>NO_CMAKE_ENVIRONMENT_PATH</item>
       <item>NO_CMAKE_FIND_ROOT_PATH</item>
       <item>NO_CMAKE_PATH</item>
@@ -513,6 +578,7 @@
       <item>HINTS</item>
       <item>NAMES</item>
       <item>NAMES_PER_DIR</item>
+      <item>NO_CACHE</item>
       <item>NO_CMAKE_ENVIRONMENT_PATH</item>
       <item>NO_CMAKE_FIND_ROOT_PATH</item>
       <item>NO_CMAKE_PATH</item>
@@ -883,6 +949,7 @@
     </list>
     <list name="build_command_nargs">
       <item>CONFIGURATION</item>
+      <item>PARALLEL_LEVEL</item>
       <item>TARGET</item>
     </list>
     <list name="create_test_sourcelist_nargs">
@@ -914,6 +981,7 @@
       <item>CUDA</item>
       <item>CXX</item>
       <item>Fortran</item>
+      <item>HIP</item>
       <item>ISPC</item>
       <item>Java</item>
       <item>OBJC</item>
@@ -951,6 +1019,7 @@
       <item>COMPONENT</item>
       <item>CONFIGURATIONS</item>
       <item>DESTINATION</item>
+      <item>DIRECTORIES</item>
       <item>DIRECTORY</item>
       <item>DIRECTORY_PERMISSIONS</item>
       <item>EXCLUDE</item>
@@ -963,6 +1032,7 @@
       <item>FILES_MATCHING</item>
       <item>FILE_PERMISSIONS</item>
       <item>FRAMEWORK</item>
+      <item>IMPORTED_RUNTIME_ARTIFACTS</item>
       <item>INCLUDES</item>
       <item>LIBRARY</item>
       <item>MESSAGE_NEVER</item>
@@ -974,6 +1044,12 @@
       <item>OPTIONAL</item>
       <item>PATTERN</item>
       <item>PERMISSIONS</item>
+      <item>POST_EXCLUDE_FILES</item>
+      <item>POST_EXCLUDE_REGEXES</item>
+      <item>POST_INCLUDE_FILES</item>
+      <item>POST_INCLUDE_REGEXES</item>
+      <item>PRE_EXCLUDE_REGEXES</item>
+      <item>PRE_INCLUDE_REGEXES</item>
       <item>PRIVATE_HEADER</item>
       <item>PROGRAMS</item>
       <item>PUBLIC_HEADER</item>
@@ -981,8 +1057,11 @@
       <item>RENAME</item>
       <item>RESOURCE</item>
       <item>RUNTIME</item>
+      <item>RUNTIME_DEPENDENCIES</item>
+      <item>RUNTIME_DEPENDENCY_SET</item>
       <item>SCRIPT</item>
       <item>TARGETS</item>
+      <item>TYPE</item>
       <item>USE_SOURCE_PERMISSIONS</item>
     </list>
     <list name="install_sargs">
@@ -1028,6 +1107,7 @@
       <item>CUDA</item>
       <item>CXX</item>
       <item>Fortran</item>
+      <item>HIP</item>
       <item>ISPC</item>
       <item>Java</item>
       <item>NONE</item>
@@ -1068,6 +1148,8 @@
       <item>c_restrict</item>
       <item>c_static_assert</item>
       <item>c_std_11</item>
+      <item>c_std_17</item>
+      <item>c_std_23</item>
       <item>c_std_90</item>
       <item>c_std_99</item>
       <item>c_variadic_macros</item>
@@ -1076,6 +1158,7 @@
       <item>cuda_std_14</item>
       <item>cuda_std_17</item>
       <item>cuda_std_20</item>
+      <item>cuda_std_23</item>
       <item>cxx_aggregate_default_initializers</item>
       <item>cxx_alias_templates</item>
       <item>cxx_alignas</item>
@@ -1126,6 +1209,7 @@
       <item>cxx_std_14</item>
       <item>cxx_std_17</item>
       <item>cxx_std_20</item>
+      <item>cxx_std_23</item>
       <item>cxx_std_98</item>
       <item>cxx_strong_enums</item>
       <item>cxx_template_template_parameters</item>
@@ -1146,6 +1230,7 @@
       <item>PUBLIC</item>
     </list>
     <list name="target_include_directories_nargs">
+      <item>AFTER</item>
       <item>BEFORE</item>
       <item>INTERFACE</item>
       <item>PRIVATE</item>
@@ -1201,6 +1286,7 @@
       <item>OUTPUT_VARIABLE</item>
       <item>RUN_OUTPUT_VARIABLE</item>
       <item>RUN_RESULT_VAR</item>
+      <item>WORKING_DIRECTORY</item>
     </list>
     <list name="ctest_build_nargs">
       <item>APPEND</item>
@@ -1342,6 +1428,7 @@
       <item>CMAKE_ANDROID_NDK_DEPRECATED_HEADERS</item>
       <item>CMAKE_ANDROID_NDK_TOOLCHAIN_HOST_TAG</item>
       <item>CMAKE_ANDROID_NDK_TOOLCHAIN_VERSION</item>
+      <item>CMAKE_ANDROID_NDK_VERSION</item>
       <item>CMAKE_ANDROID_PROCESS_MAX</item>
       <item>CMAKE_ANDROID_PROGUARD</item>
       <item>CMAKE_ANDROID_PROGUARD_CONFIG_PATH</item>
@@ -1497,6 +1584,9 @@
       <item>CMAKE_GENERATOR_NO_COMPILER_ENV</item>
       <item>CMAKE_GENERATOR_PLATFORM</item>
       <item>CMAKE_GENERATOR_TOOLSET</item>
+      <item>CMAKE_GET_RUNTIME_DEPENDENCIES_COMMAND</item>
+      <item>CMAKE_GET_RUNTIME_DEPENDENCIES_PLATFORM</item>
+      <item>CMAKE_GET_RUNTIME_DEPENDENCIES_TOOL</item>
       <item>CMAKE_GLOBAL_AUTOGEN_TARGET</item>
       <item>CMAKE_GLOBAL_AUTOGEN_TARGET_NAME</item>
       <item>CMAKE_GLOBAL_AUTORCC_TARGET</item>
@@ -1576,6 +1666,10 @@
       <item>CMAKE_ISPC_HEADER_DIRECTORY</item>
       <item>CMAKE_ISPC_HEADER_SUFFIX</item>
       <item>CMAKE_ISPC_INSTRUCTION_SETS</item>
+      <item>CMAKE_JAR_CLASSES_PREFIX</item>
+      <item>CMAKE_JAVA_COMPILE_FLAGS</item>
+      <item>CMAKE_JAVA_INCLUDE_PATH</item>
+      <item>CMAKE_JNI_TARGET</item>
       <item>CMAKE_JOB_POOLS</item>
       <item>CMAKE_JOB_POOL_COMPILE</item>
       <item>CMAKE_JOB_POOL_LINK</item>
@@ -1787,6 +1881,7 @@
       <item>CPACK_COMPONENTS_GROUPING</item>
       <item>CPACK_COMPONENT_INCLUDE_TOPLEVEL_DIRECTORY</item>
       <item>CPACK_CREATE_DESKTOP_LINKS</item>
+      <item>CPACK_CUSTOM_INSTALL_VARIABLES</item>
       <item>CPACK_CYGWIN_BUILD_SCRIPT</item>
       <item>CPACK_CYGWIN_PATCH_FILE</item>
       <item>CPACK_CYGWIN_PATCH_NUMBER</item>
@@ -1818,6 +1913,7 @@
       <item>CPACK_DEBIAN_PACKAGE_REPLACES</item>
       <item>CPACK_DEBIAN_PACKAGE_SECTION</item>
       <item>CPACK_DEBIAN_PACKAGE_SHLIBDEPS</item>
+      <item>CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS</item>
       <item>CPACK_DEBIAN_PACKAGE_SOURCE</item>
       <item>CPACK_DEBIAN_PACKAGE_SUGGESTS</item>
       <item>CPACK_DEBIAN_PACKAGE_VERSION</item>
@@ -1826,6 +1922,7 @@
       <item>CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK</item>
       <item>CPACK_DMG_DS_STORE</item>
       <item>CPACK_DMG_DS_STORE_SETUP_SCRIPT</item>
+      <item>CPACK_DMG_FILESYSTEM</item>
       <item>CPACK_DMG_FORMAT</item>
       <item>CPACK_DMG_SLA_DIR</item>
       <item>CPACK_DMG_SLA_LANGUAGES</item>
@@ -1865,6 +1962,7 @@
       <item>CPACK_IFW_PACKAGE_WINDOW_ICON</item>
       <item>CPACK_IFW_PACKAGE_WIZARD_DEFAULT_HEIGHT</item>
       <item>CPACK_IFW_PACKAGE_WIZARD_DEFAULT_WIDTH</item>
+      <item>CPACK_IFW_PACKAGE_WIZARD_SHOW_PAGE_LIST</item>
       <item>CPACK_IFW_PACKAGE_WIZARD_STYLE</item>
       <item>CPACK_IFW_PRODUCT_URL</item>
       <item>CPACK_IFW_REPOGEN_EXECUTABLE</item>
@@ -1880,12 +1978,15 @@
       <item>CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS</item>
       <item>CPACK_INSTALL_SCRIPTS</item>
       <item>CPACK_MONOLITHIC_INSTALL</item>
+      <item>CPACK_NSIS_BRANDING_TEXT</item>
+      <item>CPACK_NSIS_BRANDING_TEXT_TRIM_POSITION</item>
       <item>CPACK_NSIS_COMPRESSOR</item>
       <item>CPACK_NSIS_CONTACT</item>
       <item>CPACK_NSIS_CREATE_ICONS_EXTRA</item>
       <item>CPACK_NSIS_DELETE_ICONS_EXTRA</item>
       <item>CPACK_NSIS_DISPLAY_NAME</item>
       <item>CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL</item>
+      <item>CPACK_NSIS_EXECUTABLE</item>
       <item>CPACK_NSIS_EXECUTABLES_DIRECTORY</item>
       <item>CPACK_NSIS_EXTRA_INSTALL_COMMANDS</item>
       <item>CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS</item>
@@ -1918,8 +2019,12 @@
       <item>CPACK_NUGET_PACKAGE_DESCRIPTION</item>
       <item>CPACK_NUGET_PACKAGE_DESCRIPTION_SUMMARY</item>
       <item>CPACK_NUGET_PACKAGE_HOMEPAGE_URL</item>
+      <item>CPACK_NUGET_PACKAGE_ICON</item>
       <item>CPACK_NUGET_PACKAGE_ICONURL</item>
+      <item>CPACK_NUGET_PACKAGE_LANGUAGE</item>
       <item>CPACK_NUGET_PACKAGE_LICENSEURL</item>
+      <item>CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION</item>
+      <item>CPACK_NUGET_PACKAGE_LICENSE_FILE_NAME</item>
       <item>CPACK_NUGET_PACKAGE_NAME</item>
       <item>CPACK_NUGET_PACKAGE_OWNERS</item>
       <item>CPACK_NUGET_PACKAGE_RELEASE_NOTES</item>
@@ -2037,6 +2142,7 @@
       <item>CPACK_SOURCE_STRIP_FILES</item>
       <item>CPACK_STRIP_FILES</item>
       <item>CPACK_SYSTEM_NAME</item>
+      <item>CPACK_THREADS</item>
       <item>CPACK_TOPLEVEL_TAG</item>
       <item>CPACK_VERBATIM_VARIABLES</item>
       <item>CPACK_WARN_ON_ABSOLUTE_INSTALL_DESTINATION</item>
@@ -2180,12 +2286,23 @@
       <item>MSVC_TOOLSET_VERSION</item>
       <item>MSVC_VERSION</item>
       <item>PACKAGE_FIND_NAME</item>
-      <item>PACKAGE_FIND_VERSION</item>
+      <item>PACKAGE_FIND_VERSION_COMPLETE</item>
       <item>PACKAGE_FIND_VERSION_COUNT</item>
-      <item>PACKAGE_FIND_VERSION_MAJOR</item>
-      <item>PACKAGE_FIND_VERSION_MINOR</item>
-      <item>PACKAGE_FIND_VERSION_PATCH</item>
-      <item>PACKAGE_FIND_VERSION_TWEAK</item>
+      <item>PACKAGE_FIND_VERSION_MAX</item>
+      <item>PACKAGE_FIND_VERSION_MAX_COUNT</item>
+      <item>PACKAGE_FIND_VERSION_MAX_MAJOR</item>
+      <item>PACKAGE_FIND_VERSION_MAX_MINOR</item>
+      <item>PACKAGE_FIND_VERSION_MAX_PATCH</item>
+      <item>PACKAGE_FIND_VERSION_MAX_TWEAK</item>
+      <item>PACKAGE_FIND_VERSION_MIN</item>
+      <item>PACKAGE_FIND_VERSION_MIN_COUNT</item>
+      <item>PACKAGE_FIND_VERSION_MIN_MAJOR</item>
+      <item>PACKAGE_FIND_VERSION_MIN_MINOR</item>
+      <item>PACKAGE_FIND_VERSION_MIN_PATCH</item>
+      <item>PACKAGE_FIND_VERSION_MIN_TWEAK</item>
+      <item>PACKAGE_FIND_VERSION_RANGE</item>
+      <item>PACKAGE_FIND_VERSION_RANGE_MAX</item>
+      <item>PACKAGE_FIND_VERSION_RANGE_MIN</item>
       <item>PACKAGE_VERSION</item>
       <item>PACKAGE_VERSION_COMPATIBLE</item>
       <item>PACKAGE_VERSION_EXACT</item>
@@ -2196,6 +2313,7 @@
       <item>PROJECT_BINARY_DIR</item>
       <item>PROJECT_DESCRIPTION</item>
       <item>PROJECT_HOMEPAGE_URL</item>
+      <item>PROJECT_IS_TOP_LEVEL</item>
       <item>PROJECT_NAME</item>
       <item>PROJECT_SOURCE_DIR</item>
       <item>PROJECT_VERSION</item>
@@ -2206,8 +2324,10 @@
       <item>QTIFWDIR</item>
       <item>SWIG_OUTFILE_DIR</item>
       <item>SWIG_SOURCE_FILE_EXTENSIONS</item>
+      <item>SWIG_USE_SWIG_DEPENDENCIES</item>
       <item>THREADS_PREFER_PTHREAD_FLAG</item>
       <item>UNIX</item>
+      <item>UseSWIG_MODULE_VERSION</item>
       <item>WIN32</item>
       <item>WINCE</item>
       <item>WINDOWS_PHONE</item>
@@ -2220,8 +2340,10 @@
       <item>CMAKE_HOME_DIRECTORY</item>
       <item>CMAKE_INTERNAL_PLATFORM_ABI</item>
       <item>CMAKE_NOT_USING_CONFIG_FLAGS</item>
+      <item>CMAKE_OBJDUMP</item>
       <item>CMAKE_SUPPRESS_DEVELOPER_ERRORS</item>
       <item>CMAKE_SUPPRESS_DEVELOPER_WARNINGS</item>
+      <item>CMAKE_SYSTEM_ARCH</item>
       <item>CMAKE_VS_INTEL_Fortran_PROJECT_VERSION</item>
       <item>CPACK_INSTALL_PREFIX</item>
       <item>CPACK_INSTALL_SCRIPT</item>
@@ -2248,12 +2370,14 @@
       <item>CMAKE_NO_VERBOSE</item>
       <item>CMAKE_OSX_ARCHITECTURES</item>
       <item>CMAKE_PREFIX_PATH</item>
+      <item>CMAKE_TOOLCHAIN_FILE</item>
       <item>CSFLAGS</item>
       <item>CTEST_INTERACTIVE_DEBUG_MODE</item>
       <item>CTEST_OUTPUT_ON_FAILURE</item>
       <item>CTEST_PARALLEL_LEVEL</item>
       <item>CTEST_PROGRESS_OUTPUT</item>
       <item>CTEST_USE_LAUNCHERS_DEFAULT</item>
+      <item>CUDAARCHS</item>
       <item>CUDACXX</item>
       <item>CUDAFLAGS</item>
       <item>CUDAHOSTCXX</item>
@@ -2326,6 +2450,7 @@
       <item>DEFINITIONS</item>
       <item>EXCLUDE_FROM_ALL</item>
       <item>IMPLICIT_DEPENDS_INCLUDE_TRANSFORM</item>
+      <item>IMPORTED_TARGETS</item>
       <item>INCLUDE_DIRECTORIES</item>
       <item>INCLUDE_REGULAR_EXPRESSION</item>
       <item>INTERPROCEDURAL_OPTIMIZATION</item>
@@ -2429,6 +2554,7 @@
       <item>ENABLE_EXPORTS</item>
       <item>EXCLUDE_FROM_ALL</item>
       <item>EXCLUDE_FROM_DEFAULT_BUILD</item>
+      <item>EXPORT_COMPILE_COMMANDS</item>
       <item>EXPORT_NAME</item>
       <item>EXPORT_PROPERTIES</item>
       <item>EchoString</item>
@@ -2554,6 +2680,7 @@
       <item>UNITY_BUILD_CODE_AFTER_INCLUDE</item>
       <item>UNITY_BUILD_CODE_BEFORE_INCLUDE</item>
       <item>UNITY_BUILD_MODE</item>
+      <item>UNITY_BUILD_UNIQUE_ID</item>
       <item>VERSION</item>
       <item>VISIBILITY_INLINES_HIDDEN</item>
       <item>VS_CONFIGURATION_TYPE</item>
@@ -2782,6 +2909,7 @@
       <item>TARGET_BUNDLE_DIR</item>
       <item>TARGET_BUNDLE_CONTENT_DIR</item>
       <item>TARGET_PROPERTY</item>
+      <item>TARGET_RUNTIME_DLLS</item>
       <item>INSTALL_PREFIX</item>
       <item>TARGET_NAME</item>
       <item>LINK_ONLY</item>
@@ -2790,6 +2918,8 @@
       <item>MAKE_C_IDENTIFIER</item>
       <item>TARGET_OBJECTS</item>
       <item>SHELL_PATH</item>
+      <item>OUTPUT_CONFIG</item>
+      <item>COMMAND_CONFIG</item>
     </list>
 
     <contexts>
@@ -2801,6 +2931,7 @@
         <WordDetect String="cmake_language" insensitive="true" attribute="Command" context="cmake_language_ctx" />
         <WordDetect String="cmake_minimum_required" insensitive="true" attribute="Command" context="cmake_minimum_required_ctx" />
         <WordDetect String="cmake_parse_arguments" insensitive="true" attribute="Command" context="cmake_parse_arguments_ctx" />
+        <WordDetect String="cmake_path" insensitive="true" attribute="Command" context="cmake_path_ctx" />
         <WordDetect String="cmake_policy" insensitive="true" attribute="Command" context="cmake_policy_ctx" />
         <WordDetect String="configure_file" insensitive="true" attribute="Command" context="configure_file_ctx" />
         <WordDetect String="continue" insensitive="true" attribute="Command" context="continue_ctx" />
@@ -2948,6 +3079,14 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="cmake_parse_arguments_ctx_op">
         <IncludeRules context="EndCmdPop2" />
         <keyword attribute="Named Args" context="#stay" String="cmake_parse_arguments_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="cmake_path_ctx">
+        <DetectChar attribute="Normal Text" context="cmake_path_ctx_op" char="(" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="cmake_path_ctx_op">
+        <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="cmake_path_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="cmake_policy_ctx">
@@ -3860,7 +3999,7 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More target-properties">
-        <RegExpr attribute="Property" context="#stay" String="\b(?:XCODE_ATTRIBUTE_&id_re;|VS_SOURCE_SETTINGS_&id_re;|VS_GLOBAL_&id_re;|VS_DOTNET_REFERENCE_&id_re;|VS_DOTNET_REFERENCEPROP_&id_re;_TAG_&id_re;|STATIC_LIBRARY_FLAGS_&id_re;|RUNTIME_OUTPUT_NAME_&id_re;|RUNTIME_OUTPUT_DIRECTORY_&id_re;|PDB_OUTPUT_DIRECTORY_&id_re;|PDB_NAME_&id_re;|OUTPUT_NAME_&id_re;|OSX_ARCHITECTURES_&id_re;|MAP_IMPORTED_CONFIG_&id_re;|LOCATION_&id_re;|LINK_INTERFACE_MULTIPLICITY_&id_re;|LINK_INTERFACE_LIBRARIES_&id_re;|LINK_FLAGS_&id_re;|LIBRARY_OUTPUT_NAME_&id_re;|LIBRARY_OUTPUT_DIRECTORY_&id_re;|INTERPROCEDURAL_OPTIMIZATION_&id_re;|IMPORTED_SONAME_&id_re;|IMPORTED_OBJECTS_&id_re;|IMPORTED_NO_SONAME_&id_re;|IMPORTED_LOCATION_&id_re;|IMPORTED_LINK_INTERFACE_MULTIPLICITY_&id_re;|IMPORTED_LINK_INTERFACE_LIBRARIES_&id_re;|IMPORTED_LINK_INTERFACE_LANGUAGES_&id_re;|IMPORTED_LINK_DEPENDENT_LIBRARIES_&id_re;|IMPORTED_LIBNAME_&id_re;|IMPORTED_IMPLIB_&id_re;|FRAMEWORK_MULTI_CONFIG_POSTFIX_&id_re;|EXCLUDE_FROM_DEFAULT_BUILD_&id_re;|COMPILE_PDB_OUTPUT_DIRECTORY_&id_re;|COMPILE_PDB_NAME_&id_re;|ARCHIVE_OUTPUT_NAME_&id_re;|ARCHIVE_OUTPUT_DIRECTORY_&id_re;|&id_re;_VISIBILITY_PRESET|&id_re;_POSTFIX|&id_re;_OUTPUT_NAME|&id_re;_INCLUDE_WHAT_YOU_USE|&id_re;_CPPLINT|&id_re;_CPPCHECK|&id_re;_COMPILER_LAUNCHER|&id_re;_CLANG_TIDY)\b" />
+        <RegExpr attribute="Property" context="#stay" String="\b(?:XCODE_EMBED_&id_re;_REMOVE_HEADERS_ON_COPY|XCODE_EMBED_&id_re;_PATH|XCODE_EMBED_&id_re;_CODE_SIGN_ON_COPY|XCODE_EMBED_&id_re;|XCODE_ATTRIBUTE_&id_re;|VS_SOURCE_SETTINGS_&id_re;|VS_GLOBAL_&id_re;|VS_DOTNET_REFERENCE_&id_re;|VS_DOTNET_REFERENCEPROP_&id_re;_TAG_&id_re;|STATIC_LIBRARY_FLAGS_&id_re;|RUNTIME_OUTPUT_NAME_&id_re;|RUNTIME_OUTPUT_DIRECTORY_&id_re;|PDB_OUTPUT_DIRECTORY_&id_re;|PDB_NAME_&id_re;|OUTPUT_NAME_&id_re;|OSX_ARCHITECTURES_&id_re;|MAP_IMPORTED_CONFIG_&id_re;|LOCATION_&id_re;|LINK_INTERFACE_MULTIPLICITY_&id_re;|LINK_INTERFACE_LIBRARIES_&id_re;|LINK_FLAGS_&id_re;|LIBRARY_OUTPUT_NAME_&id_re;|LIBRARY_OUTPUT_DIRECTORY_&id_re;|INTERPROCEDURAL_OPTIMIZATION_&id_re;|IMPORTED_SONAME_&id_re;|IMPORTED_OBJECTS_&id_re;|IMPORTED_NO_SONAME_&id_re;|IMPORTED_LOCATION_&id_re;|IMPORTED_LINK_INTERFACE_MULTIPLICITY_&id_re;|IMPORTED_LINK_INTERFACE_LIBRARIES_&id_re;|IMPORTED_LINK_INTERFACE_LANGUAGES_&id_re;|IMPORTED_LINK_DEPENDENT_LIBRARIES_&id_re;|IMPORTED_LIBNAME_&id_re;|IMPORTED_IMPLIB_&id_re;|FRAMEWORK_MULTI_CONFIG_POSTFIX_&id_re;|EXCLUDE_FROM_DEFAULT_BUILD_&id_re;|COMPILE_PDB_OUTPUT_DIRECTORY_&id_re;|COMPILE_PDB_NAME_&id_re;|ARCHIVE_OUTPUT_NAME_&id_re;|ARCHIVE_OUTPUT_DIRECTORY_&id_re;|&id_re;_VISIBILITY_PRESET|&id_re;_POSTFIX|&id_re;_OUTPUT_NAME|&id_re;_LINKER_LAUNCHER|&id_re;_INCLUDE_WHAT_YOU_USE|&id_re;_CPPLINT|&id_re;_CPPCHECK|&id_re;_COMPILER_LAUNCHER|&id_re;_CLANG_TIDY)\b" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More source-properties">
@@ -3894,7 +4033,7 @@
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More Builtin Variables">
         <RegExpr attribute="CMake Internal Variable" context="#stay" String="\b(?:CMAKE_&id_re;_PLATFORM_ID|CMAKE_&id_re;_COMPILER_VERSION_INTERNAL|CMAKE_&id_re;_COMPILER_ARCHITECTURE_ID|CMAKE_&id_re;_COMPILER_ABI)\b" />
-        <RegExpr attribute="Builtin Variable" context="#stay" String="\b(?:SWIG_MODULE_&id_re;_EXTRA_DEPS|ExternalData_URL_ALGO_&id_re;_&id_re;|ExternalData_CUSTOM_SCRIPT_&id_re;|DOXYGEN_&id_re;|CPACK_WIX_PROPERTY_&id_re;|CPACK_WIX_&id_re;_EXTRA_FLAGS|CPACK_WIX_&id_re;_EXTENSIONS|CPACK_RPM_NO_&id_re;_INSTALL_PREFIX_RELOCATION|CPACK_RPM_&id_re;_USER_FILELIST|CPACK_RPM_&id_re;_USER_BINARY_SPECFILE|CPACK_RPM_&id_re;_PACKAGE_URL|CPACK_RPM_&id_re;_PACKAGE_SUMMARY|CPACK_RPM_&id_re;_PACKAGE_SUGGESTS|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_PREUN|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_PRE|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_POSTUN|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_POST|CPACK_RPM_&id_re;_PACKAGE_REQUIRES|CPACK_RPM_&id_re;_PACKAGE_PROVIDES|CPACK_RPM_&id_re;_PACKAGE_PREFIX|CPACK_RPM_&id_re;_PACKAGE_OBSOLETES|CPACK_RPM_&id_re;_PACKAGE_NAME|CPACK_RPM_&id_re;_PACKAGE_GROUP|CPACK_RPM_&id_re;_PACKAGE_DESCRIPTION|CPACK_RPM_&id_re;_PACKAGE_CONFLICTS|CPACK_RPM_&id_re;_PACKAGE_AUTOREQPROV|CPACK_RPM_&id_re;_PACKAGE_AUTOREQ|CPACK_RPM_&id_re;_PACKAGE_AUTOPROV|CPACK_RPM_&id_re;_PACKAGE_ARCHITECTURE|CPACK_RPM_&id_re;_FILE_NAME|CPACK_RPM_&id_re;_DEFAULT_USER|CPACK_RPM_&id_re;_DEFAULT_GROUP|CPACK_RPM_&id_re;_DEFAULT_FILE_PERMISSIONS|CPACK_RPM_&id_re;_DEFAULT_DIR_PERMISSIONS|CPACK_RPM_&id_re;_DEBUGINFO_PACKAGE|CPACK_RPM_&id_re;_DEBUGINFO_FILE_NAME|CPACK_RPM_&id_re;_BUILD_SOURCE_DIRS_PREFIX|CPACK_PREFLIGHT_&id_re;_SCRIPT|CPACK_POSTFLIGHT_&id_re;_SCRIPT|CPACK_NUGET_PACKAGE_DEPENDENCIES_&id_re;_VERSION|CPACK_NUGET_&id_re;_PACKAGE_VERSION|CPACK_NUGET_&id_re;_PACKAGE_TITLE|CPACK_NUGET_&id_re;_PACKAGE_TAGS|CPACK_NUGET_&id_re;_PACKAGE_RELEASE_NOTES|CPACK_NUGET_&id_re;_PACKAGE_OWNERS|CPACK_NUGET_&id_re;_PACKAGE_NAME|CPACK_NUGET_&id_re;_PACKAGE_LICENSEURL|CPACK_NUGET_&id_re;_PACKAGE_ICONURL|CPACK_NUGET_&id_re;_PACKAGE_HOMEPAGE_URL|CPACK_NUGET_&id_re;_PACKAGE_DESCRIPTION_SUMMARY|CPACK_NUGET_&id_re;_PACKAGE_DESCRIPTION|CPACK_NUGET_&id_re;_PACKAGE_DEPENDENCIES_&id_re;_VERSION|CPACK_NUGET_&id_re;_PACKAGE_DEPENDENCIES|CPACK_NUGET_&id_re;_PACKAGE_COPYRIGHT|CPACK_NUGET_&id_re;_PACKAGE_AUTHORS|CPACK_NSIS_&id_re;_INSTALL_DIRECTORY|CPACK_DMG_&id_re;_FILE_NAME|CPACK_DEBIAN_&id_re;_PACKAGE_SUGGESTS|CPACK_DEBIAN_&id_re;_PACKAGE_SOURCE|CPACK_DEBIAN_&id_re;_PACKAGE_SHLIBDEPS|CPACK_DEBIAN_&id_re;_PACKAGE_SECTION|CPACK_DEBIAN_&id_re;_PACKAGE_REPLACES|CPACK_DEBIAN_&id_re;_PACKAGE_RECOMMENDS|CPACK_DEBIAN_&id_re;_PACKAGE_PROVIDES|CPACK_DEBIAN_&id_re;_PACKAGE_PRIORITY|CPACK_DEBIAN_&id_re;_PACKAGE_PREDEPENDS|CPACK_DEBIAN_&id_re;_PACKAGE_NAME|CPACK_DEBIAN_&id_re;_PACKAGE_ENHANCES|CPACK_DEBIAN_&id_re;_PACKAGE_DEPENDS|CPACK_DEBIAN_&id_re;_PACKAGE_CONTROL_STRICT_PERMISSION|CPACK_DEBIAN_&id_re;_PACKAGE_CONTROL_EXTRA|CPACK_DEBIAN_&id_re;_PACKAGE_CONFLICTS|CPACK_DEBIAN_&id_re;_PACKAGE_BREAKS|CPACK_DEBIAN_&id_re;_PACKAGE_ARCHITECTURE|CPACK_DEBIAN_&id_re;_FILE_NAME|CPACK_DEBIAN_&id_re;_DESCRIPTION|CPACK_DEBIAN_&id_re;_DEBUGINFO_PACKAGE|CPACK_COMPONENT_&id_re;_REQUIRED|CPACK_COMPONENT_&id_re;_HIDDEN|CPACK_COMPONENT_&id_re;_GROUP|CPACK_COMPONENT_&id_re;_DISPLAY_NAME|CPACK_COMPONENT_&id_re;_DISABLED|CPACK_COMPONENT_&id_re;_DESCRIPTION|CPACK_COMPONENT_&id_re;_DEPENDS|CPACK_BINARY_&id_re;|CPACK_ARCHIVE_&id_re;_FILE_NAME|CPACK_&id_re;_COMPONENT_INSTALL|CMAKE_XCODE_ATTRIBUTE_&id_re;|CMAKE_USER_MAKE_RULES_OVERRIDE_&id_re;|CMAKE_STATIC_LINKER_FLAGS_&id_re;_INIT|CMAKE_STATIC_LINKER_FLAGS_&id_re;|CMAKE_SHARED_LINKER_FLAGS_&id_re;_INIT|CMAKE_SHARED_LINKER_FLAGS_&id_re;|CMAKE_RUNTIME_OUTPUT_DIRECTORY_&id_re;|CMAKE_PROJECT_&id_re;_INCLUDE|CMAKE_POLICY_WARNING_CMP[0-9]{4}|CMAKE_POLICY_DEFAULT_CMP[0-9]{4}|CMAKE_PDB_OUTPUT_DIRECTORY_&id_re;|CMAKE_MODULE_LINKER_FLAGS_&id_re;_INIT|CMAKE_MODULE_LINKER_FLAGS_&id_re;|CMAKE_MATCH_[0-9]+|CMAKE_MAP_IMPORTED_CONFIG_&id_re;|CMAKE_LIBRARY_OUTPUT_DIRECTORY_&id_re;|CMAKE_INTERPROCEDURAL_OPTIMIZATION_&id_re;|CMAKE_FRAMEWORK_MULTI_CONFIG_POSTFIX_&id_re;|CMAKE_EXE_LINKER_FLAGS_&id_re;_INIT|CMAKE_EXE_LINKER_FLAGS_&id_re;|CMAKE_DISABLE_FIND_PACKAGE_&id_re;|CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_&id_re;|CMAKE_ARGV[0-9]+|CMAKE_ARCHIVE_OUTPUT_DIRECTORY_&id_re;|CMAKE_&id_re;_VISIBILITY_PRESET|CMAKE_&id_re;_STANDARD_LIBRARIES|CMAKE_&id_re;_STANDARD_INCLUDE_DIRECTORIES|CMAKE_&id_re;_SOURCE_FILE_EXTENSIONS|CMAKE_&id_re;_SIZEOF_DATA_PTR|CMAKE_&id_re;_SIMULATE_VERSION|CMAKE_&id_re;_SIMULATE_ID|CMAKE_&id_re;_POSTFIX|CMAKE_&id_re;_OUTPUT_EXTENSION|CMAKE_&id_re;_LINK_EXECUTABLE|CMAKE_&id_re;_LINKER_WRAPPER_FLAG_SEP|CMAKE_&id_re;_LINKER_WRAPPER_FLAG|CMAKE_&id_re;_LINKER_PREFERENCE_PROPAGATES|CMAKE_&id_re;_LINKER_PREFERENCE|CMAKE_&id_re;_LIBRARY_ARCHITECTURE|CMAKE_&id_re;_INCLUDE_WHAT_YOU_USE|CMAKE_&id_re;_IMPLICIT_LINK_LIBRARIES|CMAKE_&id_re;_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES|CMAKE_&id_re;_IMPLICIT_LINK_DIRECTORIES|CMAKE_&id_re;_IMPLICIT_INCLUDE_DIRECTORIES|CMAKE_&id_re;_IGNORE_EXTENSIONS|CMAKE_&id_re;_GHS_KERNEL_FLAGS_RELWITHDEBINFO|CMAKE_&id_re;_GHS_KERNEL_FLAGS_RELEASE|CMAKE_&id_re;_GHS_KERNEL_FLAGS_MINSIZEREL|CMAKE_&id_re;_GHS_KERNEL_FLAGS_DEBUG|CMAKE_&id_re;_FLAGS_RELWITHDEBINFO_INIT|CMAKE_&id_re;_FLAGS_RELWITHDEBINFO|CMAKE_&id_re;_FLAGS_RELEASE_INIT|CMAKE_&id_re;_FLAGS_RELEASE|CMAKE_&id_re;_FLAGS_MINSIZEREL_INIT|CMAKE_&id_re;_FLAGS_MINSIZEREL|CMAKE_&id_re;_FLAGS_INIT|CMAKE_&id_re;_FLAGS_DEBUG_INIT|CMAKE_&id_re;_FLAGS_DEBUG|CMAKE_&id_re;_FLAGS|CMAKE_&id_re;_CREATE_STATIC_LIBRARY|CMAKE_&id_re;_CREATE_SHARED_MODULE|CMAKE_&id_re;_CREATE_SHARED_LIBRARY|CMAKE_&id_re;_CPPLINT|CMAKE_&id_re;_CPPCHECK|CMAKE_&id_re;_COMPILE_OBJECT|CMAKE_&id_re;_COMPILER_VERSION|CMAKE_&id_re;_COMPILER_TARGET|CMAKE_&id_re;_COMPILER_RANLIB|CMAKE_&id_re;_COMPILER_LOADED|CMAKE_&id_re;_COMPILER_LAUNCHER|CMAKE_&id_re;_COMPILER_ID|CMAKE_&id_re;_COMPILER_EXTERNAL_TOOLCHAIN|CMAKE_&id_re;_COMPILER_AR|CMAKE_&id_re;_COMPILER|CMAKE_&id_re;_CLANG_TIDY|CMAKE_&id_re;_ARCHIVE_FINISH|CMAKE_&id_re;_ARCHIVE_CREATE|CMAKE_&id_re;_ARCHIVE_APPEND|CMAKE_&id_re;_ANDROID_TOOLCHAIN_SUFFIX|CMAKE_&id_re;_ANDROID_TOOLCHAIN_PREFIX|CMAKE_&id_re;_ANDROID_TOOLCHAIN_MACHINE|ARGV[0-9]+|&id_re;__TRYRUN_OUTPUT|&id_re;_VERSION_TWEAK|&id_re;_VERSION_STRING|&id_re;_VERSION_PATCH|&id_re;_VERSION_MINOR|&id_re;_VERSION_MAJOR|&id_re;_VERSION_COUNT|&id_re;_VERSION|&id_re;_UNPARSED_ARGUMENTS|&id_re;_SOURCE_DIR|&id_re;_ROOT|&id_re;_MODULE_NAME|&id_re;_LIBRARY_DIRS|&id_re;_LIBRARIES|&id_re;_KEYWORDS_MISSING_VALUES|&id_re;_INCLUDE_DIRS|&id_re;_HOMEPAGE_URL|&id_re;_FOUND|&id_re;_FIND_VERSION_TWEAK|&id_re;_FIND_VERSION_PATCH|&id_re;_FIND_VERSION_MINOR|&id_re;_FIND_VERSION_MAJOR|&id_re;_FIND_VERSION_EXACT|&id_re;_FIND_VERSION_COUNT|&id_re;_FIND_VERSION|&id_re;_FIND_REQUIRED_&id_re;|&id_re;_FIND_REQUIRED|&id_re;_FIND_QUIETLY|&id_re;_FIND_COMPONENTS|&id_re;_DESCRIPTION|&id_re;_CONSIDERED_VERSIONS|&id_re;_CONSIDERED_CONFIGS|&id_re;_BINARY_DIR)\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\b(?:SWIG_MODULE_&id_re;_EXTRA_DEPS|ExternalData_URL_ALGO_&id_re;_&id_re;|ExternalData_CUSTOM_SCRIPT_&id_re;|DOXYGEN_&id_re;|CPACK_WIX_PROPERTY_&id_re;|CPACK_WIX_&id_re;_EXTRA_FLAGS|CPACK_WIX_&id_re;_EXTENSIONS|CPACK_RPM_NO_&id_re;_INSTALL_PREFIX_RELOCATION|CPACK_RPM_&id_re;_USER_FILELIST|CPACK_RPM_&id_re;_USER_BINARY_SPECFILE|CPACK_RPM_&id_re;_PACKAGE_URL|CPACK_RPM_&id_re;_PACKAGE_SUMMARY|CPACK_RPM_&id_re;_PACKAGE_SUGGESTS|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_PREUN|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_PRE|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_POSTUN|CPACK_RPM_&id_re;_PACKAGE_REQUIRES_POST|CPACK_RPM_&id_re;_PACKAGE_REQUIRES|CPACK_RPM_&id_re;_PACKAGE_PROVIDES|CPACK_RPM_&id_re;_PACKAGE_PREFIX|CPACK_RPM_&id_re;_PACKAGE_OBSOLETES|CPACK_RPM_&id_re;_PACKAGE_NAME|CPACK_RPM_&id_re;_PACKAGE_GROUP|CPACK_RPM_&id_re;_PACKAGE_DESCRIPTION|CPACK_RPM_&id_re;_PACKAGE_CONFLICTS|CPACK_RPM_&id_re;_PACKAGE_AUTOREQPROV|CPACK_RPM_&id_re;_PACKAGE_AUTOREQ|CPACK_RPM_&id_re;_PACKAGE_AUTOPROV|CPACK_RPM_&id_re;_PACKAGE_ARCHITECTURE|CPACK_RPM_&id_re;_FILE_NAME|CPACK_RPM_&id_re;_DEFAULT_USER|CPACK_RPM_&id_re;_DEFAULT_GROUP|CPACK_RPM_&id_re;_DEFAULT_FILE_PERMISSIONS|CPACK_RPM_&id_re;_DEFAULT_DIR_PERMISSIONS|CPACK_RPM_&id_re;_DEBUGINFO_PACKAGE|CPACK_RPM_&id_re;_DEBUGINFO_FILE_NAME|CPACK_RPM_&id_re;_BUILD_SOURCE_DIRS_PREFIX|CPACK_PREFLIGHT_&id_re;_SCRIPT|CPACK_POSTFLIGHT_&id_re;_SCRIPT|CPACK_NUGET_PACKAGE_DEPENDENCIES_&id_re;_VERSION|CPACK_NUGET_&id_re;_PACKAGE_VERSION|CPACK_NUGET_&id_re;_PACKAGE_TITLE|CPACK_NUGET_&id_re;_PACKAGE_TAGS|CPACK_NUGET_&id_re;_PACKAGE_RELEASE_NOTES|CPACK_NUGET_&id_re;_PACKAGE_OWNERS|CPACK_NUGET_&id_re;_PACKAGE_NAME|CPACK_NUGET_&id_re;_PACKAGE_LICENSE_FILE_NAME|CPACK_NUGET_&id_re;_PACKAGE_LICENSE_EXPRESSION|CPACK_NUGET_&id_re;_PACKAGE_LICENSEURL|CPACK_NUGET_&id_re;_PACKAGE_LANGUAGE|CPACK_NUGET_&id_re;_PACKAGE_ICONURL|CPACK_NUGET_&id_re;_PACKAGE_ICON|CPACK_NUGET_&id_re;_PACKAGE_HOMEPAGE_URL|CPACK_NUGET_&id_re;_PACKAGE_DESCRIPTION_SUMMARY|CPACK_NUGET_&id_re;_PACKAGE_DESCRIPTION|CPACK_NUGET_&id_re;_PACKAGE_DEPENDENCIES_&id_re;_VERSION|CPACK_NUGET_&id_re;_PACKAGE_DEPENDENCIES|CPACK_NUGET_&id_re;_PACKAGE_COPYRIGHT|CPACK_NUGET_&id_re;_PACKAGE_AUTHORS|CPACK_NSIS_&id_re;_INSTALL_DIRECTORY|CPACK_DMG_&id_re;_FILE_NAME|CPACK_DEBIAN_&id_re;_PACKAGE_SUGGESTS|CPACK_DEBIAN_&id_re;_PACKAGE_SOURCE|CPACK_DEBIAN_&id_re;_PACKAGE_SHLIBDEPS|CPACK_DEBIAN_&id_re;_PACKAGE_SECTION|CPACK_DEBIAN_&id_re;_PACKAGE_REPLACES|CPACK_DEBIAN_&id_re;_PACKAGE_RECOMMENDS|CPACK_DEBIAN_&id_re;_PACKAGE_PROVIDES|CPACK_DEBIAN_&id_re;_PACKAGE_PRIORITY|CPACK_DEBIAN_&id_re;_PACKAGE_PREDEPENDS|CPACK_DEBIAN_&id_re;_PACKAGE_NAME|CPACK_DEBIAN_&id_re;_PACKAGE_ENHANCES|CPACK_DEBIAN_&id_re;_PACKAGE_DEPENDS|CPACK_DEBIAN_&id_re;_PACKAGE_CONTROL_STRICT_PERMISSION|CPACK_DEBIAN_&id_re;_PACKAGE_CONTROL_EXTRA|CPACK_DEBIAN_&id_re;_PACKAGE_CONFLICTS|CPACK_DEBIAN_&id_re;_PACKAGE_BREAKS|CPACK_DEBIAN_&id_re;_PACKAGE_ARCHITECTURE|CPACK_DEBIAN_&id_re;_FILE_NAME|CPACK_DEBIAN_&id_re;_DESCRIPTION|CPACK_DEBIAN_&id_re;_DEBUGINFO_PACKAGE|CPACK_COMPONENT_&id_re;_REQUIRED|CPACK_COMPONENT_&id_re;_HIDDEN|CPACK_COMPONENT_&id_re;_GROUP|CPACK_COMPONENT_&id_re;_DISPLAY_NAME|CPACK_COMPONENT_&id_re;_DISABLED|CPACK_COMPONENT_&id_re;_DESCRIPTION|CPACK_COMPONENT_&id_re;_DEPENDS|CPACK_BINARY_&id_re;|CPACK_ARCHIVE_&id_re;_FILE_NAME|CPACK_&id_re;_COMPONENT_INSTALL|CMAKE_XCODE_ATTRIBUTE_&id_re;|CMAKE_USER_MAKE_RULES_OVERRIDE_&id_re;|CMAKE_STATIC_LINKER_FLAGS_&id_re;_INIT|CMAKE_STATIC_LINKER_FLAGS_&id_re;|CMAKE_SHARED_LINKER_FLAGS_&id_re;_INIT|CMAKE_SHARED_LINKER_FLAGS_&id_re;|CMAKE_RUNTIME_OUTPUT_DIRECTORY_&id_re;|CMAKE_PROJECT_&id_re;_INCLUDE|CMAKE_POLICY_WARNING_CMP[0-9]{4}|CMAKE_POLICY_DEFAULT_CMP[0-9]{4}|CMAKE_PDB_OUTPUT_DIRECTORY_&id_re;|CMAKE_MODULE_LINKER_FLAGS_&id_re;_INIT|CMAKE_MODULE_LINKER_FLAGS_&id_re;|CMAKE_MATCH_[0-9]+|CMAKE_MAP_IMPORTED_CONFIG_&id_re;|CMAKE_LIBRARY_OUTPUT_DIRECTORY_&id_re;|CMAKE_INTERPROCEDURAL_OPTIMIZATION_&id_re;|CMAKE_FRAMEWORK_MULTI_CONFIG_POSTFIX_&id_re;|CMAKE_EXE_LINKER_FLAGS_&id_re;_INIT|CMAKE_EXE_LINKER_FLAGS_&id_re;|CMAKE_DISABLE_FIND_PACKAGE_&id_re;|CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY_&id_re;|CMAKE_ARGV[0-9]+|CMAKE_ARCHIVE_OUTPUT_DIRECTORY_&id_re;|CMAKE_&id_re;_VISIBILITY_PRESET|CMAKE_&id_re;_STANDARD_LIBRARIES|CMAKE_&id_re;_STANDARD_INCLUDE_DIRECTORIES|CMAKE_&id_re;_SOURCE_FILE_EXTENSIONS|CMAKE_&id_re;_SIZEOF_DATA_PTR|CMAKE_&id_re;_SIMULATE_VERSION|CMAKE_&id_re;_SIMULATE_ID|CMAKE_&id_re;_POSTFIX|CMAKE_&id_re;_OUTPUT_EXTENSION|CMAKE_&id_re;_LINK_LIBRARY_FLAG|CMAKE_&id_re;_LINK_LIBRARY_FILE_FLAG|CMAKE_&id_re;_LINK_EXECUTABLE|CMAKE_&id_re;_LINKER_WRAPPER_FLAG_SEP|CMAKE_&id_re;_LINKER_WRAPPER_FLAG|CMAKE_&id_re;_LINKER_PREFERENCE_PROPAGATES|CMAKE_&id_re;_LINKER_PREFERENCE|CMAKE_&id_re;_LINKER_LAUNCHER|CMAKE_&id_re;_LIBRARY_ARCHITECTURE|CMAKE_&id_re;_INCLUDE_WHAT_YOU_USE|CMAKE_&id_re;_IMPLICIT_LINK_LIBRARIES|CMAKE_&id_re;_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES|CMAKE_&id_re;_IMPLICIT_LINK_DIRECTORIES|CMAKE_&id_re;_IMPLICIT_INCLUDE_DIRECTORIES|CMAKE_&id_re;_IGNORE_EXTENSIONS|CMAKE_&id_re;_GHS_KERNEL_FLAGS_RELWITHDEBINFO|CMAKE_&id_re;_GHS_KERNEL_FLAGS_RELEASE|CMAKE_&id_re;_GHS_KERNEL_FLAGS_MINSIZEREL|CMAKE_&id_re;_GHS_KERNEL_FLAGS_DEBUG|CMAKE_&id_re;_FLAGS_RELWITHDEBINFO_INIT|CMAKE_&id_re;_FLAGS_RELWITHDEBINFO|CMAKE_&id_re;_FLAGS_RELEASE_INIT|CMAKE_&id_re;_FLAGS_RELEASE|CMAKE_&id_re;_FLAGS_MINSIZEREL_INIT|CMAKE_&id_re;_FLAGS_MINSIZEREL|CMAKE_&id_re;_FLAGS_INIT|CMAKE_&id_re;_FLAGS_DEBUG_INIT|CMAKE_&id_re;_FLAGS_DEBUG|CMAKE_&id_re;_FLAGS|CMAKE_&id_re;_CREATE_STATIC_LIBRARY|CMAKE_&id_re;_CREATE_SHARED_MODULE|CMAKE_&id_re;_CREATE_SHARED_LIBRARY|CMAKE_&id_re;_CPPLINT|CMAKE_&id_re;_CPPCHECK|CMAKE_&id_re;_COMPILE_OBJECT|CMAKE_&id_re;_COMPILER_VERSION|CMAKE_&id_re;_COMPILER_TARGET|CMAKE_&id_re;_COMPILER_RANLIB|CMAKE_&id_re;_COMPILER_LOADED|CMAKE_&id_re;_COMPILER_LAUNCHER|CMAKE_&id_re;_COMPILER_ID|CMAKE_&id_re;_COMPILER_EXTERNAL_TOOLCHAIN|CMAKE_&id_re;_COMPILER_AR|CMAKE_&id_re;_COMPILER|CMAKE_&id_re;_CLANG_TIDY|CMAKE_&id_re;_BYTE_ORDER|CMAKE_&id_re;_ARCHIVE_FINISH|CMAKE_&id_re;_ARCHIVE_CREATE|CMAKE_&id_re;_ARCHIVE_APPEND|CMAKE_&id_re;_ANDROID_TOOLCHAIN_SUFFIX|CMAKE_&id_re;_ANDROID_TOOLCHAIN_PREFIX|CMAKE_&id_re;_ANDROID_TOOLCHAIN_MACHINE|ARGV[0-9]+|&id_re;__TRYRUN_OUTPUT|&id_re;_VERSION_TWEAK|&id_re;_VERSION_STRING|&id_re;_VERSION_PATCH|&id_re;_VERSION_MINOR|&id_re;_VERSION_MAJOR|&id_re;_VERSION_COUNT|&id_re;_VERSION|&id_re;_UNPARSED_ARGUMENTS|&id_re;_SOURCE_DIR|&id_re;_ROOT|&id_re;_MODULE_NAME|&id_re;_LIBRARY_DIRS|&id_re;_LIBRARIES|&id_re;_KEYWORDS_MISSING_VALUES|&id_re;_IS_TOP_LEVEL|&id_re;_INCLUDE_DIRS|&id_re;_HOMEPAGE_URL|&id_re;_FOUND|&id_re;_FIND_VERSION_RANGE_MIN|&id_re;_FIND_VERSION_RANGE_MAX|&id_re;_FIND_VERSION_RANGE|&id_re;_FIND_VERSION_MIN_TWEAK|&id_re;_FIND_VERSION_MIN_PATCH|&id_re;_FIND_VERSION_MIN_MINOR|&id_re;_FIND_VERSION_MIN_MAJOR|&id_re;_FIND_VERSION_MIN_COUNT|&id_re;_FIND_VERSION_MIN|&id_re;_FIND_VERSION_MAX_TWEAK|&id_re;_FIND_VERSION_MAX_PATCH|&id_re;_FIND_VERSION_MAX_MINOR|&id_re;_FIND_VERSION_MAX_MAJOR|&id_re;_FIND_VERSION_MAX_COUNT|&id_re;_FIND_VERSION_MAX|&id_re;_FIND_VERSION_EXACT|&id_re;_FIND_VERSION_COUNT|&id_re;_FIND_VERSION_COMPLETE|&id_re;_FIND_REQUIRED_&id_re;|&id_re;_FIND_REQUIRED|&id_re;_FIND_QUIETLY|&id_re;_FIND_COMPONENTS|&id_re;_DESCRIPTION|&id_re;_CONSIDERED_VERSIONS|&id_re;_CONSIDERED_CONFIGS|&id_re;_CONFIG|&id_re;_BINARY_DIR)\b" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Variable Substitutions">

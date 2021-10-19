@@ -9,7 +9,7 @@
             "SPDX-FileCopyrightText: 2018 Andrew Crouthamel <andrew.crouthamel@kdemail.net>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 5,
+        "revision" : 6,
         "name" : "Solarized Dark"
     },
     "text-styles": {
@@ -70,8 +70,8 @@
             "selected-text-color" : "#2aa198"
         },
         "VerbatimString" : {
-            "text-color" : "#2aa198",
-            "selected-text-color" : "#2aa198"
+            "text-color" : "#23877e",
+            "selected-text-color" : "#23877e"
         },
         "SpecialString" : {
             "text-color" : "#dc322f",

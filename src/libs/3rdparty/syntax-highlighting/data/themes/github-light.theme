@@ -82,7 +82,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "GitHub Light",
-        "revision": 2
+        "revision": 3
     },
     "text-styles": {
         "Alert": {
@@ -205,8 +205,8 @@
             "text-color": "#e36209"
         },
         "VerbatimString": {
-            "selected-text-color": "#032f62",
-            "text-color": "#032f62"
+            "selected-text-color": "#034c95",
+            "text-color": "#034c95"
         },
         "Warning": {
             "selected-text-color": "#ff5555",

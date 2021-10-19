@@ -5,7 +5,7 @@
             "SPDX-FileCopyrightText: 2016 Dominik Haumann <dhaumann@kde.org>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 4,
+        "revision" : 5,
         "name" : "Printing"
     },
     "text-styles": {
@@ -69,7 +69,7 @@
             "selected-text-color" : "#9c0e0e"
         },
         "VerbatimString" : {
-            "text-color" : "#bf0303",
+            "text-color" : "#ea0404",
             "selected-text-color" : "#9c0e0e"
         },
         "SpecialString" : {

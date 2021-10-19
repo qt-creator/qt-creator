@@ -11,15 +11,17 @@ using namespace KSyntaxHighlighting;
 WordDelimiters::WordDelimiters()
     : asciiDelimiters{}
 {
-    for (const char *p = "\t !%&()*+,-./:;<=>?[\\]^{|}~"; *p; ++p)
+    for (const char *p = "\t !%&()*+,-./:;<=>?[\\]^{|}~"; *p; ++p) {
         // int(*p) fix -Wchar-subscripts
         asciiDelimiters[int(*p)] = true;
+    }
 }
 
 bool WordDelimiters::contains(QChar c) const
 {
-    if (c.unicode() < 128)
+    if (c.unicode() < 128) {
         return asciiDelimiters[c.unicode()];
+    }
     // perf tells contains is MUCH faster than binary search here, very short array
     return notAsciiDelimiters.contains(c);
 }

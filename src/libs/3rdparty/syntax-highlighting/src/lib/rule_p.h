@@ -87,7 +87,7 @@ public:
     {
     }
 
-    virtual MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const = 0;
+    virtual MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const = 0;
 
     static Rule::Ptr create(QStringView name);
 
@@ -121,58 +121,58 @@ protected:
     bool m_dynamic = false;
 };
 
-class AnyChar : public Rule
+class AnyChar final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QString m_chars;
 };
 
-class DetectChar : public Rule
+class DetectChar final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 
 private:
     QChar m_char;
     int m_captureIndex = 0;
 };
 
-class Detect2Char : public Rule
+class Detect2Char final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 
 private:
     QChar m_char1;
     QChar m_char2;
 };
 
-class DetectIdentifier : public Rule
+class DetectIdentifier final : public Rule
 {
 protected:
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 };
 
-class DetectSpaces : public Rule
+class DetectSpaces final : public Rule
 {
 protected:
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 };
 
-class Float : public Rule
+class Float final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 };
 
-class IncludeRules : public Rule
+class IncludeRules final : public Rule
 {
 public:
     QString contextName() const;
@@ -181,7 +181,7 @@ public:
 
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QString m_contextName;
@@ -189,44 +189,44 @@ private:
     bool m_includeAttribute;
 };
 
-class Int : public Rule
+class Int final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 };
 
-class HlCChar : public Rule
+class HlCChar final : public Rule
 {
 protected:
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 };
 
-class HlCHex : public Rule
-{
-protected:
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
-};
-
-class HlCOct : public Rule
+class HlCHex final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 };
 
-class HlCStringChar : public Rule
-{
-protected:
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
-};
-
-class KeywordListRule : public Rule
+class HlCOct final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+};
+
+class HlCStringChar final : public Rule
+{
+protected:
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+};
+
+class KeywordListRule final : public Rule
+{
+protected:
+    bool doLoad(QXmlStreamReader &reader) override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     KeywordList *m_keywordList;
@@ -234,55 +234,55 @@ private:
     Qt::CaseSensitivity m_caseSensitivityOverride;
 };
 
-class LineContinue : public Rule
+class LineContinue final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QChar m_char;
 };
 
-class RangeDetect : public Rule
+class RangeDetect final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QChar m_begin;
     QChar m_end;
 };
 
-class RegExpr : public Rule
+class RegExpr final : public Rule
 {
 protected:
     void resolvePostProcessing() override;
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 
 private:
     QRegularExpression m_regexp;
     bool m_isResolved = false;
 };
 
-class StringDetect : public Rule
+class StringDetect final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 
 private:
     QString m_string;
     Qt::CaseSensitivity m_caseSensitivity;
 };
 
-class WordDetect : public Rule
+class WordDetect final : public Rule
 {
 protected:
     bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 
 private:
     QString m_word;

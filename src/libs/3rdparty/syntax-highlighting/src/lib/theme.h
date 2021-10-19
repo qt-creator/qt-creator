@@ -64,6 +64,8 @@ class RepositoryPrivate;
 class KSYNTAXHIGHLIGHTING_EXPORT Theme
 {
     Q_GADGET
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QString translatedName READ translatedName)
 public:
     // TODO KF6:
     // - make TextStyle an enum class

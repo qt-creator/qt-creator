@@ -82,7 +82,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "GitHub Dark",
-        "revision": 2
+        "revision": 3
     },
     "text-styles": {
         "Alert": {
@@ -205,8 +205,8 @@
             "text-color": "#ffab70"
         },
         "VerbatimString": {
-            "selected-text-color": "#9ecbff",
-            "text-color": "#9ecbff"
+            "selected-text-color": "#41a0ff",
+            "text-color": "#41a0ff"
         },
         "Warning": {
             "selected-text-color": "#ff5555",

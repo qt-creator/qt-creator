@@ -1,6 +1,6 @@
 {
     "_comments": [
-        "Last update: Feb 22, 2021 (revision 3)",
+        "Last update: Jul 28, 2021 (revision 4)",
         "This file has been converted from: https://github.com/dempfi/ayu",
         "Also see: https://github.com/ayu-theme"
     ],
@@ -11,7 +11,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "ayu Dark",
-        "revision": 3
+        "revision": 4
     },
     "editor-colors": {
         "BackgroundColor": "#0a0e14",
@@ -169,8 +169,8 @@
             "text-color": "#39bae6"
         },
         "VerbatimString": {
-            "selected-text-color": "#c2d94c",
-            "text-color": "#c2d94c"
+            "selected-text-color": "#99ca44",
+            "text-color": "#99ca44"
         },
         "Warning": {
             "selected-text-color": "#f07178",

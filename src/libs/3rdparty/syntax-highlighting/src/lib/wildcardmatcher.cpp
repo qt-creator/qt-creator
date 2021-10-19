@@ -4,14 +4,16 @@
     SPDX-License-Identifier: MIT
 */
 
-#include "wildcardmatcher_p.h"
+#include "wildcardmatcher.h"
 
 using namespace KSyntaxHighlighting;
 
 #include <QChar>
-#include <QString>
+#include <QStringView>
 
-static bool exactMatch(const QString &candidate, const QString &wildcard, int candidatePosFromRight, int wildcardPosFromRight, bool caseSensitive = true)
+namespace
+{
+bool wildcardMatch(QStringView candidate, QStringView wildcard, int candidatePosFromRight, int wildcardPosFromRight)
 {
     for (; wildcardPosFromRight >= 0; wildcardPosFromRight--) {
         const auto ch = wildcard.at(wildcardPosFromRight).unicode();
@@ -27,7 +29,7 @@ static bool exactMatch(const QString &candidate, const QString &wildcard, int ca
 
             // Eat all we can and go back as far as we have to
             for (int j = -1; j <= candidatePosFromRight; j++) {
-                if (exactMatch(candidate, wildcard, j, wildcardPosFromRight - 1)) {
+                if (wildcardMatch(candidate, wildcard, j, wildcardPosFromRight - 1)) {
                     return true;
                 }
             }
@@ -47,18 +49,19 @@ static bool exactMatch(const QString &candidate, const QString &wildcard, int ca
             }
 
             const auto candidateCh = candidate.at(candidatePosFromRight).unicode();
-            const auto match = caseSensitive ? (candidateCh == ch) : (QChar::toLower(candidateCh) == QChar::toLower(ch));
-            if (match) {
+            if (candidateCh == ch) {
                 candidatePosFromRight--;
             } else {
                 return false;
             }
         }
     }
-    return true;
+    return candidatePosFromRight == -1;
 }
 
-bool WildcardMatcher::exactMatch(const QString &candidate, const QString &wildcard, bool caseSensitive)
+} // unnamed namespace
+
+bool WildcardMatcher::exactMatch(QStringView candidate, QStringView wildcard)
 {
-    return ::exactMatch(candidate, wildcard, candidate.length() - 1, wildcard.length() - 1, caseSensitive);
+    return ::wildcardMatch(candidate, wildcard, candidate.length() - 1, wildcard.length() - 1);
 }

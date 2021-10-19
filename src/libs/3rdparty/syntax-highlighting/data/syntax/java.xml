@@ -7,7 +7,7 @@
 	<!ENTITY float "(\b&int;(\.((&int;&exp;?+|&exp;)[fFdD]?\b|[fFdD]\b)?|&exp;[fFdD]?\b|[fFdD]\b)|\.&int;&exp;?[fFdD]?\b)">
 	<!ENTITY hexfloat "\b0[xX](&hex;\.?+&hex;?+|\.&hex;?)[pP][-+]?&int;[fFdD]?\b">
 ]>
-<language name="Java" version="9" kateversion="5.62" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="10" kateversion="5.62" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3732,6 +3732,7 @@
 			<item>volatile</item>
 		</list>
 		<list name="control flow">
+			<item>assert</item>
 			<item>break</item>
 			<item>case</item>
 			<item>catch</item>
@@ -3760,6 +3761,7 @@
 			<item>long</item>
 			<item>short</item>
 			<item>static</item>
+			<item>var</item>
 			<item>void</item>
 		</list>
 		<contexts>

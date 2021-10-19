@@ -51,24 +51,27 @@ void DefinitionDownloaderPrivate::definitionListDownloadFinished(QNetworkReply *
     while (!parser.atEnd()) {
         switch (parser.readNext()) {
         case QXmlStreamReader::StartElement:
-            if (parser.name() == QLatin1String("Definition"))
+            if (parser.name() == QLatin1String("Definition")) {
                 updateDefinition(parser);
+            }
             break;
         default:
             break;
         }
     }
 
-    if (pendingDownloads == 0)
+    if (pendingDownloads == 0) {
         Q_EMIT q->informationMessage(QObject::tr("All syntax definitions are up-to-date."));
+    }
     checkDone();
 }
 
 void DefinitionDownloaderPrivate::updateDefinition(QXmlStreamReader &parser)
 {
     const auto name = parser.attributes().value(QLatin1String("name"));
-    if (name.isEmpty())
+    if (name.isEmpty()) {
         return;
+    }
 
     auto localDef = repo->definitionForName(name.toString());
     if (!localDef.isValid()) {
@@ -86,11 +89,13 @@ void DefinitionDownloaderPrivate::updateDefinition(QXmlStreamReader &parser)
 
 void DefinitionDownloaderPrivate::downloadDefinition(const QUrl &downloadUrl)
 {
-    if (!downloadUrl.isValid())
+    if (!downloadUrl.isValid()) {
         return;
+    }
     auto url = downloadUrl;
-    if (url.scheme() == QLatin1String("http"))
+    if (url.scheme() == QLatin1String("http")) {
         url.setScheme(QStringLiteral("https"));
+    }
 
     QNetworkRequest req(url);
     auto reply = nam->get(req);
@@ -133,8 +138,9 @@ void DefinitionDownloaderPrivate::downloadDefinitionFinished(QNetworkReply *repl
 void DefinitionDownloaderPrivate::checkDone()
 {
     if (pendingDownloads == 0) {
-        if (needsReload)
+        if (needsReload) {
             repo->reload();
+        }
 
         Q_EMIT QTimer::singleShot(0, q, &DefinitionDownloader::done);
     }

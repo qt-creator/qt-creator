@@ -21,8 +21,9 @@ using namespace KSyntaxHighlighting;
 
 static Theme::TextStyle stringToDefaultFormat(QStringView str)
 {
-    if (!str.startsWith(QLatin1String("ds")))
+    if (!str.startsWith(QLatin1String("ds"))) {
         return Theme::Normal;
+    }
 
     static const auto idx = Theme::staticMetaObject.indexOfEnumerator("TextStyle");
     Q_ASSERT(idx >= 0);
@@ -30,8 +31,9 @@ static Theme::TextStyle stringToDefaultFormat(QStringView str)
 
     bool ok = false;
     const auto value = metaEnum.keyToValue(str.mid(2).toLatin1().constData(), &ok);
-    if (!ok || value < 0)
+    if (!ok || value < 0) {
         return Theme::Normal;
+    }
     return static_cast<Theme::TextStyle>(value);
 }
 
@@ -44,8 +46,9 @@ FormatPrivate *FormatPrivate::detachAndGet(Format &format)
 TextStyleData FormatPrivate::styleOverride(const Theme &theme) const
 {
     const auto themeData = ThemeData::get(theme);
-    if (themeData)
+    if (themeData) {
         return themeData->textStyleOverride(definition.definition().name(), name);
+    }
     return TextStyleData();
 }
 
@@ -113,16 +116,18 @@ bool Format::hasTextColor(const Theme &theme) const
 QColor Format::textColor(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.textColor)
+    if (overrideStyle.textColor) {
         return overrideStyle.textColor;
+    }
     return d->style.textColor ? QColor::fromRgba(d->style.textColor) : QColor::fromRgba(theme.textColor(d->defaultStyle));
 }
 
 QColor Format::selectedTextColor(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.selectedTextColor)
+    if (overrideStyle.selectedTextColor) {
         return overrideStyle.selectedTextColor;
+    }
     return d->style.selectedTextColor ? QColor::fromRgba(d->style.selectedTextColor) : QColor::fromRgba(theme.selectedTextColor(d->defaultStyle));
 }
 
@@ -136,8 +141,9 @@ bool Format::hasBackgroundColor(const Theme &theme) const
 QColor Format::backgroundColor(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.backgroundColor)
+    if (overrideStyle.backgroundColor) {
         return overrideStyle.backgroundColor;
+    }
 
     // use QColor::fromRgba for background QRgb => QColor conversion to avoid unset colors == black!
     return d->style.backgroundColor ? QColor::fromRgba(d->style.backgroundColor) : QColor::fromRgba(theme.backgroundColor(d->defaultStyle));
@@ -146,8 +152,9 @@ QColor Format::backgroundColor(const Theme &theme) const
 QColor Format::selectedBackgroundColor(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.selectedBackgroundColor)
+    if (overrideStyle.selectedBackgroundColor) {
         return overrideStyle.selectedBackgroundColor;
+    }
 
     // use QColor::fromRgba for background QRgb => QColor conversion to avoid unset colors == black!
     return d->style.selectedBackgroundColor ? QColor::fromRgba(d->style.selectedBackgroundColor)
@@ -157,32 +164,36 @@ QColor Format::selectedBackgroundColor(const Theme &theme) const
 bool Format::isBold(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.hasBold)
+    if (overrideStyle.hasBold) {
         return overrideStyle.bold;
+    }
     return d->style.hasBold ? d->style.bold : theme.isBold(d->defaultStyle);
 }
 
 bool Format::isItalic(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.hasItalic)
+    if (overrideStyle.hasItalic) {
         return overrideStyle.italic;
+    }
     return d->style.hasItalic ? d->style.italic : theme.isItalic(d->defaultStyle);
 }
 
 bool Format::isUnderline(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.hasUnderline)
+    if (overrideStyle.hasUnderline) {
         return overrideStyle.underline;
+    }
     return d->style.hasUnderline ? d->style.underline : theme.isUnderline(d->defaultStyle);
 }
 
 bool Format::isStrikeThrough(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    if (overrideStyle.hasStrikeThrough)
+    if (overrideStyle.hasStrikeThrough) {
         return overrideStyle.strikeThrough;
+    }
     return d->style.hasStrikeThrough ? d->style.strikeThrough : theme.isStrikeThrough(d->defaultStyle);
 }
 

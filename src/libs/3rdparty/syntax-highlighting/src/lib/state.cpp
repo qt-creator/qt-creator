@@ -104,7 +104,8 @@ bool State::operator!=(const State &other) const
 
 bool State::indentationBasedFoldingEnabled() const
 {
-    if (!d || d->m_contextStack.isEmpty())
+    if (!d || d->m_contextStack.isEmpty()) {
         return false;
+    }
     return d->m_contextStack.last().first->indentationBasedFoldingEnabled();
 }

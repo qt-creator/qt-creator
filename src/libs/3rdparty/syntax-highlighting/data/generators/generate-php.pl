@@ -45,6 +45,7 @@ if ($root == 1)
   $file =~ s/<language([^>]+)section="[^"]*"/<language$1section="Scripts"/s;
   $file =~ s/<language([^>]+)extensions="[^"]*"/<language$1extensions="*.php;*.php3;*.wml;*.phtml;*.phtm;*.inc;*.ctp"/s;
   $file =~ s/<language([^>]+)mimetype="[^"]*"/<language$1mimetype="text\/x-php4-src;text\/x-php3-src;text\/vnd.wap.wml;application\/x-php"/s;
+  $file =~ s/<language([^>]+)*/<language$1 indenter="cstyle"/s;
 }
 else
 {
