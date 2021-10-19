@@ -201,6 +201,11 @@ private:
 
 using FilePaths = QList<FilePath>;
 
+inline uint qHash(const Utils::FilePath &a, uint seed = 0)
+{
+    return a.hash(seed);
+}
+
 } // namespace Utils
 
 QT_BEGIN_NAMESPACE
@@ -208,3 +213,13 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FilePath &c);
 QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(Utils::FilePath)
+
+namespace std {
+template<>
+struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
+{
+    using argument_type = Utils::FilePath;
+    using result_type = size_t;
+    result_type operator()(const argument_type &fn) const;
+};
+} // namespace std

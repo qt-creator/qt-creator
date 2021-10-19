@@ -316,16 +316,5 @@ private:
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
 
-inline uint qHash(const Utils::FilePath &a, uint seed = 0) { return a.hash(seed); }
-
 } // namespace Utils
-
-namespace std {
-template<> struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
-{
-    using argument_type = Utils::FilePath;
-    using result_type = size_t;
-    result_type operator()(const argument_type &fn) const;
-};
-} // namespace std
 
