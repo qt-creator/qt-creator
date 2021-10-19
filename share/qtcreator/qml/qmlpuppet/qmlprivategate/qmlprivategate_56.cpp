@@ -34,6 +34,7 @@
 #include <QQuickItem>
 #include <QQmlComponent>
 #include <QFileInfo>
+#include <QProcessEnvironment>
 
 #include <private/qabstractfileengine_p.h>
 #include <private/qfsfileengine_p.h>
@@ -46,6 +47,19 @@
 #include <private/qquickdesignersupportstates_p.h>
 #include <private/qqmldata_p.h>
 #include <private/qqmlcomponentattached_p.h>
+
+#include <private/qabstractanimation_p.h>
+#include <private/qobject_p.h>
+#include <private/qquickbehavior_p.h>
+#include <private/qquicktext_p.h>
+#include <private/qquicktextinput_p.h>
+#include <private/qquicktextedit_p.h>
+#include <private/qquicktransition_p.h>
+#include <private/qquickloader_p.h>
+
+#include <private/qquickanimation_p.h>
+#include <private/qqmlmetatype_p.h>
+#include <private/qqmltimer_p.h>
 
 namespace QmlDesigner {
 
@@ -382,8 +396,15 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
                 static_cast<QQmlParserStatus *>(item)->componentComplete();
             } else {
                 QQmlParserStatus *qmlParserStatus = dynamic_cast<QQmlParserStatus *>(object);
-                if (qmlParserStatus)
+                if (qmlParserStatus) {
                     qmlParserStatus->componentComplete();
+                    auto *anim = dynamic_cast<QQuickAbstractAnimation *>(object);
+                    if (anim && ViewConfig::isParticleViewMode()) {
+                        nodeInstanceServer->addAnimation(anim);
+                        anim->setEnableUserControl();
+                        anim->stop();
+                    }
+                }
             }
         }
     }

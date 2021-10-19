@@ -533,10 +533,20 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
     if (m_model->hasImport(import, true, true))
         environment.set("QMLDESIGNER_QUICK3D_MODE", "true");
+
+    import = QmlDesigner::Import::createLibraryImport("QtQuick3D.Particles3D", "1.0");
+    if (m_model->hasImport(import, true, true))
+        environment.set("QMLDESIGNER_QUICK3D_PARTICLES3D_MODE", "true");
+
     import = QmlDesigner::Import::createLibraryImport("QtCharts", "2.0");
     if (m_model->hasImport(import, true, true))
         environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
-    environment.set("QT_QUICK3D_DISABLE_PARTICLE_SYSTEMS", "1");
+
+    bool particlemode = QmlDesigner::DesignerSettings::getValue("particleMode").toBool();
+    if (!particlemode)
+        environment.set("QT_QUICK3D_DISABLE_PARTICLE_SYSTEMS", "1");
+    else
+        environment.set("QT_QUICK3D_EDITOR_PARTICLE_SYSTEMS", "1");
 #endif
 
     QStringList importPaths = m_model->importPaths();

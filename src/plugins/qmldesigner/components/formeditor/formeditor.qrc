@@ -8,5 +8,11 @@
         <file>snapping_and_anchoring@2x.png</file>
         <file>annotationsIcon.png</file>
         <file>annotationsIconActive.png</file>
+        <file>scrubbg.png</file>
+        <file>scrubbg@2x.png</file>
+        <file>scrubhandle-24.png</file>
+        <file>scrubhandle-48.png</file>
+        <file>scrubhandle-disabled-24.png</file>
+        <file>scrubhandle-disabled-48.png</file>
     </qresource>
 </RCC>

@@ -43,6 +43,20 @@
 #include <nodeinstanceserverinterface.h>
 #include "servernodeinstance.h"
 #include "debugoutputcommand.h"
+#include "viewconfig.h"
+
+#include <private/qabstractanimation_p.h>
+#include <private/qobject_p.h>
+#include <private/qquickbehavior_p.h>
+#include <private/qquicktext_p.h>
+#include <private/qquicktextinput_p.h>
+#include <private/qquicktextedit_p.h>
+#include <private/qquicktransition_p.h>
+#include <private/qquickloader_p.h>
+
+#include <private/qquickanimation_p.h>
+#include <private/qqmlmetatype_p.h>
+#include <private/qqmltimer_p.h>
 
 namespace QtHelpers {
 template <class T>
@@ -217,6 +231,9 @@ public:
     virtual QImage grabItem(QQuickItem *item) = 0;
 
     virtual bool isInformationServer() const;
+    void addAnimation(QQuickAbstractAnimation *animation);
+    QVector<QQuickAbstractAnimation *> animations() const;
+    QVariant animationDefaultValue(int index) const;
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
@@ -291,7 +308,8 @@ protected:
     void setupDefaultDummyData();
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);
 
-    QList<QQmlContext *> allSubContextsForObject(QObject *object);
+    QList<QQmlContext*> allSubContextsForObject(QObject *object);
+    static QList<QObject*> allSubObjectsForObject(QObject *object);
 
     virtual void resizeCanvasToRootItem() = 0;
     void setupState(qint32 stateInstanceId);
@@ -322,6 +340,8 @@ private:
     std::unique_ptr<MultiLanguage::Link> multilanguageLink;
     int m_needsExtraRenderCount = 0;
     int m_extraRenderCurrentPass = 0;
+    QVector<QQuickAbstractAnimation *> m_animations;
+    QVector<QVariant> m_defaultValues;
 };
 
 }

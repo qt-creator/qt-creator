@@ -577,6 +577,8 @@ Project {
                 "formeditor/scaleitem.h",
                 "formeditor/scalemanipulator.cpp",
                 "formeditor/scalemanipulator.h",
+                "formeditor/seekerslider.cpp",
+                "formeditor/seekerslider.h",
                 "formeditor/selectionindicator.cpp",
                 "formeditor/selectionindicator.h",
                 "formeditor/selectionrectangle.cpp",

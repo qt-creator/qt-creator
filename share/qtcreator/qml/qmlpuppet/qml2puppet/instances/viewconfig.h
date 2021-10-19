@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,41 +23,12 @@
 **
 ****************************************************************************/
 
-#include "diagnosticcontainer.h"
+#pragma once
 
-#include <utf8stringvector.h>
-
-#include <QDebug>
-
-namespace ClangBackEnd {
-
-QDebug operator<<(QDebug debug, const DiagnosticContainer &container)
+class ViewConfig
 {
-    debug.nospace() << "DiagnosticContainer("
-                    << container.text << ", "
-                    << container.category << ", "
-                    << container.enableOption << ", "
-                    << container.disableOption << ", "
-                    << container.location << ", "
-                    << container.ranges << ", "
-                    << container.fixIts << ", "
-                    << container.children
-                    << ")";
-
-    return debug;
-}
-
-QDebug operator<<(QDebug debug, const QVector<DiagnosticContainer> &containers)
-{
-    debug.nospace() << "{";
-    for (int i = 0; i < containers.size(); i++) {
-        debug.nospace() << containers[i];
-        if (i < containers.size() - 1)
-            debug.nospace() << ", ";
-    }
-    debug.nospace() << "}";
-    return debug;
-}
-
-} // namespace ClangBackEnd
-
+public:
+    static bool isQuick3DMode();
+    static void enableParticleView(bool enable);
+    static bool isParticleViewMode();
+};

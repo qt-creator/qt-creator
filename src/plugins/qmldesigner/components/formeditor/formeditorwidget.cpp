@@ -139,7 +139,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
-    m_toolBox = new ToolBox(this);
+    m_toolBox = new ToolBox(nullptr, this);
     fillLayout->addWidget(m_toolBox.data());
 
     m_toolBox->setLeftSideActions(upperActions);

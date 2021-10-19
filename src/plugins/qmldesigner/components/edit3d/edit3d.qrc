@@ -34,5 +34,15 @@
         <file>images/select_item@2x.png</file>
         <file>images/orthographic_camera.png</file>
         <file>images/orthographic_camera@2x.png</file>
-    </qresource>
+        <file>images/particles_off.png</file>
+        <file>images/particles_off@2x.png</file>
+        <file>images/particles_on.png</file>
+        <file>images/particles_on@2x.png</file>
+        <file>images/particles_play.png</file>
+        <file>images/particles_play@2x.png</file>
+        <file>images/particles_pause.png</file>
+        <file>images/particles_pause@2x.png</file>
+        <file>images/particles_restart.png</file>
+        <file>images/particles_restart@2x.png</file>
+        </qresource>
 </RCC>

@@ -39,4 +39,16 @@ QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
     return debug;
 }
 
+QDebug operator<<(QDebug debug, const QVector<SourceRangeContainer> &containers)
+{
+    debug.nospace() << "{";
+    for (int i = 0; i < containers.size(); i++) {
+        debug.nospace() << containers[i];
+        if (i < containers.size() - 1)
+            debug.nospace() << ", ";
+    }
+    debug.nospace() << "}";
+    return debug;
+}
+
 } // namespace ClangBackEnd

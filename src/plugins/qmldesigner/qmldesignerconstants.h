@@ -64,6 +64,10 @@ const char EDIT3D_ORIENTATION[]    = "QmlDesigner.Editor3D.OrientationToggle";
 const char EDIT3D_EDIT_LIGHT[]     = "QmlDesigner.Editor3D.EditLightToggle";
 const char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
 const char EDIT3D_RESET_VIEW[]     = "QmlDesigner.Editor3D.ResetView";
+const char EDIT3D_PARTICLE_MODE[]     = "QmlDesigner.Editor3D.ParticleViewModeToggle";
+const char EDIT3D_PARTICLES_PLAY[]    = "QmlDesigner.Editor3D.ParticlesPlay";
+const char EDIT3D_PARTICLES_RESTART[] = "QmlDesigner.Editor3D.ParticlesRestart";
+
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,42 +22,52 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#include "diagnosticcontainer.h"
+#include <QWidget>
+#include <QMouseEvent>
+#include <QIcon>
 
-#include <utf8stringvector.h>
+namespace QmlDesigner {
 
-#include <QDebug>
-
-namespace ClangBackEnd {
-
-QDebug operator<<(QDebug debug, const DiagnosticContainer &container)
+class SeekerSlider : public QWidget
 {
-    debug.nospace() << "DiagnosticContainer("
-                    << container.text << ", "
-                    << container.category << ", "
-                    << container.enableOption << ", "
-                    << container.disableOption << ", "
-                    << container.location << ", "
-                    << container.ranges << ", "
-                    << container.fixIts << ", "
-                    << container.children
-                    << ")";
-
-    return debug;
-}
-
-QDebug operator<<(QDebug debug, const QVector<DiagnosticContainer> &containers)
-{
-    debug.nospace() << "{";
-    for (int i = 0; i < containers.size(); i++) {
-        debug.nospace() << containers[i];
-        if (i < containers.size() - 1)
-            debug.nospace() << ", ";
+    Q_OBJECT
+public:
+    SeekerSlider(QWidget *parentWidget);
+    int position() const;
+    int maxPosition() const
+    {
+        return m_maxPosition;
     }
-    debug.nospace() << "}";
-    return debug;
-}
 
-} // namespace ClangBackEnd
+    void setMaxPosition(int pos)
+    {
+        m_maxPosition = qMax(0, pos);
+    }
 
+Q_SIGNALS:
+    void positionChanged();
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+
+private:
+    int m_position = 0;
+    int m_startPos = 0;
+    int m_sliderPos = 0;
+    int m_sliderHalfWidth = 0;
+    int m_maxPosition = 30;
+    bool m_moving = false;
+    int m_bgWidth;
+    int m_bgHeight;
+    int m_handleWidth;
+    int m_handleHeight;
+    QIcon m_bgIcon;
+    QIcon m_handleIcon;
+};
+
+} // namespace QmlDesigner

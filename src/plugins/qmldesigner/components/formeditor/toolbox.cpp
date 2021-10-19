@@ -33,10 +33,11 @@
 
 namespace QmlDesigner {
 
-ToolBox::ToolBox(QWidget *parentWidget)
+ToolBox::ToolBox(SeekerSlider *seeker, QWidget *parentWidget)
     : Utils::StyledBar(parentWidget),
   m_leftToolBar(new QToolBar(QLatin1String("LeftSidebar"), this)),
-  m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this))
+  m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this)),
+  m_seeker(seeker)
 {
     m_leftToolBar->setFloatable(true);
     m_leftToolBar->setMovable(true);
@@ -62,6 +63,8 @@ ToolBox::ToolBox(QWidget *parentWidget)
     m_rightToolBar->setOrientation(Qt::Horizontal);
     horizontalLayout->addWidget(m_leftToolBar);
     horizontalLayout->addWidget(stretchToolbar);
+    if (seeker)
+        horizontalLayout->addWidget(m_seeker);
     horizontalLayout->addWidget(m_rightToolBar);
 }
 
@@ -92,6 +95,11 @@ void ToolBox::addRightSideAction(QAction *action)
 QList<QAction*> ToolBox::actions() const
 {
     return m_leftToolBar->actions() + m_rightToolBar->actions();
+}
+
+SeekerSlider *ToolBox::seeker() const
+{
+    return m_seeker;
 }
 
 } // namespace QmlDesigner

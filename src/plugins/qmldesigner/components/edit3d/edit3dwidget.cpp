@@ -33,6 +33,8 @@
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
 #include "viewmanager.h"
+#include <seekerslider.h>
+#include <nodeinstanceview.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -64,8 +66,11 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
+    SeekerSlider *seeker = new SeekerSlider(this);
+    seeker->setEnabled(false);
+
     // Initialize toolbar
-    m_toolBox = new ToolBox(this);
+    m_toolBox = new ToolBox(seeker, this);
     fillLayout->addWidget(m_toolBox.data());
 
     // Iterate through view actions. A null action indicates a separator and a second null action
@@ -100,7 +105,10 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
                     auto separator = new QAction(this);
                     separator->setSeparator(true);
                     addAction(separator);
-                    m_toolBox->addLeftSideAction(separator);
+                    if (left)
+                        m_toolBox->addLeftSideAction(separator);
+                    else
+                        m_toolBox->addRightSideAction(separator);
                     previousWasSeparator = true;
                 }
             }
@@ -108,6 +116,14 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     };
     addActionsToToolBox(view->leftActions(), true);
     addActionsToToolBox(view->rightActions(), false);
+
+    view->setSeeker(seeker);
+    seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
+
+    QObject::connect(seeker, &SeekerSlider::positionChanged, [this, seeker](){
+        QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()
+                ->view3DAction(View3DSeekActionCommand(seeker->position()));
+    });
 
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);

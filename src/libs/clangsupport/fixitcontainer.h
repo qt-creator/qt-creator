@@ -69,5 +69,6 @@ public:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FixItContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const QVector<FixItContainer> &container);
 
 } // namespace ClangBackEnd

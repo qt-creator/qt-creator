@@ -209,6 +209,11 @@ QSize Edit3DView::canvasSize() const
     return {};
 }
 
+void Edit3DView::setSeeker(SeekerSlider *slider)
+{
+    m_seeker = slider;
+}
+
 void Edit3DView::createEdit3DActions()
 {
     m_selectionModeAction
@@ -272,9 +277,59 @@ void Edit3DView::createEdit3DActions()
                 Icons::EDIT3D_GRID_ON.icon());
 
     SelectionContextOperation resetTrigger = [this](const SelectionContext &) {
+        m_particlesPlayAction->action()->setEnabled(particlemode);
+        m_particlesRestartAction->action()->setEnabled(particlemode);
+        if (particlemode)
+            m_particlesPlayAction->action()->setChecked(true);
+        if (m_seeker)
+            m_seeker->setEnabled(false);
         setCurrentStateNode(rootModelNode());
         resetPuppet();
     };
+
+    SelectionContextOperation particlesTrigger = [this](const SelectionContext &) {
+        particlemode = !particlemode;
+        m_particlesPlayAction->action()->setEnabled(particlemode);
+        m_particlesRestartAction->action()->setEnabled(particlemode);
+        if (m_seeker)
+            m_seeker->setEnabled(false);
+        QmlDesigner::DesignerSettings::setValue("particleMode", particlemode);
+        setCurrentStateNode(rootModelNode());
+        resetPuppet();
+    };
+
+    SelectionContextOperation particlesRestartTrigger = [this](const SelectionContext &) {
+        m_particlesPlayAction->action()->setChecked(true);
+        if (m_seeker)
+            m_seeker->setEnabled(false);
+    };
+
+    SelectionContextOperation particlesPlayTrigger = [this](const SelectionContext &) {
+        if (m_seeker)
+            m_seeker->setEnabled(!m_particlesPlayAction->action()->isChecked());
+    };
+
+    m_particleViewModeAction
+            = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_PARTICLE_MODE, View3DActionCommand::Edit3DParticleModeToggle,
+                QCoreApplication::translate("ParticleViewModeAction", "Toggle particle animation On/Off"),
+                QKeySequence(Qt::Key_V), true, false, Icons::EDIT3D_PARTICLE_OFF.icon(),
+                Icons::EDIT3D_PARTICLE_ON.icon(), particlesTrigger);
+    particlemode = false;
+    m_particlesPlayAction
+            = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_PARTICLES_PLAY, View3DActionCommand::ParticlesPlay,
+                QCoreApplication::translate("ParticlesPlayAction", "Play Particles"),
+                QKeySequence(Qt::Key_W), true, true, Icons::EDIT3D_PARTICLE_PLAY.icon(),
+                Icons::EDIT3D_PARTICLE_PAUSE.icon(), particlesPlayTrigger);
+    m_particlesRestartAction
+            = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_PARTICLES_RESTART, View3DActionCommand::ParticlesRestart,
+                QCoreApplication::translate("ParticlesRestartAction", "Restart Particles"),
+                QKeySequence(Qt::Key_E), false, false, Icons::EDIT3D_PARTICLE_RESTART.icon(),
+                Icons::EDIT3D_PARTICLE_RESTART.icon(), particlesRestartTrigger);
+    m_particlesPlayAction->action()->setEnabled(particlemode);
+    m_particlesRestartAction->action()->setEnabled(particlemode);
     m_resetAction
             = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_RESET_VIEW, View3DActionCommand::Empty,
@@ -296,6 +351,10 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_editLightAction;
     m_leftActions << m_showGridAction;
 
+    m_rightActions << m_particleViewModeAction;
+    m_rightActions << m_particlesPlayAction;
+    m_rightActions << m_particlesRestartAction;
+    m_rightActions << nullptr;
     m_rightActions << m_resetAction;
 }
 

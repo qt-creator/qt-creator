@@ -85,5 +85,6 @@ public:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const QVector<SourceRangeContainer> &container);
 
 } // namespace ClangBackEnd

@@ -202,6 +202,7 @@ extend_qtc_plugin(QmlDesigner
     rubberbandselectionmanipulator.cpp rubberbandselectionmanipulator.h
     scaleitem.cpp scaleitem.h
     scalemanipulator.cpp scalemanipulator.h
+    seekerslider.cpp seekerslider.h
     selectionindicator.cpp selectionindicator.h
     selectionrectangle.cpp selectionrectangle.h
     selectiontool.cpp selectiontool.h

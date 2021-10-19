@@ -82,6 +82,7 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
         setNodeInstanceServer(std::make_unique<Qt5PreviewNodeInstanceServer>(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
+        ViewConfig::enableParticleView(true);
         setNodeInstanceServer(std::make_unique<Qt5InformationNodeInstanceServer>(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {

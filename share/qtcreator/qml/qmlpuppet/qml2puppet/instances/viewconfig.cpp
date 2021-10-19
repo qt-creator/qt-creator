@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,41 +23,23 @@
 **
 ****************************************************************************/
 
-#include "diagnosticcontainer.h"
+#include "viewconfig.h"
+#include <QtGlobal>
 
-#include <utf8stringvector.h>
-
-#include <QDebug>
-
-namespace ClangBackEnd {
-
-QDebug operator<<(QDebug debug, const DiagnosticContainer &container)
+bool ViewConfig::isQuick3DMode()
 {
-    debug.nospace() << "DiagnosticContainer("
-                    << container.text << ", "
-                    << container.category << ", "
-                    << container.enableOption << ", "
-                    << container.disableOption << ", "
-                    << container.location << ", "
-                    << container.ranges << ", "
-                    << container.fixIts << ", "
-                    << container.children
-                    << ")";
-
-    return debug;
+    static bool mode3D = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE");
+    return mode3D;
 }
 
-QDebug operator<<(QDebug debug, const QVector<DiagnosticContainer> &containers)
+static bool particleViewEnabled = false;
+void ViewConfig::enableParticleView(bool enable)
 {
-    debug.nospace() << "{";
-    for (int i = 0; i < containers.size(); i++) {
-        debug.nospace() << containers[i];
-        if (i < containers.size() - 1)
-            debug.nospace() << ", ";
-    }
-    debug.nospace() << "}";
-    return debug;
+    particleViewEnabled = enable;
 }
 
-} // namespace ClangBackEnd
-
+bool ViewConfig::isParticleViewMode()
+{
+    static bool particleviewmode = !qEnvironmentVariableIsSet("QT_QUICK3D_DISABLE_PARTICLE_SYSTEMS");
+    return particleviewmode && particleViewEnabled;
+}
