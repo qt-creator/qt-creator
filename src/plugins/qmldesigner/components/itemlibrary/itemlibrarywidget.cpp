@@ -38,6 +38,7 @@
 #include <itemlibrarymodel.h>
 #include <itemlibraryaddimportmodel.h>
 #include "itemlibraryassetsiconprovider.h"
+#include "modelnodeoperations.h"
 #include <metainfo.h>
 #include <model.h>
 #include <rewritingexception.h>
@@ -621,8 +622,11 @@ void ItemLibraryWidget::addResources(const QStringList &files)
         QStringList fileNames = categoryFileNames.values(category);
         AddResourceOperation operation = categoryToOperation.value(category);
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
-        if (!operation(fileNames, document->fileName().parentDir().toString()))
-            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"), tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+        AddFilesResult result = operation(fileNames, document->fileName().parentDir().toString());
+        if (result == AddFilesResult::Failed) {
+            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                  tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+        }
     }
 }
 
