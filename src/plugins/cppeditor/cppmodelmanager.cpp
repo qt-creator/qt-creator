@@ -196,6 +196,7 @@ public:
 
     bool m_enableGC;
     QTimer m_delayedGcTimer;
+    QTimer m_fallbackProjectPartTimer;
 
     // Refactoring
     using REHash = QMap<REType, RefactoringEngineInterface *>;
@@ -692,12 +693,16 @@ CppModelManager::CppModelManager()
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
             this, &CppModelManager::onCoreAboutToClose);
 
-    connect(KitManager::instance(), &KitManager::kitsChanged, this,
-            &CppModelManager::setupFallbackProjectPart);
-    connect(this, &CppModelManager::projectPartsRemoved, this,
-            &CppModelManager::setupFallbackProjectPart);
-    connect(this, &CppModelManager::projectPartsUpdated, this,
-            &CppModelManager::setupFallbackProjectPart);
+    d->m_fallbackProjectPartTimer.setSingleShot(true);
+    d->m_fallbackProjectPartTimer.setInterval(5000);
+    connect(&d->m_fallbackProjectPartTimer, &QTimer::timeout,
+            this, &CppModelManager::setupFallbackProjectPart);
+    connect(KitManager::instance(), &KitManager::kitsChanged,
+            &d->m_fallbackProjectPartTimer, qOverload<>(&QTimer::start));
+    connect(this, &CppModelManager::projectPartsRemoved,
+            &d->m_fallbackProjectPartTimer, qOverload<>(&QTimer::start));
+    connect(this, &CppModelManager::projectPartsUpdated,
+            &d->m_fallbackProjectPartTimer, qOverload<>(&QTimer::start));
     setupFallbackProjectPart();
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
@@ -1581,8 +1586,11 @@ void CppModelManager::setupFallbackProjectPart()
     }
 
     const auto part = ProjectPart::create({}, rpp, {}, {}, {}, langExtensions, {}, tcInfo);
-    QMutexLocker locker(&d->m_fallbackProjectPartMutex);
-    d->m_fallbackProjectPart = part;
+    {
+        QMutexLocker locker(&d->m_fallbackProjectPartMutex);
+        d->m_fallbackProjectPart = part;
+    }
+    emit fallbackProjectPartUpdated();
 }
 
 void CppModelManager::GC()
