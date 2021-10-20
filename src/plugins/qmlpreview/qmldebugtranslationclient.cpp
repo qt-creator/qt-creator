@@ -52,14 +52,6 @@ void QmlDebugTranslationClient::changeLanguage(const QUrl &url, const QString &l
 
 }
 
-void QmlDebugTranslationClient::messageReceived(const QByteArray &data)
-{
-    QmlDebug::QPacket packet(dataStreamVersion(), data);
-    qint8 command;
-    packet >> command;
-    qDebug() << Q_FUNC_INFO << "invalid command" << command;
-}
-
 void QmlDebugTranslationClient::stateChanged(QmlDebug::QmlDebugClient::State state)
 {
     if (state == Unavailable)

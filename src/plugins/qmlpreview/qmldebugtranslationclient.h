@@ -37,8 +37,6 @@ public:
     explicit QmlDebugTranslationClient(QmlDebug::QmlDebugConnection *connection);
 
     void changeLanguage(const QUrl &url, const QString &localeIsoCode);
-
-    void messageReceived(const QByteArray &message) override;
     void stateChanged(State state) override;
 
 signals:
