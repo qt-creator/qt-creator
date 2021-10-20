@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.10)
 ## Add paths to check for cmake modules:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+option(BUILD_WITH_PCH "Build with precompiled headers" ON)
+
 include(FeatureSummary)
 include(QtCreatorIDEBranding RESULT_VARIABLE IDE_BRANDING_FILE)
 include(QtCreatorTranslations)
@@ -66,8 +68,6 @@ else()
 endif()
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help SerialPort Svg Tools QUIET)
-
-option(BUILD_WITH_PCH "Build with precompiled headers" ON)
 
 find_package(Threads)
 find_package(Clang QUIET)
