@@ -223,7 +223,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         GenerateResource::generateMenuEntry();
 
-    GenerateCmakeLists::generateMenuEntry();
+    GenerateCmake::generateMenuEntry();
 
     const QString fontPath
         = Core::ICore::resourcePath(

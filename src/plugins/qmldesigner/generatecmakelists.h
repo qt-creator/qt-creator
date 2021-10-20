@@ -30,9 +30,12 @@
 #include <utils/fileutils.h>
 
 namespace QmlDesigner {
-namespace GenerateCmakeLists {
+namespace GenerateCmake {
 void generateMenuEntry();
 void onGenerateCmakeLists();
+bool writeFile(const Utils::FilePath &filePath, const QString &fileContent);
+}
+namespace GenerateCmakeLists {
 void generateMainCmake(const Utils::FilePath &rootDir);
 void generateSubdirCmake(const Utils::FilePath &dir);
 QString generateModuleCmake(const Utils::FilePath &dir);
@@ -42,5 +45,10 @@ QStringList getDirectoryTreeQmls(const Utils::FilePath &dir);
 QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
 void createCmakeFile(const Utils::FilePath &filePath, const QString &content);
 bool isFileBlacklisted(const QString &fileName);
+}
+namespace GenerateEntryPoints {
+bool generateEntryPointFiles(const Utils::FilePath &dir);
+bool generateMainCpp(const Utils::FilePath &dir);
+bool generateMainQml(const Utils::FilePath &dir);
 }
 }

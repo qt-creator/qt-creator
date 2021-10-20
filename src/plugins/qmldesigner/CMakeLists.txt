@@ -38,6 +38,7 @@ add_qtc_plugin(QmlDesigner
     designermcumanager.cpp designermcumanager.h
     richtexteditordialog.cpp richtexteditordialog.h
     editorproxy.cpp editorproxy.h
+    boilerplate.qrc
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h

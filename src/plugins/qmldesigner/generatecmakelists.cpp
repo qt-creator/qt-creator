@@ -30,9 +30,11 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+#include <qmlprojectmanager/qmlmainfileaspect.h>
 
 #include <utils/fileutils.h>
 
@@ -44,21 +46,15 @@
 using namespace Utils;
 
 namespace QmlDesigner {
-namespace GenerateCmakeLists {
 
-const QDir::Filters FILES_ONLY = QDir::Files;
-const QDir::Filters DIRS_ONLY = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
-
-const char CMAKEFILENAME[] = "CMakeLists.txt";
-const char QMLDIRFILENAME[] = "qmldir";
+namespace GenerateCmake {
 
 void generateMenuEntry()
 {
     Core::ActionContainer *buildMenu =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    const Core::Context projectCntext(QmlProjectManager::Constants::QML_PROJECT_ID);
     auto action = new QAction("Generate CMakeLists.txt files");
-    QObject::connect(action, &QAction::triggered, GenerateCmakeLists::onGenerateCmakeLists);
+    QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
     buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
 
@@ -71,8 +67,32 @@ void generateMenuEntry()
 
 void onGenerateCmakeLists()
 {
-    generateMainCmake(ProjectExplorer::SessionManager::startupProject()->projectDirectory());
+    FilePath rootDir = ProjectExplorer::SessionManager::startupProject()->projectDirectory();
+    GenerateCmakeLists::generateMainCmake(rootDir);
+    GenerateEntryPoints::generateMainCpp(rootDir);
+    GenerateEntryPoints::generateMainQml(rootDir);
 }
+
+bool writeFile(const FilePath &filePath, const QString &fileContent)
+{
+    QFile file(filePath.toString());
+    file.open(QIODevice::WriteOnly);
+    QTextStream stream(&file);
+    stream << fileContent;
+    file.close();
+
+    return true;
+}
+
+}
+
+namespace GenerateCmakeLists {
+
+const QDir::Filters FILES_ONLY = QDir::Files;
+const QDir::Filters DIRS_ONLY = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
+
+const char CMAKEFILENAME[] = "CMakeLists.txt";
+const char QMLDIRFILENAME[] = "qmldir";
 
 QStringList processDirectory(const FilePath &dir)
 {
@@ -275,11 +295,7 @@ QStringList getDirectoryTreeResources(const FilePath &dir)
 void createCmakeFile(const FilePath &dir, const QString &content)
 {
     FilePath filePath = dir.pathAppended(CMAKEFILENAME);
-    QFile cmakeFile(filePath.toString());
-    cmakeFile.open(QIODevice::WriteOnly);
-    QTextStream stream(&cmakeFile);
-    stream << content;
-    cmakeFile.close();
+    GenerateCmake::writeFile(filePath, content);
 }
 
 bool isFileBlacklisted(const QString &fileName)
@@ -289,4 +305,48 @@ bool isFileBlacklisted(const QString &fileName)
 }
 
 }
+
+namespace GenerateEntryPoints {
+bool generateEntryPointFiles(const FilePath &dir)
+{
+    bool cppOk = generateMainCpp(dir);
+    bool qmlOk = generateMainQml(dir);
+
+    return cppOk && qmlOk;
 }
+
+const char MAIN_CPPFILE_CONTENT[] = ":/boilerplatetemplates/qmlprojectmaincpp.tpl";
+const char MAIN_CPPFILE_NAME[] = "main.cpp";
+
+bool generateMainCpp(const FilePath &dir)
+{
+    QFile templatefile(MAIN_CPPFILE_CONTENT);
+    templatefile.open(QIODevice::ReadOnly);
+    QTextStream stream(&templatefile);
+    QString content = stream.readAll();
+    templatefile.close();
+
+    FilePath filePath = dir.pathAppended(MAIN_CPPFILE_NAME);
+    return GenerateCmake::writeFile(filePath, content);
+}
+
+const char MAIN_QMLFILE_CONTENT[] = "import %1Qml\n\n%2 {\n}\n";
+const char MAIN_QMLFILE_NAME[] = "main.qml";
+
+bool generateMainQml(const FilePath &dir)
+{
+    FilePath filePath = dir.pathAppended(MAIN_QMLFILE_NAME);
+    QString projectName = ProjectExplorer::SessionManager::startupProject()->displayName();
+    ProjectExplorer::RunConfiguration *runConfiguration = ProjectExplorer::SessionManager::startupRunConfiguration();
+    QString mainClass;
+
+    if (const auto aspect = runConfiguration->aspect<QmlProjectManager::QmlMainFileAspect>())
+        mainClass = FilePath::fromString(aspect->mainScript()).baseName();
+
+    return GenerateCmake::writeFile(filePath, QString(MAIN_QMLFILE_CONTENT).arg(projectName).arg(mainClass));
+}
+
+}
+
+}
+
