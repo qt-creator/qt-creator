@@ -805,8 +805,9 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
         k = KitManager::registerKit([deviceTypeId, &formerKitName](Kit *kit) {
-                const QString tempKitName = makeUniquelyNumbered(
-                            tr("Replacement for \"%1\"").arg(formerKitName),
+                const QString kitNameSuggestion = formerKitName.contains(tr("Replacement for"))
+                        ? formerKitName : tr("Replacement for \"%1\"").arg(formerKitName);
+                const QString tempKitName = makeUniquelyNumbered(kitNameSuggestion,
                         transform(KitManager::kits(), &Kit::unexpandedDisplayName));
                 kit->setUnexpandedDisplayName(tempKitName);
                 DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
