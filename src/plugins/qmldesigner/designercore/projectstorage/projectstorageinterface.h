@@ -33,11 +33,7 @@ namespace QmlDesigner {
 class ProjectStorageInterface
 {
 public:
-    virtual void synchronize(Storage::Imports imports,
-                             Storage::Types types,
-                             SourceIds sourceIds,
-                             FileStatuses fileStatuses)
-        = 0;
+    virtual void synchronize(Storage::SynchronizationPackage package) = 0;
 
     virtual ModuleId moduleId(Utils::SmallStringView name) = 0;
 

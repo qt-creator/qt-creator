@@ -60,10 +60,7 @@ public:
         moduleCache.populate();
     }
 
-    void synchronize(Storage::Imports imports,
-                     Storage::Types types,
-                     SourceIds sourceIds,
-                     FileStatuses fileStatuses) override
+    void synchronize(Storage::SynchronizationPackage package) override
     {
         Sqlite::ImmediateTransaction transaction{database};
 
@@ -76,19 +73,19 @@ public:
         TypeIds deletedTypeIds;
 
         TypeIds updatedTypeIds;
-        updatedTypeIds.reserve(types.size());
+        updatedTypeIds.reserve(package.types.size());
 
         TypeIds typeIdsToBeDeleted;
 
-        auto sourceIdValues = Utils::transform<std::vector>(sourceIds, [](SourceId sourceId) {
+        auto sourceIdValues = Utils::transform<std::vector>(package.sourceIds, [](SourceId sourceId) {
             return &sourceId;
         });
 
         std::sort(sourceIdValues.begin(), sourceIdValues.end());
 
-        synchronizeFileStatuses(fileStatuses, sourceIdValues);
-        synchronizeImports(imports, sourceIdValues);
-        synchronizeTypes(types,
+        synchronizeFileStatuses(package.fileStatuses, sourceIdValues);
+        synchronizeImports(package.imports, sourceIdValues);
+        synchronizeTypes(package.types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
                          updatedAliasPropertyDeclarations,
@@ -897,22 +894,26 @@ private:
             if (!type.moduleId)
                 throw QmlDesigner::ModuleDoesNotExists{};
 
-            if (type.version) {
-                insertExportedTypeNamesWithVersionStatement.write(&type.moduleId,
-                                                                  type.name,
-                                                                  type.version.major.value,
-                                                                  type.version.minor.value,
-                                                                  &type.typeId);
+            try {
+                if (type.version) {
+                    insertExportedTypeNamesWithVersionStatement.write(&type.moduleId,
+                                                                      type.name,
+                                                                      type.version.major.value,
+                                                                      type.version.minor.value,
+                                                                      &type.typeId);
 
-            } else if (type.version.major) {
-                insertExportedTypeNamesWithMajorVersionStatement.write(&type.moduleId,
-                                                                       type.name,
-                                                                       type.version.major.value,
-                                                                       &type.typeId);
-            } else {
-                insertExportedTypeNamesWithoutVersionStatement.write(&type.moduleId,
-                                                                     type.name,
-                                                                     &type.typeId);
+                } else if (type.version.major) {
+                    insertExportedTypeNamesWithMajorVersionStatement.write(&type.moduleId,
+                                                                           type.name,
+                                                                           type.version.major.value,
+                                                                           &type.typeId);
+                } else {
+                    insertExportedTypeNamesWithoutVersionStatement.write(&type.moduleId,
+                                                                         type.name,
+                                                                         &type.typeId);
+                }
+            } catch (const Sqlite::ConstraintPreventsModification &) {
+                throw QmlDesigner::ModuleDoesNotExists{};
             }
         };
 
@@ -1858,8 +1859,7 @@ private:
             auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
                                                              foreignModuleIdColumn,
                                                              Sqlite::ForeignKeyAction::NoAction,
-                                                             Sqlite::ForeignKeyAction::NoAction,
-                                                             Sqlite::Enforment::Deferred);
+                                                             Sqlite::ForeignKeyAction::NoAction);
             auto &nameColumn = table.addColumn("name");
             auto &typeIdColumn = table.addColumn("typeId");
             auto &majorVersionColumn = table.addColumn("majorVersion");

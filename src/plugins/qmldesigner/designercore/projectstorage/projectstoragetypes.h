@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "filestatus.h"
 #include "projectstorageids.h"
 
 #include <utils/smallstring.h>
@@ -725,5 +726,35 @@ public:
 };
 
 using ProjectDatas = std::vector<ProjectData>;
+
+class SynchronizationPackage
+{
+public:
+    SynchronizationPackage() = default;
+    SynchronizationPackage(Imports imports, Types types, SourceIds sourceIds)
+        : imports{std::move(imports)}
+        , types{std::move(types)}
+        , sourceIds(std::move(sourceIds))
+    {}
+
+    SynchronizationPackage(Types types)
+        : types{std::move(types)}
+    {}
+
+    SynchronizationPackage(SourceIds sourceIds)
+        : sourceIds(std::move(sourceIds))
+    {}
+
+    SynchronizationPackage(SourceIds sourceIds, FileStatuses fileStatuses)
+        : sourceIds(std::move(sourceIds))
+        , fileStatuses(std::move(fileStatuses))
+    {}
+
+public:
+    Imports imports;
+    Types types;
+    SourceIds sourceIds;
+    FileStatuses fileStatuses;
+};
 
 } // namespace QmlDesigner::Storage

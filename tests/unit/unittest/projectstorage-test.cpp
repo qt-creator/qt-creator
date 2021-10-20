@@ -46,6 +46,7 @@ using QmlDesigner::SourceIds;
 using QmlDesigner::TypeId;
 using QmlDesigner::Cache::Source;
 using QmlDesigner::Cache::SourceContext;
+using QmlDesigner::Storage::SynchronizationPackage;
 using QmlDesigner::Storage::TypeAccessSemantics;
 
 namespace Storage = QmlDesigner::Storage;
@@ -202,14 +203,16 @@ protected:
         storage.fetchSourceId(sourceContextId3, "bar");
     }
 
-    auto createTypes()
+    auto createSimpleSynchronizationPackage()
     {
-        imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
-        imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
-        imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
-        imports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
-        imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
-        imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
+        SynchronizationPackage package;
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
+        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
 
         importsSourceId1.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
         importsSourceId1.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
@@ -219,110 +222,67 @@ protected:
         importsSourceId2.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
         importsSourceId2.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
 
-        return Storage::Types{
-            Storage::Type{
-                "QQuickItem",
-                Storage::ImportedType{"QObject"},
-                TypeAccessSemantics::Reference,
-                sourceId1,
-                {Storage::ExportedType{qtQuickModuleId, "Item"},
-                 Storage::ExportedType{qtQuickNativeModuleId, "QQuickItem"}},
-                {Storage::PropertyDeclaration{"data",
-                                              Storage::ImportedType{"QObject"},
-                                              Storage::PropertyDeclarationTraits::IsList},
-                 Storage::PropertyDeclaration{"children",
-                                              Storage::ImportedType{"Item"},
-                                              Storage::PropertyDeclarationTraits::IsList
-                                                  | Storage::PropertyDeclarationTraits::IsReadOnly}},
-                {Storage::FunctionDeclaration{"execute", "", {Storage::ParameterDeclaration{"arg", ""}}},
-                 Storage::FunctionDeclaration{
-                     "values",
-                     "Vector3D",
-                     {Storage::ParameterDeclaration{"arg1", "int"},
-                      Storage::ParameterDeclaration{"arg2",
-                                                    "QObject",
-                                                    Storage::PropertyDeclarationTraits::IsPointer},
-                      Storage::ParameterDeclaration{"arg3", "string"}}}},
-                {Storage::SignalDeclaration{"execute", {Storage::ParameterDeclaration{"arg", ""}}},
-                 Storage::SignalDeclaration{
-                     "value0s",
-                     {Storage::ParameterDeclaration{"arg1", "int"},
-                      Storage::ParameterDeclaration{"arg2",
-                                                    "QObject",
-                                                    Storage::PropertyDeclarationTraits::IsPointer},
-                      Storage::ParameterDeclaration{"arg3", "string"}}}},
-                {Storage::EnumerationDeclaration{"Enum",
-                                                 {Storage::EnumeratorDeclaration{"Foo"},
-                                                  Storage::EnumeratorDeclaration{"Bar", 32}}},
-                 Storage::EnumerationDeclaration{"Type",
-                                                 {Storage::EnumeratorDeclaration{"Foo"},
-                                                  Storage::EnumeratorDeclaration{"Poo", 12}}}}},
+        package.types.push_back(Storage::Type{
+            "QQuickItem",
+            Storage::ImportedType{"QObject"},
+            TypeAccessSemantics::Reference,
+            sourceId1,
+            {Storage::ExportedType{qtQuickModuleId, "Item"},
+             Storage::ExportedType{qtQuickNativeModuleId, "QQuickItem"}},
+            {Storage::PropertyDeclaration{"data",
+                                          Storage::ImportedType{"QObject"},
+                                          Storage::PropertyDeclarationTraits::IsList},
+             Storage::PropertyDeclaration{"children",
+                                          Storage::ImportedType{"Item"},
+                                          Storage::PropertyDeclarationTraits::IsList
+                                              | Storage::PropertyDeclarationTraits::IsReadOnly}},
+            {Storage::FunctionDeclaration{"execute", "", {Storage::ParameterDeclaration{"arg", ""}}},
+             Storage::FunctionDeclaration{
+                 "values",
+                 "Vector3D",
+                 {Storage::ParameterDeclaration{"arg1", "int"},
+                  Storage::ParameterDeclaration{"arg2",
+                                                "QObject",
+                                                Storage::PropertyDeclarationTraits::IsPointer},
+                  Storage::ParameterDeclaration{"arg3", "string"}}}},
+            {Storage::SignalDeclaration{"execute", {Storage::ParameterDeclaration{"arg", ""}}},
+             Storage::SignalDeclaration{"value0s",
+                                        {Storage::ParameterDeclaration{"arg1", "int"},
+                                         Storage::ParameterDeclaration{
+                                             "arg2", "QObject", Storage::PropertyDeclarationTraits::IsPointer},
+                                         Storage::ParameterDeclaration{"arg3", "string"}}}},
+            {Storage::EnumerationDeclaration{"Enum",
+                                             {Storage::EnumeratorDeclaration{"Foo"},
+                                              Storage::EnumeratorDeclaration{"Bar", 32}}},
+             Storage::EnumerationDeclaration{"Type",
+                                             {Storage::EnumeratorDeclaration{"Foo"},
+                                              Storage::EnumeratorDeclaration{"Poo", 12}}}}});
+        package.types.push_back(
             Storage::Type{"QObject",
                           Storage::ImportedType{},
                           TypeAccessSemantics::Reference,
                           sourceId2,
                           {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{2}},
                            Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2}},
-                           Storage::ExportedType{qmlNativeModuleId, "QObject"}}}};
+                           Storage::ExportedType{qmlNativeModuleId, "QObject"}}});
+
+        package.sourceIds = {sourceId1, sourceId2};
+
+        return package;
     }
 
-    auto createVersionedTypes()
+    auto createSynchronizationPackageWithAliases()
     {
-        return Storage::Types{
-            Storage::Type{"QObject",
-                          Storage::ImportedType{},
-                          TypeAccessSemantics::Reference,
-                          sourceId1,
-                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{1}},
-                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{1, 2}},
-                           Storage::ExportedType{qmlModuleId, "BuiltInObj"},
-                           Storage::ExportedType{qmlNativeModuleId, "QObject"}}},
-            Storage::Type{"QObject2",
-                          Storage::ImportedType{},
-                          TypeAccessSemantics::Reference,
-                          sourceId1,
-                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{2, 0}},
-                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2, 3}},
-                           Storage::ExportedType{qmlNativeModuleId, "QObject2"}}},
-            Storage::Type{"QObject3",
-                          Storage::ImportedType{},
-                          TypeAccessSemantics::Reference,
-                          sourceId1,
-                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{2, 11}},
-                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2, 11}},
-                           Storage::ExportedType{qmlNativeModuleId, "QObject3"}}},
-            Storage::Type{"QObject4",
-                          Storage::ImportedType{},
-                          TypeAccessSemantics::Reference,
-                          sourceId1,
-                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{3, 4}},
-                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{3, 4}},
-                           Storage::ExportedType{qmlModuleId, "BuiltInObj", Storage::Version{3, 4}},
-                           Storage::ExportedType{qmlNativeModuleId, "QObject4"}}}};
-    }
+        auto package{createSimpleSynchronizationPackage()};
 
-    auto createTypesWithExportedTypeNamesOnly()
-    {
-        auto types = createTypes();
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+        package.imports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
 
-        types[0].prototype = Storage::ImportedType{"Object"};
-        types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Object"};
-
-        return types;
-    }
-
-    auto createTypesWithAliases()
-    {
-        auto types = createTypes();
-
-        imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
-        imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
-        imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-        imports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
-
-        imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
-        imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
-        imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
 
         importsSourceId3.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
         importsSourceId3.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
@@ -333,75 +293,119 @@ protected:
         importsSourceId4.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
         importsSourceId4.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
 
-        types[1].propertyDeclarations.push_back(
+        package.types[1].propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects",
                                          Storage::ImportedType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList});
-
-        types.push_back(Storage::Type{"QAliasItem",
-                                      Storage::ImportedType{"Item"},
-                                      TypeAccessSemantics::Reference,
-                                      sourceId3,
-                                      {Storage::ExportedType{qtQuickModuleId, "AliasItem"},
-                                       Storage::ExportedType{qtQuickNativeModuleId, "QAliasItem"}}});
-        types.back().propertyDeclarations.push_back(
+        package.types.push_back(
+            Storage::Type{"QAliasItem",
+                          Storage::ImportedType{"Item"},
+                          TypeAccessSemantics::Reference,
+                          sourceId3,
+                          {Storage::ExportedType{qtQuickModuleId, "AliasItem"},
+                           Storage::ExportedType{qtQuickNativeModuleId, "QAliasItem"}}});
+        package.types.back().propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"data",
                                          Storage::ImportedType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList});
-        types.back().propertyDeclarations.push_back(
+        package.types.back().propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"items", Storage::ImportedType{"Item"}, "children"});
-        types.back().propertyDeclarations.push_back(
+        package.types.back().propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects", Storage::ImportedType{"Item"}, "objects"});
 
-        types.push_back(Storage::Type{"QObject2",
-                                      Storage::ImportedType{},
-                                      TypeAccessSemantics::Reference,
-                                      sourceId4,
-                                      {Storage::ExportedType{pathToModuleId, "Object2"},
-                                       Storage::ExportedType{pathToModuleId, "Obj2"}}});
-        types[3].propertyDeclarations.push_back(
+        package.types.push_back(Storage::Type{"QObject2",
+                                              Storage::ImportedType{},
+                                              TypeAccessSemantics::Reference,
+                                              sourceId4,
+                                              {Storage::ExportedType{pathToModuleId, "Object2"},
+                                               Storage::ExportedType{pathToModuleId, "Obj2"}}});
+        package.types[3].propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects",
                                          Storage::ImportedType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList});
 
-        return types;
+        package.sourceIds.push_back(sourceId3);
+        package.sourceIds.push_back(sourceId4);
+
+        return package;
     }
 
-    auto createTypesWithRecursiveAliases()
+    auto createSynchronizationPackageWithAliases2()
     {
-        imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
-        imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+        auto package{createSynchronizationPackageWithAliases()};
 
-        auto types = createTypesWithAliases();
-        types.push_back(Storage::Type{"QAliasItem2",
-                                      Storage::ImportedType{"Object"},
-                                      TypeAccessSemantics::Reference,
-                                      sourceId5,
-                                      {Storage::ExportedType{qtQuickModuleId, "AliasItem2"},
-                                       Storage::ExportedType{qtQuickNativeModuleId, "QAliasItem2"}}});
+        package.types[2].prototype = Storage::ImportedType{"Object"};
+        package.types[2].propertyDeclarations.erase(
+            std::next(package.types[2].propertyDeclarations.begin()));
 
-        types.back().propertyDeclarations.push_back(
+        return package;
+    }
+
+    auto createSynchronizationPackageWithRecursiveAliases()
+    {
+        auto package{createSynchronizationPackageWithAliases()};
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+
+        package.types.push_back(
+            Storage::Type{"QAliasItem2",
+                          Storage::ImportedType{"Object"},
+                          TypeAccessSemantics::Reference,
+                          sourceId5,
+                          {Storage::ExportedType{qtQuickModuleId, "AliasItem2"},
+                           Storage::ExportedType{qtQuickNativeModuleId, "QAliasItem2"}}});
+
+        package.types.back().propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects", Storage::ImportedType{"AliasItem"}, "objects"});
 
-        return types;
+        package.sourceIds.push_back(sourceId5);
+
+        return package;
     }
 
-    auto createTypesWithAliases2()
+    auto createSynchronizationPackageWithVersions()
     {
-        auto types = createTypesWithAliases();
-        types[2].prototype = Storage::ImportedType{"Object"};
-        types[2].propertyDeclarations.erase(std::next(types[2].propertyDeclarations.begin()));
+        SynchronizationPackage package;
 
-        return types;
-    }
+        package.types.push_back(
+            Storage::Type{"QObject",
+                          Storage::ImportedType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId1,
+                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{1}},
+                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{1, 2}},
+                           Storage::ExportedType{qmlModuleId, "BuiltInObj"},
+                           Storage::ExportedType{qmlNativeModuleId, "QObject"}}});
+        package.types.push_back(
+            Storage::Type{"QObject2",
+                          Storage::ImportedType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId1,
+                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{2, 0}},
+                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2, 3}},
+                           Storage::ExportedType{qmlNativeModuleId, "QObject2"}}});
+        package.types.push_back(
+            Storage::Type{"QObject3",
+                          Storage::ImportedType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId1,
+                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{2, 11}},
+                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2, 11}},
+                           Storage::ExportedType{qmlNativeModuleId, "QObject3"}}});
+        package.types.push_back(
+            Storage::Type{"QObject4",
+                          Storage::ImportedType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId1,
+                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{3, 4}},
+                           Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{3, 4}},
+                           Storage::ExportedType{qmlModuleId, "BuiltInObj", Storage::Version{3, 4}},
+                           Storage::ExportedType{qmlNativeModuleId, "QObject4"}}});
 
-    Storage::Imports createImports(SourceId sourceId)
-    {
-        return Storage::Imports{Storage::Import{qmlModuleId, Storage::Version{2}, sourceId},
-                                Storage::Import{qmlNativeModuleId, Storage::Version{}, sourceId},
-                                Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId},
-                                Storage::Import{qtQuickNativeModuleId, Storage::Version{}, sourceId},
-                                Storage::Import{pathToModuleId, Storage::Version{}, sourceId}};
+        package.sourceIds.push_back(sourceId1);
+
+        return package;
     }
 
     template<typename Range>
@@ -426,28 +430,16 @@ protected:
     QmlDesigner::SourcePathView path3{"/path3/to"};
     QmlDesigner::SourcePathView path4{"/path4/to"};
     QmlDesigner::SourcePathView path5{"/path5/to"};
-    QmlDesigner::SourcePathView modulePath1{"/module/path1/to"};
-    QmlDesigner::SourcePathView modulePath2{"/module/path2/to"};
-    QmlDesigner::SourcePathView modulePath3{"/module/aaaa/to"};
-    QmlDesigner::SourcePathView modulePath4{"/module/ooo/to"};
-    QmlDesigner::SourcePathView modulePath5{"/module/xxx/to"};
     SourceId sourceId1{sourcePathCache.sourceId(path1)};
     SourceId sourceId2{sourcePathCache.sourceId(path2)};
     SourceId sourceId3{sourcePathCache.sourceId(path3)};
     SourceId sourceId4{sourcePathCache.sourceId(path4)};
     SourceId sourceId5{sourcePathCache.sourceId(path5)};
-    SourceIds sourceIds{sourceId1, sourceId2, sourceId3, sourceId4, sourceId5};
-    SourceId qmlModuleSourceId{sourcePathCache.sourceId(modulePath1)};
-    SourceId qtQuickModuleSourceId{sourcePathCache.sourceId(modulePath2)};
-    SourceId pathToModuleSourceId{sourcePathCache.sourceId(modulePath3)};
-    SourceId moduleSourceId4{sourcePathCache.sourceId(modulePath4)};
-    SourceId moduleSourceId5{sourcePathCache.sourceId(modulePath5)};
     ModuleId qmlModuleId{storage.moduleId("Qml")};
     ModuleId qmlNativeModuleId{storage.moduleId("Qml-cppnative")};
     ModuleId qtQuickModuleId{storage.moduleId("QtQuick")};
     ModuleId qtQuickNativeModuleId{storage.moduleId("QtQuick-cppnative")};
     ModuleId pathToModuleId{storage.moduleId("/path/to")};
-    Storage::Imports imports;
     Storage::Imports importsSourceId1;
     Storage::Imports importsSourceId2;
     Storage::Imports importsSourceId3;
@@ -659,13 +651,9 @@ TEST_F(ProjectStorage, FetchSourceIdUnguardedWithNonExistingSourceContextIdThrow
 
 TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypes)
 {
-    Storage::Types types{createTypes()};
+    auto package{createSimpleSynchronizationPackage()};
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(std::move(package));
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -686,14 +674,10 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypes)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExportedPrototypeName)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::ImportedType{"Object"};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::ImportedType{"Object"};
 
-    storage.synchronize(
-        importsSourceId1,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(std::move(package));
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -714,50 +698,31 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExportedPrototypeName)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesThrowsWithWrongPrototypeName)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::ImportedType{"Objec"};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::ImportedType{"Objec"};
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithMissingModuleAndPrototypeName)
+TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithMissingModule)
 {
-    Storage::Types types{createTypes()};
-    types.push_back(Storage::Type{"QObject2",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{ModuleId{22}, "Object2"},
-                                   Storage::ExportedType{pathToModuleId, "Obj2"}}});
-    storage.synchronize(
-        imports,
-        {},
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].prototype = Storage::ImportedType{"Object2"};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.push_back(Storage::Type{"QObject2",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{ModuleId{22}, "Object2"},
+                                           Storage::ExportedType{pathToModuleId, "Obj2"}}});
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ModuleDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesReverseOrder)
 {
-    Storage::Types types{createTypes()};
-    std::reverse(types.begin(), types.end());
+    auto package{createSimpleSynchronizationPackage()};
+    std::reverse(package.types.begin(), package.types.end());
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(std::move(package));
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -778,16 +743,12 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesReverseOrder)
 
 TEST_F(ProjectStorage, SynchronizeTypesOverwritesTypeAccessSemantics)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].accessSemantics = TypeAccessSemantics::Value;
-    types[1].accessSemantics = TypeAccessSemantics::Value;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].accessSemantics = TypeAccessSemantics::Value;
+    package.types[1].accessSemantics = TypeAccessSemantics::Value;
 
-    storage.synchronize(imports, types, {sourceId1, sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{package.imports, package.types, {sourceId1, sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(
@@ -808,14 +769,10 @@ TEST_F(ProjectStorage, SynchronizeTypesOverwritesTypeAccessSemantics)
 
 TEST_F(ProjectStorage, SynchronizeTypesOverwritesSources)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].sourceId = sourceId3;
-    types[1].sourceId = sourceId4;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].sourceId = sourceId3;
+    package.types[1].sourceId = sourceId4;
     Storage::Imports newImports;
     newImports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
     newImports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
@@ -824,7 +781,9 @@ TEST_F(ProjectStorage, SynchronizeTypesOverwritesSources)
     newImports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
     newImports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
 
-    storage.synchronize(newImports, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
+    storage.synchronize(SynchronizationPackage{newImports,
+                                               package.types,
+                                               {sourceId1, sourceId2, sourceId3, sourceId4}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -845,21 +804,19 @@ TEST_F(ProjectStorage, SynchronizeTypesOverwritesSources)
 
 TEST_F(ProjectStorage, SynchronizeTypesInsertTypeIntoPrototypeChain)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].prototype = Storage::ImportedType{"QQuickObject"};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"},
-                                   Storage::ExportedType{qtQuickNativeModuleId, "QQuickObject"}}});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].prototype = Storage::ImportedType{"QQuickObject"};
+    package.types.push_back(
+        Storage::Type{"QQuickObject",
+                      Storage::ImportedType{"QObject"},
+                      TypeAccessSemantics::Reference,
+                      sourceId1,
+                      {Storage::ExportedType{qtQuickModuleId, "Object"},
+                       Storage::ExportedType{qtQuickNativeModuleId, "QQuickObject"}}});
 
-    storage.synchronize(importsSourceId1, {types[0], types[2]}, {sourceId1}, {});
+    storage.synchronize(
+        SynchronizationPackage{importsSourceId1, {package.types[0], package.types[2]}, {sourceId1}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -887,23 +844,20 @@ TEST_F(ProjectStorage, SynchronizeTypesInsertTypeIntoPrototypeChain)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedPrototype)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qtQuickModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"},
-                                   Storage::ExportedType{qtQuickNativeModuleId, "QQuickObject"}}});
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qtQuickModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
+    package.types.push_back(
+        Storage::Type{"QQuickObject",
+                      Storage::ImportedType{"QObject"},
+                      TypeAccessSemantics::Reference,
+                      sourceId1,
+                      {Storage::ExportedType{qtQuickModuleId, "Object"},
+                       Storage::ExportedType{qtQuickNativeModuleId, "QQuickObject"}}});
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -931,62 +885,48 @@ TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedPrototype)
 
 TEST_F(ProjectStorage, SynchronizeTypesThrowsForMissingPrototype)
 {
-    sourceId1 = sourcePathCache.sourceId(path1);
-    Storage::Types types{Storage::Type{"QQuickItem",
-                                       Storage::ImportedType{"QObject"},
-                                       TypeAccessSemantics::Reference,
-                                       sourceId1,
-                                       {Storage::ExportedType{qtQuickModuleId, "Item"},
-                                        Storage::ExportedType{qtQuickNativeModuleId, "QQuickItem"}}}};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types = {Storage::Type{"QQuickItem",
+                                   Storage::ImportedType{"QObject"},
+                                   TypeAccessSemantics::Reference,
+                                   sourceId1,
+                                   {Storage::ExportedType{qtQuickModuleId, "Item"},
+                                    Storage::ExportedType{qtQuickNativeModuleId, "QQuickItem"}}}};
 
-    ASSERT_THROW(storage.synchronize(
-                     imports,
-                     types,
-                     {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesThrowsForInvalidModule)
 {
-    sourceId1 = sourcePathCache.sourceId(path1);
-    Storage::Types types{Storage::Type{"QQuickItem",
-                                       Storage::ImportedType{"QObject"},
-                                       TypeAccessSemantics::Reference,
-                                       sourceId1,
-                                       {Storage::ExportedType{ModuleId{}, "Item"}}}};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types = {Storage::Type{"QQuickItem",
+                                   Storage::ImportedType{"QObject"},
+                                   TypeAccessSemantics::Reference,
+                                   sourceId1,
+                                   {Storage::ExportedType{ModuleId{}, "Item"}}}};
 
-    ASSERT_THROW(storage.synchronize(imports, types, {sourceId1}, {}),
-                 QmlDesigner::ModuleDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::ModuleDoesNotExists);
 }
 
 TEST_F(ProjectStorage, TypeWithInvalidSourceIdThrows)
 {
-    Storage::Types types{Storage::Type{"QQuickItem",
-                                       Storage::ImportedType{""},
-                                       TypeAccessSemantics::Reference,
-                                       SourceId{},
-                                       {Storage::ExportedType{qtQuickModuleId, "Item"}}}};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types = {Storage::Type{"QQuickItem",
+                                   Storage::ImportedType{""},
+                                   TypeAccessSemantics::Reference,
+                                   SourceId{},
+                                   {Storage::ExportedType{qtQuickModuleId, "Item"}}}};
 
-    ASSERT_THROW(storage.synchronize(
-                     imports,
-                     types,
-                     {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                     {}),
-                 QmlDesigner::TypeHasInvalidSourceId);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeHasInvalidSourceId);
 }
 
 TEST_F(ProjectStorage, DeleteTypeIfSourceIdIsSynchronized)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types.erase(types.begin());
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types.erase(package.types.begin());
 
-    storage.synchronize(importsSourceId2, types, {sourceId1, sourceId2}, {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 UnorderedElementsAre(
@@ -999,15 +939,10 @@ TEST_F(ProjectStorage, DeleteTypeIfSourceIdIsSynchronized)
 
 TEST_F(ProjectStorage, DontDeleteTypeIfSourceIdIsNotSynchronized)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
-    storage.synchronize(importsSourceId1, types, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -1028,15 +963,11 @@ TEST_F(ProjectStorage, DontDeleteTypeIfSourceIdIsNotSynchronized)
 
 TEST_F(ProjectStorage, UpdateExportedTypesIfTypeNameChanges)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].typeName = "QQuickItem2";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].typeName = "QQuickItem2";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -1057,27 +988,20 @@ TEST_F(ProjectStorage, UpdateExportedTypesIfTypeNameChanges)
 
 TEST_F(ProjectStorage, BreakingPrototypeChainByDeletingBaseComponentThrows)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
-    ASSERT_THROW(storage.synchronize(importsSourceId1, types, {sourceId1, sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId1,
+                                                            {package.types[0]},
+                                                            {sourceId1, sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarations)
 {
-    Storage::Types types{createTypes()};
+    auto package{createSimpleSynchronizationPackage()};
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1097,52 +1021,26 @@ TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarations)
                                             | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationsWithMissingImportsForNativeTypes)
+TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationsWithMissingImports)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports.clear();
 
-    ASSERT_THROW(storage.synchronize({},
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
-}
-
-TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationsWithMissingImportsForExportedTypes)
-{
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Obj"};
-
-    ASSERT_THROW(storage.synchronize({}, {types[0]}, {sourceId1}, {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationQualifiedType)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{"QObject"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId1,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{"QObject"},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId1,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1164,15 +1062,12 @@ TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationQualifiedType)
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesPropertyDeclarationType)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QQuickItem"};
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QQuickItem"};
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
+
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
                     AllOf(IsStorageType(sourceId1,
@@ -1193,15 +1088,11 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesPropertyDeclarationType)
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraits)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1223,16 +1114,12 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraits)
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraitsAndType)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QQuickItem"};
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsPointer;
+    package.types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QQuickItem"};
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1254,15 +1141,11 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraitsAndType)
 
 TEST_F(ProjectStorage, SynchronizeTypesRemovesAPropertyDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId1,
@@ -1278,18 +1161,14 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovesAPropertyDeclaration)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddsAPropertyDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations.push_back(
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"object",
                                      Storage::ImportedType{"QObject"},
                                      Storage::PropertyDeclarationTraits::IsPointer});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -1314,15 +1193,11 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsAPropertyDeclaration)
 
 TEST_F(ProjectStorage, SynchronizeTypesRenameAPropertyDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations[1].name = "objects";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations[1].name = "objects";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -1342,703 +1217,572 @@ TEST_F(ProjectStorage, SynchronizeTypesRenameAPropertyDeclaration)
                                             | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, UsingNonExistingNativePropertyTypeThrows)
+TEST_F(ProjectStorage, UsingNonExistingPropertyTypeThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QObject2"};
-    types.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QObject2"};
+    package.types.pop_back();
+    package.imports = importsSourceId1;
 
-    ASSERT_THROW(storage.synchronize(importsSourceId1,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
-}
-
-TEST_F(ProjectStorage, UsingNonExistingExportedPropertyTypeThrows)
-{
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"QObject2"};
-    types.pop_back();
-
-    ASSERT_THROW(storage.synchronize(importsSourceId1,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongNameThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "QObject2", Storage::Import{qmlNativeModuleId, Storage::Version{}, sourceId1}};
-    types.pop_back();
+    package.types.pop_back();
+    package.imports = importsSourceId1;
 
-    ASSERT_THROW(storage.synchronize(importsSourceId1,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongModuleThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "QObject", Storage::Import{qmlModuleId, Storage::Version{}, sourceId1}};
-    types.pop_back();
+    package.types.pop_back();
+    package.imports = importsSourceId1;
 
-    ASSERT_THROW(storage.synchronize(importsSourceId1,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, BreakingPropertyDeclarationTypeDependencyByDeletingTypeThrows)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].prototype = Storage::ImportedType{};
-    types.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].prototype = Storage::ImportedType{};
+    package.types.pop_back();
+    package.imports = importsSourceId1;
 
-    ASSERT_THROW(storage.synchronize(importsSourceId1,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclarations)
 {
-    Storage::Types types{createTypes()};
+    auto package{createSimpleSynchronizationPackage()};
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationReturnType)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].returnTypeName = "item";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].returnTypeName = "item";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].name = "name";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].name = "name";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationPopParameters)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].parameters.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].parameters.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationAppendParameters)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].parameters.push_back(Storage::ParameterDeclaration{"arg4", "int"});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].parameters.push_back(
+        Storage::ParameterDeclaration{"arg4", "int"});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameterName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].parameters[0].name = "other";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].parameters[0].name = "other";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameterTypeName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].parameters[0].name = "long long";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].parameters[0].name = "long long";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameterTraits)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations[1].parameters[0].traits = QmlDesigner::Storage::
+        PropertyDeclarationTraits::IsList;
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesRemovesFunctionDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].functionDeclarations.push_back(
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].functionDeclarations.push_back(
         Storage::FunctionDeclaration{"name", "string", {Storage::ParameterDeclaration{"arg", "int"}}});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::functionDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].functionDeclarations[0]),
-                                                          Eq(types[0].functionDeclarations[1]),
-                                                          Eq(types[0].functionDeclarations[2]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::functionDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]),
+                                                     Eq(package.types[0].functionDeclarations[1]),
+                                                     Eq(package.types[0].functionDeclarations[2]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclarations)
 {
-    Storage::Types types{createTypes()};
+    auto package{createSimpleSynchronizationPackage()};
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations[1].name = "name";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations[1].name = "name";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationPopParameters)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations[1].parameters.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations[1].parameters.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationAppendParameters)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations[1].parameters.push_back(Storage::ParameterDeclaration{"arg4", "int"});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations[1].parameters.push_back(
+        Storage::ParameterDeclaration{"arg4", "int"});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations[1].parameters[0].name = "other";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations[1].parameters[0].name = "other";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterTypeName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations[1].parameters[0].typeName = "long long";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations[1].parameters[0].typeName = "long long";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterTraits)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations[1].parameters[0].traits = QmlDesigner::Storage::PropertyDeclarationTraits::IsList;
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesRemovesSignalDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].signalDeclarations.push_back(
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].signalDeclarations.push_back(
         Storage::SignalDeclaration{"name", {Storage::ParameterDeclaration{"arg", "int"}}});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::signalDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].signalDeclarations[0]),
-                                                          Eq(types[0].signalDeclarations[1]),
-                                                          Eq(types[0].signalDeclarations[2]))))));
+                Contains(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::signalDeclarations,
+                                UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]),
+                                                     Eq(package.types[0].signalDeclarations[1]),
+                                                     Eq(package.types[0].signalDeclarations[2]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclarations)
 {
-    Storage::Types types{createTypes()};
+    auto package{createSimpleSynchronizationPackage()};
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].name = "Name";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].name = "Name";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationPopEnumeratorDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].enumeratorDeclarations.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationAppendEnumeratorDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].enumeratorDeclarations.push_back(
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations.push_back(
         Storage::EnumeratorDeclaration{"Haa", 54});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].name = "Hoo";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations[0].name = "Hoo";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationValue)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].enumeratorDeclarations[1].value = 11;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations[1].value = 11;
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage,
        SynchronizeTypesChangesEnumerationDeclarationAddThatEnumeratorDeclarationHasValue)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].value = 11;
-    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = true;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations[0].value = 11;
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = true;
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage,
        SynchronizeTypesChangesEnumerationDeclarationRemoveThatEnumeratorDeclarationHasValue)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = false;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations[1].enumeratorDeclarations[0].hasValue = false;
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesRemovesEnumerationDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations.pop_back();
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId1,
@@ -2046,41 +1790,35 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovesEnumerationDeclaration)
                                              fetchTypeId(sourceId2, "QObject"),
                                              TypeAccessSemantics::Reference),
                                Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]))))));
+                                     UnorderedElementsAre(
+                                         Eq(package.types[0].enumerationDeclarations[0]))))));
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclaration)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].enumerationDeclarations.push_back(
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].enumerationDeclarations.push_back(
         Storage::EnumerationDeclaration{"name", {Storage::EnumeratorDeclaration{"Foo", 98, true}}});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(IsStorageType(sourceId1,
-                                             "QQuickItem",
-                                             fetchTypeId(sourceId2, "QObject"),
-                                             TypeAccessSemantics::Reference),
-                               Field(&Storage::Type::enumerationDeclarations,
-                                     UnorderedElementsAre(Eq(types[0].enumerationDeclarations[0]),
-                                                          Eq(types[0].enumerationDeclarations[1]),
-                                                          Eq(types[0].enumerationDeclarations[2]))))));
+                Contains(AllOf(
+                    IsStorageType(sourceId1,
+                                  "QQuickItem",
+                                  fetchTypeId(sourceId2, "QObject"),
+                                  TypeAccessSemantics::Reference),
+                    Field(&Storage::Type::enumerationDeclarations,
+                          UnorderedElementsAre(Eq(package.types[0].enumerationDeclarations[0]),
+                                               Eq(package.types[0].enumerationDeclarations[1]),
+                                               Eq(package.types[0].enumerationDeclarations[2]))))));
 }
 
 TEST_F(ProjectStorage, FetchTypeIdBySourceIdAndName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
     auto typeId = storage.fetchTypeIdByName(sourceId2, "QObject");
 
@@ -2089,12 +1827,8 @@ TEST_F(ProjectStorage, FetchTypeIdBySourceIdAndName)
 
 TEST_F(ProjectStorage, FetchTypeIdByExportedName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
     auto typeId = storage.fetchTypeIdByExportedName("Object");
 
@@ -2103,12 +1837,8 @@ TEST_F(ProjectStorage, FetchTypeIdByExportedName)
 
 TEST_F(ProjectStorage, FetchTypeIdByImporIdsAndExportedName)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
     auto typeId = storage.fetchTypeIdByModuleIdsAndExportedName({qmlModuleId, qtQuickModuleId},
                                                                 "Object");
@@ -2118,12 +1848,8 @@ TEST_F(ProjectStorage, FetchTypeIdByImporIdsAndExportedName)
 
 TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAreEmpty)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
     auto typeId = storage.fetchTypeIdByModuleIdsAndExportedName({}, "Object");
 
@@ -2132,12 +1858,8 @@ TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAre
 
 TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAreInvalid)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
     auto typeId = storage.fetchTypeIdByModuleIdsAndExportedName({ModuleId{}}, "Object");
 
@@ -2146,12 +1868,8 @@ TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAre
 
 TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfNotInModule)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
     auto qtQuickModuleId = storage.moduleId("QtQuick");
 
     auto typeId = storage.fetchTypeIdByModuleIdsAndExportedName({qtQuickModuleId}, "Object");
@@ -2161,18 +1879,9 @@ TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfNotInModule)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarations)
 {
-    Storage::Types types{createTypesWithAliases()};
+    auto package{createSynchronizationPackageWithAliases()};
 
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2196,28 +1905,10 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarations)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsAgain)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
 
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2241,20 +1932,11 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsAgain)
 
 TEST_F(ProjectStorage, SynchronizeTypesRemoveAliasDeclarations)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[2].propertyDeclarations.pop_back();
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId3, {types[2]}, {sourceId3}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2275,38 +1957,31 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveAliasDeclarations)
 
 TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongTypeName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[2].propertyDeclarations[1].typeName = Storage::ImportedType{"QQuickItemWrong"};
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[2].propertyDeclarations[1].typeName = Storage::ImportedType{"QQuickItemWrong"};
 
-    ASSERT_THROW(storage.synchronize(importsSourceId4, {types[2]}, {sourceId4}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId4, {package.types[2]}, {sourceId4}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropertyName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
 
-    ASSERT_THROW(storage.synchronize(imports, types, {sourceId4}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{package.imports, package.types, {sourceId4}}),
                  QmlDesigner::PropertyNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsTypeName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[2].propertyDeclarations[2].typeName = Storage::ImportedType{"Obj2"};
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[2].typeName = Storage::ImportedType{"Obj2"};
     importsSourceId3.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
 
-    storage.synchronize(importsSourceId3, {types[2]}, {sourceId3}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2330,20 +2005,11 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsTypeName)
 
 TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsPropertyName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[2].propertyDeclarations[2].aliasPropertyName = "children";
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[2].aliasPropertyName = "children";
 
-    storage.synchronize(importsSourceId3, {types[2]}, {sourceId3}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2369,25 +2035,16 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsPropertyName)
 
 TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsToPropertyDeclaration)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[2].propertyDeclarations.pop_back();
-    types[2].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.pop_back();
+    package.types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize(importsSourceId3, {types[2]}, {sourceId3}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2413,26 +2070,17 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsToPropertyDeclarat
 
 TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToAliasDeclaration)
 {
-    Storage::Types types{createTypesWithAliases()};
-    auto typesChanged = types;
-    typesChanged[2].propertyDeclarations.pop_back();
-    typesChanged[2].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithAliases()};
+    auto packageChanged = package;
+    packageChanged.types[2].propertyDeclarations.pop_back();
+    packageChanged.types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
-    storage.synchronize(imports,
-                        typesChanged,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    storage.synchronize(packageChanged);
 
-    storage.synchronize(imports, types, {sourceId1, sourceId2, sourceId3, sourceId4}, {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2456,21 +2104,12 @@ TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToAliasDeclarat
 
 TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTraits)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
-                                              | Storage::PropertyDeclarationTraits::IsReadOnly;
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly;
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2496,21 +2135,12 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTrait
 
 TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTypeName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Item"};
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Item"};
     importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2534,43 +2164,25 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTypeN
 
 TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationWithAnAliasThrows)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations.pop_back();
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations.pop_back();
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  Sqlite::ConstraintPreventsModification);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndAlias)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations.pop_back();
-    types[2].propertyDeclarations.pop_back();
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations.pop_back();
+    package.types[2].propertyDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId2 + importsSourceId3,
-                        {types[1], types[2]},
-                        {sourceId2, sourceId3},
-                        {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2 + importsSourceId3,
+                                               {package.types[1], package.types[2]},
+                                               {sourceId2, sourceId3}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2591,44 +2203,26 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndAlias)
 
 TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeWithAliasTargetPropertyDeclarationThrows)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[2].propertyDeclarations[2].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[2].propertyDeclarations[2].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
+    storage.synchronize(package);
 
-    ASSERT_THROW(storage.synchronize({}, {}, {sourceId4}, {}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId4}}),
+                 QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[2].propertyDeclarations[2].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[2].propertyDeclarations.pop_back();
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[2].propertyDeclarations[2].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1 + importsSourceId3,
-                        {types[0], types[2]},
-                        {sourceId1, sourceId3},
-                        {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1 + importsSourceId3,
+                                               {package.types[0], package.types[2]},
+                                               {sourceId1, sourceId3}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2649,24 +2243,15 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
 
 TEST_F(ProjectStorage, UpdateAliasPropertyIfPropertyIsOverloaded)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[0].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2692,23 +2277,14 @@ TEST_F(ProjectStorage, UpdateAliasPropertyIfPropertyIsOverloaded)
 
 TEST_F(ProjectStorage, AliasPropertyIsOverloaded)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[0].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(
         storage.fetchTypes(),
@@ -2734,25 +2310,16 @@ TEST_F(ProjectStorage, AliasPropertyIsOverloaded)
 
 TEST_F(ProjectStorage, UpdateAliasPropertyIfOverloadedPropertyIsRemoved)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[0].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"QQuickItem"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[0].propertyDeclarations.pop_back();
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.pop_back();
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2776,23 +2343,14 @@ TEST_F(ProjectStorage, UpdateAliasPropertyIfOverloadedPropertyIsRemoved)
 
 TEST_F(ProjectStorage, RelinkAliasProperty)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[3].exportedTypes[0].moduleId = qtQuickModuleId;
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
+    package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
 
-    storage.synchronize(importsSourceId4, {types[3]}, {sourceId4}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId4, {package.types[3]}, {sourceId4}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2816,52 +2374,35 @@ TEST_F(ProjectStorage, RelinkAliasProperty)
 
 TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForQualifiedImportedTypeName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object2", Storage::Import{pathToModuleId, Storage::Version{}, sourceId2}};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[3].exportedTypes[0].moduleId = qtQuickModuleId;
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
+    package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
     importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
 
-    ASSERT_THROW(storage.synchronize(importsSourceId4, {types[3]}, {sourceId4}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId4, {package.types[3]}, {sourceId4}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage,
        DoRelinkAliasPropertyForQualifiedImportedTypeNameEvenIfAnOtherSimilarTimeNameExists)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object2", Storage::Import{pathToModuleId, Storage::Version{}, sourceId2}};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    types.push_back(Storage::Type{"QObject2",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId5,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object2"},
-                                   Storage::ExportedType{qtQuickModuleId, "Obj2"}}});
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.types.push_back(Storage::Type{"QObject2",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId5,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object2"},
+                                           Storage::ExportedType{qtQuickModuleId, "Obj2"}}});
+    package.sourceIds.push_back(sourceId5);
 
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2885,22 +2426,13 @@ TEST_F(ProjectStorage,
 
 TEST_F(ProjectStorage, RelinkAliasPropertyReactToTypeNameChange)
 {
-    Storage::Types types{createTypesWithAliases2()};
-    types[2].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithAliases2()};
+    package.types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"items", Storage::ImportedType{"Item"}, "children"});
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[0].typeName = "QQuickItem2";
+    storage.synchronize(package);
+    package.types[0].typeName = "QQuickItem2";
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(
@@ -2924,23 +2456,15 @@ TEST_F(ProjectStorage, RelinkAliasPropertyReactToTypeNameChange)
 
 TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedType)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[3].exportedTypes[0].moduleId = qtQuickModuleId;
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
+    package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
 
-    storage.synchronize(importsSourceId4, {types[3]}, {sourceId3, sourceId4}, {});
+    storage.synchronize(
+        SynchronizationPackage{importsSourceId4, {package.types[3]}, {sourceId3, sourceId4}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Not(Contains(IsStorageType(sourceId3,
@@ -2951,57 +2475,37 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedType)
 
 TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyType)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[0].prototype = Storage::ImportedType{};
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
+    package.types[0].prototype = Storage::ImportedType{};
     importsSourceId1.emplace_back(pathToModuleId, Storage::Version{}, sourceId1);
     importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    types[3].propertyDeclarations[0].typeName = Storage::ImportedType{"Item"};
+    package.types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.types[3].propertyDeclarations[0].typeName = Storage::ImportedType{"Item"};
 
-    storage.synchronize(importsSourceId1 + importsSourceId4,
-                        {types[0], types[3]},
-                        {sourceId1, sourceId2, sourceId3, sourceId4},
-                        {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1 + importsSourceId4,
+                                               {package.types[0], package.types[3]},
+                                               {sourceId1, sourceId2, sourceId3, sourceId4}});
 
     ASSERT_THAT(storage.fetchTypes(), SizeIs(2));
 }
 
 TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyTypeNameChange)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[3].exportedTypes[0].moduleId = qtQuickModuleId;
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"QObject"};
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
+    package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"QObject"};
     importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
 
-    storage.synchronize(importsSourceId2 + importsSourceId4,
-                        {types[1], types[3]},
-                        {sourceId2, sourceId3, sourceId4},
-                        {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2 + importsSourceId4,
+                                               {package.types[1], package.types[3]},
+                                               {sourceId2, sourceId3, sourceId4}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Not(Contains(IsStorageType(sourceId3,
@@ -3012,54 +2516,34 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyTypeName
 
 TEST_F(ProjectStorage, DoNotRelinkPropertyTypeDoesNotExists)
 {
-    Storage::Types types{createTypesWithAliases()};
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
 
-    ASSERT_THROW(storage.synchronize({}, {}, {sourceId4}, {}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId4}}),
+                 QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, DoNotRelinkAliasPropertyTypeDoesNotExists)
 {
-    Storage::Types types{createTypesWithAliases2()};
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithAliases2()};
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    storage.synchronize(package);
 
-    ASSERT_THROW(storage.synchronize({}, {}, {sourceId1}, {}), QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}}),
+                 QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, ChangePrototypeTypeName)
 {
-    Storage::Types types{createTypesWithExportedTypeNamesOnly()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].typeName = "QObject3";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].typeName = "QObject3";
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3070,15 +2554,11 @@ TEST_F(ProjectStorage, ChangePrototypeTypeName)
 
 TEST_F(ProjectStorage, ChangePrototypeTypeModuleId)
 {
-    Storage::Types types{createTypes()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].exportedTypes[2].moduleId = qtQuickModuleId;
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[2].moduleId = qtQuickModuleId;
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3089,44 +2569,36 @@ TEST_F(ProjectStorage, ChangePrototypeTypeModuleId)
 
 TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleIdThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qmlModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].exportedTypes[0].moduleId = qtQuickModuleId;
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qmlModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleId)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qmlModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].exportedTypes[0].moduleId = qtQuickModuleId;
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qtQuickModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qmlModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qtQuickModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
 
-    storage.synchronize(importsSourceId1 + importsSourceId2,
-                        {types[0], types[1]},
-                        {sourceId1, sourceId2},
-                        {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1 + importsSourceId2,
+                                               {package.types[0], package.types[1]},
+                                               {sourceId1, sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3137,19 +2609,17 @@ TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleId)
 
 TEST_F(ProjectStorage, ChangePrototypeTypeNameAndModuleId)
 {
-    Storage::Types types{createTypesWithExportedTypeNamesOnly()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].exportedTypes[0].moduleId = qtQuickModuleId;
-    types[1].exportedTypes[1].moduleId = qtQuickModuleId;
-    types[1].exportedTypes[2].moduleId = qtQuickModuleId;
-    types[1].exportedTypes[2].name = "QObject3";
-    types[1].typeName = "QObject3";
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::ImportedType{"Object"};
+    package.types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Object"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
+    package.types[1].exportedTypes[1].moduleId = qtQuickModuleId;
+    package.types[1].exportedTypes[2].moduleId = qtQuickModuleId;
+    package.types[1].exportedTypes[2].name = "QObject3";
+    package.types[1].typeName = "QObject3";
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3160,93 +2630,63 @@ TEST_F(ProjectStorage, ChangePrototypeTypeNameAndModuleId)
 
 TEST_F(ProjectStorage, ChangePrototypeTypeNameThrowsForWrongNativePrototupeTypeName)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Object"};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].exportedTypes[2].name = "QObject3";
-    types[1].typeName = "QObject3";
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::ImportedType{"Object"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[2].name = "QObject3";
+    package.types[1].typeName = "QObject3";
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, ThrowForPrototypeChainCycles)
 {
-    Storage::Types types{createTypes()};
-    types[1].prototype = Storage::ImportedType{"Object2"};
-    types.push_back(Storage::Type{"QObject2",
-                                  Storage::ImportedType{"Item"},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{pathToModuleId, "Object2"},
-                                   Storage::ExportedType{pathToModuleId, "Obj2"}}});
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[1].prototype = Storage::ImportedType{"Object2"};
+    package.types.push_back(Storage::Type{"QObject2",
+                                          Storage::ImportedType{"Item"},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{pathToModuleId, "Object2"},
+                                           Storage::ExportedType{pathToModuleId, "Obj2"}}});
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      sourceId3,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{package.imports,
+                                                            package.types,
+                                                            {sourceId1, sourceId2, sourceId3}}),
                  QmlDesigner::PrototypeChainCycle);
 }
 
 TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSame)
 {
-    Storage::Types types{createTypes()};
-    types[1].prototype = Storage::ImportedType{"Object"};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[1].prototype = Storage::ImportedType{"Object"};
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::PrototypeChainCycle);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::PrototypeChainCycle);
 }
 
 TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSameForRelinking)
 {
-    Storage::Types types{createTypesWithExportedTypeNamesOnly()};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].prototype = Storage::ImportedType{"Item"};
-    types[1].typeName = "QObject2";
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].prototype = Storage::ImportedType{"Item"};
+    package.types[1].typeName = "QObject2";
     importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  QmlDesigner::PrototypeChainCycle);
 }
 
 TEST_F(ProjectStorage, RecursiveAliases)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
 
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId5,
@@ -3262,22 +2702,12 @@ TEST_F(ProjectStorage, RecursiveAliases)
 
 TEST_F(ProjectStorage, RecursiveAliasesChangePropertyType)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations[0].typeName = Storage::ImportedType{"Object2"};
     importsSourceId2.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId5,
@@ -3293,25 +2723,15 @@ TEST_F(ProjectStorage, RecursiveAliasesChangePropertyType)
 
 TEST_F(ProjectStorage, UpdateAliasesAfterInjectingProperty)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[0].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"Item"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize(importsSourceId1, {types[0]}, {sourceId1}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId5,
@@ -3328,26 +2748,16 @@ TEST_F(ProjectStorage, UpdateAliasesAfterInjectingProperty)
 
 TEST_F(ProjectStorage, UpdateAliasesAfterChangeAliasToProperty)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[2].propertyDeclarations.clear();
-    types[2].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations.clear();
+    package.types[2].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects",
                                      Storage::ImportedType{"Item"},
                                      Storage::PropertyDeclarationTraits::IsList
                                          | Storage::PropertyDeclarationTraits::IsReadOnly});
 
-    storage.synchronize(importsSourceId3, {types[2]}, {sourceId3}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 AllOf(Contains(AllOf(IsStorageType(sourceId5,
@@ -3376,26 +2786,16 @@ TEST_F(ProjectStorage, UpdateAliasesAfterChangeAliasToProperty)
 
 TEST_F(ProjectStorage, UpdateAliasesAfterChangePropertyToAlias)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
-    types[3].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
-                                              | Storage::PropertyDeclarationTraits::IsReadOnly;
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations.clear();
-    types[1].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    package.types[3].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
+                                                      | Storage::PropertyDeclarationTraits::IsReadOnly;
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations.clear();
+    package.types[1].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects", Storage::ImportedType{"Object2"}, "objects"});
     importsSourceId2.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
 
-    storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId5,
@@ -3413,68 +2813,45 @@ TEST_F(ProjectStorage, UpdateAliasesAfterChangePropertyToAlias)
 
 TEST_F(ProjectStorage, CheckForProtoTypeCycleThrows)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
-    types[1].propertyDeclarations.clear();
-    types[1].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    package.types[1].propertyDeclarations.clear();
+    package.types[1].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects", Storage::ImportedType{"AliasItem2"}, "objects"});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      sourceId3,
-                                      sourceId4,
-                                      sourceId5,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::AliasChainCycle);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::AliasChainCycle);
 }
 
 TEST_F(ProjectStorage, CheckForProtoTypeCycleAfterUpdateThrows)
 {
-    Storage::Types types{createTypesWithRecursiveAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         sourceId5,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[1].propertyDeclarations.clear();
-    types[1].propertyDeclarations.push_back(
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations.clear();
+    package.types[1].propertyDeclarations.push_back(
         Storage::PropertyDeclaration{"objects", Storage::ImportedType{"AliasItem2"}, "objects"});
     importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  QmlDesigner::AliasChainCycle);
 }
 
 TEST_F(ProjectStorage, QualifiedPrototype)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qmlModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qmlModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3485,42 +2862,31 @@ TEST_F(ProjectStorage, QualifiedPrototype)
 
 TEST_F(ProjectStorage, QualifiedPrototypeUpperDownTheModuleChainThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qtQuickModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qtQuickModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qtQuickModuleId,
-                                                                        Storage::Version{},
-                                                                        sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qtQuickModuleId,
+                                                                                Storage::Version{},
+                                                                                sourceId1}};
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3531,47 +2897,36 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
 
 TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qmlModuleId,
-                                                                        Storage::Version{4},
-                                                                        sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qmlModuleId,
+                                                                                Storage::Version{4},
+                                                                                sourceId1}};
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      sourceId3,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
 {
-    Storage::Types types{createTypes()};
-    imports[0].version = Storage::Version{2};
-    types[0].prototype = Storage::QualifiedImportedType{"Object", imports[0]};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports[0].version = Storage::Version{2};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object", package.imports[0]};
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3582,23 +2937,20 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
 
 TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
 {
-    Storage::Types types{createTypes()};
-    imports[2].version = Storage::Version{2};
-    types[0].prototype = Storage::QualifiedImportedType{"Object", imports[2]};
-    types[0].exportedTypes[0].version = Storage::Version{2};
-    types.push_back(
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports[2].version = Storage::Version{2};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object", package.imports[2]};
+    package.types[0].exportedTypes[0].version = Storage::Version{2};
+    package.types.push_back(
         Storage::Type{"QQuickObject",
                       Storage::ImportedType{},
                       TypeAccessSemantics::Reference,
                       sourceId3,
                       {Storage::ExportedType{qtQuickModuleId, "Object", Storage::Version{2}}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId1,
@@ -3609,41 +2961,29 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
 
 TEST_F(ProjectStorage, QualifiedPrototypeWithVersionDownTheProtoTypeChainThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].prototype = Storage::QualifiedImportedType{"Object",
-                                                        Storage::Import{qtQuickModuleId,
-                                                                        Storage::Version{2},
-                                                                        sourceId1}};
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object",
+                                                                Storage::Import{qtQuickModuleId,
+                                                                                Storage::Version{2},
+                                                                                sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      sourceId3,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qmlModuleId, Storage::Version{}, sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -3655,39 +2995,27 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
 
 TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameDownTheModuleChainThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(imports,
-                                     types,
-                                     {sourceId1,
-                                      sourceId2,
-                                      sourceId3,
-                                      qmlModuleSourceId,
-                                      qtQuickModuleSourceId,
-                                      pathToModuleSourceId},
-                                     {}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId1}};
-    types.push_back(Storage::Type{"QQuickObject",
-                                  Storage::ImportedType{},
-                                  TypeAccessSemantics::Reference,
-                                  sourceId3,
-                                  {Storage::ExportedType{qtQuickModuleId, "Object"}}});
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.types.push_back(Storage::Type{"QQuickObject",
+                                          Storage::ImportedType{},
+                                          TypeAccessSemantics::Reference,
+                                          sourceId3,
+                                          {Storage::ExportedType{qtQuickModuleId, "Object"}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.sourceIds.push_back(sourceId3);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, sourceId3, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -3699,16 +3027,12 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
 
 TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameWithVersion)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qmlModuleId, Storage::Version{2}, sourceId1}};
-    imports.emplace_back(qmlModuleId, Storage::Version{2}, sourceId1);
+    package.imports.emplace_back(qmlModuleId, Storage::Version{2}, sourceId1);
 
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(
@@ -3720,36 +3044,29 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameWithVersion)
 
 TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedTypeThrows)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qmlModuleId, Storage::Version{}, sourceId1}};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[1].exportedTypes[0].moduleId = qtQuickModuleId;
+    storage.synchronize(package);
+    package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
-    ASSERT_THROW(storage.synchronize(importsSourceId2, {types[1]}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(
+                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedType)
 {
-    Storage::Types types{createTypes()};
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qmlModuleId, Storage::Version{}, sourceId1}};
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
-    types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
+    storage.synchronize(package);
+    package.types[0].propertyDeclarations[0].typeName = Storage::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId1}};
-    types[1].exportedTypes[0].moduleId = qtQuickModuleId;
-    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+    package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
-    storage.synchronize(imports, types, {sourceId1, sourceId2}, {});
+    storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId1,
@@ -3768,7 +3085,7 @@ TEST_F(ProjectStorage, AddFileStatuses)
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
 
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1, fileStatus2}});
 
     ASSERT_THAT(convert(storage.fetchAllFileStatuses()),
                 UnorderedElementsAre(fileStatus1, fileStatus2));
@@ -3778,9 +3095,9 @@ TEST_F(ProjectStorage, RemoveFileStatus)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1, fileStatus2}});
 
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1}});
 
     ASSERT_THAT(convert(storage.fetchAllFileStatuses()), UnorderedElementsAre(fileStatus1));
 }
@@ -3790,9 +3107,9 @@ TEST_F(ProjectStorage, UpdateFileStatus)
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
     FileStatus fileStatus2b{sourceId2, 102, 102};
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1, fileStatus2}});
 
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2b});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1, fileStatus2b}});
 
     ASSERT_THAT(convert(storage.fetchAllFileStatuses()),
                 UnorderedElementsAre(fileStatus1, fileStatus2b));
@@ -3802,7 +3119,7 @@ TEST_F(ProjectStorage, ThrowForInvalidSourceId)
 {
     FileStatus fileStatus1{SourceId{}, 100, 100};
 
-    ASSERT_THROW(storage.synchronize({}, {}, {sourceId1}, {fileStatus1}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}, {fileStatus1}}),
                  Sqlite::ConstraintPreventsModification);
 }
 
@@ -3810,7 +3127,7 @@ TEST_F(ProjectStorage, FetchAllFileStatuses)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1, fileStatus2}});
 
     auto fileStatuses = convert(storage.fetchAllFileStatuses());
 
@@ -3821,7 +3138,7 @@ TEST_F(ProjectStorage, FetchAllFileStatusesReverse)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus2, fileStatus1});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus2, fileStatus1}});
 
     auto fileStatuses = convert(storage.fetchAllFileStatuses());
 
@@ -3832,7 +3149,7 @@ TEST_F(ProjectStorage, FetchFileStatus)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
-    storage.synchronize({}, {}, {sourceId1, sourceId2}, {fileStatus1, fileStatus2});
+    storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}, {fileStatus1, fileStatus2}});
 
     auto fileStatus = storage.fetchFileStatus(sourceId1);
 
@@ -3841,21 +3158,12 @@ TEST_F(ProjectStorage, FetchFileStatus)
 
 TEST_F(ProjectStorage, SynchronizeTypesWithoutTypeName)
 {
-    Storage::Types types{createTypesWithAliases()};
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1,
-                         sourceId2,
-                         sourceId3,
-                         sourceId4,
-                         qmlModuleSourceId,
-                         qtQuickModuleSourceId,
-                         pathToModuleSourceId},
-                        {});
-    types[3].typeName.clear();
-    types[3].prototype = Storage::ImportedType{"Object"};
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    package.types[3].typeName.clear();
+    package.types[3].prototype = Storage::ImportedType{"Object"};
 
-    storage.synchronize(importsSourceId4, {types[3]}, {sourceId4}, {});
+    storage.synchronize(SynchronizationPackage{importsSourceId4, {package.types[3]}, {sourceId4}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(AllOf(IsStorageType(sourceId4,
@@ -3869,11 +3177,8 @@ TEST_F(ProjectStorage, SynchronizeTypesWithoutTypeName)
 
 TEST_F(ProjectStorage, FetchByMajorVersionForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Object"},
                        TypeAccessSemantics::Reference,
@@ -3881,7 +3186,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionForImportedType)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -3892,11 +3197,8 @@ TEST_F(ProjectStorage, FetchByMajorVersionForImportedType)
 
 TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{1}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Object", import},
@@ -3904,7 +3206,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -3915,11 +3217,8 @@ TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
 
 TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -3927,7 +3226,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForImportedType)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1, 2}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -3938,11 +3237,8 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForImportedType)
 
 TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{1, 2}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -3950,7 +3246,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedTyp
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -3962,11 +3258,8 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedTyp
 TEST_F(ProjectStorage,
        FetchByMajorVersionAndMinorVersionForImportedTypeIfMinorVersionIsNotExportedThrows)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Object"},
                        TypeAccessSemantics::Reference,
@@ -3974,18 +3267,15 @@ TEST_F(ProjectStorage,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1, 1}, sourceId2};
 
-    ASSERT_THROW(storage.synchronize({import}, {type}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage,
        FetchByMajorVersionAndMinorVersionForQualifiedImportedTypeIfMinorVersionIsNotExportedThrows)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{1, 1}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Object", import},
@@ -3993,17 +3283,14 @@ TEST_F(ProjectStorage,
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    ASSERT_THROW(storage.synchronize({import}, {type}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, FetchLowMinorVersionForImportedTypeThrows)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -4011,17 +3298,14 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForImportedTypeThrows)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1, 1}, sourceId2};
 
-    ASSERT_THROW(storage.synchronize({import}, {type}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, FetchLowMinorVersionForQualifiedImportedTypeThrows)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{1, 1}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -4029,17 +3313,14 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForQualifiedImportedTypeThrows)
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    ASSERT_THROW(storage.synchronize({import}, {type}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, FetchHigherMinorVersionForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -4047,7 +3328,7 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForImportedType)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1, 3}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4058,11 +3339,8 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForImportedType)
 
 TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{1, 3}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -4070,7 +3348,7 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4081,11 +3359,8 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
 
 TEST_F(ProjectStorage, FetchDifferentMajorVersionForImportedTypeThrows)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -4093,17 +3368,14 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForImportedTypeThrows)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{3, 1}, sourceId2};
 
-    ASSERT_THROW(storage.synchronize({import}, {type}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, FetchDifferentMajorVersionForQualifiedImportedTypeThrows)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{3, 1}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -4111,17 +3383,14 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForQualifiedImportedTypeThrows)
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    ASSERT_THROW(storage.synchronize({import}, {type}, {sourceId2}, {}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
 TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -4129,7 +3398,7 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForImportedType)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{2, 3}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4140,11 +3409,8 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForImportedType)
 
 TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{2, 3}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -4152,7 +3418,7 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4163,11 +3429,8 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
 
 TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -4175,7 +3438,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForImportedType
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4186,11 +3449,8 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForImportedType
 
 TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -4198,7 +3458,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImp
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4209,11 +3469,8 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImp
 
 TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"Obj"},
                        TypeAccessSemantics::Reference,
@@ -4221,7 +3478,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForImportedTy
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{2}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4232,11 +3489,8 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForImportedTy
 
 TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{2}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"Obj", import},
@@ -4244,7 +3498,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedI
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4255,11 +3509,8 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedI
 
 TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Type type{"Item",
                        Storage::ImportedType{"BuiltInObj"},
                        TypeAccessSemantics::Reference,
@@ -4267,7 +3518,7 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForImportedType)
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{}, sourceId2};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4278,11 +3529,8 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForImportedType)
 
 TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForQualifiedImportedType)
 {
-    auto types = createVersionedTypes();
-    storage.synchronize(imports,
-                        types,
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    auto package{createSynchronizationPackageWithVersions()};
+    storage.synchronize(package);
     Storage::Import import{qmlModuleId, Storage::Version{}, sourceId2};
     Storage::Type type{"Item",
                        Storage::QualifiedImportedType{"BuiltInObj", import},
@@ -4290,7 +3538,7 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForQualifiedImportedT
                        sourceId2,
                        {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    storage.synchronize({import}, {type}, {sourceId2}, {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
     ASSERT_THAT(storage.fetchTypes(),
                 Contains(IsStorageType(sourceId2,
@@ -4310,34 +3558,23 @@ TEST_F(ProjectStorage, EnsureThatPropertiesForRemovedTypesAreNotAnymoreRelinked)
                                                      Storage::ImportedType{"Object"},
                                                      Storage::PropertyDeclarationTraits::IsList}}};
     Storage::Import import{qmlModuleId, Storage::Version{}, sourceId1};
-    storage.synchronize({import},
-                        {type},
-                        {sourceId1, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-                        {});
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId1}});
 
-    ASSERT_NO_THROW(storage.synchronize({}, {}, {sourceId1}, {}));
+    ASSERT_NO_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}}));
 }
 
 TEST_F(ProjectStorage, EnsureThatPrototypesForRemovedTypesAreNotAnymoreRelinked)
 {
-    auto types = createTypes();
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
 
-    ASSERT_NO_THROW(storage.synchronize({}, {}, {sourceId1, sourceId2}, {}));
+    ASSERT_NO_THROW(storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}}));
 }
 
 TEST_F(ProjectStorage, MinimalUpdates)
 {
-    auto types = createTypes();
-    storage.synchronize(
-        imports,
-        types,
-        {sourceId1, sourceId2, qmlModuleSourceId, qtQuickModuleSourceId, pathToModuleSourceId},
-        {});
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
     Storage::Type quickType{"QQuickItem",
                             {},
                             TypeAccessSemantics::Reference,
@@ -4350,7 +3587,7 @@ TEST_F(ProjectStorage, MinimalUpdates)
                             {},
                             Storage::ChangeLevel::Minimal};
 
-    storage.synchronize({}, {quickType}, {}, {});
+    storage.synchronize(SynchronizationPackage{{quickType}});
 
     ASSERT_THAT(
         storage.fetchTypes(),
