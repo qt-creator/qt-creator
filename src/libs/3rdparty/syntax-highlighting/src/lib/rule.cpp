@@ -728,7 +728,11 @@ MatchResult RegExpr::doMatch(QStringView text, int offset, const QStringList &ca
     /**
      * match the pattern
      */
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 2)
+    const auto result = regexp.match(text.toString(), offset, QRegularExpression::NormalMatch, QRegularExpression::DontCheckSubjectStringMatchOption);
+#else
     const auto result = regexp.match(text, offset, QRegularExpression::NormalMatch, QRegularExpression::DontCheckSubjectStringMatchOption);
+#endif
     if (result.capturedStart() == offset) {
         /**
          * we only need to compute the captured texts if we have real capture groups
