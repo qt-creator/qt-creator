@@ -1966,7 +1966,7 @@ void TextEditorWidget::indent()
 
 void TextEditorWidget::unindent()
 {
-    setMultiTextCursor(textDocument()->indent(multiTextCursor()));
+    setMultiTextCursor(textDocument()->unindent(multiTextCursor()));
 }
 
 void TextEditorWidget::undo()
