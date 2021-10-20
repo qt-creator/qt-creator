@@ -29,6 +29,7 @@ macro(qtc_auto_setup_conan)
 
   if (conanfile_txt AND NOT QT_CREATOR_SKIP_CONAN_SETUP)
     option(QT_CREATOR_SKIP_CONAN_SETUP "Skip Qt Creator's conan package manager auto-setup" OFF)
+    set(QT_CREATOR_CONAN_BUILD_POLICY "missing" CACHE STRING "Qt Creator's conan package manager auto-setup build policy. This is used for the BUILD property of cmake_conan_run")
 
     # Get conan from Qt SDK
     set(qt_creator_ini "${CMAKE_CURRENT_LIST_DIR}/../QtProject/QtCreator.ini")
@@ -73,6 +74,14 @@ macro(qtc_auto_setup_conan)
       endif()
     endif()
 
+    set(conanfile_build_policy_file "${CMAKE_BINARY_DIR}/conan-dependencies/conanfile.buildpolicy")
+    if (EXISTS "${conanfile_build_policy_file}")
+      file(READ "${conanfile_build_policy_file}" build_policy)
+      if (NOT "${build_policy}" STREQUAL "${QT_CREATOR_CONAN_BUILD_POLICY}")
+        set(do_conan_installation ON)
+      endif()
+    endif()
+
     if (do_conan_installation)
       message(STATUS "Qt Creator: conan package manager auto-setup. "
                      "Skip this step by setting QT_CREATOR_SKIP_CONAN_SETUP to ON.")
@@ -93,7 +102,7 @@ macro(qtc_auto_setup_conan)
           CONANFILE \"${conanfile_txt}\"
           INSTALL_FOLDER \"${CMAKE_BINARY_DIR}/conan-dependencies\"
           GENERATORS cmake_paths json
-          BUILD missing
+          BUILD ${QT_CREATOR_CONAN_BUILD_POLICY}
           ENV CONAN_CMAKE_TOOLCHAIN_FILE=\"${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake\"
         )")
 
@@ -108,6 +117,7 @@ macro(qtc_auto_setup_conan)
       )
       if (result EQUAL 0)
         file(WRITE "${conanfile_timestamp_file}" "${conanfile_timestamp}")
+        file(WRITE "${conanfile_build_policy_file}" ${QT_CREATOR_CONAN_BUILD_POLICY})
       else()
         message(WARNING "Qt Creator's conan package manager auto-setup failed. Consider setting "
                         "QT_CREATOR_SKIP_CONAN_SETUP to ON and reconfigure to skip this step.")
