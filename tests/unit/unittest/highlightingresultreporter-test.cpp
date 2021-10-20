@@ -43,7 +43,6 @@ using ClangBackEnd::Document;
 using ClangBackEnd::Documents;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ChunksReportedMonitor;
-using ClangCodeModel::Internal::HighlightingResultReporter;
 
 namespace {
 
@@ -87,9 +86,7 @@ QVector<TokenInfoContainer> generateTokenInfos(uint count)
 
 TEST_F(HighlightingResultReporter, StartAndFinish)
 {
-    auto reporter = new ::HighlightingResultReporter(noTokenInfos());
-
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(noTokenInfos());
 
     future.waitForFinished();
     ASSERT_THAT(future.isFinished(), true);
@@ -97,9 +94,7 @@ TEST_F(HighlightingResultReporter, StartAndFinish)
 
 TEST_F(HighlightingResultReporter, ReportNothingIfNothingToReport)
 {
-    auto reporter = new ::HighlightingResultReporter(generateTokenInfos(0));
-
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(generateTokenInfos(0));
 
     ChunksReportedMonitor monitor(future);
     ASSERT_THAT(monitor.resultsReadyCounter(), 0L);
@@ -107,10 +102,7 @@ TEST_F(HighlightingResultReporter, ReportNothingIfNothingToReport)
 
 TEST_F(HighlightingResultReporter, ReportSingleResultAsOneChunk)
 {
-    auto reporter = new ::HighlightingResultReporter(generateTokenInfos(1));
-    reporter->setChunkSize(1);
-
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(generateTokenInfos(1), 1);
 
     ChunksReportedMonitor monitor(future);
     ASSERT_THAT(monitor.resultsReadyCounter(), 1L);
@@ -118,11 +110,7 @@ TEST_F(HighlightingResultReporter, ReportSingleResultAsOneChunk)
 
 TEST_F(HighlightingResultReporter, ReportRestIfChunkSizeNotReached)
 {
-    auto reporter = new ::HighlightingResultReporter(generateTokenInfos(1));
-    const int notReachedChunkSize = 100;
-    reporter->setChunkSize(notReachedChunkSize);
-
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(generateTokenInfos(1), 100);
 
     ChunksReportedMonitor monitor(future);
     ASSERT_THAT(monitor.resultsReadyCounter(), 1L);
@@ -130,10 +118,7 @@ TEST_F(HighlightingResultReporter, ReportRestIfChunkSizeNotReached)
 
 TEST_F(HighlightingResultReporter, ReportChunksWithoutRest)
 {
-    auto reporter = new ::HighlightingResultReporter(generateTokenInfos(4));
-    reporter->setChunkSize(1);
-
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(generateTokenInfos(4), 1);
 
     ChunksReportedMonitor monitor(future);
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
@@ -141,10 +126,7 @@ TEST_F(HighlightingResultReporter, ReportChunksWithoutRest)
 
 TEST_F(HighlightingResultReporter, ReportSingleChunkAndRest)
 {
-    auto reporter = new ::HighlightingResultReporter(generateTokenInfos(5));
-    reporter->setChunkSize(2);
-
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(generateTokenInfos(5), 2);
 
     ChunksReportedMonitor monitor(future);
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
@@ -159,10 +141,8 @@ TEST_F(HighlightingResultReporter, ReportCompleteLines)
         TokenInfoContainer(1, 2, 1, types),
         TokenInfoContainer(2, 1, 1, types),
     };
-    auto reporter = new ::HighlightingResultReporter(tokenInfos);
-    reporter->setChunkSize(1);
 
-    auto future = reporter->start();
+    auto future = ClangCodeModel::Internal::highlightResults(tokenInfos, 1);
 
     ChunksReportedMonitor monitor(future);
     ASSERT_THAT(monitor.resultsReadyCounter(), 2L);
