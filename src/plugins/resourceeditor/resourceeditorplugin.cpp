@@ -255,6 +255,8 @@ void ResourceEditorPlugin::extensionsInitialized()
             folder->forEachNode([&toReplace](FileNode *fn) {
                 if (fn->fileType() == FileType::Resource)
                     toReplace.append(fn);
+            }, {}, [](const FolderNode *fn) {
+                return dynamic_cast<const ResourceTopLevelNode *>(fn) == nullptr;
             });
             for (FileNode *file : qAsConst(toReplace)) {
                 FolderNode *const pn = file->parentFolderNode();
