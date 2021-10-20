@@ -189,6 +189,7 @@ Node {
     Model {
         id: freeRotator
 
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         source: "#Sphere"
         materials: DefaultMaterial {
             id: material

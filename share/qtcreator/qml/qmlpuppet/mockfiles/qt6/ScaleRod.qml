@@ -39,6 +39,7 @@ DirectionalDraggable {
     property vector3d _startScale
 
     Model {
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         source: "#Cube"
         y: 10
         scale: Qt.vector3d(0.020, 0.020, 0.020)

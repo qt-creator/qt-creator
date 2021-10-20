@@ -40,6 +40,7 @@ Model {
     property alias mouseArea: mouseArea
 
     readonly property bool hovering: mouseArea.hovering
+    readonly property bool _edit3dLocked: true // Make this non-pickable
 
     property vector3d _scenePosPressed
     property vector2d _planePosPressed

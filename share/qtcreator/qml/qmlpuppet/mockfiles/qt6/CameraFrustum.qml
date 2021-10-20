@@ -35,6 +35,7 @@ Model {
     property Node targetNode: null
     property Node scene: null
     property bool selected: false
+    readonly property bool _edit3dLocked: true // Make this non-pickable
 
     function updateGeometry()
     {

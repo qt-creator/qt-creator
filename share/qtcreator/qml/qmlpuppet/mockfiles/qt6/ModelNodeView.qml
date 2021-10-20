@@ -82,6 +82,7 @@ View3D {
 
     Model {
         id: model
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         eulerRotation.y: 45
 
         source: sourceModel.source

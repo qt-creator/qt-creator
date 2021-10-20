@@ -31,6 +31,7 @@ DirectionalDraggable {
     id: arrowRoot
 
     Model {
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         geometry: LineGeometry {
             id: lineGeometry
             name: "Edit 3D ScalableArrow"
@@ -43,6 +44,7 @@ DirectionalDraggable {
 
     Model {
         id: arrowHead
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         source: "#Cone"
         materials: [ arrowRoot.material ]
         y: arrowRoot.length - 3

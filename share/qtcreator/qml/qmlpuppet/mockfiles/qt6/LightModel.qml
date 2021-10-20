@@ -33,6 +33,7 @@ Model {
     property alias geometryName: lightGeometry.name // Name must be unique for each geometry
     property alias geometryType: lightGeometry.lightType
     property Material material
+    readonly property bool _edit3dLocked: true // Make this non-pickable
 
     function updateGeometry()
     {

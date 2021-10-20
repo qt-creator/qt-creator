@@ -35,6 +35,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QVector3D>
+#include <QtQuick3D/private/qquick3dpickresult_p.h>
 
 QT_BEGIN_NAMESPACE
 class QQuick3DCamera;
@@ -74,12 +75,14 @@ public:
     Q_INVOKABLE bool fuzzyCompare(double a, double b);
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
+    Q_INVOKABLE QQuick3DPickResult pickViewAt(QQuick3DViewport *view, float posX, float posY);
     Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
 
     Q_INVOKABLE void registerGizmoTarget(QQuick3DNode *node);
     Q_INVOKABLE void unregisterGizmoTarget(QQuick3DNode *node);
     Q_INVOKABLE bool isLocked(QQuick3DNode *node);
     Q_INVOKABLE bool isHidden(QQuick3DNode *node);
+    Q_INVOKABLE bool isPickable(QQuick3DNode *node);
 
     Q_INVOKABLE void storeToolState(const QString &sceneId, const QString &tool,
                                     const QVariant &state, int delayEmit = 0);
