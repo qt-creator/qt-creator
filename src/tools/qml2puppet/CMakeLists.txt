@@ -97,6 +97,7 @@ extend_qtc_library(qml2puppet_static
 )
 
 add_qtc_executable(qml2puppet
+  CONDITION TARGET Qt5::QuickPrivate
   DEPENDS
     Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate

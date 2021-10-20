@@ -49,8 +49,7 @@ endif()
 
 find_package(Qt5
   ${IDE_QT_VERSION_MIN}
-  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick
-    QuickWidgets Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
+  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
   REQUIRED
 )
 if (Qt5_VERSION VERSION_LESS 6.0.0)
@@ -66,7 +65,7 @@ else()
   set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml_modules")
 endif()
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
-find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg Tools QUIET)
+find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help SerialPort Svg Tools QUIET)
 
 option(BUILD_WITH_PCH "Build with precompiled headers" ON)
 
