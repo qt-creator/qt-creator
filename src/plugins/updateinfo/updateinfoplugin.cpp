@@ -129,16 +129,17 @@ void UpdateInfoPlugin::startCheckForUpdates()
 {
     stopCheckForUpdates();
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    env.set("QT_LOGGING_RULES", "*=false");
-    d->m_checkUpdatesCommand = new ShellCommand({}, env);
+    d->m_checkUpdatesCommand = new ShellCommand({}, Utils::Environment::systemEnvironment());
     d->m_checkUpdatesCommand->setDisplayName(tr("Checking for Updates"));
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
     connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
-    d->m_checkUpdatesCommand->addJob({Utils::FilePath::fromString(d->m_maintenanceTool), {"--checkupdates"}},
+    d->m_checkUpdatesCommand->addJob({Utils::FilePath::fromString(d->m_maintenanceTool),
+                                      {"ch", "-g", "*=false,ifw.package.*=true"}},
                                      60 * 3, // 3 minutes timeout
                                      /*workingDirectory=*/{},
-                                     [](int /*exitCode*/) { return Utils::QtcProcess::FinishedWithSuccess; });
+                                     [](int /*exitCode*/) {
+                                         return Utils::QtcProcess::FinishedWithSuccess;
+                                     });
     d->m_checkUpdatesCommand->execute();
     d->m_progress = d->m_checkUpdatesCommand->futureProgress();
     if (d->m_progress) {
