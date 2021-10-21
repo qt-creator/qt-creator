@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cplusplus/FullySpecifiedType.h>
+#include <utils/porting.h>
 
 #include <QHash>
 
@@ -70,6 +71,6 @@ private:
     ClassOrNamespace *_binding;
 };
 
-uint qHash(const CPlusPlus::LookupItem &result);
+Utils::QHashValueType qHash(const CPlusPlus::LookupItem &result);
 
 } // namespace CPlusPlus

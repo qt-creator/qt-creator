@@ -82,7 +82,7 @@ private:
 };
 
 SearchFunction::SearchFunction(const char *name) :
-    m_length(qstrlen(name)),
+    m_length(uint(qstrlen(name))),
     m_name(name)
 {
 }

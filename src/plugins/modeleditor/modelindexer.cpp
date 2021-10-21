@@ -46,6 +46,7 @@
 #include <utils/mimetypes/mimetype.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/porting.h>
 
 #include <QQueue>
 #include <QMutex>
@@ -62,7 +63,7 @@ namespace Internal {
 
 class ModelIndexer::QueuedFile
 {
-    friend uint qHash(const ModelIndexer::QueuedFile &queuedFile);
+    friend Utils::QHashValueType qHash(const ModelIndexer::QueuedFile &queuedFile);
     friend bool operator==(const ModelIndexer::QueuedFile &lhs,
                            const ModelIndexer::QueuedFile &rhs);
 
@@ -99,7 +100,7 @@ bool operator==(const ModelIndexer::QueuedFile &lhs, const ModelIndexer::QueuedF
     return lhs.m_file == rhs.m_file && lhs.m_project == rhs.m_project;
 }
 
-uint qHash(const ModelIndexer::QueuedFile &queuedFile)
+Utils::QHashValueType qHash(const ModelIndexer::QueuedFile &queuedFile)
 {
     return qHash(queuedFile.m_project) + qHash(queuedFile.m_project);
 }

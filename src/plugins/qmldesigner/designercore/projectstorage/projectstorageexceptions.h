@@ -101,4 +101,10 @@ public:
     const char *what() const noexcept override { return "There is a prototype chain cycle!"; }
 };
 
+class CannotParseQmlTypesFile : std::exception
+{
+public:
+    const char *what() const noexcept override { return "Cannot parse qml types file!"; }
+};
+
 } // namespace QmlDesigner

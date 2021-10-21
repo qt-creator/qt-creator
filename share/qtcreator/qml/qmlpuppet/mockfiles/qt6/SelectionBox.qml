@@ -45,6 +45,7 @@ Node {
 
     Model {
         id: selectionBoxModel
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         geometry: selectionBoxGeometry
 
         scale: selectionBox.targetNode ? selectionBox.targetNode.scale : Qt.vector3d(1, 1, 1)

@@ -25,7 +25,11 @@
 
 /*!
     \page creator-live-preview.html
+    \if defined(qtdesignstudio)
     \previouspage quick-states.html
+    \else
+    \previouspage creator-building-running.html
+    \endif
     \nextpage creator-live-preview-desktop.html
 
     \title Validating with Target Hardware
@@ -56,8 +60,7 @@
     \list
         \li \l{Previewing on Desktop}
 
-            You can preview individual QML files or the whole UI in the
-            Design mode.
+            You can preview individual QML files or the whole UI.
         \li \l{Previewing on Devices}
 
             \if defined(qtcreator)

@@ -25,17 +25,12 @@
 
 /*!
     \page qtquick-placeholder-data.html
-
     \previouspage studio-simulation-overview.html
-    \if defined(qtdesignstudio)
     \nextpage studio-javascript.html
-    \else
-    \nextpage creator-qml-modules-with-plugins.html
-    \endif
 
     \title Loading Placeholder Data
 
-    \QC supports views, models, and delegates, so that when you add
+    \QDS supports views, models, and delegates, so that when you add
     a Grid View, List View, or Path View component, the ListModel and
     the delegate component are added automatically.
 

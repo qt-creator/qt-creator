@@ -42,26 +42,26 @@ namespace {
 namespace Storage = QmlDesigner::Storage;
 
 using QmlDesigner::FileStatus;
+using QmlDesigner::ModuleId;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::TypeAccessSemantics;
 namespace Storage = QmlDesigner::Storage;
 using QmlDesigner::IdPaths;
+using QmlDesigner::Storage::SynchronizationPackage;
 using QmlDesigner::Storage::Version;
 
-MATCHER_P5(IsStorageType,
-           moduleId,
+MATCHER_P4(IsStorageType,
            typeName,
            prototype,
            accessSemantics,
            sourceId,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Type{moduleId, typeName, prototype, accessSemantics, sourceId}))
+               + PrintToString(Storage::Type{typeName, prototype, accessSemantics, sourceId}))
 {
     const Storage::Type &type = arg;
 
-    return type.moduleId == moduleId && type.typeName == typeName
-           && type.accessSemantics == accessSemantics && type.sourceId == sourceId
-           && Storage::ImportedTypeName{prototype} == type.prototype;
+    return type.typeName == typeName && type.accessSemantics == accessSemantics
+           && type.sourceId == sourceId && Storage::ImportedTypeName{prototype} == type.prototype;
 }
 
 MATCHER_P3(IsPropertyDeclaration,
@@ -78,27 +78,20 @@ MATCHER_P3(IsPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
-MATCHER_P3(IsExportedType,
+MATCHER_P4(IsExportedType,
+           moduleId,
            name,
            majorVersion,
            minorVersion,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::ExportedType{name,
+               + PrintToString(Storage::ExportedType{moduleId,
+                                                     name,
                                                      Storage::Version{majorVersion, minorVersion}}))
 {
     const Storage::ExportedType &type = arg;
 
-    return type.name == name && type.version == Storage::Version{majorVersion, minorVersion};
-}
-
-MATCHER_P2(IsModule,
-           name,
-           sourceId,
-           std::string(negation ? "isn't " : "is ") + PrintToString(Storage::Module{name, sourceId}))
-{
-    const Storage::Module &module = arg;
-
-    return module.name == name && module.sourceId == sourceId;
+    return type.moduleId == moduleId && type.name == name
+           && type.version == Storage::Version{majorVersion, minorVersion};
 }
 
 MATCHER_P3(IsFileStatus,
@@ -112,6 +105,14 @@ MATCHER_P3(IsFileStatus,
 
     return fileStatus.sourceId == sourceId && fileStatus.size == size
            && fileStatus.lastModified == lastModified;
+}
+
+MATCHER(PackageIsEmpty, std::string(negation ? "isn't empty" : "is empty"))
+{
+    const Storage::SynchronizationPackage &package = arg;
+
+    return package.imports.empty() && package.types.empty() && package.fileStatuses.empty()
+           && package.sourceIds.empty();
 }
 
 class ProjectStorageUpdater : public testing::Test
@@ -134,8 +135,10 @@ public:
         ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
             .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 2, 421}));
 
-        ON_CALL(projectStorageMock, fetchSourceDependencieIds(Eq(qmlDirPathSourceId)))
-            .WillByDefault(Return(QmlDesigner::SourceIds{qmltypesPathSourceId, qmltypes2PathSourceId}));
+        ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+            .WillByDefault(
+                Return(QmlDesigner::Storage::ProjectDatas{{ModuleId{}, qmltypesPathSourceId},
+                                                          {ModuleId{}, qmltypes2PathSourceId}}));
 
         QString qmldir{"module Example\ntypeinfo example.qmltypes\n"};
         ON_CALL(projectManagerMock, qtQmlDirs()).WillByDefault(Return(QStringList{"/path/qmldir"}));
@@ -154,6 +157,8 @@ public:
             .WillByDefault(Return(FileStatus{qmlDocumentSourceId3, 22, 14}));
         ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDocumentSourceId3)))
             .WillByDefault(Return(FileStatus{qmlDocumentSourceId3, 22, 2}));
+        ON_CALL(projectStorageMock, moduleId(Eq("Example"))).WillByDefault(Return(exampleModuleId));
+        ON_CALL(projectStorageMock, moduleId(Eq("Qml"))).WillByDefault(Return(qmlModuleId));
 
         firstType.prototype = Storage::ImportedType{"Object"};
         secondType.prototype = Storage::ImportedType{"Object2"};
@@ -203,25 +208,26 @@ protected:
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
-    QmlDesigner::ModuleId exampleModuleId{&qmlDirPathSourceId};
     SourceId qmlDocumentSourceId1 = sourcePathCache.sourceId("/path/First.qml");
     SourceId qmlDocumentSourceId2 = sourcePathCache.sourceId("/path/First.2.qml");
     SourceId qmlDocumentSourceId3 = sourcePathCache.sourceId("/path/Second.qml");
-    Storage::Type objectType{exampleModuleId,
-                             "QObject",
+    ModuleId qmlModuleId{storage.moduleId("Qml")};
+    ModuleId exampleModuleId{storage.moduleId("Example")};
+    Storage::Type objectType{"QObject",
                              Storage::NativeType{},
                              Storage::TypeAccessSemantics::Reference,
                              objectTypeSourceId,
-                             {Storage::ExportedType{"Object"}, Storage::ExportedType{"Obj"}}};
+                             {Storage::ExportedType{exampleModuleId, "Object"},
+                              Storage::ExportedType{exampleModuleId, "Obj"}}};
     QString qmlDocument1{"First{}"};
     QString qmlDocument2{"Second{}"};
     QString qmlDocument3{"Third{}"};
     Storage::Type firstType;
     Storage::Type secondType;
     Storage::Type thirdType;
-    Storage::Import import1{"Qml", Storage::Version{2, 3}, qmlDocumentSourceId1};
-    Storage::Import import2{"Qml", Storage::Version{}, qmlDocumentSourceId2};
-    Storage::Import import3{"Qml", Storage::Version{2}, qmlDocumentSourceId3};
+    Storage::Import import1{qmlModuleId, Storage::Version{2, 3}, qmlDocumentSourceId1};
+    Storage::Import import2{qmlModuleId, Storage::Version{}, qmlDocumentSourceId2};
+    Storage::Import import3{qmlModuleId, Storage::Version{2}, qmlDocumentSourceId3};
 };
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
@@ -320,8 +326,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeIsEmptyForNoChange)
     ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
         .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 21, 421}));
 
-    EXPECT_CALL(projectStorageMock,
-                synchronize(IsEmpty(), IsEmpty(), IsEmpty(), IsEmpty(), IsEmpty()));
+    EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
     updater.update();
 }
@@ -330,23 +335,26 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
 {
     auto qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
     auto qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
-    Storage::Import import{"Qml", Storage::Version{2, 3}, qmltypesPathSourceId};
+    Storage::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
     QString qmltypes{"Module {\ndependencies: []}"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
     ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
-        .WillByDefault([&](auto, auto &imports, auto &types, auto &sourceIds) {
+        .WillByDefault([&](auto, auto &imports, auto &types, auto) {
             types.push_back(objectType);
             imports.push_back(import);
         });
 
+    EXPECT_CALL(projectStorageMock, moduleId(Eq("Example")));
     EXPECT_CALL(projectStorageMock,
-                synchronize(ElementsAre(IsModule("Example", qmlDirPathSourceId)),
-                            ElementsAre(import),
-                            ElementsAre(Eq(objectType)),
-                            UnorderedElementsAre(qmlDirPathSourceId, qmltypesPathSourceId),
-                            UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
-                                                 IsFileStatus(qmltypesPathSourceId, 21, 421))));
+                synchronize(
+                    AllOf(Field(&SynchronizationPackage::imports, ElementsAre(import)),
+                          Field(&SynchronizationPackage::types, ElementsAre(Eq(objectType))),
+                          Field(&SynchronizationPackage::sourceIds,
+                                UnorderedElementsAre(qmlDirPathSourceId, qmltypesPathSourceId)),
+                          Field(&SynchronizationPackage::fileStatuses,
+                                UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
+                                                     IsFileStatus(qmltypesPathSourceId, 21, 421))))));
 
     updater.update();
 }
@@ -357,9 +365,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))))
         .WillByDefault(Return(qmltypes));
     ON_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _))
-        .WillByDefault([&](auto, auto &imports, auto &types, auto &sourceIds) {
-            types.push_back(objectType);
-        });
+        .WillByDefault([&](auto, auto &, auto &types, auto) { types.push_back(objectType); });
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypesPathSourceId)))
         .WillByDefault(Return(FileStatus{qmltypesPathSourceId, 2, 421}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmltypes2PathSourceId)))
@@ -367,8 +373,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
     ON_CALL(fileSystemMock, fileStatus(Eq(qmlDirPathSourceId)))
         .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 2, 421}));
 
-    EXPECT_CALL(projectStorageMock,
-                synchronize(IsEmpty(), IsEmpty(), IsEmpty(), IsEmpty(), IsEmpty()));
+    EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
     updater.update();
 }
@@ -415,39 +420,40 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
                    "First.2.qml\nSecondType 2.1 OldSecond.qml\nSecondType 2.2 Second.qml\n"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
 
-    EXPECT_CALL(projectStorageMock,
-                synchronize(ElementsAre(IsModule("Example", qmlDirPathSourceId)),
-                            UnorderedElementsAre(import1, import2, import3),
-                            UnorderedElementsAre(
-                                AllOf(IsStorageType(exampleModuleId,
-                                                    "First.qml",
-                                                    Storage::ImportedType{"Object"},
-                                                    TypeAccessSemantics::Reference,
-                                                    qmlDocumentSourceId1),
-                                      Field(&Storage::Type::exportedTypes,
-                                            ElementsAre(IsExportedType("FirstType", 1, 0)))),
-                                AllOf(IsStorageType(exampleModuleId,
-                                                    "First.2.qml",
-                                                    Storage::ImportedType{"Object2"},
-                                                    TypeAccessSemantics::Reference,
-                                                    qmlDocumentSourceId2),
-                                      Field(&Storage::Type::exportedTypes,
-                                            ElementsAre(IsExportedType("FirstType", 2, 2)))),
-                                AllOf(IsStorageType(exampleModuleId,
-                                                    "Second.qml",
-                                                    Storage::ImportedType{"Object3"},
-                                                    TypeAccessSemantics::Reference,
-                                                    qmlDocumentSourceId3),
-                                      Field(&Storage::Type::exportedTypes,
-                                            ElementsAre(IsExportedType("SecondType", 2, 2))))),
-                            UnorderedElementsAre(qmlDirPathSourceId,
-                                                 qmlDocumentSourceId1,
-                                                 qmlDocumentSourceId2,
-                                                 qmlDocumentSourceId3),
-                            UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
-                                                 IsFileStatus(qmlDocumentSourceId1, 22, 12),
-                                                 IsFileStatus(qmlDocumentSourceId2, 22, 13),
-                                                 IsFileStatus(qmlDocumentSourceId3, 22, 14))));
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1, import2, import3)),
+            Field(&SynchronizationPackage::types,
+                  UnorderedElementsAre(
+                      AllOf(IsStorageType("First.qml",
+                                          Storage::ImportedType{"Object"},
+                                          TypeAccessSemantics::Reference,
+                                          qmlDocumentSourceId1),
+                            Field(&Storage::Type::exportedTypes,
+                                  ElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0)))),
+                      AllOf(IsStorageType("First.2.qml",
+                                          Storage::ImportedType{"Object2"},
+                                          TypeAccessSemantics::Reference,
+                                          qmlDocumentSourceId2),
+                            Field(&Storage::Type::exportedTypes,
+                                  ElementsAre(IsExportedType(exampleModuleId, "FirstType", 2, 2)))),
+                      AllOf(IsStorageType("Second.qml",
+                                          Storage::ImportedType{"Object3"},
+                                          TypeAccessSemantics::Reference,
+                                          qmlDocumentSourceId3),
+                            Field(&Storage::Type::exportedTypes,
+                                  ElementsAre(IsExportedType(exampleModuleId, "SecondType", 2, 2)))))),
+            Field(&SynchronizationPackage::sourceIds,
+                  UnorderedElementsAre(qmlDirPathSourceId,
+                                       qmlDocumentSourceId1,
+                                       qmlDocumentSourceId2,
+                                       qmlDocumentSourceId3)),
+            Field(&SynchronizationPackage::fileStatuses,
+                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
+                                       IsFileStatus(qmlDocumentSourceId1, 22, 12),
+                                       IsFileStatus(qmlDocumentSourceId2, 22, 13),
+                                       IsFileStatus(qmlDocumentSourceId3, 22, 14))))));
 
     updater.update();
 }
@@ -462,51 +468,28 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsDontUpdateIfUpToDate)
 
     EXPECT_CALL(
         projectStorageMock,
-        synchronize(ElementsAre(IsModule("Example", qmlDirPathSourceId)),
-                    UnorderedElementsAre(import1, import2),
-                    UnorderedElementsAre(AllOf(IsStorageType(exampleModuleId,
-                                                             "First.qml",
-                                                             Storage::ImportedType{"Object"},
-                                                             TypeAccessSemantics::Reference,
-                                                             qmlDocumentSourceId1),
-                                               Field(&Storage::Type::exportedTypes,
-                                                     ElementsAre(IsExportedType("FirstType", 1, 0)))),
-                                         AllOf(IsStorageType(exampleModuleId,
-                                                             "First.2.qml",
-                                                             Storage::ImportedType{"Object2"},
-                                                             TypeAccessSemantics::Reference,
-                                                             qmlDocumentSourceId2),
-                                               Field(&Storage::Type::exportedTypes,
-                                                     ElementsAre(IsExportedType("FirstType", 2, 2))))),
-                    UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2),
-                    UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
-                                         IsFileStatus(qmlDocumentSourceId1, 22, 12),
-                                         IsFileStatus(qmlDocumentSourceId2, 22, 13))));
-
-    updater.update();
-}
-
-TEST_F(ProjectStorageUpdater, SynchronizeModules)
-{
-    SourceId qmlDirPathSourceId2 = sourcePathCache.sourceId("/path2/qmldir");
-    ON_CALL(fileSystemMock, fileStatus(Eq(qmlDirPathSourceId2)))
-        .WillByDefault(Return(FileStatus{qmlDirPathSourceId2, 22, 423}));
-    ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId2)))
-        .WillByDefault(Return(FileStatus{qmlDirPathSourceId2, 2, 421}));
-    QString qmldir2{"module Example2\n"};
-    ON_CALL(projectManagerMock, qtQmlDirs())
-        .WillByDefault(Return(QStringList{"/path/qmldir", "/path2/qmldir"}));
-    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path2/qmldir")))).WillByDefault(Return(qmldir2));
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(UnorderedElementsAre(IsModule("Example", qmlDirPathSourceId),
-                                                 IsModule("Example2", qmlDirPathSourceId2)),
-                            _,
-                            _,
-                            _,
-                            UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
-                                                 IsFileStatus(qmltypesPathSourceId, 21, 421),
-                                                 IsFileStatus(qmlDirPathSourceId2, 22, 423))));
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1, import2)),
+            Field(&SynchronizationPackage::types,
+                  UnorderedElementsAre(
+                      AllOf(IsStorageType("First.qml",
+                                          Storage::ImportedType{"Object"},
+                                          TypeAccessSemantics::Reference,
+                                          qmlDocumentSourceId1),
+                            Field(&Storage::Type::exportedTypes,
+                                  ElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0)))),
+                      AllOf(IsStorageType("First.2.qml",
+                                          Storage::ImportedType{"Object2"},
+                                          TypeAccessSemantics::Reference,
+                                          qmlDocumentSourceId2),
+                            Field(&Storage::Type::exportedTypes,
+                                  ElementsAre(IsExportedType(exampleModuleId, "FirstType", 2, 2)))))),
+            Field(&SynchronizationPackage::sourceIds,
+                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2)),
+            Field(&SynchronizationPackage::fileStatuses,
+                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
+                                       IsFileStatus(qmlDocumentSourceId1, 22, 12),
+                                       IsFileStatus(qmlDocumentSourceId2, 22, 13))))));
 
     updater.update();
 }

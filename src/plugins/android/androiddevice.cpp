@@ -151,7 +151,7 @@ AndroidDevice::AndroidDevice()
     setOsType(Utils::OsTypeOtherUnix);
     setDeviceState(DeviceConnected);
 
-    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
+    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &, QWidget *) {
         AndroidDeviceManager::instance()->updateDevicesListOnce();
     }});
 
@@ -334,7 +334,11 @@ bool AndroidDevice::isValid() const
 
 QString AndroidDevice::serialNumber() const
 {
-    return extraData(Constants::AndroidSerialNumber).toString();
+    const QString serialNumber = extraData(Constants::AndroidSerialNumber).toString();
+    if (machineType() == Hardware)
+        return serialNumber;
+
+    return AndroidConfigurations::currentConfig().getRunningAvdsSerialNumber(avdName());
 }
 
 QString AndroidDevice::avdName() const
@@ -614,8 +618,8 @@ AndroidDeviceManager *AndroidDeviceManager::instance()
 
 AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
     : QObject(parent),
-      m_androidConfig(AndroidConfigurations::currentConfig()),
-      m_avdManager(m_androidConfig)
+      m_avdManager(m_androidConfig),
+      m_androidConfig(AndroidConfigurations::currentConfig())
 {
     connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
         m_devicesUpdaterTimer.stop();

@@ -1,6 +1,6 @@
 {
     "_comments": [
-        "Last update: Sep 21, 2020 (revision 2)",
+        "Last update: Jul 28, 2020 (revision 3)",
         "This theme has been adapted from: https://www.nordtheme.com"
     ],
     "metadata": {
@@ -11,7 +11,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "Nord",
-        "revision": 2
+        "revision": 3
     },
     "editor-colors": {
         "BackgroundColor": "#2e3440",
@@ -170,8 +170,8 @@
             "text-color": "#5e81ac"
         },
         "VerbatimString": {
-            "selected-text-color": "#a3be8c",
-            "text-color": "#a3be8c"
+            "selected-text-color": "#8dae70",
+            "text-color": "#8dae70"
         },
         "Warning": {
             "selected-text-color": "#bf616a",

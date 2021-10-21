@@ -31,7 +31,8 @@ using KSyntaxHighlighting::Xml::attrToBool;
 class HlFilesChecker
 {
 public:
-    void setDefinition(const QStringRef &verStr, const QString &filename, const QString &name)
+    template<typename T>
+    void setDefinition(const T &verStr, const QString &filename, const QString &name)
     {
         m_currentDefinition = &*m_definitions.insert(name, Definition{});
         m_currentDefinition->languageName = name;
@@ -93,6 +94,12 @@ public:
                 continue;
             }
 
+            auto markAsUsedContext = [](ContextName &ContextName) {
+                if (!ContextName.stay && ContextName.context) {
+                    ContextName.context->isOnlyIncluded = false;
+                }
+            };
+
             QMutableMapIterator<QString, Context> contextIt(contexts);
             while (contextIt.hasNext()) {
                 contextIt.next();
@@ -100,12 +107,21 @@ public:
                 resolveContextName(definition, context, context.lineEndContext, context.line);
                 resolveContextName(definition, context, context.lineEmptyContext, context.line);
                 resolveContextName(definition, context, context.fallthroughContext, context.line);
+                markAsUsedContext(context.lineEndContext);
+                markAsUsedContext(context.lineEmptyContext);
+                markAsUsedContext(context.fallthroughContext);
                 for (auto &rule : context.rules) {
+                    rule.parentContext = &context;
                     resolveContextName(definition, context, rule.context, rule.line);
+                    if (rule.type != Context::Rule::Type::IncludeRules) {
+                        markAsUsedContext(rule.context);
+                    }
                 }
             }
 
-            definition.firstContext = &*definition.contexts.find(definition.firstContextName);
+            auto *firstContext = &*definition.contexts.find(definition.firstContextName);
+            firstContext->isOnlyIncluded = false;
+            definition.firstContext = firstContext;
         }
 
         resolveIncludeRules();
@@ -118,6 +134,7 @@ public:
         const auto usedContexts = extractUsedContexts();
 
         QMap<const Definition *, const Definition *> maxVersionByDefinitions;
+        QMap<const Context::Rule *, IncludedRuleUnreachableBy> unreachableIncludedRules;
 
         QMapIterator<QString, Definition> def(m_definitions);
         while (def.hasNext()) {
@@ -135,14 +152,7 @@ public:
             QSet<const Keywords *> referencedKeywords;
             QSet<ItemDatas::Style> usedAttributeNames;
             success = checkKeywordsList(definition, referencedKeywords) && success;
-            success = checkContexts(definition, referencedKeywords, usedAttributeNames, usedContexts) && success;
-
-            // search for non-existing or unreferenced keyword lists.
-            for (const auto &keywords : definition.keywordsList) {
-                if (!referencedKeywords.contains(&keywords)) {
-                    qWarning() << filename << "line" << keywords.line << "unused keyword:" << keywords.name;
-                }
-            }
+            success = checkContexts(definition, referencedKeywords, usedAttributeNames, usedContexts, unreachableIncludedRules) && success;
 
             // search for non-existing itemDatas.
             const auto invalidNames = usedAttributeNames - definition.itemDatas.styleNames;
@@ -155,6 +165,56 @@ public:
             const auto unusedNames = definition.itemDatas.styleNames - usedAttributeNames;
             for (const auto &styleName : unusedNames) {
                 qWarning() << filename << "line" << styleName.line << "unused itemData:" << styleName.name;
+                success = false;
+            }
+        }
+
+        QMutableMapIterator<const Context::Rule *, IncludedRuleUnreachableBy> unreachableIncludedRuleIt(unreachableIncludedRules);
+        while (unreachableIncludedRuleIt.hasNext()) {
+            unreachableIncludedRuleIt.next();
+            IncludedRuleUnreachableBy &unreachableRulesBy = unreachableIncludedRuleIt.value();
+            if (unreachableRulesBy.alwaysUnreachable) {
+                auto *rule = unreachableIncludedRuleIt.key();
+
+                if (!rule->parentContext->isOnlyIncluded) {
+                    continue;
+                }
+
+                // remove duplicates rules
+                QSet<const Context::Rule *> rules;
+                auto &unreachableBy = unreachableRulesBy.unreachableBy;
+                unreachableBy.erase(std::remove_if(unreachableBy.begin(),
+                                                   unreachableBy.end(),
+                                                   [&](const RuleAndInclude &ruleAndInclude) {
+                                                       if (rules.contains(ruleAndInclude.rule)) {
+                                                           return true;
+                                                       }
+                                                       rules.insert(ruleAndInclude.rule);
+                                                       return false;
+                                                   }),
+                                    unreachableBy.end());
+
+                QString message;
+                message.reserve(128);
+                for (auto &ruleAndInclude : std::as_const(unreachableBy)) {
+                    message += QStringLiteral("line ");
+                    message += QString::number(ruleAndInclude.rule->line);
+                    message += QStringLiteral(" [");
+                    message += ruleAndInclude.rule->parentContext->name;
+                    if (rule->filename != ruleAndInclude.rule->filename) {
+                        message += QStringLiteral(" (");
+                        message += ruleAndInclude.rule->filename;
+                        message += QLatin1Char(')');
+                    }
+                    if (ruleAndInclude.includeRules) {
+                        message += QStringLiteral(" via line ");
+                        message += QString::number(ruleAndInclude.includeRules->line);
+                    }
+                    message += QStringLiteral("], ");
+                }
+                message.chop(2);
+
+                qWarning() << rule->filename << "line" << rule->line << "no IncludeRule can reach this rule, hidden by" << message;
                 success = false;
             }
         }
@@ -176,7 +236,7 @@ private:
         int popCount = 0;
         bool stay = false;
 
-        const Context *context = nullptr;
+        Context *context = nullptr;
     };
 
     struct Parser {
@@ -185,12 +245,13 @@ private:
         QXmlStreamAttribute &attr;
         bool success;
 
-        //! Read a string type attribute, \c sucess = \c false when \p str is not empty
+        //! Read a string type attribute, \c success = \c false when \p str is not empty
         //! \return \c true when attr.name() == attrName, otherwise false
         bool extractString(QString &str, const QString &attrName)
         {
-            if (attr.name() != attrName)
+            if (attr.name() != attrName) {
                 return false;
+            }
 
             str = attr.value().toString();
             if (str.isEmpty()) {
@@ -201,24 +262,26 @@ private:
             return true;
         }
 
-        //! Read a bool type attribute, \c sucess = \c false when \p xmlBool is not \c XmlBool::Unspecified.
+        //! Read a bool type attribute, \c success = \c false when \p xmlBool is not \c XmlBool::Unspecified.
         //! \return \c true when attr.name() == attrName, otherwise false
         bool extractXmlBool(XmlBool &xmlBool, const QString &attrName)
         {
-            if (attr.name() != attrName)
+            if (attr.name() != attrName) {
                 return false;
+            }
 
             xmlBool = attr.value().isNull() ? XmlBool::Unspecified : attrToBool(attr.value()) ? XmlBool::True : XmlBool::False;
 
             return true;
         }
 
-        //! Read a positive integer type attribute, \c sucess = \c false when \p positive is already greater than or equal to 0
+        //! Read a positive integer type attribute, \c success = \c false when \p positive is already greater than or equal to 0
         //! \return \c true when attr.name() == attrName, otherwise false
         bool extractPositive(int &positive, const QString &attrName)
         {
-            if (attr.name() != attrName)
+            if (attr.name() != attrName) {
                 return false;
+            }
 
             bool ok = true;
             positive = attr.value().toInt(&ok);
@@ -231,12 +294,13 @@ private:
             return true;
         }
 
-        //! Read a color, \c sucess = \c false when \p color is already greater than or equal to 0
+        //! Read a color, \c success = \c false when \p color is already greater than or equal to 0
         //! \return \c true when attr.name() == attrName, otherwise false
         bool checkColor(const QString &attrName)
         {
-            if (attr.name() != attrName)
+            if (attr.name() != attrName) {
                 return false;
+            }
 
             const auto value = attr.value().toString();
             if (value.isEmpty() /*|| QColor(value).isValid()*/) {
@@ -247,16 +311,17 @@ private:
             return true;
         }
 
-        //! Read a QChar, \c sucess = \c false when \p c is not \c '\0' or does not have one char
+        //! Read a QChar, \c success = \c false when \p c is not \c '\0' or does not have one char
         //! \return \c true when attr.name() == attrName, otherwise false
         bool extractChar(QChar &c, const QString &attrName)
         {
-            if (attr.name() != attrName)
+            if (attr.name() != attrName) {
                 return false;
+            }
 
-            if (attr.value().size() == 1)
+            if (attr.value().size() == 1) {
                 c = attr.value()[0];
-            else {
+            } else {
                 c = QLatin1Char('_');
                 qWarning() << filename << "line" << xml.lineNumber() << attrName << "must contain exactly one char:" << attr.value();
                 success = false;
@@ -268,8 +333,9 @@ private:
         //! \return parsing status when \p isExtracted is \c true, otherwise \c false
         bool checkIfExtracted(bool isExtracted)
         {
-            if (isExtracted)
+            if (isExtracted) {
                 return success;
+            }
 
             qWarning() << filename << "line" << xml.lineNumber() << "unknown attribute:" << attr.name();
             return false;
@@ -284,7 +350,7 @@ private:
 
                 friend uint qHash(const Item &item, uint seed = 0)
                 {
-                    return qHash(item.content, seed);
+                    return uint(qHash(item.content, seed));
                 }
 
                 friend bool operator==(const Item &item0, const Item &item1)
@@ -400,18 +466,19 @@ private:
             QString additionalDeliminator;
             QString weakDeliminator;
 
-            // rules included by IncludeRules
+            // rules included by IncludeRules (without IncludeRule)
             QVector<const Rule *> includedRules;
 
             // IncludeRules included by IncludeRules
             QSet<const Rule *> includedIncludeRules;
+
+            Context const *parentContext = nullptr;
 
             QString filename;
 
             bool parseElement(const QString &filename, QXmlStreamReader &xml)
             {
                 this->filename = filename;
-
                 line = xml.lineNumber();
 
                 using Pair = QPair<QString, Type>;
@@ -579,6 +646,8 @@ private:
         };
 
         int line;
+        // becomes false when a context refers to it
+        bool isOnlyIncluded = true;
         QString name;
         QString attribute;
         ContextName lineEndContext;
@@ -650,7 +719,7 @@ private:
 
             friend uint qHash(const Style &style, uint seed = 0)
             {
-                return qHash(style.name, seed);
+                return uint(qHash(style.name, seed));
             }
 
             friend bool operator==(const Style &style0, const Style &style1)
@@ -723,8 +792,9 @@ private:
     {
         Context context;
         m_success = context.parseElement(m_currentDefinition->filename, xml) && m_success;
-        if (m_currentDefinition->firstContextName.isEmpty())
+        if (m_currentDefinition->firstContextName.isEmpty()) {
             m_currentDefinition->firstContextName = context.name;
+        }
         if (m_currentDefinition->contexts.contains(context.name)) {
             qWarning() << m_currentDefinition->filename << "line" << xml.lineNumber() << "duplicate context:" << context.name;
             m_success = false;
@@ -784,6 +854,7 @@ private:
                         m_success = false;
                         continue;
                     }
+
                     if (rule.context.popCount) {
                         qWarning() << definition.filename << "line" << rule.line << "IncludeRules with #pop prefix";
                         m_success = false;
@@ -793,6 +864,8 @@ private:
                         m_success = false;
                         continue;
                     }
+
+                    // resolve includedRules and includedIncludeRules
 
                     usedContexts.clear();
                     usedContexts.insert(rule.context.context);
@@ -866,11 +939,27 @@ private:
         return usedContexts;
     }
 
+    struct RuleAndInclude {
+        const Context::Rule *rule;
+        const Context::Rule *includeRules;
+
+        explicit operator bool() const
+        {
+            return rule;
+        }
+    };
+
+    struct IncludedRuleUnreachableBy {
+        QVector<RuleAndInclude> unreachableBy;
+        bool alwaysUnreachable = true;
+    };
+
     //! Check contexts and rules
     bool checkContexts(const Definition &definition,
                        QSet<const Keywords *> &referencedKeywords,
                        QSet<ItemDatas::Style> &usedAttributeNames,
-                       const QSet<const Context *> &usedContexts) const
+                       const QSet<const Context *> &usedContexts,
+                       QMap<const Context::Rule *, IncludedRuleUnreachableBy> &unreachableIncludedRules) const
     {
         bool success = true;
 
@@ -892,16 +981,18 @@ private:
                 success = false;
             }
 
-            if (!context.attribute.isEmpty())
+            if (!context.attribute.isEmpty()) {
                 usedAttributeNames.insert({context.attribute, context.line});
+            }
 
             success = checkfallthrough(definition, context) && success;
-            success = checkUreachableRules(definition.filename, context) && success;
+            success = checkUreachableRules(definition.filename, context, unreachableIncludedRules) && success;
             success = suggestRuleMerger(definition.filename, context) && success;
 
             for (const auto &rule : context.rules) {
-                if (!rule.attribute.isEmpty())
+                if (!rule.attribute.isEmpty()) {
                     usedAttributeNames.insert({rule.attribute, rule.line});
+                }
                 success = checkLookAhead(rule) && success;
                 success = checkStringDetect(rule) && success;
                 success = checkAnyChar(rule) && success;
@@ -954,9 +1045,14 @@ private:
                 return false;
             }
 
+#define REG_ESCAPE_CHAR R"(\\(?:[^0BDPSWbdpswoux]|x[0-9a-fA-F]{2}|x\{[0-9a-fA-F]+\}|0\d\d|o\{[0-7]+\}|u[0-9a-fA-F]{4}))"
+#define REG_CHAR "(?:" REG_ESCAPE_CHAR "|\\[(?:" REG_ESCAPE_CHAR "|.)\\]|[^[.^])"
+
             // is RangeDetect
-            static const QRegularExpression isRange(QStringLiteral(
-                R"(^(\\(?:[^0BDPSWbdpswoux]|x[0-9a-fA-F]{2}|x\{[0-9a-fA-F]+\}|0\d\d|o\{[0-7]+\}|u[0-9a-fA-F]{4})|[^[.]|\[[^].\\]\])(?:\.|\[^\1\])\*[?*]?\1$)"));
+            static const QRegularExpression isRange(QStringLiteral("^\\^?" REG_CHAR "(?:"
+                                                                   "\\.\\*[?*]?" REG_CHAR "|"
+                                                                   "\\[\\^(" REG_ESCAPE_CHAR "|.)\\]\\*[?*]?\\1"
+                                                                   ")$"));
             if (( rule.lookAhead == XmlBool::True
                || rule.minimal == XmlBool::True
                || rule.string.contains(QStringLiteral(".*?"))
@@ -967,10 +1063,20 @@ private:
                 return false;
             }
 
+            // is LineContinue
+            static const QRegularExpression isLineContinue(QStringLiteral("^\\^?" REG_CHAR "\\$$"));
+            if (reg.contains(isLineContinue)) {
+                auto extra = (reg[0] == QLatin1Char('^')) ? "with column=\"0\"" : "";
+                qWarning() << filename << "line" << rule.line << "RegExpr should be replaced by LineContinue:" << rule.string << extra;
+                return false;
+            }
+
             // replace \c, \xhhh, \x{hhh...}, \0dd, \o{ddd}, \uhhhh, with _
-            static const QRegularExpression sanitize1(
-                QStringLiteral(R"(\\(?:[^0BDPSWbdpswoux]|x[0-9a-fA-F]{2}|x\{[0-9a-fA-F]+\}|0\d\d|o\{[0-7]+\}|u[0-9a-fA-F]{4}))"));
+            static const QRegularExpression sanitize1(QStringLiteral(REG_ESCAPE_CHAR));
             reg.replace(sanitize1, QStringLiteral("_"));
+
+#undef REG_CHAR
+#undef REG_ESCAPE_CHAR
 
             // use minimal or lazy operator
             static const QRegularExpression isMinimal(QStringLiteral(
@@ -1008,8 +1114,9 @@ private:
                 char const *extraMsg = rule.string.contains(QLatin1Char('^')) ? "+ column=\"0\" or firstNonSpace=\"1\"" : "";
                 qWarning() << rule.filename << "line" << rule.line << "RegExpr should be replaced by StringDetect / Detect2Chars / DetectChar" << extraMsg
                            << ":" << rule.string;
-                if (len != reg.size())
+                if (len != reg.size()) {
                     qWarning() << rule.filename << "line" << rule.line << "insensitive=\"1\" missing:" << rule.string;
+                }
                 return false;
             }
 
@@ -1019,8 +1126,8 @@ private:
                 // (^sas*) -> ok
                 // (^sa|s*) -> ko
                 // (^(sa|s*)) -> ok
-                auto first = qAsConst(reg).begin();
-                auto last = qAsConst(reg).end();
+                auto first = std::as_const(reg).begin();
+                auto last = std::as_const(reg).end();
                 int depth = 0;
 
                 while (QLatin1Char('(') == *first) {
@@ -1066,8 +1173,8 @@ private:
             // add ^ with column=0
             if (rule.column == 0 && !rule.isDotRegex) {
                 bool hasStartOfLine = false;
-                auto first = qAsConst(reg).begin();
-                auto last = qAsConst(reg).end();
+                auto first = std::as_const(reg).begin();
+                auto last = std::as_const(reg).end();
                 for (; first != last; ++first) {
                     if (*first == QLatin1Char('^')) {
                         hasStartOfLine = true;
@@ -1306,8 +1413,9 @@ private:
     //! Search for additionalDeliminator/weakDeliminator which has no effect.
     bool checkDelimiters(const Definition &definition, const Context::Rule &rule) const
     {
-        if (rule.additionalDeliminator.isEmpty() && rule.weakDeliminator.isEmpty())
+        if (rule.additionalDeliminator.isEmpty() && rule.weakDeliminator.isEmpty()) {
             return true;
+        }
 
         bool success = true;
 
@@ -1472,16 +1580,39 @@ private:
     //! - StringDetect, WordDetect, RegExpr with as prefix Detect2Chars or other strings
     //! - duplicate rule (Int, Float, keyword with same String, etc)
     //! - Rule hidden by a dot regex
-    bool checkUreachableRules(const QString &filename, const Context &context) const
+    bool checkUreachableRules(const QString &filename,
+                              const Context &context,
+                              QMap<const Context::Rule *, IncludedRuleUnreachableBy> &unreachableIncludedRules) const
     {
-        struct RuleAndInclude {
-            const Context::Rule *rule;
-            const Context::Rule *includeRules;
+        if (context.isOnlyIncluded) {
+            return true;
+        }
 
-            explicit operator bool() const
+        struct Rule4 {
+            RuleAndInclude setRule(const Context::Rule &rule, const Context::Rule *includeRules = nullptr)
             {
-                return rule;
+                auto set = [&](RuleAndInclude &ruleAndInclude) {
+                    auto old = ruleAndInclude;
+                    ruleAndInclude = {&rule, includeRules};
+                    return old;
+                };
+
+                if (rule.firstNonSpace == XmlBool::True) {
+                    return set(firstNonSpace);
+                } else if (rule.column == 0) {
+                    return set(column0);
+                } else if (rule.column > 0) {
+                    return set(columnGreaterThan0[rule.column]);
+                } else {
+                    return set(normal);
+                }
             }
+
+        private:
+            RuleAndInclude normal;
+            RuleAndInclude column0;
+            QMap<int, RuleAndInclude> columnGreaterThan0;
+            RuleAndInclude firstNonSpace;
         };
 
         // Associate QChar with RuleAndInclude
@@ -1489,8 +1620,9 @@ private:
             /// Search RuleAndInclude associated with @p c.
             RuleAndInclude find(QChar c) const
             {
-                if (c.unicode() < 128)
+                if (c.unicode() < 128) {
                     return m_asciiMap[c.unicode()];
+                }
                 auto it = m_utf8Map.find(c);
                 return it == m_utf8Map.end() ? RuleAndInclude{nullptr, nullptr} : it.value();
             }
@@ -1517,10 +1649,11 @@ private:
             /// Associates @p c with a rule.
             void append(QChar c, const Context::Rule &rule, const Context::Rule *includeRule = nullptr)
             {
-                if (c.unicode() < 128)
+                if (c.unicode() < 128) {
                     m_asciiMap[c.unicode()] = {&rule, includeRule};
-                else
+                } else {
                     m_utf8Map[c] = {&rule, includeRule};
+                }
             }
 
             /// Associates each character of @p s with a rule.
@@ -1549,13 +1682,15 @@ private:
             // Char4Tables::char is always added.
             CharTableArray(Char4Tables &tables, const Context::Rule &rule)
             {
-                if (rule.firstNonSpace == XmlBool::True)
+                if (rule.firstNonSpace == XmlBool::True) {
                     appendTable(tables.charsFirstNonSpace);
+                }
 
-                if (rule.column == 0)
+                if (rule.column == 0) {
                     appendTable(tables.charsColumn0);
-                else if (rule.column > 0)
+                } else if (rule.column > 0) {
                     appendTable(tables.charsColumnGreaterThan0[rule.column]);
+                }
 
                 appendTable(tables.chars);
             }
@@ -1572,8 +1707,9 @@ private:
             RuleAndInclude find(QChar c) const
             {
                 for (int i = 0; i < m_size; ++i) {
-                    if (auto ruleAndInclude = m_charTables[i]->find(c))
+                    if (auto ruleAndInclude = m_charTables[i]->find(c)) {
                         return ruleAndInclude;
+                    }
                 }
                 return RuleAndInclude{nullptr, nullptr};
             }
@@ -1621,9 +1757,19 @@ private:
             int m_size = 0;
         };
 
+        struct ObservableRule {
+            const Context::Rule *rule;
+            const Context::Rule *includeRules;
+
+            bool hasResolvedIncludeRules() const
+            {
+                return rule == includeRules;
+            }
+        };
+
         // Iterates over all the rules, including those in includedRules
         struct RuleIterator {
-            RuleIterator(const QVector<Context::Rule> &rules, const Context::Rule &endRule)
+            RuleIterator(const QVector<ObservableRule> &rules, const ObservableRule &endRule)
                 : m_end(&endRule - rules.data())
                 , m_rules(rules)
             {
@@ -1635,7 +1781,7 @@ private:
                 // if in includedRules
                 if (m_includedRules) {
                     ++m_i2;
-                    if (m_i2 != m_rules[m_i].includedRules.size()) {
+                    if (m_i2 != m_includedRules->size()) {
                         return (*m_includedRules)[m_i2];
                     }
                     ++m_i;
@@ -1643,10 +1789,10 @@ private:
                 }
 
                 // if is a includedRules
-                while (m_i < m_end && m_rules[m_i].type == Context::Rule::Type::IncludeRules) {
-                    if (m_rules[m_i].includedRules.size()) {
+                while (m_i < m_end && m_rules[m_i].rule->type == Context::Rule::Type::IncludeRules) {
+                    if (!m_rules[m_i].includeRules && m_rules[m_i].rule->includedRules.size()) {
                         m_i2 = 0;
-                        m_includedRules = &m_rules[m_i].includedRules;
+                        m_includedRules = &m_rules[m_i].rule->includedRules;
                         return (*m_includedRules)[m_i2];
                     }
                     ++m_i;
@@ -1654,7 +1800,7 @@ private:
 
                 if (m_i < m_end) {
                     ++m_i;
-                    return &m_rules[m_i - 1];
+                    return m_rules[m_i - 1].rule;
                 }
 
                 return nullptr;
@@ -1663,14 +1809,14 @@ private:
             /// \return current IncludeRules or nullptr
             const Context::Rule *currentIncludeRules() const
             {
-                return m_includedRules ? &m_rules[m_i] : nullptr;
+                return m_includedRules ? m_rules[m_i].rule : m_rules[m_i].includeRules;
             }
 
         private:
             int m_i = 0;
             int m_i2;
             int m_end;
-            const QVector<Context::Rule> &m_rules;
+            const QVector<ObservableRule> &m_rules;
             const QVector<const Context::Rule *> *m_includedRules = nullptr;
         };
 
@@ -1680,20 +1826,24 @@ private:
             void append(const Context::Rule &rule, const Context::Rule *includedRule)
             {
                 auto array = extractDotRegexes(rule);
-                if (array[0])
+                if (array[0]) {
                     *array[0] = {&rule, includedRule};
-                if (array[1])
+                }
+                if (array[1]) {
                     *array[1] = {&rule, includedRule};
+                }
             }
 
             /// Search dot regex which hides @p rule
             RuleAndInclude find(const Context::Rule &rule)
             {
                 auto array = extractDotRegexes(rule);
-                if (array[0])
+                if (array[0]) {
                     return *array[0];
-                if (array[1])
+                }
+                if (array[1]) {
                     return *array[1];
+                }
                 return RuleAndInclude{};
             }
 
@@ -1707,13 +1857,15 @@ private:
                 if (rule.firstNonSpace != XmlBool::True && rule.column == -1) {
                     ret[0] = &dotRegex;
                 } else {
-                    if (rule.firstNonSpace == XmlBool::True)
+                    if (rule.firstNonSpace == XmlBool::True) {
                         ret[0] = &dotRegexFirstNonSpace;
+                    }
 
-                    if (rule.column == 0)
+                    if (rule.column == 0) {
                         ret[1] = &dotRegexColumn0;
-                    else if (rule.column > 0)
+                    } else if (rule.column > 0) {
                         ret[1] = &dotRegexColumnGreaterThan0[rule.column];
+                    }
                 }
 
                 return ret;
@@ -1734,23 +1886,44 @@ private:
         // characters of LineContinue
         Char4Tables lineContinueChars;
 
-        RuleAndInclude intRule{};
-        RuleAndInclude floatRule{};
-        RuleAndInclude hlCCharRule{};
-        RuleAndInclude hlCOctRule{};
-        RuleAndInclude hlCHexRule{};
-        RuleAndInclude hlCStringCharRule{};
+        Rule4 intRule{};
+        Rule4 floatRule{};
+        Rule4 hlCCharRule{};
+        Rule4 hlCOctRule{};
+        Rule4 hlCHexRule{};
+        Rule4 hlCStringCharRule{};
+        Rule4 detectIdentifierRule{};
 
         // Contains includedRules and included includedRules
         QMap<Context const*, RuleAndInclude> includeContexts;
 
         DotRegex dotRegex;
 
+        QVector<ObservableRule> observedRules;
+        observedRules.reserve(context.rules.size());
         for (const Context::Rule &rule : context.rules) {
+            const Context::Rule *includeRule = nullptr;
+            if (rule.type == Context::Rule::Type::IncludeRules) {
+                auto *context = rule.context.context;
+                if (context && context->isOnlyIncluded) {
+                    includeRule = &rule;
+                }
+            }
+
+            observedRules.push_back({&rule, includeRule});
+            if (includeRule) {
+                for (const Context::Rule *rule2 : rule.includedRules) {
+                    observedRules.push_back({rule2, includeRule});
+                }
+            }
+        }
+
+        for (auto &observedRule : observedRules) {
+            const Context::Rule &rule = *observedRule.rule;
             bool isUnreachable = false;
             QVector<RuleAndInclude> unreachableBy;
 
-            // declare rule as unreacheable if ruleAndInclude is not empty
+            // declare rule as unreachable if ruleAndInclude is not empty
             auto updateUnreachable1 = [&](RuleAndInclude ruleAndInclude) {
                 if (ruleAndInclude) {
                     isUnreachable = true;
@@ -1758,7 +1931,7 @@ private:
                 }
             };
 
-            // declare rule as unreacheable if ruleAndIncludes is not empty
+            // declare rule as unreachable if ruleAndIncludes is not empty
             auto updateUnreachable2 = [&](const QVector<RuleAndInclude> &ruleAndIncludes) {
                 if (!ruleAndIncludes.isEmpty()) {
                     isUnreachable = true;
@@ -1810,43 +1983,42 @@ private:
             // check if hidden by DetectChar/AnyChar
             case Context::Rule::Type::HlCChar:
                 updateUnreachable1(CharTableArray(detectChars, rule).find(QLatin1Char('\'')));
-                updateUnreachable1(hlCCharRule);
-                hlCCharRule = {&rule, nullptr};
+                updateUnreachable1(hlCCharRule.setRule(rule));
                 break;
 
             // check if hidden by DetectChar/AnyChar
             case Context::Rule::Type::HlCHex:
                 updateUnreachable1(CharTableArray(detectChars, rule).find(QLatin1Char('0')));
-                updateUnreachable1(hlCHexRule);
-                hlCHexRule = {&rule, nullptr};
+                updateUnreachable1(hlCHexRule.setRule(rule));
                 break;
 
             // check if hidden by DetectChar/AnyChar
             case Context::Rule::Type::HlCOct:
                 updateUnreachable1(CharTableArray(detectChars, rule).find(QLatin1Char('0')));
-                updateUnreachable1(hlCOctRule);
-                hlCOctRule = {&rule, nullptr};
+                updateUnreachable1(hlCOctRule.setRule(rule));
                 break;
 
             // check if hidden by DetectChar/AnyChar
             case Context::Rule::Type::HlCStringChar:
                 updateUnreachable1(CharTableArray(detectChars, rule).find(QLatin1Char('\\')));
-                updateUnreachable1(hlCStringCharRule);
-                hlCStringCharRule = {&rule, nullptr};
+                updateUnreachable1(hlCStringCharRule.setRule(rule));
                 break;
 
             // check if hidden by DetectChar/AnyChar
             case Context::Rule::Type::Int:
                 updateUnreachable2(CharTableArray(detectChars, rule).find(QStringLiteral("0123456789")));
-                updateUnreachable1(intRule);
-                intRule = {&rule, nullptr};
+                updateUnreachable1(intRule.setRule(rule));
                 break;
 
             // check if hidden by DetectChar/AnyChar
             case Context::Rule::Type::Float:
                 updateUnreachable2(CharTableArray(detectChars, rule).find(QStringLiteral("0123456789.")));
-                updateUnreachable1(floatRule);
-                floatRule = {&rule, nullptr};
+                updateUnreachable1(floatRule.setRule(rule));
+                break;
+
+            // check if hidden by another DetectIdentifier rule
+            case Context::Rule::Type::DetectIdentifier:
+                updateUnreachable1(detectIdentifierRule.setRule(rule));
                 break;
 
             // check if hidden by DetectChar/AnyChar or another LineContinue
@@ -1865,10 +2037,11 @@ private:
             case Context::Rule::Type::RangeDetect:
                 updateUnreachable1(CharTableArray(detectChars, rule).find(rule.char0));
                 if (!isUnreachable) {
-                    RuleIterator ruleIterator(context.rules, rule);
+                    RuleIterator ruleIterator(observedRules, observedRule);
                     while (const auto *rulePtr = ruleIterator.next()) {
-                        if (isUnreachable)
+                        if (isUnreachable) {
                             break;
+                        }
                         const auto &rule2 = *rulePtr;
                         if (rule2.type == rule.type && isCompatible(rule2) && rule.char0 == rule2.char0 && rule.char1 == rule2.char1) {
                             updateUnreachable1({&rule2, ruleIterator.currentIncludeRules()});
@@ -1884,10 +2057,11 @@ private:
                 }
 
                 // check that `rule` does not have another RegExpr as a prefix
-                RuleIterator ruleIterator(context.rules, rule);
+                RuleIterator ruleIterator(observedRules, observedRule);
                 while (const auto *rulePtr = ruleIterator.next()) {
-                    if (isUnreachable)
+                    if (isUnreachable) {
                         break;
+                    }
                     const auto &rule2 = *rulePtr;
                     if (rule2.type == Context::Rule::Type::RegExpr && isCompatible(rule2) && rule.insensitive == rule2.insensitive
                         && rule.dynamic == rule2.dynamic && rule.string.startsWith(rule2.string)) {
@@ -1902,10 +2076,11 @@ private:
             case Context::Rule::Type::StringDetect: {
                 // check that dynamic `rule` does not have another dynamic StringDetect as a prefix
                 if (rule.type == Context::Rule::Type::StringDetect && rule.dynamic == XmlBool::True) {
-                    RuleIterator ruleIterator(context.rules, rule);
+                    RuleIterator ruleIterator(observedRules, observedRule);
                     while (const auto *rulePtr = ruleIterator.next()) {
-                        if (isUnreachable)
+                        if (isUnreachable) {
                             break;
+                        }
 
                         const auto &rule2 = *rulePtr;
                         if (rule2.type != Context::Rule::Type::StringDetect || rule2.dynamic != XmlBool::True || !isCompatible(rule2)) {
@@ -1963,10 +2138,11 @@ private:
                     // combination of uppercase and lowercase
                     RuleAndInclude detect2CharsInsensitives[]{{}, {}, {}, {}};
 
-                    RuleIterator ruleIterator(context.rules, rule);
+                    RuleIterator ruleIterator(observedRules, observedRule);
                     while (const auto *rulePtr = ruleIterator.next()) {
-                        if (isUnreachable)
+                        if (isUnreachable) {
                             break;
+                        }
                         const auto &rule2 = *rulePtr;
                         const bool isSensitive = (rule2.insensitive == XmlBool::True);
                         const auto caseSensitivity = isSensitive ? Qt::CaseInsensitive : Qt::CaseSensitive;
@@ -2030,10 +2206,11 @@ private:
 
             // check if hidden by another keyword rule
             case Context::Rule::Type::keyword: {
-                RuleIterator ruleIterator(context.rules, rule);
+                RuleIterator ruleIterator(observedRules, observedRule);
                 while (const auto *rulePtr = ruleIterator.next()) {
-                    if (isUnreachable)
+                    if (isUnreachable) {
                         break;
+                    }
                     const auto &rule2 = *rulePtr;
                     if (rule2.type == Context::Rule::Type::keyword && isCompatible(rule2) && rule.string == rule2.string) {
                         updateUnreachable1({&rule2, ruleIterator.currentIncludeRules()});
@@ -2049,6 +2226,10 @@ private:
             //  <includedRules .../> <- reference a <DetectChar char="{" /> who will be added
             //  <DetectChar char="{" /> <- hidden by previous rule
             case Context::Rule::Type::IncludeRules:
+                if (observedRule.includeRules && !observedRule.hasResolvedIncludeRules()) {
+                    break;
+                }
+
                 if (auto &ruleAndInclude = includeContexts[rule.context.context]) {
                     updateUnreachable1(ruleAndInclude);
                 }
@@ -2058,6 +2239,10 @@ private:
 
                 for (const auto *rulePtr : rule.includedIncludeRules) {
                     includeContexts.insert(rulePtr->context.context, RuleAndInclude{rulePtr, &rule});
+                }
+
+                if (observedRule.includeRules) {
+                    break;
                 }
 
                 for (const auto *rulePtr : rule.includedRules) {
@@ -2087,27 +2272,27 @@ private:
                     }
 
                     case Context::Rule::Type::HlCChar:
-                        hlCCharRule = {&rule2, &rule};
+                        hlCCharRule.setRule(rule2, &rule);
                         break;
 
                     case Context::Rule::Type::HlCHex:
-                        hlCHexRule = {&rule2, &rule};
+                        hlCHexRule.setRule(rule2, &rule);
                         break;
 
                     case Context::Rule::Type::HlCOct:
-                        hlCOctRule = {&rule2, &rule};
+                        hlCOctRule.setRule(rule2, &rule);
                         break;
 
                     case Context::Rule::Type::HlCStringChar:
-                        hlCStringCharRule = {&rule2, &rule};
+                        hlCStringCharRule.setRule(rule2, &rule);
                         break;
 
                     case Context::Rule::Type::Int:
-                        intRule = {&rule2, &rule};
+                        intRule.setRule(rule2, &rule);
                         break;
 
                     case Context::Rule::Type::Float:
-                        floatRule = {&rule2, &rule};
+                        floatRule.setRule(rule2, &rule);
                         break;
 
                     case Context::Rule::Type::LineContinue: {
@@ -2136,12 +2321,18 @@ private:
                 }
                 break;
 
-            case Context::Rule::Type::DetectIdentifier:
             case Context::Rule::Type::Unknown:
                 break;
             }
 
-            if (isUnreachable) {
+            if (observedRule.includeRules && !observedRule.hasResolvedIncludeRules()) {
+                auto &unreachableIncludedRule = unreachableIncludedRules[&rule];
+                if (isUnreachable && unreachableIncludedRule.alwaysUnreachable) {
+                    unreachableIncludedRule.unreachableBy.append(unreachableBy);
+                } else {
+                    unreachableIncludedRule.alwaysUnreachable = false;
+                }
+            } else if (isUnreachable) {
                 success = false;
                 QString message;
                 message.reserve(128);
@@ -2165,7 +2356,7 @@ private:
                     message += QStringLiteral(", ");
                 }
                 message.chop(2);
-                qWarning() << filename << "line" << rule.line << "unreachable element by" << message;
+                qWarning() << filename << "line" << rule.line << "unreachable rule by" << message;
             }
         }
 
@@ -2179,8 +2370,9 @@ private:
     {
         bool success = true;
 
-        if (context.rules.isEmpty())
+        if (context.rules.isEmpty()) {
             return success;
+        }
 
         auto it = context.rules.begin();
         const auto end = context.rules.end() - 1;
@@ -2249,7 +2441,7 @@ private:
     //! - "#pop!Comment"  -> "Comment"
     //! - "##ISO C++"     -> ""
     //! - "Comment##ISO C++"-> "Comment" in ISO C++
-    void resolveContextName(Definition &definition, const Context &context, ContextName &contextName, int line)
+    void resolveContextName(Definition &definition, Context &context, ContextName &contextName, int line)
     {
         QString name = contextName.name;
         if (name.isEmpty()) {
@@ -2281,8 +2473,9 @@ private:
                 const int idx = name.indexOf(QStringLiteral("##"));
                 if (idx == -1) {
                     auto it = definition.contexts.find(name);
-                    if (it != definition.contexts.end())
+                    if (it != definition.contexts.end()) {
                         contextName.context = &*it;
+                    }
                 } else {
                     auto defName = name.mid(idx + 2);
                     auto listName = name.left(idx);
@@ -2392,14 +2585,16 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     // ensure enough arguments are passed
-    if (app.arguments().size() < 3)
+    if (app.arguments().size() < 3) {
         return 1;
+    }
 
 #ifdef QT_XMLPATTERNS_LIB
     // open schema
     QXmlSchema schema;
-    if (!schema.load(QUrl::fromLocalFile(app.arguments().at(2))))
+    if (!schema.load(QUrl::fromLocalFile(app.arguments().at(2)))) {
         return 2;
+    }
 #endif
 
     const QString hlFilenamesListing = app.arguments().value(3);
@@ -2422,7 +2617,7 @@ int main(int argc, char *argv[])
     HlFilesChecker filesChecker;
     QVariantMap hls;
     int anyError = 0;
-    for (const QString &hlFilename : qAsConst(hlFilenames)) {
+    for (const QString &hlFilename : std::as_const(hlFilenames)) {
         QFile hlFile(hlFilename);
         if (!hlFile.open(QIODevice::ReadOnly)) {
             qWarning("Failed to open %s", qPrintable(hlFilename));
@@ -2456,7 +2651,7 @@ int main(int argc, char *argv[])
         QVariantMap hl;
 
         // transfer text attributes
-        for (const QString &attribute : qAsConst(textAttributes)) {
+        for (const QString &attribute : std::as_const(textAttributes)) {
             hl[attribute] = xml.attributes().value(attribute).toString();
         }
 
@@ -2489,17 +2684,20 @@ int main(int argc, char *argv[])
 
     filesChecker.resolveContexts();
 
-    if (!filesChecker.check())
+    if (!filesChecker.check()) {
         anyError = 7;
+    }
 
     // bail out if any problem was seen
-    if (anyError)
+    if (anyError) {
         return anyError;
+    }
 
     // create outfile, after all has worked!
     QFile outFile(app.arguments().at(1));
-    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         return 9;
+    }
 
     // write out json
     outFile.write(QCborValue::fromVariant(QVariant(hls)).toCbor());

@@ -9,6 +9,11 @@ callgrind.*
 heaptrack.*
 /build*/
 *.unc-backup*
-.clang-format
-.cmake/
-*.code-workspace
+/.clang-format
+/.cmake/
+/*.code-workspace
+/compile_commands.json
+.clangd
+.idea
+/cmake-build*
+.cache

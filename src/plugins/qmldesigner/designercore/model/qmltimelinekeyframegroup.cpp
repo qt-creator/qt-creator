@@ -310,7 +310,7 @@ QList<QmlTimelineKeyframeGroup> QmlTimelineKeyframeGroup::allInvalidTimelineKeyf
     QTC_ASSERT(view->rootModelNode().isValid(), return ret);
 
     const auto groups = view->rootModelNode().subModelNodesOfType("QtQuick.Timeline.KeyframeGroup");
-    for (const QmlTimelineKeyframeGroup &group : groups) {
+    for (const QmlTimelineKeyframeGroup group : groups) {
         if (group.isDangling())
             ret.append(group);
     }

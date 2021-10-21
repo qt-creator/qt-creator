@@ -286,7 +286,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         if (const ProjectExplorer::Target * const target = project->activeTarget()) {
             if (const ProjectExplorer::BuildConfiguration * const bc
                     = target->activeBuildConfiguration()) {
-                return bc->buildDirectory();
+                return bc->buildDirectory() / ".qtc_clangd";
             }
         }
         return Utils::FilePath();
@@ -363,7 +363,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         });
 
     });
-    auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+    auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo, jsonDbDir,
                                   CompilationDbPurpose::CodeModel,
                                   warningsConfigForProject(project),
                                   optionsForProject(project));
@@ -483,10 +483,6 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 
         // TODO: Ensure that not fully loaded documents are updated?
 
-        // TODO: If the file does not belong to any project and it is a header file,
-        //       it might make sense to check whether the file is included by any file
-        //       that does belong to a project, and if so, use the respective client
-        //       instead. Is this feasible?
         ProjectExplorer::Project * const project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
         if (ClangdClient * const client = clientForProject(project))

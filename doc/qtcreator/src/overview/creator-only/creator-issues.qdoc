@@ -143,15 +143,4 @@
             {GCC Bugzilla - Bug 44731}.
 
     \endlist
-
-    \section1 Design Mode Issues
-
-    \list
-
-        \li The Design mode uses a QML emulation layer (QML Puppet) to render and preview
-            images and to collect data. Executing C++ code might cause the QML
-            emulation layer to crash. If it crashes, an error message is displayed and
-            you can continue editing the QML file in the code editor.
-
-    \endlist
 */

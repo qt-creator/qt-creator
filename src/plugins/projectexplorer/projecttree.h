@@ -68,6 +68,11 @@ public:
         const bool m_active = false;
     };
 
+    enum ConstructionPhase {
+        AsyncPhase,
+        FinalPhase
+    };
+
     // Integration with ProjectTreeWidget
     static void registerWidget(Internal::ProjectTreeWidget *widget);
     static void unregisterWidget(Internal::ProjectTreeWidget *widget);
@@ -79,9 +84,9 @@ public:
 
     static void highlightProject(Project *project, const QString &message);
 
-    using TreeManagerFunction = std::function<void(FolderNode *)>;
+    using TreeManagerFunction = std::function<void(FolderNode *, ConstructionPhase)>;
     static void registerTreeManager(const TreeManagerFunction &treeChange);
-    static void applyTreeManager(FolderNode *folder);
+    static void applyTreeManager(FolderNode *folder, ConstructionPhase phase);
 
     // Nodes:
     static bool hasNode(const Node *node);

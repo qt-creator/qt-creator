@@ -70,10 +70,11 @@ void HtmlHighlighter::highlightFile(const QString &fileName, const QString &titl
         return;
     }
 
-    if (title.isEmpty())
+    if (title.isEmpty()) {
         highlightData(&f, fi.fileName());
-    else
+    } else {
         highlightData(&f, title);
+    }
 }
 
 /**
@@ -87,8 +88,9 @@ void HtmlHighlighter::highlightFile(const QString &fileName, const QString &titl
  */
 static QString toHtmlRgbaString(const QColor &color)
 {
-    if (color.alpha() == 0xFF)
+    if (color.alpha() == 0xFF) {
         return color.name();
+    }
 
     QString rgba = QStringLiteral("rgba(");
     rgba.append(QString::number(color.red()));
@@ -111,10 +113,11 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
     }
 
     QString htmlTitle;
-    if (title.isEmpty())
+    if (title.isEmpty()) {
         htmlTitle = QStringLiteral("Kate Syntax Highlighter");
-    else
+    } else {
         htmlTitle = title.toHtmlEscaped();
+    }
 
     State state;
     *d->out << "<!DOCTYPE html>\n";
@@ -125,8 +128,9 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
             << ")\"/>\n";
     *d->out << "</head><body";
     *d->out << " style=\"background-color:" << toHtmlRgbaString(QColor::fromRgba(theme().editorColor(Theme::BackgroundColor)));
-    if (theme().textColor(Theme::Normal))
+    if (theme().textColor(Theme::Normal)) {
         *d->out << ";color:" << toHtmlRgbaString(QColor::fromRgba(theme().textColor(Theme::Normal)));
+    }
     *d->out << "\"><pre>\n";
 
     QTextStream in(dev);
@@ -148,27 +152,34 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 
 void HtmlHighlighter::applyFormat(int offset, int length, const Format &format)
 {
-    if (length == 0)
+    if (length == 0) {
         return;
+    }
 
     // collect potential output, cheaper than thinking about "is there any?"
     QVarLengthArray<QString, 16> formatOutput;
-    if (format.hasTextColor(theme()))
+    if (format.hasTextColor(theme())) {
         formatOutput << QStringLiteral("color:") << toHtmlRgbaString(format.textColor(theme())) << QStringLiteral(";");
-    if (format.hasBackgroundColor(theme()))
+    }
+    if (format.hasBackgroundColor(theme())) {
         formatOutput << QStringLiteral("background-color:") << toHtmlRgbaString(format.backgroundColor(theme())) << QStringLiteral(";");
-    if (format.isBold(theme()))
+    }
+    if (format.isBold(theme())) {
         formatOutput << QStringLiteral("font-weight:bold;");
-    if (format.isItalic(theme()))
+    }
+    if (format.isItalic(theme())) {
         formatOutput << QStringLiteral("font-style:italic;");
-    if (format.isUnderline(theme()))
+    }
+    if (format.isUnderline(theme())) {
         formatOutput << QStringLiteral("text-decoration:underline;");
-    if (format.isStrikeThrough(theme()))
+    }
+    if (format.isStrikeThrough(theme())) {
         formatOutput << QStringLiteral("text-decoration:line-through;");
+    }
 
     if (!formatOutput.isEmpty()) {
         *d->out << "<span style=\"";
-        for (const auto &out : qAsConst(formatOutput)) {
+        for (const auto &out : std::as_const(formatOutput)) {
             *d->out << out;
         }
         *d->out << "\">";

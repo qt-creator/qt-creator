@@ -177,6 +177,8 @@ public:
 
     ModelNode getNodeForCanonicalIndex(int index);
 
+    void sanitizeModel();
+
 signals:
     void modelInterfaceProjectUpdated();
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -56,7 +56,13 @@
     \section1 Previewing Images
 
     The Qt Quick Toolbar for images allows you to edit the properties of
-    \l {Border Image} and \l {Images}{Image} items.
+    \l {Border Image} and
+    \if defined(qtdesignstudio)
+    \l {Images}{Image} items.
+    \else
+    \l Image items.
+    \endif
+
     You can scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
@@ -97,8 +103,12 @@
     \section1 Editing Rectangles
 
     The Qt Quick Toolbar for rectangles allows you to edit the properties of
-    \l {basic-rectangle}{Rectangle} items. You can change the fill and border
-    colors and add gradients.
+    \if defined(qtdesignstudio)
+    \l {basic-rectangle}{Rectangle}
+    \else
+    Rectangle
+    \endif
+    items. You can change the fill and border colors and add gradients.
 
     \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
 

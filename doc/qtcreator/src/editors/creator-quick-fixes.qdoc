@@ -869,8 +869,10 @@
 
                 \image qtcreator-move-component-into-separate-file.png
 
-            \li QML type name. This action is also available in the
-                \uicontrol {Form Editor} in the Design mode.
+            \li QML type name.
+                \if defined(qtdesignstudio)
+                This action is also available in \l {Form Editor}.
+                \endif
         \row
             \li Split Initializer
             \li Reformats a one-line type into a multi-line type. For example,

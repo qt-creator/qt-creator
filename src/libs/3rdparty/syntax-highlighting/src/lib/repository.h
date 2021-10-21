@@ -86,6 +86,11 @@ class Theme;
  *    The internal resource path is ":/org.kde.syntax-highlighting/syntax".
  *    This path should never be touched by other applications.
  *
+ * -# Then, all custom files compiled into resources are loaded.
+ *    The resource path is ":/org.kde.syntax-highlighting/syntax-addons".
+ *    This path can be used by other libraries/applications to bundle specialized definitions.
+ *    Per default this path isn't used by the framework itself.
+ *
  * -# Finally, the search path can be extended by calling addCustomSearchPath().
  *    A custom search path can either be a path on disk or again a path to
  *    a Qt resource.
@@ -101,6 +106,11 @@ class Theme;
  * -# Then, all files compiled into the library through resources are loaded.
  *    The internal resource path is ":/org.kde.syntax-highlighting/themes".
  *    This path should never be touched by other applications.
+ *
+ * -# Then, all custom files compiled into resources are loaded.
+ *    The resource path is ":/org.kde.syntax-highlighting/themes-addons".
+ *    This path can be used by other libraries/applications to bundle specialized themes.
+ *    Per default this path isn't used by the framework itself.
  *
  * -# Finally, all Theme%s located in the paths added addCustomSearchPath()
  *    are loaded.

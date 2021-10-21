@@ -417,17 +417,18 @@ bool maybeAppendArgumentOrParameterList(QString *expression, const QTextCursor &
 
 bool isCursorOnTrailingReturnType(const QList<AST *> &astPath)
 {
-    for (auto it = astPath.cend() - 1, begin = astPath.cbegin(); it >= begin; --it) {
+    if (astPath.size() < 3)
+        return false;
+    for (auto it = astPath.cend() - 3, begin = astPath.cbegin(); it >= begin; --it) {
+        if (!(*it)->asTrailingReturnType())
+            continue;
         const auto nextIt = it + 1;
         const auto nextNextIt = nextIt + 1;
-        if (nextNextIt != astPath.cend() && (*it)->asTrailingReturnType()) {
-            return (*nextIt)->asNamedTypeSpecifier()
-                    && ((*nextNextIt)->asSimpleName()
-                        || (*nextNextIt)->asQualifiedName()
-                        || (*nextNextIt)->asTemplateId());
-        }
+        return (*nextIt)->asNamedTypeSpecifier()
+               && ((*nextNextIt)->asSimpleName()
+                   || (*nextNextIt)->asQualifiedName()
+                   || (*nextNextIt)->asTemplateId());
     }
-
     return false;
 }
 

@@ -33,6 +33,7 @@
     If you cannot see a file in the \l Projects view, switch to the
     \uicontrol {File System} view, which shows all the files in the file system.
 
+    \if defined(qtdesignstudio)
     The following image displays the \uicontrol {File System} view in the
     \uicontrol Design mode:
 
@@ -89,6 +90,7 @@
     \endlist
 
     \section1 File System View in Sidebar
+    \endif
 
     In the \uicontrol Edit and \uicontrol Debug mode, the
     \uicontrol {File System} view is displayed in the \l{Working with Sidebars}

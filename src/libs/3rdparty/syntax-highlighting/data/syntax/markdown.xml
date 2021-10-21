@@ -90,7 +90,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="17" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="19" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -149,14 +149,33 @@
       </context>
 
       <context name="find-header" attribute="Normal Text" lineEndContext="#pop">
-        <RegExpr attribute="Header H1" context="#pop" String="^#\s.*[#]?$" column="0"/>
-        <RegExpr attribute="Header H2" context="#pop" String="^##\s.*[#]?$" column="0"/>
-        <RegExpr attribute="Header H3" context="#pop" String="^###\s.*[#]?$" column="0"/>
-        <RegExpr attribute="Header H4" context="#pop" String="^####\s.*[#]?$" column="0"/>
-        <RegExpr attribute="Header H5" context="#pop" String="^#####\s.*[#]?$" column="0"/>
-        <RegExpr attribute="Header H6" context="#pop" String="^######\s.*[#]?$" column="0"/>
+        <!-- TODO: Replace "(?=.$)" in the regexes with just "$" when close-H#-region are removed  -->
+        <RegExpr attribute="Header H1" context="#pop!close-H2-region" String="^#\s.*[#]?(?=.$)" column="0" endRegion="H1" beginRegion="H1"/>
+        <RegExpr attribute="Header H2" context="#pop!close-H3-region" String="^##\s.*[#]?(?=.$)" column="0" endRegion="H2" beginRegion="H2"/>
+        <RegExpr attribute="Header H3" context="#pop!close-H4-region" String="^###\s.*[#]?(?=.$)" column="0" endRegion="H3" beginRegion="H3"/>
+        <RegExpr attribute="Header H4" context="#pop!close-H5-region" String="^####\s.*[#]?(?=.$)" column="0" endRegion="H4" beginRegion="H4"/>
+        <RegExpr attribute="Header H5" context="#pop!close-H6-region" String="^#####\s.*[#]?(?=.$)" column="0" endRegion="H5" beginRegion="H5"/>
+        <RegExpr attribute="Header H6" context="#pop" String="^######\s.*[#]?$" column="0" endRegion="H6" beginRegion="H6"/>
         <DetectChar attribute="Normal Text" context="#pop" char="#"/>
       </context>
+      <!-- BUG: 441278 sub-headers should be closed when their parent header is closed  (e.g. in h1 h2 h3 h1, h1-h3 should all be closed at the 2nd h1) -->
+      <!-- TODO: Port to a less hacky version (maybe a new attribute for declaring multiple endRegions)  -->
+      <context name="close-H2-region" attribute="Header H2" lineEndContext="#pop!close-H3-region" fallthroughContext="#pop!close-H3-region">
+        <RegExpr attribute="Header H2" context="#pop!close-H3-region" String="." lookAhead="true" endRegion="H2"/>
+      </context>
+      <context name="close-H3-region" attribute="Header H3" lineEndContext="#pop!close-H4-region" fallthroughContext="#pop!close-H4-region">
+        <RegExpr attribute="Header H3" context="#pop!close-H4-region" String="." lookAhead="true" endRegion="H3"/>
+      </context>
+      <context name="close-H4-region" attribute="Header H4" lineEndContext="#pop!close-H5-region" fallthroughContext="#pop!close-H5-region">
+        <RegExpr attribute="Header H4" context="#pop!close-H5-region" String="." lookAhead="true" endRegion="H4"/>
+      </context>
+      <context name="close-H5-region" attribute="Header H5" lineEndContext="#pop!close-H6-region" fallthroughContext="#pop!close-H6-region">
+        <RegExpr attribute="Header H5" context="#pop!close-H6-region" String="." lookAhead="true" endRegion="H5"/>
+      </context>
+      <context name="close-H6-region" attribute="Header H6" lineEndContext="#pop" fallthroughContext="#pop">
+        <RegExpr attribute="Header H6" context="#pop" String="." endRegion="H6"/>
+      </context>
+
       <context name="find-strong-normal" attribute="Normal Text" lineEndContext="#pop">
         <RegExpr attribute="Strong-Emphasis Text" context="#pop" minimal="true" String="&strongemphasisregex_ast_und;|&strongemphasisregex_ast_und2;"/>
         <RegExpr attribute="Strong Text" context="#pop" minimal="true" String="&strongregex_ast;"/>

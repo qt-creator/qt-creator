@@ -31,9 +31,10 @@
 #include <utils/id.h>
 #include <utils/optional.h>
 
-#include <QVariant>
 #include <QFutureInterface>
 #include <QIcon>
+#include <QMetaType>
+#include <QVariant>
 
 namespace Core {
 
@@ -73,12 +74,6 @@ struct LocatorFilterEntry
         , internalData(data)
         , displayIcon(icon)
     {}
-
-    bool operator==(const LocatorFilterEntry &other) const {
-        if (internalData.canConvert(QVariant::String))
-            return (internalData.toString() == other.internalData.toString());
-        return internalData.constData() == other.internalData.constData();
-    }
 
     /* backpointer to creating filter */
     ILocatorFilter *filter = nullptr;

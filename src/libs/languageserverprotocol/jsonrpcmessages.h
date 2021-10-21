@@ -34,6 +34,7 @@
 #include <utils/variant.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QHash>
 #include <QJsonObject>
 #include <QJsonValue>
@@ -294,6 +295,8 @@ public:
     { return JsonRpcMessage::isValid(errorMessage) && id().isValid(); }
 };
 
+void LANGUAGESERVERPROTOCOL_EXPORT logElapsedTime(const QString &method, const QElapsedTimer &t);
+
 template <typename Result, typename ErrorDataType, typename Params>
 class Request : public Notification<Params>
 {
@@ -316,9 +319,13 @@ public:
 
     Utils::optional<ResponseHandler> responseHandler() const final
     {
-        auto callback = [callback = m_callBack](const QByteArray &content, QTextCodec *codec) {
+        QElapsedTimer timer;
+        timer.start();
+        auto callback = [callback = m_callBack, method = this->method(), t = std::move(timer)]
+                (const QByteArray &content, QTextCodec *codec) {
             if (!callback)
                 return;
+            logElapsedTime(method, t);
             QString parseError;
             const QJsonObject &object = JsonRpcMessageHandler::toJsonObject(content,
                                                                             codec,

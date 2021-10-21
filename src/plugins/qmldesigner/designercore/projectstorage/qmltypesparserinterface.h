@@ -37,7 +37,7 @@ public:
     virtual void parse(const QString &sourceContent,
                        Storage::Imports &imports,
                        Storage::Types &types,
-                       SourceIds &sourceIds)
+                       const Storage::ProjectData &projectData)
         = 0;
 
 protected:

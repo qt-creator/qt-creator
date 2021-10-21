@@ -788,7 +788,10 @@ void ItemLibraryAssetImportDialog::onClose()
         addInfo(tr("Canceling import."));
         m_importer.cancelImport();
     } else {
-        reject();
+        if (ui->progressBar->value() == 100) // import done successfully
+            accept();
+        else
+            reject();
         close();
         deleteLater();
     }

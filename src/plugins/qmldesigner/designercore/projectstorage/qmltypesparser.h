@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,10 +25,39 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "nonlockingmutex.h"
+#include "qmltypesparserinterface.h"
 
-#if defined(KSYNTAXHIGHLIGHTING_LIBRARY)
-#  define KSYNTAXHIGHLIGHTING_EXPORT Q_DECL_EXPORT
-#else
-#  define KSYNTAXHIGHLIGHTING_EXPORT Q_DECL_IMPORT
-#endif
+namespace Sqlite {
+class Database;
+}
+
+namespace QmlDesigner {
+
+template<typename Database>
+class ProjectStorage;
+
+template<typename ProjectStorage, typename Mutex>
+class SourcePathCache;
+
+class QmlTypesParser : public QmlTypesParserInterface
+{
+public:
+    using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
+    using PathCache = QmlDesigner::SourcePathCache<ProjectStorage, NonLockingMutex>;
+
+    QmlTypesParser(PathCache &pathCache, ProjectStorage &storage)
+        : m_pathCache{pathCache}
+        , m_storage{storage}
+    {}
+
+    void parse(const QString &sourceContent,
+               Storage::Imports &imports,
+               Storage::Types &types,
+               const Storage::ProjectData &projectData) override;
+
+private:
+    PathCache &m_pathCache;
+    ProjectStorage &m_storage;
+};
+} // namespace QmlDesigner

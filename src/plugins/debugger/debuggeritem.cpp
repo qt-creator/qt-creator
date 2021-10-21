@@ -225,7 +225,7 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
             return;
         }
 
-        qWarning() << "Unable to determine gdb target ABI";
+        qWarning() << "Unable to determine gdb target ABI via" << proc.commandLine().toUserOutput();
         //! \note If unable to determine the GDB ABI, no ABI is appended to m_abis here.
         return;
     }

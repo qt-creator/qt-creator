@@ -434,7 +434,7 @@ MetaInfo {
 
     Type {
         name: "QtQml.Component"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/component-icon16.png"
 
         Hints {
             canBeDroppedInNavigator: true
@@ -444,19 +444,19 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Component"
             category: "e.Qt Quick - Component"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/component-icon.png"
             version: "2.0"
         }
     }
 
     Type {
         name: "QtQuick.Loader"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/loader-icon16.png"
 
         ItemLibraryEntry {
             name: "Loader"
             category: "e.Qt Quick - Component"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/loader-icon.png"
             version: "2.0"
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
@@ -465,7 +465,7 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Repeater"
-        icon: ":/qtquickplugin/images/item-icon16.png"
+        icon: ":/qtquickplugin/images/repeater-icon16.png"
 
         Hints {
             canBeDroppedInFormEditor: false
@@ -475,7 +475,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Repeater"
             category: "e.Qt Quick - Component"
-            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            libraryIcon: ":/qtquickplugin/images/repeater-icon.png"
             version: "2.0"
         }
     }

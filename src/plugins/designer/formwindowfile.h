@@ -58,6 +58,7 @@ public:
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
+    bool supportsCodec(const QTextCodec *codec) const override;
 
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);

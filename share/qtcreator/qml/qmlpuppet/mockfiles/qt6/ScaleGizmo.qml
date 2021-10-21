@@ -166,6 +166,7 @@ Node {
     Model {
         id: centerCube
 
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         source: "#Cube"
         scale: Qt.vector3d(0.024, 0.024, 0.024)
         materials: DefaultMaterial {

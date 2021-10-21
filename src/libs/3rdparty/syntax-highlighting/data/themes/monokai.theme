@@ -259,7 +259,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "Monokai",
-        "revision": 5
+        "revision": 6
     },
     "text-styles": {
         "Alert": {
@@ -383,8 +383,8 @@
             "text-color": "#f8f8f2"
         },
         "VerbatimString": {
-            "selected-text-color": "#e6db74",
-            "text-color": "#e6db74"
+            "selected-text-color": "#d8c72c",
+            "text-color": "#d8c72c"
         },
         "Warning": {
             "selected-text-color": "#ff5555",

@@ -38,6 +38,7 @@
 #include <cplusplus/Control.h>
 
 #include <utils/algorithm.h>
+#include <utils/porting.h>
 
 #include <QStack>
 #include <QHash>
@@ -150,9 +151,9 @@ bool operator==(const FullyQualifiedName &left, const FullyQualifiedName &right)
     return compareFullyQualifiedName(left.fqn, right.fqn);
 }
 
-uint qHash(const FullyQualifiedName &fullyQualifiedName)
+Utils::QHashValueType qHash(const FullyQualifiedName &fullyQualifiedName)
 {
-    uint h = 0;
+    Utils::QHashValueType h = 0;
     for (int i = 0; i < fullyQualifiedName.fqn.size(); ++i) {
         if (const Name *n = fullyQualifiedName.fqn.at(i)) {
             if (const Identifier *id = n->identifier()) {

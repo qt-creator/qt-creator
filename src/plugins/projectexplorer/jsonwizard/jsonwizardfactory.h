@@ -100,6 +100,12 @@ private:
     static void destroyAllFactories();
     bool initialize(const QVariantMap &data, const Utils::FilePath &baseDir, QString *errorMessage);
 
+    JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMessage);
+    QVariantMap loadDefaultValues(const QString &fileName);
+    QVariant getDataValue(const QLatin1String &key, const QVariantMap &valueSet,
+                          const QVariantMap &defaultValueSet, const QVariant &notExistValue={});
+    QVariant mergeDataValueMaps(const QVariant &valueMap, const QVariant &defaultValueMap);
+
     QVariant m_enabledExpression;
     Utils::FilePath m_wizardDir;
     QList<Generator> m_generators;

@@ -99,6 +99,14 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
         if (fileSelectorsProperty.isValid())
             projectItem->setFileSelectors(fileSelectorsProperty.value.toStringList());
 
+        const auto languagesProperty = rootNode->property(QLatin1String("supportedLanguages"));
+        if (languagesProperty.isValid())
+            projectItem->setSupportedLanguages(languagesProperty.value.toStringList());
+
+        const auto primaryLanguageProperty = rootNode->property(QLatin1String("primaryLanguage"));
+        if (primaryLanguageProperty.isValid())
+            projectItem->setPrimaryLanguage(primaryLanguageProperty.value.toString());
+
         const auto forceFreeTypeProperty = rootNode->property("forceFreeType");
         if (forceFreeTypeProperty.isValid())
             projectItem->setForceFreeType(forceFreeTypeProperty.value.toBool());

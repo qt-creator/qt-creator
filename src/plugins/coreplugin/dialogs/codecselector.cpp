@@ -87,6 +87,8 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     int currentIndex = -1;
     foreach (int mib, sortedMibs) {
         QTextCodec *c = QTextCodec::codecForMib(mib);
+        if (!doc->supportsCodec(c))
+            continue;
         if (!buf.isEmpty()) {
 
             // slow, should use a feature from QTextCodec or QTextDecoder (but those are broken currently)

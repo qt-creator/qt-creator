@@ -57,6 +57,7 @@ public:
     bool isSaveAsAllowed() const override;
     bool isModified() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    bool supportsCodec(const QTextCodec *codec) const override;
 
     // Internal
     Common::MainWidget *designWidget() const;

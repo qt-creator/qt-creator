@@ -31,6 +31,7 @@
 #include "designmodecontext.h"
 #include "openuiqmlfiledialog.h"
 #include "generateresource.h"
+#include "generatecmakelists.h"
 #include "nodeinstanceview.h"
 #include "gestures.h"
 
@@ -221,6 +222,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     d = new QmlDesignerPluginPrivate;
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         GenerateResource::generateMenuEntry();
+
+    GenerateCmakeLists::generateMenuEntry();
 
     const QString fontPath
         = Core::ICore::resourcePath(

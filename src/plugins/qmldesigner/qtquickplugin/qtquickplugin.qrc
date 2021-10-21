@@ -72,5 +72,14 @@
         <file>images/animated-image-icon.png</file>
         <file>images/animated-image-icon@2x.png</file>
         <file>images/animated-image-icon16.png</file>
+        <file>images/component-icon.png</file>
+        <file>images/component-icon@2x.png</file>
+        <file>images/component-icon16.png</file>
+        <file>images/repeater-icon.png</file>
+        <file>images/repeater-icon@2x.png</file>
+        <file>images/repeater-icon16.png</file>
+        <file>images/loader-icon.png</file>
+        <file>images/loader-icon@2x.png</file>
+        <file>images/loader-icon16.png</file>
     </qresource>
 </RCC>

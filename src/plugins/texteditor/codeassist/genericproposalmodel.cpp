@@ -41,7 +41,7 @@
 using namespace TextEditor;
 
 QT_BEGIN_NAMESPACE
-uint qHash(const AssistProposalItem &item)
+auto qHash(const AssistProposalItem &item)
 {
     return qHash(item.text());
 }

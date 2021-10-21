@@ -1,0 +1,52 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-user-feedback.html
+    \previouspage collecting-usage-statistics.html
+    \nextpage studio-crashpad.html
+
+    \title Collecting User Feedback
+
+    A pop-up survey asking for your feedback will appear for some of the features
+    after you have been using them for some time. You will be asked to to rate
+    the usefulness of the feature on a scale of one to five stars. You must rate
+    the feature with at least one star if you wish to submit your rating. You
+    are also encouraged to give additional written feedback. After you select
+    \uicontrol Skip or \uicontrol Submit, the pop-up survey will not appear for
+    the same feature again.
+
+    \image studio-feedback-popup.png "User feedback pop-up survey for Flow Editor"
+
+    For the pop-up survey to appear, you must enable collecting statistics, and
+    also allow collecting \uicontrol {4 - Detailed usage statistics} in
+    \uicontrol Tools > \uicontrol Options >  \uicontrol Telemetry >
+    \uicontrol {Usage Statistics} > \uicontrol {Telemetry mode}.
+    You can review the submitted user feedback in
+    \uicontrol Tools > \uicontrol Options > \uicontrol Telemetry >
+    \uicontrol {Usage Statistics} > \uicontrol {Collected Data} by selecting
+    \uicontrol {Qt Quick Designer Usage of views and actions} in
+    \uicontrol {Data sources}.
+*/

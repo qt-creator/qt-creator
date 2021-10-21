@@ -286,10 +286,13 @@ void ActionEditor::prepareConnections()
         m_dialog->setAllConnections(connections, singletons, states);
 }
 
-void ActionEditor::updateWindowName()
+void ActionEditor::updateWindowName(const QString &targetName)
 {
     if (!m_dialog.isNull()) {
-        m_dialog->setWindowTitle(m_dialog->defaultTitle());
+        if (targetName.isEmpty())
+            m_dialog->setWindowTitle(m_dialog->defaultTitle());
+        else
+            m_dialog->setWindowTitle(m_dialog->defaultTitle() + " [" + targetName + "]");
         m_dialog->raise();
     }
 }

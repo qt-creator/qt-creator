@@ -30,10 +30,11 @@ static void applyHighlighter(Highlighter &highlighter,
                              const QCommandLineOption &outputName,
                              const Ts &...highlightParams)
 {
-    if (parser.isSet(outputName))
+    if (parser.isSet(outputName)) {
         highlighter.setOutputFile(parser.value(outputName));
-    else
+    } else {
         highlighter.setOutputFile(stdout);
+    }
 
     if (fromFileName) {
         highlighter.highlightFile(inFileName, highlightParams...);
@@ -126,8 +127,9 @@ int main(int argc, char **argv)
     }
 
     if (parser.isSet(listThemes)) {
-        for (const auto &theme : repo.themes())
+        for (const auto &theme : repo.themes()) {
             std::cout << qPrintable(theme.name()) << std::endl;
+        }
         return 0;
     }
 
@@ -158,9 +160,10 @@ int main(int argc, char **argv)
             if (!def.isValid()) {
                 /* see if it's a extension instead */
                 def = repo.definitionForFileName(QLatin1String("f.") + syntax);
-                if (!def.isValid())
+                if (!def.isValid()) {
                     /* see if it's a filename instead */
                     def = repo.definitionForFileName(syntax);
+                }
             }
         }
     } else if (fromFileName) {
@@ -177,8 +180,9 @@ int main(int argc, char **argv)
     QString outputFormat = parser.value(outputFormatOption);
     if (0 == outputFormat.compare(QLatin1String("html"), Qt::CaseInsensitive)) {
         QString title;
-        if (parser.isSet(titleOption))
+        if (parser.isSet(titleOption)) {
             title = parser.value(titleOption);
+        }
 
         HtmlHighlighter highlighter;
         highlighter.setDefinition(def);

@@ -46,7 +46,7 @@ AbstractEditorDialog::AbstractEditorDialog(QWidget *parent, const QString &title
 {
     setWindowFlag(Qt::Tool, true);
     setWindowTitle(defaultTitle());
-    setModal(false);
+    setModal(true);
 
     setupJSEditor();
     setupUIComponents();
@@ -111,11 +111,10 @@ void AbstractEditorDialog::setupJSEditor()
 {
     static BindingEditorFactory f;
     m_editor = qobject_cast<TextEditor::BaseTextEditor*>(f.createEditor());
-    m_editorWidget = qobject_cast<BindingEditorWidget*>(m_editor->editorWidget());
+    Q_ASSERT(m_editor);
 
-    Core::Context context = m_editor->context();
-    context.prepend(BINDINGEDITOR_CONTEXT_ID);
-    m_editorWidget->m_context->setContext(context);
+    m_editorWidget = qobject_cast<BindingEditorWidget*>(m_editor->editorWidget());
+    Q_ASSERT(m_editorWidget);
 
     auto qmlDesignerEditor = QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor();
 

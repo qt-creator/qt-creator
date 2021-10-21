@@ -340,6 +340,20 @@ QStringList QmlBuildSystem::customFileSelectors() const
     return {};
 }
 
+QStringList QmlBuildSystem::supportedLanguages() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->supportedLanguages();
+    return {};
+}
+
+QString QmlBuildSystem::primaryLanguage() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->primaryLanguage();
+    return {};
+}
+
 void QmlBuildSystem::refreshProjectFile()
 {
     refresh(QmlBuildSystem::ProjectFile | Files);
@@ -509,6 +523,10 @@ QVariant QmlBuildSystem::additionalData(Id id) const
 {
     if (id == Constants::customFileSelectorsData)
         return customFileSelectors();
+    if (id == Constants::supportedLanguagesData)
+        return supportedLanguages();
+    if (id == Constants::primaryLanguageData)
+        return primaryLanguage();
     if (id == Constants::customForceFreeTypeData)
         return forceFreeType();
     if (id == Constants::customQtForMCUs)

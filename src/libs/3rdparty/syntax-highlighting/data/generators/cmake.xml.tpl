@@ -22,7 +22,7 @@
 
 <language
     name="CMake"
-    version="31"
+    version="<!--{version}-->"
     kateversion="5.0"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"

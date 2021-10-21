@@ -31,8 +31,7 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Application (Qt Quick)} >
-            \uicontrol {Qt Quick Application - Empty}.
+            \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}.
 
         \li Select \uicontrol Choose to open the
             \uicontrol {Project Location} dialog.
@@ -82,8 +81,8 @@
 
     \endlist
 
-    For more information about the settings that you skipped, see
-    \l{Creating Qt Quick Applications}.
+    For more information about the settings that you skipped and the other
+    templates available, see \l{Creating Qt Quick Applications}.
 
 //! [qtquick empty application]
 */

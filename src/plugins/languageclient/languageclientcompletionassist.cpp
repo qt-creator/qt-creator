@@ -425,7 +425,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
         items = Utils::get<QList<CompletionItem>>(*result);
     }
     auto proposalItems = generateCompletionItems(items);
-    if (!m_snippetsGroup.isEmpty()) {
+    if (!proposalItems.isEmpty() && !m_snippetsGroup.isEmpty()) {
         proposalItems << TextEditor::SnippetAssistCollector(
                              m_snippetsGroup, QIcon(":/texteditor/images/snippet.png")).collect();
     }

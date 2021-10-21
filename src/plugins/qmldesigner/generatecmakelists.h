@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -23,29 +23,23 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
+#pragma once
 
-// cast of the top level items (DomEnvironments,...)
-#include <qmldom/qqmldomtop_p.h>
+#include <projectexplorer/project.h>
 
-// everything is in the QQmlJS::Dom namespace
-using namespace QQmlJS::Dom;
+#include <utils/fileutils.h>
 
-namespace {
-
-class QmlDom : public ::testing::Test
-{
-public:
-//    static void SetUpTestCase();
-//    static void TearDownTestCase();
-
-protected:
-};
-
-TEST_F(QmlDom, First)
-{
-    DomItem env = DomEnvironment::create({}, DomEnvironment::Option::SingleThreaded
-                                             | DomEnvironment::Option::NoDependencies);
+namespace QmlDesigner {
+namespace GenerateCmakeLists {
+void generateMenuEntry();
+void onGenerateCmakeLists();
+void generateMainCmake(const Utils::FilePath &rootDir);
+void generateSubdirCmake(const Utils::FilePath &dir);
+QString generateModuleCmake(const Utils::FilePath &dir);
+QStringList processDirectory(const Utils::FilePath &dir);
+QStringList getSingletonsFromQmldirFile(const Utils::FilePath &filePath);
+QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
+void createCmakeFile(const Utils::FilePath &filePath, const QString &content);
+bool isFileBlacklisted(const QString &fileName);
 }
-
-} // anonymous
+}

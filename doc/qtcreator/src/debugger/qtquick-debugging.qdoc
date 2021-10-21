@@ -244,7 +244,12 @@
 
     You can change property values temporarily, without editing the source, and
     view the results in the running application. You can change the property
-    values permanently in the \uicontrol Properties view in the Design mode.
+    values permanently in
+    \if defined(qtcreator)
+    code.
+    \else
+    the \l Properties view.
+    \endif
 
     \section1 Applying QML Changes at Runtime
 

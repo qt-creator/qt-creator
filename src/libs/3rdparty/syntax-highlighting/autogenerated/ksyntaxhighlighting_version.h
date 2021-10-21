@@ -3,10 +3,10 @@
 #ifndef SyntaxHighlighting_VERSION_H
 #define SyntaxHighlighting_VERSION_H
 
-#define SyntaxHighlighting_VERSION_STRING "5.80.0"
+#define SyntaxHighlighting_VERSION_STRING "5.87.0"
 #define SyntaxHighlighting_VERSION_MAJOR 5
-#define SyntaxHighlighting_VERSION_MINOR 80
+#define SyntaxHighlighting_VERSION_MINOR 87
 #define SyntaxHighlighting_VERSION_PATCH 0
-#define SyntaxHighlighting_VERSION ((5<<16)|(80<<8)|(0))
+#define SyntaxHighlighting_VERSION ((5<<16)|(87<<8)|(0))
 
 #endif

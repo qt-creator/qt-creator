@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include "fileutils.h"
+#include "porting.h"
 
 #include <QString>
 #include <qmetatype.h>
@@ -75,7 +76,7 @@ public:
     int targetColumn;
 };
 
-uint QTCREATOR_UTILS_EXPORT qHash(const Link &l);
+QTCREATOR_UTILS_EXPORT QHashValueType qHash(const Link &l);
 
 using ProcessLinkCallback = std::function<void(const Link &)>;
 

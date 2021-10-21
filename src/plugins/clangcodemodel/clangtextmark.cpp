@@ -281,7 +281,7 @@ bool ClangTextMark::addToolTipContent(QLayout *target) const
                 && diagMgr->diagnosticsWithFixIts().contains(diag);
     };
     QWidget *widget = ClangDiagnosticWidget::createWidget(
-                {m_diagnostic}, ClangDiagnosticWidget::ToolTip, canApplyFixIt);
+                {m_diagnostic}, ClangDiagnosticWidget::ToolTip, canApplyFixIt, "libclang");
     target->addWidget(widget);
 
     return true;
@@ -398,7 +398,7 @@ bool ClangdTextMark::addToolTipContent(QLayout *target) const
         return c && c->reachable() && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
     };
     target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},
-        ClangDiagnosticWidget::ToolTip, canApplyFixIt));
+        ClangDiagnosticWidget::ToolTip, canApplyFixIt, "clangd"));
     return true;
 }
 

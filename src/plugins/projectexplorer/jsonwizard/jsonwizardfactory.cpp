@@ -87,6 +87,7 @@ const char PAGE_SHORT_TITLE_KEY[] = "trShortTitle";
 const char PAGE_INDEX_KEY[] = "index";
 const char OPTIONS_KEY[] = "options";
 const char PLATFORM_INDEPENDENT_KEY[] = "platformIndependent";
+const char DEFAULT_VALUES[] = "defaultValues";
 
 static QList<JsonWizardPageFactory *> s_pageFactories;
 static QList<JsonWizardGeneratorFactory *> s_generatorFactories;
@@ -153,7 +154,131 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
     return gen;
 }
 
-static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMessage)
+//FIXME: createWizardFactories() has an almost identical loop. Make the loop return the results instead of
+//internal processing and create a separate function for it. Then process the results in
+//loadDefaultValues() and createWizardFactories()
+QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
+{
+    QString verboseLog;
+
+    if (fileName.isEmpty()) {
+        return {};
+    }
+
+    QList <Core::IWizardFactory *> result;
+    foreach (const Utils::FilePath &path, searchPaths()) {
+        if (path.isEmpty())
+            continue;
+
+        FilePath dir = FilePath::fromString(path.toString());
+        if (!dir.exists()) {
+            if (verbose())
+                verboseLog.append(tr("Path \"%1\" does not exist when checking Json wizard search paths.\n")
+                                  .arg(path.toUserOutput()));
+            continue;
+        }
+
+        const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
+        FilePaths dirs = dir.dirEntries(filters);
+
+        while (!dirs.isEmpty()) {
+            const FilePath current = dirs.takeFirst();
+            if (verbose())
+                verboseLog.append(tr("Checking \"%1\" for %2.\n")
+                                  .arg(QDir::toNativeSeparators(current.absolutePath().toString()))
+                                  .arg(fileName));
+            if (current.pathAppended(fileName).exists()) {
+                QFile configFile(current.pathAppended(fileName).toString());
+                configFile.open(QIODevice::ReadOnly);
+                QJsonParseError error;
+                const QByteArray fileData = configFile.readAll();
+                const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
+                configFile.close();
+
+                if (error.error != QJsonParseError::NoError) {
+                    int line = 1;
+                    int column = 1;
+                    for (int i = 0; i < error.offset; ++i) {
+                        if (fileData.at(i) == '\n') {
+                            ++line;
+                            column = 1;
+                        } else {
+                            ++column;
+                        }
+                    }
+                    verboseLog.append(tr("* Failed to parse \"%1\":%2:%3: %4\n")
+                                      .arg(configFile.fileName())
+                                      .arg(line).arg(column)
+                                      .arg(error.errorString()));
+                    continue;
+                }
+
+                if (!json.isObject()) {
+                    verboseLog.append(tr("* Did not find a JSON object in \"%1\".\n")
+                                      .arg(configFile.fileName()));
+                    continue;
+                }
+
+                if (verbose())
+                    verboseLog.append(tr("* Configuration found and parsed.\n"));
+
+                return json.object().toVariantMap();
+            }
+            FilePaths subDirs = current.dirEntries(filters);
+            if (!subDirs.isEmpty()) {
+                // There is no QList::prepend(QList)...
+                dirs.swap(subDirs);
+                dirs.append(subDirs);
+            } else if (verbose()) {
+                verboseLog.append(tr("JsonWizard: \"%1\" not found\n").arg(fileName));
+            }
+        }
+    }
+
+    if (verbose()) { // Print to output pane for Windows.
+        qWarning("%s", qPrintable(verboseLog));
+        Core::MessageManager::writeDisrupting(verboseLog);
+    }
+
+    return {};
+}
+
+QVariant JsonWizardFactory::mergeDataValueMaps(const QVariant &valueMap, const QVariant &defaultValueMap)
+{
+    QVariantMap retVal;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    const QVariantMap &map = defaultValueMap.toMap();
+    for (auto it = map.begin(), end = map.end(); it != end; ++it)
+        retVal.insert(it.key(), it.value());
+
+    const QVariantMap &map2 = valueMap.toMap();
+    for (auto it = map2.begin(), end = map2.end(); it != end; ++it)
+        retVal.insert(it.key(), it.value());
+#else
+    retVal.insert(defaultValueMap.toMap());
+    retVal.insert(valueMap.toMap());
+#endif
+    return retVal;
+}
+
+QVariant JsonWizardFactory::getDataValue(const QLatin1String &key, const QVariantMap &valueSet,
+                                         const QVariantMap &defaultValueSet, const QVariant &notExistValue)
+{
+    QVariant retVal = {};
+
+    if ((valueSet.contains(key) && valueSet.value(key).type() == QVariant::Map) ||
+        (defaultValueSet.contains(key) && defaultValueSet.value(key).type() == QVariant::Map)) {
+        retVal = mergeDataValueMaps(valueSet.value(key), defaultValueSet.value(key));
+    } else {
+        QVariant defaultValue = defaultValueSet.value(key, notExistValue);
+        retVal = valueSet.value(key, defaultValue);
+    }
+
+    return retVal;
+}
+
+JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QString *errorMessage)
 {
     JsonWizardFactory::Page p;
 
@@ -163,7 +288,12 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     }
 
     const QVariantMap data = value.toMap();
-    const QString strVal = data.value(QLatin1String(TYPE_ID_KEY)).toString();
+    QString defaultValueFile = data.value(QLatin1String(DEFAULT_VALUES)).toString();
+    if (!defaultValueFile.isEmpty())
+        defaultValueFile.append(QLatin1String(".json"));
+    const QVariantMap defaultData = loadDefaultValues(defaultValueFile);
+
+    const QString strVal = getDataValue(QLatin1String(TYPE_ID_KEY), data, defaultData).toString();
     if (strVal.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page has no typeId set.");
         return p;
@@ -180,21 +310,31 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
         return p;
     }
 
-    const QString title = JsonWizardFactory::localizedString(data.value(QLatin1String(DISPLAY_NAME_KEY)));
-    const QString subTitle = JsonWizardFactory::localizedString(data.value(QLatin1String(PAGE_SUB_TITLE_KEY)));
-    const QString shortTitle = JsonWizardFactory::localizedString(data.value(QLatin1String(PAGE_SHORT_TITLE_KEY)));
+    const QString title = JsonWizardFactory::localizedString(getDataValue(QLatin1String(DISPLAY_NAME_KEY), data, defaultData));
+    const QString subTitle = JsonWizardFactory::localizedString(getDataValue(QLatin1String(PAGE_SUB_TITLE_KEY), data, defaultData));
+    const QString shortTitle = JsonWizardFactory::localizedString(getDataValue(QLatin1String(PAGE_SHORT_TITLE_KEY), data, defaultData));
 
     bool ok;
-    int index = data.value(QLatin1String(PAGE_INDEX_KEY), -1).toInt(&ok);
+    int index = getDataValue(QLatin1String(PAGE_INDEX_KEY), data, defaultData, -1).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page with typeId \"%1\" has invalid \"index\".")
                 .arg(typeId.toString());
         return p;
     }
 
-    QVariant enabled = data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true);
+    QVariant enabled = getDataValue(QLatin1String(ENABLED_EXPRESSION_KEY), data, defaultData, true);
 
-    QVariant subData = data.value(QLatin1String(DATA_KEY));
+    QVariant specifiedSubData = data.value(QLatin1String(DATA_KEY));
+    QVariant defaultSubData = defaultData.value(QLatin1String(DATA_KEY));
+    QVariant subData;
+
+    if (specifiedSubData.isNull())
+        subData = defaultSubData;
+    else if (specifiedSubData.type() == QVariant::Map)
+        subData = mergeDataValueMaps(specifiedSubData.toMap(), defaultSubData.toMap());
+    else if (specifiedSubData.type() == QVariant::List)
+        subData = specifiedSubData;
+
     if (!factory->validateData(typeId, subData, errorMessage))
         return p;
 
@@ -209,6 +349,9 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     return p;
 }
 
+//FIXME: loadDefaultValues() has an almost identical loop. Make the loop return the results instead of
+//internal processing and create a separate function for it. Then process the results in
+//loadDefaultValues() and loadDefaultValues()
 QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 {
     QString errorMessage;
@@ -258,14 +401,12 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                                       .arg(currentFile.fileName())
                                       .arg(line).arg(column)
                                       .arg(error.errorString()));
-                    qWarning() << "Failed to parse wizard: " << currentFile.fileName();
                     continue;
                 }
 
                 if (!json.isObject()) {
                     verboseLog.append(tr("* Did not find a JSON object in \"%1\".\n")
                                       .arg(currentFile.fileName()));
-                    qWarning() << "Failed to parse wizard: " << currentFile.fileName();
                     continue;
                 }
 
@@ -283,7 +424,6 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                 JsonWizardFactory *factory = createWizardFactory(data, currentDir, &errorMessage);
                 if (!factory) {
                     verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
-                    qWarning() << "Failed to create wizard: " << currentFile.fileName();
                     continue;
                 }
 

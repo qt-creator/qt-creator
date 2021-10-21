@@ -35,18 +35,24 @@
     \previouspage studio-advanced.html
     \nextpage creator-telemetry.html
     \else
-    \previouspage qtquick-annotations.html
-    \nextpage qtquick-prototyping.html
+    \previouspage quick-converting-ui-projects.html
+    \nextpage creator-qml-modules-with-plugins.html
     \endif
 
     \title UI Files
 
-    You can use \QC wizards to create UI files that have the filename
+    \if defined(qtdesignstudio)
+    You can use \QDS wizards to create UI files that have the filename
     extension \e .ui.qml. The UI files can be edited in \l {Form Editor}.
     If you use \l {Text Editor} to add code that is not supported
-    by \uicontrol {Form Editor}, \QC displays error messages.
+    by \uicontrol {Form Editor}, \QDS displays error messages.
+    \else
+    If you switch between \QC and \QDS or cooperate with designers on
+    a project, you might encounter UI files (.ui.qml). They are intended to
+    be edited in \QDS only.
+    \endif
 
-    The following features are not supported:
+    The following features are not supported in .ui.qml files:
 
     \list
         \li JavaScript blocks
@@ -162,6 +168,7 @@
     For more information about using the methods, see
     \l{https://doc.qt.io/qt/qml-qtqml-qt.html}{Qt QML Methods}.
 
+    \if defined(qtdesignstudio)
     \section1 Using UI Files
 
     You can edit the UI files in the \l {Form Editor} and
@@ -207,5 +214,5 @@
     implementation of a component in the .qml file, right-click the
     component and select \uicontrol {Go to Implementation} in the
     context menu.
-
+    \endif
 */

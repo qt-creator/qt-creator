@@ -88,10 +88,11 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     : BuildStep(parent, id)
 {
     setImmutable(true);
+    setUserExpanded(true);
 
     m_uninstallPreviousPackage = addAspect<BoolAspect>();
     m_uninstallPreviousPackage->setSettingsKey(UninstallPreviousPackageKey);
-    m_uninstallPreviousPackage->setLabel(tr("Uninstall the existing app first"),
+    m_uninstallPreviousPackage->setLabel(tr("Uninstall the existing app before deployment"),
                                          BoolAspect::LabelPlacement::AtCheckBox);
     m_uninstallPreviousPackage->setValue(false);
 

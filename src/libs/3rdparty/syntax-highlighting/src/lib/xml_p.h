@@ -17,7 +17,7 @@ namespace Xml
 /** Parse a xs:boolean attribute. */
 inline bool attrToBool(QStringView str)
 {
-    return str == QLatin1String("1") || str.compare(QString("true"), Qt::CaseInsensitive) == 0;
+    return str == QStringLiteral("1") || str.compare(QStringLiteral("true"), Qt::CaseInsensitive) == 0;
 }
 
 }

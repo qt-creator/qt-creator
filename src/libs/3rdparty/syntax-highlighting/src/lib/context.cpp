@@ -30,8 +30,9 @@ void Context::setDefinition(const DefinitionRef &def)
 
 bool Context::indentationBasedFoldingEnabled() const
 {
-    if (m_noIndentationBasedFolding)
+    if (m_noIndentationBasedFolding) {
         return false;
+    }
 
     return m_def.definition().indentationBasedFoldingEnabled();
 }
@@ -56,8 +57,9 @@ void Context::load(QXmlStreamReader &reader)
             auto rule = Rule::create(reader.name());
             if (rule) {
                 rule->setDefinition(m_def.definition());
-                if (rule->load(reader))
+                if (rule->load(reader)) {
                     m_rules.push_back(std::move(rule));
+                }
             } else {
                 reader.skipCurrentElement();
             }
@@ -79,8 +81,9 @@ void Context::resolveContexts()
     m_lineEndContext.resolve(def);
     m_lineEmptyContext.resolve(def);
     m_fallthroughContext.resolve(def);
-    for (const auto &rule : m_rules)
+    for (const auto &rule : m_rules) {
         rule->resolveContext();
+    }
 }
 
 Context::ResolveState Context::resolveState()
@@ -100,8 +103,9 @@ Context::ResolveState Context::resolveState()
 
 void Context::resolveIncludes()
 {
-    if (resolveState() == Resolved)
+    if (resolveState() == Resolved) {
         return;
+    }
     if (resolveState() == Resolving) {
         qCWarning(Log) << "Cyclic dependency!";
         return;
@@ -129,10 +133,11 @@ void Context::resolveIncludes()
             }
             auto defData = DefinitionData::get(def);
             defData->load();
-            if (inc->contextName().isEmpty())
+            if (inc->contextName().isEmpty()) {
                 context = defData->initialContext();
-            else
+            } else {
                 context = defData->contextByName(inc->contextName());
+            }
         }
         if (!context) {
             qCWarning(Log) << "Unable to resolve include rule for definition" << inc->contextName() << "##" << inc->definitionName() << "in"

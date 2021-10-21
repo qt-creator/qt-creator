@@ -180,6 +180,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     QPair<QTextBlock, Parentheses> parentheses;
     for (int i = from; i < to; ++i) {
         const HighlightingResult &result = m_watcher->future().resultAt(i);
+        QTC_ASSERT(result.line <= m_baseTextDocument->document()->blockCount(), continue);
         if (result.kind != AngleBracketOpen && result.kind != AngleBracketClose
                 && result.kind != DoubleAngleBracketClose
                 && result.kind != TernaryIf && result.kind != TernaryElse) {

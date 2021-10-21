@@ -1826,12 +1826,8 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
             setStatus(absPath, FileStatus::CheckedOut);
         }
 
-        foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
-            if (e->fileName().toString() == absPath) {
-                e->document->checkPermissions();
-                break;
-            }
-        }
+        if (DocumentModel::Entry *e = DocumentModel::entryForFilePath(FilePath::fromString(absPath)))
+            e->document->checkPermissions();
 
         return !response.error;
     }

@@ -28,6 +28,9 @@
 #include "selectioncontext.h"
 
 namespace QmlDesigner {
+
+enum class AddFilesResult { Succeeded, Failed, Cancelled };
+
 namespace ModelNodeOperations {
 
 bool goIntoComponent(const ModelNode &modelNode);
@@ -73,10 +76,10 @@ void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void addTabBarToStackedContainer(const SelectionContext &selectionContext);
-bool addImageToProject(const QStringList &fileNames, const QString &directory);
-bool addFontToProject(const QStringList &fileNames, const QString &directory);
-bool addSoundToProject(const QStringList &fileNames, const QString &directory);
-bool addShaderToProject(const QStringList &fileNames, const QString &directory);
+AddFilesResult addImageToProject(const QStringList &fileNames, const QString &directory);
+AddFilesResult addFontToProject(const QStringList &fileNames, const QString &directory);
+AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory);
+AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &directory);
 void createFlowActionArea(const SelectionContext &selectionContext);
 void addTransition(const SelectionContext &selectionState);
 void addFlowEffect(const SelectionContext &selectionState, const TypeName &typeName);

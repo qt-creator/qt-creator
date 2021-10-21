@@ -61,6 +61,7 @@ public:
     static bool isC(Kind kind);
     static bool isCxx(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);
+    static bool isObjC(const QString &filePath);
 
     bool isHeader() const;
     bool isSource() const;

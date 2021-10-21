@@ -1285,7 +1285,7 @@ public:
             << quoteUnprintable(m_text);
     }
 
-    friend uint qHash(const Input &i)
+    friend auto qHash(const Input &i)
     {
         return ::qHash(i.m_key);
     }
@@ -6598,12 +6598,11 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     while (!file.atEnd() || !line.isEmpty()) {
         QByteArray nextline = !file.atEnd() ? file.readLine() : QByteArray();
 
-        //  remove comment
-        int i = nextline.lastIndexOf('"');
-        if (i != -1)
-            nextline = nextline.remove(i, nextline.size() - i);
-
         nextline = nextline.trimmed();
+
+        // remove full line comment. for being precise, check :help comment in vim.
+        if (nextline.startsWith('"'))
+            continue;
 
         // multi-line command?
         if (nextline.startsWith('\\')) {
@@ -8201,9 +8200,9 @@ void FakeVimHandler::Private::saveLastVisualMode()
     if (isVisualMode() && g.mode == CommandMode && g.submode == NoSubMode) {
         setMark('<', markLessPosition());
         setMark('>', markGreaterPosition());
+        m_buffer->lastVisualModeInverted = anchor() > position();
+        m_buffer->lastVisualMode = g.visualMode;
     }
-    m_buffer->lastVisualModeInverted = anchor() > position();
-    m_buffer->lastVisualMode = g.visualMode;
 }
 
 QWidget *FakeVimHandler::Private::editor() const

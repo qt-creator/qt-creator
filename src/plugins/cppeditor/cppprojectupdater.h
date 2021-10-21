@@ -47,7 +47,7 @@ public:
     CppProjectUpdaterFactory();
 
     // keep the namespace, for the type name in the invokeMethod call
-    Q_INVOKABLE CppProjectUpdaterInterface *create();
+    Q_INVOKABLE CppEditor::CppProjectUpdaterInterface *create();
 };
 
 } // namespace Internal

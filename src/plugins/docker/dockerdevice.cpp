@@ -833,14 +833,7 @@ void DockerDevicePrivate::startContainer()
     for (QString mount : qAsConst(m_data.mounts)) {
         if (mount.isEmpty())
             continue;
-        // make sure to convert windows style paths to unix style paths with the file system case:
-        // C:/dev/src -> /c/dev/src
-        if (const FilePath mountPath = FilePath::fromUserInput(mount).normalizedPathName();
-            mountPath.startsWithDriveLetter()) {
-            const QChar lowerDriveLetter = mountPath.path().at(0).toLower();
-            const FilePath path = FilePath::fromUserInput(mountPath.path().mid(2)); // strip C:
-            mount = '/' + lowerDriveLetter + path.path();
-        }
+        mount = q->mapToDevicePath(FilePath::fromUserInput(mount));
         dockerCreate.addArgs({"-v", mount + ':' + mount});
     }
 
@@ -1067,6 +1060,19 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
     result.setHost(d->m_data.imageId);
     result.setPath(pathOnDevice.path());
     return result;
+}
+
+QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
+{
+    // make sure to convert windows style paths to unix style paths with the file system case:
+    // C:/dev/src -> /c/dev/src
+    const FilePath normalized = FilePath::fromString(globalPath.path()).normalizedPathName();
+    QString path = normalized.path();
+    if (normalized.startsWithDriveLetter()) {
+        const QChar lowerDriveLetter = path.at(0).toLower();
+        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
+    }
+    return path;
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
@@ -1570,7 +1576,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
 
     CommandLine cmd{"docker", {"exec"}};
     if (!workingDir.isEmpty()) {
-        cmd.addArgs({"-w", workingDir.path()});
+        cmd.addArgs({"-w", mapToDevicePath(workingDir)});
         if (QTC_GUARD(workingDir.needsDevice())) // warn on local working directory for docker cmd
             process.setWorkingDirectory(FileUtils::homePath()); // reset working dir for docker exec
     }

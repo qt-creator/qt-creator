@@ -267,6 +267,31 @@ void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &p
     });
 }
 
+// Returns the first valid QQuick3DPickResult from view at (posX, PosY).
+QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX, float posY)
+{
+    if (!view)
+        return QQuick3DPickResult();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 1)
+    // Make sure global picking is on
+    view->setGlobalPickingEnabled(true);
+
+    // With Qt 6.2+, select first suitable result from all picked objects
+    auto pickResults = view->pickAll(posX, posY);
+    for (auto pickResult : pickResults) {
+        if (isPickable(pickResult.objectHit()))
+            return pickResult;
+    }
+#else
+    // With older Qt version we'll just pick the single object
+    auto pickResult = view->pick(posX, posY);
+    if (isPickable(pickResult.objectHit()))
+        return pickResult;
+#endif
+    return QQuick3DPickResult();
+}
+
 QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
 {
     if (pickNode) {
@@ -313,6 +338,10 @@ bool GeneralHelper::isHidden(QQuick3DNode *node)
         return hideValue.isValid() && hideValue.toBool();
     }
     return false;
+}
+
+bool GeneralHelper::isPickable(QQuick3DNode *node) {
+    return (node && !isLocked(node) && !isHidden(node) && node->visible());
 }
 
 void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, const QVariant &state,

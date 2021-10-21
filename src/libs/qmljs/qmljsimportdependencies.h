@@ -29,6 +29,7 @@
 #include "qmljsdialect.h"
 
 #include <languageutils/componentversion.h>
+#include <utils/porting.h>
 
 #include <QObject>
 #include <QString>
@@ -117,7 +118,7 @@ public:
     QString toString() const;
 };
 
-uint qHash(const ImportKey &info);
+Utils::QHashValueType qHash(const ImportKey &info);
 bool operator ==(const ImportKey &i1, const ImportKey &i2);
 bool operator !=(const ImportKey &i1, const ImportKey &i2);
 bool operator <(const ImportKey &i1, const ImportKey &i2);

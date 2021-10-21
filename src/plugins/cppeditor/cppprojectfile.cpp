@@ -87,6 +87,20 @@ bool ProjectFile::isAmbiguousHeader(const QString &filePath)
     return filePath.endsWith(".h");
 }
 
+bool ProjectFile::isObjC(const QString &filePath)
+{
+    const Kind kind = classify(filePath);
+    switch (kind) {
+    case CppEditor::ProjectFile::ObjCHeader:
+    case CppEditor::ProjectFile::ObjCXXHeader:
+    case CppEditor::ProjectFile::ObjCSource:
+    case CppEditor::ProjectFile::ObjCXXSource:
+        return true;
+    default:
+        return false;
+    }
+}
+
 ProjectFile::Kind ProjectFile::sourceForHeaderKind(ProjectFile::Kind kind)
 {
     ProjectFile::Kind sourceKind;

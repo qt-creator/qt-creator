@@ -29,8 +29,8 @@
     \previouspage studio-porting-projects.html
     \nextpage creator-editor-external.html
     \else
-    \previouspage qtquick-iso-icon-browser.html
-    \nextpage creator-using-qt-designer.html
+    \previouspage quick-projects.html
+    \nextpage creator-quick-ui-forms.html
     \endif
 
     \title Converting UI Projects to Applications
@@ -47,8 +47,7 @@
     \endlist
 
     For more information about integrating QML and C++, see
-    \l{https://doc.qt.io/qt/qtqml-cppintegration-overview.html}
-    {Overview - QML and C++ Integration}.
+    \l{Overview - QML and C++ Integration}.
 
     You can use a Qt Creator wizard template to create a Qt Quick application
     that is built using the qmake build system and then copy the source files
@@ -61,10 +60,8 @@
     compiling them into the binary.
 
     The wizard automatically adds the \c QML_IMPORT_PATH option to the project
-    file for specifying the required
-    \l{https://doc.qt.io/qt/qtqml-syntax-imports.html#qml-import-path}
-    {QML import path}. The path is only needed if more than one subdirectory
-    contains QML files.
+    file for specifying the required \l{QML Import Path}{QML import path}. The
+    path is only needed if more than one subdirectory contains QML files.
 
     Then you can use the \l QQuickView class in the main C++ source file to
     show the main QML file when the application starts.
@@ -90,8 +87,8 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Application (Qt Quick)} >
-            \uicontrol {Qt Quick Application - Empty} > \uicontrol Choose.
+            \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application} >
+            \uicontrol Choose.
         \li In the \uicontrol {Build system} field, select \l qmake as the build
             system to use for building and running the project, and then select
             \uicontrol Next (or \uicontrol Continue on \macos).
@@ -151,9 +148,13 @@
 
     \section1 Adding Custom Fonts
 
-    To \l{Using Custom Fonts}{use custom fonts} from the Qt Quick UI project,
-    call the QFontDatabase::addApplicationFont() function from the \e {main.cpp}
-    file.
+    \if defined(qtdesignstudio)
+    To \l{Using Custom Fonts}{use custom fonts}
+    \else
+    To use custom fonts
+    \endif
+    from the Qt Quick UI project, call the QFontDatabase::addApplicationFont()
+    function from the \e {main.cpp} file.
 
     \section1 Adding Qt Quick Designer Components to Qt Installations
 

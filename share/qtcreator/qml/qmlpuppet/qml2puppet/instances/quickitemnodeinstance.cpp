@@ -777,6 +777,8 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
         setMovable(true);
     }
 
+    markRepeaterParentDirty();
+
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
     if (!newParentInstance)
@@ -841,6 +843,8 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
     if (name == "layer.enabled" || name == "layer.effect")
         setAllNodesDirtyRecursive(quickItem());
 
+    markRepeaterParentDirty();
+
     ObjectNodeInstance::setPropertyVariant(name, value);
 
     refresh();
@@ -859,6 +863,8 @@ void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const Q
 
     if (name.startsWith("anchors.") && isRootNodeInstance())
         return;
+
+    markRepeaterParentDirty();
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
 
@@ -937,6 +943,8 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
         resetVertical();
     }
 
+    markRepeaterParentDirty();
+
     ObjectNodeInstance::resetProperty(name);
 
     if (isInLayoutable())
@@ -1012,6 +1020,35 @@ QQuickItem *QuickItemNodeInstance::quickItem() const
 
     return static_cast<QQuickItem*>(object());
 }
+
+void QuickItemNodeInstance::markRepeaterParentDirty() const
+{
+    const qint32 id = instanceId();
+    if (id <= 0 && !isValid())
+        return;
+
+    QQuickItem *item = quickItem();
+    if (!item)
+        return;
+
+    QQuickItem *parentItem = item->parentItem();
+    if (!parentItem)
+        return;
+
+    // If a Repeater instance was changed in any way, the parent must be marked dirty to rerender it
+    const QByteArray type("QQuickRepeater");
+    if (ServerNodeInstance::isSubclassOf(item, type))
+        DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+
+    // Repeater's parent must also be dirtied when a child of a repeater was changed
+    if (ServerNodeInstance::isSubclassOf(parentItem, type)) {
+        QQuickItem *parentsParent = parentItem->parentItem();
+        if (parentsParent)
+            DesignerSupport::addDirty(parentsParent, QQuickDesignerSupport::Content);
+    }
+}
+
+
 
 } // namespace Internal
 } // namespace QmlDesigner

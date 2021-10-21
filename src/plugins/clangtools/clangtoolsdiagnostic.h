@@ -27,6 +27,8 @@
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
+#include <utils/porting.h>
+
 #include <QMetaType>
 #include <QString>
 #include <QVector>
@@ -68,7 +70,7 @@ bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
 
 using Diagnostics = QList<Diagnostic>;
 
-quint32 qHash(const Diagnostic &diagnostic);
+Utils::QHashValueType qHash(const Diagnostic &diagnostic);
 
 } // namespace Internal
 } // namespace ClangTools

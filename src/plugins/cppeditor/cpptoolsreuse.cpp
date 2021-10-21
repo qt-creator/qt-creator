@@ -39,11 +39,15 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/session.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/textdocument.h>
 
-#include <cplusplus/Overview.h>
+#include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/SimpleLexer.h>
 #include <utils/algorithm.h>
+#include <utils/porting.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
@@ -298,6 +302,40 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
     }
 
     return nullptr;
+}
+
+bool isInCommentOrString(const TextEditor::AssistInterface *interface,
+                         CPlusPlus::LanguageFeatures features)
+{
+    QTextCursor tc(interface->textDocument());
+    tc.setPosition(interface->position());
+
+    SimpleLexer tokenize;
+    features.qtMocRunEnabled = true;
+    tokenize.setLanguageFeatures(features);
+    tokenize.setSkipComments(false);
+    const Tokens &tokens = tokenize(tc.block().text(),
+                                    BackwardsScanner::previousBlockState(tc.block()));
+    const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
+    const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
+
+    if (tk.isComment())
+        return true;
+    if (!tk.isLiteral())
+        return false;
+    if (tokens.size() == 3 && tokens.at(0).kind() == T_POUND
+            && tokens.at(1).kind() == T_IDENTIFIER) {
+        const QString &line = tc.block().text();
+        const Token &idToken = tokens.at(1);
+        QStringView identifier = Utils::midView(line, idToken.utf16charsBegin(),
+                                                idToken.utf16chars());
+        if (identifier == QLatin1String("include")
+                || identifier == QLatin1String("include_next")
+                || (features.objCEnabled && identifier == QLatin1String("import"))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 CppCodeModelSettings *codeModelSettings()

@@ -90,16 +90,9 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     auto amStartArgsAspect = addAspect<StringAspect>();
     amStartArgsAspect->setId(Constants::ANDROID_AM_START_ARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
-    amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
+    amStartArgsAspect->setLabelText(tr("Activity manager start arguments:"));
     amStartArgsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
-
-    auto warning = addAspect<StringAspect>();
-    warning->setDisplayStyle(StringAspect::LabelDisplay);
-    warning->setLabelPixmap(Icons::WARNING.pixmap());
-    warning->setValue(tr("If the \"am start\" options conflict, the application might not start.\n"
-                         "%1 uses: am start -n <package_name>/<Activity_name> [-D].")
-                          .arg(Core::Constants::IDE_DISPLAY_NAME));
 
     auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
     preStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
