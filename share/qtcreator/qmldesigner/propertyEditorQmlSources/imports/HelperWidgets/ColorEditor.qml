@@ -787,7 +787,9 @@ SecondColumnLayout {
 
                                 ControlLabel {
                                     text: "Hex"
-                                    width: StudioTheme.Values.colorEditorPopupHexLabelWidth
+                                    width: 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                                           + StudioTheme.Values.controlGap
+                                    horizontalAlignment: Text.AlignLeft
                                 }
                             }
 
