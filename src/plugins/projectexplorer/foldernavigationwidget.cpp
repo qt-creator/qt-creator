@@ -486,8 +486,13 @@ void FolderNavigationWidget::insertRootDirectory(
         m_rootSelector->setCurrentIndex(index);
     if (previousIndex < m_rootSelector->count())
         m_rootSelector->removeItem(previousIndex);
-    if (m_autoSync) // we might find a better root for current selection now
-        handleCurrentEditorChanged(Core::EditorManager::currentEditor());
+    if (Core::EditorManager::currentEditor()) {
+        if (m_autoSync) // we might find a better root for current selection now
+            handleCurrentEditorChanged(Core::EditorManager::currentEditor());
+    } else if (m_rootAutoSync) {
+        // assume the new root is better (e.g. because a project was opened)
+        m_rootSelector->setCurrentIndex(index);
+    }
 }
 
 void FolderNavigationWidget::removeRootDirectory(const QString &id)
