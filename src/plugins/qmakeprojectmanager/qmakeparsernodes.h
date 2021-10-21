@@ -116,6 +116,7 @@ namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(qmakeNodesLog)
 class QmakeEvalInput;
 class QmakeEvalResult;
+using QmakeEvalResultPtr = std::shared_ptr<QmakeEvalResult>; // FIXME: Use unique_ptr once we require Qt 6
 class QmakePriFileEvalResult;
 } // namespace Internal;
 
@@ -358,10 +359,11 @@ private:
     void setupReader();
     Internal::QmakeEvalInput evalInput() const;
 
-    static Internal::QmakeEvalResult *evaluate(const Internal::QmakeEvalInput &input);
-    void applyEvaluate(Internal::QmakeEvalResult *parseResult);
+    static Internal::QmakeEvalResultPtr evaluate(const Internal::QmakeEvalInput &input);
+    void applyEvaluate(const Internal::QmakeEvalResultPtr &parseResult);
 
-    void asyncEvaluate(QFutureInterface<Internal::QmakeEvalResult *> &fi, Internal::QmakeEvalInput input);
+    void asyncEvaluate(QFutureInterface<Internal::QmakeEvalResultPtr> &fi,
+                       Internal::QmakeEvalInput input);
     void cleanupProFileReaders();
 
     void updateGeneratedFiles(const Utils::FilePath &buildDir);
@@ -400,7 +402,7 @@ private:
     QMap<QString, QStringList> m_wildcardDirectoryContents;
 
     // Async stuff
-    QFutureWatcher<Internal::QmakeEvalResult *> *m_parseFutureWatcher = nullptr;
+    QFutureWatcher<Internal::QmakeEvalResultPtr> *m_parseFutureWatcher = nullptr;
     QtSupport::ProFileReader *m_readerExact = nullptr;
     QtSupport::ProFileReader *m_readerCumulative = nullptr;
 };

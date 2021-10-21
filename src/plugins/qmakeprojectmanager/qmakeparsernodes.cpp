@@ -1194,7 +1194,7 @@ QmakeProFile::~QmakeProFile()
 
 void QmakeProFile::setupFutureWatcher()
 {
-    m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResult *>;
+    m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResultPtr>;
     QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this]() {
         applyAsyncEvaluate(true);
     });
@@ -1292,10 +1292,10 @@ void QmakeProFile::asyncUpdate()
         m_readerExact->setExact(false);
     m_parseFutureWatcher->waitForFinished();
     QmakeEvalInput input = evalInput();
-    QFuture<QmakeEvalResult *> future = Utils::runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                                                        QThread::LowestPriority,
-                                                        &QmakeProFile::asyncEvaluate,
-                                                        this, input);
+    QFuture<QmakeEvalResultPtr> future = Utils::runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+                                                         QThread::LowestPriority,
+                                                         &QmakeProFile::asyncEvaluate,
+                                                         this, input);
     m_parseFutureWatcher->setFuture(future);
 }
 
@@ -1375,9 +1375,9 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
     return true;
 }
 
-QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
+QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
 {
-    auto *result = new QmakeEvalResult;
+    QmakeEvalResultPtr result(new QmakeEvalResult);
     QtSupport::ProFileReader *exactBuildPassReader = nullptr;
     QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
     ProFile *pro;
@@ -1635,10 +1635,9 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     return result;
 }
 
-void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResult *> &fi, QmakeEvalInput input)
+void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResultPtr> &fi, QmakeEvalInput input)
 {
-    QmakeEvalResult *evalResult = evaluate(input);
-    fi.reportResult(evalResult);
+    fi.reportResult(evaluate(input));
 }
 
 void QmakeProFile::applyAsyncEvaluate(bool apply)
@@ -1653,9 +1652,8 @@ bool sortByParserNodes(Node *a, Node *b)
     return a->filePath() < b->filePath();
 }
 
-void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
+void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
 {
-    QScopedPointer<QmakeEvalResult> result(evalResult);
     if (!m_readerExact)
         return;
 
@@ -1664,7 +1662,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
         return;
     }
 
-    foreach (const QString &error, evalResult->errors)
+    foreach (const QString &error, result->errors)
         QmakeBuildSystem::proFileParseError(error, filePath());
 
     // we are changing what is executed in that case
