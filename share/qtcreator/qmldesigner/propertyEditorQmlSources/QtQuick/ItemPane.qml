@@ -33,7 +33,9 @@ import StudioTheme 1.0 as StudioTheme
 PropertyEditorPane {
     id: itemPane
 
-    ComponentSection {}
+    ComponentSection {
+        showState: true
+    }
 
     GeometrySection {}
 
@@ -78,22 +80,6 @@ PropertyEditorPane {
                     maximumValue: 1
                     hasSlider: true
                     stepSize: 0.1
-                }
-
-                ExpandingSpacer {}
-            }
-
-            PropertyLabel { text: qsTr("State") }
-
-            SecondColumnLayout {
-                ComboBox {
-                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
-                    width: implicitWidth
-                    editable: true
-                    backendValue: backendValues.state
-                    model: allStateNames
-                    valueType: ComboBox.String
                 }
 
                 ExpandingSpacer {}

@@ -32,10 +32,13 @@ import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
     caption: qsTr("Component")
 
     anchors.left: parent.left
     anchors.right: parent.right
+
+    property bool showState: false
 
     SectionLayout {
         PropertyLabel { text: qsTr("Type") }
@@ -261,6 +264,27 @@ Section {
                 onAccepted: hideWidget()
                 onCanceled: hideWidget()
             }
+        }
+
+        PropertyLabel {
+            visible: root.showState
+            text: qsTr("State")
+        }
+
+        SecondColumnLayout {
+            visible: root.showState
+
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                editable: true
+                backendValue: backendValues.state
+                model: allStateNames
+                valueType: ComboBox.String
+            }
+
+            ExpandingSpacer {}
         }
     }
 }

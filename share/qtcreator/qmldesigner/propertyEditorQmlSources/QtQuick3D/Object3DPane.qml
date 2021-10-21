@@ -32,7 +32,9 @@ import StudioTheme 1.0 as StudioTheme
 PropertyEditorPane {
     id: itemPane
 
-    ComponentSection {}
+    ComponentSection {
+        showState: majorVersion >= 6
+    }
 
     Column {
         anchors.left: parent.left
