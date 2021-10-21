@@ -6,4 +6,5 @@ SOURCES += \
 
 HEADERS +=  \
     $$PWD/ksyntaxhighlighting_version.h \
-    $$PWD/src/lib/ksyntaxhighlighting_logging.h
+    $$PWD/src/lib/ksyntaxhighlighting_logging.h \
+    $$PWD/src/lib/ksyntaxhighlighting_export.h

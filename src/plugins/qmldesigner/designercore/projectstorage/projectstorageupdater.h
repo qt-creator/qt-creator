@@ -88,28 +88,16 @@ private:
 
     void parseTypeInfos(const QStringList &typeInfos,
                         SourceContextId directoryId,
-                        Storage::Imports &imports,
-                        Storage::Types &types,
-                        SourceIds &sourceIds,
-                        FileStatuses &fileStatuses);
-    void parseTypeInfos(const SourceIds &qmltypesSourceIds,
-                        Storage::Imports &imports,
-                        Storage::Types &types,
-                        SourceIds &sourceIds,
-                        FileStatuses &fileStatuses);
-    void parseTypeInfo(SourceId sourceId,
+                        Storage::SynchronizationPackage &package);
+    void parseTypeInfos(const Storage::ProjectDatas &projectDatas,
+                        Storage::SynchronizationPackage &package);
+    void parseTypeInfo(const Storage::ProjectData &projectData,
                        const QString &qmltypesPath,
-                       Storage::Imports &imports,
-                       Storage::Types &types,
-                       SourceIds &sourceIds,
-                       FileStatuses &fileStatuses);
+                       Storage::SynchronizationPackage &package);
     void parseQmlComponents(ComponentReferences components,
                             SourceContextId directoryId,
                             ModuleId moduleId,
-                            Storage::Imports &imports,
-                            Storage::Types &types,
-                            SourceIds &sourceIds,
-                            FileStatuses &fileStatuses);
+                            Storage::SynchronizationPackage &package);
 
     FileState fileState(SourceId sourceId, FileStatuses &fileStatuses) const;
 

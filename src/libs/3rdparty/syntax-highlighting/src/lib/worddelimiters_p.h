@@ -12,7 +12,7 @@
 namespace KSyntaxHighlighting
 {
 /**
- * Repesents a list of character that separates 2 words.
+ * Represents a list of character that separates 2 words.
  *
  * Default delimiters are .():!+*,-<=>%&/;?[]^{|}~\, space (' ') and tabulator ('\t').
  *

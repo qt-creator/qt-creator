@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QString>
 #include <QStringList>
 #include <QMetaType>
@@ -74,7 +76,7 @@ private:
     QStringList m_importPathList;
 };
 
-QMLDESIGNERCORE_EXPORT uint qHash(const Import &import);
+QMLDESIGNERCORE_EXPORT Utils::QHashValueType qHash(const Import &import);
 
 } // namespace QmlDesigner
 

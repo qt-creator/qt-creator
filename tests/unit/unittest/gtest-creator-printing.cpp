@@ -934,7 +934,7 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag) {
 } // namespace ClangTools
 
 namespace QmlDesigner {
-
+namespace {
 const char *sourceTypeToText(SourceType sourceType)
 {
     switch (sourceType) {
@@ -950,6 +950,7 @@ const char *sourceTypeToText(SourceType sourceType)
 
     return "";
 }
+} // namespace
 
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus)
 {
@@ -1015,8 +1016,8 @@ TypeAccessSemantics cleanFlags(TypeAccessSemantics accessSemantics)
 const char *typeAccessSemanticsToString(TypeAccessSemantics accessSemantics)
 {
     switch (cleanFlags(accessSemantics)) {
-    case TypeAccessSemantics::Invalid:
-        return "Invalid";
+    case TypeAccessSemantics::None:
+        return "None";
     case TypeAccessSemantics::Reference:
         return "Reference";
     case TypeAccessSemantics::Sequence:
@@ -1055,6 +1056,20 @@ const char *isQualifiedToString(IsQualified isQualified)
     return "";
 }
 
+const char *importKindToText(ImportKind kind)
+{
+    switch (kind) {
+    case ImportKind::Module:
+        return "Module";
+    case ImportKind::Directory:
+        return "Directory";
+    case ImportKind::QmlTypesDependency:
+        return "QmlTypesDependency";
+    }
+
+    return "";
+}
+
 } // namespace
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics)
@@ -1080,8 +1095,8 @@ std::ostream &operator<<(std::ostream &out, Version version)
 
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.name << "\""
-               << ", " << exportedType.version << ")";
+    return out << "(\"" << exportedType.name << "\"," << exportedType.moduleId << ", "
+               << exportedType.version << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
@@ -1101,10 +1116,9 @@ std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importe
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using Utils::operator<<;
-    return out << "(moduleId: " << type.moduleId << ", typename: \"" << type.typeName
-               << "\", prototype: " << type.prototype << ", " << type.accessSemantics
-               << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
-               << ", properties: " << type.propertyDeclarations
+    return out << "( typename: \"" << type.typeName << "\", prototype: " << type.prototype << ", "
+               << type.prototypeId << ", " << type.accessSemantics << ", source: " << type.sourceId
+               << ", exports: " << type.exportedTypes << ", properties: " << type.propertyDeclarations
                << ", functions: " << type.functionDeclarations
                << ", signals: " << type.signalDeclarations << ")";
 }
@@ -1112,9 +1126,10 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)
 {
     using Utils::operator<<;
-    return out << "(\"" << propertyDeclaration.name << "\", \"" << propertyDeclaration.typeName
-               << "\", " << propertyDeclaration.traits << ", " << propertyDeclaration.typeId
-               << ", \"" << propertyDeclaration.aliasPropertyName << "\")";
+    return out << "(\"" << propertyDeclaration.name << "\", " << propertyDeclaration.typeName
+               << ", " << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
+               << propertyDeclaration.typeId << ", \"" << propertyDeclaration.aliasPropertyName
+               << "\")";
 }
 
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
@@ -1171,14 +1186,14 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
                << enumerationDeclaration.enumeratorDeclarations << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const Module &module)
+std::ostream &operator<<(std::ostream &out, const ImportKind &importKind)
 {
-    return out << "(" << module.name << ", " << module.sourceId << ")";
+    return out << importKindToText(importKind);
 }
 
 std::ostream &operator<<(std::ostream &out, const Import &import)
 {
-    return out << "(" << import.name << ", " << import.version << ", " << import.sourceId << ")";
+    return out << "(" << import.moduleId << ", " << import.version << ", " << import.sourceId << ")";
 }
 
 } // namespace Storage

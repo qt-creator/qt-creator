@@ -332,7 +332,7 @@ static void removeStateOperationsForChildren(const QmlObjectNode &node)
             stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
         }
 
-        for (const QmlObjectNode &childNode : node.modelNode().directSubModelNodes()) {
+        for (const QmlObjectNode childNode : node.modelNode().directSubModelNodes()) {
             removeStateOperationsForChildren(childNode);
         }
     }

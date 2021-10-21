@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/fileutils.h>
+#include <utils/porting.h>
 
 namespace Cppcheck {
 namespace Internal {
@@ -49,7 +50,7 @@ public:
     int lineNumber = 0;
 };
 
-quint32 qHash(const Diagnostic &diagnostic);
+Utils::QHashValueType qHash(const Diagnostic &diagnostic);
 
 } // namespace Internal
 } // namespace Cppcheck

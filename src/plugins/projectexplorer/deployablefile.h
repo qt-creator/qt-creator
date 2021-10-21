@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/fileutils.h>
+#include <utils/porting.h>
 
 #include <QString>
 
@@ -71,6 +72,6 @@ inline bool operator!=(const DeployableFile &d1, const DeployableFile &d2)
     return !(d1 == d2);
 }
 
-PROJECTEXPLORER_EXPORT uint qHash(const DeployableFile &d);
+PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const DeployableFile &d);
 
 } // namespace ProjectExplorer

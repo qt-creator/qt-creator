@@ -27,6 +27,8 @@
 
 #include "qmt/diagram/dobject.h"
 
+#include <utils/porting.h>
+
 #include <QColor>
 
 namespace qmt {
@@ -60,6 +62,6 @@ private:
 };
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs);
-uint qHash(const ObjectVisuals &objectVisuals);
+Utils::QHashValueType qHash(const ObjectVisuals &objectVisuals);
 
 } // namespace qmt

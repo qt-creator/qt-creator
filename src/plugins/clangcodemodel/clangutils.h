@@ -88,8 +88,8 @@ public:
 
 enum class CompilationDbPurpose { Project, CodeModel };
 GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
-            CompilationDbPurpose purpose, const CppEditor::ClangDiagnosticConfig &warningsConfig,
-            const QStringList &projectOptions);
+        const Utils::FilePath &baseDir, CompilationDbPurpose purpose,
+        const CppEditor::ClangDiagnosticConfig &warningsConfig, const QStringList &projectOptions);
 
 class DiagnosticTextInfo
 {

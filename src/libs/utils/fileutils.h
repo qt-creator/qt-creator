@@ -78,6 +78,8 @@ public:
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
     std::function<FilePath(const FilePath &, const QList<FilePath> &)> searchInPath;
     std::function<FilePath(const FilePath &)> symLinkTarget;
+    std::function<FilePath(const FilePath &)> mapToGlobalPath;
+    std::function<QString(const FilePath &)> mapToDevicePath;
     std::function<QList<FilePath>(const FilePath &, const QStringList &,
                                   QDir::Filters, QDir::SortFlags)> dirEntries;
     std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
@@ -314,16 +316,5 @@ private:
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
 
-inline uint qHash(const Utils::FilePath &a, uint seed = 0) { return a.hash(seed); }
-
 } // namespace Utils
-
-namespace std {
-template<> struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
-{
-    using argument_type = Utils::FilePath;
-    using result_type = size_t;
-    result_type operator()(const argument_type &fn) const;
-};
-} // namespace std
 

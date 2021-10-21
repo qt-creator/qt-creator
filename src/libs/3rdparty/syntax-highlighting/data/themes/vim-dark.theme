@@ -5,7 +5,7 @@
             "SPDX-FileCopyrightText: 2020 Nibaldo González <nibgonz@gmail.com>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 3,
+        "revision" : 4,
         "name" : "Vim Dark"
     },
     "text-styles": {
@@ -70,8 +70,8 @@
             "selected-text-color" : "#ff54ff"
         },
         "VerbatimString" : {
-            "text-color" : "#ff54ff",
-            "selected-text-color" : "#ff54ff"
+            "text-color" : "#f000f0",
+            "selected-text-color" : "#f000f0"
         },
         "SpecialString" : {
             "text-color" : "#ff5500",

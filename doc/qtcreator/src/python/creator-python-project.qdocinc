@@ -119,7 +119,8 @@
     select \uicontrol {REPL Import File}. To also import all functions from
     the file, select \uicontrol {REPL Import *}.
 
-    Open the .ui file in the Design mode to create a widget-based UI in \QD.
+    Open the .ui file in the \uicontrol Design mode to create a widget-based UI
+    in \QD.
 
     The \uicontrol Window wizard adds similar code to the source file, without
     the UI bits.
@@ -188,7 +189,8 @@
     sys.exit(app.exec_())
     \endcode
 
-    Open the .qml file in the Design mode to design a Qt Quick UI in \QMLD.
+    Open the .qml file in the \uicontrol Edit mode to design a Qt Quick UI, or
+    use \QDS.
 
 //! [python qml project wizards]
 */

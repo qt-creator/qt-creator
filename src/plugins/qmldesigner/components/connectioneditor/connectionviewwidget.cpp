@@ -159,17 +159,20 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
             QMenu menu(this);
 
-            menu.addAction(tr("Open Connection Editor"), [&]() {
+            menu.addAction(tr("Open Connection Editor"), this, [&]() {
                 auto *connectionModel = qobject_cast<ConnectionModel *>(targetView->model());
                 const SignalHandlerProperty property = connectionModel->signalHandlerPropertyForRow(index.row());
                 const ModelNode node = property.parentModelNode();
+
+                const QString targetName =  index.siblingAtColumn(ConnectionModel::TargetModelNodeRow).data().toString()
+                        + "." + property.name();
 
                 m_connectionEditor->showWidget();
                 m_connectionEditor->setConnectionValue(index.data().toString());
                 m_connectionEditor->setModelIndex(index);
                 m_connectionEditor->setModelNode(node);
                 m_connectionEditor->prepareConnections();
-                m_connectionEditor->updateWindowName();
+                m_connectionEditor->updateWindowName(targetName);
             });
 
             QMap<QString, QVariant> data;
@@ -179,7 +182,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
             const auto actions = designerActionManager.actionsForTargetView(
                 ActionInterface::TargetView::ConnectionEditor);
 
-            for (auto actionInterface : actions) {
+            for (const auto &actionInterface : actions) {
                 auto *action = actionInterface->action();
                 action->setData(data);
                 menu.addAction(action);
@@ -198,7 +201,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
             QMenu menu(this);
 
-            menu.addAction(tr("Open Binding Editor"), [&]() {
+            menu.addAction(tr("Open Binding Editor"), this, [&]() {
                 BindingModel *bindingModel = qobject_cast<BindingModel*>(targetView->model());
                 const BindingProperty property = bindingModel->bindingPropertyForRow(index.row());
 
@@ -209,10 +212,13 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
                 const TypeName typeName = property.isDynamic() ? property.dynamicTypeName()
                                                                : node.metaInfo().propertyTypeName(property.name());
 
+                const QString targetName = node.displayName() + "." + property.name();
+
                 m_bindingEditor->showWidget();
                 m_bindingEditor->setBindingValue(property.expression());
                 m_bindingEditor->setModelNode(node);
                 m_bindingEditor->setBackendValueTypeName(typeName);
+                m_bindingEditor->setTargetName(targetName);
                 m_bindingEditor->prepareBindings();
                 m_bindingEditor->updateWindowName();
 
@@ -232,7 +238,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
             DynamicPropertiesModel *propertiesModel = qobject_cast<DynamicPropertiesModel *>(targetView->model());
             QMenu menu(this);
 
-            menu.addAction(tr("Open Binding Editor"), [&]() {
+            menu.addAction(tr("Open Binding Editor"), this, [&]() {
                 AbstractProperty abstractProperty = propertiesModel->abstractPropertyForRow(index.row());
                 if (!abstractProperty.isValid())
                     return;
@@ -247,17 +253,20 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
                 else
                     return;
 
+                const QString targetName = node.displayName() + "." + abstractProperty.name();
+
                 m_dynamicEditor->showWidget();
                 m_dynamicEditor->setBindingValue(newExpression);
                 m_dynamicEditor->setModelNode(node);
                 m_dynamicEditor->setBackendValueTypeName(abstractProperty.dynamicTypeName());
+                m_dynamicEditor->setTargetName(targetName);
                 m_dynamicEditor->prepareBindings();
                 m_dynamicEditor->updateWindowName();
 
                 m_dynamicIndex = index;
             });
 
-            menu.addAction(tr("Reset Property"), [&]() {
+            menu.addAction(tr("Reset Property"), this, [&]() {
                 propertiesModel->resetProperty(propertiesModel->abstractPropertyForRow(index.row()).name());
             });
 

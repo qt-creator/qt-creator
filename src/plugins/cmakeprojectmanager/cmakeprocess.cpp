@@ -92,10 +92,8 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         }
     }
 
-    const QString srcDir = parameters.sourceDirectory.path();
-
     const auto parser = new CMakeParser;
-    parser->setSourceDirectory(srcDir);
+    parser->setSourceDirectory(parameters.sourceDirectory.path());
     m_parser.addLineParser(parser);
 
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted
@@ -121,7 +119,13 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), &QtcProcess::finished,
             this, &CMakeProcess::handleProcessFinished);
 
-    CommandLine commandLine(cmake->cmakeExecutable(), QStringList({"-S", srcDir, "-B", buildDirectory.path()}) + arguments);
+    const FilePath cmakeExecutable = cmake->cmakeExecutable();
+    const FilePath sourceDirectory = parameters.sourceDirectory.onDevice(cmakeExecutable);
+
+    CommandLine commandLine(cmakeExecutable);
+    commandLine.addArgs({"-S", sourceDirectory.mapToDevicePath(),
+                         "-B", buildDirectory.mapToDevicePath()});
+    commandLine.addArgs(arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 

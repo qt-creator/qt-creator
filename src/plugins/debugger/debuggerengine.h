@@ -195,7 +195,7 @@ public:
     bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
 
-    Utils::MacroExpander *macroExpander = nullptr;
+    const Utils::MacroExpander *macroExpander = nullptr;
 
     Utils::optional<int> exitCode = {};
 

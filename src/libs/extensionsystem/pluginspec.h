@@ -27,6 +27,8 @@
 
 #include "extensionsystem_global.h"
 
+#include <utils/porting.h>
+
 #include <QString>
 #include <QHash>
 #include <QVector>
@@ -65,7 +67,7 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
     QString toString() const;
 };
 
-uint qHash(const ExtensionSystem::PluginDependency &value);
+Utils::QHashValueType qHash(const ExtensionSystem::PluginDependency &value);
 
 struct EXTENSIONSYSTEM_EXPORT PluginArgumentDescription
 {

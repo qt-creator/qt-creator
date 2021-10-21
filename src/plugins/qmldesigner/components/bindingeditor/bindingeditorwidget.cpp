@@ -35,6 +35,10 @@
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljssemantichighlighter.h>
 #include <qmljstools/qmljsindenter.h>
+#include <qmljstools/qmljstoolsconstants.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
+#include <utils/fancylineedit.h>
 
 #include <QAction>
 
@@ -43,17 +47,19 @@ namespace QmlDesigner {
 BindingEditorWidget::BindingEditorWidget()
     : m_context(new Core::IContext(this))
 {
-    m_context->setWidget(this);
-    Core::ICore::addContextObject(m_context);
+    Core::Context context(BINDINGEDITOR_CONTEXT_ID,
+                          ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
-    const Core::Context context(BINDINGEDITOR_CONTEXT_ID);
+    m_context->setWidget(this);
+    m_context->setContext(context);
+    Core::ICore::addContextObject(m_context);
 
     /*
      * We have to register our own active auto completion shortcut, because the original short cut will
      * use the cursor position of the original editor in the editor manager.
      */
-
     m_completionAction = new QAction(tr("Trigger Completion"), this);
+
     Core::Command *command = Core::ActionManager::registerAction(
                 m_completionAction, TextEditor::Constants::COMPLETE_THIS, context);
     command->setDefaultKeySequence(QKeySequence(
@@ -84,11 +90,9 @@ bool BindingEditorWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+        if ((keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) && !keyEvent->modifiers()) {
             emit returnKeyClicked();
             return true;
-        } else {
-            return QmlJSEditor::QmlJSEditorWidget::event(event);
         }
     }
     return QmlJSEditor::QmlJSEditorWidget::event(event);
@@ -133,8 +137,12 @@ void BindingDocument::triggerPendingUpdates()
 BindingEditorFactory::BindingEditorFactory()
 {
     setId(BINDINGEDITOR_CONTEXT_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", QmlDesigner::BINDINGEDITOR_CONTEXT_ID));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", BINDINGEDITOR_CONTEXT_ID));
     setEditorActionHandlers(0);
+    addMimeType(BINDINGEDITOR_CONTEXT_ID);
+    addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
 
     setDocumentCreator([]() { return new BindingDocument; });
     setEditorWidgetCreator([]() { return new BindingEditorWidget; });

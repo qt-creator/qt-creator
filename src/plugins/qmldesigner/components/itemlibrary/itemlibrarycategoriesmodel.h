@@ -55,10 +55,11 @@ public:
     bool isAllCategoriesHidden() const;
     void sortCategorySections();
     void resetModel();
-    void showAllCategories(bool show = true);
-    void clearSelectedCategories();
-    QObject *selectFirstVisibleCategory();
-    void selectCategory(int categoryIndex);
+    void showAllCategories();
+    void hideCategory(const QString &categoryName);
+    void clearSelectedCategory(int categoryIndex);
+    int selectFirstVisibleCategory();
+    QPointer<ItemLibraryCategory> selectCategory(int categoryIndex);
 
 private:
     void addRoleNames();

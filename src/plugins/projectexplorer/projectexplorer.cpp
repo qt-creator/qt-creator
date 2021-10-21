@@ -2602,7 +2602,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
     dd->m_arguments = arguments;
     // delay opening projects from the command line even more
     QTimer::singleShot(0, m_instance, []() {
-        ICore::openFiles(Utils::transform(dd->m_arguments, &FilePath::fromString),
+        ICore::openFiles(Utils::transform(dd->m_arguments, &FilePath::fromUserInput),
                          ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
         emit m_instance->finishedInitialization();
     });

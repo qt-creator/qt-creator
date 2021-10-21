@@ -570,7 +570,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "Dracula",
-        "revision": 7
+        "revision": 8
     },
     "text-styles": {
         "Alert": {
@@ -694,8 +694,8 @@
             "text-color": "#8be9fd"
         },
         "VerbatimString": {
-            "selected-text-color": "#f1fa8c",
-            "text-color": "#f1fa8c"
+            "selected-text-color": "#d7e60a",
+            "text-color": "#d7e60a"
         },
         "Warning": {
             "selected-text-color": "#ff5555",

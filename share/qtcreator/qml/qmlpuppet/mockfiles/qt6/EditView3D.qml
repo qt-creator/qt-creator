@@ -721,6 +721,7 @@ Item {
 
             Model {
                 id: pivotCap
+                readonly property bool _edit3dLocked: true // Make this non-pickable
                 source: "#Sphere"
                 scale: pivotAutoScale.getScale(Qt.vector3d(0.03, 0.03, 0.03))
                 position: pivotLine.startPos
@@ -760,7 +761,7 @@ Item {
 
                 onPressed: (mouse)=> {
                     if (viewRoot.editView) {
-                        var pickResult = viewRoot.editView.pick(mouse.x, mouse.y);
+                        var pickResult = _generalHelper.pickViewAt(viewRoot.editView, mouse.x, mouse.y);
                         handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
                                             mouse.modifiers & Qt.ControlModifier);
 

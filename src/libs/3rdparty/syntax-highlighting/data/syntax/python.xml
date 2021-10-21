@@ -33,6 +33,10 @@
 	     type              ::=  "b" | "c" | "d" | "e" | "E" | "f" | "F" | "g" | "G" | "n" | "o" | "s" | "x" | "X" | "%"
 	-->
 	<!ENTITY strsubstitution_py3 "\{(?:(?:[a-zA-Z0-9_]+|[0-9]+)(?:\.[a-zA-Z0-9_]+|\[[^ \]]+\])*)?(?:![rs])?(?::(?:[^}]?[&lt;&gt;=^])?[ +-]?#?0?[0-9]*(?:\.[0-9]+)?[bcdeEfFgGnosxX&#37;]?)?\}">
+
+	<!ENTITY rawString "(?:ru|u?r|)(?:'(?:[^']++|\\')*+'|&quot;(?:[^&quot;]++|\\&quot;)*+&quot;)">
+	<!ENTITY formatString "(?:r?f|fr?)(?:'(?:[^'{]++|\\'|\{\{|\{[^}]++\})*+'|&quot;(?:[^&quot;]++|\\&quot;|\{\{|\{[^}]*+\})*+&quot;)">
+	<!ENTITY string "&rawString;|&formatString;">
 ]>
 <!-- Python syntax highlightning v0.9 by Per Wigren -->
 <!-- Python syntax highlighting v1.9 by Michael Bueker (improved keyword differentiation) -->
@@ -48,7 +52,7 @@
 <!-- v2.07 add support for %prog and co, see bug 142832 -->
 <!-- v2.08 add missing overloaders, new Python 3 statements, builtins, and keywords -->
 <!-- v2.29 recognize escape sequenzes correctly -->
-<language name="Python" version="14" style="python" indenter="python" kateversion="5.0" section="Scripts" extensions="*.py;*.pyw;SConstruct;SConscript;*.FCMacro" mimetype="application/x-python;text/x-python;text/x-python3" casesensitive="1" author="Michael Bueker" license="">
+<language name="Python" version="22" style="python" indenter="python" kateversion="5.0" section="Scripts" extensions="*.py;*.pyw;SConstruct;SConscript;*.FCMacro" mimetype="application/x-python;text/x-python;text/x-python3" casesensitive="1" author="Michael Bueker" license="">
 	<highlighting>
 		<list name="import">
 			<item>import</item>
@@ -86,9 +90,20 @@
 			<item>try</item>
 			<item>while</item>
 			<item>with</item>
-			<item>yield</item>
 			<item>async</item>
 			<item>await</item>
+		</list>
+		<list name="flow_yield">
+			<item>yield</item>
+			<!--
+				"yield from" added here as a keyword for autocompletion. The actual handling
+				is in context="yield" so that we won't need to add space as a weakDeliminator.
+			-->
+			<item>yield from</item>
+		</list>
+		<list name="patternmatching">
+			<item>match</item>
+			<item>case</item>
 		</list>
 		<list name="builtinfuncs">
 			<item>__import__</item>
@@ -366,89 +381,137 @@
 		</list>
 		<contexts>
 			<context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+				<DetectSpaces attribute="Normal Text"/>
+
 				<keyword attribute="Import" String="import" context="#stay"/>
 				<keyword attribute="Definition Keyword" String="defs" context="#stay"/>
 				<keyword attribute="Operator Keyword" String="operators" context="#stay"/>
 				<keyword attribute="Flow Control Keyword" String="flow" context="#stay"/>
+				<keyword attribute="Flow Control Keyword" String="flow_yield" context="yield"/>
+				<keyword attribute="Flow Control Keyword" String="patternmatching" context="Pattern Matching" lookAhead="1" firstNonSpace="1"/>
 				<keyword attribute="Builtin Function" String="builtinfuncs" context="#stay"/>
 				<keyword attribute="Special Variable" String="specialvars" context="#stay"/>
 				<keyword attribute="Extensions" String="bindings" context="#stay"/>
 				<keyword attribute="Exceptions" String="exceptions" context="#stay"/>
 				<keyword attribute="Overloaders" String="overloaders" context="#stay"/>
-				<RegExpr attribute="Normal Text" String="[a-zA-Z_][a-zA-Z_0-9]{2,}" context="#stay"/>
-
-				<!-- Complex: 1j ; 1.1j ; 1.j ; .1j ; 1e3j ; 1.1e3j ; 1.e3j ; .1e3j -->
-				<RegExpr attribute="Complex" String="(?:&beforeDigit;&digitPart;(?:\.(?:&digitPart;)?)?|&beforePointFloat;\.&digitPart;)(?:[eE][\+\-]?&digitPart;)?[jJ]\b" context="#stay"/>
-				<!-- Hexadecimal: 0xA1, Binary: 0b01, Octal: 0o71 -->
-				<RegExpr attribute="Hex" String="&beforeDigit;0[xX](?:_?[\da-fA-F])+\b" context="#stay"/>
-				<RegExpr attribute="Binary" String="&beforeDigit;0[bB](?:_?[01])+\b" context="#stay"/>
-				<RegExpr attribute="Octal" String="&beforeDigit;0[oO](?:_?[0-7])+\b" context="#stay"/>
-				<!-- Float: 1.1 ; 1. ; .1 ; 1e3 ; 1.1e3 ; 1.e3 ; .1e3 -->
-				<RegExpr attribute="Float" String="(?:&beforeDigit;&digitPart;(?:\.(?:&digitPart;)?)?|&beforePointFloat;\.&digitPart;)[eE][\+\-]?&digitPart;\b|(?:&beforeDigit;&digitPart;\.(?:&digitPart;\b)?|&beforePointFloat;\.&digitPart;\b)" context="#stay"/>
-				<!-- Decimal: 123 ; 000 -->
-				<RegExpr attribute="Int" String="&beforeDigit;(?:[1-9](?:_?\d)*|0(?:_?0)*)[lL]?\b" context="#stay"/>
 
 				<DetectChar attribute="Normal Text" char="{" context="Dictionary" beginRegion="Dictionary"/>
 				<DetectChar attribute="Normal Text" char="[" context="List" beginRegion="List"/>
 				<DetectChar attribute="Normal Text" char="(" context="Tuple" beginRegion="Tuple"/>
 
-				<IncludeRules context="CommentVariants" />
-
 				<DetectChar attribute="Comment" char="#" context="Hash comment"/>
 
+				<IncludeRules context="Number" />
+				<IncludeRules context="CommentVariants" />
 				<IncludeRules context="StringVariants" />
 
+				<DetectIdentifier attribute="Normal Text"/>
+
 				<RegExpr attribute="Decorator" String="@[_a-zA-Z[:^ascii:]][\._a-zA-Z0-9[:^ascii:]]*" firstNonSpace="true"/>
-				<AnyChar attribute="Operator" String="+*/%\|=;\!&lt;&gt;!^&amp;~-@" context="#stay"/>
+				<AnyChar attribute="Operator" String="+*/%\|=;&lt;&gt;!^&amp;~-@" context="#stay"/>
+
+				<Int attribute="Error"/>
+			</context>
+
+			<!-- https://docs.python.org/2/reference/lexical_analysis.html#integer-and-long-integer-literals -->
+			<!-- https://docs.python.org/3/reference/lexical_analysis.html#integer-literals -->
+			<context name="Number" attribute="Normal Text" lineEndContext="#pop">
+				<!-- fast path -->
+				<RegExpr String="&beforeDigit;[0-9]|&beforePointFloat;\.[0-9]" context="AssumeNumber" lookAhead="1"/>
+			</context>
+			<context name="AssumeNumber" attribute="Normal Text" lineEndContext="#pop">
+				<!-- Complex: 1j ; 1.1j ; 1.j ; .1j ; 1e3j ; 1.1e3j ; 1.e3j ; .1e3j -->
+				<RegExpr attribute="Complex" String="(?:&digitPart;(?:\.(?:&digitPart;)?)?|&beforePointFloat;\.&digitPart;)(?:[eE][\+\-]?&digitPart;)?[jJ]" context="CheckSuffixError"/>
+				<!-- Hexadecimal: 0xA1, Binary: 0b01, Octal: 0o71 -->
+				<RegExpr attribute="Hex" String="0[xX](?:_?[0-9a-fA-F])+" context="CheckSuffixError"/>
+				<RegExpr attribute="Binary" String="0[bB](?:_?[01])+" context="CheckSuffixError"/>
+				<RegExpr attribute="Octal" String="0[oO](?:_?[0-7])+" context="CheckSuffixError"/>
+				<!-- Float: 1.1 ; 1. ; .1 ; 1e3 ; 1.1e3 ; 1.e3 ; .1e3 -->
+				<RegExpr attribute="Float" String="(?:&digitPart;(?:\.(?:&digitPart;)?)?|\.&digitPart;)[eE][\+\-]?&digitPart;|&digitPart;\.(?:&digitPart;)?|\.&digitPart;" context="CheckSuffixError"/>
+				<!-- Decimal: 123 ; 000 -->
+				<!-- l and L are python2 suffixes -->
+				<RegExpr attribute="Int" String="(?:[1-9](?:_?\d)*|0(?:_?0)*)[lL]?" context="CheckSuffixError"/>
+			</context>
+			<context name="CheckSuffixError" attribute="Normal Text" lineEndContext="#pop#pop" fallthrough="1" fallthroughContext="#pop#pop">
+				<RegExpr attribute="Error" String="[\w\d]+" context="#pop#pop"/>
+			</context>
+
+			<context name="yield" attribute="Flow Control Keyword" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop">
+				<DetectSpaces attribute="Normal Text" context="#stay"/>
+				<WordDetect attribute="Flow Control Keyword" context="#pop" String="from"/>
+			</context>
+
+			<context name="Pattern Matching" attribute="Flow Control Keyword" lineEndContext="#pop">
+				<!--
+					Python 3.10: https://docs.python.org/3.10/reference/compound_stmts.html#the-match-statement
+					( 'match' | 'case' ) expression ':'
+					exclude:
+					( 'match' | 'case' ) ( 'if' | 'for' | '.' | ':' | '=' | ',' | ']' | ')' ) ...
+				-->
+				<RegExpr attribute="Flow Control Keyword" String="\w++(?=\s+(?!(?:if|for)\b)[\w'&quot;~]|\s*+(?![.:=\]),]|(?:if|for)\b)((?:&string;|[^#;(){}]|\(\)|\((?1)\)|\{\}|\{(\s*+(?:(?:&string;|[a-zA-Z0-9.]++)\s*+:\s*+(?:&string;|[^#;(){},]|\(\)|\((?1)\)|\{\}|\{(?2)\})++,?)*+)\})+?):)|" context="#pop"/>
+				<DetectIdentifier attribute="Normal Text" context="#pop"/>
 			</context>
 
 			<context name="#CheckForString" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
 				<DetectSpaces/>
-				<LineContinue attribute="Normal Text" context="CheckForStringNext"/>
+				<LineContinue attribute="Normal Text" context="#pop!CheckForStringNext"/>
 			</context>
 
-			<context name="CheckForStringNext" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
+			<context name="CheckForStringNext" attribute="Normal Text" lineEndContext="#pop#pop" fallthrough="true" fallthroughContext="#pop#pop">
 				<DetectSpaces/>
-				<LineContinue attribute="Normal Text" context="CheckForStringNext"/>
+				<LineContinue attribute="Normal Text" context="#stay"/>
 				<IncludeRules context="StringVariants"/>
 			</context>
 
+			<!-- https://docs.python.org/2/reference/lexical_analysis.html#string-literals -->
+			<!-- https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals -->
 			<context name="StringVariants" attribute="Normal Text" lineEndContext="#stay">
-				<DetectSpaces/>
+				<!-- fast path -->
+				<RegExpr String="(?:u|r|b|f|ur|fr|rf|br|rb)?['&quot;]" insensitive="true" context="AssumeStringVariants" lookAhead="1"/>
+			</context>
+			<context name="AssumeStringVariants" attribute="Normal Text" lineEndContext="#stay">
+				<RegExpr attribute="String" String="u?'''"                insensitive="true" context="#pop!Triple A-string" beginRegion="Triple A-region"/>
+				<RegExpr attribute="String" String="u?&quot;&quot;&quot;" insensitive="true" context="#pop!Triple Q-string" beginRegion="Triple Q-region"/>
+				<RegExpr attribute="String" String="u?'"                  insensitive="true" context="#pop!Single A-string"/>
+				<RegExpr attribute="String" String="u?&quot;"             insensitive="true" context="#pop!Single Q-string"/>
 
-				<RegExpr attribute="String" String="u?'''"                insensitive="true" context="Triple A-string" beginRegion="Triple A-region"/>
-				<RegExpr attribute="String" String="u?&quot;&quot;&quot;" insensitive="true" context="Triple Q-string" beginRegion="Triple Q-region"/>
-				<RegExpr attribute="String" String="u?'"                  insensitive="true" context="Single A-string"/>
-				<RegExpr attribute="String" String="u?&quot;"             insensitive="true" context="Single Q-string"/>
+				<RegExpr attribute="Raw String" String="u?r'''"                insensitive="true" context="#pop!Raw Triple A-string" beginRegion="Triple A-region"/>
+				<RegExpr attribute="Raw String" String="u?r&quot;&quot;&quot;" insensitive="true" context="#pop!Raw Triple Q-string" beginRegion="Triple Q-region"/>
+				<RegExpr attribute="Raw String" String="u?r'"                  insensitive="true" context="#pop!Raw A-string"/>
+				<RegExpr attribute="Raw String" String="u?r&quot;"             insensitive="true" context="#pop!Raw Q-string"/>
 
-				<RegExpr attribute="Raw String" String="(?:u?r|ru)'''"                insensitive="true" context="Raw Triple A-string" beginRegion="Triple A-region"/>
-				<RegExpr attribute="Raw String" String="(?:u?r|ru)&quot;&quot;&quot;" insensitive="true" context="Raw Triple Q-string" beginRegion="Triple Q-region"/>
-				<RegExpr attribute="Raw String" String="(?:u?r|ru)'"                  insensitive="true" context="Raw A-string"/>
-				<RegExpr attribute="Raw String" String="(?:u?r|ru)&quot;"             insensitive="true" context="Raw Q-string"/>
+				<StringDetect attribute="F-String" String="f'''"                insensitive="true" context="#pop!Triple A-F-String" beginRegion="Triple A-region"/>
+				<StringDetect attribute="F-String" String="f&quot;&quot;&quot;" insensitive="true" context="#pop!Triple Q-F-String" beginRegion="Triple Q-region"/>
+				<StringDetect attribute="F-String" String="f'"                  insensitive="true" context="#pop!Single A-F-String"/>
+				<StringDetect attribute="F-String" String="f&quot;"             insensitive="true" context="#pop!Single Q-F-String"/>
 
-				<StringDetect attribute="F-String" String="f'''"                insensitive="true" context="Triple A-F-String" beginRegion="Triple A-region"/>
-				<StringDetect attribute="F-String" String="f&quot;&quot;&quot;" insensitive="true" context="Triple Q-F-String" beginRegion="Triple Q-region"/>
-				<StringDetect attribute="F-String" String="f'"                  insensitive="true" context="Single A-F-String"/>
-				<StringDetect attribute="F-String" String="f&quot;"             insensitive="true" context="Single Q-F-String"/>
+				<RegExpr attribute="Raw F-String" String="(?:fr|rf)'''"                insensitive="true" context="#pop!Raw Triple A-F-String" beginRegion="Triple A-region"/>
+				<RegExpr attribute="Raw F-String" String="(?:fr|rf)&quot;&quot;&quot;" insensitive="true" context="#pop!Raw Triple Q-F-String" beginRegion="Triple Q-region"/>
+				<RegExpr attribute="Raw F-String" String="(?:fr|rf)'"                  insensitive="true" context="#pop!Raw A-F-String"/>
+				<RegExpr attribute="Raw F-String" String="(?:fr|rf)&quot;"             insensitive="true" context="#pop!Raw Q-F-String"/>
 
-				<RegExpr attribute="Raw F-String" String="(?:fr|rf)'''"                insensitive="true" context="Raw Triple A-F-String" beginRegion="Triple A-region"/>
-				<RegExpr attribute="Raw F-String" String="(?:fr|rf)&quot;&quot;&quot;" insensitive="true" context="Raw Triple Q-F-String" beginRegion="Triple Q-region"/>
-				<RegExpr attribute="Raw F-String" String="(?:fr|rf)'"                  insensitive="true" context="Raw A-F-String"/>
-				<RegExpr attribute="Raw F-String" String="(?:fr|rf)&quot;"             insensitive="true" context="Raw Q-F-String"/>
+				<StringDetect attribute="B-String" String="b'''"                insensitive="true" context="#pop!Triple A-B-String" beginRegion="Triple A-region"/>
+				<StringDetect attribute="B-String" String="b&quot;&quot;&quot;" insensitive="true" context="#pop!Triple Q-B-String" beginRegion="Triple Q-region"/>
+				<StringDetect attribute="B-String" String="b'"                  insensitive="true" context="#pop!Single A-B-String"/>
+				<StringDetect attribute="B-String" String="b&quot;"             insensitive="true" context="#pop!Single Q-B-String"/>
+
+				<RegExpr attribute="Raw B-String" String="(?:br|rb)'''"                insensitive="true" context="#pop!Raw Triple A-B-String" beginRegion="Triple A-region"/>
+				<RegExpr attribute="Raw B-String" String="(?:br|rb)&quot;&quot;&quot;" insensitive="true" context="#pop!Raw Triple Q-B-String" beginRegion="Triple Q-region"/>
+				<RegExpr attribute="Raw B-String" String="(?:br|rb)'"                  insensitive="true" context="#pop!Raw A-B-String"/>
+				<RegExpr attribute="Raw B-String" String="(?:br|rb)&quot;"             insensitive="true" context="#pop!Raw Q-B-String"/>
 			</context>
 
+			<!-- https://docs.python.org/2/reference/lexical_analysis.html#string-literals -->
+			<!-- https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals -->
 			<context name="CommentVariants" attribute="Normal Text" lineEndContext="#stay">
-				<DetectSpaces/>
-
-				<RegExpr attribute="Comment" String="u?'''"                insensitive="true" firstNonSpace="true" context="Triple A-comment" beginRegion="Triple A-region"/>
-				<RegExpr attribute="Comment" String="u?&quot;&quot;&quot;" insensitive="true" firstNonSpace="true" context="Triple Q-comment" beginRegion="Triple Q-region"/>
-				<RegExpr attribute="Comment" String="u?'"                  insensitive="true" firstNonSpace="true" context="Single A-comment"/>
-				<RegExpr attribute="Comment" String="u?&quot;"             insensitive="true" firstNonSpace="true" context="Single Q-comment"/>
-
-				<RegExpr attribute="Comment" String="(?:u?r|ru)'''"                insensitive="true" firstNonSpace="true" context="Triple A-comment" beginRegion="Triple A-region"/>
-				<RegExpr attribute="Comment" String="(?:u?r|ru)&quot;&quot;&quot;" insensitive="true" firstNonSpace="true" context="Triple Q-comment" beginRegion="Triple Q-region"/>
-				<RegExpr attribute="Comment" String="(?:u?r|ru)'"                  insensitive="true" firstNonSpace="true" context="Single A-comment"/>
-				<RegExpr attribute="Comment" String="(?:u?r|ru)&quot;"             insensitive="true" firstNonSpace="true" context="Single Q-comment"/>
+				<!-- fast path -->
+				<RegExpr String="(?:u|r|ur)?['&quot;]" insensitive="true" firstNonSpace="true" context="AssumeCommentVariants" lookAhead="1"/>
+			</context>
+			<context name="AssumeCommentVariants" attribute="Normal Text" lineEndContext="#stay">
+				<RegExpr attribute="Comment" String="(?:u?r?)'''"                insensitive="true" context="#pop!Triple A-comment" beginRegion="Triple A-region"/>
+				<RegExpr attribute="Comment" String="(?:u?r?)&quot;&quot;&quot;" insensitive="true" context="#pop!Triple Q-comment" beginRegion="Triple Q-region"/>
+				<RegExpr attribute="Comment" String="(?:u?r?)'"                  insensitive="true" context="#pop!Single A-comment"/>
+				<RegExpr attribute="Comment" String="(?:u?r?)&quot;"             insensitive="true" context="#pop!Single Q-comment"/>
 			</context>
 
 			<context name="Dictionary" attribute="Normal Text" lineEndContext="#stay" noIndentationBasedFolding="true">
@@ -472,35 +535,53 @@
 				<IncludeRules context="Normal" />
 			</context>
 
+			<context name="UnfinishedStringError" attribute="Error" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<!-- A single string/comment reached the end of the line without a \ line escape -->
+				<!-- We set ALL succeeding lines to the "Error" attribute so that this error is easier to spot -->
+			</context>
+
 			<!-- Comments -->
 
 			<context name="Hash comment" attribute="Comment" lineEndContext="#pop">
 				<DetectSpaces />
 				<IncludeRules context="##Comments" />
+				<DetectIdentifier/>
 			</context>
 
 			<context name="Triple A-comment" attribute="Comment" lineEndContext="#stay" noIndentationBasedFolding="true">
-				<IncludeRules context="stringescape"/>
+				<DetectSpaces/>
 				<StringDetect attribute="Comment" String="'''" context="#pop" endRegion="Triple A-region"/>
 				<IncludeRules context="##Comments" />
+				<DetectIdentifier/>
+				<IncludeRules context="stringescape"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
 			<context name="Triple Q-comment" attribute="Comment" lineEndContext="#stay" noIndentationBasedFolding="true">
-				<IncludeRules context="stringescape"/>
+				<DetectSpaces/>
 				<StringDetect attribute="Comment" String="&quot;&quot;&quot;" context="#pop" endRegion="Triple Q-region"/>
 				<IncludeRules context="##Comments" />
+				<DetectIdentifier/>
+				<IncludeRules context="stringescape"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
-			<context name="Single A-comment" attribute="Comment" lineEndContext="#stay">
-				<IncludeRules context="stringescape"/>
+			<context name="Single A-comment" attribute="Comment" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces/>
 				<DetectChar attribute="Comment" char="'" context="#pop"/>
 				<IncludeRules context="##Comments" />
+				<DetectIdentifier/>
+				<IncludeRules context="stringescape"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
-			<context name="Single Q-comment" attribute="Comment" lineEndContext="#stay">
-				<IncludeRules context="stringescape"/>
+			<context name="Single Q-comment" attribute="Comment" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces/>
 				<DetectChar attribute="Comment" char="&quot;" context="#pop"/>
 				<IncludeRules context="##Comments" />
+				<DetectIdentifier/>
+				<IncludeRules context="stringescape"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
 			<!-- Strings -->
@@ -520,14 +601,25 @@
 				<RegExpr attribute="String Char" String="\\[\\'&quot;abfnrtv]|\\[0-7]{1,3}|\\x[0-9A-Fa-f]{2}|\\u[0-9A-Fa-f]{4}|\\U[0-9A-Fa-f]{8}|\\N\{[a-zA-Z0-9\- ]+\}" context="#stay"/>
 			</context>
 
+			<!-- escape characters -->
+			<context name="bytesescape" attribute="String Char" lineEndContext="#stay">
+				<!-- As this highlighting style is for both, Python 2 and 3,
+				we do not know if a normal string is “unicode” or not. So we
+				-->
+				<RegExpr attribute="String Char" String="\\[\\'&quot;abfnrtv]|\\[0-7]{1,3}|\\x[0-9A-Fa-f]{2}" context="#stay"/>
+			</context>
+
 			<!-- f-literals -->
 			<context name="stringinterpolation" attribute="F-String" lineEndContext="#stay">
 				<Detect2Chars attribute="String Char" char="{" char1="{" context="#stay"/>
 				<DetectChar attribute="String Substitution" char="{" context="String Interpolation"/>
+				<Detect2Chars attribute="String Char" char="}" char1="}" context="#stay"/>
+				<DetectChar attribute="Error" char="}" context="#stay"/>
 			</context>
 			<context name="String Interpolation" attribute="String Substitution" lineEndContext="#stay">
 				<DetectChar attribute="Error" char="\" context="#pop"/>
-				<RegExpr attribute="String Substitution" String="(?:![rs])?(?::(?:[^}]?[&lt;&gt;=^])?[ +-]?#?0?[0-9]*(?:\.[0-9]+)?[bcdeEfFgGnosxX%]?)?\}" context="#pop"/>
+				<!-- format specifiers: [[fill]align][sign][#][0][minimumwidth][.precision][type] -->
+				<RegExpr attribute="String Substitution" String="(?:![rsa])?(?::(?:[^}]?[&lt;&gt;=^])?[ +-]?#?0?[0-9]*(?:\.[0-9]+)?[bcdeEfFgGnosxX%]?)?\}" context="#pop"/>
 				<IncludeRules context="Normal"/> <!-- TODO: create expression context instead -->
 			</context>
 
@@ -542,107 +634,218 @@
 			Adding byte literals wouldn’t make the current 2⁴ into 2⁵ contexts, as there are no byte f-literals
 			-->
 
-
 			<!-- Triple-quoted A-strings -->
 			<context name="Triple A-string" attribute="String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<DetectSpaces attribute="String"/>
+				<DetectIdentifier attribute="String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringformat"/>
 				<StringDetect attribute="String" String="'''" context="#pop!#CheckForString" endRegion="Triple A-region"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
 			<context name="Raw Triple A-string" attribute="Raw String" lineEndContext="#stay" noIndentationBasedFolding="true">
-				<HlCStringChar attribute="Raw String" context="#stay"/>
+				<DetectSpaces attribute="Raw String"/>
+				<DetectIdentifier attribute="Raw String"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="'"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="\"/>
 				<IncludeRules context="stringformat"/>
 				<StringDetect attribute="Raw String" String="'''" context="#pop!#CheckForString" endRegion="Triple A-region"/>
 			</context>
 
 			<context name="Triple A-F-String" attribute="F-String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<DetectSpaces attribute="F-String"/>
+				<DetectIdentifier attribute="F-String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringinterpolation"/>
 				<StringDetect attribute="F-String" String="'''" context="#pop!#CheckForString" endRegion="Triple A-region"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
 			<context name="Raw Triple A-F-String" attribute="Raw F-String" lineEndContext="#stay" noIndentationBasedFolding="true">
-				<HlCStringChar attribute="Raw F-String" context="#stay"/>
+				<DetectSpaces attribute="Raw F-String"/>
+				<DetectIdentifier attribute="Raw F-String"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="'"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="\"/>
 				<IncludeRules context="stringinterpolation"/>
 				<StringDetect attribute="Raw F-String" String="'''" context="#pop!#CheckForString" endRegion="Triple A-region"/>
 			</context>
 
+			<context name="Triple A-B-String" attribute="B-String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<RegExpr attribute="B-String" String="([\x20-\x26\x28-\x5B\x5D-\x7E]++|\\(?=[^\\'&quot;abfnrtvx0-7])|\\x(?![0-9a-fA-F]{2})|'(?!''))++"/>
+				<IncludeRules context="bytesescape"/>
+				<StringDetect attribute="B-String" String="'''" context="#pop!#CheckForString" endRegion="Triple A-region"/>
+				<LineContinue attribute="String Char" context="#stay"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
+			<context name="Raw Triple A-B-String" attribute="Raw B-String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<RegExpr attribute="Raw B-String" String="([\x20-\x26\x28-\x5B\x5D-\x7E]++|\\.?|'(?!''))++"/>
+				<StringDetect attribute="Raw B-String" String="'''" context="#pop!#CheckForString" endRegion="Triple A-region"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
 			<!-- Triple-quoted Q-strings -->
 			<context name="Triple Q-string" attribute="String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<DetectSpaces attribute="String"/>
+				<DetectIdentifier attribute="String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringformat"/>
 				<StringDetect attribute="String" String="&quot;&quot;&quot;" context="#pop!#CheckForString" endRegion="Triple Q-region"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
 			<context name="Raw Triple Q-string" attribute="Raw String" lineEndContext="#stay" noIndentationBasedFolding="true">
-				<HlCStringChar attribute="Raw String" context="#stay"/>
+				<DetectSpaces attribute="Raw String"/>
+				<DetectIdentifier attribute="Raw String"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="&quot;"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="\"/>
 				<IncludeRules context="stringformat"/>
 				<StringDetect attribute="Raw String" String="&quot;&quot;&quot;" context="#pop!#CheckForString" endRegion="Triple Q-region"/>
 			</context>
 
 			<context name="Triple Q-F-String" attribute="F-String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<DetectSpaces attribute="F-String"/>
+				<DetectIdentifier attribute="F-String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringinterpolation"/>
 				<StringDetect attribute="F-String" String="&quot;&quot;&quot;" context="#pop!#CheckForString" endRegion="Triple Q-region"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
 			<context name="Raw Triple Q-F-String" attribute="Raw F-String" lineEndContext="#stay" noIndentationBasedFolding="true">
-				<HlCStringChar attribute="Raw F-String" context="#stay"/>
+				<DetectSpaces attribute="Raw F-String"/>
+				<DetectIdentifier attribute="Raw F-String"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="&quot;"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="\"/>
 				<IncludeRules context="stringinterpolation"/>
 				<StringDetect attribute="Raw F-String" String="&quot;&quot;&quot;" context="#pop!#CheckForString" endRegion="Triple Q-region"/>
 			</context>
 
+			<context name="Triple Q-B-String" attribute="B-String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<RegExpr attribute="B-String" String="([\x20\x21\x23-\x5B\x5D-\x7E]++|\\(?=[^\\'&quot;abfnrtvx0-7])|\\x(?![0-9a-fA-F]{2})|&quot;(?!&quot;&quot;))++"/>
+				<IncludeRules context="bytesescape"/>
+				<StringDetect attribute="B-String" String="&quot;&quot;&quot;" context="#pop!#CheckForString" endRegion="Triple Q-region"/>
+				<LineContinue attribute="String Char" context="#stay"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
+			<context name="Raw Triple Q-B-String" attribute="Raw B-String" lineEndContext="#stay" noIndentationBasedFolding="true">
+				<RegExpr attribute="Raw B-String" String="([\x20\x21\x23-\x5B\x5D-\x7E]++|\\.?|&quot;(?!&quot;&quot;))++"/>
+				<StringDetect attribute="Raw B-String" String="&quot;&quot;&quot;" context="#pop!#CheckForString" endRegion="Triple Q-region"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
 
 			<!-- Single-quoted A-strings -->
-			<context name="Single A-string" attribute="String" lineEndContext="#stay">
+			<context name="Single A-string" attribute="String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="String"/>
+				<DetectIdentifier attribute="String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringformat"/>
 				<DetectChar attribute="String" char="'" context="#pop!#CheckForString"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
-			<context name="Raw A-string" attribute="Raw String" lineEndContext="#stay">
-				<HlCStringChar attribute="Raw String" context="#stay"/>
+			<context name="Raw A-string" attribute="Raw String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="Raw String"/>
+				<DetectIdentifier attribute="Raw String"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="'"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="\"/>
 				<IncludeRules context="stringformat"/>
 				<DetectChar attribute="Raw String" char="'" context="#pop!#CheckForString"/>
+				<LineContinue attribute="Raw String" context="#stay"/>
 			</context>
 
-			<context name="Single A-F-String" attribute="F-String" lineEndContext="#stay">
+			<context name="Single A-F-String" attribute="F-String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="F-String"/>
+				<DetectIdentifier attribute="F-String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringinterpolation"/>
 				<DetectChar attribute="F-String" char="'" context="#pop!#CheckForString"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
-			<context name="Raw A-F-String" attribute="Raw F-String" lineEndContext="#stay">
-				<HlCStringChar attribute="Raw F-String" context="#stay"/>
+			<context name="Raw A-F-String" attribute="Raw F-String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="Raw F-String"/>
+				<DetectIdentifier attribute="Raw F-String"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="'"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="\"/>
 				<IncludeRules context="stringinterpolation"/>
 				<DetectChar attribute="Raw F-String" char="'" context="#pop!#CheckForString"/>
+				<LineContinue attribute="Raw F-String" context="#stay"/>
+			</context>
+
+			<context name="Single A-B-String" attribute="B-String" lineEndContext="#pop!UnfinishedStringError">
+				<RegExpr attribute="B-String" String="([\x20-\x26\x28-\x5B\x5D-\x7E]++|\\(?=[^\\'&quot;abfnrtvx0-7])|\\x(?![0-9a-fA-F]{2}))++"/>
+				<IncludeRules context="bytesescape"/>
+				<DetectChar attribute="B-String" char="'" context="#pop!#CheckForString"/>
+				<LineContinue attribute="String Char" context="#stay"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
+			<context name="Raw A-B-String" attribute="Raw B-String" lineEndContext="#pop!UnfinishedStringError">
+				<RegExpr attribute="Raw B-String" String="([\x20-\x26\x28-\x5B\x5D-\x7E]++|\\.)++"/>
+				<DetectChar attribute="Raw B-String" char="'" context="#pop!#CheckForString"/>
+				<LineContinue attribute="Raw B-String" context="#stay"/>
+				<RegExpr attribute="Error" String="."/>
 			</context>
 
 			<!-- Single-quoted Q-strings -->
-			<context name="Single Q-string" attribute="String" lineEndContext="#stay">
+			<context name="Single Q-string" attribute="String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="String"/>
+				<DetectIdentifier attribute="String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringformat"/>
 				<DetectChar attribute="String" char="&quot;" context="#pop!#CheckForString"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
-			<context name="Raw Q-string" attribute="Raw String" lineEndContext="#stay">
-				<HlCStringChar attribute="Raw String" context="#stay"/>
+			<context name="Raw Q-string" attribute="Raw String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="Raw String"/>
+				<DetectIdentifier attribute="Raw String"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="&quot;"/>
+				<Detect2Chars attribute="Raw String" char="\" char1="\"/>
 				<IncludeRules context="stringformat"/>
 				<DetectChar attribute="Raw String" char="&quot;" context="#pop!#CheckForString"/>
+				<LineContinue attribute="Raw String" context="#stay"/>
 			</context>
 
-			<context name="Single Q-F-String" attribute="F-String" lineEndContext="#stay">
+			<context name="Single Q-F-String" attribute="F-String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="F-String"/>
+				<DetectIdentifier attribute="F-String"/>
 				<IncludeRules context="stringescape"/>
 				<IncludeRules context="stringinterpolation"/>
 				<DetectChar attribute="F-String" char="&quot;" context="#pop!#CheckForString"/>
+				<LineContinue attribute="String Char" context="#stay"/>
 			</context>
 
-			<context name="Raw Q-F-String" attribute="Raw F-String" lineEndContext="#stay">
-				<HlCStringChar attribute="Raw F-String" context="#stay"/>
+			<context name="Raw Q-F-String" attribute="Raw F-String" lineEndContext="#pop!UnfinishedStringError">
+				<DetectSpaces attribute="Raw F-String"/>
+				<DetectIdentifier attribute="Raw F-String"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="&quot;"/>
+				<Detect2Chars attribute="Raw F-String" char="\" char1="\"/>
 				<IncludeRules context="stringinterpolation"/>
 				<DetectChar attribute="Raw F-String" char="&quot;" context="#pop!#CheckForString"/>
+				<LineContinue attribute="Raw F-String" context="#stay"/>
 			</context>
+
+			<context name="Single Q-B-String" attribute="B-String" lineEndContext="#pop!UnfinishedStringError">
+				<RegExpr attribute="B-String" String="([\x20\x21\x23-\x5B\x5D-\x7E]++|\\(?=[^\\'&quot;abfnrtvx0-7])|\\x(?![0-9a-fA-F]{2}))++"/>
+				<IncludeRules context="bytesescape"/>
+				<DetectChar attribute="B-String" char="&quot;" context="#pop!#CheckForString"/>
+				<LineContinue attribute="String Char" context="#stay"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
+			<context name="Raw Q-B-String" attribute="Raw B-String" lineEndContext="#pop!UnfinishedStringError">
+				<RegExpr attribute="Raw B-String" String="([\x20\x21\x23-\x5B\x5D-\x7E]++|\\.)++"/>
+				<DetectChar attribute="Raw B-String" char="&quot;" context="#pop!#CheckForString"/>
+				<Detect2Chars attribute="Raw B-String" char="\" char1="\"/>
+				<LineContinue attribute="Raw B-String" context="#stay"/>
+				<RegExpr attribute="Error" String="."/>
+			</context>
+
 		</contexts>
 
 		<itemDatas>
@@ -668,6 +871,8 @@
 			<itemData name="Raw String" defStyleNum="dsVerbatimString"/>
 			<itemData name="F-String" defStyleNum="dsSpecialString"/>
 			<itemData name="Raw F-String" defStyleNum="dsVerbatimString"/>
+			<itemData name="B-String" defStyleNum="dsString" spellChecking="false"/>
+			<itemData name="Raw B-String" defStyleNum="dsVerbatimString" spellChecking="false"/>
 			<itemData name="String Char" defStyleNum="dsChar" spellChecking="false"/>
 			<itemData name="String Substitution" defStyleNum="dsSpecialChar" spellChecking="false"/>
 			<itemData name="Decorator" defStyleNum="dsAttribute" spellChecking="false"/>

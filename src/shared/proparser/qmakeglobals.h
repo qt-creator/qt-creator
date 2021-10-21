@@ -27,6 +27,7 @@
 
 #include "qmake_global.h"
 #include "proitems.h"
+#include <utils/porting.h>
 
 #ifdef QT_BUILD_QMAKE
 #  include <property.h>
@@ -58,7 +59,7 @@ public:
     bool hostBuild;
 };
 
-uint qHash(const QMakeBaseKey &key);
+Utils::QHashValueType qHash(const QMakeBaseKey &key);
 bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two);
 
 class QMakeBaseEnv

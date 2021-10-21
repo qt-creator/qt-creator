@@ -1329,7 +1329,7 @@ bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
     QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder.exportedTypes();
     QHash<QString, QString> contextProperties = finder.contextProperties();
     if (exported.isEmpty() && contextProperties.isEmpty()) {
-        hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
+        hasNewInfo = hasNewInfo || newData.remove(fileName);
     } else {
         ModelManagerInterface::CppData &data = newData[fileName];
         if (!hasNewInfo && (data.exportedTypes.size() != exported.size()
@@ -1382,7 +1382,7 @@ void ModelManagerInterface::updateCppQmlTypes(
         const bool scan = pair.second;
         const QString fileName = doc->fileName();
         if (!scan) {
-            hasNewInfo = newData.remove(fileName) > 0 || hasNewInfo;
+            hasNewInfo = newData.remove(fileName) || hasNewInfo;
             const auto savedDocs = newDeclarations.value(fileName);
             for (const CPlusPlus::Document::Ptr &savedDoc : savedDocs) {
                 finder(savedDoc);

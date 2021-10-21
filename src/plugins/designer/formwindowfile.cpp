@@ -247,6 +247,11 @@ QString FormWindowFile::fallbackSaveAsFileName() const
     return m_suggestedName;
 }
 
+bool FormWindowFile::supportsCodec(const QTextCodec *codec) const
+{
+    return codec == QTextCodec::codecForName("UTF-8");
+}
+
 bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorString) const
 {
     if (Designer::Constants::Internal::debug)

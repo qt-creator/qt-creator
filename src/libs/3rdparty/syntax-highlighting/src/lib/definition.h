@@ -13,6 +13,7 @@
 #include <QPair>
 #include <QVector>
 #include <memory>
+#include <qobjectdefs.h>
 
 QT_BEGIN_NAMESPACE
 class QChar;
@@ -74,7 +75,7 @@ enum class CommentPosition {
  * singleLineCommentMarker() and multiLineCommentMarker() provide comment
  * markers that can be used for commenting/uncommenting code. Similarly,
  * formats() returns a list of Format items defined by this Definition (which
- * equal the itemDatas of a highlighing definition file). includedDefinitions()
+ * equal the itemDatas of a highlighting definition file). includedDefinitions()
  * returns a list of all included Definition%s referenced by this Definition via
  * the rule IncludeRules, which is useful for displaying all Format items for
  * color configuration in the user interface.
@@ -84,6 +85,13 @@ enum class CommentPosition {
  */
 class KSYNTAXHIGHLIGHTING_EXPORT Definition
 {
+    Q_GADGET
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QString translatedName READ translatedName)
+    Q_PROPERTY(QString section READ section)
+    Q_PROPERTY(QString translatedSection READ translatedSection)
+    Q_PROPERTY(QString author READ author)
+    Q_PROPERTY(QString license READ license)
 public:
     /**
      * Default constructor, creating an empty (invalid) Definition instance.
@@ -92,6 +100,14 @@ public:
      * Use the Repository instead to obtain valid instances.
      */
     Definition();
+
+    /**
+     * Move constructor.
+     * This definition takes the Definition data from @p other.
+     * @note @p other may only be assigned to or destroyed afterwards.
+     * @since 5.86
+     */
+    Definition(Definition &&other) noexcept;
 
     /**
      * Copy constructor.
@@ -105,7 +121,15 @@ public:
     ~Definition();
 
     /**
-     * Assignment operator.
+     * Move assignment operator.
+     * This definition takes the Definition data from @p other.
+     * @note @p other may only be assigned to or destroyed afterwards.
+     * @since 5.86
+     */
+    Definition &operator=(Definition &&other) noexcept;
+
+    /**
+     * Copy assignment operator.
      * Both this definition as well as @p rhs share the Definition data.
      */
     Definition &operator=(const Definition &rhs);

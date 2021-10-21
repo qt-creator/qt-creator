@@ -234,6 +234,25 @@ bool isInPathList(const QStringList &pathList, const QString &componentPath)
     });
 }
 
+bool canBeCreatedAsPrimitive(const QStringList &pathList,
+                             const InstanceContainer &instanceContainer,
+                             QQmlContext *context,
+                             QObject *&object)
+{
+    if (isInPathList(pathList, instanceContainer.componentPath())) {
+        object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(
+                                                                   instanceContainer.type()),
+                                                               instanceContainer.majorNumber(),
+                                                               instanceContainer.minorNumber(),
+                                                               context);
+
+        if (object)
+            return true;
+
+    }
+    return false;
+}
+
 ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceServer,
                                               const InstanceContainer &instanceContainer,
                                               ComponentWrap componentWrap)
@@ -249,8 +268,8 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         if (object == nullptr)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Custom parser object could not be created."), instanceContainer.instanceId());
     } else if (!instanceContainer.componentPath().isEmpty()
-               && !isInPathList(nodeInstanceServer->engine()->importPathList(),
-                                instanceContainer.componentPath())) {
+               && !canBeCreatedAsPrimitive(nodeInstanceServer->engine()->importPathList(),
+                                instanceContainer, nodeInstanceServer->context(), object)) {
         object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
         if (object == nullptr) {
             object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
@@ -260,7 +279,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
                 nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, message + errors, instanceContainer.instanceId());
             }
         }
-    } else {
+    } else if (!object) {
         object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
         if (object == nullptr)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Item could not be created."), instanceContainer.instanceId());
@@ -498,7 +517,7 @@ QDebug operator <<(QDebug debug, const ServerNodeInstance &instance)
     return debug.space();
 }
 
-uint qHash(const ServerNodeInstance &instance)
+ServerNodeInstance::QHashValueType qHash(const ServerNodeInstance &instance)
 {
     return ::qHash(instance.instanceId());
 }

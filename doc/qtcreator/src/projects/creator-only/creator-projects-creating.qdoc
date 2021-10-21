@@ -89,7 +89,7 @@
     files, as defined by the wizard.
 
     For example, if you choose to create a Qt Quick application, \QC generates a
-    QML file that you can modify in the Design mode.
+    QML file that you can modify in the \uicontrol Edit mode.
 
     \section1 Selecting Project Type
 
@@ -108,7 +108,7 @@
                 you can deploy, run, and debug on MCU boards. For more
                 information, see \l {Connecting MCUs}.
         \row
-            \li {1,2} Application (Qt)
+            \li {1,3} Application (Qt)
             \li Qt Widgets Application
             \li Uses \QD forms to design a Qt widget based user interface for
                 the desktop and C++ to implement the application logic.
@@ -116,23 +116,10 @@
             \li Qt Console Application
             \li Uses a single main.cpp file.
         \row
-            \li {1,4} Application (Qt Quick)
-            \li Qt Quick Application - Empty
+            \li Qt Quick Application
             \li Creates a Qt Quick 2 application project that can contain both
                 QML and C++ code. You can build the application and deploy it
                 to desktop, embedded, and mobile target platforms.
-        \row
-            \li Qt Quick Application - Scroll
-            \li Uses the \l{ScrollView} component to implement a scrollable
-                list view (requires Qt 5.9 or later).
-        \row
-            \li Qt Quick Application - Stack
-            \li Uses the \l{StackView} component to implement a set of pages
-                with a stack-based navigation model (requires Qt 5.7 or later).
-        \row
-           \li Qt Quick Application - Swipe
-           \li Uses the \l{SwipeView} component to implement a set of pages
-                with a swipe-based navigation model (requires Qt 5.7 or later).
         \row
             \li {1,4} Application (Qt for Python)
             \li Qt for Python - Empty

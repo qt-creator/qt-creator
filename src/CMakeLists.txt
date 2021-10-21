@@ -51,8 +51,9 @@ endif()
 
 include(CMakeFindDependencyMacro)
 find_dependency(Qt5 ${IDE_QT_VERSION_MIN}
-  COMPONENTS Concurrent Core Gui Widgets Core5Compat Network PrintSupport Qml Quick QuickWidgets Sql REQUIRED
+  COMPONENTS Concurrent Core Gui Widgets Core5Compat Network PrintSupport Qml Sql REQUIRED
 )
+find_dependency(Qt5 COMPONENTS Quick QuickWidgets QUIET)
 
 if (NOT IDE_VERSION)
   include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorIDEBranding.cmake)

@@ -387,17 +387,6 @@ jobs:
             message(FATAL_ERROR "Failed to install dependencies")
           endif()
         endif()
-        find_package(Python3 REQUIRED COMPONENTS Interpreter)
-        # hack to replace 32-bit python found by this script with 64-bit one
-        # required for linking qtcreatorcdbext
-        string(REPLACE "x86" "x64" Python3_EXECUTABLE "${Python3_EXECUTABLE}")
-        execute_process(
-          COMMAND ${Python3_EXECUTABLE} -m pip install --user beautifulsoup4 lxml
-          RESULT_VARIABLE result
-        )
-        if (NOT result EQUAL 0)
-          message(FATAL_ERROR "Failed to install python dependencies")
-        endif()
 
     - name: Build
       shell: cmake -P {0}
@@ -480,6 +469,7 @@ jobs:
             --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
             --zip-infix=-${{ matrix.config.artifact }}-${{ github.run_id }}
+            --no-qbs
           RESULT_VARIABLE result
           COMMAND_ECHO STDOUT
           OUTPUT_VARIABLE output

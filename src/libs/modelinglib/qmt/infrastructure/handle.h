@@ -74,7 +74,7 @@ private:
 };
 
 template<class T>
-inline int qHash(const Handle<T> &handle)
+inline auto qHash(const Handle<T> &handle)
 {
     return qHash(handle.uid());
 }

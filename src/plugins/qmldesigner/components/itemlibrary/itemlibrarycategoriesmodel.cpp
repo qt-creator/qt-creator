@@ -147,20 +147,19 @@ void ItemLibraryCategoriesModel::resetModel()
 bool ItemLibraryCategoriesModel::isAllCategoriesHidden() const
 {
     for (const auto &category : std::as_const(m_categoryList)) {
-        // ignore "All Other Components" as its categoryVisible is always true
-        if (category->isCategoryVisible() && category->categoryName() != "All Other Components")
+        if (category->isCategoryVisible())
             return false;
     }
 
     return true;
 }
 
-void ItemLibraryCategoriesModel::showAllCategories(bool show)
+void ItemLibraryCategoriesModel::showAllCategories()
 {
     for (const auto &category : std::as_const(m_categoryList)) {
-        if (category->isCategoryVisible() != show) {
-            category->setCategoryVisible(show);
-            ItemLibraryModel::saveCategoryVisibleState(show, category->categoryName(),
+        if (!category->isCategoryVisible()) {
+            category->setCategoryVisible(true);
+            ItemLibraryModel::saveCategoryVisibleState(true, category->categoryName(),
                                                        category->ownerImport()->importName());
         }
     }
@@ -168,37 +167,56 @@ void ItemLibraryCategoriesModel::showAllCategories(bool show)
     emit dataChanged(index(0), index(m_categoryList.size() - 1), {m_roleNames.key("categoryVisible")});
 }
 
-QObject *ItemLibraryCategoriesModel::selectFirstVisibleCategory()
+void ItemLibraryCategoriesModel::hideCategory(const QString &categoryName)
+{
+    for (int i = 0; i < m_categoryList.size(); ++i) {
+        const auto category = m_categoryList.at(i);
+        if (category->categoryName() == categoryName) {
+            category->setCategoryVisible(false);
+            ItemLibraryModel::saveCategoryVisibleState(false, category->categoryName(),
+                                                       category->ownerImport()->importName());
+            emit dataChanged(index(i), index(i), {m_roleNames.key("categoryVisible")});
+            break;
+        }
+    }
+}
+
+int ItemLibraryCategoriesModel::selectFirstVisibleCategory()
 {
     for (int i = 0; i < m_categoryList.length(); ++i) {
         const auto category = m_categoryList.at(i);
 
         if (category->isCategoryVisible()) {
             category->setCategorySelected(true);
-            emit dataChanged(index(i),index(i), {m_roleNames.key("categorySelected")});
-            return category;
+            emit dataChanged(index(i), index(i), {m_roleNames.key("categorySelected")});
+            return i;
         }
     }
 
-    return nullptr;
+    return -1;
 }
 
-void ItemLibraryCategoriesModel::clearSelectedCategories()
+void ItemLibraryCategoriesModel::clearSelectedCategory(int categoryIndex)
 {
-    for (const auto &category : std::as_const(m_categoryList))
-        category->setCategorySelected(false);
+    if (categoryIndex == -1 || m_categoryList.isEmpty())
+        return;
 
-    emit dataChanged(index(0), index(m_categoryList.size() - 1), {m_roleNames.key("categorySelected")});
+    m_categoryList.at(categoryIndex)->setCategorySelected(false);
+    emit dataChanged(index(categoryIndex), index(categoryIndex), {m_roleNames.key("categorySelected")});
 }
 
-void ItemLibraryCategoriesModel::selectCategory(int categoryIndex)
+QPointer<ItemLibraryCategory> ItemLibraryCategoriesModel::selectCategory(int categoryIndex)
 {
-    const auto category = m_categoryList.at(categoryIndex);
+    if (categoryIndex == -1 || m_categoryList.isEmpty())
+        return nullptr;
+
+    const QPointer<ItemLibraryCategory> category = m_categoryList.at(categoryIndex);
     if (!category->categorySelected()) {
-        clearSelectedCategories();
         category->setCategorySelected(true);
         emit dataChanged(index(categoryIndex),index(categoryIndex), {m_roleNames.key("categorySelected")});
     }
+
+    return category;
 }
 
 void ItemLibraryCategoriesModel::addRoleNames()

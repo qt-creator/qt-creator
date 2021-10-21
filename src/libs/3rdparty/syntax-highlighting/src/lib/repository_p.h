@@ -29,7 +29,7 @@ public:
 
     void load(Repository *repo);
     void loadSyntaxFolder(Repository *repo, const QString &path);
-    bool loadSyntaxFolderFromIndex(Repository *repo, const QString &path);
+    void loadSyntaxFolderFromIndex(Repository *repo, const QString &path);
 
     void addDefinition(const Definition &def);
 

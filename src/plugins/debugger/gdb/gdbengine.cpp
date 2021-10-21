@@ -3800,8 +3800,11 @@ static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParamete
 {
     // Do not overwrite user settings.
     SourcePathMap rc = sp.sourcePathMap;
-    for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it)
-        rc.insert(it.key(), it.value());
+    for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it) {
+        // Entries that start with parenthesis are handled in CppDebuggerEngine::validateRunParameters
+        if (!it.key().startsWith('('))
+            rc.insert(it.key(), sp.macroExpander->expand(it.value()));
+    }
     return rc;
 }
 
@@ -3850,6 +3853,7 @@ void GdbEngine::setupEngine()
         gdbCommand.addArg("-n");
 
     Environment gdbEnv = rp.debugger.environment;
+    gdbEnv.setupEnglishOutput();
     if (rp.runAsRoot) {
         CommandLine wrapped("sudo", {"-A"});
         wrapped.addCommandLineAsArgs(gdbCommand);

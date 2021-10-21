@@ -1263,13 +1263,28 @@ static bool equalIsAlwaysFalse(const Value *lhs, const Value *rhs)
     return false;
 }
 
+static bool isIntegerValue(const Value *value)
+{
+    if (value->asNumberValue() || value->asIntValue())
+        return true;
+    if (auto obj = value->asObjectValue())
+        return obj->className() == "Number";
+
+    return false;
+}
+
 static bool strictCompareConstant(const Value *lhs, const Value *rhs)
 {
     if (lhs->asUnknownValue() || rhs->asUnknownValue())
         return false;
+    if (lhs->asFunctionValue() || rhs->asFunctionValue()) // function evaluation not implemented
+        return false;
+    if (isIntegerValue(lhs) && isIntegerValue(rhs))
+        return false;
     if (lhs->asBooleanValue() && !rhs->asBooleanValue())
         return true;
-    if (lhs->asNumberValue() && !rhs->asNumberValue())
+    // attached properties and working at runtime cases may be undefined at evaluation time
+    if (lhs->asNumberValue() && (!rhs->asNumberValue() && !rhs->asUndefinedValue()))
         return true;
     if (lhs->asStringValue() && !rhs->asStringValue())
         return true;

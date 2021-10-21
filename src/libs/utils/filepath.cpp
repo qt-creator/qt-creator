@@ -819,6 +819,24 @@ FilePath FilePath::symLinkTarget() const
     return FilePath::fromString(info.symLinkTarget());
 }
 
+FilePath FilePath::mapToGlobalPath() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.mapToGlobalPath, return {});
+        return s_deviceHooks.mapToGlobalPath(*this);
+    }
+    return *this;
+}
+
+QString FilePath::mapToDevicePath() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.mapToDevicePath, return {});
+        return s_deviceHooks.mapToDevicePath(*this);
+    }
+    return m_data;
+}
+
 FilePath FilePath::withExecutableSuffix() const
 {
     FilePath res = *this;
@@ -1280,7 +1298,7 @@ FilePath FilePath::stringAppended(const QString &str) const
     return fn;
 }
 
-uint FilePath::hash(uint seed) const
+QHashValueType FilePath::hash(uint seed) const
 {
     if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return qHash(m_data.toUpper(), seed);

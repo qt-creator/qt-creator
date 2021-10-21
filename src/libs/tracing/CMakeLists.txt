@@ -46,7 +46,7 @@ else() # < Qt 6.2
   find_package(Qt6 COMPONENTS ShaderTools QUIET)
 
   add_qtc_library(Tracing
-    CONDITION TARGET Qt6::ShaderTools
+    CONDITION TARGET Qt6::ShaderTools AND TARGET Qt5::Quick
     FEATURE_INFO
     DEPENDS Utils Qt5::Qml Qt5::Quick
     PUBLIC_DEPENDS Qt5::Widgets

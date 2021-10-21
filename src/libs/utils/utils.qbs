@@ -298,6 +298,8 @@ Project {
             "textfileformat.h",
             "textutils.cpp",
             "textutils.h",
+            "threadutils.cpp",
+            "threadutils.h",
             "treemodel.cpp",
             "treemodel.h",
             "treeviewcombobox.cpp",

@@ -133,7 +133,7 @@ template <class T>
 void readNumericVectorHelper(std::vector<double> *v, const QByteArray &ba)
 {
     const auto p = (const T*)ba.data();
-    const int n = ba.size() / sizeof(T);
+    const int n = int(ba.size() / sizeof(T));
     v->resize(n);
     // Losing precision in case of 64 bit ints is ok here, as the result
     // is only used to plot data.

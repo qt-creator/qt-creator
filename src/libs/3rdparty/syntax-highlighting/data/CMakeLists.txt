@@ -38,8 +38,11 @@ generate_syntax_definition(generate-doxygenlua.pl doxygenlua.xml doxygen.xml)
 file(GLOB src_defs "${CMAKE_CURRENT_SOURCE_DIR}/syntax/*.xml")
 set(defs ${src_defs} ${gen_defs})
 
+# object library to make cross-folder dependencies work
+add_library(SyntaxHighlightingData OBJECT)
+
 # theme data resource
-qt5_add_resources(themes_QRC ${CMAKE_CURRENT_SOURCE_DIR}/themes/theme-data.qrc)
+target_sources(SyntaxHighlightingData PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/themes/theme-data.qrc)
 
 # do we want syntax files bundled in the library?
 if (QRC_SYNTAX)
@@ -66,14 +69,10 @@ if (QRC_SYNTAX)
     )
     set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" PROPERTIES SKIP_AUTOMOC ON)
 
-    # object library to make cross-folder dependencies work, themes + syntax files
-    add_library(SyntaxHighlightingData OBJECT ${themes_QRC} ${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp)
+    target_sources(SyntaxHighlightingData PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp)
 else()
     # install the syntax files as normal files into the prefix
     install (FILES ${defs} DESTINATION ${KDE_INSTALL_DATADIR}/org.kde.syntax-highlighting/syntax)
-
-    # object library to make cross-folder dependencies work, only themes
-    add_library(SyntaxHighlightingData OBJECT ${themes_QRC})
 endif()
 
 # set PIC to allow use in static and shared libs

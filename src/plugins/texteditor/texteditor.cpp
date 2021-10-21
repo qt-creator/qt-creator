@@ -1966,7 +1966,7 @@ void TextEditorWidget::indent()
 
 void TextEditorWidget::unindent()
 {
-    setMultiTextCursor(textDocument()->indent(multiTextCursor()));
+    setMultiTextCursor(textDocument()->unindent(multiTextCursor()));
 }
 
 void TextEditorWidget::undo()
@@ -8255,7 +8255,7 @@ IEditor *BaseTextEditor::duplicate()
 
 QT_BEGIN_NAMESPACE
 
-uint qHash(const QColor &color)
+Utils::QHashValueType qHash(const QColor &color)
 {
     return color.rgba();
 }

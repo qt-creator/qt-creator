@@ -98,12 +98,10 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     auto proxyModel = new PackageFilterModel(m_sdkModel);
     m_ui->packagesView->setModel(proxyModel);
+    m_ui->packagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageNameColumn,
-                                                       QHeaderView::ResizeToContents);
-    m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::apiLevelColumn,
-                                                       QHeaderView::ResizeToContents);
-    m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageRevisionColumn,
-                                                       QHeaderView::ResizeToContents);
+                                                       QHeaderView::Stretch);
+    m_ui->packagesView->header()->setStretchLastSection(false);
     connect(m_ui->expandCheck, &QCheckBox::stateChanged, [this](int state) {
        if (state == Qt::Checked)
            m_ui->packagesView->expandAll();
@@ -133,7 +131,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     m_ui->searchField->setPlaceholderText("Filter");
     connect(m_ui->searchField, &QLineEdit::textChanged, [this, proxyModel](const QString &text) {
-        const bool isExpanded = m_ui->expandCheck->isChecked();
         proxyModel->setAcceptedSearchPackage(text);
         m_sdkModel->resetSelection();
         // It is more convenient to expand the view with the results
@@ -513,7 +510,7 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
         }
     }
 
-    return showTopLevel || (packageState(srcIndex) & m_packageState) && packageFound(srcIndex);
+    return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
 }
 
 OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,

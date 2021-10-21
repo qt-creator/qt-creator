@@ -29,8 +29,9 @@ Context *ContextSwitch::context() const
 
 void ContextSwitch::parse(QStringView contextInstr)
 {
-    if (contextInstr.isEmpty() || contextInstr == QLatin1String("#stay"))
+    if (contextInstr.isEmpty() || contextInstr == QLatin1String("#stay")) {
         return;
+    }
 
     if (contextInstr.startsWith(QLatin1String("#pop!"))) {
         ++m_popCount;
@@ -60,13 +61,15 @@ void ContextSwitch::resolve(const Definition &def)
         d = DefinitionData::get(def)->repo->definitionForName(m_defName);
         auto data = DefinitionData::get(d);
         data->load();
-        if (m_contextName.isEmpty())
+        if (m_contextName.isEmpty()) {
             m_context = data->initialContext();
+        }
     }
 
     if (!m_contextName.isEmpty()) {
         m_context = DefinitionData::get(d)->contextByName(m_contextName);
-        if (!m_context)
+        if (!m_context) {
             qCWarning(Log) << "cannot find context" << m_contextName << "in" << def.name();
+        }
     }
 }

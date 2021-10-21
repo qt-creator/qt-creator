@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2020 Volker Krause <vkrause@kde.org>
+# SPDX-License-Identifier: CC0-1.0
+
+include:
+  - https://invent.kde.org/sysadmin/ci-utilities/raw/master/gitlab-templates/linux.yml

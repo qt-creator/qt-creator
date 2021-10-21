@@ -99,6 +99,24 @@ bool set_intersection_compare(
     return false;
 }
 
+template<class InputIt1, class InputIt2, class Callable, class Compare>
+void set_greedy_difference(
+    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable call, Compare comp)
+{
+    while (first1 != last1 && first2 != last2) {
+        if (comp(*first1, *first2)) {
+            call(*first1++);
+        } else if (comp(*first2, *first1)) {
+            ++first2;
+        } else {
+            ++first1;
+        }
+    }
+
+    while (first1 != last1)
+        call(*first1++);
+}
+
 template<typename InputIt1, typename InputIt2, typename BinaryPredicate, typename Callable, typename Value>
 Value mismatch_collect(InputIt1 first1,
                        InputIt1 last1,

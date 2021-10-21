@@ -114,10 +114,10 @@ QTextCursor SnippetOverlay::nextSelectionCursor(const QTextCursor &cursor) const
     const SnippetSelection &currentSelection = selectionForCursor(cursor);
     if (currentSelection.variableIndex >= 0) {
         int nextVariableIndex = currentSelection.variableIndex + 1;
-        if (nextVariableIndex >= m_variables.size()) {
+        if (!m_variables.contains(nextVariableIndex)) {
             if (m_finalSelectionIndex >= 0)
                 return cursorForIndex(m_finalSelectionIndex);
-            nextVariableIndex = 0;
+            nextVariableIndex = m_variables.firstKey();
         }
 
         for (int selectionIndex : m_variables[nextVariableIndex]) {
@@ -142,8 +142,8 @@ QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) c
     const SnippetSelection &currentSelection = selectionForCursor(cursor);
     if (currentSelection.variableIndex >= 0) {
         int previousVariableIndex = currentSelection.variableIndex - 1;
-        if (previousVariableIndex < 0)
-            previousVariableIndex = m_variables.size() - 1;
+        if (!m_variables.contains(previousVariableIndex))
+            previousVariableIndex = m_variables.lastKey();
 
         const QList<int> &equivalents = m_variables[previousVariableIndex];
         for (int i = equivalents.size() - 1; i >= 0; --i) {

@@ -28,6 +28,7 @@
 #include <qmldesignercorelib_global.h>
 #include "actioninterface.h"
 #include "modelnode.h"
+#include "modelnodeoperations.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <utils/styledbar.h>
@@ -45,7 +46,7 @@ namespace QmlDesigner {
 
 class DesignerActionManagerView;
 
-using AddResourceOperation = std::function<bool (const QStringList &, const QString &)>;
+using AddResourceOperation = std::function<AddFilesResult (const QStringList &, const QString &)>;
 using ModelNodePreviewImageOperation = std::function<QVariant (const ModelNode &)>;
 
 struct AddResourceHandler

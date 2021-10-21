@@ -958,18 +958,19 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
     // Adapt entries combo to new position
     // if the cursor goes across a file line.
     const int newCursorLine = textCursor().blockNumber();
-    if (newCursorLine == d->m_cursorLine)
-        return;
-    // Which section does it belong to?
-    d->m_cursorLine = newCursorLine;
-    const int section = sectionOfLine(d->m_cursorLine, d->m_entrySections);
-    if (section != -1) {
-        QComboBox *entriesComboBox = d->entriesComboBox();
-        if (entriesComboBox->currentIndex() != section) {
-            QSignalBlocker blocker(entriesComboBox);
-            entriesComboBox->setCurrentIndex(section);
+    if (newCursorLine != d->m_cursorLine) {
+        // Which section does it belong to?
+        d->m_cursorLine = newCursorLine;
+        const int section = sectionOfLine(d->m_cursorLine, d->m_entrySections);
+        if (section != -1) {
+            QComboBox *entriesComboBox = d->entriesComboBox();
+            if (entriesComboBox->currentIndex() != section) {
+                QSignalBlocker blocker(entriesComboBox);
+                entriesComboBox->setCurrentIndex(section);
+            }
         }
     }
+    TextEditorWidget::slotCursorPositionChanged();
 }
 
 void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -983,8 +984,10 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             handler->fillContextMenu(menu, d->m_parameters->type);
         }
     }
-    if (!menu)
-        menu = createStandardContextMenu();
+    if (!menu) {
+        menu = new QMenu;
+        appendStandardContextMenuActions(menu);
+    }
     switch (d->m_parameters->type) {
     case LogOutput: // log might have diff
     case DiffOutput: {

@@ -292,11 +292,6 @@
     \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
     To only show icons on the mode selector, select the \uicontrol {Icons Only}
     style.
-
-    The following image displays an example application in \uicontrol Edit mode (1)
-    and \uicontrol Design mode (2).
-
-    \image qtcreator-qt-quick-editors.png "Edit mode and Design mode"
     \endif
 
     You can use \QC in the following modes:

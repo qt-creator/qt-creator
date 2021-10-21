@@ -1007,6 +1007,8 @@ Project {
         files: [
             "generateresource.cpp",
             "generateresource.h",
+            "generatecmakelists.cpp",
+            "generatecmakelists.h",
             "designersettings.cpp",
             "designersettings.h",
             "designmodecontext.cpp",

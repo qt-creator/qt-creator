@@ -56,7 +56,7 @@ public:
     bool isGenerated = false;
 };
 
-inline uint qHash(const CMakeFileInfo &info, uint seed = 0) { return info.path.hash(seed); }
+inline auto qHash(const CMakeFileInfo &info, uint seed = 0) { return info.path.hash(seed); }
 
 class FileApiQtcData
 {

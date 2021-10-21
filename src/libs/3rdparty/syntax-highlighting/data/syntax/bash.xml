@@ -5,7 +5,7 @@
         <!ENTITY funcname "([^&_fragpathseps;}=#$]|[+!@](?!\())([^&_fragpathseps;}=$]*+([+!@](?!\())?+)*+">
         <!ENTITY varname  "[A-Za-z_][A-Za-z0-9_]*">
         <!ENTITY eos      "(?=$|[ &tab;])">                 <!-- eol or space following -->
-        <!ENTITY eoexpr   "(?=$|[ &tab;&lt;>|&amp;;])">
+        <!ENTITY eoexpr   "(?=$|[ &tab;&lt;>|&amp;;)])">
 
         <!ENTITY substseps  "${'&quot;`\\">
         <!ENTITY symbolseps "&lt;>|&amp;;()"> <!-- see man bash -->
@@ -18,6 +18,13 @@
         <!ENTITY opt        "(?:[^&_fragpathseps;=/]*+&_fragpathnosep;)*+">
         <!ENTITY pathpart   "(?:~|\.\.?|&fragpath;)(?:/&path;|(?=[*?]|[+!@]\(|&fragpath;(?:[/*?]|[+!@]\()))|(?:~|\.\.?)(?=[&wordseps;]|$)">
 
+        <!ENTITY _fragpathseps_alt  "*?+!@&substseps;}">
+        <!ENTITY _fragpathnosep_alt "(?:[+!@](?!\()|\\.)?+">
+        <!ENTITY path_alt       "(?:[^&_fragpathseps_alt;]*+&_fragpathnosep_alt;)*+">
+        <!ENTITY fragpath_alt   "(?:[^&_fragpathseps_alt;/]*+&_fragpathnosep_alt;)*+">
+        <!ENTITY opt_alt        "(?:[^&_fragpathseps_alt;=/]*+&_fragpathnosep_alt;)*+">
+        <!ENTITY pathpart_alt   "(?:~|\.\.?|&fragpath_alt;)(?:/&path_alt;|(?=[*?]|[+!@]\(|&fragpath_alt;(?:[/*?]|[+!@]\()))|(?:~|\.\.?)(?=\}|$)">
+
         <!ENTITY _braceexpansion_spe     " &tab;&lt;>|&amp;;{}\\`'&quot;$">
         <!ENTITY _brace_noexpansion       "\{[^&_braceexpansion_spe;,]*+\}">
         <!ENTITY _braceexpansion_var     "\$(?:\{[^\[\]&_braceexpansion_spe;]*+(?:\[[*@a-zA-Z0-9]\])\})?">
@@ -28,9 +35,11 @@
         <!ENTITY braceexpansion "{&_braceexpansion;">
 
         <!ENTITY heredocq "(?|&quot;([^&quot;]+)&quot;|'([^']+)'|\\(.[^&wordseps;&substseps;]*))">
+
+        <!ENTITY arithmetic_as_subshell "\(((?:[^`'&quot;()$]++|\$\{[^`'&quot;(){}$]+\}|\$(?=[^{`'&quot;()])|`[^`]*+`|\((?1)(?:[)]|(?=['&quot;])))++)(?:[)](?=$|[^)])|[&quot;'])">
 ]>
 
-<language name="Bash" version="27" kateversion="5.79" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="30" kateversion="5.79" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -40,6 +49,7 @@
 
   <highlighting>
     <list name="keywords">
+      <item>break</item>
       <item>case</item>
       <item>continue</item>
       <item>do</item>
@@ -66,7 +76,6 @@
       <item>alias</item>
       <item>bg</item>
       <item>bind</item>
-      <item>break</item>
       <item>builtin</item>
       <item>cd</item>
       <item>caller</item>
@@ -458,7 +467,7 @@
         <DetectSpaces attribute="Normal Text" context="#stay"/>
         <DetectChar attribute="Comment" context="Comment" char="#"/>
         <!-- start expression in double parentheses -->
-        <Detect2Chars attribute="Keyword" context="ExprDblParen" char="(" char1="(" beginRegion="expression"/>
+        <Detect2Chars context="ExprDblParenOrSubShell" char="(" char1="(" lookAhead="1"/>
         <!-- start a subshell -->
         <DetectChar attribute="Keyword" context="SubShell" char="(" beginRegion="subshell"/>
         <!-- start expression in single/double brackets -->
@@ -554,8 +563,8 @@
       </context>
       <context attribute="Command" lineEndContext="#pop#pop" name="DispatchSubstVariables">
         <Detect2Chars attribute="Parameter Expansion" context="#pop!VarBraceStart" char="$" char1="{"/>
-        <StringDetect attribute="Parameter Expansion" context="#pop!ExprDblParenSubst" String="$((" beginRegion="expression"/>
-        <Detect2Chars attribute="Parameter Expansion" context="#pop!SubstCommand" char="$" char1="("/>
+        <StringDetect context="#pop!ExprDblParenSubstOrSubstCommand" String="$((" lookAhead="1"/>
+        <Detect2Chars attribute="Parameter Expansion" context="#pop!SubstCommand" char="$" char1="(" beginRegion="subshell"/>
       </context>
       <context attribute="Command" lineEndContext="#pop#pop" name="DispatchStringVariables">
         <Detect2Chars attribute="String SingleQ" context="#pop!StringEsc" char="$" char1="'"/>
@@ -695,33 +704,77 @@
       </context>
       <context attribute="Path" lineEndContext="#stay" name="ExtGlobAndPop">
         <DetectChar attribute="Glob" context="#pop!PathThenPop" char=")"/>
+        <IncludeRules context="FindWord"/>
         <IncludeRules context="IncExtGlob"/>
       </context>
-      <context attribute="Path" lineEndContext="#stay" name="RecursiveExtGlob">
-        <DetectChar attribute="Glob" context="#pop" char=")"/>
-        <IncludeRules context="IncExtGlob"/>
-      </context>
-      <context attribute="Path" lineEndContext="#stay" name="IncExtGlob">
+      <context attribute="Path" lineEndContext="#stay" name="FindExtGlob">
         <Detect2Chars attribute="Glob" context="RecursiveExtGlob" char="?" char1="("/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlob" char="*" char1="("/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlob" char="+" char1="("/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlob" char="@" char1="("/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlob" char="!" char1="("/>
         <AnyChar attribute="Glob" context="#stay" String="|?*"/>
+      </context>
+      <context attribute="Path" lineEndContext="#stay" name="RecursiveExtGlob">
+        <DetectChar attribute="Glob" context="#pop" char=")"/>
         <IncludeRules context="FindWord"/>
+        <IncludeRules context="IncExtGlob"/>
+      </context>
+      <context attribute="Path" lineEndContext="#stay" name="IncExtGlob">
+        <IncludeRules context="FindExtGlob"/>
         <DetectChar context="PathMaybeBraceExpansion" char="{" lookAhead="1"/>
       </context>
       <context attribute="Path" lineEndContext="#pop#pop" name="PathThenPop">
         <AnyChar context="#pop#pop" String="&wordseps;`" lookAhead="1"/>
         <IncludeRules context="FindWord"/>
-        <IncludeRules context="FindExtGlobAndPop"/>
-        <AnyChar attribute="Glob" context="#stay" String="?*"/>
+        <IncludeRules context="FindExtGlob"/>
         <DetectChar context="PathMaybeBraceExpansion" char="{" lookAhead="1"/>
         <RegExpr attribute="Path" context="#stay" String="&path;"/>
       </context>
       <context attribute="Path" lineEndContext="#pop" name="PathMaybeBraceExpansion" fallthroughContext="#pop">
         <IncludeRules context="DispatchBraceExpansion"/>
         <DetectChar attribute="Path" context="#pop" char="{"/>
+      </context>
+
+      <!-- FindPathThenPopInAlternateValue consumes path in ${xx:here}-->
+      <context attribute="Normal Text" lineEndContext="#pop" name="FindPathThenPopInAlternateValue">
+        <IncludeRules context="FindExtGlobAndPopInAlternateValue"/>
+        <AnyChar attribute="Glob" context="PathThenPopInAlternateValue" String="?*"/>
+        <RegExpr attribute="Path" context="PathThenPopInAlternateValue" String="&pathpart_alt;"/>
+      </context>
+      <context attribute="Path" lineEndContext="#stay" name="FindExtGlobAndPopInAlternateValue">
+        <Detect2Chars attribute="Glob" context="ExtGlobAndPopInAlternateValue" char="?" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExtGlobAndPopInAlternateValue" char="*" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExtGlobAndPopInAlternateValue" char="+" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExtGlobAndPopInAlternateValue" char="@" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExtGlobAndPopInAlternateValue" char="!" char1="("/>
+      </context>
+      <context attribute="Path" lineEndContext="#stay" name="FindExtGlobInAlternateValue">
+        <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="?" char1="("/>
+        <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="*" char1="("/>
+        <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="+" char1="("/>
+        <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="@" char1="("/>
+        <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="!" char1="("/>
+        <AnyChar attribute="Glob" context="#stay" String="|?*"/>
+      </context>
+      <context attribute="Path" lineEndContext="#stay" name="RecursiveExtGlobInAlternateValue">
+        <DetectChar attribute="Glob" context="#pop" char=")"/>
+        <DetectChar context="#pop" char="}" lookAhead="1"/>
+        <IncludeRules context="FindWord"/>
+        <IncludeRules context="FindExtGlobInAlternateValue"/>
+      </context>
+      <context attribute="Path" lineEndContext="#stay" name="ExtGlobAndPopInAlternateValue">
+        <DetectChar attribute="Glob" context="#pop!PathThenPopInAlternateValue" char=")"/>
+        <DetectChar attribute="Error" context="#pop#pop" char="}"/>
+        <IncludeRules context="FindWord"/>
+        <IncludeRules context="FindExtGlobInAlternateValue"/>
+      </context>
+      <context attribute="Path" lineEndContext="#pop#pop" name="PathThenPopInAlternateValue">
+        <DetectChar attribute="Parameter Expansion" context="#pop#pop" char="}"/>
+        <IncludeRules context="FindWord"/>
+        <IncludeRules context="FindExtGlobAndPopInAlternateValue"/>
+        <AnyChar attribute="Glob" context="#stay" String="?*"/>
+        <RegExpr attribute="Path" context="#stay" String="&path_alt;"/>
       </context>
 
       <context attribute="Pattern" lineEndContext="#stay" name="FindPattern">
@@ -1038,7 +1091,7 @@
 
       <!-- SubstCommand is called after a $( is encountered -->
       <context attribute="Normal Text" lineEndContext="#stay" name="SubstCommand" fallthroughContext="Command">
-        <DetectChar attribute="Parameter Expansion" context="#pop" char=")"/>
+        <DetectChar attribute="Parameter Expansion" context="#pop" char=")" endRegion="subshell"/>
         <IncludeRules context="Start"/>
       </context>
 
@@ -1084,7 +1137,7 @@
         <Detect2Chars attribute="Parameter Expansion Operator" context="#pop!AlternatePatternValue" char="," char1=","/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarSub" char=":"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarSubst" char="/"/>
-        <AnyChar attribute="Parameter Expansion Operator" context="#pop!AlternateValue" String="%#"/>
+        <AnyChar attribute="Parameter Expansion Operator" context="#pop!AlternateValue" String="-+=?#%"/>
         <AnyChar attribute="Parameter Expansion Operator" context="#pop!AlternatePatternValue" String="^,"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!VarTransformation" char="@"/>
       </context>
@@ -1109,7 +1162,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="AlternateValue">
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
         <IncludeRules context="FindWord"/>
-        <IncludeRules context="FindPattern"/>
+        <IncludeRules context="FindPathThenPopInAlternateValue"/>
       </context>
 
       <!-- called as soon as ${xxx^ are ${xxx, are encoutered -->
@@ -1125,7 +1178,7 @@
       </context>
       <context attribute="Pattern" lineEndContext="#stay" name="VarSubstPat">
         <DetectChar attribute="Parameter Expansion Operator" context="#pop!AlternateValue" char="/"/>
-        <IncludeRules context="AlternateValue"/>
+        <IncludeRules context="AlternatePatternValue"/>
       </context>
 
       <!-- called as soon as ${xxx@ is encoutered -->
@@ -1164,19 +1217,26 @@
 
 <!-- ====== These are the contexts that can be branched to ======= -->
 
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblParenOrSubShell">
+        <RegExpr attribute="Keyword" context="#pop!SubShell" String="\((?=&arithmetic_as_subshell;)|" beginRegion="subshell"/>
+        <Detect2Chars attribute="Keyword" context="#pop!ExprDblParen" char="(" char1="(" beginRegion="expression"/>
+      </context>
       <!-- ExprDblParen consumes an expression started in command mode till )) -->
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblParen">
         <DetectSpaces attribute="Normal Text" context="#stay"/>
         <Detect2Chars attribute="Keyword" context="#pop" char=")" char1=")" endRegion="expression"/>
         <IncludeRules context="FindExprDblParen"/>
+        <!-- ((cmd
+              ) # jump to SubShell context -->
+        <DetectChar attribute="Keyword" context="#pop!SubShell" char=")" endRegion="expression" beginRegion="subshell"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="FindExprDblParen">
         <Detect2Chars attribute="Control" context="#stay" char="&amp;" char1="&amp;"/>
         <Detect2Chars attribute="Control" context="#stay" char="|" char1="|"/>
         <AnyChar attribute="Operator" context="#stay" String="+-!~*/%&lt;>=&amp;^|?:"/>
+        <AnyChar context="Number" String="0123456789" lookAhead="1"/>
         <DetectChar attribute="Control" context="#stay" char=","/>
         <DetectChar attribute="Normal Text" context="ExprSubDblParen" char="("/>
-        <AnyChar context="Number" String="0123456789" lookAhead="1"/>
         <DetectChar attribute="Parameter Expansion Operator" context="Subscript" char="["/>
         <IncludeRules context="FindWord"/>
         <DetectChar attribute="Error" context="#stay" char="#"/>
@@ -1184,8 +1244,9 @@
         <DetectIdentifier attribute="Variable" context="#stay"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprSubDblParen">
+        <DetectSpaces attribute="Normal Text" context="#stay"/>
         <DetectChar attribute="Normal Text" context="#pop" char=")"/>
-        <IncludeRules context="ExprDblParen"/>
+        <IncludeRules context="FindExprDblParen"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="MaybeArithmeticBrace">
         <IncludeRules context="DispatchBraceExpansion"/>
@@ -1216,11 +1277,18 @@
         <AnyChar attribute="Error" context="#stay" String="8901234567"/>
       </context>
 
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblParenSubstOrSubstCommand">
+        <RegExpr attribute="Parameter Expansion" context="#pop!SubstCommand" String="\$\((?=&arithmetic_as_subshell;)|" beginRegion="subshell"/>
+        <StringDetect attribute="Parameter Expansion" context="#pop!ExprDblParenSubst" String="$((" beginRegion="expression"/>
+      </context>
       <!-- ExprDblParenSubst like ExprDblParen but matches )) as Variable -->
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblParenSubst">
         <DetectSpaces attribute="Normal Text" context="#stay"/>
         <Detect2Chars attribute="Variable" context="#pop" char=")" char1=")" endRegion="expression"/>
         <IncludeRules context="FindExprDblParen"/>
+        <!-- $((cmd
+              ) # jump to SubstCommand context -->
+        <DetectChar attribute="Parameter Expansion" context="#pop!SubstCommand" char=")" endRegion="expression" beginRegion="subshell"/>
       </context>
 
       <!-- ExprBracket consumes an expression till ] -->
@@ -1305,7 +1373,7 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValue">
-        <Detect2Chars attribute="Keyword" context="ExprDblParen" char="(" char1="(" beginRegion="expression"/>
+        <Detect2Chars context="ExprDblBracketDblParentOrSubValue" char="(" char1="(" lookAhead="1"/>
         <DetectChar context="ExprDblBracketSubValue" char="(" lookAhead="1"/>
         <DetectChar attribute="Operator" context="#pop#pop" char=")"/>
         <Detect2Chars attribute="Control" context="#pop#pop!ExprDblBracket" char="&amp;" char1="&amp;"/>
@@ -1320,6 +1388,18 @@
       <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketSubValue" fallthroughContext="#pop">
         <DetectChar attribute="Operator" context="ExprDblBracketNot" char="("/>
         <Detect2Chars context="#pop#pop" char="]" char1="]" lookAhead="1"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketDblParentOrSubValue">
+        <RegExpr context="#pop!ExprDblBracketSubValue" String="\((?=&arithmetic_as_subshell;)|" lookAhead="1"/>
+        <Detect2Chars attribute="Keyword" context="#pop!ExprDblBracketExprDblParen" char="(" char1="(" beginRegion="expression"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketExprDblParen">
+        <DetectSpaces attribute="Normal Text" context="#stay"/>
+        <Detect2Chars attribute="Keyword" context="#pop" char=")" char1=")" endRegion="expression"/>
+        <IncludeRules context="FindExprDblParen"/>
+        <!-- ((cmd
+              ) # jump to ExprDblBracketValue context -->
+        <DetectChar attribute="Operator" context="ExprDblBracketValue" char=")" endRegion="expression" beginRegion="subshell"/>
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam2" fallthroughContext="ExprDblBracketValue">

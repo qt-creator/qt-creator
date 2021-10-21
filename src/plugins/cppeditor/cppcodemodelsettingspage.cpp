@@ -33,11 +33,14 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 
 #include <QFormLayout>
 #include <QSpinBox>
 #include <QTextStream>
+#include <QVersionNumber>
 
 namespace CppEditor::Internal {
 
@@ -197,6 +200,7 @@ public:
     QSpinBox threadLimitSpinBox;
     QSpinBox documentUpdateThreshold;
     Utils::PathChooser clangdChooser;
+    Utils::InfoLabel versionWarningLabel;
 };
 
 ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsData)
@@ -230,6 +234,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto formLayout = new QFormLayout;
     const auto chooserLabel = new QLabel(tr("Path to executable:"));
     formLayout->addRow(chooserLabel, &d->clangdChooser);
+    formLayout->addRow(QString(), &d->versionWarningLabel);
     const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
     formLayout->addRow(indexingLabel, &d->indexingCheckBox);
     const auto threadLimitLayout = new QHBoxLayout;
@@ -251,10 +256,57 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         indexingLabel->setEnabled(checked);
         d->indexingCheckBox.setEnabled(checked);
         d->threadLimitSpinBox.setEnabled(checked);
+        d->versionWarningLabel.setEnabled(checked);
     };
     connect(&d->useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
     toggleEnabled(d->useClangdCheckBox.isChecked());
     d->threadLimitSpinBox.setEnabled(d->useClangdCheckBox.isChecked());
+
+    d->versionWarningLabel.setType(Utils::InfoLabel::Warning);
+    const auto updateWarningLabel = [this] {
+        class WarningLabelSetter {
+        public:
+            WarningLabelSetter(QLabel &label) : m_label(label) { m_label.clear(); }
+            ~WarningLabelSetter() { m_label.setVisible(!m_label.text().isEmpty()); }
+            void setWarning(const QString &text) { m_label.setText(text); }
+        private:
+            QLabel &m_label;
+        };
+        WarningLabelSetter labelSetter(d->versionWarningLabel);
+
+        if (!d->clangdChooser.isValid())
+            return;
+        const Utils::FilePath clangdPath = d->clangdChooser.filePath();
+        Utils::QtcProcess clangdProc;
+        clangdProc.setCommand({clangdPath, {"--version"}});
+        clangdProc.start();
+        if (!clangdProc.waitForStarted() || !clangdProc.waitForFinished()) {
+            labelSetter.setWarning(tr("Failed to retrieve clangd version: %1")
+                                   .arg(clangdProc.exitMessage()));
+            return;
+        }
+        const QString output = clangdProc.allOutput();
+        static const QString versionPrefix = "clangd version ";
+        const int prefixOffset = output.indexOf(versionPrefix);
+        QVersionNumber clangdVersion;
+        if (prefixOffset != -1) {
+            clangdVersion = QVersionNumber::fromString(output.mid(prefixOffset
+                                                                  + versionPrefix.length()));
+        }
+        if (clangdVersion.isNull()) {
+            labelSetter.setWarning(tr("Failed to retrieve clangd version: "
+                                      "Unexpected clangd output."));
+            return;
+        }
+        if (clangdVersion < QVersionNumber(13)) {
+            labelSetter.setWarning(tr("The clangd version is %1, but %2 or greater is "
+                                      "recommended for full functionality.")
+                                   .arg(clangdVersion.toString()).arg(13));
+            return;
+        }
+    };
+    connect(&d->clangdChooser, &Utils::PathChooser::pathChanged, this, updateWarningLabel);
+    updateWarningLabel();
 
     connect(&d->useClangdCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);

@@ -293,6 +293,14 @@ QTextCursor Position::toTextCursor(QTextDocument *doc) const
     return cursor;
 }
 
+Position Position::withOffset(int offset, const QTextDocument *doc) const
+{
+    int line;
+    int character;
+    Utils::Text::convertPosition(doc, toPositionInDocument(doc) + offset, &line, &character);
+    return Position(line - 1, character - 1);
+}
+
 Range::Range(const Position &start, const Position &end)
 {
     setStart(start);
@@ -323,7 +331,7 @@ bool Range::contains(const Range &other) const
 
 bool Range::overlaps(const Range &range) const
 {
-    return end() > range.start() && start() < range.end();
+    return !isLeftOf(range) && !range.isLeftOf(*this);
 }
 
 QString expressionForGlob(QString globPattern)

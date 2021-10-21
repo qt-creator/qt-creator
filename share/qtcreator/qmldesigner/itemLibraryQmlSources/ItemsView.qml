@@ -78,35 +78,15 @@ Item {
 
     property string importToRemove: ""
     property string importToAdd: ""
-    property var currentItem: null
     property var currentCategory: null
     property var currentImport: null
     property bool isHorizontalView: false
-
-    // horizontal component lib variables
-    property var selectedCategory: null
-    property var selectedCategoryImport: null
 
     // called from C++ to close context menu on focus out
     function closeContextMenu()
     {
         moduleContextMenu.close()
         itemContextMenu.close()
-    }
-
-    function showImportCategories()
-    {
-        if (itemLibraryModel.isAllCategoriesHidden()) {
-            itemsView.currentImport.importCatVisibleState = true
-            if (!itemLibraryModel.getIsAnyCategoryHidden())
-                itemLibraryModel.isAnyCategoryHidden = false
-
-            itemsView.selectedCategory = itemLibraryModel.selectImportFirstVisibleCategory()
-        }
-
-        itemsView.currentImport.importCatVisibleState = true
-        if (!itemLibraryModel.getIsAnyCategoryHidden())
-            itemLibraryModel.isAnyCategoryHidden = false
     }
 
     onWidthChanged: {
@@ -135,10 +115,7 @@ Item {
                 visible: itemsView.currentCategory === null
                 height: visible ? implicitHeight : 0
                 enabled: itemsView.importToRemove !== ""
-                onTriggered: {
-                    showImportCategories()
-                    rootView.removeImport(itemsView.importToRemove)
-                }
+                onTriggered: rootView.removeImport(itemsView.importToRemove)
             }
 
             StudioControls.MenuSeparator {
@@ -169,12 +146,8 @@ Item {
                 text: qsTr("Hide Category")
                 visible: itemsView.currentCategory
                 height: visible ? implicitHeight : 0
-                onTriggered: {
-                    itemLibraryModel.isAnyCategoryHidden = true
-                    itemsView.currentCategory.categoryVisible = false
-                    itemsView.currentCategory.categorySelected = false
-                    itemsView.selectedCategory = itemLibraryModel.selectImportFirstVisibleCategory()
-                }
+                onTriggered: itemLibraryModel.hideCategory(itemsView.currentImport.importUrl,
+                                                           itemsView.currentCategory.categoryName)
             }
 
             StudioControls.MenuSeparator {
@@ -184,23 +157,14 @@ Item {
 
             StudioControls.MenuItem {
                 text: qsTr("Show Module Hidden Categories")
-                enabled: itemsView.currentImport && !itemsView.currentImport.importCatVisibleState
-                onTriggered: showImportCategories()
+                enabled: itemsView.currentImport && !itemsView.currentImport.allCategoriesVisible
+                onTriggered: itemLibraryModel.showImportHiddenCategories(itemsView.currentImport.importUrl)
             }
 
             StudioControls.MenuItem {
                 text: qsTr("Show All Hidden Categories")
                 enabled: itemLibraryModel.isAnyCategoryHidden
-                onTriggered: {
-                    if (itemLibraryModel.isAllCategoriesHidden()) {
-                        itemLibraryModel.showHiddenCategories()
-                        itemsView.selectedCategory = itemLibraryModel.selectImportFirstVisibleCategory()
-                        itemLibraryModel.isAnyCategoryHidden = false
-                    }
-
-                    itemLibraryModel.isAnyCategoryHidden = false
-                    itemLibraryModel.showHiddenCategories()
-                }
+                onTriggered: itemLibraryModel.showAllHiddenCategories()
             }
         }
 
@@ -419,21 +383,12 @@ Item {
 
                                             onClicked: (mouse) => {
                                                 itemLibraryModel.selectImportCategory(parent.parent.currentImportModel.importUrl, model.index)
-                                                itemsView.selectedCategory = model
-                                                itemsView.selectedCategoryImport = parent.parent.currentImportModel
 
                                                 if (mouse.button === Qt.RightButton && !rootView.isSearchActive() && categoryModel.rowCount() !== 1) {
                                                     itemsView.currentCategory = model
                                                     itemsView.currentImport = parent.parent.currentImportModel
                                                     moduleContextMenu.popup()
                                                 }
-                                            }
-                                            Component.onCompleted: {
-                                                if (categorySelected)
-                                                    categorySelected = !categorySelected
-                                                itemsView.selectedCategory = itemLibraryModel.selectImportFirstVisibleCategory()
-                                                if (itemsView.selectedCategory === categorySelected)
-                                                    itemsView.selectedCategoryImport = itemsView.selectedCategory.parent.currentImportModel
                                             }
                                         }
                                     }
@@ -473,10 +428,10 @@ Item {
                     rowSpacing: 7
 
                     Repeater {
-                        model: itemsView.selectedCategory ? itemsView.selectedCategory.itemModel : null
+                        model: itemLibraryModel.itemsModel
                         delegate: ItemDelegate {
                             visible: itemVisible
-                            textColor: itemsView.selectedCategoryImport && itemsView.selectedCategoryImport.importUnimported
+                            textColor: itemLibraryModel.importUnimportedSelected
                                        ? StudioTheme.Values.themeUnimportedModuleColor : StudioTheme.Values.themeTextColor
                             width: styleConstants.cellWidth + hItemGrid.flexibleWidth
                             height: styleConstants.cellHeight

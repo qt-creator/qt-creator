@@ -27,6 +27,7 @@
 
 #include "cmake_global.h"
 
+#include <utils/porting.h>
 #include <utils/optional.h>
 
 #include <QByteArray>
@@ -78,7 +79,7 @@ public:
     QStringList values;
 };
 
-uint qHash(const CMakeConfigItem &it);  // needed for MSVC
+Utils::QHashValueType qHash(const CMakeConfigItem &it);  // needed for MSVC
 
 class CMAKE_EXPORT CMakeConfig : public QList<CMakeConfigItem>
 {

@@ -13,13 +13,14 @@ namespace KSyntaxHighlighting
 {
 class Definition;
 class DefinitionData;
-class DefinitionPrivate;
 
 /** Weak reference for Definition instances.
  *
  * This must be used when holding Definition instances
  * in objects hold directly or indirectly by Definition
  * to avoid reference count loops and thus memory leaks.
+ *
+ * This class follows the rule of zero. It is implicitly movable and copyable.
  *
  * @internal
  */
@@ -28,7 +29,6 @@ class DefinitionRef
 public:
     DefinitionRef();
     explicit DefinitionRef(const Definition &def);
-    ~DefinitionRef();
     DefinitionRef &operator=(const Definition &def);
 
     Definition definition() const;

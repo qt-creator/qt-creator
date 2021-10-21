@@ -1891,7 +1891,7 @@ QString DebuggerEngine::nativeStartupCommands() const
         return !trimmed.isEmpty() && !trimmed.startsWith('#');
     });
 
-    return lines.join('\n');
+    return expand(lines.join('\n'));
 }
 
 Perspective *DebuggerEngine::perspective() const
@@ -2827,7 +2827,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             globalRegExpSourceMap.reserve(sourcePathMap.size());
             for (auto it = sourcePathMap.begin(), end = sourcePathMap.end(); it != end; ++it) {
                 if (it.key().startsWith('(')) {
-                    const QString expanded = Utils::globalMacroExpander()->expand(it.value());
+                    const QString expanded = rp.macroExpander->expand(it.value());
                     if (!expanded.isEmpty())
                         globalRegExpSourceMap.push_back(
                             qMakePair(QRegularExpression(it.key()), expanded));

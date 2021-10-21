@@ -32,6 +32,7 @@
 #include "qmljsmodelmanagerinterface.h"
 #include "qmljsconstants.h"
 
+#include <utils/porting.h>
 #include <utils/qrcparser.h>
 
 #include <QDir>
@@ -54,7 +55,7 @@ public:
     {}
 
 private:
-    friend uint qHash(const ImportCacheKey &);
+    friend Utils::QHashValueType qHash(const ImportCacheKey &);
     friend bool operator==(const ImportCacheKey &, const ImportCacheKey &);
 
     int m_type;
@@ -63,7 +64,7 @@ private:
     int m_minorVersion;
 };
 
-uint qHash(const ImportCacheKey &info)
+Utils::QHashValueType qHash(const ImportCacheKey &info)
 {
     return ::qHash(info.m_type) ^ ::qHash(info.m_path) ^
             ::qHash(info.m_majorVersion) ^ ::qHash(info.m_minorVersion);

@@ -16,6 +16,27 @@
 
 using namespace KSyntaxHighlighting;
 
+namespace
+{
+struct KeywordComparator {
+    Qt::CaseSensitivity caseSensitive;
+
+    bool operator()(QStringView a, QStringView b) const
+    {
+        if (a.size() < b.size()) {
+            return true;
+        }
+
+        if (a.size() > b.size()) {
+            return false;
+        }
+
+        return a.compare(b, caseSensitive) < 0;
+    }
+};
+
+}
+
 bool KeywordList::contains(QStringView str, Qt::CaseSensitivity caseSensitive) const
 {
     /**
@@ -26,9 +47,7 @@ bool KeywordList::contains(QStringView str, Qt::CaseSensitivity caseSensitive) c
     /**
      * search with right predicate
      */
-    return std::binary_search(vectorToSearch.begin(), vectorToSearch.end(), QStringView(str), [caseSensitive](QStringView a, QStringView b) {
-        return a.compare(b, caseSensitive) < 0;
-    });
+    return std::binary_search(vectorToSearch.begin(), vectorToSearch.end(), QStringView(str), KeywordComparator{caseSensitive});
 }
 
 void KeywordList::load(QXmlStreamReader &reader)
@@ -85,16 +104,14 @@ void KeywordList::initLookupForCaseSensitivity(Qt::CaseSensitivity caseSensitive
      * fill vector with refs to keywords
      */
     vectorToSort.reserve(m_keywords.size());
-    for (const auto &keyword : qAsConst(m_keywords)) {
+    for (const auto &keyword : std::as_const(m_keywords)) {
         vectorToSort.push_back(keyword);
     }
 
     /**
      * sort with right predicate
      */
-    std::sort(vectorToSort.begin(), vectorToSort.end(), [caseSensitive](QStringView a, QStringView b) {
-        return a.compare(b, caseSensitive) < 0;
-    });
+    std::sort(vectorToSort.begin(), vectorToSort.end(), KeywordComparator{caseSensitive});
 }
 
 void KeywordList::resolveIncludeKeywords(DefinitionData &def)

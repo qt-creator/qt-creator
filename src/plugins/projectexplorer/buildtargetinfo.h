@@ -30,6 +30,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/porting.h>
 
 #include <QList>
 
@@ -48,7 +49,7 @@ public:
     bool isQtcRunnable = true;
     bool usesTerminal = false;
 
-    uint runEnvModifierHash = 0; // Make sure to update this when runEnvModifier changes!
+    Utils::QHashValueType runEnvModifierHash = 0; // Make sure to update this when runEnvModifier changes!
 
     std::function<void(Utils::Environment &, bool)> runEnvModifier;
 };

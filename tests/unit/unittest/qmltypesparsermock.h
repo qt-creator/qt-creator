@@ -37,6 +37,6 @@ public:
                 (const QString &sourceContent,
                  QmlDesigner::Storage::Imports &imports,
                  QmlDesigner::Storage::Types &types,
-                 QmlDesigner::SourceIds &sourceIds),
+                 const QmlDesigner::Storage::ProjectData &projectData),
                 (override));
 };

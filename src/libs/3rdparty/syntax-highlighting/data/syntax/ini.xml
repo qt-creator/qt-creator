@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="8" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="10" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
 
 <highlighting>
 <list name="keywords">
@@ -34,15 +34,26 @@
 
 <contexts>
  <context name="ini" attribute="Normal Text" lineEndContext="#stay">
-  <RangeDetect attribute="Section" context="#stay" char="["  char1="]" beginRegion="Section" endRegion="Section" />
+  <RangeDetect attribute="Section" context="#stay" char="[" char1="]" beginRegion="Section" endRegion="Section" />
   <DetectChar attribute="Assignment" context="Value" char="=" />
   <AnyChar String=";#" attribute="Comment" context="Comment" firstNonSpace="true" />
+  <DetectIdentifier />
+  <DetectSpaces />
  </context>
 
- <context name="Value" attribute="Value" lineEndContext="#pop" >
+ <context name="Value" attribute="Value" lineEndContext="#pop" fallthrough="1" fallthroughContext="#pop!NormalValue">
+  <RegExpr context="#pop!SpecialValue" String="\s*((-?(\d+(\.\d*)?|\.d+)(e\d+)?|On|Off|Defaults?|Localhost|Null|True|False|Yes|No|Normal)\s*$|~?(E_ALL|E_ERROR|E_WARNING|E_PARSE|E_NOTICE|E_STRICT|E_CORE_ERROR|E_CORE_WARNING|E_COMPILE_ERROR|E_COMPILE_WARNING|E_USER_ERROR|E_USER_WARNING|E_USER_NOTICE)\b)" lookAhead="1" insensitive="1"/>
+ </context>
+
+ <context name="SpecialValue" attribute="Value" lineEndContext="#pop">
   <Float attribute="Float" />
   <Int attribute="Int" />
-  <keyword attribute="Keyword" String="keywords" />
+  <keyword attribute="Keyword" String="keywords"/>
+  <DetectChar attribute="Int" char="-" />
+  <DetectSpaces />
+ </context>
+
+ <context name="NormalValue" attribute="Value" lineEndContext="#pop">
  </context>
 
  <context name="Comment" attribute="Comment" lineEndContext="#pop">

@@ -143,6 +143,7 @@ SOURCES += \
     $$PWD/link.cpp \
     $$PWD/linecolumn.cpp \
     $$PWD/multitextcursor.cpp \
+    $$PWD/threadutils.cpp \
     $$PWD/singleton.cpp
 
 HEADERS += \
@@ -310,6 +311,7 @@ HEADERS += \
     $$PWD/launchersocket.h \
     $$PWD/qtcsettings.h \
     $$PWD/multitextcursor.h \
+    $$PWD/threadutils.h \
     $$PWD/singleton.h
 
 FORMS += $$PWD/filewizardpage.ui \

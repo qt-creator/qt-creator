@@ -101,3 +101,11 @@
     \externalpage http://developer.android.com/guide/components/fundamentals.html
     \title Android Application Fundamentals
 */
+/*!
+    \externalpage https://doc.qt.io/qt/qtqml-cppintegration-overview.html
+    \title Overview - QML and C++ Integration
+*/
+/*!
+    \externalpage https://doc.qt.io/qt/qtqml-syntax-imports.html#qml-import-path
+    \title QML Import Path
+*/

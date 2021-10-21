@@ -552,7 +552,6 @@ void AndroidRunnerWorker::asyncStartHelper()
         runAdb(entry.split(' ', Qt::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
-    args << m_amStartExtraArgs;
     args << "-n" << m_intentName;
     if (m_useCppDebugger) {
         args << "-D";
@@ -636,6 +635,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         }
     }
 
+    args << m_amStartExtraArgs;
 
     if (!m_extraAppParams.isEmpty()) {
         QStringList appArgs =

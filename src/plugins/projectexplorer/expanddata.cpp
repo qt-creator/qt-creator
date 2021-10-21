@@ -50,7 +50,7 @@ QVariant ExpandData::toSettings() const
     return QVariant::fromValue(QStringList({path, displayName}));
 }
 
-int ProjectExplorer::Internal::qHash(const ExpandData &data)
+Utils::QHashValueType ProjectExplorer::Internal::qHash(const ExpandData &data)
 {
     return qHash(data.path) ^ qHash(data.displayName);
 }

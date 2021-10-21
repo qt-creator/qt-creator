@@ -245,13 +245,15 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
 
         m_importableExtensions3DMap = extMap;
 
-        auto import3DModelOperation = [this](const QStringList &fileNames, const QString &defaultDir) -> bool {
+        AddResourceOperation import3DModelOperation = [this](const QStringList &fileNames,
+                                                             const QString &defaultDir) -> AddFilesResult {
             auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir,
                                                               m_importableExtensions3DMap,
                                                               m_importOptions3DMap, {}, {},
                                                               Core::ICore::mainWindow());
-            importDlg->exec();
-            return true;
+            int result = importDlg->exec();
+
+            return result == QDialog::Accepted ? AddFilesResult::Succeeded : AddFilesResult::Cancelled;
         };
 
         auto add3DHandler = [&](const QString &group, const QString &ext) {

@@ -84,7 +84,7 @@
     \page collecting-usage-statistics.html
     \previouspage creator-telemetry.html
     \if defined(qtdesignstudio)
-    \nextpage collecting-user-feedback.html
+    \nextpage studio-user-feedback.html
     \else
     \nextpage creator-help-overview.html
     \endif
@@ -115,68 +115,4 @@
             exactly what data is collected. Deselect check boxes for data
             that you do not want to transmit to the backend storage.
     \endlist
-*/
-
-/*!
-    \page collecting-user-feedback.html
-    \previouspage collecting-usage-statistics.html
-    \nextpage creator-crashpad.html
-
-    \title Collecting User Feedback
-
-    A pop-up survey asking for your feedback will appear for some of the features
-    after you have been using them for some time. You will be asked to to rate
-    the usefulness of the feature on a scale of one to five stars. You must rate
-    the feature with at least one star if you wish to submit your rating. You
-    are also encouraged to give additional written feedback. After you select
-    \uicontrol Skip or \uicontrol Submit, the pop-up survey will not appear for
-    the same feature again.
-
-    \image studio-feedback-popup.png "User feedback pop-up survey for Flow Editor"
-
-    For the pop-up survey to appear, you must enable collecting statistics, and
-    also allow collecting \uicontrol {4 - Detailed usage statistics} in
-    \uicontrol Tools > \uicontrol Options >  \uicontrol Telemetry >
-    \uicontrol {Usage Statistics} > \uicontrol {Telemetry mode}.
-    You can review the submitted user feedback in
-    \uicontrol Tools > \uicontrol Options > \uicontrol Telemetry >
-    \uicontrol {Usage Statistics} > \uicontrol {Collected Data} by selecting
-    \uicontrol {Qt Quick Designer Usage of views and actions} in
-    \uicontrol {Data sources}.
-*/
-
-/*!
-    \page creator-crashpad.html
-    \previouspage collecting-user-feedback.html
-    \nextpage studio-packaging.html
-
-    \title Reporting Crashes
-
-    You can enable \QDS to report crashes automatically. \QDS uses Google
-    Crashpad to collect crashes and report them to the Sentry backend storage
-    for processing. The purpose of Crashpad is to capture application state in
-    sufficient detail to allow developers to diagnose and, where possible, fix
-    the issue causing the crash. Crashpad may capture arbitrary contents from
-    the memory of a crashed process, including user sensitive information, URLs,
-    and other content provided by the users. The collected reports are used for
-    the sole purpose of fixing bugs. For more information on Crashpad, see the
-    \l {https://chromium.googlesource.com/crashpad/crashpad/+/master/doc/overview_design.md}
-    {documentation} by Google. For more information on processing and storing
-    of the collected data, see \l {https://sentry.io/security/}
-    {Security & Compliance} by Sentry.
-
-    To enable sending crash reports, select \uicontrol Tools > \uicontrol
-    Options > \uicontrol Environment > \uicontrol System
-    (\uicontrol {Qt Design Studio} > \uicontrol Preferences > \uicontrol
-    Environment > \uicontrol System on \macos), and then select
-    \uicontrol {Enable crash reporting}.
-
-    Since crash reports take up disk space, you may wish to remove them when
-    they are no longer needed. Select \uicontrol {Clear local crash reports} to
-    remove the crash report data.
-
-    \image studio-crashpad-checkbox.png "Checkbox for enabling crash reporting"
-
-    \note Crashpad is currently only supported on Windows and \macos.
-
 */

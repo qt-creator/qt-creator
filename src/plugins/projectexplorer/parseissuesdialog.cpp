@@ -32,9 +32,6 @@
 #include "projectexplorerconstants.h"
 #include "taskhub.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <utils/runextensions.h>
-
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -137,21 +134,6 @@ ParseIssuesDialog::~ParseIssuesDialog()
     delete d;
 }
 
-static void parse(QFutureInterface<void> &future, const QString &output,
-                  const std::unique_ptr<Utils::OutputFormatter> &parser, bool isStderr)
-{
-    const QStringList lines = output.split('\n');
-    future.setProgressRange(0, lines.count());
-    const Utils::OutputFormat format = isStderr ? Utils::StdErrFormat : Utils::StdOutFormat;
-    for (const QString &line : lines) {
-        parser->appendMessage(line + '\n', format);
-        future.setProgressValue(future.progressValue() + 1);
-        if (future.isCanceled())
-            return;
-    }
-    parser->flush();
-}
-
 void ParseIssuesDialog::accept()
 {
     const QList<Utils::OutputLineParser *> lineParsers =
@@ -161,14 +143,16 @@ void ParseIssuesDialog::accept()
                                                            "not provide an output parser."));
         return;
     }
-    std::unique_ptr<Utils::OutputFormatter> parser(new Utils::OutputFormatter);
-    parser->setLineParsers(lineParsers);
+    Utils::OutputFormatter parser;
+    parser.setLineParsers(lineParsers);
     if (d->clearTasksCheckBox.isChecked())
         TaskHub::clearTasks();
-    const QFuture<void> f = Utils::runAsync(&parse, d->compileOutputEdit.toPlainText(),
-                                            std::move(parser), d->stderrCheckBox.isChecked());
-    Core::ProgressManager::addTask(f, tr("Parsing build output"),
-                                   "ProgressExplorer.ParseExternalBuildOutput");
+    const QStringList lines = d->compileOutputEdit.toPlainText().split('\n');
+    const Utils::OutputFormat format = d->stderrCheckBox.isChecked()
+            ? Utils::StdErrFormat : Utils::StdOutFormat;
+    for (const QString &line : lines)
+        parser.appendMessage(line + '\n', format);
+    parser.flush();
     QDialog::accept();
 }
 

@@ -122,6 +122,7 @@ private:
     } m_compilerFlags;
 
     QStringList m_options;
+    QString m_explicitTarget;
     bool m_clStyle = false;
 };
 

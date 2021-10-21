@@ -484,6 +484,18 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->symLinkTarget(filePath);
     };
 
+    deviceHooks.mapToGlobalPath = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return FilePath{});
+        return device->mapToGlobalPath(filePath);
+    };
+
+    deviceHooks.mapToDevicePath = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return QString{});
+        return device->mapToDevicePath(filePath);
+    };
+
     deviceHooks.dirEntries = [](const FilePath &filePath, const QStringList &nameFilters,
                                 QDir::Filters filters, QDir::SortFlags sort) {
         auto device = DeviceManager::deviceForPath(filePath);

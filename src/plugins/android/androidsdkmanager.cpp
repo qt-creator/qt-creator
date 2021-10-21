@@ -69,28 +69,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(QRegularExpression, assertionReg,
 using namespace Utils;
 using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
 
-int platformNameToApiLevel(const QString &platformName)
-{
-    int apiLevel = -1;
-    QRegularExpression re("(android-)(?<apiLevel>[0-9A-Z]{1,})",
-                          QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch match = re.match(platformName);
-    if (match.hasMatch()) {
-        QString apiLevelStr = match.captured("apiLevel");
-        bool isUInt;
-        apiLevel = apiLevelStr.toUInt(&isUInt);
-        if (!isUInt) {
-            if (apiLevelStr == 'Q')
-                apiLevel = 29;
-            else if (apiLevelStr == 'R')
-                apiLevel = 30;
-            else if (apiLevelStr == 'S')
-                apiLevel = 31;
-        }
-    }
-    return apiLevel;
-}
-
 /*!
     Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
     \c true if \a key is found, false otherwise. Result is copied into \a value.
@@ -714,7 +692,7 @@ AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data
     SdkPlatform *platform = nullptr;
     GenericPackageData packageData;
     if (parseAbstractData(packageData, data, 2, "Platform")) {
-        int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
+        const int apiLevel = AndroidConfig::platformNameToApiLevel(packageData.headerParts.at(1));
         if (apiLevel == -1) {
             qCDebug(sdkManagerLog) << "Platform: Cannot parse api level:"<< data;
             return nullptr;
@@ -734,7 +712,7 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
     QPair <SystemImage *, int> result(nullptr, -1);
     GenericPackageData packageData;
     if (parseAbstractData(packageData, data, 4, "System-image")) {
-        int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
+        const int apiLevel = AndroidConfig::platformNameToApiLevel(packageData.headerParts.at(1));
         if (apiLevel == -1) {
             qCDebug(sdkManagerLog) << "System-image: Cannot parse api level:"<< data;
             return result;

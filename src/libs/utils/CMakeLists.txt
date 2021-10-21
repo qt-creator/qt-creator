@@ -168,6 +168,7 @@ add_qtc_library(Utils
     textfileformat.cpp textfileformat.h
     textutils.cpp textutils.h
     theme/theme.cpp theme/theme.h theme/theme_p.h
+    threadutils.cpp threadutils.h
     tooltip/effects.h
     tooltip/tips.cpp tooltip/tips.h
     tooltip/tooltip.cpp tooltip/tooltip.h

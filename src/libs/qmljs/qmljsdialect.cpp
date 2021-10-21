@@ -221,9 +221,9 @@ QList<Dialect> Dialect::companionLanguages() const
     return langs;
 }
 
-uint qHash(const Dialect &o)
+Utils::QHashValueType qHash(const Dialect &o)
 {
-    return uint(o.dialect());
+    return Utils::QHashValueType(o.dialect());
 }
 
 QDebug operator << (QDebug &dbg, const Dialect &dialect)

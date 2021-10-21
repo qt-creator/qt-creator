@@ -29,21 +29,10 @@
 #include <QString>
 #include <QVariant>
 
-namespace Core {
-
-uint qHash(const LocatorFilterEntry &entry)
-{
-    if (entry.internalData.canConvert(QVariant::String))
-        return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.toString());
-    return QT_PREPEND_NAMESPACE(qHash)(entry.internalData.constData());
-}
-
-} // namespace Core
-
 void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &future,
                                const QList<ILocatorFilter *> &filters, const QString &searchText)
 {
-    QSet<LocatorFilterEntry> alreadyAdded;
+    QSet<QString> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
     for (ILocatorFilter *filter : filters) {
         if (future.isCanceled())
@@ -53,11 +42,15 @@ void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &futur
         QVector<LocatorFilterEntry> uniqueFilterResults;
         uniqueFilterResults.reserve(filterResults.size());
         for (const LocatorFilterEntry &entry : filterResults) {
-            if (checkDuplicates && alreadyAdded.contains(entry))
-                continue;
+            if (checkDuplicates) {
+                const QString stringData = entry.internalData.toString();
+                if (!stringData.isEmpty()) {
+                    if (alreadyAdded.contains(stringData))
+                        continue;
+                    alreadyAdded.insert(stringData);
+                }
+            }
             uniqueFilterResults.append(entry);
-            if (checkDuplicates)
-                alreadyAdded.insert(entry);
         }
         if (!uniqueFilterResults.isEmpty())
             future.reportResults(uniqueFilterResults);

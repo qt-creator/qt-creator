@@ -94,7 +94,21 @@ static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", Q
 static Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogHighlight, "qtc.clangcodemodel.clangd.highlight", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogTiming, "qtc.clangcodemodel.clangd.timing", QtWarningMsg);
+static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.completion",
+                          QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
+
+static QStringView subViewLen(const QString &s, qsizetype start, qsizetype length)
+{
+    if (start < 0 || length < 0 || start + length > s.length())
+        return {};
+    return QStringView(s).mid(start, length);
+}
+
+static QStringView subViewEnd(const QString &s, qsizetype start, qsizetype end)
+{
+    return subViewLen(s, start, end - start);
+}
 
 class AstNode : public JsonObject
 {
@@ -277,6 +291,58 @@ public:
                                  - openingQuoteOffset - 1);
     }
 
+    enum class FileStatus { Ours, Foreign, Mixed, Unknown };
+    FileStatus fileStatus(const Utils::FilePath &thisFile) const
+    {
+        const Utils::optional<QString> arcanaString = arcana();
+        if (!arcanaString)
+            return FileStatus::Unknown;
+
+        // Example arcanas:
+        // "FunctionDecl 0x7fffb5d0dbd0 </tmp/test.cpp:1:1, line:5:1> line:1:6 func 'void ()'"
+        // "VarDecl 0x7fffb5d0dcf0 </tmp/test.cpp:2:5, /tmp/test.h:1:1> /tmp/test.cpp:2:10 b 'bool' cinit"
+        // The second one is for a particularly silly construction where the RHS of an
+        // initialization comes from an included header.
+        const int openPos = arcanaString->indexOf('<');
+        if (openPos == -1)
+            return FileStatus::Unknown;
+        const int closePos = arcanaString->indexOf('>', openPos + 1);
+        if (closePos == -1)
+            return FileStatus::Unknown;
+        bool hasOurs = false;
+        bool hasOther = false;
+        for (int startPos = openPos + 1; startPos < closePos;) {
+            int colon1Pos = arcanaString->indexOf(':', startPos);
+            if (colon1Pos == -1 || colon1Pos > closePos)
+                break;
+            if (Utils::HostOsInfo::isWindowsHost())
+                colon1Pos = arcanaString->indexOf(':', colon1Pos + 1);
+            if (colon1Pos == -1 || colon1Pos > closePos)
+                break;
+            const int colon2Pos = arcanaString->indexOf(':', colon1Pos + 2);
+            if (colon2Pos == -1 || colon2Pos > closePos)
+                break;
+            const int line = subViewEnd(*arcanaString, colon1Pos + 1, colon2Pos).toString().toInt(); // TODO: Drop toString() once we require >= Qt 5.15
+            if (line == 0)
+                break;
+            const QStringView fileOrLineString = subViewEnd(*arcanaString, startPos, colon1Pos);
+            if (fileOrLineString != QLatin1String("line")) {
+                if (Utils::FilePath::fromUserInput(fileOrLineString.toString()) == thisFile)
+                    hasOurs = true;
+                else
+                    hasOther = true;
+            }
+            const int commaPos = arcanaString->indexOf(',', colon2Pos + 2);
+            if (commaPos != -1)
+                startPos = commaPos + 2;
+            else
+                break;
+        }
+        if (hasOurs)
+            return hasOther ? FileStatus::Mixed : FileStatus::Ours;
+        return hasOther ? FileStatus::Foreign : FileStatus::Unknown;
+    }
+
     // For debugging.
     void print(int indent = 0) const
     {
@@ -298,6 +364,7 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
     QList<AstNode> path;
     QList<AstNode> queue{root};
     bool isRoot = true;
+
     while (!queue.isEmpty()) {
         AstNode curNode = queue.takeFirst();
         if (!isRoot && !curNode.hasRange())
@@ -309,11 +376,37 @@ static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
             const auto children = curNode.children();
             if (!children)
                 break;
-            queue = children.value();
+            if (curNode.kind() == "Function" || curNode.role() == "expression") {
+                // Functions and expressions can contain implicit nodes that make the list unsorted.
+                // They cannot be ignored, as we need to consider them in certain contexts.
+                // Therefore, the binary search cannot be used here.
+                queue = *children;
+            } else {
+                queue.clear();
+
+                // Class and struct nodes can contain implicit constructors, destructors and
+                // operators, which appear at the end of the list, but whose range is the same
+                // as the class name. Therefore, we must force them not to compare less to
+                // anything else.
+                static const auto leftOfRange = [](const AstNode &node, const Range &range) {
+                    return node.range().isLeftOf(range) && !node.arcanaContains(" implicit ");
+                };
+
+                for (auto it = std::lower_bound(children->cbegin(), children->cend(), range,
+                                                leftOfRange);
+                     it != children->cend() && !range.isLeftOf(it->range()); ++it) {
+                    queue << *it;
+                }
+            }
         }
         isRoot = false;
     }
     return path;
+}
+
+static QList<AstNode> getAstPath(const AstNode &root, const Position &pos)
+{
+    return getAstPath(root, Range(pos, pos));
 }
 
 static Usage::Type getUsageType(const QList<AstNode> &path)
@@ -685,20 +778,12 @@ private:
         case CustomAssistMode::Preprocessor:
             static QIcon macroIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro);
             for (const QString &completion
-                 : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions())
+                 : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions()) {
                 completions << createItem(completion, macroIcon);
-            const CppEditor::ProjectFile::Kind fileType
-                    = CppEditor::ProjectFile::classify(interface->filePath().toString());
-            switch (fileType) {
-            case CppEditor::ProjectFile::ObjCHeader:
-            case CppEditor::ProjectFile::ObjCXXHeader:
-            case CppEditor::ProjectFile::ObjCSource:
-            case CppEditor::ProjectFile::ObjCXXSource:
-                completions << createItem("import", macroIcon);
-                break;
-            default:
-                break;
             }
+            if (CppEditor::ProjectFile::isObjC(interface->filePath().toString()))
+                completions << createItem("import", macroIcon);
+            break;
         }
         GenericProposalModelPtr model(new GenericProposalModel);
         model->loadContent(completions);
@@ -1030,11 +1115,13 @@ public:
     ClangdCompletionAssistProvider(ClangdClient *client);
 
 private:
-    IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const override;
+    IAssistProcessor *createProcessor(const AssistInterface *interface) const override;
 
     int activationCharSequenceLength() const override { return 3; }
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
+
+    bool isInCommentOrString(const AssistInterface *interface) const;
 
     ClangdClient * const m_client;
 };
@@ -1048,6 +1135,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
             "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
     setSupportedLanguage(langFilter);
     setActivateDocumentAutomatically(true);
+    setLogTarget(LogTarget::Console);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     if (!project) {
         QJsonObject initOptions;
@@ -1643,7 +1731,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
             }
 
             const Position linkPos(link.targetLine - 1, link.targetColumn);
-            const QList<AstNode> astPath = getAstPath(ast, Range(linkPos, linkPos));
+            const QList<AstNode> astPath = getAstPath(ast, linkPos);
             bool isVar = false;
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
                 if (it->role() == "declaration" && it->kind() == "Function") {
@@ -2128,7 +2216,8 @@ class ExtraHighlightingResultsCollector
 {
 public:
     ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
-                                      HighlightingResults &results, const AstNode &ast,
+                                      HighlightingResults &results,
+                                      const Utils::FilePath &filePath, const AstNode &ast,
                                       const QTextDocument *doc, const QString &docContent);
 
     void collect();
@@ -2145,6 +2234,7 @@ private:
 
     QFutureInterface<HighlightingResult> &m_future;
     HighlightingResults &m_results;
+    const Utils::FilePath m_filePath;
     const AstNode &m_ast;
     const QTextDocument * const m_doc;
     const QString &m_docContent;
@@ -2174,7 +2264,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
         if (!wasIfdefedOut)
             rangeStartPos = doc->findBlockByNumber(it->line - 1).position();
         const int pos = Utils::Text::positionInText(doc, it->line, it->column);
-        const QStringView content(QStringView(docContent).mid(pos, it->length).trimmed());
+        const QStringView content = subViewLen(docContent, pos, it->length).trimmed();
         if (!content.startsWith(QLatin1String("#if"))
                 && !content.startsWith(QLatin1String("#elif"))
                 && !content.startsWith(QLatin1String("#else"))
@@ -2210,6 +2300,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 }
 
 static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
+                                const Utils::FilePath &filePath,
                                 const QList<ExpandedSemanticToken> &tokens,
                                 const QString &docContents, const AstNode &ast,
                                 const QPointer<TextEditorWidget> &widget,
@@ -2222,13 +2313,17 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
     }
 
     const QTextDocument doc(docContents);
-    const auto isOutputParameter = [&ast](const ExpandedSemanticToken &token) {
+    const auto tokenRange = [&doc](const ExpandedSemanticToken &token) {
+        const Position startPos(token.line - 1, token.column - 1);
+        const Position endPos = startPos.withOffset(token.length, &doc);
+        return Range(startPos, endPos);
+    };
+    const auto isOutputParameter = [&ast, &doc, &tokenRange](const ExpandedSemanticToken &token) {
         if (token.modifiers.contains("usedAsMutableReference"))
             return true;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
-        const Position pos(token.line - 1, token.column - 1);
-        const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
+        const QList<AstNode> path = getAstPath(ast, tokenRange(token));
         if (path.size() < 2)
             return false;
         if (path.last().hasConstType())
@@ -2249,7 +2344,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
     };
 
     const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
-            = [&ast, &isOutputParameter, &clangdVersion](const ExpandedSemanticToken &token) {
+            = [&ast, &isOutputParameter, &clangdVersion, &tokenRange]
+              (const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains("functionScope")) {
@@ -2263,8 +2359,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         } else if (token.type == "function" || token.type == "method") {
             styles.mainStyle = token.modifiers.contains("virtual") ? C_VIRTUAL_METHOD : C_FUNCTION;
             if (ast.isValid()) {
-                const Position pos(token.line - 1, token.column - 1);
-                const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
+                const QList<AstNode> path = getAstPath(ast, tokenRange(token));
                 if (path.length() > 1) {
                     const AstNode declNode = path.at(path.length() - 2);
                     if (declNode.kind() == "Function" || declNode.kind() == "CXXMethod") {
@@ -2283,8 +2378,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             // clang hardly ever differentiates between constructors and the associated class,
             // whereas we highlight constructors as functions.
             if (ast.isValid()) {
-                const Position pos(token.line - 1, token.column - 1);
-                const QList<AstNode> path = getAstPath(ast, Range(pos, pos));
+                const QList<AstNode> path = getAstPath(ast, tokenRange(token));
                 if (!path.isEmpty()) {
                     if (path.last().kind() == "CXXConstructor") {
                         if (!path.last().arcanaContains("implicit"))
@@ -2338,7 +2432,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         if (widget && widget->textDocument()->document()->revision() == docRevision)
             widget->setIfdefedOutBlocks(ifdefedOutBlocks);
     }, Qt::QueuedConnection);
-    ExtraHighlightingResultsCollector(future, results, ast, &doc, docContents).collect();
+    ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
         future.reportResults(QVector<HighlightingResult>(results.cbegin(),
@@ -2378,10 +2472,12 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
                 [doc](const IEditor *editor) { return editor->document() == doc; });
         const auto editorWidget = TextEditorWidget::fromEditor(editor);
-        const auto runner = [tokens, text = doc->document()->toPlainText(), ast,
+        const auto runner = [tokens, filePath = doc->filePath(),
+                             text = doc->document()->toPlainText(), ast,
                              w = QPointer(editorWidget), rev = doc->document()->revision(),
                              clangdVersion = q->versionNumber()] {
-            return Utils::runAsync(semanticHighlighter, tokens, text, ast, w, rev, clangdVersion);
+            return Utils::runAsync(semanticHighlighter, filePath, tokens, text, ast, w, rev,
+                                   clangdVersion);
         };
 
         if (isTesting) {
@@ -2543,21 +2639,28 @@ ClangdClient::ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(Cla
 {}
 
 IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
-    const AssistInterface *assistInterface) const
+    const AssistInterface *interface) const
 {
-    ClangCompletionContextAnalyzer contextAnalyzer(assistInterface->textDocument(),
-                                                   assistInterface->position(), false, {});
+    qCDebug(clangdLogCompletion) << "completion processor requested for" << interface->filePath();
+    qCDebug(clangdLogCompletion) << "text before cursor is"
+                                 << interface->textAt(interface->position(), -10);
+    qCDebug(clangdLogCompletion) << "text after cursor is"
+                                 << interface->textAt(interface->position(), 10);
+    ClangCompletionContextAnalyzer contextAnalyzer(interface->textDocument(),
+                                                   interface->position(), false, {});
     contextAnalyzer.analyze();
     switch (contextAnalyzer.completionAction()) {
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
-        qCDebug(clangdLog) << "completion changed to function hint";
+        qCDebug(clangdLogCompletion) << "creating function hint processor";
         return new ClangdFunctionHintProcessor(m_client);
     case ClangCompletionContextAnalyzer::CompleteDoxygenKeyword:
+        qCDebug(clangdLogCompletion) << "creating doxygen processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Doxygen);
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
+        qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
                                          contextAnalyzer.completionOperator(),
@@ -2565,9 +2668,11 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
     default:
         break;
     }
-    const QString snippetsGroup = contextAnalyzer.addSnippets()
+    const QString snippetsGroup = contextAnalyzer.addSnippets() && !isInCommentOrString(interface)
                                       ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID
                                       : QString();
+    qCDebug(clangdLogCompletion) << "creating proper completion processor"
+                                 << (snippetsGroup.isEmpty() ? "without" : "with") << "snippets";
     return new ClangdCompletionAssistProcessor(m_client, snippetsGroup);
 }
 
@@ -2588,6 +2693,7 @@ bool ClangdClient::ClangdCompletionAssistProvider::isActivationCharSequence(cons
     // contexts, such as '(', '<' or '/'.
     switch (kind) {
     case T_DOT: case T_COLON_COLON: case T_ARROW: case T_DOT_STAR: case T_ARROW_STAR: case T_POUND:
+        qCDebug(clangdLogCompletion) << "detected" << sequence << "as activation char sequence";
         return true;
     }
     return false;
@@ -2596,6 +2702,14 @@ bool ClangdClient::ClangdCompletionAssistProvider::isActivationCharSequence(cons
 bool ClangdClient::ClangdCompletionAssistProvider::isContinuationChar(const QChar &c) const
 {
     return CppEditor::isValidIdentifierChar(c);
+}
+
+bool ClangdClient::ClangdCompletionAssistProvider::isInCommentOrString(
+        const AssistInterface *interface) const
+{
+    LanguageFeatures features = LanguageFeatures::defaultFeatures();
+    features.objCEnabled = CppEditor::ProjectFile::isObjC(interface->filePath().toString());
+    return CppEditor::isInCommentOrString(interface, features);
 }
 
 void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
@@ -2607,35 +2721,27 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     if (!edit)
         return;
 
-    const auto kind = static_cast<CompletionItemKind::Kind>(
-                item.kind().value_or(CompletionItemKind::Text));
-    if (kind != CompletionItemKind::Function && kind != CompletionItemKind::Method
-            && kind != CompletionItemKind::Constructor) {
-        applyTextEdit(manipulator, *edit, true);
-        return;
-    }
-
     const QString rawInsertText = edit->newText();
     const int firstParenOffset = rawInsertText.indexOf('(');
     const int lastParenOffset = rawInsertText.lastIndexOf(')');
-    if (firstParenOffset == -1 || lastParenOffset == -1) {
-        applyTextEdit(manipulator, *edit, true);
-        return;
-    }
-
     const QString detail = item.detail().value_or(QString());
     const CompletionSettings &completionSettings = TextEditorSettings::completionSettings();
     QString textToBeInserted = rawInsertText.left(firstParenOffset);
     QString extraCharacters;
+    int extraLength = 0;
     int cursorOffset = 0;
     bool setAutoCompleteSkipPos = false;
-    const QTextDocument * const doc = manipulator.textCursorAt(
-                manipulator.currentPosition()).document();
+    int currentPos = manipulator.currentPosition();
+    const QTextDocument * const doc = manipulator.textCursorAt(currentPos).document();
     const Range range = edit->range();
     const int rangeStart = range.start().toPositionInDocument(doc);
-    const int rangeLength = range.end().toPositionInDocument(doc) - rangeStart;
 
-    if (completionSettings.m_autoInsertBrackets) {
+    const auto kind = static_cast<CompletionItemKind::Kind>(
+                item.kind().value_or(CompletionItemKind::Text));
+    const bool isFunctionLike = kind == CompletionItemKind::Function
+            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
+            || (firstParenOffset != -1 && lastParenOffset != -1);
+    if (isFunctionLike && completionSettings.m_autoInsertBrackets) {
         // If the user typed the opening parenthesis, they'll likely also type the closing one,
         // in which case it would be annoying if we put the cursor after the already automatically
         // inserted closing parenthesis.
@@ -2663,7 +2769,7 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
 
             // If the function doesn't return anything, automatically place the semicolon,
             // unless we're doing a scope completion (then it might be function definition).
-            const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
+            const QChar characterAtCursor = manipulator.characterAt(currentPos);
             bool endWithSemicolon = typedChar == ';';
             const QChar semicolon = typedChar.isNull() ? QLatin1Char(';') : typedChar;
             if (endWithSemicolon && characterAtCursor == semicolon) {
@@ -2679,7 +2785,7 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
                     typedChar = {};
                 }
             } else {
-                const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
+                const QChar lookAhead = manipulator.characterAt(currentPos + 1);
                 if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                     extraCharacters += ')';
                     --cursorOffset;
@@ -2701,9 +2807,26 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
             --cursorOffset;
     }
 
-    textToBeInserted += extraCharacters;
+    // Avoid inserting characters that are already there
+    QTextCursor cursor = manipulator.textCursorAt(rangeStart);
+    cursor.movePosition(QTextCursor::EndOfWord);
+    const QString textAfterCursor = manipulator.textAt(currentPos, cursor.position() - currentPos);
+    if (textToBeInserted != textAfterCursor
+            && textToBeInserted.indexOf(textAfterCursor, currentPos - rangeStart) >= 0) {
+        currentPos = cursor.position();
+    }
+    for (int i = 0; i < extraCharacters.length(); ++i) {
+        const QChar a = extraCharacters.at(i);
+        const QChar b = manipulator.characterAt(currentPos + i);
+        if (a == b)
+            ++extraLength;
+        else
+            break;
+    }
 
-    const bool isReplaced = manipulator.replace(rangeStart, rangeLength, textToBeInserted);
+    textToBeInserted += extraCharacters;
+    const int length = currentPos - rangeStart + extraLength;
+    const bool isReplaced = manipulator.replace(rangeStart, length, textToBeInserted);
     manipulator.setCursorPosition(rangeStart + textToBeInserted.length());
     if (isReplaced) {
         if (cursorOffset)
@@ -2806,10 +2929,11 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
 
 ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
         QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
-        const AstNode &ast, const QTextDocument *doc, const QString &docContent)
-    : m_future(future), m_results(results), m_ast(ast), m_doc(doc), m_docContent(docContent)
+        const Utils::FilePath &filePath, const AstNode &ast, const QTextDocument *doc,
+        const QString &docContent)
+    : m_future(future), m_results(results), m_filePath(filePath), m_ast(ast), m_doc(doc),
+      m_docContent(docContent)
 {
-
 }
 
 void ExtraHighlightingResultsCollector::collect()
@@ -2881,7 +3005,7 @@ void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1,
                                                                int searchStart2, int searchEnd2)
 {
     const int openingAngleBracketPos = onlyIndexOf(
-                QStringView(m_docContent).mid(searchStart1, searchEnd1 - searchStart1),
+                subViewEnd(m_docContent, searchStart1, searchEnd1),
                 QStringView(QStringLiteral("<")));
     if (openingAngleBracketPos == -1)
         return;
@@ -2891,7 +3015,7 @@ void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1,
     if (searchStart2 >= searchEnd2)
         return;
     const int closingAngleBracketPos = onlyIndexOf(
-                QStringView(m_docContent).mid(searchStart2, searchEnd2 - searchStart2),
+                subViewEnd(m_docContent, searchStart2, searchEnd2),
                 QStringView(QStringLiteral(">")));
     if (closingAngleBracketPos == -1)
         return;
@@ -2926,6 +3050,8 @@ void ExtraHighlightingResultsCollector::setResultPosFromRange(HighlightingResult
 
 void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
 {
+    if (node.kind() == "UserDefinedLiteral")
+        return;
     if (node.kind().endsWith("Literal")) {
         HighlightingResult result;
         result.useTextSyles = true;
@@ -2969,16 +3095,14 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
         // sub-expressions 2 and 3.
         const int searchStartPosQuestionMark = posForNodeEnd(children.first());
         const int searchEndPosQuestionMark = posForNodeStart(children.at(1));
-        QStringView content = QStringView(m_docContent).mid(
-                    searchStartPosQuestionMark,
-                    searchEndPosQuestionMark - searchStartPosQuestionMark);
+        QStringView content = subViewEnd(m_docContent, searchStartPosQuestionMark,
+                                         searchEndPosQuestionMark);
         const int questionMarkPos = onlyIndexOf(content, QStringView(QStringLiteral("?")));
         if (questionMarkPos == -1)
             return;
         const int searchStartPosColon = posForNodeEnd(children.at(1));
         const int searchEndPosColon = posForNodeStart(children.at(2));
-        content = QStringView(m_docContent).mid(searchStartPosColon,
-                                                searchEndPosColon - searchStartPosColon);
+        content = subViewEnd(m_docContent, searchStartPosColon, searchEndPosColon);
         const int colonPos = onlyIndexOf(content, QStringView(QStringLiteral(":")));
         if (colonPos == -1)
             return;
@@ -3155,8 +3279,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     if (isDeclaration)
         result.textStyles.mixinStyles.push_back(C_DECLARATION);
 
-    const QStringView nodeText = QStringView(m_docContent)
-            .mid(nodeStartPos, nodeEndPos - nodeStartPos);
+    const QStringView nodeText = subViewEnd(m_docContent, nodeStartPos, nodeEndPos);
 
     if (isCallToNew || isCallToDelete) {
         result.line = node.range().start().line() + 1;
@@ -3255,12 +3378,22 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
 {
     if (m_future.isCanceled())
         return;
-    collectFromNode(node);
-    const auto children = node.children();
-    if (!children)
+    switch (node.fileStatus(m_filePath)) {
+    case AstNode::FileStatus::Foreign:
         return;
-    for (const AstNode &childNode : *children)
-        visitNode(childNode);
+    case AstNode::FileStatus::Ours:
+    case AstNode::FileStatus::Unknown:
+        collectFromNode(node);
+        [[fallthrough]];
+    case ClangCodeModel::Internal::AstNode::FileStatus::Mixed: {
+        const auto children = node.children();
+        if (!children)
+            return;
+        for (const AstNode &childNode : *children)
+            visitNode(childNode);
+        break;
+    }
+    }
 }
 
 } // namespace Internal

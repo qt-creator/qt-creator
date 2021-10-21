@@ -552,7 +552,7 @@ void tst_LanguageServerProtocol::range_data()
     auto pos = [](int pos) { return Position(0, pos); };
 
     QTest::newRow("both ranges empty")
-        << Range(pos(0), pos(0)) << Range(pos(0), pos(0)) << false << true << true;
+        << Range(pos(0), pos(0)) << Range(pos(0), pos(0)) << true << true << true;
     QTest::newRow("equal ranges")
         << Range(pos(0), pos(1)) << Range(pos(0), pos(1)) << true << true << true;
     QTest::newRow("r1 before r2")
@@ -562,7 +562,7 @@ void tst_LanguageServerProtocol::range_data()
     QTest::newRow("r1 starts before r2 overlapping")
         << Range(pos(0), pos(2)) << Range(pos(1), pos(3)) << true << false << false;
     QTest::newRow("empty r1 on r2 start")
-        << Range(pos(0), pos(0)) << Range(pos(0), pos(1)) << false << false << true;
+        << Range(pos(0), pos(0)) << Range(pos(0), pos(1)) << true << false << true;
     QTest::newRow("r1 inside r2 equal start")
         << Range(pos(0), pos(1)) << Range(pos(0), pos(2)) << true << false << true;
     QTest::newRow("r1 inside r2 equal start")
@@ -576,7 +576,7 @@ void tst_LanguageServerProtocol::range_data()
     QTest::newRow("r1 ends after r2 overlapping")
         << Range(pos(1), pos(3)) << Range(pos(0), pos(2)) << true << false << false;
     QTest::newRow("empty r1 on r2 end")
-        << Range(pos(1), pos(1)) << Range(pos(0), pos(1)) << false << false << true;
+        << Range(pos(1), pos(1)) << Range(pos(0), pos(1)) << true << false << true;
     QTest::newRow("r1 adjacent after r2")
         << Range(pos(1), pos(2)) << Range(pos(0), pos(1)) << false << false << false;
     QTest::newRow("r1 behind r2")

@@ -40,6 +40,7 @@
     the build system structure of the project and lists all files that
     are part of the project.
 
+    \if defined(qtdesignstudio)
     The following image displays the \uicontrol Projects view in the
     \uicontrol Design mode:
 
@@ -64,14 +65,6 @@
             in the project tree. \QC makes the necessary changes to project
             configuration files.
     \endlist
-
-    \if defined(qtcreator)
-    Files that are not sources or data can be still included into a project's
-    distribution tarball by adding their paths to the \c DISTFILES variable in
-    the .pro file. This way they also become known to \QC, so that they are
-    visible in the \uicontrol Projects view and are known to the locator and
-    search.
-    \endif
 
     \section1 Projects View Context Menu
 
@@ -114,6 +107,7 @@
     the \l {File System} view.
 
     \section1 Projects View in Sidebar
+    \endif
 
     In the \uicontrol Edit and \uicontrol Debug mode, the \uicontrol Projects
     view is displayed in the \l{Working with Sidebars}{sidebar}. It has a

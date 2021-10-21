@@ -5,7 +5,7 @@
             "SPDX-FileCopyrightText: 2016 Dominik Haumann <dhaumann@kde.org>"
         ],
         "license": "SPDX-License-Identifier: MIT",
-        "revision" : 6,
+        "revision" : 7,
         "name" : "Breeze Dark"
     },
     "text-styles": {
@@ -149,7 +149,7 @@
     "editor-colors": {
         "BackgroundColor" : "#232629",
         "CodeFolding" : "#224e65",
-        "BracketMatching" : "#323030",
+        "BracketMatching" : "#8e44ad",
         "CurrentLine" : "#2A2E32",
         "IconBorder" : "#31363b",
         "IndentationLine" : "#3a3f44",

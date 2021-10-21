@@ -380,7 +380,6 @@ private:
     void copyTextEditorSettings();
     void setQtStyle();
     void setPlainStyle();
-    void updateVimRcWidgets();
 };
 
 void FakeVimOptionPage::layoutPage(QWidget *widget)
@@ -449,15 +448,14 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
 
     }.attachTo(widget, true);
 
+    s.vimRcPath.setEnabler(&s.readVimRc);
+
     connect(copyTextEditorSettings, &QAbstractButton::clicked,
             this, &FakeVimOptionPage::copyTextEditorSettings);
     connect(setQtStyle, &QAbstractButton::clicked,
             this, &FakeVimOptionPage::setQtStyle);
     connect(setPlainStyle, &QAbstractButton::clicked,
             this, &FakeVimOptionPage::setPlainStyle);
-    connect(&s.readVimRc, &FvBaseAspect::changed,
-            this, &FakeVimOptionPage::updateVimRcWidgets);
-    updateVimRcWidgets();
 }
 
 void FakeVimOptionPage::copyTextEditorSettings()
@@ -502,13 +500,6 @@ void FakeVimOptionPage::setPlainStyle()
     s.backspace.setVolatileValue(QString());
     s.passKeys.setVolatileValue(false);
 }
-
-void FakeVimOptionPage::updateVimRcWidgets()
-{
-    FakeVimSettings &s = *fakeVimSettings();
-    s.vimRcPath.setEnabled(s.readVimRc.value());
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //

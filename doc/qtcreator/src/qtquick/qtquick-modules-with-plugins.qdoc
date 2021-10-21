@@ -33,10 +33,11 @@
     \page creator-qml-modules-with-plugins.html
     \if defined(qtdesignstudio)
     \previouspage studio-simulink.html
-    \else
-    \previouspage qtquick-placeholder-data.html
-    \endif
     \nextpage qtquick-adding-dynamics.html
+    \else
+    \previouspage creator-quick-ui-forms.html
+    \nextpage creator-using-qt-designer.html
+    \endif
 
     \title Using QML Modules with Plugins
 
@@ -45,7 +46,12 @@
     the contained components, and therefore, the modules must provide extra type
     information for code completion and the semantic checks to work correctly.
 
-    To create a QML module and make it appear in the \l Library view:
+    To create a QML module
+    \if defined(qtdesignstudio)
+    and make it appear in the \l Library view:
+    \else
+    :
+    \endif
 
     \list 1
 
@@ -69,29 +75,27 @@
         \li Create a directory named \c designer in your module directory.
 
         \li Create a \c .metainfo file for your module and place it in the
-            \c designer directory. Meta information is needed to display the
+            \c designer directory.
+            \if defined(qtdesignstudio)
+            Meta information is needed to display the
             components in the \uicontrol Components tab in \uicontrol Library.
+            \endif
             Use a metainfo file delivered with Qt, such as
             \c qtquickcontrols2.metainfo, as an example.
 
         \if defined(qtcreator)
         \li Import the module into the project, as instructed in
             \l {Importing QML Modules}.
-
-        \li Make sure that the QML emulation layer used in the Design mode is built with
-            the same Qt version as your QML modules. For more information, see
-            \l {Running QML Modules in Design Mode}. You can also try
-            skipping this step and take it later, if necessary.
+        \endlist
         \else
         \li Build your module using the same Qt version and compiler as \QDS.
             For more information, see \l {Running QML Modules in Design Mode}.
-        \endif
-
-    \endlist
+        \endlist
 
     Your module should now appear in the \uicontrol Components tab in
     \uicontrol Library. Your components should appear in a subsection of
     the \uicontrol Components tab if a valid \c .metainfo file is in place.
+    \endif
 
     \if defined(qtcreator)
     \section1 Registering QML Types
@@ -105,9 +109,6 @@
     complain about unknown types. However, this works only when the source code
     is available, and therefore, you must explicitly generate type information
     for QML modules with plugins before distributing them.
-
-    Classes registered with \c qmlRegisterType() can be used as backend objects
-    in the Design mode. For more information, see \l {Adding Connections}.
     \endif
 
     \section1 Generating qmltypes Files
@@ -168,26 +169,16 @@
     \endcode
 
     The import path affects all the targets built by the CMake project.
-    \endif
 
+    \else
     \section1 Running QML Modules in Design Mode
 
-    A QML emulation layer (also called QML Puppet) is used in the Design mode to
-    render and preview images and to collect data. To be able to render custom components
-    correctly from QML modules, the emulation layer must be built with the same
-    Qt version and compiler as the QML modules.
+    A QML emulation layer (also called QML Puppet) is used in the
+    \uicontrol Design mode to render and preview images and to collect
+    data. To be able to render custom components correctly from QML modules,
+    the emulation layer must be built with the same Qt version and compiler
+    as the QML modules.
 
-    \if defined(qtcreator)
-    By default, a fallback emulation layer is provided by \QC and built with the same
-    Qt version as \QC. Therefore, your QML modules will mostly not work out of
-    the box.
-
-    To use an emulation layer that is built with the Qt
-    configured in the build and run kit for the project, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} >
-    \uicontrol {Use QML emulation layer which is built by the selected Qt} radio button.
-    \QC builds the emulation layer when you select the Design mode.
-    \else
     On Windows, select \uicontrol Help > \uicontrol {About Qt Design Studio} to
     check the Qt version and compiler that you need to use to build your plugin.
     For example: \c {Based on Qt 5.15.2 (MSVC 2019, 64 bit)}.
@@ -195,21 +186,20 @@
     On macOS, select \uicontrol {Qt Design Studio} >
     \uicontrol {About Qt Design Studio} to see something like:
     \c {Based on Qt 5.15.2 (Clang 10.0 (Apple), 64 bit)}.
-    \endif
-
 
     A plugin should behave differently depending on whether it is run by the
     emulation layer or an application. For example, animations should not be run
-    in the Design mode. You can use the value of the \c QML_PUPPET_MODE
+    in the \uicontrol Design mode. You can use the value of the \c QML_PUPPET_MODE
     environment variable to check whether the plugin is currently being run
-    by an application or edited in the Design mode.
+    by an application or edited in the \uicontrol Design mode.
 
-    If you want to use a different module in the Design mode than in your actual
-    application for example to mockup C++ items, then you can use \c{QML_DESIGNER_IMPORT_PATH}
+    If you want to use a different module in the \uicontrol Design mode
+    than  in your actual application for example to mockup C++ items,
+    you can use \c{QML_DESIGNER_IMPORT_PATH}
     in the \c{.pro} file (for qmake projects), or declare and set the property
     \c qmlDesignerImportPaths in your product (for Qbs projects).
     Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be
-    used only in the Design mode.
+    used only in the \uicontrol Design mode.
     For an example, see \l {Qt Quick Controls - Contact List}.
-
+    \endif
 */

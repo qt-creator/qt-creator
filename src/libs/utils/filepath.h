@@ -26,6 +26,7 @@
 #pragma once
 
 #include "utils_global.h"
+#include "porting.h"
 
 #include "hostosinfo.h"
 
@@ -140,7 +141,7 @@ public:
     void clear();
     bool isEmpty() const;
 
-    uint hash(uint seed) const;
+    QHashValueType hash(uint seed) const;
 
     [[nodiscard]] FilePath resolvePath(const FilePath &tail) const;
     [[nodiscard]] FilePath resolvePath(const QString &tail) const;
@@ -160,6 +161,9 @@ public:
                           const QStringList &nameFilters,
                           QDir::Filters filters = QDir::NoFilter,
                           QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;
+
+    [[nodiscard]] FilePath mapToGlobalPath() const;
+    [[nodiscard]] QString mapToDevicePath() const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
@@ -198,6 +202,11 @@ private:
 
 using FilePaths = QList<FilePath>;
 
+inline QHashValueType qHash(const Utils::FilePath &a, uint seed = 0)
+{
+    return a.hash(seed);
+}
+
 } // namespace Utils
 
 QT_BEGIN_NAMESPACE
@@ -205,3 +214,13 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FilePath &c);
 QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(Utils::FilePath)
+
+namespace std {
+template<>
+struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
+{
+    using argument_type = Utils::FilePath;
+    using result_type = size_t;
+    result_type operator()(const argument_type &fn) const;
+};
+} // namespace std

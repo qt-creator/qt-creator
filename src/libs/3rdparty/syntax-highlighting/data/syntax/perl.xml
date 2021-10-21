@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="17" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="18" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -92,7 +92,7 @@
       <item>+</item>
       <item>-</item>
       <item>*</item>
-     <!-- <item>/</item>//-->
+      <!-- <item>/</item>//-->
       <item>%</item>
       <item>||</item>
       <item>//</item>
@@ -420,7 +420,8 @@
         <DetectChar attribute="Operator" context="quote_word_paren" char="(" beginRegion="Wordlist" />
         <DetectChar attribute="Operator" context="quote_word_brace" char="{" beginRegion="Wordlist" />
         <DetectChar attribute="Operator" context="quote_word_bracket" char="[" beginRegion="Wordlist" />
-        <RegExpr attribute="Operator" context="quote_word" String="([^a-zA-Z0-9_\s[\]{}()])" beginRegion="Wordlist" />
+        <DetectChar attribute="Operator" context="quote_word_angular" char="&lt;" beginRegion="Wordlist" />
+        <RegExpr attribute="Operator" context="quote_word" String="([^a-zA-Z0-9_\s[\]{}()\&lt;&gt;])" beginRegion="Wordlist" />
         <RegExpr attribute="Comment" context="#stay" String="\s+#.*" /><!-- q[qwx] # == comment, look for the delim on the next line -->
       </context>
 
@@ -755,6 +756,12 @@
         <DetectIdentifier />
         <Detect2Chars attribute="Normal Text" context="#stay" char="\" char1="]" />
         <DetectChar attribute="Operator" context="#pop#pop#pop" char="]" endRegion="Wordlist" />
+      </context>
+      <context name="quote_word_angular" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces />
+        <DetectIdentifier />
+        <Detect2Chars attribute="Normal Text" context="#stay" char="\" char1="&gt;" />
+        <DetectChar attribute="Operator" context="#pop#pop#pop" char="&gt;" endRegion="Wordlist" />
       </context>
 
       <!-- ====== Here Documents ====== -->

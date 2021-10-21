@@ -91,6 +91,7 @@ public:
 
     static QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
     static QString apiLevelNameFor(const SdkPlatform *platform);
+    static int platformNameToApiLevel(const QString &platformName);
 
     Utils::FilePath sdkLocation() const;
     void setSdkLocation(const Utils::FilePath &sdkLocation);
@@ -144,7 +145,6 @@ public:
     Utils::FilePath keytoolPath() const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
-    static QVector<AndroidDeviceInfo> connectedDevices(const Utils::FilePath &adbToolPath, QString *error = nullptr);
 
     QString bestNdkPlatformMatch(int target, const QtSupport::BaseQtVersion *qtVersion) const;
 
@@ -171,16 +171,16 @@ public:
     void setOpenSslLocation(const Utils::FilePath &openSslLocation);
 
     static Utils::FilePath getJdkPath();
-    static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
+    static QStringList getAbis(const QString &device);
 
+    QString getRunningAvdsSerialNumber(const QString &name) const;
     static QStringList getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs);
 
 private:
-    static QString getDeviceProperty(const Utils::FilePath &adbToolPath,
-                                     const QString &device, const QString &property);
+    static QString getDeviceProperty(const QString &device, const QString &property);
 
     Utils::FilePath openJDKBinPath() const;
-    static int getSDKVersion(const Utils::FilePath &adbToolPath, const QString &device);
+    static int getSDKVersion(const QString &device);
     static QString getAvdName(const QString &serialnumber);
 
     void parseDependenciesJson();

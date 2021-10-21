@@ -32,7 +32,7 @@
 /*!
     \previouspage creator-visual-editor.html
     \page quick-projects.html
-    \nextpage creator-using-qt-quick-designer.html
+    \nextpage quick-converting-ui-projects.html
 
     \title Creating Qt Quick Projects
 
@@ -47,23 +47,11 @@
             \li Wizard Template
             \li Purpose
         \row
-            \li {1,4} Application (Qt Quick)
-            \li Qt Quick Application - Empty
+            \li Application (Qt)
+            \li Qt Quick Application
             \li Creates a Qt Quick 2 application project that can contain both
                 QML and C++ code. You can build the application and deploy it
                 to desktop, embedded, and mobile target platforms.
-        \row
-            \li Qt Quick Application - Scroll
-            \li Uses the \l{ScrollView} component to implement a scrollable
-                list view (requires Qt 5.9 or later).
-        \row
-            \li Qt Quick Application - Stack
-            \li Uses the \l{StackView} component to implement a set of pages
-                with a stack-based navigation model (requires Qt 5.7 or later).
-        \row
-           \li Qt Quick Application - Swipe
-           \li Uses the \l{SwipeView} component to implement a set of pages
-                with a swipe-based navigation model (requires Qt 5.7 or later).
         \row
             \li Application (Qt for Python)
             \li Qt for Python - Qt Quick Application
@@ -72,14 +60,13 @@
         \row
             \li Other Project
             \li Qt Quick UI Prototype
-            \li Creates a \l{Creating Qt Quick UI Projects}{Qt Quick UI project}
-                with a single QML file that contains the main view. You can
-                preview Qt Quick 2 UI projects in the
-                \l{Validating with Target Hardware}{QML Scene preview tool}.
-                You do not need to build them, because they do not contain any
-                C++ code.
+            \li Creates a Qt Quick UI project with a single QML file that
+                contains the main view. You can preview Qt Quick 2 UI projects
+                in the QML Scene preview tool. You do not need to build them,
+                because they do not contain any C++ code.
 
-                Use this template only if you are prototyping. You cannot create
+                This project type is compatible with \QDS. However, use this
+                template only if you are prototyping. You cannot create
                 a full application by using this template.
 
                 Qt Quick UI projects cannot be deployed to embedded or mobile
@@ -104,24 +91,17 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Application (Qt Quick)}.
+            \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}
+            > \uicontrol Choose.
 
-        \li Select the application type:
-            \list
-                \li \uicontrol {Qt Quick Application - Empty}
-                \li \uicontrol {Qt Quick Application - Scroll}
-                \li \uicontrol {Qt Quick Application - Stack}
-                \li \uicontrol {Qt Quick Application - Swipe}
-            \endlist
-
-        \li Select \uicontrol Choose to open the \uicontrol {Project Location}
-            dialog.
-
-        \li In the \uicontrol Name field, enter a name for the application.
+        \li In the \uicontrol {Project Location} dialog, \uicontrol Name field,
+            enter a name for the project. Keep in mind that you cannot easily
+            change the project name later.
 
         \li In the \uicontrol {Create in} field, enter the path for the project
             files. Select the \uicontrol {Use as default project location} check
-            box to create new projects in this folder by default.
+            box to create new projects in this folder by default. You can move
+            project folders later without problems.
 
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Build System} dialog.
@@ -143,9 +123,8 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            the \e main.qml in the \uicontrol {Form Editor} in the Design mode.
-            You can use the \l {Installing Qt}{Qt Maintenance Tool} to install
-            Qt Virtual Keyboard.
+            \e main.qml for editing. You can use the \l {Installing Qt}
+            {Qt Maintenance Tool} to install Qt Virtual Keyboard.
 
         \li Select \uicontrol Next to open the \uicontrol {Translation File}
             dialog.
@@ -179,14 +158,8 @@
 
     \endlist
 
-    For the Empty and Scroll applications, \QC creates a QML file,
-    \e main.qml, that you can modify in the \uicontrol {Form Editor}
-    or the \uicontrol {Text Editor}.
-
-    For the Stack and Swipe applications, \QC generates two \l{UI Files}{UI files},
-    \e Page1Form.ui.qml and \e Page2Form.ui.qml, that you can modify in the
-    \uicontrol {Form Editor} and a QML file, \e main.qml, that you can
-    modify in the \uicontrol {Text Editor} to add the application logic.
+    \QC creates a QML file, \e main.qml, that you can modify in the
+    \uicontrol Edit mode.
 
     \include creator-python-project.qdocinc python qml project wizards
 
@@ -240,9 +213,7 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            the \e main.qml in the \uicontrol {Form Editor} in the Design mode.
-            You can use the \l {Installing Qt}{Qt Maintenance Tool} to install
-            Qt Virtual Keyboard.
+            \e main.qml.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.

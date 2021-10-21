@@ -992,13 +992,15 @@ Utils::FilePath projectFilePath()
     return Utils::FilePath();
 }
 
-static bool addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
+static AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
     if (directory.isEmpty())
-        return false;
+        return AddFilesResult::Cancelled;
 
-    bool allSuccessful = true;
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    QTC_ASSERT(document, return AddFilesResult::Failed);
+
     QList<QPair<QString, QString>> copyList;
     QStringList removeList;
     for (const QString &fileName : fileNames) {
@@ -1021,26 +1023,21 @@ static bool addFilesToProject(const QStringList &fileNames, const QString &defau
     // unnecessarily refreshing file models multiple times during the operation
     for (const auto &file : qAsConst(removeList))
         QFile::remove(file);
+
     for (const auto &filePair : qAsConst(copyList)) {
         const bool success = QFile::copy(filePair.first, filePair.second);
+        if (!success)
+            return AddFilesResult::Failed;
 
-        auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
-
-        QTC_ASSERT(document, return false);
-
-        if (success) {
-            ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
-            if (node) {
-                ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
-                if (containingFolder)
-                    containingFolder->addFiles({Utils::FilePath::fromString(filePair.second)});
-            }
-        } else {
-            allSuccessful = false;
+        ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
+        if (node) {
+            ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
+            if (containingFolder)
+                containingFolder->addFiles({Utils::FilePath::fromString(filePair.second)});
         }
     }
 
-    return allSuccessful;
+    return AddFilesResult::Succeeded;
 }
 
 static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)
@@ -1060,22 +1057,22 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
     return adjustedDefaultDirectory;
 }
 
-bool addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     return addFilesToProject(fileNames, getAssetDefaultDirectory("fonts", defaultDirectory));
 }
 
-bool addSoundToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     return addFilesToProject(fileNames, getAssetDefaultDirectory("sounds", defaultDirectory));
 }
 
-bool addShaderToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     return addFilesToProject(fileNames, getAssetDefaultDirectory("shaders", defaultDirectory));
 }
 
-bool addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     return addFilesToProject(fileNames, getAssetDefaultDirectory("images", defaultDirectory));
 }

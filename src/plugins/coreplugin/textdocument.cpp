@@ -183,7 +183,13 @@ void BaseTextDocument::setCodec(const QTextCodec *codec)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << (codec ? codec->name() : QByteArray());
-    d->m_format.codec = codec;
+    if (supportsCodec(codec))
+        d->m_format.codec = codec;
+}
+
+bool BaseTextDocument::supportsCodec(const QTextCodec *) const
+{
+    return true;
 }
 
 void BaseTextDocument::switchUtf8Bom()

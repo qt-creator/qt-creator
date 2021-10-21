@@ -376,7 +376,7 @@ void Project::setExtraProjectFiles(const QSet<FilePath> &projectDocumentPaths,
     const QSet<FilePath> toAdd = uniqueNewFiles - existingWatches;
     const QSet<FilePath> toRemove = existingWatches - uniqueNewFiles;
 
-    erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<IDocument> &d) {
+    Utils::erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<IDocument> &d) {
         return toRemove.contains(d->filePath());
     });
     if (docUpdater) {
@@ -586,7 +586,8 @@ void Project::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
     }
 
     if (root) {
-        ProjectTree::applyTreeManager(root.get());
+        ProjectTree::applyTreeManager(root.get(), ProjectTree::AsyncPhase);
+        ProjectTree::applyTreeManager(root.get(), ProjectTree::FinalPhase);
         root->setParentFolderNode(d->m_containerNode.get());
     }
 
@@ -804,8 +805,9 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
         k = KitManager::registerKit([deviceTypeId, &formerKitName](Kit *kit) {
-                const QString tempKitName = makeUniquelyNumbered(
-                            tr("Replacement for \"%1\"").arg(formerKitName),
+                const QString kitNameSuggestion = formerKitName.contains(tr("Replacement for"))
+                        ? formerKitName : tr("Replacement for \"%1\"").arg(formerKitName);
+                const QString tempKitName = makeUniquelyNumbered(kitNameSuggestion,
                         transform(KitManager::kits(), &Kit::unexpandedDisplayName));
                 kit->setUnexpandedDisplayName(tempKitName);
                 DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);

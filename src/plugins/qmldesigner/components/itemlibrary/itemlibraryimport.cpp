@@ -133,28 +133,38 @@ bool ItemLibraryImport::updateCategoryVisibility(const QString &searchText, bool
     return hasVisibleCategories;
 }
 
-void ItemLibraryImport::showAllCategories(bool show)
+void ItemLibraryImport::showAllCategories()
 {
-    m_categoryModel.showAllCategories(show);
+    m_categoryModel.showAllCategories();
+    setAllCategoriesVisible(true);
 }
 
-void ItemLibraryImport::selectCategory(int categoryIndex)
+void ItemLibraryImport::hideCategory(const QString &categoryName)
 {
-    m_categoryModel.selectCategory(categoryIndex);
+    m_categoryModel.hideCategory(categoryName);
+    setAllCategoriesVisible(false);
 }
 
-QObject *ItemLibraryImport::selectFirstVisibleCategory()
+ItemLibraryCategory *ItemLibraryImport::selectCategory(int categoryIndex)
+{
+    return m_categoryModel.selectCategory(categoryIndex);
+}
+
+int ItemLibraryImport::selectFirstVisibleCategory()
 {
     return m_categoryModel.selectFirstVisibleCategory();
 }
 
-void ItemLibraryImport::clearSelectedCategories()
+void ItemLibraryImport::clearSelectedCategory(int categoryIndex)
 {
-    m_categoryModel.clearSelectedCategories();
+    m_categoryModel.clearSelectedCategory(categoryIndex);
 }
 
 bool ItemLibraryImport::isAllCategoriesHidden() const
 {
+    if (!m_isVisible)
+        return true;
+
     return m_categoryModel.isAllCategoriesHidden();
 }
 
@@ -221,12 +231,22 @@ void ItemLibraryImport::setImportExpanded(bool expanded)
     }
 }
 
-ItemLibraryCategory *ItemLibraryImport::getCategorySection(const QString &categoryName) const
+ItemLibraryCategory *ItemLibraryImport::getCategoryByName(const QString &categoryName) const
 {
     for (ItemLibraryCategory *catSec : std::as_const(m_categoryModel.categorySections())) {
         if (catSec->categoryName() == categoryName)
             return catSec;
     }
+
+    return nullptr;
+}
+
+ItemLibraryCategory *ItemLibraryImport::getCategoryAt(int categoryIndex) const
+{
+    const QList<QPointer<ItemLibraryCategory>> categories = m_categoryModel.categorySections();
+
+    if (categoryIndex != -1 && !categories.isEmpty())
+        return categories.at(categoryIndex);
 
     return nullptr;
 }
@@ -264,22 +284,14 @@ void ItemLibraryImport::updateRemovable()
     }
 }
 
-// returns true if all categories are visible, otherwise false
-bool ItemLibraryImport::importCatVisibleState() const
+bool ItemLibraryImport::allCategoriesVisible() const
 {
-    if (m_categoryModel.rowCount() > 0) {
-        for (ItemLibraryCategory *cat : m_categoryModel.categorySections()) {
-            if (!cat->isCategoryVisible())
-                return false;
-        }
-    }
-
-    return true;
+    return m_allCategoriesVisible;
 }
 
-void ItemLibraryImport::setImportCatVisibleState(bool show)
+void ItemLibraryImport::setAllCategoriesVisible(bool visible)
 {
-    m_categoryModel.showAllCategories(show);
+    m_allCategoriesVisible = visible;
 }
 
 } // namespace QmlDesigner

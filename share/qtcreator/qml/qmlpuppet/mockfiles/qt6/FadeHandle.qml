@@ -41,6 +41,7 @@ DirectionalDraggable {
 
     Model {
         id: handle
+        readonly property bool _edit3dLocked: true // Make this non-pickable
         source: "#Sphere"
         materials: [ handleRoot.material ]
         scale: Qt.vector3d(0.02, 0.02, 0.02)

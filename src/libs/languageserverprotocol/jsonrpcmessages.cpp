@@ -37,6 +37,7 @@
 #include <QTextCodec>
 
 namespace LanguageServerProtocol {
+Q_LOGGING_CATEGORY(timingLog, "qtc.languageserverprotocol.timing", QtWarningMsg)
 
 constexpr const char CancelRequest::methodName[];
 
@@ -147,5 +148,11 @@ QJsonObject JsonRpcMessageHandler::toJsonObject(const QByteArray &_content,
 CancelRequest::CancelRequest(const CancelParameter &params)
     : Notification(methodName, params)
 { }
+
+void logElapsedTime(const QString &method, const QElapsedTimer &t)
+{
+    qCDebug(timingLog) << "received server reply to" << method
+                       << "after" << t.elapsed() << "ms";
+}
 
 } // namespace LanguageServerProtocol

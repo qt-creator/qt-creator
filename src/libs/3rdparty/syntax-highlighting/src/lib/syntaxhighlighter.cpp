@@ -37,11 +37,13 @@ public:
 FoldingRegion SyntaxHighlighterPrivate::foldingRegion(const QTextBlock &startBlock)
 {
     const auto data = dynamic_cast<TextBlockUserData *>(startBlock.userData());
-    if (!data)
+    if (!data) {
         return FoldingRegion();
+    }
     for (int i = data->foldingRegions.size() - 1; i >= 0; --i) {
-        if (data->foldingRegions.at(i).type() == FoldingRegion::Begin)
+        if (data->foldingRegions.at(i).type() == FoldingRegion::Begin) {
             return data->foldingRegions.at(i);
+        }
     }
     return FoldingRegion();
 }
@@ -68,8 +70,9 @@ void SyntaxHighlighter::setDefinition(const Definition &def)
 {
     const auto needsRehighlight = definition() != def;
     AbstractHighlighter::setDefinition(def);
-    if (needsRehighlight)
+    if (needsRehighlight) {
         rehighlight();
+    }
 }
 
 bool SyntaxHighlighter::startsFoldingRegion(const QTextBlock &startBlock) const
@@ -86,17 +89,21 @@ QTextBlock SyntaxHighlighter::findFoldingRegionEnd(const QTextBlock &startBlock)
     while (block.isValid()) {
         block = block.next();
         const auto data = dynamic_cast<TextBlockUserData *>(block.userData());
-        if (!data)
+        if (!data) {
             continue;
+        }
         for (auto it = data->foldingRegions.constBegin(); it != data->foldingRegions.constEnd(); ++it) {
-            if ((*it).id() != region.id())
+            if ((*it).id() != region.id()) {
                 continue;
-            if ((*it).type() == FoldingRegion::End)
+            }
+            if ((*it).type() == FoldingRegion::End) {
                 --depth;
-            else if ((*it).type() == FoldingRegion::Begin)
+            } else if ((*it).type() == FoldingRegion::Begin) {
                 ++depth;
-            if (depth == 0)
+            }
+            if (depth == 0) {
                 return block;
+            }
         }
     }
 
@@ -111,8 +118,9 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
     if (currentBlock().position() > 0) {
         const auto prevBlock = currentBlock().previous();
         const auto prevData = dynamic_cast<TextBlockUserData *>(prevBlock.userData());
-        if (prevData)
+        if (prevData) {
             state = prevData->state;
+        }
     }
     d->foldingRegions.clear();
     state = highlightLine(text, state);
@@ -126,35 +134,43 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
         return;
     }
 
-    if (data->state == state && data->foldingRegions == d->foldingRegions) // we ended up in the same state, so we are done here
+    if (data->state == state && data->foldingRegions == d->foldingRegions) { // we ended up in the same state, so we are done here
         return;
+    }
     data->state = state;
     data->foldingRegions = d->foldingRegions;
 
     const auto nextBlock = currentBlock().next();
-    if (nextBlock.isValid())
+    if (nextBlock.isValid()) {
         QMetaObject::invokeMethod(this, "rehighlightBlock", Qt::QueuedConnection, Q_ARG(QTextBlock, nextBlock));
+    }
 }
 
 void SyntaxHighlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format)
 {
-    if (length == 0)
+    if (length == 0) {
         return;
+    }
 
     QTextCharFormat tf;
     // always set the foreground color to avoid palette issues
     tf.setForeground(format.textColor(theme()));
 
-    if (format.hasBackgroundColor(theme()))
+    if (format.hasBackgroundColor(theme())) {
         tf.setBackground(format.backgroundColor(theme()));
-    if (format.isBold(theme()))
+    }
+    if (format.isBold(theme())) {
         tf.setFontWeight(QFont::Bold);
-    if (format.isItalic(theme()))
+    }
+    if (format.isItalic(theme())) {
         tf.setFontItalic(true);
-    if (format.isUnderline(theme()))
+    }
+    if (format.isUnderline(theme())) {
         tf.setFontUnderline(true);
-    if (format.isStrikeThrough(theme()))
+    }
+    if (format.isStrikeThrough(theme())) {
         tf.setFontStrikeOut(true);
+    }
 
     QSyntaxHighlighter::setFormat(offset, length, tf);
 }
@@ -165,13 +181,15 @@ void SyntaxHighlighter::applyFolding(int offset, int length, FoldingRegion regio
     Q_UNUSED(length);
     Q_D(SyntaxHighlighter);
 
-    if (region.type() == FoldingRegion::Begin)
+    if (region.type() == FoldingRegion::Begin) {
         d->foldingRegions.push_back(region);
+    }
 
     if (region.type() == FoldingRegion::End) {
         for (int i = d->foldingRegions.size() - 1; i >= 0; --i) {
-            if (d->foldingRegions.at(i).id() != region.id() || d->foldingRegions.at(i).type() != FoldingRegion::Begin)
+            if (d->foldingRegions.at(i).id() != region.id() || d->foldingRegions.at(i).type() != FoldingRegion::Begin) {
                 continue;
+            }
             d->foldingRegions.remove(i);
             return;
         }

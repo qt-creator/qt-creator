@@ -237,6 +237,7 @@ public:
     bool isAnyUnixDevice() const;
 
     virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
+    virtual QString mapToDevicePath(const Utils::FilePath &globalPath) const;
 
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
     virtual bool isExecutableFile(const Utils::FilePath &filePath) const;

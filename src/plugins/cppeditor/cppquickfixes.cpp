@@ -2483,7 +2483,7 @@ void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface,
         AST *ast = path.at(depth);
         SwitchStatementAST *switchStatement = ast->asSwitchStatement();
         if (switchStatement) {
-            if (!switchStatement->statement)
+            if (!switchStatement->statement || !switchStatement->symbol)
                 return;
             CompoundStatementAST *compoundStatement = switchStatement->statement->asCompoundStatement();
             if (!compoundStatement) // we ignore pathologic case "switch (t) case A: ;"

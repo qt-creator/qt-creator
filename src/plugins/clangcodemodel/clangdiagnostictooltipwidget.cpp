@@ -104,9 +104,9 @@ public:
     }
 
     QWidget *createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-                          const std::function<bool()> &canApplyFixIt)
+                          const std::function<bool()> &canApplyFixIt, const QString &source)
     {
-        const QString text = htmlText(diagnostics);
+        const QString text = htmlText(diagnostics, source);
 
         auto *label = new QLabel;
         label->setTextFormat(Qt::RichText);
@@ -154,13 +154,20 @@ public:
         return label;
     }
 
-    QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
+    QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                     const QString &source)
     {
         // For debugging, add: style='border-width:1px;border-color:black'
         QString text = "<table cellspacing='0' cellpadding='0' width='100%'>";
 
         foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics)
             text.append(tableRows(diagnostic));
+        if (!source.isEmpty()) {
+            text.append(QString::fromUtf8("<tr><td colspan='2' align='left'>"
+                                          "<font color='gray'>%1</font></td></tr>")
+                        .arg(QCoreApplication::translate("ClangDiagnosticWidget", "[Source: %1]"))
+                        .arg(source));
+        }
 
         text.append("</table>");
 
@@ -396,7 +403,8 @@ QString ClangDiagnosticWidget::createText(
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
     const ClangDiagnosticWidget::Destination &destination)
 {
-    const QString htmlText = WidgetFromDiagnostics(toHints(destination, {})).htmlText(diagnostics);
+    const QString htmlText = WidgetFromDiagnostics(toHints(destination, {}))
+            .htmlText(diagnostics, {});
 
     QTextDocument document;
     document.setHtml(htmlText);
@@ -410,11 +418,13 @@ QString ClangDiagnosticWidget::createText(
     return text;
 }
 
-QWidget *ClangDiagnosticWidget::createWidget(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
-        const Destination &destination, const std::function<bool()> &canApplyFixIt)
+QWidget *ClangDiagnosticWidget::createWidget(
+        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+        const Destination &destination, const std::function<bool()> &canApplyFixIt,
+        const QString &source)
 {
     return WidgetFromDiagnostics(toHints(destination, canApplyFixIt))
-            .createWidget(diagnostics, canApplyFixIt);
+            .createWidget(diagnostics, canApplyFixIt, source);
 }
 
 } // namespace Internal

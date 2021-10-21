@@ -45,6 +45,7 @@ Model {
     property vector3d _targetPosOnScreen
     property vector3d _startRotation
     property bool _trackBall
+    readonly property bool _edit3dLocked: true // Make this non-pickable
 
     signal rotateCommit()
     signal rotateChange()

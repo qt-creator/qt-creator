@@ -52,27 +52,18 @@ DefinitionData *DefinitionData::get(const Definition &def)
 Definition::Definition()
     : d(new DefinitionData)
 {
-}
-
-Definition::Definition(const Definition &other)
-    : d(other.d)
-{
     d->q = *this;
 }
+
+Definition::Definition(Definition &&other) noexcept = default;
+Definition::Definition(const Definition &) = default;
+Definition::~Definition() = default;
+Definition &Definition::operator=(Definition &&other) noexcept = default;
+Definition &Definition::operator=(const Definition &) = default;
 
 Definition::Definition(std::shared_ptr<DefinitionData> &&dd)
     : d(std::move(dd))
 {
-}
-
-Definition::~Definition()
-{
-}
-
-Definition &Definition::operator=(const Definition &rhs)
-{
-    d = rhs.d;
-    return *this;
 }
 
 bool Definition::operator==(const Definition &other) const
@@ -223,8 +214,9 @@ bool Definition::setKeywordList(const QString &name, const QStringList &content)
     if (list) {
         list->setKeywordList(content);
         return true;
-    } else
+    } else {
         return false;
+    }
 }
 
 QVector<Format> Definition::formats() const
@@ -251,7 +243,7 @@ QVector<Definition> Definition::includedDefinitions() const
         // Iterate all context rules to find associated Definitions. This will
         // automatically catch other Definitions referenced with IncludeRuldes or ContextSwitch.
         const auto definition = queue.takeLast();
-        for (const auto &context : qAsConst(definition.d->contexts)) {
+        for (const auto &context : std::as_const(definition.d->contexts)) {
             // handle context switch attributes of this context itself
             for (const auto switchContext :
                  {context->lineEndContext().context(), context->lineEmptyContext().context(), context->fallthroughContext().context()}) {
@@ -321,8 +313,9 @@ Context *DefinitionData::initialContext() const
 Context *DefinitionData::contextByName(const QString &wantedName) const
 {
     for (const auto context : contexts) {
-        if (context->name() == wantedName)
+        if (context->name() == wantedName) {
             return context;
+        }
     }
     return nullptr;
 }
@@ -336,8 +329,9 @@ KeywordList *DefinitionData::keywordList(const QString &wantedName)
 Format DefinitionData::formatByName(const QString &wantedName) const
 {
     const auto it = formats.constFind(wantedName);
-    if (it != formats.constEnd())
+    if (it != formats.constEnd()) {
         return it.value();
+    }
 
     return Format();
 }
@@ -349,24 +343,29 @@ bool DefinitionData::isLoaded() const
 
 bool DefinitionData::load(OnlyKeywords onlyKeywords)
 {
-    if (fileName.isEmpty())
+    if (fileName.isEmpty()) {
         return false;
+    }
 
-    if (isLoaded())
+    if (isLoaded()) {
         return true;
+    }
 
-    if (bool(onlyKeywords) && keywordIsLoaded)
+    if (bool(onlyKeywords) && keywordIsLoaded) {
         return true;
+    }
 
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly))
+    if (!file.open(QFile::ReadOnly)) {
         return false;
+    }
 
     QXmlStreamReader reader(&file);
     while (!reader.atEnd()) {
         const auto token = reader.readNext();
-        if (token != QXmlStreamReader::StartElement)
+        if (token != QXmlStreamReader::StartElement) {
             continue;
+        }
 
         if (reader.name() == QLatin1String("highlighting")) {
             loadHighlighting(reader, onlyKeywords);
@@ -375,21 +374,22 @@ bool DefinitionData::load(OnlyKeywords onlyKeywords)
             }
         }
 
-        else if (reader.name() == QLatin1String("general"))
+        else if (reader.name() == QLatin1String("general")) {
             loadGeneral(reader);
+        }
     }
 
     for (auto it = keywordLists.begin(); it != keywordLists.end(); ++it) {
         it->setCaseSensitivity(caseSensitive);
     }
 
-    for (const auto context : qAsConst(contexts)) {
+    for (const auto context : std::as_const(contexts)) {
         context->resolveContexts();
         context->resolveIncludes();
         context->resolveAttributeFormat();
     }
 
-    for (const auto context : qAsConst(contexts)) {
+    for (const auto context : std::as_const(contexts)) {
         for (const auto &rule : context->rules()) {
             rule->resolvePostProcessing();
         }
@@ -427,14 +427,16 @@ bool DefinitionData::loadMetaData(const QString &definitionFileName)
     fileName = definitionFileName;
 
     QFile file(definitionFileName);
-    if (!file.open(QFile::ReadOnly))
+    if (!file.open(QFile::ReadOnly)) {
         return false;
+    }
 
     QXmlStreamReader reader(&file);
     while (!reader.atEnd()) {
         const auto token = reader.readNext();
-        if (token != QXmlStreamReader::StartElement)
+        if (token != QXmlStreamReader::StartElement) {
             continue;
+        }
         if (reader.name() == QLatin1String("language")) {
             return loadLanguage(reader);
         }
@@ -457,11 +459,13 @@ bool DefinitionData::loadMetaData(const QString &file, const QCborMap &obj)
     fileName = file;
 
     const auto exts = obj.value(QLatin1String("extensions")).toString();
-    for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+    for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
         extensions.push_back(ext);
+    }
     const auto mts = obj.value(QLatin1String("mimetype")).toString();
-    for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+    for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
         mimetypes.push_back(mt);
+    }
 
     return true;
 }
@@ -471,8 +475,9 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("language"));
     Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
 
-    if (!checkKateVersion(reader.attributes().value(QLatin1String("kateversion"))))
+    if (!checkKateVersion(reader.attributes().value(QLatin1String("kateversion")))) {
         return false;
+    }
 
     name = reader.attributes().value(QLatin1String("name")).toString();
     section = reader.attributes().value(QLatin1String("section")).toString();
@@ -485,13 +490,16 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     author = reader.attributes().value(QLatin1String("author")).toString();
     license = reader.attributes().value(QLatin1String("license")).toString();
     const auto exts = reader.attributes().value(QLatin1String("extensions")).toString();
-    for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+    for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
         extensions.push_back(ext);
+    }
     const auto mts = reader.attributes().value(QLatin1String("mimetype")).toString();
-    for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+    for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
         mimetypes.push_back(mt);
-    if (reader.attributes().hasAttribute(QLatin1String("casesensitive")))
+    }
+    if (reader.attributes().hasAttribute(QLatin1String("casesensitive"))) {
         caseSensitive = Xml::attrToBool(reader.attributes().value(QLatin1String("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    }
     return true;
 }
 
@@ -618,8 +626,9 @@ void DefinitionData::loadGeneral(QXmlStreamReader &reader)
             ++elementRefCounter;
 
             if (reader.name() == QLatin1String("keywords")) {
-                if (reader.attributes().hasAttribute(QLatin1String("casesensitive")))
+                if (reader.attributes().hasAttribute(QLatin1String("casesensitive"))) {
                     caseSensitive = Xml::attrToBool(reader.attributes().value(QLatin1String("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+                }
 
                 // adapt wordDelimiters
                 wordDelimiters.append(reader.attributes().value(QLatin1String("additionalDeliminator")));
@@ -628,14 +637,15 @@ void DefinitionData::loadGeneral(QXmlStreamReader &reader)
                 // adapt WordWrapDelimiters
                 auto wordWrapDeliminatorAttr = reader.attributes().value(
                     QLatin1String("wordWrapDeliminator"));
-                if (wordWrapDeliminatorAttr.isEmpty())
+                if (wordWrapDeliminatorAttr.isEmpty()) {
                     wordWrapDelimiters = wordDelimiters;
-                else {
+                } else {
                     wordWrapDelimiters.append(wordWrapDeliminatorAttr);
                 }
             } else if (reader.name() == QLatin1String("folding")) {
-                if (reader.attributes().hasAttribute(QLatin1String("indentationsensitive")))
+                if (reader.attributes().hasAttribute(QLatin1String("indentationsensitive"))) {
                     indentationBasedFolding = Xml::attrToBool(reader.attributes().value(QLatin1String("indentationsensitive")));
+                }
             } else if (reader.name() == QLatin1String("emptyLines")) {
                 loadFoldingIgnoreList(reader);
             } else if (reader.name() == QLatin1String("comments")) {
@@ -649,8 +659,9 @@ void DefinitionData::loadGeneral(QXmlStreamReader &reader)
             break;
         case QXmlStreamReader::EndElement:
             --elementRefCounter;
-            if (elementRefCounter == 0)
+            if (elementRefCounter == 0) {
                 return;
+            }
             reader.readNext();
             break;
         default:
@@ -688,8 +699,9 @@ void DefinitionData::loadComments(QXmlStreamReader &reader)
             break;
         case QXmlStreamReader::EndElement:
             --elementRefCounter;
-            if (elementRefCounter == 0)
+            if (elementRefCounter == 0) {
                 return;
+            }
             reader.readNext();
             break;
         default:
@@ -719,8 +731,9 @@ void DefinitionData::loadFoldingIgnoreList(QXmlStreamReader &reader)
             break;
         case QXmlStreamReader::EndElement:
             --elementRefCounter;
-            if (elementRefCounter == 0)
+            if (elementRefCounter == 0) {
                 return;
+            }
             reader.readNext();
             break;
         default:
@@ -754,8 +767,9 @@ void DefinitionData::loadSpellchecking(QXmlStreamReader &reader)
             break;
         case QXmlStreamReader::EndElement:
             --elementRefCounter;
-            if (elementRefCounter == 0)
+            if (elementRefCounter == 0) {
                 return;
+            }
             reader.readNext();
             break;
         default:
@@ -798,10 +812,6 @@ DefinitionRef::DefinitionRef(const Definition &def)
 {
 }
 
-DefinitionRef::~DefinitionRef()
-{
-}
-
 DefinitionRef &DefinitionRef::operator=(const Definition &def)
 {
     d = def.d;
@@ -810,8 +820,9 @@ DefinitionRef &DefinitionRef::operator=(const Definition &def)
 
 Definition DefinitionRef::definition() const
 {
-    if (!d.expired())
+    if (!d.expired()) {
         return Definition(d.lock());
+    }
     return Definition();
 }
 

@@ -82,7 +82,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
 
     QFuture<GenerateCompilationDbResult> task
             = QtConcurrent::run(&Internal::generateCompilationDB, projectInfo,
-                                CompilationDbPurpose::Project,
+                                projectInfo->buildRoot(), CompilationDbPurpose::Project,
                                 warningsConfigForProject(target->project()),
                                 optionsForProject(target->project()));
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");

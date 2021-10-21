@@ -189,6 +189,8 @@ public:
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
 
     // logging
+    enum class LogTarget { Console, Ui };
+    void setLogTarget(LogTarget target) { m_logTarget = target; }
     void log(const QString &message) const;
     template<typename Error>
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
@@ -288,6 +290,7 @@ private:
     QString m_serverName;
     QString m_serverVersion;
     LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
+    LogTarget m_logTarget = LogTarget::Ui;
     bool m_locatorsEnabled = true;
     bool m_autoRequestCodeActions = true;
 };
