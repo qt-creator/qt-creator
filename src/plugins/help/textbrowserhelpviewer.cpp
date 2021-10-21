@@ -372,6 +372,7 @@ void TextBrowserHelpWidget::wheelEvent(QWheelEvent *e)
             // view in a broken way. We handle it properly through the sequence:
             // HelpViewer::wheelEvent() -> LocalHelpManager::setFontZoom() ->
             // HelpViewer::setFontZoom() -> TextBrowserHelpViewer::setFontAndScale().
+            e->ignore();
             return;
         }
     }
