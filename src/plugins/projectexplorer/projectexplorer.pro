@@ -85,7 +85,6 @@ HEADERS += projectexplorer.h \
     applicationlauncher.h \
     runsettingspropertiespage.h \
     projecttreewidget.h \
-    foldernavigationwidget.h \
     buildprogress.h \
     projectnodes.h \
     sessiondialog.h \
@@ -239,7 +238,6 @@ SOURCES += projectexplorer.cpp \
     applicationlauncher.cpp \
     runsettingspropertiespage.cpp \
     projecttreewidget.cpp \
-    foldernavigationwidget.cpp \
     buildprogress.cpp \
     projectnodes.cpp \
     sessiondialog.cpp \

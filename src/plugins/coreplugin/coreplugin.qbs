@@ -71,6 +71,8 @@ Project {
                 "fileutils.h",
                 "findplaceholder.cpp",
                 "findplaceholder.h",
+                "foldernavigationwidget.cpp",
+                "foldernavigationwidget.h",
                 "generalsettings.cpp",
                 "generalsettings.h",
                 "generalsettings.ui",

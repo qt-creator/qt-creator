@@ -34,15 +34,18 @@
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
+#include "textdocument.h"
 #include "texteditor.h"
 #include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/diffservice.h>
 #include <coreplugin/externaltoolmanager.h>
+#include <coreplugin/foldernavigationwidget.h>
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/icodestylepreferences.h>
@@ -165,13 +168,26 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
                                     tr("Text", "SnippetProvider"));
 
     d->createStandardContextMenu();
+
     return true;
 }
 
 void TextEditorPluginPrivate::extensionsInitialized()
 {
-    connect(&settings, &TextEditorSettings::fontSettingsChanged,
-            this, &TextEditorPluginPrivate::updateSearchResultsFont);
+    connect(FolderNavigationWidgetFactory::instance(),
+            &FolderNavigationWidgetFactory::aboutToShowContextMenu,
+            this,
+            [](QMenu *menu, const FilePath &filePath, bool isDir) {
+                if (!isDir && Core::DiffService::instance()) {
+                    menu->addAction(TextEditor::TextDocument::createDiffAgainstCurrentFileAction(
+                        menu, [filePath]() { return filePath; }));
+                }
+            });
+
+    connect(&settings,
+            &TextEditorSettings::fontSettingsChanged,
+            this,
+            &TextEditorPluginPrivate::updateSearchResultsFont);
 
     updateSearchResultsFont(TextEditorSettings::fontSettings());
 

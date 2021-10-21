@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "foldernavigationwidget.h"
 #include <qglobal.h>
 
 #include <extensionsystem/iplugin.h>
@@ -39,6 +40,9 @@ class PathChooser;
 }
 
 namespace Core {
+
+class FolderNavigationWidgetFactory;
+
 namespace Internal {
 
 class EditMode;
@@ -92,6 +96,7 @@ private:
     MainWindow *m_mainWindow = nullptr;
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
+    FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory;
     Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;
 };

@@ -74,7 +74,6 @@ Project {
                 "fileinsessionfinder.cpp", "fileinsessionfinder.h",
                 "filesinallprojectsfind.cpp", "filesinallprojectsfind.h",
                 "filterkitaspectsdialog.cpp", "filterkitaspectsdialog.h",
-                "foldernavigationwidget.cpp", "foldernavigationwidget.h",
                 "gccparser.cpp", "gccparser.h",
                 "gcctoolchain.cpp", "gcctoolchain.h",
                 "gcctoolchainfactories.h",

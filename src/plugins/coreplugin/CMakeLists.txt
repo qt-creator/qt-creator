@@ -83,6 +83,8 @@ add_qtc_plugin(Core
     find/searchresultwindow.cpp find/searchresultwindow.h
     find/textfindconstants.h
     findplaceholder.cpp findplaceholder.h
+    foldernavigationwidget.cpp
+    foldernavigationwidget.h
     generalsettings.cpp generalsettings.h generalsettings.ui
     generatedfile.cpp generatedfile.h
     helpitem.cpp helpitem.h

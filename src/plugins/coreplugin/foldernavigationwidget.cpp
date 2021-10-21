@@ -90,8 +90,7 @@ const char ADDNEWFILE[] = "QtCreator.FileSystem.AddNewFile";
 const char RENAMEFILE[] = "QtCreator.FileSystem.RenameFile";
 const char REMOVEFILE[] = "QtCreator.FileSystem.RemoveFile";
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace Core {
 
 static FolderNavigationWidgetFactory *m_instance = nullptr;
 
@@ -99,6 +98,13 @@ QVector<FolderNavigationWidgetFactory::RootDirectory>
     FolderNavigationWidgetFactory::m_rootDirectories;
 
 Utils::FilePath FolderNavigationWidgetFactory::m_fallbackSyncFilePath;
+
+FolderNavigationWidgetFactory *FolderNavigationWidgetFactory::instance()
+{
+    return m_instance;
+}
+
+namespace Internal {
 
 static QWidget *createHLine()
 {
@@ -239,6 +245,10 @@ static bool isChildOf(const QModelIndex &index, const QModelIndex &parent)
     }
     return false;
 }
+
+} // namespace Internal
+
+using namespace Internal;
 
 /*!
     \class FolderNavigationWidget
@@ -686,12 +696,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
             menu.addAction(Core::ActionManager::command(RENAMEFILE)->action());
         newFolder = menu.addAction(tr("New Folder"));
-        if (!isDir && Core::DiffService::instance()) {
-            menu.addAction(
-                TextEditor::TextDocument::createDiffAgainstCurrentFileAction(&menu, [filePath]() {
-                    return filePath;
-                }));
-        }
     }
 
     menu.addSeparator();
@@ -956,5 +960,4 @@ void DelayedFileCrumbLabel::setScrollBarOnce() const
     that->m_bar.clear();
 }
 
-} // namespace Internal
 } // namespace ProjectExplorer

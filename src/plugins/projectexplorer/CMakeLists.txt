@@ -82,7 +82,6 @@ add_qtc_plugin(ProjectExplorer
     filesinallprojectsfind.h
     filesinallprojectsfind.cpp
     filterkitaspectsdialog.cpp filterkitaspectsdialog.h
-    foldernavigationwidget.cpp foldernavigationwidget.h
     gccparser.cpp gccparser.h
     gcctoolchain.cpp gcctoolchain.h
     gcctoolchainfactories.h

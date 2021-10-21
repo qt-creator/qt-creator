@@ -26,6 +26,7 @@
 #include "coreplugin.h"
 #include "designmode.h"
 #include "editmode.h"
+#include "foldernavigationwidget.h"
 #include "helpmanager.h"
 #include "icore.h"
 #include "idocument.h"
@@ -104,6 +105,7 @@ CorePlugin::~CorePlugin()
     Find::destroy();
 
     delete m_locator;
+    delete m_folderNavigationWidgetFactory;
     delete m_editMode;
 
     DesignMode::destroyModeIfRequired();
@@ -175,6 +177,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_mainWindow->init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
+
+    m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
 
     IWizardFactory::initialize();
 

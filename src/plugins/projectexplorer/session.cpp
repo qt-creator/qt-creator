@@ -28,7 +28,6 @@
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
-#include "foldernavigationwidget.h"
 #include "kit.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -37,6 +36,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/imode.h>

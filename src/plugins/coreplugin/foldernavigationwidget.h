@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
+#include "core_global.h"
+#include "inavigationwidgetfactory.h"
+
 #include <utils/fileutils.h>
 
 #include <QIcon>
@@ -51,12 +53,13 @@ class QModelIndex;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
+namespace Core {
+
 namespace Internal {
-
 class DelayedFileCrumbLabel;
+} // namespace Internal
 
-class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
+class CORE_EXPORT FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
 
@@ -68,6 +71,8 @@ public:
         Utils::FilePath path;
         QIcon icon;
     };
+
+    static FolderNavigationWidgetFactory *instance();
 
     FolderNavigationWidgetFactory();
 
@@ -99,7 +104,7 @@ private:
     static Utils::FilePath m_fallbackSyncFilePath;
 };
 
-class FolderNavigationWidget : public QWidget
+class CORE_EXPORT FolderNavigationWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(bool autoSynchronization READ autoSynchronization WRITE setAutoSynchronization)
@@ -136,8 +141,7 @@ private:
     void setRootAutoSynchronization(bool sync);
     void setHiddenFilesFilter(bool filter);
     void selectBestRootForFile(const Utils::FilePath &filePath);
-    void handleCurrentEditorChanged(Core::IEditor *editor);
-    void selectFile(const Utils::FilePath &filePath);
+    void handleCurrentEditorChanged(Core::IEditor *editor);    void selectFile(const Utils::FilePath &filePath);
     void setRootDirectory(const Utils::FilePath &directory);
     int bestRootForFile(const Utils::FilePath &filePath);
     void openItem(const QModelIndex &index);
@@ -155,11 +159,10 @@ private:
     QToolButton *m_toggleRootSync = nullptr;
     QComboBox *m_rootSelector = nullptr;
     QWidget *m_crumbContainer = nullptr;
-    DelayedFileCrumbLabel *m_crumbLabel = nullptr;
+    Internal::DelayedFileCrumbLabel *m_crumbLabel = nullptr;
 
     // FolderNavigationWidgetFactory needs private members to build a menu
     friend class FolderNavigationWidgetFactory;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace Core

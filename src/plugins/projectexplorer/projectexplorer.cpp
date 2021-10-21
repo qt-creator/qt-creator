@@ -63,7 +63,6 @@
 #include "devicesupport/sshsettingspage.h"
 #include "editorsettingspropertiespage.h"
 #include "filesinallprojectsfind.h"
-#include "foldernavigationwidget.h"
 #include "jsonwizard/jsonwizardfactory.h"
 #include "jsonwizard/jsonwizardgeneratorfactory.h"
 #include "jsonwizard/jsonwizardpagefactory_p.h"
@@ -117,6 +116,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/idocumentfactory.h>
@@ -665,7 +665,6 @@ public:
     CustomParsersSettingsPage m_customParsersSettingsPage;
 
     ProjectTreeWidgetFactory m_projectTreeFactory;
-    FolderNavigationWidgetFactory m_folderNavigationWidgetFactory;
     DefaultDeployConfigurationFactory m_defaultDeployConfigFactory;
 
     IDocumentFactory m_documentFactory;
@@ -2934,7 +2933,8 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() {}
 
 void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
 {
-    connect(&m_folderNavigationWidgetFactory,
+    auto folderNavigationWidgetFactory = FolderNavigationWidgetFactory::instance();
+    connect(folderNavigationWidgetFactory,
             &FolderNavigationWidgetFactory::aboutToShowContextMenu,
             this,
             [this](QMenu *menu, const FilePath &filePath, bool isDir) {
@@ -2955,7 +2955,7 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
                     });
                 }
             });
-    connect(&m_folderNavigationWidgetFactory,
+    connect(folderNavigationWidgetFactory,
             &FolderNavigationWidgetFactory::fileRenamed,
             this,
             [](const FilePath &before, const FilePath &after) {
@@ -2979,7 +2979,7 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
                     });
                 }
             });
-    connect(&m_folderNavigationWidgetFactory,
+    connect(folderNavigationWidgetFactory,
             &FolderNavigationWidgetFactory::aboutToRemoveFile,
             this,
             [](const FilePath &filePath) {
@@ -3846,8 +3846,9 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return );
-    QWidget *widget = NavigationWidget::activateSubWidget(m_folderNavigationWidgetFactory.id(),
-                                                          Side::Left);
+    QWidget *widget
+        = NavigationWidget::activateSubWidget(FolderNavigationWidgetFactory::instance()->id(),
+                                              Side::Left);
     if (auto *navWidget = qobject_cast<FolderNavigationWidget *>(widget))
         navWidget->syncWithFilePath(currentNode->filePath());
 }
