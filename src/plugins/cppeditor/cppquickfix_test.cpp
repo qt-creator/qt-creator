@@ -3236,6 +3236,8 @@ void QuickfixTest::testGenerateGetterSetterOnlySetter()
     QList<TestDocumentPtr> testDocuments;
     QByteArray original;
     QByteArray expected;
+    QuickFixSettings s;
+    s->setterAsSlot = true; // To be ignored, as we don't have QObjects here.
 
     // Header File
     original =
@@ -3263,7 +3265,6 @@ void QuickfixTest::testGenerateGetterSetterOnlySetter()
         "}\n";
     testDocuments << CppTestDocument::create("file.cpp", original, expected);
 
-    QuickFixSettings s;
     s->setterInCppFileFrom = 1;
     s->setterParameterNameTemplate = "value";
 
@@ -3547,10 +3548,12 @@ void QuickfixTest::testInsertQtPropertyMembers_data()
     QTest::addColumn<QByteArray>("expected");
 
     QTest::newRow("InsertQtPropertyMembers")
-        << _("struct XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "struct XmarksTheSpot : public QObject {\n"
              "    @Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
              "};\n")
-        << _("struct XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "struct XmarksTheSpot : public QObject {\n"
              "    Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
              "\n"
              "public:\n"
@@ -3582,10 +3585,12 @@ void QuickfixTest::testInsertQtPropertyMembers_data()
              "}\n");
 
     QTest::newRow("InsertQtPropertyMembersResetWithoutSet")
-        << _("struct XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "struct XmarksTheSpot : public QObject {\n"
              "    @Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
              "};\n")
-        << _("struct XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "struct XmarksTheSpot : public QObject {\n"
              "    Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
              "\n"
              "public:\n"
@@ -3615,10 +3620,12 @@ void QuickfixTest::testInsertQtPropertyMembers_data()
              "}\n");
 
     QTest::newRow("InsertQtPropertyMembersResetWithoutSetAndNotify")
-        << _("struct XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "struct XmarksTheSpot : public QObject {\n"
              "    @Q_PROPERTY(int it READ getIt RESET resetIt)\n"
              "};\n")
-        << _("struct XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "struct XmarksTheSpot : public QObject {\n"
              "    Q_PROPERTY(int it READ getIt RESET resetIt)\n"
              "\n"
              "public:\n"
@@ -3642,13 +3649,15 @@ void QuickfixTest::testInsertQtPropertyMembers_data()
              "}\n");
 
     QTest::newRow("InsertQtPropertyMembersPrivateBeforePublic")
-        << _("class XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "class XmarksTheSpot : public QObject {\n"
              "private:\n"
              "    @Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
              "public:\n"
              "    void find();\n"
              "};\n")
-        << _("class XmarksTheSpot {\n"
+        << _("struct QObject { void connect(); }\n"
+             "class XmarksTheSpot : public QObject {\n"
              "private:\n"
              "    Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
              "    int m_it;\n"
