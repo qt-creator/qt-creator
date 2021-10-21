@@ -48,19 +48,18 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Window 2.15
+import QtQuick
 
 Rectangle {
     id: page
-    state: "State1"
+    anchors.fill: parent
+    color: "#ffffff"
 
     Image {
         id: icon
         x: 20
         y: 20
-        source: "images/qt-logo.png"
-        fillMode: Image.PreserveAspectFit
+        source: "qt-logo.png"
     }
 
     Rectangle {
@@ -88,7 +87,6 @@ Rectangle {
         }
     }
 
-
     Rectangle {
         id: middleRightRect
         width: 55
@@ -111,7 +109,6 @@ Rectangle {
             }
         }
     }
-
 
     Rectangle {
         id: bottomLeftRect
@@ -160,6 +157,7 @@ Rectangle {
             }
         }
     ]
+
     transitions: [
         Transition {
             id: toState1
@@ -202,7 +200,7 @@ Rectangle {
                     PropertyAnimation {
                         target: icon
                         property: "y"
-                        easing.bezierCurve: [0.233,0.161,0.264,0.997,0.393,0.997,0.522,0.997,0.555,0.752,0.61,0.75,0.664,0.748,0.736,1,0.775,1,0.814,0.999,0.861,0.901,0.888,0.901,0.916,0.901,0.923,0.995,1,1]
+                        easing.type: Easing.OutBounce
                         duration: 1006
                     }
                 }
@@ -215,7 +213,7 @@ Rectangle {
                     PropertyAnimation {
                         target: icon
                         property: "x"
-                        easing.bezierCurve: [0.233,0.161,0.264,0.997,0.393,0.997,0.522,0.997,0.555,0.752,0.61,0.75,0.664,0.748,0.736,1,0.775,1,0.814,0.999,0.861,0.901,0.888,0.901,0.916,0.901,0.923,0.995,1,1]
+                        easing.type: Easing.OutBounce
                         duration: 1006
                     }
                 }
@@ -234,7 +232,7 @@ Rectangle {
                     PropertyAnimation {
                         target: icon
                         property: "y"
-                        easing.bezierCurve: [0.455,0.03,0.515,0.955,1,1]
+                        easing.type: Easing.InOutQuad
                         duration: 2000
                     }
                 }
@@ -247,7 +245,7 @@ Rectangle {
                     PropertyAnimation {
                         target: icon
                         property: "x"
-                        easing.bezierCurve: [0.455,0.03,0.515,0.955,1,1]
+                        easing.type: Easing.InOutQuad
                         duration: 2000
                     }
                 }
@@ -257,10 +255,3 @@ Rectangle {
         }
     ]
 }
-
-/*##^##
-Designer {
-    D{i:0;height:480;width:640}D{i:1}D{i:16;transitionDuration:2000}D{i:24;transitionDuration:2000}
-D{i:32;transitionDuration:2000}
-}
-##^##*/

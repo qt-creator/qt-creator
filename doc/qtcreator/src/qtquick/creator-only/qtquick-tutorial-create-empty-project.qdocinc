@@ -46,16 +46,18 @@
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Build System} dialog.
 
-        \li In the \uicontrol {Build system} field, select the build system to
-            use for building and running the project: \l qmake,
-            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+        \li In the \uicontrol {Build system} field, select \l {Setting Up CMake}
+            {CMake} as the build system to use for building and running the
+            project.
+
+            \note If you select \l qmake, the instructions for configuring the
+            project won't apply.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
-        \li In the \uicontrol {Screen resolution} field, select the initial
-            size of the UI. You can easily change the screen size later
-            in \l Properties.
+        \li In the \uicontrol {Minimal required Qt version} field, select
+            Qt 6.2.
 
         \li Select \uicontrol Next to open the \uicontrol {Translation File}
             dialog.
@@ -63,9 +65,10 @@
         \li Select \uicontrol Next to use the default settings and to open
             the \uicontrol {Kit Selection} dialog.
 
-        \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
-            you want to build the application for. To build applications for
-            mobile devices, select kits for Android ARM and iPhone OS.
+        \li Select Qt 6.2 or later \l{glossary-buildandrun-kit}{kits} for the
+            platforms that you want to build the application for. To build
+            applications for mobile devices, select kits also for Android and
+            iOS.
 
             \note Kits are listed if they have been specified in \uicontrol
             Tools > \uicontrol Options > \uicontrol Kits (on Windows and Linux)
@@ -82,8 +85,7 @@
     \endlist
 
     For more information about the settings that you skipped and the other
-    templates available, see \l{Creating Qt Quick Applications}.
+    wizard templates available, see \l{Creating Qt Quick Applications}.
 
 //! [qtquick empty application]
 */
-Con
