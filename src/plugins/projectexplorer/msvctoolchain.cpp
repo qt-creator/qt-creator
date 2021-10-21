@@ -50,6 +50,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSettings>
@@ -67,7 +68,7 @@ static const char varsBatKeyC[] = KEY_ROOT "VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT "VarsBatArg";
 static const char environModsKeyC[] = KEY_ROOT "environmentModifications";
 
-enum { debug = 0 };
+static Q_LOGGING_CATEGORY(Log, "qtc.projectexplorer.toolchain.msvc", QtWarningMsg);
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -754,16 +755,6 @@ void MsvcToolChain::environmentModifications(
                 outEnv.set(envIter.key(), expandedValue);
         }
 
-        if (debug) {
-            const QStringList newVars = outEnv.toStringList();
-            const QStringList oldVars = inEnv.toStringList();
-            QDebug nsp = qDebug().nospace();
-            foreach (const QString &n, newVars) {
-                if (!oldVars.contains(n))
-                    nsp << n << '\n';
-            }
-        }
-
         diff = inEnv.diff(outEnv, true);
         for (int i = diff.size() - 1; i >= 0; --i) {
             if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
@@ -794,9 +785,16 @@ void MsvcToolChain::updateEnvironmentModifications(Utils::EnvironmentItems modif
 {
     Utils::EnvironmentItem::sort(&modifications);
     if (modifications != m_environmentModifications) {
+        if (Log().isDebugEnabled()) {
+            qCDebug(Log) << "Update environment for " << displayName();
+            for (const EnvironmentItem &item : qAsConst(modifications))
+                qCDebug(Log) << '\t' << item;
+        }
         m_environmentModifications = modifications;
         rescanForCompiler();
         toolChainUpdated();
+    } else {
+        qCDebug(Log) << "No updates for " << displayName();
     }
 }
 
@@ -1138,8 +1136,7 @@ void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).
     if (!m_resultEnvironment.size() || env != m_lastEnvironment) {
-        if (debug)
-            qDebug() << "addToEnvironment: " << displayName();
+        qCDebug(Log) << "addToEnvironment: " << displayName();
         m_lastEnvironment = env;
         m_resultEnvironment = readEnvironmentSetting(env);
     }
@@ -2103,8 +2100,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
-    if (debug)
-        qDebug() << "readEnvironmentSetting: " << call << cmd.toUserOutput()
+    qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
     run.setCommand(cmd);
