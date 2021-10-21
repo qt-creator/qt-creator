@@ -266,7 +266,7 @@ protected:
                            Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2}},
                            Storage::ExportedType{qmlNativeModuleId, "QObject"}}});
 
-        package.sourceIds = {sourceId1, sourceId2};
+        package.updatedSourceIds = {sourceId1, sourceId2};
 
         return package;
     }
@@ -324,8 +324,8 @@ protected:
                                          Storage::ImportedType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList});
 
-        package.sourceIds.push_back(sourceId3);
-        package.sourceIds.push_back(sourceId4);
+        package.updatedSourceIds.push_back(sourceId3);
+        package.updatedSourceIds.push_back(sourceId4);
 
         return package;
     }
@@ -359,7 +359,7 @@ protected:
         package.types.back().propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects", Storage::ImportedType{"AliasItem"}, "objects"});
 
-        package.sourceIds.push_back(sourceId5);
+        package.updatedSourceIds.push_back(sourceId5);
 
         return package;
     }
@@ -403,7 +403,7 @@ protected:
                            Storage::ExportedType{qmlModuleId, "BuiltInObj", Storage::Version{3, 4}},
                            Storage::ExportedType{qmlNativeModuleId, "QObject4"}}});
 
-        package.sourceIds.push_back(sourceId1);
+        package.updatedSourceIds.push_back(sourceId1);
 
         return package;
     }
@@ -2400,7 +2400,7 @@ TEST_F(ProjectStorage,
                                           sourceId5,
                                           {Storage::ExportedType{qtQuickModuleId, "Object2"},
                                            Storage::ExportedType{qtQuickModuleId, "Obj2"}}});
-    package.sourceIds.push_back(sourceId5);
+    package.updatedSourceIds.push_back(sourceId5);
 
     storage.synchronize(package);
 
@@ -2849,7 +2849,7 @@ TEST_F(ProjectStorage, QualifiedPrototype)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2884,7 +2884,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2908,7 +2908,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
@@ -2924,7 +2924,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2948,7 +2948,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
                       sourceId3,
                       {Storage::ExportedType{qtQuickModuleId, "Object", Storage::Version{2}}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2981,7 +2981,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -3013,7 +3013,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 

@@ -88,18 +88,45 @@ private:
 
     void parseTypeInfos(const QStringList &typeInfos,
                         SourceContextId directoryId,
-                        Storage::SynchronizationPackage &package);
+                        ModuleId moduleId,
+                        Storage::SynchronizationPackage &package,
+                        SourceIds &notUpdatedFileStatusSourceIds,
+                        SourceIds &notUpdatedSourceIds);
     void parseTypeInfos(const Storage::ProjectDatas &projectDatas,
-                        Storage::SynchronizationPackage &package);
+                        Storage::SynchronizationPackage &package,
+                        SourceIds &notUpdatedFileStatusSourceIds,
+                        SourceIds &notUpdatedSourceIds);
     void parseTypeInfo(const Storage::ProjectData &projectData,
                        const QString &qmltypesPath,
-                       Storage::SynchronizationPackage &package);
+                       Storage::SynchronizationPackage &package,
+                       SourceIds &notUpdatedFileStatusSourceIds,
+                       SourceIds &notUpdatedSourceIds);
     void parseQmlComponents(ComponentReferences components,
                             SourceContextId directoryId,
                             ModuleId moduleId,
-                            Storage::SynchronizationPackage &package);
+                            Storage::SynchronizationPackage &package,
+                            SourceIds &notUpdatedFileStatusSourceIds);
+    void parseQmlComponents(const Storage::ProjectDatas &projectDatas,
+                            Storage::SynchronizationPackage &package,
+                            SourceIds &notUpdatedFileStatusSourceIds);
+    void parseQmlComponent(Utils::SmallStringView fileName,
+                           Utils::SmallStringView directory,
+                           Utils::SmallStringView typeName,
+                           Storage::Version version,
+                           ModuleId moduleId,
+                           SourceContextId directoryId,
+                           Storage::SynchronizationPackage &package,
+                           SourceIds &notUpdatedFileStatusSourceIds);
+    void parseQmlComponent(Utils::SmallStringView fileName,
+                           Utils::SmallStringView filePath,
+                           SourceId sourceId,
+                           Storage::SynchronizationPackage &package,
+                           SourceIds &notUpdatedFileStatusSourceIds);
 
-    FileState fileState(SourceId sourceId, FileStatuses &fileStatuses) const;
+    FileState fileState(SourceId sourceId,
+                        FileStatuses &fileStatuses,
+                        SourceIds &updatedSourceIds,
+                        SourceIds &notUpdatedSourceIds) const;
 
 private:
     ProjectManagerInterface &m_projectManager;

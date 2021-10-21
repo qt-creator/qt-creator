@@ -1070,7 +1070,55 @@ const char *importKindToText(ImportKind kind)
     return "";
 }
 
+const char *fileTypeToText(FileType fileType)
+{
+    switch (fileType) {
+    case FileType::QmlDocument:
+        return "QmlDocument";
+    case FileType::QmlTypes:
+        return "QmlTypes";
+    }
+
+    return "";
+}
+
+const char *changeLevelToText(ChangeLevel changeLevel)
+{
+    switch (changeLevel) {
+    case ChangeLevel::Full:
+        return "Full";
+    case ChangeLevel::Minimal:
+        return "Minimal";
+    case ChangeLevel::ExcludeExportedTypes:
+        return "ExcludeExportedTypes";
+    }
+
+    return "";
+}
+
 } // namespace
+
+std::ostream &operator<<(std::ostream &out, FileType fileType)
+{
+    return out << fileTypeToText(fileType);
+}
+
+std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel)
+{
+    return out << changeLevelToText(changeLevel);
+}
+
+std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package)
+{
+    return out << "(" << package.imports << ", " << package.types << ", "
+               << package.updatedSourceIds << ", " << package.fileStatuses << ", "
+               << package.updatedFileStatusSourceIds << ", " << package.projectDatas << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ProjectData &data)
+{
+    return out << "(" << data.extraModuleId << ", " << data.sourceId << ", " << data.fileType << ")";
+}
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics)
 {
@@ -1106,7 +1154,7 @@ std::ostream &operator<<(std::ostream &out, const NativeType &nativeType)
 
 std::ostream &operator<<(std::ostream &out, const ImportedType &importedType)
 {
-    return out << "(\"" << importedType.name << ")";
+    return out << "(\"" << importedType.name << "\")";
 }
 std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importedType)
 {
@@ -1120,7 +1168,8 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
                << type.prototypeId << ", " << type.accessSemantics << ", source: " << type.sourceId
                << ", exports: " << type.exportedTypes << ", properties: " << type.propertyDeclarations
                << ", functions: " << type.functionDeclarations
-               << ", signals: " << type.signalDeclarations << ")";
+               << ", signals: " << type.signalDeclarations << ", changeLevel: " << type.changeLevel
+               << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)

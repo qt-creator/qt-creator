@@ -107,4 +107,10 @@ public:
     const char *what() const noexcept override { return "Cannot parse qml types file!"; }
 };
 
+class CannotParseQmlDocumentFile : std::exception
+{
+public:
+    const char *what() const noexcept override { return "Cannot parse qml types file!"; }
+};
+
 } // namespace QmlDesigner

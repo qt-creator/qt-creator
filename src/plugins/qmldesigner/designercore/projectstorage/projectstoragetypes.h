@@ -47,6 +47,8 @@ enum class PropertyDeclarationTraits : unsigned int {
 
 enum class TypeNameKind { Native = 0, Exported = 1, QualifiedExported = 2 };
 
+enum class FileType : char { QmlTypes, QmlDocument };
+
 constexpr PropertyDeclarationTraits operator|(PropertyDeclarationTraits first,
                                               PropertyDeclarationTraits second)
 {
@@ -630,7 +632,7 @@ public:
     PropertyDeclarationId aliasId;
 };
 
-enum class ChangeLevel { Full, Minimal };
+enum class ChangeLevel : char { Full, Minimal, ExcludeExportedTypes };
 
 class Type
 {
@@ -666,6 +668,18 @@ public:
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , prototypeId{prototypeId}
+    {}
+
+    explicit Type(Utils::SmallStringView typeName,
+                  ImportedTypeName prototype,
+                  TypeAccessSemantics accessSemantics,
+                  SourceId sourceId,
+                  ChangeLevel changeLevel)
+        : typeName{typeName}
+        , prototype{std::move(prototype)}
+        , accessSemantics{accessSemantics}
+        , sourceId{sourceId}
+        , changeLevel{changeLevel}
     {}
 
     explicit Type(Utils::SmallStringView typeName,
@@ -721,8 +735,16 @@ using Types = std::vector<Type>;
 class ProjectData
 {
 public:
+    ProjectData(ModuleId extraModuleId, SourceId sourceId, FileType fileType)
+        : extraModuleId{extraModuleId}
+        , sourceId{sourceId}
+        , fileType{fileType}
+    {}
+
+public:
     ModuleId extraModuleId;
     SourceId sourceId;
+    FileType fileType;
 };
 
 using ProjectDatas = std::vector<ProjectData>;
@@ -731,30 +753,33 @@ class SynchronizationPackage
 {
 public:
     SynchronizationPackage() = default;
-    SynchronizationPackage(Imports imports, Types types, SourceIds sourceIds)
+    SynchronizationPackage(Imports imports, Types types, SourceIds updatedSourceIds)
         : imports{std::move(imports)}
         , types{std::move(types)}
-        , sourceIds(std::move(sourceIds))
+        , updatedSourceIds(std::move(updatedSourceIds))
     {}
 
     SynchronizationPackage(Types types)
         : types{std::move(types)}
     {}
 
-    SynchronizationPackage(SourceIds sourceIds)
-        : sourceIds(std::move(sourceIds))
+    SynchronizationPackage(SourceIds updatedSourceIds)
+        : updatedSourceIds(std::move(updatedSourceIds))
     {}
 
-    SynchronizationPackage(SourceIds sourceIds, FileStatuses fileStatuses)
-        : sourceIds(std::move(sourceIds))
+    SynchronizationPackage(SourceIds updatedSourceIds, FileStatuses fileStatuses)
+        : updatedSourceIds(std::move(updatedSourceIds))
         , fileStatuses(std::move(fileStatuses))
     {}
 
 public:
     Imports imports;
     Types types;
-    SourceIds sourceIds;
+    SourceIds updatedSourceIds;
     FileStatuses fileStatuses;
+    ProjectDatas projectDatas;
+    ModuleIds updatedProjectDataModuleIds;
+    SourceIds updatedFileStatusSourceIds;
 };
 
 } // namespace QmlDesigner::Storage
