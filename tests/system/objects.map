@@ -96,7 +96,7 @@
 :New.comboBox_QComboBox	{name='comboBox' type='QComboBox' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
-:New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle?='New*'}
+:New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialogWidget' visible='1' windowTitle?='New*'}
 :New_ProjectExplorer::JsonWizard	{type='ProjectExplorer::JsonWizard' unnamed='1' visible='1'}
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :No valid kits found._QLabel	{text?='*No suitable kits found.*' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -154,7 +154,7 @@
 :Qt Creator_Core::Internal::NavComboBox	{type='Core::Internal::NavComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::ProgressBar	{type='Core::Internal::ProgressBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CppEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::CppEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::Internal::DescriptionEditorWidget	{type='DiffEditor::Internal::DescriptionEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::SideDiffEditorWidget	{type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::SideDiffEditorWidget2	{occurrence='2' type='DiffEditor::Internal::SideDiffEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
