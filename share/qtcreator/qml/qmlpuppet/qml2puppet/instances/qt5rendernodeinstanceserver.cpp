@@ -184,18 +184,14 @@ void Qt5RenderNodeInstanceServer::completeComponent(const CompleteComponentComma
 {
     Qt5NodeInstanceServer::completeComponent(command);
 
-    QList<ServerNodeInstance> instanceList;
-    foreach (qint32 instanceId, command.instances()) {
+    const QVector<qint32> ids = command.instances();
+    for (qint32 instanceId : ids) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
-            if (instance.isValid()) {
-                instanceList.append(instance);
+            if (instance.isValid())
                 m_dirtyInstanceSet.insert(instance);
-            }
         }
     }
-
-    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
 }
 
 void QmlDesigner::Qt5RenderNodeInstanceServer::removeSharedMemory(const QmlDesigner::RemoveSharedMemoryCommand &command)
