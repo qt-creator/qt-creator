@@ -479,11 +479,17 @@ void IosConfigurations::loadProvisioningData(bool notify)
     QList<QVariantMap> teams;
     for (auto accountiterator = teamMap.cbegin(), end = teamMap.cend();
             accountiterator != end; ++accountiterator) {
-        QVariantMap teamInfo = accountiterator.value().toMap();
-        int provisioningTeamIsFree = teamInfo.value(freeTeamTag).toBool() ? 1 : 0;
-        teamInfo[freeTeamTag] = provisioningTeamIsFree;
-        teamInfo[emailTag] = accountiterator.key();
-        teams.append(teamInfo);
+        // difference between Qt 5 (map) and Qt 6 (list of maps)
+        const bool isList = accountiterator->userType() == QMetaType::QVariantList;
+        const QVariantList teamsList = isList ? accountiterator.value().toList()
+                                              : QVariantList({accountiterator.value()});
+        for (const QVariant &teamInfoIt : teamsList) {
+            QVariantMap teamInfo = teamInfoIt.toMap();
+            int provisioningTeamIsFree = teamInfo.value(freeTeamTag).toBool() ? 1 : 0;
+            teamInfo[freeTeamTag] = provisioningTeamIsFree;
+            teamInfo[emailTag] = accountiterator.key();
+            teams.append(teamInfo);
+        }
     }
 
     // Sort team id's to move the free provisioning teams at last of the list.
