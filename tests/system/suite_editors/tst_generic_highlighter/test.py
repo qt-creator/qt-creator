@@ -199,7 +199,7 @@ def main():
         recentFile = os.path.join(folder, current)
         if recentFile.startswith(home) and platform.system() in ('Linux', 'Darwin'):
             recentFile = recentFile.replace(home, "~", 1)
-        invokeMenuItem("File", "Recent Files", "(&\\d \| )?%s" % recentFile)
+        invokeMenuItem("File", "Recent Files", "%d | " + recentFile)
         editor = getEditorForFileSuffix(current)
         display = displayHintForHighlighterDefinition(current, patterns, lPatterns,
                                                       addedHaskell, addedLiterateHaskell)
