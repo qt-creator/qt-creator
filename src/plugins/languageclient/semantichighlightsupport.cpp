@@ -451,8 +451,9 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
     SyntaxHighlighter *highlighter = doc->syntaxHighlighter();
     if (!highlighter)
         return;
-    const QList<SemanticToken> tokens = m_tokens.value(filePath).tokens.toTokens(m_tokenTypes,
-                                                                                 m_tokenModifiers);
+    const VersionedTokens versionedTokens = m_tokens.value(filePath);
+    const QList<SemanticToken> tokens = versionedTokens.tokens
+            .toTokens(m_tokenTypes, m_tokenModifiers);
     if (m_tokensHandler) {
         int line = 1;
         int column = 1;
@@ -477,7 +478,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
             expandedToken.length = token.length;
             expandedTokens << expandedToken;
         };
-        m_tokensHandler(doc, expandedTokens);
+        m_tokensHandler(doc, expandedTokens, versionedTokens.version);
         return;
     }
     int line = 1;

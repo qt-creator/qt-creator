@@ -48,8 +48,8 @@ public:
     QString type;
     QStringList modifiers;
 };
-using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *doc,
-                                                 const QList<ExpandedSemanticToken> &)>;
+using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
+                                                 const QList<ExpandedSemanticToken> &, int)>;
 
 namespace SemanticHighligtingSupport {
 

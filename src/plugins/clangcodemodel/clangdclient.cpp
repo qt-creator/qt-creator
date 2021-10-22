@@ -997,7 +997,8 @@ public:
                                HelpItem::Category category = HelpItem::Unknown,
                                const QString &type = {});
 
-    void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens);
+    void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
+                              int version);
 
     enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
     using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
@@ -1177,8 +1178,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
     setSymbolStringifier(displayNameFromDocumentSymbol);
-    setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens) {
-        d->handleSemanticTokens(doc, tokens);
+    setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
+                                    int version) {
+        d->handleSemanticTokens(doc, tokens, version);
     });
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const DocumentUri &uri) {
@@ -2454,18 +2456,29 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 //      Sometimes we have no choice, as for #include directives, which appear neither
 //      in the semantic tokens nor in the AST.
 void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
-                                                 const QList<ExpandedSemanticToken> &tokens)
+                                                 const QList<ExpandedSemanticToken> &tokens,
+                                                 int version)
 {
     SubtaskTimer t(highlightingTimer);
-    qCDebug(clangdLog()) << "handling LSP tokens" << doc->filePath() << tokens.size();
+    qCDebug(clangdLog) << "handling LSP tokens" << doc->filePath() << tokens.size();
+    if (version != q->documentVersion(doc->filePath())) {
+        qCDebug(clangdLogHighlight) << "LSP tokens outdated; aborting highlighting procedure"
+                                    << version << q->documentVersion(doc->filePath());
+        return;
+    }
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
 
-    const auto astHandler = [this, tokens, doc](const AstNode &ast, const MessageId &) {
+    const auto astHandler = [this, tokens, doc, version](const AstNode &ast, const MessageId &) {
         FinalizingSubtaskTimer t(highlightingTimer);
         if (!q->documentOpen(doc))
             return;
+        if (version != q->documentVersion(doc->filePath())) {
+            qCDebug(clangdLogHighlight) << "AST not up to date; aborting highlighting procedure"
+                                        << version << q->documentVersion(doc->filePath());
+            return;
+        }
         if (clangdLogAst().isDebugEnabled())
             ast.print();
 
