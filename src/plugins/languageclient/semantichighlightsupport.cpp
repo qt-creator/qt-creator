@@ -392,6 +392,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = {*tokens, documentVersion};
     } else if (auto tokensDelta = Utils::get_if<SemanticTokensDelta>(&result)) {
+        m_tokens[filePath].version = documentVersion;
         QList<SemanticTokensEdit> edits = tokensDelta->edits();
         if (edits.isEmpty()) {
             highlight(filePath);
@@ -400,7 +401,6 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
 
         Utils::sort(edits, &SemanticTokensEdit::start);
 
-        m_tokens[filePath].version = documentVersion;
         SemanticTokens &tokens = m_tokens[filePath].tokens;
         const QList<int> &data = tokens.data();
 
