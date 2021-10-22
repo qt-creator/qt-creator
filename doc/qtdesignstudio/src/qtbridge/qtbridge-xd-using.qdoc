@@ -40,8 +40,11 @@
             layers that are imported into \QDS as separate files.
         \li Use descriptive and unique IDs to avoid duplicate asset names and IDs
             in the generated UI.
+        \li Use XD Components and instances to reuse the UI elements.
     \endlist
 
+    \note Although \QBXD preserves the XD Component and instance's relationship, overrides
+    and states are not yet supported.
 
     To use the fonts that you use in Adobe XD also in \QDS, you need to import
     them to \QDS as assets. \QDS deploys them to devices when you preview the
@@ -60,11 +63,15 @@
 
     The following design elements might not be exported as expected.
     \list
-        \li Components
+        \li Component states
+        \li Component overrides
         \li Prototype
         \li Repeat Grid
     \endlist
 
+    \note Adobe XD's plugin API support is incomplete. Specifically, the support
+    for XD Components is limited. This might change in the future and \QBXD might
+    extend the XD Component support.
 
     \section2 Using Artboards
 
@@ -120,6 +127,8 @@
             properties will be ignored if \uicontrol {Component} is defined
             for a text layer, but explicit properties defined in the \uicontrol
             {Properties} field will be applied.
+        \li Select the \uicontrol {Render Text} check box to render the text layer
+            as an image
         \li In the \uicontrol {Imports} field, enter additional import statements
             to have them added to the generated code file. For example, to use
             Qt Quick Controls 2.3, you need the import statement
@@ -134,9 +143,12 @@
             bounding rectangle.
         \li Select the \uicontrol Visible check box to determine the visibility
             of the layer in the generated UI in \QDS.
-        \li Select \uicontrol Export to export the document into a .qtbridge
-            archive.
+        \li Select \uicontrol Export to launch the export dialog to export the document
+            into a .qtbridge archive.
     \endlist
+
+    \note XD Components can not be skipped and Text layers can only be merged when
+    \uicontrol {Render Text} is selected.
 
 
     \section2 Export Defaults
@@ -145,9 +157,9 @@
 
     By default:
     \list
-        \li Artboards are exported as \e components.
-        \li Immediate children of an Artboard and Text layers are exported as
-            \e child.
+        \li Artboards and XD Components are exported as \e components.
+        \li Component instances, Text layers and immediate children of an Artboard
+            are exported as \e child.
         \li Any layer not falling under the aforementioned criteria is exported
             as \e merged.
         \li Images are exported as PNGs by default with no Hi-DPI images.
