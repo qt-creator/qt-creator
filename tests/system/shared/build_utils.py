@@ -214,7 +214,7 @@ def verifyBuildAndRun():
     appOutput = logApplicationOutput()
     if appOutput:
         test.verify((re.search(".* exited with code \d+", str(appOutput)) or
-                     re.search("The program has unexpectedly finished\.", str(appOutput))) and
+                     re.search(".* crashed\.", str(appOutput))) and
                     re.search('[Ss]tarting.*', str(appOutput)),
                     "Verifying if built app started and closed successfully.")
 
