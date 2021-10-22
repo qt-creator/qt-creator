@@ -86,16 +86,23 @@ private:
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
         TextEditor::TextDocument *document) const;
     void handleSemanticTokens(const Utils::FilePath &filePath,
-                              const LanguageServerProtocol::SemanticTokensResult &result);
+                              const LanguageServerProtocol::SemanticTokensResult &result,
+                              int documentVersion);
     void handleSemanticTokensDelta(const Utils::FilePath &filePath,
-                                   const LanguageServerProtocol::SemanticTokensDeltaResult &result);
+                                   const LanguageServerProtocol::SemanticTokensDeltaResult &result,
+                                   int documentVersion);
     void highlight(const Utils::FilePath &filePath);
     void updateFormatHash();
     void currentEditorChanged();
 
     Client *m_client = nullptr;
 
-    QHash<Utils::FilePath, LanguageServerProtocol::SemanticTokens> m_tokens;
+    struct VersionedTokens
+    {
+        LanguageServerProtocol::SemanticTokens tokens;
+        int version;
+    };
+    QHash<Utils::FilePath, VersionedTokens> m_tokens;
     QList<int> m_tokenTypes;
     QList<int> m_tokenModifiers;
     QHash<int, QTextCharFormat> m_formatHash;
