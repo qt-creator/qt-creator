@@ -1746,6 +1746,11 @@ bool ClangClToolChain::operator==(const ToolChain &other) const
     return m_clangPath == clangClTc->m_clangPath;
 }
 
+int ClangClToolChain::priority() const
+{
+    return MsvcToolChain::priority() - 1;
+}
+
 Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
                                               const Utils::Environment &env) const
 {
@@ -2048,6 +2053,11 @@ bool MsvcToolChain::operator==(const ToolChain &other) const
     const auto *msvcTc = dynamic_cast<const MsvcToolChain *>(&other);
     return targetAbi() == msvcTc->targetAbi() && m_vcvarsBat == msvcTc->m_vcvarsBat
            && m_varsBatArg == msvcTc->m_varsBatArg;
+}
+
+int MsvcToolChain::priority() const
+{
+    return hostPrefersToolchain() ? PriorityHigh : PriorityNormal;
 }
 
 void MsvcToolChain::cancelMsvcToolChainDetection()

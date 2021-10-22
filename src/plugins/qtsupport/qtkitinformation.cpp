@@ -240,7 +240,7 @@ void QtKitAspect::fix(Kit *k)
                 return true;
             if (!tc1ExactMatch && tc2ExactMatch)
                 return false;
-            return tc1->hostPrefersToolchain() && !tc2->hostPrefersToolchain();
+            return tc1->priority() > tc2->priority();
         });
 
         const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
