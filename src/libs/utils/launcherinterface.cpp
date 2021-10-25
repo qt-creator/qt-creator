@@ -161,7 +161,7 @@ void LauncherInterfacePrivate::handleProcessError()
         const QString launcherPathForUser
                 = QDir::toNativeSeparators(QDir::cleanPath(m_process->program()));
         emit errorOccurred(QCoreApplication::translate("Utils::LauncherSocket",
-                           "Failed to start process launcher at '%1': %2")
+                           "Failed to start process launcher at \"%1\": %2")
                            .arg(launcherPathForUser, m_process->errorString()));
     }
 }

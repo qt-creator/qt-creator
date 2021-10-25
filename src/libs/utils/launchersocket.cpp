@@ -296,7 +296,7 @@ void CallerHandle::cancel()
         break;
     case QProcess::Starting:
         m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
-                                                    "Process canceled before it was started.");
+                                                    "Process was canceled before it was started.");
         m_error = QProcess::FailedToStart;
         if (LauncherInterface::isReady()) // TODO: race condition with m_processState???
             sendPacket(StopProcessPacket(m_token));
