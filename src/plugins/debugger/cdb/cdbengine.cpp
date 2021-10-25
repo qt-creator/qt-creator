@@ -2772,6 +2772,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
             runCommand({command, ScriptCommand});
     }
 
+    const QString qtVersion = QString::number(runParameters().fallbackQtVersion, 16);
+    runCommand({"theDumper.setFallbackQtVersion(0x" + qtVersion + ")", ScriptCommand});
     runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
                 [this](const DebuggerResponse &response) {
                     watchHandler()->addDumpers(response.data["result"]["dumpers"]);

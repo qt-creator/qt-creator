@@ -195,6 +195,7 @@ class DumperBase():
         self.qtCustomEventFunc = 0
         self.qtCustomEventPltFunc = 0
         self.qtPropertyFunc = 0
+        self.fallbackQtVersion = 0x50200
         self.passExceptions = False
         self.isTesting = False
 
@@ -247,10 +248,13 @@ class DumperBase():
         self.uninitialized = args.get('uninitialized', [])
         self.uninitialized = list(map(lambda x: self.hexdecode(x), self.uninitialized))
         self.partialUpdate = int(args.get('partial', '0'))
-        self.fallbackQtVersion = 0x50200
         #DumperBase.warn('NAMESPACE: "%s"' % self.qtNamespace())
         #DumperBase.warn('EXPANDED INAMES: %s' % self.expandedINames)
         #DumperBase.warn('WATCHERS: %s' % self.watchers)
+
+    def setFallbackQtVersion(self, version):
+        self.warn("got fallback qt version %x" % version)
+        self.fallbackQtVersion = version
 
     def resetPerStepCaches(self):
         self.perStepCache = {}
