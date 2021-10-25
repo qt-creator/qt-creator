@@ -160,10 +160,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         return false;
     }
     const CoreArguments args = parseArguments(arguments);
-    Theme::initialPalette(); // Initialize palette before setting it
     Theme *themeFromArg = ThemeEntry::createTheme(args.themeId);
-    setCreatorTheme(themeFromArg ? themeFromArg
-                                 : ThemeEntry::createTheme(ThemeEntry::themeSetting()));
+    Theme *theme = themeFromArg ? themeFromArg
+                                : ThemeEntry::createTheme(ThemeEntry::themeSetting());
+    Theme::setInitialPalette(theme); // Initialize palette before setting it
+    setCreatorTheme(theme);
     InfoBar::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
