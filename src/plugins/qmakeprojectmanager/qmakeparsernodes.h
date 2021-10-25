@@ -306,8 +306,6 @@ public:
     explicit QmakeProFile(const Utils::FilePath &filePath);
     ~QmakeProFile() override;
 
-    void setupFutureWatcher();
-
     bool isParent(QmakeProFile *node);
     QString displayName() const final;
 
@@ -351,10 +349,11 @@ public:
     bool isFileFromWildcard(const QString &filePath) const;
 
 private:
+    void cleanupFutureWatcher();
+    void setupFutureWatcher();
+
     void setParseInProgress(bool b);
     void setValidParseRecursive(bool b);
-
-    void applyAsyncEvaluate(bool apply);
 
     void setupReader();
     Internal::QmakeEvalInput evalInput() const;

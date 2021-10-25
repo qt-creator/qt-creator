@@ -1174,7 +1174,6 @@ QByteArray QmakeProFile::cxxDefines() const
 QmakeProFile::QmakeProFile(QmakeBuildSystem *buildSystem, const FilePath &filePath) :
     QmakePriFile(buildSystem, this, filePath)
 {
-    setupFutureWatcher();
 }
 
 QmakeProFile::QmakeProFile(const FilePath &filePath) : QmakePriFile(filePath) { }
@@ -1182,22 +1181,33 @@ QmakeProFile::QmakeProFile(const FilePath &filePath) : QmakePriFile(filePath) { 
 QmakeProFile::~QmakeProFile()
 {
     qDeleteAll(m_extraCompilers);
-    if (m_parseFutureWatcher) {
-        m_parseFutureWatcher->cancel();
-        m_parseFutureWatcher->waitForFinished();
-        if (m_readerExact)
-            applyAsyncEvaluate(false);
-        delete m_parseFutureWatcher;
-    }
+    cleanupFutureWatcher();
     cleanupProFileReaders();
+}
+
+void QmakeProFile::cleanupFutureWatcher()
+{
+    if (!m_parseFutureWatcher)
+        return;
+
+    m_parseFutureWatcher->disconnect();
+    m_parseFutureWatcher->cancel();
+    m_parseFutureWatcher->waitForFinished();
+    m_parseFutureWatcher->deleteLater();
+    m_parseFutureWatcher = nullptr;
+    m_buildSystem->decrementPendingEvaluateFutures();
 }
 
 void QmakeProFile::setupFutureWatcher()
 {
+    QTC_ASSERT(!m_parseFutureWatcher, return);
+
     m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResultPtr>;
     QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this]() {
-        applyAsyncEvaluate(true);
+        applyEvaluate(m_parseFutureWatcher->result());
+        cleanupFutureWatcher();
     });
+    m_buildSystem->incrementPendingEvaluateFutures();
 }
 
 bool QmakeProFile::isParent(QmakeProFile *node)
@@ -1286,11 +1296,11 @@ void QmakeProFile::scheduleUpdate(QmakeProFile::AsyncUpdateDelay delay)
 
 void QmakeProFile::asyncUpdate()
 {
-    m_buildSystem->incrementPendingEvaluateFutures();
+    cleanupFutureWatcher();
+    setupFutureWatcher();
     setupReader();
     if (!includedInExactParse())
         m_readerExact->setExact(false);
-    m_parseFutureWatcher->waitForFinished();
     QmakeEvalInput input = evalInput();
     QFuture<QmakeEvalResultPtr> future = Utils::runAsync(ProjectExplorerPlugin::sharedThreadPool(),
                                                          QThread::LowestPriority,
@@ -1640,13 +1650,6 @@ void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResultPtr> &fi, Qmake
     fi.reportResult(evaluate(input));
 }
 
-void QmakeProFile::applyAsyncEvaluate(bool apply)
-{
-    if (apply)
-        applyEvaluate(m_parseFutureWatcher->result());
-    m_buildSystem->decrementPendingEvaluateFutures();
-}
-
 bool sortByParserNodes(Node *a, Node *b)
 {
     return a->filePath() < b->filePath();
@@ -1720,7 +1723,6 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
 
     for (QmakeProFile * const proFile : qAsConst(result->proFiles)) {
         proFile->finishInitialization(m_buildSystem, proFile);
-        proFile->setupFutureWatcher();
         proFile->asyncUpdate();
     }
     QmakePriFile::update(result->includedFiles.result);
