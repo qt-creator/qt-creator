@@ -2138,7 +2138,7 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
 void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
-        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found."));
         errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 
@@ -2164,7 +2164,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                                 SourceLocation(0, 0, 0, 0),
                                 QCoreApplication::translate(
                                     "QmlDesigner::TextToModelMerger",
-                                    "QtQuick 6 is not supported with a Qt 5 kit."));
+                                    "Qt Quick 6 is not supported with a Qt 5 kit."));
                             errors->prepend(
                                 DocumentMessage(diagnosticMessage,
                                                 QUrl::fromLocalFile(m_document->fileName())));
@@ -2188,7 +2188,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                     diagnosticMessage(QmlJS::Severity::Error,
                                       SourceLocation(0, 0, 0, 0),
                                       QCoreApplication::translate("QmlDesigner::TextToModelMerger",
-                                                                  "Unsupported QtQuick version"));
+                                                                  "Unsupported Qt Quick version."));
                 errors->append(DocumentMessage(diagnosticMessage,
                                                QUrl::fromLocalFile(m_document->fileName())));
             }
