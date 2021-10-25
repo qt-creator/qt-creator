@@ -57,8 +57,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <projectexplorer/taskhub.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionmanager.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -2243,6 +2246,60 @@ static inline bool checkCommandToken(const QString &tokenPrefix, const QString &
     return ok;
 }
 
+// look for Qt Core Debug module to check whether it is sdk provided
+// and the pdb files are installed in a path discoverable by the debugger
+void CdbEngine::checkQtSdkPdbFiles(const QString &module)
+{
+    const QRegularExpression qtCoreModuleRegExp("(Qt\\dCored).dll");
+    const QRegularExpressionMatch match = qtCoreModuleRegExp.match(module);
+    if (!match.hasMatch())
+        return;
+    const FilePath modulePath = FilePath::fromUserInput(module).parentDir();
+    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::version(
+        [modulePath](const QtSupport::BaseQtVersion *version) {
+            return version->isAutodetected() && version->binPath() == modulePath;
+        });
+    if (!version)
+        return;
+
+    const QString qtCoreModuleName = match.captured(1);
+    // Check the usual location of pdb files to avoid the more expensive part of asking cdb
+    const FilePath pdbPath = modulePath.pathAppended(qtCoreModuleName + ".pdb");
+    if (pdbPath.exists())
+        return;
+
+    // If there are no pdb files in the usual location, check whether the user has setup the symbol
+    // path in order to find the debug symbols.
+    // But first we need to load the symbols in order to check whether the pdb files can be found
+    runCommand({"ld " + qtCoreModuleName, BuiltinCommand});
+    DebuggerCommand cmd;
+    cmd.function = "lm m " + qtCoreModuleName;
+    cmd.callback = [this, qtName = version->displayName()](const DebuggerResponse &response) {
+        if (response.data.m_data.contains("private pdb symbols"))
+            return;
+
+        const QString message
+            = tr("The installed %1 is missing debug information files.\n"
+                 "Locals and Expression might not be able to display all Qt Types in a "
+                 "human readable format.\n\n"
+                 "Please install the \"Qt Debug Information Files\" Package from the "
+                 "Maintenance Tool for this Qt installation to get all relevant "
+                 "symbols for the debugger.")
+                  .arg(qtName);
+
+        CheckableMessageBox::doNotShowAgainInformation(
+            Core::ICore::dialogParent(),
+            tr("Missing Qt Debug Information"),
+            message,
+            Core::ICore::settings(),
+            "CdbQtSdkPdbHint");
+
+        showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
+    };
+    cmd.flags = BuiltinCommand;
+    runCommand(cmd);
+}
+
 void CdbEngine::parseOutputLine(QString line)
 {
     // The hooked output callback in the extension suppresses prompts,
@@ -2351,8 +2408,11 @@ void CdbEngine::parseOutputLine(QString line)
         // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
         const QRegularExpression moduleRegExp("[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)");
         const QRegularExpressionMatch match = moduleRegExp.match(line);
-        if (match.hasMatch())
-            showStatusMessage(tr("Module loaded: %1").arg(match.captured(3).trimmed()), 3000);
+        if (match.hasMatch()) {
+            const QString module = match.captured(3).trimmed();
+            showStatusMessage(tr("Module loaded: %1").arg(module), 3000);
+            checkQtSdkPdbFiles(module);
+        }
     } else {
         showMessage(line, LogMisc);
     }
