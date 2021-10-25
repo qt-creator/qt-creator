@@ -24,26 +24,13 @@
 ****************************************************************************/
 #pragma once
 
-#include <QScrollBar>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QGestureEvent)
+QT_FORWARD_DECLARE_CLASS(QScrollBar)
 QT_FORWARD_DECLARE_CLASS(QWheelEvent)
 
 namespace QmlDesigner {
-
-class Navigation2dScrollBar : public QScrollBar
-{
-    Q_OBJECT
-
-public:
-    Navigation2dScrollBar(QWidget *parent = nullptr);
-
-    bool postEvent(QEvent *event);
-
-protected:
-    void wheelEvent(QWheelEvent *event) override;
-};
-
 
 class Navigation2dFilter : public QObject
 {
@@ -57,7 +44,9 @@ signals:
     void zoomOut();
 
 public:
-    Navigation2dFilter(QWidget *parent = nullptr, Navigation2dScrollBar *scrollbar = nullptr);
+    static void scroll(const QPointF &direction, QScrollBar *sbx, QScrollBar *sby);
+
+    Navigation2dFilter(QWidget *parent);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -65,7 +54,6 @@ protected:
 private:
     bool gestureEvent(QGestureEvent *event);
     bool wheelEvent(QWheelEvent *event);
-    Navigation2dScrollBar *m_scrollbar = nullptr;
 };
 
 } // namespace QmlDesigner

@@ -90,7 +90,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     , m_toolbar(new TransitionEditorToolBar(this))
     , m_rulerView(new QGraphicsView(this))
     , m_graphicsView(new QGraphicsView(this))
-    , m_scrollbar(new Navigation2dScrollBar(this))
+    , m_scrollbar(new QScrollBar(this))
     , m_statusBar(new QLabel(this))
     , m_transitionEditorView(view)
     , m_graphicsScene(new TransitionEditorGraphicsScene(this))
@@ -129,7 +129,6 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     m_graphicsView->setFrameShape(QFrame::NoFrame);
     m_graphicsView->setFrameShadow(QFrame::Plain);
     m_graphicsView->setLineWidth(0);
-    m_graphicsView->setVerticalScrollBar(new Navigation2dScrollBar);
     m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -223,13 +222,19 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
         m_transitionEditorView->addNewTransition();
     });
 
-    Navigation2dFilter *filter = new Navigation2dFilter(this, m_scrollbar);
-    connect(filter, &Navigation2dFilter::zoomChanged, [this](double scale, const QPointF& pos) {
-        int s = static_cast<int>(std::round(scale*100.));
-        double ps = m_graphicsScene->mapFromScene(pos.x());
-        m_graphicsScene->setZoom(std::clamp(m_graphicsScene->zoom() + s, 0, 100), ps);
+    Navigation2dFilter *filter = new Navigation2dFilter(m_graphicsView->viewport());
+    connect(filter, &Navigation2dFilter::panChanged, [this](const QPointF &direction) {
+        Navigation2dFilter::scroll(direction, m_scrollbar, m_graphicsView->verticalScrollBar());
     });
-    installEventFilter(filter);
+
+    connect(filter, &Navigation2dFilter::zoomChanged, [this](double scale, const QPointF &pos) {
+        int s = static_cast<int>(std::round(scale*100.));
+        int scaleFactor = std::clamp(m_graphicsScene->zoom() + s, 0, 100);
+        double ps = m_graphicsScene->mapFromScene(pos.x());
+        m_graphicsScene->setZoom(scaleFactor, ps);
+        m_toolbar->setScaleFactor(scaleFactor);
+    });
+    m_graphicsView->viewport()->installEventFilter(filter);
 }
 
 void TransitionEditorWidget::setTransitionActive(bool b)
