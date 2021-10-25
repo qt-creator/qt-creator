@@ -79,6 +79,16 @@ static void maybeForceMacOSLight(Theme *theme)
 #endif
 }
 
+static bool macOSSystemIsDark()
+{
+#ifdef Q_OS_MACOS
+    static bool systemIsDark = Internal::currentAppearanceIsDark();
+    return systemIsDark;
+#else
+    return false;
+#endif
+}
+
 void setCreatorTheme(Theme *theme)
 {
     if (m_creatorTheme == theme)
@@ -257,6 +267,8 @@ bool Theme::systemUsesDarkMode()
         bool ok;
         const auto setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
         return ok && setting == 0;
+    } else if (HostOsInfo::isMacHost()) {
+        return macOSSystemIsDark();
     }
     return false;
 }
@@ -278,6 +290,7 @@ static QPalette copyPalette(const QPalette &p)
 
 void Theme::setInitialPalette(Theme *initTheme)
 {
+    macOSSystemIsDark(); // initialize value for system mode
     maybeForceMacOSLight(initTheme);
     initialPalette();
 }

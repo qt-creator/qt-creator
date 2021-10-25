@@ -49,5 +49,17 @@ void forceMacOSLightAquaApperance()
         NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
 }
 
+bool currentAppearanceIsDark()
+{
+#if __has_builtin(__builtin_available)
+    if (__builtin_available(macOS 10.14, *)) {
+        auto appearance = [NSApp.effectiveAppearance
+            bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
+        return [appearance isEqualToString:NSAppearanceNameDarkAqua];
+    }
+#endif
+    return false;
+}
+
 } // Internal
 } // Utils

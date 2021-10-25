@@ -29,6 +29,7 @@ namespace Utils {
 namespace Internal {
 
 void forceMacOSLightAquaApperance();
+bool currentAppearanceIsDark();
 
 } // Internal
 } // Utils
