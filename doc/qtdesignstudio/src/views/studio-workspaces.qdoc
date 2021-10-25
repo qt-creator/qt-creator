@@ -26,15 +26,11 @@
 /*!
     \page creator-project-managing-workspaces.html
     \previouspage creator-open-documents-view.html
-    \if defined(qtdesignstudio)
     \nextpage creator-project-managing-sessions.html
-    \else
-    \nextpage creator-output-panes.html
-    \endif
 
     \title Managing Workspaces
 
-    In the Design and Debug modes, you can arrange a set of \QC
+    In the \uicontrol Design mode, you can arrange a set of \QC
     views as a \e workspace on the screen.
 
     To detach views:

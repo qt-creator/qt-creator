@@ -35,7 +35,12 @@
     \title Browsing Project Contents
 
     You can organize \QC views in \l {Working with Sidebars}{sidebars} or as
-    \l {Managing Workspaces}{workspaces}, depending on the \l{Selecting Modes}
+    \if defined(qtdesignstudio)
+    \l {Managing Workspaces}{workspaces},
+    \else
+    workspaces
+    \endif
+    depending on the \l{Selecting Modes}
     {mode} you are working in. Only views that are relevant to a mode are
     available in it.
 

@@ -93,7 +93,6 @@
         \li \l{Selecting Modes}{Mode selector}
         \li \l{Working with Sidebars}{Sidebars}
         \li \l{Browsing Project Contents}{Views}
-        \li \l{Managing Workspaces}{Workspaces}
         \li \l{Viewing Output}{Output panes}
     \endlist
 
@@ -350,7 +349,7 @@
     \previouspage creator-views.html
     \nextpage creator-highlighting.html
     \else
-    \previouspage creator-project-managing-workspaces.html
+    \previouspage creator-open-documents-view.html
     \nextpage creator-configuring.html
     \endif
 
