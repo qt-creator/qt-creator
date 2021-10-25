@@ -646,7 +646,7 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
       m_androidConfig(AndroidConfigurations::currentConfig())
 {
-    setDisplayName(AndroidDevice::tr("Android Virtual Device"));
+    setDisplayName(AndroidDevice::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
     setConstructionFunction(&AndroidDevice::create);
