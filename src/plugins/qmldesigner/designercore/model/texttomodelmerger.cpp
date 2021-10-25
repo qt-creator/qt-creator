@@ -931,16 +931,43 @@ static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &pat
 static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QString, ImportKey> &filteredPossibleImportKeys)
 {
     QList<QmlDesigner::Import> possibleImports;
+    QSet<QString> controlsImplVersions;
+    bool hasVersionedControls = false;
+    bool hasVersionlessControls = false;
+    const QString controlsName = "QtQuick.Controls";
+    const QString controlsImplName = "QtQuick.Controls.impl";
 
-    foreach (const ImportKey &importKey, filteredPossibleImportKeys) {
+    for (const ImportKey &importKey : filteredPossibleImportKeys) {
         QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
         int majorVersion = importKey.majorVersion;
         if (majorVersion >= 0) {
             int minorVersion = (importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion;
             QString version = QStringLiteral("%1.%2").arg(majorVersion).arg(minorVersion);
             possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
+
+            // In Qt6, QtQuick.Controls itself doesn't have any version as it has no types,
+            // so it never gets added normally to possible imports.
+            // We work around this by injecting corresponding QtQuick.Controls version for each
+            // found impl version, if no valid QtQuick.Controls versions are found.
+            if (!hasVersionedControls) {
+                if (libraryName == controlsImplName)
+                    controlsImplVersions.insert(version);
+                else if (libraryName == controlsName)
+                    hasVersionedControls = true;
+            }
+        } else if (!hasVersionlessControls && libraryName == controlsName) {
+            // If QtQuick.Controls module is not included even in non-versioned, it means
+            // QtQuick.Controls is either in use or not available at all,
+            // so we shouldn't inject it.
+            hasVersionlessControls = true;
         }
     }
+
+    if (hasVersionlessControls && !hasVersionedControls && !controlsImplVersions.isEmpty()) {
+        for (const auto &version : std::as_const(controlsImplVersions))
+            possibleImports.append(QmlDesigner::Import::createLibraryImport(controlsName, version));
+    }
+
 
     return possibleImports;
 }
