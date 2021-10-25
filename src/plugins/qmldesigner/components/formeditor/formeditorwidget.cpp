@@ -599,10 +599,18 @@ void FormEditorWidget::dropEvent(QDropEvent *dropEvent)
                                                      ->viewManager().designerActionManager();
     QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
 
-    // add image assets to Form Editor
+    // Create Image components for added image assets
     const QStringList addedImages = addedAssets.value(ComponentCoreConstants::addImagesDisplayString);
     for (const QString &imgPath : addedImages) {
         QmlItemNode::createQmlItemNodeFromImage(m_formEditorView, imgPath, {},
+                                                m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode());
+    }
+
+    // Create Text components for added font assets
+    const QStringList addedFonts = addedAssets.value(ComponentCoreConstants::addFontsDisplayString);
+    for (const QString &fontPath : addedFonts) {
+        QString fontFamily = QFileInfo(fontPath).baseName();
+        QmlItemNode::createQmlItemNodeFromFont(m_formEditorView, fontFamily, rootItemRect().center(),
                                                 m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode());
     }
 }
