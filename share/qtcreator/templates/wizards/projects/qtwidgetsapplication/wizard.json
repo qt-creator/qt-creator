@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "MesonProjectManager.MesonProject","CMakeProjectManager.CMakeProject", "Qt4ProjectManager.Qt4Project", "Qbs.QbsProject" ],
     "id": "C.QtWidgets",
     "category": "D.ApplicationQt",
-    "trDescription": "Creates a Qt application for the desktop. Includes a Qt Designer-based main window.\n\nPreselects a desktop Qt for building the application if available.",
+    "trDescription": "Creates a widget-based Qt application that contains a Qt Designer-based main window.\n\nPreselects a desktop Qt for building the application if available.",
     "trDisplayName": "Qt Widgets Application",
     "trDisplayCategory": "Application (Qt)",
     "icon": "../../global/guiapplication.png",
