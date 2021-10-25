@@ -72,7 +72,7 @@ private:
     QNetworkReply *m_reply = nullptr;
     Utils::FilePath m_sdkFilename;
     QProgressDialog *m_progressDialog = nullptr;
-    AndroidConfig m_androidConfig;
+    const AndroidConfig &m_androidConfig;
 };
 
 } // Internal

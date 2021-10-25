@@ -627,8 +627,8 @@ AndroidDeviceManager *AndroidDeviceManager::instance()
 
 AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
     : QObject(parent),
-      m_avdManager(m_androidConfig),
-      m_androidConfig(AndroidConfigurations::currentConfig())
+      m_androidConfig(AndroidConfigurations::currentConfig()),
+      m_avdManager(m_androidConfig)
 {
     connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
         m_devicesUpdaterTimer.stop();

@@ -211,7 +211,7 @@ class ANDROID_EXPORT AndroidConfigurations : public QObject
     Q_OBJECT
 
 public:
-    static const AndroidConfig &currentConfig();
+    static AndroidConfig &currentConfig();
     static Internal::AndroidSdkManager *sdkManager();
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();

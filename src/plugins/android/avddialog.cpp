@@ -51,9 +51,9 @@ static Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
 
 AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
     : QDialog(parent),
+      m_androidConfig(config),
       m_sdkManager(m_androidConfig),
-      m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*")),
-      m_androidConfig(config)
+      m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
     m_avdDialog.setupUi(this);
     m_hideTipTimer.setInterval(2000);

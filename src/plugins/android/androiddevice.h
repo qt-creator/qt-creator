@@ -90,7 +90,7 @@ public:
     ProjectExplorer::IDevice::Ptr create() const override;
 
 private:
-    AndroidConfig m_androidConfig;
+    const AndroidConfig &m_androidConfig;
 };
 
 class AndroidDeviceManager : public QObject
@@ -116,8 +116,8 @@ private:
     QFutureWatcher<QVector<AndroidDeviceInfo>> m_devicesFutureWatcher;
     QFutureWatcher<QPair<ProjectExplorer::IDevice::ConstPtr, bool>> m_removeAvdFutureWatcher;
     QTimer m_devicesUpdaterTimer;
+    AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
-    AndroidConfig m_androidConfig;
 };
 
 } // namespace Internal

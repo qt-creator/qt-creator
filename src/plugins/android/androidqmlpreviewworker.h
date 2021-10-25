@@ -78,7 +78,7 @@ private:
     Utils::FilePath createQmlrcFile(const Utils::FilePath &workFolder, const QString &basename);
 
     ProjectExplorer::RunControl *m_rc = nullptr;
-    AndroidConfig m_androidConfig;
+    const AndroidConfig &m_androidConfig;
     QString m_serialNumber;
     QStringList m_avdAbis;
     int m_viewerPid = -1;

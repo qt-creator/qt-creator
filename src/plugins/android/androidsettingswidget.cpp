@@ -108,7 +108,7 @@ private:
 
     Ui_AndroidSettingsWidget m_ui;
     AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
-    AndroidConfig m_androidConfig{AndroidConfigurations::currentConfig()};
+    AndroidConfig &m_androidConfig{AndroidConfigurations::currentConfig()};
 
     AndroidSdkManager m_sdkManager{m_androidConfig};
     AndroidSdkDownloader m_sdkDownloader;

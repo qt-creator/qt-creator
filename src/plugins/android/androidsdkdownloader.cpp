@@ -48,8 +48,8 @@ namespace Internal {
  * @brief Download Android SDK tools package from within Qt Creator.
  */
 AndroidSdkDownloader::AndroidSdkDownloader()
+    : m_androidConfig(AndroidConfigurations::currentConfig())
 {
-    m_androidConfig = AndroidConfigurations::currentConfig();
     connect(&m_manager, &QNetworkAccessManager::finished, this, &AndroidSdkDownloader::downloadFinished);
 }
 

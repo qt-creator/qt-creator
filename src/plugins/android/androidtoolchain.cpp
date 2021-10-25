@@ -116,7 +116,7 @@ bool AndroidToolChain::isValid() const
 
 void AndroidToolChain::addToEnvironment(Environment &env) const
 {
-    AndroidConfig config = AndroidConfigurations::currentConfig();
+    const AndroidConfig &config = AndroidConfigurations::currentConfig();
     env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHostFromNdk(m_ndkLocation));
     const Utils::FilePath javaHome = config.openJDKLocation();
     if (javaHome.exists()) {
@@ -178,7 +178,7 @@ static FilePath clangPlusPlusPath(const FilePath &clangPath)
 
 static QList<FilePath> uniqueNdksForCurrentQtVersions()
 {
-    AndroidConfig config = AndroidConfigurations::currentConfig();
+    const AndroidConfig &config = AndroidConfigurations::currentConfig();
 
     auto androidQtVersions = QtSupport::QtVersionManager::versions(
         [](const QtSupport::BaseQtVersion *v) {

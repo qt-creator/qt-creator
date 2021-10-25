@@ -1408,7 +1408,7 @@ Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
     return env;
 }
 
-const AndroidConfig &AndroidConfigurations::currentConfig()
+AndroidConfig &AndroidConfigurations::currentConfig()
 {
     return m_instance->m_config; // ensure that m_instance is initialized
 }
