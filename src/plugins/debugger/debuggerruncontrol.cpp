@@ -538,7 +538,7 @@ void DebuggerRunTool::start()
             default:
                 if (!m_runParameters.isQmlDebugging) {
                     reportFailure(noEngineMessage() + '\n' +
-                        DebuggerPlugin::tr("Please select a Debugger Setting from the Run page of the project mode."));
+                        DebuggerPlugin::tr("Specify Debugger settings in Projects > Run."));
                     return;
                 }
                 // Can happen for pure Qml.
