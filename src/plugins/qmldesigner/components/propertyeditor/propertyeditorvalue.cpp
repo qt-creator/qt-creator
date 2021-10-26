@@ -167,7 +167,7 @@ void PropertyEditorValue::setValue(const QVariant &value)
     fixAmbigousColorNames(modelNode(), name(), &m_value);
     fixUrl(modelNode(), name(), &m_value);
 
-    if (m_value.isValid() && !colorsEqual)
+    if (!colorsEqual)
         emit valueChangedQml();
 
     emit isExplicitChanged();

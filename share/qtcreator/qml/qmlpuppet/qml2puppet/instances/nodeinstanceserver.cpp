@@ -1221,7 +1221,15 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
 
         if (instance.isValid()) {
             QVariant propertyValue = instance.property(propertyName);
-            if (QMetaType::isRegistered(propertyValue.userType()) && supportedVariantType(propertyValue.type())) {
+            bool isValid = QMetaType::isRegistered(propertyValue.userType())
+                    && supportedVariantType(propertyValue.type());
+            if (!isValid && propertyValue.userType() == 0) {
+                // If the property is QVariant type, invalid variant can be a valid value
+                const QMetaObject *mo = instance.internalObject()->metaObject();
+                const int idx = mo->indexOfProperty(propertyName);
+                isValid = idx >= 0 && mo->property(idx).userType() == QMetaType::QVariant;
+            }
+            if (isValid) {
                 valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName,
                                                           propertyValue, PropertyName()));
             }
