@@ -134,7 +134,7 @@ void SourceAgent::updateLocationMarker()
         d->editor->textDocument()->removeMark(d->locationMark);
     delete d->locationMark;
     d->locationMark = nullptr;
-    if (d->engine->stackHandler()->currentFrame().file == d->path) {
+    if (d->engine->stackHandler()->currentFrame().file == Utils::FilePath::fromString(d->path)) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
 
         d->locationMark = new TextMark(Utils::FilePath(), lineNumber,

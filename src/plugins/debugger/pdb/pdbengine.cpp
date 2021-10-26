@@ -346,11 +346,11 @@ void PdbEngine::refreshState(const GdbMi &reportedState)
 void PdbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
     StackFrame frame;
-    frame.file = reportedLocation["file"].data();
+    frame.file = Utils::FilePath::fromString(reportedLocation["file"].data());
     frame.line = reportedLocation["line"].toInt();
-    frame.usable = QFileInfo(frame.file).isReadable();
+    frame.usable = frame.file.isReadableFile();
     if (state() == InferiorRunOk) {
-        showMessage(QString("STOPPED AT: %1:%2").arg(frame.file).arg(frame.line));
+        showMessage(QString("STOPPED AT: %1:%2").arg(frame.file.toUserOutput()).arg(frame.line));
         gotoLocation(frame);
         notifyInferiorSpontaneousStop();
         updateAll();
@@ -535,7 +535,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
     for (const GdbMi &item : stack["frames"]) {
         StackFrame frame;
         frame.level = item["level"].data();
-        frame.file = item["file"].data();
+        frame.file = Utils::FilePath::fromString(item["file"].data());
         frame.function = item["function"].data();
         frame.module = item["function"].data();
         frame.line = item["line"].toInt();
@@ -544,7 +544,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
         if (usable.isValid())
             frame.usable = usable.data().toInt();
         else
-            frame.usable = QFileInfo(frame.file).isReadable();
+            frame.usable = frame.file.isReadableFile();
         frames.append(frame);
     }
     bool canExpand = stack["hasmore"].toInt();

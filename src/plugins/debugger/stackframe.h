@@ -27,6 +27,8 @@
 
 #include "debuggerconstants.h"
 
+#include <utils/filepath.h>
+
 #include <QCoreApplication>
 #include <QMetaType>
 
@@ -56,7 +58,7 @@ public:
     DebuggerLanguage language = CppLanguage;
     QString level;
     QString function;
-    QString file;        // We try to put an absolute file name in there.
+    Utils::FilePath file;// We try to put an absolute file name in there.
     QString module;      // Sometimes something like "/usr/lib/libstdc++.so.6"
     QString receiver;    // Used in ScriptEngine only.
     qint32 line = -1;

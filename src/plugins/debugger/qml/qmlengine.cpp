@@ -2036,8 +2036,9 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     stackFrame.function = extractString(body.value("func"));
     if (stackFrame.function.isEmpty())
         stackFrame.function = QCoreApplication::translate("QmlEngine", "Anonymous Function");
-    stackFrame.file = engine->toFileInProject(extractString(body.value("script")));
-    stackFrame.usable = QFileInfo(stackFrame.file).isReadable();
+    stackFrame.file = FilePath::fromString(
+        engine->toFileInProject(extractString(body.value("script"))));
+    stackFrame.usable = stackFrame.file.isReadableFile();
     stackFrame.receiver = extractString(body.value("receiver"));
     stackFrame.line = body.value("line").toInt() + 1;
 

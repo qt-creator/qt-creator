@@ -161,7 +161,7 @@ static bool debuggerActionsEnabledHelper(DebuggerState state)
 
 Location::Location(const StackFrame &frame, bool marker)
 {
-    m_fileName = Utils::FilePath::fromString(frame.file);
+    m_fileName = frame.file;
     m_lineNumber = frame.line;
     m_needsMarker = marker;
     m_functionName = frame.function;

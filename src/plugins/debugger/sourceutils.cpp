@@ -190,7 +190,7 @@ static void blockRecursion(const Overview &overview,
 
 QStringList getUninitializedVariables(const Snapshot &snapshot,
                                       const QString &functionName,
-                                      const QString &file,
+                                      const FilePath &file,
                                       int line)
 {
     QStringList result;

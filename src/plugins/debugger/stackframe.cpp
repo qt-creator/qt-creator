@@ -35,6 +35,8 @@
 
 #include <utils/hostosinfo.h>
 
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -93,7 +95,7 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     frame.level = frameMi["level"].data();
     frame.function = frameMi["function"].data();
     frame.module = frameMi["module"].data();
-    frame.file = frameMi["file"].data();
+    frame.file = FilePath::fromString(frameMi["file"].data());
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["address"].toAddress();
     frame.context = frameMi["context"].data();
@@ -107,13 +109,13 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     if (usable.isValid())
         frame.usable = usable.data().toInt();
     else
-        frame.usable = QFileInfo(frame.file).isReadable();
+        frame.usable = frame.file.isReadableFile();
     return frame;
 }
 
 QString StackFrame::toToolTip() const
 {
-    const QString filePath = QDir::toNativeSeparators(file);
+    const QString filePath = file.toUserOutput();
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
@@ -150,7 +152,7 @@ QString StackFrame::toToolTip() const
             "frame. However, matching sources have not been found.");
         showDistributionNote = true;
     }
-    if (!Utils::HostOsInfo::isWindowsHost() && showDistributionNote) {
+    if (!HostOsInfo::isWindowsHost() && showDistributionNote) {
         str << ' ' << tr("Note that most distributions ship debug information "
                          "in separate packages.");
     }
@@ -159,19 +161,14 @@ QString StackFrame::toToolTip() const
     return res;
 }
 
-static QString findFile(const QString &baseDir, const QString &relativeFile)
+static FilePath findFile(const FilePath &baseDir, const FilePath &relativeFile)
 {
-    QDir dir(baseDir);
-    while (true) {
-        const QString path = dir.absoluteFilePath(relativeFile);
-        const QFileInfo fi(path);
-        if (fi.isFile())
-            return path;
-        if (dir.isRoot())
-            break;
-        dir.cdUp();
+    for (FilePath dir(baseDir); !dir.isEmpty(); dir = dir.parentDir()) {
+        const FilePath absolutePath = dir.resolvePath(relativeFile);
+        if (absolutePath.isFile())
+            return absolutePath;
     }
-    return QString();
+    return {};
 }
 
 // Try to resolve files coming from resource files.
@@ -179,21 +176,23 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
 {
     if (language != QmlLanguage)
         return;
-    QFileInfo aFi(file);
-    if (aFi.isAbsolute()) {
-        usable = aFi.isFile();
+    if (file.isAbsolutePath()) {
+        usable = file.isFile();
         return;
     }
     if (!file.startsWith("qrc:/"))
         return;
 
-    QString relativeFile = file.right(file.size() - 5);
-    while (relativeFile.startsWith('/'))
-        relativeFile = relativeFile.mid(1);
+    FilePath relativeFile = file;
+    QString relativePath = file.path();
+    relativePath = relativePath.right(relativePath.size() - 5);
+    while (relativePath.startsWith('/'))
+        relativePath = relativePath.mid(1);
+    relativeFile.setPath(relativePath);
 
-    QString absFile = findFile(rp.projectSourceDirectory.toString(), relativeFile);
+    FilePath absFile = findFile(rp.projectSourceDirectory, relativeFile);
     if (absFile.isEmpty())
-        absFile = findFile(QDir::currentPath(), relativeFile);
+        absFile = findFile(FilePath::fromString(QDir::currentPath()), relativeFile);
 
     if (absFile.isEmpty())
         return;

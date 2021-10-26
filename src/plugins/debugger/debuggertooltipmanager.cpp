@@ -718,10 +718,9 @@ DebuggerToolTipContext::DebuggerToolTipContext()
 {
 }
 
-static bool filesMatch(const QString &file1, const QString &file2)
+static bool filesMatch(const FilePath &file1, const FilePath &file2)
 {
-    return FilePath::fromString(QFileInfo(file1).canonicalFilePath())
-            == FilePath::fromString(QFileInfo(file2).canonicalFilePath());
+    return file1.canonicalPath() == file2.canonicalPath();
 }
 
 bool DebuggerToolTipContext::matchesFrame(const StackFrame &frame) const
@@ -945,7 +944,7 @@ void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
     w.writeStartElement(toolTipElementC);
     QXmlStreamAttributes attributes;
 //    attributes.append(toolTipClassAttributeC, QString::fromLatin1(metaObject()->className()));
-    attributes.append(fileNameAttributeC, context.fileName);
+    attributes.append(fileNameAttributeC, context.fileName.toString());
     if (!context.function.isEmpty())
         attributes.append(functionAttributeC, context.function);
     attributes.append(textPositionAttributeC, QString::number(context.position));
@@ -1019,15 +1018,15 @@ void DebuggerToolTipManagerPrivate::updateVisibleToolTips()
         return;
     }
 
-    const QString fileName = toolTipEditor->textDocument()->filePath().toString();
-    if (fileName.isEmpty()) {
+    const FilePath filePath = toolTipEditor->textDocument()->filePath();
+    if (filePath.isEmpty()) {
         hideAllToolTips();
         return;
     }
 
     // Reposition and show all tooltips of that file.
     for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips)) {
-        if (tooltip->context.fileName == fileName)
+        if (tooltip->context.fileName == filePath)
             tooltip->positionShow(toolTipEditor->editorWidget());
         else
             tooltip->widget->hide();
@@ -1085,7 +1084,8 @@ void DebuggerToolTipManagerPrivate::loadSessionData()
             if (readStartElement(r, toolTipElementC)) {
                 const QXmlStreamAttributes attributes = r.attributes();
                 DebuggerToolTipContext context;
-                context.fileName = attributes.value(fileNameAttributeC).toString();
+                context.fileName = FilePath::fromString(
+                    attributes.value(fileNameAttributeC).toString());
                 context.position = attributes.value(textPositionAttributeC).toString().toInt();
                 context.line = attributes.value(textLineAttributeC).toString().toInt();
                 context.column = attributes.value(textColumnAttributeC).toString().toInt();
@@ -1197,7 +1197,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
 
     DebuggerToolTipContext context;
     context.engineType = m_engine->objectName();
-    context.fileName = document->filePath().toString();
+    context.fileName = document->filePath();
     context.position = pos;
     editorWidget->convertPosition(pos, &context.line, &context.column);
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
