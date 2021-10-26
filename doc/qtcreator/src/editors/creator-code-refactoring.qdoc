@@ -157,14 +157,18 @@
     the symbol. All instances of the local symbol are changed as you type.
     \endif
 
-    \section1 Column Editing
+    \section1 Multi-Cursor Editing
 
-    To apply a change to several rows in a column simultaneously, hold
-    \key Alt, select the rows using the mouse, and enter or remove text.
-    The changes are made simultaneously at the cursor position on all the
-    selected rows.
+    To apply a change to several places simultaneously, press and hold \key Alt,
+    and click to place cursors in several places. Any changes you make are
+    applied simultaneously at all the cursor positions.
 
-    On Windows and Linux, you can also hold \key {Alt+Shift} and select
-    the rows using the arrow keys and the \key PageUp, \key PageDown,
-    \key Home, \key End keys.
+    Use the arrow keys to move all the cursors up and down. The \key Home and
+    \key End key move all the cursors to the beginning or to the end of the
+    line.
+
+    Press and hold \key Alt and double-click strings to select several strings
+    simultaneously.
+
+    Press \key Esc to remove all the cursors and selections.
    */

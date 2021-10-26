@@ -320,7 +320,7 @@ QString AndroidAvdManager::findAvd(const QString &avdName) const
 {
     QVector<AndroidDeviceInfo> devices = m_config.connectedDevices();
     foreach (AndroidDeviceInfo device, devices) {
-        if (device.type != AndroidDeviceInfo::Emulator)
+        if (device.type != ProjectExplorer::IDevice::Emulator)
             continue;
         if (device.avdname == avdName)
             return device.serialNumber;

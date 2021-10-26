@@ -67,10 +67,6 @@ public:
     AndroidPackageInstallationStep(BuildStepList *bsl, Id id);
 
     QString nativeAndroidBuildPath() const;
-
-    Utils::FilePath androidBuildDirectory() const;
-    Utils::FilePath buildDirectory() const;
-
 private:
     bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
@@ -108,7 +104,7 @@ bool AndroidPackageInstallationStep::init()
 
     processParameters()->setCommandLine(cmd);
     // This is useful when running an example target from a Qt module project.
-    processParameters()->setWorkingDirectory(buildDirectory());
+    processParameters()->setWorkingDirectory(AndroidManager::buildDirectory(target()));
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
@@ -120,24 +116,12 @@ bool AndroidPackageInstallationStep::init()
 
 QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
 {
-    QString buildPath = androidBuildDirectory().toString();
+    QString buildPath = AndroidManager::androidBuildDirectory(target()).toString();
     if (HostOsInfo::isWindowsHost())
         if (buildEnvironment().searchInPath("sh.exe").isEmpty())
             buildPath = QDir::toNativeSeparators(buildPath);
 
     return buildPath;
-}
-
-FilePath AndroidPackageInstallationStep::androidBuildDirectory() const
-{
-    return buildDirectory() / Constants::ANDROID_BUILD_DIRECTORY;
-}
-
-FilePath AndroidPackageInstallationStep::buildDirectory() const
-{
-    if (const BuildSystem *bs = buildSystem())
-        return bs->buildTarget(target()->activeBuildKey()).workingDirectory;
-    return {};
 }
 
 void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *formatter)

@@ -36,11 +36,11 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QTextBlock>
 #include <QTextCursor>
 
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <algorithm>
@@ -81,39 +81,43 @@ bool FixitsRefactoringFile::apply()
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(
         CppEditor::Constants::CPP_SETTINGS_ID);
 
-    // Apply changes
-    std::unique_ptr<TextEditor::Indenter> indenter;
-    QString lastFilename;
-    ReplacementOperations operationsForFile;
+    QHash<FilePath, QPair<ReplacementOperations, int>> operationsByFile;
 
-    for (int i=0; i < m_replacementOperations.size(); ++i) {
+    for (int i = 0; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &op = *m_replacementOperations[i];
-        if (op.apply) {
-            // Check for permissions
-            if (!QFileInfo(op.fileName).isWritable())
-                return false; // Error file not writable
+        if (!op.apply)
+            continue;
 
-            qCDebug(fixitsLog) << " " << i << "Applying" << op;
+        const FilePath filePath = FilePath::fromString(op.fileName);
 
-            // Shift subsequent operations that are affected
-            shiftAffectedReplacements(op, i + 1);
+        // Check for permissions
+        if (!filePath.isWritableFile())
+            return false;
 
-            // Apply
-            QTextDocument *doc = document(op.fileName);
-            if (lastFilename != op.fileName) {
-                if (indenter)
-                    format(*indenter, doc, operationsForFile, i);
-                operationsForFile.clear();
-                indenter = std::unique_ptr<TextEditor::Indenter>(factory->createIndenter(doc));
-                indenter->setFileName(Utils::FilePath::fromString(op.fileName));
-            }
+        qCDebug(fixitsLog) << " " << i << "Applying" << op;
 
-            QTextCursor cursor(doc);
-            cursor.setPosition(op.pos);
-            cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
-            cursor.insertText(op.text);
-            operationsForFile.push_back(&op);
-        }
+        // Shift subsequent operations that are affected
+        shiftAffectedReplacements(op, i + 1);
+
+        // Apply
+        QTextDocument * const doc = document(op.fileName);
+        QTextCursor cursor(doc);
+        cursor.setPosition(op.pos);
+        cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
+        cursor.insertText(op.text);
+        auto &opsForFile = operationsByFile[filePath];
+        opsForFile.first.push_back(&op);
+        opsForFile.second = i;
+    }
+
+    // Format
+    for (auto it = operationsByFile.cbegin(); it != operationsByFile.cend(); ++it) {
+        QTextDocument * const doc = document(it.key().toString());
+        const std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter(doc));
+        if (!indenter)
+            continue;
+        indenter->setFileName(it.key());
+        format(*indenter, doc, it.value().first, it.value().second);
     }
 
     // Write file

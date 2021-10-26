@@ -437,17 +437,14 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
 
 Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
 {
-#ifdef WITH_TESTS
-    return Utils::FilePath::fromString(projectDirectory().fileName());
-#else
-    auto rootPath = Utils::FilePath::fromString(
+    Utils::FilePath rootPath;
+#ifndef WITH_TESTS
+    rootPath = Utils::FilePath::fromString(
         namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
-
-    if (rootPath.isEmpty())
-        rootPath = Utils::FilePath::fromString(projectDirectory().fileName());
-
-    return rootPath;
 #endif
+    if (rootPath.isEmpty())
+        rootPath = projectDirectory();
+    return rootPath;
 }
 
 void CompilationDatabaseProject::configureAsExampleProject(Kit *kit)

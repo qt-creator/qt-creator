@@ -268,7 +268,20 @@ FilePath AndroidManager::buildDirectory(const Target *target)
 {
     if (const BuildSystem *bs = target->buildSystem()) {
         const QString buildKey = target->activeBuildKey();
-        const FilePath buildDir = bs->buildTarget(target->activeBuildKey()).workingDirectory;
+
+        // Get the target build dir based on the settings file path
+        FilePath buildDir;
+        const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
+        if (node) {
+            const QString settingsFile = node->data(Constants::AndroidDeploySettingsFile).toString();
+            buildDir = FilePath::fromUserInput(settingsFile).parentDir();
+        }
+
+        if (!buildDir.isEmpty())
+            return buildDir;
+
+        // Otherwise fallback to target working dir
+        buildDir = bs->buildTarget(target->activeBuildKey()).workingDirectory;
         if (isQt5CmakeProject(target)) {
             // Return the main build dir and not the android libs dir
             const QString libsDir = QString(Constants::ANDROID_BUILD_DIRECTORY) + "/libs";
@@ -558,7 +571,7 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
         return;
 
     QString deviceSerialNumber = info.serialNumber;
-    if (info.type == AndroidDeviceInfo::Emulator) {
+    if (info.type == IDevice::Emulator) {
         deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::writeDisrupting(tr("Starting Android virtual device failed."));

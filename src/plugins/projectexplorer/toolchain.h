@@ -172,6 +172,14 @@ public:
     static Utils::LanguageVersion cxxLanguageVersion(const QByteArray &cplusplusMacroValue);
     static Utils::LanguageVersion languageVersion(const Utils::Id &language, const Macros &macros);
 
+    enum Priority {
+        PriorityLow = 0,
+        PriorityNormal = 10,
+        PriorityHigh = 20,
+    };
+
+    virtual int priority() const { return PriorityNormal; }
+
 protected:
     explicit ToolChain(Utils::Id typeId);
 

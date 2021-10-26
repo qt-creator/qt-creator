@@ -607,7 +607,11 @@ void TokenInfo::punctuationOrOperatorKind()
             && m_types.mixinHighlightingTypes.empty()
             && kind != CXCursor_OverloadedDeclRef
             && kind != CXCursor_InclusionDirective
-            && kind != CXCursor_PreprocessingDirective) {
+            && kind != CXCursor_PreprocessingDirective
+            && kind != CXCursor_MacroDefinition
+            && kind != CXCursor_DeclStmt
+            && kind != CXCursor_CompoundStmt
+            && kind != CXCursor_FirstInvalid) {
         const ClangString spelling = m_token->spelling();
         if (spelling == "<")
             m_types.mixinHighlightingTypes.push_back(HighlightingType::AngleBracketOpen);

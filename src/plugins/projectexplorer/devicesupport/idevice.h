@@ -217,6 +217,9 @@ public:
     Utils::FilePath debugServerPath() const;
     void setDebugServerPath(const Utils::FilePath &path);
 
+    Utils::FilePath debugDumperPath() const;
+    void setDebugDumperPath(const Utils::FilePath &path);
+
     Utils::FilePath qmlRunCommand() const;
     void setQmlRunCommand(const Utils::FilePath &path);
 

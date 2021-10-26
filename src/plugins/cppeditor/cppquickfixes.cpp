@@ -3971,9 +3971,20 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     }
 
     // setter declaration
-    const InsertionPointLocator::AccessSpec setterAccessSpec = m_settings->setterAsSlot
-                                                                   ? InsertionPointLocator::PublicSlot
-                                                                   : InsertionPointLocator::Public;
+    InsertionPointLocator::AccessSpec setterAccessSpec = InsertionPointLocator::Public;
+    if (m_settings->setterAsSlot) {
+        const QByteArray connectName = "connect";
+        const Identifier connectId(connectName.data(), connectName.size());
+        const QList<LookupItem> items = m_operation->context().lookup(&connectId, data.clazz);
+        for (const LookupItem &item : items) {
+            if (item.declaration() && item.declaration()->enclosingClass()
+                    && overview.prettyName(item.declaration()->enclosingClass()->name())
+                    == "QObject") {
+                setterAccessSpec = InsertionPointLocator::PublicSlot;
+                break;
+            }
+        }
+    }
     const auto createSetterBodyWithSignal = [this, &getSetTemplate, &data] {
         QString body;
         QTextStream setter(&body);

@@ -25,48 +25,18 @@
 
 #pragma once
 
-#include <QFutureInterface>
-#include <QObject>
-#include <QRunnable>
-#include <QThreadPool>
+#include <QFuture>
+#include <QVector>
 
-#include <texteditor/semantichighlighter.h>
-
-#include <clangsupport/tokeninfocontainer.h>
+namespace TextEditor { class HighlightingResult; }
+namespace ClangBackEnd { class TokenInfoContainer; }
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class HighlightingResultReporter:
-        public QObject,
-        public QRunnable,
-        public QFutureInterface<TextEditor::HighlightingResult>
-{
-    Q_OBJECT
-
-public:
-    HighlightingResultReporter(const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos);
-
-    void setChunkSize(int chunkSize);
-
-    QFuture<TextEditor::HighlightingResult> start();
-
-private:
-    void run() override;
-    void run_internal();
-
-    void reportChunkWise(const TextEditor::HighlightingResult &highlightingResult);
-    void reportAndClearCurrentChunks();
-
-private:
-    QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
-    QVector<TextEditor::HighlightingResult> m_chunksToReport;
-
-    int m_chunkSize = 100;
-
-    bool m_flushRequested = false;
-    int m_flushLine = 0;
-};
+QFuture<TextEditor::HighlightingResult> highlightResults(
+                      const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos,
+                      int chunkSize = 100);
 
 } // namespace Internal
 } // namespace ClangCodeModel

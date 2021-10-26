@@ -613,17 +613,18 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
         const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
         AndroidDeviceInfo dev;
         dev.serialNumber = serialNo;
-        dev.type = serialNo.startsWith(QLatin1String("emulator")) ? AndroidDeviceInfo::Emulator : AndroidDeviceInfo::Hardware;
+        dev.type = serialNo.startsWith(QLatin1String("emulator")) ? IDevice::Emulator
+                                                                  : IDevice::Hardware;
         dev.sdk = getSDKVersion(dev.serialNumber);
         dev.cpuAbi = getAbis(dev.serialNumber);
         if (deviceType == QLatin1String("unauthorized"))
-            dev.state = AndroidDeviceInfo::UnAuthorizedState;
+            dev.state = IDevice::DeviceConnected;
         else if (deviceType == QLatin1String("offline"))
-            dev.state = AndroidDeviceInfo::OfflineState;
+            dev.state = IDevice::DeviceDisconnected;
         else
-            dev.state = AndroidDeviceInfo::OkState;
+            dev.state = IDevice::DeviceReadyToUse;
 
-        if (dev.type == AndroidDeviceInfo::Emulator) {
+        if (dev.type == IDevice::Emulator) {
             dev.avdname = getAvdName(dev.serialNumber);
             if (dev.avdname.isEmpty())
                 dev.avdname = serialNo;

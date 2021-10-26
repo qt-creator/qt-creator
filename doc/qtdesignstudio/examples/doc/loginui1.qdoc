@@ -145,9 +145,9 @@
     You can download the logo and the background image from here:
 
     \list
-        \li \l{https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/qt_logo_green_128x128px.png}
+        \li \l{https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/images/qt_logo_green_128x128px.png}
             {qt_logo_green_128x128px.png}
-        \li \l{https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/adventurePage.jpg}
+        \li \l{https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/images/adventurePage.jpg}
             {Background image} (\e adventurePage.jpg)
 
             Photo by \l{https://unsplash.com/photos/a2MgJdG6UvE}

@@ -30,6 +30,10 @@
 #include <QString>
 #include <QStringList>
 
+#include <projectexplorer/devicesupport/idevice.h>
+
+using namespace ProjectExplorer;
+
 namespace Android {
 
 class AndroidDeviceInfo
@@ -42,13 +46,9 @@ public:
     QString avdDevice;
     QString avdSkin;
     QString avdSdcardSize;
-
     int sdk = -1;
-    enum State { OkState, UnAuthorizedState, OfflineState };
-    State state = OfflineState;
-    bool unauthorized = false;
-    enum AndroidDeviceType { Hardware, Emulator };
-    AndroidDeviceType type = Emulator;
+    IDevice::DeviceState state = IDevice::DeviceDisconnected;
+    IDevice::MachineType type = IDevice::Emulator;
 
     static QStringList adbSelector(const QString &serialNumber);
 

@@ -203,6 +203,11 @@ function(add_qtc_library name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
+  if(_arg_STATIC AND UNIX)
+    # not added by Qt if reduce_relocations is turned off for it
+    set_target_properties(${name} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  endif()
+
   extend_qtc_target(${name}
     INCLUDES ${_arg_INCLUDES}
     PUBLIC_INCLUDES ${_arg_PUBLIC_INCLUDES}

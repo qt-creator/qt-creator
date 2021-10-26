@@ -192,8 +192,9 @@ void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
         return;
     const Utils::FilePath filePath = textDocument->filePath();
     const TextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
-    auto responseCallback = [this, filePath](const SemanticTokensFullRequest::Response &response){
-        handleSemanticTokens(filePath, response.result().value_or(nullptr));
+    auto responseCallback = [this, filePath, documentVersion = m_client->documentVersion(filePath)](
+                                const SemanticTokensFullRequest::Response &response) {
+        handleSemanticTokens(filePath, response.result().value_or(nullptr), documentVersion);
     };
     /*if (supportedRequests.testFlag(SemanticRequestType::Range)) {
         const int start = widget->firstVisibleBlockNumber();
@@ -223,15 +224,18 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
     const SemanticRequestTypes supportedRequests = supportedSemanticRequests(textDocument);
     if (supportedRequests.testFlag(SemanticRequestType::FullDelta)) {
         const Utils::FilePath filePath = textDocument->filePath();
-        const QString &previousResultId = m_tokens.value(filePath).resultId().value_or(QString());
+        const QString &previousResultId = m_tokens.value(filePath).tokens.resultId().value_or(QString());
         if (!previousResultId.isEmpty()) {
             SemanticTokensDeltaParams params;
             params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
             params.setPreviousResultId(previousResultId);
             SemanticTokensFullDeltaRequest request(params);
             request.setResponseCallback(
-                [this, filePath](const SemanticTokensFullDeltaRequest::Response &response) {
-                    handleSemanticTokensDelta(filePath, response.result().value_or(nullptr));
+                [this, filePath, documentVersion = m_client->documentVersion(filePath)](
+                    const SemanticTokensFullDeltaRequest::Response &response) {
+                    handleSemanticTokensDelta(filePath,
+                                              response.result().value_or(nullptr),
+                                              documentVersion);
                 });
             m_client->sendContent(request);
             return;
@@ -369,10 +373,11 @@ SemanticRequestTypes SemanticTokenSupport::supportedSemanticRequests(TextDocumen
 }
 
 void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
-                                                const SemanticTokensResult &result)
+                                                const SemanticTokensResult &result,
+                                                int documentVersion)
 {
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
-        m_tokens[filePath] = *tokens;
+        m_tokens[filePath] = {*tokens, documentVersion};
         highlight(filePath);
     } else {
         m_tokens.remove(filePath);
@@ -380,11 +385,14 @@ void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
 }
 
 void SemanticTokenSupport::handleSemanticTokensDelta(
-    const Utils::FilePath &filePath, const LanguageServerProtocol::SemanticTokensDeltaResult &result)
+    const Utils::FilePath &filePath,
+    const LanguageServerProtocol::SemanticTokensDeltaResult &result,
+    int documentVersion)
 {
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
-        m_tokens[filePath] = *tokens;
+        m_tokens[filePath] = {*tokens, documentVersion};
     } else if (auto tokensDelta = Utils::get_if<SemanticTokensDelta>(&result)) {
+        m_tokens[filePath].version = documentVersion;
         QList<SemanticTokensEdit> edits = tokensDelta->edits();
         if (edits.isEmpty()) {
             highlight(filePath);
@@ -393,7 +401,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
 
         Utils::sort(edits, &SemanticTokensEdit::start);
 
-        SemanticTokens &tokens = m_tokens[filePath];
+        SemanticTokens &tokens = m_tokens[filePath].tokens;
         const QList<int> &data = tokens.data();
 
         int newDataSize = data.size();
@@ -443,8 +451,9 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
     SyntaxHighlighter *highlighter = doc->syntaxHighlighter();
     if (!highlighter)
         return;
-    const QList<SemanticToken> tokens = m_tokens.value(filePath).toTokens(m_tokenTypes,
-                                                                          m_tokenModifiers);
+    const VersionedTokens versionedTokens = m_tokens.value(filePath);
+    const QList<SemanticToken> tokens = versionedTokens.tokens
+            .toTokens(m_tokenTypes, m_tokenModifiers);
     if (m_tokensHandler) {
         int line = 1;
         int column = 1;
@@ -469,7 +478,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
             expandedToken.length = token.length;
             expandedTokens << expandedToken;
         };
-        m_tokensHandler(doc, expandedTokens);
+        m_tokensHandler(doc, expandedTokens, versionedTokens.version);
         return;
     }
     int line = 1;

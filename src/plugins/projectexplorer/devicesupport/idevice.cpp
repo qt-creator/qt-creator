@@ -33,6 +33,7 @@
 #include "../kitinformation.h"
 #include "../runconfiguration.h"
 
+#include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
 #include <utils/displayname.h>
 #include <utils/icon.h>
@@ -153,6 +154,7 @@ public:
     QSsh::SshConnectionParameters sshParameters;
     PortList freePorts;
     FilePath debugServerPath;
+    FilePath debugDumperPath = Core::ICore::resourcePath("debugger/");
     FilePath qmlRunCommand;
     bool emptyCommandAllowed = false;
 
@@ -761,6 +763,16 @@ FilePath IDevice::debugServerPath() const
 void IDevice::setDebugServerPath(const FilePath &path)
 {
     d->debugServerPath = path;
+}
+
+FilePath IDevice::debugDumperPath() const
+{
+    return d->debugDumperPath;
+}
+
+void IDevice::setDebugDumperPath(const Utils::FilePath &path)
+{
+    d->debugDumperPath = path;
 }
 
 FilePath IDevice::qmlRunCommand() const

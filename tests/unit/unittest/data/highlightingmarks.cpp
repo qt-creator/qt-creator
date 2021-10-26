@@ -794,3 +794,18 @@ const char *cyrillic = "б";
 struct foo {
 #define blubb
 };
+
+#define test_micro(A,B) ((A##B>1?A:B))
+
+int a = (a1 > 0);
+
+int func() {
+    int a = (a1 > 0);
+}
+
+namespace std {
+    template<typename T1, typename T2> struct pair;
+    template<typename T> struct vector;
+}
+
+static std::vector<std::pair<int, int>> pvr;

@@ -1182,10 +1182,16 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
+    if (!deviceTemplate.needsDevice())
+        return mapToGlobalPath();
+    const bool sameDevice = m_scheme == deviceTemplate.m_scheme && m_host == deviceTemplate.m_host;
+    // TODO: converting paths between different non local devices is still unsupported
+    QTC_CHECK(!needsDevice() || sameDevice);
     FilePath res;
-    res.m_data = m_data;
-    res.m_host = deviceTemplate.m_host;
     res.m_scheme = deviceTemplate.m_scheme;
+    res.m_host = deviceTemplate.m_host;
+    res.m_data = m_data;
+    res.m_data = res.mapToDevicePath();
     return res;
 }
 

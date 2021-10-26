@@ -55,7 +55,6 @@ public:
     static QString displayNameFromInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);
-    static IDevice::DeviceState deviceStateFromInfo(AndroidDeviceInfo::State state);
 
     QStringList supportedAbis() const;
     bool canSupportAbis(const QStringList &abis) const;
@@ -101,6 +100,7 @@ public:
     void setupDevicesWatcher();
     void updateDevicesList();
     void updateDevicesListOnce();
+    void updateDeviceState(const ProjectExplorer::IDevice::Ptr &device);
 
     void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
     void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);

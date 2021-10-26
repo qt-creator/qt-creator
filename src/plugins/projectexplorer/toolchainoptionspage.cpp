@@ -417,10 +417,7 @@ void ToolChainOptionsWidget::redetectToolchains()
             if (knownTcs.contains(tc) || toDelete.contains(tc))
                 continue;
             const auto matchItem = [tc](const ToolChainTreeItem *item) {
-                return item->toolChain->compilerCommand() == tc->compilerCommand()
-                        && item->toolChain->typeId() == tc->typeId()
-                        && item->toolChain->language() == tc->language()
-                        && item->toolChain->targetAbi() == tc->targetAbi();
+                return *item->toolChain == *tc;
             };
             ToolChainTreeItem * const item = findOrDefault(itemsToRemove, matchItem);
             if (item) {

@@ -99,6 +99,12 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     const auto osString = QString("%1 (SDK %2)").arg(dev->androidVersion()).arg(dev->sdkLevel());
     formLayout->addRow(AndroidDevice::tr("OS version:"), new QLabel(osString));
 
+    if (dev->machineType() == IDevice::Hardware) {
+        const QString authorizedStr = dev->deviceState() == IDevice::DeviceReadyToUse ? tr("Yes")
+                                                                                      : tr("No");
+        formLayout->addRow(AndroidDevice::tr("Authorized:"), new QLabel(authorizedStr));
+    }
+
     if (dev->machineType() == IDevice::Emulator) {
         const QString targetName = dev->androidTargetName();
         formLayout->addRow(AndroidDevice::tr("Android target flavor:"), new QLabel(targetName));
@@ -151,8 +157,9 @@ AndroidDevice::AndroidDevice()
     setOsType(Utils::OsTypeOtherUnix);
     setDeviceState(DeviceConnected);
 
-    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &, QWidget *) {
-        AndroidDeviceManager::instance()->updateDevicesListOnce();
+    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
+        Q_UNUSED(parent)
+        AndroidDeviceManager::instance()->updateDeviceState(device);
     }});
 
     addEmulatorActionsIfNotFound();
@@ -215,14 +222,7 @@ IDevice::Ptr AndroidDevice::create()
 AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev)
 {
     AndroidDeviceInfo info;
-    AndroidDeviceInfo::State state;
-    if (dev->deviceState() == IDevice::DeviceReadyToUse)
-        state = AndroidDeviceInfo::OkState;
-    else if (dev->deviceState() == IDevice::DeviceDisconnected)
-        state = AndroidDeviceInfo::OfflineState;
-    else if (dev->deviceState() == IDevice::DeviceConnected)
-        state = AndroidDeviceInfo::UnAuthorizedState;
-    info.state = state;
+    info.state = dev->deviceState();
     info.avdname = dev->extraData(Constants::AndroidAvdName).toString();
     info.serialNumber = dev->extraData(Constants::AndroidSerialNumber).toString();
     info.cpuAbi = dev->extraData(Constants::AndroidCpuAbi).toStringList();
@@ -231,18 +231,13 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
     info.avdSkin = dev->extraData(Constants::AndroidAvdSkin).toString();
     info.avdSdcardSize = dev->extraData(Constants::AndroidAvdSdcard).toString();
     info.sdk = dev->extraData(Constants::AndroidSdk).toInt();
-    info.type = (dev->machineType() == ProjectExplorer::IDevice::Hardware
-                 ? AndroidDeviceInfo::Hardware : AndroidDeviceInfo::Emulator);
+    info.type = dev->machineType();
 
     return info;
 }
 
 void AndroidDevice::setAndroidDeviceInfoExtras(IDevice *dev, const AndroidDeviceInfo &info)
 {
-    dev->setMachineType(info.type == AndroidDeviceInfo::Hardware
-                           ? ProjectExplorer::IDevice::Hardware
-                           : ProjectExplorer::IDevice::Emulator);
-    dev->setDeviceState(deviceStateFromInfo(info.state));
     dev->setExtraData(Constants::AndroidAvdName, info.avdname);
     dev->setExtraData(Constants::AndroidSerialNumber, info.serialNumber);
     dev->setExtraData(Constants::AndroidCpuAbi, info.cpuAbi);
@@ -255,30 +250,20 @@ void AndroidDevice::setAndroidDeviceInfoExtras(IDevice *dev, const AndroidDevice
 
 QString AndroidDevice::displayNameFromInfo(const AndroidDeviceInfo &info)
 {
-    return info.type == AndroidDeviceInfo::Hardware
+    return info.type == IDevice::Hardware
             ? AndroidConfigurations::currentConfig().getProductModel(info.serialNumber)
             : info.avdname;
 }
 
 Utils::Id AndroidDevice::idFromDeviceInfo(const AndroidDeviceInfo &info)
 {
-    const QString id = (info.type == AndroidDeviceInfo::Hardware ? info.serialNumber
-                                                                 : info.avdname);
+    const QString id = (info.type == IDevice::Hardware ? info.serialNumber : info.avdname);
     return  Utils::Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + id);
 }
 
 Utils::Id AndroidDevice::idFromAvdInfo(const CreateAvdInfo &info)
 {
     return  Utils::Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + info.name);
-}
-
-IDevice::DeviceState AndroidDevice::deviceStateFromInfo(AndroidDeviceInfo::State state)
-{
-    if (state == AndroidDeviceInfo::OkState)
-        return IDevice::DeviceReadyToUse;
-    if (state == AndroidDeviceInfo::OfflineState)
-        return IDevice::DeviceDisconnected;
-    return IDevice::DeviceConnected;
 }
 
 QStringList AndroidDevice::supportedAbis() const
@@ -448,6 +433,28 @@ void AndroidDeviceManager::updateDevicesListOnce()
     }
 }
 
+void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Ptr &device)
+{
+    const AndroidDevice *dev = static_cast<AndroidDevice *>(device.data());
+    const QString serial = dev->serialNumber();
+    DeviceManager *const devMgr = DeviceManager::instance();
+    const Utils::Id id = dev->id();
+    if (serial.isEmpty() && dev->machineType() == IDevice::Emulator) {
+        devMgr->setDeviceState(id, IDevice::DeviceConnected);
+        return;
+    }
+
+    const QStringList args = AndroidDeviceInfo::adbSelector(serial) << "shell" << "echo" << "1";
+    const SdkToolResult result = AndroidManager::runAdbCommand(args);
+    const int success = result.success();
+    if (success)
+        devMgr->setDeviceState(id, IDevice::DeviceReadyToUse);
+    else if (dev->machineType() == IDevice::Emulator || result.stdErr().contains("unauthorized"))
+        devMgr->setDeviceState(id, IDevice::DeviceConnected);
+    else
+        devMgr->setDeviceState(id, IDevice::DeviceDisconnected);
+}
+
 void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)
 {
     Q_UNUSED(parent)
@@ -573,7 +580,7 @@ void AndroidDeviceManager::devicesListUpdated()
                 if (dev->machineType() == IDevice::Emulator && !runningAvds.contains(displayName))
                     newState = IDevice::DeviceConnected;
                 else
-                    newState = AndroidDevice::deviceStateFromInfo(item.state);
+                    newState = item.state;
                 if (dev->deviceState() != newState) {
                     qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
                             dev->id().toString().toUtf8().data());
@@ -591,6 +598,8 @@ void AndroidDeviceManager::devicesListUpdated()
         AndroidDevice *newDev = new AndroidDevice();
         newDev->setupId(IDevice::AutoDetected, deviceId);
         newDev->setDisplayName(displayName);
+        newDev->setMachineType(item.type);
+        newDev->setDeviceState(item.state);
         AndroidDevice::setAndroidDeviceInfoExtras(newDev, item);
         qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                 newDev->id().toString().toUtf8().data());
@@ -637,7 +646,7 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
       m_androidConfig(AndroidConfigurations::currentConfig())
 {
-    setDisplayName(AndroidDevice::tr("Android Virtual Device"));
+    setDisplayName(AndroidDevice::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
     setConstructionFunction(&AndroidDevice::create);

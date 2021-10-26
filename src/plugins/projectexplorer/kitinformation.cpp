@@ -502,11 +502,13 @@ void ToolChainKitAspect::setup(Kit *k)
             [abi, l](const ToolChain *t) {
                 return t->targetAbi().toString() == abi && t->language() == l;
             });
-        Utils::sort(possibleTcs, [](const ToolChain *tc1, const ToolChain *tc2) {
-            return tc1->hostPrefersToolchain() && !tc2->hostPrefersToolchain();
-        });
-        if (!possibleTcs.isEmpty())
-            setToolChain(k, possibleTcs.first());
+        ToolChain *bestTc = nullptr;
+        for (ToolChain *tc : possibleTcs) {
+            if (!bestTc || tc->priority() > bestTc->priority())
+                bestTc = tc;
+        }
+        if (bestTc)
+            setToolChain(k, bestTc);
         else
             clearToolChain(k, l);
     }

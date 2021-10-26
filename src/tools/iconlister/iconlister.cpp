@@ -1081,16 +1081,6 @@ void IconLister::addWizardIcons()
          ""},
         {QIcon(wizardsPath + "projects/vcs/subversion/icon.png"), "subversion_vcs", prefix,
          ""},
-        {QIcon(wizardsPath + "qtquickstyleicons/default.png"), "default_qtquickstyle", prefix,
-         ""},
-        {QIcon(wizardsPath + "qtquickstyleicons/material-dark.png"), "material-dark_qtquickstyle", prefix,
-         ""},
-        {QIcon(wizardsPath + "qtquickstyleicons/material-light.png"), "material-light_qtquickstyle", prefix,
-         ""},
-        {QIcon(wizardsPath + "qtquickstyleicons/universal-dark.png"), "universal-dark_qtquickstyle", prefix,
-         ""},
-        {QIcon(wizardsPath + "qtquickstyleicons/universal-light.png"), "universal-light_qtquickstyle", prefix,
-         ""},
     };
     m_icons.append(icons);
 }

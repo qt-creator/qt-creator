@@ -263,6 +263,7 @@ signals:
                                               const QString &sourcePath,
                                               const QByteArray &contents);
     void abstractEditorSupportRemoved(const QString &filePath);
+    void fallbackProjectPartUpdated();
 
 public slots:
     void updateModifiedSourceFiles();

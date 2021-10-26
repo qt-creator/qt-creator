@@ -168,7 +168,7 @@ void AndroidSdkManagerWidget::installEssentials()
     if (!m_sdkModel->missingEssentials().isEmpty()) {
         QMessageBox::warning(this,
                              tr("Android SDK Changes"),
-                             tr("%1 couldn't find the following essential packages: \"%2\".\n"
+                             tr("%1 cannot find the following essential packages: \"%2\".\n"
                                 "Install them manually after the current operation is done.\n")
                                  .arg(Core::Constants::IDE_DISPLAY_NAME)
                                  .arg(m_sdkModel->missingEssentials().join("\", \"")));
@@ -277,7 +277,7 @@ void AndroidSdkManagerWidget::onLicenseCheckResult(const AndroidSdkManager::Oper
     } else {
         // Assertion was found. Provide user workflow to accept licenses.
         QString warningMessage = tr("Review Android SDK package licenses that have not been "
-                                    "accepted?\nPlease note that the installation and use of "
+                                    "accepted?\nNote that the installation and use of "
                                     "Android SDK packages may fail if respective licenses are not "
                                     "accepted.");
         int userSelection = QMessageBox::question(this, tr("Android SDK Licenses"), warningMessage,

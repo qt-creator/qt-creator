@@ -37,6 +37,8 @@
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
+#include <clangsupport/tokeninfocontainer.h>
+
 #include <cppeditor/builtincursorinfo.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/compileroptionsbuilder.h>
@@ -271,10 +273,7 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
 
         m_semanticHighlighter.setHighlightingRunner(
-            [tokenInfos]() {
-                auto *reporter = new HighlightingResultReporter(tokenInfos);
-                return reporter->start();
-            });
+            [tokenInfos]() { return highlightResults(tokenInfos); });
         m_semanticHighlighter.run();
     }
 }

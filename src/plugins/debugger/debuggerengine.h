@@ -203,6 +203,9 @@ public:
     int testCase = 0;
 
     QStringList validationErrors;
+
+    Utils::FilePath dumperPath;
+    int fallbackQtVersion = 0x50200;
 };
 
 class UpdateParameters

@@ -2753,7 +2753,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
 
-    QString dumperPath = Core::ICore::resourcePath("debugger").toUserOutput();
+    QString dumperPath = runParameters().dumperPath.toUserOutput();
     dumperPath.replace('\\', "\\\\");
     runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
     runCommand({"from cdbbridge import Dumper", ScriptCommand});
@@ -2772,6 +2772,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
             runCommand({command, ScriptCommand});
     }
 
+    const QString qtVersion = QString::number(runParameters().fallbackQtVersion, 16);
+    runCommand({"theDumper.setFallbackQtVersion(0x" + qtVersion + ")", ScriptCommand});
     runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
                 [this](const DebuggerResponse &response) {
                     watchHandler()->addDumpers(response.data["result"]["dumpers"]);

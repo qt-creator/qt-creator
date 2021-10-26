@@ -3989,7 +3989,6 @@ void GdbEngine::setupEngine()
     // We need to guarantee a roundtrip before the adapter proceeds.
     // Make sure this stays the last command in startGdb().
     // Don't use ConsoleCommand, otherwise Mac won't markup the output.
-    const QString dumperSourcePath = ICore::resourcePath("debugger/").toString();
 
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
@@ -3997,7 +3996,7 @@ void GdbEngine::setupEngine()
     const QString uninstalledData =
             rp.debugger.command.executable().pathAppended("data-directory/python").path();
 
-    runCommand({"python sys.path.insert(1, '" + dumperSourcePath + "')"});
+    runCommand({"python sys.path.insert(1, '" + rp.dumperPath.path() + "')"});
     runCommand({"python sys.path.append('" + uninstalledData + "')"});
     runCommand({"python from gdbbridge import *"});
 
@@ -4012,6 +4011,7 @@ void GdbEngine::setupEngine()
     if (!commands.isEmpty())
         runCommand({commands});
 
+    runCommand({"setFallbackQtVersion(0x" + QString::number(rp.fallbackQtVersion, 16) + ")"});
     runCommand({"loadDumpers", CB(handlePythonSetup)});
 
     // Reload peripheral register description.

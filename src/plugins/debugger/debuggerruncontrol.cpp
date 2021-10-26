@@ -538,7 +538,7 @@ void DebuggerRunTool::start()
             default:
                 if (!m_runParameters.isQmlDebugging) {
                     reportFailure(noEngineMessage() + '\n' +
-                        DebuggerPlugin::tr("Please select a Debugger Setting from the Run page of the project mode."));
+                        DebuggerPlugin::tr("Specify Debugger settings in Projects > Run."));
                     return;
                 }
                 // Can happen for pure Qml.
@@ -945,6 +945,14 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
             m_runParameters.inferior.command.addArgs(args, CommandLine::Raw);
             m_engine = createPdbEngine();
         }
+    }
+
+    m_runParameters.dumperPath = Core::ICore::resourcePath("debugger/");
+    if (QtSupport::BaseQtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
+        QtSupport::QtVersionNumber qtVersion = baseQtVersion->qtVersion();
+        m_runParameters.fallbackQtVersion = 0x10000 * int(qtVersion.majorVersion)
+                                            + 0x100 * int(qtVersion.minorVersion)
+                                            + int(qtVersion.patchVersion);
     }
 }
 

@@ -253,9 +253,8 @@ FilePath BuildConfiguration::buildDirectory() const
     path = path.cleanPath();
 
     const FilePath projectDir = target()->project()->projectDirectory();
-    const FilePath buildDir = projectDir.resolvePath(path);
 
-    return mapFromBuildDeviceToGlobalPath(buildDir);
+    return projectDir.resolvePath(path);
 }
 
 FilePath BuildConfiguration::rawBuildDirectory() const

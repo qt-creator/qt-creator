@@ -147,7 +147,10 @@ void DockerDeviceProcess::start(const Runnable &runnable)
 
     disconnect(&m_process);
 
-    m_process.setCommand(runnable.command);
+    CommandLine command = runnable.command;
+    command.setExecutable(
+        command.executable().withNewPath(dockerDevice->mapToDevicePath(command.executable())));
+    m_process.setCommand(command);
     m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
     connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
@@ -158,7 +161,7 @@ void DockerDeviceProcess::start(const Runnable &runnable)
             this, &DeviceProcess::readyReadStandardError);
     connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
 
-    LOG("Running process:" << runnable.command.toUserOutput()
+    LOG("Running process:" << command.toUserOutput()
             << "in" << runnable.workingDirectory.toUserOutput());
     dockerDevice->runProcess(m_process);
 }
@@ -353,7 +356,7 @@ public:
 
         DockerDeviceData &data = dockerDevice->data();
 
-        auto idLabel = new QLabel(tr("Image Id:"));
+        auto idLabel = new QLabel(tr("Image ID:"));
         m_idLineEdit = new QLineEdit;
         m_idLineEdit->setText(data.imageId);
         m_idLineEdit->setEnabled(false);
@@ -365,8 +368,8 @@ public:
 
         auto daemonStateLabel = new QLabel(tr("Daemon state:"));
         m_daemonReset = new QToolButton;
-        m_daemonReset->setToolTip(tr("Clear detected daemon state. "
-            "It will be automatically re-evaluated next time an access is needed."));
+        m_daemonReset->setToolTip(tr("Clears detected daemon state. "
+            "It will be automatically re-evaluated next time access is needed."));
 
         m_daemonState = new QLabel;
         updateDaemonStateTexts();
@@ -377,7 +380,7 @@ public:
         });
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
-        m_runAsOutsideUser->setToolTip(tr("Use user ID and group ID of the user running Qt Creator "
+        m_runAsOutsideUser->setToolTip(tr("Uses user ID and group ID of the user running Qt Creator "
                                           "in the Docker container."));
         m_runAsOutsideUser->setChecked(data.useLocalUidGid);
         m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
@@ -387,7 +390,7 @@ public:
         });
 
         m_usePathMapping = new QCheckBox(tr("Use local file path mapping"));
-        m_usePathMapping->setToolTip(tr("Map docker filesystem to a local directory."));
+        m_usePathMapping->setToolTip(tr("Maps docker filesystem to a local directory."));
         m_usePathMapping->setChecked(data.useFilePathMapping);
         m_usePathMapping->setEnabled(HostOsInfo::isLinuxHost());
         connect(m_usePathMapping, &QCheckBox::toggled, this, [&, dockerDevice](bool on) {
@@ -396,7 +399,7 @@ public:
         });
 
         m_pathsListEdit = new PathListEditor;
-        m_pathsListEdit->setToolTip(tr("Paths in this list will be mapped one-to-one into the "
+        m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
                                        "Docker container."));
         m_pathsListEdit->setPathList(data.mounts);
 
@@ -836,6 +839,9 @@ void DockerDevicePrivate::startContainer()
         mount = q->mapToDevicePath(FilePath::fromUserInput(mount));
         dockerCreate.addArgs({"-v", mount + ':' + mount});
     }
+    FilePath dumperPath = FilePath::fromString("/tmp/qtcreator/debugger");
+    dockerCreate.addArgs({"-v", q->debugDumperPath().toUserOutput() + ':' + dumperPath.path()});
+    q->setDebugDumperPath(dumperPath);
 
     dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
 
@@ -925,8 +931,8 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         MessageManager::writeFlashing(
             tr("Local read access to Docker container %1 unavailable through directory \"%2\".")
                 .arg(m_container, m_mergedDir)
-                    + '\n' + tr("Output: '%1'").arg(out)
-                    + '\n' + tr("Error: '%1'").arg(proc.stdErr()));
+                    + '\n' + tr("Output: \"%1\"").arg(out)
+                    + '\n' + tr("Error: \"%1\"").arg(proc.stdErr()));
         if (HostOsInfo::isWindowsHost()) {
             // Disabling merged layer access. This is not supported and anything
             // related to accessing merged layers on Windows fails due to the need

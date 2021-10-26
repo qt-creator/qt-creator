@@ -134,6 +134,12 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             this, &ClangModelManagerSupport::onProjectPartsUpdated);
     connect(modelManager, &CppEditor::CppModelManager::projectPartsRemoved,
             this, &ClangModelManagerSupport::onProjectPartsRemoved);
+    connect(modelManager, &CppModelManager::fallbackProjectPartUpdated, this, [this] {
+        if (ClangdClient * const fallbackClient = clientForProject(nullptr)) {
+            LanguageClientManager::shutdownClient(fallbackClient);
+            claimNonProjectSources(createClient(nullptr, {}));
+        }
+    });
 
     auto *sessionManager = ProjectExplorer::SessionManager::instance();
     connect(sessionManager, &ProjectExplorer::SessionManager::projectAdded,

@@ -82,17 +82,20 @@ QImage ScreenshotCropper::croppedImage(const QImage &sourceImage, const QString 
 {
     const QRect areaOfInterest = welcomeScreenAreas()->areas.value(fileNameForPath(filePath));
 
+    QImage result;
     if (areaOfInterest.isValid()) {
         const QRect cropRect = cropRectForAreaOfInterest(sourceImage.size(), cropSize, areaOfInterest);
         const QSize cropRectSize = cropRect.size();
-        const QImage result = sourceImage.copy(cropRect);
-        if (cropRectSize.width() > cropSize.width() || cropRectSize.height() > cropSize.height())
-            return result.scaled(cropSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        else
+        result = sourceImage.copy(cropRect);
+        if (cropRectSize.width() <= cropSize.width() && cropRectSize.height() <= cropSize.height())
             return result;
+    } else {
+        result = sourceImage;
     }
 
-    return sourceImage.scaled(cropSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (result.format() != QImage::Format_ARGB32)
+        result = result.convertToFormat(QImage::Format_ARGB32);
+    return result.scaled(cropSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 }
 
 static int areaAttribute(const QXmlStreamAttributes &attributes, const QString &name)
