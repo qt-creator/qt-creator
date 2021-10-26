@@ -428,7 +428,7 @@ void AndroidDeviceManager::updateDevicesList()
 void AndroidDeviceManager::updateDevicesListOnce()
 {
     if (!m_avdsFutureWatcher.isRunning() && m_androidConfig.adbToolPath().exists()) {
-        m_avdsFutureWatcher.setFuture((new AndroidAvdManager)->avdList());
+        m_avdsFutureWatcher.setFuture(m_avdManager.avdList());
         m_devicesFutureWatcher.setFuture(Utils::runAsync([this]() {
             return m_androidConfig.connectedDevices();
         }));
