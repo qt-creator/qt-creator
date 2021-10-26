@@ -307,8 +307,8 @@ we thank the authors who made this possible:
 
   Copyright (C) 2003-2019 LLVM Team
 
-  Distributed under the University of Illinois/NCSA Open Source License (NCSA),
-  see https://github.com/llvm/llvm-project/blob/master/llvm/LICENSE.TXT
+  Distributed under the Apache 2.0 License with LLVM exceptions,
+  see https://github.com/llvm/llvm-project/blob/main/clang/LICENSE.TXT
 
   With backported/additional patches from https://code.qt.io/clang/llvm-project.git
 
