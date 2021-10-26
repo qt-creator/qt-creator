@@ -62,6 +62,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
+
 #include <texteditor/basefilefind.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -75,8 +79,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
-
-#include <projectexplorer/projecttree.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
@@ -101,6 +103,7 @@ enum { UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200 };
 
 using namespace Core;
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -1045,7 +1048,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 }
 
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                 Utils::ProcessLinkCallback &&processLinkCallback,
+                                 ProcessLinkCallback &&processLinkCallback,
                                  bool resolveTarget,
                                  bool inNextSplit)
 {
@@ -1054,9 +1057,36 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     const Utils::FilePath &filePath = textDocument()->filePath();
 
+    // Let following a "leaf" C++ symbol take us to the designer, if we are in a generated
+    // UI header.
+    QTextCursor c(cursor);
+    c.select(QTextCursor::WordUnderCursor);
+    ProcessLinkCallback callbackWrapper = [start = c.selectionStart(), end = c.selectionEnd(),
+            doc = QPointer(cursor.document()), callback = std::move(processLinkCallback),
+            filePath](const Link &link) {
+        const int linkPos = doc ? Text::positionInText(doc, link.targetLine, link.targetColumn + 1)
+                                : -1;
+        if (link.targetFilePath == filePath && linkPos >= start && linkPos < end) {
+            const QString fileName = filePath.fileName();
+            if (fileName.startsWith("ui_") && fileName.endsWith(".h")) {
+                const QString uiFileName = fileName.mid(3, fileName.length() - 4) + "ui";
+                for (const Project * const project : SessionManager::projects()) {
+                    const auto nodeMatcher = [uiFileName](Node *n) {
+                        return n->filePath().fileName() == uiFileName;
+                    };
+                    if (const Node * const uiNode = project->rootProjectNode()
+                            ->findNode(nodeMatcher)) {
+                        EditorManager::openEditor(uiNode->filePath());
+                        return;
+                    }
+                }
+            }
+        }
+        callback(link);
+    };
     followSymbolInterface().findLink(
                 CursorInEditor{cursor, filePath, this, textDocument()},
-                std::move(processLinkCallback),
+                std::move(callbackWrapper),
                 resolveTarget,
                 d->m_modelManager->snapshot(),
                 d->m_lastSemanticInfo.doc,
