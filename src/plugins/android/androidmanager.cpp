@@ -246,11 +246,6 @@ bool AndroidManager::isQtCreatorGenerated(const FilePath &deploymentFile)
     return QJsonDocument::fromJson(f.readAll()).object()["_description"].toString() == qtcSignature;
 }
 
-FilePath AndroidManager::dirPath(const Target *target)
-{
-    return androidBuildDirectory(target);
-}
-
 FilePath AndroidManager::androidBuildDirectory(const Target *target)
 {
     return buildDirectory(target) / Constants::ANDROID_BUILD_DIRECTORY;
