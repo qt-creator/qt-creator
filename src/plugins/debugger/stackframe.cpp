@@ -95,7 +95,8 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     frame.level = frameMi["level"].data();
     frame.function = frameMi["function"].data();
     frame.module = frameMi["module"].data();
-    frame.file = FilePath::fromString(frameMi["file"].data());
+    const FilePath debugger = rp.debugger.command.executable();
+    frame.file = FilePath::fromString(frameMi["file"].data()).onDevice(debugger);
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["address"].toAddress();
     frame.context = frameMi["context"].data();
