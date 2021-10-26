@@ -283,8 +283,21 @@ public:
                                                                         number->size()));
                 }
             }
-            temps.append(control()->templateNameId(identifier(name->identifier()), name->isSpecialization(),
-                                                   args.data(), args.size()));
+
+            const FullySpecifiedType ty = rewrite->env->apply(name->identifier(), rewrite);
+            const Name * const minName = ty->isNamedType() ? ty->asNamedType()->name() : name;
+            const TemplateNameId * const newTemplateNameId = control()->templateNameId(
+                        identifier(minName->identifier()), name->isSpecialization(), args.data(),
+                        args.size());
+            const QList<const Name *> names = disassembledName(minName);
+            if (names.size() == 1) {
+                temps.append(newTemplateNameId);
+            } else {
+                const Name * const newBaseName = control()->toName(names.mid(0, names.size() - 1));
+                const Name * const fullName = control()->qualifiedNameId(newBaseName,
+                                                                         newTemplateNameId);
+                temps.append(fullName);
+            }
         }
 
         void visit(const DestructorNameId *name) override
@@ -317,6 +330,36 @@ public: // attributes
     SubstitutionEnvironment *env;
     RewriteType rewriteType;
     RewriteName rewriteName;
+
+private:
+    static QList<const Name *> disassembledName(const Name *name)
+    {
+        class NameDisassembler : public NameVisitor
+        {
+        public:
+            QList<const Name *> names() const { return m_names; }
+
+            void visit(const AnonymousNameId *n) override { m_names << n; }
+            virtual void visit(const Identifier *n) override { m_names << n; }
+            virtual void visit(const TemplateNameId *n) override { m_names << n; }
+            virtual void visit(const DestructorNameId *n) override { m_names << n; }
+            virtual void visit(const OperatorNameId *n) override { m_names << n; }
+            virtual void visit(const ConversionNameId *n) override { m_names << n; }
+            virtual void visit(const SelectorNameId *n) override { m_names << n; }
+            virtual void visit(const QualifiedNameId *n) override
+            {
+                if (n->base())
+                    n->base()->accept(this);
+                n->name()->accept(this);
+            }
+        private:
+            QList<const Name *> m_names;
+        };
+
+        NameDisassembler nd;
+        nd.accept(name);
+        return nd.names();
+    }
 };
 
 SubstitutionEnvironment::SubstitutionEnvironment()

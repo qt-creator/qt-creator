@@ -218,6 +218,8 @@ public:
     bool hasSymbol(Symbol *symbol) const;
     void addSymbol(Symbol *symbol);
 
+    const Name *toName(const QList<const Name *> &names);
+
 private:
     class Data;
     friend class Data;

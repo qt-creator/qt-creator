@@ -844,3 +844,15 @@ void Control::addSymbol(Symbol *symbol)
 {
     d->symbols.push_back(symbol);
 }
+
+const Name *Control::toName(const QList<const Name *> &names)
+{
+    const Name *n = nullptr;
+    for (int i = names.size() - 1; i >= 0; --i) {
+        if (! n)
+            n = names.at(i);
+        else
+            n = qualifiedNameId(names.at(i), n);
+    }
+    return n;
+}
