@@ -3116,8 +3116,10 @@ public:
         defaultImplTargetComboBox->insertItems(0, implTargetStrings);
         connect(defaultImplTargetComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
                 [this](int index) {
-            for (QComboBox * const cb : qAsConst(m_implTargetBoxes))
-                cb->setCurrentIndex(index);
+            for (int i = 0; i < m_implTargetBoxes.size(); ++i) {
+                if (!m_candidates.at(i)->type()->asFunctionType()->isPureVirtual())
+                    static_cast<QComboBox *>(m_implTargetBoxes.at(i))->setCurrentIndex(index);
+            }
         });
         const auto defaultImplTargetLayout = new QHBoxLayout;
         defaultImplTargetLayout->addWidget(new QLabel(tr("Default implementation location:")));
@@ -3128,10 +3130,13 @@ public:
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
         for (int i = 0; i < m_candidates.size(); ++i) {
+            const Function * const func = m_candidates.at(i)->type()->asFunctionType();
+            QTC_ASSERT(func, continue);
             const auto implTargetComboBox = new QComboBox;
             m_implTargetBoxes.append(implTargetComboBox);
             implTargetComboBox->insertItems(0, implTargetStrings);
-            const Symbol * const func = m_candidates.at(i);
+            if (func->isPureVirtual())
+                implTargetComboBox->setCurrentIndex(0);
             candidatesLayout->addWidget(new QLabel(oo.prettyType(func->type(), func->name())),
                                         i, 0);
             candidatesLayout->addWidget(implTargetComboBox, i, 1);
