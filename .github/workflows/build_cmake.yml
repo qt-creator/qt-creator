@@ -3,7 +3,7 @@ name: CMake Build Matrix
 on: [push, pull_request]
 
 env:
-  QT_VERSION: 6.2.0
+  QT_VERSION: 6.2.1
   CLANG_VERSION: 130
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
