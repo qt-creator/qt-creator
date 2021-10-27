@@ -482,7 +482,7 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
     if (!m_filePath.isEmpty()) {
         const QString file = m_filePath.toLocalFile();
         oldDir = QFileInfo(QFileInfo(file).path());
-        m_filePathDir = {};
+        m_filePathDir = QDir();
     }
     if (!filePath.isEmpty()) {
         const QString file = filePath.toLocalFile();
