@@ -29,11 +29,9 @@
 
 #include "dockerbuildstep.h"
 #include "dockerdevice.h"
-#include "dockerrunconfiguration.h"
 #include "dockersettings.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -49,13 +47,6 @@ public:
 //    DockerOptionsPage optionsPage{&settings};
 
     DockerDeviceFactory deviceFactory;
-//    DockerContainerRunConfigurationFactory containerRunConfigFactory;
-
-//    RunWorkerFactory containerRunWorkerFactory{
-//        RunWorkerFactory::make<SimpleTargetRunner>(),
-//        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-//        {containerRunConfigFactory.runConfigurationId()}
-//    };
 
 //    DockerBuildStepFactory buildStepFactory;
     Utils::optional<bool> daemonRunning;

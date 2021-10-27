@@ -19,8 +19,6 @@ QtcPlugin {
         "dockerdevice.cpp",
         "dockerplugin.h",
         "dockerplugin.cpp",
-        "dockerrunconfiguration.h",
-        "dockerrunconfiguration.cpp",
         "dockersettings.h",
         "dockersettings.cpp"
     ]
