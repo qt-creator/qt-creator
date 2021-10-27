@@ -54,7 +54,8 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
 void DesktopDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
-    m_process.setEnvironment(runnable.environment);
+    if (runnable.environment.size())
+        m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
     m_process.setCommand(runnable.command);
     m_process.start();
