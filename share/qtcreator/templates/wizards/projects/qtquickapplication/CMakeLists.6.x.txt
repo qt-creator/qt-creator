@@ -7,17 +7,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
-qt_add_executable(%{ProjectName}
+qt_add_executable(%{TargetName}
     main.cpp
 )
 
-qt_add_qml_module(%{ProjectName}
+qt_add_qml_module(%{TargetName}
     URI %{ProjectName}
     VERSION 1.0
     QML_FILES main.qml %{AdditionalQmlFiles}
 )
 
-target_compile_definitions(%{ProjectName}
+target_compile_definitions(%{TargetName}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(%{ProjectName}
+target_link_libraries(%{TargetName}
     PRIVATE Qt6::Quick)

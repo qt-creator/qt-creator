@@ -27,7 +27,8 @@
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" },
         { "key": "AdditionalQmlFiles", "value": "" },
-        { "key": "AdditionalQmlFilesQbs", "value": "" }
+        { "key": "AdditionalQmlFilesQbs", "value": "" },
+        { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName')}" }
     ],
 
     "pages":
