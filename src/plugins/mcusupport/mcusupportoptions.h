@@ -200,8 +200,9 @@ private:
     int m_colorDepth = -1;
 };
 
-struct McuSdkRepository
+class McuSdkRepository
 {
+public:
     QVector<McuPackage*> packages;
     QVector<McuTarget*> mcuTargets;
 

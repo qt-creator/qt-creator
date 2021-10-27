@@ -37,7 +37,7 @@ namespace Internal {
 #define MAX_COMPATIBILITY_VERSION 1
 
 class McuSdkRepository;
-class McuToolChainPackage;
+class McuPackage;
 namespace Sdk {
 
 McuPackage *createQtForMCUsPackage();
