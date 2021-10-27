@@ -326,6 +326,20 @@ void DoxygenTest::testBasic_data()
           "};\n"
     );
 
+    QTest::newRow("classTemplate") << _(
+          "bool preventFolding;\n"
+          "/**|\n"
+          "template<typename T> class C {\n"
+          "};\n"
+        ) << _(
+          "bool preventFolding;\n"
+          "/**\n"
+          " * @brief The C class\n"
+          " */\n"
+          "template<typename T> class C {\n"
+          "};\n"
+    );
+
     QTest::newRow("continuation_after_text_in_first_line") << _(
         "bool preventFolding;\n"
         "/*! leading comment|\n"
