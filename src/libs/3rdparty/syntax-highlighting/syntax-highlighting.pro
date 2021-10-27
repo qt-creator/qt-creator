@@ -22,7 +22,6 @@ HEADERS += \
     src/lib/format_p.h \
     src/lib/htmlhighlighter.h \
     src/lib/keywordlist_p.h \
-    src/lib/ksyntaxhighlighting_export.h \
     src/lib/matchresult_p.h \
     src/lib/repository.h \
     src/lib/repository_p.h \
