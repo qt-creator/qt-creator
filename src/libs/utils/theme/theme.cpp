@@ -67,13 +67,14 @@ void setThemeApplicationPalette()
         QApplication::setPalette(m_creatorTheme->palette());
 }
 
-static void maybeForceMacOSLight(Theme *theme)
+static void setMacAppearance(Theme *theme)
 {
 #ifdef Q_OS_MACOS
     // Match the native UI theme and palette with the creator
-    // theme by forcing light aqua for light creator themes.
-    if (theme && !theme->flag(Theme::DarkUserInterface))
-        Internal::forceMacOSLightAquaApperance();
+    // theme by forcing light aqua for light creator themes
+    // and dark aqua for dark themes.
+    if (theme)
+        Internal::forceMacAppearance(theme->flag(Theme::DarkUserInterface));
 #else
     Q_UNUSED(theme)
 #endif
@@ -96,7 +97,7 @@ void setCreatorTheme(Theme *theme)
     delete m_creatorTheme;
     m_creatorTheme = theme;
 
-    maybeForceMacOSLight(theme);
+    setMacAppearance(theme);
     setThemeApplicationPalette();
 }
 
@@ -120,6 +121,10 @@ Theme::~Theme()
 
 QStringList Theme::preferredStyles() const
 {
+    // Force Fusion style if we have a dark theme on Windows or Linux,
+    // because the default QStyle might not be up for it
+    if (!HostOsInfo::isMacHost() && d->preferredStyles.isEmpty() && flag(DarkUserInterface))
+        return {"Fusion"};
     return d->preferredStyles;
 }
 
@@ -291,7 +296,7 @@ static QPalette copyPalette(const QPalette &p)
 void Theme::setInitialPalette(Theme *initTheme)
 {
     macOSSystemIsDark(); // initialize value for system mode
-    maybeForceMacOSLight(initTheme);
+    setMacAppearance(initTheme);
     initialPalette();
 }
 

@@ -39,26 +39,36 @@
 namespace Utils {
 namespace Internal {
 
-void forceMacOSLightAquaApperance()
-{
-#if __has_builtin(__builtin_available)
-    if (__builtin_available(macOS 10.14, *))
-#else // Xcode 8
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::MacOS, 10, 14, 0))
-#endif
-        NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
-}
-
-bool currentAppearanceIsDark()
+bool currentAppearanceMatches(bool dark)
 {
 #if __has_builtin(__builtin_available)
     if (__builtin_available(macOS 10.14, *)) {
         auto appearance = [NSApp.effectiveAppearance
             bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
-        return [appearance isEqualToString:NSAppearanceNameDarkAqua];
+        return
+            [appearance isEqualToString:(dark ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua)];
     }
 #endif
-    return false;
+    return true;
+}
+
+void forceMacAppearance(bool dark)
+{
+    if (currentAppearanceMatches(dark))
+        return;
+#if __has_builtin(__builtin_available)
+    if (__builtin_available(macOS 10.14, *))
+#else // Xcode 8
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::MacOS, 10, 14, 0))
+#endif
+        NSApp.appearance = [NSAppearance
+            appearanceNamed:(dark ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua)];
+}
+
+bool currentAppearanceIsDark()
+{
+    // double negation, so we get "false" for macOS 10.13
+    return !currentAppearanceMatches(false /*==light*/);
 }
 
 } // Internal
