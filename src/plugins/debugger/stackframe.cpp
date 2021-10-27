@@ -152,7 +152,7 @@ QString StackFrame::toToolTip() const
             "frame. However, matching sources have not been found.");
         showDistributionNote = true;
     }
-    if (!HostOsInfo::isWindowsHost() && showDistributionNote) {
+    if (file.osType() != OsTypeWindows  && showDistributionNote) {
         str << ' ' << tr("Note that most distributions ship debug information "
                          "in separate packages.");
     }
