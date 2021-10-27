@@ -46,7 +46,7 @@ private:
     Tasks checkForIssues() const override;
 
     void configurationDialogFinished();
-    QString rawExecutable() const;
+    Utils::FilePath executable() const;
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory

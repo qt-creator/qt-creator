@@ -25,31 +25,9 @@
 
 #include "customexecutablerunconfiguration.h"
 
-#include "abi.h"
-#include "buildconfiguration.h"
 #include "devicesupport/devicemanager.h"
-#include "environmentaspect.h"
 #include "localenvironmentaspect.h"
-#include "project.h"
-#include "runcontrol.h"
 #include "target.h"
-
-#include <coreplugin/icore.h>
-
-#include <utils/detailswidget.h>
-#include <utils/pathchooser.h>
-#include <utils/stringutils.h>
-#include <utils/variablechooser.h>
-
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QFormLayout>
-#include <QKeyEvent>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QVBoxLayout>
 
 using namespace Utils;
 
@@ -86,9 +64,9 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     setDefaultDisplayName(defaultDisplayName());
 }
 
-QString CustomExecutableRunConfiguration::rawExecutable() const
+FilePath CustomExecutableRunConfiguration::executable() const
 {
-    return aspect<ExecutableAspect>()->executable().toString();
+    return aspect<ExecutableAspect>()->executable();
 }
 
 bool CustomExecutableRunConfiguration::isEnabled() const
@@ -116,16 +94,15 @@ Runnable CustomExecutableRunConfiguration::runnable() const
 
 QString CustomExecutableRunConfiguration::defaultDisplayName() const
 {
-    if (rawExecutable().isEmpty())
+    if (executable().isEmpty())
         return tr("Custom Executable");
-    else
-        return tr("Run %1").arg(QDir::toNativeSeparators(rawExecutable()));
+    return tr("Run %1").arg(executable().toUserOutput());
 }
 
 Tasks CustomExecutableRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
-    if (rawExecutable().isEmpty()) {
+    if (executable().isEmpty()) {
         tasks << createConfigurationIssue(tr("You need to set an executable in the custom run "
                                              "configuration."));
     }
