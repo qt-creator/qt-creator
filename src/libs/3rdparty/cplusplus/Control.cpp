@@ -25,6 +25,9 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 #include "Names.h"
+
+#include <QList>
+
 #include <map>
 #include <set>
 #include <algorithm>
