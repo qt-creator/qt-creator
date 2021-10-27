@@ -71,9 +71,9 @@ AbstractUploadAndInstallPackageService::~AbstractUploadAndInstallPackageService(
     delete d;
 }
 
-void AbstractUploadAndInstallPackageService::setPackageFilePath(const QString &filePath)
+void AbstractUploadAndInstallPackageService::setPackageFilePath(const FilePath &filePath)
 {
-    d->packageFilePath = FilePath::fromString(filePath);
+    d->packageFilePath = filePath;
 }
 
 QString AbstractUploadAndInstallPackageService::uploadDir() const

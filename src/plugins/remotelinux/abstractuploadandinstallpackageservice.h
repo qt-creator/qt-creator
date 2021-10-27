@@ -38,7 +38,7 @@ class REMOTELINUX_EXPORT AbstractUploadAndInstallPackageService : public Abstrac
     Q_OBJECT
 
 public:
-    void setPackageFilePath(const QString &filePath);
+    void setPackageFilePath(const Utils::FilePath &filePath);
 
 protected:
      AbstractUploadAndInstallPackageService();
