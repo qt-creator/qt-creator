@@ -163,7 +163,6 @@ public:
                           QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;
 
     [[nodiscard]] FilePath mapToGlobalPath() const;
-    [[nodiscard]] QString mapToDevicePath() const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
@@ -194,6 +193,7 @@ private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
     void setFromString(const QString &filepath);
+    [[nodiscard]] QString mapToDevicePath() const;
 
     QString m_scheme;
     QString m_host;
