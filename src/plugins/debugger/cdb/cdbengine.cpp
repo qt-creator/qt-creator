@@ -1079,7 +1079,7 @@ void CdbEngine::activateFrame(int index)
 
     if (debug || debugLocals)
         qDebug("activateFrame idx=%d '%s' %d", index,
-               qPrintable(frame.file), frame.line);
+               qPrintable(frame.file.toUserOutput()), frame.line);
     stackHandler()->setCurrentIndex(index);
     gotoLocation(frame);
     if (m_pythonVersion > 0x030000)
@@ -2615,7 +2615,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
         frame.level = QString::number(i);
         const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
-            frame.file = Utils::FileUtils::normalizedPathName(fullName.data());
+            frame.file = Utils::FilePath::fromString(fullName.data()).normalizedPathName();
             frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
             const GdbMi languageMi = frameMi["language"];
@@ -2661,12 +2661,12 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
             return ParseStackStepOut;
         }
         if (hasFile) {
-            const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file);
+            const NormalizedSourceFileName fileName = sourceMapNormalizeFileNameFromDebugger(frames.at(i).file.toString());
             if (!fileName.exists && i == 0 && sourceStepInto) {
                 showMessage("Step into: Hit frame with no source, step out...", LogMisc);
                 return ParseStackStepOut;
             }
-            frames[i].file = fileName.fileName;
+            frames[i].file = FilePath::fromString(fileName.fileName);
             frames[i].usable = fileName.exists;
             if (current == -1 && frames[i].usable)
                 current = i;

@@ -46,8 +46,7 @@ ComponentView::ComponentView(QObject *parent)
 
 void ComponentView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    removeSingleNodeFromList(removedNode);
-    searchForComponentAndRemoveFromList(removedNode);
+    removeFromListRecursive(removedNode);
 }
 
 QStandardItemModel *ComponentView::standardItemModel() const
@@ -75,12 +74,24 @@ void ComponentView::setComponentToMaster()
     m_componentAction->setCurrentIndex(indexOfMaster());
 }
 
-void ComponentView::removeSingleNodeFromList(const ModelNode &node)
+void ComponentView::removeNodeFromList(const ModelNode &node)
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
         if (m_standardItemModel->item(row)->data(ModelNodeRole).toInt() == node.internalId())
             m_standardItemModel->removeRow(row);
     }
+}
+
+void ComponentView::addNodeToList(const ModelNode &node)
+{
+    if (hasEntryForNode(node))
+        return;
+
+    QString description = descriptionForNode(node);
+    auto item = new QStandardItem(description);
+    item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);
+    item->setEditable(false);
+    m_standardItemModel->appendRow(item);
 }
 
 int ComponentView::indexForNode(const ModelNode &node) const
@@ -112,7 +123,7 @@ bool ComponentView::hasEntryForNode(const ModelNode &node) const
     return indexForNode(node) >= 0;
 }
 
-void ComponentView::addMasterDocument()
+void ComponentView::ensureMasterDocument()
 {
     if (!hasMasterEntry()) {
         QStandardItem *item = new QStandardItem(QLatin1String("master"));
@@ -122,9 +133,11 @@ void ComponentView::addMasterDocument()
     }
 }
 
-void ComponentView::removeMasterDocument()
+void ComponentView::maybeRemoveMasterDocument()
 {
-    m_standardItemModel->removeRow(indexOfMaster());
+    int idx = indexOfMaster();
+    if (idx >= 0 && m_standardItemModel->rowCount() == 1)
+        m_standardItemModel->removeRow(idx);
 }
 
 QString ComponentView::descriptionForNode(const ModelNode &node) const
@@ -153,6 +166,15 @@ void ComponentView::updateDescription(const ModelNode &node)
 
     if (nodeIndex > -1)
         m_standardItemModel->item(nodeIndex)->setText(descriptionForNode(node));
+}
+
+bool ComponentView::isSubComponentNode(const ModelNode &node) const
+{
+    return node.nodeSourceType() == ModelNode::NodeWithComponentSource
+            || (node.hasParentProperty()
+                && !node.parentProperty().isDefaultProperty()
+                && node.metaInfo().isValid()
+                && node.metaInfo().isGraphicalItem());
 }
 
 void ComponentView::modelAttached(Model *model)
@@ -187,46 +209,25 @@ void ComponentView::nodeCreated(const ModelNode &createdNode)
 
 void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
 {
-    bool masterNotAdded = true;
-
-    foreach (const ModelNode &node, node.allSubModelNodesAndThisNode()) {
-        if (node.nodeSourceType() == ModelNode::NodeWithComponentSource
-                || (node.hasParentProperty()
-                    && !node.parentProperty().isDefaultProperty()
-                    && node.metaInfo().isValid()
-                    && node.metaInfo().isGraphicalItem())) {
-            if (masterNotAdded) {
-                masterNotAdded = true;
-                addMasterDocument();
+    const auto nodeList = node.allSubModelNodesAndThisNode();
+    bool hasMaster = false;
+    for (const ModelNode &childNode : nodeList) {
+        if (isSubComponentNode(childNode)) {
+            if (!hasMaster) {
+                hasMaster = true;
+                ensureMasterDocument();
             }
-
-            if (!hasEntryForNode(node)) {
-                QString description = descriptionForNode(node);
-
-                auto item = new QStandardItem(description);
-                item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);
-                item->setEditable(false);
-                removeSingleNodeFromList(node); //remove node if already present
-                m_standardItemModel->appendRow(item);
-            }
+            addNodeToList(childNode);
         }
     }
 }
 
-void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
+void ComponentView::removeFromListRecursive(const ModelNode &node)
 {
-    QList<ModelNode> nodeList;
-    nodeList.append(node);
-    nodeList.append(node.allSubModelNodes());
-
-
-    foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
-            removeSingleNodeFromList(childNode);
-    }
-
-    if (m_standardItemModel->rowCount() == 1)
-        removeMasterDocument();
+    const auto nodeList = node.allSubModelNodesAndThisNode();
+    for (const ModelNode &childNode : std::as_const(nodeList))
+        removeNodeFromList(childNode);
+    maybeRemoveMasterDocument();
 }
 
 void ComponentView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -239,5 +240,18 @@ void ComponentView::nodeReparented(const ModelNode &node, const NodeAbstractProp
 void ComponentView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString& /*oldId*/)
 {
     updateDescription(node);
+}
+
+void ComponentView::nodeSourceChanged(const ModelNode &node, const QString &/*newNodeSource*/)
+{
+    if (isSubComponentNode(node)) {
+        if (!hasEntryForNode(node)) {
+            ensureMasterDocument();
+            addNodeToList(node);
+        }
+    } else {
+        removeNodeFromList(node);
+        maybeRemoveMasterDocument();
+    }
 }
 } // namespace QmlDesigner

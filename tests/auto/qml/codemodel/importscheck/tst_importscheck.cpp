@@ -267,7 +267,7 @@ void tst_ImportCheck::importTypes()
 
     // the default qtQmlPath is based on the Qt version in use otherwise
     ModelManagerInterface::ProjectInfo defaultProject;
-    defaultProject.qtQmlPath = importPath;
+    defaultProject.qtQmlPath = Utils::FilePath::fromString(importPath);
     modelManager->setDefaultProject(defaultProject, nullptr);
     modelManager->activateScan();
 

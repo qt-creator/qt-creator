@@ -67,6 +67,28 @@ void setThemeApplicationPalette()
         QApplication::setPalette(m_creatorTheme->palette());
 }
 
+static void maybeForceMacOSLight(Theme *theme)
+{
+#ifdef Q_OS_MACOS
+    // Match the native UI theme and palette with the creator
+    // theme by forcing light aqua for light creator themes.
+    if (theme && !theme->flag(Theme::DarkUserInterface))
+        Internal::forceMacOSLightAquaApperance();
+#else
+    Q_UNUSED(theme)
+#endif
+}
+
+static bool macOSSystemIsDark()
+{
+#ifdef Q_OS_MACOS
+    static bool systemIsDark = Internal::currentAppearanceIsDark();
+    return systemIsDark;
+#else
+    return false;
+#endif
+}
+
 void setCreatorTheme(Theme *theme)
 {
     if (m_creatorTheme == theme)
@@ -74,13 +96,7 @@ void setCreatorTheme(Theme *theme)
     delete m_creatorTheme;
     m_creatorTheme = theme;
 
-#ifdef Q_OS_MACOS
-    // Match the native UI theme and palette with the creator
-    // theme by forcing light aqua for light creator themes.
-    if (theme && !theme->flag(Theme::DarkUserInterface))
-        Internal::forceMacOSLightAquaApperance();
-#endif
-
+    maybeForceMacOSLight(theme);
     setThemeApplicationPalette();
 }
 
@@ -251,6 +267,8 @@ bool Theme::systemUsesDarkMode()
         bool ok;
         const auto setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
         return ok && setting == 0;
+    } else if (HostOsInfo::isMacHost()) {
+        return macOSSystemIsDark();
     }
     return false;
 }
@@ -268,6 +286,13 @@ static QPalette copyPalette(const QPalette &p)
         }
     }
     return res;
+}
+
+void Theme::setInitialPalette(Theme *initTheme)
+{
+    macOSSystemIsDark(); // initialize value for system mode
+    maybeForceMacOSLight(initTheme);
+    initialPalette();
 }
 
 QPalette Theme::initialPalette()

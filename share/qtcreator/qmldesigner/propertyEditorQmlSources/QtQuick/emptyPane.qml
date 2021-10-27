@@ -41,7 +41,7 @@ Rectangle {
         anchors.fill: parent
 
         Controls.Label {
-            text: qsTr("Select an Item in the Form Editor, Navigator or Text Edit View to see its properties.")
+            text: qsTr("Select a component in Form Editor, Navigator, or Text Editor to see its properties.")
             font.pixelSize: StudioTheme.Values.myFontSize * 1.5
             color: StudioTheme.Values.themeTextColor
             wrapMode: Text.WordWrap

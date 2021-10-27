@@ -83,8 +83,15 @@ private:
     void stdError(const QString &line);
     DeployErrorCode parseDeployErrors(const QString &deployOutputLine) const;
 
-    friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) { e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
-    friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) { return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
+    friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) {
+        e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2);
+    }
+
+    friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) {
+        return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2);
+    }
+
+    void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
 
     Utils::FilePath m_manifestName;
     QString m_serialNumber;

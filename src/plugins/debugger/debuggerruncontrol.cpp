@@ -912,9 +912,14 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         }
     }
 
-    m_runParameters.inferior = runnable();
+    Runnable inferior = runnable();
+    const FilePath &debuggerExecutable = m_runParameters.debugger.command.executable();
+    inferior.command.setExecutable(inferior.command.executable().onDevice(debuggerExecutable));
+    inferior.workingDirectory = inferior.workingDirectory.onDevice(debuggerExecutable);
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-    m_runParameters.inferior.workingDirectory = m_runParameters.inferior.workingDirectory.normalizedPathName();
+    inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
+    m_runParameters.inferior = inferior;
+
     setUseTerminal(allowTerminal == DoAllowTerminal && m_runParameters.useTerminal);
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");

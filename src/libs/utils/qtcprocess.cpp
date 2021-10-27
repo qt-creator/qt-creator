@@ -475,6 +475,12 @@ static ProcessInterface *newProcessInstance(QObject *parent, QtcProcess::Process
 class QtcProcessPrivate : public QObject
 {
 public:
+    enum StartFailure {
+        NoFailure,
+        WrongFileNameFailure,
+        OtherFailure
+    };
+
     explicit QtcProcessPrivate(QtcProcess *parent,
                                QtcProcess::ProcessImpl processImpl,
                                ProcessMode processMode)
@@ -488,13 +494,11 @@ public:
         connect(m_process, &ProcessInterface::finished,
                 this, &QtcProcessPrivate::slotFinished);
         connect(m_process, &ProcessInterface::errorOccurred,
-                this, &QtcProcessPrivate::slotError);
+                this, [this](QProcess::ProcessError error) { handleError(error, OtherFailure); });
         connect(m_process, &ProcessInterface::readyReadStandardOutput,
                 this, &QtcProcessPrivate::handleReadyReadStandardOutput);
         connect(m_process, &ProcessInterface::readyReadStandardError,
                 this, &QtcProcessPrivate::handleReadyReadStandardError);
-        connect(&m_timer, &QTimer::timeout, this, &QtcProcessPrivate::slotTimeout);
-        m_timer.setInterval(1000);
     }
 
     void handleReadyReadStandardOutput()
@@ -530,7 +534,7 @@ public:
         } else {
             m_process->setErrorString(QLatin1String(
                        "The program \"%1\" does not exist or is not executable.").arg(program));
-            slotError(QProcess::FailedToStart);
+            handleError(QProcess::FailedToStart, WrongFileNameFailure);
         }
     }
 
@@ -546,14 +550,13 @@ public:
 
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
-    void slotError(QProcess::ProcessError);
+    void handleError(QProcess::ProcessError error, StartFailure startFailure);
     void clearForRun();
 
     QtcProcess::Result interpretExitCode(int exitCode);
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
-    QTimer m_timer;
-    QEventLoop m_eventLoop;
+    QEventLoop *m_eventLoop = nullptr;
     QtcProcess::Result m_result = QtcProcess::StartFailed;
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     ChannelBuffer m_stdOut;
@@ -562,7 +565,7 @@ public:
 
     int m_hangTimerCount = 0;
     int m_maxHangTimerCount = defaultMaxHangTimerCount;
-    bool m_startFailure = false;
+    StartFailure m_startFailure = NoFailure;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
     bool m_processUserEvents = false;
@@ -576,7 +579,7 @@ void QtcProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
     m_result = QtcProcess::StartFailed;
-    m_startFailure = false;
+    m_startFailure = NoFailure;
 }
 
 QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
@@ -963,7 +966,7 @@ void QtcProcess::setResult(Result result)
 
 int QtcProcess::exitCode() const
 {
-    if (d->m_startFailure)
+    if (d->m_startFailure == QtcProcessPrivate::WrongFileNameFailure)
         return 255; // This code is being returned by QProcess when FailedToStart error occurred
     return d->m_process->exitCode();
 }
@@ -1065,7 +1068,7 @@ void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 
 QProcess::ProcessError QtcProcess::error() const
 {
-    if (d->m_startFailure)
+    if (d->m_startFailure == QtcProcessPrivate::WrongFileNameFailure)
         return QProcess::FailedToStart;
     return d->m_process->error();
 }
@@ -1407,17 +1410,24 @@ void QtcProcess::runBlocking()
         // On Windows, start failure is triggered immediately if the
         // executable cannot be found in the path. Do not start the
         // event loop in that case.
-        if (!d->m_startFailure) {
-            d->m_timer.start();
+        if (d->m_startFailure == QtcProcessPrivate::NoFailure) {
+            QTimer timer(this);
+            connect(&timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
+            timer.setInterval(1000);
+            timer.start();
 #ifdef QT_GUI_LIB
             if (isGuiThread())
                 QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-            d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+            QEventLoop eventLoop(this);
+            QTC_ASSERT(!d->m_eventLoop, return);
+            d->m_eventLoop = &eventLoop;
+            eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+            d->m_eventLoop = nullptr;
             d->m_stdOut.append(d->m_process->readAllStandardOutput());
             d->m_stdErr.append(d->m_process->readAllStandardError());
 
-            d->m_timer.stop();
+            timer.stop();
 #ifdef QT_GUI_LIB
             if (isGuiThread())
                 QApplication::restoreOverrideCursor();
@@ -1510,7 +1520,8 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
             m_result = QtcProcess::TerminatedAbnormally;
         break;
     }
-    m_eventLoop.quit();
+    if (m_eventLoop)
+        m_eventLoop->quit();
 
     m_stdOut.handleRest();
     m_stdErr.handleRest();
@@ -1518,7 +1529,7 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
     emit q->finished();
 }
 
-void QtcProcessPrivate::slotError(QProcess::ProcessError error)
+void QtcProcessPrivate::handleError(QProcess::ProcessError error, StartFailure startFailure)
 {
     m_hangTimerCount = 0;
     if (debug)
@@ -1526,8 +1537,9 @@ void QtcProcessPrivate::slotError(QProcess::ProcessError error)
     // Was hang detected before and killed?
     if (m_result != QtcProcess::Hang)
         m_result = QtcProcess::StartFailed;
-    m_startFailure = true;
-    m_eventLoop.quit();
+    m_startFailure = startFailure;
+    if (m_eventLoop)
+        m_eventLoop->quit();
 
     emit q->errorOccurred(error);
 }

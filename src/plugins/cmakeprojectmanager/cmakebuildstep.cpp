@@ -35,6 +35,7 @@
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -376,13 +377,15 @@ void CMakeBuildStep::setBuildTargets(const QStringList &buildTargets)
 
 CommandLine CMakeBuildStep::cmakeCommand() const
 {
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
+    CommandLine cmd;
+    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(kit()))
+        cmd.setExecutable(tool->cmakeExecutable());
 
-    CommandLine cmd(tool ? tool->cmakeExecutable() : FilePath(), {});
-    QString buildDirectory = ".";
+    FilePath buildDirectory = ".";
     if (buildConfiguration())
-        buildDirectory = buildConfiguration()->buildDirectory().path();
-    cmd.addArgs({"--build", buildDirectory});
+        buildDirectory = buildConfiguration()->buildDirectory();
+
+    cmd.addArgs({"--build", buildDirectory.onDevice(cmd.executable()).path()});
 
     cmd.addArg("--target");
     cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {

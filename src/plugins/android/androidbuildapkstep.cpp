@@ -423,7 +423,7 @@ void AndroidBuildApkWidget::onOpenSslCheckBoxChanged()
     Utils::FilePath projectPath = m_step->buildConfiguration()->buildSystem()->projectFilePath();
     QFile projectFile(projectPath.toString());
     if (!projectFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
-        qWarning() << "Cound't open project file to add OpenSSL extra libs: " << projectPath;
+        qWarning() << "Cannot open project file to add OpenSSL extra libs: " << projectPath;
         return;
     }
 
@@ -494,27 +494,31 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
 
 bool AndroidBuildApkStep::init()
 {
-    if (!AbstractProcessStep::init())
+    if (!AbstractProcessStep::init()) {
+        reportWarningOrError(tr("\"%1\" step failed initialization.").arg(displayName()),
+                             Task::Error);
         return false;
+    }
 
     if (m_signPackage) {
         qCDebug(buildapkstepLog) << "Signing enabled";
         // check keystore and certificate passwords
         if (!verifyKeystorePassword() || !verifyCertificatePassword()) {
-            qCDebug(buildapkstepLog) << "Init failed. Keystore/Certificate password verification failed.";
+            reportWarningOrError(tr("Keystore/Certificate password verification failed."),
+                                 Task::Error);
             return false;
         }
 
-        if (buildType() != BuildConfiguration::Release) {
-            const QString error = tr("Warning: Signing a debug or profile package.");
-            emit addOutput(error, OutputFormat::ErrorMessage);
-            TaskHub::addTask(BuildSystemTask(Task::Warning, error));
-        }
+        if (buildType() != BuildConfiguration::Release)
+            reportWarningOrError(tr("Warning: Signing a debug or profile package."), Task::Warning);
     }
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
-    if (!version)
+    if (!version) {
+        reportWarningOrError(tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
+                             Task::Error);
         return false;
+    }
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
     if (sdkToolsVersion >= QVersionNumber(25, 3, 0)
@@ -526,16 +530,14 @@ bool AndroidBuildApkStep::init()
                      "is %2")
                       .arg(sdkToolsVersion.toString())
                       .arg("5.9.0/5.6.3");
-            emit addOutput(error, OutputFormat::Stderr);
-            TaskHub::addTask(BuildSystemTask(Task::Error, error));
+            reportWarningOrError(error, Task::Error);
             return false;
         }
     } else if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
         const QString error = tr("The minimum Qt version required for Gradle build to work is %1. "
                                  "It is recommended to install the latest Qt version.")
                                   .arg("5.4.0");
-        emit addOutput(error, OutputFormat::Stderr);
-        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+        reportWarningOrError(error, Task::Error);
         return false;
     }
 
@@ -545,8 +547,7 @@ bool AndroidBuildApkStep::init()
             = tr("The API level set for the APK is less than the minimum required by the kit."
                  "\nThe minimum API level required by the kit is %1.")
                   .arg(minSDKForKit);
-        emit addOutput(error, OutputFormat::Stderr);
-        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+        reportWarningOrError(error, Task::Error);
         return false;
     }
 
@@ -568,16 +569,16 @@ bool AndroidBuildApkStep::init()
 
     m_inputFile = AndroidQtVersion::androidDeploymentSettings(target());
     if (m_inputFile.isEmpty()) {
-        qCDebug(buildapkstepLog) << "no input file" << target()->activeBuildKey();
         m_skipBuilding = true;
+        reportWarningOrError(tr("No valid input file for \"%1\".").arg(target()->activeBuildKey()),
+                             Task::Warning);
         return true;
     }
     m_skipBuilding = false;
 
     if (m_buildTargetSdk.isEmpty()) {
-        const QString error = tr("Android build SDK not defined. Check Android settings.");
-        emit addOutput(error, OutputFormat::Stderr);
-        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+        reportWarningOrError(tr("Android build SDK version is not defined. Check Android settings.")
+                             , Task::Error);
         return false;
     }
 
@@ -665,10 +666,8 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 bool AndroidBuildApkStep::verifyKeystorePassword()
 {
     if (!m_keystorePath.exists()) {
-        const QString error = tr("Cannot sign the package. Invalid keystore path (%1).")
-                                  .arg(m_keystorePath.toString());
-        emit addOutput(error, OutputFormat::ErrorMessage);
-        TaskHub::addTask(DeploymentTask(Task::Error, error));
+        reportWarningOrError(tr("Cannot sign the package. Invalid keystore path (%1).")
+                             .arg(m_keystorePath.toString()), Task::Error);
         return false;
     }
 
@@ -687,10 +686,8 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 {
     if (!AndroidManager::checkCertificateExists(m_keystorePath.toString(), m_keystorePasswd,
                                                  m_certificateAlias)) {
-        const QString error = tr("Cannot sign the package. Certificate alias %1 does not exist.")
-                                  .arg(m_certificateAlias);
-        emit addOutput(error, OutputFormat::ErrorMessage);
-        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+        reportWarningOrError(tr("Cannot sign the package. Certificate alias %1 does not exist.")
+                             .arg(m_certificateAlias), Task::Error);
         return false;
     }
 
@@ -731,9 +728,8 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath,
 void AndroidBuildApkStep::doRun()
 {
     if (m_skipBuilding) {
-        const QString error = tr("Android deploy settings file not found, not building an APK.");
-        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
-        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+        reportWarningOrError(tr("Android deploy settings file not found, not building an APK."),
+                             Task::Error);
         emit finished(true);
         return;
     }
@@ -743,8 +739,11 @@ void AndroidBuildApkStep::doRun()
         const QString buildKey = target()->activeBuildKey();
 
         QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
-        if (!version)
+        if (!version) {
+            reportWarningOrError(tr("The Qt version for kit %1 is invalid.")
+                                 .arg(kit()->displayName()), Task::Error);
             return false;
+        }
 
         const FilePath buildDir = buildDirectory();
         const FilePath androidBuildDir = AndroidManager::androidBuildDirectory(target());
@@ -752,10 +751,9 @@ void AndroidBuildApkStep::doRun()
             FilePath androidLibsDir = androidBuildDir / "libs" / abi;
             if (!androidLibsDir.exists()) {
                 if (!androidLibsDir.ensureWritableDir()) {
-                    const QString error = tr("The Android build folder %1 wasn't found and "
-                                 "couldn't be created.").arg(androidLibsDir.toUserOutput());
-                    emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
-                    TaskHub::addTask(BuildSystemTask(Task::Error, error));
+                    reportWarningOrError(tr("The Android build folder %1 was not found and could "
+                                            "not be created.").arg(androidLibsDir.toUserOutput()),
+                                         Task::Error);
                     return false;
                 } else if (version->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}
                            && version->qtVersion() <= QtSupport::QtVersionNumber{6, 1, 1}) {
@@ -769,11 +767,10 @@ void AndroidBuildApkStep::doRun()
                         continue;
 
                     if (!from.copyFile(to)) {
-                        const QString error = tr("Couldn't copy the target's lib file %1 to the "
-                                                 "Android build folder %2.")
-                                            .arg(fileName, androidLibsDir.toUserOutput());
-                        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
-                        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+                        reportWarningOrError(tr("Cannot copy the target's lib file %1 to the "
+                                                "Android build folder %2.")
+                                             .arg(fileName, androidLibsDir.toUserOutput()),
+                                             Task::Error);
                         return false;
                     }
                 }
@@ -799,8 +796,13 @@ void AndroidBuildApkStep::doRun()
             applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
             FilePath androidLibsDir = androidBuildDir / "libs" / androidAbis.first();
             for (const FilePath &target : targets) {
-                if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName())))
+                if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName()))) {
+                    reportWarningOrError(
+                                tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
+                                .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
+                                Task::Error);
                     return false;
+                }
             }
             deploySettings["target-architecture"] = androidAbis.first();
         } else {
@@ -818,8 +820,14 @@ void AndroidBuildApkStep::doRun()
                 FilePath androidLibsDir = androidBuildDir / "libs" / abi;
                 for (const FilePath &target : targets) {
                     if (target.endsWith(targetSuffix)) {
-                        if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName())))
+                        const FilePath destination = androidLibsDir.pathAppended(target.fileName());
+                        if (!copyFileIfNewer(target, destination)) {
+                            reportWarningOrError(
+                                tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
+                                    .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
+                                Task::Error);
                             return false;
+                        }
                         architectures[abi] = AndroidManager::archTriplet(abi);
                     }
                 }
@@ -846,21 +854,30 @@ void AndroidBuildApkStep::doRun()
          deploySettings["qml-root-path"] = qmlRootPath;
 
         QFile f{m_inputFile.toString()};
-        if (!f.open(QIODevice::WriteOnly))
+        if (!f.open(QIODevice::WriteOnly)) {
+            reportWarningOrError(tr("Cannot open androiddeployqt input file \"%1\" for writing.")
+                                 .arg(m_inputFile.toUserOutput()), Task::Error);
             return false;
+        }
         f.write(QJsonDocument{deploySettings}.toJson());
         return true;
     };
 
     if (!setup()) {
-        const QString error = tr("Cannot set up Android, not building an APK.");
-        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
-        TaskHub::addTask(BuildSystemTask(Task::Error, error));
+        reportWarningOrError(tr("Cannot set up \"%1\", not building an APK.").arg(displayName()),
+                             Task::Error);
         emit finished(false);
         return;
     }
 
     AbstractProcessStep::doRun();
+}
+
+void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::TaskType type)
+{
+    qCDebug(buildapkstepLog) << message;
+    emit addOutput(message, OutputFormat::ErrorMessage);
+    TaskHub::addTask(BuildSystemTask(type, message));
 }
 
 void AndroidBuildApkStep::processStarted()

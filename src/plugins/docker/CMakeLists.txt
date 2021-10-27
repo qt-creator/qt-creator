@@ -4,12 +4,7 @@ add_qtc_plugin(Docker
     docker_global.h
     dockerbuildstep.cpp dockerbuildstep.h
     dockerconstants.h
-    dockerdevice.cpp
-    dockerdevice.h
-    dockerplugin.cpp
-    dockerplugin.h
-    dockerrunconfiguration.cpp
-    dockerrunconfiguration.h
-    dockersettings.cpp
-    dockersettings.h
+    dockerdevice.cpp dockerdevice.h
+    dockerplugin.cpp dockerplugin.h
+    dockersettings.cpp dockersettings.h
 )

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,20 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include "cmakeprojectmanager/cmakeconfigitem.h"
+#include "utils/environmentfwd.h"
 
-namespace Docker {
+namespace McuSupport {
 namespace Internal {
-
-class DockerContainerRunConfigurationFactory
-    : public ProjectExplorer::FixedRunConfigurationFactory
-{
-public:
-    DockerContainerRunConfigurationFactory();
-};
-
-} // Internal
-} // Docker
+QList<CMakeProjectManager::CMakeConfigItem> mapEnvVarsToQul2xCmakeVars(
+    const Utils::EnvironmentItems &envVars);
+}
+} // namespace McuSupport

@@ -33,6 +33,7 @@ class TextDocument;
 class TextEditorWidget;
 }
 
+namespace Utils { class FilePath; }
 namespace CPlusPlus { class Snapshot; }
 
 namespace Debugger {
@@ -52,7 +53,7 @@ QString cppFunctionAt(const QString &fileName, int line, int column = 0);
 // of a function from the code model. Shadowed variables will
 // be reported using the debugger naming conventions '<shadowed n>'
 QStringList getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
-                                      const QString &function, const QString &file, int line);
+                                      const QString &function, const Utils::FilePath &file, int line);
 
 ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumber);
 

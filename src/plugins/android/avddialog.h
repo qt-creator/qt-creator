@@ -71,12 +71,12 @@ private:
     };
 
     Ui::AddNewAVDDialog m_avdDialog;
-    AndroidSdkManager m_sdkManager;
     CreateAvdInfo m_createdAvdInfo;
     QTimer m_hideTipTimer;
     QRegularExpression m_allowedNameChars;
     QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
-    AndroidConfig m_androidConfig;
+    const AndroidConfig &m_androidConfig;
+    AndroidSdkManager m_sdkManager;
     QMap<AvdDialog::DeviceType, QString> deviceTypeToStringMap;
 };
 }

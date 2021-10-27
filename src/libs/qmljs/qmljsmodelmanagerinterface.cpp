@@ -133,8 +133,8 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
     qRegisterMetaType<QmlJS::PathAndLanguage>("QmlJS::PathAndLanguage");
     qRegisterMetaType<QmlJS::PathsAndLanguages>("QmlJS::PathsAndLanguages");
 
-    m_defaultProjectInfo.qtQmlPath = QFileInfo(
-                QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
+    m_defaultProjectInfo.qtQmlPath =
+            FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
     m_defaultProjectInfo.qtVersionString = QLibraryInfo::version().toString();
 
     updateImportPaths();
@@ -1217,16 +1217,14 @@ void ModelManagerInterface::updateImportPaths()
     }
 
     for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
-        if (!pInfo.qtQmlPath.isEmpty()) {
-            allImportPaths.maybeInsert(Utils::FilePath::fromString(pInfo.qtQmlPath),
-                                       Dialect::QmlQtQuick2);
-        }
+        if (!pInfo.qtQmlPath.isEmpty())
+            allImportPaths.maybeInsert(pInfo.qtQmlPath, Dialect::QmlQtQuick2);
     }
 
     {
-        const QString pathAtt = defaultProjectInfo().qtQmlPath;
+        const FilePath pathAtt = defaultProjectInfo().qtQmlPath;
         if (!pathAtt.isEmpty())
-            allImportPaths.maybeInsert(Utils::FilePath::fromString(pathAtt), Dialect::QmlQtQuick2);
+            allImportPaths.maybeInsert(pathAtt, Dialect::QmlQtQuick2);
     }
 
     for (const auto &importPath : defaultProjectInfo().importPaths) {
@@ -1435,7 +1433,7 @@ LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
 {
     const ProjectInfo info = projectInfoForPath(doc->fileName());
     if (!info.qtQmlPath.isEmpty())
-        return m_validSnapshot.libraryInfo(info.qtQmlPath);
+        return m_validSnapshot.libraryInfo(info.qtQmlPath.toString());
     return LibraryInfo();
 }
 
@@ -1483,13 +1481,13 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
         switch (res.language.dialect()) {
         case Dialect::AnyLanguage:
         case Dialect::Qml:
-            maybeAddPath(res, info.qtQmlPath);
+            maybeAddPath(res, info.qtQmlPath.toString());
             Q_FALLTHROUGH();
         case Dialect::QmlQtQuick2:
         case Dialect::QmlQtQuick2Ui:
         {
             if (res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui)
-                maybeAddPath(res, info.qtQmlPath);
+                maybeAddPath(res, info.qtQmlPath.toString());
 
             QList<Dialect> languages = res.language.companionLanguages();
             auto addPathsOnLanguageMatch = [&](const PathsAndLanguages &importPaths) {
@@ -1534,7 +1532,7 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
         for (const QString &path : qAsConst(defaultVCtx.paths))
             maybeAddPath(res, path);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml)
-            maybeAddPath(res, info.qtQmlPath);
+            maybeAddPath(res, info.qtQmlPath.toString());
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
                 || res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui) {
             const auto environemntPaths = environmentImportPaths();

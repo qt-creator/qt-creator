@@ -199,8 +199,6 @@ QtObject {
     property real colorEditorPopupCmoboBoxWidth: 110
     property real colorEditorPopupSpinBoxWidth: 54
 
-    property real colorEditorPopupHexLabelWidth: 20
-
     // Theme Colors
 
     property string themePanelBackground: Theme.color(Theme.DSpanelBackground)

@@ -33,17 +33,18 @@ class FilePath;
 
 namespace McuSupport {
 namespace Internal {
+
+#define MAX_COMPATIBILITY_VERSION 1
+
+class McuSdkRepository;
 class McuPackage;
-class McuToolChainPackage;
-class McuTarget;
 namespace Sdk {
 
 McuPackage *createQtForMCUsPackage();
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
-void targetsAndPackages(const Utils::FilePath &qulDir,
-                        QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
+void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 

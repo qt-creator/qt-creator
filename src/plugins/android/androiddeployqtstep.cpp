@@ -112,9 +112,8 @@ bool AndroidDeployQtStep::init()
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version) {
-        qCDebug(deployStepLog,
-                "The Qt version for kit %s is not valid.",
-                qPrintable(kit()->displayName()));
+        reportWarningOrError(tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
+                             Task::Error);
         return false;
     }
 
@@ -122,18 +121,21 @@ bool AndroidDeployQtStep::init()
 
     m_androidABIs = AndroidManager::applicationAbis(target());
     if (m_androidABIs.isEmpty()) {
-        const QString error = tr("No Android arch set by the .pro file.");
-        emit addOutput(error, OutputFormat::Stderr);
-        TaskHub::addTask(DeploymentTask(Task::Error, error));
+        reportWarningOrError(tr("No Android architecture (ABI) is set by the project."),
+                             Task::Error);
         return false;
     }
 
-    emit addOutput(tr("Initializing deployment to Android device/simulator"), OutputFormat::Stdout);
+    emit addOutput(tr("Initializing deployment to Android device/simulator"),
+                   OutputFormat::NormalMessage);
 
     RunConfiguration *rc = target()->activeRunConfiguration();
-    QTC_ASSERT(rc, return false);
+    QTC_ASSERT(rc, reportWarningOrError(tr("The kit's run configuration is invalid."), Task::Error);
+            return false);
     BuildConfiguration *bc = target()->activeBuildConfiguration();
-    QTC_ASSERT(bc, return false);
+    QTC_ASSERT(bc, reportWarningOrError(tr("The kit's build configuration is invalid."),
+                                        Task::Error);
+            return false);
 
     auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
     const int minTargetApi = AndroidManager::minimumSDK(target());
@@ -142,9 +144,12 @@ bool AndroidDeployQtStep::init()
 
     // Try to re-use user-provided information from an earlier step of the same type.
     BuildStepList *bsl = stepList();
-    QTC_ASSERT(bsl, return false);
+    QTC_ASSERT(bsl, reportWarningOrError(tr("The kit's build steps list is invalid."), Task::Error);
+            return false);
     auto androidDeployQtStep = bsl->firstOfType<AndroidDeployQtStep>();
-    QTC_ASSERT(androidDeployQtStep, return false);
+    QTC_ASSERT(androidDeployQtStep,
+               reportWarningOrError(tr("The kit's deploy configuration is invalid."), Task::Error);
+            return false);
     AndroidDeviceInfo info;
     if (androidDeployQtStep != this)
         info = androidDeployQtStep->m_deviceInfo;
@@ -159,44 +164,44 @@ bool AndroidDeployQtStep::init()
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
+    // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
     if (!info.isValid()) {
         const IDevice *dev = DeviceKitAspect::device(kit()).data();
+        if (!dev) {
+            reportWarningOrError(tr("The deployment device \"%1\" is invalid."), Task::Error);
+            return false;
+        }
+
         info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
         m_deviceInfo = info; // Keep around for later steps
 
         if (!info.isValid()) {
-            const QString error = tr("The deployment device \"%1\" is invalid.")
-                    .arg(dev->displayName());
-            emit addOutput(error, OutputFormat::Stderr);
-            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            reportWarningOrError(tr("The deployment device \"%1\" is invalid.")
+                                 .arg(dev->displayName()), Task::Error);
             return false;
         }
 
         const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(dev);
         if (androidDev && !androidDev->canSupportAbis(selectedAbis)) {
-            const QString error = tr("The deployment device \"%1\" doesn't support the "
+            const QString error = tr("The deployment device \"%1\" does not support the "
                                      "architectures used by the kit.\n"
                                      "The kit supports \"%2\", but the device uses \"%3\".")
                                       .arg(dev->displayName()).arg(selectedAbis.join(", "))
                                       .arg(androidDev->supportedAbis().join(", "));
-            emit addOutput(error, OutputFormat::Stderr);
-            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            reportWarningOrError(error, Task::Error);
             return false;
         }
 
         if (androidDev && !androidDev->canHandleDeployments()) {
-            const QString error = tr("The deployment device \"%1\" is disconnected.")
-                                    .arg(dev->displayName());
-            emit addOutput(error, OutputFormat::Stderr);
-            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            reportWarningOrError(tr("The deployment device \"%1\" is disconnected.")
+                                 .arg(dev->displayName()), Task::Error);
             return false;
         }
     }
 
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     if (qt && qt->supportsMultipleQtAbis() && !selectedAbis.contains(info.cpuAbi.first())) {
-        TaskHub::addTask(DeploymentTask(
-            Task::Warning,
+        TaskHub::addTask(DeploymentTask(Task::Warning,
             tr("Android: The main ABI of the deployment device (%1) is not selected. The app "
                "execution or debugging might not work properly. Add it from Projects > Build > "
                "Build Steps > qmake > ABIs.")
@@ -213,7 +218,7 @@ bool AndroidDeployQtStep::init()
     AndroidManager::setDeviceApiLevel(target(), info.sdk);
     AndroidManager::setDeviceAbis(target(), info.cpuAbi);
 
-    emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::Stdout);
+    emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage->value();
     if (m_uninstallPreviousPackageRun)
@@ -223,8 +228,10 @@ bool AndroidDeployQtStep::init()
     if (m_useAndroiddeployqt) {
         const QString buildKey = target()->activeBuildKey();
         const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
-        if (!node)
+        if (!node) {
+            reportWarningOrError(tr("The deployment step's project node is invalid."), Task::Error);
             return false;
+        }
         m_apkPath = Utils::FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
             m_manifestName = Utils::FilePath::fromString(node->data(Constants::AndroidManifest).toString());
@@ -233,16 +240,13 @@ bool AndroidDeployQtStep::init()
         } else {
             QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
             if (jsonFile.isEmpty()) {
-                const QString error = tr("Cannot find the androiddeploy Json file.");
-                emit addOutput(error, OutputFormat::Stderr);
-                TaskHub::addTask(DeploymentTask(Task::Error, error));
+                reportWarningOrError(tr("Cannot find the androiddeployqt input JSON file."),
+                                     Task::Error);
                 return false;
             }
             m_command = version->hostBinPath();
             if (m_command.isEmpty()) {
-                const QString error = tr("Cannot find the androiddeployqt tool.");
-                emit addOutput(error, OutputFormat::Stderr);
-                TaskHub::addTask(DeploymentTask(Task::Error, error));
+                reportWarningOrError(tr("Cannot find the androiddeployqt tool."), Task::Error);
                 return false;
             }
             m_command = m_command.pathAppended("androiddeployqt").withExecutableSuffix();
@@ -302,13 +306,14 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         if (m_uninstallPreviousPackageRun) {
             packageName = AndroidManager::packageName(m_manifestName);
             if (packageName.isEmpty()) {
-                const QString error = tr("Cannot find the package name.");
-                emit addOutput(error, OutputFormat::Stderr);
-                TaskHub::addTask(DeploymentTask(Task::Error, error));
+                reportWarningOrError(tr("Cannot find the package name from the Android Manifest "
+                                        "file \"%1\".").arg(m_manifestName.toUserOutput()),
+                                     Task::Error);
                 return Failure;
             }
-            qCDebug(deployStepLog) << "Uninstalling previous package";
-            emit addOutput(tr("Uninstall previous package %1.").arg(packageName), OutputFormat::NormalMessage);
+            const QString msg = tr("Uninstalling the previous package \"%1\".").arg(packageName);
+            qCDebug(deployStepLog) << msg;
+            emit addOutput(msg, OutputFormat::NormalMessage);
             runCommand({m_adbPath,
                        AndroidDeviceInfo::adbSelector(m_serialNumber)
                        << "uninstall" << packageName});
@@ -337,8 +342,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 
     m_process->start();
 
-    emit addOutput(tr("Starting: \"%1\"").arg(cmd.toUserOutput()),
-                   BuildStep::OutputFormat::NormalMessage);
+    emit addOutput(tr("Starting: \"%1\"").arg(cmd.toUserOutput()), OutputFormat::NormalMessage);
 
     while (!m_process->waitForFinished(200)) {
         if (m_process->state() == QProcess::NotRunning)
@@ -369,24 +373,27 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 
     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command.toUserOutput()),
-                       BuildStep::OutputFormat::NormalMessage);
+                       OutputFormat::NormalMessage);
     } else if (exitStatus == QProcess::NormalExit) {
         const QString error = tr("The process \"%1\" exited with code %2.")
                                   .arg(m_command.toUserOutput(), QString::number(exitCode));
-        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
-        TaskHub::addTask(DeploymentTask(Task::Error, error));
+        reportWarningOrError(error, Task::Error);
     } else {
         const QString error = tr("The process \"%1\" crashed.").arg(m_command.toUserOutput());
-        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
-        TaskHub::addTask(DeploymentTask(Task::Error, error));
+        reportWarningOrError(error, Task::Error);
     }
 
     if (deployError != NoError) {
-        if (m_uninstallPreviousPackageRun)
+        if (m_uninstallPreviousPackageRun) {
             deployError = Failure; // Even re-install failed. Set to Failure.
+            reportWarningOrError(
+                        tr("Installing the app failed even after uninstalling the previous one."),
+                        Task::Error);
+        }
     } else if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
         // Set the deployError to Failure when no deployError code was detected
         // but the adb tool failed otherwise relay the detected deployError.
+        reportWarningOrError(tr("Installing the app failed with an unknown error."), Task::Error);
         deployError = Failure;
     }
 
@@ -421,7 +428,8 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
       mask <<= 1;
     }
 
-    uninstallMsg.append(tr("\nUninstalling the installed package may solve the issue.\nDo you want to uninstall the existing package?"));
+    uninstallMsg.append(tr("\nUninstalling the installed package may solve the issue.\n"
+                           "Do you want to uninstall the existing package?"));
     int button = QMessageBox::critical(nullptr, tr("Install failed"), uninstallMsg,
                                        QMessageBox::Yes, QMessageBox::No);
     m_askForUninstall = button == QMessageBox::Yes;
@@ -432,10 +440,13 @@ bool AndroidDeployQtStep::runImpl()
     if (!m_avdName.isEmpty()) {
         QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, cancelChecker());
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
-        if (serialNumber.isEmpty())
+        if (serialNumber.isEmpty()) {
+            reportWarningOrError(tr("The deployment AVD \"%1\" cannot be started.")
+                                 .arg(m_avdName), Task::Error);
             return false;
+        }
         m_serialNumber = serialNumber;
-        qCDebug(deployStepLog) << "Target device serial number change:" << serialNumber;
+        qCDebug(deployStepLog) << "Deployment device serial number changed:" << serialNumber;
         AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
 
@@ -451,7 +462,8 @@ bool AndroidDeployQtStep::runImpl()
     if (!m_filesToPull.isEmpty())
         emit addOutput(tr("Pulling files necessary for debugging."), OutputFormat::NormalMessage);
 
-    // Note that values are not necessarily unique, e.g. app_process is looked up in several directories
+    // Note that values are not necessarily unique, e.g. app_process is looked up in several
+    // directories
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
         QFile::remove(itr.value());
     }
@@ -464,8 +476,7 @@ bool AndroidDeployQtStep::runImpl()
             const QString error = tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                                       .arg(itr.key())
                                       .arg(itr.value());
-            emit addOutput(error, OutputFormat::ErrorMessage);
-            TaskHub::addTask(DeploymentTask(Task::Error, error));
+            reportWarningOrError(error, Task::Error);
         }
     }
 
@@ -518,11 +529,8 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
     buildProc.setCommand(command);
     buildProc.setProcessUserEventWhileRunning();
     buildProc.runBlocking();
-    if (buildProc.result() != QtcProcess::FinishedWithSuccess) {
-        const QString error = buildProc.exitMessage();
-        emit addOutput(error, OutputFormat::ErrorMessage);
-        TaskHub::addTask(DeploymentTask(Task::Error, error));
-    }
+    if (buildProc.result() != QtcProcess::FinishedWithSuccess)
+        reportWarningOrError(buildProc.exitMessage(), Task::Error);
 }
 
 QWidget *AndroidDeployQtStep::createConfigWidget()
@@ -588,6 +596,13 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(
         errorCode |= VersionDowngrade;
 
     return errorCode;
+}
+
+void AndroidDeployQtStep::reportWarningOrError(const QString &message, Task::TaskType type)
+{
+    qCDebug(deployStepLog) << message;
+    emit addOutput(message, OutputFormat::ErrorMessage);
+    TaskHub::addTask(DeploymentTask(type, message));
 }
 
 // AndroidDeployQtStepFactory

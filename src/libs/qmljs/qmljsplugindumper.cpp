@@ -34,6 +34,7 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include <QDir>
@@ -41,7 +42,9 @@
 #include <QRegularExpression>
 
 using namespace LanguageUtils;
-using namespace QmlJS;
+using namespace Utils;
+
+namespace QmlJS {
 
 PluginDumper::PluginDumper(ModelManagerInterface *modelManager)
     : QObject(modelManager)
@@ -86,29 +89,30 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     if (info.qmlDumpPath.isEmpty() || info.qtQmlPath.isEmpty())
         return;
 
-    const QString importsPath = QDir::cleanPath(info.qtQmlPath);
+    // FIXME: This doesn't work for non-local paths.
+    const QString importsPath = QDir::cleanPath(info.qtQmlPath.toString());
     if (m_runningQmldumps.values().contains(importsPath))
         return;
 
     LibraryInfo builtinInfo;
     if (!force) {
         const Snapshot snapshot = m_modelManager->snapshot();
-        builtinInfo = snapshot.libraryInfo(info.qtQmlPath);
+        builtinInfo = snapshot.libraryInfo(info.qtQmlPath.toString());
         if (builtinInfo.isValid())
             return;
     }
     builtinInfo = LibraryInfo(LibraryInfo::Found);
-    m_modelManager->updateLibraryInfo(info.qtQmlPath, builtinInfo);
+    m_modelManager->updateLibraryInfo(info.qtQmlPath.toString(), builtinInfo);
 
     // prefer QTDIR/qml/builtins.qmltypes if available
-    const QString builtinQmltypesPath = info.qtQmlPath + QLatin1String("/builtins.qmltypes");
+    const QString builtinQmltypesPath = info.qtQmlPath.toString() + QLatin1String("/builtins.qmltypes");
     if (QFile::exists(builtinQmltypesPath)) {
-        loadQmltypesFile(QStringList(builtinQmltypesPath), info.qtQmlPath, builtinInfo);
+        loadQmltypesFile(QStringList(builtinQmltypesPath), info.qtQmlPath.toString(), builtinInfo);
         return;
     }
 
     runQmlDump(info, QStringList(QLatin1String("--builtins")), info.qtQmlPath);
-    m_qtToInfo.insert(info.qtQmlPath, info);
+    m_qtToInfo.insert(info.qtQmlPath.toString(), info);
 }
 
 static QString makeAbsolute(const QString &path, const QString &base)
@@ -227,10 +231,10 @@ static void printParseWarnings(const QString &libraryPath, const QString &warnin
                                  "%2").arg(libraryPath, warning));
 }
 
-static QString qmlPluginDumpErrorMessage(QProcess *process)
+static QString qmlPluginDumpErrorMessage(QtcProcess *process)
 {
     QString errorMessage;
-    const QString binary = QDir::toNativeSeparators(process->program());
+    const QString binary = process->commandLine().executable().toUserOutput();
     switch (process->error()) {
     case QProcess::FailedToStart:
         errorMessage = PluginDumper::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
@@ -250,7 +254,7 @@ static QString qmlPluginDumpErrorMessage(QProcess *process)
             errorMessage = PluginDumper::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
         break;
     }
-    errorMessage += QLatin1Char('\n') + PluginDumper::tr("Arguments: %1").arg(process->arguments().join(QLatin1Char(' ')));
+    errorMessage += '\n' + PluginDumper::tr("Arguments: %1").arg(process->commandLine().arguments());
     if (process->error() != QProcess::FailedToStart) {
         const QString stdErr = QString::fromLocal8Bit(process->readAllStandardError());
         if (!stdErr.isEmpty()) {
@@ -261,11 +265,8 @@ static QString qmlPluginDumpErrorMessage(QProcess *process)
     return errorMessage;
 }
 
-void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
+void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
 {
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
     process->deleteLater();
 
     const QString libraryPath = m_runningQmldumps.take(process);
@@ -275,7 +276,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
     bool privatePlugin = libraryPath.endsWith(QLatin1String("private"));
 
-    if (exitCode != 0) {
+    if (process->exitCode() != 0) {
         const QString errorMessages = qmlPluginDumpErrorMessage(process);
         if (!privatePlugin)
             ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
@@ -333,11 +334,8 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     }
 }
 
-void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
+void PluginDumper::qmlPluginTypeDumpError(QtcProcess *process)
 {
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (!process)
-        return;
     process->deleteLater();
 
     const QString libraryPath = m_runningQmldumps.take(process);
@@ -632,20 +630,17 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     });
 }
 
-void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info,
-    const QStringList &arguments, const QString &importPath)
+void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,
+    const QStringList &arguments, const FilePath &importPath)
 {
-    QDir wd = QDir(importPath);
-    wd.cdUp();
-    QProcess *process = new QProcess(this);
-    process->setEnvironment(info.qmlDumpEnvironment.toStringList());
-    QString workingDir = wd.canonicalPath();
-    process->setWorkingDirectory(workingDir);
-    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &PluginDumper::qmlPluginTypeDumpDone);
-    connect(process, &QProcess::errorOccurred, this, &PluginDumper::qmlPluginTypeDumpError);
-    process->start(info.qmlDumpPath, arguments);
-    m_runningQmldumps.insert(process, importPath);
+    auto process = new QtcProcess(this);
+    process->setEnvironment(info.qmlDumpEnvironment);
+    process->setWorkingDirectory(importPath);
+    process->setCommand({info.qmlDumpPath, arguments});
+    connect(process, &QtcProcess::finished, this, [this, process] { qmlPluginTypeDumpDone(process); });
+    connect(process, &QtcProcess::errorOccurred, this, [this, process] { qmlPluginTypeDumpError(process); });
+    process->start();
+    m_runningQmldumps.insert(process, importPath.toString());
 }
 
 void PluginDumper::dump(const Plugin &plugin)
@@ -691,7 +686,7 @@ void PluginDumper::dump(const Plugin &plugin)
     args << plugin.importUri;
     args << plugin.importVersion;
     args << (plugin.importPath.isEmpty() ? QLatin1String(".") : plugin.importPath);
-    runQmlDump(info, args, plugin.qmldirPath);
+    runQmlDump(info, args, FilePath::fromString(plugin.qmldirPath));
 }
 
 /*!
@@ -792,3 +787,5 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
     }
     return resolvePlugin(qmldirPath, qmldirPluginPath, baseName, validSuffixList, prefix);
 }
+
+} // QmlJS

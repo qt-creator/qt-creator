@@ -485,6 +485,8 @@ public:
     static bool systemUsesDarkMode();
     static QPalette initialPalette();
 
+    static void setInitialPalette(Theme *initTheme);
+
 protected:
     Theme(Theme *originTheme, QObject *parent = nullptr);
     ThemePrivate *d;

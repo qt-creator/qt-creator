@@ -914,16 +914,30 @@ static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &pat
         usedImportsSet.insert(i.info.path());
 
     QList<QmlDesigner::Import> possibleImports;
+    const QStringList qmlList("*.qml");
+    const QStringList qmldirList("qmldir");
 
-    foreach (const QString &subDir, QDir(path).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot)) {
-        QDir dir(path + "/" + subDir);
-        if (!dir.entryInfoList(QStringList("*.qml"), QDir::Files).isEmpty()
-                && dir.entryInfoList(QStringList("qmldir"), QDir::Files).isEmpty()
-                && !usedImportsSet.contains(dir.path())) {
-            QmlDesigner::Import import = QmlDesigner::Import::createFileImport(subDir);
-            possibleImports.append(import);
+    QStringList fileImportPaths;
+    const QChar delimeter('/');
+
+    std::function<void(const QString &)> checkDir;
+    checkDir = [&](const QString &checkPath) {
+        const QStringList entries = QDir(checkPath).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
+        const QString checkPathDelim = checkPath + delimeter;
+        for (const QString &entry : entries) {
+            QDir dir(checkPathDelim + entry);
+            const QString dirPath = dir.path();
+            if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
+                    && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
+                    && !usedImportsSet.contains(dirPath)) {
+                const QString importName = dir.path().mid(path.size() + 1);
+                QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
+                possibleImports.append(import);
+            }
+            checkDir(dirPath);
         }
-    }
+    };
+    checkDir(path);
 
     return possibleImports;
 }
@@ -931,16 +945,43 @@ static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &pat
 static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QString, ImportKey> &filteredPossibleImportKeys)
 {
     QList<QmlDesigner::Import> possibleImports;
+    QSet<QString> controlsImplVersions;
+    bool hasVersionedControls = false;
+    bool hasVersionlessControls = false;
+    const QString controlsName = "QtQuick.Controls";
+    const QString controlsImplName = "QtQuick.Controls.impl";
 
-    foreach (const ImportKey &importKey, filteredPossibleImportKeys) {
+    for (const ImportKey &importKey : filteredPossibleImportKeys) {
         QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
         int majorVersion = importKey.majorVersion;
         if (majorVersion >= 0) {
             int minorVersion = (importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion;
             QString version = QStringLiteral("%1.%2").arg(majorVersion).arg(minorVersion);
             possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
+
+            // In Qt6, QtQuick.Controls itself doesn't have any version as it has no types,
+            // so it never gets added normally to possible imports.
+            // We work around this by injecting corresponding QtQuick.Controls version for each
+            // found impl version, if no valid QtQuick.Controls versions are found.
+            if (!hasVersionedControls) {
+                if (libraryName == controlsImplName)
+                    controlsImplVersions.insert(version);
+                else if (libraryName == controlsName)
+                    hasVersionedControls = true;
+            }
+        } else if (!hasVersionlessControls && libraryName == controlsName) {
+            // If QtQuick.Controls module is not included even in non-versioned, it means
+            // QtQuick.Controls is either in use or not available at all,
+            // so we shouldn't inject it.
+            hasVersionlessControls = true;
         }
     }
+
+    if (hasVersionlessControls && !hasVersionedControls && !controlsImplVersions.isEmpty()) {
+        for (const auto &version : std::as_const(controlsImplVersions))
+            possibleImports.append(QmlDesigner::Import::createLibraryImport(controlsName, version));
+    }
+
 
     return possibleImports;
 }
@@ -2111,7 +2152,7 @@ void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const 
 void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 {
     if (m_rewriterView->model()->imports().isEmpty()) {
-        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+        const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found."));
         errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 
@@ -2137,7 +2178,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                                 SourceLocation(0, 0, 0, 0),
                                 QCoreApplication::translate(
                                     "QmlDesigner::TextToModelMerger",
-                                    "QtQuick 6 is not supported with a Qt 5 kit."));
+                                    "Qt Quick 6 is not supported with a Qt 5 kit."));
                             errors->prepend(
                                 DocumentMessage(diagnosticMessage,
                                                 QUrl::fromLocalFile(m_document->fileName())));
@@ -2161,7 +2202,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
                     diagnosticMessage(QmlJS::Severity::Error,
                                       SourceLocation(0, 0, 0, 0),
                                       QCoreApplication::translate("QmlDesigner::TextToModelMerger",
-                                                                  "Unsupported QtQuick version"));
+                                                                  "Unsupported Qt Quick version."));
                 errors->append(DocumentMessage(diagnosticMessage,
                                                QUrl::fromLocalFile(m_document->fileName())));
             }

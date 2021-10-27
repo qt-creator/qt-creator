@@ -62,6 +62,7 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
+    void nodeSourceChanged(const ModelNode &node, const QString &newNodeSource) override;
 
     QStandardItemModel *standardItemModel() const;
 
@@ -76,16 +77,18 @@ signals:
 private: //functions
     void updateModel();
     void searchForComponentAndAddToList(const ModelNode &node);
-    void searchForComponentAndRemoveFromList(const ModelNode &node);
-    void removeSingleNodeFromList(const ModelNode &node);
+    void removeFromListRecursive(const ModelNode &node);
+    void removeNodeFromList(const ModelNode &node);
+    void addNodeToList(const ModelNode &node);
     int indexForNode(const ModelNode &node) const;
     int indexOfMaster() const;
     bool hasMasterEntry() const;
     bool hasEntryForNode(const ModelNode &node) const;
-    void addMasterDocument();
-    void removeMasterDocument();
+    void ensureMasterDocument();
+    void maybeRemoveMasterDocument();
     QString descriptionForNode(const ModelNode &node) const;
     void updateDescription(const ModelNode &node);
+    bool isSubComponentNode(const ModelNode &node) const;
 
 private:
     QStandardItemModel *m_standardItemModel;

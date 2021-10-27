@@ -27,9 +27,10 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QObject>
 #include <QHash>
-#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QDir;
@@ -57,8 +58,8 @@ private:
     Q_INVOKABLE void onLoadPluginTypes(const QString &libraryPath, const QString &importPath,
                                        const QString &importUri, const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
-    void qmlPluginTypeDumpDone(int exitCode);
-    void qmlPluginTypeDumpError(QProcess::ProcessError error);
+    void qmlPluginTypeDumpDone(Utils::QtcProcess *process);
+    void qmlPluginTypeDumpError(Utils::QtcProcess *process);
     void pluginChanged(const QString &pluginLibrary);
 
 private:
@@ -87,7 +88,8 @@ private:
         QList<LanguageUtils::FakeMetaObject::ConstPtr> objects;
     };
 
-    void runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info, const QStringList &arguments, const QString &importPath);
+    void runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info, const QStringList &arguments,
+                    const Utils::FilePath &importPath);
     void dump(const Plugin &plugin);
     QFuture<QmlTypeDescription> loadQmlTypeDescription(const QStringList &path) const;
     QString buildQmltypesPath(const QString &name) const;
@@ -116,7 +118,7 @@ private:
 
     ModelManagerInterface *m_modelManager;
     Utils::FileSystemWatcher *m_pluginWatcher;
-    QHash<QProcess *, QString> m_runningQmldumps;
+    QHash<Utils::QtcProcess *, QString> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<QString, int> m_libraryToPluginIndex;
     QHash<QString, QmlJS::ModelManagerInterface::ProjectInfo> m_qtToInfo;

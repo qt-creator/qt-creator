@@ -27,6 +27,7 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 #include "mcusupportplugin.h"
+#include "mcusupportcmakemapper.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
@@ -70,7 +71,7 @@ using namespace Utils;
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 8; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 9; // Bumps up whenever details in Kit creation change
 
 static FilePath packagePathFromSettings(const QString &settingsKey,
                                         QSettings::Scope scope = QSettings::UserScope,
@@ -97,6 +98,22 @@ static bool kitNeedsQtVersion()
     // Only on Windows, Qt is linked into the distributed qul Desktop libs. Also, the host tools
     // are missing the Qt runtime libraries on non-Windows.
     return !HostOsInfo::isWindowsHost();
+}
+
+static void remapQul2xCmakeVars(Kit *kit, const EnvironmentItems &envItems)
+{
+    using namespace CMakeProjectManager;
+    const auto cmakeVars = mapEnvVarsToQul2xCmakeVars(envItems);
+    const auto cmakeVarNames = Utils::transform(cmakeVars, &CMakeConfigItem::key);
+
+    // First filter out all Qul2.x CMake vars
+    auto config = Utils::filtered(CMakeConfigurationKitAspect::configuration(kit),
+                                  [&](const auto &configItem) {
+        return !cmakeVarNames.contains(configItem.key);
+    });
+    // Then append them with new values
+    config.append(cmakeVars);
+    CMakeConfigurationKitAspect::setConfiguration(kit, config);
 }
 
 McuPackage::McuPackage(const QString &label, const FilePath &defaultPath,
@@ -231,7 +248,7 @@ bool McuPackage::writeToSettings() const
     const FilePath savedPath = packagePathFromSettings(m_settingsKey, QSettings::UserScope, m_defaultPath);
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
-    Core::ICore::settings()->setValueWithDefault(key, m_path, m_defaultPath);
+    Core::ICore::settings()->setValueWithDefault(key, m_path.toString(), m_defaultPath.toString());
 
     return savedPath != m_path;
 }
@@ -573,6 +590,14 @@ void McuTarget::setColorDepth(int colorDepth)
     m_colorDepth = colorDepth;
 }
 
+void McuSdkRepository::deletePackagesAndTargets()
+{
+    qDeleteAll(packages);
+    packages.clear();
+    qDeleteAll(mcuTargets);
+    mcuTargets.clear();
+}
+
 McuSupportOptions::McuSupportOptions(QObject *parent)
     : QObject(parent)
     , qtForMCUsSdkPackage(Sdk::createQtForMCUsPackage())
@@ -635,14 +660,6 @@ void McuSupportOptions::registerExamples()
     }
 }
 
-void McuSupportOptions::deletePackagesAndTargets()
-{
-    qDeleteAll(packages);
-    packages.clear();
-    qDeleteAll(mcuTargets);
-    mcuTargets.clear();
-}
-
 const QVersionNumber &McuSupportOptions::minimalQulVersion()
 {
     static const QVersionNumber v({1, 3});
@@ -654,8 +671,8 @@ void McuSupportOptions::setQulDir(const FilePath &dir)
     deletePackagesAndTargets();
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->validStatus())
-        Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
-    for (auto package : qAsConst(packages))
+        Sdk::targetsAndPackages(dir, &sdkRepository);
+    for (const auto &package : qAsConst(sdkRepository.packages))
         connect(package, &McuPackage::changed, this, &McuSupportOptions::changed);
 
     emit changed();
@@ -736,6 +753,11 @@ static void setKitDevice(Kit *k, const McuTarget* mcuTarget)
     DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
 }
 
+static bool expectsCmakeVars(const McuTarget *mcuTarget)
+{
+    return mcuTarget->qulVersion() >= QVersionNumber{2,0};
+}
+
 static void setKitEnvironment(Kit *k, const McuTarget *mcuTarget,
                               const McuPackage *qtForMCUsSdkPackage)
 {
@@ -769,6 +791,11 @@ static void setKitEnvironment(Kit *k, const McuTarget *mcuTarget,
 
     if (kitNeedsQtVersion())
         changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
+
+    // Hack, this problem should be solved in lower layer
+    if (expectsCmakeVars(mcuTarget)) {
+        remapQul2xCmakeVars(k, changes);
+    }
 
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
@@ -810,6 +837,11 @@ static void updateKitEnvironment(Kit *k, const McuTarget *mcuTarget)
             else
                 changes.append(item);
         }
+    }
+
+    // Hack, this problem should be solved in lower layer
+    if (expectsCmakeVars(mcuTarget)) {
+        remapQul2xCmakeVars(k, changes);
     }
 
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
@@ -1015,6 +1047,11 @@ bool McuSupportOptions::kitUpToDate(const Kit *kit, const McuTarget *mcuTarget,
             kitDependencyPath(kit, qtForMCUsSdkPackage->environmentVariableName()) == qtForMCUsSdkPackage->path();
 }
 
+void McuSupportOptions::deletePackagesAndTargets()
+{
+    sdkRepository.deletePackagesAndTargets();
+}
+
 McuSupportOptions::UpgradeOption McuSupportOptions::askForKitUpgrades()
 {
     QMessageBox upgradePopup(Core::ICore::dialogParent());
@@ -1076,12 +1113,11 @@ void McuSupportOptions::createAutomaticKits()
         }
 
         FilePath dir = qtForMCUsPackage->path();
-        QVector<McuPackage*> packages;
-        QVector<McuTarget*> mcuTargets;
-        Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
+        McuSdkRepository repo;
+        Sdk::targetsAndPackages(dir, &repo);
 
         bool needsUpgrade = false;
-        for (auto target: qAsConst(mcuTargets)) {
+        for (const auto &target: qAsConst(repo.mcuTargets)) {
             // if kit already exists, skip
             if (!matchingKits(target, qtForMCUsPackage).empty())
                 continue;
@@ -1096,8 +1132,7 @@ void McuSupportOptions::createAutomaticKits()
             }
         }
 
-        qDeleteAll(packages);
-        qDeleteAll(mcuTargets);
+        repo.deletePackagesAndTargets();
 
         if (needsUpgrade)
             McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade();
@@ -1110,10 +1145,10 @@ void McuSupportOptions::createAutomaticKits()
 
 void McuSupportOptions::checkUpgradeableKits()
 {
-    if (!qtForMCUsSdkPackage->validStatus() || mcuTargets.length() == 0)
+    if (!qtForMCUsSdkPackage->validStatus() || sdkRepository.mcuTargets.length() == 0)
         return;
 
-    if (Utils::anyOf(mcuTargets, [this](const McuTarget *target) {
+    if (Utils::anyOf(sdkRepository.mcuTargets, [this](const McuTarget *target) {
                      return !upgradeableKits(target, this->qtForMCUsSdkPackage).empty() &&
                      matchingKits(target, this->qtForMCUsSdkPackage).empty();
         }))
@@ -1128,11 +1163,10 @@ void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
     auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
 
     auto dir = qtForMCUsPackage->path();
-    QVector<McuPackage*> packages;
-    QVector<McuTarget*> mcuTargets;
-    Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
+    McuSdkRepository repo;
+    Sdk::targetsAndPackages(dir, &repo);
 
-    for (auto target: qAsConst(mcuTargets)) {
+    for (const auto &target: qAsConst(repo.mcuTargets)) {
         if (!matchingKits(target, qtForMCUsPackage).empty())
             // already up-to-date
             continue;
@@ -1149,8 +1183,7 @@ void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
         }
     }
 
-    qDeleteAll(packages);
-    qDeleteAll(mcuTargets);
+    repo.deletePackagesAndTargets();
     delete qtForMCUsPackage;
 }
 
@@ -1166,10 +1199,9 @@ void McuSupportOptions::fixKitsDependencies()
     auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
 
     FilePath dir = qtForMCUsPackage->path();
-    QVector<McuPackage*> packages;
-    QVector<McuTarget*> mcuTargets;
-    Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
-    for (auto target: qAsConst(mcuTargets)) {
+    McuSdkRepository repo;
+    Sdk::targetsAndPackages(dir, &repo);
+    for (const auto &target: qAsConst(repo.mcuTargets)) {
         if (target->isValid()) {
             for (auto kit : kitsWithMismatchedDependencies(target)) {
                 updateKitEnvironment(kit, target);
@@ -1177,8 +1209,7 @@ void McuSupportOptions::fixKitsDependencies()
         }
     }
 
-    qDeleteAll(packages);
-    qDeleteAll(mcuTargets);
+    repo.deletePackagesAndTargets();
     delete qtForMCUsPackage;
 }
 
@@ -1242,18 +1273,16 @@ void McuSupportOptions::fixExistingKits()
     qtForMCUsPackage->updateStatus();
     if (qtForMCUsPackage->validStatus()) {
         FilePath dir = qtForMCUsPackage->path();
-        QVector<McuPackage*> packages;
-        QVector<McuTarget*> mcuTargets;
-        Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
-        for (auto target: qAsConst(mcuTargets))
+        McuSdkRepository repo;
+        Sdk::targetsAndPackages(dir, &repo);
+        for (const auto &target: qAsConst(repo.mcuTargets))
             for (auto kit: existingKits(target)) {
                 if (McuDependenciesKitAspect::dependencies(kit).isEmpty()) {
                     setKitDependencies(kit, target, qtForMCUsPackage);
                 }
             }
 
-        qDeleteAll(packages);
-        qDeleteAll(mcuTargets);
+        repo.deletePackagesAndTargets();
     }
     delete qtForMCUsPackage;
 }

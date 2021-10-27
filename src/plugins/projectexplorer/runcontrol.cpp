@@ -1219,17 +1219,14 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
 
         connect(&m_launcher, &ApplicationLauncher::processExited,
             this, [this, runnable](int exitCode, QProcess::ExitStatus status) {
-            QString msg;
-            if (status == QProcess::CrashExit)
-                msg = tr("%1 crashed.");
-            else
-                msg = tr("%2 exited with code %1").arg(exitCode);
+            if (m_stopReported)
+                return;
+            const QString msg = (status == QProcess::CrashExit)
+                    ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(exitCode);
             const QString displayName = runnable.command.executable().toUserOutput();
             appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
-            if (!m_stopReported) {
-                m_stopReported = true;
-                reportStopped();
-            }
+            m_stopReported = true;
+            reportStopped();
         });
 
         connect(&m_launcher, &ApplicationLauncher::error,

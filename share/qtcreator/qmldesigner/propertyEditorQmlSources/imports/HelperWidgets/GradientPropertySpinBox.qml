@@ -33,12 +33,12 @@ Item {
     property string propertyName
 
     property alias decimals: spinBox.decimals
-
     property alias value: spinBox.realValue
-
     property alias minimumValue: spinBox.realFrom
     property alias maximumValue: spinBox.realTo
     property alias stepSize: spinBox.realStepSize
+
+    property alias pixelsPerUnit: spinBox.pixelsPerUnit
 
     width: 90
     implicitHeight: spinBox.height
@@ -51,6 +51,8 @@ Item {
 
     StudioControls.RealSpinBox {
         id: spinBox
+
+        __devicePixelRatio: devicePixelRatio()
 
         width: wrapper.width
         actionIndicatorVisible: false

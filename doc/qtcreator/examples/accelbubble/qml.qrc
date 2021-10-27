@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>Bluebubble.svg</file>
-        <file>Bubble.qml</file>
-    </qresource>
-</RCC>

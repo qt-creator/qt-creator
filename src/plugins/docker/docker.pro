@@ -6,7 +6,6 @@ SOURCES += \
     dockerbuildstep.cpp \
     dockerdevice.cpp \
     dockerplugin.cpp \
-    dockerrunconfiguration.cpp \
     dockersettings.cpp
 
 HEADERS += \
@@ -15,5 +14,4 @@ HEADERS += \
     dockerconstants.h \
     dockerdevice.h \
     dockerplugin.h \
-    dockerrunconfiguration.h \
     dockersettings.h

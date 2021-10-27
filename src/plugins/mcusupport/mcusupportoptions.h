@@ -200,6 +200,15 @@ private:
     int m_colorDepth = -1;
 };
 
+class McuSdkRepository
+{
+public:
+    QVector<McuPackage*> packages;
+    QVector<McuTarget*> mcuTargets;
+
+    void deletePackagesAndTargets();
+};
+
 class McuSupportOptions : public QObject
 {
     Q_OBJECT
@@ -214,9 +223,8 @@ public:
     McuSupportOptions(QObject *parent = nullptr);
     ~McuSupportOptions() override;
 
-    QVector<McuPackage*> packages;
-    QVector<McuTarget*> mcuTargets;
     McuPackage *qtForMCUsSdkPackage = nullptr;
+    McuSdkRepository sdkRepository;
 
     void setQulDir(const Utils::FilePath &dir);
     static Utils::FilePath qulDirFromSettings();
