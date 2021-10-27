@@ -69,6 +69,7 @@ static QString clangdSettingsKey() { return QLatin1String("ClangdSettings"); }
 static QString useClangdKey() { return QLatin1String("UseClangd"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
+static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderInsertion"); }
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
@@ -405,6 +406,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     if (executableFilePath != fallbackClangdFilePath())
         map.insert(clangdPathKey(), executableFilePath.toString());
     map.insert(clangdIndexingKey(), enableIndexing);
+    map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
     return map;
@@ -415,6 +417,7 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     useClangd = map.value(useClangdKey(), false).toBool();
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
     enableIndexing = map.value(clangdIndexingKey(), true).toBool();
+    autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
 }
