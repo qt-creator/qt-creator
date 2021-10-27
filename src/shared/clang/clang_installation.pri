@@ -252,8 +252,7 @@ isEmpty(LLVM_VERSION) {
     # It is not intended for cross compiler linking.
     LLVM_CXXFLAGS *= $$system($$llvm_config --cxxflags, lines)
     LLVM_CXXFLAGS ~= s,-fno-exceptions,
-    LLVM_CXXFLAGS ~= s,-std=c++11,
-    LLVM_CXXFLAGS ~= s,-std=c++0x,
+    LLVM_CXXFLAGS ~= s,-std.c\+\+..,
     LLVM_CXXFLAGS ~= s,-O\S*,
     LLVM_CXXFLAGS ~= s,/O\S*,
     LLVM_CXXFLAGS ~= s,/W4,
