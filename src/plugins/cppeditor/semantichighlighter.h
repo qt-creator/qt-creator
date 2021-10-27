@@ -48,6 +48,7 @@ public:
     enum Kind {
         Unknown = 0,
         TypeUse,
+        NamespaceUse,
         LocalUse,
         FieldUse,
         EnumerationUse,

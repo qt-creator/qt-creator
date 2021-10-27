@@ -477,7 +477,7 @@ bool CheckSymbols::visit(NamespaceAST *ast)
         if (!tok.generated()) {
             int line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
-            Result use(line, column, tok.utf16chars(), SemanticHighlighter::TypeUse);
+            Result use(line, column, tok.utf16chars(), SemanticHighlighter::NamespaceUse);
             addUse(use);
         }
     }
@@ -1221,7 +1221,15 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
     int line, column;
     getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.utf16chars();
-    const Result use(line, column, length, SemanticHighlighter::TypeUse);
+    Kind kind = SemanticHighlighter::TypeUse;
+    const QList<Symbol *> &symbols = b->symbols();
+    for (const Symbol * const s : symbols) {
+        if (s->isNamespace()) {
+            kind = SemanticHighlighter::NamespaceUse;
+            break;
+        }
+    }
+    const Result use(line, column, length, kind);
     addUse(use);
 }
 
@@ -1266,6 +1274,8 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
             Kind kind = SemanticHighlighter::TypeUse;
             if (c->enclosingEnum() != nullptr)
                 kind = SemanticHighlighter::EnumerationUse;
+            else if (c->isNamespace())
+                kind = SemanticHighlighter::NamespaceUse;
             else if (c->isStatic())
                 // treat static variable as a field(highlighting)
                 kind = SemanticHighlighter::FieldUse;

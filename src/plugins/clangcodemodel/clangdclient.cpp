@@ -2452,7 +2452,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         } else if (token.type == "comment") { // "comment" means code disabled via the preprocessor
             styles.mainStyle = C_DISABLED_CODE;
         } else if (token.type == "namespace") {
-            styles.mainStyle = C_TYPE;
+            styles.mainStyle = C_NAMESPACE;
         } else if (token.type == "property") {
             styles.mainStyle = C_FIELD;
         } else if (token.type == "enum") {

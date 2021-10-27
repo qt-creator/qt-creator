@@ -417,6 +417,10 @@ bool FontSettings::loadColorScheme(const QString &fileName,
     foreach (const FormatDescription &desc, descriptions) {
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
+            if (id == C_NAMESPACE && m_scheme.contains(C_TYPE)) {
+                m_scheme.setFormatFor(C_NAMESPACE, m_scheme.formatFor(C_TYPE));
+                continue;
+            }
             Format format;
             const Format &descFormat = desc.format();
             // Default fallback for background and foreground is C_TEXT, which is set through

@@ -316,6 +316,7 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
     const FontSettings &fs = m_baseTextDocument->fontSettings();
 
     m_formatMap[TypeUse] = fs.toTextCharFormat(C_TYPE);
+    m_formatMap[NamespaceUse] = fs.toTextCharFormat(C_NAMESPACE);
     m_formatMap[LocalUse] = fs.toTextCharFormat(C_LOCAL);
     m_formatMap[FieldUse] = fs.toTextCharFormat(C_FIELD);
     m_formatMap[EnumerationUse] = fs.toTextCharFormat(C_ENUMERATION);

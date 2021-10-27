@@ -764,12 +764,12 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("struct declaration") << 50 << 8 << 50 << 11
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("namespace declaration") << 160 << 11 << 160 << 20
-        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+        << QList<int>{C_NAMESPACE, C_DECLARATION} << 0;
     QTest::newRow("namespace alias declaration") << 164 << 11 << 164 << 25
-        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+        << QList<int>{C_NAMESPACE, C_DECLARATION} << 0;
     QTest::newRow("struct in namespaced using declaration") << 165 << 18 << 165 << 35
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("namespace reference") << 166 << 1 << 166 << 10 << QList<int>{C_TYPE} << 0;
+    QTest::newRow("namespace reference") << 166 << 1 << 166 << 10 << QList<int>{C_NAMESPACE} << 0;
     QTest::newRow("namespaced struct in global variable declaration") << 166 << 12 << 166 << 29
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("virtual function declaration") << 170 << 18 << 170 << 33
@@ -992,7 +992,8 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("class template instantiation (closing angle bracket)") << 384 << 22 << 384 << 23
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
-    QTest::newRow("namespace in declaration") << 413 << 4 << 413 << 26 << QList<int>{C_TYPE} << 0;
+    QTest::newRow("namespace in declaration") << 413 << 4 << 413 << 26
+                                              << QList<int>{C_NAMESPACE} << 0;
     QTest::newRow("namespaced class in declaration") << 413 << 28 << 413 << 41
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("class as template argument in declaration") << 413 << 42 << 413 << 52
@@ -1163,14 +1164,14 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("reference to global variable") << 764 << 5 << 764 << 14
         << QList<int>{C_GLOBAL} << 0;
     QTest::newRow("nested template instantiation (namespace 1)") << 773 << 8 << 773 << 11
-        << QList<int>{C_TYPE} << 0;
+        << QList<int>{C_NAMESPACE} << 0;
     QTest::newRow("nested template instantiation (type 1)") << 773 << 13 << 773 << 19
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("nested template instantiation (opening angle bracket 1)")
         << 773 << 19 << 773 << 20
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("nested template instantiation (namespace 2)") << 773 << 20 << 773 << 23
-        << QList<int>{C_TYPE} << 0;
+        << QList<int>{C_NAMESPACE} << 0;
     QTest::newRow("nested template instantiation (type 2)") << 773 << 25 << 773 << 29
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("nested template instantiation (opening angle bracket 2)")

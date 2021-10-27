@@ -54,6 +54,7 @@ enum TextStyle : quint8 {
     C_NUMBER,
     C_STRING,
     C_TYPE,
+    C_NAMESPACE,
     C_LOCAL,
     C_PARAMETER,
     C_GLOBAL,

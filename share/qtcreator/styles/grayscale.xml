@@ -35,6 +35,7 @@
   <style name="String" foreground="#636363"/>
   <style name="Text" foreground="#000000" background="#ffffff"/>
   <style name="Type"/>
+  <style name="Namespace"/>
   <style name="VirtualMethod" italic="true"/>
   <style name="Occurrences.Unused" underlineColor="#8F8F8F" underlineStyle="SingleUnderline"/>
   <style name="Warning" underlineColor="#505050" underlineStyle="SingleUnderline"/>
