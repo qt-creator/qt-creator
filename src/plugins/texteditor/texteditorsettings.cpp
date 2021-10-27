@@ -361,6 +361,10 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Writable arguments of a function call."),
                              outputArgumentFormat,
                              FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_STATIC_MEMBER,
+                             tr("Static Member"),
+                             tr("Names of static fields or member functions."),
+                             FormatDescription::ShowAllControls);
 
     return formatDescr;
 }

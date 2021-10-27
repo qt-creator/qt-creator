@@ -2463,6 +2463,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         }
         if (token.modifiers.contains("declaration"))
             styles.mixinStyles.push_back(C_DECLARATION);
+        if (token.modifiers.contains("static"))
+            styles.mixinStyles.push_back(C_STATIC_MEMBER);
         if (isOutputParameter(token))
             styles.mixinStyles.push_back(C_OUTPUT_ARGUMENT);
         qCDebug(clangdLogHighlight) << "adding highlighting result"

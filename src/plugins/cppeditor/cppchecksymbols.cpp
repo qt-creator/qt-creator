@@ -1305,7 +1305,8 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
         getTokenStartPosition(startToken, &line, &column);
         const unsigned length = tok.utf16chars();
 
-        const Result use(line, column, length, SemanticHighlighter::FieldUse);
+        const Result use(line, column, length, c->isStatic()
+                         ? SemanticHighlighter::StaticFieldUse : SemanticHighlighter::FieldUse);
         addUse(use);
 
         return true;
@@ -1359,12 +1360,15 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
             continue; // TODO: add diagnostic messages and color call-operators calls too?
 
         const bool isVirtual = funTy->isVirtual();
+        const bool isStaticMember = funTy->isStatic() && funTy->enclosingClass();
         Kind matchingKind;
         if (functionKind == FunctionDeclaration) {
             matchingKind = isVirtual ? SemanticHighlighter::VirtualFunctionDeclarationUse
+                                     : isStaticMember ? SemanticHighlighter::StaticMethodDeclarationUse
                                      : SemanticHighlighter::FunctionDeclarationUse;
         } else {
             matchingKind = isVirtual ? SemanticHighlighter::VirtualMethodUse
+                                     : isStaticMember ? SemanticHighlighter::StaticMethodUse
                                      : SemanticHighlighter::FunctionUse;
         }
         if (argumentCount < funTy->minimumArgumentCount()) {

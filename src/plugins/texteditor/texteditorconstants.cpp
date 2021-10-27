@@ -114,6 +114,7 @@ const char *nameForStyle(TextStyle style)
     case C_DECLARATION:         return "Declaration";
     case C_FUNCTION_DEFINITION: return "FunctionDefinition";
     case C_OUTPUT_ARGUMENT:     return "OutputArgument";
+    case C_STATIC_MEMBER:       return "StaticMember";
 
     case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
     }

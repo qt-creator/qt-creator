@@ -1099,9 +1099,9 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("local variable captured by lambda") << 442 << 24 << 442 << 27
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("static protected member") << 693 << 16 << 693 << 30
-        << QList<int>{C_FIELD, C_DECLARATION} << 0;
+        << QList<int>{C_FIELD, C_DECLARATION, C_STATIC_MEMBER} << 0;
     QTest::newRow("static private member") << 696 << 16 << 696 << 28
-        << QList<int>{C_FIELD, C_DECLARATION} << 0;
+        << QList<int>{C_FIELD, C_DECLARATION, C_STATIC_MEMBER} << 0;
     QTest::newRow("alias template declaration (opening angle bracket)") << 700 << 10 << 700 << 11
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("alias template declaration (closing angle bracket)") << 700 << 16 << 700 << 17

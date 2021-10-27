@@ -72,6 +72,9 @@ static QString useKindToString(UseKind useKind)
     CASE_STR(FunctionUse);
     CASE_STR(FunctionDeclarationUse);
     CASE_STR(PseudoKeywordUse);
+    CASE_STR(StaticFieldUse);
+    CASE_STR(StaticMethodUse);
+    CASE_STR(StaticMethodDeclarationUse);
     default:
         QTest::qFail("Unknown UseKind", __FILE__, __LINE__);
         return QLatin1String("Unknown UseKind");
@@ -361,21 +364,21 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 5, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FieldUse)
+            << Use(3, 16, 3, Highlighting::StaticFieldUse)
             << Use(4, 12, 5, Highlighting::TypeUse)
             << Use(6, 9, 5, Highlighting::TypeUse)
             << Use(6, 16, 5, Highlighting::FieldUse)
             << Use(7, 14, 3, Highlighting::FunctionDeclarationUse)
             << Use(11, 5, 5, Highlighting::TypeUse)
-            << Use(11, 12, 3, Highlighting::FieldUse)
+            << Use(11, 12, 3, Highlighting::FieldUse) // FIXME: Should be StaticField
             << Use(13, 6, 5, Highlighting::TypeUse)
             << Use(13, 13, 5, Highlighting::TypeUse)
             << Use(13, 20, 3, Highlighting::FunctionDeclarationUse)
-            << Use(15, 5, 3, Highlighting::FieldUse)
+            << Use(15, 5, 3, Highlighting::StaticFieldUse)
             << Use(16, 5, 5, Highlighting::TypeUse)
-            << Use(16, 12, 3, Highlighting::FieldUse)
+            << Use(16, 12, 3, Highlighting::FieldUse) // FIXME: Should be StaticField
             << Use(17, 5, 5, Highlighting::FieldUse)
-            << Use(17, 12, 3, Highlighting::FieldUse));
+            << Use(17, 12, 3, Highlighting::StaticFieldUse));
 
     QTest::newRow("VariableHasTheSameNameAsEnumUse")
         << _("struct Foo\n"
@@ -443,11 +446,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 9, 3, Highlighting::LocalUse)
             << Use(8, 15, 3, Highlighting::TypeUse)
-            << Use(8, 20, 3, Highlighting::FunctionUse));
+            << Use(8, 20, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("8902_staticFunctionHighlightingAsMember_functionArgument")
         << _("struct Foo\n"
@@ -461,11 +464,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(6, 14, 3, Highlighting::LocalUse)
             << Use(8, 5, 3, Highlighting::TypeUse)
-            << Use(8, 10, 3, Highlighting::FunctionUse));
+            << Use(8, 10, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("8902_staticFunctionHighlightingAsMember_templateParameter")
         << _("struct Foo\n"
@@ -480,11 +483,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 17, 3, Highlighting::TypeUse)
             << Use(7, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(9, 5, 3, Highlighting::TypeUse)
-            << Use(9, 10, 3, Highlighting::FunctionUse));
+            << Use(9, 10, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("staticFunctionHighlightingAsMember_struct")
         << _("struct Foo\n"
@@ -499,11 +502,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 8, 3, Highlighting::TypeUse)
             << Use(7, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(9, 5, 3, Highlighting::TypeUse)
-            << Use(9, 10, 3, Highlighting::FunctionUse));
+            << Use(9, 10, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("QTCREATORBUG8890_danglingPointer")
         << _("template<class T> class QList {\n"
@@ -569,13 +572,13 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 17, 1, Highlighting::TypeUse)
             << Use(2, 7, 9, Highlighting::TypeUse)
             << Use(5, 12, 1, Highlighting::TypeUse)
-            << Use(5, 15, 8, Highlighting::FunctionDeclarationUse)
+            << Use(5, 15, 8, Highlighting::StaticMethodDeclarationUse)
             << Use(8, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(10, 6, 3, Highlighting::FunctionDeclarationUse);
     for (int i = 0; i < 250; ++i) {
         excessiveUses
                 << Use(12 + i, 5, 9, Highlighting::TypeUse)
-                << Use(12 + i, 28, 8, Highlighting::FunctionUse);
+                << Use(12 + i, 28, 8, Highlighting::StaticMethodUse);
     }
     QTest::newRow("QTCREATORBUG8974_danglingPointer")
         << excessive
