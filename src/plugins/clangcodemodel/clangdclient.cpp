@@ -27,6 +27,7 @@
 
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdiagnosticmanager.h"
+#include "clangmodelmanagersupport.h"
 #include "clangpreprocessorassistproposalitem.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
@@ -654,6 +655,7 @@ public:
                      bool openInSplit)
         : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
           callback(std::move(callback)), virtualFuncAssistProvider(q->d),
+          docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
           openInSplit(openInSplit) {}
 
     ~FollowSymbolData()
@@ -678,6 +680,8 @@ public:
         openedFiles.clear();
     }
 
+    bool defLinkIsAmbiguous() const;
+
     ClangdClient * const q;
     const quint64 id;
     const QTextCursor cursor;
@@ -688,6 +692,7 @@ public:
     QList<MessageId> pendingSymbolInfoRequests;
     QList<MessageId> pendingGotoImplRequests;
     QList<MessageId> pendingGotoDefRequests;
+    const int docRevision;
     const bool openInSplit;
 
     Utils::Link defLink;
@@ -1059,6 +1064,10 @@ public:
     //  The highlighters are owned by their respective documents.
     std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
 
+    // The ranges of symbols referring to virtual functions, with document version,
+    // as extracted by the highlighting procedure.
+    QHash<TextDocument *, QPair<QList<Range>, int>> virtualRanges;
+
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
     TaskTimer highlightingTimer{"highlighting"};
@@ -1366,6 +1375,7 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
 {
     d->highlighters.erase(doc);
     d->astCache.remove(doc);
+    d->virtualRanges.remove(doc);
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -1996,6 +2006,14 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
     d->getAndHandleAst(doc, astHandler, Private::AstCallbackMode::SyncIfPossible);
 }
 
+void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList<Range> &ranges,
+                                    int revision)
+{
+    TextDocument * const doc = documentForFilePath(filePath);
+    if (doc && doc->document()->revision() == revision)
+        d->virtualRanges.insert(doc, {ranges, revision});
+}
+
 void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
@@ -2003,8 +2021,7 @@ void ClangdClient::Private::handleGotoDefinitionResult()
     qCDebug(clangdLog) << "handling go to definition result";
 
     // No dis-ambiguation necessary. Call back with the link and finish.
-    if (!followSymbolData->cursorNode->mightBeAmbiguousVirtualCall()
-            && !followSymbolData->cursorNode->isPureVirtualDeclaration()) {
+    if (!followSymbolData->defLinkIsAmbiguous()) {
         followSymbolData->callback(followSymbolData->defLink);
         followSymbolData.reset();
         return;
@@ -2491,6 +2508,20 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
     ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
+        QList<Range> virtualRanges;
+        for (const HighlightingResult &r : results) {
+            if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)
+                continue;
+            const Position startPos(r.line - 1, r.column - 1);
+            virtualRanges << Range(startPos, startPos.withOffset(r.length, &doc));
+        }
+        QMetaObject::invokeMethod(ClangModelManagerSupport::instance(),
+                                  [filePath, virtualRanges, docRevision] {
+            if (ClangdClient * const client
+                    = ClangModelManagerSupport::instance()->clientForFile(filePath)) {
+                client->setVirtualRanges(filePath, virtualRanges, docRevision);
+            }
+        }, Qt::QueuedConnection);
         future.reportResults(QVector<HighlightingResult>(results.cbegin(),
                                                                      results.cend()));
     }
@@ -3461,6 +3492,24 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
         break;
     }
     }
+}
+
+bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
+{
+    // If we have up-to-date highlighting info, we can give a definite answer.
+    if (editorWidget) {
+        const auto virtualRanges = q->d->virtualRanges.constFind(editorWidget->textDocument());
+        if (virtualRanges != q->d->virtualRanges.constEnd()
+                && virtualRanges->second == docRevision) {
+            const auto matcher = [cursorRange = cursorNode->range()](const Range &r) {
+                return cursorRange.overlaps(r);
+            };
+            return Utils::contains(virtualRanges->first, matcher);
+        }
+    }
+
+    // Otherwise, we have to rely on AST-based heuristics.
+    return cursorNode->mightBeAmbiguousVirtualCall() || cursorNode->isPureVirtualDeclaration();
 }
 
 } // namespace Internal
