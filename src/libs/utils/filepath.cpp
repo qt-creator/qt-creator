@@ -819,15 +819,6 @@ FilePath FilePath::symLinkTarget() const
     return FilePath::fromString(info.symLinkTarget());
 }
 
-FilePath FilePath::mapToGlobalPath() const
-{
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.mapToGlobalPath, return {});
-        return s_deviceHooks.mapToGlobalPath(*this);
-    }
-    return *this;
-}
-
 QString FilePath::mapToDevicePath() const
 {
     if (needsDevice()) {
@@ -1182,11 +1173,11 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
-    if (!deviceTemplate.needsDevice())
-        return mapToGlobalPath();
     const bool sameDevice = m_scheme == deviceTemplate.m_scheme && m_host == deviceTemplate.m_host;
+    if (sameDevice)
+        return *this;
     // TODO: converting paths between different non local devices is still unsupported
-    QTC_CHECK(!needsDevice() || sameDevice);
+    QTC_CHECK(!needsDevice());
     FilePath res;
     res.m_scheme = deviceTemplate.m_scheme;
     res.m_host = deviceTemplate.m_host;
