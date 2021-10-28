@@ -172,6 +172,7 @@ def cleanUpUserFiles(pathsToProFiles=None):
             doneWithoutErrors = False
     return doneWithoutErrors
 
+
 def invokeMenuItem(menu, item, *subItems):
     if platform.system() == "Darwin":
         try:
@@ -191,10 +192,9 @@ def invokeMenuItem(menu, item, *subItems):
     activateItem(itemObject)
     numberedPrefix = "(&\\d \| )?"
     for subItem in subItems:
-        sub = itemObject.menu()
-        waitFor("sub.visible", 1000)
         # we might have numbered sub items (e.g. "Recent Files") - these have this special prefix
         if subItem.startswith(numberedPrefix):
+             # TODO: Find fix for Qt 6
             actions = sub.actions()
             triggered = False
             for i in range(actions.count()):
@@ -211,8 +211,9 @@ def invokeMenuItem(menu, item, *subItems):
                           "Function arguments: '%s', '%s', %s" % (menu, item, str(subItems)))
                 break # we failed to trigger - no need to process subItems further
         else:
-            itemObject = waitForObjectItem(sub, subItem)
+            itemObject = waitForObjectItem(itemObject, subItem)
             activateItem(itemObject)
+
 
 def logApplicationOutput():
     # make sure application output is shown

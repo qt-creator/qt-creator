@@ -1040,7 +1040,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("typedef as underlying type in enum declaration") << 424 << 21 << 424 << 39
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("argument to user-defined subscript operator") << 434 << 12 << 434 << 17
-        << QList<int>{C_PARAMETER} << 0;
+        << QList<int>{C_PARAMETER, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("partial class template specialization") << 553 << 25 << 553 << 28
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("using declaration for function") << 556 << 10 << 556 << 13
@@ -1237,6 +1237,14 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("override attribute") << 186 << 28 << 186 << 36 << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("final attribute") << 187 << 33 << 187 << 38 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("non-const argument to named lambda") << 827 << 10 << 827 << 13
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("const argument to named lambda") << 828 << 10 << 828 << 13
+        << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("non-const argument to unnamed lambda") << 829 << 18 << 829 << 21
+        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("const argument to unnamed lambda") << 830 << 16 << 830 << 19
+        << QList<int>{C_LOCAL} << 0;
 }
 
 void ClangdTestHighlighting::test()

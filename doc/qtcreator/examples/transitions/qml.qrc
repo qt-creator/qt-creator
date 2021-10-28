@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>images/qt-logo.png</file>
-        <file>Page.qml</file>
-    </qresource>
-</RCC>

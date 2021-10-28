@@ -197,6 +197,7 @@ class ClangdSettingsWidget::Private
 public:
     QCheckBox useClangdCheckBox;
     QCheckBox indexingCheckBox;
+    QCheckBox autoIncludeHeadersCheckBox;
     QSpinBox threadLimitSpinBox;
     QSpinBox documentUpdateThreshold;
     Utils::PathChooser clangdChooser;
@@ -217,6 +218,9 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "If background indexing is enabled, global symbol searches will yield\n"
         "more accurate results, at the cost of additional CPU load when\n"
         "the project is first opened."));
+    d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
+    d->autoIncludeHeadersCheckBox.setToolTip(tr(
+        "Controls whether clangd may insert header files as part of symbol completion."));
     d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
     d->threadLimitSpinBox.setSpecialValueText("Automatic");
     d->documentUpdateThreshold.setMinimum(50);
@@ -237,6 +241,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     formLayout->addRow(QString(), &d->versionWarningLabel);
     const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
     formLayout->addRow(indexingLabel, &d->indexingCheckBox);
+    const auto autoIncludeHeadersLabel = new QLabel(tr("Insert header files on completion:"));
+    formLayout->addRow(autoIncludeHeadersLabel, &d->autoIncludeHeadersCheckBox);
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
@@ -255,6 +261,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         d->clangdChooser.setEnabled(checked);
         indexingLabel->setEnabled(checked);
         d->indexingCheckBox.setEnabled(checked);
+        autoIncludeHeadersLabel->setEnabled(checked);
+        d->autoIncludeHeadersCheckBox.setEnabled(checked);
         d->threadLimitSpinBox.setEnabled(checked);
         d->versionWarningLabel.setEnabled(checked);
     };
@@ -312,6 +320,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->indexingCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->threadLimitSpinBox, qOverload<int>(&QSpinBox::valueChanged),
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->clangdChooser, &Utils::PathChooser::pathChanged,
@@ -329,6 +339,7 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.useClangd = d->useClangdCheckBox.isChecked();
     data.executableFilePath = d->clangdChooser.filePath();
     data.enableIndexing = d->indexingCheckBox.isChecked();
+    data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();
     return data;

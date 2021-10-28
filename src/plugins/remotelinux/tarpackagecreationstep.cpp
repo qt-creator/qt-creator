@@ -87,11 +87,11 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Utils::Id id)
     m_incrementalDeploymentAspect->setSettingsKey(IncrementalDeploymentKey);
 
     setSummaryUpdater([this] {
-        QString path = packageFilePath();
+        FilePath path = packageFilePath();
         if (path.isEmpty())
             return QString("<font color=\"red\">" + tr("Tarball creation not possible.")
                            + "</font>");
-        return QString("<b>" + tr("Create tarball:") + "</b> " + path);
+        return QString("<b>" + tr("Create tarball:") + "</b> " + path.toUserOutput());
     });
 }
 
@@ -148,11 +148,12 @@ bool TarPackageCreationStep::doPackage()
     }
 
     // TODO: Optimization: Only package changed files
-    QFile tarFile(cachedPackageFilePath());
+    const FilePath tarFilePath = cachedPackageFilePath();
+    QFile tarFile(tarFilePath.toString());
 
     if (!tarFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         raiseError(tr("Error: tar file %1 cannot be opened (%2).")
-            .arg(QDir::toNativeSeparators(cachedPackageFilePath()), tarFile.errorString()));
+            .arg(tarFilePath.toUserOutput(), tarFile.errorString()));
         return false;
     }
 
@@ -311,7 +312,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     header.chksum[sizeof header.chksum-1] = 0;
     if (!tarFile.write(reinterpret_cast<char *>(&header), sizeof header)) {
         raiseError(tr("Error writing tar file \"%1\": %2")
-           .arg(QDir::toNativeSeparators(cachedPackageFilePath()), tarFile.errorString()));
+           .arg(cachedPackageFilePath().toUserOutput(), tarFile.errorString()));
         return false;
     }
     return true;

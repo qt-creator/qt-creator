@@ -4707,6 +4707,43 @@ N::S N::foo(const S &s)
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void QuickfixTest::testInsertDefFromDeclAliasTemplateAsReturnType()
+{
+    QList<TestDocumentPtr> testDocuments;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = R"(
+struct foo {
+    struct foo2 {
+        template <typename T> using MyType = T;
+        MyType<int> @bar();
+    };
+};
+)";
+    expected = original;
+    testDocuments << CppTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = R"(
+#include "file.h"
+)";
+    expected = R"(
+#include "file.h"
+
+foo::foo2::MyType<int> foo::foo2::bar()
+{
+
+}
+)";
+    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 void QuickfixTest::testInsertDefsFromDecls_data()
 {
     QTest::addColumn<QByteArrayList>("headers");

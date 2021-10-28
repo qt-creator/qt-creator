@@ -32,9 +32,9 @@
 #include <projectexplorer/task.h>
 
 #include <QDateTime>
-#include <QFileInfo>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -42,8 +42,8 @@ namespace Internal {
 class AbstractPackagingStepPrivate
 {
 public:
-    QString cachedPackageFilePath;
-    QString cachedPackageDirectory;
+    FilePath cachedPackageFilePath;
+    FilePath cachedPackageDirectory;
     bool deploymentDataModified = false;
 };
 
@@ -67,37 +67,37 @@ AbstractPackagingStep::~AbstractPackagingStep()
     delete d;
 }
 
-QString AbstractPackagingStep::cachedPackageFilePath() const
+FilePath AbstractPackagingStep::cachedPackageFilePath() const
 {
     return d->cachedPackageFilePath;
 }
 
-QString AbstractPackagingStep::packageFilePath() const
+FilePath AbstractPackagingStep::packageFilePath() const
 {
     if (packageDirectory().isEmpty())
-        return QString();
-    return packageDirectory() + QLatin1Char('/') + packageFileName();
+        return {};
+    return packageDirectory().pathAppended(packageFileName());
 }
 
-QString AbstractPackagingStep::cachedPackageDirectory() const
+FilePath AbstractPackagingStep::cachedPackageDirectory() const
 {
     return d->cachedPackageDirectory;
 }
 
-QString AbstractPackagingStep::packageDirectory() const
+FilePath AbstractPackagingStep::packageDirectory() const
 {
-    return buildDirectory().toString();
+    return buildDirectory();
 }
 
 bool AbstractPackagingStep::isPackagingNeeded() const
 {
-    QFileInfo packageInfo(packageFilePath());
-    if (!packageInfo.exists() || d->deploymentDataModified)
+    const FilePath packagePath = packageFilePath();
+    if (!packagePath.exists() || d->deploymentDataModified)
         return true;
 
     const DeploymentData &dd = target()->deploymentData();
     for (int i = 0; i < dd.fileCount(); ++i) {
-        if (dd.fileAt(i).localFilePath().isNewerThan(packageInfo.lastModified()))
+        if (dd.fileAt(i).localFilePath().isNewerThan(packagePath.lastModified()))
             return true;
     }
 

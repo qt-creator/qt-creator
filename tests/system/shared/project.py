@@ -276,11 +276,12 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
     if checks:
         __verifyFileCreation__(path, expectedFiles)
 
+
 def createNewQtQuickApplication(workingDir, projectName=None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.12",
-                                template="Qt Quick Application - Empty", fromWelcome=False,
+                                template="Qt Quick Application", fromWelcome=False,
                                 buildSystem=None):
-    available = __createProjectOrFileSelectType__("  Application (Qt Quick)", template, fromWelcome)
+    available = __createProjectOrFileSelectType__("  Application (Qt)", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)

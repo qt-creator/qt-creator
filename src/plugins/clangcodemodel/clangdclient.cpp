@@ -359,49 +359,89 @@ public:
     }
 };
 
-static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
+class AstPathCollector
 {
-    QList<AstNode> path;
-    QList<AstNode> queue{root};
-    bool isRoot = true;
+public:
+    AstPathCollector(const AstNode &root, const Range &range) : m_root(root), m_range(range) {}
 
-    while (!queue.isEmpty()) {
-        AstNode curNode = queue.takeFirst();
-        if (!isRoot && !curNode.hasRange())
-            continue;
-        if (curNode.range() == range)
-            return path << curNode;
-        if (isRoot || curNode.range().contains(range)) {
-            path << curNode;
-            const auto children = curNode.children();
-            if (!children)
-                break;
-            if (curNode.kind() == "Function" || curNode.role() == "expression") {
-                // Functions and expressions can contain implicit nodes that make the list unsorted.
-                // They cannot be ignored, as we need to consider them in certain contexts.
-                // Therefore, the binary search cannot be used here.
-                queue = *children;
-            } else {
-                queue.clear();
+    QList<AstNode> collectPath()
+    {
+        if (!m_root.isValid())
+            return {};
+        visitNode(m_root, true);
+        return m_done ? m_path : m_longestSubPath;
+    }
 
-                // Class and struct nodes can contain implicit constructors, destructors and
-                // operators, which appear at the end of the list, but whose range is the same
-                // as the class name. Therefore, we must force them not to compare less to
-                // anything else.
-                static const auto leftOfRange = [](const AstNode &node, const Range &range) {
-                    return node.range().isLeftOf(range) && !node.arcanaContains(" implicit ");
-                };
+private:
+    void visitNode(const AstNode &node, bool isRoot = false)
+    {
+        if (!isRoot && (!node.hasRange() || !node.range().contains(m_range)))
+            return;
+        m_path << node;
 
-                for (auto it = std::lower_bound(children->cbegin(), children->cend(), range,
-                                                leftOfRange);
-                     it != children->cend() && !range.isLeftOf(it->range()); ++it) {
-                    queue << *it;
-                }
+        class PathDropper {
+        public:
+            PathDropper(AstPathCollector &collector) : m_collector(collector) {};
+            ~PathDropper() {
+                if (m_collector.m_done)
+                    return;
+                if (m_collector.m_path.size() > m_collector.m_longestSubPath.size())
+                    m_collector.m_longestSubPath = m_collector.m_path;
+                m_collector.m_path.removeLast();
+            }
+        private:
+            AstPathCollector &m_collector;
+        } pathDropper(*this);
+
+        // Still traverse the children, because they could have the same range.
+        if (node.range() == m_range)
+            m_done = true;
+
+        const auto children = node.children();
+        if (!children)
+            return;
+
+        QList<AstNode> childrenToCheck;
+        if (node.kind() == "Function" || node.role() == "expression") {
+            // Functions and expressions can contain implicit nodes that make the list unsorted.
+            // They cannot be ignored, as we need to consider them in certain contexts.
+            // Therefore, the binary search cannot be used here.
+            childrenToCheck = *children;
+        } else {
+            for (auto it = std::lower_bound(children->cbegin(), children->cend(), m_range,
+                                            leftOfRange);
+                 it != children->cend() && !m_range.isLeftOf(it->range()); ++it) {
+                childrenToCheck << *it;
             }
         }
-        isRoot = false;
+
+        const bool wasDone = m_done;
+        for (const AstNode &child : qAsConst(childrenToCheck)) {
+            visitNode(child);
+            if (m_done && !wasDone)
+                break;
+        }
     }
-    return path;
+
+    static bool leftOfRange(const AstNode &node, const Range &range)
+    {
+        // Class and struct nodes can contain implicit constructors, destructors and
+        // operators, which appear at the end of the list, but whose range is the same
+        // as the class name. Therefore, we must force them not to compare less to
+        // anything else.
+        return node.range().isLeftOf(range) && !node.arcanaContains(" implicit ");
+    };
+
+    const AstNode &m_root;
+    const Range &m_range;
+    QList<AstNode> m_path;
+    QList<AstNode> m_longestSubPath;
+    bool m_done = false;
+};
+
+static QList<AstNode> getAstPath(const AstNode &root, const Range &range)
+{
+    return AstPathCollector(root, range).collectPath();
 }
 
 static QList<AstNode> getAstPath(const AstNode &root, const Position &pos)
@@ -521,8 +561,10 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     const CppEditor::ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
     if (!settings.indexingEnabled())
         indexingOption += "=0";
-    Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, "--limit-results=0",
-                                                       "--clang-tidy=0"}};
+    const QString headerInsertionOption = QString("--header-insertion=")
+            + (settings.autoIncludeHeaders() ? "iwyu" : "never");
+    Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, headerInsertionOption,
+                                                       "--limit-results=0", "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
@@ -2332,7 +2374,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             return false;
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
-                    || it->kind() == "MemberInitializer") {
+                    || it->kind() == "MemberInitializer" || it->kind() == "CXXOperatorCall") {
                 return true;
             }
             if (it->kind().endsWith("Cast") && it->hasConstType())

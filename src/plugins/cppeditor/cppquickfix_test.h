@@ -155,6 +155,7 @@ private slots:
     void testInsertDefFromDeclTemplateFunction();
     void testInsertDefFromDeclNotTriggeredForFriendFunc();
     void testInsertDefFromDeclMinimalFunctionParameterType();
+    void testInsertDefFromDeclAliasTemplateAsReturnType();
     void testInsertDefsFromDecls_data();
     void testInsertDefsFromDecls();
 

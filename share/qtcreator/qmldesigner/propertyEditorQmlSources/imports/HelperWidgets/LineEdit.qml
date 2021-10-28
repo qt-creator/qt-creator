@@ -76,13 +76,13 @@ StudioControls.TextField {
         id: colorLogic
         backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
-            if (colorLogic.valueFromBackend === undefined)
-                return
-
-            if (writeValueManually) {
-                lineEdit.text = convertColorToString(colorLogic.valueFromBackend)
+            if (colorLogic.valueFromBackend === undefined) {
+                lineEdit.text = ""
             } else {
-                lineEdit.text = colorLogic.valueFromBackend
+                if (writeValueManually)
+                    lineEdit.text = convertColorToString(colorLogic.valueFromBackend)
+                else
+                    lineEdit.text = colorLogic.valueFromBackend
             }
             __dirty = false
         }

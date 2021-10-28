@@ -30,33 +30,29 @@
 
     \title Creating a Qt Quick Application
 
-    This tutorial uses preset components and illustrates basic concepts of
-    \l{Qt Quick}.
-    For more information about the UI choices you have, see \l{User Interfaces}.
+    This tutorial illustrates basic concepts of \l{Qt Quick}. For more
+    information about the UI choices you have, see \l{User Interfaces}.
 
-    This tutorial describes how to use \QC to implement states and
-    transitions. We create an application that displays a Qt logo that moves
-    between three rectangles on the page when you click them.
+    This tutorial describes how to use \QC to implement \l{Qt Quick States}
+    {states} and \l{Animation and Transitions in Qt Quick}{transitions}
+    when using Qt 6 as the minimum Qt version and CMake as the build system.
 
-    \image qmldesigner-tutorial.png "States and transitions example"
+    We use the \l{Working in Edit Mode}{Edit mode} to create an application
+    that moves a Qt logo between three rectangles when you click them.
 
-    For more information about developing Qt Quick applications in the Design
-    mode, see \l{Developing Qt Quick Applications}.
+    \image qtquick-tutorial.gif "Transitions example"
 
-    For examples of using Qt Quick Controls, see \l{Qt Quick Controls Examples}.
+    For more examples, see \l{Qt Quick Examples and Tutorials}.
+
+    You can develop Qt Quick applications also in \QDS. For more information,
+    see \l{Qt Design Studio Manual}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
     \QC generates a component file, \e main.qml, and opens it in the
-    \l {Text Editor} view. Select \uicontrol Design to open the file in
-    the \l {Form Editor} view.
+    \uicontrol Edit mode.
 
-    \note The visibility of Design views depends on the selected workspace.
-    To open hidden views, select \uicontrol View > \uicontrol Views
-    in the \uicontrol Design mode. For more information about moving
-    views around, see \l {Managing Workspaces}.
-
-    \section1 Creating the Main View
+    \section1 Deploying Applications
 
     The main view of the application displays a Qt logo inside a rectangle in
     the top left corner of the view and two empty rectangles.
@@ -64,256 +60,122 @@
     We use the \e qt-logo.png image in this tutorial, but you can also use
     any other image or a component, instead.
 
+    For the image to appear when you run the application, you must specify it
+    as a resource in the \c RESOURCES section of \e CMakeLists.txt file that
+    the wizard created for you:
+
+    \quotefromfile transitions/CMakeLists.txt
+    \skipto qt_add_qml_module
+    \printuntil )
+
+    \section1 Creating Custom QML Types
+
+    Because the \l Window QML type requires states to be added into child
+    components, we use the wizard to create a custom QML type called
+    \e Page that we will refer to from \e main.qml.
+
+    To create a custom QML type:
+
     \list 1
-
-        \li In \uicontrol Library > \uicontrol Components >
-            \uicontrol {Default Components} > \uicontrol Basic, select
-            \uicontrol Rectangle and drag and drop it to \e Window in
-            \uicontrol Navigator.
-
-        \li Select the \uicontrol Rectangle instance in \l Navigator, and enter
-            \e page in the \uicontrol ID field in \l Properties.
-
-        \li In \uicontrol Layout, select the
-            \inlineimage icons/anchor-fill.png "Fill anchor button"
-            fill anchor button to anchor the rectangle to the window on all
-            sides.
-
-        \li Select \uicontrol Library > \uicontrol Assets > \inlineimage plus.png
-            to locate qt-logo.png (or your own image) and add it to the
-            project folder.
-
-        \li Drag and drop the image from \uicontrol Assets to \e page in
-            \uicontrol Navigator. \QC automatically generates an instance
-            of the \l{Images}{Image} component for you, with the image as
-            the source image.
-
-            \image qmldesigner-tutorial-user-icon.png "Image properties"
-
-        \li In \uicontrol Properties, edit the properties of the Image
-            component instance:
-
-        \list a
-
-            \li In the \uicontrol ID field, enter \e icon.
-
-            \li In the \uicontrol Position field, set \uicontrol X and
-                \uicontrol Y to \e 20.
-
-        \endlist
-
-        \li In \uicontrol Library > \uicontrol Components >
-            \uicontrol {Default Components} > \uicontrol Basic, select
-            \uicontrol Rectangle and drag and drop it to \e page in
-            \uicontrol Navigator.
-
-            \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
-
-        \li In \uicontrol Properties, edit the properties of the Rectangle
-            component instance:
-
-        \list a
-
-            \li In the \uicontrol ID field, enter \e topLeftRect.
-
-            \li In the \uicontrol Size field, set \uicontrol W and
-                \uicontrol H to values that match the image size
-                (\e 55 and \e 41).
-
-            \li Select the \uicontrol Color field, and then select the
-                \inlineimage icons/transparent.png "Transparent button"
-                button in the \l{Picking colors}{color picker} to make
-                the rectangle transparent.
-
-            \li In the \uicontrol {Border color} field, set the border
-                color to \e #808080 to make the rectangle visible on
-                the background.
-
-            \li Click \uicontrol {Layout}, and then click the
-                \inlineimage icons/anchor-top.png "Top anchor button"
-                top and \inlineimage icons/anchor-left.png "Left anchor button"
-                left anchor buttons to anchor the rectangle to the top left
-                corner of the page.
-
-            \li In the \uicontrol Margin field, select \e 20 for both anchors.
-
-                \image qmldesigner-tutorial-topleftrect-layout.png "Anchor margins"
-
-        \endlist
-
-        \li Drag and drop a \uicontrol {Mouse Area} component from the
-            \uicontrol Library to \e topLeftRect in \uicontrol Navigator.
-
-        \li Click \uicontrol {Layout}, and then click the
-            \inlineimage icons/anchor-fill.png "Fill anchor button"
-            button to anchor the mouse area to its parent.
-
-        \li In the \uicontrol Navigator, copy \e topLeftRect (by pressing
-            \key {Ctrl+C}) and paste it to \e page in \uicontrol Navigator
-            twice (by pressing \key {Ctrl+V}). \QC renames the new instances
-            of the component \e topLeftRect1 and \e topLeftRect2.
-
-        \li  Select \e topLeftRect1 and edit its properties:
-
-        \list a
-
-            \li In the \uicontrol ID field, enter \e middleRightRect.
-
-            \li In \uicontrol {Layout}, select the
-                \inlineimage icons/anchor-center-vertical.png "Vertical center anchor button"
-                vertical center anchor button and then the
-                \inlineimage icons/anchor-right.png "Right anchor button"
-                right anchor button to anchor the rectangle
-                to the middle right margin of its parent.
-
-            \li In the \uicontrol Margin field, select \e 20 for the right
-                anchor and \e 0 for the vertical center anchor.
-
-        \endlist
-
-        \li Select \e topLeftRect2 and edit its properties:
-
-        \list a
-
-            \li In the \uicontrol ID field, enter \e bottomLeftRect.
-
-            \li In \uicontrol {Layout}, select the
-                \inlineimage icons/anchor-bottom.png
-                (\uicontrol Bottom) and \inlineimage icons/anchor-left.png
-                (\uicontrol Left) anchor buttons to anchor the rectangle
-                to the bottom left margin of its parent.
-
-            \li In the \uicontrol Margin field, select \e 20 for both anchors.
-
-        \endlist
-
-        \li Press \key {Ctrl+S} to save the changes.
-
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol Qt >
+            \uicontrol {QML File (Qt Quick 2)}.
+        \li Select \uicontrol Choose to open the \uicontrol Location dialog.
+        \li In the \uicontrol {File name} field, enter a name for the custom
+            QML type. In this example, we call the type \e Page.
+        \li Select \uicontrol Next to open the \uicontrol {Project Management}
+            dialog.
+        \li Select \uicontrol Finish to create \e Page.qml.
     \endlist
 
-    To check your code, you can view your \e {main.qml} file in the
-    \uicontrol {Text Editor} and compare it with the \e {main.qml}
-    example file.
+    \QC opens \e Page.qml in the \uicontrol Edit mode. It contains a root item
+    of the type \l Item that we replace with a \l Rectangle type. We give the
+    type the ID \e page, anchor it to the parent item on all sides, and set
+    its color to white:
 
-    The UI design is now ready.
+    \quotefromfile transitions/Page.qml
+    \skipto import
+    \printuntil color
 
-    \image qmldesigner-tutorial-ui-ready.png "Transitions UI"
+    Because we develop with Qt 6, where version numbers are not used with
+    modules, we remove the version number from the import statement.
 
-    For more information about the views you used, see:
+    When you start typing the QML type name, \QC suggests available types
+    and properties to \l{Completing Code}{complete the code}.
 
-    \list
-        \li \l {Form Editor}
-        \li \l Library
-        \li \l Navigator
-        \li \l Properties
-    \endlist
+    Select the light bulb icon \inlineimage refactormarker.png
+    next to the type name to open the \l{Editing Rectangles}
+    {Qt Quick Toolbar for rectangles}. You can use it to specify
+    rectangle properties, such as color, transparency, and gradients.
+
+    \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
+
+    Next, we add an \l Image type with \e qt-logo.png as the source. We
+    position the image in the top-left corner of the rectangle:
+
+    \printuntil }
+
+    You can use the \l{Previewing Images}{Qt Quick Toolbar for images} to
+    specify image properties, such as source file and fill mode.
+
+    \image qml-toolbar-image.png "Logo visible in Qt Quick Toolbar for images"
+
+    We now create the rectangles that the image will move between. Their size
+    should match the image size and they should be transparent, so that the
+    image is visible. We set the border color to light gray to make the
+    rectangles visible:
+
+    \printuntil border.color
+
+    We anchor the rectangles to their parent to position them in its
+    top-left and and bottom-left corners, as well as the vertical center
+    of its right edge. The following code snippet anchors a rectangle to
+    the top-left corner of its parent:
+
+    \printuntil anchors.topMargin
+
+    We add a \l MouseArea type to make the rectangle clickable by users:
+
+    \printuntil anchors.fill
+
+    To check your code, you can compare it with the \e {Page.qml} example file.
 
     Next, we will make the image move between the rectangles when users click
-    them by \l{Adding States}{adding states} and by connecting mouse clicks
-    to state changes.
-
-    Because the Window component requires states to be added into child
-    components, we must first move \e page into a separate component.
-
-    \section1 Turning Page into a Custom Component
-
-    To turn \e page into a custom component, right-click it
-    in \uicontrol Navigator or \uicontrol {Form Editor}, and select
-    \uicontrol {Move Component into Separate File} in the context menu.
-
-    \image qmldesigner-tutorial-page-component.png "Move page component instance into a separate file"
-
-    \list 1
-        \li In \uicontrol {Component name}, enter \e Page.
-        \li In \uicontrol {Property assignments for main.qml} select both
-            check boxes to preserve the appearance of the UI.
-        \li Select \uicontrol OK to create a file called \e Page.qml that
-            defines the Page custom component and to add an instance of it
-            into \e main.qml.
-    \endlist
+    them, by adding states and by connecting mouse clicks to state changes.
 
     \section1 Connecting Mouse Clicks to State Changes
 
     To make the image move between the rectangles when users click them, we add
     states to the Page component, where we change the values of the \c x and
-    \c y properties of
-    \e icon to match those of the middle right and top left rectangles. Then,
-    we connect the \c onClicked signals of the mouse areas to the state changes.
+    \c y properties of \e icon to match those of the middle right and top left
+    rectangles. To make sure that the image is displayed within the rectangle
+    when the view is scaled on different sizes of screens, we \e bind the values
+    of the \c x and \c y properties of \e icon to those of the rectangles:
 
-    To make sure that the image is displayed within the rectangle when the view
-    is scaled on different sizes of screens, we bind the values of the \c x and
-    \c y properties of \e icon to those of the rectangles.
+    \dots
+    \skipto states:
+    \printuntil ]
 
-    \list 1
-        \li Right-click \e page in \uicontrol Navigator, and select
-            \uicontrol {Go into Component} in the context menu to open
-            \e Page.qml in \uicontrol {Form Editor}.
-        \li In the \uicontrol States view, select \uicontrol {Create New State}
-            three times to create \e State1, \e State2, and \e State3.
-        \li Select \e State1 in \uicontrol States.
-        \li Select \inlineimage icons/action-icon.png
-            to open the \uicontrol Actions menu, and then select
-            \uicontrol {Set as Default} to display \e State1 when
-            the application starts.
-        \li Select \e State2 in \uicontrol States.
-        \li Select \e icon in \uicontrol Navigator to display its properties
-            in \uicontrol Properties.
-        \li In \uicontrol {Geometry - 2D} > \uicontrol Position > \uicontrol X,
-            select \inlineimage icons/action-icon.png "Actions button"
-            , and then select \uicontrol {Set Binding} to open
-            \uicontrol {Binding Editor}.
-        \li Select the \e middleRightRect component and the \e x property
-            to bind the \e x property value of \e icon to that of
-            \e middleRightRect.
-            \image qmldesigner-tutorial-bindings.png "Binding Editor"
-        \li Select \uicontrol OK to create the binding.
-        \li Repeat for \uicontrol Y, but set the binding as
-            \e middleRightRect.y.
-        \li Select \e State3 in \uicontrol States, and bind the \e x and \e y
-            property values of \e icon to those of \e bottomLeftRect
-            (\e bottomLeftRect.x and \e bottomLeftRect.y).
-        \li In \l {Connection View} > \uicontrol Connections, click the
-            \inlineimage plus.png
-            button to create a new connection.
-            \image qmldesigner-tutorial-connections.png "Connections tab"
-        \li Double-click the value in the \uicontrol Target column, and select
-            \e mouseArea in the list.
-        \li In the \uicontrol {Signal Handler} column, select \e onClicked.
-        \li In the \uicontrol Action column, select \e {page.state = 'State1'}.
-        \li Create two more connections to connect the \c onClicked signal of
-            \uicontrol mouseArea1 to State2, and that of \uicontrol mouseArea2
-            to State3.
-        \li Press \key {Ctrl+R} to run the application.
-    \endlist
+    Then, we connect the \c onClicked signals of the mouse areas to the state
+    changes:
 
-    Click the rectangles to move the Qt logo from one rectangle to another.
+    \quotefromfile transitions/Page.qml
+    \skipto Connections {
+    \printuntil }
 
-    If you develop with Qt 6, you must specify the connections as
-    functions. This is currently not supported in \uicontrol {Connections},
-    so you must do it in \uicontrol {Text Editor}. For example:
+    Because we develop with Qt 6, we must specify the connections as functions.
 
-    \code
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
+    \section1 Adding Page to the Main View
 
-        Connections {
-            target: mouseArea
-            function onClicked()
-            {
-                page.state = "State1"
-            }
-        }
-    }
-    \endcode
+    We now open \e main.qml for editing and add an instance of the Page custom
+    component to it:
 
-    For more information about the views you used, see:
+    \quotefromfile transitions/main.qml
+    \skipto import
+    \printuntil /^\ {0}\}/
 
-    \list
-        \li \l States
-        \li \l{Setting Bindings}
-        \li \l{Connecting Components to Signals}
-    \endlist
+    Press \key {Ctrl+R} to run the application, and click the rectangles to
+    move the Qt logo from one rectangle to another.
 
     \section1 Animating Transitions
 
@@ -321,56 +183,29 @@
     the image bounces back when it moves to \e middleRightRect and eases into
     \e bottomLeftRect.
 
-    \list 1
-        \li In the \uicontrol {Transition Editor} view, click the
-            \inlineimage plus.png
-            button to create a new transition.
-        \li Click the \inlineimage animation.png
-            button to specify transitions for switching to each state.
-            \image qmldesigner-tutorial-transition-settings.png "Transition Settings dialog"
-        \li In the \uicontrol {Transition ID} field, enter \e toState1.
-        \li In the \uicontrol From field, select \e State2 and \e State3.
-        \li In the \uicontrol To field, select \e State1.
-        \li Click \inlineimage plus.png
-            to add transitions for switching to \e State2 and \e State3, with
-            the IDs \e toState2 and \e toState3.
-        \li Select \uicontrol Close to save the settings and return to
-            \uicontrol {Transition Editor}.
-        \li Select \e toState2 in the list of transitions.
-            \image qmldesigner-tutorial-transitions.png "Transition Editor view"
-        \li Pull the right edge of the blue bar next to \e icon to frame 1000
-            to specify that the x and y coordinates of the image change
-            linearly over a duration of 1 second.
-        \li Select the \uicontrol x property, and click
-            \inlineimage curve_editor.png
-            to change the easing curve type from linear to easeOutBounce
-            (\c{[0.233,0.161,0.264,0.997,0.393,0.997,0.522,0.997,0.555,0.752,
-            0.61,0.75,0.664,0.748,0.736,1,0.775,1,0.814,0.999,0.861,0.901,0.888,
-            0.901,0.916,0.901,0.923,0.995,1,1]})
-            in \uicontrol {Easing Curve Editor}.
-            \image qmldesigner-tutorial-easing-curves.png "Easing Curve Editor"
-        \li Select the \uicontrol y property and set the easing curve for it,
-            too.
-        \li Close \uicontrol {Easing Curve Editor} to return to
-            \uicontrol {Transition Editor}, and select \e toState3
-            in the list of transitions.
-        \li Pull the right edge of the blue bar next to \e icon to frame 2000
-            to specify that the x and y coordinates of the image change
-            linearly over a duration of 2 seconds.
-        \li In \uicontrol {Easing Curve Editor}, change the easing curve type
-            from linear to easeInOutQuad (\c{[0.455,0.03,0.515,0.955,1,1]}).
-        \li Select \e toState1 in the list of transitions, and pull the blue
-            bar to frame 200 to specify that the x and y coordinates of the
-            image change linearly over a duration of 200 milliseconds.
-        \li Press \key {Ctrl+R} to run the application.
-    \endlist
+    We specify transitions for switching from each state to the other two
+    states:
 
-        For more information about the views you used, see:
+    \quotefromfile transitions/Page.qml
+    \skipto transitions:
+    \printuntil },
 
-    \list
-        \li \l{Editing Easing Curves}
-        \li \l{Transition Editor}
-    \endlist
+    We change the easing curve type for transitions to \e State2 from linear to
+    \c Easing.OutBounce to create the bounce effect:
 
-    Click the rectangles to view the animated transitions.
+    \printuntil },
+
+    \note You can use the \l{Previewing Animation}
+    {Qt Quick Toolbar for animation} to specify the
+    easing curve type and animation duration.
+
+    \image qml-toolbar-animation.png "Qt Quick Toolbar for animation"
+
+    Then, we change the easing curve type for transitions to \e State2 from
+    linear to \c Easing.InOutQuad to create the easing effect:
+
+    \printuntil /^\ {0}\}/
+
+    Press \key {Ctrl+R} to run the application, and click the rectangles to
+    view the animated transitions.
 */

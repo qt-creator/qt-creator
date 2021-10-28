@@ -473,8 +473,9 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
             resetVerticalAnchors(property.parentModelNode());
         } else if (name == "anchors.baseline") {
             resetVerticalAnchors(property.parentModelNode());
-        } else if (name == "shader" && property.parentModelNode().isSubclassOf("QtQuick3D.Shader")) {
-            m_resetTimer.start();
+        } else {
+            maybeResetOnPropertyChange(name, property.parentModelNode(),
+                                       AbstractView::EmptyPropertiesRemoved);
         }
     }
 
@@ -503,10 +504,14 @@ void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &, int,
     restartProcess();
 }
 
-void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
+void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList,
+                                                PropertyChangeFlags propertyChange)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
     m_nodeInstanceServer->changePropertyBindings(createChangeBindingCommand(propertyList));
+
+    for (const auto &property : propertyList)
+        maybeResetOnPropertyChange(property.name(), property.parentModelNode(), propertyChange);
 }
 
 /*!
@@ -518,18 +523,15 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
     \sa AbstractProperty, NodeInstance, ModelNode
 */
 
-void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
+void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList,
+                                                PropertyChangeFlags propertyChange)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
     updatePosition(propertyList);
     m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(propertyList));
 
-    for (const auto &property : propertyList) {
-        if (property.name() == "shader" && property.parentModelNode().isSubclassOf("QtQuick3D.Shader")) {
-            m_resetTimer.start();
-            break;
-        }
-    }
+    for (const auto &property : propertyList)
+        maybeResetOnPropertyChange(property.name(), property.parentModelNode(), propertyChange);
 }
 /*!
   Notifies the view that the property parent of the model node \a node has
@@ -1906,6 +1908,24 @@ void NodeInstanceView::updateRotationBlocks()
                 node.setAuxiliaryData(auxDataProp, false);
         }
     }
+}
+
+void NodeInstanceView::maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
+                                                  PropertyChangeFlags flags)
+{
+    bool reset = false;
+    if (flags & AbstractView::PropertiesAdded
+            && name == "model" && (node.isSubclassOf("QtQuick.Repeater")
+                                   || node.isSubclassOf("QtQuick3D.Repeater3D"))) {
+        // TODO: This is a workaround for QTBUG-97583 (2D) and QTBUG-97586 (3D):
+        //       Reset puppet when repeater model is first added, if there is already a delegate
+        if (node.hasProperty("delegate"))
+            reset = true;
+    } else if (name == "shader" && node.isSubclassOf("QtQuick3D.Shader")) {
+        reset = true;
+    }
+    if (reset)
+        resetPuppet();
 }
 
 }

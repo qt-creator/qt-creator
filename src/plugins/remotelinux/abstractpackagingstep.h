@@ -41,8 +41,8 @@ public:
     explicit AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~AbstractPackagingStep() override;
 
-    QString packageFilePath() const;
-    QString cachedPackageFilePath() const;
+    Utils::FilePath packageFilePath() const;
+    Utils::FilePath cachedPackageFilePath() const;
     bool init() override;
 
 signals:
@@ -54,8 +54,8 @@ protected:
 
     void raiseError(const QString &errorMessage);
     void raiseWarning(const QString &warningMessage);
-    QString cachedPackageDirectory() const;
-    QString packageDirectory() const;
+    Utils::FilePath cachedPackageDirectory() const;
+    Utils::FilePath packageDirectory() const;
 
     virtual bool isPackagingNeeded() const;
 

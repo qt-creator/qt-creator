@@ -144,7 +144,7 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     if (bc)
         buildDirectory = bc->buildDirectory();
 
-    cmd.arguments << "--build" << buildDirectory.onDevice(cmd.command).mapToDevicePath()
+    cmd.arguments << "--build" << buildDirectory.onDevice(cmd.command).path()
                   << "--target" << installTarget << config;
 
     cmd.environment.set("DESTDIR", QDir::toNativeSeparators(installRoot));

@@ -818,3 +818,14 @@ void staticMemberFuncTest() {
     int i;
     s.staticFunc(i);
 }
+
+void lambdaArgTest()
+{
+    const auto foo1 = [](int &) {};
+    const auto foo2 = [](int) {};
+    int val;
+    foo1(val);
+    foo2(val);
+    [](int &) {}(val);
+    [](int) {}(val);
+}
