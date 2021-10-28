@@ -372,6 +372,18 @@ void ItemLibraryWidget::handleFilesDrop(const QStringList &filesPaths)
     addResources(filesPaths);
 }
 
+QSet<QString> ItemLibraryWidget::supportedDropSuffixes()
+{
+    const QList<AddResourceHandler> handlers = QmlDesignerPlugin::instance()->viewManager()
+                                                   .designerActionManager().addResourceHandler();
+
+    QSet<QString> suffixes;
+    for (const AddResourceHandler &handler : handlers)
+        suffixes.insert(handler.filter);
+
+    return suffixes;
+}
+
 void ItemLibraryWidget::delayedUpdateModel()
 {
     static bool disableTimer = DesignerSettings::getValue(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();

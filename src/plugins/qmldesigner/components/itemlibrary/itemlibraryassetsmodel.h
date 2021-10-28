@@ -66,7 +66,6 @@ public:
     static const QStringList &supportedAudioSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
 
-    const QSet<QString> &supportedSuffixes() const;
     const QSet<QString> &previewableSuffixes() const;
 
     static void saveExpandedState(bool expanded, const QString &assetPath);
@@ -84,6 +83,8 @@ public:
     Q_INVOKABLE void removeFile(const QString &filePath);
 
 private:
+    const QSet<QString> &supportedSuffixes() const;
+
     SynchronousImageCache &m_fontImageCache;
     QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
 
