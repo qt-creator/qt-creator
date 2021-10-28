@@ -27,17 +27,19 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/commandline.h>
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/commandline.h>
+#include <utils/qtcprocess.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
-#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QDir>
@@ -126,6 +128,15 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         if (!error.isEmpty())
             showGraphicalShellError(parent, app, error);
     }
+}
+
+void FileUtils::showInFileSystemView(const FilePath &path)
+{
+    QWidget *widget
+        = NavigationWidget::activateSubWidget(FolderNavigationWidgetFactory::instance()->id(),
+                                              Side::Left);
+    if (auto *navWidget = qobject_cast<FolderNavigationWidget *>(widget))
+        navWidget->syncWithFilePath(path);
 }
 
 void FileUtils::openTerminal(const FilePath &path)

@@ -25,6 +25,8 @@
 
 #include "editormanager.h"
 #include "editormanager_p.h"
+
+#include "../coreconstants.h"
 #include "editorwindow.h"
 
 #include "editorview.h"
@@ -421,6 +423,8 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_closeAllEditorsExceptVisibleContextAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
     m_openGraphicalShellContextAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
+    m_showInFileSystemViewAction(new QAction(FileUtils::msgFileSystemAction(), this)),
+    m_showInFileSystemViewContextAction(new QAction(FileUtils::msgFileSystemAction(), this)),
     m_openTerminalAction(new QAction(FileUtils::msgTerminalHereAction(), this)),
     m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this)),
     m_filePropertiesAction(new QAction(tr("Properties..."), this)),
@@ -538,6 +542,17 @@ void EditorManagerPrivate::init()
             FileUtils::showInGraphicalShell(ICore::dialogParent(), fp);
     });
 
+    cmd = ActionManager::registerAction(m_showInFileSystemViewAction,
+                                        Constants::SHOWINFILESYSTEMVIEW,
+                                        editManagerContext);
+    connect(m_showInFileSystemViewAction, &QAction::triggered, this, [] {
+        if (!EditorManager::currentDocument())
+            return;
+        const FilePath fp = EditorManager::currentDocument()->filePath();
+        if (!fp.isEmpty())
+            FileUtils::showInFileSystemView(fp);
+    });
+
     //Save XXX Context Actions
     connect(m_copyFilePathContextAction, &QAction::triggered,
             this, &EditorManagerPrivate::copyFilePathFromContextMenu);
@@ -566,6 +581,11 @@ void EditorManagerPrivate::init()
         if (!m_contextMenuEntry || m_contextMenuEntry->fileName().isEmpty())
             return;
         FileUtils::showInGraphicalShell(ICore::dialogParent(), m_contextMenuEntry->fileName());
+    });
+    connect(m_showInFileSystemViewContextAction, &QAction::triggered, this, [this] {
+        if (!m_contextMenuEntry || m_contextMenuEntry->fileName().isEmpty())
+            return;
+        FileUtils::showInFileSystemView(m_contextMenuEntry->fileName());
     });
     connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
     connect(m_findInDirectoryAction, &QAction::triggered,
@@ -2876,10 +2896,12 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     d->m_contextMenuEntry = entry;
     bool enabled = entry && !entry->fileName().isEmpty();
     d->m_openGraphicalShellContextAction->setEnabled(enabled);
+    d->m_showInFileSystemViewContextAction->setEnabled(enabled);
     d->m_openTerminalAction->setEnabled(enabled);
     d->m_findInDirectoryAction->setEnabled(enabled);
     d->m_filePropertiesAction->setEnabled(enabled);
     contextMenu->addAction(d->m_openGraphicalShellContextAction);
+    contextMenu->addAction(d->m_showInFileSystemViewContextAction);
     contextMenu->addAction(d->m_openTerminalAction);
     contextMenu->addAction(d->m_findInDirectoryAction);
     contextMenu->addAction(d->m_filePropertiesAction);

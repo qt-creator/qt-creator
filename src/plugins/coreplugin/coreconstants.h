@@ -135,6 +135,7 @@ const char ABOUT_QTCREATOR[]       = "QtCreator.AboutQtCreator";
 const char ABOUT_PLUGINS[]         = "QtCreator.AboutPlugins";
 const char S_RETURNTOEDITOR[]      = "QtCreator.ReturnToEditor";
 const char SHOWINGRAPHICALSHELL[]  = "QtCreator.ShowInGraphicalShell";
+const char SHOWINFILESYSTEMVIEW[]  = "QtCreator.ShowInFileSystemView";
 
 const char OUTPUTPANE_CLEAR[] = "Coreplugin.OutputPane.clear";
 

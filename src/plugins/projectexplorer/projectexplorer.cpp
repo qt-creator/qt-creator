@@ -3846,11 +3846,7 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return );
-    QWidget *widget
-        = NavigationWidget::activateSubWidget(FolderNavigationWidgetFactory::instance()->id(),
-                                              Side::Left);
-    if (auto *navWidget = qobject_cast<FolderNavigationWidget *>(widget))
-        navWidget->syncWithFilePath(currentNode->filePath());
+    Core::FileUtils::showInFileSystemView(currentNode->filePath());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)

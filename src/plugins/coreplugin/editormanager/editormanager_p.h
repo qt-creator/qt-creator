@@ -258,6 +258,8 @@ private:
     QAction *m_closeAllEditorsExceptVisibleContextAction;
     QAction *m_openGraphicalShellAction;
     QAction *m_openGraphicalShellContextAction;
+    QAction *m_showInFileSystemViewAction;
+    QAction *m_showInFileSystemViewContextAction;
     QAction *m_openTerminalAction;
     QAction *m_findInDirectoryAction;
     QAction *m_filePropertiesAction = nullptr;
