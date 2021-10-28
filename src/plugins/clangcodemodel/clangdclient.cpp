@@ -1302,15 +1302,25 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
                               const Utils::optional<QString> &replacement)
 {
     // Quick check: Are we even on anything searchable?
-    if (d->searchTermFromCursor(cursor).isEmpty())
+    const QString searchTerm = d->searchTermFromCursor(cursor);
+    if (searchTerm.isEmpty())
         return;
 
-    // Get the proper spelling of the search term from clang, so we can put it into the
+    const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
+
+    // If it's a "normal" symbol, go right ahead.
+    if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
+            return c.isLetterOrNumber() || c == '_';
+    })) {
+        d->findUsages(document, cursor, searchTerm, replacement, categorize);
+        return;
+    }
+
+    // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
     const TextDocumentIdentifier docId(DocumentUri::fromFilePath(document->filePath()));
     const TextDocumentPositionParams params(docId, Range(cursor).start());
     SymbolInfoRequest symReq(params);
-    const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
     symReq.setResponseCallback([this, doc = QPointer(document), cursor, replacement, categorize]
                                (const SymbolInfoRequest::Response &response) {
         if (!doc)
