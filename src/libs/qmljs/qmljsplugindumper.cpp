@@ -103,21 +103,14 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     m_modelManager->updateLibraryInfo(info.qtQmlPath, builtinInfo);
 
     // prefer QTDIR/qml/builtins.qmltypes if available
-    const QString builtinQmltypesPath = info.qtQmlPath.toString() + QLatin1String("/builtins.qmltypes");
-    if (QFile::exists(builtinQmltypesPath)) {
-        loadQmltypesFile(QStringList(builtinQmltypesPath), info.qtQmlPath, builtinInfo);
+    const FilePath builtinQmltypesPath = info.qtQmlPath / "builtins.qmltypes";
+    if (builtinQmltypesPath.exists()) {
+        loadQmltypesFile({builtinQmltypesPath}, info.qtQmlPath, builtinInfo);
         return;
     }
 
     runQmlDump(info, QStringList(QLatin1String("--builtins")), info.qtQmlPath);
     m_qtToInfo.insert(info.qtQmlPath.toString(), info);
-}
-
-static QString makeAbsolute(const QString &path, const QString &base)
-{
-    if (QFileInfo(path).isAbsolute())
-        return path;
-    return QString::fromLatin1("%1/%3").arg(base, path);
 }
 
 void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
@@ -149,7 +142,7 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     QDirIterator it(canonicalLibraryPath.toString(), QStringList { "*.qmltypes" }, QDir::Files);
 
     while (it.hasNext()) {
-        const QString defaultQmltypesPath = makeAbsolute(it.next(), canonicalLibraryPath.toString());
+        const FilePath defaultQmltypesPath = canonicalLibraryPath.resolvePath(it.next());
 
         if (!plugin.typeInfoPaths.contains(defaultQmltypesPath))
             plugin.typeInfoPaths += defaultQmltypesPath;
@@ -157,8 +150,8 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
 
     // add typeinfo files listed in qmldir
     foreach (const QString &typeInfo, libraryInfo.typeInfos()) {
-        QString pathNow = makeAbsolute(typeInfo, canonicalLibraryPath.toString());
-        if (!plugin.typeInfoPaths.contains(pathNow) && QFile::exists(pathNow))
+        const FilePath pathNow = canonicalLibraryPath.resolvePath(typeInfo);
+        if (!plugin.typeInfoPaths.contains(pathNow) && pathNow.exists())
             plugin.typeInfoPaths += pathNow;
     }
 
@@ -167,19 +160,19 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
         const QString pluginLibrary = resolvePlugin(canonicalLibraryPath.toString(), plugin.path, plugin.name);
         if (!pluginLibrary.isEmpty()) {
             if (!pluginWatcher()->watchesFile(pluginLibrary))
-                pluginWatcher()->addFile(pluginLibrary, Utils::FileSystemWatcher::WatchModifiedDate);
+                pluginWatcher()->addFile(pluginLibrary, FileSystemWatcher::WatchModifiedDate);
             m_libraryToPluginIndex.insert(pluginLibrary, index);
         }
     }
 
     // watch library qmltypes file
     if (!plugin.typeInfoPaths.isEmpty()) {
-        foreach (const QString &path, plugin.typeInfoPaths) {
-            if (!QFile::exists(path))
+        for (const FilePath &path : qAsConst(plugin.typeInfoPaths)) {
+            if (!path.exists())
                 continue;
-            if (!pluginWatcher()->watchesFile(path))
-                pluginWatcher()->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
-            m_libraryToPluginIndex.insert(path, index);
+            if (!pluginWatcher()->watchesFile(path.toString()))
+                pluginWatcher()->addFile(path.toString(), FileSystemWatcher::WatchModifiedDate);
+            m_libraryToPluginIndex.insert(path.toString(), index);
         }
     }
 
@@ -358,14 +351,15 @@ void PluginDumper::pluginChanged(const QString &pluginLibrary)
     dump(plugin);
 }
 
-QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(const QStringList &paths) const {
+QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(const FilePaths &paths) const
+{
     auto future = Utils::runAsync([=](QFutureInterface<PluginDumper::QmlTypeDescription> &future)
     {
         PluginDumper::QmlTypeDescription result;
 
-        for (const QString &p: paths) {
+        for (const FilePath &p: paths) {
             Utils::FileReader reader;
-            if (!reader.fetch(Utils::FilePath::fromString(p), QFile::Text)) {
+            if (!reader.fetch(p, QFile::Text)) {
                 result.errors += reader.errorString();
                 continue;
             }
@@ -375,9 +369,9 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             QList<ModuleApiInfo> apis;
             QStringList deps;
             CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
-                                                        &error, &warning, p);
+                                                        &error, &warning, p.toString());
             if (!error.isEmpty()) {
-                result.errors += tr("Failed to parse \"%1\".\nError: %2").arg(p, error);
+                result.errors += tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
                 result.objects += objs.values();
                 result.moduleApis += apis;
@@ -441,27 +435,26 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
  * Recursively load type descriptions of dependencies, collecting results
  * in \a objects.
  */
-QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const QStringList &dependencies,
-                                                                     QSharedPointer<QSet<QString>> visited) const
+QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FilePaths &dependencies,
+                                                                     QSharedPointer<QSet<FilePath>> visited) const
 {
     auto iface = QSharedPointer<QFutureInterface<PluginDumper::DependencyInfo>>(new QFutureInterface<PluginDumper::DependencyInfo>);
 
-    if (visited.isNull()) {
-        visited = QSharedPointer<QSet<QString>>(new QSet<QString>());
-    }
+    if (visited.isNull())
+        visited = QSharedPointer<QSet<FilePath>>(new QSet<FilePath>());
 
-    QStringList dependenciesPaths;
+    FilePaths dependenciesPaths;
     QString path;
-    for (const QString &name: dependencies) {
-        path = buildQmltypesPath(name);
+    for (const FilePath &name : dependencies) {
+        path = buildQmltypesPath(name.toString());
         if (!path.isNull())
-            dependenciesPaths << path;
+            dependenciesPaths << FilePath::fromString(path);
         visited->insert(name);
     }
 
     Utils::onFinished(loadQmlTypeDescription(dependenciesPaths), const_cast<PluginDumper*>(this), [=] (const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
-        QStringList newDependencies = typesResult.dependencies;
+        FilePaths newDependencies = Utils::transform(typesResult.dependencies, &FilePath::fromString);
         newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visited.data());
         if (!newDependencies.isEmpty()) {
             Utils::onFinished(loadDependencies(newDependencies, visited),
@@ -590,7 +583,7 @@ void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
     libInfo.updateFingerprint();
 }
 
-void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
+void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
                                     const FilePath &libraryPath,
                                     QmlJS::LibraryInfo libraryInfo)
 {
@@ -599,7 +592,8 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
-            Utils::onFinished(loadDependencies(typesResult.dependencies, QSharedPointer<QSet<QString>>()), this,
+            Utils::onFinished(loadDependencies(Utils::transform(typesResult.dependencies, &FilePath::fromString),
+                                               QSharedPointer<QSet<FilePath>>()), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {
                 PluginDumper::DependencyInfo loadResult = loadFuture.result();
