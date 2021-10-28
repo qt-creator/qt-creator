@@ -62,11 +62,14 @@ public:
     { return false; }
 
 private:
+    void handleOriginalTextChanged();
+
     TextModifier *m_originalModifier;
     int m_componentStartOffset;
     int m_componentEndOffset;
     int m_rootStartOffset;
     int m_startLength;
+    QString m_originalText;
 };
 
 } // namespace QmlDesigner

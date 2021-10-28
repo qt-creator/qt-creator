@@ -33,10 +33,13 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
         m_componentEndOffset(componentEndOffset),
         m_rootStartOffset(rootStartOffset)
 {
-    connect(m_originalModifier, &TextModifier::textChanged, this, &TextModifier::textChanged);
+    connect(m_originalModifier, &TextModifier::textChanged,
+            this, &ComponentTextModifier::handleOriginalTextChanged);
 
     connect(m_originalModifier, &TextModifier::replaced, this, &TextModifier::replaced);
     connect(m_originalModifier, &TextModifier::moved, this, &TextModifier::moved);
+
+    m_originalText = m_originalModifier->text();
 }
 
 ComponentTextModifier::~ComponentTextModifier() = default;
@@ -145,4 +148,46 @@ void ComponentTextModifier::deactivateChangeSignals()
 void ComponentTextModifier::reactivateChangeSignals()
 {
     m_originalModifier->reactivateChangeSignals();
+}
+
+void ComponentTextModifier::handleOriginalTextChanged()
+{
+    // Update offsets when original text changes, if necessary
+
+    // Detect and adjust for removal/addition of unrelated text before the subcomponent code,
+    // as that can happen even without user editing the text (e.g. whitespace removal at save time)
+
+    const QString currentText = m_originalModifier->text();
+
+    if (m_originalText.left(m_componentStartOffset) != currentText.left(m_componentStartOffset)) {
+        // Subcomponent item id is the only reliable indicator for adjustment
+        const int idIndex = m_originalText.indexOf("id:", m_componentStartOffset);
+        if (idIndex != -1 && idIndex < m_componentEndOffset) {
+            int newLineIndex = m_originalText.indexOf('\n', idIndex);
+            if (newLineIndex != -1) {
+                const QString checkLine = m_originalText.mid(idIndex, newLineIndex - idIndex);
+                int lineIndex = currentText.indexOf(checkLine);
+                if (lineIndex != -1) {
+                    // Paranoia check - This shouldn't happen except when modifying text manually,
+                    // but it's possible something was inserted between id and start
+                    // of the component, which would throw off the calculation, so check that
+                    // the first line is still correct even with new offset.
+                    const int diff = idIndex - lineIndex;
+                    newLineIndex = m_originalText.indexOf('\n', m_componentStartOffset);
+                    if (newLineIndex != -1) {
+                        const QString firstLine = m_originalText.mid(m_componentStartOffset,
+                                                                     newLineIndex - m_componentStartOffset);
+                        const int newStart = m_componentStartOffset - diff;
+                        if (firstLine == currentText.mid(newStart, firstLine.size())) {
+                            m_componentEndOffset -= diff;
+                            m_componentStartOffset = newStart;
+                            m_originalText = currentText;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    emit textChanged();
 }
