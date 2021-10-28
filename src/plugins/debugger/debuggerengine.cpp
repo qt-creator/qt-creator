@@ -1097,7 +1097,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         showMessage("CANNOT GO TO THIS LOCATION");
         return;
     }
-    const QString file = loc.fileName().toString();
+    const FilePath file = loc.fileName();
     const int line = loc.lineNumber();
     bool newEditor = false;
     IEditor *editor = EditorManager::openEditor(file,
