@@ -74,6 +74,7 @@
 #include <texteditor/fontsettings.h>
 
 #include <utils/basetreeview.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/macroexpander.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
@@ -2729,27 +2730,34 @@ Context CppDebuggerEngine::languageContext() const
 
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
+    static const QString warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
+    QtcSettings *coreSettings = Core::ICore::settings();
+
     const bool warnOnRelease = debuggerSettings()->warnOnReleaseBuilds.value()
                                && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
     switch (rp.toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        QString preferredDebugger;
-        if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
-            if (rp.cppEngineType == CdbEngineType)
-                preferredDebugger = "GDB";
-        } else if (rp.cppEngineType != CdbEngineType) {
-            // osFlavor() is MSVC, so the recommended debugger is CDB
-            preferredDebugger = "CDB";
-        }
-        if (!preferredDebugger.isEmpty()) {
-            warnOnInappropriateDebugger = true;
-            detailedWarning = DebuggerEngine::tr(
-                        "The inferior is in the Portable Executable format.\n"
-                        "Selecting %1 as debugger would improve the debugging "
-                        "experience for this binary format.").arg(preferredDebugger);
-            break;
+        if (CheckableMessageBox::shouldAskAgain(coreSettings, warnOnInappropriateDebuggerKey)) {
+            QString preferredDebugger;
+            if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
+                if (rp.cppEngineType == CdbEngineType)
+                    preferredDebugger = "GDB";
+            } else if (rp.cppEngineType != CdbEngineType && rp.cppEngineType != LldbEngineType) {
+                // osFlavor() is MSVC, so the recommended debugger is still CDB,
+                // but don't warn for LLDB which starts to be usable, too.
+                preferredDebugger = "CDB";
+            }
+            if (!preferredDebugger.isEmpty()) {
+                warnOnInappropriateDebugger = true;
+                detailedWarning = DebuggerEngine::tr(
+                                      "The inferior is in the Portable Executable format.\n"
+                                      "Selecting %1 as debugger would improve the debugging "
+                                      "experience for this binary format.")
+                                      .arg(preferredDebugger);
+                break;
+            }
         }
         if (warnOnRelease
                 && rp.cppEngineType == CdbEngineType
@@ -2771,13 +2779,15 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         break;
     }
     case Abi::ElfFormat: {
-        if (rp.cppEngineType == CdbEngineType) {
-            warnOnInappropriateDebugger = true;
-            detailedWarning = DebuggerEngine::tr(
-                        "The inferior is in the ELF format.\n"
-                        "Selecting GDB or LLDB as debugger would improve the debugging "
-                        "experience for this binary format.");
-            break;
+        if (CheckableMessageBox::shouldAskAgain(coreSettings, warnOnInappropriateDebuggerKey)) {
+            if (rp.cppEngineType == CdbEngineType) {
+                warnOnInappropriateDebugger = true;
+                detailedWarning = DebuggerEngine::tr(
+                    "The inferior is in the ELF format.\n"
+                    "Selecting GDB or LLDB as debugger would improve the debugging "
+                    "experience for this binary format.");
+                break;
+            }
         }
 
         ElfReader reader(rp.symbolFile);
@@ -2876,11 +2886,16 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         return;
     }
     if (warnOnInappropriateDebugger) {
-        AsynchronousMessageBox::information(DebuggerEngine::tr("Warning"),
-                DebuggerEngine::tr("The selected debugger may be inappropriate for the inferior.\n"
-                   "Examining symbols and setting breakpoints by file name and line number "
-                   "may fail.\n")
-               + '\n' + detailedWarning);
+        CheckableMessageBox::doNotShowAgainInformation(
+            Core::ICore::dialogParent(),
+            DebuggerEngine::tr("Warning"),
+            DebuggerEngine::tr(
+                "The selected debugger may be inappropriate for the inferior.\n"
+                "Examining symbols and setting breakpoints by file name and line number "
+                "may fail.\n")
+                + '\n' + detailedWarning,
+            Core::ICore::settings(),
+            warnOnInappropriateDebuggerKey);
     } else if (warnOnRelease) {
         AsynchronousMessageBox::information(DebuggerEngine::tr("Warning"),
                DebuggerEngine::tr("This does not seem to be a \"Debug\" build.\n"
