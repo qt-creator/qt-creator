@@ -337,6 +337,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     if (!newProposal->hasItemsToPropose(prefix, reason)) {
         if (newProposal->isCorrective(m_editorWidget))
             newProposal->makeCorrection(m_editorWidget);
+        destroyContext();
         return;
     }
 
