@@ -327,7 +327,7 @@ AndroidRunnerWorker::~AndroidRunnerWorker()
 }
 
 bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
-                                 const QByteArray &writeData)
+                                 QString *stdErr, const QByteArray &writeData)
 {
     QStringList adbArgs = selector() + args;
     SdkToolResult result = AndroidManager::runAdbCommand(adbArgs, writeData);
@@ -335,6 +335,8 @@ bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
         emit remoteErrorOutput(result.stdErr());
     if (stdOut)
         *stdOut = result.stdOut();
+    if (stdErr)
+        *stdErr = result.stdErr();
     return result.success();
 }
 
@@ -651,8 +653,15 @@ void AndroidRunnerWorker::asyncStartHelper()
                                     .toUtf8().toBase64());
     }
 
-    if (!runAdb(args)) {
+    QString stdErr;
+    const bool startResult = runAdb(args, nullptr, &stdErr);
+    if (!startResult) {
         emit remoteProcessFinished(tr("Failed to start the activity."));
+        return;
+    }
+
+    if (!stdErr.isEmpty()) {
+        emit remoteErrorOutput(tr("Activity Manager threw the error: %1").arg(stdErr));
         return;
     }
 }
