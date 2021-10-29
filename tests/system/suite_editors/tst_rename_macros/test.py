@@ -46,6 +46,8 @@ def main():
                      expectedHeaderName=headerName)
     if not testRenameMacroAfterSourceMoving():
         return
+    # save and exit
+    invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
 def testRenameMacroAfterSourceModification():
@@ -156,8 +158,7 @@ def revertChanges(files):
         simpleName = simpleFileName(f)
         if openDocument(f):
             try:
-                invokeMenuItem('File', 'Revert "%s" to Saved' % simpleName)
-                clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+                invokeMenuItem('Edit', 'Undo')
                 test.log("Reverted changes inside %s" % simpleName)
             except:
                 test.warning("File '%s' cannot be reverted." % simpleName,
