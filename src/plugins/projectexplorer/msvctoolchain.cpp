@@ -51,7 +51,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QVector>

@@ -62,7 +62,6 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QPlainTextEdit>
-#include <QProcess>
 #include <QScrollBar>
 #include <QTextBlock>
 

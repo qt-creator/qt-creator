@@ -42,7 +42,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QProcess>
 
 using namespace Utils;
 using namespace std;

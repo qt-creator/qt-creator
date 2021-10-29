@@ -36,7 +36,6 @@
 #include <utils/fileutils.h>
 
 #include <QFormLayout>
-#include <QProcess>
 
 using namespace ProjectExplorer;
 using namespace Utils;

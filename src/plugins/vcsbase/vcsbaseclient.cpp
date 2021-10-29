@@ -41,15 +41,11 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
-#include <QStringList>
-#include <QDir>
-#include <QProcess>
-#include <QTextCodec>
 #include <QDebug>
 #include <QFileInfo>
-#include <QByteArray>
+#include <QStringList>
+#include <QTextCodec>
 #include <QVariant>
-#include <QProcessEnvironment>
 
 using namespace Utils;
 

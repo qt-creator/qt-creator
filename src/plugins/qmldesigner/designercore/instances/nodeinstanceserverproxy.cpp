@@ -81,7 +81,6 @@
 #include <QLocalSocket>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProcess>
 #include <QTextStream>
 #include <QTimer>
 #include <QUuid>

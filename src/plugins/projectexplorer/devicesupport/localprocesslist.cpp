@@ -31,7 +31,6 @@
 #include <QTimer>
 
 #ifdef Q_OS_UNIX
-#include <QProcess>
 #include <QDir>
 #include <signal.h>
 #include <errno.h>

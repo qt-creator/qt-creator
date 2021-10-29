@@ -41,7 +41,6 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProcess>
 #include <QSortFilterProxyModel>
 
 namespace {

@@ -71,14 +71,13 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPainter>
-#include <QProcess>
 #include <QSet>
+#include <QTableWidget>
 #include <QTabWidget>
 #include <QTextEdit>
-#include <QTableWidget>
 #include <QTimer>
-#include <QVBoxLayout>
 #include <QToolTip>
+#include <QVBoxLayout>
 
 #include <algorithm>
 #include <cstring>

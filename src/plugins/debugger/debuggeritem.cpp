@@ -41,7 +41,6 @@
 #include <utils/winutils.h>
 
 #include <QFileInfo>
-#include <QProcess>
 #include <QUuid>
 
 #ifdef WITH_TESTS
