@@ -1137,6 +1137,7 @@ class DumperBase():
                 'char',
                 'wchar_t',
                 'unsigned char',
+                'uint8_t',
                 'signed char',
                 'CHAR',
                 'WCHAR'
@@ -1243,7 +1244,7 @@ class DumperBase():
             if innerType.code == TypeCode.Typedef:
                 targetType = innerType.ltarget
 
-            if targetType.name in ('char', 'signed char', 'unsigned char', 'CHAR'):
+            if targetType.name in ('char', 'signed char', 'unsigned char', 'uint8_t', 'CHAR'):
                 # Use UTF-8 as default for char *.
                 self.putType(typeName)
                 (elided, shown, data) = self.readToFirstZero(ptr, 1, limit)
@@ -1406,6 +1407,7 @@ class DumperBase():
                 'char',
                 'signed char',
                 'unsigned char',
+                'uint8_t',
                 'wchar_t',
                 'CHAR',
                 'WCHAR'
@@ -3628,6 +3630,7 @@ class DumperBase():
                 'char': 'int:1',
                 'signed char': 'int:1',
                 'unsigned char': 'uint:1',
+                'uint8_t': 'uint:1',
                 'short': 'int:2',
                 'unsigned short': 'uint:2',
                 'int': 'int:4',
