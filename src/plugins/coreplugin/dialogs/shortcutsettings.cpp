@@ -483,6 +483,8 @@ void ShortcutSettingsWidget::resetToDefault()
     ShortcutItem *scitem = shortcutItem(current);
     if (scitem) {
         scitem->m_keys = scitem->m_cmd->defaultKeySequences();
+        current->setText(2, keySequencesToNativeString(scitem->m_keys));
+        CommandMappings::setModified(current, false);
         setupShortcutBox(scitem);
         markAllCollisions();
     }
