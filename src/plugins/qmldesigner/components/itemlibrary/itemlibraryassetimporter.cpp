@@ -686,8 +686,6 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
 
                                 model->changeImports(newImportsToAdd, {});
                                 transaction.commit();
-                                for (const Import &import : qAsConst(newImportsToAdd))
-                                    doc->updateSubcomponentManagerImport(import);
                             }
                         } catch (const RewritingException &e) {
                             addError(tr("Failed to update imports: %1").arg(e.description()));

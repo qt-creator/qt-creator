@@ -69,7 +69,7 @@ public:
     void attachRewriterToModel();
     void close();
     void updateSubcomponentManager();
-    void updateSubcomponentManagerImport(const Import &import);
+    void addSubcomponentManagerImport(const Import &import);
 
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;

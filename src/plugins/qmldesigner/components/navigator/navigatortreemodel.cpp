@@ -879,7 +879,6 @@ void NavigatorTreeModel::addImport(const QString &importName)
             if (possImport.url() == import.url()) {
                 import = possImport;
                 m_view->model()->changeImports({import}, {});
-                QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManagerImport(import);
                 break;
             }
         }

@@ -132,6 +132,10 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
 
 void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    for (const auto &import : addedImports)
+        document->addSubcomponentManagerImport(import);
+
     updateImports();
 
     // TODO: generalize the logic below to allow adding/removing any Qml component when its import is added/removed
@@ -165,6 +169,10 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
 
 void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImports)
 {
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    for (const auto &import : possibleImports)
+        document->addSubcomponentManagerImport(import);
+
     m_widget->updatePossibleImports(possibleImports);
 }
 
