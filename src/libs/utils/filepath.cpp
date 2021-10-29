@@ -440,7 +440,7 @@ FilePath FilePath::fromFileInfo(const QFileInfo &info)
 QFileInfo FilePath::toFileInfo() const
 {
     QTC_ASSERT(!needsDevice(), return QFileInfo());
-    return QFileInfo(m_data);
+    return QFileInfo(cleanPath().path());
 }
 
 FilePath FilePath::fromUrl(const QUrl &url)
