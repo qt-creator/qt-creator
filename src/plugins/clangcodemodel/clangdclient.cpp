@@ -560,7 +560,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
 {
     QString indexingOption = "--background-index";
     const CppEditor::ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
-    if (!settings.indexingEnabled())
+    if (!settings.indexingEnabled() || jsonDbDir.isEmpty())
         indexingOption += "=0";
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
