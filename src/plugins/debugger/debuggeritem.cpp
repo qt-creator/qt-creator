@@ -150,7 +150,8 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
     // except for the experimental LLDB-MI which insists on --version.
     QString version = "-version";
     m_lastModified = m_command.lastModified();
-    if (m_command.baseName().toLower().contains("lldb-mi"))
+    if (m_command.baseName().toLower().contains("lldb-mi")
+            || m_command.baseName().startsWith("LLDBFrontend")) // Comes with Android Studio
         version = "--version";
 
     // We don't need to start the uVision executable to
@@ -229,15 +230,16 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         //! \note If unable to determine the GDB ABI, no ABI is appended to m_abis here.
         return;
     }
-    if (output.startsWith("lldb") || output.startsWith("LLDB")) {
+    if (output.contains("lldb") || output.startsWith("LLDB")) {
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
 
         // Version
         // Self-build binaries also emit clang and llvm revision.
         const QString line = output.split('\n')[0];
-        if (line.startsWith(("lldb version "))) { // Linux typically.
-            int pos1 = int(strlen("lldb version "));
+        const QString nonMacOSPrefix = "lldb version ";
+        if (line.contains(nonMacOSPrefix)) { // Linux typically, or some Windows builds.
+            int pos1 = line.indexOf(nonMacOSPrefix) + nonMacOSPrefix.length();
             int pos2 = line.indexOf(' ', pos1);
             m_version = line.mid(pos1, pos2 - pos1);
         } else if (line.startsWith("lldb-") || line.startsWith("LLDB-")) { // Mac typically.
