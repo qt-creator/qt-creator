@@ -385,7 +385,11 @@
             \li \l{http://code.qt.io/cgit/clang/clang.git}
             \endlist
 
-        \li \b{Reference implementation for std::experimental::optional}
+        \li \b{Optional}
+
+            A single-header header-only library for representing optional
+            (nullable) objects for C++14 (and C++11 to some extent) and passing
+            them by value.
 
             Copyright (C) 2011-2012 Andrzej Krzemienski
 
@@ -404,7 +408,9 @@
             \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/optional}
             \endlist
 
-        \li \b{Implementation for std::variant}
+        \li \b{MPark.Variant}
+
+            MPark.Variant is an implementation of C++17 std::variant for C++11/14/17.
 
             Copyright Michael Park, 2015-2017
 
@@ -419,7 +425,11 @@
             \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/variant}
             \endlist
 
-        \li \b{Implementation for std::span}
+        \li \b{std::span implementation for C++11 and later}
+
+            A single-header implementation of C++20's std::span, conforming to
+            the C++20 committee draft. It is compatible with C++11, but will use
+            newer language features if they are available.
 
             Copyright Tristan Brindle, 2018
 
@@ -613,7 +623,10 @@
         OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         \endcode
 
-        \li \b{SQLite, an embedded database. Version 3.8.10.2}\br\br
+        \li \b{SQLite (version 3.8.10.2)}
+
+        SQLite is a C-language library that implements a small, fast,
+        self-contained, high-reliability, full-featured, SQL database engine.
 
         The author or authors of this code dedicate any and all copyright
         interest in this code to the public domain. We make this dedication
@@ -628,11 +641,15 @@
         \li  \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/sqlite}
         \endlist
 
-        \li \b{three.js (license MIT)}\br
-        Copyright (C) 2010-2015 three.js authors\br
+        \li \b{three.js}
+
+        Copyright (C) 2010-2015 three.js authors
+
+        MIT License.
+
         share/qtcreator/templates/wizards/projects/qmake/qtcanvas3dapplication
 
-        \li \b{OpenSSL toolkit}
+        \li \b{OpenSSL}
 
         The OpenSSL toolkit stays under a double license, i.e. both the conditions of
         the OpenSSL License and the original SSLeay license apply to the toolkit.
@@ -753,7 +770,7 @@
         [including the GNU Public Licence.]
         \endcode
 
-        \li \b{Mesa LLVMPipe, 3D graphics library}
+        \li \b{LLVMPipe - The Mesa 3D Graphics Library}
 
         Mesa is a 3D graphics library with an API which is very similar to that
         of OpenGL. The llvmpipe software renderer enables the running of OpenGL
@@ -826,7 +843,7 @@
         from Florian Loitsch which is licensed under the MIT License (see above).
         Copyright (C) 2009 Florian Loitsch
 
-        \li \b Minitrace
+        \li \b minitrace
 
         Simple C/C++ library for producing JSON traces.
 
