@@ -1374,10 +1374,10 @@ static Utils::FilePath getFullPathOf(const QmakeProFile *pro, Variable variable,
     if (values.isEmpty())
         return Utils::FilePath();
     const QString exe = values.last();
-    QTC_ASSERT(bc, return Utils::FilePath::fromString(exe));
+    QTC_ASSERT(bc, return Utils::FilePath::fromUserInput(exe));
     QFileInfo fi(exe);
     if (fi.isAbsolute())
-        return Utils::FilePath::fromString(exe);
+        return Utils::FilePath::fromUserInput(exe);
 
     return bc->environment().searchInPath(exe);
 }
