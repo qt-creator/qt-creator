@@ -58,7 +58,6 @@
 
 #include <QBuffer>
 #include <QHash>
-#include <QProcess>
 #include <QJsonDocument>
 #include <QTextCursor>
 

@@ -32,10 +32,9 @@
 #include <qmldebug/qmloutputparser.h>
 
 #include <QObject>
-#include <QTimer>
 #include <QTcpSocket>
 #include <QThread>
-#include <QProcess>
+#include <QTimer>
 
 namespace Android {
 namespace Internal {

@@ -31,7 +31,7 @@
 #include <QHash>
 #include <QJsonObject>
 #include <QObject>
-#include <QProcess>
+#include <QProcessEnvironment>
 #include <QString>
 #include <QVariant>
 

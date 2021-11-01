@@ -27,8 +27,6 @@
 
 #include "connectionmanagerinterface.h"
 
-#include <QProcess>
-
 #include <mutex>
 
 QT_BEGIN_NAMESPACE

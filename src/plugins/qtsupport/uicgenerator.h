@@ -28,8 +28,6 @@
 #include <projectexplorer/extracompiler.h>
 #include <utils/fileutils.h>
 
-#include <QProcess>
-
 namespace QtSupport {
 
 class UicGenerator : public ProjectExplorer::ProcessExtraCompiler

@@ -33,7 +33,6 @@
 
 #include <QDateTime>
 #include <QHash>
-#include <QProcess>
 #include <QSet>
 
 namespace Core { class IEditor; }
