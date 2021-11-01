@@ -89,6 +89,8 @@ public:
 
     FormEditorGraphicsView *graphicsView() const;
 
+    bool errorMessageBoxIsVisible() const;
+
 protected:
     QActionGroup *toolActionGroup() const;
     DocumentWarningWidget *errorWidget();

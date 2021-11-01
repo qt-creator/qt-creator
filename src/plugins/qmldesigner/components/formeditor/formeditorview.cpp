@@ -44,6 +44,7 @@
 #include <model.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <nodemetainfo.h>
 #include <rewriterview.h>
 #include <zoomaction.h>
 
@@ -159,6 +160,8 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
             if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource)
                 setupFormEditorItemTree(nextNode.toQmlItemNode());
     }
+
+    checkRootModelNode();
 }
 
 static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
@@ -296,7 +299,11 @@ void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVer
     if (newItemNode.isValid()) //only setup QmlItems
         setupFormEditorItemTree(newItemNode);
 
+
+
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+
+    checkRootModelNode();
 }
 
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
@@ -464,6 +471,8 @@ void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
         m_formEditorWidget->showErrorMessageBox(errors);
     else
         m_formEditorWidget->hideErrorMessageBox();
+
+    checkRootModelNode();
 }
 
 void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
@@ -796,6 +805,8 @@ void FormEditorView::setupFormEditorWidget()
 
     if (!rewriterView()->warnings().isEmpty())
         m_formEditorWidget->showWarningMessageBox(rewriterView()->warnings());
+
+    checkRootModelNode();
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
@@ -882,6 +893,21 @@ void FormEditorView::addOrRemoveFormEditorItem(const ModelNode &node)
             removeItemFromScene();
         }
     }
+}
+
+void FormEditorView::checkRootModelNode()
+{
+    if (m_formEditorWidget->errorMessageBoxIsVisible())
+        return;
+
+    QTC_ASSERT(rootModelNode().isValid(), return);
+
+    if (!rootModelNode().metaInfo().isGraphicalItem())
+        m_formEditorWidget->showErrorMessageBox(
+            {DocumentMessage(tr("%1 is not supported as the root element by Form Editor.")
+                                 .arg(rootModelNode().simplifiedTypeName()))});
+    else
+        m_formEditorWidget->hideErrorMessageBox();
 }
 
 void FormEditorView::reset()

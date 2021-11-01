@@ -149,6 +149,7 @@ private:
     void temporaryBlockView(int duration = 1000);
     void resetNodeInstanceView();
     void addOrRemoveFormEditorItem(const ModelNode &node);
+    void checkRootModelNode();
 
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;

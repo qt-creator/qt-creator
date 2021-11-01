@@ -549,6 +549,11 @@ FormEditorGraphicsView *FormEditorWidget::graphicsView() const
     return m_graphicsView;
 }
 
+bool FormEditorWidget::errorMessageBoxIsVisible() const
+{
+    return m_documentErrorWidget && m_documentErrorWidget->isVisible();
+}
+
 DocumentWarningWidget *FormEditorWidget::errorWidget()
 {
     if (m_documentErrorWidget.isNull()) {
