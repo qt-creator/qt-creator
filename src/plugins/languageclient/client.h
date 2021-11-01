@@ -116,6 +116,7 @@ public:
         Error
     };
     State state() const;
+    QString stateString() const;
     bool reachable() const { return m_state == Initialized; }
 
     // capabilities

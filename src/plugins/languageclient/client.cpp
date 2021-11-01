@@ -340,6 +340,19 @@ Client::State Client::state() const
     return m_state;
 }
 
+QString Client::stateString() const
+{
+    switch (m_state){
+    case Uninitialized: return tr("uninitialized");
+    case InitializeRequested: return tr("initialize requested");
+    case Initialized: return tr("initialized");
+    case ShutdownRequested: return tr("shutdown requested");
+    case Shutdown: return tr("shutdown");
+    case Error: return tr("error");
+    }
+    return {};
+}
+
 ClientCapabilities Client::defaultClientCapabilities()
 {
     return generateClientCapabilities();
