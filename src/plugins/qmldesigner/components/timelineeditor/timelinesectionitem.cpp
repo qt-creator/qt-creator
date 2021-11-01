@@ -959,7 +959,7 @@ void TimelineBarItem::itemMoved(const QPointF &start, const QPointF &end)
     else
         dragHandle(rect(), end, min, max);
 
-    abstractScrollGraphicsScene()->statusBarMessageChanged(
+    emit abstractScrollGraphicsScene()->statusBarMessageChanged(
         tr("Range from %1 to %2")
             .arg(qRound(mapFromSceneToFrame(rect().x())))
             .arg(qRound(mapFromSceneToFrame(rect().width() + rect().x()))));

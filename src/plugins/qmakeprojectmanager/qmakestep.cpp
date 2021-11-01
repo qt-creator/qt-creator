@@ -532,7 +532,7 @@ QWidget *QMakeStep::createConfigWidget()
 
     qmakeBuildConfigChanged();
 
-    updateSummary();
+    emit updateSummary();
     updateAbiWidgets();
     updateEffectiveQMakeCall();
 

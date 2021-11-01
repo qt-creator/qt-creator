@@ -120,7 +120,7 @@ void DesktopRunConfiguration::updateTargetInformation()
         else
             setDefaultDisplayName(profile.completeBaseName());
 
-        aspect<EnvironmentAspect>()->environmentChanged();
+        emit aspect<EnvironmentAspect>()->environmentChanged();
 
         auto wda = aspect<WorkingDirectoryAspect>();
         wda->setDefaultWorkingDirectory(bti.workingDirectory);
@@ -144,7 +144,7 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
         aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-        aspect<LocalEnvironmentAspect>()->environmentChanged();
+        emit aspect<LocalEnvironmentAspect>()->environmentChanged();
 
     }
 }

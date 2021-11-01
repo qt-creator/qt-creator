@@ -134,7 +134,8 @@ void GridProxyModel::setSourceModel(QAbstractItemModel *newModel)
                 [this] (const QModelIndex &topLeft,
                         const QModelIndex &bottomRight,
                         const QVector<int> &roles) {
-            QAbstractItemModel::dataChanged(mapFromSource(topLeft), mapFromSource(bottomRight), roles);
+            emit QAbstractItemModel::dataChanged(mapFromSource(topLeft),
+                                                 mapFromSource(bottomRight), roles);
         });
     }
 }

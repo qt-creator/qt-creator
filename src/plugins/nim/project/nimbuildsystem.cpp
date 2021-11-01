@@ -140,7 +140,7 @@ bool NimProjectScanner::addFiles(const QStringList &filePaths)
         return !filePaths.contains(f);
     }));
 
-    requestReparse();
+    emit requestReparse();
 
     return true;
 }
@@ -149,7 +149,7 @@ RemovedFilesFromProject NimProjectScanner::removeFiles(const QStringList &filePa
 {
     setExcludedFiles(Utils::filteredUnique(excludedFiles() + filePaths));
 
-    requestReparse();
+    emit requestReparse();
 
     return RemovedFilesFromProject::Ok;
 }
@@ -160,7 +160,7 @@ bool NimProjectScanner::renameFile(const QString &, const QString &to)
     files.removeOne(to);
     setExcludedFiles(files);
 
-    requestReparse();
+    emit requestReparse();
 
     return true;
 }

@@ -208,7 +208,8 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         [archive]() {
             if (!archive->m_process)
                 return;
-            archive->outputReceived(QString::fromUtf8(archive->m_process->readAllStandardOutput()));
+            emit archive->outputReceived(QString::fromUtf8(
+                                             archive->m_process->readAllStandardOutput()));
         },
         Qt::QueuedConnection);
     QObject::connect(
@@ -218,7 +219,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         [archive] {
             if (!archive->m_process)
                 return;
-            archive->finished(archive->m_process->result() == QtcProcess::FinishedWithSuccess);
+            emit archive->finished(archive->m_process->result() == QtcProcess::FinishedWithSuccess);
             archive->m_process->deleteLater();
             archive->m_process = nullptr;
             archive->deleteLater();
@@ -231,8 +232,8 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         [archive](QProcess::ProcessError) {
             if (!archive->m_process)
                 return;
-            archive->outputReceived(tr("Command failed."));
-            archive->finished(false);
+            emit archive->outputReceived(tr("Command failed."));
+            emit archive->finished(false);
             archive->m_process->deleteLater();
             archive->m_process = nullptr;
             archive->deleteLater();
@@ -240,7 +241,7 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         Qt::QueuedConnection);
 
     QTimer::singleShot(0, archive, [archive, tool, workingDirectory] {
-        archive->outputReceived(
+        emit archive->outputReceived(
             tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
                 .arg(tool->command.toUserOutput(), workingDirectory.toUserOutput()));
     });

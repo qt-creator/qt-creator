@@ -139,7 +139,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
 
     connect(this, &Target::parsingStarted, this, [this, project] {
-        project->anyParsingStarted(this);
+        emit project->anyParsingStarted(this);
     });
 
     connect(this, &Target::parsingFinished, this, [this, project](bool success) {
@@ -147,7 +147,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
             updateDefaultRunConfigurations();
         // For testing.
         emit SessionManager::instance()->projectFinishedParsing(project);
-        project->anyParsingFinished(this, success);
+        emit project->anyParsingFinished(this, success);
     }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
 
     KitManager *km = KitManager::instance();

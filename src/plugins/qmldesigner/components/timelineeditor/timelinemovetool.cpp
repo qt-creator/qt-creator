@@ -136,8 +136,8 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
             targetFrame = snappedTargetFrame;
         }
 
-        scene()->statusBarMessageChanged(tr(TimelineConstants::statusBarKeyframe)
-                                         .arg(targetFrame));
+        emit scene()->statusBarMessageChanged(tr(TimelineConstants::statusBarKeyframe)
+                                              .arg(targetFrame));
 
         const QList<TimelineKeyframeItem *> selectedKeyframes = scene()->selectedKeyframes();
         for (auto *keyframe : selectedKeyframes) {
@@ -170,7 +170,7 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
 
             if (limitFrame > -999999.) {
                 scene()->setCurrentFrame(limitFrame);
-                scene()->statusBarMessageChanged(
+                emit scene()->statusBarMessageChanged(
                             tr(TimelineConstants::statusBarPlayheadFrame).arg(limitFrame));
                 return;
             }

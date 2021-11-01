@@ -744,7 +744,7 @@ HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
     connect(viewer, &HelpViewer::titleChanged, &m_model, [this, viewer] {
         const int i = indexOf(viewer);
         QTC_ASSERT(i >= 0, return );
-        m_model.dataChanged(m_model.index(i, 0), m_model.index(i, 0));
+        emit m_model.dataChanged(m_model.index(i, 0), m_model.index(i, 0));
     });
 
     connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);

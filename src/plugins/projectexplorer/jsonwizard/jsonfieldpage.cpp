@@ -962,7 +962,7 @@ void CheckBoxField::setChecked(bool value)
     QTC_ASSERT(w, return);
 
     w->setChecked(value);
-    w->clicked(value);
+    emit w->clicked(value);
 }
 
 bool CheckBoxField::validate(MacroExpander *expander, QString *message)

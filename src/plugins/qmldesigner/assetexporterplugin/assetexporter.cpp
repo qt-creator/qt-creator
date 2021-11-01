@@ -460,7 +460,7 @@ void AssetExporter::State::change(const ParsingState &state)
     qCDebug(loggerInfo()) << "Assetimporter State change: Old: " << m_state << "New: " << state;
     if (m_state != state) {
         m_state = state;
-        m_assetExporter.stateChanged(m_state);
+        emit m_assetExporter.stateChanged(m_state);
     }
 }
 

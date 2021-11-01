@@ -288,7 +288,7 @@ void GraphicsView::setCurrentFrame(int frame, bool notify)
     m_playhead.moveToFrame(clampedFrame, this);
     viewport()->update();
 
-    currentFrameChanged(clampedFrame, notify);
+    emit currentFrameChanged(clampedFrame, notify);
 }
 
 void GraphicsView::scrollContent(double x, double y)

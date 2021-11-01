@@ -92,7 +92,7 @@ void MesonRunConfiguration::updateTargetInformation()
     aspect<ProjectExplorer::ExecutableAspect>()->setExecutable(bti.targetFilePath);
     aspect<ProjectExplorer::WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
         bti.workingDirectory);
-    aspect<ProjectExplorer::LocalEnvironmentAspect>()->environmentChanged();
+    emit aspect<ProjectExplorer::LocalEnvironmentAspect>()->environmentChanged();
 }
 
 MesonRunConfigurationFactory::MesonRunConfigurationFactory()

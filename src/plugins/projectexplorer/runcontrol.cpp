@@ -851,7 +851,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 void RunControlPrivate::showError(const QString &msg)
 {
     if (!msg.isEmpty())
-        q->appendMessage(msg + '\n', ErrorMessageFormat);
+        emit q->appendMessage(msg + '\n', ErrorMessageFormat);
 }
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
@@ -1480,9 +1480,9 @@ void RunWorker::reportFailure(const QString &msg)
 void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
 {
     if (!appendNewLine || msg.endsWith('\n'))
-        d->runControl->appendMessage(msg, format);
+        emit d->runControl->appendMessage(msg, format);
     else
-        d->runControl->appendMessage(msg + '\n', format);
+        emit d->runControl->appendMessage(msg + '\n', format);
 }
 
 IDevice::ConstPtr RunWorker::device() const

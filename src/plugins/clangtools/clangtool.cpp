@@ -671,8 +671,8 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     m_runControl->setTarget(project->activeTarget());
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
-        m_runControl->appendMessage(tr("Clang-Tidy and Clazy tool stopped by user."),
-                                    NormalMessageFormat);
+        emit m_runControl->appendMessage(tr("Clang-Tidy and Clazy tool stopped by user."),
+                                         NormalMessageFormat);
         m_runControl->initiateStop();
         setState(State::StoppedByUser);
     });
