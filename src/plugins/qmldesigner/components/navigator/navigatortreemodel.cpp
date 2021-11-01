@@ -316,7 +316,12 @@ QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, boo
 
     if (filter) {
         list.append(Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
-            return QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
+            const char auxProp[] = "showInNavigator@Internal";
+            if (arg.hasAuxiliaryData(auxProp))
+                return arg.auxiliaryData(auxProp).toBool();
+            const bool value = QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
+            arg.setAuxiliaryData(auxProp, value);
+            return value;
         }));
     } else {
         list = property.toModelNodeList();
