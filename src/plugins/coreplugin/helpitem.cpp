@@ -298,7 +298,8 @@ static const HelpItem::Links getBestLink(const HelpItem::Links &links)
     // documentation, that we only return the Qt5 link even though the Qt5 and Qt4 URLs look
     // different.
     QVersionNumber highestVersion;
-    HelpItem::Link bestLink;
+    // Default to first link if version extraction failed, possibly because it is not a Qt doc link
+    HelpItem::Link bestLink = links.front();
     for (const HelpItem::Link &link : links) {
         const QVersionNumber version = extractVersion(link.second).second;
         if (version > highestVersion) {

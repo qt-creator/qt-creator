@@ -58,11 +58,12 @@
 #include <QJsonArray>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
 
-PdbEngine::PdbEngine()
+PdbEngine::PdbEngine() : m_proc(ProcessMode::Writer)
 {
     setObjectName("PdbEngine");
     setDebuggerName("PDB");
@@ -117,13 +118,10 @@ void PdbEngine::setupEngine()
     m_interpreter = runParameters().interpreter;
     QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toString();
 
-    connect(&m_proc, &QProcess::errorOccurred, this, &PdbEngine::handlePdbError);
-    connect(&m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-        this, &PdbEngine::handlePdbFinished);
-    connect(&m_proc, &QProcess::readyReadStandardOutput,
-        this, &PdbEngine::readPdbStandardOutput);
-    connect(&m_proc, &QProcess::readyReadStandardError,
-        this, &PdbEngine::readPdbStandardError);
+    connect(&m_proc, &QtcProcess::errorOccurred, this, &PdbEngine::handlePdbError);
+    connect(&m_proc, &QtcProcess::finished, this, &PdbEngine::handlePdbFinished);
+    connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
+    connect(&m_proc, &QtcProcess::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
     QFile scriptFile(runParameters().mainScript);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -134,10 +132,11 @@ void PdbEngine::setupEngine()
     }
 
     QStringList args = {bridge, scriptFile.fileName()};
-    args.append(Utils::ProcessArgs::splitArgs(runParameters().inferior.workingDirectory.path()));
+    args.append(ProcessArgs::splitArgs(runParameters().inferior.workingDirectory.path()));
     showMessage("STARTING " + m_interpreter + ' ' + args.join(' '));
-    m_proc.setEnvironment(runParameters().debugger.environment.toStringList());
-    m_proc.start(m_interpreter, args);
+    m_proc.setEnvironment(runParameters().debugger.environment);
+    m_proc.setCommand({ FilePath::fromString(m_interpreter), args });
+    m_proc.start();
 
     if (!m_proc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb \"%1\": %2")
@@ -346,7 +345,7 @@ void PdbEngine::refreshState(const GdbMi &reportedState)
 void PdbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
     StackFrame frame;
-    frame.file = Utils::FilePath::fromString(reportedLocation["file"].data());
+    frame.file = FilePath::fromString(reportedLocation["file"].data());
     frame.line = reportedLocation["line"].toInt();
     frame.usable = frame.file.isReadableFile();
     if (state() == InferiorRunOk) {
@@ -435,9 +434,10 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
     }
 }
 
-void PdbEngine::handlePdbFinished(int code, QProcess::ExitStatus type)
+void PdbEngine::handlePdbFinished()
 {
-    showMessage(QString("PDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
+    showMessage(QString("PDB PROCESS FINISHED, status %1, code %2")
+                .arg(m_proc.exitStatus()).arg(m_proc.exitCode()));
     notifyEngineSpontaneousShutdown();
 }
 
@@ -495,10 +495,9 @@ void PdbEngine::handleOutput2(const QString &data)
             const QString bpnr = line.mid(11, pos1 - 11);
             const int pos2 = line.lastIndexOf(':');
             QTC_ASSERT(pos2 != -1, continue);
-            const Utils::FilePath fileName = Utils::FilePath::fromString(
-                line.mid(pos1 + 4, pos2 - pos1 - 4));
+            const FilePath fileName = FilePath::fromString(line.mid(pos1 + 4, pos2 - pos1 - 4));
             const int lineNumber = line.mid(pos2 + 1).toInt();
-            const Breakpoint bp = Utils::findOrDefault(breakHandler()->breakpoints(), [&](const Breakpoint &bp) {
+            const Breakpoint bp = findOrDefault(breakHandler()->breakpoints(), [&](const Breakpoint &bp) {
                 return bp->parameters().isLocatedAt(fileName, lineNumber, bp->markerFileName())
                     || bp->requestedParameters().isLocatedAt(fileName, lineNumber, bp->markerFileName());
             });
@@ -535,7 +534,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
     for (const GdbMi &item : stack["frames"]) {
         StackFrame frame;
         frame.level = item["level"].data();
-        frame.file = Utils::FilePath::fromString(item["file"].data());
+        frame.file = FilePath::fromString(item["file"].data());
         frame.function = item["function"].data();
         frame.module = item["function"].data();
         frame.line = item["line"].toInt();

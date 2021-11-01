@@ -32,6 +32,7 @@
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QScrollArea>
 #include <QSplitter>
 #include <QVBoxLayout>
 
@@ -40,16 +41,20 @@ namespace QmlDesigner {
 CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     : QWidget(parent)
     , m_tree(new TreeView(model, this))
-    , m_view(new GraphicsView(model))
+    , m_view(new GraphicsView(model, this))
 {
     auto *splitter = new QSplitter;
     splitter->addWidget(m_tree);
     splitter->addWidget(m_view);
     splitter->setStretchFactor(1, 2);
 
+    QScrollArea* area = new QScrollArea;
+    area->setWidget(splitter);
+    area->setWidgetResizable(true);
+
     auto *box = new QVBoxLayout;
     box->addWidget(createToolBar(model));
-    box->addWidget(splitter);
+    box->addWidget(area);
     setLayout(box);
 
     connect(m_tree, &TreeView::treeItemLocked, model, &CurveEditorModel::setLocked);

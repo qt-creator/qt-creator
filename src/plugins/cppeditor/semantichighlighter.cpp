@@ -316,6 +316,7 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
     const FontSettings &fs = m_baseTextDocument->fontSettings();
 
     m_formatMap[TypeUse] = fs.toTextCharFormat(C_TYPE);
+    m_formatMap[NamespaceUse] = fs.toTextCharFormat(C_NAMESPACE);
     m_formatMap[LocalUse] = fs.toTextCharFormat(C_LOCAL);
     m_formatMap[FieldUse] = fs.toTextCharFormat(C_FIELD);
     m_formatMap[EnumerationUse] = fs.toTextCharFormat(C_ENUMERATION);
@@ -328,6 +329,12 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
     m_formatMap[VirtualFunctionDeclarationUse] =
             fs.toTextCharFormat(TextStyles::mixinStyle(C_VIRTUAL_METHOD, C_DECLARATION));
     m_formatMap[PseudoKeywordUse] = fs.toTextCharFormat(C_KEYWORD);
+    m_formatMap[StaticFieldUse]
+            = fs.toTextCharFormat(TextStyles::mixinStyle(C_FIELD, C_STATIC_MEMBER));
+    m_formatMap[StaticMethodUse]
+            = fs.toTextCharFormat(TextStyles::mixinStyle(C_FUNCTION, C_STATIC_MEMBER));
+    m_formatMap[StaticMethodDeclarationUse] = fs.toTextCharFormat(
+                TextStyles::mixinStyle(C_FUNCTION, {C_DECLARATION, C_STATIC_MEMBER}));
 }
 
 } // namespace CppEditor

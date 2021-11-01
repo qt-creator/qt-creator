@@ -461,8 +461,6 @@ Project {
                 "componentcore/findimplementation.h",
                 "componentcore/formatoperation.cpp",
                 "componentcore/formatoperation.h",
-                "componentcore/gestures.cpp",
-                "componentcore/gestures.h",
                 "componentcore/layoutingridlayout.cpp",
                 "componentcore/layoutingridlayout.h",
                 "componentcore/theme.cpp",

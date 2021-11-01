@@ -50,7 +50,12 @@ bool isIntType(const QString &type)
         case 'c':
             return type == "char";
         case 'i':
-            return type == "int";
+            return type.startsWith("int") &&
+                    (  type == "int"
+                    || type == "int8_t"
+                    || type == "int16_t"
+                    || type == "int32_t"
+                    || type == "int64_t");
         case 'l':
             return type == "long"
                 || type == "long int"
@@ -86,7 +91,12 @@ bool isIntType(const QString &type)
                     || type == "unsigned long"
                     || type == "unsigned long int"
                     || type == "unsigned long long"
-                    || type == "unsigned long long int"));
+                    || type == "unsigned long long int"))
+                || (type.startsWith("uint") &&
+                    (  type == "uint8_t"
+                    || type == "uint16_t"
+                    || type == "uint32_t"
+                    || type == "uint64_t"));
         default:
             return false;
     }

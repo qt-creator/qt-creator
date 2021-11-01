@@ -47,7 +47,8 @@ public:
     AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &packageName);
     ~AndroidRunnerWorker() override;
 
-    bool runAdb(const QStringList &args, QString *stdOut = nullptr, const QByteArray &writeData = {});
+    bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr,
+                const QByteArray &writeData = {});
     void adbKill(qint64 pid);
     QStringList selector() const;
     void forceStop();

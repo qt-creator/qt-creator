@@ -156,7 +156,7 @@ public:
     void updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p);
 
     void updateDocument(const QmlJS::Document::Ptr& doc);
-    void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
+    void updateLibraryInfo(const Utils::FilePath &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
     void updateQrcFile(const QString &path);
     ProjectInfo projectInfoForPath(const QString &path) const;

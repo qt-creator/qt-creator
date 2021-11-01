@@ -134,7 +134,6 @@ extend_qtc_plugin(QmlDesigner
     modelnodeoperations.cpp modelnodeoperations.h
     formatoperation.cpp formatoperation.h
     navigation2d.cpp navigation2d.h
-    gestures.cpp gestures.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h

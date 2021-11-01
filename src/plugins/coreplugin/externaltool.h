@@ -64,7 +64,7 @@ public:
     OutputHandling errorHandling() const;
     bool modifiesCurrentDocument() const;
 
-    QStringList executables() const;
+    Utils::FilePaths executables() const;
     QString arguments() const;
     QString input() const;
     Utils::FilePath workingDirectory() const;
@@ -95,7 +95,7 @@ public:
     void setOutputHandling(OutputHandling handling);
     void setErrorHandling(OutputHandling handling);
     void setModifiesCurrentDocument(bool modifies);
-    void setExecutables(const QStringList &executables);
+    void setExecutables(const Utils::FilePaths &executables);
     void setArguments(const QString &arguments);
     void setInput(const QString &input);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
@@ -108,7 +108,7 @@ private:
     QString m_displayName;
     QString m_displayCategory;
     int m_order = -1;
-    QStringList m_executables;
+    Utils::FilePaths m_executables;
     QString m_arguments;
     QString m_input;
     Utils::FilePath m_workingDirectory;

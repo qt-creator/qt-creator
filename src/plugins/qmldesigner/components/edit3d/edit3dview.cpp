@@ -31,7 +31,6 @@
 
 #include <nodeinstanceview.h>
 #include <designeractionmanager.h>
-#include <qmldesignerplugin.h>
 #include <designersettings.h>
 #include <qmldesignerconstants.h>
 #include <viewmanager.h>
@@ -324,10 +323,6 @@ void Edit3DView::addQuick3DImport()
                 } else {
                     model()->changeImports({import}, {});
                 }
-
-                // Subcomponent manager update needed to make item library entries appear
-                QmlDesignerPlugin::instance()->currentDesignDocument()
-                                             ->updateSubcomponentManagerImport(import);
                 return;
             }
         }

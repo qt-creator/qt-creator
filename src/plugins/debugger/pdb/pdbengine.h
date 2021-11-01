@@ -26,8 +26,8 @@
 #pragma once
 
 #include <debugger/debuggerengine.h>
+#include <utils/qtcprocess.h>
 
-#include <QProcess>
 #include <QVariant>
 
 namespace Debugger {
@@ -100,7 +100,7 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
     bool hasCapability(unsigned cap) const override;
 
-    void handlePdbFinished(int, QProcess::ExitStatus status);
+    void handlePdbFinished();
     void handlePdbError(QProcess::ProcessError error);
     void readPdbStandardOutput();
     void readPdbStandardError();
@@ -111,7 +111,7 @@ private:
     void updateLocals() override;
 
     QString m_inbuffer;
-    QProcess m_proc;
+    Utils::QtcProcess m_proc;
     QString m_interpreter;
 };
 

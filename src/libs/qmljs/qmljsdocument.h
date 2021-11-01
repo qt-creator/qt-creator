@@ -256,7 +256,8 @@ public:
 
     Document::Ptr document(const QString &fileName) const;
     QList<Document::Ptr> documentsInDirectory(const QString &path) const;
-    LibraryInfo libraryInfo(const QString &path) const;
+    LibraryInfo libraryInfo(const QString &path) const; // FIXME: Remove
+    LibraryInfo libraryInfo(const Utils::FilePath &path) const;
 
     Document::MutablePtr documentFromSource(const QString &code,
                                      const QString &fileName,

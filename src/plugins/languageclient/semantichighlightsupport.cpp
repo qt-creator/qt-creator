@@ -412,12 +412,20 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
 
         auto it = data.begin();
         const auto end = data.end();
+        qCDebug(LOGLSPHIGHLIGHT) << "Edit Tokens for " << filePath;
+        qCDebug(LOGLSPHIGHLIGHT) << "Data before edit " << data;
         for (const SemanticTokensEdit &edit : qAsConst(edits)) {
             if (edit.start() > data.size()) // prevent edits after the previously reported data
                 return;
             for (const auto start = data.begin() + edit.start(); it < start; ++it)
                 newData.append(*it);
-            newData.append(edit.data().value_or(QList<int>()));
+            const Utils::optional<QList<int>> editData = edit.data();
+            if (editData.has_value()) {
+                newData.append(editData.value());
+                qCDebug(LOGLSPHIGHLIGHT) << edit.start() << edit.deleteCount() << editData.value();
+            } else {
+                qCDebug(LOGLSPHIGHLIGHT) << edit.start() << edit.deleteCount();
+            }
             int deleteCount = edit.deleteCount();
             if (deleteCount > std::distance(it, end)) {
                 qCDebug(LOGLSPHIGHLIGHT)
@@ -434,6 +442,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         for (; it != end; ++it)
             newData.append(*it);
 
+        qCDebug(LOGLSPHIGHLIGHT) << "New Data " << newData;
         tokens.setData(newData);
         tokens.setResultId(tokensDelta->resultId());
     } else {
@@ -478,6 +487,14 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
             expandedToken.length = token.length;
             expandedTokens << expandedToken;
         };
+        if (LOGLSPHIGHLIGHT().isDebugEnabled()) {
+            qCDebug(LOGLSPHIGHLIGHT) << "Expanded Tokens for " << filePath;
+            for (const ExpandedSemanticToken &token : qAsConst(expandedTokens)) {
+                qCDebug(LOGLSPHIGHLIGHT)
+                    << token.line << token.column << token.length << token.type << token.modifiers;
+            }
+        }
+
         m_tokensHandler(doc, expandedTokens, versionedTokens.version);
         return;
     }

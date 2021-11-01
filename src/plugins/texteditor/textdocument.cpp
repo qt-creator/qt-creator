@@ -835,7 +835,7 @@ void TextDocument::cleanWhitespace(const QTextCursor &cursor)
 void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
                                    bool cleanIndentation)
 {
-    const QString fileName(filePath().fileName());
+    const bool removeTrailingWhitespace = d->m_storageSettings.removeTrailingWhitespace(filePath().fileName());
 
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     Q_ASSERT(cursor.visualNavigation() == false);
@@ -862,7 +862,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
     foreach (block, blocks) {
         QString blockText = block.text();
 
-        if (d->m_storageSettings.removeTrailingWhitespace(fileName))
+        if (removeTrailingWhitespace)
             TabSettings::removeTrailingWhitespace(cursor, block);
 
         const int indent = indentations[block.blockNumber()];

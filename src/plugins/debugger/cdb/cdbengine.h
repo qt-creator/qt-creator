@@ -194,6 +194,7 @@ private:
     int elapsedLogTime();
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
     void mergeStartParametersSourcePathMap();
+    void checkQtSdkPdbFiles(const QString &module);
 
     const QString m_tokenPrefix;
     void handleSetupFailure(const QString &errorMessage);

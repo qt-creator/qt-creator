@@ -62,28 +62,12 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
     // eventFilter method so it works also for the space scrolling case as expected
     QCoreApplication::instance()->installEventFilter(this);
 
-    QmlDesigner::Navigation2dFilter *filter = new QmlDesigner::Navigation2dFilter(this);
+    QmlDesigner::Navigation2dFilter *filter = new QmlDesigner::Navigation2dFilter(viewport());
     connect(filter, &Navigation2dFilter::zoomIn, this, &FormEditorGraphicsView::zoomIn);
     connect(filter, &Navigation2dFilter::zoomOut, this, &FormEditorGraphicsView::zoomOut);
 
-    auto panChanged = &Navigation2dFilter::panChanged;
-    connect(filter, panChanged, [this](const QPointF &direction) {
-        QScrollBar *sbx = horizontalScrollBar();
-        QScrollBar *sby = verticalScrollBar();
-
-        // max - min + pageStep = sceneRect.size * scale
-        QPointF min(sbx->minimum(), sby->minimum());
-        QPointF max(sbx->maximum(), sby->maximum());
-        QPointF step(sbx->pageStep(), sby->pageStep());
-
-        QPointF d1 = max - min;
-        QPointF d2 = d1 + step;
-
-        QPoint val = QPointF((direction.x() / d2.x()) * d1.x(), (direction.y() / d2.y()) * d1.y())
-                         .toPoint();
-
-        sbx->setValue(sbx->value() - val.x());
-        sby->setValue(sby->value() - val.y());
+    connect(filter, &Navigation2dFilter::panChanged, [this](const QPointF &direction) {
+        Navigation2dFilter::scroll(direction, horizontalScrollBar(), verticalScrollBar());
     });
 
     auto zoomChanged = &Navigation2dFilter::zoomChanged;
@@ -93,7 +77,7 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
             emit this->zoomChanged(transform().m11());
         }
     });
-    installEventFilter(filter);
+    viewport()->installEventFilter(filter);
 }
 
 bool FormEditorGraphicsView::eventFilter(QObject *watched, QEvent *event)
@@ -123,8 +107,8 @@ void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers().testFlag(Qt::ControlModifier))
         event->ignore();
-    else if (event->source() == Qt::MouseEventNotSynthesized)
-        QGraphicsView::wheelEvent(event);
+
+    QGraphicsView::wheelEvent(event);
 }
 
 void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)

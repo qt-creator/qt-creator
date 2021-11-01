@@ -141,25 +141,6 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Weight")
-            tooltip: qsTr("Font's weight.")
-        }
-
-        SecondColumnLayout {
-            ComboBox {
-                implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                backendValue: getBackendValue("weight")
-                model: ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
-                scope: "Font"
-                enabled: !styleNameComboBox.styleSet
-            }
-
-            ExpandingSpacer {}
-        }
-
-        PropertyLabel {
             text: qsTr("Style name")
             tooltip: qsTr("Font's style.")
             blockedByTemplate: !styleNameComboBox.enabled
@@ -267,7 +248,30 @@ Section {
             supportGradient: false
         }
 
-        PropertyLabel { text: qsTr("Emphasis") }
+        PropertyLabel {
+            text: qsTr("Weight")
+            tooltip: qsTr("Font's weight.")
+            enabled: !styleNameComboBox.styleSet
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                backendValue: getBackendValue("weight")
+                model: ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
+                scope: "Font"
+                enabled: !styleNameComboBox.styleSet
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Emphasis")
+            enabled: !styleNameComboBox.styleSet
+        }
 
         FontStyleButtons {
             bold: root.boldStyle

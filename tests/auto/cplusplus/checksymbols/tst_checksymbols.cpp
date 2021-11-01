@@ -62,6 +62,7 @@ static QString useKindToString(UseKind useKind)
     switch (useKind) {
     CASE_STR(Unknown);
     CASE_STR(TypeUse);
+    CASE_STR(NamespaceUse);
     CASE_STR(LocalUse);
     CASE_STR(FieldUse);
     CASE_STR(EnumerationUse);
@@ -72,6 +73,9 @@ static QString useKindToString(UseKind useKind)
     CASE_STR(FunctionUse);
     CASE_STR(FunctionDeclarationUse);
     CASE_STR(PseudoKeywordUse);
+    CASE_STR(StaticFieldUse);
+    CASE_STR(StaticMethodUse);
+    CASE_STR(StaticMethodDeclarationUse);
     default:
         QTest::qFail("Unknown UseKind", __FILE__, __LINE__);
         return QLatin1String("Unknown UseKind");
@@ -246,8 +250,8 @@ void tst_CheckSymbols::test_checksymbols_data()
         << _("namespace N {}\n"
              "using namespace N;\n")
         << (UseList()
-            << Use(1, 11, 1, Highlighting::TypeUse)
-            << Use(2, 17, 1, Highlighting::TypeUse));
+            << Use(1, 11, 1, Highlighting::NamespaceUse)
+            << Use(2, 17, 1, Highlighting::NamespaceUse));
 
     QTest::newRow("LocalUse")
         << _("int f()\n"
@@ -361,21 +365,21 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 5, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FieldUse)
+            << Use(3, 16, 3, Highlighting::StaticFieldUse)
             << Use(4, 12, 5, Highlighting::TypeUse)
             << Use(6, 9, 5, Highlighting::TypeUse)
             << Use(6, 16, 5, Highlighting::FieldUse)
             << Use(7, 14, 3, Highlighting::FunctionDeclarationUse)
             << Use(11, 5, 5, Highlighting::TypeUse)
-            << Use(11, 12, 3, Highlighting::FieldUse)
+            << Use(11, 12, 3, Highlighting::FieldUse) // FIXME: Should be StaticField
             << Use(13, 6, 5, Highlighting::TypeUse)
             << Use(13, 13, 5, Highlighting::TypeUse)
             << Use(13, 20, 3, Highlighting::FunctionDeclarationUse)
-            << Use(15, 5, 3, Highlighting::FieldUse)
+            << Use(15, 5, 3, Highlighting::StaticFieldUse)
             << Use(16, 5, 5, Highlighting::TypeUse)
-            << Use(16, 12, 3, Highlighting::FieldUse)
+            << Use(16, 12, 3, Highlighting::FieldUse) // FIXME: Should be StaticField
             << Use(17, 5, 5, Highlighting::FieldUse)
-            << Use(17, 12, 3, Highlighting::FieldUse));
+            << Use(17, 12, 3, Highlighting::StaticFieldUse));
 
     QTest::newRow("VariableHasTheSameNameAsEnumUse")
         << _("struct Foo\n"
@@ -443,11 +447,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 9, 3, Highlighting::LocalUse)
             << Use(8, 15, 3, Highlighting::TypeUse)
-            << Use(8, 20, 3, Highlighting::FunctionUse));
+            << Use(8, 20, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("8902_staticFunctionHighlightingAsMember_functionArgument")
         << _("struct Foo\n"
@@ -461,11 +465,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(6, 14, 3, Highlighting::LocalUse)
             << Use(8, 5, 3, Highlighting::TypeUse)
-            << Use(8, 10, 3, Highlighting::FunctionUse));
+            << Use(8, 10, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("8902_staticFunctionHighlightingAsMember_templateParameter")
         << _("struct Foo\n"
@@ -480,11 +484,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 17, 3, Highlighting::TypeUse)
             << Use(7, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(9, 5, 3, Highlighting::TypeUse)
-            << Use(9, 10, 3, Highlighting::FunctionUse));
+            << Use(9, 10, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("staticFunctionHighlightingAsMember_struct")
         << _("struct Foo\n"
@@ -499,11 +503,11 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 3, Highlighting::TypeUse)
-            << Use(3, 16, 3, Highlighting::FunctionDeclarationUse)
+            << Use(3, 16, 3, Highlighting::StaticMethodDeclarationUse)
             << Use(6, 8, 3, Highlighting::TypeUse)
             << Use(7, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(9, 5, 3, Highlighting::TypeUse)
-            << Use(9, 10, 3, Highlighting::FunctionUse));
+            << Use(9, 10, 3, Highlighting::StaticMethodUse));
 
     QTest::newRow("QTCREATORBUG8890_danglingPointer")
         << _("template<class T> class QList {\n"
@@ -569,13 +573,13 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 17, 1, Highlighting::TypeUse)
             << Use(2, 7, 9, Highlighting::TypeUse)
             << Use(5, 12, 1, Highlighting::TypeUse)
-            << Use(5, 15, 8, Highlighting::FunctionDeclarationUse)
+            << Use(5, 15, 8, Highlighting::StaticMethodDeclarationUse)
             << Use(8, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(10, 6, 3, Highlighting::FunctionDeclarationUse);
     for (int i = 0; i < 250; ++i) {
         excessiveUses
                 << Use(12 + i, 5, 9, Highlighting::TypeUse)
-                << Use(12 + i, 28, 8, Highlighting::FunctionUse);
+                << Use(12 + i, 28, 8, Highlighting::StaticMethodUse);
     }
     QTest::newRow("QTCREATORBUG8974_danglingPointer")
         << excessive
@@ -710,11 +714,11 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(1, 14, 4, Highlighting::FieldUse)
             << Use(2, 6, 4, Highlighting::FunctionDeclarationUse)
             << Use(4, 8, 4, Highlighting::FieldUse)
-            << Use(6, 11, 3, Highlighting::TypeUse)
+            << Use(6, 11, 3, Highlighting::NamespaceUse)
             << Use(7, 16, 4, Highlighting::FieldUse)
             << Use(8, 8, 4, Highlighting::FunctionDeclarationUse)
             << Use(10, 10, 4, Highlighting::FieldUse)
-            << Use(13, 11, 3, Highlighting::TypeUse)
+            << Use(13, 11, 3, Highlighting::NamespaceUse)
             << Use(15, 27, 4, Highlighting::FieldUse)
             << Use(16, 10, 4, Highlighting::FunctionDeclarationUse)
             << Use(16, 19, 4, Highlighting::FieldUse)
@@ -792,9 +796,9 @@ void tst_CheckSymbols::test_checksymbols_data()
              "    Foo foo;\n"
              "}\n")
         << (UseList()
-            << Use(1, 11, 2, Highlighting::TypeUse)
+            << Use(1, 11, 2, Highlighting::NamespaceUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
-            << Use(4, 7, 2, Highlighting::TypeUse)
+            << Use(4, 7, 2, Highlighting::NamespaceUse)
             << Use(4, 11, 3, Highlighting::TypeUse)
             << Use(5, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(7, 5, 3, Highlighting::TypeUse)
@@ -812,10 +816,10 @@ void tst_CheckSymbols::test_checksymbols_data()
               "}\n"
               "}\n")
         << (UseList()
-            << Use(1, 11, 2, Highlighting::TypeUse)
+            << Use(1, 11, 2, Highlighting::NamespaceUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
-            << Use(4, 11, 3, Highlighting::TypeUse)
-            << Use(5, 7, 2, Highlighting::TypeUse)
+            << Use(4, 11, 3, Highlighting::NamespaceUse)
+            << Use(5, 7, 2, Highlighting::NamespaceUse)
             << Use(5, 11, 3, Highlighting::TypeUse)
             << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 5, 3, Highlighting::TypeUse)
@@ -831,10 +835,10 @@ void tst_CheckSymbols::test_checksymbols_data()
              "    Foo foo;\n"
              "}\n")
         << (UseList()
-            << Use(1, 11, 2, Highlighting::TypeUse)
+            << Use(1, 11, 2, Highlighting::NamespaceUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
             << Use(4, 6, 3, Highlighting::FunctionDeclarationUse)
-            << Use(6, 11, 2, Highlighting::TypeUse)
+            << Use(6, 11, 2, Highlighting::NamespaceUse)
             << Use(6, 15, 3, Highlighting::TypeUse)
             << Use(7, 5, 3, Highlighting::TypeUse)
             << Use(7, 9, 3, Highlighting::LocalUse));
@@ -849,7 +853,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "    Foo foo;\n"
              "}\n")
         << (UseList()
-            << Use(1, 11, 2, Highlighting::TypeUse)
+            << Use(1, 11, 2, Highlighting::NamespaceUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
             << Use(5, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(7, 9, 3, Highlighting::LocalUse));
@@ -866,9 +870,9 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n"
              "}\n")
         << (UseList()
-            << Use(1, 11, 2, Highlighting::TypeUse)
+            << Use(1, 11, 2, Highlighting::NamespaceUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
-            << Use(4, 11, 3, Highlighting::TypeUse)
+            << Use(4, 11, 3, Highlighting::NamespaceUse)
             << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(8, 9, 3, Highlighting::LocalUse));
 
@@ -882,7 +886,7 @@ void tst_CheckSymbols::test_checksymbols_data()
              "    Foo foo;\n"
              "}\n")
         << (UseList()
-            << Use(1, 11, 2, Highlighting::TypeUse)
+            << Use(1, 11, 2, Highlighting::NamespaceUse)
             << Use(2, 7, 3, Highlighting::TypeUse)
             << Use(4, 6, 3, Highlighting::FunctionDeclarationUse)
             << Use(7, 9, 3, Highlighting::LocalUse));
@@ -944,14 +948,14 @@ void tst_CheckSymbols::test_checksymbols_data()
              "}\n")
         << (UseList()
             << Use(1, 8, 1, Highlighting::TypeUse)
-            << Use(2, 11, 3, Highlighting::TypeUse)
+            << Use(2, 11, 3, Highlighting::NamespaceUse)
             << Use(4, 24, 1, Highlighting::TypeUse)
             << Use(4, 34, 10, Highlighting::TypeUse)
-            << Use(6, 11, 2, Highlighting::TypeUse)
-            << Use(8, 11, 3, Highlighting::TypeUse)
+            << Use(6, 11, 2, Highlighting::NamespaceUse)
+            << Use(8, 11, 3, Highlighting::NamespaceUse)
             << Use(8, 16, 10, Highlighting::TypeUse)
             << Use(10, 6, 3, Highlighting::FunctionDeclarationUse)
-            << Use(12, 5, 2, Highlighting::TypeUse)
+            << Use(12, 5, 2, Highlighting::NamespaceUse)
             << Use(12, 9, 10, Highlighting::TypeUse)
             << Use(12, 20, 1, Highlighting::TypeUse)
             << Use(12, 23, 1, Highlighting::LocalUse));
@@ -967,9 +971,9 @@ void tst_CheckSymbols::test_checksymbols_data()
                  "    Foo foo;\n"
                  "}\n")
             << (QList<Use>()
-                << Use(3, 15, 2, Highlighting::TypeUse)
+                << Use(3, 15, 2, Highlighting::NamespaceUse)
                 << Use(3, 27, 3, Highlighting::TypeUse)
-                << Use(4, 11, 2, Highlighting::TypeUse)
+                << Use(4, 11, 2, Highlighting::NamespaceUse)
                 << Use(4, 15, 3, Highlighting::TypeUse)
                 << Use(6, 6, 3, Highlighting::FunctionDeclarationUse)
                 << Use(8, 5, 3, Highlighting::TypeUse)
@@ -991,12 +995,12 @@ void tst_CheckSymbols::test_checksymbols_data()
                  "}\n"
                  )
             << (QList<Use>()
-                << Use(1, 11, 3, Highlighting::TypeUse)
-                << Use(3, 15, 2, Highlighting::TypeUse)
+                << Use(1, 11, 3, Highlighting::NamespaceUse)
+                << Use(3, 15, 2, Highlighting::NamespaceUse)
                 << Use(3, 27, 3, Highlighting::TypeUse)
-                << Use(4, 11, 2, Highlighting::TypeUse)
+                << Use(4, 11, 2, Highlighting::NamespaceUse)
                 << Use(4, 15, 3, Highlighting::TypeUse)
-                << Use(6, 11, 3, Highlighting::TypeUse)
+                << Use(6, 11, 3, Highlighting::NamespaceUse)
                 << Use(8, 10, 3, Highlighting::FunctionDeclarationUse)
                 << Use(10, 13, 3, Highlighting::LocalUse)
                 );

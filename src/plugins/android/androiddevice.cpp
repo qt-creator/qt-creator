@@ -90,7 +90,8 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     formLayout->addRow(AndroidDevice::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 
     const QString serialNumber = dev->serialNumber();
-    const QString printableSerialNumber = serialNumber.isEmpty() ? tr("Unknown") : serialNumber;
+    const QString printableSerialNumber = serialNumber.isEmpty() ? AndroidDevice::tr("Unknown")
+                                                                 : serialNumber;
     formLayout->addRow(AndroidDevice::tr("Serial number:"), new QLabel(printableSerialNumber));
 
     const QString abis = dev->supportedAbis().join(", ");
@@ -100,8 +101,9 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     formLayout->addRow(AndroidDevice::tr("OS version:"), new QLabel(osString));
 
     if (dev->machineType() == IDevice::Hardware) {
-        const QString authorizedStr = dev->deviceState() == IDevice::DeviceReadyToUse ? tr("Yes")
-                                                                                      : tr("No");
+        const QString authorizedStr = dev->deviceState() == IDevice::DeviceReadyToUse
+                                          ? AndroidDevice::tr("Yes")
+                                          : AndroidDevice::tr("No");
         formLayout->addRow(AndroidDevice::tr("Authorized:"), new QLabel(authorizedStr));
     }
 
@@ -117,7 +119,7 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
 
 QString AndroidDeviceWidget::dialogTitle()
 {
-    return tr("Android Device Manager");
+    return AndroidDevice::tr("Android Device Manager");
 }
 
 bool AndroidDeviceWidget::criticalDialog(const QString &error, QWidget *parent)
@@ -480,7 +482,8 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
         return;
 
     const QString name = static_cast<const AndroidDevice *>(device.data())->avdName();
-    const QString question = tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
+    const QString question
+        = AndroidDevice::tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
     if (!AndroidDeviceWidget::questionDialog(question, parent))
         return;
 
@@ -515,9 +518,10 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
             "https://developer.android.com/studio/run/emulator-commandline#startup-options";
 
     QInputDialog dialog(parent ? parent : Core::ICore::dialogParent());
-    dialog.setWindowTitle(tr("Emulator Command-line Startup Options"));
-    dialog.setLabelText(tr("Emulator command-line startup options "
-                           "(<a href=\"%1\">Help Web Page</a>):").arg(helpUrl));
+    dialog.setWindowTitle(AndroidDevice::tr("Emulator Command-line Startup Options"));
+    dialog.setLabelText(AndroidDevice::tr("Emulator command-line startup options "
+                                          "(<a href=\"%1\">Help Web Page</a>):")
+                            .arg(helpUrl));
     dialog.setTextValue(m_androidConfig.emulatorArgs().join(' '));
 
     if (auto label = dialog.findChild<QLabel*>()) {

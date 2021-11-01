@@ -45,6 +45,18 @@
 
 namespace QmlDesigner {
 
+template< typename T >
+T* nextParentOfType(QWidget* widget)
+{
+    auto* p = widget->parent();
+    while (p) {
+        if (T* w = qobject_cast<T*>(p))
+            return w;
+        p = p->parent();
+    }
+    return nullptr;
+}
+
 GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     : QGraphicsView(parent)
     , m_dragging(false)
@@ -65,7 +77,7 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     setResizeAnchor(QGraphicsView::NoAnchor);
     setRenderHint(QPainter::Antialiasing, true);
     setTransformationAnchor(QGraphicsView::NoAnchor);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
@@ -78,12 +90,19 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
 
     connect(m_scene, &GraphicsScene::curveChanged, itemSlot);
 
-    QmlDesigner::Navigation2dFilter *filter = new QmlDesigner::Navigation2dFilter(this);
+    QmlDesigner::Navigation2dFilter *filter = new QmlDesigner::Navigation2dFilter(viewport());
+    connect(filter, &Navigation2dFilter::panChanged, [this](const QPointF &direction) {
+        QScrollBar* verticalBar = nullptr;
+        if (QScrollArea* area = nextParentOfType< QScrollArea >(this))
+            verticalBar = area->verticalScrollBar();
+        Navigation2dFilter::scroll(direction, horizontalScrollBar(), verticalBar);
+    });
+
     auto zoomChanged = &QmlDesigner::Navigation2dFilter::zoomChanged;
     connect(filter, zoomChanged, [this](double scale, const QPointF &pos) {
         applyZoom(m_zoomX + scale, m_zoomY, mapToGlobal(pos.toPoint()));
     });
-    installEventFilter(filter);
+    viewport()->installEventFilter(filter);
 
     applyZoom(m_zoomX, m_zoomY);
     update();

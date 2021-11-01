@@ -173,14 +173,27 @@ void RewriterView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &pro
     if (textToModelMerger()->isActive())
         return;
 
+    for (const AbstractProperty &property : propertyList) {
+        if (!property.isDefaultProperty())
+            continue;
 
-    foreach (const AbstractProperty &property, propertyList) {
-        if (property.isDefaultProperty() && property.isNodeListProperty()) {
-            m_removeDefaultPropertyTransaction = beginRewriterTransaction(QByteArrayLiteral("RewriterView::propertiesAboutToBeRemoved"));
+        if (!m_removeDefaultPropertyTransaction.isValid()) {
+            m_removeDefaultPropertyTransaction = beginRewriterTransaction(
+                        QByteArrayLiteral("RewriterView::propertiesAboutToBeRemoved"));
+        }
 
-            foreach (const ModelNode &node, property.toNodeListProperty().toModelNodeList()) {
-                modelToTextMerger()->nodeRemoved(node, property.toNodeAbstractProperty(), AbstractView::NoAdditionalChanges);
+        if (property.isNodeListProperty()) {
+            const auto nodeList = property.toNodeListProperty().toModelNodeList();
+            for (const ModelNode &node : nodeList) {
+                modelToTextMerger()->nodeRemoved(node, property.toNodeAbstractProperty(),
+                                                 AbstractView::NoAdditionalChanges);
             }
+        } else if (property.isBindingProperty() || property.isVariantProperty()
+                   || property.isNodeProperty()) {
+            // Default property that has actual binding/value should be removed.
+            // We need to do it here in propertiesAboutToBeRemoved, because
+            // type is no longer determinable after property is removed from the model.
+            modelToTextMerger()->propertiesRemoved({property});
         }
     }
 }

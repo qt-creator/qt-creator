@@ -160,6 +160,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Name of a primitive data type."), Qt::darkYellow);
     formatDescr.emplace_back(C_TYPE, tr("Type"), tr("Name of a type."),
                              Qt::darkMagenta);
+    formatDescr.emplace_back(C_NAMESPACE, tr("Namespace"), tr("Name of a namespace."),
+                             Qt::darkGreen);
     formatDescr.emplace_back(C_LOCAL, tr("Local"),
                              tr("Local variables."), QColor(9, 46, 100));
     formatDescr.emplace_back(C_PARAMETER, tr("Parameter"),
@@ -360,6 +362,10 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Output Argument"),
                              tr("Writable arguments of a function call."),
                              outputArgumentFormat,
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_STATIC_MEMBER,
+                             tr("Static Member"),
+                             tr("Names of static fields or member functions."),
                              FormatDescription::ShowAllControls);
 
     return formatDescr;

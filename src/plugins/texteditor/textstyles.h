@@ -36,13 +36,19 @@ struct TextStyles {
     TextStyle mainStyle;
     MixinTextStyles mixinStyles;
 
-    static TextStyles mixinStyle(TextStyle main, TextStyle mixin)
+    static TextStyles mixinStyle(TextStyle main, const QList<TextStyle> &mixins)
     {
         TextStyles res;
         res.mainStyle = main;
         res.mixinStyles.initializeElements();
-        res.mixinStyles.push_back(mixin);
+        for (TextStyle mixin : mixins)
+            res.mixinStyles.push_back(mixin);
         return res;
+    }
+
+    static TextStyles mixinStyle(TextStyle main, TextStyle mixin)
+    {
+        return mixinStyle(main, QList<TextStyle>{mixin});
     }
 };
 

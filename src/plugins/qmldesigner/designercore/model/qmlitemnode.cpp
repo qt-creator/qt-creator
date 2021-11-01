@@ -174,7 +174,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     };
 
     if (executeInTransaction)
-        view->executeInTransaction("QmlItemNode::createQmlItemNodeFromImage", doCreateQmlItemNodeFromFont);
+        view->executeInTransaction("QmlItemNode::createQmlItemNodeFromFont", doCreateQmlItemNodeFromFont);
     else
         doCreateQmlItemNodeFromFont();
 

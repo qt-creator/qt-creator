@@ -1572,6 +1572,7 @@ void TextEditorWidgetPrivate::slotSelectionChanged()
         m_selectBlockAnchor = QTextCursor();
     // Clear any link which might be showing when the selection changes
     clearLink();
+    setClipboardSelection();
 }
 
 void TextEditorWidget::gotoBlockStart()
@@ -5244,7 +5245,6 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     QPlainTextEdit::mouseReleaseEvent(e);
-    d->setClipboardSelection();
 }
 
 void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -5259,7 +5259,6 @@ void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     }
 
     QPlainTextEdit::mouseDoubleClickEvent(e);
-    d->setClipboardSelection();
 }
 
 void TextEditorWidgetPrivate::setClipboardSelection()

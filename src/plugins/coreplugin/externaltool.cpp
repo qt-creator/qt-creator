@@ -154,7 +154,7 @@ int ExternalTool::order() const
     return m_order;
 }
 
-QStringList ExternalTool::executables() const
+FilePaths ExternalTool::executables() const
 {
     return m_executables;
 }
@@ -250,42 +250,35 @@ void ExternalTool::setDescription(const QString &description)
     m_description = description;
 }
 
-
 void ExternalTool::setOutputHandling(OutputHandling handling)
 {
     m_outputHandling = handling;
 }
-
 
 void ExternalTool::setErrorHandling(OutputHandling handling)
 {
     m_errorHandling = handling;
 }
 
-
 void ExternalTool::setModifiesCurrentDocument(bool modifies)
 {
     m_modifiesCurrentDocument = modifies;
 }
 
-
-void ExternalTool::setExecutables(const QStringList &executables)
+void ExternalTool::setExecutables(const FilePaths &executables)
 {
     m_executables = executables;
 }
-
 
 void ExternalTool::setArguments(const QString &arguments)
 {
     m_arguments = arguments;
 }
 
-
 void ExternalTool::setInput(const QString &input)
 {
     m_input = input;
 }
-
 
 void ExternalTool::setWorkingDirectory(const FilePath &workingDirectory)
 {
@@ -417,7 +410,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
             }
             while (reader.readNextStartElement()) {
                 if (reader.name() == QLatin1String(kPath)) {
-                    tool->m_executables.append(reader.readElementText());
+                    tool->m_executables.append(FilePath::fromString(reader.readElementText()));
                 } else if (reader.name() == QLatin1String(kArguments)) {
                     if (!tool->m_arguments.isEmpty()) {
                         reader.raiseError("only one <arguments> element allowed");
@@ -519,8 +512,8 @@ bool ExternalTool::save(QString *errorMessage) const
         out.writeAttribute(kOutput, stringForOutputHandling(m_outputHandling));
         out.writeAttribute(kError, stringForOutputHandling(m_errorHandling));
         out.writeAttribute(kModifiesDocument, QLatin1String(m_modifiesCurrentDocument ? kYes : kNo));
-        foreach (const QString &executable, m_executables)
-            out.writeTextElement(kPath, executable);
+        for (const FilePath &executable : m_executables)
+            out.writeTextElement(kPath, executable.toString());
         if (!m_arguments.isEmpty())
             out.writeTextElement(kArguments, m_arguments);
         if (!m_input.isEmpty())
@@ -608,11 +601,12 @@ bool ExternalToolRunner::resolve()
 
     {
         // executable
-        QStringList expandedExecutables; /* for error message */
-        foreach (const QString &executable, m_tool->executables()) {
-            QString expanded = expander->expand(executable);
+        FilePaths expandedExecutables; /* for error message */
+        const FilePaths executables = m_tool->executables();
+        for (const FilePath &executable : executables) {
+            FilePath expanded = expander->expand(executable);
             expandedExecutables.append(expanded);
-            m_resolvedExecutable = m_resolvedEnvironment.searchInPath(expanded);
+            m_resolvedExecutable = m_resolvedEnvironment.searchInPath(expanded.path());
             if (!m_resolvedExecutable.isEmpty())
                 break;
         }
@@ -620,7 +614,8 @@ bool ExternalToolRunner::resolve()
             m_hasError = true;
             for (int i = 0; i < expandedExecutables.size(); ++i) {
                 m_errorString += tr("Could not find executable for \"%1\" (expanded \"%2\")")
-                        .arg(m_tool->executables().at(i), expandedExecutables.at(i));
+                        .arg(m_tool->executables().at(i).toUserOutput(),
+                             expandedExecutables.at(i).toUserOutput());
                 m_errorString += QLatin1Char('\n');
             }
             if (!m_errorString.isEmpty())

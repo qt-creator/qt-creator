@@ -33,7 +33,6 @@
 #include "generateresource.h"
 #include "generatecmakelists.h"
 #include "nodeinstanceview.h"
-#include "gestures.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -231,8 +230,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
               .toString();
     if (QFontDatabase::addApplicationFont(fontPath) < 0)
         qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
-
-    TwoFingerSwipe::registerRecognizer();
 
     return true;
 }

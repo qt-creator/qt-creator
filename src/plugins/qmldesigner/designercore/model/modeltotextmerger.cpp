@@ -74,8 +74,13 @@ void ModelToTextMerger::nodeRemoved(const ModelNode &removedNode, const NodeAbst
 void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
     foreach (const AbstractProperty &property, propertyList) {
-        if (isInHierarchy(property) && !property.isDefaultProperty())
+        // Default property that has actual binding/value should be removed
+        if (isInHierarchy(property) && (!property.isDefaultProperty()
+                                        || property.isBindingProperty()
+                                        || property.isVariantProperty()
+                                        || property.isNodeProperty())) {
             schedule(new RemovePropertyRewriteAction(property));
+        }
     }
 }
 

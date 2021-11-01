@@ -125,7 +125,9 @@ bool MultiTextCursor::hasSelection() const
 QString MultiTextCursor::selectedText() const
 {
     QString text;
-    for (const QTextCursor &cursor : m_cursors) {
+    QList<QTextCursor> cursors = m_cursors;
+    Utils::sort(cursors);
+    for (const QTextCursor &cursor : cursors) {
         const QString &cursorText = cursor.selectedText();
         if (cursorText.isEmpty())
             continue;
@@ -169,7 +171,9 @@ void MultiTextCursor::insertText(const QString &text, bool selectNewText)
             lines.pop_back();
         int index = 0;
         if (lines.count() == m_cursors.count()) {
-            for (QTextCursor &cursor : m_cursors)
+            QList<QTextCursor> cursors = m_cursors;
+            Utils::sort(cursors);
+            for (QTextCursor &cursor : cursors)
                 insertAndSelect(cursor, lines.at(index++), selectNewText);
             m_cursors.last().endEditBlock();
             return;

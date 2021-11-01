@@ -23,44 +23,38 @@
 **
 ****************************************************************************/
 #include "navigation2d.h"
-#include "gestures.h"
 
 #include <QGestureEvent>
+#include <QScrollBar>
 #include <QWheelEvent>
+#include <QMetaMethod>
 
 #include <cmath>
 
 namespace QmlDesigner {
 
-Navigation2dScrollBar::Navigation2dScrollBar(QWidget *parent)
-    : QScrollBar(parent)
-{}
-
-bool Navigation2dScrollBar::postEvent(QEvent *event)
+void Navigation2dFilter::scroll(const QPointF &direction, QScrollBar *sbx, QScrollBar *sby)
 {
-    if (event->type() == QEvent::Wheel) {
-        wheelEvent(static_cast<QWheelEvent *>(event));
-        return true;
-    }
-    return false;
+    auto doScroll = [](QScrollBar *sb, float distance) {
+        if (sb) {
+            // max - min + pageStep = sceneRect.size * scale
+            float d1 = sb->maximum() - sb->minimum();
+            float d2 = d1 + sb->pageStep();
+
+            float val = (distance / d2) * d1;
+            sb->setValue(sb->value() - val);
+        }
+    };
+
+    doScroll(sbx, direction.x());
+    doScroll(sby, direction.y());
 }
 
-void Navigation2dScrollBar::wheelEvent(QWheelEvent *event)
-{
-    if (!event->angleDelta().isNull())
-        QScrollBar::wheelEvent(event);
-}
-
-
-Navigation2dFilter::Navigation2dFilter(QWidget *parent, Navigation2dScrollBar *scrollbar)
+Navigation2dFilter::Navigation2dFilter(QWidget *parent)
     : QObject(parent)
-    , m_scrollbar(scrollbar)
 {
-    if (parent) {
+    if (parent)
         parent->grabGesture(Qt::PinchGesture);
-        if (!scrollbar)
-            parent->grabGesture(TwoFingerSwipe::type());
-    }
 }
 
 bool Navigation2dFilter::eventFilter(QObject *object, QEvent *event)
@@ -82,34 +76,39 @@ bool Navigation2dFilter::gestureEvent(QGestureEvent *event)
             event->accept();
             return true;
         }
-    } else if (TwoFingerSwipe *swipe = static_cast<TwoFingerSwipe *>(
-                   event->gesture(TwoFingerSwipe::type()))) {
-        emit panChanged(swipe->direction());
-        event->accept();
-        return true;
     }
     return false;
 }
 
 bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
 {
-    if (m_scrollbar) {
-        if (m_scrollbar->postEvent(event))
-            event->ignore();
+    if (event->source() == Qt::MouseEventSynthesizedBySystem) {
+        emit panChanged(QPointF(event->pixelDelta()));
+        event->accept();
+        return true;
     } else if (event->source() == Qt::MouseEventNotSynthesized) {
-        if (event->modifiers().testFlag(Qt::ControlModifier)) {
-            if (QPointF angle = event->angleDelta(); !angle.isNull()) {
-                double delta = std::abs(angle.x()) > std::abs(angle.y()) ? angle.x() : angle.y();
-                if (delta > 0)
-                    emit zoomIn();
-                else
-                    emit zoomOut();
-                event->accept();
-                return true;
+
+        auto zoomInSignal = QMetaMethod::fromSignal(&Navigation2dFilter::zoomIn);
+        bool zoomInConnected = QObject::isSignalConnected(zoomInSignal);
+
+        auto zoomOutSignal = QMetaMethod::fromSignal(&Navigation2dFilter::zoomOut);
+        bool zoomOutConnected = QObject::isSignalConnected(zoomOutSignal);
+
+        if (zoomInConnected && zoomOutConnected) {
+            if (event->modifiers().testFlag(Qt::ControlModifier)) {
+                if (QPointF angle = event->angleDelta(); !angle.isNull()) {
+                    double delta = std::abs(angle.x()) > std::abs(angle.y()) ? angle.x() : angle.y();
+                    if (delta > 0)
+                        emit zoomIn();
+                    else
+                        emit zoomOut();
+                    event->accept();
+                    return true;
+                }
             }
         }
     }
-    return true;
+    return false;
 }
 
 } // End namespace QmlDesigner.

@@ -190,22 +190,19 @@ def invokeMenuItem(menu, item, *subItems):
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
     waitFor("itemObject.enabled", 2000)
     activateItem(itemObject)
-    numberedPrefix = "(&\\d \| )?"
+    numberedPrefix = "%d | "
     for subItem in subItems:
         # we might have numbered sub items (e.g. "Recent Files") - these have this special prefix
         if subItem.startswith(numberedPrefix):
-             # TODO: Find fix for Qt 6
-            actions = sub.actions()
             triggered = False
-            for i in range(actions.count()):
-                current = actions.at(i)
-                nonPrefix = subItem[len(numberedPrefix):]
-                matcher = re.match("%s(.*)" % numberedPrefix, str(current.text))
-                if matcher and matcher.group(2) == nonPrefix:
-                    itemObject = current
+            for i in range(1, 10):
+                try:
+                    itemObject = waitForObjectItem(itemObject, subItem % i, 1000)
                     activateItem(itemObject)
                     triggered = True
                     break
+                except:
+                    continue
             if not triggered:
                 test.fail("Could not trigger '%s' - item missing or code wrong?" % subItem,
                           "Function arguments: '%s', '%s', %s" % (menu, item, str(subItems)))

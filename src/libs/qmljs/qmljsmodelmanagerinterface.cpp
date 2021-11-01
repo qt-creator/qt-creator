@@ -684,19 +684,19 @@ void ModelManagerInterface::updateDocument(const Document::Ptr &doc)
     emit documentUpdated(doc);
 }
 
-void ModelManagerInterface::updateLibraryInfo(const QString &path, const LibraryInfo &info)
+void ModelManagerInterface::updateLibraryInfo(const FilePath &path, const LibraryInfo &info)
 {
     if (!info.pluginTypeInfoError().isEmpty())
         qCDebug(qmljsLog) << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
 
     {
         QMutexLocker locker(&m_mutex);
-        m_validSnapshot.insertLibraryInfo(path, info);
-        m_newestSnapshot.insertLibraryInfo(path, info);
+        m_validSnapshot.insertLibraryInfo(path.toString(), info);
+        m_newestSnapshot.insertLibraryInfo(path.toString(), info);
     }
     // only emit if we got new useful information
     if (info.isValid())
-        emit libraryInfoUpdated(path, info);
+        emit libraryInfoUpdated(path.toString(), info);
 }
 
 static QStringList filesInDirectoryForLanguages(const QString &path,
@@ -773,7 +773,7 @@ enum class LibraryStatus {
     Unknown
 };
 
-static LibraryStatus libraryStatus(const QString &path, const Snapshot &snapshot,
+static LibraryStatus libraryStatus(const FilePath &path, const Snapshot &snapshot,
                                    QSet<QString> *newLibraries)
 {
     if (path.isEmpty())
@@ -782,7 +782,7 @@ static LibraryStatus libraryStatus(const QString &path, const Snapshot &snapshot
     const LibraryInfo &existingInfo = snapshot.libraryInfo(path);
     if (existingInfo.isValid())
         return LibraryStatus::Accepted;
-    if (newLibraries->contains(path))
+    if (newLibraries->contains(path.toString()))
         return LibraryStatus::Accepted;
     // if we looked at the path before, done
     return existingInfo.wasScanned()
@@ -790,7 +790,7 @@ static LibraryStatus libraryStatus(const QString &path, const Snapshot &snapshot
             : LibraryStatus::Unknown;
 }
 
-static bool findNewQmlApplicationInPath(const QString &path,
+static bool findNewQmlApplicationInPath(const FilePath &path,
                                         const Snapshot &snapshot,
                                         ModelManagerInterface *modelManager,
                                         QSet<QString> *newLibraries)
@@ -803,8 +803,8 @@ static bool findNewQmlApplicationInPath(const QString &path,
 
     QString qmltypesFile;
 
-    QDir dir(path);
-    QDirIterator it(path, QStringList { "*.qmltypes" }, QDir::Files);
+    QDir dir(path.toString());
+    QDirIterator it(path.toString(), QStringList { "*.qmltypes" }, QDir::Files);
 
     if (!it.hasNext())
         return false;
@@ -828,7 +828,7 @@ static bool findNewQmlLibraryInPath(const QString &path,
                                     QSet<QString> *newLibraries,
                                     bool ignoreMissing)
 {
-    switch (libraryStatus(path, snapshot, newLibraries)) {
+    switch (libraryStatus(FilePath::fromString(path), snapshot, newLibraries)) {
     case LibraryStatus::Accepted: return true;
     case LibraryStatus::Rejected: return false;
     default: break;
@@ -839,7 +839,7 @@ static bool findNewQmlLibraryInPath(const QString &path,
     if (!qmldirFile.exists()) {
         if (!ignoreMissing) {
             LibraryInfo libraryInfo(LibraryInfo::NotFound);
-            modelManager->updateLibraryInfo(path, libraryInfo);
+            modelManager->updateLibraryInfo(FilePath::fromString(path), libraryInfo);
         }
         return false;
     }
@@ -858,7 +858,7 @@ static bool findNewQmlLibraryInPath(const QString &path,
 
     const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
     newLibraries->insert(libraryPath);
-    modelManager->updateLibraryInfo(libraryPath, LibraryInfo(qmldirParser));
+    modelManager->updateLibraryInfo(FilePath::fromString(libraryPath), LibraryInfo(qmldirParser));
     modelManager->loadPluginTypes(QFileInfo(libraryPath).canonicalFilePath(), libraryPath,
                 QString(), QString());
 
@@ -1252,7 +1252,7 @@ void ModelManagerInterface::updateImportPaths()
     for (const Document::Ptr &doc : qAsConst(snapshot))
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
     for (const QString &path : qAsConst(allApplicationDirectories))
-        findNewQmlApplicationInPath(path, snapshot, this, &newLibraries);
+        findNewQmlApplicationInPath(FilePath::fromString(path), snapshot, this, &newLibraries);
 
     updateSourceFiles(importedFiles, true);
 
@@ -1433,7 +1433,7 @@ LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
 {
     const ProjectInfo info = projectInfoForPath(doc->fileName());
     if (!info.qtQmlPath.isEmpty())
-        return m_validSnapshot.libraryInfo(info.qtQmlPath.toString());
+        return m_validSnapshot.libraryInfo(info.qtQmlPath);
     return LibraryInfo();
 }
 

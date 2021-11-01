@@ -40,6 +40,7 @@ QT_FORWARD_DECLARE_CLASS(QResizeEvent)
 QT_FORWARD_DECLARE_CLASS(QShowEvent)
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_FORWARD_DECLARE_CLASS(QScrollBar)
 
 namespace QmlDesigner {
 
@@ -47,7 +48,6 @@ class TransitionEditorView;
 class TransitionEditorToolBar;
 class TransitionEditorGraphicsScene;
 class ModelNode;
-class Navigation2dScrollBar;
 
 class TransitionEditorWidget : public QWidget
 {
@@ -88,7 +88,7 @@ private:
 
     QGraphicsView *m_graphicsView = nullptr;
 
-    Navigation2dScrollBar *m_scrollbar = nullptr;
+    QScrollBar *m_scrollbar = nullptr;
 
     QLabel *m_statusBar = nullptr;
 

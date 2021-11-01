@@ -141,6 +141,9 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
 
 QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
 {
+    if (const TemplateDeclarationAST * const templDecl = decl->asTemplateDeclaration())
+        decl = templDecl->declaration;
+
     SpecifierAST *spec = nullptr;
     DeclaratorAST *decltr = nullptr;
     if (SimpleDeclarationAST *simpleDecl = decl->asSimpleDeclaration()) {

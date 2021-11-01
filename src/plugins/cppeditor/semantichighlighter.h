@@ -48,6 +48,7 @@ public:
     enum Kind {
         Unknown = 0,
         TypeUse,
+        NamespaceUse,
         LocalUse,
         FieldUse,
         EnumerationUse,
@@ -58,6 +59,9 @@ public:
         PseudoKeywordUse,
         FunctionDeclarationUse,
         VirtualFunctionDeclarationUse,
+        StaticFieldUse,
+        StaticMethodUse,
+        StaticMethodDeclarationUse,
         AngleBracketOpen,
         AngleBracketClose,
         DoubleAngleBracketClose,

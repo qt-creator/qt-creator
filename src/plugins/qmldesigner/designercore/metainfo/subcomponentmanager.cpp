@@ -69,16 +69,18 @@ SubComponentManager::SubComponentManager(Model *model, QObject *parent)
             this, [this](const QString &path) { parseDirectory(path); });
 }
 
-void SubComponentManager::addImport(const Import &import, int index)
+bool SubComponentManager::addImport(const Import &import, int index)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << index << import.file().toUtf8();
 
+    bool importExists = false;
     if (import.isFileImport()) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
         if (dirInfo.exists() && dirInfo.isDir()) {
             const QString canonicalDirPath = dirInfo.canonicalFilePath();
             m_watcher.addPath(canonicalDirPath);
+            importExists = true;
             //m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier()); ### todo: proper support for import as
         }
     } else {
@@ -91,16 +93,21 @@ void SubComponentManager::addImport(const Import &import, int index)
             if (dirInfo.exists() && dirInfo.isDir()) {
                 const QString canonicalDirPath = dirInfo.canonicalFilePath();
                 m_watcher.addPath(canonicalDirPath);
+                importExists = true;
                 //m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier()); ### todo: proper support for import as
             }
         }
         // TODO: QDeclarativeDomImport::Library
     }
 
-    if (index == -1)
-        m_imports.append(import);
-    else
-        m_imports.insert(index, import);
+    if (importExists) {
+        if (index == -1)
+            m_imports.append(import);
+        else
+            m_imports.insert(index, import);
+    }
+
+    return importExists;
 }
 
 void SubComponentManager::removeImport(int index)
@@ -544,9 +551,15 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
     parseDirectories();
 }
 
-void SubComponentManager::updateImport(const Import &import)
+void SubComponentManager::addAndParseImport(const Import &import)
 {
-    addImport(import);
+    for (const auto &existingImport : std::as_const(m_imports)) {
+        if (import == existingImport)
+            return;
+    }
+
+    if (!addImport(import))
+        return;
 
     if (import.isFileImport()) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());

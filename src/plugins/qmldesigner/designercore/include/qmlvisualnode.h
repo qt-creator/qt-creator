@@ -101,8 +101,9 @@ public:
                                              bool createInTransaction = true);
 
     static QmlVisualNode createQml3DNode(AbstractView *view,
-                                             const ItemLibraryEntry &itemLibraryEntry,
-                                             qint32 sceneRootId = -1, const QVector3D &position = {});
+                                         const ItemLibraryEntry &itemLibraryEntry,
+                                         qint32 sceneRootId = -1, const QVector3D &position = {},
+                                         bool createInTransaction = true);
 
     static NodeListProperty findSceneNodeProperty(AbstractView *view, qint32 sceneRootId);
 
