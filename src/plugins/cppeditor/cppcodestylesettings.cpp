@@ -177,25 +177,29 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            ;
 }
 
-Utils::optional<CppCodeStyleSettings> CppCodeStyleSettings::currentProjectCodeStyle()
+CppCodeStyleSettings CppCodeStyleSettings::getProjectCodeStyle(ProjectExplorer::Project *project)
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
     if (!project)
-        return {};
+        return currentGlobalCodeStyle();
 
     ProjectExplorer::EditorConfiguration *editorConfiguration = project->editorConfiguration();
-    QTC_ASSERT(editorConfiguration, return {});
+    QTC_ASSERT(editorConfiguration, return currentGlobalCodeStyle());
 
     TextEditor::ICodeStylePreferences *codeStylePreferences
         = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
-    QTC_ASSERT(codeStylePreferences, return {});
+    QTC_ASSERT(codeStylePreferences, return currentGlobalCodeStyle());
 
     auto cppCodeStylePreferences =
-            dynamic_cast<const CppCodeStylePreferences *>(codeStylePreferences);
+        dynamic_cast<const CppCodeStylePreferences *>(codeStylePreferences);
     if (!cppCodeStylePreferences)
-        return {};
+        return currentGlobalCodeStyle();
 
     return cppCodeStylePreferences->currentCodeStyleSettings();
+}
+
+CppCodeStyleSettings CppCodeStyleSettings::currentProjectCodeStyle()
+{
+    return getProjectCodeStyle(ProjectExplorer::ProjectTree::currentProject());
 }
 
 CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
@@ -206,9 +210,8 @@ CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
     return cppCodeStylePreferences->currentCodeStyleSettings();
 }
 
-TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
+TextEditor::TabSettings CppCodeStyleSettings::getProjectTabSettings(ProjectExplorer::Project *project)
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
     if (!project)
         return currentGlobalTabSettings();
 
@@ -219,6 +222,11 @@ TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
         = editorConfiguration->codeStyle(Constants::CPP_SETTINGS_ID);
     QTC_ASSERT(codeStylePreferences, return currentGlobalTabSettings());
     return codeStylePreferences->currentTabSettings();
+}
+
+TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
+{
+    return getProjectTabSettings(ProjectExplorer::ProjectTree::currentProject());
 }
 
 TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()

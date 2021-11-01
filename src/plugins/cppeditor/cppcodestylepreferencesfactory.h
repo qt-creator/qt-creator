@@ -30,6 +30,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 
 namespace CppEditor {
+class CppCodeStyleWidget;
 
 class CPPEDITOR_EXPORT CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
 {
@@ -44,7 +45,7 @@ public:
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
     QString snippetProviderGroupId() const override;
     QString previewText() const override;
-    virtual std::pair<QWidget *, QString> additionalTab(QWidget *parent) const;
+    virtual std::pair<CppCodeStyleWidget *, QString> additionalTab(QWidget *parent) const;
 };
 
 } // namespace CppEditor

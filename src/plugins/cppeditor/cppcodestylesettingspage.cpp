@@ -42,6 +42,7 @@
 #include <texteditor/displaysettings.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/qtcassert.h>
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
@@ -222,6 +223,11 @@ void CppCodeStylePreferencesWidget::setTabSettings(const TabSettings &settings)
     m_ui->tabSettingsWidget->setTabSettings(settings);
 }
 
+TextEditor::TabSettings CppCodeStylePreferencesWidget::tabSettings() const
+{
+    return m_ui->tabSettingsWidget->tabSettings();
+}
+
 void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
 {
     const bool wasBlocked = m_blockUpdates;
@@ -274,7 +280,7 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
         if (current)
             current->setCodeStyleSettings(cppCodeStyleSettings());
     }
-
+    emit codeStyleSettingsChanged(cppCodeStyleSettings());
     updatePreview();
 }
 
@@ -289,6 +295,7 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
             current->setTabSettings(settings);
     }
 
+    emit tabSettingsChanged(settings);
     updatePreview();
 }
 
@@ -337,9 +344,26 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
     }
 }
 
-void CppCodeStylePreferencesWidget::addTab(QWidget *page, QString tabName)
+void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tabName)
 {
+    QTC_ASSERT(page, return);
     m_ui->categoryTab->addTab(page, tabName);
+
+    connect(page, &CppEditor::CppCodeStyleWidget::codeStyleSettingsChanged,
+            this, [this](const CppEditor::CppCodeStyleSettings &settings) {
+                setCodeStyleSettings(settings, true);
+            });
+
+    connect(page, &CppEditor::CppCodeStyleWidget::tabSettingsChanged,
+            this, &CppCodeStylePreferencesWidget::setTabSettings);
+
+    connect(this, &CppCodeStylePreferencesWidget::codeStyleSettingsChanged,
+            page, &CppCodeStyleWidget::setCodeStyleSettings);
+
+    connect(this, &CppCodeStylePreferencesWidget::tabSettingsChanged,
+            page, &CppCodeStyleWidget::setTabSettings);
+
+    page->synchronize();
 }
 
 // ------------------ CppCodeStyleSettingsPage

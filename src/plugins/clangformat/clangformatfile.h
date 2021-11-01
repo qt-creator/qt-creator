@@ -28,6 +28,10 @@
 #include "utils/filepath.h"
 #include <clang/Format/Format.h>
 
+namespace CppEditor { class CppCodeStyleSettings; }
+namespace ProjectExplorer { class Project; }
+namespace TextEditor { class TabSettings; }
+
 namespace ClangFormat {
 
 class ClangFormatFile
@@ -46,6 +50,10 @@ public:
     using Field = std::pair<QString, QString>;
     QString changeFields(QList<Field> fields);
     QString changeField(Field field);
+    CppEditor::CppCodeStyleSettings toCppCodeStyleSettings(ProjectExplorer::Project *project) const;
+    TextEditor::TabSettings toTabSettings(ProjectExplorer::Project *project) const;
+    void fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings);
+    void fromTabSettings(const TextEditor::TabSettings &settings);
 
 private:
     void saveNewFormat();
@@ -55,6 +63,5 @@ private:
     Utils::FilePath m_filePath;
     clang::format::FormatStyle m_style;
 };
-
 
 } // namespace ClangFormat

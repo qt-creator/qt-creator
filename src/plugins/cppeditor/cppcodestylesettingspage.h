@@ -39,10 +39,28 @@ namespace TextEditor {
     class TabSettings;
     class SnippetEditorWidget;
     class CodeStyleEditor;
+    class CodeStyleEditorWidget;
 }
 
 namespace CppEditor {
 class CppCodeStylePreferences;
+
+class CPPEDITOR_EXPORT CppCodeStyleWidget : public TextEditor::CodeStyleEditorWidget
+{
+    Q_OBJECT
+public:
+    CppCodeStyleWidget(QWidget *parent = nullptr)
+        : CodeStyleEditorWidget(parent)
+    {}
+
+    virtual void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &) {}
+    virtual void setTabSettings(const TextEditor::TabSettings &) {}
+    virtual void synchronize() {}
+
+signals:
+    void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
+    void tabSettingsChanged(const TextEditor::TabSettings &);
+};
 
 namespace Internal {
 
@@ -56,7 +74,7 @@ public:
     ~CppCodeStylePreferencesWidget() override;
 
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
-    void addTab(QWidget *page, QString tabName);
+    void addTab(CppCodeStyleWidget *page, QString tabName);
 
 private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
@@ -65,6 +83,7 @@ private:
     void slotCodeStyleSettingsChanged();
     void updatePreview();
     void setTabSettings(const TextEditor::TabSettings &settings);
+    TextEditor::TabSettings tabSettings() const;
     void setCodeStyleSettings(const CppCodeStyleSettings &settings, bool preview = true);
     void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *, bool preview = true);
 
@@ -74,6 +93,9 @@ private:
     Ui::CppCodeStyleSettingsPage *m_ui;
     QList<TextEditor::SnippetEditorWidget *> m_previews;
     bool m_blockUpdates = false;
+signals:
+    void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
+    void tabSettingsChanged(const TextEditor::TabSettings &);
 };
 
 

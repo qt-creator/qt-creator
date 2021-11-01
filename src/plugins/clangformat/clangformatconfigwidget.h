@@ -25,18 +25,15 @@
 
 #pragma once
 
-#include <texteditor/icodestylepreferencesfactory.h>
+#include <cppeditor/cppcodestylesettingspage.h>
 
 #include <QScrollArea>
 
 #include <memory>
 
-namespace ProjectExplorer {
-class Project;
-}
-namespace TextEditor {
-class SnippetEditorWidget;
-}
+namespace ProjectExplorer { class Project; }
+namespace TextEditor { class SnippetEditorWidget; }
+namespace CppEditor { class CppCodeStyleSettings; }
 
 namespace ClangFormat {
 
@@ -46,7 +43,7 @@ class ClangFormatChecksWidget;
 }
 class ClangFormatFile;
 
-class ClangFormatConfigWidget : public TextEditor::CodeStyleEditorWidget
+class ClangFormatConfigWidget : public CppEditor::CppCodeStyleWidget
 {
     Q_OBJECT
 
@@ -55,6 +52,9 @@ public:
                                      QWidget *parent = nullptr);
     ~ClangFormatConfigWidget() override;
     void apply() override;
+    void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings) override;
+    void setTabSettings(const TextEditor::TabSettings &settings) override;
+    void synchronize() override;
 
 private:
     void onTableChanged();

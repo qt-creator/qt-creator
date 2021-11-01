@@ -24,6 +24,12 @@
 ****************************************************************************/
 
 #include "clangformatfile.h"
+#include "clangformatsettings.h"
+#include <cppeditor/cppcodestylesettings.h>
+#include <projectexplorer/project.h>
+#include <texteditor/tabsettings.h>
+#include <utils/qtcassert.h>
+
 #include <sstream>
 
 using namespace ClangFormat;
@@ -105,7 +111,7 @@ void ClangFormatFile::saveNewFormat()
 
     // workaround: configurationAsText() add comment "# " before BasedOnStyle line
     const int pos = style.find("# BasedOnStyle");
-    if (pos < int(style.size()))
+    if (pos != int(std::string::npos))
         style.erase(pos, 2);
     m_filePath.writeFileContents(QByteArray::fromStdString(style));
 }
@@ -113,4 +119,139 @@ void ClangFormatFile::saveNewFormat()
 void ClangFormatFile::saveNewFormat(QByteArray style)
 {
     m_filePath.writeFileContents(style);
+}
+
+CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
+    ProjectExplorer::Project *project) const
+{
+    using namespace clang::format;
+    auto settings = CppEditor::CppCodeStyleSettings::getProjectCodeStyle(project);
+
+    FormatStyle style;
+    style.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = parseConfiguration(m_filePath.fileContents().toStdString(),
+                                                     &style);
+    QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return settings);
+
+    // Modifier offset should be opposite to indent width in order indentAccessSpecifiers
+    // to be false
+    settings.indentAccessSpecifiers = (style.AccessModifierOffset != -1 * style.IndentWidth);
+
+    settings.indentNamespaceBody = style.NamespaceIndentation
+                                   == FormatStyle::NamespaceIndentationKind::NI_All;
+    settings.indentNamespaceBraces = settings.indentNamespaceBody;
+
+    settings.indentClassBraces = style.BreakBeforeBraces == FormatStyle::BS_Whitesmiths;
+    settings.indentEnumBraces = settings.indentClassBraces;
+    settings.indentBlockBraces = settings.indentClassBraces;
+    settings.indentFunctionBraces = settings.indentClassBraces;
+
+    settings.indentSwitchLabels = style.IndentCaseLabels;
+    settings.indentBlocksRelativeToSwitchLabels = style.IndentCaseBlocks;
+    settings.indentStatementsRelativeToSwitchLabels = style.IndentCaseBlocks;
+    settings.indentControlFlowRelativeToSwitchLabels = style.IndentCaseBlocks;
+
+    if (style.DerivePointerAlignment
+        && ClangFormatSettings::instance().formatCodeInsteadOfIndent()) {
+        settings.bindStarToIdentifier = style.PointerAlignment == FormatStyle::PAS_Right;
+        settings.bindStarToTypeName = style.PointerAlignment == FormatStyle::PAS_Left;
+        settings.bindStarToLeftSpecifier = style.PointerAlignment == FormatStyle::PAS_Left;
+        settings.bindStarToRightSpecifier = style.PointerAlignment == FormatStyle::PAS_Right;
+    }
+
+    return settings;
+}
+
+void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings)
+{
+    using namespace clang::format;
+    if (settings.indentAccessSpecifiers)
+        m_style.AccessModifierOffset = 0;
+    else
+        m_style.AccessModifierOffset = -1 * m_style.IndentWidth;
+
+    if (settings.indentNamespaceBody || settings.indentNamespaceBraces)
+        m_style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_All;
+
+    if (settings.indentClassBraces || settings.indentEnumBraces || settings.indentBlockBraces
+        || settings.indentFunctionBraces)
+        m_style.BreakBeforeBraces = FormatStyle::BS_Whitesmiths;
+
+    m_style.IndentCaseLabels = settings.indentSwitchLabels;
+    m_style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels
+                               || settings.indentStatementsRelativeToSwitchLabels
+                               || settings.indentControlFlowRelativeToSwitchLabels;
+
+    if (settings.alignAssignments)
+        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_NonAssignment;
+
+    if (settings.extraPaddingForConditionsIfConfusingAlign)
+        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
+
+    m_style.DerivePointerAlignment = settings.bindStarToIdentifier || settings.bindStarToTypeName
+                                     || settings.bindStarToLeftSpecifier
+                                     || settings.bindStarToRightSpecifier;
+
+    if ((settings.bindStarToIdentifier || settings.bindStarToRightSpecifier)
+        && ClangFormatSettings::instance().formatCodeInsteadOfIndent())
+        m_style.PointerAlignment = FormatStyle::PAS_Right;
+
+    if ((settings.bindStarToTypeName || settings.bindStarToLeftSpecifier)
+        && ClangFormatSettings::instance().formatCodeInsteadOfIndent())
+        m_style.PointerAlignment = FormatStyle::PAS_Left;
+
+    saveNewFormat();
+}
+
+TextEditor::TabSettings ClangFormatFile::toTabSettings(ProjectExplorer::Project *project) const
+{
+    using namespace clang::format;
+    auto settings = CppEditor::CppCodeStyleSettings::getProjectTabSettings(project);
+
+    FormatStyle style;
+    style.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = parseConfiguration(m_filePath.fileContents().toStdString(),
+                                                     &style);
+    QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return settings);
+
+    settings.m_indentSize = style.IndentWidth;
+    settings.m_tabSize = style.TabWidth;
+
+    switch (style.UseTab) {
+    case FormatStyle::UT_AlignWithSpaces:
+    case FormatStyle::UT_ForIndentation:
+    case FormatStyle::UT_ForContinuationAndIndentation:
+        settings.m_tabPolicy = TextEditor::TabSettings::TabPolicy::MixedTabPolicy;
+        break;
+    case FormatStyle::UT_Never:
+        settings.m_tabPolicy = TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy;
+        break;
+    case FormatStyle::UT_Always:
+        settings.m_tabPolicy = TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy;
+        break;
+    }
+
+    return settings;
+}
+
+void ClangFormatFile::fromTabSettings(const TextEditor::TabSettings &settings)
+{
+    using namespace clang::format;
+
+    m_style.IndentWidth = settings.m_indentSize;
+    m_style.TabWidth = settings.m_tabSize;
+
+    switch (settings.m_tabPolicy) {
+    case TextEditor::TabSettings::TabPolicy::MixedTabPolicy:
+        m_style.UseTab = FormatStyle::UT_ForContinuationAndIndentation;
+        break;
+    case TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy:
+        m_style.UseTab = FormatStyle::UT_Never;
+        break;
+    case TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy:
+        m_style.UseTab = FormatStyle::UT_Always;
+        break;
+    }
+
+    saveNewFormat();
 }

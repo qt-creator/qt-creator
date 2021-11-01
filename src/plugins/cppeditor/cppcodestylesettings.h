@@ -37,6 +37,7 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus { class Overview; }
 namespace TextEditor { class TabSettings; }
+namespace ProjectExplorer { class Project; }
 
 namespace CppEditor {
 
@@ -97,8 +98,10 @@ public:
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }
     bool operator!=(const CppCodeStyleSettings &s) const { return !equals(s); }
 
-    static Utils::optional<CppCodeStyleSettings> currentProjectCodeStyle();
+    static CppCodeStyleSettings getProjectCodeStyle(ProjectExplorer::Project *project);
+    static CppCodeStyleSettings currentProjectCodeStyle();
     static CppCodeStyleSettings currentGlobalCodeStyle();
+    static TextEditor::TabSettings getProjectTabSettings(ProjectExplorer::Project *project);
     static TextEditor::TabSettings currentProjectTabSettings();
     static TextEditor::TabSettings currentGlobalTabSettings();
 

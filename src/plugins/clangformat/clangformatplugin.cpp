@@ -45,6 +45,7 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <cppeditor/cppcodestylepreferencesfactory.h>
+#include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 
@@ -82,7 +83,7 @@ public:
         return new ClangFormatIndenter(doc);
     }
 
-    std::pair<QWidget *, QString> additionalTab(QWidget *parent) const override
+    std::pair<CppEditor::CppCodeStyleWidget *, QString> additionalTab(QWidget *parent) const override
     {
         if (!parent)
             return {new ClangFormatConfigWidget(),  tr("ClangFormat")};

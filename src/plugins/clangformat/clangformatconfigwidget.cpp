@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cpphighlighter.h>
+#include <cppeditor/cppcodestylesettings.h>
 #include <cppeditor/cppcodestylesnippets.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -115,7 +116,7 @@ void ClangFormatConfigWidget::showEvent(QShowEvent *event)
 }
 
 ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *project, QWidget *parent)
-    : CodeStyleEditorWidget(parent)
+    : CppCodeStyleWidget(parent)
     , m_project(project)
     , m_checks(std::make_unique<Ui::ClangFormatChecksWidget>())
     , m_ui(std::make_unique<Ui::ClangFormatConfigWidget>())
@@ -438,6 +439,29 @@ void ClangFormatConfigWidget::saveChanges(QObject *sender)
 
     fillTable();
     updatePreview();
+    synchronize();
+}
+
+void ClangFormatConfigWidget::setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings)
+{
+    m_config->fromCppCodeStyleSettings(settings);
+
+    fillTable();
+    updatePreview();
+}
+
+void ClangFormatConfigWidget::setTabSettings(const TextEditor::TabSettings &settings)
+{
+    m_config->fromTabSettings(settings);
+
+    fillTable();
+    updatePreview();
+}
+
+void ClangFormatConfigWidget::synchronize()
+{
+    emit codeStyleSettingsChanged(m_config->toCppCodeStyleSettings(m_project));
+    emit tabSettingsChanged(m_config->toTabSettings(m_project));
 }
 
 void ClangFormatConfigWidget::apply()
