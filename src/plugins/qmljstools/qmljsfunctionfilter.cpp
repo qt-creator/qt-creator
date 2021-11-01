@@ -102,5 +102,6 @@ void FunctionFilter::accept(Core::LocatorFilterEntry selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
-    Core::EditorManager::openEditorAt(entry.fileName, entry.line, entry.column);
+    Core::EditorManager::openEditorAt(
+        {Utils::FilePath::fromString(entry.fileName), entry.line, entry.column});
 }

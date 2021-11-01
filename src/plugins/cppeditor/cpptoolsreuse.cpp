@@ -273,7 +273,8 @@ void switchHeaderSource()
 {
     const Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
     QTC_ASSERT(currentDocument, return);
-    const QString otherFile = correspondingHeaderOrSource(currentDocument->filePath().toString());
+    const auto otherFile = Utils::FilePath::fromString(
+        correspondingHeaderOrSource(currentDocument->filePath().toString()));
     if (!otherFile.isEmpty())
         Core::EditorManager::openEditor(otherFile);
 }

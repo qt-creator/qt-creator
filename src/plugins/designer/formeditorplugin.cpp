@@ -184,7 +184,7 @@ static QString otherFile()
 
 void FormEditorPlugin::switchSourceForm()
 {
-    const QString fileToOpen = otherFile();
+    const auto fileToOpen = Utils::FilePath::fromString(otherFile());
     if (!fileToOpen.isEmpty())
         EditorManager::openEditor(fileToOpen);
 }

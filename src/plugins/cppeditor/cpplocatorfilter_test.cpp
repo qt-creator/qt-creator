@@ -114,7 +114,7 @@ private:
         QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
 
-        m_editor = EditorManager::openEditor(m_fileName);
+        m_editor = EditorManager::openEditor(FilePath::fromString(m_fileName));
         QVERIFY(m_editor);
 
         QVERIFY(waitForFileInGlobalSnapshot(m_fileName));

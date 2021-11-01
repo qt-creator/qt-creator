@@ -179,7 +179,8 @@ void SymbolsFindFilter::openEditor(const SearchResultItem &item)
     if (!item.userData().canConvert<IndexItem::Ptr>())
         return;
     IndexItem::Ptr info = item.userData().value<IndexItem::Ptr>();
-    EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
+    EditorManager::openEditorAt(
+        {FilePath::fromString(info->fileName()), info->line(), info->column()});
 }
 
 QWidget *SymbolsFindFilter::createConfigWidget()

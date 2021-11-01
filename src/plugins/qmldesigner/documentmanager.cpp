@@ -111,8 +111,9 @@ static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QV
 static void openFileComponent(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
-    Core::EditorManager::openEditor(modelNode.metaInfo().componentFileName(),
-        Utils::Id(), Core::EditorManager::DoNotMakeVisible);
+    Core::EditorManager::openEditor(FilePath::fromString(modelNode.metaInfo().componentFileName()),
+                                    Utils::Id(),
+                                    Core::EditorManager::DoNotMakeVisible);
 }
 
 static void openFileComponentForDelegate(const ModelNode &modelNode)
@@ -138,7 +139,10 @@ static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
         componentModelNode = modelNode.nodeListProperty("component").toModelNodeList().constFirst();
     }
 
-    Core::EditorManager::openEditor(componentModelNode.metaInfo().componentFileName(), Utils::Id(), Core::EditorManager::DoNotMakeVisible);
+    Core::EditorManager::openEditor(FilePath::fromString(
+                                        componentModelNode.metaInfo().componentFileName()),
+                                    Utils::Id(),
+                                    Core::EditorManager::DoNotMakeVisible);
 }
 
 static void openSourcePropertyOfLoader(const ModelNode &modelNode)
@@ -148,7 +152,10 @@ static void openSourcePropertyOfLoader(const ModelNode &modelNode)
     QString componentFileName = modelNode.variantProperty("source").value().toString();
 
     QFileInfo fileInfo(modelNode.model()->fileUrl().toLocalFile());
-    Core::EditorManager::openEditor(fileInfo.absolutePath() + "/" + componentFileName, Utils::Id(), Core::EditorManager::DoNotMakeVisible);
+    Core::EditorManager::openEditor(FilePath::fromString(fileInfo.absolutePath())
+                                        / componentFileName,
+                                    Utils::Id(),
+                                    Core::EditorManager::DoNotMakeVisible);
 }
 
 

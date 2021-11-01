@@ -756,8 +756,8 @@ void QmlInspectorAgent::onShowAppOnTopChanged(bool checked)
 
 void QmlInspectorAgent::jumpToObjectDefinitionInEditor(const FileReference &objSource)
 {
-    const QString fileName = m_qmlEngine->toFileInProject(objSource.url());
-    Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
+    const auto filePath = Utils::FilePath::fromString(m_qmlEngine->toFileInProject(objSource.url()));
+    Core::EditorManager::openEditorAt({filePath, objSource.lineNumber()});
 }
 
 void QmlInspectorAgent::selectObjects(const QList<int> &debugIds,

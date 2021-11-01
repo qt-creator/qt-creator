@@ -802,7 +802,7 @@ static void setDiffBaseDirectory(IEditor *editor, const FilePath &db)
 
 CvsSubmitEditor *CvsPluginPrivate::openCVSSubmitEditor(const QString &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, CVSCOMMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName), CVSCOMMITEDITOR_ID);
     auto submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,

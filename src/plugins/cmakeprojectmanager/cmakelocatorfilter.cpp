@@ -182,10 +182,10 @@ void OpenCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
 
     const QVariantMap extraData = selection.internalData.toMap();
     const int line = extraData.value("line").toInt();
-    const QString file = extraData.value("file").toString();
+    const auto file = FilePath::fromVariant(extraData.value("file"));
 
     if (line >= 0)
-        Core::EditorManager::openEditorAt(file, line);
+        Core::EditorManager::openEditorAt({file, line});
     else
         Core::EditorManager::openEditor(file);
 }

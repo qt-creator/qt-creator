@@ -685,7 +685,9 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
     if (!usages.isEmpty() && (addAlwaysNewSlot || usages.count() < 2)  && (!isModelNodeRoot  || addAlwaysNewSlot)) {
-        Core::EditorManager::openEditorAt(usages.constFirst().path, usages.constFirst().line, usages.constFirst().col);
+        Core::EditorManager::openEditorAt({Utils::FilePath::fromString(usages.constFirst().path),
+                                           usages.constFirst().line,
+                                           usages.constFirst().col});
 
         if (!signalNames.isEmpty()) {
             auto dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
@@ -707,7 +709,9 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
                 QList<QmlJSEditor::FindReferences::Usage> usages = FindImplementation::run(filePath, typeName, itemId);
-                Core::EditorManager::openEditorAt(filePath, usages.constFirst().line, usages.constFirst().col + 1);
+                Core::EditorManager::openEditorAt({Utils::FilePath::fromString(filePath),
+                                                   usages.constFirst().line,
+                                                   usages.constFirst().col + 1});
             } );
             dialog->show();
 
@@ -715,7 +719,9 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         return;
     }
 
-    Core::EditorManager::openEditorAt(usages.constFirst().path, usages.constFirst().line, usages.constFirst().col + 1);
+    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(usages.constFirst().path),
+                                       usages.constFirst().line,
+                                       usages.constFirst().col + 1});
 }
 
 void removeLayout(const SelectionContext &selectionContext)

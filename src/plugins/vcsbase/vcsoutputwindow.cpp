@@ -203,7 +203,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             return;
         }
         if (action == openAction) {
-            const QString fileName = action->data().toString();
+            const auto fileName = Utils::FilePath::fromVariant(action->data());
             Core::EditorManager::openEditor(fileName);
         }
     }

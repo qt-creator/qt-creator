@@ -1384,7 +1384,8 @@ void GitPluginPrivate::updateVersionWarning()
 
 IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName),
+                                                Constants::GITSUBMITEDITOR_ID);
     auto submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
     setSubmitEditor(submitEditor);

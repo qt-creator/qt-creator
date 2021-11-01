@@ -419,17 +419,20 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
     if (lineNumber < 0 || fileUrl.isEmpty())
         return;
 
-    const QString projectFileName = d->m_profilerModelManager->findLocalFile(fileUrl);
+    const auto projectFileName = FilePath::fromString(
+        d->m_profilerModelManager->findLocalFile(fileUrl));
 
-    QFileInfo fileInfo(projectFileName);
-    if (!fileInfo.exists() || !fileInfo.isReadable())
+    if (!projectFileName.exists() || !projectFileName.isReadableFile())
         return;
 
     // The text editors count columns starting with 0, but the ASTs store the
     // location starting with 1, therefore the -1.
-    EditorManager::openEditorAt(
-                projectFileName, lineNumber == 0 ? 1 : lineNumber, columnNumber - 1, Id(),
-                EditorManager::DoNotSwitchToDesignMode | EditorManager::DoNotSwitchToEditMode);
+    EditorManager::openEditorAt({projectFileName,
+                                 lineNumber == 0 ? 1 : lineNumber,
+                                 columnNumber - 1},
+                                Id(),
+                                EditorManager::DoNotSwitchToDesignMode
+                                    | EditorManager::DoNotSwitchToEditMode);
 }
 
 void QmlProfilerTool::updateTimeDisplay()

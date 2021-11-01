@@ -624,7 +624,8 @@ void SubversionPluginPrivate::diffCommitFiles(const QStringList &files)
 
 SubversionSubmitEditor *SubversionPluginPrivate::openSubversionSubmitEditor(const QString &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, Constants::SUBVERSION_COMMIT_EDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName),
+                                                Constants::SUBVERSION_COMMIT_EDITOR_ID);
     auto submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
     setSubmitEditor(submitEditor);

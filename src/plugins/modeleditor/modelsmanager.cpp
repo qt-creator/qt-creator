@@ -259,7 +259,7 @@ void ModelsManager::onOpenDiagramFromProjectExplorer()
 
 void ModelsManager::onOpenDefaultModel(const qmt::Uid &modelUid)
 {
-    QString modelFile = d->modelIndexer->findModel(modelUid);
+    const auto modelFile = Utils::FilePath::fromString(d->modelIndexer->findModel(modelUid));
     if (!modelFile.isEmpty())
         Core::EditorManager::openEditor(modelFile);
 }

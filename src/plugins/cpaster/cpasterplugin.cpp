@@ -400,10 +400,10 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
         MessageManager::writeDisrupting(saver.errorString());
         return;
     }
-    const QString fileName = saver.filePath().toString();
-    m_fetchedSnippets.push_back(fileName);
+    const Utils::FilePath filePath = saver.filePath();
+    m_fetchedSnippets.push_back(filePath.toString());
     // Open editor with title.
-    IEditor *editor = EditorManager::openEditor(fileName);
+    IEditor *editor = EditorManager::openEditor(filePath);
     QTC_ASSERT(editor, return);
     editor->document()->setPreferredDisplayName(titleDescription);
 }

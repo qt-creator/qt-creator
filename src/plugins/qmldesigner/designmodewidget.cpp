@@ -527,7 +527,8 @@ void DesignModeWidget::toolBarOnGoBackClicked()
     if (m_navigatorHistoryCounter > 0) {
         --m_navigatorHistoryCounter;
         m_keepNavigatorHistory = true;
-        Core::EditorManager::openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter),
+        Core::EditorManager::openEditor(Utils::FilePath::fromString(
+                                            m_navigatorHistory.at(m_navigatorHistoryCounter)),
                                         Utils::Id(),
                                         Core::EditorManager::DoNotMakeVisible);
         m_keepNavigatorHistory = false;
@@ -539,7 +540,8 @@ void DesignModeWidget::toolBarOnGoForwardClicked()
     if (m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1)) {
         ++m_navigatorHistoryCounter;
         m_keepNavigatorHistory = true;
-        Core::EditorManager::openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter),
+        Core::EditorManager::openEditor(Utils::FilePath::fromString(
+                                            m_navigatorHistory.at(m_navigatorHistoryCounter)),
                                         Utils::Id(),
                                         Core::EditorManager::DoNotMakeVisible);
         m_keepNavigatorHistory = false;

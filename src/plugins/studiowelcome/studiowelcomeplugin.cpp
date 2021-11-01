@@ -212,7 +212,7 @@ public:
                         const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/"
                                                 + formFile;
 
-                        Core::EditorManager::openEditor(qmlFile);
+                        Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
                     });
             return;
         }

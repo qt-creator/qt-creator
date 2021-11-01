@@ -654,7 +654,7 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
         return;
     }
 
-    IEditor *editor = EditorManager::openEditor(saver.filePath().toString(), COMMIT_ID);
+    IEditor *editor = EditorManager::openEditor(saver.filePath(), COMMIT_ID);
     if (!editor) {
         VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
         return;

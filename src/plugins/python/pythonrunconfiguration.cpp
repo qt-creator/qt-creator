@@ -123,7 +123,7 @@ private:
             return false;
         const QString fileName = match.captured(3);
         const int lineNumber = match.captured(4).toInt();
-        Core::EditorManager::openEditorAt(fileName, lineNumber);
+        Core::EditorManager::openEditorAt({FilePath::fromString(fileName), lineNumber});
         return true;
     }
 

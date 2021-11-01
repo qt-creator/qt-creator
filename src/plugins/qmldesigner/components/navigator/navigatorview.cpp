@@ -388,8 +388,10 @@ void NavigatorView::changeToComponent(const QModelIndex &index)
     if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
         const ModelNode doubleClickNode = modelNodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
-            Core::EditorManager::openEditor(doubleClickNode.metaInfo().componentFileName(),
-                                            Utils::Id(), Core::EditorManager::DoNotMakeVisible);
+            Core::EditorManager::openEditor(Utils::FilePath::fromString(
+                                                doubleClickNode.metaInfo().componentFileName()),
+                                            Utils::Id(),
+                                            Core::EditorManager::DoNotMakeVisible);
     }
 }
 

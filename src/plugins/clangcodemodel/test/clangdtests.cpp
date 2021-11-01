@@ -1852,7 +1852,7 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
     int line, column;
     Utils::Text::convertPosition(doc->document(), pos, &line, &column);
     const auto editor = qobject_cast<BaseTextEditor *>(
-                EditorManager::openEditorAt(doc->filePath().toString(), line, column - 1));
+        EditorManager::openEditorAt({doc->filePath(), line, column - 1}));
     QVERIFY(editor);
     QCOMPARE(EditorManager::currentEditor(), editor);
     QCOMPARE(editor->textDocument(), doc);

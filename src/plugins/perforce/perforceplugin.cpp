@@ -802,7 +802,8 @@ void PerforcePluginPrivate::startSubmitProject()
 
 IEditor *PerforcePluginPrivate::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, PERFORCE_SUBMIT_EDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName),
+                                                PERFORCE_SUBMIT_EDITOR_ID);
     auto submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     setSubmitEditor(submitEditor);
     submitEditor->restrictToProjectFiles(depotFileNames);

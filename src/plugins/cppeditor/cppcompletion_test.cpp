@@ -79,7 +79,7 @@ public:
         QVERIFY(!fileName.isEmpty());
 
         // Open in editor
-        m_editor = EditorManager::openEditor(fileName);
+        m_editor = EditorManager::openEditor(Utils::FilePath::fromString(fileName));
         QVERIFY(m_editor);
         closeEditorAtEndOfTestCase(m_editor);
         m_editorWidget = TextEditorWidget::fromEditor(m_editor);

@@ -74,9 +74,9 @@ void openEditorAt(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
     const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 
-    Core::EditorManager::openEditorAt(location.filePath.toString(),
-                                      int(location.line),
-                                      int(location.column - 1));
+    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(location.filePath.toString()),
+                                       int(location.line),
+                                       int(location.column - 1)});
 }
 
 void applyFixit(const ClangBackEnd::DiagnosticContainer &diagnostic)

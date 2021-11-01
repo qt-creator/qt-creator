@@ -1841,12 +1841,13 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->requestJumpToGlobalMark.connect([this](QChar mark, bool backTickMode, const QString &fileName) {
-        if (IEditor *iedit = EditorManager::openEditor(fileName)) {
-            if (FakeVimHandler *handler = m_editorToHandler.value(iedit, nullptr))
-                handler->jumpToLocalMark(mark, backTickMode);
-        }
-    });
+    handler->requestJumpToGlobalMark.connect(
+        [this](QChar mark, bool backTickMode, const QString &fileName) {
+            if (IEditor *iedit = EditorManager::openEditor(FilePath::fromString(fileName))) {
+                if (FakeVimHandler *handler = m_editorToHandler.value(iedit, nullptr))
+                    handler->jumpToLocalMark(mark, backTickMode);
+            }
+        });
 
     handler->handleExCommandRequested.connect([this, handler](bool *handled, const ExCommand &cmd) {
         handleExCommand(handler, handled, cmd);

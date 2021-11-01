@@ -569,10 +569,11 @@ void CallgrindToolPrivate::selectFunction(const Function *func)
     if (!item || item != func)
         m_stackBrowser.select(func);
 
-    if (QFile::exists(func->file())) {
+    const auto filePath = FilePath::fromString(func->file());
+    if (filePath.exists()) {
         ///TODO: custom position support?
         int line = func->lineNumber();
-        EditorManager::openEditorAt(func->file(), qMax(line, 0));
+        EditorManager::openEditorAt({filePath, qMax(line, 0)});
     }
 }
 

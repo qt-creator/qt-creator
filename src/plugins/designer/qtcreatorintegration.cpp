@@ -246,9 +246,10 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 
 static inline BaseTextEditor *editorAt(const QString &fileName, int line, int column)
 {
-    return qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
-                                                                         Utils::Id(),
-                                                                         Core::EditorManager::DoNotMakeVisible));
+    return qobject_cast<BaseTextEditor *>(
+        Core::EditorManager::openEditorAt({FilePath::fromString(fileName), line, column},
+                                          Utils::Id(),
+                                          Core::EditorManager::DoNotMakeVisible));
 }
 
 static void addDeclaration(const Snapshot &snapshot,
@@ -560,8 +561,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     CppEditor::CppRefactoringChanges refactoring(docTable);
     CppEditor::SymbolFinder symbolFinder;
     if (const Function *funImpl = symbolFinder.findMatchingDefinition(fun, docTable, true)) {
-        Core::EditorManager::openEditorAt(QString::fromUtf8(funImpl->fileName()),
-                                          funImpl->line() + 2);
+        Core::EditorManager::openEditorAt(
+            {FilePath::fromString(QString::fromUtf8(funImpl->fileName())), funImpl->line() + 2});
         return true;
     }
     const QString implFilePath = CppEditor::correspondingHeaderOrSource(declFilePath);
@@ -575,9 +576,9 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
             + functionNameWithParameterNames + "\n{\n" + QString(indentation, ' ') + "\n}\n"
             + location.suffix();
         editor->insert(definition);
-        Core::EditorManager::openEditorAt(location.fileName(),
-                                          location.line() + location.prefix().count('\n') + 2,
-                                          indentation);
+        Core::EditorManager::openEditorAt({FilePath::fromString(location.fileName()),
+                                           int(location.line() + location.prefix().count('\n') + 2),
+                                           indentation});
         return true;
     }
 

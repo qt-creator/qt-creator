@@ -466,7 +466,9 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             openedSomething = true;
         }
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-            Core::IEditor *editor = Core::EditorManager::openEditor(file.path(), file.editorId());
+            Core::IEditor *editor = Core::EditorManager::openEditor(FilePath::fromString(
+                                                                        file.path()),
+                                                                    file.editorId());
             if (!editor) {
                 errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                            "Failed to open an editor for \"%1\".")

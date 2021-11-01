@@ -188,7 +188,7 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
 {
     foreach (const GeneratedFile &file, l) {
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
-            if (!EditorManager::openEditor(file.path(), file.editorId())) {
+            if (!EditorManager::openEditor(FilePath::fromString(file.path()), file.editorId())) {
                 if (errorMessage)
                     *errorMessage = tr("Failed to open an editor for \"%1\".").arg(QDir::toNativeSeparators(file.path()));
                 return false;

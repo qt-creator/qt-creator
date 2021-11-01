@@ -217,7 +217,7 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
 
     const FilePath filePath = m_document->baseDirectory().resolvePath(fileName);
     if (filePath.exists() && !filePath.isDir())
-        EditorManager::openEditorAt(filePath.toString(), lineNumber, columnNumber);
+        EditorManager::openEditorAt({filePath, lineNumber, columnNumber});
 }
 
 void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSettings)

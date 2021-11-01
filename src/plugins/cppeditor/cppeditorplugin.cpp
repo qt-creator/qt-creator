@@ -626,8 +626,8 @@ void CppEditorPlugin::switchHeaderSource()
 
 void CppEditorPlugin::switchHeaderSourceInNextSplit()
 {
-    QString otherFile = correspondingHeaderOrSource(
-                EditorManager::currentDocument()->filePath().toString());
+    const auto otherFile = FilePath::fromString(
+        correspondingHeaderOrSource(EditorManager::currentDocument()->filePath().toString()));
     if (!otherFile.isEmpty())
         EditorManager::openEditor(otherFile, Id(), EditorManager::OpenInOtherSplit);
 }

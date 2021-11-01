@@ -555,10 +555,10 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
     // The text editors count columns starting with 0, but the ASTs store the
     // location starting with 1, therefore the -1.
-    EditorManager::openEditorAt(fi.filePath(), lineNumber, columnNumber - 1, Utils::Id(),
+    EditorManager::openEditorAt({FilePath::fromFileInfo(fi), lineNumber, columnNumber - 1},
+                                Utils::Id(),
                                 EditorManager::DoNotSwitchToDesignMode
-                                | EditorManager::DoNotSwitchToEditMode);
-
+                                    | EditorManager::DoNotSwitchToEditMode);
 }
 
 static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)

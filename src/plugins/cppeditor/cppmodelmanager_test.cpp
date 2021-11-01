@@ -653,7 +653,7 @@ void ModelManagerTest::testGcIfLastCppeditorClosed()
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
-    Core::IEditor *editor = Core::EditorManager::openEditor(file);
+    Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(file));
     QVERIFY(editor);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
@@ -684,7 +684,7 @@ void ModelManagerTest::testDontGcOpenedFiles()
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
-    Core::IEditor *editor = Core::EditorManager::openEditor(file);
+    Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(file));
     QVERIFY(editor);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
@@ -783,7 +783,8 @@ void ModelManagerTest::testDefinesPerProject()
         const QString firstDeclarationName = i.firstDeclarationName;
         const QString fileName = i.fileName;
 
-        Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
+        Core::IEditor *editor = Core::EditorManager::openEditor(
+            Utils::FilePath::fromString(fileName));
         EditorCloser closer(editor);
         QVERIFY(editor);
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
@@ -847,7 +848,8 @@ void ModelManagerTest::testPrecompiledHeaders()
         const QByteArray firstClassInPchFile = i.firstClassInPchFile.toUtf8();
         const QString fileName = i.fileName;
 
-        Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
+        Core::IEditor *editor = Core::EditorManager::openEditor(
+            Utils::FilePath::fromString(fileName));
         EditorCloser closer(editor);
         QVERIFY(editor);
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
@@ -921,7 +923,8 @@ void ModelManagerTest::testDefinesPerEditor()
         const QString editorDefines = i.editorDefines;
         const QString firstDeclarationName = i.firstDeclarationName;
 
-        Core::IEditor *editor = Core::EditorManager::openEditor(main1File);
+        Core::IEditor *editor = Core::EditorManager::openEditor(
+            Utils::FilePath::fromString(main1File));
         EditorCloser closer(editor);
         QVERIFY(editor);
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
@@ -949,7 +952,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     const QString fileB = testDataDirectory.file(_("main2.cpp")); // content not relevant
 
     // Open file A in editor
-    Core::IEditor *editorA = Core::EditorManager::openEditor(fileA);
+    Core::IEditor *editorA = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileA));
     QVERIFY(editorA);
     EditorCloser closerA(editorA);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
@@ -958,7 +961,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     QVERIFY(!documentAProjectPart->hasProject());
 
     // Open file B in editor
-    Core::IEditor *editorB = Core::EditorManager::openEditor(fileB);
+    Core::IEditor *editorB = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileB));
     QVERIFY(editorB);
     EditorCloser closerB(editorB);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
@@ -1087,7 +1090,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
-    Core::IEditor *editor = Core::EditorManager::openEditor(mainFile);
+    Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(mainFile));
     QVERIFY(editor);
     EditorCloser editorCloser(editor);
     Utils::ExecuteOnDestruction saveAllFiles([](){

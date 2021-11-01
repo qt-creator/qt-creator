@@ -123,7 +123,7 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                 [openClangFormatConfigAction]() {
                     const FilePath fileName = FilePath::fromVariant(openClangFormatConfigAction->data());
                     if (!fileName.isEmpty())
-                        EditorManager::openEditor(configForFile(fileName));
+                        EditorManager::openEditor(FilePath::fromString(configForFile(fileName)));
                 });
 
         connect(EditorManager::instance(),

@@ -141,8 +141,8 @@ void ClangCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
     if (!m_currentEditor)
         return;
     auto lineColumn = qvariant_cast<LineColumn>(selection.internalData);
-    Core::EditorManager::openEditorAt(m_currentPath, lineColumn.line,
-                                      lineColumn.column - 1);
+    Core::EditorManager::openEditorAt(
+        {FilePath::fromString(m_currentPath), lineColumn.line, lineColumn.column - 1});
 }
 
 void ClangCurrentDocumentFilter::reset(Core::IEditor *newCurrent, const QString &path)

@@ -229,7 +229,7 @@ bool QtOutputLineParser::handleLink(const QString &href)
 
 void QtOutputLineParser::openEditor(const QString &fileName, int line, int column)
 {
-    Core::EditorManager::openEditorAt(fileName, line, column);
+    Core::EditorManager::openEditorAt({FilePath::fromString(fileName), line, column});
 }
 
 void QtOutputLineParser::updateProjectFileList()

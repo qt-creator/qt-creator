@@ -383,7 +383,8 @@ void QmlDesignerPlugin::showDesigner()
         dialog.exec();
         if (dialog.uiFileOpened()) {
             Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-            Core::EditorManager::openEditorAt(dialog.uiQmlFile(), 0, 0);
+            Core::EditorManager::openEditorAt(
+                {Utils::FilePath::fromString(dialog.uiQmlFile()), 0, 0});
             return;
         }
     }

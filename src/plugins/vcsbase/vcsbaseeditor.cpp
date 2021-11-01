@@ -1190,7 +1190,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::IEditor *ed = Core::EditorManager::openEditor(fileName);
+    Core::IEditor *ed = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileName));
     if (auto editor = qobject_cast<BaseTextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }

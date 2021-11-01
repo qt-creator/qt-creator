@@ -181,7 +181,8 @@ private:
 
 OpenEditorAtCursorPosition::OpenEditorAtCursorPosition(const TestDocument &testDocument)
 {
-    Core::IEditor *coreEditor = Core::EditorManager::openEditor(testDocument.filePath);
+    Core::IEditor *coreEditor = Core::EditorManager::openEditor(
+        Utils::FilePath::fromString(testDocument.filePath));
     m_editor = qobject_cast<TextEditor::BaseTextEditor *>(coreEditor);
     QTC_CHECK(m_editor);
     if (m_editor) {

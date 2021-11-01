@@ -377,7 +377,7 @@ void Manager::onWidgetVisibilityIsChanged(bool visibility)
 
 void Manager::gotoLocation(const QString &fileName, int line, int column)
 {
-    EditorManager::openEditorAt(fileName, line, column);
+    EditorManager::openEditorAt({FilePath::fromString(fileName), line, column});
 }
 
 /*!

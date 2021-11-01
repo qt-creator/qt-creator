@@ -304,7 +304,7 @@ void ResourceEditorW::openCurrentFile()
 
 void ResourceEditorW::openFile(const QString &fileName)
 {
-    Core::EditorManager::openEditor(fileName);
+    Core::EditorManager::openEditor(FilePath::fromString(fileName));
 }
 
 void ResourceEditorW::onRefresh()

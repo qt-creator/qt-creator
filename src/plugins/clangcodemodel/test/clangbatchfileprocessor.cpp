@@ -323,7 +323,8 @@ bool OpenDocumentCommand::run()
 {
     qCDebug(debug) << "line" << context().lineNumber << "OpenDocumentCommand" << m_documentFilePath;
 
-    const bool openEditorSucceeded = Core::EditorManager::openEditor(m_documentFilePath);
+    const bool openEditorSucceeded = Core::EditorManager::openEditor(
+        Utils::FilePath::fromString(m_documentFilePath));
     QTC_ASSERT(openEditorSucceeded, return false);
 
     auto *processor = ClangEditorDocumentProcessor::get(m_documentFilePath);

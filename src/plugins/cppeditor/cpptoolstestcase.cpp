@@ -232,7 +232,8 @@ bool TestCase::succeededSoFar() const
 bool TestCase::openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
                              CppEditorWidget **editorWidget)
 {
-    if (const auto e = dynamic_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::openEditor(fileName))) {
+    if (const auto e = dynamic_cast<TextEditor::BaseTextEditor *>(
+            Core::EditorManager::openEditor(FilePath::fromString(fileName)))) {
         if (editor) {
             *editor = e;
             TextEditor::StorageSettings s = e->textDocument()->storageSettings();

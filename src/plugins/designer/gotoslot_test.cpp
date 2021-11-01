@@ -154,7 +154,7 @@ public:
 
         QList<TextEditor::BaseTextEditor *> editors;
         for (const QString &file : files) {
-            IEditor *editor = EditorManager::openEditor(file);
+            IEditor *editor = EditorManager::openEditor(Utils::FilePath::fromString(file));
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
             closeEditorAtEndOfTestCase(editor);

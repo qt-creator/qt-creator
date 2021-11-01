@@ -265,7 +265,7 @@ void CleanDialog::slotDoubleClicked(const QModelIndex &index)
     // Open file on doubleclick
     if (const QStandardItem *item = d->m_filesModel->itemFromIndex(index))
         if (!item->data(Internal::isDirectoryRole).toBool()) {
-            const QString fname = item->data(Internal::fileNameRole).toString();
+            const auto fname = Utils::FilePath::fromVariant(item->data(Internal::fileNameRole));
             Core::EditorManager::openEditor(fname);
     }
 }
