@@ -1200,7 +1200,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
-    if (modelNode.isRootNode() && isComponentType(typeName)) {
+    if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && isComponentType(typeName)) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
             if (auto def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
                 syncNode(modelNode, def, context, differenceHandler);

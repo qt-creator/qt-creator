@@ -446,6 +446,28 @@ MetaInfo {
             category: "e.Qt Quick - Component"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
             version: "2.0"
+
+            QmlSource { source: ":/qtquickplugin/source/component.qml" }
+        }
+    }
+
+    Type {
+        name: "QtQml.Component"
+        icon: ":/qtquickplugin/images/component-icon16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+        }
+
+        ItemLibraryEntry {
+            name: "Component 3D"
+            category: "Qt Quick 3D Component"
+            libraryIcon: ":/qtquickplugin/images/component-icon.png"
+            version: "2.0"
+            requiredImport: "QtQuick3D"
+
+            QmlSource { source: ":/qtquickplugin/source/component3d.qml" }
         }
     }
 

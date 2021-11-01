@@ -179,6 +179,8 @@ public:
 
     void sanitizeModel();
 
+    void setAllowComponentRoot(bool allow);
+    bool allowComponentRoot() const;
 signals:
     void modelInterfaceProjectUpdated();
 
@@ -221,6 +223,7 @@ private: //variables
     bool m_hasIncompleteTypeInformation = false;
     bool m_restoringAuxData = false;
     bool m_modelAttachPending = false;
+    bool m_allowComponentRoot = false;
 
     mutable QHash<int, ModelNode> m_canonicalIntModelNode;
     mutable QHash<ModelNode, int> m_canonicalModelNodeInt;
