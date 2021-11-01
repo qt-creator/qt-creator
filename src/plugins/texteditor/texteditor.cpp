@@ -5245,6 +5245,14 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     QPlainTextEdit::mouseReleaseEvent(e);
+
+    d->setClipboardSelection();
+    const QTextCursor plainTextEditCursor = textCursor();
+    const QTextCursor multiMainCursor = multiTextCursor().mainCursor();
+    if (multiMainCursor.position() != plainTextEditCursor.position()
+        || multiMainCursor.anchor() != plainTextEditCursor.anchor()) {
+        doSetTextCursor(plainTextEditCursor, true);
+    }
 }
 
 void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
