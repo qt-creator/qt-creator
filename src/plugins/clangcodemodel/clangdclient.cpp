@@ -566,7 +566,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, headerInsertionOption,
-                                                       "--limit-results=0", "--clang-tidy=0"}};
+            "--limit-results=0", "--limit-references=0", "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
