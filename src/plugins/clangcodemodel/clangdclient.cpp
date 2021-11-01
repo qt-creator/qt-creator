@@ -52,6 +52,7 @@
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
 #include <cppeditor/semantichighlighter.h>
 #include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientutils.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
@@ -1197,6 +1198,15 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
         setInitializationOptions(initOptions);
     }
+    auto isRunningClangdClient = [](const LanguageClient::Client *c) {
+        return qobject_cast<const ClangdClient *>(c) && c->state() != Client::ShutdownRequested
+               && c->state() != Client::Shutdown;
+    };
+    const QList<Client *> clients =
+        Utils::filtered(LanguageClientManager::clientsForProject(project), isRunningClangdClient);
+    QTC_CHECK(clients.isEmpty());
+    for (const Client *client : clients)
+        qCWarning(clangdLog) << client->name() << client->stateString();
     ClientCapabilities caps = Client::defaultClientCapabilities();
     Utils::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
     if (textCaps) {
