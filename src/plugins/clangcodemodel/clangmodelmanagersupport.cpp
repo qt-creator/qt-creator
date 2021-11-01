@@ -475,7 +475,7 @@ void ClangModelManagerSupport::watchForExternalChanges()
                 return;
 
             ClangdClient * const client = clientForProject(project);
-            if (client) {
+            if (client && !m_clientsToRestart.contains(client)) {
                 m_clientsToRestart.append(client);
                 timer->start();
             }
