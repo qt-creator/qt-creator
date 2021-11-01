@@ -166,6 +166,7 @@ Model* DesignDocument::createInFileComponentModel()
 {
     Model *model = Model::create("QtQuick.Item", 1, 0);
     model->setFileUrl(m_documentModel->fileUrl());
+    model->setMetaInfo(m_documentModel->metaInfo());
 
     return model;
 }

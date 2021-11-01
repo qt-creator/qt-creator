@@ -1606,6 +1606,11 @@ bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int mino
     return metaInfo(typeName, majorVersion, minorVersion).isValid();
 }
 
+void Model::setMetaInfo(const MetaInfo &metaInfo)
+{
+    d->setMetaInfo(metaInfo);
+}
+
 NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int minorVersion)
 {
     return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
