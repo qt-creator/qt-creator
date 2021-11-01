@@ -96,7 +96,7 @@ private:
     MainWindow *m_mainWindow = nullptr;
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
-    FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory;
+    FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
     Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;
 };
