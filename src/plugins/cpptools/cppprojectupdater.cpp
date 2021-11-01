@@ -93,11 +93,16 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     // extra compilers
     for (QPointer<ExtraCompiler> compiler : qAsConst(m_extraCompilers)) {
         if (compiler->isDirty()) {
-            auto watcher = new QFutureWatcher<void>;
+            QPointer<QFutureWatcher<void>> watcher = new QFutureWatcher<void>;
             // queued connection to delay after the extra compiler updated its result contents,
             // which is also done in the main thread when compiler->run() finished
             connect(watcher, &QFutureWatcherBase::finished,
                     this, [this, watcher] {
+                        // In very unlikely case the CppProjectUpdater::cancel() could have been
+                        // invoked after posting the finished() signal and before this handler
+                        // gets called. In this case the watcher is already deleted.
+                        if (!watcher)
+                            return;
                         m_projectUpdateFutureInterface->setProgressValue(
                             m_projectUpdateFutureInterface->progressValue() + 1);
                         m_extraCompilersFutureWatchers.remove(watcher);
