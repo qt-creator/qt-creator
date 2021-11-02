@@ -42,8 +42,9 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) :
     m_process(new Utils::QtcProcess(this))
 {
     if (Utils::HostOsInfo::hostOs() == Utils::OsTypeLinux) {
-        QProcess getConf;
-        getConf.start("getconf", {"ARG_MAX"});
+        QtcProcess getConf;
+        getConf.setCommand({"getconf", {"ARG_MAX"}});
+        getConf.start();
         getConf.waitForFinished(2000);
         const QByteArray argMax = getConf.readAllStandardOutput().replace("\n", "");
         m_maxArgumentsLength = std::max(argMax.toInt(), m_maxArgumentsLength);
