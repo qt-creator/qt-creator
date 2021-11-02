@@ -39,12 +39,43 @@ namespace Utils { class FilePath; }
 
 namespace Core {
 
+class IExternalEditor;
 class IEditor;
 class IEditorFactory;
+class EditorType;
 
 using EditorFactoryList = QList<IEditorFactory *>;
+using EditorTypeList = QList<EditorType *>;
 
-class CORE_EXPORT IEditorFactory : public QObject
+class CORE_EXPORT EditorType : public QObject
+{
+    Q_OBJECT
+public:
+    ~EditorType() override;
+
+    static const EditorTypeList allEditorTypes();
+
+    Utils::Id id() const { return m_id; }
+    QString displayName() const { return m_displayName; }
+    QStringList mimeTypes() const { return m_mimeTypes; }
+
+    virtual IEditorFactory *asEditorFactory() { return nullptr; };
+    virtual IExternalEditor *asExternalEditor() { return nullptr; };
+
+protected:
+    EditorType();
+    void setId(Utils::Id id) { m_id = id; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
+    void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+
+private:
+    Utils::Id m_id;
+    QString m_displayName;
+    QStringList m_mimeTypes;
+};
+
+class CORE_EXPORT IEditorFactory : public EditorType
 {
     Q_OBJECT
 
@@ -56,23 +87,14 @@ public:
     static const EditorFactoryList defaultEditorFactories(const Utils::MimeType &mimeType);
     static const EditorFactoryList preferredEditorFactories(const Utils::FilePath &filePath);
 
-    Utils::Id id() const { return m_id; }
-    QString displayName() const { return m_displayName; }
-    QStringList mimeTypes() const { return m_mimeTypes; }
-
     IEditor *createEditor() const;
 
+    IEditorFactory *asEditorFactory() override { return this; }
+
 protected:
-    void setId(Utils::Id id) { m_id = id; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
-    void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
     void setEditorCreator(const std::function<IEditor *()> &creator);
 
 private:
-    Utils::Id m_id;
-    QString m_displayName;
-    QStringList m_mimeTypes;
     std::function<IEditor *()> m_creator;
 };
 

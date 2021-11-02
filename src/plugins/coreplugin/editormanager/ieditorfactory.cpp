@@ -49,18 +49,29 @@ namespace Core {
     IEditorFactory is then asked to create an editor.
 
     Implementations should set the properties of the IEditorFactory subclass in
-    their constructor.
+    their constructor with EditorType::setId(), EditorType::setDisplayName(),
+    EditorType::setMimeTypes(), and setEditorCreator()
 
     IEditorFactory instances automatically register themselves in \QC in their
     constructor.
 
+    \sa Core::EditorType
     \sa Core::IEditor
     \sa Core::IDocument
     \sa Core::EditorManager
 */
 
 /*!
-    \fn void Core::IEditorFactory::addMimeType(const QString &mimeType)
+    \class Core::EditorType
+    \inheaderfile coreplugin/editormanager/ieditorfactory.h
+    \inmodule QtCreator
+
+    \brief The EditorType class is the base class for Core::IEditorFactory and
+    Core::IExternalEditor.
+*/
+
+/*!
+    \fn void Core::EditorType::addMimeType(const QString &mimeType)
 
     Adds \a mimeType to the list of MIME types supported by this editor type.
 
@@ -69,7 +80,7 @@ namespace Core {
 */
 
 /*!
-    \fn QString Core::IEditorFactory::displayName() const
+    \fn QString Core::EditorType::displayName() const
 
     Returns a user-visible description of the editor type.
 
@@ -77,7 +88,7 @@ namespace Core {
 */
 
 /*!
-    \fn Utils::Id Core::IEditorFactory::id() const
+    \fn Utils::Id Core::EditorType::id() const
 
     Returns the ID of the editors' document type.
 
@@ -85,16 +96,16 @@ namespace Core {
 */
 
 /*!
-    \fn QString Core::IEditorFactory::mimeTypes() const
+    \fn QString Core::EditorType::mimeTypes() const
 
-    Returns the list of supported MIME types of this editor factory.
+    Returns the list of supported MIME types of this editor type.
 
     \sa addMimeType()
     \sa setMimeTypes()
 */
 
 /*!
-    \fn void Core::IEditorFactory::setDisplayName(const QString &displayName)
+    \fn void Core::EditorType::setDisplayName(const QString &displayName)
 
     Sets the \a displayName of the editor type. This is for example shown in
     the \uicontrol {Open With} menu and the MIME type preferences.
@@ -103,7 +114,7 @@ namespace Core {
 */
 
 /*!
-    \fn void Core::IEditorFactory::setId(Utils::Id id)
+    \fn void Core::EditorType::setId(Utils::Id id)
 
     Sets the \a id of the editors' document type. This must be the same as the
     IDocument::id() of the documents returned by created editors.
@@ -112,7 +123,7 @@ namespace Core {
 */
 
 /*!
-    \fn void Core::IEditorFactory::setMimeTypes(const QStringList &mimeTypes)
+    \fn void Core::EditorType::setMimeTypes(const QStringList &mimeTypes)
 
     Sets the MIME types supported by the editor type to \a mimeTypes.
 
@@ -120,8 +131,30 @@ namespace Core {
     \sa mimeTypes()
 */
 
+static QList<EditorType *> g_editorTypes;
 static QList<IEditorFactory *> g_editorFactories;
 static QHash<Utils::MimeType, IEditorFactory *> g_userPreferredEditorFactories;
+
+/*!
+    \internal
+*/
+EditorType::EditorType()
+{
+    g_editorTypes.append(this);
+}
+
+/*!
+    \internal
+*/
+EditorType::~EditorType()
+{
+    g_editorTypes.removeOne(this);
+}
+
+const EditorTypeList EditorType::allEditorTypes()
+{
+    return g_editorTypes;
+}
 
 /*!
     Creates an IEditorFactory.

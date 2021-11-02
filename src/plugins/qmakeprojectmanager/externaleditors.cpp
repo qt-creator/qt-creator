@@ -99,12 +99,12 @@ static const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors",
 ExternalQtEditor::ExternalQtEditor(Utils::Id id,
                                    const QString &displayName,
                                    const QString &mimetype,
-                                   const CommandForQtVersion &commandForQtVersion) :
-    m_mimeTypes(mimetype),
-    m_id(id),
-    m_displayName(displayName),
-    m_commandForQtVersion(commandForQtVersion)
+                                   const CommandForQtVersion &commandForQtVersion)
+    : m_commandForQtVersion(commandForQtVersion)
 {
+    setId(id);
+    setDisplayName(displayName);
+    setMimeTypes({mimetype});
 }
 
 ExternalQtEditor *ExternalQtEditor::createLinguistEditor()
@@ -125,21 +125,6 @@ ExternalQtEditor *ExternalQtEditor::createDesignerEditor()
     } else {
         return new DesignerExternalEditor;
     }
-}
-
-QStringList ExternalQtEditor::mimeTypes() const
-{
-    return m_mimeTypes;
-}
-
-Utils::Id ExternalQtEditor::id() const
-{
-    return m_id;
-}
-
-QString ExternalQtEditor::displayName() const
-{
-    return m_displayName;
 }
 
 static QString findFirstCommand(QVector<QtSupport::BaseQtVersion *> qtVersions,

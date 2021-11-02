@@ -35,24 +35,11 @@ using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;
 
-SystemEditor::SystemEditor(QObject *parent) :
-    IExternalEditor(parent)
+SystemEditor::SystemEditor()
 {
-}
-
-QStringList SystemEditor::mimeTypes() const
-{
-    return QStringList("application/octet-stream");
-}
-
-Id SystemEditor::id() const
-{
-    return "CorePlugin.OpenWithSystemEditor";
-}
-
-QString SystemEditor::displayName() const
-{
-    return tr("System Editor");
+    setId("CorePlugin.OpenWithSystemEditor");
+    setDisplayName(tr("System Editor"));
+    setMimeTypes({"application/octet-stream"});
 }
 
 bool SystemEditor::startEditor(const FilePath &filePath, QString *errorMessage)

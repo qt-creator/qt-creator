@@ -66,8 +66,7 @@ static QList<IExternalEditor *> g_externalEditors;
 /*!
     \internal
 */
-IExternalEditor::IExternalEditor(QObject *parent)
-    : QObject(parent)
+IExternalEditor::IExternalEditor()
 {
     g_externalEditors.append(this);
 }

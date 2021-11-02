@@ -59,10 +59,6 @@ public:
     static ExternalQtEditor *createLinguistEditor();
     static ExternalQtEditor *createDesignerEditor();
 
-    QStringList mimeTypes() const override;
-    Utils::Id id() const override;
-    QString displayName() const override;
-
     bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
 
     // Data required to launch the editor
@@ -89,9 +85,6 @@ protected:
     bool startEditorProcess(const LaunchData &data, QString *errorMessage);
 
 private:
-    const QStringList m_mimeTypes;
-    const Utils::Id m_id;
-    const QString m_displayName;
     const CommandForQtVersion m_commandForQtVersion;
 };
 

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "ieditorfactory.h"
+
 #include <coreplugin/core_global.h>
 
 #include <utils/id.h>
@@ -40,20 +42,19 @@ class IExternalEditor;
 
 using ExternalEditorList = QList<IExternalEditor *>;
 
-class CORE_EXPORT IExternalEditor : public QObject
+class CORE_EXPORT IExternalEditor : public EditorType
 {
     Q_OBJECT
 
 public:
-    explicit IExternalEditor(QObject *parent = nullptr);
+    explicit IExternalEditor();
     ~IExternalEditor() override;
 
     static const ExternalEditorList allExternalEditors();
     static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType);
 
-    virtual QStringList mimeTypes() const = 0;
-    virtual Utils::Id id() const = 0;
-    virtual QString displayName() const = 0;
+    IExternalEditor *asExternalEditor() override { return this; }
+
     virtual bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) = 0;
 };
 
