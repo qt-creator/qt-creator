@@ -99,7 +99,7 @@ public:
     QSettings *m_settings = nullptr;
 
     // Used on Unix only
-    QProcess m_process;
+    QtcProcess m_process;
     bool m_stubConnected = false;
     QTimer *m_stubConnectTimer = nullptr;
     QByteArray m_stubServerDir;
@@ -590,8 +590,9 @@ bool ConsoleProcess::start()
     if (terminal.needsQuotes)
         allArgs = QStringList { ProcessArgs::joinArgs(allArgs) };
 
-    d->m_process.setEnvironment(env);
-    d->m_process.start(terminal.command, allArgs);
+    d->m_process.setEnvironment(d->m_environment);
+    d->m_process.setCommand({FilePath::fromString(terminal.command), allArgs});
+    d->m_process.start();
     if (!d->m_process.waitForStarted()) {
         stubServerShutdown();
         emitError(QProcess::UnknownError, tr("Cannot start the terminal emulator \"%1\", change the setting in the "
