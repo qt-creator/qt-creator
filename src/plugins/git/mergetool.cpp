@@ -154,11 +154,9 @@ void MergeTool::chooseAction()
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setStandardButtons(QMessageBox::Abort);
     msgBox.setText(tr("%1 merge conflict for \"%2\"\nLocal: %3\nRemote: %4")
-                   .arg(mergeTypeName())
-                   .arg(m_fileName)
-                   .arg(stateName(m_localState, m_localInfo))
-                   .arg(stateName(m_remoteState, m_remoteInfo))
-                   );
+                   .arg(mergeTypeName(), m_fileName,
+                        stateName(m_localState, m_localInfo),
+                        stateName(m_remoteState, m_remoteInfo)));
     switch (m_mergeType) {
     case SubmoduleMerge:
     case SymbolicLinkMerge:
