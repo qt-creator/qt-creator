@@ -466,7 +466,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             openedSomething = true;
         }
         if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-            Core::IEditor *editor = Core::EditorManager::openEditor(FilePath::fromString(
+            Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(
                                                                         file.path()),
                                                                     file.editorId());
             if (!editor) {
