@@ -118,9 +118,10 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     const FilePath avdManagerTool = config.avdManagerToolPath();
     qCDebug(avdManagerLog)
             << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
-    QProcess proc;
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config).toStringList());
-    proc.start(avdManagerTool.toString(), arguments);
+    QtcProcess proc(ProcessMode::Writer);
+    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setCommand({avdManagerTool, arguments});
+    proc.start();
     if (!proc.waitForStarted()) {
         result.error = QApplication::translate("AndroidAvdManager",
                                                "Could not start process \"%1 %2\"")
