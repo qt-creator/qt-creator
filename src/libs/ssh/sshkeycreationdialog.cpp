@@ -30,10 +30,10 @@
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QProcess>
 #include <QStandardPaths>
 
 using namespace Utils;
@@ -90,12 +90,12 @@ void SshKeyCreationDialog::generateKeys()
     }
     const QString keyTypeString = QLatin1String(m_ui->rsa->isChecked() ? "rsa": "ecdsa");
     QApplication::setOverrideCursor(Qt::BusyCursor);
-    QProcess keygen;
+    QtcProcess keygen;
     const QStringList args{"-t", keyTypeString, "-b", m_ui->comboBox->currentText(),
                 "-N", QString(), "-f", privateKeyFilePath().path()};
     QString errorMsg;
-    keygen.start(SshSettings::keygenFilePath().toString(), args);
-    keygen.closeWriteChannel();
+    keygen.setCommand({SshSettings::keygenFilePath(), args});
+    keygen.start();
     if (!keygen.waitForStarted() || !keygen.waitForFinished())
         errorMsg = keygen.errorString();
     else if (keygen.exitCode() != 0)
