@@ -27,6 +27,7 @@
 #include "ieditorfactory_p.h"
 #include "editormanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -132,8 +133,8 @@ namespace Core {
 */
 
 static QList<EditorType *> g_editorTypes;
+static QHash<Utils::MimeType, EditorType *> g_userPreferredEditorTypes;
 static QList<IEditorFactory *> g_editorFactories;
-static QHash<Utils::MimeType, IEditorFactory *> g_userPreferredEditorFactories;
 
 /*!
     \internal
@@ -151,9 +152,32 @@ EditorType::~EditorType()
     g_editorTypes.removeOne(this);
 }
 
+/*!
+    Returns all registered internal and external editors.
+*/
 const EditorTypeList EditorType::allEditorTypes()
 {
     return g_editorTypes;
+}
+
+/*!
+    Returns all available internal and external editors for the \a mimeType in the
+    default order: Editor types ordered by MIME type hierarchy, internal editors
+    first.
+*/
+const EditorTypeList EditorType::defaultEditorTypes(const MimeType &mimeType)
+{
+    EditorTypeList result;
+    const EditorTypeList allTypes = EditorType::allEditorTypes();
+    const EditorTypeList allEditorFactories = Utils::filtered(allTypes, [](EditorType *e) {
+        return e->asEditorFactory() != nullptr;
+    });
+    const EditorTypeList allExternalEditors = Utils::filtered(allTypes, [](EditorType *e) {
+        return e->asExternalEditor() != nullptr;
+    });
+    Internal::mimeTypeFactoryLookup(mimeType, allEditorFactories, &result);
+    Internal::mimeTypeFactoryLookup(mimeType, allExternalEditors, &result);
+    return result;
 }
 
 /*!
@@ -210,9 +234,9 @@ const EditorFactoryList IEditorFactory::preferredEditorFactories(const FilePath 
         factories.prepend(f);
     };
     // user preferred factory to front
-    IEditorFactory *userPreferred = Internal::userPreferredEditorFactories().value(mimeType);
-    if (userPreferred)
-        factories_moveToFront(userPreferred);
+    EditorType *userPreferred = Internal::userPreferredEditorTypes().value(mimeType);
+    if (userPreferred && userPreferred->asEditorFactory())
+        factories_moveToFront(userPreferred->asEditorFactory());
     // open text files > 48 MB in binary editor
     if (filePath.fileSize() > EditorManager::maxTextFileSize()
             && mimeType.inherits("text/plain")) {
@@ -251,17 +275,17 @@ void IEditorFactory::setEditorCreator(const std::function<IEditor *()> &creator)
 /*!
     \internal
 */
-QHash<Utils::MimeType, Core::IEditorFactory *> Core::Internal::userPreferredEditorFactories()
+QHash<Utils::MimeType, Core::EditorType *> Core::Internal::userPreferredEditorTypes()
 {
-    return g_userPreferredEditorFactories;
+    return g_userPreferredEditorTypes;
 }
 
 /*!
     \internal
 */
-void Internal::setUserPreferredEditorFactories(const QHash<Utils::MimeType, IEditorFactory *> &factories)
+void Internal::setUserPreferredEditorTypes(const QHash<Utils::MimeType, EditorType *> &factories)
 {
-    g_userPreferredEditorFactories = factories;
+    g_userPreferredEditorTypes = factories;
 }
 
 } // Core

@@ -113,13 +113,13 @@ public:
 
     void load();
 
-    QList<IEditorFactory *> handlersForMimeType(const Utils::MimeType &mimeType) const;
-    IEditorFactory *defaultHandlerForMimeType(const Utils::MimeType &mimeType) const;
+    QList<EditorType *> handlersForMimeType(const Utils::MimeType &mimeType) const;
+    EditorType *defaultHandlerForMimeType(const Utils::MimeType &mimeType) const;
     void resetUserDefaults();
 
     QList<Utils::MimeType> m_mimeTypes;
-    mutable QHash<Utils::MimeType, QList<IEditorFactory *>> m_handlersByMimeType;
-    QHash<Utils::MimeType, IEditorFactory *> m_userDefault;
+    mutable QHash<Utils::MimeType, QList<EditorType *>> m_handlersByMimeType;
+    QHash<Utils::MimeType, EditorType *> m_userDefault;
 };
 
 int MimeTypeSettingsModel::rowCount(const QModelIndex &) const
@@ -154,7 +154,7 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
         if (column == 0) {
             return type.name();
         } else {
-            IEditorFactory *defaultHandler = defaultHandlerForMimeType(type);
+            EditorType *defaultHandler = defaultHandlerForMimeType(type);
             return defaultHandler ? defaultHandler->displayName() : QString();
         }
     } else if (role == Qt::EditRole) {
@@ -179,12 +179,12 @@ bool MimeTypeSettingsModel::setData(const QModelIndex &index, const QVariant &va
 {
     if (role != int(Role::DefaultHandler) || index.column() != 1)
         return false;
-    auto factory = value.value<IEditorFactory *>();
+    auto factory = value.value<EditorType *>();
     QTC_ASSERT(factory, return false);
     const int row = index.row();
     QTC_ASSERT(row >= 0 && row < m_mimeTypes.size(), return false);
     const Utils::MimeType mimeType = m_mimeTypes.at(row);
-    const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
+    const QList<EditorType *> handlers = handlersForMimeType(mimeType);
     QTC_ASSERT(handlers.contains(factory), return false);
     if (handlers.first() == factory) // selection is the default anyhow
         m_userDefault.remove(mimeType);
@@ -205,7 +205,7 @@ void MimeTypeSettingsModel::load()
 {
     beginResetModel();
     m_mimeTypes = Utils::allMimeTypes();
-    m_userDefault = Core::Internal::userPreferredEditorFactories();
+    m_userDefault = Core::Internal::userPreferredEditorTypes();
     Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
@@ -213,19 +213,18 @@ void MimeTypeSettingsModel::load()
     endResetModel();
 }
 
-QList<IEditorFactory *> MimeTypeSettingsModel::handlersForMimeType(
-    const Utils::MimeType &mimeType) const
+QList<EditorType *> MimeTypeSettingsModel::handlersForMimeType(const Utils::MimeType &mimeType) const
 {
     if (!m_handlersByMimeType.contains(mimeType))
-        m_handlersByMimeType.insert(mimeType, IEditorFactory::defaultEditorFactories(mimeType));
+        m_handlersByMimeType.insert(mimeType, EditorType::defaultEditorTypes(mimeType));
     return m_handlersByMimeType.value(mimeType);
 }
 
-IEditorFactory *MimeTypeSettingsModel::defaultHandlerForMimeType(const Utils::MimeType &mimeType) const
+EditorType *MimeTypeSettingsModel::defaultHandlerForMimeType(const Utils::MimeType &mimeType) const
 {
     if (m_userDefault.contains(mimeType))
         return m_userDefault.value(mimeType);
-    const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
+    const QList<EditorType *> handlers = handlersForMimeType(mimeType);
     return handlers.isEmpty() ? nullptr : handlers.first();
 }
 
@@ -657,7 +656,7 @@ QWidget *MimeTypeSettings::widget()
 void MimeTypeSettings::apply()
 {
     MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(d->m_pendingModifiedMimeTypes);
-    Core::Internal::setUserPreferredEditorFactories(d->m_model->m_userDefault);
+    Core::Internal::setUserPreferredEditorTypes(d->m_model->m_userDefault);
     d->m_pendingModifiedMimeTypes.clear();
     d->m_model->load();
 }
@@ -687,13 +686,13 @@ QWidget *MimeEditorDelegate::createEditor(QWidget *parent,
 void MimeEditorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     auto box = static_cast<QComboBox *>(editor);
-    const auto factories = index.model()->data(index, Qt::EditRole).value<QList<IEditorFactory *>>();
-    for (IEditorFactory *factory : factories)
+    const auto factories = index.model()->data(index, Qt::EditRole).value<QList<EditorType *>>();
+    for (EditorType *factory : factories)
         box->addItem(factory->displayName(), QVariant::fromValue(factory));
     int currentIndex = factories.indexOf(
         index.model()
             ->data(index, int(MimeTypeSettingsModel::Role::DefaultHandler))
-            .value<IEditorFactory *>());
+            .value<EditorType *>());
     if (QTC_GUARD(currentIndex != -1))
         box->setCurrentIndex(currentIndex);
 }

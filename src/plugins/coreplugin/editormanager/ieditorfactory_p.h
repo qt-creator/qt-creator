@@ -33,22 +33,21 @@
 
 namespace Core {
 
-class IEditorFactory;
+class EditorType;
 
 namespace Internal {
 
-QHash<Utils::MimeType, IEditorFactory *> userPreferredEditorFactories();
-void setUserPreferredEditorFactories(const QHash<Utils::MimeType, IEditorFactory *> &factories);
+QHash<Utils::MimeType, EditorType *> userPreferredEditorTypes();
+void setUserPreferredEditorTypes(const QHash<Utils::MimeType, EditorType *> &factories);
 
-/* For something that has a 'QStringList mimeTypes' (IEditorFactory
- * or IExternalEditor), find the one best matching the mimetype passed in.
- *  Recurse over the parent classes of the mimetype to find them. */
-template <class EditorFactoryLike>
+/* Find the one best matching the mimetype passed in.
+ * Recurse over the parent classes of the mimetype to find them. */
+template<class EditorTypeLike>
 static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
-                                     const QList<EditorFactoryLike*> &allFactories,
-                                     QList<EditorFactoryLike*> *list)
+                                  const QList<EditorTypeLike *> &allFactories,
+                                  QList<EditorTypeLike *> *list)
 {
-    QSet<EditorFactoryLike *> matches;
+    QSet<EditorTypeLike *> matches;
     // search breadth-first through parent hierarchy, e.g. for hierarchy
     // * application/x-ruby
     //     * application/x-executable
@@ -61,7 +60,7 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
     while (!queue.isEmpty()) {
         Utils::MimeType mt = queue.takeFirst();
         // check for matching factories
-        foreach (EditorFactoryLike *factory, allFactories) {
+        foreach (EditorTypeLike *factory, allFactories) {
             if (!matches.contains(factory)) {
                 foreach (const QString &mimeName, factory->mimeTypes()) {
                     if (mt.matchesName(mimeName)) {

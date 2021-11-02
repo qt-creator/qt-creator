@@ -1188,7 +1188,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bo
     return selectedId;
 }
 
-static QMap<QString, QVariant> toMap(const QHash<Utils::MimeType, IEditorFactory *> &hash)
+static QMap<QString, QVariant> toMap(const QHash<Utils::MimeType, EditorType *> &hash)
 {
     QMap<QString, QVariant> map;
     auto it = hash.begin();
@@ -1200,19 +1200,18 @@ static QMap<QString, QVariant> toMap(const QHash<Utils::MimeType, IEditorFactory
     return map;
 }
 
-static QHash<Utils::MimeType, IEditorFactory *> fromMap(const QMap<QString, QVariant> &map)
+static QHash<Utils::MimeType, EditorType *> fromMap(const QMap<QString, QVariant> &map)
 {
-    const EditorFactoryList factories = IEditorFactory::allEditorFactories();
-    QHash<Utils::MimeType, IEditorFactory *> hash;
+    const EditorTypeList factories = EditorType::allEditorTypes();
+    QHash<Utils::MimeType, EditorType *> hash;
     auto it = map.begin();
     const auto end = map.end();
     while (it != end) {
         const Utils::MimeType mimeType = Utils::mimeTypeForName(it.key());
         if (mimeType.isValid()) {
             const Id factoryId = Id::fromSetting(it.value());
-            IEditorFactory *factory = Utils::findOrDefault(factories,
-                                                           Utils::equal(&IEditorFactory::id,
-                                                                        factoryId));
+            EditorType *factory = Utils::findOrDefault(factories,
+                                                       Utils::equal(&EditorType::id, factoryId));
             if (factory)
                 hash.insert(mimeType, factory);
         }
@@ -1259,7 +1258,7 @@ void EditorManagerPrivate::saveSettings()
                                    HostOsInfo::fileNameCaseSensitivity(),
                                    OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs()));
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
-                                   toMap(userPreferredEditorFactories()));
+                                   toMap(userPreferredEditorTypes()));
 }
 
 void EditorManagerPrivate::readSettings()
@@ -1295,9 +1294,9 @@ void EditorManagerPrivate::readSettings()
         else
             HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
     }
-    const QHash<Utils::MimeType, IEditorFactory *> preferredEditorFactories = fromMap(
+    const QHash<Utils::MimeType, EditorType *> preferredEditorFactories = fromMap(
         qs->value(preferredEditorFactoriesKey).toMap());
-    setUserPreferredEditorFactories(preferredEditorFactories);
+    setUserPreferredEditorTypes(preferredEditorFactories);
 
     SettingsDatabase *settings = ICore::settingsDatabase();
     if (settings->contains(documentStatesKey)) {
