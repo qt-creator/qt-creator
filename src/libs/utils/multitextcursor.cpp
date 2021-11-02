@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "camelcasecursor.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QKeyEvent>
@@ -309,7 +310,7 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
                                          QPlainTextEdit *edit,
                                          bool camelCaseNavigationEnabled)
 {
-    if (e->modifiers() & Qt::AltModifier) {
+    if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
         if (multiCursorAddEvent(e, QKeySequence::MoveToNextWord)) {
             op = QTextCursor::WordRight;
