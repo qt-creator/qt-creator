@@ -255,15 +255,16 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     layout->addLayout(formLayout);
     layout->addStretch(1);
 
-    const auto toggleEnabled = [=](const bool checked) {
-        chooserLabel->setEnabled(checked);
-        d->clangdChooser.setEnabled(checked);
-        indexingLabel->setEnabled(checked);
-        d->indexingCheckBox.setEnabled(checked);
-        autoIncludeHeadersLabel->setEnabled(checked);
-        d->autoIncludeHeadersCheckBox.setEnabled(checked);
-        d->threadLimitSpinBox.setEnabled(checked);
-        d->versionWarningLabel.setEnabled(checked);
+    static const auto setWidgetsEnabled = [](QLayout *layout, bool enabled, const auto &f) -> void {
+        for (int i = 0; i < layout->count(); ++i) {
+            if (QWidget * const w = layout->itemAt(i)->widget())
+                w->setEnabled(enabled);
+            else if (QLayout * const l = layout->itemAt(i)->layout())
+                f(l, enabled, f);
+        }
+    };
+    const auto toggleEnabled = [formLayout](const bool checked) {
+        setWidgetsEnabled(formLayout, checked, setWidgetsEnabled);
     };
     connect(&d->useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
     toggleEnabled(d->useClangdCheckBox.isChecked());
