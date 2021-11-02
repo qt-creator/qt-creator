@@ -29,11 +29,12 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <vcsbase/vcsoutputwindow.h>
 #include <coreplugin/messagebox.h>
+#include <utils/commandline.h>
+#include <utils/qtcprocess.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
-#include <QProcess>
 #include <QPushButton>
 
 using namespace Utils;
@@ -54,20 +55,21 @@ bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("LANG", "C");
-    env.insert("LANGUAGE", "C");
-    m_process = new QProcess(this);
+    Environment env = Environment::systemEnvironment();
+    env.set("LANG", "C");
+    env.set("LANGUAGE", "C");
+    m_process = new QtcProcess(ProcessMode::Writer);
     m_process->setWorkingDirectory(workingDirectory.toString());
-    m_process->setProcessEnvironment(env);
+    m_process->setEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     const Utils::FilePath binary = GitClient::instance()->vcsBinary();
-    VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});
-    m_process->start(binary.toString(), arguments);
+    const CommandLine cmd = {binary, arguments};
+    VcsOutputWindow::appendCommand(workingDirectory, cmd);
+    m_process->setCommand(cmd);
+    m_process->start();
     if (m_process->waitForStarted()) {
-        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &MergeTool::done);
-        connect(m_process, &QIODevice::readyRead, this, &MergeTool::readData);
+        connect(m_process, &QtcProcess::finished, this, &MergeTool::done);
+        connect(m_process, &QtcProcess::readyReadStandardOutput, this, &MergeTool::readData);
     } else {
         delete m_process;
         m_process = nullptr;
@@ -76,9 +78,9 @@ bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files
     return true;
 }
 
-MergeTool::FileState MergeTool::parseStatus(const QByteArray &line, QString &extraInfo)
+MergeTool::FileState MergeTool::parseStatus(const QString &line, QString &extraInfo)
 {
-    QByteArray state = line.trimmed();
+    QString state = line.trimmed();
     // "  {local}: modified file"
     // "  {remote}: deleted"
     if (!state.isEmpty()) {
@@ -89,16 +91,16 @@ MergeTool::FileState MergeTool::parseStatus(const QByteArray &line, QString &ext
             return ModifiedState;
         if (state.startsWith("created"))
             return CreatedState;
-        QByteArray submodulePrefix("submodule commit ");
+        const QString submodulePrefix("submodule commit ");
         // "  {local}: submodule commit <hash>"
         if (state.startsWith(submodulePrefix)) {
-            extraInfo = QString::fromLocal8Bit(state.mid(submodulePrefix.size()));
+            extraInfo = state.mid(submodulePrefix.size());
             return SubmoduleState;
         }
         // "  {local}: a symbolic link -> 'foo.cpp'"
-        QByteArray symlinkPrefix("a symbolic link -> '");
+        const QString symlinkPrefix("a symbolic link -> '");
         if (state.startsWith(symlinkPrefix)) {
-            extraInfo = QString::fromLocal8Bit(state.mid(symlinkPrefix.size()));
+            extraInfo = state.mid(symlinkPrefix.size());
             extraInfo.chop(1); // remove last quote
             return SymbolicLinkState;
         }
@@ -106,7 +108,7 @@ MergeTool::FileState MergeTool::parseStatus(const QByteArray &line, QString &ext
     return UnknownState;
 }
 
-static MergeTool::MergeType mergeType(const QByteArray &type)
+static MergeTool::MergeType mergeType(const QString &type)
 {
     if (type == "Normal")
         return MergeTool::NormalMerge;
@@ -206,57 +208,52 @@ void MergeTool::prompt(const QString &title, const QString &question)
 
 void MergeTool::readData()
 {
-    bool waitForFurtherInput = false;
-    while (m_process->bytesAvailable()) {
-        const bool hasLine = m_process->canReadLine();
-        const QByteArray line = hasLine ? m_process->readLine() : m_process->readAllStandardOutput();
-        VcsOutputWindow::append(QString::fromLocal8Bit(line));
-        m_line += line;
-        // {Normal|Deleted|Submodule|Symbolic link} merge conflict for 'foo.cpp'
-        const int index = m_line.indexOf(" merge conflict for ");
-        if (index != -1) {
-            m_mergeType = mergeType(m_line.left(index));
-            int quote = m_line.indexOf('\'');
-            m_fileName = QString::fromLocal8Bit(m_line.mid(quote + 1, m_line.lastIndexOf('\'') - quote - 1));
-            m_line.clear();
-        } else if (m_line.startsWith("  {local}")) {
-            waitForFurtherInput = !hasLine;
-            if (waitForFurtherInput)
-                continue;
-            m_localState = parseStatus(m_line, m_localInfo);
-            m_line.clear();
-        } else if (m_line.startsWith("  {remote}")) {
-            waitForFurtherInput = !hasLine;
-            if (waitForFurtherInput)
-                continue;
-            m_remoteState = parseStatus(m_line, m_remoteInfo);
-            m_line.clear();
-            chooseAction();
-        } else if (m_line.startsWith("Was the merge successful")) {
-            prompt(tr("Unchanged File"), tr("Was the merge successful?"));
-        } else if (m_line.startsWith("Continue merging")) {
-            prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
-        } else if (m_line.startsWith("Hit return")) {
-            QMessageBox::warning(
-                        Core::ICore::dialogParent(), tr("Merge Tool"),
-                        QString("<html><body><p>%1</p>\n<p>%2</p></body></html>").arg(
-                            tr("Merge tool is not configured."),
-                            tr("Run git config --global merge.tool &lt;tool&gt; "
-                               "to configure it, then try again.")));
-            m_process->kill();
-        } else if (m_line.endsWith('\n')) {
-            // Skip unidentified lines
-            m_line.clear();
-        }
-
+    QString newData = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    newData.remove('\r');
+    VcsOutputWindow::append(newData);
+    QString data = m_unfinishedLine + newData;
+    m_unfinishedLine.clear();
+    while (const int index = data.indexOf('\n') != -1) {
+        const QString line = data.left(index + 1);
+        readLine(line);
+        data = data.mid(index + 1);
     }
-    if (!waitForFurtherInput)
-        m_line.clear();
+    if (data.startsWith("Was the merge successful")) {
+        prompt(tr("Unchanged File"), tr("Was the merge successful?"));
+    } else if (data.startsWith("Continue merging")) {
+        prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
+    } else if (data.startsWith("Hit return")) {
+        QMessageBox::warning(
+                    Core::ICore::dialogParent(), tr("Merge Tool"),
+                    QString("<html><body><p>%1</p>\n<p>%2</p></body></html>").arg(
+                        tr("Merge tool is not configured."),
+                        tr("Run git config --global merge.tool &lt;tool&gt; "
+                           "to configure it, then try again.")));
+        m_process->kill();
+    } else {
+        m_unfinishedLine = data;
+    }
+}
+
+void MergeTool::readLine(const QString &line)
+{
+    // {Normal|Deleted|Submodule|Symbolic link} merge conflict for 'foo.cpp'
+    const int index = line.indexOf(" merge conflict for ");
+    if (index != -1) {
+        m_mergeType = mergeType(line.left(index));
+        const int quote = line.indexOf('\'');
+        m_fileName = line.mid(quote + 1, line.lastIndexOf('\'') - quote - 1);
+    } else if (line.startsWith("  {local}")) {
+        m_localState = parseStatus(line, m_localInfo);
+    } else if (line.startsWith("  {remote}")) {
+        m_remoteState = parseStatus(line, m_remoteInfo);
+        chooseAction();
+    }
 }
 
 void MergeTool::done()
 {
-    const QString workingDirectory = m_process->workingDirectory();
+    const FilePath workingDirectory = m_process->workingDirectory();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
         VcsOutputWindow::appendMessage(tr("Merge tool process finished successfully."));
@@ -264,7 +261,7 @@ void MergeTool::done()
         VcsOutputWindow::appendError(tr("Merge tool process terminated with exit code %1")
                                   .arg(exitCode));
     }
-    GitClient::instance()->continueCommandIfNeeded(FilePath::fromString(workingDirectory), exitCode == 0);
+    GitClient::instance()->continueCommandIfNeeded(workingDirectory, exitCode == 0);
     GitPlugin::emitRepositoryChanged(workingDirectory);
     deleteLater();
 }
@@ -272,7 +269,6 @@ void MergeTool::done()
 void MergeTool::write(const QByteArray &bytes)
 {
     m_process->write(bytes);
-    m_process->waitForBytesWritten();
     VcsOutputWindow::append(QString::fromLocal8Bit(bytes));
 }
 

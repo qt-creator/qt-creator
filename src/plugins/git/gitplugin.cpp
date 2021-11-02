@@ -1971,9 +1971,9 @@ void GitPlugin::emitFilesChanged(const QStringList &l)
     emit dd->filesChanged(l);
 }
 
-void GitPlugin::emitRepositoryChanged(const QString &r)
+void GitPlugin::emitRepositoryChanged(const FilePath &r)
 {
-    emit dd->repositoryChanged(FilePath::fromString(r));
+    emit dd->repositoryChanged(r);
 }
 
 void GitPlugin::startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)

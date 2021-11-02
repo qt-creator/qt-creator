@@ -66,7 +66,7 @@ public:
     static bool isCommitEditorOpen();
 
     static void emitFilesChanged(const QStringList &);
-    static void emitRepositoryChanged(const QString &);
+    static void emitRepositoryChanged(const Utils::FilePath &);
     static void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
     static void manageRemotes();
     static void initRepository();
