@@ -400,6 +400,17 @@ void ItemLibraryWidget::setModel(Model *model)
         return;
 
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
+
+    if (DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument()) {
+        const bool subCompEditMode = document->inFileComponentModelActive();
+        if (m_subCompEditMode != subCompEditMode) {
+            m_subCompEditMode = subCompEditMode;
+            // Switch out of module add panel if it's active
+            if (m_subCompEditMode && m_stackedWidget->currentIndex() == 2)
+                m_stackedWidget->setCurrentIndex(0);
+            emit subCompEditModeChanged();
+        }
+    }
 }
 
 void ItemLibraryWidget::handleTabChanged(int index)
@@ -543,6 +554,11 @@ QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QString 
         }
     }
     return {};
+}
+
+bool ItemLibraryWidget::subCompEditMode() const
+{
+    return m_subCompEditMode;
 }
 
 void ItemLibraryWidget::setFlowMode(bool b)

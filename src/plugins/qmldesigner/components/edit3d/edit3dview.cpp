@@ -33,6 +33,7 @@
 #include <designeractionmanager.h>
 #include <designersettings.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <viewmanager.h>
 #include <qmldesignericons.h>
 #include <designmodecontext.h>
@@ -370,7 +371,8 @@ QVector<Edit3DAction *> Edit3DView::rightActions() const
 
 void Edit3DView::addQuick3DImport()
 {
-    if (model()) {
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    if (document && !document->inFileComponentModelActive() && model()) {
         const QList<Import> imports = model()->possibleImports();
         for (const auto &import : imports) {
             if (import.url() == "QtQuick3D") {

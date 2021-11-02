@@ -116,7 +116,7 @@ Item {
                 text: qsTr("Remove Module")
                 visible: itemsView.currentCategory === null
                 height: visible ? implicitHeight : 0
-                enabled: itemsView.importToRemove !== ""
+                enabled: itemsView.importToRemove !== "" && !rootView.subCompEditMode
                 onTriggered: rootView.removeImport(itemsView.importToRemove)
             }
 

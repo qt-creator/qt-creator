@@ -354,7 +354,8 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     beginResetModel();
     clearSections();
 
-    Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+    Utils::FilePath qmlFileName = document->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
     QString projectName = project ? project->displayName() : "";
 
@@ -398,6 +399,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importUrl()));
     }
 
+    const bool blockNewImports = document->inFileComponentModelActive();
     const QList<ItemLibraryEntry> itemLibEntries = itemLibraryInfo->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
@@ -429,7 +431,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         bool hasImport = model->hasImport(import, true, true);
         bool isImportPossible = false;
         if (!hasImport)
-            isImportPossible = model->isImportPossible(import, true, true);
+            isImportPossible = !blockNewImports && model->isImportPossible(import, true, true);
         bool isUsable = (valid && (isItem || forceVisibility))
                 && (entry.requiredImport().isEmpty() || hasImport);
         if (!blocked && (isUsable || isImportPossible)) {

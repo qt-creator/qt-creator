@@ -210,6 +210,11 @@ bool DesignDocument::pasteSVG()
     return true;
 }
 
+bool DesignDocument::inFileComponentModelActive() const
+{
+    return !m_inFileComponentModel.isNull();
+}
+
 QList<DocumentMessage> DesignDocument::qmlParseWarnings() const
 {
     return m_rewriterView->warnings();

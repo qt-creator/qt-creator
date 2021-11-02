@@ -93,8 +93,10 @@ Item {
                             anchors.topMargin: 1
                             width: 24
                             height: 24
-                            color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundHover
-                                                           : StudioTheme.Values.themeControlBackground
+                            color: mouseArea.containsMouse && enabled
+                                   ? StudioTheme.Values.themeControlBackgroundHover
+                                   : StudioTheme.Values.themeControlBackground
+                            enabled: index !== 0 || !rootView.subCompEditMode
 
                             Label { // + sign
                                 text: StudioTheme.Constants.plus

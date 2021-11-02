@@ -71,6 +71,8 @@ class ItemLibraryWidget : public QFrame
     Q_OBJECT
 
 public:
+    Q_PROPERTY(bool subCompEditMode READ subCompEditMode NOTIFY subCompEditModeChanged)
+
     ItemLibraryWidget(AsynchronousImageCache &imageCache,
                       AsynchronousImageCache &asynchronousFontImageCache,
                       SynchronousImageCache &synchronousFontImageCache);
@@ -94,6 +96,8 @@ public:
 
     inline static bool isHorizontalLayout = false;
 
+    bool subCompEditMode() const;
+
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
@@ -108,7 +112,8 @@ public:
     Q_INVOKABLE QSet<QString> supportedDropSuffixes();
 
 signals:
-    void itemActivated(const QString& itemName);
+    void itemActivated(const QString &itemName);
+    void subCompEditModeChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -152,6 +157,7 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
+    bool m_subCompEditMode = false;
 
     inline static int HORIZONTAL_LAYOUT_WIDTH_LIMIT = 600;
 };
