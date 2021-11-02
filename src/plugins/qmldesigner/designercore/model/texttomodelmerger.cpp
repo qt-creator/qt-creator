@@ -1044,6 +1044,15 @@ void TextToModelMerger::setupUsedImports()
 
 Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, const QString &data, QList<DocumentMessage> *errors)
 {
+    if (data.isEmpty()) {
+        if (errors) {
+            QmlJS::DiagnosticMessage msg;
+            msg.message = QObject::tr("Empty document");
+            errors->append(DocumentMessage(msg, url));
+        }
+        return {};
+    }
+
     const QString fileName = url.toLocalFile();
 
     Dialect dialect = ModelManagerInterface::guessLanguageOfFile(fileName);
