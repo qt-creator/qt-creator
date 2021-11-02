@@ -674,7 +674,7 @@ void ClangdTestHighlighting::initTestCase()
         m_results = results;
         loop.quit();
     };
-    connect(client(), &ClangdClient::highlightingResultsReady, handler);
+    connect(client(), &ClangdClient::highlightingResultsReady, &loop, handler);
     timer.start(10000);
     loop.exec();
     QVERIFY(timer.isActive());

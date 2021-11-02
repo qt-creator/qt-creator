@@ -170,6 +170,9 @@ static ClientCapabilities generateClientCapabilities()
     workspaceCapabilities.setDidChangeConfiguration(allowDynamicRegistration);
     workspaceCapabilities.setExecuteCommand(allowDynamicRegistration);
     workspaceCapabilities.setConfiguration(true);
+    SemanticTokensWorkspaceClientCapabilities semanticTokensWorkspaceClientCapabilities;
+    semanticTokensWorkspaceClientCapabilities.setRefreshSupport(true);
+    workspaceCapabilities.setSemanticTokens(semanticTokensWorkspaceClientCapabilities);
     capabilities.setWorkspace(workspaceCapabilities);
 
     TextDocumentClientCapabilities documentCapabilities;
@@ -1361,6 +1364,11 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
     } else if (method == WorkDoneProgressCreateRequest::methodName) {
         WorkDoneProgressCreateRequest::Response response(
             dynamic_cast<const WorkDoneProgressCreateRequest *>(content)->id());
+        response.setResult(nullptr);
+        sendContent(response);
+    } else if (method == SemanticTokensRefreshRequest::methodName) {
+        m_tokenSupport.refresh();
+        Response<std::nullptr_t, JsonObject> response(id);
         response.setResult(nullptr);
         sendContent(response);
     } else if (method == ProgressNotification::methodName) {

@@ -36,6 +36,8 @@
 
 #include <functional>
 
+namespace Core { class IEditor; }
+
 namespace LanguageClient {
 class Client;
 
@@ -62,11 +64,12 @@ void applyHighlight(TextEditor::TextDocument *doc,
 
 } // namespace SemanticHighligtingSupport
 
-class SemanticTokenSupport
+class SemanticTokenSupport : public QObject
 {
 public:
     explicit SemanticTokenSupport(Client *client);
 
+    void refresh();
     void reloadSemanticTokens(TextEditor::TextDocument *doc);
     void updateSemanticTokens(TextEditor::TextDocument *doc);
     void rehighlight();
@@ -94,6 +97,7 @@ private:
     void highlight(const Utils::FilePath &filePath);
     void updateFormatHash();
     void currentEditorChanged();
+    void onCurrentEditorChanged(Core::IEditor *editor);
 
     Client *m_client = nullptr;
 

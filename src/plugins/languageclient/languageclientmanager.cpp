@@ -71,6 +71,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     JsonRpcMessageHandler::registerMessageProvider<UnregisterCapabilityRequest>();
     JsonRpcMessageHandler::registerMessageProvider<WorkDoneProgressCreateRequest>();
     JsonRpcMessageHandler::registerMessageProvider<ProgressNotification>();
+    JsonRpcMessageHandler::registerMessageProvider<SemanticTokensRefreshRequest>();
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &LanguageClientManager::editorOpened);
     connect(EditorManager::instance(), &EditorManager::documentOpened,

@@ -240,4 +240,13 @@ public:
     constexpr static const char methodName[] = "textDocument/semanticTokens/range";
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensRefreshRequest
+    : public Request<std::nullptr_t, std::nullptr_t, std::nullptr_t>
+{
+public:
+    explicit SemanticTokensRefreshRequest();
+    using Request::Request;
+    constexpr static const char methodName[] = "workspace/semanticTokens/refresh";
+};
+
 } // namespace LanguageServerProtocol

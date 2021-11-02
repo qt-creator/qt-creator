@@ -183,6 +183,17 @@ SemanticTokenSupport::SemanticTokenSupport(Client *client)
                      &TextEditorSettings::fontSettingsChanged,
                      client,
                      [this]() { updateFormatHash(); });
+    QObject::connect(Core::EditorManager::instance(),
+                     &Core::EditorManager::currentEditorChanged,
+                     this,
+                     &SemanticTokenSupport::onCurrentEditorChanged);
+}
+
+void SemanticTokenSupport::refresh()
+{
+    m_tokens.clear();
+    for (Core::IEditor *editor : Core::EditorManager::visibleEditors())
+        onCurrentEditorChanged(editor);
 }
 
 void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
@@ -224,8 +235,11 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
     const SemanticRequestTypes supportedRequests = supportedSemanticRequests(textDocument);
     if (supportedRequests.testFlag(SemanticRequestType::FullDelta)) {
         const Utils::FilePath filePath = textDocument->filePath();
-        const QString &previousResultId = m_tokens.value(filePath).tokens.resultId().value_or(QString());
+        const VersionedTokens versionedToken = m_tokens.value(filePath);
+        const QString &previousResultId = versionedToken.tokens.resultId().value_or(QString());
         if (!previousResultId.isEmpty()) {
+            if (m_client->documentVersion(filePath) == versionedToken.version)
+                return;
             SemanticTokensDeltaParams params;
             params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
             params.setPreviousResultId(previousResultId);
@@ -323,6 +337,12 @@ void SemanticTokenSupport::updateFormatHash()
         addModifiers(mainHashPart, &m_formatHash, styles, m_tokenModifiers, fontSettings);
     }
     rehighlight();
+}
+
+void SemanticTokenSupport::onCurrentEditorChanged(Core::IEditor *editor)
+{
+    if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
+        updateSemanticTokens(textEditor->textDocument());
 }
 
 void SemanticTokenSupport::setTokenTypesMap(const QMap<QString, int> &tokenTypesMap)

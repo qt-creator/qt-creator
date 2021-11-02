@@ -156,4 +156,8 @@ SemanticTokensDeltaResult::SemanticTokensDeltaResult(const QJsonValue &value)
     }
 }
 
+SemanticTokensRefreshRequest::SemanticTokensRefreshRequest()
+    : Request(methodName, nullptr)
+{}
+
 } // namespace LanguageServerProtocol
