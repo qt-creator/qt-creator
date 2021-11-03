@@ -1086,6 +1086,10 @@ public:
         : TextDocumentClientCapabilities::CompletionCapabilities(object)
     {
         insert("editsNearCursor", true); // For dot-to-arrow correction.
+        if (Utils::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
+            completionItemCaps->setSnippetSupport(false);
+            setCompletionItem(*completionItemCaps);
+        }
     }
 };
 
@@ -2864,7 +2868,21 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     if (!edit)
         return;
 
-    const QString rawInsertText = edit->newText();
+    const auto kind = static_cast<CompletionItemKind::Kind>(
+                item.kind().value_or(CompletionItemKind::Text));
+    const bool isFunctionLike = kind == CompletionItemKind::Function
+            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor;
+    QString rawInsertText = edit->newText();
+
+    // Some preparation for our magic involving (non-)insertion of parentheses and
+    // cursor placement.
+    if (isFunctionLike && !rawInsertText.contains('(')) {
+        if (item.label().contains("()"))     // function takes no arguments
+            rawInsertText += "()";
+        else if (item.label().contains('(')) // function takes arguments
+            rawInsertText += "( )";
+    }
+
     const int firstParenOffset = rawInsertText.indexOf('(');
     const int lastParenOffset = rawInsertText.lastIndexOf(')');
     const QString detail = item.detail().value_or(QString());
@@ -2878,12 +2896,6 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     const QTextDocument * const doc = manipulator.textCursorAt(currentPos).document();
     const Range range = edit->range();
     const int rangeStart = range.start().toPositionInDocument(doc);
-
-    const auto kind = static_cast<CompletionItemKind::Kind>(
-                item.kind().value_or(CompletionItemKind::Text));
-    const bool isFunctionLike = kind == CompletionItemKind::Function
-            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
-            || (firstParenOffset != -1 && lastParenOffset != -1);
     if (isFunctionLike && completionSettings.m_autoInsertBrackets) {
         // If the user typed the opening parenthesis, they'll likely also type the closing one,
         // in which case it would be annoying if we put the cursor after the already automatically
