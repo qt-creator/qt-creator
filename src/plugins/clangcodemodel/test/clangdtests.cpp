@@ -1040,7 +1040,9 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PARAMETER, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("typedef as underlying type in enum declaration") << 424 << 21 << 424 << 39
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("argument to user-defined subscript operator") << 434 << 12 << 434 << 17
+    QTest::newRow("argument 1 to user-defined subscript operator") << 434 << 5 << 434 << 11
+        << QList<int>{C_PARAMETER} << 0;
+    QTest::newRow("argument 2 to user-defined subscript operator") << 434 << 12 << 434 << 17
         << QList<int>{C_PARAMETER, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("partial class template specialization") << 553 << 25 << 553 << 28
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
@@ -1246,6 +1248,7 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("const argument to unnamed lambda") << 830 << 16 << 830 << 19
         << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("simple assignment") << 835 << 5 << 835 << 6 << QList<int>{C_LOCAL} << 0;
 }
 
 void ClangdTestHighlighting::test()

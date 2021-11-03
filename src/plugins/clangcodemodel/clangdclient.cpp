@@ -2404,16 +2404,37 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             return true;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
-        const QList<AstNode> path = getAstPath(ast, tokenRange(token));
+        const Range range = tokenRange(token);
+        const QList<AstNode> path = getAstPath(ast, range);
         if (path.size() < 2)
             return false;
         if (path.last().hasConstType())
             return false;
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
-                    || it->kind() == "MemberInitializer" || it->kind() == "CXXOperatorCall") {
+                    || it->kind() == "MemberInitializer") {
                 return true;
             }
+
+            // The token should get marked for e.g. lambdas, but not for assignment operators,
+            // where the user sees that it's being written.
+            if (it->kind() == "CXXOperatorCall") {
+                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                if (children.size() < 2)
+                    return false;
+                if (!children.last().range().contains(range))
+                    return false;
+                QList<AstNode> firstChildTree{children.first()};
+                while (!firstChildTree.isEmpty()) {
+                    const AstNode n = firstChildTree.takeFirst();
+                    const QString detail = n.detail().value_or(QString());
+                    if (detail.startsWith("operator"))
+                        return !detail.contains('=');
+                    firstChildTree << n.children().value_or(QList<AstNode>());
+                }
+                return true;
+            }
+
             if (it->kind().endsWith("Cast") && it->hasConstType())
                 return false;
             if (it->kind() == "Member" && it->arcanaContains("(")
