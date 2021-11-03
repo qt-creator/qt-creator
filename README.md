@@ -312,7 +312,10 @@ we thank the authors who made this possible:
 
   With backported/additional patches from https://code.qt.io/clang/llvm-project.git
 
-### Reference implementation for std::experimental::optional
+### Optional
+
+  A single-header header-only library for representing optional (nullable)
+  objects for C++14 (and C++11 to some extent) and passing them by value.
 
   https://github.com/akrzemi1/Optional
 
@@ -327,7 +330,9 @@ we thank the authors who made this possible:
   The idea and interface is based on Boost.Optional library
   authored by Fernando Luis Cacciola Carballal
 
-### Implementation for std::variant
+### MPark.Variant
+
+  MPark.Variant is an implementation of C++17 std::variant for C++11/14/17.
 
   https://github.com/mpark/variant
 
@@ -338,7 +343,11 @@ we thank the authors who made this possible:
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-### Implementation for std::span
+### std::span implementation for C++11 and later
+
+  A single-header implementation of C++20's std::span, conforming to the C++20
+  committee draft. It is compatible with C++11, but will use newer language
+  features if they are available.
 
   https://github.com/tcbrindle/span
 
@@ -398,7 +407,10 @@ we thank the authors who made this possible:
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-### SQLite, in-process library that implements a SQL database engine
+### SQLite (version 3.8.10.2)
+
+SQLite is a C-language library that implements a small, fast, self-contained,
+high-reliability, full-featured, SQL database engine.
 
 SQLite (https://www.sqlite.org) is in the Public Domain.
 
@@ -490,7 +502,7 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   from Florian Loitsch which is licensed under the MIT License (see above).
   Copyright © 2009 Florian Loitsch
 
-### Minitrace
+### minitrace
 
   Simple C/C++ library for producing JSON traces.
 
