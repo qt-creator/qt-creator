@@ -26,9 +26,10 @@
 #include "mcusupportversiondetection.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
+
 #include <QDir>
 #include <QRegularExpression>
-#include <QProcess>
 
 namespace McuSupport {
 namespace Internal {
@@ -67,8 +68,9 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
         return QString();
 
     const int execTimeout = 3000; // usually runs below 1s, but we want to be on the safe side
-    QProcess binaryProcess;
-    binaryProcess.start(binaryPath.toString(), m_detectionArgs);
+    Utils::QtcProcess binaryProcess;
+    binaryProcess.setCommand({binaryPath, m_detectionArgs});
+    binaryProcess.start();
     if (!binaryProcess.waitForStarted())
         return QString();
     binaryProcess.waitForFinished(execTimeout);
