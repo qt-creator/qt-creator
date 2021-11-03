@@ -7378,21 +7378,25 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
 void TextEditorWidget::dropEvent(QDropEvent *e)
 {
     const QMimeData *mime = e->mimeData();
+    if (!canInsertFromMimeData(mime))
+        return;
+    // Update multi text cursor before inserting data
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.beginEditBlock();
+    const QTextCursor eventCursor = cursorForPosition(e->pos());
+    if (e->dropAction() == Qt::MoveAction)
+        cursor.removeSelectedText();
+    cursor.setCursors({eventCursor});
+    setMultiTextCursor(cursor);
+    QMimeData *mimeOverwrite = nullptr;
     if (mime && (mime->hasText() || mime->hasHtml())) {
-        QMimeData *mimeOverwrite = duplicateMimeData(mime);
+        mimeOverwrite = duplicateMimeData(mime);
         mimeOverwrite->setProperty(dropProperty, true);
-        auto dropOverwrite = new QDropEvent(e->pos(),
-                                            e->possibleActions(),
-                                            mimeOverwrite,
-                                            e->mouseButtons(),
-                                            e->keyboardModifiers());
-        QPlainTextEdit::dropEvent(dropOverwrite);
-        e->setAccepted(dropOverwrite->isAccepted());
-        delete dropOverwrite;
-        delete mimeOverwrite;
-    } else {
-        QPlainTextEdit::dropEvent(e);
+        mime = mimeOverwrite;
     }
+    insertFromMimeData(mime);
+    delete mimeOverwrite;
+    cursor.endEditBlock();
 }
 
 QMimeData *TextEditorWidget::duplicateMimeData(const QMimeData *source)
