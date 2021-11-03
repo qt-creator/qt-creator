@@ -1065,6 +1065,8 @@ public:
     //  The highlighters are owned by their respective documents.
     std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
 
+    QHash<TextDocument *, QPair<QList<ExpandedSemanticToken>, int>> previousTokens;
+
     // The ranges of symbols referring to virtual functions, with document version,
     // as extracted by the highlighting procedure.
     QHash<TextDocument *, QPair<QList<Range>, int>> virtualRanges;
@@ -1385,6 +1387,7 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
 {
     d->highlighters.erase(doc);
     d->astCache.remove(doc);
+    d->previousTokens.remove(doc);
     d->virtualRanges.remove(doc);
 }
 
@@ -2581,6 +2584,17 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         qCDebug(clangdLogHighlight) << "LSP tokens outdated; aborting highlighting procedure"
                                     << version << q->documentVersion(doc->filePath());
         return;
+    }
+    const auto previous = previousTokens.find(doc);
+    if (previous != previousTokens.end()) {
+        if (previous->first == tokens && previous->second == version) {
+            qCDebug(clangdLogHighlight) << "tokens and version same as last time; nothing to do";
+            return;
+        }
+        previous->first = tokens;
+        previous->second = version;
+    } else {
+        previousTokens.insert(doc, qMakePair(tokens, version));
     }
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
