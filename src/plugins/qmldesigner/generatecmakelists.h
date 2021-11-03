@@ -31,9 +31,20 @@
 
 namespace QmlDesigner {
 namespace GenerateCmake {
+struct GeneratableFile {
+    Utils::FilePath filePath;
+    QString content;
+};
+
+bool operator==(const GeneratableFile &left, const GeneratableFile &right);
+
 void generateMenuEntry();
 void onGenerateCmakeLists();
-bool writeFile(const Utils::FilePath &filePath, const QString &fileContent);
+void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles);
+bool showConfirmationDialog(const Utils::FilePath &rootDir);
+bool queueFile(const Utils::FilePath &filePath, const QString &fileContent);
+bool writeFile(const GeneratableFile &file);
+bool writeQueuedFiles();
 }
 namespace GenerateCmakeLists {
 void generateMainCmake(const Utils::FilePath &rootDir);

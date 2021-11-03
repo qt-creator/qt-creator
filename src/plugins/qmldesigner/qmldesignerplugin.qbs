@@ -1009,6 +1009,8 @@ Project {
             "generateresource.h",
             "generatecmakelists.cpp",
             "generatecmakelists.h",
+            "cmakegeneratordialog.cpp",
+            "cmakegeneratordialog.h",
             "designersettings.cpp",
             "designersettings.h",
             "designmodecontext.cpp",
