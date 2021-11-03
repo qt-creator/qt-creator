@@ -33,12 +33,12 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QLabel>
-#include <QProcess>
 
 using namespace Utils;
 
@@ -53,8 +53,9 @@ static QString getQbsVersion(const FilePath &qbsExe)
 {
     if (qbsExe.isEmpty() || !qbsExe.exists())
         return {};
-    QProcess qbsProc;
-    qbsProc.start(qbsExe.toString(), {"--version"});
+    QtcProcess qbsProc;
+    qbsProc.setCommand({qbsExe, {"--version"}});
+    qbsProc.start();
     if (!qbsProc.waitForStarted(3000) || !qbsProc.waitForFinished(5000)
             || qbsProc.exitCode() != 0) {
         return {};
