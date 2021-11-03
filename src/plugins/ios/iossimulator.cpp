@@ -29,10 +29,10 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <utils/port.h>
+#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QMapIterator>
-#include <QProcess>
 
 using namespace ProjectExplorer;
 
@@ -80,13 +80,13 @@ Utils::Port IosSimulator::nextPort() const
         // use qrand instead?
         if (++m_lastPort >= Constants::IOS_SIMULATOR_PORT_END)
             m_lastPort = Constants::IOS_SIMULATOR_PORT_START;
-        QProcess portVerifier;
+        Utils::QtcProcess portVerifier;
         // this is a bit too broad (it does not check just listening sockets, but also connections
         // to that port from this computer)
-        portVerifier.start(QLatin1String("lsof"), {"-n", "-P", "-i", QString(":%1").arg(m_lastPort) });
+        portVerifier.setCommand({"lsof", {"-n", "-P", "-i", QString(":%1").arg(m_lastPort)}});
+        portVerifier.start();
         if (!portVerifier.waitForStarted())
             break;
-        portVerifier.closeWriteChannel();
         if (!portVerifier.waitForFinished())
             break;
         if (portVerifier.exitStatus() != QProcess::NormalExit
