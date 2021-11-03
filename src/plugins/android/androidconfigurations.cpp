@@ -848,7 +848,7 @@ bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
         return false;
 
     const QVersionNumber version = ndkVersion(ndkPath);
-    if (ndkVersion(ndkPath).isNull())
+    if (version.isNull())
         return false;
 
     const FilePath ndkPlatformsDir = ndkPath.pathAppended("platforms");
