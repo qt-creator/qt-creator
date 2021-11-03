@@ -35,12 +35,12 @@
 #include <projectexplorer/taskhub.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QProcess>
 #include <QProcessEnvironment>
 #include <QTimer>
 
@@ -149,7 +149,7 @@ private:
 class QbsSession::Private
 {
 public:
-    QProcess *qbsProcess = nullptr;
+    QtcProcess *qbsProcess = nullptr;
     PacketReader *packetReader = nullptr;
     QJsonObject currentRequest;
     QJsonObject projectData;
@@ -167,18 +167,18 @@ QbsSession::QbsSession(QObject *parent) : QObject(parent), d(new Private)
 
 void QbsSession::initialize()
 {
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("QT_FORCE_STDERR_LOGGING", "1");
+    Environment env = Environment::systemEnvironment();
+    env.set("QT_FORCE_STDERR_LOGGING", "1");
     d->packetReader = new PacketReader(this);
-    d->qbsProcess = new QProcess(this);
-    d->qbsProcess->setProcessEnvironment(env);
-    connect(d->qbsProcess, &QProcess::readyReadStandardOutput, this, [this] {
+    d->qbsProcess = new QtcProcess(ProcessMode::Writer, this);
+    d->qbsProcess->setEnvironment(env);
+    connect(d->qbsProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
         d->packetReader->handleData(d->qbsProcess->readAllStandardOutput());
     });
-    connect(d->qbsProcess, &QProcess::readyReadStandardError, this, [this] {
+    connect(d->qbsProcess, &QtcProcess::readyReadStandardError, this, [this] {
         qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllStandardError();
     });
-    connect(d->qbsProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) {
+    connect(d->qbsProcess, &QtcProcess::errorOccurred, this, [this](QProcess::ProcessError e) {
         d->eventLoop.exit(1);
         if (state() == State::ShuttingDown || state() == State::Inactive)
             return;
@@ -196,8 +196,7 @@ void QbsSession::initialize()
             break;
         }
     });
-    connect(d->qbsProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-            [this] {
+    connect(d->qbsProcess, &QtcProcess::finished, this, [this] {
         d->qbsProcess->deleteLater();
         switch (state()) {
         case State::Inactive:
@@ -225,7 +224,8 @@ void QbsSession::initialize()
         QTimer::singleShot(0, this, [this] { setError(Error::QbsFailedToStart); });
         return;
     }
-    d->qbsProcess->start(qbsExe.toString(), {"session"});
+    d->qbsProcess->setCommand({qbsExe, {"session"}});
+    d->qbsProcess->start();
 }
 
 void QbsSession::sendQuitPacket()
