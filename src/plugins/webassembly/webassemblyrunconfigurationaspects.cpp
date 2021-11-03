@@ -30,6 +30,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/qtcprocess.h>
 
 #include <QComboBox>
 
@@ -48,11 +49,10 @@ static QStringList detectedBrowsers(ProjectExplorer::Target *target)
             const Utils::Environment environment = bc->environment();
             const Utils::FilePath emrunPath = environment.searchInPath("emrun");
 
-            QProcess browserLister;
-            browserLister.setProcessEnvironment(environment.toProcessEnvironment());
-            browserLister.setProgram(emrunPath.toString());
-            browserLister.setArguments({"--list_browsers"});
-            browserLister.start(QIODevice::ReadOnly);
+            QtcProcess browserLister;
+            browserLister.setEnvironment(environment);
+            browserLister.setCommand({emrunPath, {"--list_browsers"}});
+            browserLister.start();
 
             if (browserLister.waitForFinished()) {
                 const QByteArray output = browserLister.readAllStandardOutput();
