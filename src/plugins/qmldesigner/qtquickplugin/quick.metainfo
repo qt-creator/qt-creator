@@ -501,4 +501,89 @@ MetaInfo {
             version: "2.0"
         }
     }
+
+    Type {
+        name: "QtMultimedia.MediaPlayer"
+        icon: ":/qtquickplugin/images/media-player-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Media Player"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: ":/qtquickplugin/images/media-player-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.MediaPlayer"
+        icon: ":/qtquickplugin/images/audio-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Audio"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: ":/qtquickplugin/images/audio-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+
+            QmlSource { source: ":/qtquickplugin/source/audio.qml" }
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.AudioOutput"
+        icon: ":/qtquickplugin/images/audio-output-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Audio Output"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: ":/qtquickplugin/images/audio-output-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.Video"
+        icon: ":/qtquickplugin/images/video-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: true
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Video"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: ":/qtquickplugin/images/video-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+        }
+    }
 }
