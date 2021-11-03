@@ -29,9 +29,9 @@
 
 #include <projectexplorer/abi.h>
 #include <utils/environment.h>
+#include <utils/qtcprocess.h>
 
 #include <QFileInfo>
-#include <QProcess>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -116,11 +116,12 @@ bool NimToolChain::fromMap(const QVariantMap &data)
 
 bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> &result)
 {
-    QProcess process;
-    process.start(path.toString(), {"--version"});
+    QtcProcess process;
+    process.setCommand({path, {"--version"}});
+    process.start();
     if (!process.waitForFinished())
         return false;
-    const QString version = QString::fromUtf8(process.readLine());
+    const QString version = QString::fromUtf8(process.readAllStandardOutput()).section('\n', 0, 0);
     if (version.isEmpty())
         return false;
     const QRegularExpression regex("(\\d+)\\.(\\d+)\\.(\\d+)");
