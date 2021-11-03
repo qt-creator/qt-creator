@@ -40,10 +40,10 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QCryptographicHash>
 #include <QJSEngine>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QVariantMap>
 
@@ -218,7 +218,7 @@ QString QbsProfileManager::profileNameForKit(const ProjectExplorer::Kit *kit)
 
 QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value)
 {
-    QProcess qbsConfig;
+    Utils::QtcProcess qbsConfig;
     QStringList args("config");
     if (QbsSettings::useCreatorSettingsDirForQbs())
         args << "--settings-dir" << QbsSettings::qbsSettingsBaseDir();
@@ -245,7 +245,8 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     const Utils::FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
     if (qbsExe.isEmpty() || !qbsExe.exists())
         return {};
-    qbsConfig.start(qbsExe.toString(), args);
+    qbsConfig.setCommand({qbsExe, args});
+    qbsConfig.start();
     if (!qbsConfig.waitForStarted(3000) || !qbsConfig.waitForFinished(5000)) {
         Core::MessageManager::writeFlashing(
             tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
