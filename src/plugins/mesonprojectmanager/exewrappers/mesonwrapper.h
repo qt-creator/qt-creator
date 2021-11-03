@@ -32,10 +32,10 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QFileInfo>
-#include <QProcess>
 #include <QTemporaryFile>
 
 #include <tuple>
@@ -57,9 +57,10 @@ bool containsFiles(const QString &path, const File_t &file, const T &...files)
 
 inline bool run_meson(const Command &command, QIODevice *output = nullptr)
 {
-    QProcess process;
-    process.setWorkingDirectory(command.workDir().toString());
-    process.start(command.executable().toString(), command.arguments());
+    Utils::QtcProcess process;
+    process.setWorkingDirectory(command.workDir());
+    process.setCommand(command.cmdLine());
+    process.start();
     if (!process.waitForFinished())
         return false;
     if (output) {
