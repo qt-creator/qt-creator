@@ -768,6 +768,7 @@ public:
     bool m_markDragging = false;
     QCursor m_markDragCursor;
     TextMark* m_dragMark = nullptr;
+    QTextCursor m_dndCursor;
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
@@ -4298,9 +4299,18 @@ void TextEditorWidgetPrivate::addCursorsPosition(PaintEventData &data,
                                                  QPainter &painter,
                                                  const PaintEventBlockData &blockData) const
 {
-    for (const QTextCursor &cursor : m_cursors) {
-        if (blockContainsCursor(blockData, cursor))
-            data.cursors.append(generateCursorData(cursor.positionInBlock(), data, blockData, painter));
+    if (!m_dndCursor.isNull()) {
+        if (blockContainsCursor(blockData, m_dndCursor)) {
+            data.cursors.append(
+                generateCursorData(m_dndCursor.positionInBlock(), data, blockData, painter));
+        }
+    } else {
+        for (const QTextCursor &cursor : m_cursors) {
+            if (blockContainsCursor(blockData, cursor)) {
+                data.cursors.append(
+                    generateCursorData(cursor.positionInBlock(), data, blockData, painter));
+            }
+        }
     }
 }
 
@@ -4377,13 +4387,17 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
             d->paintCurrentLineHighlight(data, painter);
 
-            bool drawCursor = d->m_cursorVisible
-                              && Utils::anyOf(d->m_cursors,
-                                              [&](const QTextCursor &cursor) {
-                                                  return blockContainsCursor(blockData, cursor);
-                                              });
-
-            bool drawCursorAsBlock = drawCursor && overwriteMode();
+            bool drawCursor = false;
+            bool drawCursorAsBlock = false;
+            if (d->m_dndCursor.isNull()) {
+                drawCursor = d->m_cursorVisible
+                             && Utils::anyOf(d->m_cursors, [&](const QTextCursor &cursor) {
+                                    return blockContainsCursor(blockData, cursor);
+                                });
+                drawCursorAsBlock = drawCursor && overwriteMode();
+            } else {
+                drawCursor = blockContainsCursor(blockData, d->m_dndCursor);
+            }
 
             if (drawCursorAsBlock) {
                 for (const QTextCursor &cursor : multiTextCursor()) {
@@ -7375,8 +7389,29 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
     setMultiTextCursor(cursor);
 }
 
+void TextEditorWidget::dragLeaveEvent(QDragLeaveEvent *)
+{
+    const QRect rect = cursorRect(d->m_dndCursor);
+    d->m_dndCursor = QTextCursor();
+    if (!rect.isNull())
+        viewport()->update(rect);
+}
+
+void TextEditorWidget::dragMoveEvent(QDragMoveEvent *e)
+{
+    const QRect rect = cursorRect(d->m_dndCursor);
+    d->m_dndCursor = cursorForPosition(e->pos());
+    if (!rect.isNull())
+        viewport()->update(rect);
+    viewport()->update(cursorRect(d->m_dndCursor));
+}
+
 void TextEditorWidget::dropEvent(QDropEvent *e)
 {
+    const QRect rect = cursorRect(d->m_dndCursor);
+    d->m_dndCursor = QTextCursor();
+    if (!rect.isNull())
+        viewport()->update(rect);
     const QMimeData *mime = e->mimeData();
     if (!canInsertFromMimeData(mime))
         return;
