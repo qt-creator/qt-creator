@@ -303,9 +303,9 @@ bool QmlItemNode::instanceIsInLayoutable() const
      return nodeInstance().isInLayoutable();
 }
 
-bool QmlItemNode::instanceHasRotationTransform() const
+bool QmlItemNode::instanceHasScaleOrRotationTransform() const
 {
-    return nodeInstance().transform().type() > QTransform::TxScale;
+    return nodeInstance().transform().type() > QTransform::TxTranslate;
 }
 
 bool itemIsMovable(const ModelNode &modelNode)
