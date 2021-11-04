@@ -51,8 +51,8 @@ public:
                            Utils::FileSystemWatcher *fileSystemWatcher,
                            QObject *parent = nullptr);
 
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
 
     void refresh();
@@ -81,6 +81,7 @@ public:
     Q_INVOKABLE void toggleExpandAll(bool expand);
     Q_INVOKABLE DirExpandState getAllExpandedState() const;
     Q_INVOKABLE void removeFile(const QString &filePath);
+    Q_INVOKABLE bool isEmpty() const { return m_isEmpty; };
 
 private:
     const QSet<QString> &supportedSuffixes() const;
@@ -91,6 +92,7 @@ private:
     QString m_searchText;
     Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
     ItemLibraryAssetsDir *m_assetsDir = nullptr;
+    bool m_isEmpty = true;
 
     QHash<int, QByteArray> m_roleNames;
     inline static QHash<QString, bool> m_expandedStateHash; // <assetPath, isExpanded>

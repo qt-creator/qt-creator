@@ -275,7 +275,7 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
 
     beginResetModel();
     m_assetsDir = new ItemLibraryAssetsDir(path, 0, true, this);
-    parseDirRecursive(m_assetsDir, 1);
+    m_isEmpty = parseDirRecursive(m_assetsDir, 1);
     endResetModel();
 }
 

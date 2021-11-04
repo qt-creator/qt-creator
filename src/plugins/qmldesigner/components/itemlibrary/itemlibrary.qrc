@@ -31,5 +31,7 @@
         <file>images/asset_sound_384.png</file>
         <file>images/x.png</file>
         <file>images/x@2x.png</file>
+        <file>images/browse.png</file>
+        <file>images/browse@2x.png</file>
     </qresource>
 </RCC>
