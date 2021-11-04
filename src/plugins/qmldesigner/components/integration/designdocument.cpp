@@ -51,8 +51,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 #include <timelineactions.h>
+#include <svgpasteaction.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QUrl>
@@ -62,6 +65,7 @@
 #include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QRandomGenerator>
+#include <QClipboard>
 
 using namespace ProjectExplorer;
 
@@ -166,8 +170,44 @@ Model* DesignDocument::createInFileComponentModel()
 {
     Model *model = Model::create("QtQuick.Item", 1, 0);
     model->setFileUrl(m_documentModel->fileUrl());
+    model->setMetaInfo(m_documentModel->metaInfo());
 
     return model;
+}
+
+bool DesignDocument::pasteSVG()
+{
+    SVGPasteAction svgPasteAction;
+
+    if (!svgPasteAction.containsSVG(QApplication::clipboard()->text()))
+        return false;
+
+    rewriterView()->executeInTransaction("DesignDocument::paste1", [&]() {
+        ModelNode targetNode;
+
+        // If nodes are currently selected make the first node in selection the target
+        if (!view()->selectedModelNodes().isEmpty())
+            targetNode = view()->firstSelectedModelNode();
+
+        // If target is still invalid make the root node the target
+        if (!targetNode.isValid())
+            targetNode = view()->rootModelNode();
+
+        // Check if document has studio components import, if not create it
+        QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
+        if (!currentModel()->hasImport(import, true, true)) {
+            QmlDesigner::Import studioComponentsImport = QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
+            try {
+                currentModel()->changeImports({studioComponentsImport}, {});
+            } catch (const QmlDesigner::Exception &) {
+                QTC_ASSERT(false, return);
+            }
+        }
+
+        svgPasteAction.createQmlObjectNode(targetNode);
+    });
+
+    return true;
 }
 
 QList<DocumentMessage> DesignDocument::qmlParseWarnings() const
@@ -494,6 +534,9 @@ static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode
 
 void DesignDocument::paste()
 {
+    if (pasteSVG())
+        return;
+
     if (TimelineActions::clipboardContainsKeyframes()) // pasting keyframes is handled in TimelineView
         return;
 
@@ -517,7 +560,7 @@ void DesignDocument::paste()
         ModelNode targetNode;
 
         if (!view.selectedModelNodes().isEmpty())
-            targetNode = view.selectedModelNodes().constFirst();
+            targetNode = view.firstSelectedModelNode();
 
         // in case we copy and paste a selection we paste in the parent item
         if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.hasParentProperty()) {
@@ -571,7 +614,7 @@ void DesignDocument::paste()
             ModelNode targetNode;
 
             if (!view.selectedModelNodes().isEmpty()) {
-                targetNode = view.selectedModelNodes().constFirst();
+                targetNode = view.firstSelectedModelNode();
             } else {
                 // if selection is empty and this is a 3D Node, paste it under the active scene
                 if (pastedNode.isSubclassOf("QtQuick3D.Node")) {

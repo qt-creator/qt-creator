@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "camelcasecursor.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QKeyEvent>
@@ -296,7 +297,10 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 bool multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey)
 {
     uint searchkey = (e->modifiers() | e->key())
-                     & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier | Qt::AltModifier);
+                     & ~(Qt::KeypadModifier
+                         | Qt::GroupSwitchModifier
+                         | Qt::AltModifier
+                         | Qt::ShiftModifier);
 
     const QList<QKeySequence> bindings = QKeySequence::keyBindings(matchKey);
     return bindings.contains(QKeySequence(searchkey));
@@ -306,7 +310,7 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
                                          QPlainTextEdit *edit,
                                          bool camelCaseNavigationEnabled)
 {
-    if (e->modifiers() & Qt::AltModifier) {
+    if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
         if (multiCursorAddEvent(e, QKeySequence::MoveToNextWord)) {
             op = QTextCursor::WordRight;

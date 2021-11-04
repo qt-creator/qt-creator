@@ -829,3 +829,8 @@ void lambdaArgTest()
     [](int &) {}(val);
     [](int) {}(val);
 }
+
+void assignmentTest() {
+    struct S {} s;
+    s = {};
+}

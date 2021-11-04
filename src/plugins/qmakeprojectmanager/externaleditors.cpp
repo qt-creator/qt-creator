@@ -36,11 +36,9 @@
 #include <qtsupport/qtkitinformation.h>
 #include <designer/designerconstants.h>
 
-#include <QProcess>
 #include <QDebug>
-
-#include <QTcpSocket>
 #include <QTcpServer>
+#include <QTcpSocket>
 
 using namespace ProjectExplorer;
 using namespace Utils;

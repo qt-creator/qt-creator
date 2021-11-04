@@ -29,8 +29,12 @@
 
 #include <utils/fileutils.h>
 
+#include <QDateTime>
+#include <QHash>
 #include <QObject>
+#include <QPair>
 #include <QStringList>
+#include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -117,7 +121,7 @@ public:
     ClangdSettings(const Data &data) : m_data(data) {}
 
     static ClangdSettings &instance();
-    bool useClangd() const { return m_data.useClangd; }
+    bool useClangd() const;
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
     Utils::FilePath clangdFilePath() const;
@@ -128,6 +132,8 @@ public:
 
     void setData(const Data &data);
     Data data() const { return m_data; }
+
+    static QVersionNumber clangdVersion(const Utils::FilePath &clangdFilePath);
 
 #ifdef WITH_TESTS
     static void setUseClangd(bool use);
@@ -144,6 +150,7 @@ private:
     void saveSettings();
 
     Data m_data;
+    static inline QHash<Utils::FilePath, QPair<QDateTime, QVersionNumber>> m_versionCache;
 };
 
 inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -48,8 +48,8 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Application (Qt) > \uicontrol {Qt Widgets Application} >
-            \uicontrol Choose.
+            \uicontrol {Application (Qt)} > \uicontrol {Qt Widgets Application}
+            > \uicontrol Choose.
 
             \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
 
@@ -60,10 +60,11 @@
         \li In the \uicontrol{Name} field, type \b {TextFinder}.
 
         \li In the \uicontrol {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then select \uicontrol{Next} (on
-            Windows and Linux) or \uicontrol Continue (on \macos).
+            For example, \c {C:\Qt\examples}.
 
-            The \uicontrol {Define Build System} dialog opens.
+        \li Select \uicontrol{Next} (on Windows and Linux) or
+            \uicontrol Continue (on \macos) to open the
+            \uicontrol {Define Build System} dialog.
 
             \image qtcreator-new-project-build-system-qt-gui.png "Define Build System dialog"
 
@@ -71,7 +72,8 @@
             use for building and running the project: \l qmake,
             \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
 
-            The \uicontrol{Class Information} dialog opens.
+        \li Select \uicontrol Next or \uicontrol Continue to open the
+            \uicontrol{Class Information} dialog.
 
             \image qtcreator-class-info-qt-gui.png "Class Information dialog"
 
@@ -84,16 +86,26 @@
            \note The \uicontrol{Header file}, \uicontrol{Source file} and \uicontrol{Form file}
             fields are automatically updated to match the name of the class.
 
-            The \uicontrol {Kit Selection} dialog opens.
+        \li Select \uicontrol Next or \uicontrol Continue to open the
+            \uicontrol {Translation File} dialog.
+
+            \image qtcreator-new-qt-gui-application-translationfile.png "Translation File dialog"
+
+        \li In the \uicontrol Language field, you can select a language that you
+            plan to \l {Using Qt Linguist}{translate} the application to. This
+            sets up localization support for the application. You can add other
+            languages later by editing the project file.
+
+        \li Select \uicontrol Next or \uicontrol Continue to open the
+            \uicontrol {Kit Selection} dialog.
 
             \image qtcreator-new-project-qt-versions-qt-gui.png "Kit Selection dialog"
 
-        \li Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
-            and select \uicontrol Next or \uicontrol Continue.
+        \li Select build and run \l{glossary-buildandrun-kit}{kits} for your
+            project.
 
-        \li Select \uicontrol Next or \uicontrol Continue.
-
-            The \uicontrol{Project Management} dialog opens.
+        \li Select \uicontrol Next or \uicontrol Continue to open the
+            \uicontrol {Project Management} dialog.
 
             \image qtcreator-new-project-summary-qt-gui.png "Project Management dialog"
 
@@ -105,7 +117,8 @@
     \note The project opens in the \uicontrol Edit mode, and these instructions are
     hidden. To return to these instructions, open the \uicontrol Help mode.
 
-    The TextFinder project now contains the following files:
+    If you selected qmake as the build system, the TextFinder project now
+    contains the following files:
 
     \list
 
@@ -121,6 +134,9 @@
 
     The .h and .cpp files come with the necessary boiler plate code.
     The .pro file is complete.
+
+    If you selected CMake as the build system, \QC created a CMakeLists.txt
+    project file for you.
 
     \section1 Filling in the Missing Pieces
 

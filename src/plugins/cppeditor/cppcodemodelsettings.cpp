@@ -34,6 +34,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QSettings>
 
@@ -312,6 +313,11 @@ ClangdSettings &ClangdSettings::instance()
     return settings;
 }
 
+bool ClangdSettings::useClangd() const
+{
+    return m_data.useClangd && clangdVersion(clangdFilePath()) >= QVersionNumber(13);
+}
+
 void ClangdSettings::setDefaultClangdPath(const FilePath &filePath)
 {
     g_defaultClangdFilePath = filePath;
@@ -331,6 +337,37 @@ void ClangdSettings::setData(const Data &data)
         saveSettings();
         emit changed();
     }
+}
+
+static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
+{
+    Utils::QtcProcess clangdProc;
+    clangdProc.setCommand({clangdFilePath, {"--version"}});
+    clangdProc.start();
+    if (!clangdProc.waitForStarted() || !clangdProc.waitForFinished())
+        return{};
+    const QString output = clangdProc.allOutput();
+    static const QString versionPrefix = "clangd version ";
+    const int prefixOffset = output.indexOf(versionPrefix);
+    if (prefixOffset == -1)
+        return {};
+    return QVersionNumber::fromString(output.mid(prefixOffset + versionPrefix.length()));
+}
+
+QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
+{
+    const QDateTime timeStamp = clangdFilePath.lastModified();
+    const auto it = m_versionCache.find(clangdFilePath);
+    if (it == m_versionCache.end()) {
+        const QVersionNumber version = getClangdVersion(clangdFilePath);
+        m_versionCache.insert(clangdFilePath, qMakePair(timeStamp, version));
+        return version;
+    }
+    if (it->first != timeStamp) {
+        it->first = timeStamp;
+        it->second = getClangdVersion(clangdFilePath);
+    }
+    return it->second;
 }
 
 void ClangdSettings::loadSettings()

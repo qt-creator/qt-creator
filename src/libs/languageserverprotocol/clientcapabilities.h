@@ -529,6 +529,24 @@ public:
     void clearSemanticTokens() { remove(semanticTokensKey); }
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensWorkspaceClientCapabilities : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    /**
+     * Whether the client implementation supports a refresh request sent from
+     * the server to the client.
+     *
+     * Note that this event is global and will force the client to refresh all
+     * semantic tokens currently shown. It should be used with absolute care
+     * and is useful for situation where a server for example detect a project
+     * wide change that requires such a calculation.
+     */
+    Utils::optional<bool> refreshSupport() const { return optionalValue<bool>(refreshSupportKey); }
+    void setRefreshSupport(bool refreshSupport) { insert(refreshSupportKey, refreshSupport); }
+    void clearRefreshSupport() { remove(refreshSupportKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceClientCapabilities : public JsonObject
 {
 public:
@@ -601,6 +619,12 @@ public:
     Utils::optional<bool> configuration() const { return optionalValue<bool>(configurationKey); }
     void setConfiguration(bool configuration) { insert(configurationKey, configuration); }
     void clearConfiguration() { remove(configurationKey); }
+
+    Utils::optional<SemanticTokensWorkspaceClientCapabilities> semanticTokens() const
+    { return optionalValue<SemanticTokensWorkspaceClientCapabilities>(semanticTokensKey); }
+    void setSemanticTokens(const SemanticTokensWorkspaceClientCapabilities &semanticTokens)
+    { insert(semanticTokensKey, semanticTokens); }
+    void clearSemanticTokens() { remove(semanticTokensKey); }
 };
 
 class WindowClientClientCapabilities : public JsonObject

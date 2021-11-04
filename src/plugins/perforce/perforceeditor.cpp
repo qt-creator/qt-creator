@@ -34,7 +34,6 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QProcess>
 #include <QSet>
 #include <QTextStream>
 

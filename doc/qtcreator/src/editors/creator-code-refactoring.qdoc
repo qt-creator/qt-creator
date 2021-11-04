@@ -43,6 +43,10 @@
     code by selecting them in a context menu. For more information, see
     \l{Applying Refactoring Actions}.
 
+    By default, the refactored files are saved automatically. To disable
+    this feature, deselect \uicontrol Tools > \uicontrol Options >
+    \uicontrol System > \uicontrol {Auto-save files after refactoring}.
+
     \if defined(qtcreator)
     \section1 Finding Symbols
 

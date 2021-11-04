@@ -123,6 +123,9 @@ QTextDocument *ComponentTextModifier::textDocument() const
 
 QString ComponentTextModifier::text() const
 {
+    if (m_componentStartOffset == -1)
+        return {};
+
     QString txt(m_originalModifier->text());
 
     const int leader = m_componentStartOffset - m_rootStartOffset;

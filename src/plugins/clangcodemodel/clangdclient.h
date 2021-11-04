@@ -35,6 +35,7 @@
 
 namespace Core { class SearchResultItem; }
 namespace CppEditor { class CppEditorWidget; }
+namespace LanguageServerProtocol { class Range; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor { class BaseTextEditor; }
 
@@ -75,6 +76,9 @@ public:
     void gatherHelpItemForTooltip(
             const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
             const LanguageServerProtocol::DocumentUri &uri);
+
+    void setVirtualRanges(const Utils::FilePath &filePath,
+                          const QList<LanguageServerProtocol::Range> &ranges, int revision);
 
     void enableTesting();
     bool testingEnabled() const;

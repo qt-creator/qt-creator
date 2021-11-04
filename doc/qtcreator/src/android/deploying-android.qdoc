@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -52,7 +52,8 @@
 
     \note Since \QC 4.12, Ministro is not supported.
 
-    To specify settings for application packages, select \uicontrol Projects >
+    To \l{Specifying Settings for Packages}{specify settings} for application
+    packages, select \uicontrol Projects > \uicontrol Build >
     \uicontrol {Build Android APK} > \uicontrol Details.
 
     \if defined(qtcreator)
@@ -64,7 +65,7 @@
 
     Because bundling applications as APK packages is not
     trivial, Qt 5 provides a deployment tool called \c androiddeployqt.
-    When you deploy an application using a \uicontrol {Qt for Android Kit}, \QC uses
+    When you deploy an application using a \e {Qt for Android kit}, \QC uses
     the \c androiddeployqt tool to create the necessary files and to bundle them
     into an APK:
 
@@ -100,41 +101,58 @@
     To view the packages that the \c androiddeployqt tool created, select the
     \uicontrol {Open package location after build} check box.
 
-    The packages are deployed on the connected Android devices. To switch the
-    device used as a default device for the selected kit, select
-    \uicontrol Projects > \uicontrol Run > \uicontrol {Deploy to Android Device}
-    > \uicontrol {Reset Default Devices}. The setting applies until you restart \QC.
-    For more information, see \l{Selecting Android Devices}.
+    \section2 Specifying Deployment Settings
 
-    For more information about the \c androiddeployqt tool, see
-    \l{Deploying an Application on Android}.
+    The available deployment settings are listed in the \uicontrol Method field.
+    To add deployment methods for a project, select \uicontrol Add.
+
+    \image qtcreator-android-deployment-settings.png "Deployment settings"
+
+    To rename the current deployment method, select \uicontrol Rename.
+
+    To remove the current deployment method, select \uicontrol Remove.
+
+    The packages are deployed on the Android device that you select in the
+    \l{Building for Multiple Platforms}{kit selector}. To add devices, select
+    \uicontrol Manage.
+
+    For more information about specifying additional start options for
+    applications, see \l{Specifying Run Settings for Android Devices}.
+
+    To remove previously installed files from the device, select
+    \uicontrol {Uninstall the existing app before deployment}.
+
+    To install a pre-built APK, such as a 3rd-party application to a device,
+    select \uicontrol {Install an APK File}.
 
     \section2 Specifying Settings for Packages
 
-    You can specify settings for the \c androiddeployqt tool in \QC and in the
-    project .pro file. To specify settings in \QC, select \uicontrol Projects >
-    \uicontrol Build > \uicontrol {Build Android APK} > \uicontrol Details.
+    To specify settings for the \c androiddeployqt tool, select
+    \uicontrol Projects > \uicontrol Build > \uicontrol {Build Android APK} >
+    \uicontrol Details.
 
-    \image qtcreator-android-deploy-configurations.png "Deploy configurations"
+    \image qtcreator-android-build-apk-step.png "Build Android APK step"
 
-    The anddroiddeployqt tool uses the information in the project .pro file to
-    create APKs. For more information about the qmake variables
-    that you can set in the .pro file to tailor the APK, see
-    \l{Deploying an Application on Android}.
+    The \c androiddeployqt tool uses the configuration information to
+    create APKs. For more information about the available options, see
+    \l{androiddeployqt}.
 
-    You can view information about what the anddroiddeployqt tool is doing in
+    You can view information about what the \c androiddeployqt tool is doing in
     the \uicontrol {Compile Output} pane. To view additional information, select the
     \uicontrol {Verbose output} check box.
 
+    Select \uicontrol {Add debug server} to include the debug server binary
+    into a package.
+
     \section3 Selecting API Level
 
-    In the \uicontrol {Android build SDK} field, you can select the API level to use
-    for building the application. Usually, you should select the newest API
-    level available.
+    In the \uicontrol {Android build platform SDK} field, you can select the
+    API level to use for building the application. Usually, you should select
+    the highest API level available.
 
-    \note For Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1, Android build SDK 28 should
-    be used. For recent versions than the latter, build SDK 29, or the most recent
-    should be used.
+    \note For Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1, Android build
+    platform SDK 28 should be used. For more recent versions than Qt 5.13.1,
+    build platform SDK 29 or the most recent one should be used.
 
     This field does not specify the minimum supported API level nor the target
     API level, which you can specify in the Android manifest. See
@@ -146,7 +164,7 @@
     For testing the application locally, use the APK format, because
     the package can be uploaded directly to the device and run. For
     distribution to the Google Play store, create an AAB by selecting
-    the \uicontrol {Build .aab (Android App Bundle)} check box.
+    the \uicontrol {Build Android App Bundle (*.aab)} check box.
 
     When building with CMake, you can view the selected ABIs in the
     \uicontrol {Initial CMake parameters} field in the \uicontrol CMake section.
@@ -253,11 +271,11 @@
 
     \section1 Editing Manifest Files
 
-    You can use the qmake variables to specify all
-    the settings you need for the \c androiddeployqt tool and you do not need an
-    Android manifest file unless you need to specify Android specific settings
-    like the application's icon. Also, the manifest file is needed if you want
-    to publish the package in the Play Store.
+    You can use the configuration options to specify all the settings you need
+    for the \c androiddeployqt tool. You only need an Adroid manifest file
+    to specify Android-specific settings, such as the application icon.
+    However, the manifest file is needed when you want to publish the package
+    in the Play Store.
 
     \section2 Package Names
 
@@ -384,7 +402,7 @@
             \li Locks the orientation to its current rotation, whatever that is.
     \endtable
 
-    \section2 Supported Resolutions
+    \section2 Icons and Splash Screens
 
     You can set different images to be shown as application icons and splash
     screens on low, medium, high, and extra high DPI displays. The following
@@ -398,6 +416,36 @@
         \li Extra-extra-high-density (XXHDPI): ~480dpi
         \li Extra-extra-extra-high-density (XXXHDPI): ~640dpi
     \endlist
+
+    Specify settings for icons in the \uicontrol {Application icon} tab. Select
+    the image with the highest resolution as the \uicontrol {Master icon}.
+    \QC resizes the icon and sets versions of it to be shown on low, medium,
+    high, and extra high DPI displays, as needed. Alternatively, set the icons
+    for each resolution separately.
+
+    \image qtcreator-android-manifest-editor-app-icon.png "Application icons in Android Manifest Editor"
+
+    Specify settings for splash screens in the \uicontrol {Splash screen} tab.
+    Select images to display as splash screens depending on the device
+    orientation and screen resolution.
+
+    \image qtcreator-android-manifest-editor-splash-screen.png "Splash screens in Android Manifest Editor"
+
+    By default, the splash screen is hidden automatically
+    when an activity is drawn. To keep it visible until
+    \l{QNativeInterface::QAndroidApplication::hideSplashScreen()} is
+    called, select the \uicontrol {Sticky splash screen} check box.
+
+    In \uicontrol {Image show mode}, select whether to center the splash screen
+    on the device display or scale it to fill the display.
+
+    Set a background color in \uicontrol {Background color}.
+
+    Select the images with the highest resolution as the
+    \uicontrol {Master image}, \uicontrol {Portrait master image},
+    and \uicontrol {Landscape master image}.
+
+    Select \uicontrol {Clear All} to reset all settings or remove all images.
 
     \section2 Android Manifest Editor
 
@@ -447,22 +495,11 @@
     \li In the \uicontrol {Screen orientation} field, select the option for
         determining \l{Screen Orientation}{screen orientation}.
 
-    \li In \uicontrol {Application icon}, select an image with the highest
-        \l{Supported Resolutions}{resolution} as the \uicontrol {Master icon}.
-        \QC resizes the icon and sets versions of it to be shown on low,
-        medium, high, and extra high DPI displays, as needed. Alternatively,
-        set the icons for each resolution separately.
-
-        \image qtcreator-android-manifest-editor-app-icon.png "Application icons in Android Manifest Editor"
+    \li In \uicontrol {Application icon}, specify images to use as application
+        icons depending on screen resolution.
 
     \li In \uicontrol {Splash screen}, select images to display as splash
-    screens depending on the device orientation. You can set different images
-    to be shown on low, medium, high, and extra high DPI displays. By default,
-    the splash screen is hidden automatically when an activity is drawn. To keep
-    it visible until \l{QtAndroid::hideSplashScreen()} is called, select the
-    \uicontrol {Sticky splash screen} check box.
-
-    \image qtcreator-android-manifest-editor-splash-screen.png "Splash screens in Android Manifest Editor"
+        screens depending on the screen orientation and resolution.
 
     \li In \uicontrol {Android services}, select \uicontrol Add to add a service.
     You must enter at least a service class name for a new service. If you select

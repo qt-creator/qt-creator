@@ -27,10 +27,9 @@
 
 #include "nodeinstanceserverinterface.h"
 
-#include <QPointer>
-#include <QProcess>
 #include <QElapsedTimer>
 #include <QFile>
+#include <QPointer>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE

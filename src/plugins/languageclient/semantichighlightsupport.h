@@ -36,6 +36,8 @@
 
 #include <functional>
 
+namespace Core { class IEditor; }
+
 namespace LanguageClient {
 class Client;
 
@@ -48,6 +50,11 @@ public:
     QString type;
     QStringList modifiers;
 };
+inline bool operator==(const ExpandedSemanticToken &t1, const ExpandedSemanticToken &t2)
+{
+    return t1.line == t2.line && t1.column == t2.column && t1.length == t2.length
+            && t1.type == t2.type && t1.modifiers == t2.modifiers;
+}
 using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
                                                  const QList<ExpandedSemanticToken> &, int)>;
 
@@ -62,11 +69,12 @@ void applyHighlight(TextEditor::TextDocument *doc,
 
 } // namespace SemanticHighligtingSupport
 
-class SemanticTokenSupport
+class SemanticTokenSupport : public QObject
 {
 public:
     explicit SemanticTokenSupport(Client *client);
 
+    void refresh();
     void reloadSemanticTokens(TextEditor::TextDocument *doc);
     void updateSemanticTokens(TextEditor::TextDocument *doc);
     void rehighlight();
@@ -94,6 +102,7 @@ private:
     void highlight(const Utils::FilePath &filePath);
     void updateFormatHash();
     void currentEditorChanged();
+    void onCurrentEditorChanged(Core::IEditor *editor);
 
     Client *m_client = nullptr;
 

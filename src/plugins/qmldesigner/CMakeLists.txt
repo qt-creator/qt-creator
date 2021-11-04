@@ -7,7 +7,7 @@ add_qtc_plugin(QmlDesigner
   CONDITION TARGET Qt5::QuickWidgets
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt5::QuickWidgets Qt5::CorePrivate Sqlite
+    Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
   DEFINES
     DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
@@ -139,6 +139,7 @@ extend_qtc_plugin(QmlDesigner
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
     hdrimage.cpp hdrimage.h
+    svgpasteaction.cpp svgpasteaction.h
 )
 
 extend_qtc_plugin(QmlDesigner

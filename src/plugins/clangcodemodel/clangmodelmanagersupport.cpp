@@ -388,6 +388,18 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
                 && c->state() != Client::Shutdown;
     });
     QTC_ASSERT(clients.size() <= 1, qDebug() << project << clients.size());
+    if (clients.size() > 1) {
+        Client *activeClient = nullptr;
+        for (Client * const c : clients) {
+            if (!activeClient && (c->state() == Client::Initialized
+                                  || c->state() == Client::InitializeRequested)) {
+                activeClient = c;
+            } else {
+                LanguageClientManager::shutdownClient(c);
+            }
+        }
+        return qobject_cast<ClangdClient *>(activeClient);
+    }
     return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
@@ -463,7 +475,7 @@ void ClangModelManagerSupport::watchForExternalChanges()
                 return;
 
             ClangdClient * const client = clientForProject(project);
-            if (client) {
+            if (client && !m_clientsToRestart.contains(client)) {
                 m_clientsToRestart.append(client);
                 timer->start();
             }

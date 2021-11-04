@@ -105,7 +105,7 @@ public:
     Q_INVOKABLE void handleAddImport(int index);
     Q_INVOKABLE bool isSearchActive() const;
     Q_INVOKABLE void handleFilesDrop(const QStringList &filesPaths);
-    Q_INVOKABLE QSet<QString> supportedSuffixes() const { return m_assetsModel->supportedSuffixes(); };
+    Q_INVOKABLE QSet<QString> supportedDropSuffixes();
 
 signals:
     void itemActivated(const QString& itemName);

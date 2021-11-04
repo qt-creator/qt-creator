@@ -381,6 +381,7 @@ static ToolChain *msvcToolChain(Id language)
 {
     ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
         const Abi abi = t->targetAbi();
+        // TODO: Should Abi::WindowsMsvc2022Flavor be added too?
         return  (abi.osFlavor() == Abi::WindowsMsvc2017Flavor || abi.osFlavor() == Abi::WindowsMsvc2019Flavor)
                 && abi.architecture() == Abi::X86Architecture
                 && abi.wordWidth() == 64

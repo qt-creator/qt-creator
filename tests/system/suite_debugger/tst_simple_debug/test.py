@@ -51,8 +51,9 @@ def main():
         expectedBreakpointsOrder = setBreakpointsForCurrentProject(filesAndLines)
         if expectedBreakpointsOrder:
             availableConfigs = iterateBuildConfigs("Debug")
-            progressBarWait()
-            if not availableConfigs:
+            if len(availableConfigs) > 1:  # having just one config means no change, no progress bar
+                progressBarWait()
+            elif len(availableConfigs) == 0:
                 test.fatal("Haven't found a suitable Qt version - leaving without debugging.")
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)

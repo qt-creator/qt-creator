@@ -45,7 +45,6 @@
 #include <QJsonObject>
 #include <QMutex>
 #include <QMutexLocker>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QWaitCondition>
 

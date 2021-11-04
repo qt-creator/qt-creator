@@ -32,11 +32,14 @@
 #include "stringutils.h"
 
 #include <QCoreApplication>
+#include <QLoggingCategory>
 #include <QMutex>
 #include <QRegularExpression>
 #include <QTextCodec>
 
 #include <cctype>
+
+Q_LOGGING_CATEGORY(log, "qtc.utils.filesearch", QtWarningMsg)
 
 using namespace Utils;
 
@@ -140,11 +143,13 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
 {
     if (futureInterface.isCanceled())
         return;
+    qCDebug(log) << "Searching in" << item.filePath;
     futureInterface.setProgressRange(0, 1);
     futureInterface.setProgressValue(0);
     FileSearchResultList results;
     QString tempString;
     if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
+        qCDebug(log) << "- failed to get content for" << item.filePath;
         futureInterface.cancel(); // failure
         return;
     }
@@ -222,6 +227,7 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
         futureInterface.reportResult(results);
         futureInterface.setProgressValue(1);
     }
+    qCDebug(log) << "- finished searching in" << item.filePath;
 }
 
 FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
@@ -257,11 +263,13 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
     }
     if (futureInterface.isCanceled())
         return;
+    qCDebug(log) << "Searching in" << item.filePath;
     futureInterface.setProgressRange(0, 1);
     futureInterface.setProgressValue(0);
     FileSearchResultList results;
     QString tempString;
     if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
+        qCDebug(log) << "- failed to get content for" << item.filePath;
         futureInterface.cancel(); // failure
         return;
     }
@@ -296,6 +304,7 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
         futureInterface.reportResult(results);
         futureInterface.setProgressValue(1);
     }
+    qCDebug(log) << "- finished searching in" << item.filePath;
 }
 
 struct SearchState

@@ -88,7 +88,6 @@
 #include <QMessageBox>
 #include <QMetaObject>
 #include <QMutex>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QSharedPointer>
 #include <QTextCodec>

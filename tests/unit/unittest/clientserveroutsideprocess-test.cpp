@@ -35,7 +35,6 @@
 #include <utils/hostosinfo.h>
 
 #include <QBuffer>
-#include <QProcess>
 #include <QSignalSpy>
 #include <QString>
 #include <QVariant>

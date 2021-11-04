@@ -704,6 +704,16 @@ void RewriterView::sanitizeModel()
     });
 }
 
+void RewriterView::setAllowComponentRoot(bool allow)
+{
+    m_allowComponentRoot = allow;
+}
+
+bool RewriterView::allowComponentRoot() const
+{
+    return m_allowComponentRoot;
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.data();

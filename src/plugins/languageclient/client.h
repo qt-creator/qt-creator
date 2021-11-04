@@ -58,7 +58,6 @@
 
 #include <QBuffer>
 #include <QHash>
-#include <QProcess>
 #include <QJsonDocument>
 #include <QTextCursor>
 
@@ -116,6 +115,7 @@ public:
         Error
     };
     State state() const;
+    QString stateString() const;
     bool reachable() const { return m_state == Initialized; }
 
     // capabilities

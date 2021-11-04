@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,19 +34,19 @@
 
     A default set of Android Activity manager (am) start options is applied when
     starting applications. You can specify additional start options in the
-    \uicontrol {Activity manager start options} field. However, if the default
+    \uicontrol {Activity manager start arguments} field. However, if the default
     options conflict with the added options, the application might not start.
 
     The default arguments for the Activity manager for a normal run:
 
     \badcode
-    am start -n org.qtproject.example.notification/org.qtproject.qt5.android.bindings.QtActivity
+    am start -n <package_name>/<QtActivity_name>
     \endcode
 
     The default arguments for the Activity manager for the debugger mode:
 
     \badcode
-    am start -n org.qtproject.example.notification/org.qtproject.qt5.android.bindings.QtActivity -D
+    am start -n <package_name>/<QtActivity_name> -D
     \endcode
 
     For example, to run the application as a particular user, enter the start
@@ -54,18 +54,20 @@
 
     \image qtcreator-android-run-settings.png
 
-    You can specify shell commands to run before the application is started and
-    after it is quit. For example, enter the following commands to unlock the
-    screen and to switch to the user account \c 10 on the device before running
-    the application:
+    You can specify shell commands to run before the application is started
+    and after it is quit. For example, enter the following commands into
+    \uicontrol{Pre-launch on-device shell commands} to unlock the screen and
+    to switch to the user account \c 10 on the device before running the
+    application:
 
     \code
     input keyevent 82
     am switch-user 10
     \endcode
 
-    Enter the following commands to switch back to the default user, \c 0, and
-    to unlock the screen after the application is quit:
+    Enter the following commands into
+    \uicontrol{Post-quit on-device shell commands} to switch back to the
+    default user, \c 0, and to unlock the screen after the application is quit:
 
     \code
     am switch-user 0

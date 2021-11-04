@@ -27,6 +27,7 @@
 
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdiagnosticmanager.h"
+#include "clangmodelmanagersupport.h"
 #include "clangpreprocessorassistproposalitem.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
@@ -51,6 +52,7 @@
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
 #include <cppeditor/semantichighlighter.h>
 #include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientutils.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
@@ -559,12 +561,12 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
 {
     QString indexingOption = "--background-index";
     const CppEditor::ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
-    if (!settings.indexingEnabled())
+    if (!settings.indexingEnabled() || jsonDbDir.isEmpty())
         indexingOption += "=0";
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, headerInsertionOption,
-                                                       "--limit-results=0", "--clang-tidy=0"}};
+            "--limit-results=0", "--limit-references=0", "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
@@ -654,6 +656,7 @@ public:
                      bool openInSplit)
         : q(q), id(id), cursor(cursor), editorWidget(editorWidget), uri(uri),
           callback(std::move(callback)), virtualFuncAssistProvider(q->d),
+          docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
           openInSplit(openInSplit) {}
 
     ~FollowSymbolData()
@@ -678,6 +681,8 @@ public:
         openedFiles.clear();
     }
 
+    bool defLinkIsAmbiguous() const;
+
     ClangdClient * const q;
     const quint64 id;
     const QTextCursor cursor;
@@ -688,6 +693,7 @@ public:
     QList<MessageId> pendingSymbolInfoRequests;
     QList<MessageId> pendingGotoImplRequests;
     QList<MessageId> pendingGotoDefRequests;
+    const int docRevision;
     const bool openInSplit;
 
     Utils::Link defLink;
@@ -1059,6 +1065,12 @@ public:
     //  The highlighters are owned by their respective documents.
     std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
 
+    QHash<TextDocument *, QPair<QList<ExpandedSemanticToken>, int>> previousTokens;
+
+    // The ranges of symbols referring to virtual functions, with document version,
+    // as extracted by the highlighting procedure.
+    QHash<TextDocument *, QPair<QList<Range>, int>> virtualRanges;
+
     VersionedDataCache<const TextDocument *, AstNode> astCache;
     VersionedDataCache<Utils::FilePath, AstNode> externalAstCache;
     TaskTimer highlightingTimer{"highlighting"};
@@ -1074,6 +1086,10 @@ public:
         : TextDocumentClientCapabilities::CompletionCapabilities(object)
     {
         insert("editsNearCursor", true); // For dot-to-arrow correction.
+        if (Utils::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
+            completionItemCaps->setSnippetSupport(false);
+            setCompletionItem(*completionItemCaps);
+        }
     }
 };
 
@@ -1188,6 +1204,15 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         initOptions.insert("fallbackFlags", QJsonArray::fromStringList(clangOptions));
         setInitializationOptions(initOptions);
     }
+    auto isRunningClangdClient = [](const LanguageClient::Client *c) {
+        return qobject_cast<const ClangdClient *>(c) && c->state() != Client::ShutdownRequested
+               && c->state() != Client::Shutdown;
+    };
+    const QList<Client *> clients =
+        Utils::filtered(LanguageClientManager::clientsForProject(project), isRunningClangdClient);
+    QTC_CHECK(clients.isEmpty());
+    for (const Client *client : clients)
+        qCWarning(clangdLog) << client->name() << client->stateString();
     ClientCapabilities caps = Client::defaultClientCapabilities();
     Utils::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
     if (textCaps) {
@@ -1366,6 +1391,8 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
 {
     d->highlighters.erase(doc);
     d->astCache.remove(doc);
+    d->previousTokens.remove(doc);
+    d->virtualRanges.remove(doc);
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -1996,6 +2023,14 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
     d->getAndHandleAst(doc, astHandler, Private::AstCallbackMode::SyncIfPossible);
 }
 
+void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList<Range> &ranges,
+                                    int revision)
+{
+    TextDocument * const doc = documentForFilePath(filePath);
+    if (doc && doc->document()->revision() == revision)
+        d->virtualRanges.insert(doc, {ranges, revision});
+}
+
 void ClangdClient::Private::handleGotoDefinitionResult()
 {
     QTC_ASSERT(followSymbolData->defLink.hasValidTarget(), return);
@@ -2003,8 +2038,7 @@ void ClangdClient::Private::handleGotoDefinitionResult()
     qCDebug(clangdLog) << "handling go to definition result";
 
     // No dis-ambiguation necessary. Call back with the link and finish.
-    if (!followSymbolData->cursorNode->mightBeAmbiguousVirtualCall()
-            && !followSymbolData->cursorNode->isPureVirtualDeclaration()) {
+    if (!followSymbolData->defLinkIsAmbiguous()) {
         followSymbolData->callback(followSymbolData->defLink);
         followSymbolData.reset();
         return;
@@ -2377,16 +2411,37 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             return true;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
-        const QList<AstNode> path = getAstPath(ast, tokenRange(token));
+        const Range range = tokenRange(token);
+        const QList<AstNode> path = getAstPath(ast, range);
         if (path.size() < 2)
             return false;
         if (path.last().hasConstType())
             return false;
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
-                    || it->kind() == "MemberInitializer" || it->kind() == "CXXOperatorCall") {
+                    || it->kind() == "MemberInitializer") {
                 return true;
             }
+
+            // The token should get marked for e.g. lambdas, but not for assignment operators,
+            // where the user sees that it's being written.
+            if (it->kind() == "CXXOperatorCall") {
+                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                if (children.size() < 2)
+                    return false;
+                if (!children.last().range().contains(range))
+                    return false;
+                QList<AstNode> firstChildTree{children.first()};
+                while (!firstChildTree.isEmpty()) {
+                    const AstNode n = firstChildTree.takeFirst();
+                    const QString detail = n.detail().value_or(QString());
+                    if (detail.startsWith("operator"))
+                        return !detail.contains('=');
+                    firstChildTree << n.children().value_or(QList<AstNode>());
+                }
+                return true;
+            }
+
             if (it->kind().endsWith("Cast") && it->hasConstType())
                 return false;
             if (it->kind() == "Member" && it->arcanaContains("(")
@@ -2491,6 +2546,20 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
     ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
+        QList<Range> virtualRanges;
+        for (const HighlightingResult &r : results) {
+            if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)
+                continue;
+            const Position startPos(r.line - 1, r.column - 1);
+            virtualRanges << Range(startPos, startPos.withOffset(r.length, &doc));
+        }
+        QMetaObject::invokeMethod(ClangModelManagerSupport::instance(),
+                                  [filePath, virtualRanges, docRevision] {
+            if (ClangdClient * const client
+                    = ClangModelManagerSupport::instance()->clientForFile(filePath)) {
+                client->setVirtualRanges(filePath, virtualRanges, docRevision);
+            }
+        }, Qt::QueuedConnection);
         future.reportResults(QVector<HighlightingResult>(results.cbegin(),
                                                                      results.cend()));
     }
@@ -2519,6 +2588,17 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         qCDebug(clangdLogHighlight) << "LSP tokens outdated; aborting highlighting procedure"
                                     << version << q->documentVersion(doc->filePath());
         return;
+    }
+    const auto previous = previousTokens.find(doc);
+    if (previous != previousTokens.end()) {
+        if (previous->first == tokens && previous->second == version) {
+            qCDebug(clangdLogHighlight) << "tokens and version same as last time; nothing to do";
+            return;
+        }
+        previous->first = tokens;
+        previous->second = version;
+    } else {
+        previousTokens.insert(doc, qMakePair(tokens, version));
     }
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
@@ -2788,7 +2868,21 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     if (!edit)
         return;
 
-    const QString rawInsertText = edit->newText();
+    const auto kind = static_cast<CompletionItemKind::Kind>(
+                item.kind().value_or(CompletionItemKind::Text));
+    const bool isFunctionLike = kind == CompletionItemKind::Function
+            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor;
+    QString rawInsertText = edit->newText();
+
+    // Some preparation for our magic involving (non-)insertion of parentheses and
+    // cursor placement.
+    if (isFunctionLike && !rawInsertText.contains('(')) {
+        if (item.label().contains("()"))     // function takes no arguments
+            rawInsertText += "()";
+        else if (item.label().contains('(')) // function takes arguments
+            rawInsertText += "( )";
+    }
+
     const int firstParenOffset = rawInsertText.indexOf('(');
     const int lastParenOffset = rawInsertText.lastIndexOf(')');
     const QString detail = item.detail().value_or(QString());
@@ -2802,12 +2896,6 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     const QTextDocument * const doc = manipulator.textCursorAt(currentPos).document();
     const Range range = edit->range();
     const int rangeStart = range.start().toPositionInDocument(doc);
-
-    const auto kind = static_cast<CompletionItemKind::Kind>(
-                item.kind().value_or(CompletionItemKind::Text));
-    const bool isFunctionLike = kind == CompletionItemKind::Function
-            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
-            || (firstParenOffset != -1 && lastParenOffset != -1);
     if (isFunctionLike && completionSettings.m_autoInsertBrackets) {
         // If the user typed the opening parenthesis, they'll likely also type the closing one,
         // in which case it would be annoying if we put the cursor after the already automatically
@@ -3461,6 +3549,24 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
         break;
     }
     }
+}
+
+bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
+{
+    // If we have up-to-date highlighting info, we can give a definite answer.
+    if (editorWidget) {
+        const auto virtualRanges = q->d->virtualRanges.constFind(editorWidget->textDocument());
+        if (virtualRanges != q->d->virtualRanges.constEnd()
+                && virtualRanges->second == docRevision) {
+            const auto matcher = [cursorRange = cursorNode->range()](const Range &r) {
+                return cursorRange.overlaps(r);
+            };
+            return Utils::contains(virtualRanges->first, matcher);
+        }
+    }
+
+    // Otherwise, we have to rely on AST-based heuristics.
+    return cursorNode->mightBeAmbiguousVirtualCall() || cursorNode->isPureVirtualDeclaration();
 }
 
 } // namespace Internal

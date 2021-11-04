@@ -171,6 +171,7 @@ constexpr char reasonKey[] = "reason";
 constexpr char redKey[] = "red";
 constexpr char referencesKey[] = "references";
 constexpr char referencesProviderKey[] = "referencesProvider";
+constexpr char refreshSupportKey[] = "refreshSupport";
 constexpr char registerOptionsKey[] = "registerOptions";
 constexpr char registrationsKey[] = "registrations";
 constexpr char removedKey[] = "removed";

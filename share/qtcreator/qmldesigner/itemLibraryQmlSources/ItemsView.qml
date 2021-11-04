@@ -82,7 +82,7 @@ Item {
     property var currentImport: null
     property bool isHorizontalView: false
 
-    // called from C++ to close context menu on focus out
+    // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
         moduleContextMenu.close()
@@ -92,6 +92,8 @@ Item {
     onWidthChanged: {
         itemsView.isHorizontalView = itemsView.width > widthLimit
     }
+
+    onIsHorizontalViewChanged: closeContextMenu()
 
     Item {
         id: styleConstants

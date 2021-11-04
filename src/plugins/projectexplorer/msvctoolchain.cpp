@@ -51,7 +51,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QVector>
@@ -430,7 +429,9 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type,
         else if (version == QLatin1String("v7.0A") || version == QLatin1String("v7.1"))
             msvcVersionString = QLatin1String("10.0");
     }
-    if (msvcVersionString.startsWith(QLatin1String("16.")))
+    if (msvcVersionString.startsWith(QLatin1String("17.")))
+        flavor = Abi::WindowsMsvc2022Flavor;
+    else if (msvcVersionString.startsWith(QLatin1String("16.")))
         flavor = Abi::WindowsMsvc2019Flavor;
     else if (msvcVersionString.startsWith(QLatin1String("15.")))
         flavor = Abi::WindowsMsvc2017Flavor;
@@ -927,6 +928,10 @@ QStringList MsvcToolChain::suggestedMkspecList() const
                 "winrt-arm-msvc2019",
                 "winrt-x86-msvc2019",
                 "winrt-x64-msvc2019"};
+    case Abi::WindowsMsvc2022Flavor:
+        return {"win32-msvc",
+                "win32-msvc2022",
+                "win32-arm64-msvc"};
     default:
         break;
     }
@@ -938,6 +943,14 @@ Abis MsvcToolChain::supportedAbis() const
     Abi abi = targetAbi();
     Abis abis = {abi};
     switch (abi.osFlavor()) {
+    case Abi::WindowsMsvc2022Flavor:
+        abis << Abi(abi.architecture(),
+                    abi.os(),
+                    Abi::WindowsMsvc2019Flavor,
+                    abi.binaryFormat(),
+                    abi.wordWidth(),
+                    abi.param());
+        Q_FALLTHROUGH();
     case Abi::WindowsMsvc2019Flavor:
         abis << Abi(abi.architecture(),
                     abi.os(),

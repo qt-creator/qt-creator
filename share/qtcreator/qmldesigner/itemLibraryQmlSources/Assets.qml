@@ -51,7 +51,7 @@ Item {
                 if (url.startsWith("file:///")) // remove file scheme (happens on Windows)
                     url = url.substr(8)
                 var ext = url.slice(url.lastIndexOf('.') + 1).toLowerCase()
-                if (rootView.supportedSuffixes().includes('*.' + ext))
+                if (rootView.supportedDropSuffixes().includes('*.' + ext))
                     files.push(url)
             }
 

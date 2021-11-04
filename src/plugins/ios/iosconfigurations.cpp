@@ -60,10 +60,9 @@
 #include <QHash>
 #include <QList>
 #include <QLoggingCategory>
-#include <QProcess>
 #include <QSettings>
-#include <QStringList>
 #include <QStandardPaths>
+#include <QStringList>
 #include <QTimer>
 
 #include <memory>

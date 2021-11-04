@@ -35,7 +35,6 @@
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
 
 #include <QFormLayout>
 #include <QSpinBox>
@@ -285,30 +284,14 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         if (!d->clangdChooser.isValid())
             return;
         const Utils::FilePath clangdPath = d->clangdChooser.filePath();
-        Utils::QtcProcess clangdProc;
-        clangdProc.setCommand({clangdPath, {"--version"}});
-        clangdProc.start();
-        if (!clangdProc.waitForStarted() || !clangdProc.waitForFinished()) {
-            labelSetter.setWarning(tr("Failed to retrieve clangd version: %1")
-                                   .arg(clangdProc.exitMessage()));
-            return;
-        }
-        const QString output = clangdProc.allOutput();
-        static const QString versionPrefix = "clangd version ";
-        const int prefixOffset = output.indexOf(versionPrefix);
-        QVersionNumber clangdVersion;
-        if (prefixOffset != -1) {
-            clangdVersion = QVersionNumber::fromString(output.mid(prefixOffset
-                                                                  + versionPrefix.length()));
-        }
+        const QVersionNumber clangdVersion = ClangdSettings::clangdVersion(clangdPath);
         if (clangdVersion.isNull()) {
             labelSetter.setWarning(tr("Failed to retrieve clangd version: "
                                       "Unexpected clangd output."));
             return;
         }
         if (clangdVersion < QVersionNumber(13)) {
-            labelSetter.setWarning(tr("The clangd version is %1, but %2 or greater is "
-                                      "recommended for full functionality.")
+            labelSetter.setWarning(tr("The clangd version is %1, but %2 or greater is required.")
                                    .arg(clangdVersion.toString()).arg(13));
             return;
         }

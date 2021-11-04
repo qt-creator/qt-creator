@@ -10,7 +10,7 @@ Project {
         Depends {
             name: "Qt";
             submodules: [
-                "core-private", "quickwidgets"
+                "core-private", "quickwidgets", "xml", "svg"
             ]
         }
         Depends { name: "AdvancedDockingSystem" }
@@ -482,6 +482,8 @@ Project {
                 "componentcore/zoomaction.h",
                 "componentcore/hdrimage.cpp",
                 "componentcore/hdrimage.h",
+                "componentcore/svgpasteaction.cpp",
+                "componentcore/svgpasteaction.h",
                 "texteditor/texteditorstatusbar.cpp",
                 "texteditor/texteditorstatusbar.h",
                 "componentcore/changestyleaction.cpp",

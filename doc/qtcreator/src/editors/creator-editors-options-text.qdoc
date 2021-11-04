@@ -85,11 +85,34 @@
         The backgound of the \uicontrol Text element determines the background of the
         code editor.
 
+        \li In \uicontrol Font, select \uicontrol Bold or \uicontrol Italic to
+            format the text of the selected code element by making it bold or
+            italic.
+
+        \li In \uicontrol Underline, select the color and style to use for
+            underlining code elements.
+
     \endlist
 
     When you copy code from \QC, it is copied in both plain text and HTML
     format. The latter makes sure that syntax highlighting is preserved when
     pasting to a rich-text editor.
+
+    \section2 Exporting and Importing Color Schemes
+
+    To share color schemes with others, export and import them as XML files.
+    To export a color scheme, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol {Fonts & Color} > \uicontrol Export,
+    and then select the filename and location for the XML file.
+
+    To import a color scheme, select \uicontrol Import, and then select the XML
+    file to import. In the \uicontrol {Import Color Scheme} dialog, enter a name
+    for the color scheme in \uicontrol {Color scheme name}:
+
+    \image qtcreator-import-color-scheme.png "Import Color Scheme dialog"
+
+    When you select \uicontrol OK, the color scheme is added to the list of
+    color schemes in the \uicontrol {Fonts & Color} tab.
 
     \section2 File Encoding
 

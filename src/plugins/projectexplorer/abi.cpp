@@ -111,6 +111,7 @@ static void setupPreregisteredOsFlavors() {
     registerOsFlavor(Abi::WindowsMsvc2015Flavor, "msvc2015", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsMsvc2017Flavor, "msvc2017", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsMsvc2019Flavor, "msvc2019", {Abi::OS::WindowsOS});
+    registerOsFlavor(Abi::WindowsMsvc2022Flavor, "msvc2022", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsMSysFlavor, "msys", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsCEFlavor, "ce", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::VxWorksFlavor, "vxworks", {Abi::OS::VxWorks});
@@ -285,7 +286,9 @@ static Abis parseCoffHeader(const QByteArray &data)
             flavor = Abi::WindowsMsvc2013Flavor;
             break;
         case 14:
-            if (minorLinker >= quint8(20))
+            if (minorLinker >= quint8(30))
+                flavor = Abi::WindowsMsvc2022Flavor;
+            else if (minorLinker >= quint8(20))
                 flavor = Abi::WindowsMsvc2019Flavor;
             else if (minorLinker >= quint8(10))
                 flavor = Abi::WindowsMsvc2017Flavor;
@@ -294,6 +297,9 @@ static Abis parseCoffHeader(const QByteArray &data)
             break;
         case 15:
             flavor = Abi::WindowsMsvc2019Flavor;
+            break;
+        case 16:
+            flavor = Abi::WindowsMsvc2022Flavor;
             break;
         default: // Keep unknown flavor
             if (minorLinker != 0)
@@ -692,9 +698,9 @@ bool Abi::operator == (const Abi &other) const
 
 static bool compatibleMSVCFlavors(const Abi::OSFlavor &left, const Abi ::OSFlavor &right)
 {
-    // MSVC 2019, 2017 and 2015 are compatible
-    return left >= Abi::WindowsMsvc2015Flavor && left <= Abi::WindowsMsvc2019Flavor
-           && right >= Abi::WindowsMsvc2015Flavor && right <= Abi::WindowsMsvc2019Flavor;
+    // MSVC 2022, 2019, 2017 and 2015 are compatible
+    return left >= Abi::WindowsMsvc2015Flavor && left <= Abi::WindowsMsvc2022Flavor
+           && right >= Abi::WindowsMsvc2015Flavor && right <= Abi::WindowsMsvc2022Flavor;
 }
 
 bool Abi::isCompatibleWith(const Abi &other) const
@@ -1091,6 +1097,8 @@ bool Abi::osSupportsFlavor(const Abi::OS &os, const Abi::OSFlavor &flavor)
 
 Abi::OSFlavor Abi::flavorForMsvcVersion(int version)
 {
+    if (version >= 1930)
+        return WindowsMsvc2022Flavor;
     if (version >= 1920)
         return WindowsMsvc2019Flavor;
     if (version >= 1910)

@@ -32,7 +32,6 @@
 #include <QFileInfo>
 #include <QFileInfoList>
 #include <QLoggingCategory>
-#include <QProcess>
 
 static Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe", QtWarningMsg)
 

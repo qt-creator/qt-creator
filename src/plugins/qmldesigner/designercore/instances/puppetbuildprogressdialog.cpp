@@ -26,7 +26,6 @@
 #include "puppetbuildprogressdialog.h"
 #include "ui_puppetbuildprogressdialog.h"
 
-#include <QProcess>
 #include <QtDebug>
 #include <QApplication>
 #include <coreplugin/icore.h>

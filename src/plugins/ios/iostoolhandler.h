@@ -31,7 +31,6 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
-#include <QProcess>
 
 namespace Ios {
 namespace Internal {

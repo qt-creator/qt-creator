@@ -791,6 +791,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
     bool containsDriverMode = false;
     bool skipNext = false;
     bool nextIsTarget = false;
+    bool nextIsGccToolchain = false;
     const QStringList allFlags = m_projectPart.extraCodeModelFlags + m_projectPart.compilerFlags;
     for (const QString &option : allFlags) {
         if (skipNext) {
@@ -800,6 +801,11 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
         if (nextIsTarget) {
             nextIsTarget = false;
             m_explicitTarget = option;
+            continue;
+        }
+        if (nextIsGccToolchain) {
+            nextIsGccToolchain = false;
+            m_compilerFlags.flags.append("--gcc-toolchain=" + option);
             continue;
         }
 
@@ -830,6 +836,11 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
         }
         if (option == "-target") {
             nextIsTarget = true;
+            continue;
+        }
+
+        if (option == "-gcc-toolchain") {
+            nextIsGccToolchain = true;
             continue;
         }
 

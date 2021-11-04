@@ -28,11 +28,10 @@
 #include "utils/qtcprocess.h"
 #include <coreplugin/icore.h>
 
+#include <QCryptographicHash>
 #include <QDir>
 #include <QDirIterator>
 #include <QLoggingCategory>
-#include <QProcess>
-#include <QCryptographicHash>
 #include <QStandardPaths>
 
 using namespace Utils;

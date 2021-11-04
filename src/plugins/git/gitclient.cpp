@@ -2598,7 +2598,7 @@ bool GitClient::tryLauchingGitK(const Environment &env,
         process->start();
         success = process->waitForStarted();
         if (success)
-            connect(process, &QtcProcess::finished, process, &QProcess::deleteLater);
+            connect(process, &QtcProcess::finished, process, &QObject::deleteLater);
         else
             delete process;
     } else {

@@ -249,6 +249,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
+    rewriterView->setAllowComponentRoot(true);
     inputModel->setRewriterView(rewriterView.data());
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {

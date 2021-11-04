@@ -45,10 +45,9 @@
 #include <QDateTime>
 #include <QFutureInterface>
 #include <QFutureWatcher>
-#include <QProcess>
+#include <QTextBlock>
 #include <QThreadPool>
 #include <QTimer>
-#include <QTextBlock>
 
 using namespace Utils;
 

@@ -29,8 +29,6 @@
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
-#include <QProcess>
-
 namespace QtSupport {
 
 class QScxmlcGenerator : public ProjectExplorer::ProcessExtraCompiler
