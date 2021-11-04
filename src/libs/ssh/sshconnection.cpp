@@ -36,6 +36,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QByteArrayList>
 #include <QDir>
@@ -273,9 +274,10 @@ SshConnectionInfo SshConnection::connectionInfo() const
     QTC_ASSERT(state() == Connected, return SshConnectionInfo());
     if (d->connInfo.isValid())
         return d->connInfo;
-    QProcess p;
-    p.start(SshSettings::sshFilePath().toString(), d->connectionArgs(SshSettings::sshFilePath())
-            << "echo" << "-n" << "$SSH_CLIENT");
+    QtcProcess p;
+    const FilePath sshFilePath = SshSettings::sshFilePath();
+    p.setCommand({sshFilePath, d->connectionArgs(sshFilePath) << "echo" << "-n" << "$SSH_CLIENT"});
+    p.start();
     if (!p.waitForStarted() || !p.waitForFinished()) {
         qCWarning(Internal::sshLog) << "failed to retrieve connection info:" << p.errorString();
         return SshConnectionInfo();
