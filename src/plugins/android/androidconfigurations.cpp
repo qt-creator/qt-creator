@@ -68,7 +68,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
@@ -1527,8 +1526,9 @@ FilePath AndroidConfig::getJdkPath()
             args << "-c"
                  << "readlink -f $(which java)";
 
-        QProcess findJdkPathProc;
-        findJdkPathProc.start("sh", args);
+        QtcProcess findJdkPathProc;
+        findJdkPathProc.setCommand({"sh", args});
+        findJdkPathProc.start();
         findJdkPathProc.waitForFinished();
         QByteArray jdkPath = findJdkPathProc.readAllStandardOutput().trimmed();
 
