@@ -141,10 +141,8 @@ QList<CallerHandle::SignalType> CallerHandle::flushFor(CallerHandle::SignalType 
     {
         // 1. If signalType is no signal - flush all
         // 2. Flush all if we have any error
-        // 3. If we are flushing for Finished, flush Started / ReadyRead, too
-        // 4. If we are flushing for ReadyRead, flush Started, too
-        // 5. (?) If we have collected Finished, flush it only when flushing
-        //    for ReadyRead / Finished (not for Started)
+        // 3. If we are flushing for Finished or ReadyRead, flush all, too
+        // 4. If we are flushing for Started, flush Started only
 
         QMutexLocker locker(&m_mutex);
 
@@ -154,6 +152,7 @@ QList<CallerHandle::SignalType> CallerHandle::flushFor(CallerHandle::SignalType 
         });
 
         const bool flushAll = (signalType == CallerHandle::SignalType::NoSignal)
+                           || (signalType == CallerHandle::SignalType::ReadyRead)
                            || (signalType == CallerHandle::SignalType::Finished)
                            || storedSignals.contains(CallerHandle::SignalType::Error);
         if (flushAll) {

@@ -65,6 +65,7 @@ const char kBlockingProcess[] = "QTC_TST_BLOCKING_PROCESS";
 // the recursion, as from the test point of view we meant to execute only our custom code
 // without further execution of the test itself.
 
+const char testProcessData[] = "Test process successfully executed.";
 const char forwardedOutputData[] = "This is the output message.";
 const char forwardedErrorData[] = "This is the error message.";
 const char runBlockingStdOutSubProcessMagicWord[] = "42";
@@ -108,7 +109,7 @@ static void lineCallbackMain()
 
 static void testProcessSubProcessMain()
 {
-    std::cout << "Test process successfully executed." << std::endl;
+    std::cout << testProcessData << std::endl;
     exit(0);
 }
 
@@ -207,6 +208,7 @@ private slots:
     void processChannelForwarding_data();
     void processChannelForwarding();
     void killBlockingProcess();
+    void flushFinishedWhileWaitingForReadyRead();
 
     void cleanupTestCase();
 
@@ -1173,6 +1175,36 @@ void tst_QtcProcess::killBlockingProcess()
     }
 
     QVERIFY(msgHandler.testPassed());
+}
+
+void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
+{
+    Environment env = Environment::systemEnvironment();
+    env.set(kTestProcess, {});
+    QStringList args = QCoreApplication::arguments();
+    const QString binary = args.takeFirst();
+    const CommandLine command(FilePath::fromString(binary), args);
+
+    QtcProcess process;
+    process.setCommand(command);
+    process.setEnvironment(env);
+    process.start();
+
+    QVERIFY(process.waitForStarted());
+    QCOMPARE(process.state(), QProcess::Running);
+
+    QDeadlineTimer timer(1000);
+    QByteArray reply;
+    while (process.state() == QProcess::Running) {
+        process.waitForReadyRead(500);
+        reply += process.readAllStandardOutput();
+        if (timer.hasExpired())
+            break;
+    }
+
+    QCOMPARE(process.state(), QProcess::NotRunning);
+    QVERIFY(!timer.hasExpired());
+    QVERIFY(reply.contains(testProcessData));
 }
 
 QTEST_MAIN(tst_QtcProcess)
