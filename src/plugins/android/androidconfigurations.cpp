@@ -563,6 +563,16 @@ FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocati
                                                         QString(QTC_HOST_EXE_SUFFIX)));
 }
 
+FilePath AndroidConfig::lldbPathFromNdk(const FilePath &ndkLocation) const
+{
+    const FilePath path = ndkLocation.pathAppended(
+        QString("toolchains/llvm/prebuilt/%1/bin/lldb%2").arg(toolchainHostFromNdk(ndkLocation),
+                                              QString(QTC_HOST_EXE_SUFFIX)));
+    if (path.exists())
+        return path;
+    return {};
+}
+
 FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation) const
 {
     return ndkLocation.pathAppended(
@@ -1241,39 +1251,79 @@ static QString getMultiOrSingleAbiString(const QStringList &abis)
     return containsAllAbis(abis) ? "Multi-Abi" : abis.join(",");
 }
 
+static const Debugger::DebuggerItem *existingDebugger(const FilePath &command,
+                                                      Debugger::DebuggerEngineType type)
+{
+    // check if the debugger is already registered, but ignoring the display name
+    const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
+
+    // Return existing debugger with same command
+    if (existing && existing->engineType() == type && existing->isAutoDetected())
+        return existing;
+    return nullptr;
+}
+
 static QVariant findOrRegisterDebugger(ToolChain *tc,
                                        const QStringList &abisList,
                                        bool customDebugger = false)
 {
     const auto &currentConfig = AndroidConfigurations::currentConfig();
     const FilePath ndk = static_cast<AndroidToolChain *>(tc)->ndkLocation();
-    const FilePath command = currentConfig.gdbPathFromNdk(tc->targetAbi(), ndk);
+    const FilePath lldbCommand = currentConfig.lldbPathFromNdk(ndk);
+    const Debugger::DebuggerItem *existingLldb = existingDebugger(lldbCommand,
+                                                                  Debugger::LldbEngineType);
+    // Return existing debugger with same command - prefer lldb (limit to sdk/ndk min version?)
+    if (existingLldb)
+        return existingLldb->id();
+
+    const FilePath gdbCommand = currentConfig.gdbPathFromNdk(tc->targetAbi(), ndk);
 
     // check if the debugger is already registered, but ignoring the display name
-    const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
-
+    const Debugger::DebuggerItem *existingGdb = existingDebugger(gdbCommand,
+                                                                 Debugger::GdbEngineType);
     // Return existing debugger with same command
-    if (existing && existing->engineType() == Debugger::GdbEngineType
-            && existing->isAutoDetected()) {
-        return existing->id();
+    if (existingGdb)
+        return existingGdb->id();
+
+    const QString mainName = AndroidConfigurations::tr("Android Debugger (%1, NDK %2)");
+    const QString custom = customDebugger ? QString{"Custom "} : QString{};
+    // debugger not found, register a new one
+    // check lldb
+    QVariant registeredLldb;
+    if (!lldbCommand.isEmpty()) {
+        Debugger::DebuggerItem debugger;
+        debugger.setCommand(lldbCommand);
+        debugger.setEngineType(Debugger::LldbEngineType);
+        debugger.setUnexpandedDisplayName(custom + mainName
+                .arg(getMultiOrSingleAbiString(allSupportedAbis()))
+                .arg(AndroidConfigurations::currentConfig().ndkVersion(ndk).toString())
+                                          + ' ' + debugger.engineTypeName());
+        debugger.setAutoDetected(true);
+        debugger.reinitializeFromFile();
+        registeredLldb = Debugger::DebuggerItemManager::registerDebugger(debugger);
     }
 
-    // debugger not found, register a new one
+    // we always have a value for gdb (but we shouldn't - we currently use a fallback)
+    if (!gdbCommand.exists()) {
+        if (!registeredLldb.isNull())
+            return registeredLldb;
+        return {};
+    }
+
     Debugger::DebuggerItem debugger;
-    debugger.setCommand(command);
+    debugger.setCommand(gdbCommand);
     debugger.setEngineType(Debugger::GdbEngineType);
 
     // NDK 10 and older have multiple gdb versions per ABI, so check for that.
     const bool oldNdkVersion = currentConfig.ndkVersion(ndk) <= QVersionNumber{11};
-    QString mainName = AndroidConfigurations::tr("Android Debugger (%1, NDK %2)");
-    if (customDebugger)
-        mainName.prepend("Custom ");
-    debugger.setUnexpandedDisplayName(mainName
+    debugger.setUnexpandedDisplayName(custom + mainName
             .arg(getMultiOrSingleAbiString(oldNdkVersion ? abisList : allSupportedAbis()))
-            .arg(AndroidConfigurations::currentConfig().ndkVersion(ndk).toString()));
+            .arg(AndroidConfigurations::currentConfig().ndkVersion(ndk).toString())
+                                      + ' ' + debugger.engineTypeName());
     debugger.setAutoDetected(true);
     debugger.reinitializeFromFile();
-    return Debugger::DebuggerItemManager::registerDebugger(debugger);
+    QVariant registeredGdb = Debugger::DebuggerItemManager::registerDebugger(debugger);
+    return registeredLldb.isNull() ? registeredGdb : registeredLldb;
 }
 
 void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
