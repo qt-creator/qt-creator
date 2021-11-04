@@ -45,6 +45,9 @@
     \uicontrol Design mode:
 
     \image qtcreator-projects-view-design.png "Projects view in the Design mode"
+    \else
+    \image qtcreator-projects-view-edit.png "Projects view in the sidebar"
+    \endif
 
     You can use the project tree in the following ways:
 
@@ -97,23 +100,29 @@
         \li Expand or collapse the tree view to show or hide all files and
             folders.
         \li Close all files in a project.
-        \li Close projects. By default, all files in the project are also
+        \li Close the selected project or all projects except the selected
+            one. By default, all files in the projects are also
             closed. To keep them open, deselect the \uicontrol Tools >
             \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General
             > \uicontrol {Close source files along with project} check box.
     \endlist
 
     For managing files and directories, the same functions are available as in
-    the \l {File System} view.
+    the \l {File System} view. To view a project in it, select
+    \uicontrol {Show in File System View}.
 
-    \section1 Projects View in Sidebar
-    \endif
+    \section1 Projects View Toolbar
 
+    \if defined(qtdesignstudio)
     In the \uicontrol Edit and \uicontrol Debug mode, the \uicontrol Projects
     view is displayed in the \l{Working with Sidebars}{sidebar}. It has a
-    toolbar with additional options:
+    toolbar with additional options.
 
     \image qtcreator-projects-view-edit.png "Projects view in the sidebar"
+    \else
+    The toolbar in the \uicontrol Projects view contains additional options.
+    \endif
+
 
     To filter view contents, select \inlineimage filtericon.png
     (\uicontrol {Filter Tree}):
@@ -141,9 +150,7 @@
     (currently qmake and Qbs). The faithful display of the project structure
     allows to specify exactly where a new file should be placed in the build
     system.
-    \endif
 
-    \if defined(qtcreator)
     If the project is under version control, information from the version
     control system might be displayed in brackets after the project name.
     This is currently implemented for Git (the branch name or a tag is

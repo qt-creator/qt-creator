@@ -38,6 +38,9 @@
     \uicontrol Design mode:
 
     \image qtcreator-filesystem-view-design.png "File System view in the Design mode"
+    \else
+    \image qtcreator-filesystem-view.png "File System view in the sidebar"
+    \endif
 
     To move to the root directory of the file system, select \uicontrol Computer
     in the menu (1). Select \uicontrol Home to move to the user's home
@@ -89,14 +92,19 @@
         \li Collapse all open folders.
     \endlist
 
-    \section1 File System View in Sidebar
-    \endif
+    \section1 File System View Toolbar
 
+    \if defined(qtdesignstudio)
     In the \uicontrol Edit and \uicontrol Debug mode, the
     \uicontrol {File System} view is displayed in the \l{Working with Sidebars}
-    {sidebar}. It has a toolbar with additional options:
+    {sidebar}. It has a toolbar with additional options.
 
     \image qtcreator-filesystem-view.png "File System view in the sidebar"
+    \else
+    The toolbar in the \uicontrol {File System} view contains additional
+    options.
+    \endif
+
 
     To manage view contents, select \inlineimage filtericon.png
     (\uicontrol Options):
