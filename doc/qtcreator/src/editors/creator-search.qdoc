@@ -116,7 +116,8 @@
 
     \section1 Advanced Search
 
-    To search through projects, files on a file system or currently open files:
+    To search through projects, files on a file system, files in all project
+    directories, or currently open files:
 
     \list 1
 
@@ -135,6 +136,9 @@
 
                 \li \uicontrol {Current Project} searches from the project you
                     are currently editing.
+
+                \li \uicontrol {Files in All Project Directories} searches from
+                    all project directories.
 
                 \li \uicontrol {Files in File System} recursively searches from
                     the selected directory.
@@ -205,6 +209,9 @@
 
     To clear the search results, select the \inlineimage clean_pane_small.png
     (\uicontrol Clear) button.
+
+    To expand and collapse the search results, select the
+    \uicontrol {Expand All} button.
 
     To start a new search, select the \inlineimage qtcreator-new-search-icon.png
     (\uicontrol {New Search}) button.
