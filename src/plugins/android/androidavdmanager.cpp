@@ -173,14 +173,14 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     return result;
 }
 
-static void avdProcessFinished(int exitCode, QProcess *p)
+static void avdProcessFinished(int exitCode, QtcProcess *p)
 {
     QTC_ASSERT(p, return);
     if (exitCode) {
         QString title = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
                                                     "AVD Start Error");
         QMessageBox::critical(Core::ICore::dialogParent(), title,
-                              QString::fromLatin1(p->readAll()));
+                              QString::fromLatin1(p->readAllStandardOutput()));
     }
     p->deleteLater();
 }
@@ -293,23 +293,21 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
                               .arg(m_config.emulatorToolPath().toString()));
         return false;
     }
-    auto avdProcess = new QProcess();
+    auto avdProcess = new QtcProcess();
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(avdProcess,
-                     QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                     avdProcess,
-                     std::bind(&avdProcessFinished, std::placeholders::_1, avdProcess));
+    QObject::connect(avdProcess, &QtcProcess::finished, avdProcess,
+                     [avdProcess] { avdProcessFinished(avdProcess->exitCode(), avdProcess); });
 
     // start the emulator
     QStringList arguments;
     if (AndroidConfigurations::force32bitEmulator())
         arguments << "-force-32bit";
 
-    arguments << m_config.emulatorArgs()
-              << "-avd" << avdName;
+    arguments << m_config.emulatorArgs() << "-avd" << avdName;
     qCDebug(avdManagerLog) << "Running command (startAvdAsync):"
                            << CommandLine(m_config.emulatorToolPath(), arguments).toUserOutput();
-    avdProcess->start(m_config.emulatorToolPath().toString(), arguments);
+    avdProcess->setCommand({m_config.emulatorToolPath(), arguments});
+    avdProcess->start();
     if (!avdProcess->waitForStarted(-1)) {
         delete avdProcess;
         return false;
