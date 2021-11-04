@@ -38,6 +38,9 @@
 #include <QPainterPath>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QtMath>
+
+#include <array>
 
 namespace QmlDesigner {
 
@@ -605,7 +608,7 @@ static const std::initializer_list<QStringView> tagAllowList{
 
 // fillOpacity and strokeOpacity aren't actual QML properties, but get mapped anyways
 // for completeness.
-static const std::initializer_list<std::pair<QStringView, QByteArrayView>> mapping{
+static const std::initializer_list<std::pair<QStringView, QString>> mapping{
     {u"fill", "fillColor"},
     {u"stroke", "strokeColor"},
     {u"stroke-width", "strokeWidth"},
@@ -888,7 +891,7 @@ void applyCSSRules(const CSSRule &cssRule, PropertyMap &properties)
     for (const CSSProperty &property : cssRule) {
         const QString directive = property.directive;
         if (auto iter = findKey(mapping, directive); iter != mapping.end()) {
-            const QByteArray directive = iter->second.toByteArray();
+            const QByteArray directive = iter->second.toUtf8();
             properties.insert(directive, convertValue(directive, property.value));
         }
     }
@@ -935,7 +938,7 @@ void flattenTransformsAndStyles(const QDomElement &element,
             if (attributeValue.isEmpty())
                 continue;
 
-            const QByteArray directive = p.second.toByteArray();
+            const QByteArray directive = p.second.toUtf8();
             properties.insert(directive, convertValue(directive, attributeValue));
         }
 
@@ -1080,7 +1083,7 @@ PropertyMap generatePolygonProperties(const QDomElement &e, const CSSRules &cssR
     QPolygonF polygon;
 
     for (int i = 0; i < pointList.length(); i += 2)
-        polygon.emplace_back(pointList[i].toFloat(), pointList[i + 1].toFloat());
+        polygon.push_back({pointList[i].toFloat(), pointList[i + 1].toFloat()});
 
     if (!polygon.isClosed() && polygon.size())
         polygon.push_back(polygon.front());
