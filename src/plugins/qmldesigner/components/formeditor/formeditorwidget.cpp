@@ -246,14 +246,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     };
 
     m_zoomInAction = new QAction(zoomInIcon, tr("Zoom In"), this);
-    m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Plus));
+    m_zoomInAction->setShortcut(QKeySequence(QKeySequence::ZoomIn));
     addAction(m_zoomInAction.data());
     upperActions.append(m_zoomInAction.data());
     m_toolBox->addRightSideAction(m_zoomInAction.data());
     connect(m_zoomInAction.data(), &QAction::triggered, zoomIn);
 
     m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom Out"), this);
-    m_zoomOutAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Minus));
+    m_zoomOutAction->setShortcut(QKeySequence(QKeySequence::ZoomOut));
     addAction(m_zoomOutAction.data());
     upperActions.append(m_zoomOutAction.data());
     m_toolBox->addRightSideAction(m_zoomOutAction.data());
@@ -266,7 +266,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged, setZoomLevel);
 
     m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content."), this);
-    m_zoomAllAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_0));
+    m_zoomAllAction->setShortcut(QKeySequence(tr("Ctrl+Alt+0")));
+
     addAction(m_zoomAllAction.data());
     upperActions.append(m_zoomAllAction.data());
     m_toolBox->addRightSideAction(m_zoomAllAction.data());
@@ -275,7 +276,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_zoomSelectionAction = new QAction(zoomSelectionIcon,
                                         tr("Zoom screen to fit current selection."),
                                         this);
-    m_zoomSelectionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_I));
+    m_zoomSelectionAction->setShortcut(QKeySequence(tr("Ctrl+Alt+i")));
     addAction(m_zoomSelectionAction.data());
     upperActions.append(m_zoomSelectionAction.data());
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
