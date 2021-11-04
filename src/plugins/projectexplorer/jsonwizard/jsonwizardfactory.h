@@ -51,6 +51,7 @@ class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
 public:
     // Add search paths for wizard.json files. All subdirs are going to be checked.
     static void addWizardPath(const Utils::FilePath &path);
+    static void clearWizardPaths();
 
     // actual interface of the wizard factory:
     class Generator {
