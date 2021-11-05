@@ -166,7 +166,7 @@ void AndroidManifestEditorIconWidget::selectIcon()
 {
     FilePath file = FileUtils::getOpenFilePath(this, m_iconSelectionText,
                                                FileUtils::homePath(),
-                                               tr("Images (*.png *.jpg *.webp *.svg)"));
+                                               tr("Images (*.png *.jpg *.jpeg *.webp *.svg)"));
     if (file.isEmpty())
         return;
     setIconFromPath(file);

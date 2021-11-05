@@ -189,7 +189,8 @@ void SplashScreenWidget::selectImage()
 {
     const FilePath file = FileUtils::getOpenFilePath(this, m_imageSelectionText,
                                                      FileUtils::homePath(),
-                                                     QStringLiteral("%1 (*.png *.jpg)").arg(tr("Images")));
+                                                     QStringLiteral("%1 (*.png *.jpg *.jpeg)")
+                                                     .arg(tr("Images")));
     if (file.isEmpty())
         return;
     setImageFromPath(file, false);
