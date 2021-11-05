@@ -782,6 +782,18 @@ public:
     bool m_scrollBarUpdateScheduled = false;
 
     const MultiTextCursor m_cursors;
+    struct BlockSelection
+    {
+        int blockNumber = -1;
+        int column = -1;
+        int anchorBlockNumber = -1;
+        int anchorColumn = -1;
+    };
+    QList<BlockSelection> m_blockSelections;
+    QList<QTextCursor> generateCursorsForBlockSelection(const BlockSelection &blockSelection);
+    void initBlockSelection();
+    void clearBlockSelection();
+    void handleMoveBlockSelection(QTextCursor::MoveOperation op);
 
     class UndoCursor
     {
@@ -1346,6 +1358,81 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
         extraSelections.append(sel);
     }
     q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections);
+}
+
+QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
+    const BlockSelection &blockSelection)
+{
+    const TabSettings tabSettings = m_document->tabSettings();
+
+    QList<QTextCursor> result;
+    QTextBlock block = m_document->document()->findBlockByNumber(blockSelection.anchorBlockNumber);
+    QTextCursor cursor(block);
+    cursor.setPosition(block.position()
+                       + tabSettings.positionAtColumn(block.text(), blockSelection.anchorColumn));
+
+    const bool forward = blockSelection.blockNumber > blockSelection.anchorBlockNumber
+                         || (blockSelection.blockNumber == blockSelection.anchorBlockNumber
+                             && blockSelection.column == blockSelection.anchorColumn);
+
+    while (block.isValid()) {
+        const QString &blockText = block.text();
+        cursor.setPosition(block.position()
+                           + tabSettings.positionAtColumn(blockText, blockSelection.anchorColumn));
+        cursor.setPosition(block.position()
+                               + tabSettings.positionAtColumn(blockText, blockSelection.column),
+                           QTextCursor::KeepAnchor);
+        result.append(cursor);
+        if (block.blockNumber() == blockSelection.blockNumber)
+            break;
+        block = forward ? block.next() : block.previous();
+    }
+    return result;
+}
+
+void TextEditorWidgetPrivate::initBlockSelection()
+{
+    const TabSettings tabSettings = m_document->tabSettings();
+    for (const QTextCursor &cursor : m_cursors) {
+        const int column = tabSettings.columnAtCursorPosition(cursor);
+        QTextCursor anchor = cursor;
+        anchor.setPosition(anchor.anchor());
+        const int anchorColumn = tabSettings.columnAtCursorPosition(anchor);
+        m_blockSelections.append({cursor.blockNumber(), column, anchor.blockNumber(), anchorColumn});
+    }
+}
+
+void TextEditorWidgetPrivate::clearBlockSelection()
+{
+    m_blockSelections.clear();
+}
+
+void TextEditorWidgetPrivate::handleMoveBlockSelection(QTextCursor::MoveOperation op)
+{
+    if (m_blockSelections.isEmpty())
+        initBlockSelection();
+    QList<QTextCursor> cursors;
+    for (BlockSelection &blockSelection : m_blockSelections) {
+        switch (op) {
+        case QTextCursor::Up:
+            blockSelection.blockNumber = qMax(0, blockSelection.blockNumber - 1);
+            break;
+        case QTextCursor::Down:
+            blockSelection.blockNumber = qMin(m_document->document()->blockCount() - 1,
+                                              blockSelection.blockNumber + 1);
+            break;
+        case QTextCursor::NextCharacter:
+            ++blockSelection.column;
+            break;
+        case QTextCursor::PreviousCharacter:
+            blockSelection.column = qMax(0, blockSelection.column - 1);
+            break;
+        default:
+            return;
+        }
+        cursors.append(generateCursorsForBlockSelection(blockSelection));
+    }
+    q->setMultiTextCursor(MultiTextCursor(cursors));
 }
 
 void TextEditorWidget::selectEncoding()
@@ -2181,6 +2268,8 @@ static inline bool isPrintableText(const QString &text)
 
 void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
+    ExecuteOnDestruction eod([&]() { d->clearBlockSelection(); });
+
     if (!isModifier(e) && mouseHidingEnabled())
         viewport()->setCursor(Qt::BlankCursor);
     ToolTip::hide();
@@ -2420,7 +2509,23 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     }
 
     if (ro || !isPrintableText(eventText)) {
-        if (!d->cursorMoveKeyEvent(e)) {
+        QTextCursor::MoveOperation blockSelectionOperation = QTextCursor::NoMove;
+        if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
+            if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToNextLine))
+                blockSelectionOperation = QTextCursor::Down;
+            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToPreviousLine))
+                blockSelectionOperation = QTextCursor::Up;
+            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToNextChar))
+                blockSelectionOperation = QTextCursor::NextCharacter;
+            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToPreviousChar))
+                blockSelectionOperation = QTextCursor::PreviousCharacter;
+        }
+
+        if (blockSelectionOperation != QTextCursor::NoMove) {
+            auto doNothing = [](){};
+            eod.reset(doNothing);
+            d->handleMoveBlockSelection(blockSelectionOperation);
+        } else if (!d->cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
             if (d->m_snippetOverlay->isVisible()
@@ -5134,7 +5239,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
             cursor.addCursor(c);
         }
         cursor.mergeCursors();
-        if (!cursor.isNull() && cursor != multiTextCursor())
+        if (!cursor.isNull())
             setMultiTextCursor(cursor);
     } else {
         if (startMouseMoveCursor.has_value())

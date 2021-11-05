@@ -66,6 +66,7 @@ public:
 
     int lineIndentPosition(const QString &text) const;
     int columnAt(const QString &text, int position) const;
+    int columnAtCursorPosition(const QTextCursor &cursor) const;
     int positionAtColumn(const QString &text, int column, int *offset = nullptr, bool allowOverstep = false) const;
     int columnCountForText(const QString &text, int startColumn = 0) const;
     int indentedColumn(int column, bool doIndent = true) const;

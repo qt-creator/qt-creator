@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 
+#include <QKeySequence>
 #include <QTextCursor>
 
 QT_BEGIN_NAMESPACE
@@ -98,6 +99,8 @@ public:
     const_iterator end() const { return m_cursors.end(); }
     const_iterator constBegin() const { return m_cursors.constBegin(); }
     const_iterator constEnd() const { return m_cursors.constEnd(); }
+
+    static bool multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey);
 
 private:
     QList<QTextCursor> m_cursors;
