@@ -40,16 +40,22 @@ class ChooseFromPropertyListDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ChooseFromPropertyListDialog(const ModelNode &node, TypeName type, QWidget *parent = 0);
     ~ChooseFromPropertyListDialog();
 
     TypeName selectedProperty() const;
 
+    static ChooseFromPropertyListDialog *createIfNeeded(const ModelNode &targetNode,
+                                                        const ModelNode &newNode,
+                                                        QWidget *parent = 0);
+    static ChooseFromPropertyListDialog *createIfNeeded(const ModelNode &targetNode,
+                                                        TypeName type,
+                                                        QWidget *parent = 0);
+
 private:
-    void fillList(const ModelNode &node);
+    explicit ChooseFromPropertyListDialog(const QStringList &propNames, QWidget *parent = 0);
+    void fillList(const QStringList &propNames);
 
     Ui::ChooseFromPropertyListDialog *m_ui;
     TypeName m_selectedProperty;
-    TypeName m_propertyTypeName;
 };
 }
