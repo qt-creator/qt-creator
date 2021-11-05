@@ -38,7 +38,7 @@ namespace GenerateCmake {
 class CheckableStandardItem : public QStandardItem
 {
 public:
-    CheckableStandardItem(const QString &text, bool checked = false);
+    explicit CheckableStandardItem(const QString &text = QString(), bool checked = false);
     bool isChecked() const;
     void setChecked(bool checked);
     int type() const;

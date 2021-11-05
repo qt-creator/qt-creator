@@ -83,7 +83,11 @@ CheckableFileListModel::CheckableFileListModel(const FilePath &rootDir, const Fi
 
 QList<CheckableStandardItem*> CheckableFileListModel::checkedItems() const
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    QList<QStandardItem*> allItems = findItems("*", Qt::MatchWildcard);
+#else
     QList<QStandardItem*> allItems = findItems(".*", Qt::MatchRegularExpression);
+#endif
     QList<CheckableStandardItem*> checkedItems;
     for (QStandardItem *standardItem : allItems) {
         CheckableStandardItem *item = static_cast<CheckableStandardItem*>(standardItem);
