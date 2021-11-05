@@ -209,8 +209,8 @@ void AndroidQmlPreviewWorker::start()
     }
     const bool previewStarted = ensureAvdIsRunning()
                                 && checkAndInstallPreviewApp()
-                                && uploadPreviewArtefacts()
                                 && preparePreviewArtefacts()
+                                && uploadPreviewArtefacts()
                                 && startPreviewApp();
 
     previewStarted ? reportStarted() : reportStopped();
