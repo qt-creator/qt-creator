@@ -25,15 +25,16 @@
 
 #include "server.h"
 
+using namespace Utils;
+
 namespace Nim {
 namespace Suggest {
 
 NimSuggestServer::NimSuggestServer(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &NimSuggestServer::onFinished);
-    connect(&m_process, &QProcess::started, this, &NimSuggestServer::onStarted);
-    connect(&m_process, &QProcess::readyReadStandardOutput, this,
+    connect(&m_process, &QtcProcess::finished, this, &NimSuggestServer::onFinished);
+    connect(&m_process, &QtcProcess::started, this, &NimSuggestServer::onStarted);
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this,
             &NimSuggestServer::onStandardOutputAvailable);
 }
 
@@ -63,14 +64,14 @@ bool NimSuggestServer::start(const QString &executablePath,
     m_port = 0;
     m_executablePath = executablePath;
     m_projectFilePath = projectFilePath;
-    m_process.start(executablePath, {"--epc", m_projectFilePath});
+    m_process.setCommand({FilePath::fromString(executablePath), {"--epc", m_projectFilePath}});
+    m_process.start();
     return true;
 }
 
 void NimSuggestServer::kill()
 {
-    disconnect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-               this, &NimSuggestServer::onFinished);
+    disconnect(&m_process, &QtcProcess::finished, this, &NimSuggestServer::onFinished);
     m_process.kill();
     m_process.waitForFinished();
     clearState();
@@ -103,12 +104,11 @@ void NimSuggestServer::onStandardOutputAvailable()
     }
 }
 
-void NimSuggestServer::onFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void NimSuggestServer::onFinished()
 {
     clearState();
 
-    Q_UNUSED(exitCode)
-    if (exitStatus == QProcess::ExitStatus::CrashExit)
+    if (m_process.exitCode() == QProcess::ExitStatus::CrashExit)
         emit crashed();
     else
         emit finished();

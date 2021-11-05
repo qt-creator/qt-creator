@@ -28,7 +28,8 @@
 #include <QDebug>
 #include <QFile>
 #include <QObject>
-#include <QProcess>
+
+#include <utils/qtcprocess.h>
 
 namespace Nim {
 namespace Suggest {
@@ -39,38 +40,29 @@ class NimSuggestServer : public QObject
 
 public:
     NimSuggestServer(QObject *parent = nullptr);
-
     ~NimSuggestServer();
 
     bool start(const QString &executablePath, const QString &projectFilePath);
-
     void kill();
 
     quint16 port() const;
-
     QString executablePath() const;
-
     QString projectFilePath() const;
 
 signals:
     void started();
-
     void finished();
-
     void crashed();
 
 private:
     void onStarted();
-
     void onStandardOutputAvailable();
-
-    void onFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
+    void onFinished();
     void clearState();
 
     bool m_started = false;
     bool m_portAvailable = false;
-    QProcess m_process;
+    Utils::QtcProcess m_process;
     quint16 m_port = 0;
     QString m_projectFilePath;
     QString m_executablePath;
