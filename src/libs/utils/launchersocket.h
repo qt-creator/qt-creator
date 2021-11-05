@@ -28,6 +28,7 @@
 #include "launcherpackets.h"
 #include "processutils.h"
 
+#include <QDeadlineTimer>
 #include <QHash>
 #include <QMutex>
 #include <QObject>
@@ -213,7 +214,7 @@ public:
 
 private:
     // Called from caller's thread exclusively.
-    bool doWaitForSignal(int msecs, CallerHandle::SignalType newSignal);
+    bool doWaitForSignal(QDeadlineTimer deadline, CallerHandle::SignalType newSignal);
     // Called from launcher's thread exclusively. Call me with mutex locked.
     void wakeUpIfWaitingFor(CallerHandle::SignalType newSignal);
 
