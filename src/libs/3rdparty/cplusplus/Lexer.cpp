@@ -1034,7 +1034,7 @@ void Lexer::scanPreprocessorNumber(Token *tok, bool dotAlreadySkipped)
             yyinp();
             if (_yychar == '+' || _yychar == '-')
                 yyinp();
-        } else if (std::isalnum(_yychar) || _yychar == '_' || _yychar == '.') {
+        } else if (std::isalnum(_yychar) || (_yychar == '\'') || _yychar == '_' || _yychar == '.') {
             yyinp();
         } else {
             scanOptionalUserDefinedLiteral(tok);
