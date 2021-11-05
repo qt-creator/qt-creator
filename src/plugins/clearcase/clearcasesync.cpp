@@ -28,18 +28,48 @@
 
 #include <QDir>
 #include <QFutureInterface>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QStringList>
+
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #ifdef WITH_TESTS
 #include <QTest>
 #include <utils/fileutils.h>
 #endif
 
+using namespace Utils;
+
 namespace ClearCase {
 namespace Internal {
+
+static void runProcess(QFutureInterface<void> &future,
+                       const ClearCaseSettings &settings,
+                       const QStringList &args,
+                       std::function<void(const QString &buffer, int processed)> processLine)
+{
+    const QString viewRoot = ClearCasePlugin::viewData().root;
+    QtcProcess process;
+    process.setWorkingDirectory(viewRoot);
+    process.setCommand({FilePath::fromString(settings.ccBinaryPath), args});
+    process.start();
+    if (!process.waitForStarted())
+        return;
+
+    int processed = 0;
+    QString buffer;
+    while (process.waitForReadyRead() && !future.isCanceled()) {
+        buffer += QString::fromLocal8Bit(process.readAllStandardOutput());
+        while (const int index = buffer.indexOf('\n') != -1) {
+            const QString line = buffer.left(index + 1);
+            processLine(line, ++processed);
+            buffer = buffer.mid(index + 1);
+        }
+    }
+    if (!buffer.isEmpty())
+        processLine(buffer, ++processed);
+}
 
 ClearCaseSync::ClearCaseSync(QSharedPointer<StatusMap> statusMap) :
     m_statusMap(statusMap)
@@ -132,7 +162,6 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
 
     int totalFileCount = files.size();
     const bool hot = (totalFileCount < 10);
-    int processed = 0;
     if (!hot)
         totalFileCount = settings.totalFiles.value(view, totalFileCount);
 
@@ -159,40 +188,20 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
     // adding 1 for initial sync in which total is not accurate, to prevent finishing
     // (we don't want it to become green)
     future.setProgressRange(0, totalFileCount + 1);
-    QProcess process;
-    process.setWorkingDirectory(viewRoot);
 
-    const QString program = settings.ccBinaryPath;
-
-    process.start(program, args);
-    if (!process.waitForStarted())
-        return;
-    QString buffer;
-    while (process.waitForReadyRead() && !future.isCanceled()) {
-        while (process.state() == QProcess::Running &&
-               process.bytesAvailable() && !future.isCanceled())
-        {
-            const QString line = QString::fromLocal8Bit(process.readLine().constData());
-            buffer += line;
-            if (buffer.endsWith(QLatin1Char('\n')) || process.atEnd()) {
-                processCleartoolLsLine(viewRootDir, buffer);
-                buffer.clear();
-                future.setProgressValue(qMin(totalFileCount, ++processed));
-            }
-        }
-    }
+    int totalProcessed = 0;
+    runProcess(future, settings, args, [&](const QString &buffer, int processed) {
+        processCleartoolLsLine(viewRootDir, buffer);
+        future.setProgressValue(qMin(totalFileCount, processed));
+        totalProcessed = processed;
+    });
 
     if (!future.isCanceled()) {
         updateStatusForNotManagedFiles(files);
         future.setProgressValue(totalFileCount + 1);
         if (!hot)
-            updateTotalFilesCount(view, settings, processed);
+            updateTotalFilesCount(view, settings, totalProcessed);
     }
-
-    if (process.state() == QProcess::Running)
-        process.kill();
-
-    process.waitForFinished();
 }
 
 void ClearCaseSync::processCleartoolLscheckoutLine(const QString &buffer)
@@ -210,37 +219,12 @@ void ClearCaseSync::syncDynamicView(QFutureInterface<void> &future,
     // Always invalidate status for all files
     invalidateStatusAllFiles();
 
-    QStringList args({"lscheckout", "-avobs", "-me", "-cview", "-s"});
+    const QStringList args({"lscheckout", "-avobs", "-me", "-cview", "-s"});
 
-    const QString viewRoot = ClearCasePlugin::viewData().root;
-
-    QProcess process;
-    process.setWorkingDirectory(viewRoot);
-
-    const QString program = settings.ccBinaryPath;
-    process.start(program, args);
-    if (!process.waitForStarted())
-        return;
-
-    QString buffer;
-    int processed = 0;
-    while (process.waitForReadyRead() && !future.isCanceled()) {
-        while (process.state() == QProcess::Running &&
-               process.bytesAvailable() && !future.isCanceled()) {
-            const QString line = QString::fromLocal8Bit(process.readLine().constData());
-            buffer += line;
-            if (buffer.endsWith(QLatin1Char('\n')) || process.atEnd()) {
-                processCleartoolLscheckoutLine(buffer);
-                buffer.clear();
-                future.setProgressValue(++processed);
-            }
-        }
-    }
-
-    if (process.state() == QProcess::Running)
-        process.kill();
-
-    process.waitForFinished();
+    runProcess(future, settings, args, [&](const QString &buffer, int processed) {
+        processCleartoolLscheckoutLine(buffer);
+        future.setProgressValue(processed);
+    });
 }
 
 void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
