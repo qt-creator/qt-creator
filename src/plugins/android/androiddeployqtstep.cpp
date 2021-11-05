@@ -168,7 +168,8 @@ bool AndroidDeployQtStep::init()
     if (!info.isValid()) {
         const IDevice *dev = DeviceKitAspect::device(kit()).data();
         if (!dev) {
-            reportWarningOrError(tr("The deployment device \"%1\" is invalid."), Task::Error);
+            reportWarningOrError(tr("The deployment device \"%1\" is invalid.").arg(""),
+                                 Task::Error);
             return false;
         }
 
