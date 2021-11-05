@@ -177,7 +177,7 @@ public:
     QtOptionsPageWidget();
     ~QtOptionsPageWidget();
 
-    static bool linkWithQt();
+    static void linkWithQt();
 
 private:
     void apply() final;
@@ -857,16 +857,7 @@ void QtOptionsPageWidget::setupLinkWithQtButton()
     QString tip;
     canLinkWithQt(&tip);
     m_ui.linkWithQtButton->setToolTip(tip);
-    connect(m_ui.linkWithQtButton, &QPushButton::clicked, this, [this] {
-        if (linkWithQt()) {
-            QWidget *w = window();
-            // close options dialog
-            if (QDialog *dialog = qobject_cast<QDialog *>(w))
-                dialog->accept();
-            else
-                window()->close();
-        }
-    });
+    connect(m_ui.linkWithQtButton, &QPushButton::clicked, this, &QtOptionsPage::linkWithQt);
 }
 
 void QtOptionsPageWidget::updateCurrentQtName()
@@ -959,7 +950,7 @@ static FilePath defaultQtInstallationPath()
     return FileUtils::homePath() / "Qt";
 }
 
-bool QtOptionsPageWidget::linkWithQt()
+void QtOptionsPageWidget::linkWithQt()
 {
     const QString title = tr("Choose Qt Installation");
     const QString restartText = tr("The change will take effect after restart.");
@@ -1028,9 +1019,8 @@ bool QtOptionsPageWidget::linkWithQt()
     }
     if (askForRestart) {
         Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        return restartDialog.exec() == QDialog::Accepted;
+        restartDialog.exec();
     }
-    return false;
 }
 
 // QtOptionsPage

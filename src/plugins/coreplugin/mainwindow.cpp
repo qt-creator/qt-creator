@@ -92,6 +92,7 @@
 #include <QStyleFactory>
 #include <QToolButton>
 #include <QUrl>
+#include <QWindow>
 
 using namespace ExtensionSystem;
 using namespace Utils;
@@ -939,6 +940,20 @@ void MainWindow::setFocusToEditor()
     EditorManagerPrivate::doEscapeKeyFocusMoveMagic();
 }
 
+static void acceptModalDialogs()
+{
+    const QWidgetList topLevels = QApplication::topLevelWidgets();
+    QList<QDialog *> dialogsToClose;
+    for (QWidget *topLevel : topLevels) {
+        if (auto dialog = qobject_cast<QDialog *>(topLevel)) {
+            if (dialog->isModal())
+                dialogsToClose.append(dialog);
+        }
+    }
+    for (QDialog *dialog : dialogsToClose)
+        dialog->accept();
+}
+
 void MainWindow::exit()
 {
     // this function is most likely called from a user action
@@ -946,7 +961,15 @@ void MainWindow::exit()
     // since on close we are going to delete everything
     // so to prevent the deleting of that object we
     // just append it
-    QMetaObject::invokeMethod(this,  &QWidget::close, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(
+        this,
+        [this] {
+            // Modal dialogs block the close event. So close them, in case this was triggered from
+            // a RestartDialog in the settings dialog.
+            acceptModalDialogs();
+            close();
+        },
+        Qt::QueuedConnection);
 }
 
 void MainWindow::openFileWith()
