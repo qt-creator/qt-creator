@@ -160,6 +160,11 @@ const EditorTypeList EditorType::allEditorTypes()
     return g_editorTypes;
 }
 
+EditorType *EditorType::editorTypeForId(const Utils::Id &id)
+{
+    return Utils::findOrDefault(allEditorTypes(), Utils::equal(&EditorType::id, id));
+}
+
 /*!
     Returns all available internal and external editors for the \a mimeType in the
     default order: Editor types ordered by MIME type hierarchy, internal editors
@@ -178,6 +183,35 @@ const EditorTypeList EditorType::defaultEditorTypes(const MimeType &mimeType)
     Internal::mimeTypeFactoryLookup(mimeType, allEditorFactories, &result);
     Internal::mimeTypeFactoryLookup(mimeType, allExternalEditors, &result);
     return result;
+}
+
+const EditorTypeList EditorType::preferredEditorTypes(const FilePath &filePath)
+{
+    // default factories by mime type
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
+    EditorTypeList factories = defaultEditorTypes(mimeType);
+    // user preferred factory to front
+    EditorType *userPreferred = Internal::userPreferredEditorTypes().value(mimeType);
+    if (userPreferred) {
+        factories.removeAll(userPreferred);
+        factories.prepend(userPreferred);
+    }
+    // make binary editor first internal editor for text files > 48 MB
+    if (filePath.fileSize() > EditorManager::maxTextFileSize() && mimeType.inherits("text/plain")) {
+        const Utils::MimeType binary = Utils::mimeTypeForName("application/octet-stream");
+        const EditorTypeList binaryEditors = defaultEditorTypes(binary);
+        if (!binaryEditors.isEmpty()) {
+            EditorType *binaryEditor = binaryEditors.first();
+            factories.removeAll(binaryEditor);
+            int insertionIndex = 0;
+            while (factories.size() > insertionIndex
+                   && factories.at(insertionIndex)->asExternalEditor() != nullptr) {
+                ++insertionIndex;
+            }
+            factories.insert(insertionIndex, binaryEditor);
+        }
+    }
+    return factories;
 }
 
 /*!

@@ -1155,23 +1155,13 @@ Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bo
     // Collect editors that can open the file
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
-    QList<Id> externalEditorIds;
     // Built-in
-    const EditorFactoryList editors = IEditorFactory::preferredEditorFactories(fileName);
+    const EditorTypeList editors = EditorType::preferredEditorTypes(fileName);
     const int size = editors.size();
     allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
         allEditorIds.push_back(editors.at(i)->id());
         allEditorDisplayNames.push_back(editors.at(i)->displayName());
-    }
-    // External editors
-    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
-    const ExternalEditorList exEditors = IExternalEditor::externalEditors(mt);
-    const int esize = exEditors.size();
-    for (int i = 0; i < esize; i++) {
-        externalEditorIds.push_back(exEditors.at(i)->id());
-        allEditorIds.push_back(exEditors.at(i)->id());
-        allEditorDisplayNames.push_back(exEditors.at(i)->displayName());
     }
     if (allEditorIds.empty())
         return Id();
@@ -1183,8 +1173,10 @@ Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bo
     if (dialog.exec() != QDialog::Accepted)
         return Id();
     const Id selectedId = allEditorIds.at(dialog.editor());
-    if (isExternalEditor)
-        *isExternalEditor = externalEditorIds.contains(selectedId);
+    if (isExternalEditor) {
+        EditorType *type = EditorType::editorTypeForId(selectedId);
+        *isExternalEditor = type && type->asExternalEditor() != nullptr;
+    }
     return selectedId;
 }
 
@@ -2899,38 +2891,33 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
 */
 void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
 {
-    using EditorFactoryList = QList<IEditorFactory*>;
-    using ExternalEditorList = QList<IExternalEditor*>;
-
     menu->clear();
 
-    const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(filePath);
-    const MimeType mt = Utils::mimeTypeForFile(filePath);
-    const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
-    const bool anyMatches = !factories.empty() || !extEditors.empty();
+    const EditorTypeList factories = IEditorFactory::preferredEditorTypes(filePath);
+    const bool anyMatches = !factories.empty();
     if (anyMatches) {
         // Add all suitable editors
-        for (IEditorFactory *editorFactory : factories) {
-            Id editorId = editorFactory->id();
+        for (EditorType *editorType : factories) {
+            const Id editorId = editorType->id();
             // Add action to open with this very editor factory
-            QString const actionTitle = editorFactory->displayName();
+            QString const actionTitle = editorType->displayName();
             QAction *action = menu->addAction(actionTitle);
             // Below we need QueuedConnection because otherwise, if a qrc file
             // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
             // crashes happen, because the editor instance is deleted by openEditorWith
             // while the menu is still being processed.
-            connect(action, &QAction::triggered, d,
-                    [filePath, editorId]() {
+            connect(
+                action,
+                &QAction::triggered,
+                d,
+                [filePath, editorId]() {
+                    EditorType *type = EditorType::editorTypeForId(editorId);
+                    if (type && type->asExternalEditor())
+                        EditorManager::openExternalEditor(filePath, editorId);
+                    else
                         EditorManagerPrivate::openEditorWith(filePath, editorId);
-                    }, Qt::QueuedConnection);
-        }
-        // Add all suitable external editors
-        for (IExternalEditor *externalEditor : extEditors) {
-            QAction *action = menu->addAction(externalEditor->displayName());
-            Utils::Id editorId = externalEditor->id();
-            connect(action, &QAction::triggered, [filePath, editorId] {
-                EditorManager::openExternalEditor(filePath, editorId);
-            });
+                },
+                Qt::QueuedConnection);
         }
     }
     menu->setEnabled(anyMatches);

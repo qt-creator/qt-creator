@@ -54,7 +54,9 @@ public:
     ~EditorType() override;
 
     static const EditorTypeList allEditorTypes();
+    static EditorType *editorTypeForId(const Utils::Id &id);
     static const EditorTypeList defaultEditorTypes(const Utils::MimeType &mimeType);
+    static const EditorTypeList preferredEditorTypes(const Utils::FilePath &filePath);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
