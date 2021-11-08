@@ -421,10 +421,13 @@ QTextCursor BaseTextFind::findOne(const QRegularExpression &expr,
     QTextCursor found = document()->find(expr, from, options);
     while (!found.isNull() && !inScope(found)) {
         if (!found.hasSelection()) {
-            from = found;
-            found.movePosition(options & QTextDocument::FindBackward
-                                   ? QTextCursor::PreviousCharacter
-                                   : QTextCursor::NextCharacter);
+            if (found.movePosition(options & QTextDocument::FindBackward
+                                       ? QTextCursor::PreviousCharacter
+                                       : QTextCursor::NextCharacter)) {
+                from = found;
+            } else {
+                return {};
+            }
         } else {
             from.setPosition(options & QTextDocument::FindBackward ? found.selectionStart()
                                                                    : found.selectionEnd());
