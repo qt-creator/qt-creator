@@ -200,12 +200,7 @@
 
     To create an arc with an outline, select the \uicontrol {Full outline}
     check box. The \uicontrol {Outline width} field sets the width of
-    the arc outline, including the stroke. The \uicontrol {Outline start}
-    and \uicontrol {Outline end} fields set the width of the start and
-    end points of the outline separately. The width of the outline between
-    them is calculated automatically. You can adjust the inner and outer
-    curves of the outline in the \uicontrol {Inner radius} and
-    \uicontrol {Outer radius} fields.
+    the arc outline, including the stroke.
 
     The \uicontrol {Round outline}, \uicontrol {Round start}, and
     \uicontrol {Round end} properties specify whether the end points of the
