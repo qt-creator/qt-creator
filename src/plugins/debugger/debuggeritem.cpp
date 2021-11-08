@@ -144,8 +144,6 @@ void DebuggerItem::createId()
 
 void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *error)
 {
-    const bool isAndroid = m_command.path().contains("/ndk/")
-            || m_command.path().contains("/ndk-bundle/");
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
     // except for the experimental LLDB-MI which insists on --version.
@@ -167,10 +165,12 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         return;
     }
 
+    Environment env = sysEnv.size() == 0 ? Environment::systemEnvironment() : sysEnv;
     // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
     // python but does not contain a python dll.
+    const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
     if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")
-            && !isAndroid) {
+            && !isAndroidNdkLldb) {
         QString errorMessage;
         m_version = winGetDLLVersion(WinDLLFileVersion,
                                      m_command.absoluteFilePath().path(),
@@ -178,16 +178,6 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
         return;
-    }
-
-    Environment env = sysEnv.toProcessEnvironment().isEmpty() ? Environment::systemEnvironment()
-                                                              : sysEnv;
-    if (isAndroid && m_command.fileName().startsWith("lldb")) {
-        FilePath pythonPath = m_command.parentDir().parentDir().pathAppended("python3");
-        if (HostOsInfo::isAnyUnixHost())
-            pythonPath = pythonPath.pathAppended("bin");
-        if (pythonPath.exists())
-            env.prependOrSetPath(pythonPath.toUserOutput());
     }
 
     QtcProcess proc;
@@ -273,6 +263,22 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
     if (error)
         *error = output;
     m_engineType = NoEngineType;
+}
+
+bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env)
+{
+    if (lldbCmd.baseName().contains("lldb") &&
+            (lldbCmd.path().contains("/ndk/") || lldbCmd.path().contains("/ndk-bundle/"))) {
+        const FilePath pythonDir = lldbCmd.parentDir().parentDir().pathAppended("python3");
+        const FilePath pythonBinDir =
+                HostOsInfo::isAnyUnixHost() ? pythonDir.pathAppended("bin") : pythonDir;
+        if (pythonBinDir.exists()) {
+            env.set("PYTHONHOME", pythonDir.path());
+            env.prependOrSetPath(pythonBinDir.path());
+            return true;
+        }
+    }
+    return false;
 }
 
 QString DebuggerItem::engineTypeName() const
