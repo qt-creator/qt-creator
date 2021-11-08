@@ -144,6 +144,8 @@ void DebuggerItem::createId()
 
 void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *error)
 {
+    const bool isAndroid = m_command.path().contains("/ndk/")
+            || m_command.path().contains("/ndk-bundle/");
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
     // except for the experimental LLDB-MI which insists on --version.
@@ -167,7 +169,8 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
 
     // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
     // python but does not contain a python dll.
-    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")) {
+    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")
+            && !isAndroid) {
         QString errorMessage;
         m_version = winGetDLLVersion(WinDLLFileVersion,
                                      m_command.absoluteFilePath().path(),
@@ -177,8 +180,18 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         return;
     }
 
+    Environment env = sysEnv.toProcessEnvironment().isEmpty() ? Environment::systemEnvironment()
+                                                              : sysEnv;
+    if (isAndroid && m_command.fileName().startsWith("lldb")) {
+        FilePath pythonPath = m_command.parentDir().parentDir().pathAppended("python3");
+        if (HostOsInfo::isAnyUnixHost())
+            pythonPath = pythonPath.pathAppended("bin");
+        if (pythonPath.exists())
+            env.prependOrSetPath(pythonPath.toUserOutput());
+    }
+
     QtcProcess proc;
-    proc.setEnvironment(sysEnv);
+    proc.setEnvironment(env);
     proc.setCommand({m_command, {version}});
     proc.runBlocking();
     const QString output = proc.allOutput().trimmed();
