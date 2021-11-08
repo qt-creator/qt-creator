@@ -204,6 +204,18 @@ static QString adapterStartFailed()
     return LldbEngine::tr("Adapter start failed.");
 }
 
+static void addAndroidPythonDir(const FilePath &lldbCmd, Environment &env)
+{
+    if (!lldbCmd.path().contains("/ndk/") && !lldbCmd.path().contains("/ndk-bundle/"))
+        return;
+
+    FilePath androidPythonDir = lldbCmd.parentDir().parentDir().pathAppended("python3");
+    if (HostOsInfo::isAnyUnixHost())
+        androidPythonDir = androidPythonDir.pathAppended("bin");
+    if (androidPythonDir.exists())
+        env.prependOrSetPath(androidPythonDir.path());
+}
+
 void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -213,13 +225,7 @@ void LldbEngine::setupEngine()
     showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
     Environment environment = runParameters().debugger.environment;
     environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
-    if (lldbCmd.path().contains("/ndk-bundle/")) {
-        FilePath androidPythonDir = lldbCmd.parentDir().parentDir().pathAppended("python3");
-        if (HostOsInfo::isAnyUnixHost())
-            androidPythonDir = androidPythonDir.pathAppended("bin");
-        if (androidPythonDir.exists())
-            environment.prependOrSetPath(androidPythonDir.path());
-    }
+    addAndroidPythonDir(lldbCmd, environment);
     m_lldbProc.setEnvironment(environment);
 
     if (runParameters().debugger.workingDirectory.isDir())
