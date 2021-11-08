@@ -286,13 +286,17 @@ BuildManager *BuildManager::instance()
 void BuildManager::extensionsInitialized()
 {
     TaskHub::addCategory(Constants::TASK_CATEGORY_COMPILE,
-                         tr("Compile", "Category for compiler issues listed under 'Issues'"));
+                         tr("Compile", "Category for compiler issues listed under 'Issues'"),
+                         true, 100);
     TaskHub::addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM,
-                         tr("Build System", "Category for build system issues listed under 'Issues'"));
+                         tr("Build System", "Category for build system issues listed under 'Issues'"),
+                         true, 100);
     TaskHub::addCategory(Constants::TASK_CATEGORY_DEPLOYMENT,
-                         tr("Deployment", "Category for deployment issues listed under 'Issues'"));
+                         tr("Deployment", "Category for deployment issues listed under 'Issues'"),
+                         true, 100);
     TaskHub::addCategory(Constants::TASK_CATEGORY_AUTOTEST,
-                         tr("Autotests", "Category for autotest issues listed under 'Issues'"));
+                         tr("Autotests", "Category for autotest issues listed under 'Issues'"),
+                         true, 100);
 }
 
 void BuildManager::buildProjectWithoutDependencies(Project *project)

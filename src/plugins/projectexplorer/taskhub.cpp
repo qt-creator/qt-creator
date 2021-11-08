@@ -64,7 +64,7 @@ class TaskMark : public TextEditor::TextMark
 public:
     TaskMark(const Task &task) :
         TextMark(task.file, task.line, categoryForType(task.type)),
-        m_id(task.taskId)
+        m_task(task)
     {
         setColor(task.type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
                                           : Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
@@ -90,24 +90,24 @@ public:
     void updateLineNumber(int lineNumber) override;
     void removedFromEditor() override;
 private:
-    unsigned int m_id;
+    const Task m_task;
 };
 
 void TaskMark::updateLineNumber(int lineNumber)
 {
-    TaskHub::updateTaskLineNumber(m_id, lineNumber);
+    TaskHub::updateTaskLineNumber(m_task, lineNumber);
     TextMark::updateLineNumber(lineNumber);
 }
 
 void TaskMark::updateFileName(const FilePath &fileName)
 {
-    TaskHub::updateTaskFileName(m_id, fileName.toString());
+    TaskHub::updateTaskFileName(m_task, fileName.toString());
     TextMark::updateFileName(FilePath::fromString(fileName.toString()));
 }
 
 void TaskMark::removedFromEditor()
 {
-    TaskHub::updateTaskLineNumber(m_id, -1);
+    TaskHub::updateTaskLineNumber(m_task, -1);
 }
 
 bool TaskMark::isClickable() const
@@ -117,7 +117,7 @@ bool TaskMark::isClickable() const
 
 void TaskMark::clicked()
 {
-    TaskHub::taskMarkClicked(m_id);
+    TaskHub::taskMarkClicked(m_task);
 }
 
 TaskHub::TaskHub()
@@ -132,12 +132,13 @@ TaskHub::~TaskHub()
     m_instance = nullptr;
 }
 
-void TaskHub::addCategory(Utils::Id categoryId, const QString &displayName, bool visible)
+void TaskHub::addCategory(Utils::Id categoryId, const QString &displayName, bool visible,
+                          int priority)
 {
     QTC_CHECK(!displayName.isEmpty());
     QTC_ASSERT(!m_registeredCategories.contains(categoryId), return);
     m_registeredCategories.push_back(categoryId);
-    emit m_instance->categoryAdded(categoryId, displayName, visible);
+    emit m_instance->categoryAdded(categoryId, displayName, visible, priority);
 }
 
 TaskHub *TaskHub::instance()
@@ -178,24 +179,24 @@ void TaskHub::removeTask(const Task &task)
     emit m_instance->taskRemoved(task);
 }
 
-void TaskHub::updateTaskFileName(unsigned int id, const QString &fileName)
+void TaskHub::updateTaskFileName(const Task &task, const QString &fileName)
 {
-    emit m_instance->taskFileNameUpdated(id, fileName);
+    emit m_instance->taskFileNameUpdated(task, fileName);
 }
 
-void TaskHub::updateTaskLineNumber(unsigned int id, int line)
+void TaskHub::updateTaskLineNumber(const Task &task, int line)
 {
-    emit m_instance->taskLineNumberUpdated(id, line);
+    emit m_instance->taskLineNumberUpdated(task, line);
 }
 
-void TaskHub::taskMarkClicked(unsigned int id)
+void TaskHub::taskMarkClicked(const Task &task)
 {
-    emit m_instance->showTask(id);
+    emit m_instance->showTask(task);
 }
 
-void TaskHub::showTaskInEditor(unsigned int id)
+void TaskHub::showTaskInEditor(const Task &task)
 {
-    emit m_instance->openTask(id);
+    emit m_instance->openTask(task);
 }
 
 void TaskHub::setCategoryVisibility(Utils::Id categoryId, bool visible)

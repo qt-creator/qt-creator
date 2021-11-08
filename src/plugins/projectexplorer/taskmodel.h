@@ -52,14 +52,14 @@ public:
 
     QList<Utils::Id> categoryIds() const;
     QString categoryDisplayName(Utils::Id categoryId) const;
-    void addCategory(Utils::Id categoryId, const QString &categoryName);
+    void addCategory(Utils::Id categoryId, const QString &categoryName, int priority);
 
     Tasks tasks(Utils::Id categoryId = Utils::Id()) const;
     void addTask(const Task &t);
     void removeTask(unsigned int id);
     void clearTasks(Utils::Id categoryId = Utils::Id());
-    void updateTaskFileName(unsigned int id, const QString &fileName);
-    void updateTaskLineNumber(unsigned int id, int line);
+    void updateTaskFileName(const Task &task, const QString &fileName);
+    void updateTaskLineNumber(const Task &task, int line);
 
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
@@ -74,8 +74,9 @@ public:
 
     bool hasFile(const QModelIndex &index) const;
 
-    int rowForId(unsigned int id);
+    int rowForTask(const Task &task);
 private:
+    bool compareTasks(const Task &t1, const Task &t2);
 
     class CategoryData
     {
@@ -105,6 +106,7 @@ private:
         }
 
         QString displayName;
+        int priority = 0;
         int count = 0;
         int warnings = 0;
         int errors = 0;

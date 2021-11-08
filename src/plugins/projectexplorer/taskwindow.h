@@ -82,13 +82,13 @@ signals:
 private:
     void updateFilter() override;
 
-    void addCategory(Utils::Id categoryId, const QString &displayName, bool visible);
+    void addCategory(Utils::Id categoryId, const QString &displayName, bool visible, int priority);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
-    void updatedTaskFileName(unsigned int id, const QString &fileName);
-    void updatedTaskLineNumber(unsigned int id, int line);
-    void showTask(unsigned int id);
-    void openTask(unsigned int id);
+    void updatedTaskFileName(const Task &task, const QString &fileName);
+    void updatedTaskLineNumber(const Task &task, int line);
+    void showTask(const Task &task);
+    void openTask(const Task &task);
     void clearTasks(Utils::Id categoryId);
     void setCategoryVisibility(Utils::Id categoryId, bool visible);
     void currentChanged(const QModelIndex &index);

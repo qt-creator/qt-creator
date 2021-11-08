@@ -507,9 +507,10 @@ void TaskWindow::visibilityChanged(bool visible)
         delayedInitialization();
 }
 
-void TaskWindow::addCategory(Utils::Id categoryId, const QString &displayName, bool visible)
+void TaskWindow::addCategory(Utils::Id categoryId, const QString &displayName, bool visible,
+                             int priority)
 {
-    d->m_model->addCategory(categoryId, displayName);
+    d->m_model->addCategory(categoryId, displayName, priority);
     if (!visible) {
         QList<Utils::Id> filters = d->m_filter->filteredCategories();
         filters += categoryId;
@@ -540,30 +541,30 @@ void TaskWindow::removeTask(const Task &task)
     navigateStateChanged();
 }
 
-void TaskWindow::updatedTaskFileName(unsigned int id, const QString &fileName)
+void TaskWindow::updatedTaskFileName(const Task &task, const QString &fileName)
 {
-    d->m_model->updateTaskFileName(id, fileName);
+    d->m_model->updateTaskFileName(task, fileName);
     emit tasksChanged();
 }
 
-void TaskWindow::updatedTaskLineNumber(unsigned int id, int line)
+void TaskWindow::updatedTaskLineNumber(const Task &task, int line)
 {
-    d->m_model->updateTaskLineNumber(id, line);
+    d->m_model->updateTaskLineNumber(task, line);
     emit tasksChanged();
 }
 
-void TaskWindow::showTask(unsigned int id)
+void TaskWindow::showTask(const Task &task)
 {
-    int sourceRow = d->m_model->rowForId(id);
+    int sourceRow = d->m_model->rowForTask(task);
     QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
     QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
     d->m_listview->setCurrentIndex(filterIdx);
     popup(Core::IOutputPane::ModeSwitch);
 }
 
-void TaskWindow::openTask(unsigned int id)
+void TaskWindow::openTask(const Task &task)
 {
-    int sourceRow = d->m_model->rowForId(id);
+    int sourceRow = d->m_model->rowForTask(task);
     QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
     QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
     triggerDefaultHandler(filterIdx);
@@ -583,7 +584,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         const Utils::FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates);
         if (!userChoice.isEmpty()) {
             task.file = userChoice;
-            updatedTaskFileName(task.taskId, task.file.toString());
+            updatedTaskFileName(task, task.file.toString());
         }
     }
 

@@ -35,6 +35,9 @@
 #include <QFontMetrics>
 
 #include <algorithm>
+#include <functional>
+
+using namespace std::placeholders;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -78,11 +81,12 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     return !m_tasks.at(row).file.isEmpty();
 }
 
-void TaskModel::addCategory(Utils::Id categoryId, const QString &categoryName)
+void TaskModel::addCategory(Utils::Id categoryId, const QString &categoryName, int priority)
 {
     QTC_ASSERT(categoryId.isValid(), return);
     CategoryData data;
     data.displayName = categoryName;
+    data.priority = priority;
     m_categories.insert(categoryId, data);
 }
 
@@ -99,9 +103,20 @@ Tasks TaskModel::tasks(Utils::Id categoryId) const
     return taskList;
 }
 
-bool sortById(const Task &task, unsigned int id)
+bool TaskModel::compareTasks(const Task &task1, const Task &task2)
 {
-    return task.taskId < id;
+    if (task1.category == task2.category)
+        return task1.taskId < task2.taskId;
+
+    // Higher-priority task should appear higher up in the view and thus compare less-than.
+    const int prio1 = m_categories.value(task1.category).priority;
+    const int prio2 = m_categories.value(task2.category).priority;
+    if (prio1 < prio2)
+        return false;
+    if (prio1 > prio2)
+        return true;
+
+    return task1.taskId < task2.taskId;
 }
 
 void TaskModel::addTask(const Task &task)
@@ -110,7 +125,8 @@ void TaskModel::addTask(const Task &task)
     CategoryData &data = m_categories[task.category];
     CategoryData &global = m_categories[Utils::Id()];
 
-    auto it = std::lower_bound(m_tasks.begin(), m_tasks.end(),task.taskId, sortById);
+    auto it = std::lower_bound(m_tasks.begin(), m_tasks.end(), task,
+                               std::bind(&TaskModel::compareTasks, this,  _1, task));
     int i = it - m_tasks.begin();
     beginInsertRows(QModelIndex(), i, i);
     m_tasks.insert(it, task);
@@ -134,30 +150,31 @@ void TaskModel::removeTask(unsigned int id)
     }
 }
 
-int TaskModel::rowForId(unsigned int id)
+int TaskModel::rowForTask(const Task &task)
 {
-    auto it = std::lower_bound(m_tasks.constBegin(), m_tasks.constEnd(), id, sortById);
+    auto it = std::lower_bound(m_tasks.constBegin(), m_tasks.constEnd(), task,
+                               std::bind(&TaskModel::compareTasks, this, _1, task));
     if (it == m_tasks.constEnd())
         return -1;
     return it - m_tasks.constBegin();
 }
 
-void TaskModel::updateTaskFileName(unsigned int id, const QString &fileName)
+void TaskModel::updateTaskFileName(const Task &task, const QString &fileName)
 {
-    int i = rowForId(id);
+    int i = rowForTask(task);
     QTC_ASSERT(i != -1, return);
-    if (m_tasks.at(i).taskId == id) {
+    if (m_tasks.at(i).taskId == task.taskId) {
         m_tasks[i].file = Utils::FilePath::fromString(fileName);
         const QModelIndex itemIndex = index(i, 0);
         emit dataChanged(itemIndex, itemIndex);
     }
 }
 
-void TaskModel::updateTaskLineNumber(unsigned int id, int line)
+void TaskModel::updateTaskLineNumber(const Task &task, int line)
 {
-    int i = rowForId(id);
+    int i = rowForTask(task);
     QTC_ASSERT(i != -1, return);
-    if (m_tasks.at(i).taskId == id) {
+    if (m_tasks.at(i).taskId == task.taskId) {
         m_tasks[i].movedLine = line;
         const QModelIndex itemIndex = index(i, 0);
         emit dataChanged(itemIndex, itemIndex);
