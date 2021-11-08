@@ -57,18 +57,19 @@
     a \c CMakeLists.txt configuration file in a project. Project information is
     also automatically refreshed when you build the project.
 
-    The \uicontrol {File System} section in the sidebar \uicontrol Projects view
-    displays information from the file system. \QC cannot determine whether the
-    files are part of the project. For example, header files that \QC finds in
-    the project directories but that are not mentioned in the CMakeLists.txt
-    files are listed here.
+    \image qtcreator-projects-view-edit.png "CMake project in Projects view"
 
-    \image qtcreator-projects-view-cmake.png "File System section in Projects view"
+    If \QC cannot load the CMake project, the \l Projects view shows a
+    \uicontrol {<File System>} project node to avoid scanning the file
+    system and load the project faster. The node shows the same files
+    as the \l {File System} view. Select \uicontrol Build >
+    \uicontrol {Clear CMake Configuration}, and then select \uicontrol Build
+    > \uicontrol {Run CMake} to reconfigure the project.
 
     \section1 Adding CMake Tools
 
     \QC requires CMake's \l{https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
-    {file-based API}.  Please make sure to use CMake version 3.14, or later.
+    {file-based API}, and therefore you'll need CMake version 3.14, or later.
 
     To view and specify settings for CMake:
 
@@ -143,6 +144,8 @@
         \li Matching parentheses and quotes
 
     \endlist
+
+    Warnings and errors are displayed in the \l {Issues} output pane.
 
    \section1 Adding External Libraries to CMake Projects
 
