@@ -1393,7 +1393,8 @@ void NodeInstanceServer::setTranslationLanguage(const QString &language)
     engine()->setUiLanguage(language);
 #endif
     static QPointer<MultiLanguage::Translator> multilanguageTranslator;
-    if (!MultiLanguage::databaseFilePath().isEmpty()) {
+    if (!MultiLanguage::databaseFilePath().isEmpty()
+        && QFileInfo::exists(QString::fromUtf8(MultiLanguage::databaseFilePath()))) {
         if (!multilanguageLink) {
             multilanguageLink = std::make_unique<MultiLanguage::Link>();
             multilanguageTranslator = multilanguageLink->translator().release();
