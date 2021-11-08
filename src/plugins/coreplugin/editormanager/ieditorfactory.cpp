@@ -241,18 +241,6 @@ const EditorFactoryList IEditorFactory::allEditorFactories()
 }
 
 /*!
-    Returns all available editor factories for the \a mimeType in the default
-    order (editor types ordered by MIME type hierarchy).
-*/
-const EditorFactoryList IEditorFactory::defaultEditorFactories(const Utils::MimeType &mimeType)
-{
-    EditorFactoryList rc;
-    const EditorFactoryList allFactories = IEditorFactory::allEditorFactories();
-    Internal::mimeTypeFactoryLookup(mimeType, allFactories, &rc);
-    return rc;
-}
-
-/*!
     Returns the available editor factories for \a filePath in order of
     preference. That is the default order for the document's MIME type but with
     a user overridden default editor first, and the binary editor as the very
@@ -260,6 +248,14 @@ const EditorFactoryList IEditorFactory::defaultEditorFactories(const Utils::Mime
 */
 const EditorFactoryList IEditorFactory::preferredEditorFactories(const FilePath &filePath)
 {
+    const auto defaultEditorFactories = [](const MimeType &mimeType) {
+        const EditorTypeList types = defaultEditorTypes(mimeType);
+        const EditorTypeList ieditorTypes = Utils::filtered(types, [](EditorType *type) {
+            return type->asEditorFactory() != nullptr;
+        });
+        return Utils::qobject_container_cast<IEditorFactory *>(ieditorTypes);
+    };
+
     // default factories by mime type
     const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
     EditorFactoryList factories = defaultEditorFactories(mimeType);

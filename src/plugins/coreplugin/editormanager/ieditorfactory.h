@@ -87,7 +87,6 @@ public:
     ~IEditorFactory() override;
 
     static const EditorFactoryList allEditorFactories();
-    static const EditorFactoryList defaultEditorFactories(const Utils::MimeType &mimeType);
     static const EditorFactoryList preferredEditorFactories(const Utils::FilePath &filePath);
 
     IEditor *createEditor() const;
