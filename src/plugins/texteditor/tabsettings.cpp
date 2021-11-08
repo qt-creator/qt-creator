@@ -204,6 +204,11 @@ int TabSettings::columnAt(const QString &text, int position) const
     return column;
 }
 
+int TabSettings::columnAtCursorPosition(const QTextCursor &cursor) const
+{
+    return columnAt(cursor.block().text(), cursor.positionInBlock());
+}
+
 int TabSettings::positionAtColumn(const QString &text, int column, int *offset, bool allowOverstep) const
 {
     int col = 0;

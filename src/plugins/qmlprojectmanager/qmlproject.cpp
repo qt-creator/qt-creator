@@ -347,11 +347,23 @@ QStringList QmlBuildSystem::supportedLanguages() const
     return {};
 }
 
+void QmlBuildSystem::setSupportedLanguages(QStringList languages)
+{
+    if (m_projectItem)
+        m_projectItem.data()->setSupportedLanguages(languages);
+}
+
 QString QmlBuildSystem::primaryLanguage() const
 {
     if (m_projectItem)
         return m_projectItem.data()->primaryLanguage();
     return {};
+}
+
+void QmlBuildSystem::setPrimaryLanguage(QString language)
+{
+    if (m_projectItem)
+        m_projectItem.data()->setPrimaryLanguage(language);
 }
 
 void QmlBuildSystem::refreshProjectFile()

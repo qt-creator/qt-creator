@@ -294,7 +294,7 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
     return layout->lineForTextPosition(relativePos);
 }
 
-bool multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey)
+bool MultiTextCursor::multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey)
 {
     uint searchkey = (e->modifiers() | e->key())
                      & ~(Qt::KeypadModifier

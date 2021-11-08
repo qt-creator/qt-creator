@@ -6,6 +6,7 @@ HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/editorproxy.h \
     $$PWD/generateresource.h \
     $$PWD/generatecmakelists.h \
+    $$PWD/cmakegeneratordialog.h \
     $$PWD/settingspage.h \
     $$PWD/designmodecontext.h \
     $$PWD/documentmanager.h \
@@ -22,6 +23,7 @@ SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/editorproxy.cpp \
     $$PWD/generateresource.cpp \
     $$PWD/generatecmakelists.cpp \
+    $$PWD/cmakegeneratordialog.cpp \
     $$PWD/settingspage.cpp \
     $$PWD/designmodecontext.cpp \
     $$PWD/documentmanager.cpp \

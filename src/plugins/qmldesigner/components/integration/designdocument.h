@@ -76,6 +76,7 @@ public:
 
     Model *currentModel() const;
     Model *documentModel() const;
+    bool inFileComponentModelActive() const;
 
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
     QList<DocumentMessage> qmlParseWarnings() const;

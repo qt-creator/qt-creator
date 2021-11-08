@@ -60,7 +60,8 @@ namespace QmlDesigner {
 Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
     : NodeInstanceServer(nodeInstanceClient)
 {
-    DesignerSupport::activateDesignerMode();
+    if (!ViewConfig::isParticleViewMode())
+        DesignerSupport::activateDesignerMode();
 }
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()

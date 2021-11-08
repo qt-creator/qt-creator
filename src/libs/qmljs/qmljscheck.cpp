@@ -1275,6 +1275,9 @@ static bool isIntegerValue(const Value *value)
 
 static bool strictCompareConstant(const Value *lhs, const Value *rhs)
 {
+    // attached properties and working at runtime cases may be undefined at evaluation time
+    if (lhs->asUndefinedValue() || rhs->asUndefinedValue())
+        return false;
     if (lhs->asUnknownValue() || rhs->asUnknownValue())
         return false;
     if (lhs->asFunctionValue() || rhs->asFunctionValue()) // function evaluation not implemented
@@ -1283,12 +1286,11 @@ static bool strictCompareConstant(const Value *lhs, const Value *rhs)
         return false;
     if (lhs->asBooleanValue() && !rhs->asBooleanValue())
         return true;
-    // attached properties and working at runtime cases may be undefined at evaluation time
-    if (lhs->asNumberValue() && (!rhs->asNumberValue() && !rhs->asUndefinedValue()))
+    if (lhs->asNumberValue() && !rhs->asNumberValue())
         return true;
     if (lhs->asStringValue() && !rhs->asStringValue())
         return true;
-    if (lhs->asObjectValue() && (!rhs->asObjectValue() || !rhs->asNullValue() || !rhs->asUndefinedValue()))
+    if (lhs->asObjectValue() && (!rhs->asObjectValue() || !rhs->asNullValue()))
         return true;
     return false;
 }

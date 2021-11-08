@@ -44,18 +44,34 @@ public:
                 CameraToggle,
                 OrientationToggle,
                 EditLightToggle,
-                ShowGrid
+                ShowGrid,
+                Edit3DParticleModeToggle,
+                ParticlesPlay,
+                ParticlesRestart,
+                ParticlesSeek,
               };
 
     explicit View3DActionCommand(Type type, bool enable);
+
     View3DActionCommand() = default;
 
     bool isEnabled() const;
     Type type() const;
+    int position() const;
 
 private:
     Type m_type = Empty;
     bool m_enabled = false;
+    int m_position = 0;
+
+protected:
+    View3DActionCommand(int pos);
+};
+
+class View3DSeekActionCommand : public View3DActionCommand
+{
+public:
+    View3DSeekActionCommand(int pos) : View3DActionCommand(pos) {}
 };
 
 QDataStream &operator<<(QDataStream &out, const View3DActionCommand &command);

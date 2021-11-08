@@ -170,6 +170,13 @@ public:
         visibilityOff, // visibilityOff2
         visibilityOn,
         wildcard,
+        wizardsAutomotive,
+        wizardsDesktop,
+        wizardsGeneric,
+        wizardsMcuEmpty,
+        wizardsMcuGraph,
+        wizardsMobile,
+        wizardsUnknown,
         zoomAll,
         zoomIn,
         zoomOut,

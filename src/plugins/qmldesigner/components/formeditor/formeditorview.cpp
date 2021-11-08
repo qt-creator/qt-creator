@@ -326,13 +326,15 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
     m_currentTool->itemsAboutToRemoved(removedItems);
 }
 
-static inline bool hasNodeSourceParent(const ModelNode &node)
+static inline bool hasNodeSourceOrNonItemParent(const ModelNode &node)
 {
     if (node.hasParentProperty() && node.parentProperty().parentModelNode().isValid()) {
         ModelNode parent = node.parentProperty().parentModelNode();
-        if (parent.nodeSourceType() != ModelNode::NodeWithoutSource)
+        if (parent.nodeSourceType() != ModelNode::NodeWithoutSource
+                || !QmlItemNode::isItemOrWindow(parent)) {
             return true;
-        return hasNodeSourceParent(parent);
+        }
+        return hasNodeSourceOrNonItemParent(parent);
     }
     return false;
 }
@@ -867,7 +869,7 @@ void FormEditorView::addOrRemoveFormEditorItem(const ModelNode &node)
             removeNodeFromScene(itemNode);
         }
     };
-    if (hasNodeSourceParent(node)) {
+    if (hasNodeSourceOrNonItemParent(node)) {
         removeItemFromScene();
     } else if (itemNode.isValid()) {
         if (node.nodeSourceType() == ModelNode::NodeWithoutSource) {

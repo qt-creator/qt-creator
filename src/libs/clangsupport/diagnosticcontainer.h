@@ -123,5 +123,8 @@ public:
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &container);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const QVector<DiagnosticContainer> &container);
+
+
 
 } // namespace ClangBackEnd

@@ -87,6 +87,7 @@
 #include <QQmlEngine>
 #include <QtGui/qevent.h>
 #include <QtGui/qguiapplication.h>
+#include <QProcessEnvironment>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtQuick/private/qquickrendercontrol_p.h>
@@ -101,10 +102,6 @@
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include "../editor3d/qt5compat/qquick3darealight_p.h"
 #endif
-#endif
-
-#ifdef QUICK3D_PARTICLES_MODULE
-#include <QtQuick3DParticles/private/qquick3dparticlesystem_p.h>
 #endif
 
 #ifdef IMPORT_QUICK3D_ASSETS
@@ -216,7 +213,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
 
 void Qt5InformationNodeInstanceServer::updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances)
 {
-    if (!isQuick3DMode())
+    if (!ViewConfig::isQuick3DMode())
         return;
 
     // We only want to update the topmost parents in the set
@@ -406,9 +403,83 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
 #endif
 }
 
+#ifdef QUICK3D_PARTICLES_MODULE
+void Qt5InformationNodeInstanceServer::resetParticleSystem()
+{
+    if (!m_targetParticleSystem)
+        return;
+    m_targetParticleSystem->reset();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 2)
+    m_targetParticleSystem->setEditorTime(0);
+#endif
+    if (m_particleAnimationDriver)
+        m_particleAnimationDriver->reset();
+}
+
+void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DParticleSystem* targetParticleSystem)
+{
+    if (!m_particleAnimationDriver)
+        return;
+
+    m_particleAnimationDriver->reset();
+    // stop the previously selected from animating
+    resetParticleSystem();
+
+    m_targetParticleSystem = targetParticleSystem;
+
+    resetParticleSystem();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 2)
+    QObject::disconnect(m_particleAnimationConnection);
+    m_particleAnimationConnection = connect(m_particleAnimationDriver, &AnimationDriver::advanced, [this] () {
+        if (m_targetParticleSystem)
+            m_targetParticleSystem->setEditorTime(m_particleAnimationDriver->elapsed());
+    });
+#endif
+    if (m_particleAnimationPlaying && m_targetParticleSystem->visible())
+        m_particleAnimationDriver->restart();
+    QObject::connect(m_targetParticleSystem, &QQuick3DNode::visibleChanged, [this] () {
+        if (m_particleAnimationPlaying && m_targetParticleSystem->visible()) {
+            m_particleAnimationDriver->restart();
+        } else {
+            m_particleAnimationDriver->reset();
+            resetParticleSystem();
+        }
+    });
+
+    const auto anim = animations();
+    for (auto a : anim)
+        a->restart();
+}
+
+static QString baseProperty(const QString &property)
+{
+    int index = property.indexOf('.');
+    if (index > 0)
+        return property.left(index);
+    return property;
+}
+
+void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected()
+{
+    m_targetParticleSystem = nullptr;
+    const auto anim = animations();
+    int i = 0;
+    for (auto a : anim) {
+        a->stop();
+        QQuickPropertyAnimation *panim = qobject_cast<QQuickPropertyAnimation *>(a);
+        if (panim)
+            panim->target()->setProperty(qPrintable(baseProperty(panim->property())), animationDefaultValue(i));
+        i++;
+    }
+}
+#endif
+
 // The selection has changed in the edit view 3D. Empty list indicates selection is cleared.
 void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &objs)
 {
+#ifdef QUICK3D_PARTICLES_MODULE
+    resetParticleSystem();
+#endif
     QList<ServerNodeInstance> instanceList;
     const QVariantList varObjs = objs.value<QVariantList>();
     for (const auto &object : varObjs) {
@@ -829,6 +900,12 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             m_render3DEditViewTimer.start(0);
             --m_need3DEditViewRender;
         }
+#ifdef QUICK3D_PARTICLES_MODULE
+        if (ViewConfig::isParticleViewMode()
+                && m_particleAnimationDriver && m_particleAnimationDriver->isAnimating()) {
+            m_need3DEditViewRender++;
+        }
+#endif
 #ifdef FPS_COUNTER
         // Force constant rendering for accurate fps count
         if (!m_render3DEditViewTimer.isActive())
@@ -1084,6 +1161,12 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
         _fpsTimer->start();
     }
 #endif
+#ifdef QUICK3D_PARTICLES_MODULE
+    if (ViewConfig::isParticleViewMode()) {
+        m_particleAnimationDriver = new AnimationDriver(this);
+        m_particleAnimationDriver->setInterval(17);
+    }
+#endif
 }
 
 Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
@@ -1205,7 +1288,7 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
 void Qt5InformationNodeInstanceServer::initializeAuxiliaryViews()
 {
 #ifdef QUICK3D_MODULE
-    if (isQuick3DMode())
+    if (ViewConfig::isQuick3DMode())
         createEditView3D();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode3DImageView.qml"),
@@ -1665,7 +1748,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
-    if (isQuick3DMode()) {
+    if (ViewConfig::isQuick3DMode()) {
         setup3DEditView(instanceList, command.edit3dToolStates);
         updateRotationBlocks(command.auxiliaryChanges);
     }
@@ -1735,7 +1818,9 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
 {
     if (!m_editView3DSetupDone)
         return;
-
+#ifdef QUICK3D_PARTICLES_MODULE
+    resetParticleSystem();
+#endif
     m_lastSelectionChangeCommand = command;
     if (m_selectionChangeTimer.isActive()) {
         // If selection was recently changed by puppet, hold updating the selection for a bit to
@@ -1762,13 +1847,17 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
             if (firstSceneRoot && sceneRoot == firstSceneRoot && instance.isSubclassOf("QQuick3DNode"))
                 object = instance.internalObject();
 
+#ifdef QUICK3D_PARTICLES_MODULE
+            auto particlesystem = qobject_cast<QQuick3DParticleSystem *>(instance.internalObject());
+            if (particlesystem)
+                handleParticleSystemSelected(particlesystem);
+            else
+                handleParticleSystemDeselected();
+#endif
             auto isSelectableAsRoot = [&]() -> bool {
 #ifdef QUICK3D_MODULE
                 if (qobject_cast<QQuick3DModel *>(object)
                     || qobject_cast<QQuick3DCamera *>(object)
-#ifdef QUICK3D_PARTICLES_MODULE
-                    || qobject_cast<QQuick3DParticleSystem *>(object)
-#endif
                     || qobject_cast<QQuick3DAbstractLight *>(object)) {
                     return true;
                 }
@@ -1900,6 +1989,33 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionCommand::ShowGrid:
         updatedState.insert("showGrid", command.isEnabled());
         break;
+#ifdef QUICK3D_PARTICLES_MODULE
+    case View3DActionCommand::Edit3DParticleModeToggle:
+        updatedState.insert("enableParticleViewMode", command.isEnabled());
+        break;
+    case View3DActionCommand::ParticlesPlay:
+        m_particleAnimationPlaying = command.isEnabled();
+        if (m_particleAnimationPlaying) {
+            m_particleAnimationDriver->reset();
+            m_particleAnimationDriver->restart();
+            m_particleAnimationDriver->setSeekerEnabled(false);
+            m_particleAnimationDriver->setSeekerPosition(0);
+        } else {
+            m_particleAnimationDriver->reset();
+            m_particleAnimationDriver->setSeekerEnabled(true);
+        }
+        break;
+    case View3DActionCommand::ParticlesRestart:
+        resetParticleSystem();
+        m_particleAnimationPlaying = true;
+        m_particleAnimationDriver->restart();
+        m_particleAnimationDriver->setSeekerEnabled(false);
+        m_particleAnimationDriver->setSeekerPosition(0);
+        break;
+    case View3DActionCommand::ParticlesSeek:
+        m_particleAnimationDriver->setSeekerPosition(static_cast<const View3DSeekActionCommand &>(command).position());
+        break;
+#endif
     default:
         break;
     }
@@ -1977,7 +2093,7 @@ void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInst
                                                             bool enable, bool checkAncestors)
 {
 #ifdef QUICK3D_MODULE
-    if (!isQuick3DMode())
+    if (!ViewConfig::isQuick3DMode())
         return;
 
     bool edit3dLocked = enable;
@@ -2015,7 +2131,7 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
                                                             bool enable, bool checkAncestors)
 {
 #ifdef QUICK3D_MODULE
-    if (!isQuick3DMode())
+    if (!ViewConfig::isQuick3DMode())
         return;
 
     bool edit3dHidden = enable;

@@ -928,6 +928,7 @@ public:
         m_started = false;
         qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": took " << m_elapsedMs
                                                      << " ms in UI thread";
+        m_elapsedMs = 0;
     }
     void startSubtask()
     {

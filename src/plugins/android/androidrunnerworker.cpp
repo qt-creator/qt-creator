@@ -195,7 +195,9 @@ static FilePath debugServer(bool useLldb, const Target *target)
         const QString abiNeedle = lldbServerArch2(preferredAbi);
 
         // The new, built-in LLDB.
-        QDirIterator it(prebuilt.toString(), QDir::Files|QDir::Executable, QDirIterator::Subdirectories);
+        const QDir::Filters dirFilter = HostOsInfo::isWindowsHost() ? QDir::Files
+                                                                    : QDir::Files|QDir::Executable;
+        QDirIterator it(prebuilt.toString(), dirFilter, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             it.next();
             const QString filePath = it.filePath();

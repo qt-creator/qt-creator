@@ -168,7 +168,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
 "project(qmake-probe LANGUAGES NONE)\n"
 "\n"
 "# Bypass Qt6's usage of find_dependency, which would require compiler\n"
-"# and source code probing, which slows things unnecessarily"
+"# and source code probing, which slows things unnecessarily\n"
 "file(WRITE \"${CMAKE_SOURCE_DIR}/CMakeFindDependencyMacro.cmake\"\n"
 "[=["
 "    macro(find_dependency dep)\n"

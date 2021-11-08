@@ -4,7 +4,7 @@ if (APPLE)
 endif()
 
 add_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt5::QuickWidgets
+  CONDITION TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
@@ -27,6 +27,7 @@ add_qtc_plugin(QmlDesigner
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
+    cmakegeneratordialog.h cmakegeneratordialog.cpp
     generateresource.cpp generateresource.h
     generatecmakelists.cpp generatecmakelists.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
@@ -201,6 +202,7 @@ extend_qtc_plugin(QmlDesigner
     rubberbandselectionmanipulator.cpp rubberbandselectionmanipulator.h
     scaleitem.cpp scaleitem.h
     scalemanipulator.cpp scalemanipulator.h
+    seekerslider.cpp seekerslider.h
     selectionindicator.cpp selectionindicator.h
     selectionrectangle.cpp selectionrectangle.h
     selectiontool.cpp selectiontool.h

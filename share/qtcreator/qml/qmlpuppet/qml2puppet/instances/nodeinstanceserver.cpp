@@ -332,7 +332,8 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
     registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
 
-    Internal::QmlPrivateGate::stopUnifiedTimer();
+    if (!ViewConfig::isParticleViewMode())
+        Internal::QmlPrivateGate::stopUnifiedTimer();
 
     setupScene(command);
     setupState(command.stateInstanceId);
@@ -781,6 +782,15 @@ QList<QQmlContext *> NodeInstanceServer::allSubContextsForObject(QObject *object
     }
 
     return contextList;
+}
+
+QList<QObject *> NodeInstanceServer::allSubObjectsForObject(QObject *object)
+{
+    QList<QObject *> subChildren;
+    if (object)
+        subChildren = object->findChildren<QObject *>();
+
+    return subChildren;
 }
 
 void NodeInstanceServer::removeAllInstanceRelationships()
@@ -1561,6 +1571,41 @@ void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
 bool NodeInstanceServer::isInformationServer() const
 {
     return false;
+}
+
+static QString baseProperty(const QString &property)
+{
+    int index = property.indexOf('.');
+    if (index > 0)
+        return property.left(index);
+    return property;
+}
+
+void NodeInstanceServer::addAnimation(QQuickAbstractAnimation *animation)
+{
+    if (!m_animations.contains(animation)) {
+        m_animations.push_back(animation);
+
+        QQuickPropertyAnimation *panim = qobject_cast<QQuickPropertyAnimation *>(animation);
+        if (panim) {
+            QObject *target = panim->target();
+            QString property = panim->property();
+            QVariant value = target->property(qPrintable(baseProperty(property)));
+            m_defaultValues.push_back(value);
+        } else {
+            m_defaultValues.push_back({});
+        }
+    }
+}
+
+QVector<QQuickAbstractAnimation *> NodeInstanceServer::animations() const
+{
+    return m_animations;
+}
+
+QVariant NodeInstanceServer::animationDefaultValue(int index) const
+{
+    return m_defaultValues.at(index);
 }
 
 } // namespace QmlDesigner

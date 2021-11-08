@@ -33,7 +33,16 @@ namespace QmlDesigner {
 View3DActionCommand::View3DActionCommand(Type type, bool enable)
     : m_type(type)
     , m_enabled(enable)
+    , m_position(0)
 {
+}
+
+View3DActionCommand::View3DActionCommand(int pos)
+    : m_type(ParticlesSeek)
+    , m_enabled(true)
+    , m_position(pos)
+{
+
 }
 
 bool View3DActionCommand::isEnabled() const
@@ -46,10 +55,16 @@ View3DActionCommand::Type View3DActionCommand::type() const
     return m_type;
 }
 
+int View3DActionCommand::position() const
+{
+    return m_position;
+}
+
 QDataStream &operator<<(QDataStream &out, const View3DActionCommand &command)
 {
     out << qint32(command.isEnabled());
     out << qint32(command.type());
+    out << qint32(command.position());
 
     return out;
 }
@@ -58,10 +73,13 @@ QDataStream &operator>>(QDataStream &in, View3DActionCommand &command)
 {
     qint32 enabled;
     qint32 type;
+    qint32 pos;
     in >> enabled;
     in >> type;
+    in >> pos;
     command.m_enabled = bool(enabled);
     command.m_type = View3DActionCommand::Type(type);
+    command.m_position = pos;
 
     return in;
 }

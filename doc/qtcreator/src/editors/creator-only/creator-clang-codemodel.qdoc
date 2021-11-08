@@ -138,10 +138,6 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
-        \li To use clangd instead of the built-in code model for features such as
-            \e {Find References to Symbol}, check the \uicontrol {Use clangd} checkbox.
-            \note This is an experimental feature, which might not work reliably yet.
-
         \li The \uicontrol {Diagnostic Configuration} field shows the Clang
             checks to perform. Click the value of the field to open the
             \uicontrol {Diagnostic Configurations} dialog, where you can
@@ -149,6 +145,51 @@
 
             \image qtcreator-diagnostics-configuration.png
 
+    \endlist
+
+    \section1 Configuring clangd
+
+    You can use the experimental clangd support instead of libclang to receive
+    exact and complete results for services such as finding references,
+    following symbols under cursor, and using the locator, even for complex
+    constructs that the built-in code model cannot handle correctly. These
+    improvements are based on clangd's \e index. When you \l{Opening Projects}
+    {open a project}, clangd scans the source files to generate the index. For
+    large projects, this can take a while, but the index is persistent and
+    re-scanning is incremental, so nothing is lost by closing and re-starting
+    \QC.
+
+    Because clangd considers only the on-disk state of included header files
+    when parsing a source file, you need to save changes in header files to
+    have them considered elsewhere for completion, diagnostics, and so on.
+    Partly for this reason, files that are changed by refactoring actions are
+    saved automatically. To disable this feature, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Environment > \uicontrol System >
+    \uicontrol {Auto-save files after refactoring}.
+
+    The document outline in the \l{Viewing Defined Types and Symbols}
+    {Outline} view is backed by clangd's document symbol support, which
+    makes the results more reliable than before.
+
+    To use clangd for the current project instead of the built-in code model or
+    Clang:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
+            \uicontrol Clang > \uicontrol {Use clangd (EXPERIMENTAL)}.
+            \image qtcreator-options-clangd.png "clangd options"
+        \li In \uicontrol {Path to executable}, enter the path to clangd
+            version 13, or later.
+        \li For more accurate results during global symbol searches, select
+            \uicontrol {Enable background indexing}. However, this increases the
+            CPU load the first time you open the project.
+        \li Select \uicontrol {Insert header files on completion} to allow
+            clangd to insert header files as part of symbol completion.
+        \li By default, clangd attempts to use all unused cores. You can set a
+            fixed number of cores to use in \uicontrol {Worker thread count}.
+        \li In \uicontrol {Document update threshold}, specify the amount of
+            time \QC waits before sending document changes to the server.
+            If the document changes again while waiting, this timeout is reset.
     \endlist
 
     \section1 Clang Checks

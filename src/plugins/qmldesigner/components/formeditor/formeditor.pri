@@ -42,7 +42,8 @@ SOURCES += formeditoritem.cpp \
     backgroundaction.cpp \
     formeditortoolbutton.cpp \
     formeditorannotationicon.cpp \
-    transitiontool.cpp
+    transitiontool.cpp \
+    seekerslider.cpp
 
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
@@ -87,6 +88,7 @@ HEADERS += formeditorscene.h \
     backgroundaction.h \
     formeditortoolbutton.h \
     formeditorannotationicon.h \
-    transitiontool.h
+    transitiontool.h \
+    seekerslider.h
 
 RESOURCES += formeditor.qrc

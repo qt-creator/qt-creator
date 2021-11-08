@@ -51,6 +51,16 @@ const Utils::Icon EDIT3D_LIGHT_ON({
         {":/edit3d/images/edit_light_on.png", Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_LIGHT_OFF({
         {":/edit3d/images/edit_light_off.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_PARTICLE_ON({
+        {":/edit3d/images/particles_on.png", Utils::Theme::QmlDesigner_HighlightColor}});
+const Utils::Icon EDIT3D_PARTICLE_OFF({
+        {":/edit3d/images/particles_off.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_PARTICLE_PLAY({
+        {":/edit3d/images/particles_play.png", Utils::Theme::QmlDesigner_HighlightColor}});
+const Utils::Icon EDIT3D_PARTICLE_PAUSE({
+        {":/edit3d/images/particles_pause.png", Utils::Theme::QmlDesigner_HighlightColor}});
+const Utils::Icon EDIT3D_PARTICLE_RESTART({
+        {":/edit3d/images/particles_restart.png", Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_GRID_ON({
         {":/edit3d/images/grid_on.png", Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_GRID_OFF({

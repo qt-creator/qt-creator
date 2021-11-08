@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "generatecmakelists.h"
+#include "cmakegeneratordialog.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -39,6 +40,7 @@
 #include <utils/fileutils.h>
 
 #include <QAction>
+#include <QtConcurrent>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
@@ -48,6 +50,13 @@ using namespace Utils;
 namespace QmlDesigner {
 
 namespace GenerateCmake {
+
+bool operator==(const GeneratableFile &left, const GeneratableFile &right)
+{
+    return (left.filePath == right.filePath && left.content == right.content);
+}
+
+QVector<GeneratableFile> queuedFiles;
 
 void generateMenuEntry()
 {
@@ -67,19 +76,65 @@ void generateMenuEntry()
 
 void onGenerateCmakeLists()
 {
+    queuedFiles.clear();
     FilePath rootDir = ProjectExplorer::SessionManager::startupProject()->projectDirectory();
     GenerateCmakeLists::generateMainCmake(rootDir);
     GenerateEntryPoints::generateMainCpp(rootDir);
     GenerateEntryPoints::generateMainQml(rootDir);
+    if (showConfirmationDialog(rootDir))
+        writeQueuedFiles();
 }
 
-bool writeFile(const FilePath &filePath, const QString &fileContent)
+void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles)
 {
-    QFile file(filePath.toString());
-    file.open(QIODevice::WriteOnly);
-    QTextStream stream(&file);
-    stream << fileContent;
-    file.close();
+    QtConcurrent::blockingFilter(queuedFiles, [confirmedFiles](const GeneratableFile &qf) {
+        return confirmedFiles.contains(qf.filePath);
+    });
+}
+
+bool showConfirmationDialog(const Utils::FilePath &rootDir)
+{
+    Utils::FilePaths files;
+    for (GeneratableFile &file: queuedFiles)
+        files.append(file.filePath);
+
+    CmakeGeneratorDialog dialog(rootDir, files);
+    if (dialog.exec()) {
+        Utils::FilePaths confirmedFiles = dialog.getFilePaths();
+        removeUnconfirmedQueuedFiles(confirmedFiles);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool queueFile(const FilePath &filePath, const QString &fileContent)
+{
+    GeneratableFile file;
+    file.filePath = filePath;
+    file.content = fileContent;
+    queuedFiles.append(file);
+
+    return true;
+}
+
+bool writeQueuedFiles()
+{
+    for (GeneratableFile &file: queuedFiles)
+        if (!writeFile(file))
+            return false;
+
+    return true;
+}
+
+bool writeFile(const GeneratableFile &file)
+{
+    QFile fileHandle(file.filePath.toString());
+    fileHandle.open(QIODevice::WriteOnly);
+    QTextStream stream(&fileHandle);
+    stream << file.content;
+    fileHandle.close();
 
     return true;
 }
@@ -295,7 +350,7 @@ QStringList getDirectoryTreeResources(const FilePath &dir)
 void createCmakeFile(const FilePath &dir, const QString &content)
 {
     FilePath filePath = dir.pathAppended(CMAKEFILENAME);
-    GenerateCmake::writeFile(filePath, content);
+    GenerateCmake::queueFile(filePath, content);
 }
 
 bool isFileBlacklisted(const QString &fileName)
@@ -327,7 +382,7 @@ bool generateMainCpp(const FilePath &dir)
     templatefile.close();
 
     FilePath filePath = dir.pathAppended(MAIN_CPPFILE_NAME);
-    return GenerateCmake::writeFile(filePath, content);
+    return GenerateCmake::queueFile(filePath, content);
 }
 
 const char MAIN_QMLFILE_CONTENT[] = "import %1Qml\n\n%2 {\n}\n";
@@ -343,7 +398,7 @@ bool generateMainQml(const FilePath &dir)
     if (const auto aspect = runConfiguration->aspect<QmlProjectManager::QmlMainFileAspect>())
         mainClass = FilePath::fromString(aspect->mainScript()).baseName();
 
-    return GenerateCmake::writeFile(filePath, QString(MAIN_QMLFILE_CONTENT).arg(projectName).arg(mainClass));
+    return GenerateCmake::queueFile(filePath, QString(MAIN_QMLFILE_CONTENT).arg(projectName).arg(mainClass));
 }
 
 }

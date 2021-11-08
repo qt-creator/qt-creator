@@ -89,7 +89,9 @@ public:
     QStringList customImportPaths() const;
     QStringList customFileSelectors() const;
     QStringList supportedLanguages() const;
+    void setSupportedLanguages(QStringList languages);
     QString primaryLanguage() const;
+    void setPrimaryLanguage(QString language);
     bool forceFreeType() const;
 
     bool addFiles(const QStringList &filePaths);

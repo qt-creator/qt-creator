@@ -25,6 +25,7 @@
 #pragma once
 
 #include "view3dactioncommand.h"
+#include "seekerslider.h"
 
 #include <abstractview.h>
 #include <QtGui/qevent.h>
@@ -68,6 +69,7 @@ public:
     void createEdit3DActions();
     QVector<Edit3DAction *> leftActions() const;
     QVector<Edit3DAction *> rightActions() const;
+    void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
 
@@ -90,6 +92,11 @@ private:
     Edit3DAction *m_editLightAction = nullptr;
     Edit3DAction *m_showGridAction = nullptr;
     Edit3DAction *m_resetAction = nullptr;
+    Edit3DAction *m_particleViewModeAction = nullptr;
+    Edit3DAction *m_particlesPlayAction = nullptr;
+    Edit3DAction *m_particlesRestartAction = nullptr;
+    SeekerSlider *m_seeker = nullptr;
+    int particlemode;
 };
 
 } // namespace QmlDesigner

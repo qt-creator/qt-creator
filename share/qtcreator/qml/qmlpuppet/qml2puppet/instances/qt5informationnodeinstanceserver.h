@@ -32,8 +32,14 @@
 #include "requestmodelnodepreviewimagecommand.h"
 #include "propertybindingcontainer.h"
 #include "propertyabstractcontainer.h"
+#include "animationdriver.h"
+
+#ifdef QUICK3D_PARTICLES_MODULE
+#include <QtQuick3DParticles/private/qquick3dparticlesystem_p.h>
+#endif
 
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QVariant>
 #include <QPointer>
 #include <QImage>
@@ -140,6 +146,11 @@ private:
     void removeRotationBlocks(const QVector<qint32> &instanceIds);
 
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
+#ifdef QUICK3D_PARTICLES_MODULE
+    void handleParticleSystemSelected(QQuick3DParticleSystem* targetParticleSystem);
+    void resetParticleSystem();
+    void handleParticleSystemDeselected();
+#endif
 
     RenderViewData m_editView3DData;
     RenderViewData m_modelNode3DImageViewData;
@@ -161,6 +172,12 @@ private:
     QTimer m_render3DEditViewTimer;
     QTimer m_renderModelNodeImageViewTimer;
     QTimer m_inputEventTimer;
+#ifdef QUICK3D_PARTICLES_MODULE
+    bool m_particleAnimationPlaying = true;
+    AnimationDriver *m_particleAnimationDriver = nullptr;
+    QMetaObject::Connection m_particleAnimationConnection;
+    QQuick3DParticleSystem* m_targetParticleSystem = nullptr;
+#endif
     QObjectList m_changedNodes;
     QList<PropertyName> m_changedProperties;
     ChangeSelectionCommand m_lastSelectionChangeCommand;

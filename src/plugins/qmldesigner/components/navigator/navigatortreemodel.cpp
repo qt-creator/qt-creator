@@ -551,20 +551,24 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                 QList<ModelNode> addedNodes;
                 ModelNode currNode;
 
-                QSet<QString> neededImports;
-                for (const QString &assetPath : assetsPaths) {
-                    QString assetType = ItemLibraryWidget::getAssetTypeAndData(assetPath).first;
-                    if (assetType == "application/vnd.bauhaus.libraryresource.shader")
-                        neededImports.insert("QtQuick3D");
-                    else if (assetType == "application/vnd.bauhaus.libraryresource.sound")
-                        neededImports.insert("QtMultimedia");
+                // Adding required imports is skipped if we are editing in-file subcomponent
+                DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
+                if (document && !document->inFileComponentModelActive()) {
+                    QSet<QString> neededImports;
+                    for (const QString &assetPath : assetsPaths) {
+                        QString assetType = ItemLibraryWidget::getAssetTypeAndData(assetPath).first;
+                        if (assetType == "application/vnd.bauhaus.libraryresource.shader")
+                            neededImports.insert("QtQuick3D");
+                        else if (assetType == "application/vnd.bauhaus.libraryresource.sound")
+                            neededImports.insert("QtMultimedia");
 
-                    if (neededImports.size() == 2)
-                        break;
-                };
+                        if (neededImports.size() == 2)
+                            break;
+                    };
 
-                for (const QString &import : std::as_const(neededImports))
-                    addImport(import);
+                    for (const QString &import : std::as_const(neededImports))
+                        addImport(import);
+                }
 
                 m_view->executeInTransaction("NavigatorTreeModel::dropMimeData", [&] {
                     for (const QString &assetPath : assetsPaths) {

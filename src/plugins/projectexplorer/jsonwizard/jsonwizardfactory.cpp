@@ -494,6 +494,11 @@ void JsonWizardFactory::addWizardPath(const FilePath &path)
     searchPaths().append(path);
 }
 
+void JsonWizardFactory::clearWizardPaths()
+{
+    searchPaths().clear();
+}
+
 void JsonWizardFactory::setVerbose(int level)
 {
     m_verbose = level;

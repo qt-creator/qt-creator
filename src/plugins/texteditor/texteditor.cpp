@@ -768,6 +768,7 @@ public:
     bool m_markDragging = false;
     QCursor m_markDragCursor;
     TextMark* m_dragMark = nullptr;
+    QTextCursor m_dndCursor;
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
@@ -781,6 +782,18 @@ public:
     bool m_scrollBarUpdateScheduled = false;
 
     const MultiTextCursor m_cursors;
+    struct BlockSelection
+    {
+        int blockNumber = -1;
+        int column = -1;
+        int anchorBlockNumber = -1;
+        int anchorColumn = -1;
+    };
+    QList<BlockSelection> m_blockSelections;
+    QList<QTextCursor> generateCursorsForBlockSelection(const BlockSelection &blockSelection);
+    void initBlockSelection();
+    void clearBlockSelection();
+    void handleMoveBlockSelection(QTextCursor::MoveOperation op);
 
     class UndoCursor
     {
@@ -1345,6 +1358,81 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
         extraSelections.append(sel);
     }
     q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections);
+}
+
+QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
+    const BlockSelection &blockSelection)
+{
+    const TabSettings tabSettings = m_document->tabSettings();
+
+    QList<QTextCursor> result;
+    QTextBlock block = m_document->document()->findBlockByNumber(blockSelection.anchorBlockNumber);
+    QTextCursor cursor(block);
+    cursor.setPosition(block.position()
+                       + tabSettings.positionAtColumn(block.text(), blockSelection.anchorColumn));
+
+    const bool forward = blockSelection.blockNumber > blockSelection.anchorBlockNumber
+                         || (blockSelection.blockNumber == blockSelection.anchorBlockNumber
+                             && blockSelection.column == blockSelection.anchorColumn);
+
+    while (block.isValid()) {
+        const QString &blockText = block.text();
+        cursor.setPosition(block.position()
+                           + tabSettings.positionAtColumn(blockText, blockSelection.anchorColumn));
+        cursor.setPosition(block.position()
+                               + tabSettings.positionAtColumn(blockText, blockSelection.column),
+                           QTextCursor::KeepAnchor);
+        result.append(cursor);
+        if (block.blockNumber() == blockSelection.blockNumber)
+            break;
+        block = forward ? block.next() : block.previous();
+    }
+    return result;
+}
+
+void TextEditorWidgetPrivate::initBlockSelection()
+{
+    const TabSettings tabSettings = m_document->tabSettings();
+    for (const QTextCursor &cursor : m_cursors) {
+        const int column = tabSettings.columnAtCursorPosition(cursor);
+        QTextCursor anchor = cursor;
+        anchor.setPosition(anchor.anchor());
+        const int anchorColumn = tabSettings.columnAtCursorPosition(anchor);
+        m_blockSelections.append({cursor.blockNumber(), column, anchor.blockNumber(), anchorColumn});
+    }
+}
+
+void TextEditorWidgetPrivate::clearBlockSelection()
+{
+    m_blockSelections.clear();
+}
+
+void TextEditorWidgetPrivate::handleMoveBlockSelection(QTextCursor::MoveOperation op)
+{
+    if (m_blockSelections.isEmpty())
+        initBlockSelection();
+    QList<QTextCursor> cursors;
+    for (BlockSelection &blockSelection : m_blockSelections) {
+        switch (op) {
+        case QTextCursor::Up:
+            blockSelection.blockNumber = qMax(0, blockSelection.blockNumber - 1);
+            break;
+        case QTextCursor::Down:
+            blockSelection.blockNumber = qMin(m_document->document()->blockCount() - 1,
+                                              blockSelection.blockNumber + 1);
+            break;
+        case QTextCursor::NextCharacter:
+            ++blockSelection.column;
+            break;
+        case QTextCursor::PreviousCharacter:
+            blockSelection.column = qMax(0, blockSelection.column - 1);
+            break;
+        default:
+            return;
+        }
+        cursors.append(generateCursorsForBlockSelection(blockSelection));
+    }
+    q->setMultiTextCursor(MultiTextCursor(cursors));
 }
 
 void TextEditorWidget::selectEncoding()
@@ -2180,6 +2268,8 @@ static inline bool isPrintableText(const QString &text)
 
 void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
+    ExecuteOnDestruction eod([&]() { d->clearBlockSelection(); });
+
     if (!isModifier(e) && mouseHidingEnabled())
         viewport()->setCursor(Qt::BlankCursor);
     ToolTip::hide();
@@ -2419,7 +2509,23 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     }
 
     if (ro || !isPrintableText(eventText)) {
-        if (!d->cursorMoveKeyEvent(e)) {
+        QTextCursor::MoveOperation blockSelectionOperation = QTextCursor::NoMove;
+        if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
+            if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToNextLine))
+                blockSelectionOperation = QTextCursor::Down;
+            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToPreviousLine))
+                blockSelectionOperation = QTextCursor::Up;
+            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToNextChar))
+                blockSelectionOperation = QTextCursor::NextCharacter;
+            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToPreviousChar))
+                blockSelectionOperation = QTextCursor::PreviousCharacter;
+        }
+
+        if (blockSelectionOperation != QTextCursor::NoMove) {
+            auto doNothing = [](){};
+            eod.reset(doNothing);
+            d->handleMoveBlockSelection(blockSelectionOperation);
+        } else if (!d->cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
             if (d->m_snippetOverlay->isVisible()
@@ -4298,9 +4404,18 @@ void TextEditorWidgetPrivate::addCursorsPosition(PaintEventData &data,
                                                  QPainter &painter,
                                                  const PaintEventBlockData &blockData) const
 {
-    for (const QTextCursor &cursor : m_cursors) {
-        if (blockContainsCursor(blockData, cursor))
-            data.cursors.append(generateCursorData(cursor.positionInBlock(), data, blockData, painter));
+    if (!m_dndCursor.isNull()) {
+        if (blockContainsCursor(blockData, m_dndCursor)) {
+            data.cursors.append(
+                generateCursorData(m_dndCursor.positionInBlock(), data, blockData, painter));
+        }
+    } else {
+        for (const QTextCursor &cursor : m_cursors) {
+            if (blockContainsCursor(blockData, cursor)) {
+                data.cursors.append(
+                    generateCursorData(cursor.positionInBlock(), data, blockData, painter));
+            }
+        }
     }
 }
 
@@ -4377,13 +4492,17 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
             d->paintCurrentLineHighlight(data, painter);
 
-            bool drawCursor = d->m_cursorVisible
-                              && Utils::anyOf(d->m_cursors,
-                                              [&](const QTextCursor &cursor) {
-                                                  return blockContainsCursor(blockData, cursor);
-                                              });
-
-            bool drawCursorAsBlock = drawCursor && overwriteMode();
+            bool drawCursor = false;
+            bool drawCursorAsBlock = false;
+            if (d->m_dndCursor.isNull()) {
+                drawCursor = d->m_cursorVisible
+                             && Utils::anyOf(d->m_cursors, [&](const QTextCursor &cursor) {
+                                    return blockContainsCursor(blockData, cursor);
+                                });
+                drawCursorAsBlock = drawCursor && overwriteMode();
+            } else {
+                drawCursor = blockContainsCursor(blockData, d->m_dndCursor);
+            }
 
             if (drawCursorAsBlock) {
                 for (const QTextCursor &cursor : multiTextCursor()) {
@@ -5120,7 +5239,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
             cursor.addCursor(c);
         }
         cursor.mergeCursors();
-        if (!cursor.isNull() && cursor != multiTextCursor())
+        if (!cursor.isNull())
             setMultiTextCursor(cursor);
     } else {
         if (startMouseMoveCursor.has_value())
@@ -7375,24 +7494,49 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
     setMultiTextCursor(cursor);
 }
 
+void TextEditorWidget::dragLeaveEvent(QDragLeaveEvent *)
+{
+    const QRect rect = cursorRect(d->m_dndCursor);
+    d->m_dndCursor = QTextCursor();
+    if (!rect.isNull())
+        viewport()->update(rect);
+}
+
+void TextEditorWidget::dragMoveEvent(QDragMoveEvent *e)
+{
+    const QRect rect = cursorRect(d->m_dndCursor);
+    d->m_dndCursor = cursorForPosition(e->pos());
+    if (!rect.isNull())
+        viewport()->update(rect);
+    viewport()->update(cursorRect(d->m_dndCursor));
+}
+
 void TextEditorWidget::dropEvent(QDropEvent *e)
 {
+    const QRect rect = cursorRect(d->m_dndCursor);
+    d->m_dndCursor = QTextCursor();
+    if (!rect.isNull())
+        viewport()->update(rect);
     const QMimeData *mime = e->mimeData();
+    if (!canInsertFromMimeData(mime))
+        return;
+    // Update multi text cursor before inserting data
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.beginEditBlock();
+    const QTextCursor eventCursor = cursorForPosition(e->pos());
+    if (e->dropAction() == Qt::MoveAction)
+        cursor.removeSelectedText();
+    cursor.setCursors({eventCursor});
+    setMultiTextCursor(cursor);
+    QMimeData *mimeOverwrite = nullptr;
     if (mime && (mime->hasText() || mime->hasHtml())) {
-        QMimeData *mimeOverwrite = duplicateMimeData(mime);
+        mimeOverwrite = duplicateMimeData(mime);
         mimeOverwrite->setProperty(dropProperty, true);
-        auto dropOverwrite = new QDropEvent(e->pos(),
-                                            e->possibleActions(),
-                                            mimeOverwrite,
-                                            e->mouseButtons(),
-                                            e->keyboardModifiers());
-        QPlainTextEdit::dropEvent(dropOverwrite);
-        e->setAccepted(dropOverwrite->isAccepted());
-        delete dropOverwrite;
-        delete mimeOverwrite;
-    } else {
-        QPlainTextEdit::dropEvent(e);
+        mime = mimeOverwrite;
     }
+    insertFromMimeData(mime);
+    delete mimeOverwrite;
+    cursor.endEditBlock();
 }
 
 QMimeData *TextEditorWidget::duplicateMimeData(const QMimeData *source)
