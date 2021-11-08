@@ -263,7 +263,7 @@ Item {
     // Placeholder when the assets panel is empty
     Column {
         id: colNoAssets
-        visible: assetsModel.isEmpty()
+        visible: assetsModel.isEmpty
 
         spacing: 20
         x: 20

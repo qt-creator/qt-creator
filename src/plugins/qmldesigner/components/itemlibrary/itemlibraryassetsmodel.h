@@ -46,6 +46,8 @@ class ItemLibraryAssetsModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isEmpty READ isEmpty WRITE setIsEmpty NOTIFY isEmptyChanged)
+
 public:
     ItemLibraryAssetsModel(QmlDesigner::SynchronousImageCache &fontImageCache,
                            Utils::FileSystemWatcher *fileSystemWatcher,
@@ -81,10 +83,15 @@ public:
     Q_INVOKABLE void toggleExpandAll(bool expand);
     Q_INVOKABLE DirExpandState getAllExpandedState() const;
     Q_INVOKABLE void removeFile(const QString &filePath);
-    Q_INVOKABLE bool isEmpty() const { return m_isEmpty; };
+
+signals:
+    void isEmptyChanged();
 
 private:
     const QSet<QString> &supportedSuffixes() const;
+
+    bool isEmpty() const;
+    void setIsEmpty(bool empty);
 
     SynchronousImageCache &m_fontImageCache;
     QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
