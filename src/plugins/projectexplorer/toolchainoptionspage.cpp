@@ -463,7 +463,7 @@ void ToolChainOptionsWidget::apply()
             for (TreeItem *item : *parent) {
                 auto tcItem = static_cast<ToolChainTreeItem *>(item);
                 Q_ASSERT(tcItem->toolChain);
-                if (!tcItem->toolChain->isAutoDetected() && tcItem->widget)
+                if (!tcItem->toolChain->isAutoDetected() && tcItem->widget && tcItem->changed)
                     tcItem->widget->apply();
                 tcItem->changed = false;
                 tcItem->update();
