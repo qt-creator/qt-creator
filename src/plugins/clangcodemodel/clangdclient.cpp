@@ -252,6 +252,16 @@ public:
         QString theType = type();
         if (theType.endsWith("const"))
             theType.chop(5);
+
+        // We don't care about the "inner" type of templates.
+        const int openAngleBracketPos = theType.indexOf('<');
+        if (openAngleBracketPos != -1) {
+            const int closingAngleBracketPos = theType.lastIndexOf('>');
+            if (closingAngleBracketPos > openAngleBracketPos) {
+                theType = theType.left(openAngleBracketPos)
+                        + theType.mid(closingAngleBracketPos + 1);
+            }
+        }
         const int xrefCount = theType.count("&&");
         const int refCount = theType.count('&') - 2 * xrefCount;
         const int ptrRefCount = theType.count('*') + refCount;

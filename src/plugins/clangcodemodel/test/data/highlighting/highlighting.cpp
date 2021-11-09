@@ -834,3 +834,9 @@ void assignmentTest() {
     struct S {} s;
     s = {};
 }
+
+using FooPtrVector = std::vector<Foo *>;
+FooPtrVector returnTest()  {
+    FooPtrVector foo;
+    return foo;
+}
