@@ -1290,9 +1290,9 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
                     reportStarted();
                 });
 
-        connect(&m_launcher, &ApplicationLauncher::reportProgress,
-                this, [this](const QString &progressString) {
-                    appendMessage(progressString, Utils::NormalMessageFormat);
+        connect(&m_launcher, &ApplicationLauncher::appendMessage,
+                this, [this](const QString &progressString, Utils::OutputFormat format) {
+                    appendMessage(progressString, format);
                 });
 
         m_launcher.start(runnable, device);

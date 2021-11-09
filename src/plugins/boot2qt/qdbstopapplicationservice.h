@@ -43,6 +43,7 @@ private:
     void handleProcessFinished(bool success);
     void handleStderr(const QString &output);
     void handleStdout(const QString &output);
+    void handleAppendMessage(const QString &message);
 
     bool isDeploymentNecessary() const final { return true; }
     void doDeviceSetup() final { handleDeviceSetupDone(true); }

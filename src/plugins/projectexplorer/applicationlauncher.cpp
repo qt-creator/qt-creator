@@ -212,7 +212,8 @@ void ApplicationLauncherPrivate::stop()
             return;
         m_stopRequested = true;
         m_success = false;
-        emit q->reportProgress(ApplicationLauncher::tr("User requested stop. Shutting down..."));
+        emit q->appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
+                              Utils::NormalMessageFormat);
         switch (m_state) {
             case Run:
                 m_deviceProcess->terminate();
@@ -480,7 +481,8 @@ void ApplicationLauncherPrivate::handleApplicationFinished()
         if (exitCode != 0) {
             doReportError(ApplicationLauncher::tr("Application finished with exit code %1.").arg(exitCode));
         } else {
-            emit q->reportProgress(ApplicationLauncher::tr("Application finished with exit code 0."));
+            emit q->appendMessage(ApplicationLauncher::tr("Application finished with exit code 0."),
+                                  Utils::NormalMessageFormat);
         }
     }
     setFinished();

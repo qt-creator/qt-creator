@@ -76,7 +76,6 @@ signals:
 
     void remoteStdout(const QString &output);
     void remoteStderr(const QString &output);
-    void reportProgress(const QString &progressOutput);
     void reportError(const QString &errorOutput);
     void remoteProcessStarted();
     void finished(bool success);

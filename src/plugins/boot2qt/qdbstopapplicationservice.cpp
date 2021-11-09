@@ -88,6 +88,11 @@ void QdbStopApplicationService::handleStdout(const QString &output)
     emit stdOutData(output);
 }
 
+void QdbStopApplicationService::handleAppendMessage(const QString &message)
+{
+    emit stdOutData(message);
+}
+
 void QdbStopApplicationService::doDeploy()
 {
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::reportError,
@@ -98,8 +103,8 @@ void QdbStopApplicationService::doDeploy()
             this, &QdbStopApplicationService::handleStdout);
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::finished,
             this, &QdbStopApplicationService::handleProcessFinished);
-    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::reportProgress,
-            this, &QdbStopApplicationService::stdOutData);
+    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::appendMessage,
+            this, &QdbStopApplicationService::handleAppendMessage);
 
     ProjectExplorer::Runnable runnable;
     runnable.command = {Constants::AppcontrollerFilepath, {"--stop"}};
