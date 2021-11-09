@@ -83,21 +83,9 @@ FilePath ITestConfiguration::executableFilePath() const
     if (!hasExecutable())
         return {};
 
-    if (m_runnable.command.executable().isExecutableFile() && m_runnable.command.executable().path() != ".") {
-        return m_runnable.command.executable().absoluteFilePath();
-    } else if (m_runnable.command.executable().path() == "."){
-        QString fullCommandFileName = m_runnable.command.executable().toString();
-        // TODO: check if we can use searchInPath() from Utils::Environment
-        const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
-                .split(HostOsInfo::pathListSeparator());
-
-        for (const QString &path : pathList) {
-            QString filePath(path + QDir::separator() + fullCommandFileName);
-            if (QFileInfo(filePath).isExecutable())
-                return m_runnable.command.executable().absoluteFilePath();
-        }
-    }
-    return {};
+    const Environment env = m_runnable.environment.size() == 0 ? Environment::systemEnvironment()
+                                                               : m_runnable.environment;
+    return env.searchInPath(m_runnable.command.executable().path());
 }
 
 Environment ITestConfiguration::filteredEnvironment(const Environment &original) const
