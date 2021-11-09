@@ -102,6 +102,14 @@ namespace Internal {
 
 enum { debugMainWindow = 0 };
 
+static bool isQtDesignStudio()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
+
+    return settings->value(qdsStandaloneEntry, false).toBool();
+}
+
 MainWindow::MainWindow()
     : AppMainWindow()
     , m_coreImpl(new ICore(this))
@@ -519,7 +527,8 @@ void MainWindow::registerDefaultActions()
 
     // New File Action
     QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Utils::Icons::NEWFILE.icon());
-    m_newAction = new QAction(icon, tr("&New File or Project..."), this);
+    QString newActionText = isQtDesignStudio() ? tr("&New Project...") : tr("&New File or Project...");
+    m_newAction = new QAction(icon, newActionText, this);
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);

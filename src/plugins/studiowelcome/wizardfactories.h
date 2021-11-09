@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,42 @@
 
 #pragma once
 
-#include "../projectexplorer_export.h"
-#include <utils/projectintropage.h>
+#include "newprojectmodel.h"
 
-namespace ProjectExplorer {
+#include <utils/id.h>
 
-// Documentation inside.
-class PROJECTEXPLORER_EXPORT JsonProjectPage : public Utils::ProjectIntroPage
+namespace Core {
+class IWizardFactory;
+}
+
+namespace StudioWelcome {
+
+class WizardFactories
 {
-    Q_OBJECT
-
 public:
-    JsonProjectPage(QWidget *parent = nullptr);
+    WizardFactories(QList<Core::IWizardFactory *> &factories, QWidget *wizardParent,
+                    const Utils::Id &platform);
 
-    void initializePage() override;
-    bool validatePage() override;
+    const Core::IWizardFactory *front() const { return m_factories.front(); }
+    const std::map<QString, ProjectCategory> &projectsGroupedByCategory() const
+    { return m_projectItems; }
 
-    static QString uniqueProjectName(const QString &path);
+    bool empty() const { return m_factories.empty(); }
+
+private:
+    void sortByCategoryAndId();
+    void filter();
+
+    ProjectItem makeProjectItem(Core::IWizardFactory *f, QWidget *parent, const Utils::Id &platform);
+    std::map<QString, ProjectCategory> makeProjectItemsGroupedByCategory();
+
+private:
+    QSet<Utils::Id> m_blacklist;
+    QWidget *m_wizardParent;
+    Utils::Id m_platform;
+
+    QList<Core::IWizardFactory *> m_factories;
+    std::map<QString, ProjectCategory> m_projectItems;
 };
 
-} // namespace ProjectExplorer
+} // namespace StudioWelcome

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,25 +23,26 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick.Window
+import QtQuick.Controls
 
-#include "../projectexplorer_export.h"
-#include <utils/projectintropage.h>
+import QtQuick
+import QtQuick.Layouts
 
-namespace ProjectExplorer {
+import newprojectdialog
 
-// Documentation inside.
-class PROJECTEXPLORER_EXPORT JsonProjectPage : public Utils::ProjectIntroPage
-{
-    Q_OBJECT
+Item {
+    anchors.fill: parent
 
-public:
-    JsonProjectPage(QWidget *parent = nullptr);
+    Row {
+        anchors.fill: parent
 
-    void initializePage() override;
-    bool validatePage() override;
+        Details {
+            height: parent.height
+        }
 
-    static QString uniqueProjectName(const QString &path);
-};
-
-} // namespace ProjectExplorer
+        Styles {
+            height: parent.height
+        }
+    }
+}

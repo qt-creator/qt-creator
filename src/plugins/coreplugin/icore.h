@@ -180,8 +180,6 @@ public:
 
 private:
     static void updateNewItemDialogState();
-
-    static std::function<NewDialog *(QWidget *)> m_newDialogFactory;
 };
 
 } // namespace Core

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,26 @@
 
 #pragma once
 
-#include "../projectexplorer_export.h"
-#include <utils/projectintropage.h>
+#include <QQuickImageProvider>
 
-namespace ProjectExplorer {
+namespace StudioWelcome {
 
-// Documentation inside.
-class PROJECTEXPLORER_EXPORT JsonProjectPage : public Utils::ProjectIntroPage
+namespace Internal {
+
+class NewProjectDialogImageProvider : public QQuickImageProvider
 {
-    Q_OBJECT
-
 public:
-    JsonProjectPage(QWidget *parent = nullptr);
+    NewProjectDialogImageProvider();
 
-    void initializePage() override;
-    bool validatePage() override;
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
 
-    static QString uniqueProjectName(const QString &path);
+private:
+    QPixmap requestStatusPixmap(const QString &id, QSize *size, const QSize &requestedSize);
+    QPixmap requestStylePixmap(const QString &id, QSize *size, const QSize &requestedSize);
+
+    static QPixmap invalidStyleIcon();
 };
 
-} // namespace ProjectExplorer
+} // namespace Internal
+
+} // namespace StudioWelcome

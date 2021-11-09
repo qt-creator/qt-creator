@@ -1,12 +1,20 @@
 add_qtc_plugin(StudioWelcome
   CONDITION TARGET Qt5::QuickWidgets
   DEPENDS Qt5::QuickWidgets
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesigner
   DEFINES STUDIO_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/qml/"
   SOURCES
     studiowelcomeplugin.cpp studiowelcomeplugin.h
+    newprojectdialogimageprovider.cpp newprojectdialogimageprovider.h
+    newprojectmodel.cpp newprojectmodel.h
     examplecheckout.cpp examplecheckout.h
     studiowelcome_global.h
+    qdsnewdialog.cpp qdsnewdialog.h
+    wizardfactories.cpp wizardfactories.h
+    createproject.cpp createproject.h
+    wizardhandler.cpp wizardhandler.h
+    screensizemodel.h
+    stylemodel.h stylemodel.cpp
     studiowelcome.qrc
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"
   EXTRA_TRANSLATIONS

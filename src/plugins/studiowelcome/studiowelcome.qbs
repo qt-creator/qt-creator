@@ -17,8 +17,18 @@ QtcPlugin {
         "studiowelcome_global.h",
         "studiowelcomeplugin.h",
         "studiowelcomeplugin.cpp",
+        "qdsnewdialog.cpp",
+        "qdsnewdialog.h",
+        "wizardfactories.cpp",
+        "wizardfactories.h",
+        "createproject.cpp",
+        "createproject.h",
+        "newprojectmodel.cpp",
+        "newprojectmodel.h",
         "examplecheckout.h",
         "examplecheckout.cpp",
+        "newprojectdialogimageprovider.h",
+        "newprojectdialogimageprovider.cpp",
         "studiowelcome.qrc",
     ]
 
