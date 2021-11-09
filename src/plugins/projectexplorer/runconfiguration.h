@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "applicationlauncher.h"
 #include "buildtargetinfo.h"
 #include "devicesupport/idevice.h"
 #include "projectconfiguration.h"

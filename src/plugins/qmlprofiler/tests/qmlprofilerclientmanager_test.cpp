@@ -26,7 +26,6 @@
 #include "qmlprofilerclientmanager_test.h"
 #include "fakedebugserver.h"
 #include <qmlprofiler/qmlprofilerruncontrol.h>
-#include <projectexplorer/applicationlauncher.h>
 #include <utils/url.h>
 
 #include <QTcpServer>

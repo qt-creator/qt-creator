@@ -42,6 +42,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <QFileInfo>
+#include <QProcess>
 #include <QSignalSpy>
 #include <QTest>
 

@@ -37,7 +37,6 @@
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>

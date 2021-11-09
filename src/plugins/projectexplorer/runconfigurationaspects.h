@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "applicationlauncher.h"
 #include "environmentaspect.h"
 
 #include <utils/aspects.h>
