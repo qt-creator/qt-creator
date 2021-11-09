@@ -26,6 +26,7 @@
 #pragma once
 
 #include <remotelinux/abstractremotelinuxdeployservice.h>
+#include <utils/outputformat.h>
 
 namespace Qdb {
 namespace Internal {
@@ -41,9 +42,7 @@ public:
 
 private:
     void handleProcessFinished(bool success);
-    void handleStderr(const QString &output);
-    void handleStdout(const QString &output);
-    void handleAppendMessage(const QString &message);
+    void handleAppendMessage(const QString &message, Utils::OutputFormat format);
 
     bool isDeploymentNecessary() const final { return true; }
     void doDeviceSetup() final { handleDeviceSetupDone(true); }

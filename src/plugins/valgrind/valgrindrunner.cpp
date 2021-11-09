@@ -48,13 +48,10 @@ public:
 
     bool run();
 
-    void handleRemoteStderr(const QString &b);
-    void handleRemoteStdout(const QString &b);
-
     void closed(bool success);
     void localProcessStarted();
     void remoteProcessStarted();
-    void findPidOutputReceived(const QString &out);
+    void findPidOutputReceived(const QString &out, Utils::OutputFormat format);
 
     ValgrindRunner *q;
     Runnable m_debuggee;
@@ -128,10 +125,6 @@ bool ValgrindRunner::Private::run()
     connect(&m_valgrindProcess, &ApplicationLauncher::finished,
             q, &ValgrindRunner::finished);
 
-    connect(&m_valgrindProcess, &ApplicationLauncher::remoteStderr,
-            this, &ValgrindRunner::Private::handleRemoteStderr);
-    connect(&m_valgrindProcess, &ApplicationLauncher::remoteStdout,
-            this, &ValgrindRunner::Private::handleRemoteStdout);
     connect(&m_valgrindProcess, &ApplicationLauncher::remoteProcessStarted,
             this, &ValgrindRunner::Private::remoteProcessStarted);
 
@@ -159,18 +152,6 @@ bool ValgrindRunner::Private::run()
     }
 
     return true;
-}
-
-void ValgrindRunner::Private::handleRemoteStderr(const QString &b)
-{
-    if (!b.isEmpty())
-        emit q->processOutputReceived(b, Utils::StdErrFormat);
-}
-
-void ValgrindRunner::Private::handleRemoteStdout(const QString &b)
-{
-    if (!b.isEmpty())
-        emit q->processOutputReceived(b, Utils::StdOutFormat);
 }
 
 void ValgrindRunner::Private::localProcessStarted()
@@ -207,19 +188,21 @@ void ValgrindRunner::Private::remoteProcessStarted()
            "\"").arg(proc, m_debuggee.command.executable().fileName(), procEscaped));
 
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
-    connect(&m_findPID, &ApplicationLauncher::remoteStderr,
-            this, &ValgrindRunner::Private::handleRemoteStderr);
-    connect(&m_findPID, &ApplicationLauncher::remoteStdout,
+    connect(&m_findPID, &ApplicationLauncher::appendMessage,
             this, &ValgrindRunner::Private::findPidOutputReceived);
     m_findPID.start(findPid, m_device);
 }
 
-void ValgrindRunner::Private::findPidOutputReceived(const QString &out)
+void ValgrindRunner::Private::findPidOutputReceived(const QString &out, Utils::OutputFormat format)
 {
+    if (format != Utils::StdOutFormat) {
+        emit q->processOutputReceived(out, format);
+        return;
+    }
     if (out.isEmpty())
         return;
     bool ok;
-    qint64 pid = out.trimmed().toLongLong(&ok);
+    const qint64 pid = out.trimmed().toLongLong(&ok);
     if (!ok) {
 //        m_remote.m_errorString = tr("Could not determine remote PID.");
 //        emit ValgrindRunner::Private::error(QProcess::FailedToStart);

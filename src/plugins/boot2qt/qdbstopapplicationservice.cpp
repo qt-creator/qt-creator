@@ -78,29 +78,18 @@ void QdbStopApplicationService::handleProcessFinished(bool success)
     stopDeployment();
 }
 
-void QdbStopApplicationService::handleStderr(const QString &output)
+void QdbStopApplicationService::handleAppendMessage(const QString &message, Utils::OutputFormat format)
 {
-    d->errorOutput.append(output);
-}
-
-void QdbStopApplicationService::handleStdout(const QString &output)
-{
-    emit stdOutData(output);
-}
-
-void QdbStopApplicationService::handleAppendMessage(const QString &message)
-{
-    emit stdOutData(message);
+    if (format == Utils::StdErrFormat)
+        d->errorOutput.append(message);
+    else
+        emit stdOutData(message);
 }
 
 void QdbStopApplicationService::doDeploy()
 {
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::reportError,
             this, &QdbStopApplicationService::stdErrData);
-    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::remoteStderr,
-            this, &QdbStopApplicationService::handleStderr);
-    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::remoteStdout,
-            this, &QdbStopApplicationService::handleStdout);
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::finished,
             this, &QdbStopApplicationService::handleProcessFinished);
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::appendMessage,

@@ -77,10 +77,8 @@ class DeviceApplicationObserver : public ApplicationLauncher
 public:
     DeviceApplicationObserver(const IDevice::ConstPtr &device, const CommandLine &command)
     {
-        connect(&m_appRunner, &ApplicationLauncher::remoteStdout, this,
-                &DeviceApplicationObserver::handleStdout);
-        connect(&m_appRunner, &ApplicationLauncher::remoteStderr, this,
-                &DeviceApplicationObserver::handleStderr);
+        connect(&m_appRunner, &ApplicationLauncher::appendMessage, this,
+                &DeviceApplicationObserver::handleAppendMessage);
         connect(&m_appRunner, &ApplicationLauncher::reportError, this,
                 &DeviceApplicationObserver::handleError);
         connect(&m_appRunner, &ApplicationLauncher::finished, this,
@@ -97,8 +95,13 @@ public:
     }
 
 private:
-    void handleStdout(const QString &data) { m_stdout += data; }
-    void handleStderr(const QString &data) { m_stderr += data; }
+    void handleAppendMessage(const QString &data, Utils::OutputFormat format)
+    {
+        if (format == Utils::StdOutFormat)
+            m_stdout += data;
+        else if (format == Utils::StdErrFormat)
+            m_stderr += data;
+    }
     void handleError(const QString &message) { m_error = message; }
 
     void handleFinished(bool success)

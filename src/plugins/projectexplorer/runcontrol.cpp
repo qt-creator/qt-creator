@@ -1257,16 +1257,6 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
                     reportFailure(msg);
                 });
 
-        connect(&m_launcher, &ApplicationLauncher::remoteStderr,
-                this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdErrFormat, false);
-                });
-
-        connect(&m_launcher, &ApplicationLauncher::remoteStdout,
-                this, [this](const QString &output) {
-                    appendMessage(output, Utils::StdOutFormat, false);
-                });
-
         connect(&m_launcher, &ApplicationLauncher::finished,
                 this, [this] {
                     m_launcher.disconnect(this);
@@ -1290,10 +1280,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
                     reportStarted();
                 });
 
-        connect(&m_launcher, &ApplicationLauncher::appendMessage,
-                this, [this](const QString &progressString, Utils::OutputFormat format) {
-                    appendMessage(progressString, format);
-                });
+        connect(&m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
 
         m_launcher.start(runnable, device);
     }

@@ -61,11 +61,6 @@ public:
                 this, &RunWorker::reportStopped);
         connect(&m_launcher, &ApplicationLauncher::appendMessage,
                 this, &RunWorker::appendMessage);
-        connect(&m_launcher, &ApplicationLauncher::remoteStdout,
-                this, [this](const QString &out) { appendMessage(out, StdOutFormat); });
-        connect(&m_launcher, &ApplicationLauncher::remoteStderr,
-                this, [this](const QString &out) { appendMessage(out, StdErrFormat); });
-
         m_portsGatherer = new DebugServerPortsGatherer(runControl);
         m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
         m_portsGatherer->setUseQmlServer(useQmlServer);
