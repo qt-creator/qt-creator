@@ -252,7 +252,8 @@ class DumperBase():
         #DumperBase.warn('EXPANDED INAMES: %s' % self.expandedINames)
         #DumperBase.warn('WATCHERS: %s' % self.watchers)
 
-    def setFallbackQtVersion(self, version):
+    def setFallbackQtVersion(self, args):
+        version = int(args.get('version', '0x%x' % self.fallbackQtVersion), 16)
         self.warn("got fallback qt version %x" % version)
         self.fallbackQtVersion = version
 
