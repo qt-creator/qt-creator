@@ -937,7 +937,6 @@ void Client::handleCodeActionResponse(const CodeActionRequest::Response &respons
 
 void Client::executeCommand(const Command &command)
 {
-    const QString method(ExecuteCommandRequest::methodName);
     bool serverSupportsExecuteCommand = m_serverCapabilities.executeCommandProvider().has_value();
     serverSupportsExecuteCommand = m_dynamicCapabilities
                                        .isRegistered(ExecuteCommandRequest::methodName)
