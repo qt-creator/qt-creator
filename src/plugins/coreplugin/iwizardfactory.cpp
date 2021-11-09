@@ -291,9 +291,10 @@ Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id plat
             s_reopenData.reopen();
         });
         s_inspectWizardAction->setEnabled(true);
-        if (showWizard)
+        if (showWizard) {
             wizard->show();
-        Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
+            Core::ICore::registerWindow(wizard, Core::Context("Core.NewWizard"));
+        }
     } else {
         s_isWizardRunning = false;
         ICore::updateNewItemDialogState();
