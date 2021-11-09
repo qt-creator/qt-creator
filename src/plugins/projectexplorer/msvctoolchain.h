@@ -178,8 +178,8 @@ public:
             const Utils::Environment &env) const override;
 
     const QList<MsvcToolChain *> &msvcToolchains() const;
-    QString clangPath() const { return m_clangPath; }
-    void setClangPath(const QString &path) { m_clangPath = path; }
+    Utils::FilePath clangPath() const { return m_clangPath; }
+    void setClangPath(const Utils::FilePath &path) { m_clangPath = path; }
 
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;
@@ -192,7 +192,7 @@ public:
     int priority() const override;
 
 private:
-    QString m_clangPath;
+    Utils::FilePath m_clangPath;
 };
 
 // --------------------------------------------------------------------------

@@ -29,6 +29,8 @@
 
 namespace Utils {
 
+class FilePath;
+
 // Helper to format a Windows error message, taking the
 // code as returned by the GetLastError()-API.
 QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error);
@@ -42,7 +44,7 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
 QTCREATOR_UTILS_EXPORT bool is64BitWindowsSystem();
 
 // Check for a 64bit binary.
-QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const QString &binary);
+QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const FilePath &binary);
 
 // Get the path to the executable for a given PID.
 QTCREATOR_UTILS_EXPORT QString imageName(quint32 processId);

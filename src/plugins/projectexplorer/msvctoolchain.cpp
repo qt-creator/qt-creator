@@ -1521,9 +1521,9 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
 
     const auto *clangClToolChain = static_cast<const ClangClToolChain *>(toolChain());
     if (clangClToolChain->isAutoDetected())
-        m_llvmDirLabel->setText(QDir::toNativeSeparators(clangClToolChain->clangPath()));
+        m_llvmDirLabel->setText(clangClToolChain->clangPath().toUserOutput());
     else
-        m_compilerCommand->setFilePath(Utils::FilePath::fromString(clangClToolChain->clangPath()));
+        m_compilerCommand->setFilePath(clangClToolChain->clangPath());
 }
 
 static const MsvcToolChain *findMsvcToolChain(unsigned char wordWidth, Abi::OSFlavor flavor)
@@ -1543,10 +1543,10 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
                                 });
 }
 
-static QVersionNumber clangClVersion(const QString &clangClPath)
+static QVersionNumber clangClVersion(const FilePath &clangClPath)
 {
     QtcProcess clangClProcess;
-    clangClProcess.setCommand({FilePath::fromString(clangClPath), {"--version"}});
+    clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();
     if (clangClProcess.result() != QtcProcess::FinishedWithSuccess)
         return {};
@@ -1559,7 +1559,7 @@ static QVersionNumber clangClVersion(const QString &clangClPath)
 }
 
 static const MsvcToolChain *selectMsvcToolChain(const QString &displayedVarsBat,
-                                                const QString &clangClPath,
+                                                const FilePath &clangClPath,
                                                 unsigned char wordWidth)
 {
     const MsvcToolChain *toolChain = nullptr;
@@ -1584,7 +1584,7 @@ static const MsvcToolChain *selectMsvcToolChain(const QString &displayedVarsBat,
     return toolChain;
 }
 
-static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPath,
+static QList<ToolChain *> detectClangClToolChainInPath(const FilePath &clangClPath,
                                                        const QList<ToolChain *> &alreadyKnown,
                                                        const QString &displayedVarsBat,
                                                        bool isDefault = false)
@@ -1595,7 +1595,7 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
 
     if (!toolChain) {
         qWarning("Unable to find a suitable MSVC version for \"%s\".",
-                 qPrintable(QDir::toNativeSeparators(clangClPath)));
+                 qPrintable(clangClPath.toUserOutput()));
         return res;
     }
 
@@ -1615,7 +1615,7 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
                 if (tc->language() != language)
                     return false;
                 return systemEnvironment.isSameExecutable(tc->compilerCommand().toString(),
-                                                          clangClPath);
+                                                          clangClPath.toString());
             }));
         if (tc) {
             res << tc;
@@ -1632,16 +1632,11 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
     return res;
 }
 
-static QString compilerFromPath(const QString &path)
-{
-    return path + "/bin/clang-cl.exe";
-}
-
 void ClangClToolChainConfigWidget::applyImpl()
 {
     Utils::FilePath clangClPath = m_compilerCommand->filePath();
     auto clangClToolChain = static_cast<ClangClToolChain *>(toolChain());
-    clangClToolChain->setClangPath(clangClPath.toString());
+    clangClToolChain->setClangPath(clangClPath);
 
     if (clangClPath.fileName() != "clang-cl.exe") {
         clangClToolChain->resetVarsBat();
@@ -1650,7 +1645,7 @@ void ClangClToolChainConfigWidget::applyImpl()
     }
 
     const QString displayedVarsBat = m_varsBatDisplayCombo->currentText();
-    QList<ToolChain *> results = detectClangClToolChainInPath(clangClPath.toString(),
+    QList<ToolChain *> results = detectClangClToolChainInPath(clangClPath,
                                                               {},
                                                               displayedVarsBat);
 
@@ -1694,19 +1689,19 @@ ClangClToolChain::ClangClToolChain()
 
 bool ClangClToolChain::isValid() const
 {
-    const QFileInfo fi(clangPath());
-    return MsvcToolChain::isValid() && fi.exists() && fi.fileName() == "clang-cl.exe";
+    const FilePath clang = clangPath();
+    return MsvcToolChain::isValid() && clang.exists() && clang.fileName() == "clang-cl.exe";
 }
 
 void ClangClToolChain::addToEnvironment(Utils::Environment &env) const
 {
     MsvcToolChain::addToEnvironment(env);
-    env.prependOrSetPath(FilePath::fromString(m_clangPath).parentDir()); // bin folder
+    env.prependOrSetPath(m_clangPath.parentDir()); // bin folder
 }
 
 Utils::FilePath ClangClToolChain::compilerCommand() const
 {
-    return Utils::FilePath::fromString(m_clangPath);
+    return m_clangPath;
 }
 
 QStringList ClangClToolChain::suggestedMkspecList() const
@@ -1728,7 +1723,7 @@ static inline QString llvmDirKey()
 QVariantMap ClangClToolChain::toMap() const
 {
     QVariantMap result = MsvcToolChain::toMap();
-    result.insert(llvmDirKey(), m_clangPath);
+    result.insert(llvmDirKey(), m_clangPath.toString());
     return result;
 }
 
@@ -1739,7 +1734,7 @@ bool ClangClToolChain::fromMap(const QVariantMap &data)
     const QString clangPath = data.value(llvmDirKey()).toString();
     if (clangPath.isEmpty())
         return false;
-    m_clangPath = clangPath;
+    m_clangPath = FilePath::fromString(clangPath);
 
     return true;
 }
@@ -2034,15 +2029,15 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     FilePath qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!qtCreatorsClang.isEmpty()) {
         qtCreatorsClang = qtCreatorsClang.parentDir().pathAppended("clang-cl.exe");
-        results.append(detectClangClToolChainInPath(qtCreatorsClang.toString(),
+        results.append(detectClangClToolChainInPath(qtCreatorsClang,
                                                     alreadyKnown, "", true));
         known.append(results);
     }
 
     const QSettings registry(QLatin1String(registryNode), QSettings::NativeFormat);
     if (registry.status() == QSettings::NoError) {
-        const QString path = QDir::cleanPath(registry.value(QStringLiteral(".")).toString());
-        const QString clangClPath = compilerFromPath(path);
+        const FilePath path = FilePath::fromUserInput(registry.value(QStringLiteral(".")).toString());
+        const FilePath clangClPath = path / "bin/clang-cl.exe";
         if (!path.isEmpty()) {
             results.append(detectClangClToolChainInPath(clangClPath, known, ""));
             known.append(results);
@@ -2052,7 +2047,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Utils::FilePath clangClPath = systemEnvironment.searchInPath("clang-cl");
     if (!clangClPath.isEmpty())
-        results.append(detectClangClToolChainInPath(clangClPath.toString(), known, ""));
+        results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
     return results;
 }

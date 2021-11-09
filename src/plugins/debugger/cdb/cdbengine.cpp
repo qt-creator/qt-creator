@@ -352,7 +352,7 @@ void CdbEngine::setupEngine()
         return;
     }
 
-    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.command.executable().toString());
+    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.command.executable());
     if (!cdbIs64Bit)
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));

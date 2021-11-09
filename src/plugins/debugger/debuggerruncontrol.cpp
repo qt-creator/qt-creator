@@ -495,8 +495,8 @@ void DebuggerRunTool::start()
         return;
 
     if (m_runParameters.cppEngineType == CdbEngineType
-            && Utils::is64BitWindowsBinary(m_runParameters.inferior.command.executable().toString())
-            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable().toString())) {
+            && Utils::is64BitWindowsBinary(m_runParameters.inferior.command.executable())
+            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.command.executable())) {
         reportFailure(
             DebuggerPlugin::tr(
                 "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
