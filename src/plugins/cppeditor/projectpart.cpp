@@ -57,7 +57,7 @@ QString ProjectPart::projectFileLocation() const
 
 bool ProjectPart::belongsToProject(const ProjectExplorer::Project *project) const
 {
-    return project && topLevelProject == project->projectFilePath();
+    return project ? topLevelProject == project->projectFilePath() : !hasProject();
 }
 
 QByteArray ProjectPart::readProjectConfigFile(const QString &projectConfigFile)
