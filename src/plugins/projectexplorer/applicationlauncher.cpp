@@ -83,7 +83,6 @@ public:
     void cannotRetrieveLocalDebugOutput();
     void checkLocalDebugOutput(qint64 pid, const QString &message);
     void localProcessDone(int, QProcess::ExitStatus);
-    void bringToForeground();
     qint64 applicationPID() const;
     bool isRunning() const;
 

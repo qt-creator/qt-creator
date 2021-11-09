@@ -64,7 +64,6 @@ public:
 
     QString errorString() const;
     QProcess::ProcessError processError() const;
-    void bringToForeground();
 
     static QString msgWinCannotRetrieveDebuggingOutput();
 
