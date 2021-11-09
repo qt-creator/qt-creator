@@ -49,6 +49,7 @@ public:
     bool run();
 
     void closed(bool success);
+    void processStarted();
     void localProcessStarted();
     void remoteProcessStarted();
     void findPidOutputReceived(const QString &out, Utils::OutputFormat format);
@@ -117,16 +118,13 @@ bool ValgrindRunner::Private::run()
     connect(&m_valgrindProcess, &ApplicationLauncher::processExited,
             this, &ValgrindRunner::Private::closed);
     connect(&m_valgrindProcess, &ApplicationLauncher::processStarted,
-            this, &ValgrindRunner::Private::localProcessStarted);
+            this, &ValgrindRunner::Private::processStarted);
     connect(&m_valgrindProcess, &ApplicationLauncher::error,
             q, &ValgrindRunner::processError);
     connect(&m_valgrindProcess, &ApplicationLauncher::appendMessage,
             q, &ValgrindRunner::processOutputReceived);
     connect(&m_valgrindProcess, &ApplicationLauncher::finished,
             q, &ValgrindRunner::finished);
-
-    connect(&m_valgrindProcess, &ApplicationLauncher::remoteProcessStarted,
-            this, &ValgrindRunner::Private::remoteProcessStarted);
 
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
@@ -152,6 +150,14 @@ bool ValgrindRunner::Private::run()
     }
 
     return true;
+}
+
+void ValgrindRunner::Private::processStarted()
+{
+    if (m_valgrindProcess.isLocal())
+        localProcessStarted();
+    else
+        remoteProcessStarted();
 }
 
 void ValgrindRunner::Private::localProcessStarted()

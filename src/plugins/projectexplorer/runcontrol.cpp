@@ -1263,21 +1263,12 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
                     reportStopped();
                 });
 
-        connect(&m_launcher, &ApplicationLauncher::processStarted,
-                this, [this] {
-                    appendMessage("Application launcher started", Utils::NormalMessageFormat);
-//                    reportStarted();
-                });
+        connect(&m_launcher, &ApplicationLauncher::processStarted, this, &RunWorker::reportStarted);
 
         connect(&m_launcher, &ApplicationLauncher::processExited,
                 this, [this] {
                     m_launcher.disconnect(this);
                     reportStopped();
-                });
-
-        connect(&m_launcher, &ApplicationLauncher::remoteProcessStarted,
-                this, [this] {
-                    reportStarted();
                 });
 
         connect(&m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);

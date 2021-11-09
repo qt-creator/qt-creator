@@ -86,7 +86,6 @@ public:
     void bringToForeground();
     qint64 applicationPID() const;
     bool isRunning() const;
-    bool isRemoteRunning() const;
 
     // Remote
     void doReportError(const QString &message);
@@ -229,9 +228,9 @@ bool ApplicationLauncher::isRunning() const
     return d->isRunning();
 }
 
-bool ApplicationLauncher::isRemoteRunning() const
+bool ApplicationLauncher::isLocal() const
 {
-    return d->isRemoteRunning();
+    return d->m_isLocal;
 }
 
 bool ApplicationLauncherPrivate::isRunning() const
@@ -239,11 +238,6 @@ bool ApplicationLauncherPrivate::isRunning() const
     if (m_useTerminal)
         return m_consoleProcess.isRunning();
     return m_guiProcess.state() != QProcess::NotRunning;
-}
-
-bool ApplicationLauncherPrivate::isRemoteRunning() const
-{
-    return m_isLocal ? false : m_deviceProcess->state() == QProcess::Running;
 }
 
 ProcessHandle ApplicationLauncher::applicationPID() const
@@ -433,7 +427,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
         m_deviceProcess = device->createProcess(this);
         m_deviceProcess->setRunInTerminal(m_useTerminal);
         connect(m_deviceProcess, &DeviceProcess::started,
-                q, &ApplicationLauncher::remoteProcessStarted);
+                q, &ApplicationLauncher::processStarted);
         connect(m_deviceProcess, &DeviceProcess::readyReadStandardOutput,
                 this, &ApplicationLauncherPrivate::handleRemoteStdout);
         connect(m_deviceProcess, &DeviceProcess::readyReadStandardError,

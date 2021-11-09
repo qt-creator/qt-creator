@@ -60,7 +60,7 @@ public:
     void stop();
     bool isRunning() const;
     Utils::ProcessHandle applicationPID() const;
-    bool isRemoteRunning() const;
+    bool isLocal() const;
 
     QString errorString() const;
     QProcess::ProcessError processError() const;
@@ -75,7 +75,6 @@ signals:
     void error(QProcess::ProcessError error);
 
     void reportError(const QString &errorOutput);
-    void remoteProcessStarted();
     void finished(bool success);
 
 private:
