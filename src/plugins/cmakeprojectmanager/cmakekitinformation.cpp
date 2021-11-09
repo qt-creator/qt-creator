@@ -848,8 +848,8 @@ void CMakeGeneratorKitAspect::addToBuildEnvironment(const Kit *k, Environment &e
     if (info.generator == "NMake Makefiles JOM") {
         if (env.searchInPath("jom.exe").exists())
             return;
-        env.appendOrSetPath(Core::ICore::libexecPath().toUserOutput());
-        env.appendOrSetPath(Core::ICore::libexecPath("jom").toUserOutput());
+        env.appendOrSetPath(Core::ICore::libexecPath());
+        env.appendOrSetPath(Core::ICore::libexecPath("jom"));
     }
 }
 

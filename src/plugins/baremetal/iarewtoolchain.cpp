@@ -361,10 +361,8 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
 
 void IarToolChain::addToEnvironment(Environment &env) const
 {
-    if (!compilerCommand().isEmpty()) {
-        const FilePath path = compilerCommand().parentDir();
-        env.prependOrSetPath(path.toString());
-    }
+    if (!compilerCommand().isEmpty())
+        env.prependOrSetPath(compilerCommand().parentDir());
 }
 
 QList<Utils::OutputLineParser *> IarToolChain::createOutputParsers() const

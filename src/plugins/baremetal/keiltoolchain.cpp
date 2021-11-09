@@ -486,10 +486,8 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolChain::createBuiltInHeaderPathsRunne
 
 void KeilToolChain::addToEnvironment(Environment &env) const
 {
-    if (!compilerCommand().isEmpty()) {
-        const FilePath path = compilerCommand().parentDir();
-        env.prependOrSetPath(path.toString());
-    }
+    if (!compilerCommand().isEmpty())
+        env.prependOrSetPath(compilerCommand().parentDir());
 }
 
 QList<OutputLineParser *> KeilToolChain::createOutputParsers() const

@@ -153,11 +153,11 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
 void CustomToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {
-        FilePath path = m_compilerCommand.parentDir();
-        env.prependOrSetPath(path.toString());
-        FilePath makePath = m_makeCommand.parentDir();
+        const FilePath path = m_compilerCommand.parentDir();
+        env.prependOrSetPath(path);
+        const FilePath makePath = m_makeCommand.parentDir();
         if (makePath != path)
-            env.prependOrSetPath(makePath.toString());
+            env.prependOrSetPath(makePath);
     }
 }
 

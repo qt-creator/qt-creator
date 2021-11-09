@@ -52,16 +52,22 @@ QProcessEnvironment Environment::toProcessEnvironment() const
     return result;
 }
 
-void Environment::appendOrSetPath(const QString &value)
+void Environment::appendOrSetPath(const FilePath &value)
 {
-    appendOrSet("PATH", QDir::toNativeSeparators(value),
+    QTC_CHECK(value.osType() == m_osType);
+    if (value.isEmpty())
+        return;
+    appendOrSet("PATH", value.deviceLocalPath(),
                 QString(OsSpecificAspects::pathListSeparator(m_osType)));
 }
 
-void Environment::prependOrSetPath(const QString &value)
+void Environment::prependOrSetPath(const FilePath &value)
 {
-    prependOrSet("PATH", QDir::toNativeSeparators(value),
-            QString(OsSpecificAspects::pathListSeparator(m_osType)));
+    QTC_CHECK(value.osType() == m_osType);
+    if (value.isEmpty())
+        return;
+    prependOrSet("PATH", value.deviceLocalPath(),
+                 QString(OsSpecificAspects::pathListSeparator(m_osType)));
 }
 
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
@@ -92,17 +98,18 @@ void Environment::prependOrSet(const QString &key, const QString &value, const Q
     }
 }
 
-void Environment::prependOrSetLibrarySearchPath(const QString &value)
+void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
 {
+    QTC_CHECK(value.osType() == m_osType);
     switch (m_osType) {
     case OsTypeWindows: {
         const QChar sep = ';';
-        prependOrSet("PATH", QDir::toNativeSeparators(value), QString(sep));
+        prependOrSet("PATH", value.deviceLocalPath(), QString(sep));
         break;
     }
     case OsTypeMac: {
         const QString sep =  ":";
-        const QString nativeValue = QDir::toNativeSeparators(value);
+        const QString nativeValue = value.deviceLocalPath();
         prependOrSet("DYLD_LIBRARY_PATH", nativeValue, sep);
         prependOrSet("DYLD_FRAMEWORK_PATH", nativeValue, sep);
         break;
@@ -110,7 +117,7 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
     case OsTypeLinux:
     case OsTypeOtherUnix: {
         const QChar sep = ':';
-        prependOrSet("LD_LIBRARY_PATH", QDir::toNativeSeparators(value), QString(sep));
+        prependOrSet("LD_LIBRARY_PATH", value.deviceLocalPath(), QString(sep));
         break;
     }
     default:
@@ -118,9 +125,9 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
     }
 }
 
-void Environment::prependOrSetLibrarySearchPaths(const QStringList &values)
+void Environment::prependOrSetLibrarySearchPaths(const FilePaths &values)
 {
-    Utils::reverseForeach(values, [this](const QString &value) {
+    Utils::reverseForeach(values, [this](const FilePath &value) {
         prependOrSetLibrarySearchPath(value);
     });
 }
@@ -431,17 +438,17 @@ void EnvironmentChange::addUnsetValue(const QString &key)
     m_changeItems.append([key](Environment &env) { env.unset(key); });
 }
 
-void EnvironmentChange::addPrependToPath(const QStringList &values)
+void EnvironmentChange::addPrependToPath(const FilePaths &values)
 {
     for (int i = values.size(); --i >= 0; ) {
-        const QString value = values.at(i);
+        const FilePath value = values.at(i);
         m_changeItems.append([value](Environment &env) { env.prependOrSetPath(value); });
     }
 }
 
-void EnvironmentChange::addAppendToPath(const QStringList &values)
+void EnvironmentChange::addAppendToPath(const FilePaths &values)
 {
-    for (const QString &value : values)
+    for (const FilePath &value : values)
         m_changeItems.append([value](Environment &env) { env.appendOrSetPath(value); });
 }
 

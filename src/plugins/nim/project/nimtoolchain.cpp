@@ -77,7 +77,7 @@ ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner
 void NimToolChain::addToEnvironment(Environment &env) const
 {
     if (isValid())
-        env.prependOrSetPath(compilerCommand().parentDir().toString());
+        env.prependOrSetPath(compilerCommand().parentDir());
 }
 
 FilePath NimToolChain::makeCommand(const Environment &env) const

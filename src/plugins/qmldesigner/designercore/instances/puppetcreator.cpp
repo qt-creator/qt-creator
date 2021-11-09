@@ -485,8 +485,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
             const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
             if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
                 // Update PATH to include QT_HOST_BINS
-                const Utils::FilePath qtBinPath = qt->hostBinPath();
-                environment.prependOrSetPath(qtBinPath.toString());
+                environment.prependOrSetPath(qt->hostBinPath());
             }
         }
     }

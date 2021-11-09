@@ -1224,10 +1224,10 @@ void tst_Dumpers::initTestCase()
         if (m_makeBinary.isEmpty())
             m_makeBinary = "mingw32-make";
         if (m_makeBinary != "mingw32-make")
-            env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_makeBinary).absolutePath()));
+            env.prependOrSetPath(Utils::FilePath::fromString(m_makeBinary));
         // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
         if (m_qmakeBinary != "qmake")
-            env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_qmakeBinary).absolutePath()));
+            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary));
         m_env = env.toProcessEnvironment();
 #else
         m_env = QProcessEnvironment::systemEnvironment();
@@ -1248,7 +1248,7 @@ void tst_Dumpers::initTestCase()
             cdbextPath = QString(CDBEXT_PATH "\\qtcreatorcdbext64");
         QVERIFY(QFile::exists(cdbextPath + "\\qtcreatorcdbext.dll"));
         env.set("_NT_DEBUGGER_EXTENSION_PATH", cdbextPath);
-        env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_qmakeBinary).absolutePath()));
+        env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary));
         m_makeBinary = env.searchInPath("nmake.exe").toString();
         m_env = env.toProcessEnvironment();
 

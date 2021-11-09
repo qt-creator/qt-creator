@@ -66,6 +66,7 @@ public:
     [[nodiscard]] static FilePath fromUrl(const QUrl &url);
 
     QString toUserOutput() const;
+    QString deviceLocalPath() const;
     QString toString() const;
     QVariant toVariant() const;
     QUrl toUrl() const;

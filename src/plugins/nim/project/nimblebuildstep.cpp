@@ -66,7 +66,7 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     });
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
     setEnvironmentModifier([this](Environment &env) {
-        env.appendOrSetPath(Nim::nimPathFromKit(kit()).toUserOutput());
+        env.appendOrSetPath(Nim::nimPathFromKit(kit()));
     });
 
     setSummaryUpdater([this] {

@@ -1414,7 +1414,7 @@ Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
     FilePath jdkLocation = config.openJDKLocation();
     if (!jdkLocation.isEmpty()) {
         env.set("JAVA_HOME", jdkLocation.toUserOutput());
-        env.prependOrSetPath(jdkLocation.pathAppended("bin").toUserOutput());
+        env.prependOrSetPath(jdkLocation.pathAppended("bin"));
     }
     return env;
 }

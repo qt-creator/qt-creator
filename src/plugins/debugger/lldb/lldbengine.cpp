@@ -217,8 +217,7 @@ void LldbEngine::setupEngine()
         FilePath androidPythonDir = lldbCmd.parentDir().parentDir().pathAppended("python3");
         if (HostOsInfo::isAnyUnixHost())
             androidPythonDir = androidPythonDir.pathAppended("bin");
-        if (androidPythonDir.exists())
-            environment.prependOrSetPath(androidPythonDir.path());
+        environment.prependOrSetPath(androidPythonDir);
     }
     m_lldbProc.setEnvironment(environment);
 

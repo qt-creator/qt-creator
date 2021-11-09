@@ -633,9 +633,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
 
 void GccToolChain::addCommandPathToEnvironment(const FilePath &command, Environment &env)
 {
-    const Utils::FilePath compilerDir = command.parentDir();
-    if (!compilerDir.isEmpty())
-        env.prependOrSetPath(compilerDir.toString());
+    env.prependOrSetPath(command.parentDir());
 }
 
 void GccToolChain::addToEnvironment(Environment &env) const
@@ -1526,7 +1524,7 @@ void ClangToolChain::addToEnvironment(Environment &env) const
 
     const QString sysroot = sysRoot();
     if (!sysroot.isEmpty())
-        env.prependOrSetPath(sysroot + "/bin");
+        env.prependOrSetPath(FilePath::fromString(sysroot) / "bin");
 
     // Clang takes PWD as basis for debug info, if set.
     // When running Qt Creator from a shell, PWD is initially set to an "arbitrary" value.

@@ -1187,7 +1187,7 @@ void QmakeBuildSystem::updateBuildSystemData()
             bti.usesTerminal = !qt.contains("testlib") && !qt.contains("qmltest");
         }
 
-        QStringList libraryPaths;
+        FilePaths libraryPaths;
 
         // The user could be linking to a library found via a -L/some/dir switch
         // to find those libraries while actually running we explicitly prepend those
@@ -1202,12 +1202,12 @@ void QmakeBuildSystem::updateBuildSystemData()
                 const QFileInfo fi(dir);
                 if (!fi.isAbsolute())
                     dir = QDir::cleanPath(proDirectory + '/' + dir);
-                libraryPaths.append(dir);
+                libraryPaths.append(FilePath::fromUserInput(dir));
             }
         }
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit());
         if (qtVersion)
-            libraryPaths.append(qtVersion->librarySearchPath().toString());
+            libraryPaths.append(qtVersion->librarySearchPath());
 
         bti.runEnvModifierHash = qHash(libraryPaths);
         bti.runEnvModifier = [libraryPaths](Environment &env, bool useLibrarySearchPath) {

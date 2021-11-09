@@ -381,17 +381,11 @@ void QtKitAspect::setQtVersion(Kit *k, const BaseQtVersion *v)
 
 void QtKitAspect::addHostBinariesToPath(const Kit *k, Environment &env)
 {
-    if (const ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
-        const FilePath compilerDir = tc->compilerCommand().parentDir();
-        if (!compilerDir.isEmpty())
-            env.prependOrSetPath(compilerDir.toString());
-    }
+    if (const ToolChain *tc = ToolChainKitAspect::cxxToolChain(k))
+        env.prependOrSetPath(tc->compilerCommand().parentDir());
 
-    if (const BaseQtVersion *qt = qtVersion(k)) {
-        const FilePath hostBinPath = qt->hostBinPath();
-        if (!hostBinPath.isEmpty())
-            env.prependOrSetPath(hostBinPath.toString());
-    }
+    if (const BaseQtVersion *qt = qtVersion(k))
+        env.prependOrSetPath(qt->hostBinPath());
 }
 
 void QtKitAspect::qtVersionsChanged(const QList<int> &addedIds,

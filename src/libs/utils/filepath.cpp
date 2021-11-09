@@ -476,7 +476,7 @@ void FileUtils::setDeviceFileHooks(const DeviceFileHooks &hooks)
     s_deviceHooks = hooks;
 }
 
-/// \returns a QString to display to the user
+/// \returns a QString to display to the user, including the device prefix
 /// Converts the separators to the native format of the system
 /// this path belongs to.
 QString FilePath::toUserOutput() const
@@ -485,6 +485,17 @@ QString FilePath::toUserOutput() const
     if (osType() == OsTypeWindows)
         tmp.m_data.replace('/', '\\');
     return tmp.toString();
+}
+
+/// \returns a QString to pass to target system native commands, without the device prefix.
+/// Converts the separators to the native format of the system
+/// this path belongs to.
+QString FilePath::deviceLocalPath() const
+{
+    QString data = m_data;
+    if (osType() == OsTypeWindows)
+        data.replace('/', '\\');
+    return data;
 }
 
 QString FilePath::fileName() const

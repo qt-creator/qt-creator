@@ -156,8 +156,7 @@ void QnxQtVersion::addToEnvironment(const Kit *k, Environment &env) const
     QtSupport::BaseQtVersion::addToEnvironment(k, env);
     updateEnvironment();
     env.modify(m_qnxEnv);
-
-    env.prependOrSetLibrarySearchPath(libraryPath().toString());
+    env.prependOrSetLibrarySearchPath(libraryPath());
 }
 
 void QnxQtVersion::setupQmakeRunEnvironment(Environment &env) const

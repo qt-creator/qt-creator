@@ -64,10 +64,8 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
     const ToolChain *toolChain = ToolChainManager::toolChain([](const ToolChain *t){
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     });
-    if (toolChain) {
-        const QString mingwPath = toolChain->compilerCommand().parentDir().toUserOutput();
-        env.appendOrSetPath(mingwPath);
-    }
+    if (toolChain)
+        env.appendOrSetPath(toolChain->compilerCommand().parentDir());
 }
 
 void WebAssemblyToolChain::addToEnvironment(Environment &env) const

@@ -36,6 +36,8 @@
 #include "vcsmanager.h"
 
 #include <app/app_version.h>
+
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
@@ -324,7 +326,7 @@ void SystemSettingsWidget::resetFileBrowser()
 void SystemSettingsWidget::updatePath()
 {
     EnvironmentChange change;
-    change.addAppendToPath(VcsManager::additionalToolsPath());
+    change.addAppendToPath(Utils::transform(VcsManager::additionalToolsPath(), &FilePath::fromString));
     m_ui.patchChooser->setEnvironmentChange(change);
 }
 

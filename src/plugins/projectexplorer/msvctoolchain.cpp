@@ -1701,8 +1701,7 @@ bool ClangClToolChain::isValid() const
 void ClangClToolChain::addToEnvironment(Utils::Environment &env) const
 {
     MsvcToolChain::addToEnvironment(env);
-    QDir path = QFileInfo(m_clangPath).absoluteDir(); // bin folder
-    env.prependOrSetPath(path.canonicalPath());
+    env.prependOrSetPath(FilePath::fromString(m_clangPath).parentDir()); // bin folder
 }
 
 Utils::FilePath ClangClToolChain::compilerCommand() const

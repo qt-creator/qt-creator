@@ -51,11 +51,11 @@ public:
     void appendOrSet(const QString &key, const QString &value, const QString &sep = QString());
     void prependOrSet(const QString &key, const QString &value, const QString &sep = QString());
 
-    void appendOrSetPath(const QString &value);
-    void prependOrSetPath(const QString &value);
+    void appendOrSetPath(const Utils::FilePath &value);
+    void prependOrSetPath(const Utils::FilePath &value);
 
-    void prependOrSetLibrarySearchPath(const QString &value);
-    void prependOrSetLibrarySearchPaths(const QStringList &values);
+    void prependOrSetLibrarySearchPath(const Utils::FilePath &value);
+    void prependOrSetLibrarySearchPaths(const Utils::FilePaths &values);
 
     void setupEnglishOutput();
 
@@ -97,8 +97,8 @@ public:
 
     void addSetValue(const QString &key, const QString &value);
     void addUnsetValue(const QString &key);
-    void addPrependToPath(const QStringList &values);
-    void addAppendToPath(const QStringList &values);
+    void addPrependToPath(const Utils::FilePaths &values);
+    void addAppendToPath(const Utils::FilePaths &values);
     void addModify(const NameValueItems &items);
     void addChange(const Item &item) { m_changeItems.append(item); }
 

@@ -31,6 +31,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -156,7 +157,8 @@ CommonSettingsWidget::CommonSettingsWidget(CommonOptionsPage *page)
 void CommonSettingsWidget::updatePath()
 {
     EnvironmentChange change;
-    change.addAppendToPath(Core::VcsManager::additionalToolsPath());
+    change.addAppendToPath(Utils::transform(Core::VcsManager::additionalToolsPath(),
+                                            &FilePath::fromString));
     m_page->settings().sshPasswordPrompt.setEnvironmentChange(change);
 }
 

@@ -2217,7 +2217,7 @@ Environment GitClient::processEnvironment() const
 {
     Environment environment = VcsBaseClientImpl::processEnvironment();
     QString gitPath = settings().path.value();
-    environment.prependOrSetPath(gitPath);
+    environment.prependOrSetPath(FilePath::fromUserInput(gitPath));
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value())
         environment.set("HOME", QDir::toNativeSeparators(QDir::homePath()));
     environment.set("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
