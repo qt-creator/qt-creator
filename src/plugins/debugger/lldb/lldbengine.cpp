@@ -264,10 +264,6 @@ void LldbEngine::setupEngine()
         runCommand(cmd);
     }
 
-    DebuggerCommand cmd0("setFallbackQtVersion");
-    cmd0.arg("version", "0x" + QString::number(rp.fallbackQtVersion, 16));
-    runCommand(cmd0);
-
     DebuggerCommand cmd1("loadDumpers");
     cmd1.callback = [this](const DebuggerResponse &response) {
         watchHandler()->addDumpers(response.data["dumpers"]);
@@ -343,6 +339,10 @@ void LldbEngine::setupEngine()
 
     cmd2.flags = Silent;
     runCommand(cmd2);
+
+    DebuggerCommand cmd0("setFallbackQtVersion");
+    cmd0.arg("version", rp.fallbackQtVersion);
+    runCommand(cmd0);
 }
 
 void LldbEngine::runEngine()

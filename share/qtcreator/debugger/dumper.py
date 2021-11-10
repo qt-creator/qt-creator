@@ -253,8 +253,8 @@ class DumperBase():
         #DumperBase.warn('WATCHERS: %s' % self.watchers)
 
     def setFallbackQtVersion(self, args):
-        version = int(args.get('version', '0x%x' % self.fallbackQtVersion), 16)
-        self.warn("got fallback qt version %x" % version)
+        version = int(args.get('version', self.fallbackQtVersion))
+        DumperBase.warn("got fallback qt version 0x%x" % version)
         self.fallbackQtVersion = version
 
     def resetPerStepCaches(self):

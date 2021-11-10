@@ -4007,7 +4007,10 @@ void GdbEngine::setupEngine()
     if (!commands.isEmpty())
         runCommand({commands});
 
-    runCommand({"setFallbackQtVersion(0x" + QString::number(rp.fallbackQtVersion, 16) + ")"});
+    DebuggerCommand cmd1("setFallbackQtVersion");
+    cmd1.arg("version", rp.fallbackQtVersion);
+    runCommand(cmd1);
+
     runCommand({"loadDumpers", CB(handlePythonSetup)});
 
     // Reload peripheral register description.
