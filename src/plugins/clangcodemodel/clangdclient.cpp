@@ -66,6 +66,7 @@
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QDateTime>
@@ -1110,6 +1111,12 @@ public:
     using LanguageClientCompletionItem::LanguageClientCompletionItem;
     void apply(TextDocumentManipulatorInterface &manipulator,
                int basePosition) const override;
+
+    enum class SpecialQtType { Signal, Slot, None };
+    static SpecialQtType getQtType(const CompletionItem &item);
+
+private:
+    QIcon icon() const override;
 };
 
 class ClangdClient::ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
@@ -1155,15 +1162,7 @@ ClangdClient::ClangdCompletionAssistProcessor::generateCompletionItems(
     // whether the cursor was on the second argument of a (dis)connect() call.
     // If so, we offer only signals, as nothing else makes sense in that context.
     static const auto criterion = [](const CompletionItem &ci) {
-        const Utils::optional<MarkupOrString> doc = ci.documentation();
-        if (!doc)
-            return false;
-        QString docText;
-        if (Utils::holds_alternative<QString>(*doc))
-            docText = Utils::get<QString>(*doc);
-        else if (Utils::holds_alternative<MarkupContent>(*doc))
-            docText = Utils::get<MarkupContent>(*doc).content();
-        return docText.contains("Annotation: qt_signal");
+        return ClangdCompletionItem::getQtType(ci) == ClangdCompletionItem::SpecialQtType::Signal;
     };
     const QTextDocument *doc = document();
     const int pos = basePos();
@@ -3007,6 +3006,38 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
         for (const auto &edit : *additionalEdits)
             applyTextEdit(manipulator, edit);
     }
+}
+
+ClangdCompletionItem::SpecialQtType ClangdCompletionItem::getQtType(const CompletionItem &item)
+{
+    const Utils::optional<MarkupOrString> doc = item.documentation();
+    if (!doc)
+        return SpecialQtType::None;
+    QString docText;
+    if (Utils::holds_alternative<QString>(*doc))
+        docText = Utils::get<QString>(*doc);
+    else if (Utils::holds_alternative<MarkupContent>(*doc))
+        docText = Utils::get<MarkupContent>(*doc).content();
+    if (docText.contains("Annotation: qt_signal"))
+        return SpecialQtType::Signal;
+    if (docText.contains("Annotation: qt_slot"))
+        return SpecialQtType::Slot;
+    return SpecialQtType::None;
+}
+
+QIcon ClangdCompletionItem::icon() const
+{
+    const SpecialQtType qtType = getQtType(item());
+    switch (qtType) {
+    case SpecialQtType::Signal:
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Signal);
+    case SpecialQtType::Slot:
+         // FIXME: Add visibility info to completion item tags in clangd?
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::SlotPublic);
+    case SpecialQtType::None:
+        break;
+    }
+    return LanguageClientCompletionItem::icon();
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
