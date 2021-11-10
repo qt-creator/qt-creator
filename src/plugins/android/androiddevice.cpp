@@ -37,7 +37,10 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
@@ -418,11 +421,19 @@ QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 
 void AndroidDeviceManager::updateDevicesList()
 {
-    connect(&m_devicesUpdaterTimer, &QTimer::timeout, this, [this]() {
-        updateDevicesListOnce();
-    });
+    // If a non-Android Kit is currently active, skip the device list update
+    const Target *startupTarget = SessionManager::startupTarget();
+    if (!startupTarget)
+        return;
+
+    const Kit *kit = startupTarget->kit();
+    if (!kit)
+        return;
+
+    if (DeviceTypeKitAspect::deviceTypeId(kit) != Constants::ANDROID_DEVICE_TYPE)
+        return;
+
     updateDevicesListOnce();
-    m_devicesUpdaterTimer.start(deviceUpdaterMsInterval);
 }
 
 void AndroidDeviceManager::updateDevicesListOnce()
@@ -537,11 +548,17 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
 
 void AndroidDeviceManager::setupDevicesWatcher()
 {
-    // The call to avdmanager is always slower than the call to adb devices,
-    // so connecting the slot to the slower call should be enough.
-    connect(&m_avdsFutureWatcher, &QFutureWatcherBase::finished,
-            this,  &AndroidDeviceManager::devicesListUpdated);
-    updateDevicesList();
+    if (!m_devicesUpdaterTimer.isActive()) {
+        // The call to avdmanager is always slower than the call to adb devices,
+        // so connecting the slot to the slower call should be enough.
+        connect(&m_avdsFutureWatcher, &QFutureWatcherBase::finished,
+                this,  &AndroidDeviceManager::devicesListUpdated);
+        connect(&m_devicesUpdaterTimer, &QTimer::timeout, this, [this]() {
+            updateDevicesList();
+        });
+        m_devicesUpdaterTimer.start(deviceUpdaterMsInterval);
+    }
+    updateDevicesListOnce();
 }
 
 void AndroidDeviceManager::devicesListUpdated()
