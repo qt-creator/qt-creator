@@ -952,7 +952,18 @@ ProjectExplorer::Project *Client::project() const
 
 void Client::setCurrentProject(ProjectExplorer::Project *project)
 {
+    if (m_project == project)
+        return;
+    if (m_project)
+        m_project->disconnect(this);
     m_project = project;
+    if (m_project) {
+        connect(m_project, &ProjectExplorer::Project::destroyed, this, [this]() {
+            // the project of the client should already be null since we expect the session and
+            // the language client manager to reset it before it gets deleted.
+            QTC_ASSERT(m_project == nullptr, projectClosed(m_project));
+        });
+    }
 }
 
 void Client::projectOpened(ProjectExplorer::Project *project)
