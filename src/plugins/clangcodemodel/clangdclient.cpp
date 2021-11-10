@@ -2453,6 +2453,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 return true;
             }
 
+            if (it->kind() == "Lambda")
+                return false;
             if (it->kind().endsWith("Cast") && it->hasConstType())
                 return false;
             if (it->kind() == "Member" && it->arcanaContains("(")
