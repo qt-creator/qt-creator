@@ -15,18 +15,23 @@ HEADERS += \
     newprojectdialogimageprovider.h \
     qdsnewdialog.h \
     wizardfactories.h \
+    wizardhandler.h \
     createproject.h \
     newprojectmodel.h \
-    examplecheckout.h
+    examplecheckout.h \
+    screensizemodel.h \
+    stylemodel.h
 
 SOURCES += \
     studiowelcomeplugin.cpp \
     qdsnewdialog.cpp \
     wizardfactories.cpp \
+    wizardhandler.cpp \
     createproject.cpp \
     newprojectdialogimageprovider.cpp \
     newprojectmodel.cpp \
-    examplecheckout.cpp
+    examplecheckout.cpp \
+    stylemodel.cpp
 
 OTHER_FILES += \
     StudioWelcome.json.in
