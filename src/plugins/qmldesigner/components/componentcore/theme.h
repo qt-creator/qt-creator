@@ -174,8 +174,7 @@ public:
         unpin,
         upDownIcon,
         upDownSquare2,
-        visibilityOffBroken, // visibilityOff
-        visibilityOff, // visibilityOff2
+        visibilityOff,
         visibilityOn,
         wildcard,
         wizardsAutomotive,
