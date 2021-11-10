@@ -38,13 +38,20 @@
     build system and uses it or even the build system as such to execute the
     respective tests.
 
-    \QC integrates the \l{Qt Test} framework,
-    \l{https://github.com/google/googletest}{Google C++ Testing Framework},
-    \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
-    {Boost.Test}, and \l{https://github.com/catchorg/Catch2}
-    {Catch2 test framework} for unit testing applications and libraries.
+    \QC integrates the following testing frameworks for unit testing
+    applications and libraries:
+
+    \list
+        \li \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
+            {Boost.Test}
+        \li \l{https://github.com/catchorg/Catch2}{Catch2 test framework}
+        \li \l{https://github.com/google/googletest}{Google C++ Testing Framework}
+        \li \l{Qt Test} framework
+    \endlist
+
     Additional build system based support is provided for
     \l{https://cmake.org/cmake/help/latest/manual/ctest.1.html}{CTest}.
+
     You can use \QC to create, build, and run code based tests for your
     projects.
 
@@ -332,15 +339,22 @@
                     in the file currently open in the code editor.
             \endlist
 
-            \note By default, \QC builds a project before deploying and running
-            it.
+    \endlist
+
+    By default, \QC builds a project before deploying and running it.
+    To run all tests without building and deploying them again, select
+    \uicontrol {Run All Tests Without Deployment} in the context menu.
+    To run the selected tests without deployment, select
+    \uicontrol {Run Selected Tests Without Deployment}.
+
+    The functions to run tests are also available in the context menu in the
+    \uicontrol Tests view and in \uicontrol Tools > \uicontrol Tests.
+
             \note If you have enabled build system based and code based tests,
             you may run tests twice when using \uicontrol {Run All Tests} or
             \uicontrol {Run Selected Tests}. This happens if the tests can be
             found by the code based test frameworks and are registered as test
             with the build system.
-
-    \endlist
 
     If a test takes more than a minute to execute, the default timeout might
     stop the test execution. To increase the timeout, select \uicontrol Tools >
@@ -369,7 +383,8 @@
 
     The test cases are listed in alphabetic, case insensitive order. To list
     them in the order in which they are defined in the source code,
-    select \inlineimage leafsort.png (\uicontrol {Sort Naturally}).
+    select \inlineimage leafsort.png
+    (\uicontrol {Sort Naturally}).
 
     \section2 Running and Debugging Tests from Code Editor
 
@@ -511,7 +526,7 @@
         \li To specify settings for running Catch2 tests, select
             \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
             \uicontrol {Catch Test}.
-            \image qtcreator-autotests-options-catch2.png
+            \image qtcreator-autotests-options-catch2.png "Catch Test options"
         \li Select the \uicontrol {Show success} check box to show succeeding
             expressions as well. By default Catch2 will print only fails.
         \li Select the \uicontrol {Break on failure while debugging} check box
@@ -543,7 +558,7 @@
         \li To specify settings for running CTest-based tests, select
         \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
         \uicontrol {CTest}.
-        //! insert image here
+            \image qtcreator-autotests-options-ctest.png "CTest options"
         \li Select the \uicontrol {Output on failure} check box to show test
             specific output if a test fails. Contrary to the CTest default
             this is enabled by default.
