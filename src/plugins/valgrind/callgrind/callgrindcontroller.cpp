@@ -121,8 +121,6 @@ void CallgrindController::run(Option option)
             this, &CallgrindController::controllerProcessFinished);
     connect(m_controllerProcess, &ApplicationLauncher::error,
             this, &CallgrindController::handleControllerProcessError);
-    connect(m_controllerProcess, &ApplicationLauncher::finished,
-            this, &CallgrindController::controllerProcessClosed);
 
     Runnable controller = m_valgrindRunnable;
     controller.command.setExecutable(FilePath::fromString(CALLGRIND_CONTROL_BINARY));
@@ -183,24 +181,6 @@ void CallgrindController::controllerProcessFinished(int rc, QProcess::ExitStatus
 
     emit finished(m_lastOption);
     m_lastOption = Unknown;
-}
-
-void CallgrindController::controllerProcessClosed(bool success)
-{
-    Q_UNUSED(success)
-    //    QTC_ASSERT(m_remote.m_process, return);
-
-//    m_remote.m_errorString = m_remote.m_process->errorString();
-//    if (status == QSsh::SshRemoteProcess::FailedToStart) {
-//        m_remote.m_error = QProcess::FailedToStart;
-//        emit ValgrindProcessX::error(QProcess::FailedToStart);
-//    } else if (status == QSsh::SshRemoteProcess::NormalExit) {
-//        emit finished(m_remote.m_process->exitCode(), QProcess::NormalExit);
-//    } else if (status == QSsh::SshRemoteProcess::CrashExit) {
-//        m_remote.m_error = QProcess::Crashed;
-//        emit finished(m_remote.m_process->exitCode(), QProcess::CrashExit);
-//    }
-     controllerProcessFinished(0, QProcess::NormalExit);
 }
 
 void CallgrindController::getLocalDataFile()

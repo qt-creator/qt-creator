@@ -1256,12 +1256,6 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
             reportFailure(m_launcher.errorString());
         });
 
-        connect(&m_launcher, &ApplicationLauncher::finished,
-                this, [this] {
-                    m_launcher.disconnect(this);
-                    reportStopped();
-                });
-
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, &RunWorker::reportStarted);
 
         connect(&m_launcher, &ApplicationLauncher::processExited,

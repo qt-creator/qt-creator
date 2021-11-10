@@ -81,7 +81,7 @@ public:
                 &DeviceApplicationObserver::handleAppendMessage);
         connect(&m_appRunner, &ApplicationLauncher::error, this,
                 [this] { m_error = m_appRunner.errorString(); });
-        connect(&m_appRunner, &ApplicationLauncher::finished, this,
+        connect(&m_appRunner, &ApplicationLauncher::processExited, this,
                 &DeviceApplicationObserver::handleFinished);
 
         QTC_ASSERT(device, return);
@@ -103,14 +103,14 @@ private:
             m_stderr += data;
     }
 
-    void handleFinished(bool success)
+    void handleFinished(int exitCode, QProcess::ExitStatus exitStatus)
     {
-        if (success && (m_stdout.contains("fail") || m_stdout.contains("error")
-                        || m_stdout.contains("not found"))) {
-            // FIXME: Needed in a post-adb world?
-            success = false; // adb does not forward exit codes and all stderr goes to stdout.
-        }
-        if (!success) {
+        Q_UNUSED(exitCode)
+        // FIXME: Needed in a post-adb world?
+        // adb does not forward exit codes and all stderr goes to stdout.
+        const bool failure = exitStatus == QProcess::CrashExit || m_stdout.contains("fail")
+                || m_stdout.contains("error") || m_stdout.contains("not found");
+        if (failure) {
             QString errorString;
             if (!m_error.isEmpty()) {
                 errorString = QdbDevice::tr("Command failed on device \"%1\": %2")

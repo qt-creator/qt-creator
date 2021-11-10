@@ -119,9 +119,9 @@ public:
     DeviceProcess *m_deviceProcess = nullptr;
     QString m_remoteErrorString;
     QProcess::ProcessError m_remoteError = QProcess::UnknownError;
+    QProcess::ExitStatus m_remoteExitStatus = QProcess::CrashExit;
     State m_state = Inactive;
     bool m_stopRequested = false;
-    bool m_success = false;
 };
 
 } // Internal
@@ -213,7 +213,7 @@ void ApplicationLauncherPrivate::stop()
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        m_success = false;
+        m_remoteExitStatus = QProcess::CrashExit;
         emit q->appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
                               Utils::NormalMessageFormat);
         switch (m_state) {
@@ -423,7 +423,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
         }
 
         m_stopRequested = false;
-        m_success = true;
+        m_remoteExitStatus = QProcess::NormalExit;
 
         m_deviceProcess = device->createProcess(this);
         m_deviceProcess->setRunInTerminal(m_useTerminal);
@@ -455,14 +455,16 @@ void ApplicationLauncherPrivate::setFinished()
     if (m_state == Inactive)
         return;
 
+    int exitCode = 0;
     if (m_deviceProcess) {
+        exitCode = m_deviceProcess->exitCode();
         m_deviceProcess->disconnect(this);
         m_deviceProcess->deleteLater();
         m_deviceProcess = nullptr;
     }
 
     m_state = Inactive;
-    emit q->finished(m_success);
+    emit q->processExited(exitCode, m_remoteExitStatus);
 }
 
 void ApplicationLauncherPrivate::handleApplicationFinished()
@@ -502,7 +504,7 @@ void ApplicationLauncherPrivate::doReportError(const QString &message, QProcess:
 {
     m_remoteErrorString = message;
     m_remoteError = error;
-    m_success = false;
+    m_remoteExitStatus = QProcess::CrashExit;
     emit q->error(error);
 }
 

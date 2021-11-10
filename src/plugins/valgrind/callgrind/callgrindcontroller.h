@@ -78,7 +78,6 @@ private:
 
     void controllerProcessFinished(int, QProcess::ExitStatus);
     void controllerProcessError(QProcess::ProcessError);
-    void controllerProcessClosed(bool success);
 
     ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;
     ProjectExplorer::Runnable m_valgrindRunnable;

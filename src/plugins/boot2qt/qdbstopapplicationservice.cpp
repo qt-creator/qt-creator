@@ -57,10 +57,11 @@ QdbStopApplicationService::~QdbStopApplicationService()
     delete d;
 }
 
-void QdbStopApplicationService::handleProcessFinished(bool success)
+void QdbStopApplicationService::handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+    Q_UNUSED(exitCode)
     const auto failureMessage = tr("Could not check and possibly stop running application.");
-    if (!success) {
+    if (exitStatus == QProcess::CrashExit) {
         emit errorMessage(failureMessage);
         stopDeployment();
         return;
@@ -90,7 +91,7 @@ void QdbStopApplicationService::doDeploy()
 {
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::error,
             this, [this] { emit stdErrData(d->applicationLauncher.errorString()); });
-    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::finished,
+    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::processExited,
             this, &QdbStopApplicationService::handleProcessFinished);
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::appendMessage,
             this, &QdbStopApplicationService::handleAppendMessage);

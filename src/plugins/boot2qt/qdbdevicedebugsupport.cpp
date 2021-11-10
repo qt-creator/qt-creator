@@ -57,7 +57,7 @@ public:
 
         connect(&m_launcher, &ApplicationLauncher::processStarted,
                 this, &RunWorker::reportStarted);
-        connect(&m_launcher, &ApplicationLauncher::finished,
+        connect(&m_launcher, &ApplicationLauncher::processExited,
                 this, &RunWorker::reportStopped);
         connect(&m_launcher, &ApplicationLauncher::appendMessage,
                 this, &RunWorker::appendMessage);

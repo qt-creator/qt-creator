@@ -48,7 +48,6 @@ public:
 
     bool run();
 
-    void closed(bool success);
     void processStarted();
     void localProcessStarted();
     void remoteProcessStarted();
@@ -116,15 +115,13 @@ bool ValgrindRunner::Private::run()
     // -q as suggested by valgrind manual
 
     connect(&m_valgrindProcess, &ApplicationLauncher::processExited,
-            this, &ValgrindRunner::Private::closed);
+            q, &ValgrindRunner::processFinished);
     connect(&m_valgrindProcess, &ApplicationLauncher::processStarted,
             this, &ValgrindRunner::Private::processStarted);
     connect(&m_valgrindProcess, &ApplicationLauncher::error,
             q, &ValgrindRunner::processError);
     connect(&m_valgrindProcess, &ApplicationLauncher::appendMessage,
             q, &ValgrindRunner::processOutputReceived);
-    connect(&m_valgrindProcess, &ApplicationLauncher::finished,
-            q, &ValgrindRunner::finished);
 
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
@@ -217,25 +214,6 @@ void ValgrindRunner::Private::findPidOutputReceived(const QString &out, Utils::O
         emit q->valgrindStarted(pid);
     }
 }
-
-void ValgrindRunner::Private::closed(bool success)
-{
-    Q_UNUSED(success)
-//    QTC_ASSERT(m_remote.m_process, return);
-
-//    m_remote.m_errorString = m_remote.m_process->errorString();
-//    if (status == QSsh::SshRemoteProcess::FailedToStart) {
-//        m_remote.m_error = QProcess::FailedToStart;
-//        q->processError(QProcess::FailedToStart);
-//    } else if (status == QSsh::SshRemoteProcess::NormalExit) {
-//        q->processFinished(m_remote.m_process->exitCode(), QProcess::NormalExit);
-//    } else if (status == QSsh::SshRemoteProcess::CrashExit) {
-//        m_remote.m_error = QProcess::Crashed;
-//        q->processFinished(m_remote.m_process->exitCode(), QProcess::CrashExit);
-//    }
-     q->processFinished(0, QProcess::NormalExit);
-}
-
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
     : QObject(parent), d(new Private(this))
