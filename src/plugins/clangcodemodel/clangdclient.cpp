@@ -25,6 +25,7 @@
 
 #include "clangdclient.h"
 
+#include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdiagnosticmanager.h"
 #include "clangmodelmanagersupport.h"
@@ -811,14 +812,15 @@ public:
 };
 
 
-enum class CustomAssistMode { Doxygen, Preprocessor };
+enum class CustomAssistMode { Doxygen, Preprocessor, IncludePath };
 class CustomAssistProcessor : public IAssistProcessor
 {
 public:
-    CustomAssistProcessor(ClangdClient *client, int position, unsigned completionOperator,
-                          CustomAssistMode mode)
+    CustomAssistProcessor(ClangdClient *client, int position, int endPos,
+                          unsigned completionOperator, CustomAssistMode mode)
         : m_client(client)
         , m_position(position)
+        , m_endPos(endPos)
         , m_completionOperator(completionOperator)
         , m_mode(mode)
     {}
@@ -834,7 +836,7 @@ private:
                                           CPlusPlus::Icons::keywordIcon());
             }
             break;
-        case CustomAssistMode::Preprocessor:
+        case CustomAssistMode::Preprocessor: {
             static QIcon macroIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro);
             for (const QString &completion
                  : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions()) {
@@ -843,6 +845,17 @@ private:
             if (CppEditor::ProjectFile::isObjC(interface->filePath().toString()))
                 completions << createItem("import", macroIcon);
             break;
+        }
+        case ClangCodeModel::Internal::CustomAssistMode::IncludePath: {
+            HeaderPaths headerPaths;
+            const CppEditor::ProjectPart::ConstPtr projectPart
+                    = projectPartForFile(interface->filePath().toString());
+            if (projectPart)
+                headerPaths = projectPart->headerPaths;
+            completions = ClangCompletionAssistProcessor::completeInclude(
+                        m_endPos, m_completionOperator, interface, headerPaths);
+            break;
+        }
         }
         GenericProposalModelPtr model(new GenericProposalModel);
         model->loadContent(completions);
@@ -865,6 +878,7 @@ private:
 
     ClangdClient * const m_client;
     const int m_position;
+    const int m_endPos;
     const unsigned m_completionOperator;
     const CustomAssistMode m_mode;
 };
@@ -2816,14 +2830,26 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
         qCDebug(clangdLogCompletion) << "creating doxygen processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
+                                         contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Doxygen);
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
         qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
+                                         contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
+    case ClangCompletionContextAnalyzer::CompleteIncludePath:
+        if (m_client->versionNumber() < QVersionNumber(14)) { // https://reviews.llvm.org/D112996
+            qCDebug(clangdLogCompletion) << "creating include processor";
+            return new CustomAssistProcessor(m_client,
+                                             contextAnalyzer.positionForProposal(),
+                                             contextAnalyzer.positionEndOfExpression(),
+                                             contextAnalyzer.completionOperator(),
+                                             CustomAssistMode::IncludePath);
+        }
+        [[fallthrough]];
     default:
         break;
     }

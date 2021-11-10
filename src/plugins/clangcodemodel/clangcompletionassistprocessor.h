@@ -34,6 +34,11 @@
 #include <QCoreApplication>
 #include <QTextCursor>
 
+namespace TextEditor {
+class AssistInterface;
+class AssistProposalItemInterface;
+}
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -47,6 +52,11 @@ class ClangCompletionAssistProcessor : public CppEditor::CppCompletionAssistProc
 public:
     ClangCompletionAssistProcessor();
     ~ClangCompletionAssistProcessor() override;
+
+    static QList<TextEditor::AssistProposalItemInterface *> completeInclude(
+            int position, unsigned completionOperator,
+            const TextEditor::AssistInterface *interface,
+            const ProjectExplorer::HeaderPaths &headerPaths);
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
@@ -65,12 +75,10 @@ private:
     TextEditor::IAssistProposal *createProposal();
     TextEditor::IAssistProposal *createFunctionHintProposal(
             const CodeCompletions &completions);
-
     QList<TextEditor::AssistProposalItemInterface *> toAssistProposalItems(
             const CodeCompletions &completions) const;
-    bool completeInclude(const QTextCursor &cursor);
-    bool completeInclude(int position);
-    void completeIncludePath(const QString &realPath, const QStringList &suffixes);
+    static QList<TextEditor::AssistProposalItemInterface *> completeIncludePath(
+            const QString &realPath, const QStringList &suffixes, unsigned completionOperator);
     bool completePreprocessorDirectives();
     bool completeDoxygenKeywords();
     void addCompletionItem(const QString &text,
