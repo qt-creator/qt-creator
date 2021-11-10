@@ -490,7 +490,7 @@ QString FilePath::toUserOutput() const
 /// \returns a QString to pass to target system native commands, without the device prefix.
 /// Converts the separators to the native format of the system
 /// this path belongs to.
-QString FilePath::deviceLocalPath() const
+QString FilePath::nativePath() const
 {
     QString data = m_data;
     if (osType() == OsTypeWindows)

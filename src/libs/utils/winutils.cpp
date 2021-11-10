@@ -163,7 +163,7 @@ QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const FilePath &binaryIn)
 #  endif
         bool isAmd64 = false;
         DWORD binaryType = 0;
-        const QString binary = binaryIn.deviceLocalPath();
+        const QString binary = binaryIn.nativePath();
         bool success = GetBinaryTypeW(reinterpret_cast<const TCHAR*>(binary.utf16()), &binaryType) != 0;
         if (success && binaryType == SCS_64BIT_BINARY)
             isAmd64=true;

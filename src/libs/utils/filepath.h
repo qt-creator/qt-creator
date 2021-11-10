@@ -66,7 +66,6 @@ public:
     [[nodiscard]] static FilePath fromUrl(const QUrl &url);
 
     QString toUserOutput() const;
-    QString deviceLocalPath() const;
     QString toString() const;
     QVariant toVariant() const;
     QUrl toUrl() const;
@@ -167,6 +166,7 @@ public:
     // on Windows and macOS. This is rarely needed.
     [[nodiscard]] FilePath normalizedPathName() const;
 
+    QString nativePath() const;
     QString shortNativePath() const;
     bool startsWithDriveLetter() const;
 
