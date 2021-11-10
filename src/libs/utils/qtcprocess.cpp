@@ -558,7 +558,6 @@ public:
     QTextCodec *m_codec = QTextCodec::codecForLocale();
     QEventLoop *m_eventLoop = nullptr;
     QtcProcess::Result m_result = QtcProcess::StartFailed;
-    QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
     ExitCodeInterpreter m_exitCodeInterpreter;
@@ -1508,7 +1507,6 @@ void QtcProcessPrivate::slotFinished(int exitCode, QProcess::ExitStatus status)
     if (debug)
         qDebug() << Q_FUNC_INFO << exitCode << status;
     m_hangTimerCount = 0;
-    m_exitStatus = status;
 
     switch (status) {
     case QProcess::NormalExit:
