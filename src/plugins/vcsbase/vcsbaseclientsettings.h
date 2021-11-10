@@ -46,7 +46,7 @@ public:
     Utils::IntegerAspect timeout; // Seconds
     Utils::StringAspect path;
 
-    QStringList searchPathList() const;
+    Utils::FilePaths searchPathList() const;
 
 private:
     QString m_settingsGroup;

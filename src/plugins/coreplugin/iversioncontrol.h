@@ -221,7 +221,7 @@ public:
      * Return a list of paths where tools that came with the VCS may be installed.
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
-    virtual QStringList additionalToolsPath() const;
+    virtual Utils::FilePaths additionalToolsPath() const;
 
     /*!
      * Return a ShellCommand capable of checking out \a url into \a baseDirectory, where

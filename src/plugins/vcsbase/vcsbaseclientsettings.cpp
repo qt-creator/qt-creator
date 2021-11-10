@@ -75,9 +75,10 @@ VcsBaseSettings::VcsBaseSettings()
     timeout.setSuffix(tr("s"));
 }
 
-QStringList VcsBaseSettings::searchPathList() const
+FilePaths VcsBaseSettings::searchPathList() const
 {
-    return path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
+    return Utils::transform(path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts),
+                            &FilePath::fromUserInput);
 }
 
 } // namespace VcsBase

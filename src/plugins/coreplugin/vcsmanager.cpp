@@ -136,7 +136,7 @@ public:
     QMap<QString, VcsInfo> m_cachedMatches;
     IVersionControl *m_unconfiguredVcs = nullptr;
 
-    QStringList m_cachedAdditionalToolsPaths;
+    FilePaths m_cachedAdditionalToolsPaths;
     bool m_cachedAdditionalToolsPathsDirty = true;
 };
 
@@ -420,11 +420,11 @@ QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersion
               .arg(vc->displayName(), files.join(QString(QLatin1Char('\n'))));
 }
 
-QStringList VcsManager::additionalToolsPath()
+FilePaths VcsManager::additionalToolsPath()
 {
     if (d->m_cachedAdditionalToolsPathsDirty) {
         d->m_cachedAdditionalToolsPaths.clear();
-        foreach (IVersionControl *vc, versionControls())
+        for (IVersionControl *vc : versionControls())
             d->m_cachedAdditionalToolsPaths.append(vc->additionalToolsPath());
         d->m_cachedAdditionalToolsPathsDirty = false;
     }

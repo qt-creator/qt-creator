@@ -94,7 +94,7 @@ public:
      * Return a list of paths where tools that came with the VCS may be installed.
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
-    static QStringList additionalToolsPath();
+    static Utils::FilePaths additionalToolsPath();
 
     static void clearVersionControlCache();
 

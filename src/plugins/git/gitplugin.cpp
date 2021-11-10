@@ -283,7 +283,7 @@ public:
 
     RepoUrl getRepoUrl(const QString &location) const override;
 
-    QStringList additionalToolsPath() const final;
+    Utils::FilePaths additionalToolsPath() const final;
 
     bool isCommitEditorOpen() const;
     void startCommit(CommitType commitType = SimpleCommit);
@@ -1934,10 +1934,10 @@ GitPluginPrivate::RepoUrl GitPluginPrivate::getRepoUrl(const QString &location) 
     return GitRemote(location);
 }
 
-QStringList GitPluginPrivate::additionalToolsPath() const
+FilePaths GitPluginPrivate::additionalToolsPath() const
 {
-    QStringList res = m_gitClient.settings().searchPathList();
-    const QString binaryPath = m_gitClient.gitBinDirectory().toString();
+    FilePaths res = m_gitClient.settings().searchPathList();
+    const FilePath binaryPath = m_gitClient.gitBinDirectory();
     if (!binaryPath.isEmpty() && !res.contains(binaryPath))
         res << binaryPath;
     return res;

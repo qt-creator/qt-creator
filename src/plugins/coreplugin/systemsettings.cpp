@@ -326,7 +326,7 @@ void SystemSettingsWidget::resetFileBrowser()
 void SystemSettingsWidget::updatePath()
 {
     EnvironmentChange change;
-    change.addAppendToPath(Utils::transform(VcsManager::additionalToolsPath(), &FilePath::fromString));
+    change.addAppendToPath(VcsManager::additionalToolsPath());
     m_ui.patchChooser->setEnvironmentChange(change);
 }
 

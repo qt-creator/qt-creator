@@ -83,9 +83,9 @@ QString IVersionControl::vcsMakeWritableText() const
     return QString();
 }
 
-QStringList IVersionControl::additionalToolsPath() const
+FilePaths IVersionControl::additionalToolsPath() const
 {
-    return QStringList();
+    return {};
 }
 
 ShellCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,

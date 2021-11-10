@@ -157,8 +157,7 @@ CommonSettingsWidget::CommonSettingsWidget(CommonOptionsPage *page)
 void CommonSettingsWidget::updatePath()
 {
     EnvironmentChange change;
-    change.addAppendToPath(Utils::transform(Core::VcsManager::additionalToolsPath(),
-                                            &FilePath::fromString));
+    change.addAppendToPath(Core::VcsManager::additionalToolsPath());
     m_page->settings().sshPasswordPrompt.setEnvironmentChange(change);
 }
 
