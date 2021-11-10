@@ -66,8 +66,11 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QMetaObject>
+#include <QPair>
 #include <QSet>
 #include <QStringList>
+
+#include <set>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -148,7 +151,9 @@ public:
     bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parse(RefreshOptions options);
 
-    QStringList processEntries(const QStringList &paths,
+    using SourceFile = QPair<FilePath, QStringList>;
+    using SourceFiles = QList<SourceFile>;
+    SourceFiles processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = nullptr) const;
 
     Utils::FilePath findCommonSourceRoot();
@@ -165,7 +170,7 @@ private:
     QString m_cxxflagsFileName;
     QString m_cflagsFileName;
     QStringList m_rawFileList;
-    QStringList m_files;
+    SourceFiles m_files;
     QHash<QString, QString> m_rawListEntries;
     QStringList m_rawProjectIncludePaths;
     ProjectExplorer::HeaderPaths m_projectIncludePaths;
@@ -176,7 +181,6 @@ private:
 
     Utils::FileSystemWatcher m_deployFileWatcher;
 };
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -452,8 +456,9 @@ FilePath GenericBuildSystem::findCommonSourceRoot()
     if (m_files.isEmpty())
         return FilePath::fromFileInfo(QFileInfo(m_filesFileName));
 
-    QString root = m_files.front();
-    for (const QString &item : qAsConst(m_files)) {
+    QString root = m_files.front().first.toString();
+    for (const SourceFile &sourceFile : qAsConst(m_files)) {
+        const QString item = sourceFile.first.toString();
         if (root.length() > item.length())
             root.truncate(item.length());
 
@@ -480,11 +485,11 @@ void GenericBuildSystem::refresh(RefreshOptions options)
         FilePath baseDir = findCommonSourceRoot();
 
         std::vector<std::unique_ptr<FileNode>> fileNodes;
-        for (const QString &f : qAsConst(m_files)) {
+        for (const SourceFile &f : qAsConst(m_files)) {
             FileType fileType = FileType::Source; // ### FIXME
-            if (f.endsWith(".qrc"))
+            if (f.first.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            fileNodes.emplace_back(std::make_unique<FileNode>(FilePath::fromString(f), fileType));
+            fileNodes.emplace_back(std::make_unique<FileNode>(f.first, fileType));
         }
         newRoot->addNestedNodes(std::move(fileNodes), baseDir);
 
@@ -517,8 +522,8 @@ void GenericBuildSystem::refresh(RefreshOptions options)
  * The \a map variable is an optional argument that will map the returned
  * absolute paths back to their original \a entries.
  */
-QStringList GenericBuildSystem::processEntries(const QStringList &paths,
-                                              QHash<QString, QString> *map) const
+GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
+        const QStringList &paths, QHash<QString, QString> *map) const
 {
     const BuildConfiguration *const buildConfig = target()->activeBuildConfiguration();
 
@@ -534,7 +539,8 @@ QStringList GenericBuildSystem::processEntries(const QStringList &paths,
     const QDir projectDir(projectDirectory().toString());
 
     QFileInfo fileInfo;
-    QStringList absolutePaths;
+    SourceFiles sourceFiles;
+    std::set<QString> seenFiles;
     for (const QString &path : paths) {
         QString trimmedPath = path.trimmed();
         if (trimmedPath.isEmpty())
@@ -545,16 +551,26 @@ QStringList GenericBuildSystem::processEntries(const QStringList &paths,
 
         trimmedPath = Utils::FilePath::fromUserInput(trimmedPath).toString();
 
+        QStringList tagsForFile;
+        const int tagListPos = trimmedPath.indexOf('|');
+        if (tagListPos != -1) {
+            tagsForFile = trimmedPath.mid(tagListPos + 1).simplified()
+                    .split(' ', Qt::SkipEmptyParts);
+            trimmedPath = trimmedPath.left(tagListPos).trimmed();
+        }
+
+        if (!seenFiles.insert(trimmedPath).second)
+            continue;
+
         fileInfo.setFile(projectDir, trimmedPath);
         if (fileInfo.exists()) {
             const QString absPath = fileInfo.absoluteFilePath();
-            absolutePaths.append(absPath);
+            sourceFiles.append({FilePath::fromString(absPath), tagsForFile});
             if (map)
                 map->insert(absPath, trimmedPath);
         }
     }
-    absolutePaths.removeDuplicates();
-    return absolutePaths;
+    return sourceFiles;
 }
 
 void GenericBuildSystem::refreshCppCodeModel()
@@ -574,7 +590,15 @@ void GenericBuildSystem::refreshCppCodeModel()
     rpp.setConfigFileName(m_configFileName);
     rpp.setFlagsForCxx({nullptr, m_cxxflags, projectDirectory().toString()});
     rpp.setFlagsForC({nullptr, m_cflags, projectDirectory().toString()});
-    rpp.setFiles(m_files);
+
+    static const auto sourceFilesToStringList = [](const SourceFiles &sourceFiles) {
+        return Utils::transform(sourceFiles, [](const SourceFile &f) {
+            return f.first.toString();
+        });
+    };
+    rpp.setFiles(sourceFilesToStringList(m_files));
+    rpp.setPreCompiledHeaders(sourceFilesToStringList(
+        Utils::filtered(m_files, [](const SourceFile &f) { return f.second.contains("pch"); })));
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 }
