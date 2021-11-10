@@ -148,6 +148,7 @@ void SemanticHighlighter::run()
     connectWatcher();
 
     m_revision = documentRevision();
+    qCDebug(log) << "starting runner for document revision" << m_revision;
     m_watcher->setFuture(m_highlightingRunner());
 }
 
@@ -160,12 +161,17 @@ static Parentheses getClearedParentheses(const QTextBlock &block)
 
 void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
 {
-    if (documentRevision() != m_revision)
-        return; // outdated
-    if (!m_watcher || m_watcher->isCanceled())
-        return; // aborted
-
     qCDebug(log) << "onHighlighterResultAvailable()" << from << to;
+    if (documentRevision() != m_revision) {
+        qCDebug(log) << "ignoring results: revision changed from" << m_revision << "to"
+                     << documentRevision();
+        return;
+    }
+    if (!m_watcher || m_watcher->isCanceled()) {
+        qCDebug(log) << "ignoring results: future was canceled";
+        return;
+    }
+
     QElapsedTimer t;
     t.start();
 
