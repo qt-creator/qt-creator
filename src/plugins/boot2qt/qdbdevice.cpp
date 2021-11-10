@@ -79,8 +79,8 @@ public:
     {
         connect(&m_appRunner, &ApplicationLauncher::appendMessage, this,
                 &DeviceApplicationObserver::handleAppendMessage);
-        connect(&m_appRunner, &ApplicationLauncher::reportError, this,
-                &DeviceApplicationObserver::handleError);
+        connect(&m_appRunner, &ApplicationLauncher::error, this,
+                [this] { m_error = m_appRunner.errorString(); });
         connect(&m_appRunner, &ApplicationLauncher::finished, this,
                 &DeviceApplicationObserver::handleFinished);
 
@@ -102,7 +102,6 @@ private:
         else if (format == Utils::StdErrFormat)
             m_stderr += data;
     }
-    void handleError(const QString &message) { m_error = message; }
 
     void handleFinished(bool success)
     {

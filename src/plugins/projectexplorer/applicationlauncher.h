@@ -74,7 +74,6 @@ signals:
     void processExited(int exitCode, QProcess::ExitStatus);
     void error(QProcess::ProcessError error);
 
-    void reportError(const QString &errorOutput);
     void finished(bool success);
 
 private:

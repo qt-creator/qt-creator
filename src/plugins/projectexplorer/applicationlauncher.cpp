@@ -88,7 +88,8 @@ public:
     bool isRunning() const;
 
     // Remote
-    void doReportError(const QString &message);
+    void doReportError(const QString &message,
+                       QProcess::ProcessError error = QProcess::FailedToStart);
     void handleRemoteStderr();
     void handleRemoteStdout();
     void handleApplicationFinished();
@@ -116,6 +117,8 @@ public:
 
     // Remote
     DeviceProcess *m_deviceProcess = nullptr;
+    QString m_remoteErrorString;
+    QProcess::ProcessError m_remoteError = QProcess::UnknownError;
     State m_state = Inactive;
     bool m_stopRequested = false;
     bool m_success = false;
@@ -258,18 +261,16 @@ qint64 ApplicationLauncherPrivate::applicationPID() const
 
 QString ApplicationLauncher::errorString() const
 {
-    if (d->m_useTerminal)
-        return d->m_consoleProcess.errorString();
-    else
-        return d->m_guiProcess.errorString();
+    if (d->m_isLocal)
+        return d->m_useTerminal ? d->m_consoleProcess.errorString() : d->m_guiProcess.errorString();
+    return d->m_remoteErrorString;
 }
 
 QProcess::ProcessError ApplicationLauncher::processError() const
 {
-    if (d->m_useTerminal)
-        return d->m_consoleProcess.error();
-    else
-        return d->m_guiProcess.error();
+    if (d->m_isLocal)
+        return d->m_useTerminal ? d->m_consoleProcess.error() : d->m_guiProcess.error();
+    return d->m_remoteError;
 }
 
 void ApplicationLauncherPrivate::localGuiProcessError()
@@ -469,11 +470,12 @@ void ApplicationLauncherPrivate::handleApplicationFinished()
     QTC_ASSERT(m_state == Run, return);
 
     if (m_deviceProcess->exitStatus() == QProcess::CrashExit) {
-        doReportError(m_deviceProcess->errorString());
+        doReportError(m_deviceProcess->errorString(), QProcess::Crashed);
     } else {
         const int exitCode = m_deviceProcess->exitCode();
         if (exitCode != 0) {
-            doReportError(ApplicationLauncher::tr("Application finished with exit code %1.").arg(exitCode));
+            doReportError(ApplicationLauncher::tr("Application finished with exit code %1.")
+                          .arg(exitCode), QProcess::UnknownError);
         } else {
             emit q->appendMessage(ApplicationLauncher::tr("Application finished with exit code 0."),
                                   Utils::NormalMessageFormat);
@@ -496,10 +498,12 @@ void ApplicationLauncherPrivate::handleRemoteStderr()
     emit q->appendMessage(QString::fromUtf8(output), Utils::StdErrFormat, false);
 }
 
-void ApplicationLauncherPrivate::doReportError(const QString &message)
+void ApplicationLauncherPrivate::doReportError(const QString &message, QProcess::ProcessError error)
 {
+    m_remoteErrorString = message;
+    m_remoteError = error;
     m_success = false;
-    emit q->reportError(message);
+    emit q->error(error);
 }
 
 } // namespace ProjectExplorer

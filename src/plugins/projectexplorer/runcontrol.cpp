@@ -1252,10 +1252,9 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
 
     } else {
 
-        connect(&m_launcher, &ApplicationLauncher::reportError,
-                this, [this](const QString &msg) {
-                    reportFailure(msg);
-                });
+        connect(&m_launcher, &ApplicationLauncher::error, this, [this] {
+            reportFailure(m_launcher.errorString());
+        });
 
         connect(&m_launcher, &ApplicationLauncher::finished,
                 this, [this] {
