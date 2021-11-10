@@ -41,7 +41,7 @@ public:
     Q_INVOKABLE QString iconId(int index) const;
     Q_INVOKABLE void filter(const QString &what = "all");
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override
+    int rowCount(const QModelIndex &/*parent*/) const override
     {
         if (m_backendModel)
             return static_cast<int>(m_filteredItems.size());
@@ -49,7 +49,7 @@ public:
         return 0;
     }
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    QVariant data(const QModelIndex &index, int /*role*/) const override
     {
         if (m_backendModel) {
             auto *item = m_filteredItems.at(index.row());

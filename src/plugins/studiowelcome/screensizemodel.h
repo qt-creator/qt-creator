@@ -67,7 +67,7 @@ public:
         return QSize{width, height};
     }
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override
+    int rowCount(const QModelIndex &/*parent*/) const override
     {
         if (m_backendModel)
             return m_backendModel->rowCount();
@@ -75,7 +75,7 @@ public:
         return 0;
     }
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    QVariant data(const QModelIndex &index, int /*role*/) const override
     {
         if (m_backendModel) {
             auto *item = m_backendModel->item(index.row(), index.column());
