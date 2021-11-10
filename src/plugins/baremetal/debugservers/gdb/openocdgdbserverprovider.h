@@ -59,8 +59,8 @@ private:
     static QString defaultResetCommands();
 
     Utils::FilePath m_executableFile = "openocd";
-    QString m_rootScriptsDir;
-    QString m_configurationFile;
+    Utils::FilePath m_rootScriptsDir;
+    Utils::FilePath m_configurationFile;
     QString m_additionalArguments;
 
     friend class OpenOcdGdbServerProviderConfigWidget;

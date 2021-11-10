@@ -110,10 +110,10 @@ CommandLine OpenOcdGdbServerProvider::command() const
         cmd.addArg("gdb_port " + QString::number(channel().port()));
 
     if (!m_rootScriptsDir.isEmpty())
-        cmd.addArgs({"-s", m_rootScriptsDir});
+        cmd.addArgs({"-s", m_rootScriptsDir.path()});
 
     if (!m_configurationFile.isEmpty())
-        cmd.addArgs({"-f", m_configurationFile});
+        cmd.addArgs({"-f", m_configurationFile.path()});
 
     if (!m_additionalArguments.isEmpty())
         cmd.addArgs(m_additionalArguments, CommandLine::Raw);
@@ -151,8 +151,8 @@ QVariantMap OpenOcdGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
     data.insert(executableFileKeyC, m_executableFile.toVariant());
-    data.insert(rootScriptsDirKeyC, m_rootScriptsDir);
-    data.insert(configurationFileKeyC, m_configurationFile);
+    data.insert(rootScriptsDirKeyC, m_rootScriptsDir.toVariant());
+    data.insert(configurationFileKeyC, m_configurationFile.toVariant());
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
     return data;
 }
@@ -163,8 +163,8 @@ bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
         return false;
 
     m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
-    m_rootScriptsDir = data.value(rootScriptsDirKeyC).toString();
-    m_configurationFile = data.value(configurationFileKeyC).toString();
+    m_rootScriptsDir = FilePath::fromVariant(data.value(rootScriptsDirKeyC));
+    m_configurationFile = FilePath::fromVariant(data.value(configurationFileKeyC));
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
     return true;
 }
@@ -258,8 +258,8 @@ void OpenOcdGdbServerProviderConfigWidget::apply()
 
     p->setChannel(m_hostWidget->channel());
     p->m_executableFile = m_executableFileChooser->filePath();
-    p->m_rootScriptsDir = m_rootScriptsDirChooser->filePath().toString();
-    p->m_configurationFile = m_configurationFileChooser->filePath().toString();
+    p->m_rootScriptsDir = m_rootScriptsDirChooser->filePath();
+    p->m_configurationFile = m_configurationFileChooser->filePath();
     p->m_additionalArguments = m_additionalArgumentsLineEdit->text();
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
@@ -289,8 +289,8 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     startupModeChanged();
     m_hostWidget->setChannel(p->channel());
     m_executableFileChooser->setFilePath(p->m_executableFile);
-    m_rootScriptsDirChooser->setFilePath(Utils::FilePath::fromString(p->m_rootScriptsDir));
-    m_configurationFileChooser->setFilePath(Utils::FilePath::fromString(p->m_configurationFile));
+    m_rootScriptsDirChooser->setFilePath(p->m_rootScriptsDir);
+    m_configurationFileChooser->setFilePath(p->m_configurationFile);
     m_additionalArgumentsLineEdit->setText(p->m_additionalArguments);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
