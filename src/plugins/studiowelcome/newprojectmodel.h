@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QDebug>
 #include <QUrl>
 
 #include <utils/filepath.h>
