@@ -739,25 +739,13 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     }
                 } else {
                     ModelNode targetNode = targetProperty.parentModelNode();
-                    NodeMetaInfo metaInfo = targetNode.metaInfo();
-                    TypeName typeName = newModelNode.type();
-
-                    // Empty components are not supported and having one as property value is generally
-                    // unstable, so let's not offer user to put a fresh Component into a property
-                    if (typeName != "QtQml.Component") {
-                        const PropertyNameList nameList = targetNode.metaInfo().directPropertyNames();
-                        for (const auto &propertyName : nameList) {
-                            auto testType = metaInfo.propertyTypeName(propertyName);
-                            if (testType == typeName || newModelNode.isSubclassOf(testType)) {
-                                ChooseFromPropertyListDialog *dialog = nullptr;
-                                dialog = new ChooseFromPropertyListDialog(targetNode, testType, Core::ICore::dialogParent());
-                                dialog->exec();
-                                if (dialog->result() == QDialog::Accepted)
-                                    targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
-                                delete dialog;
-                                break;
-                            }
-                        }
+                    ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
+                                targetNode, newModelNode, Core::ICore::dialogParent());
+                    if (dialog) {
+                        dialog->exec();
+                        if (dialog->result() == QDialog::Accepted)
+                            targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
+                        delete dialog;
                     }
                 }
 
@@ -1015,10 +1003,13 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
     if (targetNode.isSubclassOf("QtQuick3D.Material")) {
         // if dropping an image on a default material, create a texture instead of image
         ChooseFromPropertyListDialog *dialog = nullptr;
-        if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial") || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+        if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")
+                || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
             // Show texture property selection dialog
-            dialog = new ChooseFromPropertyListDialog(targetNode, "QtQuick3D.Texture", Core::ICore::dialogParent());
-            dialog->exec();
+            dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode, "QtQuick3D.Texture",
+                                                                  Core::ICore::dialogParent());
+            if (dialog)
+                dialog->exec();
         }
         if (!dialog || dialog->result() == QDialog::Accepted) {
             m_view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {

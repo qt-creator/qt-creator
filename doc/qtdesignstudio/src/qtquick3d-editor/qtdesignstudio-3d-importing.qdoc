@@ -43,16 +43,26 @@
     For more information about exporting 3D graphics, see
     \l{Exporting 3D Assets}.
 
-    During the import, you can optimize the files for \QDS. You can remove
-    components from meshes to reduce the cache size, find and fix issues in
-    the files, optimize graphs and meshes, and so on. The available options
-    depend on whether you are importing files that you created with Qt 3D Studio
-    or with other 3D graphics tools. See the tooltips in the options dialog
-    for more information about a particular option.
-
     \image studio-import-3d.png
 
     To import 3D assets to \QDS projects:
+
+    \list 1
+        \li Drag-and-drop an external file containing the 3D asset from,
+            for example, File Explorer (on Windows), to \uicontrol {3D Editor}.
+        \li In the \uicontrol {3D Scene Options} tab, select options for
+            importing the file.
+        \li Select \uicontrol Import to import the 3D graphics file.
+        \li When the import is done, select \uicontrol Close.
+    \endlist
+
+    The 3D asset you dragged-and-dropped to \uicontrol {3D Editor} has now
+    been added to your scene, and you can see it in the \uicontrol {3D Editor}
+    view and in \uicontrol Navigator. It is also available in
+    \uicontrol Library > \uicontrol Components > \uicontrol {My 3D Components}.
+
+    Alternatively, you can initiate the import dialog from the
+    \uicontrol Library view:
 
     \list 1
         \li In the \l{Design Views}{Design mode}, select \l Library >
@@ -66,6 +76,17 @@
         \li Select \uicontrol Import to import the 3D graphics file.
         \li When the import is done, select \uicontrol Close.
     \endlist
+
+    The 3D asset now appears in \uicontrol Library > \uicontrol Components >
+    \uicontrol {My 3D Components}. You can add it to the scene by
+    drag-and-dropping it to \uicontrol {3D Editor}.
+
+    During the import, you can optimize the files for \QDS. You can remove
+    components from meshes to reduce the cache size, find and fix issues in
+    the files, optimize graphs and meshes, and so on. The available options
+    depend on whether you are importing files that you created with Qt 3D Studio
+    or with other 3D graphics tools. See the tooltips in the options dialog
+    for more information about a particular option.
 
     The 3D asset you added to the project now appears in \uicontrol Library >
     \uicontrol Components > \uicontrol {My 3D Components}. You can add it to

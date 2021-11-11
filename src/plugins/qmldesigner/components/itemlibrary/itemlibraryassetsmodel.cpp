@@ -275,7 +275,8 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
 
     beginResetModel();
     m_assetsDir = new ItemLibraryAssetsDir(path, 0, true, this);
-    parseDirRecursive(m_assetsDir, 1);
+    bool noAssets = parseDirRecursive(m_assetsDir, 1);
+    setIsEmpty(noAssets);
     endResetModel();
 }
 
@@ -303,6 +304,19 @@ const QSet<QString> &ItemLibraryAssetsModel::supportedSuffixes() const
     }
     return allSuffixes;
 }
+
+bool ItemLibraryAssetsModel::isEmpty() const
+{
+    return m_isEmpty;
+};
+
+void ItemLibraryAssetsModel::setIsEmpty(bool empty)
+{
+    if (m_isEmpty != empty) {
+        m_isEmpty = empty;
+        emit isEmptyChanged();
+    }
+};
 
 const QSet<QString> &ItemLibraryAssetsModel::previewableSuffixes() const
 {

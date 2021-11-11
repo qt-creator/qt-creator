@@ -1393,14 +1393,19 @@ void NodeInstanceServer::setTranslationLanguage(const QString &language)
     engine()->setUiLanguage(language);
 #endif
     static QPointer<MultiLanguage::Translator> multilanguageTranslator;
-    if (!MultiLanguage::databaseFilePath().isEmpty()) {
-        if (!multilanguageLink) {
-            multilanguageLink = std::make_unique<MultiLanguage::Link>();
-            multilanguageTranslator = multilanguageLink->translator().release();
-            QCoreApplication::installTranslator(multilanguageTranslator);
+    if (!MultiLanguage::databaseFilePath().isEmpty()
+        && QFileInfo::exists(QString::fromUtf8(MultiLanguage::databaseFilePath()))) {
+        try {
+            if (!multilanguageLink) {
+                multilanguageLink = std::make_unique<MultiLanguage::Link>();
+                multilanguageTranslator = multilanguageLink->translator().release();
+                QCoreApplication::installTranslator(multilanguageTranslator);
+            }
+            if (multilanguageTranslator)
+                multilanguageTranslator->setLanguage(language);
+        } catch (std::exception &e) {
+            qWarning() << "QmlPuppet is unable to initialize MultiLanguage translator:" << e.what();
         }
-        if (multilanguageTranslator)
-            multilanguageTranslator->setLanguage(language);
     }
 }
 

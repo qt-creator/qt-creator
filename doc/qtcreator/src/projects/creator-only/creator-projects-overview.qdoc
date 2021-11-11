@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -75,7 +75,7 @@
     \section1 Related Topics
 
     \list
-        \li \l{Using Other Build Systems}
+        \li \l{Build Systems}
     \endlist
 
 */

@@ -46,6 +46,8 @@ public:
     QmlJSEditorDocument(Utils::Id id);
     ~QmlJSEditorDocument() override;
 
+    bool supportsCodec(const QTextCodec *codec) const override;
+
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     bool isSemanticInfoOutdated() const;
     QVector<QTextLayout::FormatRange> diagnosticRanges() const;

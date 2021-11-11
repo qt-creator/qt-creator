@@ -910,7 +910,7 @@ bool ResolveExpression::visit(CallAST *ast)
             if (Symbol *declaration = templateTy->declaration()) {
                 if (Function *funTy = declaration->asFunction()) {
                     if (maybeValidPrototype(funTy, actualArgumentCount))
-                        addResult(funTy->returnType().simplified(), _scope);
+                        addResult(funTy->returnType().simplified(), scope);
                 }
             }
         }

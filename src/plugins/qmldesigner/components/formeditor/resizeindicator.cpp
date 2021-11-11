@@ -63,7 +63,7 @@ static bool itemIsResizable(const QmlItemNode &qmlItemNode)
             && qmlItemNode.instanceIsResizable()
             && qmlItemNode.modelIsMovable()
             && qmlItemNode.modelIsResizable()
-            && !qmlItemNode.instanceHasRotationTransform()
+            && !qmlItemNode.instanceHasScaleOrRotationTransform()
             && !qmlItemNode.instanceIsInLayoutable();
 }
 

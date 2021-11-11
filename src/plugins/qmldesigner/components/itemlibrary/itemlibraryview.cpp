@@ -118,6 +118,8 @@ void ItemLibraryView::modelAttached(Model *model)
     m_widget->clearSearchFilter();
     m_widget->setModel(model);
     updateImports();
+    if (model)
+        m_widget->updatePossibleImports(model->possibleImports());
     m_hasErrors = !rewriterView()->errors().isEmpty();
     m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
     setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());

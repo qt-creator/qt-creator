@@ -9,17 +9,33 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
+    Depends { name: "QmlDesigner" }
     Depends { name: "app_version_header" }
 
     cpp.defines: 'STUDIO_QML_PATH="' + FileInfo.joinPaths(sourceDirectory, "qml") + '"'
 
     files: [
+        "createproject.cpp",
+        "createproject.h",
+        "examplecheckout.h",
+        "examplecheckout.cpp",
+        "newprojectdialogimageprovider.h",
+        "newprojectdialogimageprovider.cpp",
+        "newprojectmodel.cpp",
+        "newprojectmodel.h",
+        "qdsnewdialog.cpp",
+        "qdsnewdialog.h",
+        "screensizemodel.h",
         "studiowelcome_global.h",
         "studiowelcomeplugin.h",
         "studiowelcomeplugin.cpp",
-        "examplecheckout.h",
-        "examplecheckout.cpp",
         "studiowelcome.qrc",
+        "stylemodel.cpp",
+        "stylemodel.h",
+        "wizardfactories.cpp",
+        "wizardfactories.h",
+        "wizardhandler.cpp",
+        "wizardhandler.h",
     ]
 
     Group {

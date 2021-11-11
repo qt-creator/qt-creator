@@ -131,8 +131,6 @@ void QmlJSEditorWidget::finalizeInitialization()
     connect(&m_updateOutlineIndexTimer, &QTimer::timeout,
             this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
-    textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
-
     m_modelManager = ModelManagerInterface::instance();
     m_contextPane = Internal::QmlJSEditorPlugin::quickToolBar();
 

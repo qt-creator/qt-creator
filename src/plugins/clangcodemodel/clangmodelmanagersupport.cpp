@@ -112,6 +112,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     m_instance = this;
 
     watchForExternalChanges();
+    watchForInternalChanges();
     cppModelManager()->setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
     cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
     cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
@@ -484,6 +485,29 @@ void ClangModelManagerSupport::watchForExternalChanges()
             // so we exit the loop as soon as we have dealt with one project, as the
             // project look-up is not free.
             return;
+        }
+    });
+}
+
+void ClangModelManagerSupport::watchForInternalChanges()
+{
+    connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedInternally,
+            this, [this](const Utils::FilePaths &filePaths) {
+        for (const Utils::FilePath &fp : filePaths) {
+            ClangdClient * const client = clientForFile(fp);
+            if (!client || client->documentForFilePath(fp))
+                continue;
+            client->openExtraFile(fp);
+
+            // We need to give clangd some time to start re-parsing the file.
+            // Closing right away does not work, and neither does doing it queued.
+            // If it turns out that this delay is not always enough, we'll need to come up
+            // with something more clever.
+            // Ideally, clangd would implement workspace/didChangeWatchedFiles; let's keep
+            // any eye on that.
+            QTimer::singleShot(5000, client, [client, fp] {
+                if (!client->documentForFilePath(fp))
+                    client->closeExtraFile(fp); });
         }
     });
 }

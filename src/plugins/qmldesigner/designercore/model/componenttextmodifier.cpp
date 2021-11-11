@@ -111,7 +111,8 @@ void ComponentTextModifier::commitGroup()
 {
     m_originalModifier->commitGroup();
 
-    int textLength = m_originalModifier->text().length();
+    m_originalText = m_originalModifier->text();
+    int textLength = m_originalText.length();
     m_componentEndOffset += (textLength - m_startLength);
     m_startLength = textLength;
 }
@@ -157,40 +158,42 @@ void ComponentTextModifier::handleOriginalTextChanged()
 {
     // Update offsets when original text changes, if necessary
 
-    // Detect and adjust for removal/addition of unrelated text before the subcomponent code,
-    // as that can happen even without user editing the text (e.g. whitespace removal at save time)
-
     const QString currentText = m_originalModifier->text();
 
-    if (m_originalText.left(m_componentStartOffset) != currentText.left(m_componentStartOffset)) {
-        // Subcomponent item id is the only reliable indicator for adjustment
-        const int idIndex = m_originalText.indexOf("id:", m_componentStartOffset);
-        if (idIndex != -1 && idIndex < m_componentEndOffset) {
-            int newLineIndex = m_originalText.indexOf('\n', idIndex);
-            if (newLineIndex != -1) {
-                const QString checkLine = m_originalText.mid(idIndex, newLineIndex - idIndex);
-                int lineIndex = currentText.indexOf(checkLine);
-                if (lineIndex != -1) {
-                    // Paranoia check - This shouldn't happen except when modifying text manually,
-                    // but it's possible something was inserted between id and start
-                    // of the component, which would throw off the calculation, so check that
-                    // the first line is still correct even with new offset.
-                    const int diff = idIndex - lineIndex;
-                    newLineIndex = m_originalText.indexOf('\n', m_componentStartOffset);
-                    if (newLineIndex != -1) {
-                        const QString firstLine = m_originalText.mid(m_componentStartOffset,
-                                                                     newLineIndex - m_componentStartOffset);
-                        const int newStart = m_componentStartOffset - diff;
-                        if (firstLine == currentText.mid(newStart, firstLine.size())) {
-                            m_componentEndOffset -= diff;
-                            m_componentStartOffset = newStart;
-                            m_originalText = currentText;
-                        }
-                    }
-                }
-            }
+    // Adjust for removal/addition of whitespace in the document
+    // Check that non-whitespace portion of the text is the same and count the whitespace diff
+    const int oldLen = m_originalText.size();
+    const int newLen = currentText.size();
+    int newSpace = 0;
+    int oldSpace = 0;
+    int newIdx = 0;
+    for (int oldIdx = 0; oldIdx < oldLen; ++oldIdx) {
+        const QChar oldChar = m_originalText[oldIdx];
+        if (oldIdx == m_componentStartOffset)
+            m_componentStartOffset += newSpace - oldSpace;
+        if (oldIdx == m_componentEndOffset) {
+            m_componentEndOffset += newSpace - oldSpace;
+            break;
+        }
+
+        while (newIdx < newLen && currentText[newIdx].isSpace()) {
+            ++newSpace;
+            ++newIdx;
+        }
+
+        if (oldChar.isSpace()) {
+            ++oldSpace;
+            continue;
+        }
+
+        if (currentText[newIdx] != oldChar) {
+            // Non-whitespace difference, we can't determine a valid offset in this case
+            // TODO: Needs proper handling to deal with undo/redo/arbitrary edits somehow (QDS-5392)
+            break;
+        } else {
+            ++newIdx;
         }
     }
-
+    m_originalText = currentText;
     emit textChanged();
 }

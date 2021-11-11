@@ -29,10 +29,7 @@
 
 #include <utils/fileutils.h>
 
-#include <QDateTime>
-#include <QHash>
 #include <QObject>
-#include <QPair>
 #include <QStringList>
 #include <QVersionNumber>
 
@@ -150,7 +147,6 @@ private:
     void saveSettings();
 
     Data m_data;
-    static inline QHash<Utils::FilePath, QPair<QDateTime, QVersionNumber>> m_versionCache;
 };
 
 inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)

@@ -29,16 +29,24 @@ Editing
 * Added option for saving open files automatically after refactoring
   (QTCREATORBUG-25924)
 * Added information about source to tooltip on diagnostics
-* Fixed `Insert Definition` for templates with value parameters
-  (QTCREATORBUG-26113)
+* Added highlighting color option for namespaces (QTCREATORBUG-16580)
+* Made pure virtual functions optional in `Create implementations for all member
+  functions` (QTCREATORBUG-26468)
+* Fixed `Insert Definition` for template types (QTCREATORBUG-26113,
+  QTCREATORBUG-26397)
+* Fixed that `Find References` did not work for some template and namespace
+  combinations (QTCREATORBUG-26520)
 * Fixed canceling of C++ parsing on configuration change (QTCREATORBUG-24890)
 * Fixed crash when checking for refactoring actions (QTCREATORBUG-26316)
 * Fixed wrong target compiler option (QTCREATORBUG-25615)
 * Fixed parentheses matching (QTCREATORBUG-26400)
+* Fixed documentation comment generation for template types (QTCREATORBUG-9620)
 * Clangd
   * Added warning for older `clangd` versions
   * Added support for completion and function hint
+  * Added option for `Insert header files on completion`
   * Improved location of generated `compile_commands.json` (QTCREATORBUG-26431)
+  * Fixed missing reparsing after refactorings (QTCREATORBUG-26523)
 
 ### QML
 
@@ -66,6 +74,7 @@ Projects
   (QTCREATORBUG-26422)
 * Fixed that re-detecting compilers removed compilers from kits
   (QTCREATORBUG-25697)
+* Fixed GitHub action created by Qt Creator plugin wizard for Qt 6
 
 ### CMake
 
@@ -79,6 +88,7 @@ Projects
   QTCREATORBUG-26238, QTCREATORBUG-21452, QTCREATORBUG-25644,
   QTCREATORBUG-25782)
 * Fixed that generated files were selected for analyzing (QTCREATORBUG-25125)
+* Fixed importing of Qt projects (QTCREATORBUG-25767)
 
 ### qmake
 
@@ -88,6 +98,11 @@ Projects
 
 * Fixed that headers were not shown as part of the project (QTCREATORBUG-26356)
 
+### Conan
+
+* Added `QT_CREATOR_CONAN_BUILD_POLICY` used for `BUILD` property of
+  `conan_cmake_run`
+
 Debugging
 ---------
 
@@ -96,6 +111,11 @@ Debugging
 * Fixed issue with non-English locale (QTCREATORBUG-26384)
 * Fixed variable expansion for `Additional Startup Commands`
   (QTCREATORBUG-26382)
+
+### CDB
+
+* Added hint for missing Qt debug information
+* Improved pretty printing for Qt 6 without debug information
 
 Version Control Systems
 -----------------------
@@ -117,9 +137,16 @@ Test Integration
 Platforms
 ---------
 
+### Windows
+
+* Added support for MSVC 2022
+
 ### macOS
 
 * Changed prebuilt binaries to universal Intel + ARM
+* Made dark theme the default in dark system mode
+* Fixed issues with dark system mode (QTCREATORBUG-21520, QTCREATORBUG-26427,
+  QTCREATORBUG-26428)
 
 ### Android
 
@@ -127,10 +154,15 @@ Platforms
   selector (QTCREATORBUG-23991)
 * Added details to device settings (QTCREATORBUG-23991)
 * Added filter field for Android SDK manager
+* Fixed that NDK 22 and later could not be added
 
 ### WebAssembly
 
 * Fixed running applications (QTCREATORBUG-25905, QTCREATORBUG-26189)
+
+### MCU
+
+* Added preliminary support for SDK 2.0
 
 ### Docker
 
@@ -147,6 +179,7 @@ André Pönitz
 Artem Sokolovskii  
 Artur Shepilko  
 Assam Boudjelthia  
+BogDan Vatra  
 Christiaan Janssen  
 Christian Kandeler  
 Christian Stenger  
@@ -160,6 +193,7 @@ Ivan Komissarov
 Jaroslaw Kobus  
 Johanna Vanhatapio  
 Jonas Karlsson  
+Jonas Singe  
 Kai Köhne  
 Kama Wójcik  
 Knud Dollereder  
@@ -171,9 +205,11 @@ Marco Bubke
 Martin Kampas  
 Miikka Heikkinen  
 Miina Puuronen  
+Oliver Wolff  
 Orgad Shaneh  
 Petar Perisin  
 Piotr Mikolajczyk  
+Robert Löhning  
 Samuel Ghinet  
 Shantanu Tushar  
 Tapani Mattila  
@@ -181,6 +217,7 @@ Tasuku Suzuki
 Thiago Macieira  
 Thomas Hartmann  
 Tim Jenssen  
+Tomi Korpipaa  
 Tony Leinonen  
 Tor Arne Vestbø  
 Tuomo Pelkonen  

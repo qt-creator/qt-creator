@@ -45,6 +45,7 @@
 #include <utils/infobar.h>
 
 #include <QDebug>
+#include <QTextCodec>
 
 const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
 
@@ -655,7 +656,13 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     setSyntaxHighlighter(new QmlJSHighlighter(document()));
+    setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
     setIndenter(new Internal::Indenter(document()));
+}
+
+bool QmlJSEditorDocument::supportsCodec(const QTextCodec *codec) const
+{
+    return codec == QTextCodec::codecForName("UTF-8");
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

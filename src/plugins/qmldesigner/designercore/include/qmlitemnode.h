@@ -99,7 +99,7 @@ public:
     bool instanceIsMovable() const;
     bool instanceIsResizable() const;
     bool instanceIsInLayoutable() const;
-    bool instanceHasRotationTransform() const;
+    bool instanceHasScaleOrRotationTransform() const;
 
     bool modelIsMovable() const;
     bool modelIsResizable() const;

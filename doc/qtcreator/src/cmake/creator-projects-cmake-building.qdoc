@@ -135,6 +135,9 @@
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
     hide the lines that match the filter.
 
+    Press \key {Ctrl+F} to \l{Finding and Replacing}{search} for a string from
+    the output.
+
     To increase or decrease the output text size, select \inlineimage plus.png
     (\uicontrol {Zoom In}) or \inlineimage minus.png
     (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-.
@@ -197,5 +200,5 @@
     \image qtcreator-cmake-clean-steps.png
 
     The build errors and warnings are parsed and displayed in the
-    \uicontrol Issues output pane.
+    \l Issues output pane.
 */

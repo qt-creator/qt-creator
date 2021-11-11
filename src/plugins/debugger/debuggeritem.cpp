@@ -165,9 +165,12 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         return;
     }
 
+    Environment env = sysEnv.size() == 0 ? Environment::systemEnvironment() : sysEnv;
     // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
     // python but does not contain a python dll.
-    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")) {
+    const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
+    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")
+            && !isAndroidNdkLldb) {
         QString errorMessage;
         m_version = winGetDLLVersion(WinDLLFileVersion,
                                      m_command.absoluteFilePath().path(),
@@ -178,7 +181,7 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
     }
 
     QtcProcess proc;
-    proc.setEnvironment(sysEnv);
+    proc.setEnvironment(env);
     proc.setCommand({m_command, {version}});
     proc.runBlocking();
     const QString output = proc.allOutput().trimmed();
@@ -260,6 +263,22 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
     if (error)
         *error = output;
     m_engineType = NoEngineType;
+}
+
+bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env)
+{
+    if (lldbCmd.baseName().contains("lldb") &&
+            (lldbCmd.path().contains("/ndk/") || lldbCmd.path().contains("/ndk-bundle/"))) {
+        const FilePath pythonDir = lldbCmd.parentDir().parentDir().pathAppended("python3");
+        const FilePath pythonBinDir =
+                HostOsInfo::isAnyUnixHost() ? pythonDir.pathAppended("bin") : pythonDir;
+        if (pythonBinDir.exists()) {
+            env.set("PYTHONHOME", pythonDir.toUserOutput());
+            env.prependOrSetPath(pythonBinDir);
+            return true;
+        }
+    }
+    return false;
 }
 
 QString DebuggerItem::engineTypeName() const

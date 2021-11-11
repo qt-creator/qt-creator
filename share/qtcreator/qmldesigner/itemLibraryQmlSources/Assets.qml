@@ -32,6 +32,8 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Item {
+    id: rootItem
+
     property var selectedAssets: ({})
     property int allExpandedState: 0
     property string delFilePath: ""
@@ -255,6 +257,54 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    // Placeholder when the assets panel is empty
+    Column {
+        id: colNoAssets
+        visible: assetsModel.isEmpty
+
+        spacing: 20
+        x: 20
+        width: rootItem.width - 2 * x
+        anchors.verticalCenter: parent.verticalCenter
+
+        Text {
+            text: qsTr("Looks like you don't have any assets yet.")
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: 18
+            width: colNoAssets.width
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+        }
+
+        Image {
+            source: "image://qmldesigner_assets/browse"
+            anchors.horizontalCenter: parent.horizontalCenter
+            scale: maBrowse.containsMouse ? 1.2 : 1
+            Behavior on scale {
+                NumberAnimation {
+                    duration: 300
+                    easing.type: Easing.OutQuad
+                }
+            }
+
+            MouseArea {
+                id: maBrowse
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: rootView.handleAddAsset();
+            }
+        }
+
+        Text {
+            text: qsTr("Drag-and-drop your assets here or click the '+' button to browse assets from the file system.")
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: 18
+            width: colNoAssets.width
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
     }
 }

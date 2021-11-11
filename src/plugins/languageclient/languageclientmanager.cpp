@@ -53,6 +53,8 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
+static Q_LOGGING_CATEGORY(Log, "qtc.languageclient.manager", QtWarningMsg)
+
 static LanguageClientManager *managerInstance = nullptr;
 
 LanguageClientManager::LanguageClientManager(QObject *parent)
@@ -111,6 +113,7 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
     if (managerInstance->m_clients.contains(client))
         return;
 
+    qCDebug(Log) << "add client: " << client->name() << client;
     managerInstance->m_clients << client;
     connect(client, &Client::finished, managerInstance, [client]() { clientFinished(client); });
     connect(client,
@@ -130,6 +133,7 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
 
 void LanguageClientManager::clientStarted(Client *client)
 {
+    qCDebug(Log) << "client started: " << client->name() << client;
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
     if (managerInstance->m_shuttingDown)
@@ -150,6 +154,7 @@ void LanguageClientManager::clientFinished(Client *client)
             const QList<TextEditor::TextDocument *> &clientDocs
                 = managerInstance->m_clientForDocument.keys(client);
             if (client->reset()) {
+                qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->disconnect(managerInstance);
                 client->log(
                     tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
@@ -158,6 +163,7 @@ void LanguageClientManager::clientFinished(Client *client)
                     client->deactivateDocument(document);
                 return;
             }
+            qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
             client->log(tr("Unexpectedly finished."));
             for (TextEditor::TextDocument *document : clientDocs)
                 managerInstance->m_clientForDocument.remove(document);
@@ -174,6 +180,7 @@ Client *LanguageClientManager::startClient(BaseSettings *setting, ProjectExplore
     QTC_ASSERT(setting, return nullptr);
     QTC_ASSERT(setting->isValid(), return nullptr);
     Client *client = setting->createClient(project);
+    qCDebug(Log) << "start client: " << client->name() << client;
     QTC_ASSERT(client, return nullptr);
     client->start();
     managerInstance->m_clientsForSetting[setting->m_id].append(client);
@@ -206,6 +213,7 @@ void LanguageClientManager::shutdownClient(Client *client)
 {
     if (!client)
         return;
+    qCDebug(Log) << "request client shutdown: " << client->name() << client;
     // reset the documents for that client already when requesting the shutdown so they can get
     // reassigned to another server right after this request to another server
     for (TextEditor::TextDocument *document : managerInstance->m_clientForDocument.keys(client))
@@ -220,6 +228,7 @@ void LanguageClientManager::deleteClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
+    qCDebug(Log) << "delete client: " << client->name() << client;
     client->disconnect();
     managerInstance->m_clients.removeAll(client);
     for (QVector<Client *> &clients : managerInstance->m_clientsForSetting)
@@ -237,6 +246,7 @@ void LanguageClientManager::shutdown()
     QTC_ASSERT(managerInstance, return);
     if (managerInstance->m_shuttingDown)
         return;
+    qCDebug(Log) << "shutdown manager";
     managerInstance->m_shuttingDown = true;
     for (Client *client : qAsConst(managerInstance->m_clients))
         shutdownClient(client);
@@ -412,6 +422,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
         currentClient->deactivateDocument(document);
     managerInstance->m_clientForDocument[document] = client;
     if (client) {
+        qCDebug(Log) << "open" << document->filePath() << "with" << client->name() << client;
         if (!client->documentOpen(document))
             client->openDocument(document);
         else

@@ -717,22 +717,34 @@ static QString formattedValue(const WatchItem *item)
 
     // Append quoted, printable character also for decimal.
     // FIXME: This is unreliable.
-    if (item->type.endsWith("char") || item->type.endsWith("int8_t")) {
+    const QString type = item->type;
+    if (type == "char8_t" || type.endsWith("char") || type.endsWith("int8_t")) {
         bool ok;
         const int code = item->value.toInt(&ok);
-        bool isUnsigned = item->type == "unsigned char" || item->type == "uchar" || item->type == "uint8_t";
+        bool isUnsigned = type == "char8_t"
+                || type == "unsigned char"
+                || type == "uchar"
+                || type == "uint8_t";
         if (ok)
             return reformatCharacter(code, 1, !isUnsigned);
-    } else if (item->type.endsWith("wchar_t")) {
+    } else if (type == "qint8" || type == "quint8") {
+        bool ok = false;
+        const int code = item->value.toInt(&ok);
+        bool isUnsigned = type == "quint8";
+        if (ok)
+            return reformatCharacter(code, 1, !isUnsigned);
+    } else if (type == "char32_t" || type.endsWith("wchar_t")) {
         bool ok;
         const int code = item->value.toInt(&ok);
+        bool isUnsigned = type == "char32_t";
         if (ok)
-            return reformatCharacter(code, 4, false);
-    } else if (item->type.endsWith("QChar")) {
+            return reformatCharacter(code, 4, !isUnsigned);
+    } else if (type == "char16_t" || type.endsWith("QChar")) {
         bool ok;
         const int code = item->value.toInt(&ok);
+        bool isUnsigned = type == "char16_t";
         if (ok)
-            return reformatCharacter(code, 2, false);
+            return reformatCharacter(code, 2, !isUnsigned);
     }
 
     if (format == HexadecimalIntegerFormat

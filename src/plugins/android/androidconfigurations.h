@@ -140,6 +140,7 @@ public:
 
     Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath gdbPathFromNdk(const ProjectExplorer::Abi &abi, const Utils::FilePath &ndkLocation) const;
+    Utils::FilePath lldbPathFromNdk(const Utils::FilePath &ndkLocation) const;
     Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation) const;
 
     Utils::FilePath keytoolPath() const;

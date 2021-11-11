@@ -62,7 +62,7 @@ const char splashscreenFileName[] = "logo";
 const char splashscreenPortraitFileName[] = "logo_port";
 const char splashscreenLandscapeFileName[] = "logo_land";
 const char imageSuffix[] = ".png";
-const QString fileDialogImageFiles = QString(QWidget::tr("Images (*.png *.jpg)"));
+const QString fileDialogImageFiles = QString(QWidget::tr("Images (*.png *.jpg *.jpeg)"));
 const QSize lowDpiImageSize{200, 320};
 const QSize mediumDpiImageSize{320, 480};
 const QSize highDpiImageSize{480, 800};
@@ -608,8 +608,8 @@ void SplashScreenContainerWidget::checkSplashscreenImage(const QString &name)
 
         for (const QString &path : paths) {
             const FilePath filePath = baseDir.pathAppended(path + name);
-            if (filePath.stringAppended(".png").exists()
-                    || filePath.stringAppended(".jpg").exists()) {
+            if (filePath.stringAppended(".png").exists() || filePath.stringAppended(".jpg").exists()
+                    || filePath.stringAppended(".jpeg").exists()) {
                 setCurrentIndex(1);
                 break;
             }

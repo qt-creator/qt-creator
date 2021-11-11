@@ -26,6 +26,8 @@
 #include "studiowelcomeplugin.h"
 #include "examplecheckout.h"
 
+#include "qdsnewdialog.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -367,6 +369,9 @@ void StudioWelcomePlugin::extensionsInitialized()
             s_view->engine()->addImportPath("qrc:/qml/splashscreen/imports");
             s_view->setSource(QUrl("qrc:/qml/splashscreen/main.qml"));
 #endif
+
+            // disabled by default
+            Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
             QTC_ASSERT(s_view->rootObject(),
                        qWarning() << "The StudioWelcomePlugin has a runtime depdendency on "
