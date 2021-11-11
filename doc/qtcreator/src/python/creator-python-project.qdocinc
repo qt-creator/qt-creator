@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -29,8 +29,8 @@
     \section2 Creating Widget-Based Qt for Python Applications
 
     \l {https://doc.qt.io/qtforpython/index.html}{Qt for Python} enables you
-    to use Qt 5 API in Python applications. You can use the PySide2 module to
-    gain access to individual Qt modules, such as \l {Qt Core}, \l {Qt GUI},
+    to use Qt 6 API in Python applications. You can use the PySide6 modules
+    to gain access to individual Qt modules, such as \l {Qt Core}, \l {Qt GUI},
     and \l {Qt Widgets}.
 
     The Qt for Python Application wizards generate a \c {.pyproject} file that
@@ -46,7 +46,8 @@
 
     The \uicontrol {Qt for Python - Window (UI file)} wizard enables you to
     create a Python project that contains the source file for a class. Specify
-    the class name, base class, and and source file for the class.
+    the PySide version, class name, base class, and and source file for the
+    class.
 
     \image qtcreator-python-wizard-app-window.png "Qt for Python wizard for creating a widget-based UI"
 
@@ -55,21 +56,22 @@
     Widgets module, and Qt UI tools:
 
     \badcode
-    import sys
     import os
+    from pathlib import Path
+    import sys
 
-    from PySide2.QtWidgets import QApplication, QWidget
-    from PySide2.QtCore import QFile
-    from PySide2.QtUiTools import QUiLoader
+    from PySide6.QtWidgets import QApplication, QWidget
+    from PySide6.QtCore import QFile
+    from PySide6.QtUiTools import QUiLoader
     \endcode
 
     The wizard also adds a main class with the specified name that
     inherits from the specified base class:
 
     \badcode
-    class MyWidget(QWidget):
+    class Widget(QWidget):
         def __init__(self):
-            super(MyWidget, self).__init__()
+            super(Widget, self).__init__()
             self.load_ui()
             ...
     \endcode
@@ -79,12 +81,12 @@
 
     \badcode
         def load_ui(self):
-        loader = QUiLoader()
-        path = os.path.join(os.path.dirname(__file__), "form.ui")
-        ui_file = QFile(path)
-        ui_file.open(QFile.ReadOnly)
-        loader.load(ui_file, self)
-        ui_file.close()
+            loader = QUiLoader()
+            path = os.fspath(Path(__file__).resolve().parent / "form.ui")
+            ui_file = QFile(path)
+            ui_file.open(QFile.ReadOnly)
+            loader.load(ui_file, self)
+            ui_file.close()
     \endcode
 
     Next, the wizard adds a main function, where it creates a
@@ -100,8 +102,8 @@
     Next, the wizard instantiates the \c MainWindow class and shows it:
 
     \badcode
-        window = MyWidget()
-        window.show()
+        widget = Widget()
+        widget.show()
         ...
     \endcode
 
@@ -153,12 +155,12 @@
     to QGuiApplication and QQmlApplicationEngine:
 
     \badcode
-    import sys
     import os
+    from pathlib import Path
+    import sys
 
-    from PySide2.QtGui import QGuiApplication
-    from PySide2.QtQml import QQmlApplicationEngine
-
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtQml import QQmlApplicationEngine
     \endcode
 
     The wizard also adds a main function, where it creates a QGuiApplication
@@ -175,7 +177,7 @@
 
     \badcode
         engine = QQmlApplicationEngine()
-        engine.load(os.path.join(os.path.dirname(__file__), "main.qml"))
+        engine.load(os.fspath(Path(__file__).resolve().parent / "main.qml"))
     \endcode
 
     Finally, the wizard adds code that checks whether the file was successfully
@@ -190,7 +192,7 @@
     \endcode
 
     Open the .qml file in the \uicontrol Edit mode to design a Qt Quick UI, or
-    use \QDS.
+    use \l{Qt Design Studio Manual}{\QDS}.
 
 //! [python qml project wizards]
 */
