@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -65,7 +65,7 @@
             \li \b {\l{Designing User Interfaces}}
 
                 To create intuitive, modern-looking, fluid user interfaces, you
-                can use \l{Qt Quick} and \QDS.
+                can use \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}.
                 If you need a traditional user interface that is clearly
                 structured and enforces a platform look and feel, you can use
                 the integrated \QD. For more information, see
