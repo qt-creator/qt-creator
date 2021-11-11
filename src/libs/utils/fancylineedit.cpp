@@ -382,9 +382,9 @@ void FancyLineEdit::keyPressEvent(QKeyEvent *event)
         else if (event == QKeySequence::SelectNextWord)
             CamelCaseCursor::right(this, QTextCursor::KeepAnchor);
         else
-            QLineEdit::keyPressEvent(event);
+            CompletingLineEdit::keyPressEvent(event);
     } else {
-        QLineEdit::keyPressEvent(event);
+        CompletingLineEdit::keyPressEvent(event);
     }
 }
 
