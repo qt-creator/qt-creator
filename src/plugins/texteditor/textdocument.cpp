@@ -651,7 +651,7 @@ void TextDocument::setFilePath(const Utils::FilePath &newName)
 {
     if (newName == filePath())
         return;
-    IDocument::setFilePath(newName.absoluteFilePath());
+    IDocument::setFilePath(newName.absoluteFilePath().cleanPath());
 }
 
 IDocument::ReloadBehavior TextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
