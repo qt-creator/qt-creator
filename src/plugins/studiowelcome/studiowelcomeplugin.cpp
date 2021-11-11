@@ -353,6 +353,10 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
 void StudioWelcomePlugin::extensionsInitialized()
 {
     Core::ModeManager::activateMode(m_welcomeMode->id());
+
+    // Enable QDS new project dialog
+    Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
+
     if (Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
                                                    DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY)) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
@@ -370,8 +374,6 @@ void StudioWelcomePlugin::extensionsInitialized()
             s_view->setSource(QUrl("qrc:/qml/splashscreen/main.qml"));
 #endif
 
-            // disabled by default
-            Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
             QTC_ASSERT(s_view->rootObject(),
                        qWarning() << "The StudioWelcomePlugin has a runtime depdendency on "
