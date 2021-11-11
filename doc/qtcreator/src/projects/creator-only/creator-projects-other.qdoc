@@ -34,7 +34,7 @@
     \page creator-project-other.html
     \nextpage creator-project-cmake.html
 
-    \title Using Other Build Systems
+    \title Build Systems
 
     Most \QC project wizards enable you to choose the build system to use for
     building the project: qmake, CMake, Meson, or Qbs. qmake is installed and

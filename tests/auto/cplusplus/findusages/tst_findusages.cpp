@@ -112,6 +112,7 @@ private Q_SLOTS:
     void using_insideNamespace();
     void using_insideFunction();
     void templatedFunction_QTCREATORBUG9749();
+    void templateInNamespaceTypeOutside();
 
     void usingInDifferentNamespace_QTCREATORBUG7978();
 
@@ -1226,6 +1227,45 @@ void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
+}
+
+void tst_FindUsages::templateInNamespaceTypeOutside()
+{
+    const QByteArray src = R"(
+struct S { int v; };
+namespace N {
+template <typename T> struct Ptr {
+    T* operator->() { return {}; }
+};
+template<typename T> Ptr<T> makePtr() { return {}; }
+}
+int func()
+{
+    auto s = N::makePtr<S>();
+    return s->v;
+})";
+
+    Document::Ptr doc = Document::create("templateInNamespaceTypeOutside");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 3);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class * const structDecl = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(structDecl);
+    QCOMPARE(structDecl->memberCount(), 1);
+    Symbol * const v = structDecl->memberAt(0);
+
+    FindUsages findUsages(src, doc, snapshot, true);
+    findUsages(v);
+    QCOMPARE(findUsages.usages().size(), 2);
+    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
 }
 
 void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()

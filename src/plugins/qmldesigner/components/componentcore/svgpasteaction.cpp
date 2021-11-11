@@ -603,7 +603,7 @@ double round(double value, int decimal_places) {
 }
 
 static const std::initializer_list<QStringView> tagAllowList{
-    u"path", u"rect", u"polygon", u"circle", u"ellipse"
+    u"path", u"rect", u"line", u"polygon", u"polyline", u"circle", u"ellipse"
 };
 
 // fillOpacity and strokeOpacity aren't actual QML properties, but get mapped anyways
@@ -840,6 +840,8 @@ QVariant convertValue(const QByteArray &key, const QString &value)
         return value.toInt();
     } else if (key == "opacity") {
         return value.toFloat();
+    } else if ((key == "fillColor" || key == "strokeColor") && value == "none") {
+        return "transparent";
     }
 
     return value;
@@ -1015,6 +1017,28 @@ PropertyMap generateRectProperties(const QDomElement &e, const CSSRules &cssRule
     return properties;
 }
 
+PropertyMap generateLineProperties(const QDomElement &e, const CSSRules &cssRules)
+{
+    QLineF line(e.attribute("x1").toFloat(),
+                e.attribute("y1").toFloat(),
+                e.attribute("x2").toFloat(),
+                e.attribute("y2").toFloat());
+
+    QPainterPath path(line.p1());
+    path.lineTo(line.p2());
+
+    PropertyMap properties;
+    QTransform transform;
+    flattenTransformsAndStyles(e, cssRules, transform, properties);
+
+    path = transform.map(path);
+
+    if (!applyMinimumBoundingBox(path, properties))
+        return {};
+
+    return properties;
+}
+
 PropertyMap generateEllipseProperties(const QDomElement &e, const CSSRules &cssRules)
 {
     const QPointF center(e.attribute("cx").toFloat(), e.attribute("cy").toFloat());
@@ -1085,7 +1109,7 @@ PropertyMap generatePolygonProperties(const QDomElement &e, const CSSRules &cssR
     for (int i = 0; i < pointList.length(); i += 2)
         polygon.push_back({pointList[i].toFloat(), pointList[i + 1].toFloat()});
 
-    if (!polygon.isClosed() && polygon.size())
+    if (e.tagName() != "polyline" && !polygon.isClosed() && polygon.size())
         polygon.push_back(polygon.front());
 
     QPainterPath path;
@@ -1178,6 +1202,11 @@ QmlObjectNode SVGPasteAction::createQmlObjectNode(QmlDesigner::ModelNode &target
                              round(tmp[2].toFloat(), 2),
                              round(tmp[3].toFloat(), 2));
         }
+
+        viewBoxProperties.insert("clip", true);
+    } else {
+        viewBox.setWidth(round(rootElement.attribute("width").toFloat(), 2));
+        viewBox.setHeight(round(rootElement.attribute("height").toFloat(), 2));
     }
 
     viewBoxProperties.insert("x", viewBox.x());
@@ -1202,8 +1231,6 @@ QmlObjectNode SVGPasteAction::createQmlObjectNode(QmlDesigner::ModelNode &target
 
     depthFirstTraversal(node, processStyleAndCollectShapes);
 
-    viewBoxProperties.insert("clip", true);
-
     ModelNode groupNode = createGroupNode(targetNode, viewBoxProperties);
 
     for (const QDomElement &e : shapeElements) {
@@ -1213,7 +1240,9 @@ QmlObjectNode SVGPasteAction::createQmlObjectNode(QmlDesigner::ModelNode &target
             pathProperties = generatePathProperties(e, cssRules);
         else if (e.tagName() == "rect")
             pathProperties = generateRectProperties(e, cssRules);
-        else if (e.tagName() == "polygon")
+        else if (e.tagName() == "line")
+            pathProperties = generateLineProperties(e, cssRules);
+        else if (e.tagName() == "polygon" || e.tagName() == "polyline")
             pathProperties = generatePolygonProperties(e, cssRules);
         else if (e.tagName() == "circle" || e.tagName() == "ellipse")
             pathProperties = generateEllipseProperties(e, cssRules);

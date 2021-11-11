@@ -217,14 +217,13 @@ SwitchLanguageComboboxAction::SwitchLanguageComboboxAction(QObject *parent)
 QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
 {
     QPointer<QComboBox> comboBox = new QComboBox(parent);
-    // FIXME: this combobox does not work at the moment
-    comboBox->setDisabled(true);
     const QString toolTip(tr("Switch the language used by preview."));
     comboBox->setToolTip(toolTip);
     comboBox->addItem(tr("Default"));
 
     auto refreshComboBoxFunction = [this, comboBox, toolTip] (ProjectExplorer::Project *project) {
         if (comboBox && project) {
+            comboBox->setDisabled(true);
             QString errorMessage;
             auto locales = project->availableQmlPreviewTranslations(&errorMessage);
             if (!errorMessage.isEmpty())
@@ -234,6 +233,7 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
                 comboBox->addItem(tr("Default"));
                 comboBox->addItems(locales);
                 m_previousLocales = locales;
+                comboBox->setEnabled(true);
             }
         }
     };

@@ -61,3 +61,14 @@ extend_qtc_plugin(ClangCodeModel
     test/clangdtests.cpp test/clangdtests.h
     test/data/clangtestdata.qrc
 )
+
+if(MINGW)
+  set(big_obj_compile_option "-Wa,-mbig-obj")
+elseif(MSVC)
+  set(big_obj_compile_option "/bigobj")
+endif()
+
+extend_qtc_plugin(ClangCodeModel
+  CONDITION DEFINED big_obj_compile_option
+  PROPERTIES COMPILE_OPTIONS ${big_obj_compile_option}
+)

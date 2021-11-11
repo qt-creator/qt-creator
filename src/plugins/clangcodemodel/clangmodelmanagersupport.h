@@ -135,8 +135,8 @@ private:
     ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
     void claimNonProjectSources(ClangdClient *fallbackClient);
     void watchForExternalChanges();
+    void watchForInternalChanges();
 
-private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
     BackendCommunicator m_communicator;
     ClangCompletionAssistProvider m_completionAssistProvider;

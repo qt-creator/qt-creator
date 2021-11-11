@@ -931,22 +931,27 @@ void DebuggerEngine::showStatusMessage(const QString &msg, int timeout) const
 
 void DebuggerEngine::updateLocalsWindow(bool showReturn)
 {
+    QTC_ASSERT(d->m_returnWindow, return);
+    QTC_ASSERT(d->m_localsView, return);
     d->m_returnWindow->setVisible(showReturn);
     d->m_localsView->resizeColumns();
 }
 
 bool DebuggerEngine::isRegistersWindowVisible() const
 {
+    QTC_ASSERT(d->m_registerWindow, return false);
     return d->m_registerWindow->isVisible();
 }
 
 bool DebuggerEngine::isPeripheralRegistersWindowVisible() const
 {
+    QTC_ASSERT(d->m_peripheralRegisterWindow, return false);
     return d->m_peripheralRegisterWindow->isVisible();
 }
 
 bool DebuggerEngine::isModulesWindowVisible() const
 {
+    QTC_ASSERT(d->m_modulesWindow, return false);
     return d->m_modulesWindow->isVisible();
 }
 

@@ -1249,6 +1249,9 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("const argument to unnamed lambda") << 830 << 16 << 830 << 19
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("simple assignment") << 835 << 5 << 835 << 6 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("simple return") << 841 << 12 << 841 << 15 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("lambda parameter") << 847 << 49 << 847 << 52
+                                      << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
 }
 
 void ClangdTestHighlighting::test()

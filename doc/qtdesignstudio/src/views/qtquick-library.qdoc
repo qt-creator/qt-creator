@@ -119,9 +119,13 @@
     \section1 Assets
 
     \uicontrol Library > \uicontrol {Assets} displays the images and other files
-    that you add to the project folder by selecting \inlineimage plus.png
-    . To add assets to your UI, drag-and-drop them to \l Navigator or
-    \l {Form Editor}.
+    that you add to the project folder by dragging-and-dropping external asset
+    files to \QDS or by selecting \inlineimage plus.png
+    . For more information about importing assets to \QDS, see
+    \l {Importing 2D Assets} and \l {Importing 3D Assets}.
+
+    To add assets to your UI, drag-and-drop them from \uicontrol Library >
+    \uicontrol Assets to \l Navigator, \l {Form Editor}, or \l {3D Editor}.
 
     To add multiple assets to your UI simultaneously, multiselect them first by
     holding \key Ctrl and clicking the asset files you wish to select.

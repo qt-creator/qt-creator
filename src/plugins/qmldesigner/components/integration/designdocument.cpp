@@ -311,6 +311,7 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachViewsExceptRewriterAndComponetView();
 
     m_inFileComponentModel.reset();
+    m_inFileComponentTextModifier.reset();
 
     viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();

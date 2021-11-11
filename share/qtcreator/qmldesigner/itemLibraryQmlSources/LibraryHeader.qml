@@ -105,8 +105,11 @@ Item {
                                 verticalAlignment: Text.AlignVCenter
                                 horizontalAlignment: Text.AlignHCenter
                                 anchors.centerIn: parent
-                                color: tabBar.currentIndex === index ? StudioTheme.Values.themeIconColorSelected
-                                                                     : StudioTheme.Values.themeIconColor
+                                color: !plusButton.enabled
+                                       ? StudioTheme.Values.themeIconColorDisabled
+                                       : tabBar.currentIndex === index
+                                         ? StudioTheme.Values.themeIconColorSelected
+                                         : StudioTheme.Values.themeIconColor
                             }
 
                             HelperWidgets.ToolTipArea {

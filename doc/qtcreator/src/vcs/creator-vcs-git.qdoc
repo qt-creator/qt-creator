@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -203,7 +203,20 @@
     commit page containing a text editor where you can enter your commit
     message and a checkable list of modified files to be included.
 
-    \image qtcreator-vcs-commit.png
+    \image qtcreator-vcs-commit.png "Committing changes with Git"
+
+    \uicontrol {General Information} displays the names of the
+    repository and branch for the commit.
+
+    In \uicontrol {Commit Information}, you can edit information about the
+    author of the commit. To bypass re-commit and commit message hooks,
+    select \uicontrol {Bypass hooks}. If signoffs are used for your project,
+    select \uicontrol {Sign off} to add a \e signed-off-by trailer by the
+    author at the end of the commit log message.
+
+    In \uicontrol Description, edit the commit message.
+
+    In \uicontrol Files, select the files to include in the commit.
 
     When you have finished filling out the commit page information, click on
     \uicontrol Commit to start committing.
@@ -223,10 +236,22 @@
 
     \section2 Amending Commits
 
-    To apply latest changes to the last commit, select
-    \uicontrol {Amend Last Commit}. You can also edit the commit message.
+    To apply latest changes to the last commit, select \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Local Repository} >
+    \uicontrol {Amend Last Commit}.
+
+    \image qtcreator-git-amend.png "Amending a Git commit"
+
+    To view the commit in its current form, before amending, select
+    \uicontrol {Show HEAD}.
+
+    To view a diff of the changes in the selected files, select
+    \uicontrol {Diff Selected Files}.
+
+    Select \uicontrol Commit to amend the commit.
 
     To amend an earlier comment in a series of related commits, select
+    \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Fixup Previous Commit}. This operation is done using interactive
     rebase. In case of conflicts, a merge tool is suggested.
 

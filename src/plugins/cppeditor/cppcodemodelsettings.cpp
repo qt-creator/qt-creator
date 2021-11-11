@@ -36,6 +36,9 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QDateTime>
+#include <QHash>
+#include <QPair>
 #include <QSettings>
 
 using namespace Utils;
@@ -356,11 +359,12 @@ static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
 
 QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
 {
+    static QHash<Utils::FilePath, QPair<QDateTime, QVersionNumber>> versionCache;
     const QDateTime timeStamp = clangdFilePath.lastModified();
-    const auto it = m_versionCache.find(clangdFilePath);
-    if (it == m_versionCache.end()) {
+    const auto it = versionCache.find(clangdFilePath);
+    if (it == versionCache.end()) {
         const QVersionNumber version = getClangdVersion(clangdFilePath);
-        m_versionCache.insert(clangdFilePath, qMakePair(timeStamp, version));
+        versionCache.insert(clangdFilePath, qMakePair(timeStamp, version));
         return version;
     }
     if (it->first != timeStamp) {

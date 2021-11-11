@@ -252,6 +252,16 @@ public:
         QString theType = type();
         if (theType.endsWith("const"))
             theType.chop(5);
+
+        // We don't care about the "inner" type of templates.
+        const int openAngleBracketPos = theType.indexOf('<');
+        if (openAngleBracketPos != -1) {
+            const int closingAngleBracketPos = theType.lastIndexOf('>');
+            if (closingAngleBracketPos > openAngleBracketPos) {
+                theType = theType.left(openAngleBracketPos)
+                        + theType.mid(closingAngleBracketPos + 1);
+            }
+        }
         const int xrefCount = theType.count("&&");
         const int refCount = theType.count('&') - 2 * xrefCount;
         const int ptrRefCount = theType.count('*') + refCount;
@@ -2443,6 +2453,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 return true;
             }
 
+            if (it->kind() == "Lambda")
+                return false;
             if (it->kind().endsWith("Cast") && it->hasConstType())
                 return false;
             if (it->kind() == "Member" && it->arcanaContains("(")
@@ -3140,6 +3152,18 @@ void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &r
         return;
     const auto it = std::lower_bound(m_results.begin(), m_results.end(), result, lessThan);
     if (it == m_results.end() || *it != result) {
+
+        // Prevent inserting expansions for function-like macros. For instance:
+        //     #define TEST() "blubb"
+        //     const char *s = TEST();
+        // The macro name is always shorter than the expansion and starts at the same
+        // location, so it should occur right before the insertion position.
+        if (it > m_results.begin() && (it - 1)->line == result.line
+                && (it - 1)->column == result.column
+                && (it - 1)->textStyles.mainStyle == C_PREPROCESSOR) {
+            return;
+        }
+
         qCDebug(clangdLogHighlight) << "adding additional highlighting result"
                                     << result.line << result.column << result.length;
         m_results.insert(it, result);

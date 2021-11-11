@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include "../projectexplorer_export.h"
 #include <utils/projectintropage.h>
 
 namespace ProjectExplorer {
 
 // Documentation inside.
-class JsonProjectPage : public Utils::ProjectIntroPage
+class PROJECTEXPLORER_EXPORT JsonProjectPage : public Utils::ProjectIntroPage
 {
     Q_OBJECT
 

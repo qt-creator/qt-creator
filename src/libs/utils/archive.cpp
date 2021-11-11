@@ -136,6 +136,7 @@ static Utils::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest
             const QString destStr = dest.toString();
             const QString args = result.command.arguments().replace("%{src}", srcStr).replace("%{dest}", destStr);
             result.command.setArguments(args);
+            return result;
         }
     }
     return {};

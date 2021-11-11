@@ -107,6 +107,8 @@ public:
     QString detectionSource() const { return m_detectionSource; }
     void setDetectionSource(const QString &source) { m_detectionSource = source; }
 
+    static bool addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env);
+
 private:
     DebuggerItem(const QVariant &id);
     void initMacroExpander();

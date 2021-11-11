@@ -213,6 +213,7 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
     QuickFixOperations operations;
     factory->match(quickFixInterface, operations);
     if (operations.isEmpty()) {
+        QEXPECT_FAIL("CompleteSwitchCaseStatement_QTCREATORBUG-25998", "FIXME", Abort);
         QVERIFY(testDocuments.first()->m_expectedSource.isEmpty());
         return;
     }

@@ -42,16 +42,18 @@ QPixmap ItemLibraryAssetsIconProvider::requestPixmap(const QString &id, QSize *s
 {
     QPixmap pixmap;
     const QString suffix = "*." + id.split('.').last().toLower();
-    if (ItemLibraryAssetsModel::supportedFontSuffixes().contains(suffix))
+    if (id == "browse")
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/browse.png");
+    else if (ItemLibraryAssetsModel::supportedFontSuffixes().contains(suffix))
         pixmap = generateFontIcons(id);
     else if (ItemLibraryAssetsModel::supportedImageSuffixes().contains(suffix))
         pixmap = Utils::StyleHelper::dpiSpecificImageFile(id);
     else if (ItemLibraryAssetsModel::supportedTexture3DSuffixes().contains(suffix))
         pixmap = HdrImage{id}.toPixmap();
     else if (ItemLibraryAssetsModel::supportedShaderSuffixes().contains(suffix))
-        pixmap = QPixmap(Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_shader_48.png"));
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_shader_48.png");
     else if (ItemLibraryAssetsModel::supportedAudioSuffixes().contains(suffix))
-        pixmap = QPixmap(Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_sound_48.png"));
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_sound_48.png");
 
     if (size) {
         size->setWidth(pixmap.width());

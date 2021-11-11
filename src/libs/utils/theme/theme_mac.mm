@@ -41,7 +41,7 @@ namespace Internal {
 
 bool currentAppearanceMatches(bool dark)
 {
-#if __has_builtin(__builtin_available)
+#if QT_MACOS_PLATFORM_SDK_EQUAL_OR_ABOVE(__MAC_10_14)
     if (__builtin_available(macOS 10.14, *)) {
         auto appearance = [NSApp.effectiveAppearance
             bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];

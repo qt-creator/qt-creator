@@ -212,7 +212,7 @@
                     \li \l {Embedded Platforms}
                     \li \l {Mobile Platforms}
                 \endlist
-            \li \l{Using Other Build Systems}
+            \li \l{Build Systems}
             \list
                 \li \l{Setting Up CMake}
                 \li \l{Setting Up Qbs}

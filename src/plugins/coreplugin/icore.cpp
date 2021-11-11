@@ -32,6 +32,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -165,9 +166,13 @@ namespace Core {
 // The Core Singleton
 static ICore *m_instance = nullptr;
 static MainWindow *m_mainwindow = nullptr;
-std::function<NewDialog *(QWidget *)> ICore::m_newDialogFactory = [](QWidget *parent) {
+
+static NewDialog *defaultDialogFactory(QWidget *parent)
+{
     return new NewDialogWidget(parent);
-};
+}
+
+static std::function<NewDialog *(QWidget *)> m_newDialogFactory = defaultDialogFactory;
 
 /*!
     Returns the pointer to the instance. Only use for connecting to signals.
@@ -253,7 +258,23 @@ void ICore::showNewItemDialog(const QString &title,
                               const QVariantMap &extraVariables)
 {
     QTC_ASSERT(!isNewItemDialogRunning(), return);
-    NewDialog *newDialog = ICore::m_newDialogFactory(dialogParent());
+
+    /* This is a workaround for QDS: In QDS, we currently have a "New Project" dialog box but we do
+     * not also have a "New file" dialog box (yet). Therefore, when requested to add a new file, we
+     * need to use QtCreator's dialog box. In QDS, if `factories` contains project wizard factories
+     * (even though it may contain file wizard factories as well), then we consider it to be a
+     * request for "New Project". Otherwise, if we only have file wizard factories, we defer to
+     * QtCreator's dialog and request "New File"
+     */
+    auto dialogFactory = m_newDialogFactory;
+    bool haveProjectWizards = Utils::anyOf(factories, [](IWizardFactory *f) {
+        return f->kind() == IWizardFactory::ProjectWizard;
+    });
+
+    if (!haveProjectWizards)
+        dialogFactory = defaultDialogFactory;
+
+    NewDialog *newDialog = dialogFactory(dialogParent());
     connect(newDialog->widget(), &QObject::destroyed, m_instance, &ICore::updateNewItemDialogState);
     newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
     newDialog->setWindowTitle(title);

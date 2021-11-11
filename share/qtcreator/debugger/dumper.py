@@ -252,8 +252,9 @@ class DumperBase():
         #DumperBase.warn('EXPANDED INAMES: %s' % self.expandedINames)
         #DumperBase.warn('WATCHERS: %s' % self.watchers)
 
-    def setFallbackQtVersion(self, version):
-        self.warn("got fallback qt version %x" % version)
+    def setFallbackQtVersion(self, args):
+        version = int(args.get('version', self.fallbackQtVersion))
+        DumperBase.warn("got fallback qt version 0x%x" % version)
         self.fallbackQtVersion = version
 
     def resetPerStepCaches(self):
@@ -1135,12 +1136,18 @@ class DumperBase():
         if displayFormat != DisplayFormat.Raw and p:
             if innerType.name in (
                 'char',
+                'int8_t',
+                'qint8',
                 'wchar_t',
                 'unsigned char',
                 'uint8_t',
+                'quint8',
                 'signed char',
                 'CHAR',
-                'WCHAR'
+                'WCHAR',
+                'char8_t',
+                'char16_t',
+                'char32_t'
             ):
                 self.putCharArrayHelper(p, n, innerType, self.currentItemFormat(),
                                         makeExpandable=False)
@@ -1406,11 +1413,17 @@ class DumperBase():
             if innerType.name not in (
                 'char',
                 'signed char',
+                'int8_t',
+                'qint8',
                 'unsigned char',
                 'uint8_t',
+                'quint8',
                 'wchar_t',
                 'CHAR',
-                'WCHAR'
+                'WCHAR',
+                'char8_t',
+                'char16_t',
+                'char32_t'
             ):
                 self.putDerefedPointer(value)
                 return
@@ -3628,15 +3641,33 @@ class DumperBase():
             res = {
                 'bool': 'int:1',
                 'char': 'int:1',
+                'int8_t': 'int:1',
+                'qint8': 'int:1',
                 'signed char': 'int:1',
+                'char8_t': 'uint:1',
                 'unsigned char': 'uint:1',
                 'uint8_t': 'uint:1',
+                'quint8': 'uint:1',
                 'short': 'int:2',
+                'int16_t': 'int:2',
+                'qint16': 'int:2',
                 'unsigned short': 'uint:2',
+                'char16_t': 'uint:2',
+                'uint16_t': 'uint:2',
+                'quint16': 'uint:2',
                 'int': 'int:4',
+                'int32_t': 'int:4',
+                'qint32': 'int:4',
                 'unsigned int': 'uint:4',
+                'char32_t': 'uint:4',
+                'uint32_t': 'uint:4',
+                'quint32': 'uint:4',
                 'long long': 'int:8',
+                'int64_t': 'int:8',
+                'qint64': 'int:8',
                 'unsigned long long': 'uint:8',
+                'uint64_t': 'uint:8',
+                'quint64': 'uint:8',
                 'float': 'float:4',
                 'double': 'float:8',
                 'QChar': 'uint:2'

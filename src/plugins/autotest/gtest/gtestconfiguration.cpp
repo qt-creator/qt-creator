@@ -55,6 +55,7 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
                                                          "--gtest_stream_result_to=",
                                                          "--gtest_break_on_failure",
                                                          "--gtest_throw_on_failure",
+                                                         "--gtest_catch_exceptions=",
                                                          "--gtest_print_time="
                                                          };
 
@@ -100,6 +101,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     if (isDebugRunMode()) {
         if (gSettings->breakOnFailure.value())
             arguments << "--gtest_break_on_failure";
+        arguments << "--gtest_catch_exceptions=0";
     }
     return arguments;
 }

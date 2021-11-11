@@ -29,12 +29,12 @@
 
 namespace QmlDesigner {
 
-// This dialog displays all given type properties of an object and allows the user to choose one
-ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const ModelNode &node, TypeName type, QWidget *parent)
+// This dialog displays specified properties and allows the user to choose one
+ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const QStringList &propNames,
+                                                           QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui::ChooseFromPropertyListDialog)
 {
-    m_propertyTypeName = type;
     m_ui->setupUi(this);
     setWindowTitle(tr("Select property"));
     m_ui->label->setText(tr("Bind to property:"));
@@ -50,7 +50,7 @@ ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const ModelNode &node
         QDialog::accept();
     });
 
-    fillList(node);
+    fillList(propNames);
 }
 
 ChooseFromPropertyListDialog::~ChooseFromPropertyListDialog()
@@ -63,31 +63,80 @@ TypeName ChooseFromPropertyListDialog::selectedProperty() const
     return m_selectedProperty;
 }
 
-void ChooseFromPropertyListDialog::fillList(const ModelNode &node)
+// Create dialog for selecting any property matching newNode type
+// Subclass type matches are also valid
+ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
+        const ModelNode &targetNode, const ModelNode &newNode, QWidget *parent)
 {
-    // Fill the list with all properties of given type
-    const auto metaInfo = node.metaInfo();
-    const auto propNames = metaInfo.propertyNames();
-    const TypeName property(m_propertyTypeName);
-    QStringList nameList;
+    TypeName typeName = newNode.type();
+
+    // Component matches cases where you don't want to insert a plain component,
+    // such as layer.effect. Also, default property is often a Component (typically 'delegate'),
+    // and inserting into such property will silently overwrite implicit component, if any.
+    if (typeName == "QtQml.Component")
+        return nullptr;
+
+    const NodeMetaInfo metaInfo = targetNode.metaInfo();
+    const PropertyNameList propNames = metaInfo.propertyNames();
+    QStringList matchingNames;
+
+    // Common base types cause too many rarely valid matches, so they are ignored
+    const QSet<TypeName> ignoredTypes {"<cpp>.QObject",
+                                       "<cpp>.QQuickItem",
+                                       "QtQuick.Item",
+                                       "QtQuick3D.Object3D",
+                                       "QtQuick3D.Node"};
+
     for (const auto &propName : propNames) {
-        if (metaInfo.propertyTypeName(propName) == property)
-            nameList.append(QString::fromLatin1(propName));
-    }
-
-    if (!nameList.isEmpty()) {
-        QString defaultProp = nameList.first();
-
-        nameList.sort();
-        for (const auto &propName : qAsConst(nameList)) {
-            QListWidgetItem *newItem = new QListWidgetItem(propName);
-            m_ui->listProps->addItem(newItem);
+        const TypeName testType = metaInfo.propertyTypeName(propName);
+        if (!ignoredTypes.contains(testType)
+                && metaInfo.propertyIsWritable(propName)
+                && (testType == typeName || newNode.isSubclassOf(testType))) {
+            matchingNames.append(QString::fromLatin1(propName));
         }
-
-        // Select the default prop
-        m_ui->listProps->setCurrentRow(nameList.indexOf(defaultProp));
-        m_selectedProperty = defaultProp.toLatin1();
     }
+
+    if (!matchingNames.isEmpty())
+        return new ChooseFromPropertyListDialog(matchingNames, parent);
+
+    return nullptr;
+}
+
+// Create dialog for selecting writable properties of exact property type
+ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
+        const ModelNode &targetNode, TypeName type, QWidget *parent)
+{
+    const NodeMetaInfo metaInfo = targetNode.metaInfo();
+    const PropertyNameList propNames = metaInfo.propertyNames();
+    const TypeName property(type);
+    QStringList matchingNames;
+    for (const auto &propName : propNames) {
+        if (metaInfo.propertyTypeName(propName) == property && metaInfo.propertyIsWritable(propName))
+            matchingNames.append(QString::fromLatin1(propName));
+    }
+
+    if (!matchingNames.isEmpty())
+        return new ChooseFromPropertyListDialog(matchingNames, parent);
+
+    return nullptr;
+}
+
+void ChooseFromPropertyListDialog::fillList(const QStringList &propNames)
+{
+    if (propNames.isEmpty())
+        return;
+
+    QString defaultProp = propNames.first();
+    QStringList sortedNames = propNames;
+    sortedNames.sort();
+    for (const auto &propName : qAsConst(sortedNames)) {
+        QListWidgetItem *newItem = new QListWidgetItem(propName);
+        m_ui->listProps->addItem(newItem);
+    }
+
+    // Select the default prop
+    m_ui->listProps->setCurrentRow(sortedNames.indexOf(defaultProp));
+    m_selectedProperty = defaultProp.toLatin1();
 }
 
 }

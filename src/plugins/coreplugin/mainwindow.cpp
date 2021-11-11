@@ -92,6 +92,7 @@
 #include <QStyleFactory>
 #include <QToolButton>
 #include <QUrl>
+#include <QWindow>
 
 using namespace ExtensionSystem;
 using namespace Utils;
@@ -100,6 +101,14 @@ namespace Core {
 namespace Internal {
 
 enum { debugMainWindow = 0 };
+
+static bool isQtDesignStudio()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
+
+    return settings->value(qdsStandaloneEntry, false).toBool();
+}
 
 MainWindow::MainWindow()
     : AppMainWindow()
@@ -518,7 +527,8 @@ void MainWindow::registerDefaultActions()
 
     // New File Action
     QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Utils::Icons::NEWFILE.icon());
-    m_newAction = new QAction(icon, tr("&New File or Project..."), this);
+    QString newActionText = isQtDesignStudio() ? tr("&New Project...") : tr("&New File or Project...");
+    m_newAction = new QAction(icon, newActionText, this);
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);
@@ -939,6 +949,20 @@ void MainWindow::setFocusToEditor()
     EditorManagerPrivate::doEscapeKeyFocusMoveMagic();
 }
 
+static void acceptModalDialogs()
+{
+    const QWidgetList topLevels = QApplication::topLevelWidgets();
+    QList<QDialog *> dialogsToClose;
+    for (QWidget *topLevel : topLevels) {
+        if (auto dialog = qobject_cast<QDialog *>(topLevel)) {
+            if (dialog->isModal())
+                dialogsToClose.append(dialog);
+        }
+    }
+    for (QDialog *dialog : dialogsToClose)
+        dialog->accept();
+}
+
 void MainWindow::exit()
 {
     // this function is most likely called from a user action
@@ -946,7 +970,15 @@ void MainWindow::exit()
     // since on close we are going to delete everything
     // so to prevent the deleting of that object we
     // just append it
-    QMetaObject::invokeMethod(this,  &QWidget::close, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(
+        this,
+        [this] {
+            // Modal dialogs block the close event. So close them, in case this was triggered from
+            // a RestartDialog in the settings dialog.
+            acceptModalDialogs();
+            close();
+        },
+        Qt::QueuedConnection);
 }
 
 void MainWindow::openFileWith()

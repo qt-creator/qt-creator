@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,7 +57,7 @@
             applications for multiple desktop and \l{glossary-device}{device}
             platforms.
 
-        \li \l{Using Other Build Systems}
+        \li \l{Build Systems}
 
             \QC is integrated with cross-platform systems for build automation:
             qmake, Qbs, CMake, and Autotools. In addition, you can import

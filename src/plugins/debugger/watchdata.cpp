@@ -48,7 +48,11 @@ bool isIntType(const QString &type)
         case 'b':
             return type == "bool";
         case 'c':
-            return type == "char";
+            return type.startsWith("char") &&
+                    (  type == "char"
+                    || type == "char8_t"
+                    || type == "char16_t"
+                    || type == "char32_t" );
         case 'i':
             return type.startsWith("int") &&
                     (  type == "int"
@@ -63,7 +67,8 @@ bool isIntType(const QString &type)
         case 'p':
             return type == "ptrdiff_t";
         case 'q':
-            return type == "qint16" || type == "quint16"
+            return type == "qint8" || type == "quint8"
+                || type == "qint16" || type == "quint16"
                 || type == "qint32" || type == "quint32"
                 || type == "qint64" || type == "quint64"
                 || type == "qlonglong" || type == "qulonglong";

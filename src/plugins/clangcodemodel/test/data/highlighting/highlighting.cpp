@@ -834,3 +834,15 @@ void assignmentTest() {
     struct S {} s;
     s = {};
 }
+
+using FooPtrVector = std::vector<Foo *>;
+FooPtrVector returnTest()  {
+    FooPtrVector foo;
+    return foo;
+}
+
+template <typename Container, typename Func> inline void useContainer(const Container &, Func) {}
+void testConstRefAutoLambdaArgs()
+{
+    useContainer(FooPtrVector(), [](const auto &arg) {});
+}

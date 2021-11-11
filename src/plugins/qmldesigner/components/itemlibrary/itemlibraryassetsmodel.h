@@ -46,13 +46,15 @@ class ItemLibraryAssetsModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isEmpty READ isEmpty WRITE setIsEmpty NOTIFY isEmptyChanged)
+
 public:
     ItemLibraryAssetsModel(QmlDesigner::SynchronousImageCache &fontImageCache,
                            Utils::FileSystemWatcher *fileSystemWatcher,
                            QObject *parent = nullptr);
 
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
 
     void refresh();
@@ -82,8 +84,14 @@ public:
     Q_INVOKABLE DirExpandState getAllExpandedState() const;
     Q_INVOKABLE void removeFile(const QString &filePath);
 
+signals:
+    void isEmptyChanged();
+
 private:
     const QSet<QString> &supportedSuffixes() const;
+
+    bool isEmpty() const;
+    void setIsEmpty(bool empty);
 
     SynchronousImageCache &m_fontImageCache;
     QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
@@ -91,6 +99,7 @@ private:
     QString m_searchText;
     Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
     ItemLibraryAssetsDir *m_assetsDir = nullptr;
+    bool m_isEmpty = true;
 
     QHash<int, QByteArray> m_roleNames;
     inline static QHash<QString, bool> m_expandedStateHash; // <assetPath, isExpanded>
