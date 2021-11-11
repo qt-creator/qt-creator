@@ -114,9 +114,10 @@
                 execution. In addition, the QML Profiler enables you to profile
                 Qt Quick applications.
 
-                \QC is integrated to the \l{Qt Test}, Google C++ Testing, and
-                Boost.Test frameworks for unit testing applications and
-                libraries. You can use \QC to create, build, and run autotests.
+                \QC is integrated to the \l{Qt Test}, Boost.Test, Catch 2 test,
+                and Google C++ Testing frameworks for unit testing applications
+                and libraries. You can use \QC to create, build, and run
+                autotests.
 
                 For more information, see \l{Testing}.
             \li \b {Publishing}
