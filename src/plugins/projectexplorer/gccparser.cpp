@@ -117,12 +117,22 @@ void GccParser::createOrAmendTask(
             || (m_currentTask.type == Task::Unknown && type != Task::Unknown)) {
         m_currentTask.type = type;
         m_currentTask.summary = description;
-        if (!file.isEmpty()) {
+        if (!file.isEmpty() && !m_requiredFromHereFound) {
             m_currentTask.setFile(file);
             m_currentTask.line = line;
             m_currentTask.column = column;
         }
     }
+
+    // If a "required from here" line is present, it is almost always the cause of the problem,
+    // so that's where we should go when the issue is double-clicked.
+    if (originalLine.endsWith("required from here") && !file.isEmpty() && line > 0) {
+        m_requiredFromHereFound = true;
+        m_currentTask.setFile(file);
+        m_currentTask.line = line;
+        m_currentTask.column = column;
+    }
+
     ++m_lines;
 }
 
@@ -142,6 +152,7 @@ void GccParser::flush()
     m_linkSpecs.clear();
     scheduleTask(t, m_lines, 1);
     m_lines = 0;
+    m_requiredFromHereFound = false;
 }
 
 OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat type)
@@ -1346,8 +1357,8 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "qmap.h:110:7: error: ‘QMapNode<Key, T>::value’ has incomplete type\n"
                                  "  110 |     T value;\n"
                                  "      |       ^~~~~",
-                                 FilePath::fromUserInput("qmap.h"),
-                                 110, 7,
+                                 FilePath::fromUserInput("moc_helpindexfilter.cpp"),
+                                 105, 1,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(46, 1458))}
             << QString();

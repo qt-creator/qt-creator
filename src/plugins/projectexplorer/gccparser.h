@@ -72,6 +72,7 @@ private:
     Task m_currentTask;
     LinkSpecs m_linkSpecs;
     int m_lines = 0;
+    bool m_requiredFromHereFound = false;
 };
 
 } // namespace ProjectExplorer
