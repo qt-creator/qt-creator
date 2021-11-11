@@ -86,7 +86,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &LanguageClientManager::projectAdded);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &LanguageClientManager::projectRemoved);
+            this, [&](Project *project) { project->disconnect(this); });
 }
 
 LanguageClientManager::~LanguageClientManager()
@@ -603,13 +603,6 @@ void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
     connect(project, &ProjectExplorer::Project::fileListChanged, this, [this, project]() {
         updateProject(project);
     });
-}
-
-void LanguageClientManager::projectRemoved(ProjectExplorer::Project *project)
-{
-    project->disconnect(this);
-    for (Client *client : qAsConst(m_clients))
-        client->projectClosed(project);
 }
 
 } // namespace LanguageClient

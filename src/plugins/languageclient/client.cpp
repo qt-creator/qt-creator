@@ -87,6 +87,7 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_symbolSupport(this)
     , m_tokenSupport(this)
 {
+    using namespace ProjectExplorer;
     m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(this);
     m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
     m_clientProviders.quickFixAssistProvider = new LanguageClientQuickFixProvider(this);
@@ -95,6 +96,8 @@ Client::Client(BaseClientInterface *clientInterface)
     m_documentUpdateTimer.setInterval(500);
     connect(&m_documentUpdateTimer, &QTimer::timeout, this,
             [this] { sendPostponedDocumentUpdates(Schedule::Now); });
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &Client::projectClosed);
 
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
