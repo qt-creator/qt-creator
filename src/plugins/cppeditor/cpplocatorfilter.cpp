@@ -143,8 +143,11 @@ void CppLocatorFilter::accept(Core::LocatorFilterEntry selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt(
-        {Utils::FilePath::fromString(info->fileName()), info->line(), info->column()});
+    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(info->fileName()),
+                                       info->line(),
+                                       info->column()},
+                                      {},
+                                      Core::EditorManager::AllowExternalEditor);
 }
 
 CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)

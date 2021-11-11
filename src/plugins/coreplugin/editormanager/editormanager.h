@@ -84,7 +84,8 @@ public:
         DoNotSwitchToDesignMode = 16,
         DoNotSwitchToEditMode = 32,
         SwitchSplitIfAlreadyVisible = 64,
-        DoNotRaise = 128
+        DoNotRaise = 128,
+        AllowExternalEditor = 256
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 

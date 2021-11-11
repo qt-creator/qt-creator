@@ -3643,7 +3643,9 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
                                   : tr("%1 in %2").arg(li.displayName).arg(li.path.toUserOutput());
         auto *action = new QAction(displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
-            Core::EditorManager::openEditorAt(Link(path, line));
+            Core::EditorManager::openEditorAt(Link(path, line),
+                                              {},
+                                              Core::EditorManager::AllowExternalEditor);
         });
 
         projectMenu->addAction(action);

@@ -237,11 +237,11 @@ void BaseFileFilter::openEditorAt(const LocatorFilterEntry& selection)
         const LineColumn lineColumn = LineColumn::extractFromFileName(postfix, postfixPos);
         if (postfixPos >= 0) {
             const Link link(selection.filePath, lineColumn.line, lineColumn.column);
-            EditorManager::openEditorAt(link);
+            EditorManager::openEditorAt(link, {}, Core::EditorManager::AllowExternalEditor);
             return;
         }
     }
-    EditorManager::openEditor(selection.filePath);
+    EditorManager::openEditor(selection.filePath, {}, Core::EditorManager::AllowExternalEditor);
 }
 
 /*!

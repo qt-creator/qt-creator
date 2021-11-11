@@ -563,7 +563,9 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
     Node *node = m_model->nodeForIndex(mainIndex);
     if (!node || !node->asFileNode())
         return;
-    IEditor *editor = EditorManager::openEditor(node->filePath());
+    IEditor *editor = EditorManager::openEditor(node->filePath(),
+                                                {},
+                                                Core::EditorManager::AllowExternalEditor);
     if (editor && node->line() >= 0)
         editor->gotoLine(node->line());
 }
