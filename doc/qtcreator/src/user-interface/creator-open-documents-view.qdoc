@@ -35,13 +35,8 @@
     \image qtcreator-open-documents-view.png "Open Documents view"
 
     You can use the context menu to apply some of the functions also available
-    in the \uicontrol File menu
-    \if defined(qtcreator)
-    .
-    \else
-    and in the \l {File System Context Menu} {File System} view to the file
-    that is selected in the view.
-    \endif
+    in the \uicontrol File menu and in the \l {File System Context Menu}
+    {File System} view to the file that is selected in the view.
 
     In addition, you can:
 
