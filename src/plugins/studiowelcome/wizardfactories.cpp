@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 
 #include "wizardfactories.h"
+#include <qmldesigner/components/componentcore/theme.h>
 
 namespace {
 // TODO: should be extern, check coreplugin/dialogs/newdialogwidget.cpp
@@ -83,7 +84,7 @@ ProjectItem WizardFactories::makeProjectItem(Core::IWizardFactory *f, QWidget *p
         /*.categoryId =*/f->category(),
         /*. description =*/f->description(),
         /*.qmlPath =*/f->detailsPageQmlPath(),
-        /*.fontIconCode =*/f->fontIcondCode(),
+        /*.fontIconCode =*/QmlDesigner::Theme::getIconUnicode(f->fontIconName()),
         /*.create =*/ std::bind(&Core::IWizardFactory::runWizard, f, _1, parent, platform,
                                QVariantMap(), false),
     };
