@@ -1859,7 +1859,10 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                 if (qobject_cast<QQuick3DModel *>(object)
                     || qobject_cast<QQuick3DCamera *>(object)
                     || qobject_cast<QQuick3DAbstractLight *>(object)
-                    || qobject_cast<QQuick3DParticleSystem *>(object)) {
+#ifdef QUICK3D_PARTICLES_MODULE
+                    || qobject_cast<QQuick3DParticleSystem *>(object)
+#endif
+                ) {
                     return true;
                 }
                 // Node is a component if it has node children that have no instances
