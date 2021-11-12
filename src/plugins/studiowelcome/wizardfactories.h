@@ -55,7 +55,6 @@ private:
     std::map<QString, ProjectCategory> makeProjectItemsGroupedByCategory();
 
 private:
-    QSet<Utils::Id> m_blacklist;
     QWidget *m_wizardParent;
     Utils::Id m_platform;
 
