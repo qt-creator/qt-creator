@@ -202,8 +202,8 @@ Item {
                          dialogBox.setScreenSizeIndex(index);
 
                          var r = screenSizeModel.screenSizes(index);
-                         widthTextField.text = r.width;
-                         heightTextField.text = r.height;
+                         widthField.realValue = r.width;
+                         heightField.realValue = r.height;
                      }
 
                     Connections {
@@ -252,19 +252,20 @@ Item {
                     }
 
                     // content items
-                    SC.TextField {
-                        id: widthTextField
+                    SC.RealSpinBox {
+                        id: widthField
                         actionIndicatorVisible: false
-                        translationIndicatorVisible: false
-                        implicitWidth: 50
-                        color: DialogValues.textColor
-                        selectByMouse: true
-                        validator: IntValidator { bottom: 1; top: 100000; }
+                        implicitWidth: 70
+                        labelColor: DialogValues.textColor
+                        realFrom: 100
+                        realTo: 100000
+                        realValue: 100
+                        realStepSize: 10
                         font.pixelSize: DialogValues.defaultPixelSize
 
-                        onTextChanged: {
-                            var height = heightTextField.text ? parseInt(heightTextField.text) : 0
-                            var width = text ? parseInt(text) : 0
+                        onRealValueChanged: {
+                            var height = heightField.realValue
+                            var width = realValue
 
                             if (width >= height)
                                 orientationButton.setHorizontal()
@@ -276,22 +277,23 @@ Item {
                     Binding {
                         target: dialogBox
                         property: "customWidth"
-                        value: widthTextField.text
+                        value: widthField.realValue
                     }
 
-                    SC.TextField {
-                        id: heightTextField
+                    SC.RealSpinBox {
+                        id: heightField
                         actionIndicatorVisible: false
-                        translationIndicatorVisible: false
-                        implicitWidth: 50
-                        color: DialogValues.textColor
-                        selectByMouse: true
-                        validator: IntValidator { bottom: 1; top: 100000; }
+                        implicitWidth: 70
+                        labelColor: DialogValues.textColor
+                        realFrom: 100
+                        realTo: 100000
+                        realValue: 100
+                        realStepSize: 10
                         font.pixelSize: DialogValues.defaultPixelSize
 
-                        onTextChanged: {
-                            var height = text ? parseInt(text) : 0
-                            var width = widthTextField.text ? parseInt(widthTextField.text) : 0
+                        onRealValueChanged: {
+                            var height = realValue
+                            var width = widthField.realValue
 
                             if (width >= height)
                                 orientationButton.setHorizontal()
@@ -303,7 +305,7 @@ Item {
                     Binding {
                         target: dialogBox
                         property: "customHeight"
-                        value: heightTextField.text
+                        value: heightField.realValue
                     }
 
                     Item { Layout.fillWidth: true }
@@ -348,9 +350,8 @@ Item {
                         }
 
                         onClicked: {
-                            if (widthTextField.text && heightTextField.text) {
-                                [widthTextField.text, heightTextField.text] = [heightTextField.text, widthTextField.text];
-
+                            if (widthField.realValue && heightField.realValue) {
+                                [widthField.realValue, heightField.realValue] = [heightField.realValue, widthField.realValue];
                                 checked = !checked
                             }
                         }
