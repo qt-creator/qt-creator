@@ -1539,6 +1539,30 @@ QString ClangdClient::displayNameFromDocumentSymbol(SymbolKind kind, const QStri
     }
 }
 
+// Force re-parse of all open files that include the changed ui header.
+// Otherwise, we potentially have stale diagnostics.
+void ClangdClient::handleUiHeaderChange(const QString &fileName)
+{
+    const QRegularExpression includeRex("#include.*" + fileName + R"([>"])");
+    const QVector<Client *> &allClients = LanguageClientManager::clients();
+    for (Client * const client : allClients) {
+        if (!client->reachable() || !qobject_cast<ClangdClient *>(client))
+            continue;
+        for (IDocument * const doc : DocumentModel::openedDocuments()) {
+            const auto textDoc = qobject_cast<TextDocument *>(doc);
+            if (!textDoc || !client->documentOpen(textDoc))
+                continue;
+            const QTextCursor includePos = textDoc->document()->find(includeRex);
+            if (includePos.isNull())
+                continue;
+            qCDebug(clangdLog) << "updating" << textDoc->filePath() << "due to change in UI header"
+                               << fileName;
+            client->documentContentsChanged(textDoc, 0, 0, 0);
+            break; // No sane project includes the same UI header twice.
+        }
+    }
+}
+
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
 {
     const auto refData = runningFindUsages.find(key);

@@ -86,6 +86,8 @@ public:
     static QString displayNameFromDocumentSymbol(LanguageServerProtocol::SymbolKind kind,
                                                  const QString &name, const QString &detail);
 
+    static void handleUiHeaderChange(const QString &fileName);
+
 signals:
     void indexingFinished();
     void foundReferences(const QList<Core::SearchResultItem> &items);
