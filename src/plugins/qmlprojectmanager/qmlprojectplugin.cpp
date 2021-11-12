@@ -218,8 +218,11 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                                     //The first one might be ignored when QDS is starting up
                                     QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
                                 } else {
-                                    Core::AsynchronousMessageBox::warning(tr("Qt Design Studio"),
-                                                                          tr("No project file (*.qmlproject) found for Qt Design Studio."));
+                                    Core::AsynchronousMessageBox::warning(
+                                        tr("Qt Design Studio"),
+                                        tr("No project file (*.qmlproject) found for Qt Design"
+                                           "Studio.\n Qt Design Studio requires a .qmlproject "
+                                           "based project to open the ui.qml file."));
                                 }
                             });
                             Core::ICore::infoBar()->addInfo(info);
