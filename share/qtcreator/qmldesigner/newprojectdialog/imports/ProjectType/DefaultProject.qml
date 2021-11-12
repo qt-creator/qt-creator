@@ -29,7 +29,7 @@ import QtQuick.Controls
 import QtQuick
 import QtQuick.Layouts
 
-import newprojectdialog
+import NewProjectDialog
 
 Item {
     anchors.fill: parent
