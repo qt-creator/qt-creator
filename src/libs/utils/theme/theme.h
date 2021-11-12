@@ -426,7 +426,12 @@ public:
         DSBackgroundColorNormal,
         DSBackgroundColorAlternate,
 
-        DSUnimportedModuleColor
+        DSUnimportedModuleColor,
+
+        DSwelcomeScreenBackground,
+        DSsubPanelBackground,
+        DSthumbnailBackground,
+        DSthumbnailLabelBackground,
     };
 
     enum Gradient {

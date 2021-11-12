@@ -309,4 +309,10 @@ QtObject {
     property string themeListItemText: Theme.color(Theme.DSnavigatorText)
     property string themeListItemTextHover: Theme.color(Theme.DSnavigatorTextHover)
     property string themeListItemTextPress: Theme.color(Theme.DSnavigatorTextSelected)
+
+    //Welcome Page
+    property string welcomeScreenBackground: Theme.color(Theme.DSwelcomeScreenBackground)
+    property string themeSubPanelBackground: Theme.color(Theme.DSsubPanelBackground)
+    property string themeThumbnailBackground: Theme.color(Theme.DSthumbnailBackground)
+    property string themeThumbnailLabelBackground: Theme.color(Theme.DSthumbnailLabelBackground)
 }
