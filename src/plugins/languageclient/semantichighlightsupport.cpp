@@ -369,6 +369,8 @@ void SemanticTokenSupport::setAdditionalTokenTypeStyles(
 
 SemanticRequestTypes SemanticTokenSupport::supportedSemanticRequests(TextDocument *document) const
 {
+    if (!m_client->documentOpen(document))
+        return SemanticRequestType::None;
     auto supportedRequests = [&](const QJsonObject &options) -> SemanticRequestTypes {
         TextDocumentRegistrationOptions docOptions(options);
         if (docOptions.isValid()
