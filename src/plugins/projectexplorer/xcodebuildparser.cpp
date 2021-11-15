@@ -59,8 +59,6 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
         QRegularExpressionMatch match = m_buildRe.match(line);
         if (match.hasMatch()) {
             m_xcodeBuildParserState = InXcodebuild;
-            m_lastTarget = match.captured(2);
-            m_lastProject = match.captured(3);
             return Status::Done;
         }
         if (m_xcodeBuildParserState == InXcodebuild
@@ -89,7 +87,6 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
     if (match.hasMatch()) {
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
-        // unfortunately the m_lastTarget, m_lastProject might not be in sync
         scheduleTask(CompileTask(Task::Error, tr("Xcodebuild failed.")), 1);
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild)

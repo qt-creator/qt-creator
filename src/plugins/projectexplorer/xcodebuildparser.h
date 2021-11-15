@@ -56,8 +56,6 @@ private:
     const QRegularExpression m_successRe;
     const QRegularExpression m_buildRe;
     XcodebuildStatus m_xcodeBuildParserState = OutsideXcodebuild;
-    QString m_lastTarget;
-    QString m_lastProject;
 
 #if defined WITH_TESTS
     friend class XcodebuildParserTester;
