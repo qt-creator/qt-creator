@@ -527,7 +527,9 @@ void MainWindow::registerDefaultActions()
 
     // New File Action
     QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Utils::Icons::NEWFILE.icon());
-    QString newActionText = isQtDesignStudio() ? tr("&New Project...") : tr("&New File or Project...");
+
+    const bool isQDS = isQtDesignStudio();
+    const QString newActionText = isQDS ? tr("&New Project...") : tr("&New File or Project...");
     m_newAction = new QAction(icon, newActionText, this);
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence::New);
@@ -540,6 +542,24 @@ void MainWindow::registerDefaultActions()
             ICore::raiseWindow(ICore::newItemDialog());
         }
     });
+
+    if (isQDS) {
+        auto action = new QAction(icon,  tr("New File..."), this);
+        cmd = ActionManager::registerAction(action, Constants::NEW_FILE);
+        mfile->addAction(cmd, Constants::G_FILE_NEW);
+        connect(action, &QAction::triggered, this, []() {
+            if (!ICore::isNewItemDialogRunning()) {
+                ICore::showNewItemDialog(
+                    tr("New File", "Title of dialog"),
+                    Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                    Utils::equal(&Core::IWizardFactory::kind,
+                                                 Core::IWizardFactory::FileWizard)),
+                    FilePath());
+            } else {
+                ICore::raiseWindow(ICore::newItemDialog());
+            }
+        });
+    }
 
     // Open Action
     icon = QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon());
