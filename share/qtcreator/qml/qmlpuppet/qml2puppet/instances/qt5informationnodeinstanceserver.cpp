@@ -1994,11 +1994,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         updatedState.insert("showGrid", command.isEnabled());
         break;
 #ifdef QUICK3D_PARTICLES_MODULE
-    case View3DActionCommand::Edit3DParticleModeToggle:
-        updatedState.insert("enableParticleViewMode", command.isEnabled());
-        break;
     case View3DActionCommand::ParticlesPlay:
         m_particleAnimationPlaying = command.isEnabled();
+        updatedState.insert("particlePlay", command.isEnabled());
         if (m_particleAnimationPlaying) {
             m_particleAnimationDriver->reset();
             m_particleAnimationDriver->restart();
