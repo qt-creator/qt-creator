@@ -61,6 +61,7 @@ public:
     Ui::ProjectIntroPage m_ui;
     bool m_complete = false;
     QRegularExpressionValidator m_projectNameValidator;
+    QString m_projectNameValidatorUserMessage;
     bool m_forceSubProject = false;
     FilePaths m_projectDirectories;
 };
@@ -124,10 +125,11 @@ void ProjectIntroPage::setFilePath(const FilePath &path)
     d->m_ui.pathChooser->setFilePath(path);
 }
 
-void ProjectIntroPage::setProjectNameRegularExpression(const QRegularExpression &regEx)
+void ProjectIntroPage::setProjectNameRegularExpression(const QRegularExpression &regEx, const QString &userErrorMessage)
 {
     Q_ASSERT_X(regEx.isValid(), Q_FUNC_INFO, qPrintable(regEx.errorString()));
     d->m_projectNameValidator.setRegularExpression(regEx);
+    d->m_projectNameValidatorUserMessage = userErrorMessage;
 }
 
 void ProjectIntroPage::setProjectName(const QString &name)
@@ -263,8 +265,10 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
         // a more detailed error message
         if (validatorState != QValidator::Acceptable && (pos == -1 || pos >= name.count())) {
             if (errorMessage) {
-                *errorMessage = tr("Name does not match \"%1\".").arg(
-                    d->m_projectNameValidator.regularExpression().pattern());
+                if (d->m_projectNameValidatorUserMessage.isEmpty())
+                    *errorMessage = tr("Project name is invalid.");
+                else
+                    *errorMessage = d->m_projectNameValidatorUserMessage;
             }
             return false;
         }

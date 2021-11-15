@@ -101,7 +101,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     QObject::connect(&m_wizard, &WizardHandler::projectCanBeCreated, this, &QdsNewDialog::onProjectCanBeCreatedChanged);
 
     QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this]() {
-        QMessageBox::critical(m_dialog, "New project", "Failed to initialize data");
+        QMessageBox::critical(m_dialog, tr("New project"), tr("Failed to initialize data"));
         reject();
         delete this;
     });

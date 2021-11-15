@@ -127,6 +127,7 @@ Item {
 
                     Image {
                         id: statusIcon
+                        Layout.alignment: Qt.AlignTop
                         asynchronous: false
                     }
 
