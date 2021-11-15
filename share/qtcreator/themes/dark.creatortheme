@@ -155,8 +155,8 @@ DStoolTipText=ffdadada
 
 DSUnimportedModuleColor=ffe33c2e
 
-DSBackgroundColorAlternate=alternateBackground
-DSBackgroundColorNormal=normalBackground
+DSBackgroundColorAlternate=ff323232
+DSBackgroundColorNormal=ff1f1f1f
 
 ;DS controls theme END
 
