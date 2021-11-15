@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -45,9 +45,19 @@
 
             \image qtcreator-analyzer-settings.png "Valgrind Settings"
 
+        \li In \uicontrol {Valgrind executable}, specify the path to the
+            Valgrind executable.
+
+        \li In \uicontrol {Valgrind arguments}, specify additional arguments
+            for Valgrind.
+
+        \li In \uicontrol {Detect self-modifying code}, select whether to
+            detect self-modifying code and where to detect it: only on stack,
+            everywhere, or everywhere except in file-backend mappings.
+
     \endlist
 
-    For more information about the settings, see:
+    For more information about the CallGrind and MemCheck settings, see:
 
     \list
 
