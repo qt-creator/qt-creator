@@ -45,16 +45,17 @@ bool showConfirmationDialog(const Utils::FilePath &rootDir);
 bool queueFile(const Utils::FilePath &filePath, const QString &fileContent);
 bool writeFile(const GeneratableFile &file);
 bool writeQueuedFiles();
+QString readTemplate(const QString &templatePath);
 }
 namespace GenerateCmakeLists {
+bool generateCmakes(const Utils::FilePath &rootDir);
 void generateMainCmake(const Utils::FilePath &rootDir);
-void generateSubdirCmake(const Utils::FilePath &dir);
-QString generateModuleCmake(const Utils::FilePath &dir);
-QStringList processDirectory(const Utils::FilePath &dir);
+void generateImportCmake(const Utils::FilePath &dir);
+void generateModuleCmake(const Utils::FilePath &dir);
 QStringList getSingletonsFromQmldirFile(const Utils::FilePath &filePath);
 QStringList getDirectoryTreeQmls(const Utils::FilePath &dir);
 QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
-void createCmakeFile(const Utils::FilePath &filePath, const QString &content);
+void queueCmakeFile(const Utils::FilePath &filePath, const QString &content);
 bool isFileBlacklisted(const QString &fileName);
 }
 namespace GenerateEntryPoints {

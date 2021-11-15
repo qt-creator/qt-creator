@@ -258,7 +258,7 @@ void McuPackage::setRelativePathModifier(const QString &path)
     m_relativePathModifier = path;
 }
 
-void McuPackage::setVersions(const QVector<QString> &versions)
+void McuPackage::setVersions(const QStringList &versions)
 {
     m_versions = versions;
 }
@@ -312,13 +312,14 @@ void McuPackage::updateStatusUi()
 QString McuPackage::statusText() const
 {
     const QString displayPackagePath = m_path.toUserOutput();
-    const QString displayVersions = QStringList(m_versions.toList()).join(" or ");
-    const QString displayRequiredPath = QString("%1 %2").arg(
-        FilePath::fromString(m_detectionPath).toUserOutput(),
-        displayVersions);
-    const QString displayDetectedPath = QString("%1 %2").arg(
-        FilePath::fromString(m_detectionPath).toUserOutput(),
-        m_detectedVersion);
+    const QString displayVersions = m_versions.join(" or ");
+    const QString outDetectionPath = FilePath::fromString(m_detectionPath).toUserOutput();
+    const QString displayRequiredPath = m_versions.empty() ?
+                outDetectionPath :
+                QString("%1 %2").arg(outDetectionPath, displayVersions);
+    const QString displayDetectedPath = m_versions.empty() ?
+                outDetectionPath :
+                QString("%1 %2").arg(outDetectionPath, m_detectedVersion);
 
     QString response;
     switch (m_status) {

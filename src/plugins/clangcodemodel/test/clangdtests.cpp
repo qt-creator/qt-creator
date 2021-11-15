@@ -1488,9 +1488,15 @@ void ClangdTestCompletion::testCompleteIncludeDirective()
     getProposal("includeDirectiveCompletion.cpp", proposal);
 
     QVERIFY(proposal);
-    QVERIFY(hasItem(proposal, " file.h>"));
-    QVERIFY(hasItem(proposal, " otherFile.h>"));
-    QVERIFY(hasItem(proposal, " mylib/"));
+    if (client()->versionNumber() < QVersionNumber(14)) {
+        QVERIFY(hasItem(proposal, "file.h"));
+        QVERIFY(hasItem(proposal, "otherFile.h"));
+        QVERIFY(hasItem(proposal, "mylib/"));
+    } else {
+        QVERIFY(hasItem(proposal, " file.h>"));
+        QVERIFY(hasItem(proposal, " otherFile.h>"));
+        QVERIFY(hasItem(proposal, " mylib/"));
+    }
     QVERIFY(!hasSnippet(proposal, "class "));
 }
 

@@ -25,9 +25,10 @@
 
 #include "qmlstatenodeinstance.h"
 
-#include <qmlprivategate.h>
-
 #include "qmlpropertychangesnodeinstance.h"
+
+#include <qmlprivategate.h>
+#include <designersupportdelegate.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -53,12 +54,28 @@ QmlStateNodeInstance::Pointer
     return instance;
 }
 
+void setAllNodesDirtyRecursive(QQuickItem *parentItem)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    Q_UNUSED(parentItem)
+#else
+    if (!parentItem)
+        return;
+    const QList<QQuickItem *> children = parentItem->childItems();
+    for (QQuickItem *childItem : children)
+        setAllNodesDirtyRecursive(childItem);
+    DesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
+#endif
+}
+
 void QmlStateNodeInstance::activateState()
 {
     if (!QmlPrivateGate::States::isStateActive(object(), context())
             && nodeInstanceServer()->hasInstanceForObject(object())) {
         nodeInstanceServer()->setStateInstance(nodeInstanceServer()->instanceForObject(object()));
         QmlPrivateGate::States::activateState(object(), context());
+
+        setAllNodesDirtyRecursive(nodeInstanceServer()->rootItem());
     }
 }
 

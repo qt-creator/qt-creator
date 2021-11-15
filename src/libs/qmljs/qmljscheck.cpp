@@ -794,8 +794,10 @@ bool Check::visit(UiObjectInitializer *)
     UiQualifiedId *qualifiedTypeId = qualifiedTypeNameId(parent());
     if (qualifiedTypeId) {
         typeName = qualifiedTypeId->name.toString();
-        if (typeName == "Component")
+        if (typeName == "Component") {
             m_idStack.push(StringSet());
+            _componentChildCount = 0;
+        }
     }
 
     m_typeStack.push(typeName);
@@ -806,10 +808,23 @@ bool Check::visit(UiObjectInitializer *)
     return true;
 }
 
-void Check::endVisit(UiObjectInitializer *)
+void Check::endVisit(UiObjectInitializer *uiObjectInitializer)
 {
     m_propertyStack.pop();
-    m_typeStack.pop();
+
+    const QString type = m_typeStack.pop();
+
+    if (type == "Component" && _componentChildCount == 0) {
+        SourceLocation loc;
+        UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
+        if (objectDefinition)
+            loc = objectDefinition->qualifiedTypeNameId->identifierToken;
+        UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
+        if (objectBinding)
+            loc = objectBinding->qualifiedTypeNameId->identifierToken;
+        addMessage(WarnComponentRequiresChildren, loc);
+    }
+
     UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
     if (objectDefinition && objectDefinition->qualifiedTypeNameId->name == QLatin1String("Component"))
         m_idStack.pop();
@@ -961,6 +976,12 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
             && unsupportedRootObjectTypesByQmlUi()->contains(typeName))
         addMessage(ErrUnsupportedRootTypeInQmlUi,
                    locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()), typeName);
+
+    if (!m_typeStack.isEmpty() && m_typeStack.last() == "Component") {
+        _componentChildCount++;
+        if (_componentChildCount > 1)
+            addMessage(ErrToManyComponentChildren, typeErrorLocation);
+    }
 
     bool typeError = false;
     if (_importsOk) {

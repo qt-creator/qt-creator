@@ -51,7 +51,8 @@
     \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
     documentation.
 
-    If you have \QDS installed, you can open \QDS examples from \QC in \QDS.
+    If you have \l{Qt Design Studio Manual}{\QDS} installed, you can open
+    \QDS examples from \QC in \QDS.
 
     \list 1
 

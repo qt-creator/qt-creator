@@ -186,6 +186,11 @@ QString Theme::getIconUnicode(Theme::Icon i)
     return instance()->m_constants->property(e.valueToKey(i)).toString();
 }
 
+QString Theme::getIconUnicode(const QString &name)
+{
+    return instance()->m_constants->property(name.toStdString().data()).toString();
+}
+
 QColor Theme::qmlDesignerBackgroundColorDarker() const
 {
     return getColor(QmlDesigner_BackgroundColorDarker);

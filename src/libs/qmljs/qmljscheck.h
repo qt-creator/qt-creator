@@ -158,6 +158,7 @@ private:
 
     bool _importsOk;
     bool _inStatementBinding;
+    int _componentChildCount = 0;
     const Imports *_imports;
     TranslationFunction lastTransLationfunction = noTranslationfunction;
 };

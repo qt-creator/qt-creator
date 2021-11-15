@@ -66,6 +66,7 @@ const char NAVIGATOR_REVERSE_ITEM_ORDER[] = "NavigatorReverseItemOrder";
 const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles";        /* These settings are not exposed in ui. */
 const char IGNORE_DEVICE_PIXEL_RATIO[] = "IgnoreDevicePixelRaio"; /* The settings can be used to turn off the feature, if there are serious issues */
 const char STANDALONE_MODE[] = "StandAloneMode";
+const char SHOW_DEBUG_SETTINGS[] = "ShowDebugSettings";
 const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
 const char COLOR_PALETTE_RECENT[] = "ColorPaletteRecent";
 const char COLOR_PALETTE_FAVORITE[] = "ColorPaletteFavorite";

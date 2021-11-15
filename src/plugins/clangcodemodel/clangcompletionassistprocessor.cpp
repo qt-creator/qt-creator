@@ -338,7 +338,9 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
             return createProposal();
         break;
     case ClangCompletionContextAnalyzer::CompleteIncludePath:
-        if (completeInclude(analyzer.positionEndOfExpression()))
+        m_completions = completeInclude(analyzer.positionEndOfExpression(), m_completionOperator,
+                                        m_interface.data(), m_interface->headerPaths());
+        if (!m_completions.isEmpty())
             return createProposal();
         break;
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
@@ -441,38 +443,46 @@ bool ClangCompletionAssistProcessor::accepts() const
 
 /**
  * @brief Creates completion proposals for #include and given cursor
- * @param cursor - cursor placed after opening bracked or quote
- * @return false if completions list is empty
+ * @param position - cursor placed after opening bracked or quote
+ * @param completionOperator - the type of token
+ * @param interface - relevant document data
+ * @param headerPaths - the include paths
+ * @return the list of completion items
  */
-bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
+QList<AssistProposalItemInterface *> ClangCompletionAssistProcessor::completeInclude(
+        int position, unsigned completionOperator, const TextEditor::AssistInterface *interface,
+        const ProjectExplorer::HeaderPaths &headerPaths)
 {
+    QTextCursor cursor(interface->textDocument());
+    cursor.setPosition(position);
     QString directoryPrefix;
-    if (m_completionOperator == T_SLASH) {
+    if (completionOperator == T_SLASH) {
         QTextCursor c = cursor;
         c.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
         QString sel = c.selectedText();
         int startCharPos = sel.indexOf(QLatin1Char('"'));
         if (startCharPos == -1) {
             startCharPos = sel.indexOf(QLatin1Char('<'));
-            m_completionOperator = T_ANGLE_STRING_LITERAL;
+            completionOperator = T_ANGLE_STRING_LITERAL;
         } else {
-            m_completionOperator = T_STRING_LITERAL;
+            completionOperator = T_STRING_LITERAL;
         }
         if (startCharPos != -1)
             directoryPrefix = sel.mid(startCharPos + 1, sel.length() - 1);
     }
 
     // Make completion for all relevant includes
-    ProjectExplorer::HeaderPaths headerPaths = m_interface->headerPaths();
+    ProjectExplorer::HeaderPaths allHeaderPaths = headerPaths;
     const auto currentFilePath = ProjectExplorer::HeaderPath::makeUser(
-                m_interface->filePath().toFileInfo().path());
-    if (!headerPaths.contains(currentFilePath))
-        headerPaths.append(currentFilePath);
+                interface->filePath().toFileInfo().path());
+    if (!allHeaderPaths.contains(currentFilePath))
+        allHeaderPaths.append(currentFilePath);
 
     const ::Utils::MimeType mimeType = ::Utils::mimeTypeForName("text/x-c++hdr");
     const QStringList suffixes = mimeType.suffixes();
 
-    foreach (const ProjectExplorer::HeaderPath &headerPath, headerPaths) {
+    QList<AssistProposalItemInterface *> completions;
+    foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
@@ -480,11 +490,11 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
             if (headerPath.type == ProjectExplorer::HeaderPathType::Framework)
                 realPath += QLatin1String(".framework/Headers");
         }
-        completeIncludePath(realPath, suffixes);
+        completions << completeIncludePath(realPath, suffixes, completionOperator);
     }
 
     QList<QPair<AssistProposalItemInterface *, QString>> completionsForSorting;
-    for (AssistProposalItemInterface * const item : qAsConst(m_completions)) {
+    for (AssistProposalItemInterface * const item : qAsConst(completions)) {
         QString s = item->text();
         s.replace('/', QChar(0)); // The dir separator should compare less than anything else.
         completionsForSorting << qMakePair(item, s);
@@ -493,26 +503,21 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
         return left.second < right.second;
     });
     for (int i = 0; i < completionsForSorting.count(); ++i)
-        m_completions[i] = completionsForSorting[i].first;
+        completions[i] = completionsForSorting[i].first;
 
-    return !m_completions.isEmpty();
-}
-
-bool ClangCompletionAssistProcessor::completeInclude(int position)
-{
-    QTextCursor textCursor(m_interface->textDocument()); // TODO: Simplify, move into function
-    textCursor.setPosition(position);
-    return completeInclude(textCursor);
+    return completions;
 }
 
 /**
- * @brief Adds #include completion proposals using given include path
+ * @brief Finds #include completion proposals using given include path
  * @param realPath - one of directories where compiler searches includes
  * @param suffixes - file suffixes for C/C++ header files
+ * @return a list of matching completion items
  */
-void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath,
-                                                         const QStringList &suffixes)
+QList<AssistProposalItemInterface *> ClangCompletionAssistProcessor::completeIncludePath(
+        const QString &realPath, const QStringList &suffixes, unsigned completionOperator)
 {
+    QList<AssistProposalItemInterface *> completions;
     QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     //: Parent folder for proposed #include completion
     const QString hint = tr("Location: %1").arg(QDir::toNativeSeparators(QDir::cleanPath(realPath)));
@@ -529,10 +534,11 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
             item->setText(text);
             item->setDetail(hint);
             item->setIcon(CPlusPlus::Icons::keywordIcon());
-            item->setCompletionOperator(m_completionOperator);
-            m_completions.append(item);
+            item->setCompletionOperator(completionOperator);
+            completions.append(item);
         }
     }
+    return completions;
 }
 
 bool ClangCompletionAssistProcessor::completePreprocessorDirectives()

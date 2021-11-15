@@ -155,9 +155,10 @@ static ::Utils::ProcessLinkCallback extendedCallback(::Utils::ProcessLinkCallbac
     // If globalFollowSymbol finds nothing follow to the declaration.
     return [original_callback = std::move(callback), result](const ::Utils::Link &link) {
         if (link.linkTextStart < 0 && result.isResultOnlyForFallBack) {
-            return original_callback(::Utils::Link(::Utils::FilePath::fromString(result.fileName),
-                                                   result.startLine,
-                                                   result.startColumn - 1));
+            return original_callback(Utils::Link(
+                                         Utils::FilePath::fromString(result.fileName).cleanPath(),
+                                         result.startLine,
+                                         result.startColumn - 1));
         }
         return original_callback(link);
     };
@@ -242,7 +243,7 @@ void ClangFollowSymbol::findLink(const CppEditor::CursorInEditor &data,
                                                  symbolFinder,
                                                  inNextSplit);
         } else {
-            callback(Link(Utils::FilePath::fromString(result.fileName),
+            callback(Link(Utils::FilePath::fromString(result.fileName).cleanPath(),
                           result.startLine,
                           result.startColumn - 1));
         }

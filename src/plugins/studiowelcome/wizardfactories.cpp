@@ -28,11 +28,7 @@
 #include <utils/algorithm.h>
 
 #include "wizardfactories.h"
-
-namespace {
-// TODO: should be extern, check coreplugin/dialogs/newdialogwidget.cpp
-const char BLACKLISTED_CATEGORIES_KEY[] = "Core/NewDialog/BlacklistedCategories";
-}
+#include <qmldesigner/components/componentcore/theme.h>
 
 using namespace StudioWelcome;
 
@@ -41,9 +37,6 @@ WizardFactories::WizardFactories(QList<Core::IWizardFactory *> &factories, QWidg
     , m_platform{platform}
     , m_factories{factories}
 {
-    QVariant value = Core::ICore::settings()->value(BLACKLISTED_CATEGORIES_KEY);
-    m_blacklist = Utils::Id::fromStringList(value.toStringList());
-
     sortByCategoryAndId();
     filter();
     m_projectItems = makeProjectItemsGroupedByCategory();
@@ -65,10 +58,10 @@ void WizardFactories::filter()
     // TODO: perhaps I could use Utils::filtered here.
     std::copy_if(std::begin(m_factories), std::end(m_factories), std::back_inserter(acceptedFactories),
                  [&](auto *wizard) {
-                     return wizard->isAvailable(m_platform)
-                            && wizard->kind() == Core::IWizardFactory::ProjectWizard
-                            && !m_blacklist.contains(Utils::Id::fromString(wizard->category()));
-                 });
+        return wizard->isAvailable(m_platform)
+                && wizard->kind() == Core::IWizardFactory::ProjectWizard
+                && wizard->requiredFeatures().contains("QtStudio");
+    });
 
     m_factories = acceptedFactories;
 }
@@ -83,7 +76,7 @@ ProjectItem WizardFactories::makeProjectItem(Core::IWizardFactory *f, QWidget *p
         /*.categoryId =*/f->category(),
         /*. description =*/f->description(),
         /*.qmlPath =*/f->detailsPageQmlPath(),
-        /*.fontIconCode =*/f->fontIcondCode(),
+        /*.fontIconCode =*/QmlDesigner::Theme::getIconUnicode(f->fontIconName()),
         /*.create =*/ std::bind(&Core::IWizardFactory::runWizard, f, _1, parent, platform,
                                QVariantMap(), false),
     };

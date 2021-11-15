@@ -608,6 +608,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QStr
 
     const QString mappedPath = m_uiHeaderOnDiskManager.write(filePath, content);
     m_communicator.unsavedFilesUpdated(mappedPath, content, 0);
+    ClangdClient::handleUiHeaderChange(Utils::FilePath::fromString(filePath).fileName());
 }
 
 void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &filePath)
@@ -618,6 +619,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &fil
         const QString mappedPath = m_uiHeaderOnDiskManager.remove(filePath);
         const QString projectPartId = projectPartIdForFile(filePath);
         m_communicator.unsavedFilesRemoved({{mappedPath, projectPartId}});
+        ClangdClient::handleUiHeaderChange(Utils::FilePath::fromString(filePath).fileName());
     }
 }
 

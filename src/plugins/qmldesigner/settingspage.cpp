@@ -252,10 +252,14 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.askBeforeDeletingAssetCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
 
-    if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
-        m_ui.debugGroupBox->hide();
-        m_ui.featureTimelineEditorCheckBox->hide();
-    }
+    const auto standaloneMode = settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool();
+#ifdef QT_DEBUG
+    const auto showDebugSettings = true;
+#else
+    const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool();
+#endif
+    m_ui.debugGroupBox->setVisible(!standaloneMode || showDebugSettings);
+    m_ui.featureTimelineEditorCheckBox->setVisible(standaloneMode);
 }
 
 void SettingsPageWidget::apply()

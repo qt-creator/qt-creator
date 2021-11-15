@@ -189,14 +189,14 @@ public:
     // Navigation
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
-    QLineEdit *m_searchFilter = nullptr;
+    QPointer<QLineEdit> m_searchFilter = nullptr;
 
     // Cost formatting
     QAction *m_filterProjectCosts = nullptr;
     QAction *m_costAbsolute = nullptr;
     QAction *m_costRelative = nullptr;
     QAction *m_costRelativeToParent = nullptr;
-    QComboBox *m_eventCombo = nullptr;
+    QPointer<QComboBox> m_eventCombo;
 
     QTimer m_updateTimer;
 
@@ -546,8 +546,10 @@ void CallgrindToolPrivate::setBusyCursor(bool busy)
 void CallgrindToolPrivate::selectFunction(const Function *func)
 {
     if (!func) {
-        m_flatView->clearSelection();
-        m_visualization->setFunction(nullptr);
+        if (m_flatView)
+            m_flatView->clearSelection();
+        if (m_visualization)
+            m_visualization->setFunction(nullptr);
         m_callersModel.clear();
         m_calleesModel.clear();
         return;
@@ -555,15 +557,18 @@ void CallgrindToolPrivate::selectFunction(const Function *func)
 
     const QModelIndex index = m_dataModel.indexForObject(func);
     const QModelIndex proxyIndex = m_proxyModel.mapFromSource(index);
-    m_flatView->selectionModel()->clearSelection();
-    m_flatView->selectionModel()->setCurrentIndex(proxyIndex,
-                                                  QItemSelectionModel::ClearAndSelect |
-                                                  QItemSelectionModel::Rows);
-    m_flatView->scrollTo(proxyIndex);
+    if (m_flatView) {
+        m_flatView->selectionModel()->clearSelection();
+        m_flatView->selectionModel()->setCurrentIndex(proxyIndex,
+                                                      QItemSelectionModel::ClearAndSelect |
+                                                      QItemSelectionModel::Rows);
+        m_flatView->scrollTo(proxyIndex);
+    }
 
     m_callersModel.setCalls(func->incomingCalls(), func);
     m_calleesModel.setCalls(func->outgoingCalls(), func);
-    m_visualization->setFunction(func);
+    if (m_visualization)
+        m_visualization->setFunction(func);
 
     const Function *item = m_stackBrowser.current();
     if (!item || item != func)
@@ -689,7 +694,8 @@ void CallgrindToolPrivate::visualisationFunctionSelected(const Function *functio
 void CallgrindToolPrivate::setParseData(ParseData *data)
 {
     // we have new parse data, invalidate filters in the proxy model
-    m_visualization->setFunction(nullptr);
+    if (m_visualization)
+        m_visualization->setFunction(nullptr);
 
     // invalidate parse data in the data model
     delete m_dataModel.parseData();
@@ -705,7 +711,8 @@ void CallgrindToolPrivate::setParseData(ParseData *data)
     m_calleesModel.setParseData(data);
     m_callersModel.setParseData(data);
 
-    updateEventCombo();
+    if (m_eventCombo)
+        updateEventCombo();
 
     // clear history for new data
     m_stackBrowser.clear();

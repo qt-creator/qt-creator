@@ -341,13 +341,13 @@ struct McuTargetDescription
     } platform;
     struct {
         QString id;
-        QVector<QString> versions;
+        QStringList versions;
     } toolchain;
     struct {
         QString name;
         QString defaultPath;
         QString envVar;
-        QVector<QString> versions;
+        QStringList versions;
     } boardSdk;
     struct {
         QString envVar;
@@ -658,10 +658,10 @@ static McuTargetDescription parseDescriptionJsonCommon(const QString &qulVersion
     const QJsonObject freeRTOS = target.value("freeRTOS").toObject();
 
     const QVariantList toolchainVersions = toolchain.value("versions").toArray().toVariantList();
-    const auto toolchainVersionsVector = Utils::transform<QVector<QString> >(
+    const auto toolchainVersionsList = Utils::transform<QStringList>(
                 toolchainVersions, [&](const QVariant &version) { return version.toString(); });
     const QVariantList boardSdkVersions = boardSdk.value("versions").toArray().toVariantList();
-    const auto boardSdkVersionsVector = Utils::transform<QVector<QString> >(
+    const auto boardSdkVersionsList = Utils::transform<QStringList>(
                 boardSdkVersions, [&](const QVariant &version) { return version.toString(); });
 
     return {
@@ -670,13 +670,13 @@ static McuTargetDescription parseDescriptionJsonCommon(const QString &qulVersion
         {},
         {
             toolchain.value("id").toString(),
-            toolchainVersionsVector,
+            toolchainVersionsList,
         },
         {
             boardSdk.value("name").toString(),
             boardSdk.value("defaultPath").toString(),
             boardSdk.value("envVar").toString(),
-            boardSdkVersionsVector,
+            boardSdkVersionsList,
         },
         {
             freeRTOS.value("envVar").toString(),

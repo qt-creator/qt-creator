@@ -293,6 +293,7 @@
     style.
     \endif
 
+
     You can use \QC in the following modes:
 
     \list
@@ -487,8 +488,8 @@
 
     The pane filters out irrelevant output from the build tools and presents the
     issues in an organized way. To further filter the output by type, select
-    \uicontrol {Filter Tree}
-    and then select a filter.
+    \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}) and then select a filter.
 
     \image qtcreator-issues.png "Issues output pane"
 
@@ -550,9 +551,10 @@
 
     To specify settings for displaying application output, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol {Application Output}, or click the \uicontrol {Open Settings Page}
-    button. You can select whether to open the \uicontrol{Application Output} pane
-    on output when running or debugging applications, to clear old output on a new run,
+    \uicontrol {Application Output}, or click the \inlineimage settings.png
+    (\uicontrol {Open Settings Page}) button. You can select whether to open
+    the \uicontrol{Application Output} pane on output when running or debugging
+    applications, to clear old output on a new run,
     to word-wrap output, and to limit output to the specified number of lines.
 
     \section1 Compile Output
@@ -575,8 +577,8 @@
     In the \uicontrol {Limit output to} field, you can specify the maximum
     amount of build output lines to display in the pane.
 
-    You can also reach the options page by clicking the \uicontrol {Open Settings Page}
-    button.
+    You can also reach the options page by clicking \inlineimage settings.png
+    (\uicontrol {Open Settings Page}).
 
     To copy the output from the pane to the clipboard, select
     \uicontrol {Select All} in the context menu, and then select

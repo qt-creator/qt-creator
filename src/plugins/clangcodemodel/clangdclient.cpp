@@ -25,6 +25,7 @@
 
 #include "clangdclient.h"
 
+#include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdiagnosticmanager.h"
 #include "clangmodelmanagersupport.h"
@@ -66,6 +67,7 @@
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QDateTime>
@@ -810,14 +812,15 @@ public:
 };
 
 
-enum class CustomAssistMode { Doxygen, Preprocessor };
+enum class CustomAssistMode { Doxygen, Preprocessor, IncludePath };
 class CustomAssistProcessor : public IAssistProcessor
 {
 public:
-    CustomAssistProcessor(ClangdClient *client, int position, unsigned completionOperator,
-                          CustomAssistMode mode)
+    CustomAssistProcessor(ClangdClient *client, int position, int endPos,
+                          unsigned completionOperator, CustomAssistMode mode)
         : m_client(client)
         , m_position(position)
+        , m_endPos(endPos)
         , m_completionOperator(completionOperator)
         , m_mode(mode)
     {}
@@ -833,7 +836,7 @@ private:
                                           CPlusPlus::Icons::keywordIcon());
             }
             break;
-        case CustomAssistMode::Preprocessor:
+        case CustomAssistMode::Preprocessor: {
             static QIcon macroIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro);
             for (const QString &completion
                  : CppEditor::CppCompletionAssistProcessor::preprocessorCompletions()) {
@@ -842,6 +845,17 @@ private:
             if (CppEditor::ProjectFile::isObjC(interface->filePath().toString()))
                 completions << createItem("import", macroIcon);
             break;
+        }
+        case ClangCodeModel::Internal::CustomAssistMode::IncludePath: {
+            HeaderPaths headerPaths;
+            const CppEditor::ProjectPart::ConstPtr projectPart
+                    = projectPartForFile(interface->filePath().toString());
+            if (projectPart)
+                headerPaths = projectPart->headerPaths;
+            completions = ClangCompletionAssistProcessor::completeInclude(
+                        m_endPos, m_completionOperator, interface, headerPaths);
+            break;
+        }
         }
         GenericProposalModelPtr model(new GenericProposalModel);
         model->loadContent(completions);
@@ -864,6 +878,7 @@ private:
 
     ClangdClient * const m_client;
     const int m_position;
+    const int m_endPos;
     const unsigned m_completionOperator;
     const CustomAssistMode m_mode;
 };
@@ -1110,6 +1125,12 @@ public:
     using LanguageClientCompletionItem::LanguageClientCompletionItem;
     void apply(TextDocumentManipulatorInterface &manipulator,
                int basePosition) const override;
+
+    enum class SpecialQtType { Signal, Slot, None };
+    static SpecialQtType getQtType(const CompletionItem &item);
+
+private:
+    QIcon icon() const override;
 };
 
 class ClangdClient::ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
@@ -1155,15 +1176,7 @@ ClangdClient::ClangdCompletionAssistProcessor::generateCompletionItems(
     // whether the cursor was on the second argument of a (dis)connect() call.
     // If so, we offer only signals, as nothing else makes sense in that context.
     static const auto criterion = [](const CompletionItem &ci) {
-        const Utils::optional<MarkupOrString> doc = ci.documentation();
-        if (!doc)
-            return false;
-        QString docText;
-        if (Utils::holds_alternative<QString>(*doc))
-            docText = Utils::get<QString>(*doc);
-        else if (Utils::holds_alternative<MarkupContent>(*doc))
-            docText = Utils::get<MarkupContent>(*doc).content();
-        return docText.contains("Annotation: qt_signal");
+        return ClangdCompletionItem::getQtType(ci) == ClangdCompletionItem::SpecialQtType::Signal;
     };
     const QTextDocument *doc = document();
     const int pos = basePos();
@@ -1523,6 +1536,30 @@ QString ClangdClient::displayNameFromDocumentSymbol(SymbolKind kind, const QStri
         return name + " -> " + detail;
     default:
         return name;
+    }
+}
+
+// Force re-parse of all open files that include the changed ui header.
+// Otherwise, we potentially have stale diagnostics.
+void ClangdClient::handleUiHeaderChange(const QString &fileName)
+{
+    const QRegularExpression includeRex("#include.*" + fileName + R"([>"])");
+    const QVector<Client *> &allClients = LanguageClientManager::clients();
+    for (Client * const client : allClients) {
+        if (!client->reachable() || !qobject_cast<ClangdClient *>(client))
+            continue;
+        for (IDocument * const doc : DocumentModel::openedDocuments()) {
+            const auto textDoc = qobject_cast<TextDocument *>(doc);
+            if (!textDoc || !client->documentOpen(textDoc))
+                continue;
+            const QTextCursor includePos = textDoc->document()->find(includeRex);
+            if (includePos.isNull())
+                continue;
+            qCDebug(clangdLog) << "updating" << textDoc->filePath() << "due to change in UI header"
+                               << fileName;
+            client->documentContentsChanged(textDoc, 0, 0, 0);
+            break; // No sane project includes the same UI header twice.
+        }
     }
 }
 
@@ -2817,14 +2854,26 @@ IAssistProcessor *ClangdClient::ClangdCompletionAssistProvider::createProcessor(
         qCDebug(clangdLogCompletion) << "creating doxygen processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
+                                         contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Doxygen);
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
         qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
                                          contextAnalyzer.positionForProposal(),
+                                         contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
+    case ClangCompletionContextAnalyzer::CompleteIncludePath:
+        if (m_client->versionNumber() < QVersionNumber(14)) { // https://reviews.llvm.org/D112996
+            qCDebug(clangdLogCompletion) << "creating include processor";
+            return new CustomAssistProcessor(m_client,
+                                             contextAnalyzer.positionForProposal(),
+                                             contextAnalyzer.positionEndOfExpression(),
+                                             contextAnalyzer.completionOperator(),
+                                             CustomAssistMode::IncludePath);
+        }
+        [[fallthrough]];
     default:
         break;
     }
@@ -3007,6 +3056,38 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
         for (const auto &edit : *additionalEdits)
             applyTextEdit(manipulator, edit);
     }
+}
+
+ClangdCompletionItem::SpecialQtType ClangdCompletionItem::getQtType(const CompletionItem &item)
+{
+    const Utils::optional<MarkupOrString> doc = item.documentation();
+    if (!doc)
+        return SpecialQtType::None;
+    QString docText;
+    if (Utils::holds_alternative<QString>(*doc))
+        docText = Utils::get<QString>(*doc);
+    else if (Utils::holds_alternative<MarkupContent>(*doc))
+        docText = Utils::get<MarkupContent>(*doc).content();
+    if (docText.contains("Annotation: qt_signal"))
+        return SpecialQtType::Signal;
+    if (docText.contains("Annotation: qt_slot"))
+        return SpecialQtType::Slot;
+    return SpecialQtType::None;
+}
+
+QIcon ClangdCompletionItem::icon() const
+{
+    const SpecialQtType qtType = getQtType(item());
+    switch (qtType) {
+    case SpecialQtType::Signal:
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Signal);
+    case SpecialQtType::Slot:
+         // FIXME: Add visibility info to completion item tags in clangd?
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::SlotPublic);
+    case SpecialQtType::None:
+        break;
+    }
+    return LanguageClientCompletionItem::icon();
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
