@@ -88,7 +88,7 @@ public:
     void writeGeneralSettings() const;
     bool writeToSettings() const;
     void setRelativePathModifier(const QString &path);
-    void setVersions(const QVector<QString> &versions);
+    void setVersions(const QStringList &versions);
 
     bool automaticKitCreationEnabled() const;
     void setAutomaticKitCreationEnabled(const bool enabled);
@@ -118,7 +118,7 @@ private:
     Utils::FilePath m_path;
     QString m_relativePathModifier; // relative path to m_path to be returned by path()
     QString m_detectedVersion;
-    QVector<QString> m_versions;
+    QStringList m_versions;
     QString m_downloadUrl;
     QString m_environmentVariableName;
     bool m_addToPath = false;
