@@ -89,8 +89,12 @@
 
     \QC project wizard templates create Qt Quick projects that can be compiled
     because they are set up to use the Qt Resource System. To compile QML code,
-    select \uicontrol Enable in the \uicontrol {Use qmlcachegen} field. To
+    select \uicontrol Enable in the \uicontrol {Qt Quick Compiler} field. To
     use default settings, select \uicontrol {Leave at Default}.
+
+    You can specify default behavior for compiling QML code in \uicontrol Tools
+    > \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Qmake >
+    \uicontrol {Use qmlcachegen}.
 
     \section1 qmake Build Steps
 
@@ -108,6 +112,9 @@
     jobs to use for building in the \uicontrol {Parallel jobs} field. Select the
     \uicontrol {Override MAKEFLAGS} check box to override existing MAKEFLAGS
     variables.
+
+    Select \uicontrol {Disable in subdirectories} to execute the build step
+    only for a top-level build.
 
     Select \uicontrol {Add Build Step} > \uicontrol {IncrediBuild for Linux} or
     \uicontrol {IncrediBuild for Windows} to accelerate builds by using
