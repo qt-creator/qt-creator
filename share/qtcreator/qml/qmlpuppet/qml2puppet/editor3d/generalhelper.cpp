@@ -130,8 +130,9 @@ QVector3D GeneralHelper::panCamera(QQuick3DCamera *camera, const QMatrix4x4 star
     return startLookAt + delta;
 }
 
-float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float defaultLookAtDistance,
-                                const QVector3D &lookAt, float zoomFactor, bool relative)
+float GeneralHelper::zoomCamera(QQuick3DViewport *viewPort, QQuick3DCamera *camera, float distance,
+                                float defaultLookAtDistance, const QVector3D &lookAt,
+                                float zoomFactor, bool relative)
 {
     // Emprically determined divisor for nice zoom
     float multiplier = 1.f + (distance / 40.f);
@@ -140,7 +141,16 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
 
     if (qobject_cast<QQuick3DOrthographicCamera *>(camera)) {
         // Ortho camera we can simply scale
-        camera->setScale(QVector3D(newZoomFactor, newZoomFactor, newZoomFactor));
+        float orthoFactor = newZoomFactor;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        if (viewPort) {
+            if (const QQuickWindow *w = viewPort->window())
+                orthoFactor *= w->devicePixelRatio();
+        }
+#else
+    Q_UNUSED(viewPort)
+#endif
+        camera->setScale(QVector3D(orthoFactor, orthoFactor, orthoFactor));
     } else if (qobject_cast<QQuick3DPerspectiveCamera *>(camera)) {
         // Perspective camera is zoomed by moving camera forward or backward while keeping the
         // look-at point the same
@@ -249,7 +259,8 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
     float divisor = closeUp ? 900.f : 725.f;
 
     float newZoomFactor = updateZoom ? qBound(.01f, maxExtent / divisor, 100.f) : oldZoom;
-    float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
+    float cameraZoomFactor = zoomCamera(viewPort, camera, 0, defaultLookAtDistance, lookAt,
+                                        newZoomFactor, false);
 
     return QVector4D(lookAt, cameraZoomFactor);
 }
