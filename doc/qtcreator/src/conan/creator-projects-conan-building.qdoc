@@ -47,4 +47,7 @@
     The \uicontrol {Conan install} field displays the effective
     build command. You can add arguments for the command in the
     \uicontrol {Additional arguments} field.
+
+    Select \uicontrol {Build missing} to build packages from source if binary
+    packages are not found.
 */
