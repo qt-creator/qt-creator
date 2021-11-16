@@ -1068,6 +1068,16 @@ def qdump__std____1__valarray(d, value):
     d.putItemCount(size)
     d.putPlotData(begin, size, innerType)
 
+def qdump__std__variant(d, value):
+    which = int(value["_M_index"])
+    type = d.templateArgument(value.type, which)
+    d.putValue("<%s:%s>" % (which, type.name))
+
+    d.putNumChild(1)
+    if d.isExpanded():
+        storage = value["_M_u"]["_M_first"]["_M_storage"]
+        with Children(d, 1):
+            d.putSubItem("value", storage.cast(type))
 
 def qform__std__vector():
     return [DisplayFormat.ArrayPlot]
