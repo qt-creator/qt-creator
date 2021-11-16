@@ -229,7 +229,10 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
     QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
-    if (fi.exists()) {
+    if (Utils::HostOsInfo::isWindowsHost() && fileName.startsWith("//")) {
+        // Windows network paths are not supported here since checking for their existence can
+        // lock the gui thread. See: QTCREATORBUG-26579
+    } else if (fi.exists()) {
         if (fi.isDir()) {
             QDir subDir(fi.absoluteFilePath());
             QString subProject = subDir.filePath(subDir.dirName() + QLatin1String(".pro"));
