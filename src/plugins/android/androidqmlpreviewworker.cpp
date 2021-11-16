@@ -75,7 +75,7 @@ ApkInfo::ApkInfo() :
             ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A}),
     appId(APP_ID),
     uploadDir("/data/local/tmp/" APP_ID "/"),
-#TODO Add possibility to run Qt5 built version of Qt Design Viewer
+    // TODO Add possibility to run Qt5 built version of Qt Design Viewer
     activityId(APP_ID "/org.qtproject.qt.android.bindings.QtActivity"),
     name("Qt Design Viewer")
 {
