@@ -66,19 +66,27 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/itemviews.h>
 #include <utils/runextensions.h>
+#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
+#include <QAction>
 #include <QCheckBox>
 #include <QDateTime>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QHash>
+#include <QHeaderView>
+#include <QMenu>
 #include <QPair>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QVBoxLayout>
+#include <QWidget>
 #include <QtConcurrent>
 
+#include <cmath>
 #include <set>
 #include <unordered_map>
 #include <utility>
@@ -1038,6 +1046,22 @@ private:
     QElapsedTimer m_timer;
 };
 
+class MemoryTreeModel;
+class MemoryUsageWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(MemoryUsageWidget)
+public:
+    MemoryUsageWidget(ClangdClient *client);
+
+private:
+    void setupUi();
+    void getMemoryTree();
+
+    ClangdClient * const m_client;
+    MemoryTreeModel * const m_model;
+    Utils::TreeView m_view;
+};
+
 class ClangdClient::Private
 {
 public:
@@ -1417,6 +1441,11 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
     d->astCache.remove(doc);
     d->previousTokens.remove(doc);
     d->virtualRanges.remove(doc);
+}
+
+const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
+{
+    return {std::make_pair(new MemoryUsageWidget(this), tr("Memory Usage"))};
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -3673,6 +3702,132 @@ bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
 
     // Otherwise, we have to rely on AST-based heuristics.
     return cursorNode->mightBeAmbiguousVirtualCall() || cursorNode->isPureVirtualDeclaration();
+}
+
+class MemoryTree : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    // number of bytes used, including child components
+    qint64 total() const { return qint64(typedValue<double>(totalKey())); }
+
+    // number of bytes used, excluding child components
+    qint64 self() const { return qint64(typedValue<double>(selfKey())); }
+
+    // named child components
+    using NamedComponent = std::pair<MemoryTree, QString>;
+    QList<NamedComponent> children() const
+    {
+        QList<NamedComponent> components;
+        const auto obj = operator const QJsonObject &();
+        for (auto it = obj.begin(); it != obj.end(); ++it) {
+            if (it.key() == totalKey() || it.key() == selfKey())
+                continue;
+            components << std::make_pair(MemoryTree(it.value()), it.key());
+        }
+        return components;
+    }
+
+private:
+    static QString totalKey() { return QLatin1String("_total"); }
+    static QString selfKey() { return QLatin1String("_self"); }
+};
+
+class MemoryTreeItem : public Utils::TreeItem
+{
+    Q_DECLARE_TR_FUNCTIONS(MemoryTreeItem)
+public:
+    MemoryTreeItem(const QString &displayName, const MemoryTree &tree)
+        : m_displayName(displayName), m_bytesUsed(tree.total())
+    {
+        for (const MemoryTree::NamedComponent &component : tree.children())
+            appendChild(new MemoryTreeItem(component.second, component.first));
+    }
+
+private:
+    QVariant data(int column, int role) const override
+    {
+        switch (role) {
+        case Qt::DisplayRole:
+            if (column == 0)
+                return m_displayName;
+            return memString();
+        case Qt::TextAlignmentRole:
+            if (column == 1)
+                return Qt::AlignRight;
+            break;
+        default:
+            break;
+        }
+        return {};
+    }
+
+    QString memString() const
+    {
+        static const QList<std::pair<int, QString>> factors{
+            std::make_pair(1000000000, QString("GB")),
+            std::make_pair(1000000, QString("MB")),
+            std::make_pair(1000, QString("KB")),
+        };
+        for (const auto &factor : factors) {
+            if (m_bytesUsed > factor.first)
+                return QString::number(qint64(std::round(double(m_bytesUsed) / factor.first)))
+                        + ' ' + factor.second;
+        }
+        return QString::number(m_bytesUsed) + "  B";
+    }
+
+    const QString m_displayName;
+    const qint64 m_bytesUsed;
+};
+
+class MemoryTreeModel : public Utils::BaseTreeModel
+{
+public:
+    MemoryTreeModel(QObject *parent) : BaseTreeModel(parent)
+    {
+        setHeader({tr("Component"), tr("Total Memory")});
+    }
+
+    void update(const MemoryTree &tree)
+    {
+        setRootItem(new MemoryTreeItem({}, tree));
+    }
+};
+
+MemoryUsageWidget::MemoryUsageWidget(ClangdClient *client)
+    : m_client(client), m_model(new MemoryTreeModel(this))
+{
+    setupUi();
+    getMemoryTree();
+}
+
+void MemoryUsageWidget::setupUi()
+{
+    const auto layout = new QVBoxLayout(this);
+    m_view.setContextMenuPolicy(Qt::CustomContextMenu);
+    m_view.header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    m_view.header()->setStretchLastSection(false);
+    m_view.setModel(m_model);
+    layout->addWidget(&m_view);
+    connect(&m_view, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
+        QMenu menu;
+        menu.addAction(tr("Update"), [this] { getMemoryTree(); });
+        menu.exec(m_view.mapToGlobal(pos));
+    });
+}
+
+void MemoryUsageWidget::getMemoryTree()
+{
+    Request<MemoryTree, std::nullptr_t, JsonObject> request("$/memoryUsage", {});
+    request.setResponseCallback([this](decltype(request)::Response response) {
+        qCDebug(clangdLog) << "received memory usage response";
+        if (const auto result = response.result())
+            m_model->update(*result);
+    });
+    qCDebug(clangdLog) << "sending memory usage request";
+    m_client->sendContent(request, ClangdClient::SendDocUpdates::Ignore);
 }
 
 } // namespace Internal
