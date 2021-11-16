@@ -25,6 +25,9 @@
 
 #include "lspinspector.h"
 
+#include "client.h"
+#include "languageclientmanager.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <languageserverprotocol/jsonkeys.h>
@@ -343,10 +346,13 @@ private:
     void addMessage(const QString &clientName, const LspLogMessage &message);
     void updateCapabilities(const QString &clientName);
     void currentClientChanged(const QString &clientName);
+    LspLogWidget *log() const;
+    LspCapabilitiesWidget *capabilities() const;
 
-    LspInspector *m_inspector = nullptr;
-    LspLogWidget *m_log = nullptr;
-    LspCapabilitiesWidget *m_capabilities = nullptr;
+    LspInspector * const m_inspector = nullptr;
+    QTabWidget * const m_tabWidget;
+
+    enum class TabIndex { Log, Capabilities, Custom };
     QListWidget *m_clients = nullptr;
 };
 
@@ -398,7 +404,7 @@ QList<QString> LspInspector::clients() const
 }
 
 LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
-    : m_inspector(inspector)
+    : m_inspector(inspector), m_tabWidget(new QTabWidget(this))
 {
     setWindowTitle(tr("Language Client Inspector"));
 
@@ -411,19 +417,15 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     m_clients->addItems(inspector->clients());
     m_clients->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
 
-    auto tabWidget = new QTabWidget;
-
     auto mainLayout = new QVBoxLayout;
     auto mainSplitter = new Core::MiniSplitter;
     mainSplitter->setOrientation(Qt::Horizontal);
     mainSplitter->addWidget(m_clients);
-    mainSplitter->addWidget(tabWidget);
+    mainSplitter->addWidget(m_tabWidget);
     mainSplitter->setStretchFactor(0, 0);
     mainSplitter->setStretchFactor(1, 1);
-    m_log = new LspLogWidget;
-    m_capabilities = new LspCapabilitiesWidget;
-    tabWidget->addTab(m_log, tr("Log"));
-    tabWidget->addTab(m_capabilities, tr("Capabilities"));
+    m_tabWidget->addTab(new LspLogWidget, tr("Log"));
+    m_tabWidget->addTab(new LspCapabilitiesWidget, tr("Capabilities"));
     mainLayout->addWidget(mainSplitter);
 
     auto buttonBox = new QDialogButtonBox(this);
@@ -443,7 +445,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
             &LspInspectorWidget::currentClientChanged);
 
     // save
-    connect(buttonBox, &QDialogButtonBox::accepted, m_log, &LspLogWidget::saveLog);
+    connect(buttonBox, &QDialogButtonBox::accepted, log(), &LspLogWidget::saveLog);
 
     // close
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -464,7 +466,7 @@ void LspInspectorWidget::addMessage(const QString &clientName, const LspLogMessa
         m_clients->addItem(clientName);
     if (const QListWidgetItem *currentItem = m_clients->currentItem();
         currentItem && currentItem->text() == clientName) {
-        m_log->addMessage(message);
+        log()->addMessage(message);
     }
 }
 
@@ -474,14 +476,36 @@ void LspInspectorWidget::updateCapabilities(const QString &clientName)
         m_clients->addItem(clientName);
     if (const QListWidgetItem *currentItem = m_clients->currentItem();
         currentItem && clientName == currentItem->text()) {
-        m_capabilities->setCapabilities(m_inspector->capabilities(clientName));
+        capabilities()->setCapabilities(m_inspector->capabilities(clientName));
     }
 }
 
 void LspInspectorWidget::currentClientChanged(const QString &clientName)
 {
-    m_log->setMessages(m_inspector->messages(clientName));
-    m_capabilities->setCapabilities(m_inspector->capabilities(clientName));
+    log()->setMessages(m_inspector->messages(clientName));
+    capabilities()->setCapabilities(m_inspector->capabilities(clientName));
+    for (int i = m_tabWidget->count() - 1; i >= int(TabIndex::Custom); --i) {
+        QWidget * const w = m_tabWidget->widget(i);
+        m_tabWidget->removeTab(i);
+        delete w;
+    }
+    for (Client * const c : LanguageClientManager::clients()) {
+        if (c->name() != clientName)
+            continue;
+        for (const Client::CustomInspectorTab &tab : c->createCustomInspectorTabs())
+            m_tabWidget->addTab(tab.first, tab.second);
+        break;
+    }
+}
+
+LspLogWidget *LspInspectorWidget::log() const
+{
+    return static_cast<LspLogWidget *>(m_tabWidget->widget(int(TabIndex::Log)));
+}
+
+LspCapabilitiesWidget *LspInspectorWidget::capabilities() const
+{
+    return static_cast<LspCapabilitiesWidget *>(m_tabWidget->widget(int(TabIndex::Capabilities)));
 }
 
 MessageDetailWidget::MessageDetailWidget()

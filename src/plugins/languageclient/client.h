@@ -62,6 +62,7 @@
 #include <QTextCursor>
 
 #include <unordered_map>
+#include <utility>
 
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class Project; }
@@ -71,6 +72,10 @@ class IAssistProcessor;
 class TextDocument;
 class TextEditorWidget;
 }
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace LanguageClient {
 
@@ -195,6 +200,11 @@ public:
     template<typename Error>
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
     { log(responseError.toString()); }
+
+    // Caller takes ownership.
+    using CustomInspectorTab = std::pair<QWidget *, QString>;
+    using CustomInspectorTabs = QList<CustomInspectorTab>;
+    virtual const CustomInspectorTabs createCustomInspectorTabs() { return {}; }
 
 signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);
