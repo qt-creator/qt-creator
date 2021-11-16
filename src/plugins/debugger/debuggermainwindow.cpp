@@ -834,6 +834,7 @@ QToolButton *PerspectivePrivate::setupToolButton(QAction *action)
     auto toolButton = new QToolButton(m_innerToolBar);
     toolButton->setProperty("panelwidget", true);
     toolButton->setDefaultAction(action);
+    toolButton->setToolTip(action->toolTip());
     m_innerToolBarLayout->addWidget(toolButton);
     return toolButton;
 }

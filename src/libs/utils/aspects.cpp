@@ -1324,6 +1324,7 @@ QAction *BoolAspect::action()
     auto act = BaseAspect::action(); // Creates it.
     act->setCheckable(true);
     act->setChecked(value());
+    act->setToolTip(toolTip());
     connect(act, &QAction::triggered, this, [this](bool newValue) {
         // The check would be nice to have in simple conditions, but if we
         // have an action that's used both on a settings page and as action
