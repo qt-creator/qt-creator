@@ -50,7 +50,9 @@
     sources. Because the client has a local cache for package storage, you can
     work offline, as long as no new packages are needed from remote servers.
 
-    To use Conan, install it by using the Qt installer.
+    To use Conan, install it by using the Qt installer or the tools provided by
+    your operating system. For example, on Windows, you can use the
+    \c {choco install conan} or \{pip install conan} command.
 
     To enable the experimental Conan plugin, select \uicontrol Help >
     \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol Conan.
@@ -63,4 +65,7 @@
     Then, you must edit the build settings of the project to specify the
     location of the file and the contents of the Conan install command.
     For more information, see \l {Conan Build Steps}.
+
+    Alternatively, you can automatically set up the Conan package manager for
+    use with CMake. For more information, see \l{Using CMake with Conan}.
 */
