@@ -171,4 +171,8 @@ private:
 
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::CommandLine &cmd);
+QT_END_NAMESPACE
+
 Q_DECLARE_METATYPE(Utils::CommandLine)
