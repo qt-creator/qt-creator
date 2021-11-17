@@ -10,6 +10,3 @@ QTC_PLUGIN_DEPENDS += \
     texteditor \
     cppeditor \
     resourceeditor
-
-QTC_PLUGIN_RECOMMENDS += \
-    designer

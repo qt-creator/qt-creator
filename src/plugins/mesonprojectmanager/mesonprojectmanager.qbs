@@ -17,10 +17,6 @@ Project {
         Depends { name: "QtSupport" }
         Depends { name: "app_version_header" }
 
-        pluginRecommends: [
-            "Designer"
-        ]
-
         cpp.includePaths: "."
 
         files: [

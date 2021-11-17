@@ -9,5 +9,3 @@ QTC_PLUGIN_DEPENDS += \
     cppeditor \
     texteditor \
     qtsupport
-QTC_PLUGIN_RECOMMENDS += \
-    designer

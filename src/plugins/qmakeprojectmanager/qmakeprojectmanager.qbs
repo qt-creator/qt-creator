@@ -16,10 +16,6 @@ Project {
         Depends { name: "ResourceEditor" }
         Depends { name: "app_version_header" }
 
-        pluginRecommends: [
-            "Designer"
-        ]
-
         Group {
             name: "General"
             files: [

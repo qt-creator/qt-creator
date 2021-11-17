@@ -7,6 +7,3 @@ QTC_PLUGIN_DEPENDS += \
     projectexplorer \
     cppeditor \
     qtsupport
-QTC_PLUGIN_RECOMMENDS += \
-    designer
-

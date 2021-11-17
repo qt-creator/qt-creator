@@ -1,7 +1,6 @@
 add_qtc_plugin(QmakeProjectManager
   DEPENDS QmlJS
   PLUGIN_DEPENDS Core CppEditor QtSupport ResourceEditor TextEditor
-  PLUGIN_RECOMMENDS Designer
   SOURCES
     addlibrarywizard.cpp addlibrarywizard.h
     customwidgetwizard/classdefinition.cpp customwidgetwizard/classdefinition.h customwidgetwizard/classdefinition.ui
