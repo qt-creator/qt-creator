@@ -34,8 +34,6 @@
 #include <string.h>
 #include <ctype.h>
 
-enum { debug = 0 };
-
 namespace Debugger {
 namespace Internal {
 
