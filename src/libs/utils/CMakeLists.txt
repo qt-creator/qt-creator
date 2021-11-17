@@ -52,6 +52,7 @@ add_qtc_library(Utils
     filenamevalidatinglineedit.cpp filenamevalidatinglineedit.h
     filepath.cpp filepath.h
     filesearch.cpp filesearch.h
+    filesystemmodel.cpp filesystemmodel.h
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h
     filewizardpage.cpp filewizardpage.h
@@ -192,7 +193,7 @@ extend_qtc_library(Utils CONDITION WIN32
   SOURCES
     touchbar/touchbar.cpp
   DEPENDS
-    user32 iphlpapi ws2_32 shell32
+    user32 iphlpapi ws2_32 shell32 ole32
   DEFINES
     _UNICODE UNICODE
   PUBLIC_DEFINES

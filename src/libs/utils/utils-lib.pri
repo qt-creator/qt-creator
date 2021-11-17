@@ -13,6 +13,8 @@ CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 win32: LIBS += -luser32 -lshell32
 # PortsGatherer
 win32: LIBS += -liphlpapi -lws2_32
+# FileSystemModel
+win32: LIBS *= -lole32
 
 SOURCES += \
     $$PWD/globalfilechangeblocker.cpp \
@@ -45,6 +47,7 @@ SOURCES += \
     $$PWD/wizard.cpp \
     $$PWD/wizardpage.cpp \
     $$PWD/filewizardpage.cpp \
+    $$PWD/filesystemmodel.cpp \
     $$PWD/filesystemwatcher.cpp \
     $$PWD/projectintropage.cpp \
     $$PWD/filenamevalidatinglineedit.cpp \
@@ -184,6 +187,7 @@ HEADERS += \
     $$PWD/wizard.h \
     $$PWD/wizardpage.h \
     $$PWD/filewizardpage.h \
+    $$PWD/filesystemmodel.h \
     $$PWD/filesystemwatcher.h \
     $$PWD/projectintropage.h \
     $$PWD/filenamevalidatinglineedit.h \
