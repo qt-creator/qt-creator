@@ -360,21 +360,40 @@ void LocatorPopup::updateWindow()
 
 bool LocatorPopup::event(QEvent *event)
 {
-    if (event->type() == QEvent::ParentChange)
+    if (event->type() == QEvent::ParentChange) {
         updateWindow();
-    else if (event->type() == QEvent::Show)
+    } else if (event->type() == QEvent::Show) {
         // make sure the popup has correct position before it becomes visible
         doUpdateGeometry();
-    else if (event->type() == QEvent::LayoutRequest)
+    } else if (event->type() == QEvent::LayoutRequest) {
         // completion list resizes after first items are shown --> LayoutRequest
         QMetaObject::invokeMethod(this, &LocatorPopup::doUpdateGeometry, Qt::QueuedConnection);
+    } else if (event->type() == QEvent::ShortcutOverride) {
+        // if we (the popup) has focus, we need to handle escape manually (Windows)
+        auto ke = static_cast<QKeyEvent *>(event);
+        if (ke->modifiers() == Qt::NoModifier && ke->key() == Qt::Key_Escape)
+            event->accept();
+    } else if (event->type() == QEvent::KeyPress) {
+        // if we (the popup) has focus, we need to handle escape manually (Windows)
+        auto ke = static_cast<QKeyEvent *>(event);
+        if (ke->modifiers() == Qt::NoModifier && ke->key() == Qt::Key_Escape)
+            hide();
+    }
     return QWidget::event(event);
 }
 
 bool LocatorPopup::eventFilter(QObject *watched, QEvent *event)
 {
-    if (watched == m_window && event->type() == QEvent::Resize)
+    if (watched == m_tree && event->type() == QEvent::FocusOut) {
+        // if the tree had focus and another application is brought to foreground,
+        // we need to hide the popup because it otherwise stays on top of
+        // everything else (even other applications) (Windows)
+        auto fe = static_cast<QFocusEvent *>(event);
+        if (fe->reason() == Qt::ActiveWindowFocusReason && !QApplication::activeWindow())
+            hide();
+    } else if (watched == m_window && event->type() == QEvent::Resize) {
         doUpdateGeometry();
+    }
     return QWidget::eventFilter(watched, event);
 }
 
@@ -412,6 +431,7 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
         m_tree->setFrameStyle(QFrame::NoFrame); // tool tip already includes a frame
     m_tree->setModel(locatorWidget->model());
     m_tree->setTextElideMode(Qt::ElideMiddle);
+    m_tree->installEventFilter(this);
 
     auto layout = new QVBoxLayout;
     layout->setSizeConstraint(QLayout::SetMinimumSize);
