@@ -46,7 +46,6 @@ public:
     QString lastConnectionErrorString() const;
 
     bool isProcessRunning() const;
-    void writeDataToProcess(const QByteArray &data);
     void cancel();
     QProcess::ExitStatus processExitStatus() const;
     int processExitCode() const;

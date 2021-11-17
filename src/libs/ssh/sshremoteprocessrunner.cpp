@@ -237,12 +237,6 @@ QByteArray SshRemoteProcessRunner::readAllStandardError()
     return data;
 }
 
-void SshRemoteProcessRunner::writeDataToProcess(const QByteArray &data)
-{
-    QTC_CHECK(isProcessRunning());
-    d->m_process->write(data);
-}
-
 void SshRemoteProcessRunner::cancel()
 {
     setState(Inactive);
