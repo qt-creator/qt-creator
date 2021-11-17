@@ -41,7 +41,7 @@ public:
     ~QmlProjectPlugin() final;
 
     static void openQDS(const Utils::FilePath &fileName);
-    static QString qdsInstallationEntry();
+    static Utils::FilePath qdsInstallationEntry();
     static bool qdsInstallationExists();
 
 private:

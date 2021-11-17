@@ -91,7 +91,7 @@ QmlProjectPlugin::~QmlProjectPlugin()
 
 void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
 {
-    const QString &qdsPath = QmlProjectPlugin::qdsInstallationEntry();
+    const QString &qdsPath = QmlProjectPlugin::qdsInstallationEntry().toString();
     bool qdsStarted = false;
     //-a and -client arguments help to append project to open design studio application
     if (Utils::HostOsInfo::isMacHost())
@@ -106,17 +106,17 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     }
 }
 
-QString QmlProjectPlugin::qdsInstallationEntry()
+Utils::FilePath QmlProjectPlugin::qdsInstallationEntry()
 {
     QSettings *settings = Core::ICore::settings();
     const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
 
-    return settings->value(qdsInstallationEntry).toString();
+    return Utils::FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
 }
 
 bool QmlProjectPlugin::qdsInstallationExists()
 {
-    return Utils::FilePath::fromString(qdsInstallationEntry()).exists();
+    return qdsInstallationEntry().exists();
 }
 
 Utils::FilePath findQmlProject(const Utils::FilePath &folder)
