@@ -1252,6 +1252,10 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("simple return") << 841 << 12 << 841 << 15 << QList<int>{C_LOCAL} << 0;
     QTest::newRow("lambda parameter") << 847 << 49 << 847 << 52
                                       << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
+    QTest::newRow("string literal passed to macro from same file") << 853 << 32 << 853 << 38
+                                      << QList<int>{C_STRING} << 0;
+    QTest::newRow("string literal passed to macro from header file") << 854 << 32 << 854 << 38
+                                      << QList<int>{C_STRING} << 0;
 }
 
 void ClangdTestHighlighting::test()

@@ -3640,12 +3640,11 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
     if (m_future.isCanceled())
         return;
     switch (node.fileStatus(m_filePath)) {
-    case AstNode::FileStatus::Foreign:
-        return;
     case AstNode::FileStatus::Ours:
     case AstNode::FileStatus::Unknown:
         collectFromNode(node);
         [[fallthrough]];
+    case AstNode::FileStatus::Foreign:
     case ClangCodeModel::Internal::AstNode::FileStatus::Mixed: {
         const auto children = node.children();
         if (!children)
