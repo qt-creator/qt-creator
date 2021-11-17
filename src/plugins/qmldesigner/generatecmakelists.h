@@ -34,13 +34,17 @@ namespace GenerateCmake {
 struct GeneratableFile {
     Utils::FilePath filePath;
     QString content;
+    bool fileExists;
 };
 
 bool operator==(const GeneratableFile &left, const GeneratableFile &right);
 
 void generateMenuEntry();
 void onGenerateCmakeLists();
+bool isErrorFatal(int error);
+int isProjectCorrectlyFormed(const Utils::FilePath &rootDir);
 void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles);
+void showProjectDirErrorDialog(int error);
 bool showConfirmationDialog(const Utils::FilePath &rootDir);
 bool queueFile(const Utils::FilePath &filePath, const QString &fileContent);
 bool writeFile(const GeneratableFile &file);
