@@ -101,7 +101,7 @@ bool SubComponentManager::addImport(const Import &import, int index)
     }
 
     if (importExists) {
-        if (index == -1)
+        if (index == -1  || index > m_imports.size())
             m_imports.append(import);
         else
             m_imports.insert(index, import);
