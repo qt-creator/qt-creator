@@ -102,6 +102,7 @@
             \li \l{Developing Qt Quick Applications}
             \list
                 \li \l {Creating Qt Quick Projects}
+                \li \l {Using \QMLD}
                 \li \l {Converting UI Projects to Applications}
                 \li \l {UI Files}
                 \li \l {Using QML Modules with Plugins}
