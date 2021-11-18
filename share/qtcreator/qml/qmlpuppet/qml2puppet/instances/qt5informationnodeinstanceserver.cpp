@@ -893,19 +893,31 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.
         auto imgContainer = ImageContainer(-1, renderImage, 2100000000);
 
-        // send the rendered image to creator process
-        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
-                                                            QVariant::fromValue(imgContainer)});
+        // If we have only one or no render queued, send the result to the creator side.
+        // Otherwise, we'll hold on that until we have rendered all pending frames to ensure sent
+        // results are correct.
+        if (m_need3DEditViewRender <= 1) {
+            nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Render3DView,
+                                                                QVariant::fromValue(imgContainer)});
+#ifdef QUICK3D_PARTICLES_MODULE
+            if (m_need3DEditViewRender == 0 && ViewConfig::isParticleViewMode()
+                    && m_particleAnimationDriver && m_particleAnimationDriver->isAnimating()) {
+                m_need3DEditViewRender = 1;
+            }
+#endif
+        }
+
         if (m_need3DEditViewRender > 0) {
-            m_render3DEditViewTimer.start(0);
+            // We queue another render even if the requested render count was one, because another
+            // render is needed to ensure gizmo geometries are properly updated.
+            // Note that while in theory this seems that we shouldn't need to send the image to
+            // creator side when m_need3DEditViewRender is one, we need to do it to ensure
+            // smooth operation when objects are moved via drag, which triggers new renders
+            // continueously.
+            m_render3DEditViewTimer.start(17); // 16.67ms = ~60fps, rounds up to 17
             --m_need3DEditViewRender;
         }
-#ifdef QUICK3D_PARTICLES_MODULE
-        if (ViewConfig::isParticleViewMode()
-                && m_particleAnimationDriver && m_particleAnimationDriver->isAnimating()) {
-            m_need3DEditViewRender++;
-        }
-#endif
+
 #ifdef FPS_COUNTER
         // Force constant rendering for accurate fps count
         if (!m_render3DEditViewTimer.isActive())
@@ -1981,8 +1993,8 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     case View3DActionCommand::CameraToggle:
         updatedState.insert("usePerspective", command.isEnabled());
-        // It can take a couple frames to properly update icon gizmo positions, so render 3 frames
-        renderCount = 3;
+        // It can take a couple frames to properly update icon gizmo positions
+        renderCount = 2;
         break;
     case View3DActionCommand::OrientationToggle:
         updatedState.insert("globalOrientation", command.isEnabled());
@@ -2228,8 +2240,8 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
             auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
             if (helper)
                 helper->storeToolState(helper->globalStateId(), helper->rootSizeKey(), QVariant(command.size()), 0);
-            // Queue three renders to make sure icon gizmos update properly
-            render3DEditView(3);
+            // Queue two renders to make sure all gizmos update properly
+            render3DEditView(2);
         }
     }
 #else
