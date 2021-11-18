@@ -233,8 +233,8 @@ private:
     bool sendWorkspceFolderChanges() const;
     void log(const LanguageServerProtocol::ShowMessageParams &message);
 
-    void showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message,
-                        const LanguageServerProtocol::MessageId &id);
+    LanguageServerProtocol::LanguageClientValue<LanguageServerProtocol::MessageActionItem>
+    showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message);
 
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void resetAssistProviders(TextEditor::TextDocument *document);

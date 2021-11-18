@@ -1194,7 +1194,8 @@ void Client::log(const ShowMessageParams &message)
     log(message.toString());
 }
 
-void Client::showMessageBox(const ShowMessageRequestParams &message, const MessageId &id)
+LanguageClientValue<MessageActionItem> Client::showMessageBox(
+    const ShowMessageRequestParams &message)
 {
     auto box = new QMessageBox();
     box->setText(message.toString());
@@ -1210,15 +1211,10 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
         for (const MessageActionItem &action : actions.value())
             itemForButton.insert(box->addButton(action.title(), QMessageBox::InvalidRole), action);
     }
-    box->setModal(true);
-    connect(box, &QMessageBox::finished, this, [=]{
-        ShowMessageRequest::Response response(id);
-        const MessageActionItem &item = itemForButton.value(box->clickedButton());
-        response.setResult(item.isValid() ? LanguageClientValue<MessageActionItem>(item)
-                                          : LanguageClientValue<MessageActionItem>());
-        sendContent(response);
-    });
-    box->show();
+    box->exec();
+    const MessageActionItem &item = itemForButton.value(box->clickedButton());
+    return item.isValid() ? LanguageClientValue<MessageActionItem>(item)
+                          : LanguageClientValue<MessageActionItem>();
 }
 
 void Client::resetAssistProviders(TextEditor::TextDocument *document)
@@ -1291,73 +1287,112 @@ void Client::handleResponse(const MessageId &id, const QByteArray &content, QTex
         handler(content, codec);
 }
 
+template<typename T>
+static ResponseError<T> createInvalidParamsError(const QString &message)
+{
+    ResponseError<T> error;
+    error.setMessage(message);
+    error.setCode(ResponseError<T>::InvalidParams);
+    return error;
+}
+
 void Client::handleMethod(const QString &method, const MessageId &id, const IContent *content)
 {
-    auto logError = [&](const JsonObject &content) {
-        log(QJsonDocument(content).toJson(QJsonDocument::Indented) + '\n'
-            + tr("Invalid parameter in \"%1\"").arg(method));
+    auto invalidParamsErrorMessage = [&](const JsonObject &params) {
+        return tr("Invalid parameter in \"%1\":\n%2")
+            .arg(method, QString::fromUtf8(QJsonDocument(params).toJson(QJsonDocument::Indented)));
     };
+
+    auto createDefaultResponse = [&]() -> IContent * {
+        Response<std::nullptr_t, JsonObject> *response = nullptr;
+        if (id.isValid()) {
+            response = new Response<std::nullptr_t, JsonObject>(id);
+            response->setResult(nullptr);
+        }
+        return response;
+    };
+
+    const bool isRequest = id.isValid();
+    IContent *response = nullptr;
 
     if (method == PublishDiagnosticsNotification::methodName) {
         auto params = dynamic_cast<const PublishDiagnosticsNotification *>(content)->params().value_or(PublishDiagnosticsParams());
         if (params.isValid())
             handleDiagnostics(params);
         else
-            logError(params);
+            log(invalidParamsErrorMessage(params));
     } else if (method == LogMessageNotification::methodName) {
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
         if (params.isValid())
             log(params);
         else
-            logError(params);
+            log(invalidParamsErrorMessage(params));
     } else if (method == SemanticHighlightNotification::methodName) {
         auto params = dynamic_cast<const SemanticHighlightNotification *>(content)->params().value_or(SemanticHighlightingParams());
         if (params.isValid())
             handleSemanticHighlight(params);
         else
-            logError(params);
+            log(invalidParamsErrorMessage(params));
     } else if (method == ShowMessageNotification::methodName) {
         auto params = dynamic_cast<const ShowMessageNotification *>(content)->params().value_or(ShowMessageParams());
         if (params.isValid())
             log(params);
         else
-            logError(params);
+            log(invalidParamsErrorMessage(params));
     } else if (method == ShowMessageRequest::methodName) {
         auto request = dynamic_cast<const ShowMessageRequest *>(content);
+        auto showMessageResponse = new ShowMessageRequest::Response(id);
         auto params = request->params().value_or(ShowMessageRequestParams());
         if (params.isValid()) {
-            showMessageBox(params, request->id());
+            showMessageResponse->setResult(showMessageBox(params));
         } else {
-            ShowMessageRequest::Response response(request->id());
-            ResponseError<std::nullptr_t> error;
-            const QString errorMessage =
-                    QString("Could not parse ShowMessageRequest parameter of '%1': \"%2\"")
-                    .arg(request->id().toString(),
-                         QString::fromUtf8(QJsonDocument(params).toJson()));
-            error.setMessage(errorMessage);
-            response.setError(error);
-            sendContent(response);
+            const QString errorMessage = invalidParamsErrorMessage(params);
+            log(errorMessage);
+            showMessageResponse->setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
         }
+        response = showMessageResponse;
     } else if (method == RegisterCapabilityRequest::methodName) {
-        auto params = dynamic_cast<const RegisterCapabilityRequest *>(content)->params().value_or(RegistrationParams());
-        if (params.isValid())
+        auto params = dynamic_cast<const RegisterCapabilityRequest *>(content)->params().value_or(
+            RegistrationParams());
+        if (params.isValid()) {
             registerCapabilities(params.registrations());
-        else
-            logError(params);
+            response = createDefaultResponse();
+        } else {
+            const QString errorMessage = invalidParamsErrorMessage(params);
+            log(invalidParamsErrorMessage(params));
+            auto registerResponse = new RegisterCapabilityRequest::Response(id);
+            registerResponse->setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
+            response = registerResponse;
+        }
     } else if (method == UnregisterCapabilityRequest::methodName) {
-        auto params = dynamic_cast<const UnregisterCapabilityRequest *>(content)->params().value_or(UnregistrationParams());
-        if (params.isValid())
+        auto params = dynamic_cast<const UnregisterCapabilityRequest *>(content)->params().value_or(
+            UnregistrationParams());
+        if (params.isValid()) {
             unregisterCapabilities(params.unregistrations());
-        else
-            logError(params);
+            response = createDefaultResponse();
+        } else {
+            const QString errorMessage = invalidParamsErrorMessage(params);
+            log(invalidParamsErrorMessage(params));
+            auto registerResponse = new UnregisterCapabilityRequest::Response(id);
+            registerResponse->setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
+            response = registerResponse;
+        }
     } else if (method == ApplyWorkspaceEditRequest::methodName) {
-        auto params = dynamic_cast<const ApplyWorkspaceEditRequest *>(content)->params().value_or(ApplyWorkspaceEditParams());
-        if (params.isValid())
-            applyWorkspaceEdit(this, params.edit());
-        else
-            logError(params);
+        auto editResponse = new ApplyWorkspaceEditRequest::Response(id);
+        auto params = dynamic_cast<const ApplyWorkspaceEditRequest *>(content)->params().value_or(
+            ApplyWorkspaceEditParams());
+        if (params.isValid()) {
+            ApplyWorkspaceEditResult result;
+            result.setApplied(applyWorkspaceEdit(this, params.edit()));
+            editResponse->setResult(result);
+        } else {
+            const QString errorMessage = invalidParamsErrorMessage(params);
+            log(errorMessage);
+            editResponse->setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
+        }
+        response = editResponse;
     } else if (method == WorkSpaceFolderRequest::methodName) {
-        WorkSpaceFolderRequest::Response response(dynamic_cast<const WorkSpaceFolderRequest *>(content)->id());
+        auto workSpaceFolderResponse = new WorkSpaceFolderRequest::Response(id);
         const QList<ProjectExplorer::Project *> projects
             = ProjectExplorer::SessionManager::projects();
         WorkSpaceFolderResult result;
@@ -1369,33 +1404,42 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
                                        project->displayName());
             });
         }
-        response.setResult(result);
-        sendContent(response);
+        workSpaceFolderResponse->setResult(result);
+        response = workSpaceFolderResponse;
     } else if (method == WorkDoneProgressCreateRequest::methodName) {
-        WorkDoneProgressCreateRequest::Response response(
-            dynamic_cast<const WorkDoneProgressCreateRequest *>(content)->id());
-        response.setResult(nullptr);
-        sendContent(response);
+        response = createDefaultResponse();
     } else if (method == SemanticTokensRefreshRequest::methodName) {
         m_tokenSupport.refresh();
-        Response<std::nullptr_t, JsonObject> response(id);
-        response.setResult(nullptr);
-        sendContent(response);
+        response = createDefaultResponse();
     } else if (method == ProgressNotification::methodName) {
         if (Utils::optional<ProgressParams> params
             = dynamic_cast<const ProgressNotification *>(content)->params()) {
             if (!params->isValid())
-                logError(*params);
+                log(invalidParamsErrorMessage(*params));
             m_progressManager.handleProgress(*params);
             if (ProgressManager::isProgressEndMessage(*params))
                 emit workDone(params->token());
         }
-    } else if (id.isValid()) {
-        Response<JsonObject, JsonObject> response(id);
+    } else if (isRequest) {
+        auto methodNotFoundResponse = new Response<JsonObject, JsonObject>(id);
         ResponseError<JsonObject> error;
         error.setCode(ResponseError<JsonObject>::MethodNotFound);
-        response.setError(error);
-        sendContent(response);
+        methodNotFoundResponse->setError(error);
+        response = methodNotFoundResponse;
+    }
+
+    // we got a request and handled it somewhere above but we missed to generate a response for it
+    QTC_ASSERT(!isRequest || response, response = createDefaultResponse());
+
+    if (response) {
+        if (reachable()) {
+            sendContent(*response);
+        } else {
+            qCDebug(LOGLSPCLIENT)
+                << QString("Dropped response to request %1 id %2 for unreachable server %3")
+                       .arg(method, id.toString(), name());
+        }
+        delete response;
     }
     delete content;
 }
