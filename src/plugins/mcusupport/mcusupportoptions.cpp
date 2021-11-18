@@ -1046,7 +1046,7 @@ bool McuSupportOptions::kitUpToDate(const Kit *kit, const McuTarget *mcuTarget,
                                     const McuPackage *qtForMCUsSdkPackage)
 {
     return kitQulVersion(kit) == mcuTarget->qulVersion() &&
-            kitDependencyPath(kit, qtForMCUsSdkPackage->environmentVariableName()) == qtForMCUsSdkPackage->path();
+            kitDependencyPath(kit, qtForMCUsSdkPackage->environmentVariableName()).toUserOutput() == qtForMCUsSdkPackage->path().toUserOutput();
 }
 
 void McuSupportOptions::deletePackagesAndTargets()
