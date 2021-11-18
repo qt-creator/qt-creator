@@ -1,0 +1,64 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-designer-developer-workflow.html
+    \previouspage studio-implementing-applications.html
+    \nextpage creator-coding.html
+
+    \title Designer-Developer Workflow
+
+    \QDS enables designers and developers to work together on common
+    projects to develop applications. Designers use the \l{Design Views}{views}
+    in the \uicontrol Design mode to modify \l{UI Files}{UI files} (\e .ui.qml),
+    whereas developers use Qt Creator to work on the Qt Quick (\e .qml) and
+    other files that are needed to implement the application logic and to
+    prepare the application for production.
+
+    Use the \l{Using Git}{Git} version control system to ensure that changes
+    are not lost when files are passed back and forth between designers and
+    developers.
+
+    \QDS \l{Creating Projects}{projects} come with boilerplate code for a
+    working Qt 6 application that you can build and run in Qt Creator using
+    CMake. Therefore, you can open, build, and run the projects with Qt Creator.
+
+    \QDS continues to use the \e .qmlproject file format, while \QC uses a
+    \e CMakeLists.txt file as the project file. This enables you to share
+    your project as a fully working C++ application with developers.
+
+    If you add or remove QML files in \QDS, you have to regenerate the
+    \e CMakeLists.txt project configuration file by selecting \uicontrol Build
+    > \uicontrol Run > \uicontrol {Generate CMakeLists.txt Files}.
+
+    If you use Git, you can clone an example project
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/playground/AuroraCluster0}
+    {here}.
+
+    The following image shows the example project structure and contents in the
+    \l Projects and \l {File System} views in \QDS and Qt Creator:
+
+    \image studio-project-structure.png "\QDS project in \QDS and Qt Creator views"
+*/

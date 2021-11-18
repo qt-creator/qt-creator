@@ -87,6 +87,7 @@
         \row
         \li \b {\l{Implementing Applications}}
             \list
+                \li \l{Designer-Developer Workflow}
                 \li \l{Coding}{Cross-Platform Development}
                 \li \l{Debugging and Profiling}
             \endlist

@@ -26,7 +26,7 @@
 /*!
     \previouspage studio-optimized-3d-scenes.html
     \page studio-implementing-applications.html
-    \nextpage creator-coding.html
+    \nextpage studio-designer-developer-workflow.html
 
     \title Implementing Applications
 
@@ -38,13 +38,19 @@
                 the default configuration allows you to start wireframing,
                 prototyping, and validating UIs with very little effort.
 
-                However, you might want to use the \l{Text Editor} view
-                sometimes to edit your component files (.qml). If you use
-                JavaScript, you might also want to debug and profile you
-                UIs to find and fix problems in them.
+                You can use the \l{Text Editor} view to edit your component
+                files (.qml). If you use JavaScript, you can debug and profile
+                your UIs to find and fix problems in them.
     \endtable
 
     \list
+
+        \li \l{Designer-Developer Workflow}
+
+            In \QDS projects, you work on \l{UI Files}{UI files} (.ui.qml),
+            while developers work on the .qml and C++ source files in
+            Qt Creator to create an application that you can build and
+            run on target hardware.
         \li \l{Coding}
 
             You can use the code editor in the \uicontrol {Text Editor} view or
