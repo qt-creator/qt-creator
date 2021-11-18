@@ -50,6 +50,7 @@ public:
      //TODO: location should not be needed in reset() -- only when creating the project
     void reset(const ProjectItem &projectInfo, int projectSelection, const Utils::FilePath &location);
     void setScreenSizeIndex(int index);
+    int screenSizeIndex() const;
     void setTargetQtVersionIndex(int index);
     bool haveTargetQtVersion() const;
     void setStyleIndex(int index);

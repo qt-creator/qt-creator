@@ -192,25 +192,29 @@ Item {
                 SC.ComboBox {   // Screen Size ComboBox
                     id: screenSizeComboBox
                     actionIndicatorVisible: false
-                    currentIndex: 1
+                    currentIndex: -1
                     model: screenSizeModel
                     textRole: "display"
                     width: parent.width
                     font.pixelSize: DialogValues.defaultPixelSize
 
                     onActivated: (index) => {
-                         // NOTE: item 0 is activated when the screenSizeModel is reset
-                         dialogBox.setScreenSizeIndex(index);
+                        dialogBox.setScreenSizeIndex(index);
 
-                         var r = screenSizeModel.screenSizes(index);
-                         widthField.realValue = r.width;
-                         heightField.realValue = r.height;
-                     }
+                        var size = screenSizeModel.screenSizes(index);
+                        widthField.realValue = size.width;
+                        heightField.realValue = size.height;
+                    }
 
                     Connections {
                         target: screenSizeModel
                         function onModelReset() {
-                            screenSizeComboBox.activated(screenSizeComboBox.currentIndex)
+                            var newIndex = screenSizeComboBox.currentIndex > -1
+                                    ? screenSizeComboBox.currentIndex
+                                    : dialogBox.screenSizeIndex()
+
+                            screenSizeComboBox.currentIndex = newIndex
+                            screenSizeComboBox.activated(newIndex)
                         }
                     }
                 } // Screen Size ComboBox

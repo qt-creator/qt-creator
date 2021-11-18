@@ -195,6 +195,11 @@ void QdsNewDialog::setScreenSizeIndex(int index)
     m_qmlScreenSizeIndex = index;
 }
 
+int QdsNewDialog::screenSizeIndex() const
+{
+    return m_wizard.screenSizeIndex();
+}
+
 void QdsNewDialog::setTargetQtVersion(int index)
 {
     m_wizard.setTargetQtVersionIndex(index);
