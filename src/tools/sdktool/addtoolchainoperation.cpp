@@ -35,8 +35,6 @@
 
 #include <iostream>
 
-#include <QDir>
-
 // ToolChain file stuff:
 const char COUNT[] = "ToolChain.Count";
 const char PREFIX[] = "ToolChain.";
@@ -106,7 +104,7 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
 
         if (current == "--path") {
             ++i; // skip next;
-            m_path = QDir::fromNativeSeparators(next);
+            m_path = next;
             continue;
         }
 
@@ -278,7 +276,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
     data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
     data << KeyValuePair({tc, DISPLAYNAME}, QVariant(displayName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
-    data << KeyValuePair({tc, PATH}, QVariant(path));
+    data << KeyValuePair({tc, PATH}, Utils::FilePath::fromUserInput(path).toVariant());
     data << KeyValuePair({tc, TARGET_ABI}, QVariant(abi));
     QVariantList abis;
     QStringList abiStrings = supportedAbis.split(',');

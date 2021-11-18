@@ -35,8 +35,6 @@
 
 #include <iostream>
 
-#include <QDir>
-
 // CMakeTools file stuff:
 const char COUNT[] = "CMakeTools.Count";
 const char PREFIX[] = "CMakeTools.";
@@ -92,7 +90,7 @@ bool AddCMakeOperation::setArguments(const QStringList &args)
 
         if (current == "--path") {
             ++i; // skip next;
-            m_path = QDir::fromNativeSeparators(next);
+            m_path = next;
             continue;
         }
         if (next.isNull()) {
@@ -211,7 +209,7 @@ QVariantMap AddCMakeOperation::addCMake(const QVariantMap &map, const QString &i
     data << KeyValuePair({cm, ID_KEY}, QVariant(id));
     data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(displayName));
     data << KeyValuePair({cm, AUTODETECTED_KEY}, QVariant(true));
-    data << KeyValuePair({cm, PATH_KEY}, QVariant(path));
+    data << KeyValuePair({cm, PATH_KEY}, Utils::FilePath::fromUserInput(path).toVariant());
     KeyValuePairList extraList;
     foreach (const KeyValuePair &pair, extra)
         extraList << KeyValuePair(QStringList({cm}) << pair.key, pair.value);
