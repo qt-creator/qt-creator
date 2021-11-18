@@ -58,16 +58,16 @@ bool operator==(const GeneratableFile &left, const GeneratableFile &right)
 }
 
 enum ProjectDirectoryError {
-    NO_ERROR = 0,
-    MISSING_CONTENTDIR = 1<<1,
-    MISSING_IMPORTDIR = 1<<2,
-    MISSING_CPPDIR = 1<<3,
-    MISSING_MAINCMAKE = 1<<4,
-    MISSING_MAINQML = 1<<5,
-    MISSING_APPMAINQML = 1<<6,
-    MISSING_QMLMODULES = 1<<7,
-    MISSING_MAINCPP = 1<<8,
-    MISSING_MAINCPP_HEADER = 1<<9
+    NoError = 0,
+    MissingContentDir = 1<<1,
+    MissingImportDir = 1<<2,
+    MissingCppDir = 1<<3,
+    MissingMainCMake = 1<<4,
+    MissingMainQml = 1<<5,
+    MissingAppMainQml = 1<<6,
+    MissingQmlModules = 1<<7,
+    MissingMainCpp = 1<<8,
+    MissingMainCppHeader = 1<<9
 };
 
 QVector<GeneratableFile> queuedFiles;
@@ -93,7 +93,7 @@ void onGenerateCmakeLists()
     FilePath rootDir = ProjectExplorer::SessionManager::startupProject()->projectDirectory();
 
     int projectDirErrors = isProjectCorrectlyFormed(rootDir);
-    if (projectDirErrors != NO_ERROR) {
+    if (projectDirErrors != NoError) {
         showProjectDirErrorDialog(projectDirErrors);
         if (isErrorFatal(projectDirErrors))
             return;
@@ -109,10 +109,10 @@ void onGenerateCmakeLists()
 
 bool isErrorFatal(int error)
 {
-    if (error & MISSING_CONTENTDIR ||
-        error & MISSING_IMPORTDIR ||
-        error & MISSING_CPPDIR ||
-        error & MISSING_APPMAINQML)
+    if (error & MissingContentDir ||
+        error & MissingImportDir ||
+        error & MissingCppDir ||
+        error & MissingAppMainQml)
         return true;
 
     return false;
@@ -131,29 +131,29 @@ const char FILENAME_MODULES[] = "qmlmodules";
 
 int isProjectCorrectlyFormed(const FilePath &rootDir)
 {
-    int errors = NO_ERROR;
+    int errors = NoError;
 
     if (!rootDir.pathAppended(DIRNAME_CONTENT).exists())
-        errors |= MISSING_CONTENTDIR;
+        errors |= MissingContentDir;
     if (!rootDir.pathAppended(DIRNAME_CONTENT).pathAppended(FILENAME_APPMAINQML).exists())
-        errors |= MISSING_APPMAINQML;
+        errors |= MissingAppMainQml;
 
     if (!rootDir.pathAppended(DIRNAME_IMPORT).exists())
-        errors |= MISSING_IMPORTDIR;
+        errors |= MissingImportDir;
 
     if (!rootDir.pathAppended(DIRNAME_CPP).exists())
-        errors |= MISSING_CPPDIR;
+        errors |= MissingCppDir;
     if (!rootDir.pathAppended(DIRNAME_CPP).pathAppended(FILENAME_MAINCPP).exists())
-        errors |= MISSING_MAINCPP;
+        errors |= MissingMainCpp;
     if (!rootDir.pathAppended(DIRNAME_CPP).pathAppended(FILENAME_MAINCPP_HEADER).exists())
-        errors |= MISSING_MAINCPP_HEADER;
+        errors |= MissingMainCppHeader;
 
     if (!rootDir.pathAppended(FILENAME_CMAKELISTS).exists())
-        errors |= MISSING_MAINCMAKE;
+        errors |= MissingMainCMake;
     if (!rootDir.pathAppended(FILENAME_MODULES).exists())
-        errors |= MISSING_QMLMODULES;
+        errors |= MissingQmlModules;
     if (!rootDir.pathAppended(FILENAME_MAINQML).exists())
-        errors |= MISSING_MAINQML;
+        errors |= MissingMainQml;
 
     return errors;
 }
@@ -179,32 +179,32 @@ void showProjectDirErrorDialog(int error)
     QString fatalList;
     QString nonFatalList;
 
-    if (error & MISSING_CONTENTDIR)
+    if (error & MissingContentDir)
         fatalList.append(QString(DIRNAME_CONTENT) + "\n");
-    if (error & MISSING_APPMAINQML)
+    if (error & MissingAppMainQml)
         fatalList.append(QString(DIRNAME_CONTENT)
                          + QDir::separator()
                          + QString(FILENAME_APPMAINQML)
                          + "\n");
-    if (error & MISSING_CPPDIR)
+    if (error & MissingCppDir)
         fatalList.append(QString(DIRNAME_CPP) + "\n");
-    if (error & MISSING_IMPORTDIR)
+    if (error & MissingImportDir)
         fatalList.append(QString(DIRNAME_IMPORT) + "\n");
 
-    if (error & MISSING_MAINCMAKE)
+    if (error & MissingMainCMake)
         nonFatalList.append(QString(FILENAME_CMAKELISTS) + "\n");
-    if (error & MISSING_QMLMODULES)
+    if (error & MissingQmlModules)
         nonFatalList.append(QString(FILENAME_MODULES) + "\n");
 
-    if (error & MISSING_MAINQML)
+    if (error & MissingMainQml)
         nonFatalList.append(QString(FILENAME_MAINQML) + "\n");
 
-    if (error & MISSING_MAINCPP)
+    if (error & MissingMainCpp)
         nonFatalList.append(QString(DIRNAME_CPP)
                             + QDir::separator()
                             + QString(FILENAME_MAINCPP)
                             + "\n");
-    if (error & MISSING_MAINCPP_HEADER)
+    if (error & MissingMainCppHeader)
         nonFatalList.append(QString(DIRNAME_CPP)
                             + QDir::separator()
                             + QString(FILENAME_MAINCPP_HEADER)
