@@ -97,7 +97,7 @@ int AddAbiFlavor::execute() const
     if (map.isEmpty())
         map = initializeAbiFlavors();
 
-    QVariantMap result = addAbiFlavor(map, m_oses, m_flavor);
+    QVariantMap result = addAbiFlavor(map);
 
     if (result.isEmpty() || result == map)
         return 2;
@@ -113,7 +113,7 @@ bool AddAbiFlavor::test() const
             || !map.contains(QLatin1String(VERSION)))
         return false;
 
-    map = addAbiFlavor(map, {"linux", "windows"}, "foo");
+    map = AddAbiFlavorData{{"linux", "windows"}, "foo"}.addAbiFlavor(map);
 
     if (map.count() != 2
             || !map.contains(QLatin1String(VERSION))
@@ -126,7 +126,7 @@ bool AddAbiFlavor::test() const
         return false;
 
     // Ignore known flavors:
-    const QVariantMap result = addAbiFlavor(map, {"linux"}, "foo");
+    const QVariantMap result = AddAbiFlavorData({{"linux"}, "foo"}).addAbiFlavor(map);;
 
     if (map != result)
         return false;
@@ -135,37 +135,35 @@ bool AddAbiFlavor::test() const
 }
 #endif
 
-QVariantMap AddAbiFlavor::addAbiFlavor(const QVariantMap &map,
-                                       const QStringList &oses,
-                                       const QString &flavor)
+QVariantMap AddAbiFlavorData::addAbiFlavor(const QVariantMap &map) const
 {
     // Sanity check: Is flavor already set in abi file?
-    if (exists(map, flavor)) {
-        std::cerr << "Error: flavor " << qPrintable(flavor) << " already defined as extra ABI flavor." << std::endl;
+    if (exists(map, m_flavor)) {
+        std::cerr << "Error: flavor " << qPrintable(m_flavor) << " already defined as extra ABI flavor." << std::endl;
         return map;
     }
 
     QVariantMap result = map;
     QVariantMap flavorMap = map.value(QLatin1String(FLAVORS)).toMap();
-    flavorMap.insert(flavor, oses);
+    flavorMap.insert(m_flavor, m_oses);
     result.insert(QLatin1String(FLAVORS), flavorMap);
     return result;
 }
 
-QVariantMap AddAbiFlavor::initializeAbiFlavors()
+QVariantMap AddAbiFlavorData::initializeAbiFlavors()
 {
     QVariantMap map;
     map.insert(QLatin1String(VERSION), 1);
     return map;
 }
 
-bool AddAbiFlavor::exists(const QString &flavor)
+bool AddAbiFlavorData::exists(const QString &flavor)
 {
-    QVariantMap map = load(QLatin1String(ABI_FILE_ID));
+    QVariantMap map = Operation::load(QLatin1String(ABI_FILE_ID));
     return exists(map, flavor);
 }
 
-bool AddAbiFlavor::exists(const QVariantMap &map, const QString &flavor)
+bool AddAbiFlavorData::exists(const QVariantMap &map, const QString &flavor)
 {
     const QVariantMap flavorMap = map.value(QLatin1String(FLAVORS)).toMap();
     return flavorMap.contains(flavor);

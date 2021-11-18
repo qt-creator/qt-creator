@@ -97,11 +97,13 @@ bool RmToolChainOperation::test() const
 {
     // Add toolchain:
     QVariantMap map = AddToolChainOperation::initializeToolChains();
-    map = AddToolChainOperation::addToolChain(map, "testId", "langId", "name", "/tmp/test", "test-abi",
-                                              "test-abi,test-abi2",
-                                              KeyValuePairList({KeyValuePair("ExtraKey", QVariant("ExtraValue"))}));
-    map = AddToolChainOperation::addToolChain(map, "testId2", "langId", "other name", "/tmp/test2", "test-abi",
-                                              "test-abi,test-abi2", KeyValuePairList());
+    map = AddToolChainData{"testId", "langId", "name", "/tmp/test", "test-abi",
+                           "test-abi,test-abi2", {{"ExtraKey", QVariant("ExtraValue")}}}
+            .addToolChain(map);
+
+    map = AddToolChainData{"testId2", "langId", "other name", "/tmp/test2", "test-abi",
+                                              "test-abi,test-abi2", {}}
+            .addToolChain(map);
 
     QVariantMap result = rmToolChain(QVariantMap(), "nonexistent");
     if (!result.isEmpty())

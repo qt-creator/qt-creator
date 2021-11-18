@@ -293,12 +293,7 @@ int AddKitOperation::execute() const
     if (map.isEmpty())
         map = initializeKits();
 
-    QVariantMap result = addKit(map, m_id, m_displayName, m_icon, m_debuggerId, m_debuggerEngine,
-                                m_debugger, m_deviceType, m_device, m_sysRoot, m_tcs, m_qt,
-                                m_mkspec, m_cmakeId, m_cmakeGenerator, m_cmakeExtraGenerator,
-                                m_cmakeGeneratorToolset, m_cmakeGeneratorPlatform, m_cmakeConfiguration,
-                                m_env, m_extra);
-
+    const QVariantMap result = addKit(map);
     if (result.isEmpty() || map == result)
         return 2;
 
@@ -308,26 +303,26 @@ int AddKitOperation::execute() const
 #ifdef WITH_TESTS
 bool AddKitOperation::test() const
 {
+    AddKitData kitData;
     QVariantMap map = initializeKits();
 
-    QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
-    tcMap = AddToolChainOperation::addToolChain(tcMap, "{tc-id}", "langId", "TC", "/usr/bin/gcc",
-                                                "x86-linux-generic-elf-32bit",
-                                                "x86-linux-generic-elf-32bit",
-                                                KeyValuePairList());
+    QVariantMap tcMap = AddToolChainData::initializeToolChains();
+    tcMap = AddToolChainData{"{tc-id}", "langId", "TC", "/usr/bin/gcc",
+                         "x86-linux-generic-elf-32bit", "x86-linux-generic-elf-32bit", {}}
+            .addToolChain(tcMap);
 
-    QVariantMap qtMap = AddQtOperation::initializeQtVersions();
-    qtMap = AddQtOperation::addQt(qtMap, "{qt-id}", "Qt", "desktop-qt", "/usr/bin/qmake",
-                                  KeyValuePairList(), {});
+    QVariantMap qtMap = AddQtData::initializeQtVersions();
+    qtMap = AddQtData{"{qt-id}", "Qt", "desktop-qt", "/usr/bin/qmake", {}, {}}.addQt(qtMap);
 
     QVariantMap devMap = AddDeviceOperation::initializeDevices();
-    devMap = AddDeviceOperation::addDevice(devMap, "{dev-id}", "Dev", 0, 0,
-                                           "HWplatform", "SWplatform",
-                                           "localhost", "10000-11000",
-                                           "localhost", "", 42,
-                                           "desktop", "", 22, 10000,
-                                           "uname", 1,
-                                           KeyValuePairList());
+    devMap = AddDeviceData{"{dev-id}", "Dev", 0, 0,
+                           "HWplatform", "SWplatform",
+                           "localhost", "10000-11000",
+                           "localhost", "", 42,
+                           "desktop", "", 22, 10000,
+                           "uname", 1,
+                           KeyValuePairList()}
+            .addDevice(devMap);
 
     const QStringList env = {"TEST=1", "PATH"};
 
@@ -341,34 +336,35 @@ bool AddKitOperation::test() const
     tcs.insert("Cxx", "{tcXX-id}");
 
     // Fail if TC is not there:
-    QVariantMap empty = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                               "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-                               tcs, "{qt-id}", "unsupported/mkspec",
-                               QString(), QString(), QString(), QString(), QString(), QStringList(),
-                               QStringList(),
-                               KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
+               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
+               tcs, "{qt-id}", "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(),
+               QStringList(),
+               {{{"PE.Profile.Data/extraData", QVariant("extraValue")}}}};
+    QVariantMap empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
+
     if (!empty.isEmpty())
         return false;
     // Do not fail if TC is an ABI:
     tcs.clear();
     tcs.insert("C", "x86-linux-generic-elf-64bit");
-    empty = addKit(map, tcMap, qtMap, devMap,  QVariantMap(),
-                   "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                   "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-                   tcs, "{qt-id}", "unsupported/mkspec",
-                   QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                   KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
+               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
+               tcs, "{qt-id}", "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}};
+    empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (empty.isEmpty())
         return false;
     // QTCREATORBUG-11983, mach_o was not covered by the first attempt to fix this.
     tcs.insert("D", "x86-macos-generic-mach_o-64bit");
-    empty = addKit(map, tcMap, qtMap, devMap,  QVariantMap(),
-                   "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                   "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-                   tcs, "{qt-id}", "unsupported/mkspec",
-                   QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                   KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
+               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
+               tcs, "{qt-id}", "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (empty.isEmpty())
         return false;
 
@@ -376,31 +372,31 @@ bool AddKitOperation::test() const
     tcs.insert("Cxx", "{tc-id}");
 
     // Fail if Qt is not there:
-    empty = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                   "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                   "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(), tcs, "{qtXX-id}",
-                   "unsupported/mkspec",
-                   QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                   KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
+               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(), tcs, "{qtXX-id}",
+               "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (!empty.isEmpty())
         return false;
     // Fail if dev is not there:
-    empty = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                   "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                   "/usr/bin/gdb-test", "Desktop", "{devXX-id}", QString(), tcs, "{qt-id}",
-                   "unsupported/mkspec",
-                   QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                   KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
+               "/usr/bin/gdb-test", "Desktop", "{devXX-id}", QString(), tcs, "{qt-id}",
+               "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}};
+    empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (!empty.isEmpty())
         return false;
 
     // Profile 0:
-    map = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                 "testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-                 "/usr/bin/gdb-test", "Desktop", QString(), QString(), tcs, "{qt-id}",
-                 "unsupported/mkspec",
-                 QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                 KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
+               "/usr/bin/gdb-test", "Desktop", QString(), QString(), tcs, "{qt-id}",
+               "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    map = kitData.addKit(map, tcMap, qtMap, devMap, {});
 
     if (map.count() != 4
             || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
@@ -434,22 +430,23 @@ bool AddKitOperation::test() const
         return false;
 
     // Ignore existing ids:
-    QVariantMap result = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                                "testId", "Test Qt Version X",
-                                "/tmp/icon3.png", QString(), 1, "/usr/bin/gdb-test3", "Desktop",
-                                QString(), QString(), tcs, "{qt-id}", "unsupported/mkspec",
-                                QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                                KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId", "Test Qt Version X",
+               "/tmp/icon3.png", QString(), 1, "/usr/bin/gdb-test3", "Desktop",
+               QString(), QString(), tcs, "{qt-id}", "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    QVariantMap result = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (!result.isEmpty())
         return false;
 
     // Profile 1: Make sure name is unique:
-    map = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                 "testId2", "Test Kit2", "/tmp/icon2.png", QString(), 1,
-                 "/usr/bin/gdb-test2", "Desktop", "{dev-id}", "/sys/root//", tcs,
-                 "{qt-id}", "unsupported/mkspec",
-                 QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                 KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"testId2", "Test Kit2", "/tmp/icon2.png", QString(), 1,
+               "/usr/bin/gdb-test2", "Desktop", "{dev-id}", "/sys/root//", tcs,
+               "{qt-id}", "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    map = kitData.addKit(map, tcMap, qtMap, devMap, {});
+
     if (map.count() != 5
             || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
             || !map.contains(COUNT) || map.value(COUNT).toInt() != 2
@@ -489,12 +486,12 @@ bool AddKitOperation::test() const
         return false;
 
     // Profile 2: Test debugger id:
-    map = addKit(map, tcMap, qtMap, devMap, QVariantMap(),
-                 "test with debugger Id", "Test debugger Id",
-                 "/tmp/icon2.png", "debugger Id", 0, QString(), "Desktop", QString(), QString(),
-                 tcs, "{qt-id}", "unsupported/mkspec",
-                 QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-                 KeyValuePairList({KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}));
+    kitData = {"test with debugger Id", "Test debugger Id",
+               "/tmp/icon2.png", "debugger Id", 0, QString(), "Desktop", QString(), QString(),
+               tcs, "{qt-id}", "unsupported/mkspec",
+               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
+               {KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}};
+    map = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (map.count() != 6
             || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
             || !map.contains(COUNT) || map.value(COUNT).toInt() != 3
@@ -528,61 +525,35 @@ bool AddKitOperation::test() const
 }
 #endif
 
-QVariantMap AddKitOperation::addKit(const QVariantMap &map,
-                                    const QString &id, const QString &displayName,
-                                    const QString &icon, const QString &debuggerId,
-                                    const quint32 &debuggerType, const QString &debugger,
-                                    const QString &deviceType, const QString &device,
-                                    const QString &sysRoot, const QHash<QString, QString> &tcs, const QString &qt,
-                                    const QString &mkspec, const QString &cmakeId,
-                                    const QString &cmakeGenerator, const QString &cmakeExtraGenerator,
-                                    const QString &cmakeGeneratorToolset,
-                                    const QString &cmakeGeneratorPlatform,
-                                    const QStringList &cmakeConfiguration, const QStringList &env,
-                                    const KeyValuePairList &extra)
+QVariantMap AddKitData::addKit(const QVariantMap &map) const
 {
-    QVariantMap tcMap = load("ToolChains");
-    QVariantMap qtMap = load("QtVersions");
-    QVariantMap devMap = load("Devices");
-    QVariantMap cmakeMap = load("cmaketools");
+    QVariantMap tcMap = Operation::load("ToolChains");
+    QVariantMap qtMap = Operation::load("QtVersions");
+    QVariantMap devMap = Operation::load("Devices");
+    QVariantMap cmakeMap = Operation::load("cmaketools");
 
-    return addKit(map, tcMap, qtMap, devMap, cmakeMap, id, displayName, icon, debuggerId, debuggerType,
-                  debugger, deviceType, device, sysRoot, tcs, qt, mkspec,
-                  cmakeId, cmakeGenerator, cmakeExtraGenerator, cmakeGeneratorToolset,
-                  cmakeGeneratorPlatform, cmakeConfiguration,
-                  env, extra);
+    return AddKitData::addKit(map, tcMap, qtMap, devMap, cmakeMap);
 }
 
-QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &tcMap,
+QVariantMap AddKitData::addKit(const QVariantMap &map, const QVariantMap &tcMap,
                                     const QVariantMap &qtMap, const QVariantMap &devMap,
-                                    const QVariantMap &cmakeMap,
-                                    const QString &id, const QString &displayName,
-                                    const QString &icon, const QString &debuggerId,
-                                    const quint32 &debuggerType, const QString &debugger,
-                                    const QString &deviceType, const QString &device,
-                                    const QString &sysRoot, const QHash<QString, QString> &tcs, const QString &qt,
-                                    const QString &mkspec, const QString &cmakeId,
-                                    const QString &cmakeGenerator, const QString &cmakeExtraGenerator,
-                                    const QString &cmakeGeneratorToolset,
-                                    const QString &cmakeGeneratorPlatform,
-                                    const QStringList &cmakeConfiguration, const QStringList &env,
-                                    const KeyValuePairList &extra)
+                                    const QVariantMap &cmakeMap) const
 {
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValue(map, QVariant(id));
+    const QStringList valueKeys = FindValueOperation::findValue(map, QVariant(m_id));
     bool hasId = false;
-    foreach (const QString &k, valueKeys) {
+    for (const QString &k : valueKeys) {
         if (k.endsWith(QString('/') + ID)) {
             hasId = true;
             break;
         }
     }
     if (hasId) {
-        std::cerr << "Error: Id " << qPrintable(id) << " already defined as kit." << std::endl;
+        std::cerr << "Error: Id " << qPrintable(m_id) << " already defined as kit." << std::endl;
         return QVariantMap();
     }
 
-    for (auto i = tcs.constBegin(); i != tcs.constEnd(); ++i) {
+    for (auto i = m_tcs.constBegin(); i != m_tcs.constEnd(); ++i) {
         if (!i.value().isEmpty() && !AddToolChainOperation::exists(tcMap, i.value())) {
             const QRegularExpression abiRegExp("^[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-(8|16|32|64|128)bit$");
             if (!abiRegExp.match(i.value()).hasMatch()) {
@@ -593,15 +564,15 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
         }
     }
 
-    QString qtId = qt;
+    QString qtId = m_qt;
     if (!qtId.isEmpty() && !qtId.startsWith("SDK."))
-        qtId = QString::fromLatin1("SDK.") + qt;
-    if (!qtId.isEmpty() && !AddQtOperation::exists(qtMap, qtId)) {
+        qtId = QString::fromLatin1("SDK.") + m_qt;
+    if (!qtId.isEmpty() && !AddQtData::exists(qtMap, qtId)) {
         std::cerr << "Error: Qt " << qPrintable(qtId) << " does not exist." << std::endl;
         return QVariantMap();
     }
-    if (!device.isEmpty() && !AddDeviceOperation::exists(devMap, device)) {
-        std::cerr << "Error: Device " << qPrintable(device) << " does not exist." << std::endl;
+    if (!m_device.isEmpty() && !AddDeviceOperation::exists(devMap, m_device)) {
+        std::cerr << "Error: Device " << qPrintable(m_device) << " does not exist." << std::endl;
         return QVariantMap();
     }
 
@@ -609,8 +580,8 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
     if (!qtId.isNull() && qtId.isEmpty())
         qtId = "-1";
 
-    if (!cmakeId.isEmpty() && !AddCMakeOperation::exists(cmakeMap, cmakeId)) {
-        std::cerr << "Error: CMake tool " << qPrintable(cmakeId) << " does not exist." << std::endl;
+    if (!m_cmakeId.isEmpty() && !AddCMakeData::exists(cmakeMap, m_cmakeId)) {
+        std::cerr << "Error: CMake tool " << qPrintable(m_cmakeId) << " does not exist." << std::endl;
         return QVariantMap();
     }
 
@@ -625,68 +596,69 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
 
     QString defaultKit = GetOperation::get(map, DEFAULT).toString();
     if (defaultKit.isEmpty())
-        defaultKit = id;
+        defaultKit = m_id;
 
     // remove data:
     QVariantMap cleaned = RmKeysOperation::rmKeys(map, {COUNT, DEFAULT});
 
     // insert data:
-    KeyValuePairList data = {KeyValuePair({kit, ID}, QVariant(id)),
-                             KeyValuePair({kit, DISPLAYNAME}, QVariant(displayName)),
-                             KeyValuePair({kit, ICON}, QVariant(icon)),
+    KeyValuePairList data = {KeyValuePair({kit, ID}, QVariant(m_id)),
+                             KeyValuePair({kit, DISPLAYNAME}, QVariant(m_displayName)),
+                             KeyValuePair({kit, ICON}, QVariant(m_icon)),
                              KeyValuePair({kit, AUTODETECTED}, QVariant(true)),
                              KeyValuePair({kit, SDK}, QVariant(true))};
 
-    if (!debuggerId.isEmpty() || !debugger.isEmpty()) {
-        if (debuggerId.isEmpty()) {
-            data << KeyValuePair({kit, DATA, DEBUGGER, DEBUGGER_ENGINE}, QVariant(debuggerType));
-            data << KeyValuePair({kit, DATA, DEBUGGER, DEBUGGER_BINARY}, QVariant(debugger));
+    if (!m_debuggerId.isEmpty() || !m_debugger.isEmpty()) {
+        if (m_debuggerId.isEmpty()) {
+            data << KeyValuePair({kit, DATA, DEBUGGER, DEBUGGER_ENGINE}, QVariant(m_debuggerEngine));
+            data << KeyValuePair({kit, DATA, DEBUGGER, DEBUGGER_BINARY}, QVariant(m_debugger));
         } else {
-            data << KeyValuePair({kit, DATA, DEBUGGER }, QVariant(debuggerId));
+            data << KeyValuePair({kit, DATA, DEBUGGER }, QVariant(m_debuggerId));
         }
     }
-    if (!deviceType.isNull())
-        data << KeyValuePair({kit, DATA, DEVICE_TYPE}, QVariant(deviceType));
-    if (!device.isNull())
-        data << KeyValuePair({kit, DATA, DEVICE_ID}, QVariant(device));
-    if (!sysRoot.isNull())
-        data << KeyValuePair({kit, DATA, SYSROOT}, Utils::FilePath::fromUserInput(sysRoot).toVariant());
-    for (auto i = tcs.constBegin(); i != tcs.constEnd(); ++i)
+
+    if (!m_deviceType.isNull())
+        data << KeyValuePair({kit, DATA, DEVICE_TYPE}, QVariant(m_deviceType));
+    if (!m_device.isNull())
+        data << KeyValuePair({kit, DATA, DEVICE_ID}, QVariant(m_device));
+    if (!m_sysRoot.isNull())
+        data << KeyValuePair({kit, DATA, SYSROOT}, Utils::FilePath::fromUserInput(m_sysRoot).toVariant());
+    for (auto i = m_tcs.constBegin(); i != m_tcs.constEnd(); ++i)
         data << KeyValuePair({kit, DATA, TOOLCHAIN, i.key()}, QVariant(i.value()));
     if (!qtId.isNull())
         data << KeyValuePair({kit, DATA, QT}, QVariant(qtId));
-    if (!mkspec.isNull())
-        data << KeyValuePair({kit, DATA, MKSPEC}, QVariant(mkspec));
-    if (!cmakeId.isNull())
-        data << KeyValuePair({kit, DATA, CMAKE_ID}, QVariant(cmakeId));
-    if (!cmakeGenerator.isNull()) {
+    if (!m_mkspec.isNull())
+        data << KeyValuePair({kit, DATA, MKSPEC}, QVariant(m_mkspec));
+    if (!m_cmakeId.isNull())
+        data << KeyValuePair({kit, DATA, CMAKE_ID}, QVariant(m_cmakeId));
+    if (!m_cmakeGenerator.isNull()) {
         QVariantMap generatorMap;
-        generatorMap.insert("Generator", cmakeGenerator);
-        if (!cmakeExtraGenerator.isNull())
-            generatorMap.insert("ExtraGenerator", cmakeExtraGenerator);
-        if (!cmakeGeneratorToolset.isNull())
-            generatorMap.insert("Toolset", cmakeGeneratorToolset);
-        if (!cmakeGeneratorPlatform.isNull())
-            generatorMap.insert("Platform", cmakeGeneratorPlatform);
+        generatorMap.insert("Generator", m_cmakeGenerator);
+        if (!m_cmakeExtraGenerator.isNull())
+            generatorMap.insert("ExtraGenerator", m_cmakeExtraGenerator);
+        if (!m_cmakeGeneratorToolset.isNull())
+            generatorMap.insert("Toolset", m_cmakeGeneratorToolset);
+        if (!m_cmakeGeneratorPlatform.isNull())
+            generatorMap.insert("Platform", m_cmakeGeneratorPlatform);
         data << KeyValuePair({kit, DATA, CMAKE_GENERATOR}, generatorMap);
     }
-    if (!cmakeConfiguration.isEmpty())
-        data << KeyValuePair({kit, DATA, CMAKE_CONFIGURATION}, QVariant(cmakeConfiguration));
-    if (!env.isEmpty())
-        data << KeyValuePair({kit, DATA, ENV}, QVariant(env));
+    if (!m_cmakeConfiguration.isEmpty())
+        data << KeyValuePair({kit, DATA, CMAKE_CONFIGURATION}, QVariant(m_cmakeConfiguration));
+    if (!m_env.isEmpty())
+        data << KeyValuePair({kit, DATA, ENV}, QVariant(m_env));
 
     data << KeyValuePair(DEFAULT, QVariant(defaultKit));
     data << KeyValuePair(COUNT, QVariant(count + 1));
 
     KeyValuePairList qtExtraList;
-    foreach (const KeyValuePair &pair, extra)
+    foreach (const KeyValuePair &pair, m_extra)
         qtExtraList << KeyValuePair(QStringList() << kit << pair.key, pair.value);
     data.append(qtExtraList);
 
-    return AddKeysOperation::addKeys(cleaned, data);
+    return AddKeysData{data}.addKeys(cleaned);
 }
 
-QVariantMap AddKitOperation::initializeKits()
+QVariantMap AddKitData::initializeKits()
 {
     QVariantMap map;
     map.insert(VERSION, 1);

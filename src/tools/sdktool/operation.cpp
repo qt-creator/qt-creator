@@ -34,7 +34,7 @@
 
 #include <iostream>
 
-QVariant Operation::valueFromString(const QString &v)
+QVariant valueFromString(const QString &v)
 {
     int pos = v.indexOf(QLatin1Char(':'));
     if (pos <= 0)
@@ -62,23 +62,23 @@ QVariant Operation::valueFromString(const QString &v)
     return QVariant();
 }
 
-Operation::KeyValuePair::KeyValuePair(const QString &k, const QString &v) :
+KeyValuePair::KeyValuePair(const QString &k, const QString &v) :
     value(valueFromString(v))
 {
     key = k.split(QLatin1Char('/'));
 }
 
-Operation::KeyValuePair::KeyValuePair(const QString &k, const QVariant &v) :
+KeyValuePair::KeyValuePair(const QString &k, const QVariant &v) :
     value(v)
 {
     key = k.split(QLatin1Char('/'));
 }
 
-Operation::KeyValuePair::KeyValuePair(const QStringList &k, const QString &v) :
+KeyValuePair::KeyValuePair(const QStringList &k, const QString &v) :
     key(k), value(valueFromString(v))
 { }
 
-Operation::KeyValuePair::KeyValuePair(const QStringList &k, const QVariant &v) :
+KeyValuePair::KeyValuePair(const QStringList &k, const QVariant &v) :
     key(k), value(v)
 { }
 

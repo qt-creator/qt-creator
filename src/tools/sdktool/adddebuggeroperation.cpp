@@ -144,8 +144,7 @@ int AddDebuggerOperation::execute() const
     if (map.isEmpty())
         map = initializeDebuggers();
 
-    QVariantMap result = addDebugger(map, m_id, m_displayName, m_engine, m_binary, m_abis,
-                                     m_extra);
+    QVariantMap result = addDebugger(map);
 
     if (result.isEmpty() || map == result)
         return 2;
@@ -169,13 +168,10 @@ bool AddDebuggerOperation::test() const
 }
 #endif
 
-QVariantMap AddDebuggerOperation::addDebugger(const QVariantMap &map,
-                                              const QString &id, const QString &displayName,
-                                              int engine, const QString &binary,
-                                              const QStringList &abis, const KeyValuePairList &extra)
+QVariantMap AddDebuggerData::addDebugger(const QVariantMap &map) const
 {
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValue(map, QVariant(id));
+    QStringList valueKeys = FindValueOperation::findValue(map, QVariant(m_id));
     bool hasId = false;
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
@@ -184,7 +180,7 @@ QVariantMap AddDebuggerOperation::addDebugger(const QVariantMap &map,
         }
     }
     if (hasId) {
-        std::cerr << "Error: Id " << qPrintable(id) << " already defined as debugger." << std::endl;
+        std::cerr << "Error: Id " << qPrintable(m_id) << " already defined as debugger." << std::endl;
         return QVariantMap();
     }
 
@@ -204,27 +200,27 @@ QVariantMap AddDebuggerOperation::addDebugger(const QVariantMap &map,
 
     // insert data:
     KeyValuePairList data;
-    data << KeyValuePair(QStringList() << debugger << QLatin1String(ID), QVariant(id));
+    data << KeyValuePair(QStringList() << debugger << QLatin1String(ID), QVariant(m_id));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(DISPLAYNAME),
-                         QVariant(displayName));
+                         QVariant(m_displayName));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(AUTODETECTED), QVariant(true));
 
-    data << KeyValuePair(QStringList() << debugger << QLatin1String(ABIS), QVariant(abis));
-    data << KeyValuePair(QStringList() << debugger << QLatin1String(ENGINE_TYPE), QVariant(engine));
+    data << KeyValuePair(QStringList() << debugger << QLatin1String(ABIS), QVariant(m_abis));
+    data << KeyValuePair(QStringList() << debugger << QLatin1String(ENGINE_TYPE), QVariant(m_engine));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(BINARY),
-                         Utils::FilePath::fromUserInput(binary).toVariant());
+                         Utils::FilePath::fromUserInput(m_binary).toVariant());
 
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
 
     KeyValuePairList qtExtraList;
-    foreach (const KeyValuePair &pair, extra)
+    foreach (const KeyValuePair &pair, m_extra)
         qtExtraList << KeyValuePair(QStringList() << debugger << pair.key, pair.value);
     data.append(qtExtraList);
 
-    return AddKeysOperation::addKeys(cleaned, data);
+    return AddKeysData{data}.addKeys(cleaned);
 }
 
-QVariantMap AddDebuggerOperation::initializeDebuggers()
+QVariantMap AddDebuggerData::initializeDebuggers()
 {
     QVariantMap map;
     map.insert(QLatin1String(VERSION), 1);

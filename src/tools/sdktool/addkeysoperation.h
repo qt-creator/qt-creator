@@ -27,25 +27,29 @@
 
 #include "operation.h"
 
-class AddKeysOperation : public Operation
+class AddKeysData
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
+    QVariantMap addKeys(const QVariantMap &map) const;
 
-    bool setArguments(const QStringList &args);
+    QList<KeyValuePair> m_data;
+};
 
-    int execute() const;
+class AddKeysOperation : public Operation, public AddKeysData
+{
+public:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+
+    bool setArguments(const QStringList &args) final;
+
+    int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const;
+    bool test() const final;
 #endif
-
-    static QVariantMap addKeys(const QVariantMap &map, const KeyValuePairList &additions);
 
 private:
     QString m_file;
-
-    QList<KeyValuePair> m_data;
 };

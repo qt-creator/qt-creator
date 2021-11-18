@@ -76,7 +76,7 @@ int AddKeysOperation::execute() const
 
     QVariantMap map = load(m_file);
 
-    QVariantMap result = addKeys(map, m_data);
+    QVariantMap result = addKeys(map);
     if (result.isEmpty() || map == result)
         return 4;
 
@@ -108,7 +108,7 @@ bool AddKeysOperation::test() const
     data.append(KeyValuePair(QLatin1String("newsub/1/2/3/qbytearray"), QString::fromLatin1("QByteArray:test array.")));
     data.append(KeyValuePair(QLatin1String("newsub/1/2.1/3/qbytearray"), QString::fromLatin1("QByteArray:test array.")));
 
-    QVariantMap result = addKeys(testMap, data);
+    QVariantMap result = AddKeysData{data}.addKeys(testMap);
     if (result.count() != 9)
         return false;
 
@@ -194,13 +194,13 @@ bool AddKeysOperation::test() const
     // preexisting:
     data.clear();
     data.append(KeyValuePair(QLatin1String("testint"), QString::fromLatin1("int:4")));
-    result = addKeys(testMap, data);
+    result = AddKeysData{data}.addKeys(testMap);
     if (!result.isEmpty())
         return false;
 
     data.clear();
     data.append(KeyValuePair(QLatin1String("subkeys/testbool"), QString::fromLatin1("int:24")));
-    result = addKeys(testMap, data);
+    result = AddKeysData{data}.addKeys(testMap);
     if (!result.isEmpty())
         return false;
 
@@ -208,7 +208,7 @@ bool AddKeysOperation::test() const
     data.clear();
     data.append(KeyValuePair(QLatin1String("bool-true"), QString::fromLatin1("bool:trUe")));
     data.append(KeyValuePair(QLatin1String("bool-true"), QString::fromLatin1("bool:trUe")));
-    result = addKeys(testMap, data);
+    result = AddKeysData{data}.addKeys(testMap);
     if (!result.isEmpty())
         return false;
 
@@ -216,12 +216,12 @@ bool AddKeysOperation::test() const
 }
 #endif
 
-QVariantMap AddKeysOperation::addKeys(const QVariantMap &map, const KeyValuePairList &additions)
+QVariantMap AddKeysData::addKeys(const QVariantMap &map) const
 {
     // Insert data:
     QVariantMap result = map;
 
-    foreach (const KeyValuePair &p, additions) {
+    foreach (const KeyValuePair &p, m_data) {
         QList<QVariantMap> stack;
 
         // Set up a stack of QVariantMaps along the path we take:

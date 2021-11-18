@@ -122,7 +122,7 @@ int AddCMakeOperation::execute() const
     if (map.isEmpty())
         map = initializeCMake();
 
-    QVariantMap result = addCMake(map, m_id, m_displayName, m_path, m_extra);
+    QVariantMap result = addCMake(map);
     if (result.isEmpty() || map == result)
         return 2;
 
@@ -135,8 +135,7 @@ bool AddCMakeOperation::test() const
     QVariantMap map = initializeCMake();
 
     // Add toolchain:
-    map = addCMake(map, "testId", "name", "/tmp/test",
-                   KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
+    map = AddCMakeData{"testId", "name", "/tmp/test", {{"ExtraKey", QVariant("ExtraValue")}}}.addCMake(map);
     if (map.value(COUNT).toInt() != 1
             || !map.contains(QString::fromLatin1(PREFIX) + '0'))
         return false;
@@ -150,14 +149,14 @@ bool AddCMakeOperation::test() const
         return false;
 
     // Ignore same Id:
-    QVariantMap unchanged = addCMake(map, "testId", "name2", "/tmp/test2",
-                                     KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue2")));
+    QVariantMap unchanged = AddCMakeData{"testId", "name2", "/tmp/test2", {{"ExtraKey", QVariant("ExtraValue2")}}}
+            .addCMake(map);
     if (!unchanged.isEmpty())
         return false;
 
     // add 2nd cmake
-    map = addCMake(map, "{some-cm-id}", "name", "/tmp/test",
-                   KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
+    map = AddCMakeData{"{some-cm-id}", "name", "/tmp/test", {{"ExtraKey", QVariant("ExtraValue")}}}
+        .addCMake(map);
     if (map.value(COUNT).toInt() != 2
             || !map.contains(QString::fromLatin1(PREFIX) + '0')
             || !map.contains(QString::fromLatin1(PREFIX) + '1'))
@@ -183,13 +182,11 @@ bool AddCMakeOperation::test() const
 }
 #endif
 
-QVariantMap AddCMakeOperation::addCMake(const QVariantMap &map, const QString &id,
-                                        const QString &displayName, const QString &path,
-                                        const KeyValuePairList &extra)
+QVariantMap AddCMakeData::addCMake(const QVariantMap &map) const
 {
     // Sanity check: Does the Id already exist?
-    if (exists(map, id)) {
-        std::cerr << "Error: Id " << qPrintable(id) << " already defined for tool chains." << std::endl;
+    if (exists(map, m_id)) {
+        std::cerr << "Error: Id " << qPrintable(m_id) << " already defined for tool chains." << std::endl;
         return QVariantMap();
     }
 
@@ -206,20 +203,20 @@ QVariantMap AddCMakeOperation::addCMake(const QVariantMap &map, const QString &i
     const QString cm = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair({cm, ID_KEY}, QVariant(id));
-    data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(displayName));
+    data << KeyValuePair({cm, ID_KEY}, QVariant(m_id));
+    data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(m_displayName));
     data << KeyValuePair({cm, AUTODETECTED_KEY}, QVariant(true));
-    data << KeyValuePair({cm, PATH_KEY}, Utils::FilePath::fromUserInput(path).toVariant());
+    data << KeyValuePair({cm, PATH_KEY}, Utils::FilePath::fromUserInput(m_path).toVariant());
     KeyValuePairList extraList;
-    foreach (const KeyValuePair &pair, extra)
+    foreach (const KeyValuePair &pair, m_extra)
         extraList << KeyValuePair(QStringList({cm}) << pair.key, pair.value);
     data.append(extraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
 
-    return AddKeysOperation::addKeys(result, data);
+    return AddKeysData{data}.addKeys(result);
 }
 
-QVariantMap AddCMakeOperation::initializeCMake()
+QVariantMap AddCMakeData::initializeCMake()
 {
     QVariantMap map;
     map.insert(COUNT, 0);
@@ -227,7 +224,7 @@ QVariantMap AddCMakeOperation::initializeCMake()
     return map;
 }
 
-bool AddCMakeOperation::exists(const QVariantMap &map, const QString &id)
+bool AddCMakeData::exists(const QVariantMap &map, const QString &id)
 {
     QStringList valueKeys = FindValueOperation::findValue(map, id);
     // support old settings using QByteArray for id's
@@ -241,7 +238,7 @@ bool AddCMakeOperation::exists(const QVariantMap &map, const QString &id)
     return false;
 }
 
-bool AddCMakeOperation::exists(const QString &id)
+bool AddCMakeData::exists(const QString &id)
 {
     QVariantMap map = Operation::load("cmaketools");
     return exists(map, id);

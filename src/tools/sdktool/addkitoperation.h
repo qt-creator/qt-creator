@@ -28,49 +28,17 @@
 #include "operation.h"
 
 #include <QHash>
-#include <QString>
 
-class AddKitOperation : public Operation
+class AddKitData
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
-
-    bool setArguments(const QStringList &args);
-
-    int execute() const;
-
-#ifdef WITH_TESTS
-    bool test() const;
-#endif
-
-    static QVariantMap addKit(const QVariantMap &map, const QString &id, const QString &displayName,
-                              const QString &icon, const QString &debuggerId,
-                              const quint32 &debuggerType, const QString &debugger,
-                              const QString &deviceType, const QString &device,
-                              const QString &sysRoot, const QHash<QString, QString> &tcs,
-                              const QString &qt, const QString &mkspec,
-                              const QString &cmakeId, const QString &cmakeGenerator,
-                              const QString &cmakeExtraGenerator, const QString &cmakeGeneratorToolset,
-                              const QString &cmakeGeneratorPlatform,
-                              const QStringList &cmakeConfiguration, const QStringList &env,
-                              const KeyValuePairList &extra);
+    QVariantMap addKit(const QVariantMap &map) const;
+    QVariantMap addKit(const QVariantMap &map, const QVariantMap &tcMap,
+                       const QVariantMap &qtMap, const QVariantMap &devMap,
+                       const QVariantMap &cmakeMap) const;
 
     static QVariantMap initializeKits();
 
-    // internal:
-    static QVariantMap addKit(const QVariantMap &map, const QVariantMap &tcMap,
-                              const QVariantMap &qtMap, const QVariantMap &devMap, const QVariantMap &cmakeMap,
-                              const QString &id, const QString &displayName,
-                              const QString &icon, const QString &debuggerId,
-                              const quint32 &debuggerType, const QString &debugger,
-                              const QString &deviceType, const QString &device,
-                              const QString &sysRoot, const QHash<QString, QString> &tcs,
-                              const QString &qt, const QString &mkspec, const QString &cmakeId, const QString &cmakeGenerator, const QString &cmakeExtraGenerator, const QString &cmakeGeneratorToolset, const QString &cmakeGeneratorPlatform, const QStringList &cmakeConfiguration, const QStringList &env,
-                              const KeyValuePairList &extra);
-
-private:
     QString m_id;
     QString m_displayName;
     QString m_icon;
@@ -91,4 +59,19 @@ private:
     QStringList m_cmakeConfiguration;
     QStringList m_env;
     KeyValuePairList m_extra;
+};
+
+class AddKitOperation : public Operation, public AddKitData
+{
+public:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+
+    bool setArguments(const QStringList &args) final;
+    int execute() const final;
+
+#ifdef WITH_TESTS
+    bool test() const final;
+#endif
 };

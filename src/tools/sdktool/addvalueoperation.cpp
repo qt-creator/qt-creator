@@ -79,7 +79,7 @@ bool AddValueOperation::setArguments(const QStringList &args)
     m_file = tempArgs.takeFirst();
     m_key = tempArgs.takeFirst();
     for (const auto &arg : tempArgs) {
-        const auto val = Operation::valueFromString(arg);
+        const auto val = valueFromString(arg);
         if (!val.isValid() || val.isNull()) {
             std::cerr << "Error: " << std::quoted(arg.toStdString())
                       << " is not a valid QVariant like string Type:Value.\n"
@@ -101,7 +101,7 @@ int AddValueOperation::execute() const
         return FAILURE;
     }
 
-    auto status = appendListToMap(map, m_key, m_values);
+    bool status = appendListToMap(map);
 
     if (status) {
         status = save(map, m_file);
@@ -122,13 +122,12 @@ bool AddValueOperation::test() const
     testKvpList.append(KeyValuePair(QLatin1String("test/foobar"), QString::fromLatin1("int:42")));
     testKvpList.append(KeyValuePair(QLatin1String("test/bar"), testDataList));
 
-    const auto valueList = QVariantList(
-        {Operation::valueFromString("QString:ELIL"), Operation::valueFromString("int:-1")});
+    const QVariantList valueList = {valueFromString("QString:ELIL"), valueFromString("int:-1")};
 
     QVariantMap testMap;
 
     // add to empty map
-    auto result = appendListToMap(testMap, "some key", valueList);
+    bool result = AddValueData{"some key", valueList}.appendListToMap(testMap);
 
     if (result)
         return false;
@@ -137,19 +136,19 @@ bool AddValueOperation::test() const
     testMap.insert(QLatin1String("aKey"), "withAString");
 
     // append to a value
-    result = appendListToMap(testMap, "aKey", valueList);
+    result = AddValueData{"aKey", valueList}.appendListToMap(testMap);
 
     if (result)
         return false;
 
-    testMap = AddKeysOperation::addKeys(testMap, testKvpList);
+    testMap = AddKeysData{testKvpList}.addKeys(testMap);
 
     // quick sanity check
     if (testMap.count() != 3 && testDataList.count() != 2 && testKvpList.count() != 3)
         return false;
 
     // successful adding of values
-    result = appendListToMap(testMap, "test/bar", valueList);
+    result = AddValueData{"test/bar", valueList}.appendListToMap(testMap);
     if (!result)
         return false;
 
@@ -165,30 +164,28 @@ bool AddValueOperation::test() const
 }
 #endif
 
-bool AddValueOperation::appendListToMap(QVariantMap &map,
-                                        const QString &key,
-                                        const QVariantList &values)
+bool AddValueData::appendListToMap(QVariantMap &map) const
 {
-    const auto data = GetOperation::get(map, key);
+    const QVariant data = GetOperation::get(map, m_key);
 
     if (!data.isValid() || data.isNull()) {
-        std::cerr << "Error: Could not retrieve value for key " << std::quoted(key.toStdString())
+        std::cerr << "Error: Could not retrieve value for key " << std::quoted(m_key.toStdString())
                   << std::endl;
         return false;
     }
 
     if (data.type() != QVariant::List) {
-        std::cerr << "Error: Data stored in " << std::quoted(key.toStdString())
+        std::cerr << "Error: Data stored in " << std::quoted(m_key.toStdString())
                   << " is not a QVariantList." << std::endl;
         return false;
     }
 
     auto newList = qvariant_cast<QVariantList>(data);
 
-    newList.append(values);
+    newList.append(m_values);
 
-    map = RmKeysOperation::rmKeys(map, {key});
-    map = AddKeysOperation::addKeys(map, {Operation::KeyValuePair(key, newList)});
+    map = RmKeysOperation::rmKeys(map, {m_key});
+    map = AddKeysData{{{m_key, newList}}}.addKeys(map);
 
     return true;
 }

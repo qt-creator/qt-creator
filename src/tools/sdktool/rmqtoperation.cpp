@@ -95,19 +95,17 @@ int RmQtOperation::execute() const
 bool RmQtOperation::test() const
 {
     // Add toolchain:
-    QVariantMap map = AddQtOperation::initializeQtVersions();
+    QVariantMap map = AddQtData::initializeQtVersions();
 
     QVariantMap result = rmQt(QVariantMap(), QLatin1String("nonexistant"));
     if (result != map)
         return false;
 
-    map = AddQtOperation::addQt(map, QLatin1String("testId"), QLatin1String("name"), QLatin1String("type"),
-                                QLatin1String("/tmp/test"),
-                                KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))),
-                                QStringList());
-    map = AddQtOperation::addQt(map, QLatin1String("testId2"), QLatin1String("other name"),  QLatin1String("type"),
-                                QLatin1String("/tmp/test2"),
-                                KeyValuePairList(), QStringList());
+    map = AddQtData{"testId", "name", "type", "/tmp/test", {},
+                  {{QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))}}}
+            .addQt(map);
+
+    map = AddQtData{"testId2", "other name", "type", "/tmp/test2", {}, {}}.addQt(map);
 
     result = rmQt(map, QLatin1String("nonexistant"));
     if (result != map)
@@ -149,7 +147,7 @@ QVariantMap RmQtOperation::rmQt(const QVariantMap &map, const QString &id)
             qtList.append(qtData);
     }
 
-    QVariantMap newMap = AddQtOperation::initializeQtVersions();
+    QVariantMap newMap = AddQtData::initializeQtVersions();
     for (int i = 0; i < qtList.count(); ++i)
         newMap.insert(QString::fromLatin1(PREFIX) + QString::number(i), qtList.at(i));
 

@@ -85,7 +85,7 @@ int RmCMakeOperation::execute() const
     if (map.isEmpty())
         return 0;
 
-    QVariantMap result = rmCMake(map, m_id);
+    QVariantMap result = RmCMakeData{m_id}.rmCMake(map);
     if (result == map)
         return 2;
 
@@ -98,20 +98,20 @@ bool RmCMakeOperation::test() const
     // Add cmakes:
     QVariantMap map = AddCMakeOperation::initializeCMake();
     const QVariantMap emptyMap = map;
-    map = AddCMakeOperation::addCMake(map, "testId", "name", "/tmp/test",
-                                      KeyValuePairList({KeyValuePair("ExtraKey", QVariant("ExtraValue"))}));
-    map = AddCMakeOperation::addCMake(map, "testId2", "other name", "/tmp/test2", KeyValuePairList());
+    map = AddCMakeData{"testId", "name", "/tmp/test",
+                       {{"ExtraKey", QVariant("ExtraValue")}}}.addCMake(map);
+    map = AddCMakeData{"testId2", "other name", "/tmp/test2", {}}.addCMake(map);
 
-    QVariantMap result = rmCMake(QVariantMap(), "nonexistent");
+    QVariantMap result = RmCMakeData{"nonexistent"}.rmCMake(QVariantMap());
     if (!result.isEmpty())
         return false;
 
-    result = rmCMake(map, "nonexistent");
+    result = RmCMakeData{"nonexistent"}.rmCMake(map);
     if (result != map)
         return false;
 
     // Remove from map with both testId and testId2:
-    result = rmCMake(map, "testId2");
+    result = RmCMakeData{"testId2"}.rmCMake(map);
     if (result == map
             || result.value(COUNT, 0).toInt() != 1
             || !result.contains(QString::fromLatin1(PREFIX) + "0")
@@ -119,7 +119,7 @@ bool RmCMakeOperation::test() const
         return false;
 
     // Remove from map with both testId and testId2:
-    result = rmCMake(map, "testId");
+    result = RmCMakeData{"testId"}.rmCMake(map);
     if (result == map
             || result.value(COUNT, 0).toInt() != 1
             || !result.contains(QString::fromLatin1(PREFIX) + "0")
@@ -127,7 +127,7 @@ bool RmCMakeOperation::test() const
         return false;
 
     // Remove from map without testId!
-    result = rmCMake(result, "testId2");
+    result = RmCMakeData{"testId2"}.rmCMake(result);
     if (result != emptyMap)
         return false;
 
@@ -135,7 +135,7 @@ bool RmCMakeOperation::test() const
 }
 #endif
 
-QVariantMap RmCMakeOperation::rmCMake(const QVariantMap &map, const QString &id)
+QVariantMap RmCMakeData::rmCMake(const QVariantMap &map) const
 {
     // Find count of cmakes:
     bool ok;
@@ -148,7 +148,7 @@ QVariantMap RmCMakeOperation::rmCMake(const QVariantMap &map, const QString &id)
     QVariantList cmList;
     for (int i = 0; i < count; ++i) {
         QVariantMap cmData = GetOperation::get(map, QString::fromLatin1(PREFIX) + QString::number(i)).toMap();
-        if (cmData.value(ID).toString() != id)
+        if (cmData.value(ID).toString() != m_id)
             cmList.append(cmData);
     }
 
