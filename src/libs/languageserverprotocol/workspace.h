@@ -244,7 +244,7 @@ public:
     bool isValid() const override { return contains(editKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditResponse : public JsonObject
+class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditResult : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
@@ -256,7 +256,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditRequest : public Request<
-        ApplyWorkspaceEditResponse, std::nullptr_t, ApplyWorkspaceEditParams>
+        ApplyWorkspaceEditResult, std::nullptr_t, ApplyWorkspaceEditParams>
 {
 public:
     explicit ApplyWorkspaceEditRequest(const ApplyWorkspaceEditParams &params);
