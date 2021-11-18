@@ -30,6 +30,7 @@
 #include "qtcassert.h"
 #include "stringutils.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QRegularExpression>
 #include <QStack>
