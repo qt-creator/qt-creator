@@ -28,38 +28,34 @@
 
 #include <app/app_version.h>
 
-#include <iostream>
-
 #include <QCoreApplication>
-#include <QDir>
 
-Settings *Settings::m_instance = nullptr;
+static Settings *m_instance = nullptr;
 
 Settings *Settings::instance()
 {
     return m_instance;
 }
 
-Settings::Settings() :
-    operation(nullptr)
+Settings::Settings()
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
 
     // autodetect sdk dir:
-    sdkPath = Utils::FilePath::fromString(QCoreApplication::applicationDirPath())
-            .pathAppended(DATA_PATH);
-    sdkPath = Utils::FilePath::fromString(QDir::cleanPath(sdkPath.toString()))
-            .pathAppended(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR) + '/' + Core::Constants::IDE_ID);
+    sdkPath = Utils::FilePath::fromUserInput(QCoreApplication::applicationDirPath())
+            .pathAppended(DATA_PATH).cleanPath()
+            .pathAppended(Core::Constants::IDE_SETTINGSVARIANT_STR)
+            .pathAppended(Core::Constants::IDE_ID);
 }
 
 Utils::FilePath Settings::getPath(const QString &file)
 {
     Utils::FilePath result = sdkPath;
     const QString lowerFile = file.toLower();
-    const QStringList identical
-            = QStringList({ "android", "cmaketools", "debuggers", "devices",
-                            "profiles", "qtversions", "toolchains", "abi" });
+    const QStringList identical = {
+        "android", "cmaketools", "debuggers", "devices", "profiles", "qtversions", "toolchains", "abi"
+    };
     if (lowerFile == "cmake")
         result = result.pathAppended("cmaketools");
     else if (lowerFile == "kits")

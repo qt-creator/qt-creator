@@ -27,8 +27,6 @@
 
 #include <utils/fileutils.h>
 
-#include <QStringList>
-
 class Operation;
 
 class Settings
@@ -37,12 +35,8 @@ public:
     Settings();
     static Settings *instance();
 
-    Utils::FilePath sdkPath;
-
-    Operation *operation;
-
     Utils::FilePath getPath(const QString &file);
 
-private:
-    static Settings *m_instance;
+    Utils::FilePath sdkPath;
+    Operation *operation = nullptr;
 };
