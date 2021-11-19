@@ -76,7 +76,7 @@ void generateMenuEntry()
 {
     Core::ActionContainer *buildMenu =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    auto action = new QAction(QCoreApplication::tr("Generate CMakeLists.txt Files"));
+    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateCmake", "Generate CMakeLists.txt Files"));
     QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
     buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
@@ -165,13 +165,13 @@ void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles)
     });
 }
 
-const QString WARNING_MISSING_STRUCTURE_FATAL = QCoreApplication::tr(
+const QString WARNING_MISSING_STRUCTURE_FATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                                     "The project is not properly structured for automatically generating CMake files.\n\nAborting process.\n\nThe following files or directories are missing:\n\n%1");
-const QString WARNING_MISSING_STRUCTURE_NONFATAL = QCoreApplication::tr(
+const QString WARNING_MISSING_STRUCTURE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                                     "The project is not properly structured for automatically generating CMake files.\n\nThe following files will be created:\n\n%1");
-const QString WARNING_TITLE_FATAL = QCoreApplication::tr(
+const QString WARNING_TITLE_FATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                         "Cannot Generate CMake Files");
-const QString WARNING_TITLE_NONFATAL = QCoreApplication::tr(
+const QString WARNING_TITLE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                             "Problems with Generating CMake Files");
 
 void showProjectDirErrorDialog(int error)
