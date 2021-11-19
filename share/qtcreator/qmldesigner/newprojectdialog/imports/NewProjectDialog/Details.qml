@@ -73,6 +73,10 @@ Item {
                     color: DialogValues.textColor
                     selectByMouse: true
 
+                    onEditingFinished: {
+                        text = text.charAt(0).toUpperCase() + text.slice(1)
+                    }
+
                     font.pixelSize: DialogValues.paneTitlePixelSize
                 }
 
