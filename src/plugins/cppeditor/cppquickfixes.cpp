@@ -1944,10 +1944,10 @@ NameAST *nameUnderCursor(const QList<AST *> &path)
     return nameAst;
 }
 
-enum class LookupResult { Definition, Declaration, None };
+enum class LookupResult { Declared, ForwardDeclared, NotDeclared };
 LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameAST *nameAst)
 {
-    QTC_ASSERT(nameAst && nameAst->name, return LookupResult::None);
+    QTC_ASSERT(nameAst && nameAst->name, return LookupResult::NotDeclared);
 
     // Find the enclosing scope
     int line, column;
@@ -1955,7 +1955,7 @@ LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameA
     doc->translationUnit()->getTokenStartPosition(nameAst->firstToken(), &line, &column);
     Scope *scope = doc->scopeAt(line, column);
     if (!scope)
-        return LookupResult::None;
+        return LookupResult::NotDeclared;
 
     // Try to find the class/template definition
     const Name *name = nameAst->name;
@@ -1963,21 +1963,22 @@ LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameA
     foreach (const LookupItem &item, results) {
         if (Symbol *declaration = item.declaration()) {
             if (declaration->isClass())
-                return LookupResult::Definition;
+                return LookupResult::Declared;
             if (declaration->isForwardClassDeclaration())
-                return LookupResult::Declaration;
+                return LookupResult::ForwardDeclared;
             if (Template *templ = declaration->asTemplate()) {
                 if (Symbol *declaration = templ->declaration()) {
                     if (declaration->isClass())
-                        return LookupResult::Definition;
+                        return LookupResult::Declared;
                     if (declaration->isForwardClassDeclaration())
-                        return LookupResult::Declaration;
+                        return LookupResult::ForwardDeclared;
                 }
             }
+            return LookupResult::Declared;
         }
     }
 
-    return LookupResult::None;
+    return LookupResult::NotDeclared;
 }
 
 QString templateNameAsString(const TemplateNameId *templateName)
@@ -2049,7 +2050,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         return;
 
     const LookupResult lookupResult = lookUpDefinition(interface, nameAst);
-    if (lookupResult == LookupResult::Definition)
+    if (lookupResult == LookupResult::Declared)
         return;
 
     QString className;
@@ -2095,7 +2096,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             }
         }
 
-        if (lookupResult == LookupResult::None && indexItems.size() == 1) {
+        if (lookupResult == LookupResult::NotDeclared && indexItems.size() == 1) {
             QString qualifiedName = Overview().prettyName(nameAst->name);
             if (qualifiedName.startsWith("::"))
                 qualifiedName.remove(0, 2);
