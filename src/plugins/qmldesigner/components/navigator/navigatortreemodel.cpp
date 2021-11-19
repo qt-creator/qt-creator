@@ -320,7 +320,7 @@ QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, boo
             if (arg.hasAuxiliaryData(auxProp))
                 return arg.auxiliaryData(auxProp).toBool();
             const bool value = QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
-            arg.setAuxiliaryData(auxProp, value);
+            arg.setAuxiliaryDataWithoutLock(auxProp, value);
             return value;
         }));
     } else {
