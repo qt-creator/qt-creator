@@ -233,7 +233,7 @@
     select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol Typing.
 
-    To disable automatic indentation,  deselect the
+    To disable automatic indentation, deselect the
     \uicontrol {Enable automatic indentation} check box.
 
     You can specify how the indentation is decreased when you press
@@ -249,6 +249,10 @@
     \uicontrol {Tab key performs auto-indent} field. To only indent text when
     the cursor is located within leading white space, select \uicontrol {In
     Leading White Space}.
+
+    Your highlight definition file can contain definitions for both multi and
+    single line comments. To apply the single line comment definition when
+    commenting out a selection, select \uicontrol {Prefer single line comments}.
 
     \if defined(qtcreator)
     \section1 Specifying Settings for Content
