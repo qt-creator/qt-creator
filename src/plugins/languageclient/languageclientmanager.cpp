@@ -420,6 +420,8 @@ const QList<Client *> LanguageClientManager::clientsForProject(
 
 void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document, Client *client)
 {
+    if (!document)
+        return;
     Client *currentClient = clientForDocument(document);
     if (client == currentClient)
         return;
