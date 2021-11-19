@@ -892,14 +892,14 @@ bool isPositioner(const SelectionContext &context)
 
 bool layoutOptionVisible(const SelectionContext &context)
 {
-    return multiSelectionAndInBaseState(context)
+    return selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
             || singleSelectionAndInQtQuickLayout(context)
             || isLayout(context);
 }
 
 bool positionOptionVisible(const SelectionContext &context)
 {
-    return multiSelectionAndInBaseState(context)
+    return selectionCanBeLayouted(context)
             || isPositioner(context);
 }
 
