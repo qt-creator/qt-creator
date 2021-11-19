@@ -67,7 +67,7 @@
     \section2 File and Project Templates
 
     You can extend the wizards in \uicontrol File >
-    \uicontrol {New File or Project} with your own file and project templates by
+    \uicontrol {New File} or \uicontrol {New Project} with your own file and project templates by
     writing JSON definition files for them.
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}

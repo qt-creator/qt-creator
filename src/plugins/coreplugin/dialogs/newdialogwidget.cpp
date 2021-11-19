@@ -285,6 +285,8 @@ void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
         }
         addItem(kindItem, factory);
     }
+    if (filesKindItem->columnCount() == 0)
+        parentItem->removeRow(1);
     if (projectKindItem->columnCount() == 0)
         parentItem->removeRow(0);
 }

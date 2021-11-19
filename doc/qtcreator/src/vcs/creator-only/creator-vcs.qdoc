@@ -105,7 +105,7 @@
     in the submenu for the version control system.
 
     To import a project that is under version control, choose \uicontrol File >
-    \uicontrol {New File or Project} > \uicontrol {Project from Version Control}
+    \uicontrol {New Project} > \uicontrol {Project from Version Control}
     and select the version control system that you use. Follow the instructions
     of the wizard to import the project.
 

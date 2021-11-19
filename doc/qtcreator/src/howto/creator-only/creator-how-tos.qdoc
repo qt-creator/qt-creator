@@ -326,8 +326,8 @@
 
     \section1 Quickly write down notes somewhere
 
-    Select \uicontrol File > \uicontrol {New File or Project} >
-    \uicontrol {Files and Classes} > \uicontrol General > \uicontrol {Scratch Buffer}.
+    Select \uicontrol File > \uicontrol {New File} >
+    \uicontrol General > \uicontrol {Scratch Buffer}.
     Alternatively, \key {Ctrl+N} can be used to open this dialog, which is
     fully navigable via keyboard by using the up and down arrow keys and the
     tab key.

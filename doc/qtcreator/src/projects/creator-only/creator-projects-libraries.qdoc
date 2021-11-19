@@ -104,7 +104,7 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol Library > \uicontrol {C++ Library}.
 
         \li Select \uicontrol Choose to open the \uicontrol {Project Location}

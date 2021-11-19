@@ -81,7 +81,7 @@
     To create a Qt or Qt Quick test:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Qt test or a Qt Quick test.
@@ -126,7 +126,7 @@
     To create a Google test:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Google test.
@@ -180,7 +180,7 @@
     To create a Boost test:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Boost test.
@@ -221,7 +221,7 @@
     To create a basic Catch2 test:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Catch2 test.

@@ -77,8 +77,8 @@
     To create a custom QML type:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol Qt >
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol Qt >
             \uicontrol {QML File (Qt Quick 2)}.
         \li Select \uicontrol Choose to open the \uicontrol Location dialog.
         \li In the \uicontrol {File name} field, enter a name for the custom

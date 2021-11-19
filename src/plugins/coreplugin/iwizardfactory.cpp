@@ -54,7 +54,7 @@
     {Adding New Custom Wizards}.
 
     The wizard interface is a very thin abstraction for the wizards in
-    \uicontrol File > \uicontrol {New File or Project}.
+    \uicontrol File > \uicontrol {New File} and \uicontrol{New Project}.
     Basically, it defines what to show to the user in the wizard selection dialogs,
     and a hook that is called if the user selects the wizard.
 

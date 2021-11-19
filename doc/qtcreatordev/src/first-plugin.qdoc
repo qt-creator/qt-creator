@@ -48,7 +48,7 @@
     with.
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol Library > \uicontrol {Qt Creator Plugin} >
             \uicontrol Choose.
 

@@ -184,7 +184,7 @@
     To create an application and run it on a MCU board:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt for MCU)} >
             \uicontrol {MCU Support Application} > \uicontrol Choose.
         \li Follow the instructions of the wizard to create the project.

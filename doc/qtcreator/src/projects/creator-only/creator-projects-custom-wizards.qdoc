@@ -60,7 +60,7 @@
     directories \QC searches wizards from.
 
     \QC displays the wizards that it finds in the
-    \uicontrol {New File or Project} dialog. For each wizard, an icon (1), a
+    \uicontrol {New File} and \uicontrol {New Project} dialogs. For each wizard, an icon (1), a
     display name (2), and a description (3) are displayed.
 
     \image qtcreator-custom-wizard.png
@@ -126,7 +126,7 @@
             \li \uicontrol {Factory.Reset}
             \li Triggering this action makes \QC forget all wizard factories,
                 causing it to reload all wizard definitions when for example
-                opening \uicontrol File > \uicontrol {New File or Project}.
+                opening \uicontrol File > \uicontrol {New Project}.
                 This way you can avoid having to restart \QC for your changes to
                 a wizard definition to become visible.
     \endtable

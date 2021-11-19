@@ -226,7 +226,7 @@
                 This enables you to use \QC as a code editor.
     \endtable
 
-    To create a new project, select \uicontrol File > \uicontrol{New File or Project} and
+    To create a new project, select \uicontrol File > \uicontrol{New Project} and
     select the type of your project. The contents of the wizard dialogs depend
     on the project type and the \l{glossary-buildandrun-kit}{kits} that you select in the
     \uicontrol {Kit Selection} dialog. Follow the instructions of the wizard.
@@ -387,7 +387,7 @@
     platform-independent mechanism for storing files in the application's
     executable.
 
-    \image qtcreator-add-resource-wizard.png "New File or Project dialog"
+    \image qtcreator-add-resource-wizard.png "New File dialog"
 
     The wizard creates a resource collection file (.qrc) that you can manage in
     the resource editor.
@@ -472,7 +472,7 @@
     must specify that qmake uses the \c subdirs template to build the project.
 
     To create a root project, select \uicontrol File >
-    \uicontrol {New File or Project} > \uicontrol {Other Project} >
+    \uicontrol {New Project} > \uicontrol {Other Project} >
     \uicontrol {Subdirs Project} > \uicontrol Choose.
 
     On the \uicontrol Summary page, select \uicontrol {Finish & Add Subproject} to create
@@ -503,7 +503,7 @@
 
     If you use a wizard regularly, you can bind a custom keyboard shortcut to
     it. Triggering this keyboard shortcut will directly open the wizard without
-    the need to navigate to \uicontrol File > \uicontrol {New File or Project}.
+    the need to navigate to \uicontrol File > \uicontrol {New File} or \uicontrol {New Project}.
 
     Keyboard shortcuts for wizards can be set in \uicontrol Tools >
     \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard >

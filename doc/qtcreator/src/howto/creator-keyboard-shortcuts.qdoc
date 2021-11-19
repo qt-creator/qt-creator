@@ -143,7 +143,10 @@
             \li  Open file or project
             \li  Ctrl+O
         \row
-            \li  New file or project
+            \li  New project
+            \li  Ctrl+Shift+N
+        \row
+            \li  New file
             \li  Ctrl+N
         \row
             \li  Open in external editor

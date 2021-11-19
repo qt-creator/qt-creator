@@ -51,7 +51,7 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol{New File or Project} > \uicontrol{Import Project}
+        \li Select \uicontrol File > \uicontrol{New Project} > \uicontrol{Import Project}
             > \uicontrol{Import Existing Project}.
 
         \li In \uicontrol{Import Existing Project}, enter the project name

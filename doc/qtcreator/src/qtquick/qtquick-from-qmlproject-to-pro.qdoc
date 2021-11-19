@@ -99,7 +99,7 @@
     file:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application} >
             \uicontrol Choose.
         \li In the \uicontrol {Build system} field, select \l qmake as the build

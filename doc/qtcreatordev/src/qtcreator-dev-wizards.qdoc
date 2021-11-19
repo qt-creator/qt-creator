@@ -44,7 +44,7 @@
         the wizard does and what its UI looks like.
 
     \li Providing a set of parameters that determine how the wizard shows up
-        in the list of wizards in the  \uicontrol {New File or Project} dialog.
+        in the list of wizards in the  \uicontrol {New File} or \uicontrol {New Project} dialog.
 
         When deriving from Core::IWizardFactory, the constructor has to call
         the following setters provided by the base class:
@@ -103,7 +103,7 @@
     \section2 Setters and Getters of IWizardFactory
 
     The setters and getters listed below determine how the wizard shows up
-    in the list of wizards in the  \uicontrol {New File or Project} dialog.
+    in the list of wizards in the  \uicontrol {New File} or \uicontrol {New Project} dialog.
 
     \table
         \header
@@ -151,6 +151,6 @@
     \endtable
 
     All wizards that have the same category set will be grouped together in the
-    \uicontrol {New File or Project} dialog.
+    \uicontrol {New File} or \uicontrol {New Project} dialog.
 
 */

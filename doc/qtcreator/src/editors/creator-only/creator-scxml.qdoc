@@ -110,7 +110,7 @@
 
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New File} >
             \uicontrol {Files and Classes} > \uicontrol Modeling >
             \uicontrol {State Chart} > \uicontrol Choose to create an empty
             state chart and to open it in the SCXML editor.

@@ -36,7 +36,7 @@
 
     \title Creating Qt Quick Projects
 
-    \image qmldesigner-new-project.png "New File or Project dialog"
+    \image qmldesigner-new-project.png "New Project dialog"
 
     The following table lists the wizard templates for creating a new
     Qt Quick project from scratch.
@@ -90,7 +90,7 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}
             > \uicontrol Choose.
 
@@ -185,7 +185,7 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Other Project} > \uicontrol {Qt Quick UI Prototype}.
 
         \li Select \uicontrol Choose to open the \uicontrol {Project Location}

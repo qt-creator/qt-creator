@@ -61,7 +61,7 @@
         \row
             \li Add a new wizard.
             \li You can extend the wizards in \uicontrol File >
-                \uicontrol {New File or Project} with your own file
+                \uicontrol {New File} and \uicontrol {New Project} with your own file
                 and project templates. We recommend that you create
                 JSON-based wizards instead of implementing new
                 wizards in C++ code.

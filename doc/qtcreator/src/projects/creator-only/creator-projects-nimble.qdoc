@@ -71,8 +71,8 @@
     managed with Nimble:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Projects > \uicontrol {Non-Qt Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Non-Qt Project} >
             \uicontrol {Nimble Application}.
         \li Specify the name and location of the application.
         \li Select \uicontrol Next.

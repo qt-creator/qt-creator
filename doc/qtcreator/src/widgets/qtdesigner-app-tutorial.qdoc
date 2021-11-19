@@ -47,11 +47,11 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Widgets Application}
             > \uicontrol Choose.
 
-            \image qtcreator-new-qt-gui-application.png "New File or Project dialog"
+            \image qtcreator-new-qt-gui-application.png "New Project dialog"
 
             The \uicontrol{Introduction and Project Location} dialog opens.
 
@@ -301,10 +301,10 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New File} >
             \uicontrol Qt > \uicontrol {Qt Resource File} > \uicontrol Choose.
 
-            \image qtcreator-add-resource-wizard.png "New File or Project dialog"
+            \image qtcreator-add-resource-wizard.png "New File dialog"
 
             The \uicontrol {Choose the Location} dialog opens.
 
