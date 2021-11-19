@@ -111,7 +111,7 @@
     \section1 Using Project Wizards
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project}.
+        \li Select \uicontrol File > \uicontrol {New Project}.
         \li Select a wizard template, and then select \uicontrol Choose.
         \li In the \uicontrol Name field, enter a name for the project.
             Keep in mind that projects cannot be easily renamed later.
