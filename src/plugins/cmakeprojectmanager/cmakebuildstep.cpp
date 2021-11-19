@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/xcodebuildparser.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -285,6 +286,13 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     formatter->addLineParser(progressParser);
     cmakeParser->setSourceDirectory(project()->projectDirectory().toString());
     formatter->addLineParsers({cmakeParser, new GnuMakeParser});
+    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    OutputTaskParser *xcodeBuildParser = nullptr;
+    if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
+        xcodeBuildParser = new XcodebuildParser;
+        formatter->addLineParser(xcodeBuildParser);
+        progressParser->setRedirectionDetector(xcodeBuildParser);
+    }
     const QList<Utils::OutputLineParser *> additionalParsers = kit()->createOutputParsers();
     for (Utils::OutputLineParser * const p : additionalParsers)
         p->setRedirectionDetector(progressParser);

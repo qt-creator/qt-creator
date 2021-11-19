@@ -212,7 +212,8 @@
 
     \list 1
 
-        \li Select \uicontrol Change next to the
+        \li In \uicontrol Tools > \uicontrol Options > \uicontrol Kits, select
+            the kit, and then select \uicontrol Change next to the
             \uicontrol {Additional Qbs Profile Settings} field to open the
             \uicontrol {Custom Properties} dialog.
 

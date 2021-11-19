@@ -56,7 +56,7 @@ inline bool operator==(const ExpandedSemanticToken &t1, const ExpandedSemanticTo
             && t1.type == t2.type && t1.modifiers == t2.modifiers;
 }
 using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
-                                                 const QList<ExpandedSemanticToken> &, int)>;
+                                                 const QList<ExpandedSemanticToken> &, int, bool)>;
 
 namespace SemanticHighligtingSupport {
 
@@ -99,7 +99,7 @@ private:
     void handleSemanticTokensDelta(const Utils::FilePath &filePath,
                                    const LanguageServerProtocol::SemanticTokensDeltaResult &result,
                                    int documentVersion);
-    void highlight(const Utils::FilePath &filePath);
+    void highlight(const Utils::FilePath &filePath, bool force = false);
     void updateFormatHash();
     void currentEditorChanged();
     void onCurrentEditorChanged(Core::IEditor *editor);

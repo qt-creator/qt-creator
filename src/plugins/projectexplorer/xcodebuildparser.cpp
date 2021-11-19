@@ -54,13 +54,14 @@ XcodebuildParser::XcodebuildParser()
 
 OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, OutputFormat type)
 {
+    static const QStringList notesPatterns({"note: Build preparation complete",
+                                            "note: Building targets in parallel",
+                                            "note: Planning build"});
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
         QRegularExpressionMatch match = m_buildRe.match(line);
-        if (match.hasMatch()) {
+        if (match.hasMatch() || notesPatterns.contains(lne)) {
             m_xcodeBuildParserState = InXcodebuild;
-            m_lastTarget = match.captured(2);
-            m_lastProject = match.captured(3);
             return Status::Done;
         }
         if (m_xcodeBuildParserState == InXcodebuild
@@ -89,7 +90,6 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
     if (match.hasMatch()) {
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
-        // unfortunately the m_lastTarget, m_lastProject might not be in sync
         scheduleTask(CompileTask(Task::Error, tr("Xcodebuild failed.")), 1);
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild)
@@ -185,6 +185,19 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                                    "=== BUILD AGGREGATE TARGET Qt Preprocess OF PROJECT testQQ WITH THE DEFAULT CONFIGURATION (Debug) ===\n"
                                    "in xcodebuild\n"
                                    "=== BUILD TARGET testQQ OF PROJECT testQQ WITH THE DEFAULT CONFIGURATION (Debug) ===\n"
+                                   "in xcodebuild2\n"
+                                   "** BUILD SUCCEEDED **\n"
+                                   "outside2")
+            << OutputParserTester::STDOUT
+            << QString::fromLatin1("outside\noutside2\n") << QString::fromLatin1("in xcodebuild\nin xcodebuild2\n")
+            << Tasks()
+            << QString()
+            << XcodebuildParser::OutsideXcodebuild;
+    QTest::newRow("switch outside->in->outside (new)")
+            << XcodebuildParser::OutsideXcodebuild
+            << QString::fromLatin1("outside\n"
+                                   "note: Build preparation complete\n"
+                                   "in xcodebuild\n"
                                    "in xcodebuild2\n"
                                    "** BUILD SUCCEEDED **\n"
                                    "outside2")

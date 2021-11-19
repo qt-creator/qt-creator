@@ -101,7 +101,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     QObject::connect(&m_wizard, &WizardHandler::projectCanBeCreated, this, &QdsNewDialog::onProjectCanBeCreatedChanged);
 
     QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this]() {
-        QMessageBox::critical(m_dialog, "New project", "Failed to initialize data");
+        QMessageBox::critical(m_dialog, tr("New project"), tr("Failed to initialize data"));
         reject();
         delete this;
     });
@@ -193,6 +193,11 @@ void QdsNewDialog::setScreenSizeIndex(int index)
 {
     m_wizard.setScreenSizeIndex(index);
     m_qmlScreenSizeIndex = index;
+}
+
+int QdsNewDialog::screenSizeIndex() const
+{
+    return m_wizard.screenSizeIndex();
 }
 
 void QdsNewDialog::setTargetQtVersion(int index)

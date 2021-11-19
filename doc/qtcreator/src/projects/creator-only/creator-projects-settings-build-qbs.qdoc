@@ -48,6 +48,9 @@
     more information, see \l{Using the Performance Analyzer}. To use default
     settings, select \uicontrol {Leave at Default}.
 
+    For more information about the QML and Qt Quick options, see
+    \l{Compiling QML}.
+
     For more information about configuring Qbs, see \l{Setting Up Qbs}.
 
     \section1 Qbs Build Steps

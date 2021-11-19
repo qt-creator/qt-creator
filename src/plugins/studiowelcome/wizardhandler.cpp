@@ -174,6 +174,15 @@ void WizardHandler::setScreenSizeIndex(int index)
     cbfield->selectRow(index);
 }
 
+int WizardHandler::screenSizeIndex() const
+{
+    auto *field = m_detailsPage->jsonField("ScreenFactor");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return -1);
+
+    return cbfield->selectedRow();
+}
+
 void WizardHandler::setTargetQtVersionIndex(int index)
 {
     auto *field = m_detailsPage->jsonField("TargetQtVersion");

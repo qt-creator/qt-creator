@@ -57,6 +57,10 @@
 
     \image qtcreator-find-references-to-symbol-under-cursor.png "Search results for finding references to symbols"
 
+    To view the same results color-coded according to the access type, such as
+    read, write, or declaration, select \uicontrol Tools > \uicontrol {C++} >
+    \uicontrol {Find References with Access Type}.
+
     \note You can also select \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find} > \uicontrol {C++ Symbols} to search for
     classes, functions, enums, and declarations (including type aliases) either

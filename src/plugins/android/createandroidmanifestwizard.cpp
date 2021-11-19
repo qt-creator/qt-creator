@@ -227,7 +227,10 @@ void ChooseDirectoryPage::initializePage()
                           "The files in the Android package source directory are copied to the build directory's "
                           "Android directory and the default files are overwritten."));
 
-        m_androidPackageSourceDir->setFilePath(bti.projectFilePath / "android");
+        const FilePath projectPath = bti.projectFilePath.isFile()
+                ? bti.projectFilePath.parentDir() : bti.projectFilePath;
+
+        m_androidPackageSourceDir->setFilePath(projectPath / "android");
         connect(m_androidPackageSourceDir, &PathChooser::rawPathChanged,
                 this, &ChooseDirectoryPage::checkPackageSourceDir);
     } else {

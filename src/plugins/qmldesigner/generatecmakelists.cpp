@@ -40,6 +40,7 @@
 #include <utils/fileutils.h>
 
 #include <QAction>
+#include <QMessageBox>
 #include <QtConcurrent>
 #include <QRegularExpression>
 #include <QStringList>
@@ -56,13 +57,26 @@ bool operator==(const GeneratableFile &left, const GeneratableFile &right)
     return (left.filePath == right.filePath && left.content == right.content);
 }
 
+enum ProjectDirectoryError {
+    NoError = 0,
+    MissingContentDir = 1<<1,
+    MissingImportDir = 1<<2,
+    MissingCppDir = 1<<3,
+    MissingMainCMake = 1<<4,
+    MissingMainQml = 1<<5,
+    MissingAppMainQml = 1<<6,
+    MissingQmlModules = 1<<7,
+    MissingMainCpp = 1<<8,
+    MissingMainCppHeader = 1<<9
+};
+
 QVector<GeneratableFile> queuedFiles;
 
 void generateMenuEntry()
 {
     Core::ActionContainer *buildMenu =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    auto action = new QAction("Generate CMakeLists.txt files");
+    auto action = new QAction(QCoreApplication::tr("Generate CMakeLists.txt Files"));
     QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
     buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
@@ -76,8 +90,16 @@ void generateMenuEntry()
 
 void onGenerateCmakeLists()
 {
-    queuedFiles.clear();
     FilePath rootDir = ProjectExplorer::SessionManager::startupProject()->projectDirectory();
+
+    int projectDirErrors = isProjectCorrectlyFormed(rootDir);
+    if (projectDirErrors != NoError) {
+        showProjectDirErrorDialog(projectDirErrors);
+        if (isErrorFatal(projectDirErrors))
+            return;
+    }
+
+    queuedFiles.clear();
     GenerateCmakeLists::generateCmakes(rootDir);
     GenerateEntryPoints::generateMainCpp(rootDir);
     GenerateEntryPoints::generateMainQml(rootDir);
@@ -85,11 +107,121 @@ void onGenerateCmakeLists()
         writeQueuedFiles();
 }
 
+bool isErrorFatal(int error)
+{
+    if (error & MissingContentDir ||
+        error & MissingImportDir ||
+        error & MissingCppDir ||
+        error & MissingAppMainQml)
+        return true;
+
+    return false;
+}
+
+const char DIRNAME_CONTENT[] = "content";
+const char DIRNAME_IMPORT[] = "imports";
+const char DIRNAME_CPP[] = "src";
+
+const char FILENAME_CMAKELISTS[] = "CMakeLists.txt";
+const char FILENAME_APPMAINQML[] = "App.qml";
+const char FILENAME_MAINQML[] = "main.qml";
+const char FILENAME_MAINCPP[] = "main.cpp";
+const char FILENAME_MAINCPP_HEADER[] = "import_qml_plugins.h";
+const char FILENAME_MODULES[] = "qmlmodules";
+
+int isProjectCorrectlyFormed(const FilePath &rootDir)
+{
+    int errors = NoError;
+
+    if (!rootDir.pathAppended(DIRNAME_CONTENT).exists())
+        errors |= MissingContentDir;
+    if (!rootDir.pathAppended(DIRNAME_CONTENT).pathAppended(FILENAME_APPMAINQML).exists())
+        errors |= MissingAppMainQml;
+
+    if (!rootDir.pathAppended(DIRNAME_IMPORT).exists())
+        errors |= MissingImportDir;
+
+    if (!rootDir.pathAppended(DIRNAME_CPP).exists())
+        errors |= MissingCppDir;
+    if (!rootDir.pathAppended(DIRNAME_CPP).pathAppended(FILENAME_MAINCPP).exists())
+        errors |= MissingMainCpp;
+    if (!rootDir.pathAppended(DIRNAME_CPP).pathAppended(FILENAME_MAINCPP_HEADER).exists())
+        errors |= MissingMainCppHeader;
+
+    if (!rootDir.pathAppended(FILENAME_CMAKELISTS).exists())
+        errors |= MissingMainCMake;
+    if (!rootDir.pathAppended(FILENAME_MODULES).exists())
+        errors |= MissingQmlModules;
+    if (!rootDir.pathAppended(FILENAME_MAINQML).exists())
+        errors |= MissingMainQml;
+
+    return errors;
+}
+
 void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles)
 {
     QtConcurrent::blockingFilter(queuedFiles, [confirmedFiles](const GeneratableFile &qf) {
         return confirmedFiles.contains(qf.filePath);
     });
+}
+
+const QString WARNING_MISSING_STRUCTURE_FATAL = QCoreApplication::tr(
+                                                    "The project is not properly structured for automatically generating CMake files.\n\nAborting process.\n\nThe following files or directories are missing:\n\n%1");
+const QString WARNING_MISSING_STRUCTURE_NONFATAL = QCoreApplication::tr(
+                                                    "The project is not properly structured for automatically generating CMake files.\n\nThe following files will be created:\n\n%1");
+const QString WARNING_TITLE_FATAL = QCoreApplication::tr(
+                                        "Cannot Generate CMake Files");
+const QString WARNING_TITLE_NONFATAL = QCoreApplication::tr(
+                                            "Problems with Generating CMake Files");
+
+void showProjectDirErrorDialog(int error)
+{
+    QString fatalList;
+    QString nonFatalList;
+
+    if (error & MissingContentDir)
+        fatalList.append(QString(DIRNAME_CONTENT) + "\n");
+    if (error & MissingAppMainQml)
+        fatalList.append(QString(DIRNAME_CONTENT)
+                         + QDir::separator()
+                         + QString(FILENAME_APPMAINQML)
+                         + "\n");
+    if (error & MissingCppDir)
+        fatalList.append(QString(DIRNAME_CPP) + "\n");
+    if (error & MissingImportDir)
+        fatalList.append(QString(DIRNAME_IMPORT) + "\n");
+
+    if (error & MissingMainCMake)
+        nonFatalList.append(QString(FILENAME_CMAKELISTS) + "\n");
+    if (error & MissingQmlModules)
+        nonFatalList.append(QString(FILENAME_MODULES) + "\n");
+
+    if (error & MissingMainQml)
+        nonFatalList.append(QString(FILENAME_MAINQML) + "\n");
+
+    if (error & MissingMainCpp)
+        nonFatalList.append(QString(DIRNAME_CPP)
+                            + QDir::separator()
+                            + QString(FILENAME_MAINCPP)
+                            + "\n");
+    if (error & MissingMainCppHeader)
+        nonFatalList.append(QString(DIRNAME_CPP)
+                            + QDir::separator()
+                            + QString(FILENAME_MAINCPP_HEADER)
+                            + "\n");
+
+    bool isFatal = isErrorFatal(error);
+
+    if (isFatal) {
+        QMessageBox::critical(nullptr,
+                              WARNING_TITLE_FATAL,
+                              WARNING_MISSING_STRUCTURE_FATAL.arg(fatalList + nonFatalList));
+    }
+    else {
+        QMessageBox::warning(nullptr,
+                              WARNING_TITLE_NONFATAL,
+                              WARNING_MISSING_STRUCTURE_NONFATAL.arg(nonFatalList));
+    }
 }
 
 bool showConfirmationDialog(const Utils::FilePath &rootDir)
@@ -114,6 +246,7 @@ bool queueFile(const FilePath &filePath, const QString &fileContent)
     GeneratableFile file;
     file.filePath = filePath;
     file.content = fileContent;
+    file.fileExists = filePath.exists();
     queuedFiles.append(file);
 
     return true;
@@ -159,9 +292,10 @@ QStringList moduleNames;
 const QDir::Filters FILES_ONLY = QDir::Files;
 const QDir::Filters DIRS_ONLY = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
 
-const char CMAKEFILENAME[] = "CMakeLists.txt";
 const char QMLDIRFILENAME[] = "qmldir";
-const char MODULEFILENAME[] = "qmlmodules";
+
+const char MAIN_CMAKEFILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmaincmakelists.tpl";
+const char QMLMODULES_FILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmodules.tpl";
 
 bool generateCmakes(const FilePath &rootDir)
 {
@@ -177,9 +311,6 @@ bool generateCmakes(const FilePath &rootDir)
     return true;
 }
 
-const char MAIN_CMAKEFILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmaincmakelists.tpl";
-const char QMLMODULES_FILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmodules.tpl";
-
 void generateMainCmake(const FilePath &rootDir)
 {
     //TODO startupProject() may be a terrible way to try to get "current project". It's not necessarily the same thing at all.
@@ -194,7 +325,7 @@ void generateMainCmake(const FilePath &rootDir)
         modulesAsPlugins.append("    " + moduleName + "plugin\n");
 
     QString moduleFileContent = GenerateCmake::readTemplate(QMLMODULES_FILE_TEMPLATE_PATH).arg(appName).arg(modulesAsPlugins);
-    GenerateCmake::queueFile(rootDir.pathAppended(MODULEFILENAME), moduleFileContent);
+    GenerateCmake::queueFile(rootDir.pathAppended(GenerateCmake::FILENAME_MODULES), moduleFileContent);
 }
 
 const char DO_NOT_EDIT_FILE_COMMENT[] = "### This file is automatically generated by Qt Design Studio.\n### Do not change\n\n";
@@ -336,14 +467,14 @@ QStringList getDirectoryTreeResources(const FilePath &dir)
 
 void queueCmakeFile(const FilePath &dir, const QString &content)
 {
-    FilePath filePath = dir.pathAppended(CMAKEFILENAME);
+    FilePath filePath = dir.pathAppended(GenerateCmake::FILENAME_CMAKELISTS);
     GenerateCmake::queueFile(filePath, content);
 }
 
 bool isFileBlacklisted(const QString &fileName)
 {
     return (!fileName.compare(QMLDIRFILENAME) ||
-            !fileName.compare(CMAKEFILENAME));
+            !fileName.compare(GenerateCmake::FILENAME_CMAKELISTS));
 }
 
 }
@@ -358,18 +489,15 @@ bool generateEntryPointFiles(const FilePath &dir)
 }
 
 const char MAIN_CPPFILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmaincpp.tpl";
-const char MAIN_CPPFILE_DIR[] = "src";
-const char MAIN_CPPFILE_NAME[] = "main.cpp";
 const char MAIN_CPPFILE_HEADER_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmaincppheader.tpl";
-const char MAIN_CPPFILE_HEADER_NAME[] = "import_qml_plugins.h";
 const char MAIN_CPPFILE_HEADER_PLUGIN_LINE[] = "Q_IMPORT_QML_PLUGIN(%1)\n";
 
 bool generateMainCpp(const FilePath &dir)
 {
-    FilePath srcDir = dir.pathAppended(MAIN_CPPFILE_DIR);
+    FilePath srcDir = dir.pathAppended(GenerateCmake::DIRNAME_CPP);
 
     QString cppContent = GenerateCmake::readTemplate(MAIN_CPPFILE_TEMPLATE_PATH);
-    FilePath cppFilePath = srcDir.pathAppended(MAIN_CPPFILE_NAME);
+    FilePath cppFilePath = srcDir.pathAppended(GenerateCmake::FILENAME_MAINCPP);
     bool cppOk = GenerateCmake::queueFile(cppFilePath, cppContent);
 
     QString modulesAsPlugins;
@@ -379,19 +507,18 @@ bool generateMainCpp(const FilePath &dir)
 
     QString headerContent = GenerateCmake::readTemplate(MAIN_CPPFILE_HEADER_TEMPLATE_PATH)
             .arg(modulesAsPlugins);
-    FilePath headerFilePath = srcDir.pathAppended(MAIN_CPPFILE_HEADER_NAME);
+    FilePath headerFilePath = srcDir.pathAppended(GenerateCmake::FILENAME_MAINCPP_HEADER);
     bool headerOk = GenerateCmake::queueFile(headerFilePath, headerContent);
 
     return cppOk && headerOk;
 }
 
-const char MAIN_QMLFILE_PATH[] = ":/boilerplatetemplates/qmlprojectmainqml.tpl";
-const char MAIN_QMLFILE_NAME[] = "main.qml";
+const char MAIN_QMLFILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmainqml.tpl";
 
 bool generateMainQml(const FilePath &dir)
 {
-    QString content = GenerateCmake::readTemplate(MAIN_QMLFILE_PATH);
-    FilePath filePath = dir.pathAppended(MAIN_QMLFILE_NAME);
+    QString content = GenerateCmake::readTemplate(MAIN_QMLFILE_TEMPLATE_PATH);
+    FilePath filePath = dir.pathAppended(GenerateCmake::FILENAME_MAINQML);
     return GenerateCmake::queueFile(filePath, content);
 }
 

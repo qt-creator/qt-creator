@@ -222,8 +222,8 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         bool skipDeploy = false;
         const Kit *kit = SessionManager::startupTarget()->kit();
         if (SessionManager::startupTarget() && kit)
-            skipDeploy = kit->
-                         supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE);
+            skipDeploy = kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
+                || DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(

@@ -46,18 +46,16 @@ public:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
     using PathCache = QmlDesigner::SourcePathCache<ProjectStorage, NonLockingMutex>;
 
-    QmlDocumentParser(PathCache &pathCache, ProjectStorage &storage)
-        : m_pathCache{pathCache}
-        , m_storage{storage}
+    QmlDocumentParser(ProjectStorage &storage)
+        : m_storage{storage}
     {}
 
-    virtual Storage::Type parse(const QString &sourceContent,
-                                Storage::Imports &imports,
-                                SourceId sourceId,
-                                SourceContextId sourceContextId);
+    Storage::Type parse(const QString &sourceContent,
+                        Storage::Imports &imports,
+                        SourceId sourceId,
+                        const QString &directoryPath);
 
 private:
-    PathCache &m_pathCache;
     ProjectStorage &m_storage;
 };
 } // namespace QmlDesigner

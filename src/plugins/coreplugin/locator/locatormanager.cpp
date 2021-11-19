@@ -54,6 +54,9 @@ static LocatorWidget *locatorWidget()
 {
     static QPointer<LocatorPopup> popup;
     QWidget *window = ICore::dialogParent()->window();
+    // if that is a popup, try to find a better one
+    if (window->windowFlags() & Qt::Popup && window->parentWidget())
+        window = window->parentWidget()->window();
     if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
         if (popup)
             popup->close();

@@ -32,6 +32,7 @@
 
 #include <qmldom/qqmldomtop_p.h>
 
+#include <filesystem>
 #include <QDateTime>
 
 namespace QmlDesigner {
@@ -53,30 +54,28 @@ Storage::Version convertVersion(QmlDom::Version version)
 
 Utils::PathString convertUri(const QString &uri)
 {
-    Utils::PathString path{QStringView{uri.begin() + 7, uri.end()}};
-    if (path.endsWith("/."))
-        return path;
-    if (path.endsWith("/")) {
-        path += ".";
-        return path;
-    }
+    QStringView localPath{uri.begin() + 7, uri.end()};
 
-    path += "/.";
-    return path;
+    std::filesystem::path path{
+        std::u16string_view{localPath.utf16(), static_cast<std::size_t>(localPath.size())}};
+
+    auto x = std::filesystem::weakly_canonical(path);
+
+    return Utils::PathString{x.generic_string()};
 }
 
 void addImports(Storage::Imports &imports,
                 const QList<QmlDom::Import> &qmlImports,
                 SourceId sourceId,
-                SourceContextId sourceContextId,
-                QmlDocumentParser::PathCache &pathCache,
+                const QString &directoryPath,
                 QmlDocumentParser::ProjectStorage &storage)
 {
     for (const QmlDom::Import &qmlImport : qmlImports) {
         if (qmlImport.uri == u"file://.") {
-            auto moduleId = storage.moduleId(pathCache.sourceContextPath(sourceContextId));
+            auto moduleId = storage.moduleId(Utils::PathString{directoryPath});
             imports.emplace_back(moduleId, Storage::Version{}, sourceId);
         } else if (qmlImport.uri.startsWith(u"file://")) {
+            auto x = convertUri(qmlImport.uri);
             auto moduleId = storage.moduleId(convertUri(qmlImport.uri));
             imports.emplace_back(moduleId, Storage::Version{}, sourceId);
         } else {
@@ -144,7 +143,7 @@ void addEnumeraton(Storage::Type &type, const QmlDom::Component &component)
 Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
                                        Storage::Imports &imports,
                                        SourceId sourceId,
-                                       SourceContextId sourceContextId)
+                                       const QString &directoryPath)
 {
     Storage::Type type;
 
@@ -155,9 +154,11 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
 
     QmlDom::DomItem items;
 
+    QString filePath{directoryPath + "/foo.qml"};
+
     environment.loadFile(
-        {},
-        {},
+        filePath,
+        filePath,
         sourceContent,
         QDateTime{},
         [&](QmlDom::Path, const QmlDom::DomItem &, const QmlDom::DomItem &newItems) {
@@ -185,7 +186,7 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
 
     type.prototype = Storage::ImportedType{Utils::SmallString{qmlObject.name()}};
 
-    addImports(imports, qmlFile->imports(), sourceId, sourceContextId, m_pathCache, m_storage);
+    addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
 
     addPropertyDeclarations(type, qmlObject);
     addFunctionAndSignalDeclarations(type, qmlObject);

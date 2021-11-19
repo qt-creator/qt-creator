@@ -44,6 +44,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/infobar.h>
+#include <utils/qtcprocess.h>
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -91,13 +92,14 @@ QmlProjectPlugin::~QmlProjectPlugin()
 
 void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
 {
-    const QString &qdsPath = QmlProjectPlugin::qdsInstallationEntry();
+    const Utils::FilePath &qdsPath = QmlProjectPlugin::qdsInstallationEntry();
     bool qdsStarted = false;
     //-a and -client arguments help to append project to open design studio application
     if (Utils::HostOsInfo::isMacHost())
-        qdsStarted = QProcess::startDetached("/usr/bin/open", {"-a", qdsPath, fileName.toString()});
+        qdsStarted = Utils::QtcProcess::startDetached(
+            {"/usr/bin/open", {"-a", qdsPath.path(), fileName.toString()}});
     else
-        qdsStarted = QProcess::startDetached(qdsPath, {"-client", fileName.toString()});
+        qdsStarted = Utils::QtcProcess::startDetached({qdsPath, {"-client", fileName.toString()}});
 
     if (!qdsStarted) {
         QMessageBox::warning(Core::ICore::dialogParent(),
@@ -106,17 +108,17 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     }
 }
 
-QString QmlProjectPlugin::qdsInstallationEntry()
+Utils::FilePath QmlProjectPlugin::qdsInstallationEntry()
 {
     QSettings *settings = Core::ICore::settings();
     const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
 
-    return settings->value(qdsInstallationEntry).toString();
+    return Utils::FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
 }
 
 bool QmlProjectPlugin::qdsInstallationExists()
 {
-    return Utils::FilePath::fromString(qdsInstallationEntry()).exists();
+    return qdsInstallationEntry().exists();
 }
 
 Utils::FilePath findQmlProject(const Utils::FilePath &folder)

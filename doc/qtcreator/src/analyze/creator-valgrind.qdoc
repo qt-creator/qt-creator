@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -76,9 +76,22 @@
     Click a line to view where a memory leak
     occurred and a stack trace that shows what caused it.
 
+    As an alternative to collecting data, you can select \inlineimage open.png
+    to load an external log file in XML format into the \uicontrol Memcheck
+    view.
+
     \image qtcreator-valgrind-memcheck.png "Memcheck view"
 
     Move the mouse on a row to view more information about the function.
+
+    To move between rows, select \inlineimage prev.png
+    or \inlineimage next.png
+    .
+
+    To filter the results, select \inlineimage filtericon.png
+    , and then select the types of issues to display in the view. You
+    can view and hide definite and possible memory leaks, uninitialized
+    values, invalid calls to \c free(), and external errors.
 
     For more information about using Memcheck, see
     \l{http://valgrind.org/docs/manual/quick-start.html#quick-start.mcrun}
@@ -89,6 +102,13 @@
     You can specify analyzer settings either globally for all projects or
     separately for each project in the \l{Specifying Run Settings}{run settings}
     of the project.
+
+    To specify global settings for Valgrind, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Analyzer. The \uicontrol
+    {Memcheck Memory Analysis Options} group contains Memcheck options.
+
+    In \uicontrol {Extra Memcheck arguments}, specify additional arguments
+    for launching the executable.
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
@@ -160,26 +180,7 @@
     You can run Callgrind on a remote Linux machine or device from any
     development machine.
 
-    To analyze applications:
-
-    \list 1
-
-        \li In the \uicontrol Projects mode, select a release build configuration.
-
-        \li Select \uicontrol Debug to open the \uicontrol Debug mode, and then
-            select \uicontrol Callgrind on the toolbar.
-
-        \li Select the
-            \inlineimage qtcreator-analyze-start-button.png "Start button"
-            button to start the application.
-
-        \li Use the application to analyze it.
-
-        \li Select the \inlineimage stop_small.png "Stop button"
-            button to view the results of the analysis in the \uicontrol Profile
-            view.
-
-    \endlist
+    \section1 Building Apps for Profiling
 
     Callgrind records the call history of functions that are executed when the
     application is run. It collects the number of instructions that are
@@ -187,10 +188,6 @@
     caller and callee between functions, and the numbers of such calls. You can
     also use cache simulation or branch prediction to gather information about
     the runtime behavior of an application.
-
-    Double-click a function to view information about the calling functions in
-    the \uicontrol Callers view and about the called functions in the \uicontrol Callees
-    view.
 
     Since the run-time characteristics of debug and release
     \l{glossary-build-config}{build configurations}
@@ -207,12 +204,84 @@
     options for GCC are: \c{-g -O2}. It is
     advisable to use such a setup for Callgrind profiling.
 
+    \section1 Collecting Data
 
-    \image qtcreator-valgrind-callgrind.png "Profile view"
+    To analyze applications:
 
-    To view the data in KCachegrind, select the \inlineimage kcachegrind.png
-    (\uicontrol {Open Results in KCachegrind}) button on the toolbar. \QC
-    launches KCachegrind and loads the data into it for visualization.
+    \list 1
+
+        \li In the \uicontrol Projects mode, select a release build configuration.
+
+        \li Select \uicontrol Debug to open the \uicontrol Debug mode, and then
+            select \uicontrol Callgrind on the toolbar.
+
+            \image qtcreator-valgrind-callgrind-toolbar.png "Callgrind view toolbar"
+
+        \li Select the
+            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            button to start the application.
+
+        \li Use the application to analyze it.
+
+        \li Select the \inlineimage stop_small.png "Stop button"
+            button to view the results of the analysis in the
+            \uicontrol Functions view.
+
+    \endlist
+
+    Select \inlineimage icons/pause-icon.png
+    to speed up program execution during profiling by pausing event
+    logging. No events are counted while logging is paused.
+
+    Select \inlineimage reload_gray.png
+    to reset all event counters.
+
+    Select \inlineimage clean_pane_small.png
+    to discard all collected data.
+
+    Select \inlineimage kcachegrind.png
+    to view the data in KCachegrind. \QC launches KCachegrind
+    and loads the data into it for visualization.
+
+    \section1 Viewing Collected Data
+
+    The results of the analysis are displayed in the \uicontrol Callgrind views.
+    You can detach views and move them around. To revert the changes, select
+    \uicontrol Views > \uicontrol {Reset to Default Layout}.
+
+    Select \uicontrol Views to show and hide views and view
+    titles. The \uicontrol Visualization view is hidden by
+    default. Select \inlineimage redo.png
+    to refresh the data displayed in it when it is shown.
+
+    As an alternative to collecting data, you can select \inlineimage open.png
+    to load an external log file into the \uicontrol Callgrind views.
+
+    \image qtcreator-valgrind-callgrind.png "Callgrind views"
+
+    Enter a string in the \uicontrol Filter field to filter the results.
+
+    Move the cursor on a function in the \uicontrol Functions view for more
+    information about it.
+
+    Double-click a function to view information about the calling functions in
+    the \uicontrol Callers view and about the called functions in the
+    \uicontrol Callees view.
+
+    Select \inlineimage prev.png
+    or \inlineimage next.png
+    To move between functions in the \uicontrol Callee view.
+
+    To set the cost format, select \uicontrol $. You can view absolute
+    or relative costs, as well as relative costs to parent. Select
+    \inlineimage filtericon.png
+    to view only profiling info that originated from the project.
+
+    To properly handle recursive or circular function calls, enable cycle
+    detection by selecting \uicontrol O.
+
+    To remove template parameter lists when displaying function names, select
+    \uicontrol <>.
 
     \section1 Selecting Profiling Options
 
@@ -220,7 +289,7 @@
     separately for each project in the \l{Specifying Run Settings}{run settings}
     of the project.
 
-    To specify settings for Valgrind, select \uicontrol Tools >
+    To specify global settings for Valgrind, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Analyzer. The \uicontrol
     {Callgrind Profiling Options} group contains Callgrind options.
 
@@ -229,12 +298,21 @@
     In the \uicontrol {KCachegrind executable} field, enter the path to the
     KCachegrind executable to launch.
 
-    In the \uicontrol {Result view: Minimum event cost}
-    field, limit the amount of results the profiler gives you to increase
-    profiler performance.
+    In \uicontrol {Extra Callgrind arguments}, specify additional arguments
+    for launching the executable.
 
-    You can collect information about the system call times and the number of
-    global bus events of the event type \c Ge that are executed.
+    In the \uicontrol {Result view: Minimum event cost} and
+    \uicontrol {Visualization: Minimum event cost} fields,
+    limit the amount of results the profiler presents and
+    visualizes to increase profiler performance.
+
+    To show additional information about events in tooltips, select
+    \uicontrol {Show additional information for events in tooltips}.
+
+    To collect information about the system call times, select
+    \uicontrol {Collect system call time}. To collect the number of
+    global bus events of the event type \c Ge that are executed,
+    select \uicontrol {Collect global bus events}.
 
     \section2 Enabling Full Cache Simulation
 

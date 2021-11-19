@@ -134,6 +134,7 @@ GridView {
 
         width: DialogValues.projectItemWidth
         height: DialogValues.projectItemHeight
+        background: null
 
         function fontIconCode(index) {
             var code = projectModel.fontIconCode(index)
