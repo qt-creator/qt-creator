@@ -45,7 +45,6 @@ add_qtc_plugin(QmlDesigner
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h
-  SKIP_DEBUG_CMAKE_FILE_CHECK
   EXTRA_TRANSLATIONS
     "${PROJECT_SOURCE_DIR}/share/qtcreator/qmldesigner"
   PROPERTIES
@@ -74,7 +73,6 @@ add_qtc_plugin(assetexporterplugin
     assetexporterplugin/dumpers/textnodedumper.h assetexporterplugin/dumpers/textnodedumper.cpp
     assetexporterplugin/assetexporterplugin.qrc
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-  SKIP_DEBUG_CMAKE_FILE_CHECK
 )
 
 add_qtc_plugin(componentsplugin
@@ -90,7 +88,6 @@ add_qtc_plugin(componentsplugin
     componentsplugin/entertabdesigneraction.cpp componentsplugin/entertabdesigneraction.h
     componentsplugin/tabviewindexmodel.cpp componentsplugin/tabviewindexmodel.h
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-  SKIP_DEBUG_CMAKE_FILE_CHECK
 )
 
 add_qtc_plugin(qmlpreviewplugin
@@ -101,7 +98,6 @@ add_qtc_plugin(qmlpreviewplugin
     qmlpreviewplugin/qmlpreviewplugin.cpp qmlpreviewplugin/qmlpreviewplugin.h
     qmlpreviewplugin/qmlpreviewplugin.qrc
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-  SKIP_DEBUG_CMAKE_FILE_CHECK
 )
 
 add_qtc_plugin(qtquickplugin
@@ -112,7 +108,6 @@ add_qtc_plugin(qtquickplugin
     qtquickplugin/qtquickplugin.cpp qtquickplugin/qtquickplugin.h
     qtquickplugin/qtquickplugin.qrc
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-  SKIP_DEBUG_CMAKE_FILE_CHECK
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -548,13 +543,3 @@ extend_qtc_plugin(QmlDesigner
     connectsignaldialog.cpp connectsignaldialog.h
     shortcutwidget.cpp shortcutwidget.h
 )
-
-# Do the file comparison at the end, due to all the extend_qtc_plugin calls
-if (WITH_DEBUG_CMAKE)
-  foreach(plugin QmlDesigner componentsplugin qtquickplugin)
-    unset(plugin_sources)
-    get_target_property(plugin_sources ${plugin} SOURCES)
-    list(APPEND QmlDesignerSources ${plugin_sources})
-  endforeach()
-  compare_sources_with_existing_disk_files(QmlDesigner "${QmlDesignerSources}")
-endif()

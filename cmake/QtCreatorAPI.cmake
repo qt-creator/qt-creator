@@ -169,8 +169,6 @@ function(add_qtc_library name)
     set(_arg_SOURCES ${prefixed_sources})
   endif()
 
-  compare_sources_with_existing_disk_files(${name} "${_arg_SOURCES}")
-
   set(library_type SHARED)
   if (_arg_STATIC)
     set(library_type STATIC)
@@ -316,7 +314,7 @@ endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
+    "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
     ${ARGN}
@@ -372,10 +370,6 @@ function(add_qtc_plugin target_name)
   endif()
   if (NOT _arg_COMPAT_VERSION)
     set(_arg_COMPAT_VERSION ${_arg_VERSION})
-  endif()
-
-  if (NOT _arg_SKIP_DEBUG_CMAKE_FILE_CHECK)
-    compare_sources_with_existing_disk_files(${target_name} "${_arg_SOURCES}")
   endif()
 
   # Generate dependency list:

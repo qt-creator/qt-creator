@@ -31,7 +31,7 @@ qtc_link_with_qt()
 
 option(WITH_TESTS "Build Tests" OFF)
 add_feature_info("Build tests" ${WITH_TESTS} "")
-option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality (e.g. source file disk checking)" OFF)
+option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality" OFF)
 option(SHOW_BUILD_DATE "Show build date in about dialog" OFF)
 option(WITH_SANITIZE "Build with sanitizer enabled" OFF)
 set(SANITIZE_FLAGS "" CACHE STRING "Sets flags for sanitizer compilation flags used in Debug builds")
