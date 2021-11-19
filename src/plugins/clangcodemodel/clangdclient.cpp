@@ -1594,14 +1594,20 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
 
     for (const Location &loc : locations)
         refData->fileData[loc.uri()].rangesAndLineText << qMakePair(loc.range(), QString());
-    for (auto it = refData->fileData.begin(); it != refData->fileData.end(); ++it) {
-        const QStringList lines = SymbolSupport::getFileContents(it.key().toFilePath());
+    for (auto it = refData->fileData.begin(); it != refData->fileData.end();) {
+        const Utils::FilePath filePath = it.key().toFilePath();
+        if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
+            it = refData->fileData.erase(it);
+            continue;
+        }
+        const QStringList lines = SymbolSupport::getFileContents(filePath);
         it->fileContent = lines.join('\n');
         for (auto &rangeWithText : it.value().rangesAndLineText) {
             const int lineNo = rangeWithText.first.start().line();
             if (lineNo >= 0 && lineNo < lines.size())
                 rangeWithText.second = lines.at(lineNo);
         }
+        ++it;
     }
 
     qCDebug(clangdLog) << "document count is" << refData->fileData.size();
