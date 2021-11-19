@@ -35,6 +35,7 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -424,9 +425,14 @@ bool AndroidQmlPreviewWorker::startPreviewApp()
     const QDir destDir(apkInfo()->uploadDir);
     const QString qmlrcPath = destDir.filePath(m_uploadInfo.uploadPackage.baseName()
                                                + packageSuffix);
-    const QStringList command{"am", "start",
-                              "-n", apkInfo()->activityId,
-                              "-e", "extraappparams", QLatin1String(qmlrcPath.toUtf8().toBase64())};
+    const QStringList envVars = m_rc->aspect<EnvironmentAspect>()->environment().toStringList();
+
+    const QStringList command {
+        "am", "start",
+        "-n", apkInfo()->activityId,
+        "-e", "extraappparams", QLatin1String(qmlrcPath.toUtf8().toBase64()),
+        "-e", "extraenvvars", QLatin1String(envVars.join('\t').toUtf8().toBase64())
+    };
     const SdkToolResult result = runAdbShellCommand(command);
     if (result.success())
         appendMessage(tr("%1 is running.").arg(apkInfo()->name), NormalMessageFormat);
