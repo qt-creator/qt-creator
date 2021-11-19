@@ -24,30 +24,32 @@
 ****************************************************************************/
 
 /*!
-    \previouspage creator-build-settings-incredibuild.html
-    \page creator-build-settings-conan.html
-    \nextpage creator-run-settings.html
+    \page creator-qtquickdesigner-plugin.html
+    \previouspage quick-projects.html
+    \nextpage quick-converting-ui-projects.html
 
-    \title Conan Build Configuration
+    \title Using \QMLD
 
-    You can specify build steps for Conan.
+    We recommend that you use a separate visual editor,
+    \l{Qt Design Studio Manual}{\QDS} to open and edit
+    \l{UI Files}{UI files} (.ui.qml).
 
-    For more information about configuring Conan, see \l{Setting Up Conan}.
+    However, you can enable the \QMLD plugin in \QC for editing
+    UI files. The functionality is restricted and not all \QDS
+    features are supported.
 
-    \section1 Conan Build Steps
+    To use \QMLD, switch to the \uicontrol Design mode when a ui.qml or or .qml
+    file is open.
 
-    To configure a project to be built using the Conan package manager, select
-    \uicontrol {Add Build Step} > \uicontrol {Run Conan Install}.
+    For more information about using \QMLD, see \l{Qt Design Studio Manual}.
 
-    \image qtcreator-build-steps-conan-install.png "Conan Install build step"
+    \section1 Enabling the \QMLD Plugin
 
-    In the \uicontrol {Conan file} field, enter the location of the
-    \e conanfile.txt file for the project.
+    To enable the \QMLD plugin:
 
-    The \uicontrol {Conan install} field displays the effective
-    build command. You can add arguments for the command in the
-    \uicontrol {Additional arguments} field.
-
-    Select \uicontrol {Build missing} to build packages from source if binary
-    packages are not found.
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Qt Quick} > \uicontrol {QmlDesigner}.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \endlist
 */

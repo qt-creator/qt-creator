@@ -80,7 +80,7 @@ public slots:
     void setProjectName(const QString &name);
     void setDescription(const QString &description);
     void setUseAsDefaultPath(bool u);
-    void setProjectNameRegularExpression(const QRegularExpression &regEx);
+    void setProjectNameRegularExpression(const QRegularExpression &regEx, const QString &userErrorMessage);
 
 private:
     void slotChanged();

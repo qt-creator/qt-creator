@@ -54,24 +54,27 @@
 
     \list
 
-        \li GNU Compiler Collection (GCC) is a compiler for Linux and
-            \macos.
-
-        \li \MinGW (Minimalist GNU for Windows) is a native software port of GCC
-            and GNU Binutils for use in the development of native Microsoft
-            Windows applications on Windows. \MinGW is distributed together with
-            \QC and Qt for Windows.
-
-        \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
-            Only the GCC-compatible variant, available for Linux and \macos,
-            is currently supported by \QC.
-
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and \macos.
 
         \li \l{https://clang.llvm.org/docs/UsersManual.html#clang-cl}{clang-cl}
             is an alternative command-line interface to Clang that is compatible
             with the Visual C++ compiler, \c cl.exe.
+
+        \li GNU Compiler Collection (GCC) is a compiler for Linux and
+            \macos.
+
+        \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
+            Only the GCC-compatible variant, available for Linux and \macos,
+            is currently supported by \QC.
+
+        \li \MinGW (Minimalist GNU for Windows) is a native software port of GCC
+            and GNU Binutils for use in the development of native Microsoft
+            Windows applications on Windows. \MinGW is distributed together with
+            \QC and Qt for Windows.
+
+        \li MSVC (Microsoft Visual C++ Compiler) is a C++ compiler that is
+            installed with Microsoft Visual Studio.
 
         \li Nim is the Nim Compiler for Windows, Linux, and \macos.
 
@@ -100,6 +103,9 @@
 
     \endlist
 
+    The emscripten compiler is tool chain for compiling to
+    \l{Building Applications for the Web}{WebAssembly}.
+
     \section1 Redetecting Compilers
 
     When \QC finds an x86_64 GCC compiler, it sets up an instance for the native
@@ -118,30 +124,36 @@
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
-    For QCC, also specify the path to the QNX Software Development Platform (SDP).
+    For QCC, also specify the path to the QNX Software Development Platform
+    (SDP) in the \uicontrol {SPD path} field.
 
     To enable Microsoft Visual C++ Compilers (MSVC) and clang-cl to find system
     headers, libraries, and the linker, \QC executes them inside a command
     prompt where the environment has been set up using \c {vcvarsall.bat}. For
     these compilers, you also specify the path to the script that sets up the
-    command prompt.
+    command prompt in the \uicontrol Initialization field.
 
     You specify the compiler to use for each kit in \uicontrol Tools >
     \uicontrol Options > \uicontrol Kits.
 
-    To add C or C++ compilers:
+    To add a C or C++ compiler, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Kits > \uicontrol Compilers > \uicontrol Add. Select a compiler
+    in the list, and then select \uicontrol C or \uicontrol C++.
 
-    \list 1
+    To clone the selected compiler, select \uicontrol Clone.
 
-        \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol Kits > \uicontrol Compilers > \uicontrol Add,
-            then select a compiler in the list, and then select \uicontrol C or
-            \uicontrol C++ to add a C or C++ compiler.
+    The settings to specify depend on the compiler:
 
-            To clone the selected compiler, select \uicontrol Clone.
+    \list
 
         \li In the \uicontrol Name field, enter a name for the compiler to
             identify it in \QC.
+
+            \image qtcreator-options-cpp-compilers.png "Adding a clang-cl compiler"
+
+        \li In the \uicontrol Initialization field, select the
+            \c {vcvarsall.bat} file for setting up the command
+            prompt to use.
 
         \li In the \uicontrol {Compiler path} field, enter the path to the
             directory where the compiler is located.
@@ -154,7 +166,16 @@
             the linker that specify the architecture on the target platform.
             The linker flags are used only when building with Qbs.
 
-            The other settings to specify depend on the compiler.
+            \image qtcreator-options-clang-compilers.png "Adding a Clang compiler"
+
+        \li In the \uicontrol {Parent toolchain} field, select a \MinGW
+            compiler, which is needed because Clang does not have its own
+            standard library.
+
+        \li In the \uicontrol {SPD path} field, specify the path to the QNX
+            Software Development Platform (SDP).
+
+            \image qtcreator-options-qcc-compilers.png "Adding a QCC compiler"
 
         \li In the \uicontrol ABI field, provide an identification for the
             target architecture. This is used to warn about ABI mismatches

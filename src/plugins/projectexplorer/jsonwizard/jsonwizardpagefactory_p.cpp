@@ -195,6 +195,7 @@ bool KitsPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 // --------------------------------------------------------------------
 
 static const char KEY_PROJECT_NAME_VALIDATOR[] = "projectNameValidator";
+static const char KEY_PROJECT_NAME_VALIDATOR_USER_MESSAGE[] = "trProjectNameValidatorUserMessage";
 
 ProjectPageFactory::ProjectPageFactory()
 {
@@ -215,10 +216,13 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Utils::Id type
     page->setDescription(wizard->expander()->expand(description));
     QString projectNameValidator
             = tmp.value(QLatin1String(KEY_PROJECT_NAME_VALIDATOR)).toString();
+    QString projectNameValidatorUserMessage
+            = JsonWizardFactory::localizedString(tmp.value(QLatin1String(KEY_PROJECT_NAME_VALIDATOR_USER_MESSAGE)));
+
     if (!projectNameValidator.isEmpty()) {
         QRegularExpression regularExpression(projectNameValidator);
         if (regularExpression.isValid())
-            page->setProjectNameRegularExpression(regularExpression);
+            page->setProjectNameRegularExpression(regularExpression, projectNameValidatorUserMessage);
     }
 
     return page;

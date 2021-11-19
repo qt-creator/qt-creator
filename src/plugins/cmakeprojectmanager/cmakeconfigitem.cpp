@@ -159,7 +159,6 @@ CMakeConfigItem::Type CMakeConfigItem::typeStringToType(const QByteArray &type)
     if (type == "INTERNAL")
         return CMakeConfigItem::INTERNAL;
 
-    QTC_CHECK(type == "UNINITIALIZED");
     return CMakeConfigItem::UNINITIALIZED;
 }
 

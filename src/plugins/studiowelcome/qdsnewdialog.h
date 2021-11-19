@@ -66,6 +66,7 @@ public:
 
     Q_INVOKABLE QString currentProjectQmlPath() const;
     Q_INVOKABLE void setScreenSizeIndex(int index); // called when ComboBox item is "activated"
+    Q_INVOKABLE int screenSizeIndex() const;
     Q_INVOKABLE void setTargetQtVersion(int index);
 
     Q_INVOKABLE QString chooseProjectLocation();

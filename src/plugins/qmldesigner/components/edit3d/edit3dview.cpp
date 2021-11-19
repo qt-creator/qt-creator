@@ -108,6 +108,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString orientationKey = QStringLiteral("globalOrientation");
     const QString editLightKey   = QStringLiteral("showEditLight");
     const QString gridKey        = QStringLiteral("showGrid");
+    const QString particlesPlayKey    = QStringLiteral("particlePlay");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -151,6 +152,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showGridAction->action()->setChecked(sceneState[gridKey].toBool());
     else
         m_showGridAction->action()->setChecked(false);
+
+    if (sceneState.contains(particlesPlayKey))
+        m_particlesPlayAction->action()->setChecked(sceneState[particlesPlayKey].toBool());
+    else
+        m_particlesPlayAction->action()->setChecked(true);
 }
 
 void Edit3DView::modelAttached(Model *model)

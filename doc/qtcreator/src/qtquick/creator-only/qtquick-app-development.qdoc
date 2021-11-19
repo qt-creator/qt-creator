@@ -61,6 +61,11 @@
 
             You can use wizards to create Qt Quick projects.
 
+        \li \l {Using \QMLD}
+
+            You can enable the \QMLD plugin to visually edit
+            \l{UI Files}{UI files} (.ui.qml).
+
         \li \l {Converting UI Projects to Applications}
 
             Qt Quick UI projects (.qmlproject) are useful for creating user
@@ -73,7 +78,7 @@
             If you switch between \QC and \QDS or cooperate with designers on
             a project, you might encounter .ui.qml files. They are intended to
             be edited in \QDS only, so you need to be careful not to break the
-            code.
+            code. To visually edit the files in \QC, enable the \QMLD plugin.
 
         \li \l{Using QML Modules with Plugins}
 

@@ -261,7 +261,7 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
 void SemanticTokenSupport::rehighlight()
 {
     for (const Utils::FilePath &filePath : m_tokens.keys())
-        highlight(filePath);
+        highlight(filePath, true);
 }
 
 void addModifiers(int key,
@@ -369,6 +369,8 @@ void SemanticTokenSupport::setAdditionalTokenTypeStyles(
 
 SemanticRequestTypes SemanticTokenSupport::supportedSemanticRequests(TextDocument *document) const
 {
+    if (!m_client->documentOpen(document))
+        return SemanticRequestType::None;
     auto supportedRequests = [&](const QJsonObject &options) -> SemanticRequestTypes {
         TextDocumentRegistrationOptions docOptions(options);
         if (docOptions.isValid()
@@ -472,7 +474,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
     highlight(filePath);
 }
 
-void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
+void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force)
 {
     TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
     if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
@@ -515,7 +517,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath)
             }
         }
 
-        m_tokensHandler(doc, expandedTokens, versionedTokens.version);
+        m_tokensHandler(doc, expandedTokens, versionedTokens.version, force);
         return;
     }
     int line = 1;

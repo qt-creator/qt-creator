@@ -1096,7 +1096,7 @@ public:
                                const QString &type = {});
 
     void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
-                              int version);
+                              int version, bool force);
 
     enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
     using TextDocOrFile = const Utils::variant<const TextDocument *, Utils::FilePath>;
@@ -1294,8 +1294,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
     setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
-                                    int version) {
-        d->handleSemanticTokens(doc, tokens, version);
+                                    int version, bool force) {
+        d->handleSemanticTokens(doc, tokens, version, force);
     });
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const DocumentUri &uri) {
@@ -2659,7 +2659,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 //      in the semantic tokens nor in the AST.
 void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                                                  const QList<ExpandedSemanticToken> &tokens,
-                                                 int version)
+                                                 int version, bool force)
 {
     SubtaskTimer t(highlightingTimer);
     qCDebug(clangdLog) << "handling LSP tokens" << doc->filePath() << tokens.size();
@@ -2670,7 +2670,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
     }
     const auto previous = previousTokens.find(doc);
     if (previous != previousTokens.end()) {
-        if (previous->first == tokens && previous->second == version) {
+        if (!force && previous->first == tokens && previous->second == version) {
             qCDebug(clangdLogHighlight) << "tokens and version same as last time; nothing to do";
             return;
         }
@@ -3669,12 +3669,11 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
     if (m_future.isCanceled())
         return;
     switch (node.fileStatus(m_filePath)) {
-    case AstNode::FileStatus::Foreign:
-        return;
     case AstNode::FileStatus::Ours:
     case AstNode::FileStatus::Unknown:
         collectFromNode(node);
         [[fallthrough]];
+    case AstNode::FileStatus::Foreign:
     case ClangCodeModel::Internal::AstNode::FileStatus::Mixed: {
         const auto children = node.children();
         if (!children)

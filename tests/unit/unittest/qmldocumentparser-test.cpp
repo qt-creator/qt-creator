@@ -129,17 +129,17 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
-    QmlDesigner::QmlDocumentParser parser{sourcePathCache, storage};
+    QmlDesigner::QmlDocumentParser parser{storage};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("path/to/qmlfile.qml")};
     SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
-    SourceId directorySourceId{sourcePathCache.sourceId("path/to/.")};
-    ModuleId directoryModuleId{&directorySourceId};
+    QString directoryPath{"/path/to"};
+    ModuleId directoryModuleId{storage.moduleId("/path/to")};
 };
 
 TEST_F(QmlDocumentParser, Prototype)
 {
-    auto type = parser.parse("Example{}", imports, qmlFileSourceId, qmlFileSourceContextId);
+    auto type = parser.parse("Example{}", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type, HasPrototype(Storage::ImportedType("Example")));
 }
@@ -150,7 +150,7 @@ TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
     auto type = parser.parse("import Example as Example\n Example.Item{}",
                              imports,
                              qmlFileSourceId,
-                             qmlFileSourceContextId);
+                             directoryPath);
 
     ASSERT_THAT(type,
                 HasPrototype(Storage::QualifiedImportedType(
@@ -159,10 +159,7 @@ TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
 
 TEST_F(QmlDocumentParser, Properties)
 {
-    auto type = parser.parse("Example{\n property int foo\n}",
-                             imports,
-                             qmlFileSourceId,
-                             qmlFileSourceContextId);
+    auto type = parser.parse("Example{\n property int foo\n}", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
@@ -170,16 +167,18 @@ TEST_F(QmlDocumentParser, Properties)
                                                            Storage::PropertyDeclarationTraits::None)));
 }
 
-TEST_F(QmlDocumentParser, DISABLED_Imports)
+TEST_F(QmlDocumentParser, Imports)
 {
-    ModuleId fooDirectoryModuleId = storage.moduleId("path/to/foo/.");
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
     ModuleId qtQmlModuleId = storage.moduleId("QtQml");
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
-    auto type = parser.parse("import QtQuick\n import \"../foo\"\nExample{}",
+    auto type = parser.parse(R"(import QtQuick
+                                import "../foo"
+                                Example{})",
                              imports,
                              qmlFileSourceId,
-                             qmlFileSourceContextId);
+                             directoryPath);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -196,7 +195,7 @@ TEST_F(QmlDocumentParser, Functions)
         "Example{\n function someScript(x, y) {}\n function otherFunction() {}\n}",
         imports,
         qmlFileSourceId,
-        qmlFileSourceContextId);
+        directoryPath);
 
     ASSERT_THAT(type.functionDeclarations,
                 UnorderedElementsAre(AllOf(IsFunctionDeclaration("otherFunction", ""),
@@ -212,7 +211,7 @@ TEST_F(QmlDocumentParser, Signals)
     auto type = parser.parse("Example{\n signal someSignal(int x, real y)\n signal signal2()\n}",
                              imports,
                              qmlFileSourceId,
-                             qmlFileSourceContextId);
+                             directoryPath);
 
     ASSERT_THAT(type.signalDeclarations,
                 UnorderedElementsAre(AllOf(IsSignalDeclaration("someSignal"),
@@ -229,7 +228,7 @@ TEST_F(QmlDocumentParser, Enumeration)
                              "State{On,Off}\n}",
                              imports,
                              qmlFileSourceId,
-                             qmlFileSourceContextId);
+                             directoryPath);
 
     ASSERT_THAT(type.enumerationDeclarations,
                 UnorderedElementsAre(

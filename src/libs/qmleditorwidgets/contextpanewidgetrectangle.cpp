@@ -209,7 +209,7 @@ void ContextPaneWidgetRectangle::onColorNoneClicked()
     if (ui->colorNone->isChecked()) {
         ui->colorGradient->setEnabled(isGradientEditingEnabled());
         emit removeAndChangeProperty(QLatin1String("gradient"), QLatin1String("color"),
-                                     QLatin1String("transparent"), true);
+                                     QLatin1String("\"transparent\""), true);
     }
     ui->colorGradient->setEnabled(isGradientEditingEnabled());
 }

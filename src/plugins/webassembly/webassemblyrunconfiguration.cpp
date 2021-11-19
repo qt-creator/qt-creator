@@ -55,14 +55,20 @@ static FilePath pythonInterpreter(const Environment &env)
     return {};
 }
 
-static CommandLine emrunCommand(Target *target, const QString &browser, const QString &port)
+static FilePath htmlFileInDir(const FilePath &dir)
 {
-    if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+    const FilePaths htmlFiles = dir.dirEntries(QStringList("*.html"), QDir::Files);
+    return htmlFiles.isEmpty() ? FilePath() : htmlFiles.first();
+}
+
+static CommandLine emrunCommand(const RunConfiguration *rc, const QString &browser,
+                                const QString &port)
+{
+    if (BuildConfiguration *bc = rc->target()->activeBuildConfiguration()) {
         const Environment env = bc->environment();
         const FilePath emrun = env.searchInPath("emrun");
         const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
-        const FilePath html =
-                bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
+        const FilePath html = htmlFileInDir(bc->buildDirectory());
 
         return CommandLine(pythonInterpreter(env), {
                 emrunPy.path(),
@@ -91,8 +97,8 @@ public:
         effectiveEmrunCall->setDisplayStyle(StringAspect::TextEditDisplay);
         effectiveEmrunCall->setReadOnly(true);
 
-        setUpdater([target, effectiveEmrunCall, webBrowserAspect] {
-            effectiveEmrunCall->setValue(emrunCommand(target,
+        setUpdater([this, effectiveEmrunCall, webBrowserAspect] {
+            effectiveEmrunCall->setValue(emrunCommand(this,
                                                       webBrowserAspect->currentBrowser(),
                                                       "<port>").toUserOutput());
         });
@@ -122,7 +128,7 @@ public:
 
         setStarter([this, runControl, portsGatherer] {
             Runnable r;
-            r.command = emrunCommand(runControl->target(),
+            r.command = emrunCommand(runControl->runConfiguration(),
                                      runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
                                      QString::number(portsGatherer->findEndPoint().port()));
             SimpleTargetRunner::doStart(r, {});
