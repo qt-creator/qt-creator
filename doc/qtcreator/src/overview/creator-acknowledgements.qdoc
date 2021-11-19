@@ -367,7 +367,7 @@
 
             Integrated with patches from
             \list
-            \li \l{http://code.qt.io/cgit/clang/clang-tools-extra.git}
+            \li \l{https://code.qt.io/cgit/clang/clazy.git}
             \endlist
 
         \li \b{LLVM/Clang}
@@ -381,8 +381,7 @@
 
             With backported/additional patches from
             \list
-            \li \l{http://code.qt.io/cgit/clang/llvm.git}
-            \li \l{http://code.qt.io/cgit/clang/clang.git}
+            \li \l{https://code.qt.io/cgit/clang/llvm-project.git}
             \endlist
 
         \li \b{Optional}

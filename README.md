@@ -43,7 +43,7 @@ Prerequisites:
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
 * On Mac OS X: latest Xcode
 * On Linux: GCC 7 or later
-* LLVM/Clang 10 or later (optional, LLVM/Clang 11 is recommended.
+* LLVM/Clang 10 or later (optional, LLVM/Clang 13 is recommended.
   See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
   get LLVM.
   The ClangFormat, ClangPchManager and ClangRefactoring use the LLVM C++ API.
@@ -150,7 +150,7 @@ like Qt and LLVM, additionally run
 ## Getting LLVM/Clang for the Clang Code Model
 
 The Clang Code Model depends on the LLVM/Clang libraries. The currently
-supported LLVM/Clang version is 8.0.
+recommended LLVM/Clang version is 13.0.
 
 ### Prebuilt LLVM/Clang packages
 
@@ -178,7 +178,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
    1. Clone LLVM/Clang and checkout a suitable branch
 
-          git clone -b release_110-based --recursive https://code.qt.io/clang/llvm-project.git
+          git clone -b release_130-based --recursive https://code.qt.io/clang/llvm-project.git
 
    2. Build and install LLVM/Clang
 
@@ -210,7 +210,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
 The ClangFormat plugin depends on the additional patch
 
-    https://code.qt.io/cgit/clang/llvm-project.git/commit/?h=release_100-based&id=9b992a0f7f160dd6c75f20a4dcfcf7c60a4894df
+    https://code.qt.io/cgit/clang/llvm-project.git/commit/?h=release_130-based&id=42879d1f355fde391ef46b96a659afeb4ad7814a
 
 While the plugin builds without it, it might not be fully functional.
 
@@ -299,7 +299,7 @@ we thank the authors who made this possible:
   Distributed under GNU LIBRARY GENERAL PUBLIC LICENSE Version 2 (LGPL2).
 
   Integrated with patches from
-  http://code.qt.io/cgit/clang/clang-tools-extra.git/.
+  https://code.qt.io/cgit/clang/clazy.git/.
 
 ### LLVM/Clang
 
@@ -310,7 +310,7 @@ we thank the authors who made this possible:
   Distributed under the Apache 2.0 License with LLVM exceptions,
   see https://github.com/llvm/llvm-project/blob/main/clang/LICENSE.TXT
 
-  With backported/additional patches from https://code.qt.io/clang/llvm-project.git
+  With backported/additional patches from https://code.qt.io/cgit/clang/llvm-project.git
 
 ### Optional
 
