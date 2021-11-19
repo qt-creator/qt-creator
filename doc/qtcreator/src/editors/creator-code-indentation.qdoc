@@ -104,6 +104,9 @@
 
     \list 1
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++}.
+            \note The settings displayed here depend on which plugins you have
+            enabled. If the Clang Format plugin is enabled, you'll see the
+            settings described in \l{Automatic Formatting and Indentation}.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
             \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
