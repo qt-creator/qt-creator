@@ -364,13 +364,20 @@ jobs:
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
         message("::set-output name=timestamp::${current_date}")
 
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" github_workspace)
+        include(${github_workspace}/cmake/QtCreatorIDEBranding.cmake)
+        string(REPLACE "." ";" IDE_VERSION_LIST ${IDE_VERSION_DISPLAY})
+        list(GET IDE_VERSION_LIST 0 IDE_VERSION_MAJOR)
+        message("::set-output name=ide_major_version::${IDE_VERSION_MAJOR}")
+
+
     - name: ccache cache files
       uses: actions/cache@v1.1.0
       with:
         path: .ccache
-        key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.ide_major_version }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-          ${{ matrix.config.name }}-ccache-
+          ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.ide_major_version }}
 
     - name: Install system libs
       shell: cmake -P {0}
@@ -415,10 +422,10 @@ jobs:
         set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
         set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
         set(ENV{CCACHE_COMPRESS} "true")
-        set(ENV{CCACHE_COMPRESSLEVEL} "6")
-        set(ENV{CCACHE_MAXSIZE} "800M")
+        set(ENV{CCACHE_COMPRESSLEVEL} "9")
+        set(ENV{CCACHE_MAXSIZE} "400M")
         if ("${{ matrix.config.cxx }}" STREQUAL "cl")
-          set(ENV{CCACHE_MAXSIZE} "1200M")
+          set(ENV{CCACHE_MAXSIZE} "600M")
         endif()
 
         execute_process(
@@ -491,10 +498,10 @@ jobs:
         set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
         set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
         set(ENV{CCACHE_COMPRESS} "true")
-        set(ENV{CCACHE_COMPRESSLEVEL} "6")
-        set(ENV{CCACHE_MAXSIZE} "800M")
+        set(ENV{CCACHE_COMPRESSLEVEL} "9")
+        set(ENV{CCACHE_MAXSIZE} "400M")
         if ("${{ matrix.config.cxx }}" STREQUAL "cl")
-          set(ENV{CCACHE_MAXSIZE} "1200M")
+          set(ENV{CCACHE_MAXSIZE} "600M")
         endif()
         execute_process(COMMAND ccache -s)
 
