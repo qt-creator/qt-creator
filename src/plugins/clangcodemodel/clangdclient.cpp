@@ -2938,8 +2938,12 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
 
     const auto kind = static_cast<CompletionItemKind::Kind>(
                 item.kind().value_or(CompletionItemKind::Text));
+    const bool isMacroCall = kind == CompletionItemKind::Text && item.label().contains('(')
+            && item.label().contains(')'); // Heuristic
     const bool isFunctionLike = kind == CompletionItemKind::Function
-            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor;
+            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
+            || isMacroCall;
+
     QString rawInsertText = edit->newText();
 
     // Some preparation for our magic involving (non-)insertion of parentheses and
@@ -2981,8 +2985,8 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
         }
         if (!abandonParen)
             abandonParen = isAtUsingDeclaration(manipulator, rangeStart);
-        if (!abandonParen && matchPreviousWord(manipulator, cursor, detail)) // function definition?
-            abandonParen = true;
+        if (!abandonParen && !isMacroCall && matchPreviousWord(manipulator, cursor, detail))
+            abandonParen = true; // function definition
         if (!abandonParen) {
             if (completionSettings.m_spaceAfterFunctionName)
                 extraCharacters += ' ';
