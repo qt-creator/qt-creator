@@ -36,7 +36,7 @@ public:
     QString name() const override;
     unsigned capabilities() const override;
     void fetch(const QString &url) override;
-    void paste(const QString &, ContentType, int, bool, const QString &, const QString &, const QString &) override;
+    void paste(const QString &, ContentType, int, const QString &, const QString &, const QString &) override;
 
 private:
     void fetchFinished();

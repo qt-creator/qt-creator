@@ -63,7 +63,7 @@ void UrlOpenProtocol::fetchFinished()
     emit fetchDone(title, content, error);
 }
 
-void UrlOpenProtocol::paste(const QString &, ContentType, int, bool,
-                            const QString &, const QString &, const QString &)
+void UrlOpenProtocol::paste(const QString &, ContentType, int, const QString &,
+                            const QString &, const QString &)
 {
 }

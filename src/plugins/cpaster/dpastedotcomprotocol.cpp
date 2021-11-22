@@ -105,13 +105,11 @@ void DPasteDotComProtocol::paste(
         const QString &text,
         ContentType ct,
         int expiryDays,
-        bool publicPaste,
         const QString &username,
         const QString &comment,
         const QString &description
         )
 {
-    Q_UNUSED(publicPaste)
     Q_UNUSED(comment)
 
     // See http://dpaste.com/api/v2/

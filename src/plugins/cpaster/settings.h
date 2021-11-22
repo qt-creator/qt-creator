@@ -43,7 +43,6 @@ public:
     Utils::IntegerAspect expiryDays;
     Utils::BoolAspect copyToClipboard;
     Utils::BoolAspect displayOutput;
-    Utils::BoolAspect publicPaste;
 };
 
 class SettingsPage final : public Core::IOptionsPage

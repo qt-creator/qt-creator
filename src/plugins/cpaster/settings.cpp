@@ -69,10 +69,6 @@ Settings::Settings()
     displayOutput.setSettingsKey("DisplayOutput");
     displayOutput.setDefaultValue(true);
     displayOutput.setLabelText(tr("Display Output pane after sending a post"));
-
-    registerAspect(&publicPaste);
-    publicPaste.setSettingsKey("DisplayOutput");
-    publicPaste.setLabelText(tr("Make pasted content public by default"));
 }
 
 // SettingsPage
@@ -98,7 +94,6 @@ SettingsPage::SettingsPage(Settings *settings)
             },
             s.copyToClipboard,
             s.displayOutput,
-            s.publicPaste,
             Stretch()
         }.attachTo(widget);
     });

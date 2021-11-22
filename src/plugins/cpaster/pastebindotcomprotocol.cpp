@@ -103,7 +103,6 @@ void PasteBinDotComProtocol::paste(
         const QString &text,
         ContentType ct,
         int expiryDays,
-        bool publicPaste,
         const QString & /* username */, // Not used unless registered user
         const QString &comment,
         const QString &description
@@ -122,7 +121,6 @@ void PasteBinDotComProtocol::paste(
     pasteData += format(ct);
     pasteData += "api_paste_name="; // Title or name.
     pasteData += QUrl::toPercentEncoding(description);
-    pasteData.append("&api_paste_private=").append(QByteArray(publicPaste ? "0" : "1"));
     pasteData += "&api_paste_code=";
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
     // fire request

@@ -180,7 +180,6 @@ void FileShareProtocol::paste(
         const QString &text,
         ContentType /* ct */,
         int /* expiryDays */,
-        bool /* publicPaste */,
         const QString &username,
         const QString & /* comment */,
         const QString &description

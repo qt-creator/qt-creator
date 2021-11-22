@@ -59,9 +59,6 @@
         \li Select the \uicontrol {Display Output pane after sending a post}
             check box to display the URL in the \uicontrol {General Messages}
             output pane when you paste a post.
-        \li Select the \uicontrol {Make pasted content public by default}
-            check box to make the posted URL get listed on the service's website,
-            rather than only being available via the direct link.
     \endlist
 
     Select \uicontrol Fileshare to specify the path to a shared network drive.

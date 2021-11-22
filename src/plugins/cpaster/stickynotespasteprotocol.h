@@ -39,7 +39,6 @@ public:
     void paste(const QString &text,
                ContentType ct = Text,
                int expiryDays = 1,
-               bool publicPaste = false,
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString()) override;

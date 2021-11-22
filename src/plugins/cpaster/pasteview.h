@@ -52,10 +52,10 @@ public:
 
     // Show up with checkable list of diff chunks.
     int show(const QString &user, const QString &description, const QString &comment,
-             int expiryDays, bool makePublic, const FileDataList &parts);
+             int expiryDays, const FileDataList &parts);
     // Show up with editable plain text.
     int show(const QString &user, const QString &description, const QString &comment,
-             int expiryDays, bool makePublic, const QString &content);
+             int expiryDays, const QString &content);
 
     void setProtocol(const QString &protocol);
 
@@ -65,9 +65,7 @@ public:
     QString content() const;
     int protocol() const;
     void setExpiryDays(int d);
-    void setMakePublic(bool p);
     int expiryDays() const;
-    bool makePublic() const;
 
     void accept() override;
 
