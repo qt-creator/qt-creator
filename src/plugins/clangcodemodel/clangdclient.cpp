@@ -2489,8 +2489,10 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 while (!firstChildTree.isEmpty()) {
                     const AstNode n = firstChildTree.takeFirst();
                     const QString detail = n.detail().value_or(QString());
-                    if (detail.startsWith("operator"))
-                        return !detail.contains('=');
+                    if (detail.startsWith("operator")) {
+                        return !detail.contains('=') && !detail.contains("++")
+                                && !detail.contains("--");
+                    }
                     firstChildTree << n.children().value_or(QList<AstNode>());
                 }
                 return true;

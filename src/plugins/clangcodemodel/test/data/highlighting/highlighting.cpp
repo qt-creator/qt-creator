@@ -853,3 +853,9 @@ void useString()
     const char *s = USE_STRING("TEXT");
     s = USE_STRING_FROM_HEADER("TEXT");
 }
+
+void useOperator()
+{
+    struct S { S& operator++(); } s;
+    ++s;
+}
