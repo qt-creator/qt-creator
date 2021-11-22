@@ -23,39 +23,43 @@
 **
 ****************************************************************************/
 
-
-#ifndef CMAKEGENERATORDIALOG_H
-#define CMAKEGENERATORDIALOG_H
-
-#include "checkablefilelistmodel.h"
+#ifndef CHECKABLEFILELISTMODEL_H
+#define CHECKABLEFILELISTMODEL_H
 
 #include <utils/fileutils.h>
-
-#include <QDialog>
-
+#include <QStandardItemModel>
 
 namespace QmlDesigner {
-namespace GenerateCmake {
 
-class CMakeGeneratorDialogModel : public CheckableFileListModel
+class CheckableStandardItem : public QStandardItem
 {
 public:
-    CMakeGeneratorDialogModel(const Utils::FilePath &rootDir, const Utils::FilePaths &files, QObject *parent = nullptr);
-protected:
-    virtual bool checkedByDefault(const Utils::FilePath &file) const;
-};
-
-class CmakeGeneratorDialog : public QDialog
-{
-public:
-    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
-    Utils::FilePaths getFilePaths();
+    explicit CheckableStandardItem(const QString &text = QString(), bool checked = false);
+    bool isChecked() const;
+    void setChecked(bool checked);
+    int type() const;
 
 private:
-    CheckableFileListModel *model;
+    bool checked;
 };
 
-}
-}
+class CheckableFileListModel : public QStandardItemModel
+{
+public:
+    CheckableFileListModel(const Utils::FilePath &rootDir,
+                           const Utils::FilePaths &files,
+                           bool checkedByDefault = false,
+                           QObject *parent = nullptr);
+    QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QList<CheckableStandardItem*> checkedItems() const;
 
-#endif // CMAKEGENERATORDIALOG_H
+protected:
+    Utils::FilePath rootDir;
+};
+
+} //QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::CheckableStandardItem)
+
+#endif // CHECKABLEFILELISTMODEL_H
