@@ -202,6 +202,18 @@ void updateCodeActionRefactoringMarker(Client *client,
     }
 }
 
+static const char clientExtrasName[] = "__qtcreator_client_extras__";
+
+class ClientExtras : public QObject
+{
+public:
+    ClientExtras(QObject *parent) : QObject(parent) { setObjectName(clientExtrasName); };
+
+    QPointer<QAction> m_popupAction;
+    QPointer<Client> m_client;
+    QPointer<QAction> m_outlineAction;
+};
+
 void updateEditorToolBar(Core::IEditor *editor)
 {
     auto *textEditor = qobject_cast<BaseTextEditor *>(editor);
@@ -214,70 +226,67 @@ void updateEditorToolBar(Core::IEditor *editor)
     TextDocument *document = textEditor->textDocument();
     Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
 
-    static QHash<QWidget *, QAction *> actions;
-
-    if (actions.contains(widget)) {
-        auto action = actions[widget];
+    ClientExtras *extras = widget->findChild<ClientExtras *>(clientExtrasName,
+                                                             Qt::FindDirectChildrenOnly);
+    if (!extras) {
+        if (!client)
+            return;
+        extras = new ClientExtras(widget);
+    }
+    if (extras->m_popupAction) {
         if (client) {
-            action->setText(client->name());
+            extras->m_popupAction->setText(client->name());
         } else {
-            widget->toolBar()->removeAction(action);
-            actions.remove(widget);
-            delete action;
+            widget->toolBar()->removeAction(extras->m_popupAction);
+            delete extras->m_popupAction;
         }
     } else if (client) {
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
-                                         Utils::Theme::IconsBaseColor}})
-                               .icon();
-        actions[widget] = widget->toolBar()->addAction(
-            icon, client->name(), [document]() {
-                auto menu = new QMenu;
-                auto clientsGroup = new QActionGroup(menu);
-                clientsGroup->setExclusive(true);
-                for (auto client : LanguageClientManager::clientsSupportingDocument(document)) {
-                    auto action = clientsGroup->addAction(client->name());
-                    auto reopen = [action, client = QPointer<Client>(client), document]() {
-                        if (!client)
-                            return;
-                        LanguageClientManager::openDocumentWithClient(document, client);
-                        action->setChecked(true);
-                    };
-                    action->setCheckable(true);
-                    action->setChecked(client == LanguageClientManager::clientForDocument(document));
-                    QObject::connect(action, &QAction::triggered, reopen);
-                }
-                menu->addActions(clientsGroup->actions());
-                menu->addAction("Inspect Language Clients", []() {
-                    LanguageClientManager::showInspector();
-                });
-                menu->addAction("Manage...", []() {
-                    Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
-                });
-                menu->popup(QCursor::pos());
+                                         Utils::Theme::IconsBaseColor}}).icon();
+        extras->m_popupAction = widget->toolBar()->addAction(
+                    icon, client->name(), [document = QPointer(document)] {
+            auto menu = new QMenu;
+            auto clientsGroup = new QActionGroup(menu);
+            clientsGroup->setExclusive(true);
+            for (auto client : LanguageClientManager::clientsSupportingDocument(document)) {
+                auto action = clientsGroup->addAction(client->name());
+                auto reopen = [action, client = QPointer(client), document] {
+                    if (!client)
+                        return;
+                    LanguageClientManager::openDocumentWithClient(document, client);
+                    action->setChecked(true);
+                };
+                action->setCheckable(true);
+                action->setChecked(client == LanguageClientManager::clientForDocument(document));
+                QObject::connect(action, &QAction::triggered, reopen);
+            }
+            menu->addActions(clientsGroup->actions());
+            if (!clientsGroup->actions().isEmpty())
+                menu->addSeparator();
+            menu->addAction("Inspect Language Clients", [] {
+                LanguageClientManager::showInspector();
             });
-        QObject::connect(widget, &QWidget::destroyed, [widget]() {
-            actions.remove(widget);
+            menu->addAction("Manage...", [] {
+                Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+            });
+            menu->popup(QCursor::pos());
         });
     }
 
-    static QHash<QWidget *, QPair<Client *, QAction *>> outlines;
-
-    if (outlines.contains(widget)) {
-        auto outline = outlines[widget];
-        if (outline.first != client
-            || !LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(client,
-                                                                                  document)) {
-            auto oldAction = outline.second;
-            widget->toolBar()->removeAction(oldAction);
-            delete oldAction;
-            outlines.remove(widget);
+    if (!extras->m_client || extras->m_client != client ||
+            !LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(client, document)) {
+        if (extras->m_outlineAction) {
+            widget->toolBar()->removeAction(extras->m_outlineAction);
+            delete extras->m_outlineAction;
         }
+        extras->m_client.clear();
     }
 
-    if (!outlines.contains(widget)) {
+    if (!extras->m_client) {
         if (QWidget *comboBox = LanguageClientOutlineWidgetFactory::createComboBox(client, editor)) {
-            outlines[widget] = {client,
-                                widget->insertExtraToolBarWidget(TextEditorWidget::Left, comboBox)};
+            extras->m_client = client;
+            extras->m_outlineAction = widget->insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                                        comboBox);
         }
     }
 }

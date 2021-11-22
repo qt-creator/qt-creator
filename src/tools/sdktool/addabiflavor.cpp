@@ -33,8 +33,6 @@
 
 #include "settings.h"
 
-#include <QDir>
-
 #include <iostream>
 
 static char VERSION[] = "Version";

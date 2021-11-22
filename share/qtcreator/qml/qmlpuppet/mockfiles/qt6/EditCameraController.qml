@@ -57,7 +57,7 @@ Item {
         _zoomFactor = cameraState[1];
         camera.position = cameraState[2];
         camera.rotation = cameraState[3];
-        _generalHelper.zoomCamera(camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+        _generalHelper.zoomCamera(view3d, camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
                                   _zoomFactor, false);
     }
 
@@ -70,7 +70,7 @@ Item {
         _zoomFactor = 1;
         camera.position = _defaultCameraPosition;
         camera.eulerRotation = _defaultCameraRotation;
-        _generalHelper.zoomCamera(camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+        _generalHelper.zoomCamera(view3d, camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
                                   _zoomFactor, false);
     }
 
@@ -114,21 +114,21 @@ Item {
         if (!camera)
             return;
 
-        _zoomFactor = _generalHelper.zoomCamera(camera, distance, _defaultCameraLookAtDistance,
+        _zoomFactor = _generalHelper.zoomCamera(view3d, camera, distance, _defaultCameraLookAtDistance,
                                                 _lookAtPoint, _zoomFactor, true);
     }
 
     onCameraChanged: {
         if (camera && _prevCamera) {
             // Reset zoom on previous camera to ensure it's properties are good to copy to new cam
-            _generalHelper.zoomCamera(_prevCamera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+            _generalHelper.zoomCamera(view3d, _prevCamera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
                                       1, false);
 
             camera.position = _prevCamera.position;
             camera.rotation = _prevCamera.rotation;
 
             // Apply correct zoom to new camera
-            _generalHelper.zoomCamera(camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+            _generalHelper.zoomCamera(view3d, camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
                                       _zoomFactor, false);
         }
         _prevCamera = camera;

@@ -33,9 +33,11 @@
 
 #include "settings.h"
 
-#include <QDir>
+#include <utils/filepath.h>
 
 #include <iostream>
+
+using namespace Utils;
 
 // Qt version file stuff:
 const char PREFIX[] = "QtVersion.";
@@ -297,7 +299,7 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
     const QString qt = QString::fromLatin1(PREFIX) + QString::number(versionCount);
 
     // Sanitize qmake path:
-    QString saneQmake = QDir::cleanPath(QDir::fromNativeSeparators(qmake));
+    FilePath saneQmake = FilePath::fromUserInput(qmake);
 
     // insert data:
     KeyValuePairList data;
@@ -305,7 +307,7 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
     data << KeyValuePair(QStringList() << qt << QLatin1String(DISPLAYNAME), QVariant(displayName));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(sdkId));
-    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(saneQmake));
+    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), saneQmake.toVariant());
     data << KeyValuePair(QStringList() << qt << QLatin1String(TYPE), QVariant(type));
     data << KeyValuePair(QStringList() << qt << ABIS, QVariant(abis));
 

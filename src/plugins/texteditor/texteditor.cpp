@@ -325,25 +325,17 @@ public:
         if (isCheckRunning(documentRevision, position))
             return;
 
-        abortHandlers();
-
         // Update invocation data
         m_documentRevision = documentRevision;
         m_position = position;
         m_callback = callback;
 
-        // Re-initialize process data
-        m_currentHandlerIndex = 0;
-        m_bestHandler = nullptr;
-        m_highestHandlerPriority = -1;
-
-        // Start checking
-        checkNext();
+        restart();
     }
 
     bool isCheckRunning(int documentRevision, int position) const
     {
-        return m_currentHandlerIndex <= m_handlers.size()
+        return m_currentHandlerIndex >= 0
             && m_documentRevision == documentRevision
             && m_position == position;
     }
@@ -376,6 +368,7 @@ public:
             checkNext();
             return;
         }
+        m_currentHandlerIndex = -1;
 
         // All were queried, run the best
         if (m_bestHandler) {
@@ -384,11 +377,36 @@ public:
         }
     }
 
+    void handlerRemoved(BaseHoverHandler *handler)
+    {
+        if (m_lastHandlerInfo.handler == handler)
+            m_lastHandlerInfo = LastHandlerInfo();
+        if (m_currentHandlerIndex >= 0)
+            restart();
+    }
+
 private:
     void abortHandlers()
     {
         for (BaseHoverHandler *handler : m_handlers)
             handler->abort();
+        m_currentHandlerIndex = -1;
+    }
+
+    void restart()
+    {
+        abortHandlers();
+
+        if (m_handlers.empty())
+            return;
+
+        // Re-initialize process data
+        m_currentHandlerIndex = 0;
+        m_bestHandler = nullptr;
+        m_highestHandlerPriority = -1;
+
+        // Start checking
+        checkNext();
     }
 
     TextEditorWidget *m_widget;
@@ -5457,6 +5475,7 @@ void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)
 void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
 {
     d->m_hoverHandlers.removeAll(handler);
+    d->m_hoverHandlerRunner.handlerRemoved(handler);
 }
 
 #ifdef WITH_TESTS

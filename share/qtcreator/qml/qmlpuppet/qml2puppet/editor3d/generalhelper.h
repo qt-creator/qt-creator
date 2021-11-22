@@ -65,7 +65,7 @@ public:
                                     const QVector3D &startPosition, const QVector3D &startLookAt,
                                     const QVector3D &pressPos, const QVector3D &currentPos,
                                     float zoomFactor);
-    Q_INVOKABLE float zoomCamera(QQuick3DCamera *camera, float distance,
+    Q_INVOKABLE float zoomCamera(QQuick3DViewport *viewPort, QQuick3DCamera *camera, float distance,
                                  float defaultLookAtDistance, const QVector3D &lookAt,
                                  float zoomFactor, bool relative);
     Q_INVOKABLE QVector4D focusNodesToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,

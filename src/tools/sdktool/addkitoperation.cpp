@@ -37,7 +37,6 @@
 
 #include "settings.h"
 
-#include <QDir>
 #include <QRegularExpression>
 
 #include <iostream>
@@ -185,7 +184,7 @@ bool AddKitOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next;
-            m_sysRoot = QDir::fromNativeSeparators(next);
+            m_sysRoot = next;
             continue;
         }
 
@@ -649,7 +648,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
     if (!device.isNull())
         data << KeyValuePair({kit, DATA, DEVICE_ID}, QVariant(device));
     if (!sysRoot.isNull())
-        data << KeyValuePair({kit, DATA, SYSROOT}, QVariant(sysRoot));
+        data << KeyValuePair({kit, DATA, SYSROOT}, Utils::FilePath::fromUserInput(sysRoot).toVariant());
     for (auto i = tcs.constBegin(); i != tcs.constEnd(); ++i)
         data << KeyValuePair({kit, DATA, TOOLCHAIN, i.key()}, QVariant(i.value()));
     if (!qtId.isNull())

@@ -33,8 +33,6 @@
 
 #include "settings.h"
 
-#include <QDir>
-
 #include <iostream>
 
 const char VERSION[] = "Version";
@@ -108,7 +106,7 @@ bool AddDebuggerOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next;
-            m_binary = QDir::fromNativeSeparators(next);
+            m_binary = next;
             continue;
         }
 
@@ -213,7 +211,8 @@ QVariantMap AddDebuggerOperation::addDebugger(const QVariantMap &map,
 
     data << KeyValuePair(QStringList() << debugger << QLatin1String(ABIS), QVariant(abis));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(ENGINE_TYPE), QVariant(engine));
-    data << KeyValuePair(QStringList() << debugger << QLatin1String(BINARY), QVariant(binary));
+    data << KeyValuePair(QStringList() << debugger << QLatin1String(BINARY),
+                         Utils::FilePath::fromUserInput(binary).toVariant());
 
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
 
