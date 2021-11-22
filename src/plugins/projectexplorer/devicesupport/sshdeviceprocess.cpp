@@ -194,7 +194,7 @@ void SshDeviceProcess::handleConnected()
     if (!display.isEmpty())
         d->process->requestX11Forwarding(display);
     if (runInTerminal()) {
-        d->process->requestTerminal();
+        d->process->setUseTerminal(true);
         connect(&d->consoleProcess, &ConsoleProcess::errorOccurred,
                 this, &DeviceProcess::error);
         connect(&d->consoleProcess, &ConsoleProcess::processStarted,

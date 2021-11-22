@@ -824,6 +824,11 @@ void QtcProcess::setUseTerminal(bool on)
     d->m_process->setUseTerminal(on);
 }
 
+bool QtcProcess::useTerminal() const
+{
+    return d->m_process->useTerminal();
+}
+
 void QtcProcess::setRunAsRoot(bool on)
 {
     d->m_process->setRunAsRoot(on);

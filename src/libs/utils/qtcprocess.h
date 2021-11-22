@@ -104,8 +104,10 @@ public:
     void setUseCtrlCStub(bool enabled);
     void setLowPriority();
     void setDisableUnixTerminal();
-    void setUseTerminal(bool on);
     void setRunAsRoot(bool on);
+
+    void setUseTerminal(bool on);
+    bool useTerminal() const;
 
     void start();
     void terminate();

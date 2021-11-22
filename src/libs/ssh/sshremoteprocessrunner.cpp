@@ -128,8 +128,7 @@ void SshRemoteProcessRunner::handleConnected()
             this, &SshRemoteProcessRunner::handleStdout);
     connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardError,
             this, &SshRemoteProcessRunner::handleStderr);
-    if (d->m_runInTerminal)
-        d->m_process->requestTerminal();
+    d->m_process->setUseTerminal(d->m_runInTerminal);
     d->m_process->start();
 }
 

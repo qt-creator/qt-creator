@@ -57,7 +57,6 @@ struct SshRemoteProcess::SshRemoteProcessPrivate
     QString remoteCommand;
     QStringList connectionArgs;
     QString displayName;
-    bool useTerminal = false;
 };
 
 SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
@@ -101,11 +100,6 @@ SshRemoteProcess::~SshRemoteProcess()
     delete d;
 }
 
-void SshRemoteProcess::requestTerminal()
-{
-    d->useTerminal = true;
-}
-
 void SshRemoteProcess::requestX11Forwarding(const QString &displayName)
 {
     d->displayName = displayName;
@@ -122,7 +116,7 @@ Utils::CommandLine SshRemoteProcess::fullLocalCommandLine() const
 
     if (!d->displayName.isEmpty())
         cmd.addArg("-X");
-    if (d->useTerminal)
+    if (useTerminal())
         cmd.addArg("-tt");
 
     cmd.addArg("-q");
