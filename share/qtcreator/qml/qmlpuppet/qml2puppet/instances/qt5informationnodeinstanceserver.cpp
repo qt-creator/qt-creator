@@ -2078,21 +2078,21 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         m_particleAnimationPlaying = command.isEnabled();
         updatedState.insert("particlePlay", command.isEnabled());
         if (m_particleAnimationPlaying) {
-            m_particleAnimationDriver->reset();
-            m_particleAnimationDriver->restart();
+            m_particleAnimationDriver->play();
             m_particleAnimationDriver->setSeekerEnabled(false);
             m_particleAnimationDriver->setSeekerPosition(0);
         } else {
-            m_particleAnimationDriver->reset();
+            m_particleAnimationDriver->pause();
             m_particleAnimationDriver->setSeekerEnabled(true);
         }
         break;
     case View3DActionCommand::ParticlesRestart:
         resetParticleSystem();
-        m_particleAnimationPlaying = true;
-        m_particleAnimationDriver->restart();
-        m_particleAnimationDriver->setSeekerEnabled(false);
-        m_particleAnimationDriver->setSeekerPosition(0);
+        if (m_particleAnimationPlaying) {
+            m_particleAnimationDriver->restart();
+            m_particleAnimationDriver->setSeekerEnabled(false);
+            m_particleAnimationDriver->setSeekerPosition(0);
+        }
         break;
     case View3DActionCommand::ParticlesSeek:
         m_particleAnimationDriver->setSeekerPosition(static_cast<const View3DSeekActionCommand &>(command).position());
