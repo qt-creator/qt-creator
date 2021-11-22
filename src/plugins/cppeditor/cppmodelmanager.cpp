@@ -1321,6 +1321,11 @@ bool CppModelManager::supportsOutline(const TextEditor::TextDocument *document)
     return instance()->d->m_activeModelManagerSupport->supportsOutline(document);
 }
 
+bool CppModelManager::supportsLocalUses(const TextEditor::TextDocument *document)
+{
+    return instance()->d->m_activeModelManagerSupport->supportsLocalUses(document);
+}
+
 bool CppModelManager::isClangCodeModelActive() const
 {
     return d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;

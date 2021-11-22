@@ -209,6 +209,11 @@ bool ClangModelManagerSupport::supportsOutline(const TextEditor::TextDocument *d
     return !clientForFile(document->filePath());
 }
 
+bool ClangModelManagerSupport::supportsLocalUses(const TextEditor::TextDocument *document) const
+{
+    return !clientForFile(document->filePath());
+}
+
 CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
