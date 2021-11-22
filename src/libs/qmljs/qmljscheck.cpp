@@ -810,6 +810,8 @@ bool Check::visit(UiObjectInitializer *)
 
 void Check::endVisit(UiObjectInitializer *uiObjectInitializer)
 {
+    Q_UNUSED(uiObjectInitializer)
+
     m_propertyStack.pop();
 
     const QString type = m_typeStack.pop();

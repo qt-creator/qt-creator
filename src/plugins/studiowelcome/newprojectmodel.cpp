@@ -65,6 +65,7 @@ int NewProjectCategoryModel::rowCount(const QModelIndex &) const
 
 QVariant NewProjectCategoryModel::data(const QModelIndex &index, int role) const
 {
+    Q_UNUSED(role)
     return categories().at(index.row());
 }
 
@@ -84,6 +85,7 @@ int NewProjectModel::rowCount(const QModelIndex &) const
 
 QVariant NewProjectModel::data(const QModelIndex &index, int role) const
 {
+    Q_UNUSED(role)
     return projectsOfCurrentCategory().at(index.row()).name;
 }
 

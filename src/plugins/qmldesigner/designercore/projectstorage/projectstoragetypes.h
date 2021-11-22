@@ -148,8 +148,8 @@ public:
     {}
 
     explicit Import(int moduleId, int majorVersion, int minorVersion, int sourceId)
-        : moduleId{moduleId}
-        , version{majorVersion, minorVersion}
+        : version{majorVersion, minorVersion}
+        , moduleId{moduleId}
         , sourceId{sourceId}
     {}
 

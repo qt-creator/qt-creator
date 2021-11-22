@@ -147,12 +147,6 @@ static bool imageHasContent(const QImage &image)
     return false;
 }
 
-static bool isQuick3DMode()
-{
-    static bool mode3D = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE");
-    return mode3D;
-}
-
 static QObjectList toObjectList(const QVariant &variantList)
 {
     QObjectList objList;
