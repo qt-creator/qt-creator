@@ -305,13 +305,5 @@
     pointers to functions and pointers to arrays.
 
     \image qtcreator-pointers-references.png "Pointers and References options"
-
-    \section1 Naming Getters
-
-    To prefer getter names without the string \e get, select the
-    \uicontrol {Prefer getter names without "get"} check box in the
-    \uicontrol {Getter and Setter} tab.
-
-    \image qtcreator-code-style-getter-setter.png
     \endif
 */
