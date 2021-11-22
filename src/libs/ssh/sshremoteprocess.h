@@ -47,7 +47,6 @@ public:
     void requestX11Forwarding(const QString &displayName);
     void start();
 
-    bool isRunning() const;
     Utils::CommandLine fullLocalCommandLine() const;
 
 signals:

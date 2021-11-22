@@ -76,13 +76,13 @@ void PdbEngine::executeDebuggerCommand(const QString &command)
         showMessage("PDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: " + command);
         return;
     }
-    QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
+    QTC_ASSERT(m_proc.isRunning(), notifyEngineIll());
     postDirectCommand(command);
 }
 
 void PdbEngine::postDirectCommand(const QString &command)
 {
-    QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
+    QTC_ASSERT(m_proc.isRunning(), notifyEngineIll());
     showMessage(command, LogInput);
     m_proc.write(command.toUtf8() + '\n');
 }
@@ -93,7 +93,7 @@ void PdbEngine::runCommand(const DebuggerCommand &cmd)
         showMessage("IGNORED COMMAND: " + cmd.function);
         return;
     }
-    QTC_ASSERT(m_proc.state() == QProcess::Running, notifyEngineIll());
+    QTC_ASSERT(m_proc.isRunning(), notifyEngineIll());
     QString command = "qdebug('" + cmd.function + "'," + cmd.argsToPython() + ")";
     showMessage(command, LogInput);
     m_proc.write(command.toUtf8() + '\n');

@@ -315,7 +315,7 @@ QIODevice *ConnectionClient::ioDevice()
 
 bool ConnectionClient::isProcessRunning(QtcProcess *process)
 {
-    return process && process->state() == QProcess::Running;
+    return process && process->isRunning();
 }
 
 void ConnectionClient::connectStandardOutputAndError(QtcProcess *process) const

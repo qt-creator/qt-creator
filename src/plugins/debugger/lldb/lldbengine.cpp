@@ -126,7 +126,7 @@ void LldbEngine::executeDebuggerCommand(const QString &command)
 
 void LldbEngine::runCommand(const DebuggerCommand &command)
 {
-    if (m_lldbProc.state() != QProcess::Running) {
+    if (!m_lldbProc.isRunning()) {
         // This can legally happen e.g. through a reloadModule()
         // triggered by changes in view visibility.
         showMessage(QString("NO LLDB PROCESS RUNNING, CMD IGNORED: %1 %2")
@@ -185,7 +185,7 @@ void LldbEngine::shutdownInferior()
 void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-    if (m_lldbProc.state() == QProcess::Running)
+    if (m_lldbProc.isRunning())
         m_lldbProc.terminate();
     else
         notifyEngineShutdownFinished();
@@ -193,7 +193,7 @@ void LldbEngine::shutdownEngine()
 
 void LldbEngine::abortDebuggerProcess()
 {
-    if (m_lldbProc.state() == QProcess::Running)
+    if (m_lldbProc.isRunning())
         m_lldbProc.kill();
     else
         notifyEngineShutdownFinished();

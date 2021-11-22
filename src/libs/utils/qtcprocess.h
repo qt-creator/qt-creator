@@ -171,6 +171,7 @@ public:
 
     QProcess::ProcessError error() const;
     QProcess::ProcessState state() const;
+    bool isRunning() const; // Short for state() == QProcess::Running.
 
     QString errorString() const;
     void setErrorString(const QString &str);

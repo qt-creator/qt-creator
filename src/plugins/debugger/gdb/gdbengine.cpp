@@ -719,7 +719,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         QTC_ASSERT(false, return);
     }
 
-    if (m_gdbProc.state() != QProcess::Running) {
+    if (!m_gdbProc.isRunning()) {
         showMessage(QString("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
             .arg(cmd.function).arg(state()));
         if (cmd.callback) {
@@ -767,7 +767,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
         cmd.function = "python theDumper." + cmd.function + "(" + cmd.argsToPython() + ")";
     }
 
-    QTC_ASSERT(m_gdbProc.state() == QProcess::Running, return);
+    QTC_ASSERT(m_gdbProc.isRunning(), return);
 
     cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
@@ -1663,7 +1663,7 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
         // This happens when someone removed the binary behind our back.
         // It is not really an error from a user's point of view.
         showMessage("NOTE: " + msg);
-    } else if (m_gdbProc.state() == QProcess::Running) {
+    } else if (m_gdbProc.isRunning()) {
         AsynchronousMessageBox::critical(tr("Failed to Shut Down Application"),
                                          msgInferiorStopFailed(msg));
     }

@@ -887,7 +887,7 @@ void DockerDevicePrivate::startContainer()
     m_shell->start();
     m_shell->waitForStarted();
 
-    if (m_shell->state() != QProcess::Running) {
+    if (!m_shell->isRunning()) {
         DockerPlugin::setGlobalDaemonState(false);
         LOG("DOCKER SHELL FAILED");
         return;

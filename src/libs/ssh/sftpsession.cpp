@@ -97,7 +97,7 @@ struct SftpSession::SftpSessionPrivate
             return;
         if (pendingCommands.empty())
             return;
-        QTC_ASSERT(sftpProc.state() == QProcess::Running, return);
+        QTC_ASSERT(sftpProc.isRunning(), return);
         activeCommand = pendingCommands.dequeue();
 
         // The second newline forces the prompt to appear after the command has finished.

@@ -128,7 +128,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
                 .arg(avdManagerTool.toString(), arguments.join(' '));
         return result;
     }
-    QTC_CHECK(proc.state() == QProcess::Running);
+    QTC_CHECK(proc.isRunning());
     proc.write(QByteArray("yes\n")); // yes to "Do you wish to create a custom hardware profile"
 
     auto start = chrono::steady_clock::now();
@@ -151,7 +151,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         // The exit code is always 0, so we need to check stderr
         // For now assume that any output at all indicates a error
         errorOutput = QString::fromLocal8Bit(proc.readAllStandardError());
-        if (proc.state() != QProcess::Running)
+        if (!proc.isRunning())
             break;
 
         // For a sane input and command, process should finish before timeout.

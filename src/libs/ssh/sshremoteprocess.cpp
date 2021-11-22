@@ -116,11 +116,6 @@ void SshRemoteProcess::start()
     doStart();
 }
 
-bool SshRemoteProcess::isRunning() const
-{
-    return state() == QProcess::Running;
-}
-
 Utils::CommandLine SshRemoteProcess::fullLocalCommandLine() const
 {
     Utils::CommandLine cmd{SshSettings::sshFilePath()};

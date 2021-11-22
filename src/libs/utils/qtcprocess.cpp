@@ -1077,6 +1077,11 @@ QProcess::ProcessState QtcProcess::state() const
     return d->m_process->state();
 }
 
+bool QtcProcess::isRunning() const
+{
+    return state() == QProcess::Running;
+}
+
 QString QtcProcess::errorString() const
 {
     return d->m_process->errorString();
