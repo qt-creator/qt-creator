@@ -951,7 +951,7 @@ void flattenTransformsAndStyles(const QDomElement &element,
             const QStringList classes = classStr.split(" ", Qt::SkipEmptyParts);
 
             for (const auto &c : classes)
-                applyCSSRules(cssRules["." + e.attribute("class")], properties);
+                applyCSSRules(cssRules["." + c], properties);
         }
 
         if (e.hasAttribute("id")) {
