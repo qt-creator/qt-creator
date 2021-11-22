@@ -6376,7 +6376,7 @@
        height="100%"
        transform="matrix(-1,0,0,1,2293,0)" />
     <g
-       id="src/plugins/autotest/images/benchmark">
+       id="src/libs/utils/images/stopwatch">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
          x="1676"

@@ -73,7 +73,7 @@ const Utils::Icon RESULT_BLACKLISTEDXFAIL({
         Utils::Icon::Tint | Utils::Icon::PunchEdges);
 const Utils::Icon RESULT_BENCHMARK({
         {":/utils/images/filledcircle.png", Utils::Theme::BackgroundColorNormal},
-        {":/autotest/images/benchmark.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
+        {":/utils/images/stopwatch.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon RESULT_MESSAGEDEBUG({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestDebugTextColor}},
         Utils::Icon::Tint);
