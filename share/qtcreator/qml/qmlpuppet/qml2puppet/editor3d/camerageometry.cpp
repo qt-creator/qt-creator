@@ -176,14 +176,7 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
         QRectF rect = m_viewPortRect;
         if (rect.isNull())
              rect = QRectF(0, 0, 1000, 1000); // Let's have some visualization for null viewports
-        if (qobject_cast<QQuick3DOrthographicCamera *>(m_camera)) {
-            // For some reason ortho cameras show double what projection suggests,
-            // so give them doubled viewport to match visualization to actual camera view
-            camera->calculateGlobalVariables(QRectF(0, 0, rect.width() * 2.0,
-                                                    rect.height() * 2.0));
-        } else {
-            camera->calculateGlobalVariables(rect);
-        }
+        camera->calculateGlobalVariables(rect);
         m = camera->projection.inverted();
     }
 

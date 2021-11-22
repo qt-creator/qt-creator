@@ -1045,6 +1045,11 @@ void ModelNode::setAuxiliaryData(const PropertyName &name, const QVariant &data)
     m_model.data()->d->setAuxiliaryData(internalNode(), name, data);
 }
 
+void ModelNode::setAuxiliaryDataWithoutLock(const PropertyName &name, const QVariant &data) const
+{
+     m_model.data()->d->setAuxiliaryData(internalNode(), name, data);
+}
+
 void ModelNode::removeAuxiliaryData(const PropertyName &name) const
 {
     Internal::WriteLocker locker(m_model.data());

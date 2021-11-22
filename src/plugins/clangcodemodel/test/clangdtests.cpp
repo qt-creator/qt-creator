@@ -636,7 +636,7 @@ void ClangdTestTooltips::test()
         helpItem = h;
         loop.quit();
     };
-    connect(client(), &ClangdClient::helpItemGathered, handler);
+    connect(client(), &ClangdClient::helpItemGathered, &loop, handler);
 
     QTextCursor cursor(doc->document());
     const int pos = Utils::Text::positionInText(doc->document(), line, column);

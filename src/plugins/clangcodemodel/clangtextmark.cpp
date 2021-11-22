@@ -398,7 +398,7 @@ bool ClangdTextMark::addToolTipContent(QLayout *target) const
         return c && c->reachable() && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
     };
     target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},
-        ClangDiagnosticWidget::ToolTip, canApplyFixIt, "clangd"));
+        ClangDiagnosticWidget::ToolTip, canApplyFixIt, m_client ? m_client->name() : "clangd"));
     return true;
 }
 

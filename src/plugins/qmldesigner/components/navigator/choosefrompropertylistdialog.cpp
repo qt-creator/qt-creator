@@ -83,9 +83,11 @@ ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
     // Common base types cause too many rarely valid matches, so they are ignored
     const QSet<TypeName> ignoredTypes {"<cpp>.QObject",
                                        "<cpp>.QQuickItem",
+                                       "<cpp>.QQuick3DObject",
                                        "QtQuick.Item",
                                        "QtQuick3D.Object3D",
-                                       "QtQuick3D.Node"};
+                                       "QtQuick3D.Node",
+                                       "QtQuick3D.Particles3D.ParticleSystem3D"};
 
     for (const auto &propName : propNames) {
         const TypeName testType = metaInfo.propertyTypeName(propName);
