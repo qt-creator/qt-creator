@@ -505,10 +505,10 @@
         \if defined(qtcreator)
         \row
             \li  Record a text-editing macro
-            \li  Alt+(
+            \li  Alt+[
         \row
             \li  Stop recording a macro
-            \li  Alt+)
+            \li  Alt+]
         \row
             \li  Play last macro
             \li  Alt+R

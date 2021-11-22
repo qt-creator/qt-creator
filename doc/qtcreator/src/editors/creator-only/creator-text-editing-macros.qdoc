@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,9 +32,9 @@
 
     To record a text editing macro, select \uicontrol Tools >
     \uicontrol {Text Editing Macros} > \uicontrol {Record Macro}
-    or press \key {Alt+(}. To stop recording, select \uicontrol Tools >
+    or press \key {Alt+[}. To stop recording, select \uicontrol Tools >
     \uicontrol {Text Editing Macros} > \uicontrol {Stop Recording Macro} or
-    press \key {Alt+)}.
+    press \key {Alt+]}.
 
     \note The macro recorder does not support code completion.
 
