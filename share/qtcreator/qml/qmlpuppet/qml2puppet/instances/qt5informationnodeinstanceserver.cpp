@@ -319,7 +319,7 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(const QVector<Proper
     if (helper) {
         QSet<QQuick3DNode *> blockedNodes;
         QSet<QQuick3DNode *> unblockedNodes;
-        const PropertyName propName = "rotBlocked@internal";
+        const PropertyName propName = "rotBlocked@Internal";
         for (const auto &container : valueChanges) {
             if (container.name() == propName) {
                 ServerNodeInstance instance = instanceForId(container.instanceId());
