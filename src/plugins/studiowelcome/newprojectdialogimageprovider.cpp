@@ -84,6 +84,26 @@ QPixmap NewProjectDialogImageProvider::requestStylePixmap(const QString &id, QSi
     return pixmap;
 }
 
+QPixmap NewProjectDialogImageProvider::requestDefaultPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+{
+    QString realPath = Core::ICore::resourcePath("qmldesigner/newprojectdialog/image/" + id).toString();
+
+    QPixmap pixmap{realPath};
+
+    if (size) {
+        size->setWidth(pixmap.width());
+        size->setHeight(pixmap.height());
+    }
+
+    if (pixmap.isNull())
+        return QPixmap{};
+
+    if (requestedSize.isValid())
+        return pixmap.scaled(requestedSize);
+
+    return pixmap;
+}
+
 QPixmap NewProjectDialogImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
     if (id.startsWith("style-"))
@@ -92,7 +112,7 @@ QPixmap NewProjectDialogImageProvider::requestPixmap(const QString &id, QSize *s
     if (id.startsWith("status-"))
         return requestStatusPixmap(id, size, requestedSize);
 
-    return QPixmap{};
+    return requestDefaultPixmap(id, size, requestedSize);
 }
 
 } // namespace Internal

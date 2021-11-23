@@ -35,61 +35,9 @@ GridView {
 
     required property Item loader
 
-    readonly property int animDur: 500
-
-    header: Rectangle {
-        width: parent.width
-        height: DialogValues.projectViewHeaderHeight
-        color: DialogValues.lightPaneColor
-
-        Row {
-            id: row
-            spacing: 20
-            property int currIndex: 0
-
-            Repeater {
-                model: categoryModel
-                Text {
-                    text: name
-                    font.weight: Font.DemiBold
-                    font.pixelSize: DialogValues.viewHeaderPixelSize
-                    verticalAlignment: Text.AlignVCenter
-                    color: row.currIndex === index ? DialogValues.textColorInteraction
-                                                   : DialogValues.textColor
-                    Behavior on color { ColorAnimation { duration: animDur } }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            row.currIndex = index
-                            projectModel.setPage(index)
-                            projectView.currentIndex = 0
-                            projectView.currentIndexChanged()
-
-                            strip.x = parent.x
-                            strip.width = parent.width
-                        }
-                    }
-
-                } // Text
-            } // Repeater
-        } // Row
-
-        Rectangle {
-            id: strip
-            width: row.children[0].width
-            height: 5
-            radius: 2
-            color: DialogValues.textColorInteraction
-            anchors.bottom: parent.bottom
-
-            Behavior on x { SmoothedAnimation { duration: animDur } }
-            Behavior on width { SmoothedAnimation { duration: strip.width === 0 ? 0 : animDur } } // do not animate initial width
-        }
-    } // Rectangle
-
     cellWidth: DialogValues.projectItemWidth
     cellHeight: DialogValues.projectItemHeight
+    clip: true
 
     boundsBehavior: Flickable.StopAtBounds
 

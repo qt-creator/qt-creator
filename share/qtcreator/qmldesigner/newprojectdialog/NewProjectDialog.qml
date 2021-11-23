@@ -34,6 +34,7 @@ import StudioControls as SC
 import NewProjectDialog
 
 Item {
+    id: rootDialog
     width: DialogValues.dialogWidth
     height: DialogValues.dialogHeight
 
@@ -47,38 +48,53 @@ Item {
             Layout.alignment: Qt.AlignHCenter
             spacing: 0
 
+            Item { width: parent.width; height: 20 } // spacer
+
             Item { // Header Item
                 Layout.fillWidth: true
-                implicitHeight: 218
+                implicitHeight: 164
 
-                Column {
+                ColumnLayout {
                     anchors.fill: parent
 
-                    Item { width: parent.width; height: 74 } // spacer
-
-                    Text {
-                        text: qsTr("Welcome to Qt Design Studio. Let's Create Something Wonderful!")
-                        font.pixelSize: 32
+                    Item { width: parent.width; implicitHeight: 20 } // spacer
+                    Row {
                         width: parent.width
-                        height: 47
-                        lineHeight: 49
-                        lineHeightMode: Text.FixedHeight
-                        color: DialogValues.textColor
-                        horizontalAlignment: Text.AlignHCenter
+                        height: DialogValues.dialogTitleTextHeight
+                        Layout.alignment: Qt.AlignHCenter
+                        Text {
+                            text: qsTr("Welcome to ")
+                            font.pixelSize: DialogValues.dialogTitlePixelSize
+                            font.family: "Titillium Web"
+                            height: DialogValues.dialogTitleTextHeight
+                            lineHeight: DialogValues.dialogTitleLineHeight
+                            lineHeightMode: Text.FixedHeight
+                            color: DialogValues.textColor
+                        }
+
+                        Text {
+                            text: qsTr("Qt Design Studio")
+                            font.pixelSize: DialogValues.dialogTitlePixelSize
+                            font.family: "Titillium Web"
+                            height: DialogValues.dialogTitleTextHeight
+                            lineHeight: DialogValues.dialogTitleLineHeight
+                            lineHeightMode: Text.FixedHeight
+                            color: DialogValues.textColorInteraction
+                        }
                     }
 
-                    Item { width: parent.width; height: 11 } // spacer
-
                     Text {
                         width: parent.width
-                        text: qsTr("Get started by selecting from Presets or start from empty screen. You may also include your design file.")
+                        text: qsTr("Create new project by selecting a suitable Preset and then adjust details.")
                         color: DialogValues.textColor
                         font.pixelSize: DialogValues.paneTitlePixelSize
                         lineHeight: DialogValues.paneTitleLineHeight
                         lineHeightMode: Text.FixedHeight
-                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignHCenter
                     }
-                }
+
+                    Item { width: parent.width; Layout.fillHeight: true} // spacer
+                } // ColumnLayout
             } // Header Item
 
             Item { // Content Item
@@ -96,7 +112,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.minimumWidth: 379 // figured out this number visually
-                        Layout.minimumHeight: 326 // figured out this number visually
+                        Layout.minimumHeight: 261 // figured out this number visually
 
                         Column {
                             x: DialogValues.defaultPadding                          // left padding
@@ -106,12 +122,68 @@ Item {
                             Text {
                                 text: qsTr("Presets")
                                 width: parent.width
+                                height: 47
                                 font.weight: Font.DemiBold
                                 font.pixelSize: DialogValues.paneTitlePixelSize
                                 lineHeight: DialogValues.paneTitleLineHeight
                                 lineHeightMode: Text.FixedHeight
                                 color: DialogValues.textColor
+                                verticalAlignment: Qt.AlignVCenter
                             }
+
+                            Rectangle { // TabBar
+                                readonly property int animDur: 500
+                                id: samTabRect
+                                x: 10                       // left padding
+                                width: parent.width - 64    // right padding
+                                height: DialogValues.projectViewHeaderHeight
+                                color: DialogValues.lightPaneColor
+
+                                Row {
+                                    id: tabBarRow
+                                    spacing: 20
+                                    property int currIndex: 0
+
+                                    Repeater {
+                                        model: categoryModel
+                                        Text {
+                                            text: name
+                                            font.weight: Font.DemiBold
+                                            font.pixelSize: DialogValues.viewHeaderPixelSize
+                                            verticalAlignment: Text.AlignVCenter
+                                            color: tabBarRow.currIndex === index ? DialogValues.textColorInteraction
+                                                                                 : DialogValues.textColor
+                                            Behavior on color { ColorAnimation { duration: samTabRect.animDur } }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+                                                onClicked: {
+                                                    tabBarRow.currIndex = index
+                                                    projectModel.setPage(index)
+                                                    projectViewId.currentIndex = 0
+                                                    projectViewId.currentIndexChanged()
+
+                                                    strip.x = parent.x
+                                                    strip.width = parent.width
+                                                }
+                                            }
+
+                                        } // Text
+                                    } // Repeater
+                                } // tabBarRow
+
+                                Rectangle {
+                                    id: strip
+                                    width: tabBarRow.children[0].width
+                                    height: 5
+                                    radius: 2
+                                    color: DialogValues.textColorInteraction
+                                    anchors.bottom: parent.bottom
+
+                                    Behavior on x { SmoothedAnimation { duration: samTabRect.animDur } }
+                                    Behavior on width { SmoothedAnimation { duration: strip.width === 0 ? 0 : samTabRect.animDur } } // do not animate initial width
+                                }
+                            } // Rectangle
 
                             NewProjectView {
                                 id: projectViewId
@@ -119,6 +191,17 @@ Item {
                                 width: parent.width - 64    // right padding
                                 height: DialogValues.projectViewHeight
                                 loader: projectDetailsLoader
+
+                                Connections {
+                                    target: rootDialog
+                                    function onHeightChanged() {
+                                        if (rootDialog.height < 700) { // 700 = minimum height big dialog
+                                            projectViewId.height = DialogValues.projectViewHeight / 2
+                                        } else {
+                                            projectViewId.height = DialogValues.projectViewHeight
+                                        }
+                                    }
+                                }
                             }
 
                             Item { height: 5; width: parent.width }
@@ -158,32 +241,46 @@ Item {
 
                     Item { Layout.fillWidth: true }
 
-                    SC.AbstractButton {
-                        implicitWidth: DialogValues.dialogButtonWidth
-                        width: DialogValues.dialogButtonWidth
-                        visible: true
-                        buttonIcon: qsTr("Cancel")
-                        iconSize: DialogValues.defaultPixelSize
-                        iconFont: StudioTheme.Constants.font
+                    Item { // Dialog Button Box
+                        width: DialogValues.stylesPaneWidth
+                        height: parent.height
 
-                        onClicked: {
-                            dialogBox.reject();
-                        }
-                    }
+                        RowLayout {
+                            width: DialogValues.stylesPaneWidth
+                            implicitWidth: DialogValues.stylesPaneWidth
+                            implicitHeight: parent.height
 
-                    SC.AbstractButton {
-                        implicitWidth: DialogValues.dialogButtonWidth
-                        width: DialogValues.dialogButtonWidth
-                        visible: true
-                        buttonIcon: qsTr("Create")
-                        iconSize: DialogValues.defaultPixelSize
-                        enabled: dialogBox.fieldsValid
-                        iconFont: StudioTheme.Constants.font
+                            SC.AbstractButton {
+                                implicitWidth: DialogValues.dialogButtonWidth
+                                width: DialogValues.dialogButtonWidth
+                                visible: true
+                                buttonIcon: qsTr("Cancel")
+                                iconSize: DialogValues.defaultPixelSize
+                                iconFont: StudioTheme.Constants.font
 
-                        onClicked: {
-                            dialogBox.accept();
-                        }
-                    }
+                                onClicked: {
+                                    dialogBox.reject();
+                                }
+                            }
+
+                            Item { Layout.fillWidth: true }
+
+                            SC.AbstractButton {
+                                implicitWidth: DialogValues.dialogButtonWidth
+                                width: DialogValues.dialogButtonWidth
+                                visible: true
+                                buttonIcon: qsTr("Create")
+                                iconSize: DialogValues.defaultPixelSize
+                                enabled: dialogBox.fieldsValid
+                                iconFont: StudioTheme.Constants.font
+
+                                onClicked: {
+                                    dialogBox.accept();
+                                }
+                            }
+                        } // RowLayout
+                    } // Dialog Button Box
+
                     Item { implicitWidth: 35 - DialogValues.defaultPadding }
                 } // RowLayout
             } // Footer

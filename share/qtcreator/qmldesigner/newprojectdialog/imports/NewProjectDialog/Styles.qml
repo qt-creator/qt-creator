@@ -65,12 +65,13 @@ Item {
                 Text {
                     id: styleTitleText
                     text: qsTr("Style")
-                    width: parent.width;
+                    Layout.minimumHeight: DialogValues.dialogTitleTextHeight
                     font.weight: Font.DemiBold
                     font.pixelSize: DialogValues.paneTitlePixelSize
                     lineHeight: DialogValues.paneTitleLineHeight
                     lineHeightMode: Text.FixedHeight
                     color: DialogValues.textColor
+                    verticalAlignment: Qt.AlignVCenter
 
                     function refresh() {
                         text = qsTr("Style") + " (" + styleModel.rowCount() + ")"
