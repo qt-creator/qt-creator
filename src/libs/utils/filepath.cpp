@@ -121,6 +121,25 @@ static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
     return true;
 }
 
+// Cleans part after optional :// scheme separator, similar to QDir::cleanPath()
+//  - directory separators normalized (that is, platform-native
+//    separators converted to "/") and redundant ones removed, and "."s and ".."s
+//    resolved (as far as possible).
+//   Symbolic links are kept. This function does not return the
+//    canonical path, but rather the simplest version of the input.
+//    For example, "./local" becomes "local", "local/../bin" becomes
+//    "bin" and "/local/usr/../bin" becomes "/local/bin".
+
+// FIXME: This should not use the host-platform dependent QDir::cleanPath()
+
+static QString doCleanPath(const QString &input)
+{
+    const int pos = input.indexOf("://");
+    if (pos == -1)
+        return QDir::cleanPath(input);
+    return input.left(pos + 3) + QDir::cleanPath(input.right(pos + 3));
+}
+
 /*!
   Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain
   the target directory, which will be created. Example usage:
@@ -389,16 +408,16 @@ FilePath FilePath::resolvePath(const FilePath &tail) const
 FilePath FilePath::resolvePath(const QString &tail) const
 {
     if (!FileUtils::isRelativePath(tail))
-        return FilePath::fromString(QDir::cleanPath(tail));
+        return FilePath::fromString(doCleanPath(tail));
     FilePath result = *this;
-    result.setPath(QDir::cleanPath(m_data + '/' + tail));
+    result.setPath(doCleanPath(m_data + '/' + tail));
     return result;
 }
 
 FilePath FilePath::cleanPath() const
 {
     FilePath result = *this;
-    result.setPath(QDir::cleanPath(result.path()));
+    result.setPath(doCleanPath(result.path()));
     return result;
 }
 
@@ -412,7 +431,7 @@ FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &fi
 
 FilePath FileUtils::homePath()
 {
-    return FilePath::fromString(QDir::cleanPath(QDir::homePath()));
+    return FilePath::fromString(doCleanPath(QDir::homePath()));
 }
 
 
@@ -886,7 +905,7 @@ FilePath FilePath::parentDir() const
         return FilePath();
 
     const QString path = basePath + QLatin1String("/..");
-    const QString parent = QDir::cleanPath(path);
+    const QString parent = doCleanPath(path);
     QTC_ASSERT(parent != path, return FilePath());
 
     FilePath result = *this;
@@ -1025,7 +1044,7 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 /// \a filePath is only passed through QDir::fromNativeSeparators
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
-    QString clean = QDir::fromNativeSeparators(filePath);
+    QString clean = doCleanPath(filePath);
     if (clean.startsWith(QLatin1String("~/")))
         return FileUtils::homePath().pathAppended(clean.mid(2));
     return FilePath::fromString(clean);
