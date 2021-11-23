@@ -460,7 +460,7 @@
 
     \list 1
         \li Perf events may be globally disabled on your system. The
-            preconfigured Boot2Qt images come with perf events enabled. For
+            preconfigured \l Boot2Qt images come with perf events enabled. For
             a custom configuration you need to make sure that the file
             \c {/proc/sys/kernel/perf_event_paranoid} contains a value smaller
             than \c {2}. For maximum flexibility in recording traces you can

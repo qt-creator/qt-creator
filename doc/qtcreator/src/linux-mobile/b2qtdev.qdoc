@@ -33,22 +33,22 @@
     You can connect \l{Boot2Qt} devices to the development PC to run, debug,
     and analyze applications built for them from \QC.
 
-    If you have a tool chain for building applications for \Boot2Qt devices
+    If you have a tool chain for building applications for Boot2Qt devices
     installed on the development PC, you can add it to \QC. You can then
-    select a \l{glossary-buildandrun-kit}{kit} with the \uicontrol \Boot2Qt
+    select a \l{glossary-buildandrun-kit}{kit} with the \uicontrol Boot2Qt
     device type to build applications for and run them on the devices.
 
-    To be able to run and debug applications on \Boot2Qt devices,
+    To be able to run and debug applications on Boot2Qt devices,
     you must add devices and select them in the \QC
     \l{glossary-buildandrun-kit}{kit}.
 
     \section1 Enabling the Boot2Qt Plugin
 
-    To enable the \Boot2Qt plugin:
+    To enable the Boot2Qt plugin:
 
     \list 1
         \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Device Support} > \uicontrol \Boot2Qt to
+            \uicontrol {Device Support} > \uicontrol Boot2Qt to
             enable the plugin.
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
     \endlist
@@ -93,7 +93,7 @@
 
     \section1 Flashing Boot2Qt Devices
 
-    To flash the \Boot2Qt image to an SD card with Flashing Wizard, select
+    To flash the Boot2Qt image to an SD card with Flashing Wizard, select
     \uicontrol Tools > \uicontrol {Flash Boot to Qt Device} and follow the
     instructions of the wizard.
 
@@ -101,7 +101,7 @@
 
     \section1 Configuring Connections
 
-    To configure connections between \QC and a \Boot2Qt device and to
+    To configure connections between \QC and a Boot2Qt device and to
     specify build and run settings for the device:
 
     \list 1
@@ -109,19 +109,19 @@
             connect it with a USB connection.
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol {Qt Versions} > \uicontrol Add to add the Qt version
-            for \Boot2Qt.
+            for Boot2Qt.
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add to add the compiler for
             building the applications.
         \li Select \uicontrol Tools > \uicontrol {Flash Boot to Qt Device}
-            to flash the \Boot2Qt image to an SD card with Flashing Wizard.
+            to flash the Boot2Qt image to an SD card with Flashing Wizard.
         \li To deploy applications and run them remotely on devices, specify
             parameters for connecting to the devices over the network (\QC
             automatically detects devices connected with USB):
             \list 1
                 \li Select \uicontrol Tools > \uicontrol Options >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
-                    \uicontrol \Boot2Qt > \uicontrol {Finish}.
+                    \uicontrol Boot2Qt > \uicontrol {Finish}.
                     \image qtcreator-devices-boot2qt.png "Boot2Qt Network Device Setup wizard"
                 \li In the \uicontrol {Device name} field, enter a name for
                     the connection.
@@ -139,7 +139,7 @@
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Add to add a kit for building applications for the
             device. Select the Qt version, compiler, and device that you
-            added above, and choose \uicontrol \Boot2Qt as the device type.
+            added above, and choose \uicontrol Boot2Qt as the device type.
         \li To specify build settings:
         \list 1
             \li Open a project for an application you want to develop for the

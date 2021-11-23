@@ -4,6 +4,7 @@ url         = http://doc.qt.io/$IDE_ID
 
 #Words to ignore for auto-linking
 ignorewords += \
+    Boot2Qt \
     macOS \
     WebChannel \
     WebSocket \
