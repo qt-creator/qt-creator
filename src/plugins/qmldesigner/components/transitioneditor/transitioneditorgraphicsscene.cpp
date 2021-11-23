@@ -119,7 +119,7 @@ void TransitionEditorGraphicsScene::invalidateScrollbar()
 
 void TransitionEditorGraphicsScene::onShow()
 {
-    emit m_layout->zoomChanged(0);
+    emit m_layout->zoomChanged(zoom());
 }
 
 void TransitionEditorGraphicsScene::setTransition(const ModelNode &transition)
