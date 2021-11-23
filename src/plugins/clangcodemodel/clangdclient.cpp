@@ -2938,10 +2938,12 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     if (!edit)
         return;
 
+    const int labelOpenParenOffset = item.label().indexOf('(');
+    const int labelClosingParenOffset = item.label().indexOf(')');
     const auto kind = static_cast<CompletionItemKind::Kind>(
                 item.kind().value_or(CompletionItemKind::Text));
-    const bool isMacroCall = kind == CompletionItemKind::Text && item.label().contains('(')
-            && item.label().contains(')'); // Heuristic
+    const bool isMacroCall = kind == CompletionItemKind::Text && labelOpenParenOffset != -1
+            && labelClosingParenOffset > labelOpenParenOffset; // Heuristic
     const bool isFunctionLike = kind == CompletionItemKind::Function
             || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
             || isMacroCall;
@@ -2951,10 +2953,12 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     // Some preparation for our magic involving (non-)insertion of parentheses and
     // cursor placement.
     if (isFunctionLike && !rawInsertText.contains('(')) {
-        if (item.label().contains("()"))     // function takes no arguments
-            rawInsertText += "()";
-        else if (item.label().contains('(')) // function takes arguments
-            rawInsertText += "( )";
+        if (labelOpenParenOffset != -1) {
+            if (labelClosingParenOffset == labelOpenParenOffset + 1) // function takes no arguments
+                rawInsertText += "()";
+            else                                                     // function takes arguments
+                rawInsertText += "( )";
+        }
     }
 
     const int firstParenOffset = rawInsertText.indexOf('(');
