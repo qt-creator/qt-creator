@@ -303,6 +303,7 @@ void QdsNewDialog::accept()
 {
     CreateProject create{m_wizard};
 
+    m_dialog->hide();
     create.withName(m_qmlProjectName)
         .atLocation(m_qmlProjectLocation)
         .withScreenSizes(m_qmlScreenSizeIndex, m_qmlCustomWidth, m_qmlCustomHeight)
@@ -313,6 +314,8 @@ void QdsNewDialog::accept()
         .execute();
 
     m_dialog->close();
+    m_dialog->deleteLater();
+    m_dialog = nullptr;
 }
 
 void QdsNewDialog::reject()
