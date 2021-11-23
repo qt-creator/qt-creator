@@ -141,7 +141,10 @@ signals:
     void aboutToSaveSession();
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
-signals: // for tests only
+    void sessionRenamed(const QString &oldName, const QString &newName);
+    void sessionRemoved(const QString &name);
+
+    // for tests only
     void projectFinishedParsing(ProjectExplorer::Project *project);
 
 private:

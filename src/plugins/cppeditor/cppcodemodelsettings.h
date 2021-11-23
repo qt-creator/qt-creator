@@ -108,6 +108,7 @@ public:
         void fromMap(const QVariantMap &map);
 
         Utils::FilePath executableFilePath;
+        QStringList sessionsWithOneClangd;
         int workerThreadLimit = 0;
         bool useClangd = false;
         bool enableIndexing = true;
@@ -127,6 +128,9 @@ public:
     int workerThreadLimit() const { return m_data.workerThreadLimit; }
     int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }
 
+    enum class Granularity { Project, Session };
+    Granularity granularity() const;
+
     void setData(const Data &data);
     Data data() const { return m_data; }
 
@@ -141,7 +145,7 @@ signals:
     void changed();
 
 private:
-    ClangdSettings() { loadSettings(); }
+    ClangdSettings();
 
     void loadSettings();
     void saveSettings();
@@ -153,6 +157,7 @@ inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Dat
 {
     return s1.useClangd == s2.useClangd
             && s1.executableFilePath == s2.executableFilePath
+            && s1.sessionsWithOneClangd == s2.sessionsWithOneClangd
             && s1.workerThreadLimit == s2.workerThreadLimit
             && s1.enableIndexing == s2.enableIndexing
             && s1.autoIncludeHeaders == s2.autoIncludeHeaders

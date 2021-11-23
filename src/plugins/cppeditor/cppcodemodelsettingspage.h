@@ -48,7 +48,7 @@ class ClangdSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    ClangdSettingsWidget(const ClangdSettings::Data &settingsData);
+    ClangdSettingsWidget(const ClangdSettings::Data &settingsData, bool isForProject);
     ~ClangdSettingsWidget();
 
     ClangdSettings::Data settingsData() const;

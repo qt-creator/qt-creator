@@ -831,6 +831,7 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
         return false;
     if (original == activeSession())
         loadSession(newName);
+    emit instance()->sessionRenamed(original, newName);
     return deleteSession(original);
 }
 
@@ -858,6 +859,7 @@ bool SessionManager::deleteSession(const QString &session)
     if (!d->m_sessions.contains(session))
         return false;
     d->m_sessions.removeOne(session);
+    emit instance()->sessionRemoved(session);
     QFile fi(sessionNameToFileName(session).toString());
     if (fi.exists())
         return fi.remove();

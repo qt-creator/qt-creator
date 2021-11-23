@@ -31,6 +31,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -77,6 +78,7 @@ static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderIn
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
+static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -316,6 +318,20 @@ ClangdSettings &ClangdSettings::instance()
     return settings;
 }
 
+ClangdSettings::ClangdSettings()
+{
+    loadSettings();
+    const auto sessionMgr = ProjectExplorer::SessionManager::instance();
+    connect(sessionMgr, &ProjectExplorer::SessionManager::sessionRemoved,
+            this, [this](const QString &name) { m_data.sessionsWithOneClangd.removeOne(name); });
+    connect(sessionMgr, &ProjectExplorer::SessionManager::sessionRenamed,
+            this, [this](const QString &oldName, const QString &newName) {
+        const auto index = m_data.sessionsWithOneClangd.indexOf(oldName);
+        if (index != -1)
+            m_data.sessionsWithOneClangd[index] = newName;
+    });
+}
+
 bool ClangdSettings::useClangd() const
 {
     return m_data.useClangd && clangdVersion(clangdFilePath()) >= QVersionNumber(13);
@@ -331,6 +347,13 @@ FilePath ClangdSettings::clangdFilePath() const
     if (!m_data.executableFilePath.isEmpty())
         return m_data.executableFilePath;
     return fallbackClangdFilePath();
+}
+
+ClangdSettings::Granularity ClangdSettings::granularity() const
+{
+    if (m_data.sessionsWithOneClangd.contains(ProjectExplorer::SessionManager::activeSession()))
+        return Granularity::Session;
+    return Granularity::Project;
 }
 
 void ClangdSettings::setData(const Data &data)
@@ -402,7 +425,12 @@ ClangdSettings::Data ClangdProjectSettings::settings() const
 {
     if (m_useGlobalSettings)
         return ClangdSettings::instance().data();
-    return m_customSettings;
+    ClangdSettings::Data data = m_customSettings;
+
+    // This property is global by definition.
+    data.sessionsWithOneClangd = ClangdSettings::instance().data().sessionsWithOneClangd;
+
+    return data;
 }
 
 void ClangdProjectSettings::setSettings(const ClangdSettings::Data &data)
@@ -450,6 +478,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
+    map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
     return map;
 }
 
@@ -461,6 +490,7 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
+    sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
 }
 
 } // namespace CppEditor

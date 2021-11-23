@@ -32,13 +32,22 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/session.h>
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
+#include <utils/itemviews.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QInputDialog>
+#include <QPushButton>
 #include <QSpinBox>
+#include <QStringListModel>
 #include <QTextStream>
+#include <QVBoxLayout>
 #include <QVersionNumber>
 
 namespace CppEditor::Internal {
@@ -201,9 +210,12 @@ public:
     QSpinBox documentUpdateThreshold;
     Utils::PathChooser clangdChooser;
     Utils::InfoLabel versionWarningLabel;
+    QGroupBox *sessionsGroupBox = nullptr;
+    QStringListModel sessionsModel;
 };
 
-ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsData)
+ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsData,
+                                           bool isForProject)
     : d(new Private)
 {
     const ClangdSettings settings(settingsData);
@@ -253,6 +265,64 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
     formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
     layout->addLayout(formLayout);
+
+    if (!isForProject) {
+        d->sessionsModel.setStringList(settingsData.sessionsWithOneClangd);
+        d->sessionsModel.sort(0);
+        d->sessionsGroupBox = new QGroupBox(tr("Sessions with a single clangd instance"));
+        const auto sessionsView = new Utils::ListView;
+        sessionsView->setModel(&d->sessionsModel);
+        sessionsView->setToolTip(
+                    tr("By default, Qt Creator runs one clangd process per project.\n"
+                       "If you have sessions with tightly coupled projects that should be\n"
+                       "managed by the same clangd process, add them here."));
+        const auto outerSessionsLayout = new QHBoxLayout;
+        const auto innerSessionsLayout = new QHBoxLayout(d->sessionsGroupBox);
+        const auto buttonsLayout = new QVBoxLayout;
+        const auto addButton = new QPushButton(tr("Add ..."));
+        const auto removeButton = new QPushButton(tr("Remove"));
+        buttonsLayout->addWidget(addButton);
+        buttonsLayout->addWidget(removeButton);
+        buttonsLayout->addStretch(1);
+        innerSessionsLayout->addWidget(sessionsView);
+        innerSessionsLayout->addLayout(buttonsLayout);
+        outerSessionsLayout->addWidget(d->sessionsGroupBox);
+        outerSessionsLayout->addStretch(1);
+        layout->addLayout(outerSessionsLayout);
+
+        const auto updateRemoveButtonState = [removeButton, sessionsView] {
+            removeButton->setEnabled(sessionsView->selectionModel()->hasSelection());
+        };
+        connect(sessionsView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, updateRemoveButtonState);
+        updateRemoveButtonState();
+        connect(removeButton, &QPushButton::clicked, this, [this, sessionsView] {
+            const QItemSelection selection = sessionsView->selectionModel()->selection();
+            QTC_ASSERT(!selection.isEmpty(), return);
+            d->sessionsModel.removeRow(selection.indexes().first().row());
+        });
+
+        connect(addButton, &QPushButton::clicked, this, [this, sessionsView] {
+            QInputDialog dlg(sessionsView);
+            QStringList sessions = ProjectExplorer::SessionManager::sessions();
+            QStringList currentSessions = d->sessionsModel.stringList();
+            for (const QString &s : qAsConst(currentSessions))
+                sessions.removeOne(s);
+            if (sessions.isEmpty())
+                return;
+            sessions.sort();
+            dlg.setLabelText(tr("Choose a session:"));
+            dlg.setComboBoxItems(sessions);
+            if (dlg.exec() == QDialog::Accepted) {
+                currentSessions << dlg.textValue();
+                d->sessionsModel.setStringList(currentSessions);
+                d->sessionsModel.sort(0);
+            }
+        });
+
+        // TODO: Remove once the concept is functional.
+        d->sessionsGroupBox->hide();
+    }
     layout->addStretch(1);
 
     static const auto setWidgetsEnabled = [](QLayout *layout, bool enabled, const auto &f) -> void {
@@ -263,8 +333,10 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
                 f(l, enabled, f);
         }
     };
-    const auto toggleEnabled = [formLayout](const bool checked) {
+    const auto toggleEnabled = [this, formLayout](const bool checked) {
         setWidgetsEnabled(formLayout, checked, setWidgetsEnabled);
+        if (d->sessionsGroupBox)
+            d->sessionsGroupBox->setEnabled(checked);
     };
     connect(&d->useClangdCheckBox, &QCheckBox::toggled, toggleEnabled);
     toggleEnabled(d->useClangdCheckBox.isChecked());
@@ -326,6 +398,7 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();
+    data.sessionsWithOneClangd = d->sessionsModel.stringList();
     return data;
 }
 
@@ -334,7 +407,7 @@ class ClangdSettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::ClangdSettingsWidget)
 
 public:
-    ClangdSettingsPageWidget() : m_widget(ClangdSettings::instance().data())
+    ClangdSettingsPageWidget() : m_widget(ClangdSettings::instance().data(), false)
     {
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_widget);
@@ -348,7 +421,7 @@ private:
 
 ClangdSettingsPage::ClangdSettingsPage()
 {
-    setId("K.Clangd");
+    setId(Constants::CPP_CLANGD_SETTINGS_ID);
     setDisplayName(ClangdSettingsWidget::tr("Clangd"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new ClangdSettingsPageWidget; });
@@ -358,7 +431,7 @@ ClangdSettingsPage::ClangdSettingsPage()
 class ClangdProjectSettingsWidget::Private
 {
 public:
-    Private(const ClangdProjectSettings &s) : settings(s), widget(s.settings()) {}
+    Private(const ClangdProjectSettings &s) : settings(s), widget(s.settings(), true) {}
 
     ClangdProjectSettings settings;
     ClangdSettingsWidget widget;
@@ -369,16 +442,35 @@ ClangdProjectSettingsWidget::ClangdProjectSettingsWidget(const ClangdProjectSett
     : d(new Private(settings))
 {
     const auto layout = new QVBoxLayout(this);
-    d->useGlobalSettingsCheckBox.setText(tr("Use global settings"));
-    layout->addWidget(&d->useGlobalSettingsCheckBox);
+    const auto globalSettingsLayout = new QHBoxLayout;
+    globalSettingsLayout->addWidget(&d->useGlobalSettingsCheckBox);
+    const auto globalSettingsLabel = new QLabel("Use <a href=\"dummy\">global settings</a>");
+    connect(globalSettingsLabel, &QLabel::linkActivated,
+            this, [] { Core::ICore::showOptionsDialog(Constants::CPP_CLANGD_SETTINGS_ID); });
+    globalSettingsLayout->addWidget(globalSettingsLabel);
+    globalSettingsLayout->addStretch(1);
+    layout->addLayout(globalSettingsLayout);
+
     const auto separator = new QFrame;
     separator->setFrameShape(QFrame::HLine);
     layout->addWidget(separator);
     layout->addWidget(&d->widget);
 
-    d->useGlobalSettingsCheckBox.setChecked(d->settings.useGlobalSettings());
-    d->widget.setEnabled(!d->settings.useGlobalSettings());
-    connect(&d->useGlobalSettingsCheckBox, &QCheckBox::toggled, [this](bool checked) {
+    const auto updateGlobalSettingsCheckBox = [this] {
+        if (ClangdSettings::instance().granularity() == ClangdSettings::Granularity::Session) {
+            d->useGlobalSettingsCheckBox.setEnabled(false);
+            d->useGlobalSettingsCheckBox.setChecked(true);
+        } else {
+            d->useGlobalSettingsCheckBox.setEnabled(true);
+            d->useGlobalSettingsCheckBox.setChecked(d->settings.useGlobalSettings());
+        }
+        d->widget.setEnabled(!d->useGlobalSettingsCheckBox.isChecked());
+    };
+    updateGlobalSettingsCheckBox();
+    connect(&ClangdSettings::instance(), &ClangdSettings::changed,
+            this, updateGlobalSettingsCheckBox);
+
+    connect(&d->useGlobalSettingsCheckBox, &QCheckBox::clicked, [this](bool checked) {
         d->widget.setEnabled(!checked);
         d->settings.setUseGlobalSettings(checked);
         if (!checked)

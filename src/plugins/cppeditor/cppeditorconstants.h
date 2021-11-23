@@ -119,6 +119,7 @@ const char CPP_FILE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "File Namin
 const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Cpp.Code Model";
 const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_ID[] = "C.Cpp.Diagnostic Config";
 const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "Diagnostic Configurations");
+const char CPP_CLANGD_SETTINGS_ID[] = "K.Cpp.Clangd";
 const char CPP_SETTINGS_CATEGORY[] = "I.C++";
 
 const char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";
