@@ -58,41 +58,66 @@ Item {
                     anchors.fill: parent
 
                     Item { width: parent.width; implicitHeight: 20 } // spacer
+
                     Row {
                         width: parent.width
                         height: DialogValues.dialogTitleTextHeight
-                        Layout.alignment: Qt.AlignHCenter
+
+                        Item { width: DialogValues.dialogLeftPadding; height: 1 } // horizontal spacer
+
+                        Image {
+                            asynchronous: false
+                            source: "image://newprojectdialog_library/logo"
+                            width: DialogValues.logoWidth
+                            height: DialogValues.logoHeight
+                        }
+
+                        Item { width: 10; height: 1 }
+
                         Text {
-                            text: qsTr("Welcome to ")
+                            text: qsTr("Let's create something wonderful with ")
                             font.pixelSize: DialogValues.dialogTitlePixelSize
                             font.family: "Titillium Web"
                             height: DialogValues.dialogTitleTextHeight
                             lineHeight: DialogValues.dialogTitleLineHeight
                             lineHeightMode: Text.FixedHeight
                             color: DialogValues.textColor
+                            verticalAlignment: Text.AlignVCenter
                         }
 
                         Text {
-                            text: qsTr("Qt Design Studio")
+                            text: qsTr("Qt Design Studio!")
                             font.pixelSize: DialogValues.dialogTitlePixelSize
                             font.family: "Titillium Web"
                             height: DialogValues.dialogTitleTextHeight
                             lineHeight: DialogValues.dialogTitleLineHeight
                             lineHeightMode: Text.FixedHeight
-                            color: DialogValues.textColorInteraction
+                            color: DialogValues.brandTextColor
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    } // Row
+
+                    Item { width: 1; height: 11 } // spacer
+
+                    Item {
+                        width: parent.width
+                        height: DialogValues.paneTitleLineHeight
+                        Row {
+                            width: parent.width
+                            height: DialogValues.paneTitleLineHeight
+
+                            Item { width: DialogValues.dialogLeftPadding; height: 1} // spacer
+
+                            Text {
+                                width: parent.width - DialogValues.dialogLeftPadding
+                                text: qsTr("Create new project by selecting a suitable Preset and then adjust details.")
+                                color: DialogValues.textColor
+                                font.pixelSize: DialogValues.paneTitlePixelSize
+                                lineHeight: DialogValues.paneTitleLineHeight
+                                lineHeightMode: Text.FixedHeight
+                            }
                         }
                     }
-
-                    Text {
-                        width: parent.width
-                        text: qsTr("Create new project by selecting a suitable Preset and then adjust details.")
-                        color: DialogValues.textColor
-                        font.pixelSize: DialogValues.paneTitlePixelSize
-                        lineHeight: DialogValues.paneTitleLineHeight
-                        lineHeightMode: Text.FixedHeight
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-
                     Item { width: parent.width; Layout.fillHeight: true} // spacer
                 } // ColumnLayout
             } // Header Item
@@ -102,7 +127,7 @@ Item {
                 Layout.fillHeight: true
 
                 RowLayout {
-                    x: 35
+                    x: DialogValues.dialogLeftPadding
                     width: parent.width - 70
                     height: parent.height
                     spacing: 0
@@ -113,6 +138,7 @@ Item {
                         Layout.fillHeight: true
                         Layout.minimumWidth: 379 // figured out this number visually
                         Layout.minimumHeight: 261 // figured out this number visually
+                        radius: 6
 
                         Column {
                             x: DialogValues.defaultPadding                          // left padding
@@ -294,7 +320,7 @@ Item {
                         } // RowLayout
                     } // Dialog Button Box
 
-                    Item { implicitWidth: 35 - DialogValues.defaultPadding }
+                    Item { implicitWidth: DialogValues.dialogLeftPadding - DialogValues.defaultPadding }
                 } // RowLayout
             } // Footer
         } // ColumnLayout

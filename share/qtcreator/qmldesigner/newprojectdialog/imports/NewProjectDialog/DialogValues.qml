@@ -36,7 +36,11 @@ QtObject {
     readonly property int dialogContentHeight: projectViewHeight + 300  // i.e. dialog without header and footer
     readonly property int loadedPanesWidth: detailsPaneWidth + stylesPaneWidth
     readonly property int detailsPaneWidth: 330 + detailsPanePadding * 2
-    readonly property int dialogTitleTextHeight: 47
+    readonly property int dialogTitleTextHeight: 85
+    readonly property int paneTitleTextHeight: 47
+    readonly property int logoWidth: 85
+    readonly property int logoHeight: 85
+
     /* detailsScrollableContentHeight - the full height that may need to be scrolled to be fully
        visible, if the dialog box is too small. */
     readonly property int detailsScrollableContentHeight: 428
@@ -44,6 +48,7 @@ QtObject {
     readonly property int detailsPanePadding: 18
     readonly property int stylesPanePadding: 18
     readonly property int defaultPadding: 18
+    readonly property int dialogLeftPadding: 35
 
     readonly property int styleImageWidth: 200
     readonly property int styleImageBorderWidth: 2
@@ -73,8 +78,10 @@ QtObject {
     readonly property real viewHeaderLineHeight: 24
     readonly property real paneTitlePixelSize: 18
     readonly property real paneTitleLineHeight: 27
-    readonly property int dialogTitlePixelSize: 32
+    readonly property int dialogTitlePixelSize: 38
     readonly property int dialogTitleLineHeight: 49
+
+    readonly property string brandTextColor: "#2e769e"
 
     // for a spacer item
     function narrowSpacing(value, layoutSpacing = DialogValues.defaultPadding) {
