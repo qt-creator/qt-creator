@@ -28,6 +28,7 @@
 #include "navigatorwidget.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
+#include "qmldesignerplugin.h"
 
 #include "nameitemdelegate.h"
 #include "iconcheckboxitemdelegate.h"
@@ -166,9 +167,14 @@ void NavigatorView::modelAttached(Model *model)
             const QHash<QString, bool> localExpandMap = m_expandMap[AbstractView::model()->fileUrl()];
             auto it = localExpandMap.constBegin();
             while (it != localExpandMap.constEnd()) {
-                const QModelIndex index = indexForModelNode(modelNodeForId(it.key()));
-                if (index.isValid())
-                    treeWidget()->setExpanded(index, it.value());
+                const ModelNode node = modelNodeForId(it.key());
+                // When editing subcomponent, the current root node may be marked collapsed in the
+                // full file view, but we never want to actually collapse it, so skip it.
+                if (!node.isRootNode()) {
+                    const QModelIndex index = indexForModelNode(node);
+                    if (index.isValid())
+                        treeWidget()->setExpanded(index, it.value());
+                }
                 ++it;
             }
         }
@@ -200,11 +206,18 @@ void NavigatorView::addNodeAndSubModelNodesToList(const ModelNode &node, QList<M
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
-    m_expandMap.remove(model->fileUrl());
+    QHash<QString, bool> &localExpandMap = m_expandMap[model->fileUrl()];
+
+    // If detaching full document model, recreate expand map from scratch to remove stale entries.
+    // Otherwise just update it (subcomponent edit case).
+    bool fullUpdate = true;
+    if (DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument())
+        fullUpdate = !document->inFileComponentModelActive();
+    if (fullUpdate)
+        localExpandMap.clear();
 
     if (currentModel()) {
         // Store expand state of the navigator tree
-        QHash<QString, bool> localExpandMap;
         const ModelNode rootNode = rootModelNode();
         const QModelIndex rootIndex = indexForModelNode(rootNode);
 
@@ -215,15 +228,18 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
                 for (int i = 0; i < rowCount; ++i) {
                     const QModelIndex childIndex = currentModel()->index(i, 0, index);
                     const ModelNode node = modelNodeForIndex(childIndex);
-                    // Just store collapsed states as everything is expanded by default
-                    if (node.isValid() && !treeWidget()->isExpanded(childIndex))
-                        localExpandMap.insert(node.id(), false);
+                    if (node.isValid()) {
+                        // Just store collapsed states as everything is expanded by default
+                        if (!treeWidget()->isExpanded(childIndex))
+                            localExpandMap.insert(node.id(), false);
+                        else if (!fullUpdate)
+                            localExpandMap.remove(node.id());
+                    }
                     gatherExpandedState(childIndex);
                 }
             }
         };
         gatherExpandedState(rootIndex);
-        m_expandMap[model->fileUrl()] = localExpandMap;
     }
 
     AbstractView::modelAboutToBeDetached(model);
