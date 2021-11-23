@@ -57,7 +57,7 @@ namespace Internal {
 
 using namespace Utils;
 
-#define APP_ID "io.qt.designviewer"
+#define APP_ID "io.qt.qtdesignviewer"
 
 class ApkInfo {
 public:
@@ -92,7 +92,7 @@ FilePath AndroidQmlPreviewWorker::designViewerApkPath(const QString &abi) const
         return {};
 
     if (apkInfo()->abis.contains(abi)) {
-        return Core::ICore::resourcePath(QString("android/qtdesignviewer/designviewer_%1.apk")
+        return Core::ICore::resourcePath(QString("android/qtdesignviewer/qtdesignviewer_%1.apk")
                                          .arg(abi));
     }
     return {};
