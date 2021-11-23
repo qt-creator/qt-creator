@@ -58,7 +58,7 @@ Item {
                 Text {
                     id: detailsHeading
                     text: qsTr("Details")
-                    height: DialogValues.dialogTitleTextHeight
+                    height: DialogValues.paneTitleTextHeight
                     width: parent.width;
                     font.weight: Font.DemiBold
                     font.pixelSize: DialogValues.paneTitlePixelSize
@@ -388,6 +388,7 @@ Item {
                                                 width: parent.width
                                                 height: orientationButton.height / 2
                                                 anchors.verticalCenter: parent.verticalCenter
+                                                radius: 3
                                             }
                                         }
 
@@ -401,6 +402,7 @@ Item {
                                             width: orientationButton.width / 4
                                             height: orientationButton.height
                                             color: "white"
+                                            radius: 3
                                         }
                                     }
                                 }

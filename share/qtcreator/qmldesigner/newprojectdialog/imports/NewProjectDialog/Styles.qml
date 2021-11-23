@@ -52,6 +52,7 @@ Item {
     Rectangle {
         color: DialogValues.lightPaneColor
         anchors.fill: parent
+        radius: 6
 
         Item {
             x: DialogValues.stylesPanePadding                               // left padding
@@ -65,7 +66,7 @@ Item {
                 Text {
                     id: styleTitleText
                     text: qsTr("Style")
-                    Layout.minimumHeight: DialogValues.dialogTitleTextHeight
+                    Layout.minimumHeight: DialogValues.paneTitleTextHeight
                     font.weight: Font.DemiBold
                     font.pixelSize: DialogValues.paneTitlePixelSize
                     lineHeight: DialogValues.paneTitleLineHeight
@@ -118,7 +119,7 @@ Item {
 
                     delegate: ItemDelegate {
                         id: delegateId
-                        height: styleImage.height + DialogValues.styleImageBorderWidth + styleText.height + 1
+                        height: styleImage.height + DialogValues.styleImageBorderWidth + styleText.height + extraPadding.height + 1
                         width: stylesList.width
 
                         Rectangle {
@@ -134,7 +135,7 @@ Item {
                                     border.width: index == stylesList.currentIndex ? DialogValues.styleImageBorderWidth : 0
                                     color: "transparent"
                                     width: parent.width
-                                    height: parent.height - styleText.height
+                                    height: parent.height - styleText.height - extraPadding.height
 
                                     Image {
                                         id: styleImage
@@ -158,6 +159,8 @@ Item {
                                     width: parent.width
                                     color: DialogValues.textColor
                                 }
+
+                                Item { id: extraPadding; width: 1; height: 10 }
                             } // Column
                         } // Rectangle
 
