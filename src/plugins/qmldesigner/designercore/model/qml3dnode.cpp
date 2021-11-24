@@ -83,7 +83,7 @@ void Qml3DNode::setBindingProperty(const PropertyName &name, const QString &expr
 bool Qml3DNode::isBlocked(const PropertyName &propName) const
 {
     if (modelNode().isValid() && propName.startsWith("eulerRotation"))
-        return modelNode().auxiliaryData("rotBlocked@internal").toBool();
+        return modelNode().auxiliaryData("rotBlocked@Internal").toBool();
 
     return false;
 }

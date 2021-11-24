@@ -30,9 +30,13 @@
 #include <designersettings.h>
 
 #include <utils/utilsicons.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+
+#include <android/androidconstants.h>
 
 #include <QLabel>
 #include <QComboBox>
@@ -44,18 +48,37 @@ using namespace ProjectExplorer;
 
 const Utils::Icon previewIcon({
         {":/qmlpreviewplugin/images/live_preview.png", Utils::Theme::IconsBaseColor}});
+const QByteArray livePreviewId = "LivePreview";
 
 static void handleAction(const SelectionContext &context)
 {
     if (context.view()->isAttached()) {
-        if (context.toggled())
-            ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
-         else
+        if (context.toggled()) {
+            bool skipDeploy = false;
+            if (const Target *startupTarget = SessionManager::startupTarget()) {
+                const Kit *kit = startupTarget->kit();
+                if (kit
+                    && (kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
+                        || DeviceTypeKitAspect::deviceTypeId(kit)
+                               == Android::Constants::ANDROID_DEVICE_TYPE)) {
+                    skipDeploy = true;
+                    // In case of an android kit we don't want the live preview button to be toggled
+                    // when the emulator is started as we don't have control over its run status.
+                    DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()
+                                                                       ->designerActionManager();
+                    if (const ActionInterface *interface = designerActionManager.actionByMenuId(
+                            livePreviewId))
+                        interface->action()->setChecked(false);
+                }
+            }
+            ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
+        } else {
             QmlPreviewPlugin::stopAllRunControls();
+        }
     }
 }
 
-QmlPreviewAction::QmlPreviewAction() : ModelNodeAction("LivePreview",
+QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
                                                        "Live Preview",
                                                        previewIcon.icon(),
                                                        QmlPreviewPlugin::tr("Show Live Preview"),

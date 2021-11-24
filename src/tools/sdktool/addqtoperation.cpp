@@ -299,7 +299,7 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
     const QString qt = QString::fromLatin1(PREFIX) + QString::number(versionCount);
 
     // Sanitize qmake path:
-    FilePath saneQmake = FilePath::fromUserInput(qmake);
+    FilePath saneQmake = FilePath::fromUserInput(qmake).cleanPath();
 
     // insert data:
     KeyValuePairList data;

@@ -602,7 +602,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const QVariant &value)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
-    const bool forceAuxChange = name == "invisible" || name == "locked" || name == "rotBlocked@internal";
+    const bool forceAuxChange = name == "invisible" || name == "locked" || name == "rotBlocked@Internal";
     if (((node.isRootNode() && (name == "width" || name == "height")) || forceAuxChange)
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
@@ -1900,7 +1900,7 @@ void NodeInstanceView::updateRotationBlocks()
         }
     }
     if (!qml3DNodes.isEmpty()) {
-        const PropertyName auxDataProp {"rotBlocked@internal"};
+        const PropertyName auxDataProp {"rotBlocked@Internal"};
         for (const auto &node : qAsConst(qml3DNodes)) {
             if (rotationKeyframeTargets.contains(node))
                 node.setAuxiliaryData(auxDataProp, true);

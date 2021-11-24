@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-
 #include "cmakegeneratordialog.h"
+#include "generatecmakelistsconstants.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -51,7 +51,7 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    model = new CheckableFileListModel(rootDir, files, this);
+    model = new CMakeGeneratorDialogModel(rootDir, files, this);
 
     QListView *list = new QListView(this);
     list->setModel(model);
@@ -72,82 +72,35 @@ FilePaths CmakeGeneratorDialog::getFilePaths()
     return paths;
 }
 
-CheckableFileListModel::CheckableFileListModel(const FilePath &rootDir, const FilePaths &files, QObject *parent)
-    :QStandardItemModel(parent),
-      rootDir(rootDir)
+CMakeGeneratorDialogModel::CMakeGeneratorDialogModel(const Utils::FilePath &rootDir, const Utils::FilePaths &files, QObject *parent)
+    :CheckableFileListModel(rootDir, files, parent)
 {
-    for (const FilePath &file: files) {
-        appendRow(new CheckableStandardItem(file.toString(), true));
+    for (int i=0; i<rowCount(); i++) {
+        CheckableStandardItem *item = static_cast<CheckableStandardItem*>(QStandardItemModel::item(i));
+        item->setChecked(CMakeGeneratorDialogModel::checkedByDefault(FilePath::fromString(item->text())));
     }
 }
 
-QList<CheckableStandardItem*> CheckableFileListModel::checkedItems() const
+bool CMakeGeneratorDialogModel::checkedByDefault(const FilePath &path) const
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    QList<QStandardItem*> allItems = findItems("*", Qt::MatchWildcard);
-#else
-    QList<QStandardItem*> allItems = findItems(".*", Qt::MatchRegularExpression);
-#endif
-    QList<CheckableStandardItem*> checkedItems;
-    for (QStandardItem *standardItem : allItems) {
-        CheckableStandardItem *item = static_cast<CheckableStandardItem*>(standardItem);
-        if (item->isChecked())
-            checkedItems.append(item);
+    if (path.exists()) {
+        QString relativePath = path.relativeChildPath(rootDir).toString();
+        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS) == 0)
+            return false;
+        if (relativePath.endsWith(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS)
+            && relativePath.length() > QString(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS).length())
+            return true;
+        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_MODULES) == 0)
+            return true;
+        if (relativePath.compare(
+                FilePath::fromString(QmlDesigner::GenerateCmake::Constants::DIRNAME_CPP)
+                .pathAppended(QmlDesigner::GenerateCmake::Constants::FILENAME_MAINCPP_HEADER)
+                .toString())
+                == 0)
+            return true;
     }
 
-    return checkedItems;
-}
-
-CheckableStandardItem::CheckableStandardItem(const QString &text, bool checked)
-    :QStandardItem(text),
-      checked(checked)
-{
-    setFlags(flags() |= Qt::ItemIsUserCheckable);
-}
-
-void CheckableStandardItem::setChecked(bool checked)
-{
-    this->checked = checked;
-}
-
-bool CheckableStandardItem::isChecked() const
-{
-    return this->checked;
-}
-
-int CheckableStandardItem::type() const
-{
-    return QStandardItem::UserType + 0x74d4f1;
-}
-
-QVariant CheckableFileListModel::data(const QModelIndex &index, int role) const
-{
-    if (index.isValid()) {
-        if (role == Qt::CheckStateRole) {
-            CheckableStandardItem *item = static_cast<CheckableStandardItem*>(QStandardItemModel::item(index.row()));
-            return item->isChecked() ? Qt::Checked : Qt::Unchecked;
-        }
-        else if (role == Qt::DisplayRole) {
-            QVariant data = QStandardItemModel::data(index, role);
-            QString relativePath = data.toString().remove(rootDir.toString());
-            return QVariant(relativePath);
-        }
-    }
-
-    return QStandardItemModel::data(index, role);
-}
-
-bool CheckableFileListModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (index.isValid() && role == Qt::CheckStateRole)
-    {
-        CheckableStandardItem *item = static_cast<CheckableStandardItem*>(QStandardItemModel::item(index.row()));
-        item->setChecked(value.value<bool>());
-
-        return true;
-    }
-
-    return QStandardItemModel::setData(index, value, role);
+    return !path.exists();
 }
 
 }

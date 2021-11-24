@@ -30,6 +30,8 @@ add_qtc_plugin(QmlDesigner
     cmakegeneratordialog.h cmakegeneratordialog.cpp
     generateresource.cpp generateresource.h
     generatecmakelists.cpp generatecmakelists.h
+    generatecmakelistsconstants.h
+    checkablefilelistmodel.cpp checkablefilelistmodel.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
     qmldesignerconstants.h
     qmldesignericons.h

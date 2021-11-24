@@ -28,7 +28,7 @@
 
     \section1 Specifying Run Settings for Boot2Qt Devices
 
-    To run and debug an application on a Boot2Qt device (commercial only), you
+    To run and debug an application on a \l Boot2Qt device (commercial only), you
     must create connections from the development host to the device and add the
     device configurations to \l{glossary-buildandrun-kit}{kits}. Select
     \uicontrol {Manage Kits} to add devices to kits. For more information, see

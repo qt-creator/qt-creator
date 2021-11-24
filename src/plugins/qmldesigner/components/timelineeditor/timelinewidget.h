@@ -62,7 +62,7 @@ public:
     TimelineView *timelineView() const;
     TimelineToolBar *toolBar() const;
 
-    void init();
+    void init(int zoom = 0);
     void reset();
 
     void invalidateTimelineDuration(const QmlTimeline &timeline);

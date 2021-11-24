@@ -136,8 +136,7 @@ void TimelineGraphicsScene::onShow()
             int cf = std::round(timeline.currentKeyframe());
             setCurrentFrame(cf);
         }
-
-        emit m_layout->zoomChanged(0);
+        emit m_layout->zoomChanged(zoom());
     }
 }
 

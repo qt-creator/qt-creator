@@ -482,7 +482,7 @@ void TimelineWidget::contextHelp(const Core::IContext::HelpCallback &callback) c
         callback({});
 }
 
-void TimelineWidget::init()
+void TimelineWidget::init(int zoom)
 {
     QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentState());
     if (currentTimeline.isValid()) {
@@ -499,8 +499,8 @@ void TimelineWidget::init()
     m_graphicsScene->setWidth(m_graphicsView->viewport()->width());
 
     // setScaleFactor uses QSignalBlocker.
-    m_toolbar->setScaleFactor(0);
-    m_graphicsScene->setZoom(0);
+    m_toolbar->setScaleFactor(zoom);
+    m_graphicsScene->setZoom(zoom);
 }
 
 void TimelineWidget::reset()
@@ -611,6 +611,8 @@ void TimelineWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
 
+    int zoom = m_toolbar->scaleFactor();
+
     m_timelineView->setEnabled(true);
 
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
@@ -622,7 +624,7 @@ void TimelineWidget::showEvent(QShowEvent *event)
 
     //All the events have to be fully processed before we call init()
     if (m_timelineView->model())
-        QTimer::singleShot(0, [this]() { init(); });
+        QTimer::singleShot(0, [this, zoom]() { init(zoom); });
 }
 
 void TimelineWidget::resizeEvent(QResizeEvent *event)

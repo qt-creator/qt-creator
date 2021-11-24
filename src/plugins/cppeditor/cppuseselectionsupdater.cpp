@@ -27,6 +27,7 @@
 
 #include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 
 #include <utils/textutils.h>
@@ -72,6 +73,9 @@ CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType cal
 
     auto *cppEditorDocument = qobject_cast<CppEditorDocument *>(cppEditorWidget->textDocument());
     QTC_ASSERT(cppEditorDocument, return RunnerInfo::FailedToStart);
+
+    if (!CppModelManager::instance()->supportsLocalUses(cppEditorDocument))
+        return RunnerInfo::AlreadyUpToDate;
 
     CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();

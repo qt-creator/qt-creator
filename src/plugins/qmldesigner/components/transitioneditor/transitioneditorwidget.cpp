@@ -326,7 +326,7 @@ void TransitionEditorWidget::contextHelp(const Core::IContext::HelpCallback &cal
         callback({});
 }
 
-void TransitionEditorWidget::init()
+void TransitionEditorWidget::init(int zoom)
 {
     ModelNode root = transitionEditorView()->rootModelNode();
     ModelNode transition;
@@ -345,7 +345,7 @@ void TransitionEditorWidget::init()
 
     m_graphicsScene->setWidth(m_graphicsView->viewport()->width());
 
-    m_toolbar->setScaleFactor(40);
+    m_toolbar->setScaleFactor(zoom);
 
     m_toolbar->setCurrentTransition(transition);
 
@@ -355,13 +355,13 @@ void TransitionEditorWidget::init()
 
     m_toolbar->setDuration(duration);
 
-    m_graphicsScene->setZoom(40);
+    m_graphicsScene->setZoom(zoom);
 }
 
 void TransitionEditorWidget::updateData(const ModelNode &transition)
 {
     if (!transition.isValid()) {
-        init();
+        init(m_toolbar->scaleFactor());
         return;
     }
 
@@ -409,7 +409,7 @@ void TransitionEditorWidget::showEvent(QShowEvent *event)
     m_transitionEditorView->setEnabled(true);
 
     if (m_transitionEditorView->model())
-        init();
+        init(m_toolbar->scaleFactor());
 
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
     graphicsScene()->invalidateLayout();

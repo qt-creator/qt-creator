@@ -1256,6 +1256,8 @@ void ClangdTestHighlighting::test_data()
                                       << QList<int>{C_STRING} << 0;
     QTest::newRow("string literal passed to macro from header file") << 854 << 32 << 854 << 38
                                       << QList<int>{C_STRING} << 0;
+    QTest::newRow("user-defined operator call") << 860 << 7 << 860 << 8
+                                      << QList<int>{C_LOCAL} << 0;
 }
 
 void ClangdTestHighlighting::test()

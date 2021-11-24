@@ -32,7 +32,7 @@
 /*!
     \page creator-coding.html
     \if defined(qtdesignstudio)
-    \previouspage studio-implementing-applications.html
+    \previouspage studio-designer-developer-workflow.html
     \else
     \previouspage creator-usability.html
     \endif

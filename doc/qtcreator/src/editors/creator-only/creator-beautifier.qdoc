@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -82,7 +82,7 @@
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
 
-            \image qt-creator-beautifier-options-general.png
+            \image qt-creator-beautifier-options-general.png "General Beautifier options"
 
         \li In the \uicontrol {Restrict to MIME types} field, define the MIME
             types of the files to beautify, separated by semicolons. Leave the
@@ -101,7 +101,7 @@
             \uicontrol Uncrustify to specify settings for the tool you want to
             use.
 
-            \image beautifier_options.png
+            \image beautifier_options.png "Uncrustify Beautifier options"
 
         \li In the \uicontrol Configuration group, specify the path to
             the tool executable in the \uicontrol {Artistic Style command},
@@ -119,26 +119,27 @@
 
             \list
 
-                \li Select the \uicontrol {Use file defined in project files}
-                    option to use the configuration file defined in the qmake
-                    DISTFILES variable as the configuration file for the
-                    selected tool. This option is available for Artistic Style
-                    and Uncrustify.
+                \li Select \uicontrol {Use file *.astylerc defined in project files}
+                    or \uicontrol {Use file uncrustify.cfg defined in project files},
+                    to use the configuration file defined in the qmake DISTFILES
+                    variable as the configuration file for the selected tool.
 
-                \li Select the \uicontrol {Use specific config file} option to
+                \li Select \uicontrol {Use specific config file} or
+                    \uicontrol {Use file specific uncrustify.cfg} to
                     use the specified file as the configuration file for the
-                    selected tool. This option is available for Artistic Style
-                    and Uncrustify.
+                    selected tool.
 
-                \li Select the \uicontrol {Use file in $HOME} option to use the
-                    specified file in the user's home directory as the
-                    configuration file for the selected tool. This option is
-                    available for Artistic Style and Uncrustify.
+                \li Select \uicontrol {Use file uncrustify.cfg in <$HOME>} or
+                    \uicontrol {Use file .astylerc or acstylerc in <$HOME>} to
+                    use the specified file in the user's home directory as the
+                    configuration file for the selected tool.
 
                 \li For Clang Format, you can use a predefined style, by
                     selecting the \uicontrol {Use predefined style} radio
                     button, and then selecting the style to use from the list of
                     available styles.
+
+                    \image qtcreator-beautifier-options-clangformat.png "Clang Format Beautifier options"
 
                     Select \uicontrol File to load the style configuration from
                     the \c .clang-format or \c _clang-format file located in the
@@ -158,7 +159,7 @@
                     highlighting, auto-completion, and context-sensitive help.
                     For these features, you must have the tool installed.
 
-                   \image beautifier_editor.png
+                   \image beautifier_editor.png "Add Configuration dialog"
 
             \endlist
 
@@ -172,13 +173,13 @@
 
     \endlist
 
-    In addition to the \uicontrol {Format Current File} command, ClangFormat
-    and Uncrustify provide additional commands.
+    In addition,
     ClangFormat provides the \uicontrol {Format at Cursor} command. If you
     select it when no text is selected, the syntactic entity under the cursor
     is formatted. The \uicontrol {Disable Formatting for Selected Text} command
     wraps selected lines within \c {// clang-format off} and
     \c {// clang-format on}.
+
     Uncrustify provides the \uicontrol {Format Selected Text} command. If you
     select it when no text is selected, the whole file is formatted by default.
     To disable this behavior, deselect the

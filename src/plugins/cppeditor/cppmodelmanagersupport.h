@@ -62,6 +62,7 @@ public:
     virtual RefactoringEngineInterface &refactoringEngineInterface() = 0;
     virtual std::unique_ptr<AbstractOverviewModel> createOverviewModel() = 0;
     virtual bool supportsOutline(const TextEditor::TextDocument *) const { return true; }
+    virtual bool supportsLocalUses(const TextEditor::TextDocument *) const { return true; }
 };
 
 class CPPEDITOR_EXPORT ModelManagerSupportProvider

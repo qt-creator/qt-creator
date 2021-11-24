@@ -282,8 +282,8 @@
     \uicontrol{Application Output} pane. However, only one output pane tab may be
     open at a time or the output is not displayed correctly. You can use an
     external debug output viewer, such as the
-    \l{http://technet.microsoft.com/en-us/sysinternals/bb896647}{DebugView for Windows}
-    to display output from GUI applications.
+    \l{https://technet.microsoft.com/en-us/sysinternals/bb896647}
+    {DebugView for Windows} to display output from GUI applications.
 
     \section1 Questions about New Features
 

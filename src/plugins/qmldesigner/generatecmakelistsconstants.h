@@ -23,39 +23,29 @@
 **
 ****************************************************************************/
 
+#ifndef GENERATECMAKELISTSCONSTANTS_H
+#define GENERATECMAKELISTSCONSTANTS_H
 
-#ifndef CMAKEGENERATORDIALOG_H
-#define CMAKEGENERATORDIALOG_H
-
-#include "checkablefilelistmodel.h"
-
-#include <utils/fileutils.h>
-
-#include <QDialog>
-
+#pragma once
 
 namespace QmlDesigner {
 namespace GenerateCmake {
+namespace Constants {
 
-class CMakeGeneratorDialogModel : public CheckableFileListModel
-{
-public:
-    CMakeGeneratorDialogModel(const Utils::FilePath &rootDir, const Utils::FilePaths &files, QObject *parent = nullptr);
-protected:
-    virtual bool checkedByDefault(const Utils::FilePath &file) const;
-};
+const char DIRNAME_CONTENT[] = "content";
+const char DIRNAME_IMPORT[] = "imports";
+const char DIRNAME_CPP[] = "src";
 
-class CmakeGeneratorDialog : public QDialog
-{
-public:
-    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
-    Utils::FilePaths getFilePaths();
+const char FILENAME_CMAKELISTS[] = "CMakeLists.txt";
+const char FILENAME_APPMAINQML[] = "App.qml";
+const char FILENAME_MAINQML[] = "main.qml";
+const char FILENAME_MAINCPP[] = "main.cpp";
+const char FILENAME_MAINCPP_HEADER[] = "import_qml_plugins.h";
+const char FILENAME_MODULES[] = "qmlmodules";
+const char FILENAME_QMLDIR[] = "qmldir";
 
-private:
-    CheckableFileListModel *model;
-};
+} //Constants
+} //GenerateCmake
+} //QmlDesigner
 
-}
-}
-
-#endif // CMAKEGENERATORDIALOG_H
+#endif // GENERATECMAKELISTSCONSTANTS_H

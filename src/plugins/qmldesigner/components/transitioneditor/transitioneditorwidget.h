@@ -61,7 +61,7 @@ public:
     TransitionEditorView *transitionEditorView() const;
     TransitionEditorToolBar *toolBar() const;
 
-    void init();
+    void init(int zoom = 0);
     void reset();
 
     void setupScrollbar(int min, int max, int current);

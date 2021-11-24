@@ -372,7 +372,7 @@ jobs:
 
 
     - name: ccache cache files
-      uses: actions/cache@v1.1.0
+      uses: actions/cache@v1
       with:
         path: .ccache
         key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.ide_major_version }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
@@ -432,7 +432,7 @@ jobs:
           COMMAND git log --format=%B -n 1 ${{ github.event.after }}
           OUTPUT_VARIABLE git_commit_msg
         )
-        if (${git_commit_msg} MATCHES "ccache:[ ]*clea[r|n]")
+        if ("${git_commit_msg}" MATCHES "ccache:[ ]*clea[r|n]")
           execute_process(COMMAND ccache --clear COMMAND_ECHO STDOUT)
         endif()
 

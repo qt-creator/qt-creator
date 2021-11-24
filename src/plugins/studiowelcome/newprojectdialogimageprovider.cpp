@@ -46,6 +46,8 @@ QPixmap NewProjectDialogImageProvider::invalidStyleIcon()
 
 QPixmap NewProjectDialogImageProvider::requestStatusPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    Q_UNUSED(size)
+
     QPixmap pixmap;
 
     if (id == "status-warning") {

@@ -140,6 +140,7 @@ public:
 
     static bool isCppEditor(Core::IEditor *editor);
     static bool supportsOutline(const TextEditor::TextDocument *document);
+    static bool supportsLocalUses(const TextEditor::TextDocument *document);
     bool isClangCodeModelActive() const;
 
     QSet<AbstractEditorSupport*> abstractEditorSupports() const;

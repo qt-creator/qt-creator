@@ -104,6 +104,12 @@
 #endif
 #endif
 
+#ifdef QUICK3D_PARTICLES_MODULE
+#include <QtQuick3DParticles/private/qquick3dparticle_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticleaffector_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticleemitter_p.h>
+#endif
+
 #ifdef IMPORT_QUICK3D_ASSETS
 #include <QtQuick3DAssetImport/private/qssgassetimportmanager_p.h>
 #endif
@@ -145,12 +151,6 @@ static bool imageHasContent(const QImage &image)
             return true;
     }
     return false;
-}
-
-static bool isQuick3DMode()
-{
-    static bool mode3D = qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE");
-    return mode3D;
 }
 
 static QObjectList toObjectList(const QVariant &variantList)
@@ -325,7 +325,7 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(const QVector<Proper
     if (helper) {
         QSet<QQuick3DNode *> blockedNodes;
         QSet<QQuick3DNode *> unblockedNodes;
-        const PropertyName propName = "rotBlocked@internal";
+        const PropertyName propName = "rotBlocked@Internal";
         for (const auto &container : valueChanges) {
             if (container.name() == propName) {
                 ServerNodeInstance instance = instanceForId(container.instanceId());
@@ -418,7 +418,7 @@ void Qt5InformationNodeInstanceServer::resetParticleSystem()
 
 void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DParticleSystem* targetParticleSystem)
 {
-    if (!m_particleAnimationDriver)
+    if (!m_particleAnimationDriver || targetParticleSystem == m_targetParticleSystem)
         return;
 
     m_particleAnimationDriver->reset();
@@ -459,7 +459,46 @@ static QString baseProperty(const QString &property)
     return property;
 }
 
-void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected()
+template <typename T>
+static QQuick3DParticleSystem *systemProperty(QObject *object)
+{
+    return qobject_cast<T>(object) ? qobject_cast<T>(object)->system() : nullptr;
+}
+
+static QQuick3DParticleSystem *getSystemOrSystemProperty(QObject *selectedObject)
+{
+    QQuick3DParticleSystem *system = nullptr;
+    system = qobject_cast<QQuick3DParticleSystem *>(selectedObject);
+    if (system)
+        return system;
+    system = systemProperty<QQuick3DParticle *>(selectedObject);
+    if (system)
+        return system;
+    system = systemProperty<QQuick3DParticleAffector *>(selectedObject);
+    if (system)
+        return system;
+    system = systemProperty<QQuick3DParticleEmitter *>(selectedObject);
+    if (system)
+        return system;
+    return nullptr;
+}
+
+static QQuick3DParticleSystem *parentParticleSystem(QObject *selectedObject)
+{
+    auto *ps = getSystemOrSystemProperty(selectedObject);
+    if (ps)
+        return ps;
+    QObject *parent = selectedObject->parent();
+    while (parent) {
+        ps = getSystemOrSystemProperty(parent);
+        if (ps)
+            return ps;
+        parent = parent->parent();
+    }
+    return nullptr;
+}
+
+void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected(QObject *selectedObject)
 {
     m_targetParticleSystem = nullptr;
     const auto anim = animations();
@@ -1830,9 +1869,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
 {
     if (!m_editView3DSetupDone)
         return;
-#ifdef QUICK3D_PARTICLES_MODULE
-    resetParticleSystem();
-#endif
+
     m_lastSelectionChangeCommand = command;
     if (m_selectionChangeTimer.isActive()) {
         // If selection was recently changed by puppet, hold updating the selection for a bit to
@@ -1861,10 +1898,17 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
 
 #ifdef QUICK3D_PARTICLES_MODULE
             auto particlesystem = qobject_cast<QQuick3DParticleSystem *>(instance.internalObject());
-            if (particlesystem)
+            if (particlesystem) {
                 handleParticleSystemSelected(particlesystem);
-            else
-                handleParticleSystemDeselected();
+            } else {
+                particlesystem = parentParticleSystem(instance.internalObject());
+                if (particlesystem) {
+                    if (particlesystem != m_targetParticleSystem)
+                        handleParticleSystemSelected(particlesystem);
+                } else {
+                    handleParticleSystemDeselected(instance.internalObject());
+                }
+            }
 #endif
             auto isSelectableAsRoot = [&]() -> bool {
 #ifdef QUICK3D_MODULE

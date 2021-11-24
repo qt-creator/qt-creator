@@ -207,9 +207,7 @@
             \endlist
         \li \l{Implementing Applications}
             \list
-                \omit
-                \li Using Flows in Production
-                \endomit
+                \li \l{Designer-Developer Workflow}
                 \li \l{Coding}{Cross-Platform Development}
                     \list
                         \li \l{Writing Code}
@@ -245,15 +243,6 @@
                         \li \l{Debugging a Qt Quick Example Application}
                         \li \l{Profiling QML Applications}
                     \endlist
-                \omit
-                \li \l{Designer-Developer Workflow}
-                    \list
-                        \li \l{Reusable Prototypes and Full UI Implementation}
-                        \li \l{Optimizing Specification and Implementation}
-                        \li \l{Parallel Development}
-                        \li \l{One Toolchain}
-                    \endlist
-                \endomit
             \endlist
         \li \l{Advanced Designer Topics}
             \list

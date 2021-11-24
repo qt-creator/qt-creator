@@ -75,6 +75,7 @@ public:
     CppEditor::RefactoringEngineInterface &refactoringEngineInterface() override;
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool supportsOutline(const TextEditor::TextDocument *document) const override;
+    bool supportsLocalUses(const TextEditor::TextDocument *document) const override;
 
     BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;
