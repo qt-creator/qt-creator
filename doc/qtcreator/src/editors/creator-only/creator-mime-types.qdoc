@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -75,6 +75,11 @@
 
         \li In \uicontrol {MIME Type}, select a MIME type.
 
+        \li In \uicontrol Handler, double-click the editor name to display a
+            context-menu where you can select another editor to open the file
+            in by default. The menu is available only if alternative suitable
+            editors are available.
+
         \li In \uicontrol Patterns, add the filename extension for the type of files
             that you want to identify as having this MIME type.
 
@@ -96,12 +101,7 @@
             \note You are recommended not to change the range and priority,
             because it might cause problems when opening files in \QC.
 
-        \li In \uicontrol Handler, double-click the editor name to display a
-            context-menu where you can select another editor to open the file
-            in by default. The menu is available only if alternative suitable
-            editors are available.
-
-        \li Click \uicontrol OK.
+        \li Click \uicontrol OK to return to the \uicontrol {MIME Types} tab.
 
     \endlist
 
@@ -119,8 +119,8 @@
     select \uicontrol {Reset MIME Types}. To revert the changes you have
     made to the default editors, select \uicontrol {Reset Handlers}.
 
-    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently lose all
-    your own patterns and magic headers. The changes are reverted the next
-    time you start \QC.
+    \note If you select \uicontrol OK or \uicontrol Apply after reverting
+    changes, you permanently lose all your own patterns and magic headers.
+    They are removed the next time you start \QC.
 
 */
