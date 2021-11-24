@@ -104,7 +104,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&shiftWidth,     8,     "ShiftWidth",     "sw",  tr("Shift width:"));
     setup(&expandTab,      false, "ExpandTab",      "et",  tr("Expand tabulators"));
     setup(&autoIndent,     false, "AutoIndent",     "ai",  tr("Automatic indentation"));
-    setup(&smartIndent,    false, "SmartIndent",    "si",  tr("Smart tabulators"));
+    setup(&smartIndent,    false, "SmartIndent",    "si",  tr("Smart indentation"));
     setup(&incSearch,      true,  "IncSearch",      "is",  tr("Incremental search"));
     setup(&useCoreSearch,  false, "UseCoreSearch",  "ucs", tr("Use search dialog"));
     setup(&smartCase,      false, "SmartCase",      "scs", tr("Use smartcase"));
