@@ -108,10 +108,9 @@ private:
     QSet<QString> m_pendingImages;
     QMap<QString, QString> m_collectionTitles;
     QMap<Section, ProductListModel *> m_productModels;
-    QMap<Section, ProductGridView *> m_gridViews;
-    ProductGridView *m_allProductsView = nullptr;
+    QMap<Section, Core::GridView *> m_gridViews;
+    Core::GridView *m_allProductsView = nullptr;
     Core::ListModelFilter *m_filteredAllProductsModel = nullptr;
-    Core::GridProxyModel * const m_gridModel;
     ProductItemDelegate *m_productDelegate = nullptr;
     bool m_isDownloadingImage = false;
     int m_columnCount = 1;

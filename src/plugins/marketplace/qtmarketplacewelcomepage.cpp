@@ -124,18 +124,6 @@ public:
         QWidget::showEvent(event);
     }
 
-    void resizeEvent(QResizeEvent *ev) final
-    {
-        QWidget::resizeEvent(ev);
-        m_sectionedProducts->setColumnCount(bestColumnCount());
-    }
-
-    int bestColumnCount() const
-    {
-        return qMax(1, width() / (Core::GridProxyModel::GridItemWidth
-                                  + Core::GridProxyModel::GridItemGap));
-    }
-
     void onTagClicked(const QString &tag)
     {
         QString text = m_searcher->text();

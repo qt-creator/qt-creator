@@ -66,41 +66,23 @@ class ProductGridView : public Core::GridView
 {
 public:
     ProductGridView(QWidget *parent) : Core::GridView(parent) {}
-    QSize viewportSizeHint() const override
-    {
-        if (!model())
-            return Core::GridView::viewportSizeHint();
 
-        static int gridW = Core::GridProxyModel::GridItemWidth + Core::GridProxyModel::GridItemGap;
-        static int gridH = Core::GridProxyModel::GridItemHeight + Core::GridProxyModel::GridItemGap;
-        return QSize(model()->columnCount() * gridW, model()->rowCount() * gridH);
+    bool hasHeightForWidth() const override
+    {
+        return true;
     }
 
-    void setColumnCount(int columnCount)
+    int heightForWidth(int width) const override
     {
-        if (columnCount < 1)
-            columnCount = 1;
-
-        auto gridProxyModel = static_cast<Core::GridProxyModel *>(model());
-        gridProxyModel->setColumnCount(columnCount);
+        const int columnCount = width / Core::ListItemDelegate::GridItemWidth;
+        const int rowCount = (model()->rowCount() + columnCount - 1) / columnCount;
+        return rowCount * Core::ListItemDelegate::GridItemHeight;
     }
 };
 
 class ProductItemDelegate : public Core::ListItemDelegate
 {
 public:
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
-    {
-        const Core::ListItem *item = index.data(Core::ListModel::ItemRole).value<Core::ListItem *>();
-
-        // "empty" items (last row of a section)
-        if (!item)
-            return Core::ListItemDelegate::sizeHint(option, index);
-
-        return QSize(Core::GridProxyModel::GridItemWidth + Core::GridProxyModel::GridItemGap,
-                     Core::GridProxyModel::GridItemHeight + Core::GridProxyModel::GridItemGap);
-    }
-
     void clickAction(const Core::ListItem *item) const override
     {
         QTC_ASSERT(item, return);
@@ -163,9 +145,8 @@ static int priority(const QString &collection)
 
 SectionedProducts::SectionedProducts(QWidget *parent)
     : QStackedWidget(parent)
-    , m_allProductsView(new ProductGridView(this))
+    , m_allProductsView(new Core::GridView(this))
     , m_filteredAllProductsModel(new Core::ListModelFilter(new AllProductsModel(this), this))
-    , m_gridModel(new Core::GridProxyModel)
     , m_productDelegate(new ProductItemDelegate)
 {
     auto area = new QScrollArea(this);
@@ -182,9 +163,8 @@ SectionedProducts::SectionedProducts(QWidget *parent)
 
     addWidget(area);
 
-    m_gridModel->setSourceModel(m_filteredAllProductsModel);
     m_allProductsView->setItemDelegate(m_productDelegate);
-    m_allProductsView->setModel(m_gridModel);
+    m_allProductsView->setModel(m_filteredAllProductsModel);
     addWidget(m_allProductsView);
 
     connect(m_productDelegate, &ProductItemDelegate::tagClicked,
@@ -195,7 +175,6 @@ SectionedProducts::~SectionedProducts()
 {
     qDeleteAll(m_gridViews);
     delete m_productDelegate;
-    delete m_gridModel;
 }
 
 void SectionedProducts::updateCollections()
@@ -328,18 +307,6 @@ void SectionedProducts::queueImageForDownload(const QString &url)
         fetchNextImage();
 }
 
-void SectionedProducts::setColumnCount(int columns)
-{
-    if (columns < 1)
-        columns = 1;
-    m_columnCount = columns;
-    for (ProductGridView *view : qAsConst(m_gridViews)) {
-        view->setColumnCount(columns);
-        view->setFixedSize(view->viewportSizeHint());
-    }
-    m_allProductsView->setColumnCount(columns);
-}
-
 void SectionedProducts::setSearchString(const QString &searchString)
 {
     int view = searchString.isEmpty() ? 0  // sectioned view
@@ -401,14 +368,11 @@ void SectionedProducts::addNewSection(const Section &section, const QList<Core::
     ProductListModel *productModel = new ProductListModel(this);
     productModel->appendItems(items);
     auto filteredModel = new Core::ListModelFilter(productModel, this);
-    Core::GridProxyModel *gridModel = new Core::GridProxyModel;
-    gridModel->setSourceModel(filteredModel);
     auto gridView = new ProductGridView(this);
     gridView->setItemDelegate(m_productDelegate);
     gridView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gridView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gridView->setModel(gridModel);
-    gridModel->setColumnCount(m_columnCount);
+    gridView->setModel(filteredModel);
 
     m_productModels.insert(section, productModel);
     const auto it = m_gridViews.insert(section, gridView);
@@ -425,12 +389,10 @@ void SectionedProducts::addNewSection(const Section &section, const QList<Core::
     QTC_ASSERT(position <= vbox->count() - 1, position = vbox->count() - 1);
     vbox->insertWidget(position, sectionLabel);
     vbox->insertWidget(position + 1, gridView);
-    gridView->setFixedSize(gridView->viewportSizeHint());
 
     // add the items also to the all products model to be able to search correctly
     auto allProducts = static_cast<ProductListModel *>(m_filteredAllProductsModel->sourceModel());
     allProducts->appendItems(items);
-    m_allProductsView->setColumnCount(m_columnCount);
 }
 
 void SectionedProducts::onTagClicked(const QString &tag)

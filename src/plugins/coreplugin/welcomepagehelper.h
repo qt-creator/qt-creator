@@ -34,7 +34,7 @@
 #include <QPointer>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
-#include <QTableView>
+#include <QListView>
 
 namespace Utils { class FancyLineEdit; }
 
@@ -48,7 +48,7 @@ public:
     Utils::FancyLineEdit *m_lineEdit = nullptr;
 };
 
-class CORE_EXPORT GridView : public QTableView
+class CORE_EXPORT GridView : public QListView
 {
 public:
     explicit GridView(QWidget *parent);
@@ -57,33 +57,6 @@ protected:
 };
 
 using OptModelIndex = Utils::optional<QModelIndex>;
-
-class CORE_EXPORT GridProxyModel : public QAbstractItemModel
-{
-public:
-    void setSourceModel(QAbstractItemModel *newModel);
-    QAbstractItemModel *sourceModel() const;
-    QVariant data(const QModelIndex &index, int role) const final;
-    Qt::ItemFlags flags(const QModelIndex &index) const final;
-    bool hasChildren(const QModelIndex &parent) const final;
-    void setColumnCount(int columnCount);
-    int rowCount(const QModelIndex &parent) const final;
-    int columnCount(const QModelIndex &parent) const final;
-    QModelIndex index(int row, int column, const QModelIndex &) const final;
-    QModelIndex parent(const QModelIndex &) const final;
-
-    OptModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
-
-    static constexpr int GridItemWidth = 230;
-    static constexpr int GridItemHeight = 230;
-    static constexpr int GridItemGap = 10;
-    static constexpr int TagsSeparatorY = GridItemHeight - 60;
-
-private:
-    QAbstractItemModel *m_sourceModel = nullptr;
-    int m_columnCount = 1;
-};
 
 class CORE_EXPORT ListItem
 {
@@ -148,12 +121,18 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
+    static constexpr int GridItemWidth = 230;
+    static constexpr int GridItemHeight = 230;
+    static constexpr int GridItemGap = 10;
+    static constexpr int TagsSeparatorY = GridItemHeight - 60;
+
 signals:
     void tagClicked(const QString &tag);
 
 protected:
     bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option,
                      const QModelIndex &index) override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     virtual void drawPixmapOverlay(const ListItem *item, QPainter *painter,
                                    const QStyleOptionViewItem &option,

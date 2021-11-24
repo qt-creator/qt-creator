@@ -78,18 +78,15 @@ SearchBox::SearchBox(QWidget *parent)
 }
 
 GridView::GridView(QWidget *parent)
-    : QTableView(parent)
+    : QListView(parent)
 {
-    setVerticalScrollMode(ScrollPerPixel);
-    horizontalHeader()->hide();
-    horizontalHeader()->setDefaultSectionSize(GridProxyModel::GridItemWidth);
-    verticalHeader()->hide();
-    verticalHeader()->setDefaultSectionSize(GridProxyModel::GridItemHeight);
+    setResizeMode(QListView::Adjust);
     setMouseTracking(true); // To enable hover.
     setSelectionMode(QAbstractItemView::NoSelection);
     setFrameShape(QFrame::NoFrame);
-    setGridStyle(Qt::NoPen);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setViewMode(IconMode);
+    setUniformItemSizes(true);
 
     QPalette pal;
     pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
@@ -100,129 +97,6 @@ void GridView::leaveEvent(QEvent *)
 {
     QHoverEvent hev(QEvent::HoverLeave, QPointF(), QPointF());
     viewportEvent(&hev); // Seemingly needed to kill the hover paint.
-}
-
-void GridProxyModel::setSourceModel(QAbstractItemModel *newModel)
-{
-    if (m_sourceModel == newModel)
-        return;
-    if (m_sourceModel)
-        disconnect(m_sourceModel, nullptr, this, nullptr);
-    m_sourceModel = newModel;
-    if (newModel) {
-        connect(newModel, &QAbstractItemModel::layoutAboutToBeChanged, this, [this] {
-            emit layoutAboutToBeChanged();
-        });
-        connect(newModel, &QAbstractItemModel::layoutChanged, this, [this] {
-            emit layoutChanged();
-        });
-        connect(newModel, &QAbstractItemModel::modelAboutToBeReset, this, [this] {
-            beginResetModel();
-        });
-        connect(newModel, &QAbstractItemModel::modelReset, this, [this] { endResetModel(); });
-        connect(newModel, &QAbstractItemModel::rowsAboutToBeInserted, this, [this] {
-            beginResetModel();
-        });
-        connect(newModel, &QAbstractItemModel::rowsInserted, this, [this] { endResetModel(); });
-        connect(newModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, [this] {
-            beginResetModel();
-        });
-        connect(newModel, &QAbstractItemModel::rowsRemoved, this, [this] { endResetModel(); });
-        connect(newModel,
-                &QAbstractItemModel::dataChanged,
-                this,
-                [this] (const QModelIndex &topLeft,
-                        const QModelIndex &bottomRight,
-                        const QVector<int> &roles) {
-            emit QAbstractItemModel::dataChanged(mapFromSource(topLeft),
-                                                 mapFromSource(bottomRight), roles);
-        });
-    }
-}
-
-QAbstractItemModel *GridProxyModel::sourceModel() const
-{
-    return m_sourceModel;
-}
-
-QVariant GridProxyModel::data(const QModelIndex &index, int role) const
-{
-    const OptModelIndex sourceIndex = mapToSource(index);
-    if (sourceIndex)
-        return sourceModel()->data(*sourceIndex, role);
-    return QVariant();
-}
-
-Qt::ItemFlags GridProxyModel::flags(const QModelIndex &index) const
-{
-    const OptModelIndex sourceIndex = mapToSource(index);
-    if (sourceIndex)
-        return sourceModel()->flags(*sourceIndex);
-    return Qt::ItemFlags();
-}
-
-bool GridProxyModel::hasChildren(const QModelIndex &parent) const
-{
-    const OptModelIndex sourceParent = mapToSource(parent);
-    if (sourceParent)
-        return sourceModel()->hasChildren(*sourceParent);
-    return false;
-}
-
-void GridProxyModel::setColumnCount(int columnCount)
-{
-    if (columnCount == m_columnCount)
-        return;
-    QTC_ASSERT(columnCount >= 1, columnCount = 1);
-    m_columnCount = columnCount;
-    emit layoutChanged();
-}
-
-int GridProxyModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    int rows = sourceModel()->rowCount(QModelIndex());
-    return (rows + m_columnCount - 1) / m_columnCount;
-}
-
-int GridProxyModel::columnCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return m_columnCount;
-}
-
-QModelIndex GridProxyModel::index(int row, int column, const QModelIndex &) const
-{
-    return createIndex(row, column, nullptr);
-}
-
-QModelIndex GridProxyModel::parent(const QModelIndex &) const
-{
-    return QModelIndex();
-}
-
-// The items at the lower right of the grid might not correspond to source items, if
-// source's row count is not N*columnCount
-OptModelIndex GridProxyModel::mapToSource(const QModelIndex &proxyIndex) const
-{
-    if (!proxyIndex.isValid())
-        return QModelIndex();
-    int sourceRow = proxyIndex.row() * m_columnCount + proxyIndex.column();
-    if (sourceRow < sourceModel()->rowCount())
-        return sourceModel()->index(sourceRow, 0);
-    return OptModelIndex();
-}
-
-QModelIndex GridProxyModel::mapFromSource(const QModelIndex &sourceIndex) const
-{
-    if (!sourceIndex.isValid())
-        return QModelIndex();
-    QTC_CHECK(sourceIndex.column() == 0);
-    int proxyRow = sourceIndex.row() / m_columnCount;
-    int proxyColumn = sourceIndex.row() % m_columnCount;
-    return index(proxyRow, proxyColumn, QModelIndex());
 }
 
 const QSize ListModel::defaultImageSize(188, 145);
@@ -474,13 +348,13 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     const int d = 10;
     const int x = rc.x() + d;
     const int y = rc.y() + d;
-    const int w = rc.width() - 2 * d - GridProxyModel::GridItemGap;
+    const int w = rc.width() - 2 * d;
     const int h = rc.height() - 2 * d;
     const bool hovered = option.state & QStyle::State_MouseOver;
 
-    const int tagsBase = GridProxyModel::TagsSeparatorY + 10;
-    const int shiftY = GridProxyModel::TagsSeparatorY - 20;
-    const int nameY = GridProxyModel::TagsSeparatorY - 20;
+    const int tagsBase = TagsSeparatorY + 10;
+    const int shiftY = TagsSeparatorY - 20;
+    const int nameY = TagsSeparatorY - 20;
 
     const QRect textRect = QRect(x, y + nameY, w, h);
 
@@ -576,8 +450,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     // Separator line between text and 'Tags:' section
     painter->setPen(lightColor);
-    painter->drawLine(x, y + GridProxyModel::TagsSeparatorY,
-                      x + w, y + GridProxyModel::TagsSeparatorY);
+    painter->drawLine(x, y + TagsSeparatorY, x + w, y + TagsSeparatorY);
 
     // The 'Tags:' section
     const int tagsHeight = h - tagsBase;
@@ -623,7 +496,7 @@ bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
 
         if (index.isValid()) {
             const QPoint pos = mev->pos();
-            if (pos.y() > option.rect.y() + GridProxyModel::TagsSeparatorY) {
+            if (pos.y() > option.rect.y() + TagsSeparatorY) {
                 //const QStringList tags = idx.data(Tags).toStringList();
                 for (const auto &it : qAsConst(m_currentTagRects)) {
                     if (it.second.contains(pos))
@@ -635,6 +508,11 @@ bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
         }
     }
     return QStyledItemDelegate::editorEvent(event, model, option, index);
+}
+
+QSize ListItemDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const
+{
+    return {GridItemWidth, GridItemHeight};
 }
 
 void ListItemDelegate::drawPixmapOverlay(const ListItem *, QPainter *,
