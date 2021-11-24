@@ -344,7 +344,7 @@ void InfoBarDisplay::update()
             if (info.m_cancelButtonCallBack)
                 connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
             connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [this, id] {
-                m_infoBar->suppressInfo(id);
+                m_infoBar->removeInfo(id);
             });
         }
 
