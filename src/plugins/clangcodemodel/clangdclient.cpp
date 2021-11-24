@@ -3674,7 +3674,13 @@ void ExtraHighlightingResultsCollector::visitNode(const AstNode &node)
 
 bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
 {
-    // If we have up-to-date highlighting info, we can give a definite answer.
+    // Even if the call is to a virtual function, it might not be ambiguous:
+    // class A { virtual void f(); }; class B : public A { void f() override { A::f(); } };
+    if (!cursorNode->mightBeAmbiguousVirtualCall() && !cursorNode->isPureVirtualDeclaration())
+        return false;
+
+    // If we have up-to-date highlighting info, we know whether we are dealing with
+    // a virtual call.
     if (editorWidget) {
         const auto virtualRanges = q->d->virtualRanges.constFind(editorWidget->textDocument());
         if (virtualRanges != q->d->virtualRanges.constEnd()
@@ -3686,8 +3692,9 @@ bool ClangdClient::FollowSymbolData::defLinkIsAmbiguous() const
         }
     }
 
-    // Otherwise, we have to rely on AST-based heuristics.
-    return cursorNode->mightBeAmbiguousVirtualCall() || cursorNode->isPureVirtualDeclaration();
+    // Otherwise, we accept potentially doing more work than needed rather than not catching
+    // possible overrides.
+    return true;
 }
 
 } // namespace Internal
