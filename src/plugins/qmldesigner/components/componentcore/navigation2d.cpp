@@ -83,9 +83,18 @@ bool Navigation2dFilter::gestureEvent(QGestureEvent *event)
 bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
 {
     if (event->source() == Qt::MouseEventSynthesizedBySystem) {
-        emit panChanged(QPointF(event->pixelDelta()));
-        event->accept();
-        return true;
+        if (event->modifiers().testFlag(Qt::ControlModifier)) {
+            if (QPointF delta = event->pixelDelta(); !delta.isNull()) {
+                double dist = std::abs(delta.x()) > std::abs(delta.y()) ? -delta.x() : delta.y();
+                emit zoomChanged(dist/200.0, event->position());
+                event->accept();
+                return true;
+            }
+        } else {
+            emit panChanged(QPointF(event->pixelDelta()));
+            event->accept();
+            return true;
+        }
     } else if (event->source() == Qt::MouseEventNotSynthesized) {
 
         auto zoomInSignal = QMetaMethod::fromSignal(&Navigation2dFilter::zoomIn);
