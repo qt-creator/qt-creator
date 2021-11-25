@@ -256,29 +256,13 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \class EditorManager::FilePathInfo
-    \inheaderfile coreplugin/editormanager/editormanager.h
-    \inmodule QtCreator
-
-    \brief The FilePathInfo class contains information about a file path's
-    special segments.
-
-    File names can have an additional postfix, optionally specifying a line and
-    column number, when opening a file in \QC from the command line or locator.
-    The FilePathInfo class contains the file name, the complete postfix string,
-    and the parsed line and column numbers.
-
-    \sa EditorManager::splitLineAndColumnNumber()
-*/
-
-/*!
-    \fn void EditorManager::currentEditorChanged(IEditor *editor)
+    \fn void Core::EditorManager::currentEditorChanged(Core::IEditor *editor)
 
     This signal is emitted after the current editor changed to \a editor.
 */
 
 /*!
-    \fn void EditorManager::currentDocumentStateChanged()
+    \fn void Core::EditorManager::currentDocumentStateChanged()
 
     This signal is emitted when the meta data of the current document, for
     example file name or modified state, changed.
@@ -287,7 +271,7 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \fn void EditorManager::documentStateChanged(IDocument *document)
+    \fn void Core::EditorManager::documentStateChanged(Core::IDocument *document)
 
     This signal is emitted when the meta data of the \a document, for
     example file name or modified state, changed.
@@ -296,13 +280,13 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \fn void EditorManager::editorCreated(IEditor *editor, const QString &fileName)
+    \fn void Core::EditorManager::editorCreated(Core::IEditor *editor, const QString &fileName)
 
     This signal is emitted after an \a editor was created for \a fileName, but
     before it was opened in an editor view.
 */
 /*!
-    \fn void EditorManager::editorOpened(IEditor *editor)
+    \fn void Core::EditorManager::editorOpened(Core::IEditor *editor)
 
     This signal is emitted after a new \a editor was opened in an editor view.
 
@@ -310,14 +294,14 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \fn void EditorManager::documentOpened(IDocument *document)
+    \fn void Core::EditorManager::documentOpened(Core::IDocument *document)
 
     This signal is emitted after the first editor for \a document opened in an
     editor view.
 */
 
 /*!
-    \fn void EditorManager::editorAboutToClose(IEditor *editor)
+    \fn void Core::EditorManager::editorAboutToClose(Core::IEditor *editor)
 
     This signal is emitted before \a editor is closed. This can be used to free
     resources that were allocated for the editor separately from the editor
@@ -330,7 +314,7 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \fn void EditorManager::editorsClosed(QList<IEditor *> editors)
+    \fn void Core::EditorManager::editorsClosed(QList<Core::IEditor *> editors)
 
     This signal is emitted after the \a editors closed, but before they are
     deleted.
@@ -339,7 +323,7 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \fn void EditorManager::documentClosed(IDocument *document)
+    \fn void Core::EditorManager::documentClosed(Core::IDocument *document)
 
     This signal is emitted after the \a document closed, but before it is deleted.
 */
@@ -349,22 +333,22 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
     \internal
 */
 /*!
-    \fn void EditorManager::aboutToSave(IDocument *document)
+    \fn void Core::EditorManager::aboutToSave(Core::IDocument *document)
 
     This signal is emitted before the \a document is saved.
 */
 /*!
-    \fn void EditorManager::saved(IDocument *document)
+    \fn void Core::EditorManager::saved(Core::IDocument *document)
 
     This signal is emitted after the \a document was saved.
 */
 /*!
-    \fn void EditorManager::autoSaved()
+    \fn void Core::EditorManager::autoSaved()
 
     This signal is emitted after auto-save was triggered.
 */
 /*!
-    \fn void EditorManager::currentEditorAboutToChange(IEditor *editor)
+    \fn void Core::EditorManager::currentEditorAboutToChange(Core::IEditor *editor)
 
     This signal is emitted before the current editor changes to \a editor.
 */
@@ -3076,10 +3060,10 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
 }
 
 /*!
-    Opens the document specified by \a filePath using the editor type \a
+    Opens the document specified by \a link using the editor type \a
     editorId and the specified \a flags.
 
-    Moves the text cursor to the \a line and \a column.
+    Moves the text cursor to the \e line and \e column specified in \a link.
 
     If \a editorId is \c Id(), the editor type is derived from the file's MIME
     type.
@@ -3147,7 +3131,7 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
 }
 
 /*!
-    Returns whether \a fileName is an auto-save file created by \QC.
+    Returns whether \a filePath is an auto-save file created by \QC.
 */
 bool EditorManager::isAutoSaveFile(const QString &filePath)
 {
@@ -3199,7 +3183,7 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 /*!
     Asks the user for a list of files to open and returns the choice.
 
-    \sa DocumentManager::getOpenFilePaths()
+    \sa DocumentManager::getOpenFileNames()
 */
 FilePaths EditorManager::getOpenFilePaths()
 {
