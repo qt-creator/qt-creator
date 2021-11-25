@@ -147,10 +147,11 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
     settings.indentFunctionBraces = settings.indentClassBraces;
 
     settings.indentSwitchLabels = style.IndentCaseLabels;
+#if LLVM_VERSION_MAJOR >= 11
     settings.indentBlocksRelativeToSwitchLabels = style.IndentCaseBlocks;
     settings.indentStatementsRelativeToSwitchLabels = style.IndentCaseBlocks;
     settings.indentControlFlowRelativeToSwitchLabels = style.IndentCaseBlocks;
-
+#endif
     if (style.DerivePointerAlignment
         && ClangFormatSettings::instance().formatCodeInsteadOfIndent()) {
         settings.bindStarToIdentifier = style.PointerAlignment == FormatStyle::PAS_Right;
@@ -178,9 +179,11 @@ void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSett
         m_style.BreakBeforeBraces = FormatStyle::BS_Whitesmiths;
 
     m_style.IndentCaseLabels = settings.indentSwitchLabels;
+#if LLVM_VERSION_MAJOR >= 11
     m_style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels
                                || settings.indentStatementsRelativeToSwitchLabels
                                || settings.indentControlFlowRelativeToSwitchLabels;
+#endif
 
     if (settings.alignAssignments)
         m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_NonAssignment;
@@ -218,7 +221,9 @@ TextEditor::TabSettings ClangFormatFile::toTabSettings(ProjectExplorer::Project 
     settings.m_tabSize = style.TabWidth;
 
     switch (style.UseTab) {
+#if LLVM_VERSION_MAJOR >= 11
     case FormatStyle::UT_AlignWithSpaces:
+#endif
     case FormatStyle::UT_ForIndentation:
     case FormatStyle::UT_ForContinuationAndIndentation:
         settings.m_tabPolicy = TextEditor::TabSettings::TabPolicy::MixedTabPolicy;
