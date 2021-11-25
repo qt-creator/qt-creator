@@ -59,7 +59,7 @@ OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFor
         emitCurrentTask();
         m_currentTask = Task(Task::Error, theLine, FilePath(), -1,
                              Constants::TASK_CATEGORY_AUTOTEST);
-        return Status::InProgress;
+        return {Status::InProgress, {}, {}, StdErrFormat};
     }
     if (m_currentTask.isNull())
         return Status::NotHandled;
