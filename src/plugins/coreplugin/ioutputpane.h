@@ -56,6 +56,7 @@ public:
     virtual QList<QWidget *> toolBarWidgets() const;
     virtual QString displayName() const = 0;
     virtual const QList<OutputWindow *> outputWindows() const { return {}; }
+    virtual void ensureWindowVisible(OutputWindow *) { }
 
     virtual int priorityInStatusBar() const = 0;
 

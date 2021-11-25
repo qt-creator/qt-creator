@@ -51,7 +51,9 @@ class Project;
 
 namespace Internal {
 
+class ShowOutputTaskHandler;
 class TabWidget;
+
 class AppOutputPane : public Core::IOutputPane
 {
     Q_OBJECT
@@ -138,6 +140,8 @@ private:
     void handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
     void updateFilter() override;
+    const QList<Core::OutputWindow *> outputWindows() const override;
+    void ensureWindowVisible(Core::OutputWindow *ow) override;
 
     void loadSettings();
     void storeSettings() const;
@@ -155,6 +159,7 @@ private:
     QToolButton *m_attachButton;
     QToolButton * const m_settingsButton;
     QWidget *m_formatterWidget;
+    ShowOutputTaskHandler * const m_handler;
     AppOutputSettings m_settings;
 };
 

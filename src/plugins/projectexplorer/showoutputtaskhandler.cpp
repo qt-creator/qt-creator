@@ -55,6 +55,7 @@ void ShowOutputTaskHandler::handle(const Task &task)
     m_window->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
     for (Core::OutputWindow * const ow : m_window->outputWindows()) {
         if (ow->knowsPositionOf(task.taskId)) {
+            m_window->ensureWindowVisible(ow);
             ow->showPositionOf(task.taskId);
             break;
         }

@@ -30,6 +30,7 @@
 #include "projectexplorericons.h"
 #include "runcontrol.h"
 #include "session.h"
+#include "showoutputtaskhandler.h"
 #include "windebuginterface.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -170,8 +171,11 @@ AppOutputPane::AppOutputPane() :
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton),
     m_settingsButton(new QToolButton),
-    m_formatterWidget(new QWidget)
+    m_formatterWidget(new QWidget),
+    m_handler(new ShowOutputTaskHandler(this))
 {
+    ExtensionSystem::PluginManager::addObject(m_handler);
+
     setObjectName("AppOutputPane"); // Used in valgrind engine
     loadSettings();
 
@@ -252,6 +256,8 @@ AppOutputPane::~AppOutputPane()
         delete rt.runControl;
     }
     delete m_mainWidget;
+    ExtensionSystem::PluginManager::removeObject(m_handler);
+    delete m_handler;
 }
 
 int AppOutputPane::currentIndex() const
@@ -366,6 +372,21 @@ void AppOutputPane::updateFilter()
         m_runControlTabs.at(index).window->updateFilterProperties(
                     filterText(), filterCaseSensitivity(), filterUsesRegexp(), filterIsInverted());
     }
+}
+
+const QList<Core::OutputWindow *> AppOutputPane::outputWindows() const
+{
+    QList<Core::OutputWindow *> windows;
+    for (const RunControlTab &tab : qAsConst(m_runControlTabs)) {
+        if (tab.window)
+            windows << tab.window;
+    }
+    return windows;
+}
+
+void AppOutputPane::ensureWindowVisible(Core::OutputWindow *ow)
+{
+    m_tabWidget->setCurrentWidget(ow);
 }
 
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
