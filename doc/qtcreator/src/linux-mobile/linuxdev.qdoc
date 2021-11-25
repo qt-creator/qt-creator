@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -87,7 +87,7 @@
         \li To deploy applications and run them remotely on devices, specify
             parameters for accessing the devices:
 
-            \list 1
+            \list a
 
                 \li Select \uicontrol Tools > \uicontrol Options >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
@@ -108,14 +108,23 @@
                     application as.
                     This value will be available in the variable \c %{Device:UserName}.
 
-                \li In the \uicontrol {The authentication type} field, select
-                    \uicontrol Default to use the currently displayed private
-                    key file for authentication. Select \uicontrol {Specific Key}
-                    to use some other key, and enter the path to the file that
-                    contains the private key in the field below. This value will
-                    be available in the variable \c %{Device:PrivateKeyFile}.
+                \li Select \uicontrol {Next} to open the
+                    \uicontrol {Key Deployment} dialog.
 
-                \li  Click \uicontrol {Next} to create the connection.
+                    \image qtcreator-generic-linux-device-key-deployment.png "Key Deployment dialog"
+
+                \li In \uicontrol {Private key file}, select a private key file
+                    to use for authentication. This value will be available in
+                    the variable \c %{Device:PrivateKeyFile}.
+
+                \li If you do not have a public-private key pair, select
+                    \uicontrol {Create New Key Pair}. For more information,
+                    see \l{Generating SSH Keys}.
+
+                \li Select \uicontrol {Deploy Public Key} to copy the public
+                    key to the device.
+
+                \li  Select \uicontrol {Next} to create the connection.
 
             \endlist
 
