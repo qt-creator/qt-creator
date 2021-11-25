@@ -43,31 +43,12 @@
     \QBPS is delivered as an Adobe extension (ZXP)
     package and requires Adobe Photoshop version 20.0.0, or later
     to be installed. The \QBPS installation process differs depending
-    on whether you use ZXPInstaller and whether you are installing on
+    on whether you are installing on
     Windows or \macos.
 
-    \section1 Installing with ZXPInstaller
+    \section1 Installing on Windows
 
-    To use ZXPInstaller to install \QBPS:
-
-    \list 1
-        \li Download and install \l{http://zxpinstaller.com/}{ZXPInstaller}.
-        \li Start ZXPInstaller.
-        \li Drag and drop the \QBPS ZXP package from
-            \c {Qt\Tools\QtDesignStudio\photoshop_bridge} on Windows
-            or \c {Qt/QtDesignStudio/photoshop_bridge} on \macos
-            to ZXPInstaller.
-        \li Follow the instructions of the installation program.
-    \endlist
-
-    \section1 Installing Without ZXPInstaller
-
-    The \QBPS installation process differs depending on the platform you
-    are installing on.
-
-    \section2 Installing on Windows
-
-    To install \QBPS on Windows without using ZXPInstaller:
+    To install \QBPS on Windows:
 
     \list 1
         \li Copy the \QBPS ZXP package from
@@ -83,9 +64,9 @@
         \endcode
     \endlist
 
-    \section2 Installing on \macos
+    \section1 Installing on \macos
 
-    To install \QBPS on \macos without using ZXPInstaller:
+    To install \QBPS on \macos:
 
     \list 1
         \li Copy the \QBPS ZXP package from
