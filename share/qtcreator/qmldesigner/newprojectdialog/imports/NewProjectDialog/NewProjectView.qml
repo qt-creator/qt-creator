@@ -35,67 +35,58 @@ GridView {
 
     required property Item loader
 
-    header: TabBar {
-        id: tabBar
+    readonly property int animDur: 500
+
+    header: Rectangle {
         width: parent.width
         height: DialogValues.projectViewHeaderHeight
+        color: DialogValues.lightPaneColor
 
-        background: Rectangle {
-            color: DialogValues.lightPaneColor
-        }
+        Row {
+            id: row
+            spacing: 20
+            property int currIndex: 0
 
-        Repeater {
-            model: categoryModel
+            Repeater {
+                model: categoryModel
+                Text {
+                    text: name
+                    font.weight: Font.DemiBold
+                    font.pixelSize: DialogValues.viewHeaderPixelSize
+                    verticalAlignment: Text.AlignVCenter
+                    color: row.currIndex === index ? DialogValues.textColorInteraction
+                                                   : DialogValues.textColor
+                    Behavior on color { ColorAnimation { duration: animDur } }
 
-            TabButton {
-                padding: 0
-
-                width: headerText.contentWidth + 36
-
-                background: Item { // TabButton background
-                    Rectangle { // bottom strip
-                        anchors.bottom: parent.bottom
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        width: headerText.contentWidth
-                        height: 6
-                        radius: 10
-                        color: tabBar.currentIndex === index ? DialogValues.textColorInteraction
-                                                             : "transparent"
-                    }
-                } // TabButton background
-
-                implicitHeight: headerText.height + DialogValues.defaultPadding - 7
-
-                contentItem:  Item {
-                    Column {
+                    MouseArea {
                         anchors.fill: parent
+                        onClicked: {
+                            row.currIndex = index
+                            projectModel.setPage(index)
+                            projectView.currentIndex = 0
+                            projectView.currentIndexChanged()
 
-                        Text {
-                            id: headerText
-                            color: tabBar.currentIndex == index ? DialogValues.textColorInteraction
-                                                                : DialogValues.textColor
-                            text: name
-                            width: parent.width
-                            font.weight: Font.DemiBold
-                            font.pixelSize: DialogValues.viewHeaderPixelSize
-                            lineHeight: DialogValues.viewHeaderLineHeight
-                            lineHeightMode: Text.FixedHeight
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            strip.x = parent.x
+                            strip.width = parent.width
                         }
+                    }
 
-                        Item  { width: parent.width; height: 11; }
-                    } // Column
-                } // Item
+                } // Text
+            } // Repeater
+        } // Row
 
-                onClicked: {
-                    projectModel.setPage(index)
-                    projectView.currentIndex = 0
-                    projectView.currentIndexChanged()
-                }
-            } // TabButton
-        } // Repeater
-    } // Header - TabBar
+        Rectangle {
+            id: strip
+            width: row.children[0].width
+            height: 5
+            radius: 2
+            color: DialogValues.textColorInteraction
+            anchors.bottom: parent.bottom
+
+            Behavior on x { SmoothedAnimation { duration: animDur } }
+            Behavior on width { SmoothedAnimation { duration: strip.width === 0 ? 0 : animDur } } // do not animate initial width
+        }
+    } // Rectangle
 
     cellWidth: DialogValues.projectItemWidth
     cellHeight: DialogValues.projectItemHeight
