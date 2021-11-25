@@ -1,13 +1,13 @@
 /****************************************************************************
 **
-** This file is part of Qt Creator
-**
 ** Copyright (C) 2018 Blackberry
-**
 ** Contact: Blackberry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
-** This file is part of Qt Creator.
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -39,6 +39,10 @@
     applications on them from within \QC. The QNX Neutrino RTOS should provide
     a few additional command line tools and services, as described in
     \l {Qt Creator Target Requirements}.
+
+    \note In Qt 6, Qt for QNX is a part of
+    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation},
+    and the \QC support is considered experimental.
 
     \section1 Adding a QNX Neutrino Device in \QC
 

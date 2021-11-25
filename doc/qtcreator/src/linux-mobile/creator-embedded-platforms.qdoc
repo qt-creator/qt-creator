@@ -123,6 +123,10 @@
     The QNX Neutrino RTOS should provide a few additional command line tools
     and services, as described in \l {Qt Creator Target Requirements}.
 
+    \note In Qt 6, Qt for QNX is a part of
+    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation},
+    and the \QC support is considered experimental.
+
     The following topics contain more information about developing applications
     for QNX devices:
 
