@@ -324,7 +324,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
         if (d->postPrintAction)
             d->postPrintAction(p);
         else
-            p->runPostPrintActions();
+            p->runPostPrintActions(plainTextEdit());
     }
 }
 
@@ -591,7 +591,7 @@ void OutputFormatter::flush()
     for (OutputLineParser * const p : qAsConst(d->lineParsers))
         p->flush();
     if (d->nextParser)
-        d->nextParser->runPostPrintActions();
+        d->nextParser->runPostPrintActions(plainTextEdit());
 }
 
 bool OutputFormatter::hasFatalErrors() const

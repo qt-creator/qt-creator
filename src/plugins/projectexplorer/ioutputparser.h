@@ -57,7 +57,7 @@ protected:
     void setDetailsFormat(Task &task, const LinkSpecs &linkSpecs = {});
 
 private:
-    void runPostPrintActions() override;
+    void runPostPrintActions(QPlainTextEdit *edit) override;
 
     class Private;
     Private * const d;

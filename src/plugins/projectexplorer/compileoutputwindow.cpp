@@ -81,17 +81,6 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxCharCount(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
 
-    outputFormatter()->overridePostPrintAction([this](Utils::OutputLineParser *parser) {
-        if (const auto taskParser = qobject_cast<OutputTaskParser *>(parser)) {
-            int offset = 0;
-            Utils::reverseForeach(taskParser->taskInfo(), [this, &offset](const OutputTaskParser::TaskInfo &ti) {
-                registerPositionOf(ti.task, ti.linkedLines, ti.skippedLines, offset);
-                offset += ti.linkedLines;
-            });
-        }
-        parser->runPostPrintActions();
-    });
-
     Utils::ProxyAction *cancelBuildProxyButton =
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
@@ -198,7 +187,6 @@ void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputForma
 void CompileOutputWindow::clearContents()
 {
     m_outputWindow->clear();
-    m_taskPositions.clear();
 }
 
 int CompileOutputWindow::priorityInStatusBar() const
@@ -230,37 +218,7 @@ bool CompileOutputWindow::canNavigate() const
 void CompileOutputWindow::registerPositionOf(const Task &task, int linkedOutputLines, int skipLines,
                                              int offset)
 {
-    if (linkedOutputLines <= 0)
-        return;
-
-    const int blocknumber = m_outputWindow->document()->blockCount() - offset;
-    const int firstLine = blocknumber - linkedOutputLines - skipLines;
-    const int lastLine = firstLine + linkedOutputLines - 1;
-
-    m_taskPositions.insert(task.taskId, qMakePair(firstLine, lastLine));
-}
-
-bool CompileOutputWindow::knowsPositionOf(const Task &task)
-{
-    return (m_taskPositions.contains(task.taskId));
-}
-
-void CompileOutputWindow::showPositionOf(const Task &task)
-{
-    QPair<int, int> position = m_taskPositions.value(task.taskId);
-    QTextCursor newCursor(m_outputWindow->document()->findBlockByNumber(position.second));
-
-    // Move cursor to end of last line of interest:
-    newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
-    m_outputWindow->setTextCursor(newCursor);
-
-    // Move cursor and select lines:
-    newCursor.setPosition(m_outputWindow->document()->findBlockByNumber(position.first).position(),
-                          QTextCursor::KeepAnchor);
-    m_outputWindow->setTextCursor(newCursor);
-
-    // Center cursor now:
-    m_outputWindow->centerCursor();
+    m_outputWindow->registerPositionOf(task.taskId, linkedOutputLines, skipLines, offset);
 }
 
 void CompileOutputWindow::flush()

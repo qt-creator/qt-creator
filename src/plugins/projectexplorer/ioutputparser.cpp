@@ -28,9 +28,13 @@
 #include "task.h"
 #include "taskhub.h"
 
+#include <coreplugin/outputwindow.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
+
+#include <QPlainTextEdit>
 
 
 /*!
@@ -113,8 +117,16 @@ void OutputTaskParser::setDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
     }
 }
 
-void OutputTaskParser::runPostPrintActions()
+void OutputTaskParser::runPostPrintActions(QPlainTextEdit *edit)
 {
+    int offset = 0;
+    if (const auto ow = qobject_cast<Core::OutputWindow *>(edit)) {
+        Utils::reverseForeach(taskInfo(), [this, ow, &offset](const TaskInfo &ti) {
+            ow->registerPositionOf(ti.task.taskId, ti.linkedLines, ti.skippedLines, offset);
+                offset += ti.linkedLines;
+        });
+    }
+
     for (const TaskInfo &t : qAsConst(d->scheduledTasks))
         TaskHub::addTask(t.task);
     d->scheduledTasks.clear();

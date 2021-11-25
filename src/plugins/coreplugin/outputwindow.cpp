@@ -39,7 +39,9 @@
 #include <QAction>
 #include <QCursor>
 #include <QElapsedTimer>
+#include <QHash>
 #include <QMimeData>
+#include <QPair>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QScrollBar>
@@ -88,6 +90,7 @@ public:
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
+    QHash<unsigned int, QPair<int, int>> taskPositions;
 };
 
 } // namespace Internal
@@ -491,6 +494,42 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
         d->queueTimer.start();
 }
 
+void OutputWindow::registerPositionOf(unsigned taskId, int linkedOutputLines, int skipLines,
+                                      int offset)
+{
+    if (linkedOutputLines <= 0)
+        return;
+
+    const int blocknumber = document()->blockCount() - offset;
+    const int firstLine = blocknumber - linkedOutputLines - skipLines;
+    const int lastLine = firstLine + linkedOutputLines - 1;
+
+    d->taskPositions.insert(taskId, qMakePair(firstLine, lastLine));
+}
+
+bool OutputWindow::knowsPositionOf(unsigned taskId) const
+{
+    return d->taskPositions.contains(taskId);
+}
+
+void OutputWindow::showPositionOf(unsigned taskId)
+{
+    QPair<int, int> position = d->taskPositions.value(taskId);
+    QTextCursor newCursor(document()->findBlockByNumber(position.second));
+
+    // Move cursor to end of last line of interest:
+    newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
+    setTextCursor(newCursor);
+
+    // Move cursor and select lines:
+    newCursor.setPosition(document()->findBlockByNumber(position.first).position(),
+                          QTextCursor::KeepAnchor);
+    setTextCursor(newCursor);
+
+    // Center cursor now:
+    centerCursor();
+}
+
 QMimeData *OutputWindow::createMimeDataFromSelection() const
 {
     const auto mimeData = new QMimeData;
@@ -522,6 +561,7 @@ void OutputWindow::clear()
 {
     d->formatter.clear();
     d->scrollToBottom = true;
+    d->taskPositions.clear();
 }
 
 void OutputWindow::flush()

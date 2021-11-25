@@ -27,24 +27,24 @@
 
 #include "itaskhandler.h"
 
+namespace Core { class IOutputPane; }
+
 namespace ProjectExplorer {
 namespace Internal {
-
-class CompileOutputWindow;
 
 class ShowOutputTaskHandler : public ITaskHandler
 {
     Q_OBJECT
 
 public:
-    explicit ShowOutputTaskHandler(CompileOutputWindow *window);
+    explicit ShowOutputTaskHandler(Core::IOutputPane *window);
 
     bool canHandle(const Task &) const override;
     void handle(const Task &task) override;
     QAction *createAction(QObject *parent) const override;
 
 private:
-    CompileOutputWindow *m_window;
+    Core::IOutputPane * const m_window;
 };
 
 } // namespace Internal

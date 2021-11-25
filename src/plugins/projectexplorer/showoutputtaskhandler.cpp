@@ -27,22 +27,25 @@
 
 #include "task.h"
 
-#include "compileoutputwindow.h"
+#include <coreplugin/ioutputpane.h>
+#include <coreplugin/outputwindow.h>
+#include <utils/algorithm.h>
 
 #include <QAction>
 
 namespace ProjectExplorer {
 namespace Internal {
 
-ShowOutputTaskHandler::ShowOutputTaskHandler(CompileOutputWindow *window) :
-    m_window(window)
+ShowOutputTaskHandler::ShowOutputTaskHandler(Core::IOutputPane *window) : m_window(window)
 {
     Q_ASSERT(m_window);
 }
 
 bool ShowOutputTaskHandler::canHandle(const Task &task) const
 {
-    return m_window->knowsPositionOf(task);
+    return Utils::anyOf(m_window->outputWindows(), [task](const Core::OutputWindow *ow) {
+        return ow->knowsPositionOf(task.taskId);
+    });
 }
 
 void ShowOutputTaskHandler::handle(const Task &task)
@@ -50,7 +53,12 @@ void ShowOutputTaskHandler::handle(const Task &task)
     Q_ASSERT(canHandle(task));
     // popup first as this does move the visible area!
     m_window->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
-    m_window->showPositionOf(task);
+    for (Core::OutputWindow * const ow : m_window->outputWindows()) {
+        if (ow->knowsPositionOf(task.taskId)) {
+            ow->showPositionOf(task.taskId);
+            break;
+        }
+    }
 }
 
 QAction *ShowOutputTaskHandler::createAction(QObject *parent) const

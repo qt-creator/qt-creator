@@ -91,7 +91,7 @@ public:
     virtual bool handleLink(const QString &href) { Q_UNUSED(href); return false; }
     virtual bool hasFatalErrors() const { return false; }
     virtual void flush() {}
-    virtual void runPostPrintActions() {}
+    virtual void runPostPrintActions(QPlainTextEdit *) {}
 
     void setRedirectionDetector(const OutputLineParser *detector);
     bool needsRedirection() const;

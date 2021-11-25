@@ -62,6 +62,10 @@ public:
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
 
+    void registerPositionOf(unsigned taskId, int linkedOutputLines, int skipLines, int offset = 0);
+    bool knowsPositionOf(unsigned taskId) const;
+    void showPositionOf(unsigned taskId);
+
     void grayOutOldContent();
     void clear();
     void flush();

@@ -30,8 +30,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/ioutputpane.h>
 
-#include <QHash>
-#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;
@@ -73,8 +71,6 @@ public:
     void appendText(const QString &text, BuildStep::OutputFormat format);
 
     void registerPositionOf(const Task &task, int linkedOutputLines, int skipLines, int offset = 0);
-    bool knowsPositionOf(const Task &task);
-    void showPositionOf(const Task &task);
 
     void flush();
     void reset();
@@ -86,13 +82,13 @@ public:
 
 private:
     void updateFilter() override;
+    const QList<Core::OutputWindow *> outputWindows() const override { return {m_outputWindow}; }
 
     void loadSettings();
     void storeSettings() const;
     void updateFromSettings();
 
     Core::OutputWindow *m_outputWindow;
-    QHash<unsigned int, QPair<int, int>> m_taskPositions;
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
     QToolButton * const m_settingsButton;
