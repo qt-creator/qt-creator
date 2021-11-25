@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -64,6 +64,18 @@
         \li Click the \uicontrol Run button (2).
 
     \endlist
+
+    If your project has several run targets defined, such as
+    \l{Running Autotests}{tests}, you can select them in the kit selector.
+
+    \image qtcreator-kit-selector-run-targets.png "Run targets in the kit selector"
+
+    If you have connected \l{Mobile Platforms}{mobile devices} or
+    \l{Embedded Platforms}{embedded devices} to the development PC
+    or added virtual devices, such as \l{Managing Android Virtual Devices (AVD)}
+    {Android Virtual Devices (AVD)}, you can select them in the kit selector.
+    Select \uicontrol Manage to manage device settings. For example, you can add
+    AVDs or manually start disconnected AVDs.
 
     The \uicontrol {Application Output} pane displays the status of the
     application while it is running. You can select the \uicontrol Run button
