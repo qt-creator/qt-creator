@@ -102,11 +102,6 @@ Item {
         }
     }
 
-    View3D {
-        // Dummy view to hold the context
-        // TODO remove when QTBUG-87678 is fixed
-    }
-
     Item {
         id: contentItem
         anchors.fill: parent
