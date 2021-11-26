@@ -102,11 +102,15 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 // For drag to be handled correctly, we must have the component properly imported
                 // beforehand, so we import the module immediately when the drag starts
                 if (!entry.requiredImport().isEmpty()) {
-                    Import import = Import::createLibraryImport(entry.requiredImport());
-                    if (!m_model->hasImport(import, true, true)) {
+                    // We don't know if required import is library of file import, so try both.
+                    Import libImport = Import::createLibraryImport(entry.requiredImport());
+                    Import fileImport = Import::createFileImport(entry.requiredImport());
+                    if (!m_model->hasImport(libImport, true, true)
+                            && !m_model->hasImport(fileImport, true, true)) {
                         const QList<Import> possImports = m_model->possibleImports();
                         for (const auto &possImport : possImports) {
-                            if (possImport.url() == import.url()) {
+                            if ((!possImport.url().isEmpty() && possImport.url() == libImport.url())
+                                || (!possImport.file().isEmpty() && possImport.file() == fileImport.file())) {
                                 m_model->changeImports({possImport}, {});
                                 break;
                             }
