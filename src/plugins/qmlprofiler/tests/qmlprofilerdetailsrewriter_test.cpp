@@ -46,7 +46,6 @@ namespace Internal {
 
 class DummyProject : public ProjectExplorer::Project
 {
-    Q_OBJECT
 public:
     DummyProject(const Utils::FilePath &file)
         : ProjectExplorer::Project(QString(), file)
@@ -227,5 +226,3 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-#include "qmlprofilerdetailsrewriter_test.moc"
