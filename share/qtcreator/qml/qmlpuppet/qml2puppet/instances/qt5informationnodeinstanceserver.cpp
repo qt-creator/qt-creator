@@ -1000,6 +1000,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
 #ifdef QUICK3D_MODULE
     m_modelNode3DImageViewAsyncData.cleanup();
     if (m_modelNode3DImageViewData.rootItem) {
+        QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "destroyView");
         if (!m_modelNode3DImageViewData.contentItem)
             m_modelNode3DImageViewData.contentItem = getContentItemForRendering(m_modelNode3DImageViewData.rootItem);
 
