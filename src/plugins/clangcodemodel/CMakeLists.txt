@@ -30,6 +30,7 @@ add_qtc_plugin(ClangCodeModel
     clangdiagnosticmanager.cpp clangdiagnosticmanager.h
     clangdiagnostictooltipwidget.cpp clangdiagnostictooltipwidget.h
     clangdquickfixfactory.cpp clangdquickfixfactory.h
+    clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h
     clangeditordocumentparser.cpp clangeditordocumentparser.h
     clangeditordocumentprocessor.cpp clangeditordocumentprocessor.h
     clangfixitoperation.cpp clangfixitoperation.h
@@ -50,6 +51,15 @@ add_qtc_plugin(ClangCodeModel
     clanguiheaderondiskmanager.cpp clanguiheaderondiskmanager.h
     clangutils.cpp clangutils.h
   EXPLICIT_MOC clangcodemodelplugin.h
+)
+
+extend_qtc_plugin(ClangCodeModel
+  SOURCES
+    moc/parser.cpp moc/parser.h
+    moc/preprocessor.cpp moc/preprocessor.h
+    moc/symbols.h
+    moc/token.cpp moc/token.h
+    moc/utils.h
 )
 
 extend_qtc_plugin(ClangCodeModel

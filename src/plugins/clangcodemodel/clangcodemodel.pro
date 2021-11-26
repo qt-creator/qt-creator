@@ -24,6 +24,7 @@ SOURCES += \
     clangdiagnosticfilter.cpp \
     clangdiagnosticmanager.cpp \
     clangdiagnostictooltipwidget.cpp \
+    clangdqpropertyhighlighter.cpp \
     clangeditordocumentparser.cpp \
     clangeditordocumentprocessor.cpp \
     clangfixitoperation.cpp \
@@ -44,6 +45,9 @@ SOURCES += \
     clangdclient.cpp \
     clangdquickfixfactory.cpp \
     clangdlocatorfilters.cpp \
+    moc/parser.cpp \
+    moc/preprocessor.cpp \
+    moc/token.cpp
 
 HEADERS += \
     clangactivationsequencecontextprocessor.h \
@@ -65,6 +69,7 @@ HEADERS += \
     clangdiagnosticfilter.h \
     clangdiagnosticmanager.h \
     clangdiagnostictooltipwidget.h \
+    clangdqpropertyhighlighter.h \
     clangeditordocumentparser.h \
     clangeditordocumentprocessor.h \
     clangfixitoperation.h \
@@ -86,6 +91,13 @@ HEADERS += \
     clangdclient.h \
     clangdquickfixfactory.h \
     clangdlocatorfilters.h \
+    moc/keywords.cpp \
+    moc/parser.h \
+    moc/ppkeywords.cpp \
+    moc/preprocessor.h \
+    moc/symbols.h \
+    moc/token.h \
+    moc/utils.h
 
 FORMS += clangprojectsettingswidget.ui
 

@@ -596,8 +596,8 @@ Undeclared u;
 #define SIGNAL(arg) #arg
 #define SLOT(arg) #arg
 class Property {
-    Q_PROPERTY(const volatile unsigned long long * prop READ getProp WRITE setProp NOTIFY propChanged)
-    Q_PROPERTY(const QString str READ getStr)
+    Q_PROPERTY(const volatile unsigned long long * prop READ getProp WRITE setProp NOTIFY propChanged SCRIPTABLE true REVISION 1)
+    Q_PROPERTY(const QString str READ getStr REVISION(1,0))
 };
 
 struct X {

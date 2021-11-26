@@ -66,6 +66,8 @@ QtcPlugin {
         "clangdiagnostictooltipwidget.h",
         "clangdlocatorfilters.cpp",
         "clangdlocatorfilters.h",
+        "clangdqpropertyhighlighter.cpp",
+        "clangdqpropertyhighlighter.h",
         "clangdquickfixfactory.cpp",
         "clangdquickfixfactory.h",
         "clangeditordocumentparser.cpp",
@@ -105,6 +107,29 @@ QtcPlugin {
         "clangutils.cpp",
         "clangutils.h",
     ]
+
+    Group {
+        name: "moc sources"
+        prefix: "moc/"
+        files: [
+            "parser.cpp",
+            "parser.h",
+            "preprocessor.cpp",
+            "preprocessor.h",
+            "symbols.h",
+            "token.cpp",
+            "token.h",
+            "utils.h",
+        ]
+        Group {
+            name: "weirdly-named moc headers"
+            files: [
+                "keywords.cpp",
+                "ppkeywords.cpp",
+            ]
+            fileTags: "hpp"
+        }
+    }
 
     Group {
         name: "Tests"

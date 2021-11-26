@@ -28,6 +28,7 @@
 #include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdiagnosticmanager.h"
+#include "clangdqpropertyhighlighter.h"
 #include "clangmodelmanagersupport.h"
 #include "clangpreprocessorassistproposalitem.h"
 #include "clangtextmark.h"
@@ -3232,6 +3233,26 @@ ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
 
 void ExtraHighlightingResultsCollector::collect()
 {
+    for (int i = 0; i < m_results.length(); ++i) {
+        const HighlightingResult res = m_results.at(i);
+        if (res.textStyles.mainStyle != C_PREPROCESSOR || res.length != 10)
+            continue;
+        const int pos = Utils::Text::positionInText(m_doc, res.line, res.column);
+        if (subViewLen(m_docContent, pos, 10) != QLatin1String("Q_PROPERTY"))
+            continue;
+        int endPos;
+        if (i < m_results.length() - 1) {
+            const HighlightingResult nextRes = m_results.at(i + 1);
+            endPos = Utils::Text::positionInText(m_doc, nextRes.line, nextRes.column);
+        } else {
+            endPos = m_docContent.length();
+        }
+        const QString qPropertyString = m_docContent.mid(pos, endPos - pos);
+        QPropertyHighlighter propHighlighter(m_doc, qPropertyString, pos);
+        for (const HighlightingResult &newRes : propHighlighter.highlight())
+            m_results.insert(++i, newRes);
+    }
+
     if (!m_ast.isValid())
         return;
     visitNode(m_ast);
