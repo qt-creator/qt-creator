@@ -111,7 +111,7 @@
 
     \section1 Find a specific setting
 
-    To find specific settings you require in \uicontrol{Tools} > \uicontrol{Options}
+    To find specific settings in \uicontrol Tools > \uicontrol Options,
     use the filter located at the top left of the \uicontrol Options dialog box.
 
     \section1 Open output panes
@@ -147,17 +147,17 @@
     You can see the keyboard shortcut for a menu command in the menu
     or the tooltip for a button.
 
-    To customize, import or export keyboard shortcuts, select \uicontrol Tools >
+    To customize, import, or export keyboard shortcuts, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard.
 
     \section1 Run \QC from the command line
 
-    You can launch \QC from command line using the name of an
-    existing session or \c .pro file by giving the name as the command
-    argument.
+    You can launch \QC from the command line using the name of an
+    existing \l{Managing Sessions}{session} or project file by entering
+    the name as the command argument.
 
-    For example, running \tt{qtcreator somesession}, launches \QC and
-    loads session somesession.
+    For example, running \c {qtcreator somesession}, launches \QC and
+    loads the session called \e somesession.
 
     For more information, see \l{Using Command Line Options}.
 
@@ -210,7 +210,7 @@
 
     If special debugging of Qt objects fails due to data corruption within the
     debugged objects, you can switch off the debugging helpers. When debugging
-    helpers are switched off low-level structures become visible.
+    helpers are switched off, low-level structures become visible.
 
     To switch off the debugging helpers:
     \list 1
@@ -250,7 +250,7 @@
     \section1 Quickly locate files using the keyboard
 
     The \uicontrol Locator provides one of the easiest ways in \QC to browse
-    through projects, files, classes, functions, documentation and file systems.
+    through projects, files, classes, functions, documentation, and file systems.
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
@@ -307,12 +307,14 @@
 
     \section1 Enclose selected code in curly braces, parentheses, or double quotes
 
-    Press \key {Shift} and then the opening character.
+    When you have selected code and enter one of the following opening
+    characters, the appropriate closing character is added automatically
+    at the end of the selection:
 
     \list
-    \li Curly braces: \key {Shift+\{}
-    \li Parentheses: \key {Shift+(}
-    \li Double quotes: \key {Shift+"}
+        \li {
+        \li (
+        \li "
     \endlist
 
     \section1 Select the enclosing block in C++
