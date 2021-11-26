@@ -51,6 +51,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QStyledItemDelegate>
 #include <QTimer>
 
@@ -316,6 +317,8 @@ public:
         auto gridView = new GridView(this);
         gridView->setModel(&m_gridModel);
         gridView->setItemDelegate(&m_exampleDelegate);
+        if (auto sb = gridView->verticalScrollBar())
+            sb->setSingleStep(25);
         vbox->addWidget(gridView);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
