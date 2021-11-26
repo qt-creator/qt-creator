@@ -60,9 +60,11 @@ private:
     QProcess::ProcessState m_lastState = QProcess::NotRunning;
 };
 
+static QList<Reaper *> g_reapers;
+
 Reaper::Reaper(QProcess *p, int timeoutMs) : m_process(p)
 {
-    ProcessReaper::instance()->m_reapers.append(this);
+    g_reapers.append(this);
 
     m_iterationTimer.setInterval(timeoutMs);
     m_iterationTimer.setSingleShot(true);
@@ -73,7 +75,7 @@ Reaper::Reaper(QProcess *p, int timeoutMs) : m_process(p)
 
 Reaper::~Reaper()
 {
-    ProcessReaper::instance()->m_reapers.removeOne(this);
+    g_reapers.removeOne(this);
 }
 
 int Reaper::timeoutMs() const
@@ -144,12 +146,12 @@ void Reaper::nextIteration()
 
 ProcessReaper::~ProcessReaper()
 {
-    while (!m_reapers.isEmpty()) {
+    while (!Internal::g_reapers.isEmpty()) {
         int alreadyWaited = 0;
         QList<Internal::Reaper *> toDelete;
 
         // push reapers along:
-        for (Internal::Reaper *pr : qAsConst(m_reapers)) {
+        for (Internal::Reaper *pr : qAsConst(Internal::g_reapers)) {
             const int timeoutMs = pr->timeoutMs();
             if (alreadyWaited < timeoutMs) {
                 const unsigned long toSleep = static_cast<unsigned long>(timeoutMs - alreadyWaited);

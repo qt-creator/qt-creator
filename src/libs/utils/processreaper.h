@@ -29,26 +29,21 @@
 
 #include "singleton.h"
 
-#include <QList>
-
 QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
 
 namespace Utils {
 
-namespace Internal { class Reaper; }
-
 class QTCREATOR_UTILS_EXPORT ProcessReaper final
         : public SingletonWithOptionalDependencies<ProcessReaper>
 {
 public:
     static void reap(QProcess *process, int timeoutMs = 500);
+
 private:
     ProcessReaper() = default;
     ~ProcessReaper();
-    QList<Internal::Reaper *> m_reapers;
-    friend class Internal::Reaper;
     friend class SingletonWithOptionalDependencies<ProcessReaper>;
 };
 
