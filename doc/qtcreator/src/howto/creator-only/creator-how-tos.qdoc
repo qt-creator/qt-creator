@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -116,30 +116,25 @@
 
     \section1 Open output panes
 
-    The output panes provide a list of errors and warnings encountered during
-    a build, detailed output from the compiler, status of a program when it is
-    executed and debug output, as well as search results.
+    The \l{Viewing Output}{output panes} provide a list of errors and warnings
+    encountered during a build, detailed output from the compiler, status of a
+    program when it is executed, debug output, and search results.
 
     To open output panes, use the following shortcuts:
 
     \list
 
-        \li \uicontrol{Issues} pane Alt+1 (Cmd+1 on \macos)
+        \li \uicontrol{Issues} - \key Alt+1 (\key Cmd+1 on \macos)
 
-        \li \uicontrol{Search Results} pane Alt+2 (Cmd+2 on \macos)
+        \li \uicontrol{Search Results} - \key Alt+2 (\key Cmd+2 on \macos)
 
-        \li \uicontrol{Application Output} pane Alt+3 (Cmd+3 on \macos)
+        \li \uicontrol{Application Output} - \key Alt+3 (\key Cmd+3 on \macos)
 
-        \li \uicontrol{Compile Output} pane Alt+4 (Cmd+4 on \macos)
+        \li \uicontrol{Compile Output} - \key Alt+4 (\key Cmd+4 on \macos)
 
     \endlist
 
-    To open the other output panes, such as \uicontrol{General Messages} and
-    \uicontrol{Version Control}, select \uicontrol View >
-    \uicontrol {Output Panes}. The menu items also display
-    the keyboard shortcuts that you can use.
-
-    For more information about output panes, see \l{Viewing Output}.
+    For additional ways to open all output panes, see \l{Viewing Output}.
 
     \section1 Find keyboard shortcuts
 

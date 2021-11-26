@@ -384,9 +384,24 @@
 
     \endlist
 
-    Output panes are available in all \l{Selecting Modes}{modes}. Click the name
-    of an output pane to open the pane. To maximize an open output pane, click
-    the \uicontrol {Maximize Output Pane} button or press \key {Alt+9}.
+    Output panes are available on the taskbar in all \l{Selecting Modes}{modes}.
+
+    \image qtcreator-output-panes-taskbar.png "Output panes on the taskbar"
+
+    You can open output panes in the following ways:
+
+    \list
+        \li Select the output pane on the taskbar.
+        \li Select \key Alt (\key Cmd on \macos) and the number of the pane on
+            the taskbar.
+        \li Select \inlineimage icons/output-pane-menu.png
+            , and then select the pane to open.
+        \li Select \uicontrol View > \uicontrol {Output Panes}.
+            The menu items also display the keyboard shortcuts that you can use.
+    \endlist
+
+    To maximize an open output pane, select the \inlineimage arrowup.png
+    (\uicontrol {Maximize Output Pane}) button or press \key {Alt+Shift+9}.
 
 
     To increase or decrease the output text size, select \inlineimage plus.png
