@@ -55,8 +55,7 @@ namespace Core {
 */
 
 /*!
-
-    \fn bool Core::IExternalEditor::startEditor(const QString &fileName, QString *errorMessage) = 0;
+    \fn bool Core::IExternalEditor::startEditor(const Utils::FilePath &fileName, QString *errorMessage)
 
     Opens the editor with \a fileName. Returns \c true on success or \c false
     on failure along with the error in \a errorMessage.

@@ -329,11 +329,23 @@ QRectF QuickItemNodeInstance::contentItemBoundingBox() const
     return QRectF();
 }
 
+static bool layerEnabledAndEffect(QQuickItem *item)
+{
+    QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
+
+    if (pItem && pItem->layer() && pItem->layer()->enabled() && pItem->layer()->effect())
+        return true;
+
+    return false;
+}
+
 QRectF QuickItemNodeInstance::boundingRect() const
 {
     if (quickItem()) {
         if (quickItem()->clip()) {
             return quickItem()->boundingRect();
+        } else if (layerEnabledAndEffect(quickItem())) {
+            return ServerNodeInstance::effectAdjustedBoundingRect(quickItem());
         } else {
             return boundingRectWithStepChilds(quickItem());
         }

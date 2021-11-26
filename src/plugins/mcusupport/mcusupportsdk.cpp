@@ -104,8 +104,6 @@ static McuToolChainPackage *createArmGccPackage()
                 defaultPath = subDirs.first();
         }
     }
-    if (defaultPath.isEmpty())
-        defaultPath = FileUtils::homePath();
 
     const QString detectionPath = Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++");
     const auto versionDetector = new McuPackageExecutableVersionDetector(
@@ -129,8 +127,7 @@ static McuToolChainPackage *createGhsToolchainPackage()
 {
     const char envVar[] = "GHS_COMPILER_DIR";
 
-    const FilePath defaultPath = qEnvironmentVariableIsSet(envVar)
-            ? FilePath::fromUserInput(qEnvironmentVariable(envVar)) : FileUtils::homePath();
+    const FilePath defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
 
     const auto versionDetector = new McuPackageExecutableVersionDetector(
                 Utils::HostOsInfo::withExecutableSuffix("as850"),
@@ -153,8 +150,7 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
 {
     const char envVar[] = "GHS_ARM_COMPILER_DIR";
 
-    const FilePath defaultPath = qEnvironmentVariableIsSet(envVar)
-            ? FilePath::fromUserInput(qEnvironmentVariable(envVar)) : FileUtils::homePath();
+    const FilePath defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
 
     const auto versionDetector = new McuPackageExecutableVersionDetector(
                 Utils::HostOsInfo::withExecutableSuffix("asarm"),
@@ -189,8 +185,6 @@ static McuToolChainPackage *createIarToolChainPackage()
             const FilePath compilerExecPath = tc->compilerCommand();
             defaultPath = compilerExecPath.parentDir().parentDir();
         }
-        else
-            defaultPath = FileUtils::homePath();
     }
 
     const QString detectionPath = Utils::HostOsInfo::withExecutableSuffix("bin/iccarm");
@@ -219,8 +213,9 @@ static McuPackage *createRGLPackage()
     if (qEnvironmentVariableIsSet(envVar)) {
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
     } else if (Utils::HostOsInfo::isWindowsHost()) {
-        defaultPath = FilePath::fromUserInput(QDir::rootPath() + "Renesas_Electronics/D1x_RGL");
-        if (defaultPath.exists()) {
+        const FilePath rglPath = FilePath::fromString(QDir::rootPath()) / "Renesas_Electronics/D1x_RGL";
+        if (rglPath.exists()) {
+            defaultPath = rglPath;
             const FilePaths subDirs =
                     defaultPath.dirEntries({QLatin1String("rgl_ghs_D1Mx_*")},
                                                     QDir::Dirs | QDir::NoDotAndDotDot);
@@ -240,7 +235,7 @@ static McuPackage *createRGLPackage()
 
 static McuPackage *createStm32CubeProgrammerPackage()
 {
-    FilePath defaultPath = FileUtils::homePath();
+    FilePath defaultPath;
     const QString cubePath = "STMicroelectronics/STM32Cube/STM32CubeProgrammer";
     if (HostOsInfo::isWindowsHost()) {
         const FilePath programPath = findInProgramFiles(cubePath);
@@ -272,8 +267,9 @@ static McuPackage *createMcuXpressoIdePackage()
     if (qEnvironmentVariableIsSet(envVar)) {
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
     } else if (HostOsInfo::isWindowsHost()) {
-        defaultPath = FilePath::fromString(QDir::rootPath() + "nxp");
-        if (defaultPath.exists()) {
+        const FilePath programPath = FilePath::fromString(QDir::rootPath()) / "nxp";
+        if (programPath.exists()) {
+            defaultPath = programPath;
             // If default dir has exactly one sub dir that could be the IDE path, pre-select that.
             const FilePaths subDirs =
                     defaultPath.dirEntries({QLatin1String("MCUXpressoIDE*")},
@@ -282,7 +278,9 @@ static McuPackage *createMcuXpressoIdePackage()
                 defaultPath = subDirs.first();
         }
     } else {
-        defaultPath = "/usr/local/mcuxpressoide/";
+        const FilePath programPath = FilePath::fromString("/usr/local/mcuxpressoide/");
+        if (programPath.exists())
+            defaultPath = programPath;
     }
 
     auto result = new McuPackage(
@@ -303,16 +301,10 @@ static McuPackage *createCypressProgrammerPackage()
     if (qEnvironmentVariableIsSet(envVar)) {
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
     } else if (HostOsInfo::isWindowsHost()) {
-        FilePath candidate = findInProgramFiles("Cypress/Cypress Auto Flash Utility 1.0");
-        if (candidate.exists()) {
+        const FilePath candidate = findInProgramFiles("Cypress/Cypress Auto Flash Utility 1.0");
+        if (candidate.exists())
             defaultPath = candidate;
-        }
-    } else {
-        defaultPath = "/usr";
     }
-
-    if (defaultPath.isEmpty())
-        defaultPath = FileUtils::homePath();
 
     auto result = new McuPackage(
                 "Cypress Auto Flash Utility",
@@ -393,7 +385,7 @@ static McuPackage *createBoardSdkPackage(const McuTargetDescription& desc)
             if (defaultPath.exists())
                 return defaultPath;
         }
-        return FileUtils::homePath();
+        return FilePath();
     }();
 
     const auto versionDetector = generatePackageVersionDetector(desc.boardSdk.envVar);
@@ -418,8 +410,6 @@ static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar, const Fil
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar.toLatin1()));
     else if (!boardSdkDir.isEmpty() && !freeRTOSBoardSdkSubDir.isEmpty())
         defaultPath = boardSdkDir / freeRTOSBoardSdkSubDir;
-    else
-        defaultPath = FileUtils::homePath();
 
     auto result = new McuPackage(
                 QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
@@ -634,7 +624,7 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir)
 {
-    return dir + "/kits/";
+    return dir / "kits/";
 }
 
 static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)

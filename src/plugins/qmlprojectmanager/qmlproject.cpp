@@ -112,7 +112,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                     Utils::InfoBarEntry
                         info(openInQDSAppSetting,
                              tr("Would you like to open the project in Qt Design Studio?"),
-                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+                             Utils::InfoBarEntry::GlobalSuppression::Disabled);
                     info.setCustomButtonInfo(tr("Open in Qt Design Studio"), [&, fileName] {
                         Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
                         QmlProjectPlugin::openQDS(fileName);

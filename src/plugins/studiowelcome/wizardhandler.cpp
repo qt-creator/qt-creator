@@ -63,6 +63,7 @@ void WizardHandler::destroyWizard()
     m_selectedProject = -1;
     m_wizard->deleteLater();
     m_wizard = nullptr;
+    m_detailsPage = nullptr;
 }
 
 void WizardHandler::setupWizard()

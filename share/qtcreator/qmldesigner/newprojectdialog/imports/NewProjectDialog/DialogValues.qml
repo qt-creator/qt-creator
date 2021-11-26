@@ -57,7 +57,7 @@ QtObject {
     readonly property string darkPaneColor: StudioTheme.Values.themeBackgroundColorNormal
     readonly property string lightPaneColor: StudioTheme.Values.themeBackgroundColorAlternate
 
-    readonly property string textColor: StudioTheme.Values.themeTabInactiveText
+    readonly property string textColor: StudioTheme.Values.themeTextColor
     readonly property string textColorInteraction: StudioTheme.Values.themeInteraction
     readonly property string dividerlineColor: StudioTheme.Values.themeTextColorDisabled
     readonly property string textError: StudioTheme.Values.themeError

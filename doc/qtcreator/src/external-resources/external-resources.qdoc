@@ -109,3 +109,7 @@
     \externalpage https://doc.qt.io/qt/qtqml-syntax-imports.html#qml-import-path
     \title QML Import Path
 */
+/*!
+    \externalpage https://doc.qt.io/QtApplicationManager/
+    \title Qt Application Manager
+*/

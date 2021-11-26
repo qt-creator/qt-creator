@@ -162,7 +162,7 @@ const EditorFactoryList IEditorFactory::defaultEditorFactories(const Utils::Mime
 }
 
 /*!
-    Returns the available editor factories for \a fileName in order of
+    Returns the available editor factories for \a filePath in order of
     preference. That is the default order for the document's MIME type but with
     a user overridden default editor first, and the binary editor as the very
     first item if a text document is too large to be opened as a text file.

@@ -180,6 +180,7 @@ public:
     QStringList allStates() const;
 
     static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
+    static QRectF effectAdjustedBoundingRect(QQuickItem *item);
 
     void setModifiedFlag(bool b);
     void updateDirtyNodeRecursive();

@@ -135,6 +135,13 @@ bool ServerNodeInstance::isSubclassOf(QObject *object, const QByteArray &superTy
     return  Internal::QmlPrivateGate::isSubclassOf(object, superTypeName);
 }
 
+QRectF ServerNodeInstance::effectAdjustedBoundingRect(QQuickItem *item)
+{
+    if (item)
+        return item->boundingRect().adjusted(-40, -40, 40, 40);
+    return {};
+}
+
 void ServerNodeInstance::setModifiedFlag(bool b)
 {
     m_nodeInstance->setModifiedFlag(b);
