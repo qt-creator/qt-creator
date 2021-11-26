@@ -81,6 +81,7 @@ public:
         }
     }
 
+    Range range() const { return m_range; }
     Position pos() const { return m_range.start(); }
     bool contains(const Position &pos) const { return m_range.contains(pos); }
 
@@ -345,8 +346,14 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
 void OutlineComboBox::updateEntry()
 {
     const Position pos(m_editorWidget->textCursor());
-    LanguageClientOutlineItem *itemForCursor = m_model.findNonRootItem(
-        [&](const LanguageClientOutlineItem *item) { return item->contains(pos); });
+    LanguageClientOutlineItem *itemForCursor = nullptr;
+    m_model.forAllItems([&](LanguageClientOutlineItem *candidate){
+        if (!candidate->contains(pos))
+            return;
+        if (itemForCursor && candidate->range().contains(itemForCursor->range()))
+            return; // skip item if the range is equal or bigger than the previous found range
+        itemForCursor = candidate;
+    });
     if (itemForCursor)
         setCurrentIndex(m_model.indexForItem(itemForCursor));
 }
