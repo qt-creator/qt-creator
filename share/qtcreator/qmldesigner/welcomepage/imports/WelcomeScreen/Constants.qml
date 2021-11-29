@@ -81,7 +81,7 @@ QtObject {
     ////TEXT
     property color currentGlobalText: Values.themeTextColor
 
-    property color currentActiveGlobalText: Values.themeTextSelectedTextColor
+    property color currentActiveGlobalText: "#ffffff"
 
     property string brandGlobalText: if (defaultBrand) {
         //console.log ("dark theme" + brandGlobalText)
