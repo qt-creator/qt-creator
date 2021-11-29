@@ -1,6 +1,10 @@
 name: CMake Build Matrix
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - 'dist/**'
+      - 'doc/**'
 
 env:
   QT_VERSION: 6.2.1
