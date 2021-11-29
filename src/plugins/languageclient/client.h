@@ -226,8 +226,6 @@ private:
     void handleMethod(const QString &method, const LanguageServerProtocol::MessageId &id,
                       const LanguageServerProtocol::IContent *content);
 
-    void handleSemanticHighlight(const LanguageServerProtocol::SemanticHighlightingParams &params);
-
     void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
     bool sendWorkspceFolderChanges() const;
@@ -247,7 +245,6 @@ private:
     void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
     void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
-    void rehighlight();
 
     virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
     virtual void handleDocumentOpened(TextEditor::TextDocument *) {}

@@ -48,7 +48,6 @@ constexpr const char DocumentRangeFormattingRequest::methodName[];
 constexpr const char DocumentOnTypeFormattingRequest::methodName[];
 constexpr const char RenameRequest::methodName[];
 constexpr const char SignatureHelpRequest::methodName[];
-constexpr const char SemanticHighlightNotification::methodName[];
 constexpr const char PrepareRenameRequest::methodName[];
 
 HoverContent LanguageServerProtocol::Hover::content() const
@@ -369,63 +368,6 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
     emplace<std::nullptr_t>(nullptr);
 }
 
-Utils::optional<QList<SemanticHighlightToken>> SemanticHighlightingInformation::tokens() const
-{
-    QList<SemanticHighlightToken> resultTokens;
-
-    const QByteArray tokensByteArray = QByteArray::fromBase64(
-        typedValue<QString>(tokensKey).toLocal8Bit());
-    constexpr int tokensByteSize = 8;
-    int index = 0;
-    while (index + tokensByteSize <= tokensByteArray.size()) {
-        resultTokens << SemanticHighlightToken(tokensByteArray.mid(index, tokensByteSize));
-        index += tokensByteSize;
-    }
-    return Utils::make_optional(resultTokens);
-}
-
-void SemanticHighlightingInformation::setTokens(const QList<SemanticHighlightToken> &tokens)
-{
-    QByteArray byteArray;
-    byteArray.reserve(8 * tokens.size());
-    for (const SemanticHighlightToken &token : tokens)
-        token.appendToByteArray(byteArray);
-    insert(tokensKey, QString::fromLocal8Bit(byteArray.toBase64()));
-}
-
-SemanticHighlightToken::SemanticHighlightToken(const QByteArray &token)
-{
-    QTC_ASSERT(token.size() == 8, return );
-    character = ( quint32(token.at(0)) << 24
-                | quint32(token.at(1)) << 16
-                | quint32(token.at(2)) << 8
-                | quint32(token.at(3)));
-
-    length = quint16(token.at(4) << 8 | token.at(5));
-
-    scope = quint16(token.at(6) << 8 | token.at(7));
-}
-
-void SemanticHighlightToken::appendToByteArray(QByteArray &byteArray) const
-{
-    byteArray.append(char((character & 0xff000000) >> 24));
-    byteArray.append(char((character & 0x00ff0000) >> 16));
-    byteArray.append(char((character & 0x0000ff00) >> 8));
-    byteArray.append(char((character & 0x000000ff)));
-    byteArray.append(char((length & 0xff00) >> 8));
-    byteArray.append(char((length & 0x00ff)));
-    byteArray.append(char((scope & 0xff00) >> 8));
-    byteArray.append(char((scope & 0x00ff)));
-}
-
-Utils::variant<VersionedTextDocumentIdentifier, TextDocumentIdentifier>
-SemanticHighlightingParams::textDocument() const
-{
-    VersionedTextDocumentIdentifier textDocument = fromJsonValue<VersionedTextDocumentIdentifier>(
-        value(textDocumentKey));
-    return textDocument.isValid() ? textDocument : TextDocumentIdentifier(textDocument);
-}
-
 PrepareRenameResult::PrepareRenameResult()
     : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(nullptr)
 {}
@@ -456,10 +398,6 @@ PrepareRenameResult::PrepareRenameResult(const QJsonValue &val)
             emplace<Range>(Range(object));
     }
 }
-
-SemanticHighlightNotification::SemanticHighlightNotification(const SemanticHighlightingParams &params)
-    : Notification(methodName, params)
-{}
 
 Utils::optional<QJsonValue> CodeLens::data() const
 {

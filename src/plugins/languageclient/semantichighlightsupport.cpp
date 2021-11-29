@@ -29,6 +29,7 @@
 #include "languageclientmanager.h"
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -41,138 +42,6 @@ using namespace TextEditor;
 namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPHIGHLIGHT, "qtc.languageclient.highlight", QtWarningMsg);
-
-namespace SemanticHighligtingSupport {
-
-static const QList<QList<QString>> highlightScopes(const ServerCapabilities &capabilities)
-{
-    return capabilities.semanticHighlighting()
-        .value_or(ServerCapabilities::SemanticHighlightingServerCapabilities())
-        .scopes().value_or(QList<QList<QString>>());
-}
-
-static Utils::optional<TextStyle> styleForScopes(const QList<QString> &scopes)
-{
-    // missing "Minimal Scope Coverage" scopes
-
-    // entity.other.inherited-class
-    // entity.name.section
-    // entity.name.tag
-    // entity.other.attribute-name
-    // variable.language
-    // variable.parameter
-    // variable.function
-    // constant.numeric
-    // constant.language
-    // constant.character.escape
-    // support
-    // storage.modifier
-    // keyword.control
-    // keyword.operator
-    // keyword.declaration
-    // invalid
-    // invalid.deprecated
-
-    static const QMap<QString, TextStyle> styleForScopes = {
-        {"entity.name", C_TYPE},
-        {"entity.name.function", C_FUNCTION},
-        {"entity.name.function.method.static", C_GLOBAL},
-        {"entity.name.function.preprocessor", C_PREPROCESSOR},
-        {"entity.name.label", C_LABEL},
-        {"keyword", C_KEYWORD},
-        {"storage.type", C_KEYWORD},
-        {"constant.numeric", C_NUMBER},
-        {"string", C_STRING},
-        {"comment", C_COMMENT},
-        {"comment.block.documentation", C_DOXYGEN_COMMENT},
-        {"variable.function", C_FUNCTION},
-        {"variable.other", C_LOCAL},
-        {"variable.other.member", C_FIELD},
-        {"variable.other.field", C_FIELD},
-        {"variable.other.field.static", C_GLOBAL},
-        {"variable.parameter", C_PARAMETER},
-    };
-
-    for (QString scope : scopes) {
-        while (!scope.isEmpty()) {
-            auto style = styleForScopes.find(scope);
-            if (style != styleForScopes.end())
-                return style.value();
-            const int index = scope.lastIndexOf('.');
-            if (index <= 0)
-                break;
-            scope = scope.left(index);
-        }
-    }
-    return Utils::nullopt;
-}
-
-static QHash<int, QTextCharFormat> scopesToFormatHash(QList<QList<QString>> scopes,
-                                                      const FontSettings &fontSettings)
-{
-    QHash<int, QTextCharFormat> scopesToFormat;
-    for (int i = 0; i < scopes.size(); ++i) {
-        if (Utils::optional<TextStyle> style = styleForScopes(scopes[i]))
-            scopesToFormat[i] = fontSettings.toTextCharFormat(style.value());
-    }
-    return scopesToFormat;
-}
-
-HighlightingResult tokenToHighlightingResult(int line, const SemanticHighlightToken &token)
-{
-    return HighlightingResult(unsigned(line) + 1,
-                              unsigned(token.character) + 1,
-                              token.length,
-                              int(token.scope));
-}
-
-HighlightingResults generateResults(const QList<SemanticHighlightingInformation> &lines)
-{
-    HighlightingResults results;
-
-    for (const SemanticHighlightingInformation &info : lines) {
-        const int line = info.line();
-        for (const SemanticHighlightToken &token :
-             info.tokens().value_or(QList<SemanticHighlightToken>())) {
-            results << tokenToHighlightingResult(line, token);
-        }
-    }
-
-    return results;
-}
-
-void applyHighlight(TextDocument *doc,
-                    const HighlightingResults &results,
-                    const ServerCapabilities &capabilities)
-{
-    if (!doc->syntaxHighlighter())
-        return;
-    if (LOGLSPHIGHLIGHT().isDebugEnabled()) {
-        auto scopes = highlightScopes(capabilities);
-        qCDebug(LOGLSPHIGHLIGHT) << "semantic highlight for" << doc->filePath();
-        for (auto result : results) {
-            auto b = doc->document()->findBlockByNumber(int(result.line - 1));
-            const QString &text = b.text().mid(int(result.column - 1), int(result.length));
-            auto resultScupes = scopes[result.kind];
-            auto style = styleForScopes(resultScupes).value_or(C_TEXT);
-            qCDebug(LOGLSPHIGHLIGHT) << result.line - 1 << '\t'
-                                     << result.column - 1 << '\t'
-                                     << result.length << '\t'
-                                     << TextEditor::Constants::nameForStyle(style) << '\t'
-                                     << text
-                                     << resultScupes;
-        }
-    }
-
-    if (capabilities.semanticHighlighting().has_value()) {
-        SemanticHighlighter::setExtraAdditionalFormats(
-            doc->syntaxHighlighter(),
-            results,
-            scopesToFormatHash(highlightScopes(capabilities), doc->fontSettings()));
-    }
-}
-
-} // namespace SemanticHighligtingSupport
 
 constexpr int tokenTypeBitOffset = 16;
 
@@ -256,6 +125,14 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
         }
     }
     reloadSemanticTokens(textDocument);
+}
+
+void SemanticTokenSupport::clearHighlight(TextEditor::TextDocument *doc)
+{
+    if (m_tokens.contains(doc->filePath())){
+        if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
+            highlighter->clearAllExtraFormats();
+    }
 }
 
 void SemanticTokenSupport::rehighlight()

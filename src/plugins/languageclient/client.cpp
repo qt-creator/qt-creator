@@ -102,10 +102,6 @@ Client::Client(BaseClientInterface *clientInterface)
     connect(clientInterface, &BaseClientInterface::messageReceived, this, &Client::handleMessage);
     connect(clientInterface, &BaseClientInterface::error, this, &Client::setError);
     connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
-    connect(TextEditor::TextEditorSettings::instance(),
-            &TextEditor::TextEditorSettings::fontSettingsChanged,
-            this,
-            &Client::rehighlight);
 
     m_tokenSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
     m_tokenSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
@@ -140,13 +136,6 @@ Client::~Client()
             TextEditorWidget *widget = textEditor->editorWidget();
             widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
             widget->removeHoverHandler(&m_hoverHandler);
-        }
-    }
-    for (auto it = m_highlights.cbegin(); it != m_highlights.cend(); ++it) {
-        const DocumentUri &uri = it.key();
-        if (TextDocument *doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
-            if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
-                highlighter->clearAllExtraFormats();
         }
     }
     for (IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
@@ -198,10 +187,6 @@ static ClientCapabilities generateClientCapabilities()
     symbolCapabilities.setSymbolKind(symbolKindCapabilities);
     symbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
     documentCapabilities.setDocumentSymbol(symbolCapabilities);
-
-    TextDocumentClientCapabilities::SemanticHighlightingCapabilities semanticHighlight;
-    semanticHighlight.setSemanticHighlighting(true);
-    documentCapabilities.setSemanticHighlightingCapabilities(semanticHighlight);
 
     TextDocumentClientCapabilities::CompletionCapabilities completionCapabilities;
     completionCapabilities.setDynamicRegistration(true);
@@ -449,7 +434,6 @@ void Client::closeDocument(TextEditor::TextDocument *document)
 {
     deactivateDocument(document);
     const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
-    m_highlights[uri].clear();
     m_postponedDocuments.remove(document);
     if (m_openedDocument.remove(document) != 0) {
         handleDocumentClosed(document);
@@ -580,7 +564,6 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     const FilePath &filePath = document->filePath();
     auto uri = DocumentUri::fromFilePath(filePath);
     m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(filePath));
-    SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
     m_tokenSupport.updateSemanticTokens(document);
     // only replace the assist provider if the language server support it
     updateCompletionProvider(document);
@@ -607,10 +590,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     m_diagnosticManager.hideDiagnostics(document);
     resetAssistProviders(document);
     document->setFormatter(nullptr);
-    if (m_serverCapabilities.semanticHighlighting().has_value()) {
-        if (TextEditor::SyntaxHighlighter *highlighter = document->syntaxHighlighter())
-            highlighter->clearAllExtraFormats();
-    }
+    m_tokenSupport.clearHighlight(document);
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
@@ -1249,7 +1229,6 @@ void Client::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule)
         TextEditor::TextDocument * const document = elem.first;
         const FilePath &filePath = document->filePath();
         const auto uri = DocumentUri::fromFilePath(filePath);
-        m_highlights[uri].clear();
         VersionedTextDocumentIdentifier docId(uri);
         docId.setVersion(m_documentVersions[filePath]);
         DidChangeTextDocumentParams params;
@@ -1325,12 +1304,6 @@ void Client::handleMethod(const QString &method, const MessageId &id, const ICon
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
         if (params.isValid())
             log(params);
-        else
-            log(invalidParamsErrorMessage(params));
-    } else if (method == SemanticHighlightNotification::methodName) {
-        auto params = dynamic_cast<const SemanticHighlightNotification *>(content)->params().value_or(SemanticHighlightingParams());
-        if (params.isValid())
-            handleSemanticHighlight(params);
         else
             log(invalidParamsErrorMessage(params));
     } else if (method == ShowMessageNotification::methodName) {
@@ -1454,48 +1427,6 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
         m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(uri.toFilePath()));
         if (m_autoRequestCodeActions)
             requestCodeActions(uri, diagnostics);
-    }
-}
-
-void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
-{
-    DocumentUri uri;
-    LanguageClientValue<int> version;
-    auto textDocument = params.textDocument();
-
-    if (Utils::holds_alternative<VersionedTextDocumentIdentifier>(textDocument)) {
-        uri = Utils::get<VersionedTextDocumentIdentifier>(textDocument).uri();
-        version = Utils::get<VersionedTextDocumentIdentifier>(textDocument).version();
-    } else {
-        uri = Utils::get<TextDocumentIdentifier>(textDocument).uri();
-    }
-
-    m_highlights[uri].clear();
-    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
-        uri.toFilePath());
-
-    if (!doc || LanguageClientManager::clientForDocument(doc) != this
-        || (!version.isNull() && m_documentVersions.value(uri.toFilePath()) != version.value())) {
-        return;
-    }
-
-    const TextEditor::HighlightingResults results = SemanticHighligtingSupport::generateResults(
-        params.lines());
-
-    m_highlights[uri] = results;
-
-    SemanticHighligtingSupport::applyHighlight(doc, results, capabilities());
-}
-
-void Client::rehighlight()
-{
-    using namespace TextEditor;
-    m_tokenSupport.rehighlight();
-    for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
-        if (TextDocument *doc = TextDocument::textDocumentForFilePath(it.key().toFilePath())) {
-            if (LanguageClientManager::clientForDocument(doc) == this)
-                SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
-        }
     }
 }
 

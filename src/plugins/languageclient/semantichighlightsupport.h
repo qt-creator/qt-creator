@@ -58,17 +58,6 @@ inline bool operator==(const ExpandedSemanticToken &t1, const ExpandedSemanticTo
 using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
                                                  const QList<ExpandedSemanticToken> &, int, bool)>;
 
-namespace SemanticHighligtingSupport {
-
-TextEditor::HighlightingResults generateResults(
-    const QList<LanguageServerProtocol::SemanticHighlightingInformation> &lines);
-
-void applyHighlight(TextEditor::TextDocument *doc,
-                    const TextEditor::HighlightingResults &results,
-                    const LanguageServerProtocol::ServerCapabilities &capabilities);
-
-} // namespace SemanticHighligtingSupport
-
 class SemanticTokenSupport : public QObject
 {
 public:
@@ -77,6 +66,7 @@ public:
     void refresh();
     void reloadSemanticTokens(TextEditor::TextDocument *doc);
     void updateSemanticTokens(TextEditor::TextDocument *doc);
+    void clearHighlight(TextEditor::TextDocument *doc);
     void rehighlight();
     void setLegend(const LanguageServerProtocol::SemanticTokensLegend &legend);
 
