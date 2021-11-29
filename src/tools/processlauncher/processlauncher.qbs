@@ -8,9 +8,11 @@ QtcTool {
 
     cpp.defines: base.concat("QTCREATOR_UTILS_STATIC_LIB")
     cpp.includePaths: base.concat(pathToUtils)
-    cpp.dynamicLibraries: [
-        "user32",
-    ]
+
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.dynamicLibraries: "user32"
+    }
 
     files: [
         "launcherlogging.cpp",
