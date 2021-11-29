@@ -31,6 +31,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qlitehtml/src/CMakeLists.txt)
     set(QLITEHTML_DEVEL_EXCLUDE_FROM_ALL ON)
     set(QLITEHTML_HEADER_PATH "${IDE_HEADER_INSTALL_PATH}/src/lib/qlitehtml")
     set(QT_VERSION_MAJOR ${Qt5_VERSION_MAJOR})
+    set(BUILD_TESTING OFF) # otherwise litehtml downloads googletest
     add_subdirectory(qlitehtml/src)
   endif()
   if(TARGET qlitehtml)
