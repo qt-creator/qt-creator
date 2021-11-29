@@ -354,34 +354,54 @@ jobs:
         message("::set-output name=elfutils_dir::${elfutils_dir}")
 
     - name: Download ccache
-      id: ccache
       shell: cmake -P {0}
       run: |
         set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
         file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
 
-    - name: Prepare ccache timestamp
-      id: ccache_cache_timestamp
+    - name: Prepare ccache archive name
+      id: ccache
       shell: cmake -P {0}
       run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
-
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" github_workspace)
         include(${github_workspace}/cmake/QtCreatorIDEBranding.cmake)
         string(REPLACE "." ";" IDE_VERSION_LIST ${IDE_VERSION_DISPLAY})
         list(GET IDE_VERSION_LIST 0 IDE_VERSION_MAJOR)
-        message("::set-output name=ide_major_version::${IDE_VERSION_MAJOR}")
+        message("::set-output name=archive_name::ccache-${{ matrix.config.os }}-${{ matrix.config.cc }}-qtc${IDE_VERSION_MAJOR}")
 
+    - name: Download ccache archive
+      shell: cmake -P {0}
+      run: |
+        file(WRITE $ENV{GITHUB_WORKSPACE}/netrc.txt
+          "default login runneradmin password ${{ secrets.GITHUB_TOKEN }}")
+        file(
+          DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts"
+          HTTPHEADER "Accept: application/vnd.github.v3+json"
+          NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
+          NETRC REQUIRED
+          SHOW_PROGRESS
+          artifacts.json)
+        file(READ artifacts.json artifacts_json)
 
-    - name: ccache cache files
-      uses: actions/cache@v1
-      with:
-        path: .ccache
-        key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.ide_major_version }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-        restore-keys: |
-          ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.ide_major_version }}
+        string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
+        math(EXPR artifacts_length "${artifacts_length} - 1")
+        foreach(idx RANGE 0 ${artifacts_length})
+          string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
+          string(JSON name GET "${artifact_js}" "name")
+          if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
+            string(JSON download_url GET "${artifact_js}" "archive_download_url")
+            file(DOWNLOAD "${download_url}"
+                "${{ steps.ccache.outputs.archive_name }}.zip"
+                NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
+                NETRC REQUIRED
+                SHOW_PROGRESS)
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
+            file(MAKE_DIRECTORY .ccache)
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
+            break()
+          endif()
+        endforeach()
 
     - name: Install system libs
       shell: cmake -P {0}
@@ -538,37 +558,47 @@ jobs:
         endif()
 
     - name: Upload
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         path: build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
 
     - name: Upload Devel
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         path: build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
         name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
 
     - name: Upload wininterrupt
       if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         path: build/wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         name: wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
 
     - name: Upload qtcreatorcdbext
       if: runner.os == 'Windows' && matrix.config.is_msvc
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
 
     - name: Upload disk image
       if: runner.os == 'macOS'
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         path: build/qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
         name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
+
+    - name: Create ccache archive
+      working-directory: .ccache
+      run: cmake -E tar cf ../${{ steps.ccache.outputs.archive_name }}.tar .
+
+    - name: Upload ccache archive
+      uses: actions/upload-artifact@v2
+      with:
+        path: ./${{ steps.ccache.outputs.archive_name }}.tar
+        name: ${{ steps.ccache.outputs.archive_name }}
 
   release:
     if: contains(github.ref, 'tags/v')
@@ -591,7 +621,7 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         path: ./upload_url
         name: upload_url
@@ -624,40 +654,40 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v2
       with:
         name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download Devel artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v2
       with:
         name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
         path: ./
 
     - name: Download wininterrupt artifact
       if: contains(matrix.config.artifact, 'Windows')
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v2
       with:
         name: wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download qtcreatorcdbext artifact
       if: matrix.config.artifact == 'Windows-MSVC'
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download disk image artifact
       if: matrix.config.artifact == 'macOS'
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
         path: ./
 
     - name: Download URL
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v2
       with:
         name: upload_url
         path: ./
