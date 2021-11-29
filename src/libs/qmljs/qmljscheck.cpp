@@ -1236,7 +1236,11 @@ bool Check::visit(FunctionExpression *ast)
         }
     }
 
-    addMessage(ErrFunctionsNotSupportedInQmlUi, locationFromRange(locfunc, loclparen));
+    const bool isDirectInConnectionsScope =
+            (!m_typeStack.isEmpty() && m_typeStack.last() == "Connections");
+
+    if (!isDirectInConnectionsScope)
+        addMessage(ErrFunctionsNotSupportedInQmlUi, locationFromRange(locfunc, loclparen));
 
     DeclarationsCheck bodyCheck;
     addMessages(bodyCheck(ast));
