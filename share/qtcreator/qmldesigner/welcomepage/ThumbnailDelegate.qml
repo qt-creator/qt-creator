@@ -68,7 +68,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            source: thumbnail
+            source: typeof(thumbnail) === "undefined" ? "" : thumbnail
             anchors.rightMargin: 8
             anchors.leftMargin: 10
             anchors.topMargin: 8

@@ -89,7 +89,7 @@ Item {
         width: 177
         height: 15
         color: Constants.currentBrand
-        text: prettyFilePath
+        text: typeof(prettyFilePath) === "undefined" ? "" : prettyFilePath
         elide: Text.ElideLeft
         font.pixelSize: 12
         leftPadding: 5

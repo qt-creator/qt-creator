@@ -52,7 +52,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            source: thumbnail
+            source: typeof(thumbnail) === "undefined" ? "" : thumbnail
             anchors.rightMargin: 8
             anchors.leftMargin: 10
             anchors.topMargin: 8
@@ -89,7 +89,7 @@ Item {
         width: 177
         height: 15
         color: Constants.currentBrand
-        text: prettyFilePath
+        text: typeof(prettyFilePath) === "undefined" ? "" : prettyFilePath
         elide: Text.ElideLeft
         font.pixelSize: 12
         leftPadding: 5
