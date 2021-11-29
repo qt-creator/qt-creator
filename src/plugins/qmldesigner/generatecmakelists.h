@@ -54,13 +54,15 @@ QString readTemplate(const QString &templatePath);
 namespace GenerateCmakeLists {
 bool generateCmakes(const Utils::FilePath &rootDir);
 void generateMainCmake(const Utils::FilePath &rootDir);
-void generateImportCmake(const Utils::FilePath &dir);
-void generateModuleCmake(const Utils::FilePath &dir);
+void generateImportCmake(const Utils::FilePath &dir, const QString &modulePrefix = QString());
+void generateModuleCmake(const Utils::FilePath &dir, const QString &moduleUri = QString());
+Utils::FilePaths getDirectoryQmls(const Utils::FilePath &dir);
 QStringList getSingletonsFromQmldirFile(const Utils::FilePath &filePath);
 QStringList getDirectoryTreeQmls(const Utils::FilePath &dir);
 QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
 void queueCmakeFile(const Utils::FilePath &filePath, const QString &content);
 bool isFileBlacklisted(const QString &fileName);
+bool isDirBlacklisted(const Utils::FilePath &dir);
 }
 namespace GenerateEntryPoints {
 bool generateEntryPointFiles(const Utils::FilePath &dir);

@@ -8,9 +8,8 @@ qt6_add_qml_module(%1
     QML_FILES main.qml
 )
 
-add_subdirectory(content)
-add_subdirectory(imports)
+%2
 
 target_link_libraries(%1 PRIVATE
-%2
+%3
 )
