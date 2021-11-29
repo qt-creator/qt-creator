@@ -68,7 +68,7 @@ Item {
 
         Connections {
             target: mouseArea
-            onClicked: Qt.openUrlExternally("https://www.youtube.com/user/QtStudios/")
+            function onClicked(mouse) { Qt.openUrlExternally("https://www.youtube.com/user/QtStudios/") }
         }
     }
     states: [

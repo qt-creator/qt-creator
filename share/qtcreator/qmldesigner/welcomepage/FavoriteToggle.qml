@@ -58,7 +58,7 @@ Item {
 
         Connections {
             target: mouseArea
-            onReleased: favoriteToggle.isFavorite = !favoriteToggle.isFavorite
+            function onReleased(mouse) { favoriteToggle.isFavorite = !favoriteToggle.isFavorite }
         }
     }
     states: [

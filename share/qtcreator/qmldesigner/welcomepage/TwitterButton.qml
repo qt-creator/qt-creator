@@ -60,7 +60,7 @@ Item {
         hoverEnabled: true
         Connections {
             target: mouseArea
-            onClicked: Qt.openUrlExternally("https://twitter.com/qtproject/")
+            function onClicked(mouse) { Qt.openUrlExternally("https://twitter.com/qtproject/") }
         }
     }
     states: [

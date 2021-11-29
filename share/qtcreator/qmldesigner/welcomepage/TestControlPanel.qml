@@ -52,7 +52,7 @@ Item {
             y: 119
             text: qsTr("")
             checked: true
-            onToggled: Constants.basic = !Constants.basic
+            onToggled: { Constants.basic = !Constants.basic }
         }
 
         CheckBox {
@@ -61,7 +61,7 @@ Item {
             y: 119
             text: qsTr("")
             checked: false
-            onToggled: Constants.communityEdition = !Constants.communityEdition
+            onToggled: { Constants.communityEdition = !Constants.communityEdition }
         }
     }
 
@@ -79,7 +79,7 @@ Item {
 
         Connections {
             target: themeSlider
-            onValueChanged: Theme.Values.style = themeSlider.value
+            function onValueChanged(value) { Theme.Values.style = themeSlider.value }
         }
     }
 
@@ -103,7 +103,7 @@ Item {
         display: AbstractButton.IconOnly
         Connections {
             target: brandSwitch
-            onToggled: Constants.defaultBrand = !Constants.defaultBrand
+            function onToggled(bool) { Constants.defaultBrand = !Constants.defaultBrand }
         }
     }
 
@@ -185,7 +185,7 @@ Item {
 
             Connections {
                 target: mouseArea
-                onClicked: controlPanel.closeOpen = !controlPanel.closeOpen
+                function onClicked(mouse) { controlPanel.closeOpen = !controlPanel.closeOpen }
             }
         }
     }

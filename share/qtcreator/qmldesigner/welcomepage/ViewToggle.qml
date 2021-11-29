@@ -136,7 +136,7 @@ Rectangle {
 
         Connections {
             target: mouseArea
-            onClicked: listGrid.viewDefault = !listGrid.viewDefault
+            function onClicked(mouse) { listGrid.viewDefault = !listGrid.viewDefault }
         }
     }
     states: [

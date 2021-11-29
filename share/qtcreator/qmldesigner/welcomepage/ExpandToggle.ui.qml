@@ -53,7 +53,7 @@ Item {
 
         Connections {
             target: mouseAreaToggle
-            onReleased: expandToggle.collapsed = !expandToggle.collapsed
+            function onReleased(mouse) { expandToggle.collapsed = !expandToggle.collapsed }
         }
     }
     states: [

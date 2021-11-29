@@ -140,7 +140,7 @@ Rectangle {
 
             Connections {
                 target: recentProjects
-                onClicked: appBackground.pageIndex = 0
+                function onClicked(mouse) { appBackground.pageIndex = 0 }
             }
         }
 
@@ -152,7 +152,7 @@ Rectangle {
 
             Connections {
                 target: examples
-                onClicked: appBackground.pageIndex = 1
+                function onClicked(mouse) { appBackground.pageIndex = 1 }
             }
         }
 
@@ -164,7 +164,7 @@ Rectangle {
 
             Connections {
                 target: tutorials
-                onClicked: appBackground.pageIndex = 2
+                function onClicked(moise) { appBackground.pageIndex = 2 }
             }
         }
 
@@ -177,7 +177,7 @@ Rectangle {
 
             Connections {
                 target: marketplace
-                onClicked: appBackground.pageIndex = 3
+                function onClicked() { appBackground.pageIndex = 3 }
             }
         }
     }
@@ -341,7 +341,7 @@ Rectangle {
 
         Connections {
             target: listGridToggle
-            onViewDefaultChanged: Constants.isListView = !Constants.isListView
+            function onViewDefaultChanged() { Constants.isListView = !Constants.isListView }
         }
     }
 
