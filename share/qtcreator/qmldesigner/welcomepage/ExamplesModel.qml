@@ -94,7 +94,7 @@ ListModel {
         projectName: "highendivisystem"
         qmlFileName: "Screen01.ui.qml"
         thumbnail: "images/highendivi_thumbnail.png"
-        displayName: "Highend IVI System"
+        displayName: "IVI System"
         url: "https://download.qt.io/learning/examples/qtdesignstudio/highendivisystem.zip"
         showDownload: true
     }
