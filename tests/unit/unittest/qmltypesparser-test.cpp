@@ -173,8 +173,9 @@ protected:
     Storage::Imports imports;
     Storage::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
-    QmlDesigner::Storage::ProjectData projectData{storage.moduleId("QtQml-cppnative"),
+    QmlDesigner::Storage::ProjectData projectData{qmltypesFileSourceId,
                                                   qmltypesFileSourceId,
+                                                  storage.moduleId("QtQml-cppnative"),
                                                   Storage::FileType::QmlTypes};
     SourceContextId qmltypesFileSourceContextId{sourcePathCache.sourceContextId(qmltypesFileSourceId)};
     ModuleId directoryModuleId{storage.moduleId("path/to/")};

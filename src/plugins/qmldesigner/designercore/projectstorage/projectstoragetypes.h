@@ -735,15 +735,30 @@ using Types = std::vector<Type>;
 class ProjectData
 {
 public:
-    ProjectData(ModuleId extraModuleId, SourceId sourceId, FileType fileType)
-        : extraModuleId{extraModuleId}
+    ProjectData(SourceId projectSourceId, SourceId sourceId, ModuleId moduleId, FileType fileType)
+        : projectSourceId{projectSourceId}
         , sourceId{sourceId}
+        , moduleId{moduleId}
         , fileType{fileType}
     {}
 
+    ProjectData(int projectSourceId, int sourceId, int moduleId, int fileType)
+        : projectSourceId{projectSourceId}
+        , sourceId{sourceId}
+        , moduleId{moduleId}
+        , fileType{static_cast<Storage::FileType>(fileType)}
+    {}
+
+    friend bool operator==(const ProjectData &first, const ProjectData &second)
+    {
+        return first.projectSourceId == second.projectSourceId && first.sourceId == second.sourceId
+               && first.moduleId == second.moduleId && first.fileType == second.fileType;
+    }
+
 public:
-    ModuleId extraModuleId;
+    SourceId projectSourceId;
     SourceId sourceId;
+    ModuleId moduleId;
     FileType fileType;
 };
 
@@ -767,9 +782,14 @@ public:
         : updatedSourceIds(std::move(updatedSourceIds))
     {}
 
-    SynchronizationPackage(SourceIds updatedSourceIds, FileStatuses fileStatuses)
-        : updatedSourceIds(std::move(updatedSourceIds))
+    SynchronizationPackage(SourceIds updatedFileStatusSourceIds, FileStatuses fileStatuses)
+        : updatedFileStatusSourceIds(std::move(updatedFileStatusSourceIds))
         , fileStatuses(std::move(fileStatuses))
+    {}
+
+    SynchronizationPackage(SourceIds updatedProjectSourceIds, ProjectDatas projectDatas)
+        : projectDatas(std::move(projectDatas))
+        , updatedProjectSourceIds(std::move(updatedProjectSourceIds))
     {}
 
 public:
@@ -778,7 +798,7 @@ public:
     SourceIds updatedSourceIds;
     FileStatuses fileStatuses;
     ProjectDatas projectDatas;
-    ModuleIds updatedProjectDataModuleIds;
+    SourceIds updatedProjectSourceIds;
     SourceIds updatedFileStatusSourceIds;
 };
 

@@ -87,6 +87,7 @@ private:
     };
 
     void parseTypeInfos(const QStringList &typeInfos,
+                        SourceId qmldirSourceId,
                         SourceContextId directoryId,
                         ModuleId moduleId,
                         Storage::SynchronizationPackage &package,
@@ -102,6 +103,7 @@ private:
                        SourceIds &notUpdatedFileStatusSourceIds,
                        SourceIds &notUpdatedSourceIds);
     void parseQmlComponents(ComponentReferences components,
+                            SourceId qmldirSourceId,
                             SourceContextId directoryId,
                             ModuleId moduleId,
                             Storage::SynchronizationPackage &package,
@@ -114,6 +116,7 @@ private:
                            Utils::SmallStringView typeName,
                            Storage::Version version,
                            ModuleId moduleId,
+                           SourceId qmldirSourceId,
                            SourceContextId directoryId,
                            Storage::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds);

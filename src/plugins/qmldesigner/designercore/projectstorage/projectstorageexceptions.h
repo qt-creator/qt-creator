@@ -113,4 +113,22 @@ public:
     const char *what() const noexcept override { return "Cannot parse qml types file!"; }
 };
 
+class ProjectDataHasInvalidProjectSourceId : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The project source id is invalid!"; }
+};
+
+class ProjectDataHasInvalidSourceId : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The source id is invalid!"; }
+};
+
+class ProjectDataHasInvalidModuleId : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The module id is invalid!"; }
+};
+
 } // namespace QmlDesigner

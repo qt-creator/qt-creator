@@ -110,6 +110,8 @@ public:
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
+        synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
+
         transaction.commit();
     }
 
@@ -306,9 +308,20 @@ public:
             &sourceId);
     }
 
-    Storage::ProjectDatas fetchProjectDatas(SourceId sourceId) const override
+    Storage::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
-        return Storage::ProjectDatas{};
+        return selectProjectDatasForModuleIdStatement
+            .template valuesWithTransaction<Storage::ProjectData>(64, &projectSourceId);
+    }
+
+    Storage::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
+    {
+        auto projectSourceIdValues = Utils::transform<std::vector>(projectSourceIds,
+                                                                   [](SourceId id) { return &id; });
+
+        return selectProjectDatasForModuleIdsStatement
+            .template valuesWithTransaction<Storage::ProjectData>(64,
+                                                                  Utils::span(projectSourceIdValues));
     }
 
 private:
@@ -531,6 +544,65 @@ private:
                          insertedAliasPropertyDeclarations,
                          updatedAliasPropertyDeclarations,
                          relinkablePropertyDeclarations);
+    }
+
+    void synchronizeProjectDatas(Storage::ProjectDatas &projectDatas,
+                                 const SourceIds &updatedProjectSourceIds)
+    {
+        auto updatedProjectSourceIdValues = Utils::transform<std::vector>(updatedProjectSourceIds,
+                                                                          [](SourceId id) {
+                                                                              return &id;
+                                                                          });
+
+        auto compareKey = [](auto &&first, auto &&second) {
+            auto projectSourceIdDifference = first.projectSourceId.id - second.projectSourceId.id;
+            if (projectSourceIdDifference != 0)
+                return projectSourceIdDifference;
+
+            return first.sourceId.id - second.sourceId.id;
+        };
+
+        std::sort(projectDatas.begin(), projectDatas.end(), [&](auto &&first, auto &&second) {
+            return std::tie(first.projectSourceId, first.sourceId)
+                   < std::tie(second.projectSourceId, second.sourceId);
+        });
+
+        auto range = selectProjectDatasForModuleIdsStatement.template range<Storage::ProjectData>(
+            Utils::span(updatedProjectSourceIdValues));
+
+        auto insert = [&](const Storage::ProjectData &projectData) {
+            if (!projectData.projectSourceId)
+                throw ProjectDataHasInvalidProjectSourceId{};
+            if (!projectData.sourceId)
+                throw ProjectDataHasInvalidSourceId{};
+            if (!projectData.moduleId)
+                throw ProjectDataHasInvalidModuleId{};
+
+            insertProjectDataStatement.write(&projectData.projectSourceId,
+                                             &projectData.sourceId,
+                                             &projectData.moduleId,
+                                             static_cast<int>(projectData.fileType));
+        };
+
+        auto update = [&](const Storage::ProjectData &projectDataFromDatabase,
+                          const Storage::ProjectData &projectData) {
+            if (!projectData.moduleId)
+                throw ProjectDataHasInvalidModuleId{};
+
+            if (projectDataFromDatabase.fileType != projectData.fileType
+                || projectDataFromDatabase.moduleId != projectData.moduleId) {
+                updateProjectDataStatement.write(&projectData.projectSourceId,
+                                                 &projectData.sourceId,
+                                                 &projectData.moduleId,
+                                                 static_cast<int>(projectData.fileType));
+            }
+        };
+
+        auto remove = [&](const Storage::ProjectData &projectData) {
+            deleteProjectDataStatement.write(&projectData.projectSourceId, &projectData.sourceId);
+        };
+
+        Sqlite::insertUpdateDelete(range, projectDatas, compareKey, insert, update, remove);
     }
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds)
@@ -1766,6 +1838,7 @@ private:
                 createSignalsTable(database);
                 createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
+                createProjectDatasTable(database);
 
                 transaction.commit();
 
@@ -2005,6 +2078,22 @@ private:
                                                 Sqlite::ForeignKeyAction::Cascade}});
             table.addColumn("size");
             table.addColumn("lastModified");
+
+            table.initialize(database);
+        }
+
+        void createProjectDatasTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setUseWithoutRowId(true);
+            table.setName("projectDatas");
+            auto &projectSourceIdColumn = table.addColumn("projectSourceId");
+            auto &sourceIdColumn = table.addColumn("sourceId");
+            table.addColumn("moduleId");
+            table.addColumn("fileType");
+
+            table.addPrimaryKeyContraint({projectSourceIdColumn, sourceIdColumn});
 
             table.initialize(database);
         }
@@ -2448,6 +2537,22 @@ public:
         "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
     WriteStatement updateExportedTypeNameTypeIdStatement{
         "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
+    mutable ReadStatement<4> selectProjectDatasForModuleIdsStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
+        database};
+    WriteStatement insertProjectDataStatement{"INSERT INTO projectDatas(projectSourceId, sourceId, "
+                                              "moduleId, fileType) VALUES(?1, ?2, ?3, ?4)",
+                                              database};
+    WriteStatement deleteProjectDataStatement{
+        "DELETE FROM projectDatas WHERE projectSourceId=?1 AND sourceId=?2", database};
+    WriteStatement updateProjectDataStatement{
+        "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
+        database};
+    mutable ReadStatement<4> selectProjectDatasForModuleIdStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "projectSourceId=?1",
+        database};
 };
 
 } // namespace QmlDesigner

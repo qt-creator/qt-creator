@@ -1117,7 +1117,8 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
 
 std::ostream &operator<<(std::ostream &out, const ProjectData &data)
 {
-    return out << "(" << data.extraModuleId << ", " << data.sourceId << ", " << data.fileType << ")";
+    return out << "(" << data.projectSourceId << ", " << data.sourceId << ", " << data.moduleId
+               << ", " << data.fileType << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics)

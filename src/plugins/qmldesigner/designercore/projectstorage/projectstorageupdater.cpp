@@ -112,17 +112,19 @@ void ProjectUpdater::update()
             addSourceIds(package.updatedFileStatusSourceIds, qmlProjectDatas);
 
             parseTypeInfos(parser.typeInfos(),
+                           qmlDirSourceId,
                            directoryId,
                            moduleId,
                            package,
                            notUpdatedFileStatusSourceIds,
                            notUpdatedSourceIds);
             parseQmlComponents(createComponentReferences(parser.components()),
+                               qmlDirSourceId,
                                directoryId,
                                moduleId,
                                package,
                                notUpdatedFileStatusSourceIds);
-            package.updatedProjectDataModuleIds.push_back(moduleId);
+            package.updatedProjectSourceIds.push_back(qmlDirSourceId);
             break;
         }
         case FileState::NotChanged: {
@@ -154,6 +156,7 @@ void ProjectUpdater::update()
 void ProjectUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) {}
 
 void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
+                                    SourceId qmldirSourceId,
                                     SourceContextId directoryId,
                                     ModuleId moduleId,
                                     Storage::SynchronizationPackage &package,
@@ -166,8 +169,9 @@ void ProjectUpdater::parseTypeInfos(const QStringList &typeInfos,
         SourceId sourceId = m_pathCache.sourceId(directoryId, Utils::SmallString{typeInfo});
         QString qmltypesPath = directory + "/" + typeInfo;
 
-        auto projectData = package.projectDatas.emplace_back(moduleId,
+        auto projectData = package.projectDatas.emplace_back(qmldirSourceId,
                                                              sourceId,
+                                                             moduleId,
                                                              Storage::FileType::QmlTypes);
 
         parseTypeInfo(projectData,
@@ -229,6 +233,7 @@ void ProjectUpdater::parseQmlComponent(Utils::SmallStringView fileName,
                                        Utils::SmallStringView typeName,
                                        Storage::Version version,
                                        ModuleId moduleId,
+                                       SourceId qmldirSourceId,
                                        SourceContextId directoryId,
                                        Storage::SynchronizationPackage &package,
                                        SourceIds &notUpdatedFileStatusSourceIds)
@@ -254,7 +259,7 @@ void ProjectUpdater::parseQmlComponent(Utils::SmallStringView fileName,
         break;
     }
 
-    package.projectDatas.emplace_back(moduleId, sourceId, Storage::FileType::QmlDocument);
+    package.projectDatas.emplace_back(qmldirSourceId, sourceId, moduleId, Storage::FileType::QmlDocument);
 
     package.updatedSourceIds.push_back(sourceId);
 
@@ -293,6 +298,7 @@ void ProjectUpdater::parseQmlComponent(Utils::SmallStringView fileName,
 }
 
 void ProjectUpdater::parseQmlComponents(ComponentReferences components,
+                                        SourceId qmldirSourceId,
                                         SourceContextId directoryId,
                                         ModuleId moduleId,
                                         Storage::SynchronizationPackage &package,
@@ -318,6 +324,7 @@ void ProjectUpdater::parseQmlComponents(ComponentReferences components,
                           Utils::SmallString{component.typeName},
                           Storage::Version{component.majorVersion, component.minorVersion},
                           moduleId,
+                          qmldirSourceId,
                           directoryId,
                           package,
                           notUpdatedFileStatusSourceIds);
