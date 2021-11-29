@@ -302,12 +302,12 @@ Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_TextColor=ff000000
 Welcome_ForegroundPrimaryColor=shadowBackground
-Welcome_ForegroundSecondaryColor=ff727476
-Welcome_BackgroundColor=normalBackground
-Welcome_ButtonBackgroundColor=normalBackground
-Welcome_DividerColor=ffd6d6d6
-Welcome_HoverColor=fff6f6f6
-Welcome_LinkColor=ff5caa15
+Welcome_ForegroundSecondaryColor=ff939393
+Welcome_BackgroundPrimaryColor=fffafafa
+Welcome_BackgroundSecondaryColor=ffffffff
+Welcome_HoverColor=ffefefef
+Welcome_AccentColor=ff45ce55
+Welcome_LinkColor=ff20a020
 Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=text

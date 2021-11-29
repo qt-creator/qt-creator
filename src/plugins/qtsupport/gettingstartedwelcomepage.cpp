@@ -247,19 +247,14 @@ protected:
         QTC_ASSERT(item, return);
         const auto exampleItem = static_cast<const ExampleItem *>(item);
         if (exampleItem->isVideo) {
-            QFont f = option.widget->font();
-            f.setPixelSize(13);
-            painter->setFont(f);
-            QString videoLen = exampleItem->videoLength;
-            painter->drawText(currentPixmapRect.adjusted(0, 0, 0, painter->font().pixelSize() + 3),
-                              videoLen, Qt::AlignBottom | Qt::AlignHCenter);
+            painter->save();
+            painter->setFont(option.font);
+            painter->setCompositionMode(QPainter::CompositionMode_Difference);
+            painter->setPen(Qt::white);
+            painter->drawText(currentPixmapRect.translated(0, -WelcomePageHelpers::ItemGap),
+                              exampleItem->videoLength, Qt::AlignBottom | Qt::AlignHCenter);
+            painter->restore();
         }
-    }
-
-    void adjustPixmapRect(QRect *pixmapRect) const override
-    {
-        if (!m_showExamples)
-            *pixmapRect = pixmapRect->adjusted(6, 20, -6, -15);
     }
 
     bool m_showExamples = true;
@@ -272,7 +267,6 @@ public:
         : m_isExamples(isExamples)
     {
         m_exampleDelegate.setShowExamples(isExamples);
-        const int sideMargin = 27;
         static auto s_examplesModel = new ExamplesListModel(this);
         m_examplesModel = s_examplesModel;
 
@@ -281,10 +275,14 @@ public:
         auto searchBox = new SearchBox(this);
         m_searcher = searchBox->m_lineEdit;
 
-        auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(30, sideMargin, 0, 0);
+        auto grid = new QGridLayout(this);
+        grid->setContentsMargins(0, 0, 0, WelcomePageHelpers::ItemGap);
+        grid->setHorizontalSpacing(0);
+        grid->setVerticalSpacing(WelcomePageHelpers::ItemGap);
 
-        auto hbox = new QHBoxLayout;
+        auto searchBar = WelcomePageHelpers::panelBar(this);
+        auto hbox = new QHBoxLayout(searchBar);
+        hbox->setContentsMargins(0, 0, 0, 0);
         if (m_isExamples) {
             m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Examples..."));
 
@@ -303,21 +301,22 @@ public:
             connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
                     exampleSetSelector, &QComboBox::setCurrentIndex);
 
-            hbox->setSpacing(17);
+            hbox->setSpacing(Core::WelcomePageHelpers::HSpacing);
             hbox->addWidget(exampleSetSelector);
         } else {
             m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Tutorials..."));
         }
         hbox->addWidget(searchBox);
-        hbox->addSpacing(sideMargin);
-        vbox->addItem(hbox);
+        grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 0);
+        grid->addWidget(searchBar, 0, 1);
+        grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 2);
 
         auto gridView = new GridView(this);
         gridView->setModel(filteredModel);
         gridView->setItemDelegate(&m_exampleDelegate);
         if (auto sb = gridView->verticalScrollBar())
             sb->setSingleStep(25);
-        vbox->addWidget(gridView);
+        grid->addWidget(gridView, 1, 1, 1, 2);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);

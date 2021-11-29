@@ -157,6 +157,7 @@ SectionedProducts::SectionedProducts(QWidget *parent)
 
     auto sectionedView = new QWidget;
     auto layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addStretch();
     sectionedView->setLayout(layout);
     area->setWidget(sectionedView);
@@ -377,10 +378,9 @@ void SectionedProducts::addNewSection(const Section &section, const QList<Core::
     m_productModels.insert(section, productModel);
     const auto it = m_gridViews.insert(section, gridView);
 
-    QFont f = font();
-    f.setPixelSize(16);
     auto sectionLabel = new QLabel(section.name);
-    sectionLabel->setFont(f);
+    sectionLabel->setContentsMargins(0, Core::WelcomePageHelpers::ItemGap, 0, 0);
+    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
     auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
 

@@ -179,6 +179,12 @@ Project {
         }
 
         Group {
+            name: "studiofonts"
+            prefix: "../../share/3rdparty/studiofonts/"
+            files: "studiofonts.qrc"
+        }
+
+        Group {
             name: "Action Manager"
             prefix: "actionmanager/"
             files: [

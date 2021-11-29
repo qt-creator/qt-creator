@@ -249,11 +249,11 @@ public:
         Welcome_TextColor,
         Welcome_ForegroundPrimaryColor,
         Welcome_ForegroundSecondaryColor,
-        Welcome_BackgroundColor,
-        Welcome_ButtonBackgroundColor,
-        Welcome_DividerColor,
-        Welcome_LinkColor,
+        Welcome_BackgroundPrimaryColor,
+        Welcome_BackgroundSecondaryColor,
         Welcome_HoverColor,
+        Welcome_AccentColor,
+        Welcome_LinkColor,
         Welcome_DisabledLinkColor,
 
         /* Timeline Library */

@@ -40,10 +40,19 @@ namespace Utils { class FancyLineEdit; }
 
 namespace Core {
 
+namespace WelcomePageHelpers {
+
+constexpr int HSpacing = 20;
+constexpr int ItemGap = 4;
+CORE_EXPORT QFont brandFont();
+CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
+
+} // namespace WelcomePageHelpers
+
 class CORE_EXPORT SearchBox : public WelcomePageFrame
 {
 public:
-    SearchBox(QWidget *parent);
+    explicit SearchBox(QWidget *parent);
 
     Utils::FancyLineEdit *m_lineEdit = nullptr;
 };
@@ -121,10 +130,10 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
-    static constexpr int GridItemWidth = 230;
-    static constexpr int GridItemHeight = 230;
-    static constexpr int GridItemGap = 10;
-    static constexpr int TagsSeparatorY = GridItemHeight - 60;
+    static constexpr int GridItemGap = 3 * WelcomePageHelpers::ItemGap;
+    static constexpr int GridItemWidth = 240 + GridItemGap;
+    static constexpr int GridItemHeight = GridItemWidth;
+    static constexpr int TagsSeparatorY = GridItemHeight - GridItemGap - 52;
 
 signals:
     void tagClicked(const QString &tag);
@@ -138,14 +147,14 @@ protected:
                                    const QStyleOptionViewItem &option,
                                    const QRect &currentPixmapRect) const;
     virtual void clickAction(const ListItem *item) const;
-    virtual void adjustPixmapRect(QRect *pixmapRect) const;
 
     void goon();
 
-    QColor lightColor;
-    QColor backgroundColor;
-    QColor foregroundColor1;
-    QColor foregroundColor2;
+    const QColor backgroundPrimaryColor;
+    const QColor backgroundSecondaryColor;
+    const QColor foregroundPrimaryColor;
+    const QColor hoverColor;
+    const QColor textColor;
 
 private:
     mutable QPersistentModelIndex m_previousIndex;
@@ -153,6 +162,7 @@ private:
     mutable QRect m_currentArea;
     mutable QPointer<QAbstractItemView> m_currentWidget;
     mutable QVector<QPair<QString, QRect>> m_currentTagRects;
+    mutable QPixmap m_blurredThumbnail;
 };
 
 } // namespace Core

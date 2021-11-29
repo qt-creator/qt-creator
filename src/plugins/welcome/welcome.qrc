@@ -4,28 +4,12 @@
         <file>images/mode_welcome@2x.png</file>
         <file>images/mode_welcome_mask.png</file>
         <file>images/mode_welcome_mask@2x.png</file>
-        <file>images/blogs.png</file>
-        <file>images/blogs@2x.png</file>
-        <file>images/community.png</file>
-        <file>images/community@2x.png</file>
-        <file>images/open.png</file>
-        <file>images/open@2x.png</file>
         <file>images/project.png</file>
         <file>images/project@2x.png</file>
-        <file>images/qtaccount.png</file>
-        <file>images/qtaccount@2x.png</file>
         <file>images/session.png</file>
         <file>images/session@2x.png</file>
-        <file>images/userguide.png</file>
-        <file>images/userguide@2x.png</file>
-        <file>images/new.png</file>
-        <file>images/new@2x.png</file>
         <file>images/expandarrow.png</file>
         <file>images/expandarrow@2x.png</file>
         <file>images/border.png</file>
-        <file>images/download.png</file>
-        <file>images/download@2x.png</file>
-        <file>images/settings.png</file>
-        <file>images/settings@2x.png</file>
     </qresource>
 </RCC>

@@ -205,5 +205,19 @@ if ((NOT WIN32) AND (NOT APPLE))
   endforeach()
 endif()
 
+set(FONTS_BASE "${QtCreator_SOURCE_DIR}/src/share/3rdparty/studiofonts/")
+if(${Qt5_VERSION} VERSION_LESS "6")
+extend_qtc_plugin(Core
+  SOURCES "${FONTS_BASE}/studiofonts.qrc"
+)
+else() # < Qt 6
+qt_add_resources(Core
+  CoreWelcomeScreenFonts_rcc
+  BASE ${FONTS_BASE}
+  PREFIX "studiofonts"
+  FILES "${FONTS_BASE}/TitilliumWeb-Regular.ttf"
+)
+endif()
+
 # transitional qmake plugin build support
 qtc_add_public_header(coreplugin_dependencies.pri)

@@ -293,13 +293,13 @@ Debugger_WatchItem_ValueChanged=ffc80000
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_TextColor=ff000000
-Welcome_ForegroundPrimaryColor=ff555759
-Welcome_ForegroundSecondaryColor=ff727476
-Welcome_BackgroundColor=fff8f8f8
-Welcome_ButtonBackgroundColor=ffdfdfdf
-Welcome_DividerColor=ffd6d6d6
-Welcome_HoverColor=ffe8e8e8
-Welcome_LinkColor=ff5caa15
+Welcome_ForegroundPrimaryColor=shadowBackground
+Welcome_ForegroundSecondaryColor=ff939393
+Welcome_BackgroundPrimaryColor=fffafafa
+Welcome_BackgroundSecondaryColor=ffffffff
+Welcome_HoverColor=ffefefef
+Welcome_AccentColor=ff45ce55
+Welcome_LinkColor=ff20a020
 Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=darkText

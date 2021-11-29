@@ -305,13 +305,13 @@ Debugger_WatchItem_ValueChanged=ffff6666
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
 Welcome_TextColor=text
-Welcome_ForegroundPrimaryColor=ff999999
+Welcome_ForegroundPrimaryColor=ffa3a3a3
 Welcome_ForegroundSecondaryColor=ff808080
-Welcome_BackgroundColor=normalBackground
-Welcome_ButtonBackgroundColor=normalBackground
-Welcome_DividerColor=ff555555
-Welcome_HoverColor=ff444444
-Welcome_LinkColor=ff7fc63c
+Welcome_BackgroundPrimaryColor=ff242424
+Welcome_BackgroundSecondaryColor=ff1c1c1c
+Welcome_HoverColor=ff2b2a2a
+Welcome_AccentColor=ff3f8ccc
+Welcome_LinkColor=ff5fafef
 Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=text

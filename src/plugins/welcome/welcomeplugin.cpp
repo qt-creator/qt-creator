@@ -34,11 +34,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/iwelcomepage.h>
 #include <coreplugin/iwizardfactory.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -61,63 +63,69 @@
 #include <QVBoxLayout>
 
 using namespace Core;
+using namespace Core::WelcomePageHelpers;
 using namespace ExtensionSystem;
 using namespace Utils;
 
 namespace Welcome {
 namespace Internal {
 
-class SideBar;
+class TopArea;
+class SideArea;
+class BottomArea;
 
-const int lrPadding = 34;
 const char currentPageSettingsKeyC[] = "Welcome2Tab";
+constexpr int buttonSpacing = 16;
 
 static QColor themeColor(Theme::Color role)
 {
     return Utils::creatorTheme()->color(role);
 }
 
-static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
-{
-    QFont f = widget->font();
-    f.setPixelSize(size);
-    f.setUnderline(underline);
-    return f;
-}
-
-static QPalette lightText()
-{
-    QPalette pal;
-    pal.setColor(QPalette::WindowText, themeColor(Theme::Welcome_ForegroundPrimaryColor));
-    return pal;
-}
-
 static void addWeakVerticalSpacerToLayout(QVBoxLayout *layout, int maximumSize)
 {
     auto weakSpacer = new QWidget;
     weakSpacer->setMaximumHeight(maximumSize);
+    weakSpacer->setMinimumHeight(buttonSpacing);
     weakSpacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
     layout->addWidget(weakSpacer);
     layout->setStretchFactor(weakSpacer, 1);
 }
 
-class WelcomeMode : public IMode
+class ResizeSignallingWidget : public QWidget
 {
     Q_OBJECT
+
+public:
+    void resizeEvent(QResizeEvent *event);
+
+signals:
+    void resized(const QSize &size, const QSize &oldSize);
+};
+
+void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
+{
+    emit resized(event->size(), event->oldSize());
+}
+
+class WelcomeMode : public IMode
+{
 public:
     WelcomeMode();
     ~WelcomeMode();
 
     void initPlugins();
 
-    Q_INVOKABLE bool openDroppedFiles(const QList<QUrl> &urls);
+    bool openDroppedFiles(const QList<QUrl> &urls);
 
 private:
     void addPage(IWelcomePage *page);
 
-    QWidget *m_modeWidget;
+    ResizeSignallingWidget *m_modeWidget;
     QStackedWidget *m_pageStack;
-    SideBar *m_sideBar;
+    TopArea *m_topArea;
+    SideArea *m_sideArea;
+    BottomArea *m_bottomArea;
     QList<IWelcomePage *> m_pluginList;
     QList<WelcomePageButton *> m_pageButtons;
     Id m_activePage;
@@ -165,143 +173,187 @@ public:
     WelcomeMode *m_welcomeMode = nullptr;
 };
 
-class IconAndLink : public QWidget
-{
-public:
-    IconAndLink(const QString &iconSource,
-                const QString &title,
-                const QString &openUrl,
-                QWidget *parent)
-        : QWidget(parent), m_iconSource(iconSource), m_title(title), m_openUrl(openUrl)
-    {
-        setAutoFillBackground(true);
-        setMinimumHeight(35);
-        setToolTip(m_openUrl);
-
-        const QString fileName = QString(":/welcome/images/%1.png").arg(iconSource);
-        const Icon icon({{FilePath::fromString(fileName), Theme::Welcome_ForegroundPrimaryColor}},
-                        Icon::Tint);
-
-        m_icon = new QLabel;
-        m_icon->setPixmap(icon.pixmap());
-
-        m_label = new QLabel(title);
-        m_label->setFont(sizedFont(11, m_label, false));
-
-        auto layout = new QHBoxLayout;
-        layout->setContentsMargins(lrPadding, 0, lrPadding, 0);
-        layout->addWidget(m_icon);
-        layout->addSpacing(2);
-        layout->addWidget(m_label);
-        layout->addStretch(1);
-        setLayout(layout);
-    }
-
-    void enterEvent(EnterEvent *) override
-    {
-        QPalette pal;
-        pal.setColor(QPalette::Window, themeColor(Theme::Welcome_HoverColor));
-        setPalette(pal);
-        m_label->setFont(sizedFont(11, m_label, true));
-        update();
-    }
-
-    void leaveEvent(QEvent *) override
-    {
-        QPalette pal;
-        pal.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundColor));
-        setPalette(pal);
-        m_label->setFont(sizedFont(11, m_label, false));
-        update();
-    }
-
-    void mousePressEvent(QMouseEvent *) override
-    {
-        QDesktopServices::openUrl(m_openUrl);
-    }
-
-    QString m_iconSource;
-    QString m_title;
-    const QString m_openUrl;
-
-    QLabel *m_icon;
-    QLabel *m_label;
-};
-
-class SideBar : public QWidget
+class TopArea : public QWidget
 {
     Q_OBJECT
+
 public:
-    SideBar(QWidget *parent)
+    TopArea(QWidget *parent = nullptr)
         : QWidget(parent)
     {
         setAutoFillBackground(true);
+        setMinimumHeight(11); // For compact state
         setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-        setPalette(themeColor(Theme::Welcome_BackgroundColor));
+        setPalette(themeColor(Theme::Welcome_BackgroundPrimaryColor));
 
-        auto vbox = new QVBoxLayout(this);
-        vbox->setSpacing(0);
-        vbox->setContentsMargins(0, 27, 0, 0);
+        m_title = new QWidget;
+
+        auto hbox = new QHBoxLayout(m_title);
+        hbox->setSpacing(0);
+        hbox->setContentsMargins(HSpacing - 5, 2, 0, 2);
 
         {
-            auto l = m_pluginButtons = new QVBoxLayout;
-            l->setContentsMargins(lrPadding, 0, lrPadding, 0);
-            l->setSpacing(19);
-            vbox->addItem(l);
+            auto ideIconLabel = new QLabel;
+            const QPixmap logo = Core::Icons::QTCREATORLOGO_BIG.pixmap();
+            ideIconLabel->setPixmap(logo.scaled(logo.size() * 0.6, Qt::IgnoreAspectRatio,
+                                                Qt::SmoothTransformation));
+            hbox->addWidget(ideIconLabel, 0);
+
+            hbox->addSpacing(16);
+
+            QFont welcomeFont = brandFont();
+            welcomeFont.setPixelSize(30);
+            welcomeFont.setWeight(QFont::Light);
+            welcomeFont.setWordSpacing(2);
+
+            auto welcomeLabel = new QLabel("Welcome to");
+            welcomeLabel->setFont(welcomeFont);
+            hbox->addWidget(welcomeLabel, 0);
+
+            hbox->addSpacing(8);
+
+            auto ideNameLabel = new QLabel(Core::Constants::IDE_DISPLAY_NAME);
+            ideNameLabel->setFont(welcomeFont);
+            ideNameLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            QPalette pal = palette();
+            pal.setColor(QPalette::WindowText, themeColor(Theme::Welcome_AccentColor));
+            ideNameLabel->setPalette(pal);
+            hbox->addWidget(ideNameLabel, 1);
         }
 
-        addWeakVerticalSpacerToLayout(vbox, 62);
+        auto mainLayout = new QHBoxLayout(this);
+        mainLayout->setContentsMargins(0, 0, 0, 0);
+        mainLayout->addWidget(m_title);
+    }
+
+    void setCompact(bool compact)
+    {
+        m_title->setVisible(!compact);
+    }
+
+private:
+    QWidget *m_title;
+};
+
+class SideArea : public QScrollArea
+{
+    Q_OBJECT
+
+public:
+    SideArea(QWidget *parent = nullptr)
+        : QScrollArea(parent)
+    {
+        setWidgetResizable(true);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setFrameShape(QFrame::NoFrame);
+        setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored);
+
+        auto mainWidget = new QWidget(this);
+        mainWidget->setAutoFillBackground(true);
+        mainWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        mainWidget->setPalette(themeColor(Theme::Welcome_BackgroundPrimaryColor));
+
+        auto vbox = new QVBoxLayout(mainWidget);
+        vbox->setSpacing(0);
+        vbox->setContentsMargins(HSpacing, 0, HSpacing, 0);
 
         {
-            auto l = new QVBoxLayout;
-            l->setContentsMargins(lrPadding, 0, lrPadding, 0);
-            l->setSpacing(12);
+            auto projectVBox = new QVBoxLayout;
+            projectVBox->setSpacing(buttonSpacing);
+            auto newButton = new WelcomePageButton(mainWidget);
+            newButton->setText(tr("Create Project..."));
+            newButton->setWithAccentColor(true);
+            newButton->setOnClicked([] {
+                QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
+                openAction->trigger();
+            });
+
+            auto openButton = new WelcomePageButton(mainWidget);
+            openButton->setText(tr("Open Project..."));
+            openButton->setWithAccentColor(true);
+            openButton->setOnClicked([] {
+                QAction *openAction = ActionManager::command(Core::Constants::OPEN)->action();
+                openAction->trigger();
+            });
+
+            projectVBox->addWidget(newButton);
+            projectVBox->addWidget(openButton);
+            vbox->addItem(projectVBox);
+        }
+
+        addWeakVerticalSpacerToLayout(vbox, 34);
+
+        {
+            auto newVBox = new QVBoxLayout;
+            newVBox->setSpacing(buttonSpacing / 3);
+            vbox->addItem(newVBox);
 
             auto newLabel = new QLabel(tr("New to Qt?"), this);
-            newLabel->setFont(sizedFont(18, this));
-            l->addWidget(newLabel);
+            newLabel->setFont(brandFont());
+            newLabel->setAlignment(Qt::AlignHCenter);
+            newVBox->addWidget(newLabel);
 
-            auto learnLabel = new QLabel(tr("Learn how to develop your own applications "
-                                            "and explore %1.")
-                                         .arg(Core::Constants::IDE_DISPLAY_NAME), this);
-            learnLabel->setMaximumWidth(200);
-            learnLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-            learnLabel->setWordWrap(true);
-            learnLabel->setFont(sizedFont(12, this));
-            learnLabel->setPalette(lightText());
-            l->addWidget(learnLabel);
-
-            l->addSpacing(8);
-
-            auto getStartedButton = new WelcomePageButton(this);
-            getStartedButton->setText(tr("Get Started Now"));
+            auto getStartedButton = new WelcomePageButton(mainWidget);
+            getStartedButton->setText(tr("Get Started"));
             getStartedButton->setOnClicked([] {
                 QDesktopServices::openUrl(
                     QString("qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html"));
             });
-            l->addWidget(getStartedButton);
+            newVBox->addWidget(getStartedButton);
+        }
 
+        addWeakVerticalSpacerToLayout(vbox, 56);
+
+        {
+            auto l = m_pluginButtons = new QVBoxLayout;
+            l->setSpacing(buttonSpacing);
             vbox->addItem(l);
         }
 
         vbox->addStretch(1);
 
-        {
-            auto l = new QVBoxLayout;
-            l->setContentsMargins(0, 0, 0, 0);
-            l->addWidget(new IconAndLink("download", tr("Get Qt"), "https://www.qt.io/download", this));
-            l->addWidget(new IconAndLink("qtaccount", tr("Qt Account"), "https://account.qt.io", this));
-            l->addWidget(new IconAndLink("community", tr("Online Community"), "https://forum.qt.io", this));
-            l->addWidget(new IconAndLink("blogs", tr("Blogs"), "https://planet.qt.io", this));
-            l->addWidget(new IconAndLink("userguide", tr("User Guide"),
-                                         "qthelp://org.qt-project.qtcreator/doc/index.html", this));
-            vbox->addItem(l);
-        }
-
-        addWeakVerticalSpacerToLayout(vbox, vbox->contentsMargins().top());
+        setWidget(mainWidget);
     }
 
     QVBoxLayout *m_pluginButtons = nullptr;
+};
+
+class BottomArea : public QWidget
+{
+    Q_OBJECT
+
+public:
+    BottomArea(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        setAutoFillBackground(true);
+        setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        setPalette(themeColor(Theme::Welcome_BackgroundPrimaryColor));
+
+        auto hbox = new QHBoxLayout(this);
+        hbox->setSpacing(0);
+        hbox->setContentsMargins(0, 2 * ItemGap, HSpacing, 2 * ItemGap);
+
+        const QList<QPair<QString, QString> > links {
+            { tr("Get Qt"), "https://www.qt.io/download" },
+            { tr("Qt Account"), "https://account.qt.io" },
+            { tr("Online Community"), "https://forum.qt.io" },
+            { tr("Blogs"), "https://planet.qt.io" },
+            { tr("User Guide"), "qthelp://org.qt-project.qtcreator/doc/index.html" },
+        };
+        for (const QPair<QString, QString> &link : links) {
+            auto button = new WelcomePageButton(this);
+            button->setSize(WelcomePageButton::SizeSmall);
+            button->setText(link.first);
+            button->setOnClicked([link]{ QDesktopServices::openUrl(link.second); });
+            button->setWithAccentColor(true);
+            button->setMaximumWidth(220);
+            button->setToolTip(link.second);
+            if (hbox->count() > 0)
+                hbox->addStretch(1);
+            hbox->addWidget(button, 20);
+        }
+    }
 };
 
 WelcomeMode::WelcomeMode()
@@ -321,39 +373,42 @@ WelcomeMode::WelcomeMode()
     setContext(Context(Constants::C_WELCOME_MODE));
 
     QPalette palette = creatorTheme()->palette();
-    palette.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundColor));
+    palette.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundPrimaryColor));
 
-    m_modeWidget = new QWidget;
+    m_modeWidget = new ResizeSignallingWidget;
     m_modeWidget->setPalette(palette);
+    connect(m_modeWidget, &ResizeSignallingWidget::resized,
+            [this](const QSize &size, const QSize &) {
+        const bool hideSideArea = size.width() <= 750;
+        const bool hideBottomArea = size.width() <= 850;
+        const bool compactVertically = size.height() <= 530;
+        QTimer::singleShot(0, [this, hideSideArea, hideBottomArea, compactVertically]() {
+            m_sideArea->setVisible(!hideSideArea);
+            m_bottomArea->setVisible(!(hideBottomArea || compactVertically));
+            m_topArea->setCompact(compactVertically);
+        });
+    });
 
-    m_sideBar = new SideBar(m_modeWidget);
-    auto scrollableSideBar = new QScrollArea(m_modeWidget);
-    scrollableSideBar->setWidget(m_sideBar);
-    scrollableSideBar->setWidgetResizable(true);
-    scrollableSideBar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollableSideBar->setFrameShape(QFrame::NoFrame);
-
-    auto divider = new QWidget(m_modeWidget);
-    divider->setMaximumWidth(1);
-    divider->setMinimumWidth(1);
-    divider->setAutoFillBackground(true);
-    divider->setPalette(themeColor(Theme::Welcome_DividerColor));
+    m_sideArea = new SideArea(m_modeWidget);
 
     m_pageStack = new QStackedWidget(m_modeWidget);
+    palette.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundSecondaryColor));
+    m_pageStack->setPalette(palette);
     m_pageStack->setObjectName("WelcomeScreenStackedWidget");
     m_pageStack->setAutoFillBackground(true);
 
-    auto hbox = new QHBoxLayout;
-    hbox->addWidget(scrollableSideBar);
-    hbox->addWidget(divider);
-    hbox->addWidget(m_pageStack);
-    hbox->setStretchFactor(m_pageStack, 10);
+    m_topArea = new TopArea;
+    m_bottomArea = new BottomArea;
 
-    auto layout = new QVBoxLayout(m_modeWidget);
+    auto layout = new QGridLayout(m_modeWidget);
+    layout->addWidget(new StyledBar(m_modeWidget), 0, 0, 1, 2);
+    layout->addWidget(m_topArea, 1, 0, 1, 2);
+    layout->addWidget(m_sideArea, 2, 0, 2, 1);
+    layout->addWidget(m_pageStack, 2, 1, 1, 1);
+    layout->setColumnStretch(1, 10);
+    layout->addWidget(m_bottomArea, 3, 1, 1, 1);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(new StyledBar(m_modeWidget));
-    layout->addItem(hbox);
 
     setWidget(m_modeWidget);
 }
@@ -388,15 +443,6 @@ void WelcomeMode::initPlugins()
 
 bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
 {
-//    DropArea {
-//        anchors.fill: parent
-//        keys: ["text/uri-list"]
-//        onDropped: {
-//            if ((drop.supportedActions & Qt.CopyAction != 0)
-//                    && welcomeMode.openDroppedFiles(drop.urls))
-//                drop.accept(Qt.CopyAction);
-//        }
-//    }
     const QList<QUrl> localUrls = Utils::filtered(urls, &QUrl::isLocalFile);
     if (!localUrls.isEmpty()) {
         QTimer::singleShot(0, [localUrls]() {
@@ -415,7 +461,7 @@ void WelcomeMode::addPage(IWelcomePage *page)
         if (m_pluginList.at(idx)->priority() >= pagePriority)
             break;
     }
-    auto pageButton = new WelcomePageButton(m_sideBar);
+    auto pageButton = new WelcomePageButton(m_sideArea);
     auto pageId = page->id();
     pageButton->setText(page->title());
     pageButton->setActiveChecker([this, pageId] { return m_activePage == pageId; });
@@ -423,7 +469,7 @@ void WelcomeMode::addPage(IWelcomePage *page)
     m_pluginList.insert(idx, page);
     m_pageButtons.insert(idx, pageButton);
 
-    m_sideBar->m_pluginButtons->insertWidget(idx, pageButton);
+    m_sideArea->m_pluginButtons->insertWidget(idx, pageButton);
 
     QWidget *stackPage = page->createWidget();
     stackPage->setAutoFillBackground(true);

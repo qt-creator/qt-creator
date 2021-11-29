@@ -26,6 +26,7 @@
 #include "iwelcomepage.h"
 
 #include "icore.h"
+#include "welcomepagehelper.h"
 
 #include <utils/icon.h>
 #include <utils/theme/theme.h>
@@ -33,12 +34,17 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmap>
 #include <QUrl>
+
+#include <qdrawutil.h>
 
 using namespace Utils;
 
 namespace Core {
+
+const char WITHACCENTCOLOR_PROPERTY_NAME[] = "_withAccentColor";
 
 static QList<IWelcomePage *> g_welcomePages;
 
@@ -64,10 +70,10 @@ QPalette WelcomePageFrame::buttonPalette(bool isActive, bool isCursorInside, boo
     if (isActive) {
         if (forText) {
             pal.setColor(QPalette::Window, theme->color(Theme::Welcome_ForegroundPrimaryColor));
-            pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_BackgroundColor));
+            pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_BackgroundPrimaryColor));
         } else {
-            pal.setColor(QPalette::Window, theme->color(Theme::Welcome_ForegroundPrimaryColor));
-            pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_ForegroundPrimaryColor));
+            pal.setColor(QPalette::Window, theme->color(Theme::Welcome_AccentColor));
+            pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_AccentColor));
         }
     } else {
         if (isCursorInside) {
@@ -83,7 +89,7 @@ QPalette WelcomePageFrame::buttonPalette(bool isActive, bool isCursorInside, boo
                 pal.setColor(QPalette::Window, theme->color(Theme::Welcome_ForegroundPrimaryColor));
                 pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_TextColor));
             } else {
-                pal.setColor(QPalette::Window, theme->color(Theme::Welcome_BackgroundColor));
+                pal.setColor(QPalette::Window, theme->color(Theme::Welcome_BackgroundPrimaryColor));
                 pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_ForegroundSecondaryColor));
             }
         }
@@ -100,27 +106,28 @@ WelcomePageFrame::WelcomePageFrame(QWidget *parent)
 void WelcomePageFrame::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
-
-    const QRectF adjustedRect(QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5));
-    QPen pen(palette().color(QPalette::WindowText));
-    pen.setJoinStyle(Qt::MiterJoin);
-
     QPainter p(this);
-    p.setPen(pen);
-    p.drawRect(adjustedRect);
+
+    qDrawPlainRect(&p, rect(), palette().color(QPalette::WindowText), 1);
+
+    if (property(WITHACCENTCOLOR_PROPERTY_NAME).toBool()) {
+        const int accentRectWidth = 10;
+        const QRect accentRect = rect().adjusted(width() - accentRectWidth, 0, 0, 0);
+        p.fillRect(accentRect, creatorTheme()->color(Theme::Welcome_AccentColor));
+    }
 }
 
 class WelcomePageButtonPrivate
 {
 public:
-    WelcomePageButtonPrivate(WelcomePageButton *parent) : q(parent) {}
+    explicit WelcomePageButtonPrivate(WelcomePageButton *parent)
+        : q(parent) {}
     bool isActive() const;
     void doUpdate(bool cursorInside);
 
     WelcomePageButton *q;
     QHBoxLayout *m_layout = nullptr;
     QLabel *m_label = nullptr;
-    QLabel *m_icon = nullptr;
 
     std::function<void()> onClicked;
     std::function<bool()> activeChecker;
@@ -131,17 +138,16 @@ WelcomePageButton::WelcomePageButton(QWidget *parent)
 {
     setAutoFillBackground(true);
     setPalette(buttonPalette(false, false, false));
+    setContentsMargins(0, 1, 0, 1);
 
-    QFont f = font();
-    f.setPixelSize(15);
     d->m_label = new QLabel(this);
-    d->m_label->setFont(f);
     d->m_label->setPalette(buttonPalette(false, false, true));
+    d->m_label->setAlignment(Qt::AlignCenter);
 
     d->m_layout = new QHBoxLayout;
-    d->m_layout->setContentsMargins(13, 5, 20, 5);
     d->m_layout->setSpacing(0);
     d->m_layout->addWidget(d->m_label);
+    setSize(SizeLarge);
     setLayout(d->m_layout);
 }
 
@@ -177,8 +183,6 @@ void WelcomePageButtonPrivate::doUpdate(bool cursorInside)
     q->setPalette(WelcomePageFrame::buttonPalette(active, cursorInside, false));
     const QPalette lpal = WelcomePageFrame::buttonPalette(active, cursorInside, true);
     m_label->setPalette(lpal);
-    if (m_icon)
-        m_icon->setPalette(lpal);
     q->update();
 }
 
@@ -187,14 +191,17 @@ void WelcomePageButton::setText(const QString &text)
     d->m_label->setText(text);
 }
 
-void WelcomePageButton::setIcon(const QPixmap &pixmap)
+void WelcomePageButton::setSize(Size size)
 {
-    if (!d->m_icon) {
-        d->m_icon = new QLabel(this);
-        d->m_layout->insertWidget(0, d->m_icon);
-        d->m_layout->insertSpacing(1, 10);
-    }
-    d->m_icon->setPixmap(pixmap);
+    const int hMargin = size == SizeSmall ? 12 : 26;
+    const int vMargin = size == SizeSmall ? 2 : 4;
+    d->m_layout->setContentsMargins(hMargin, vMargin, hMargin, vMargin);
+    d->m_label->setFont(size == SizeSmall ? font() : WelcomePageHelpers::brandFont());
+}
+
+void WelcomePageButton::setWithAccentColor(bool withAccent)
+{
+    setProperty(WITHACCENTCOLOR_PROPERTY_NAME, withAccent);
 }
 
 void WelcomePageButton::setActiveChecker(const std::function<bool ()> &value)

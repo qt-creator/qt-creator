@@ -75,6 +75,11 @@ public:
 class CORE_EXPORT WelcomePageButton : public WelcomePageFrame
 {
 public:
+    enum Size {
+        SizeSmall,
+        SizeLarge,
+    };
+
     WelcomePageButton(QWidget *parent);
     ~WelcomePageButton() override;
 
@@ -83,7 +88,8 @@ public:
     void leaveEvent(QEvent *) override;
 
     void setText(const QString &text);
-    void setIcon(const QPixmap &pixmap);
+    void setSize(enum Size);
+    void setWithAccentColor(bool withAccent);
     void setOnClicked(const std::function<void ()> &value);
     void setActiveChecker(const std::function<bool ()> &value);
     void recheckActive();

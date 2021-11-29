@@ -28,9 +28,11 @@
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QEasingCurve>
+#include <QFontDatabase>
 #include <QHeaderView>
 #include <QHoverEvent>
 #include <QLayout>
@@ -57,23 +59,58 @@ static QFont sizedFont(int size, const QWidget *widget)
     return f;
 }
 
+namespace WelcomePageHelpers {
+
+QFont brandFont()
+{
+    const static QFont f = []{
+        const int id = QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+        QFont result;
+        result.setPixelSize(16);
+        if (id >= 0) {
+            const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(id);
+            result.setFamilies(fontFamilies);
+        }
+        return result;
+    }();
+    return f;
+}
+
+QWidget *panelBar(QWidget *parent)
+{
+    auto frame = new QWidget(parent);
+    frame->setAutoFillBackground(true);
+    frame->setMinimumWidth(WelcomePageHelpers::HSpacing);
+    QPalette pal = frame->palette();
+    pal.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundPrimaryColor));
+    frame->setPalette(pal);
+    return frame;
+}
+
+} // namespace WelcomePageHelpers
+
 SearchBox::SearchBox(QWidget *parent)
     : WelcomePageFrame(parent)
 {
-    QPalette pal = buttonPalette(false, false, true);
-    pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
-    // for macOS dark mode
-    pal.setColor(QPalette::Text, themeColor(Theme::Welcome_TextColor));
-    setPalette(pal);
+    setAutoFillBackground(true);
 
     m_lineEdit = new FancyLineEdit;
     m_lineEdit->setFiltering(true);
     m_lineEdit->setFrame(false);
-    m_lineEdit->setFont(sizedFont(14, this));
+    m_lineEdit->setFont(WelcomePageHelpers::brandFont());
+    m_lineEdit->setMinimumHeight(33);
     m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+    QPalette pal = buttonPalette(false, false, true);
+    // for the margins
+    pal.setColor(QPalette::Window, m_lineEdit->palette().color(QPalette::Base));
+    // for macOS dark mode
+    pal.setColor(QPalette::WindowText, themeColor(Theme::Welcome_ForegroundPrimaryColor));
+    pal.setColor(QPalette::Text, themeColor(Theme::Welcome_TextColor));
+    setPalette(pal);
+
     auto box = new QHBoxLayout(this);
-    box->setContentsMargins(10, 3, 3, 3);
+    box->setContentsMargins(10, 0, 1, 0);
     box->addWidget(m_lineEdit);
 }
 
@@ -89,7 +126,7 @@ GridView::GridView(QWidget *parent)
     setUniformItemSizes(true);
 
     QPalette pal;
-    pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
+    pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundSecondaryColor));
     setPalette(pal); // Makes a difference on Mac.
 }
 
@@ -99,7 +136,7 @@ void GridView::leaveEvent(QEvent *)
     viewportEvent(&hev); // Seemingly needed to kill the hover paint.
 }
 
-const QSize ListModel::defaultImageSize(188, 145);
+const QSize ListModel::defaultImageSize(214, 160);
 
 ListModel::ListModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -223,7 +260,7 @@ struct SearchStringLexer
 
     inline void yyinp() { yychar = *codePtr++; }
 
-    SearchStringLexer(const QString &code)
+    explicit SearchStringLexer(const QString &code)
         : code(code)
         , codePtr(code.unicode())
         , yychar(QLatin1Char(' ')) { }
@@ -327,11 +364,12 @@ bool ListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const ListItem *, boo
 }
 
 ListItemDelegate::ListItemDelegate()
+    : backgroundPrimaryColor(themeColor(Theme::Welcome_BackgroundPrimaryColor))
+    , backgroundSecondaryColor(themeColor(Theme::Welcome_BackgroundSecondaryColor))
+    , foregroundPrimaryColor(themeColor(Theme::Welcome_ForegroundPrimaryColor))
+    , hoverColor(themeColor(Theme::Welcome_HoverColor))
+    , textColor(themeColor(Theme::Welcome_TextColor))
 {
-    lightColor = QColor(221, 220, 220); // color: "#dddcdc"
-    backgroundColor = themeColor(Theme::Welcome_BackgroundColor);
-    foregroundColor1 = themeColor(Theme::Welcome_ForegroundPrimaryColor); // light-ish.
-    foregroundColor2 = themeColor(Theme::Welcome_ForegroundSecondaryColor); // blacker.
 }
 
 void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -339,24 +377,25 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 {
     const ListItem *item = index.data(ListModel::ItemRole).value<Core::ListItem *>();
 
-    // Quick hack for empty items in the last row.
-    if (!item)
-        return;
-
     const QRect rc = option.rect;
+    const QRect tileRect(0, 0, rc.width() - GridItemGap, rc.height() - GridItemGap);
+    const QSize thumbnailBgSize = ListModel::defaultImageSize.grownBy(QMargins(1, 1, 1, 1));
+    const QRect thumbnailBgRect((tileRect.width() - thumbnailBgSize.width()) / 2, GridItemGap,
+                                thumbnailBgSize.width(), thumbnailBgSize.height());
+    const QRect textArea = tileRect.adjusted(GridItemGap, GridItemGap, -GridItemGap, -GridItemGap);
 
-    const int d = 10;
-    const int x = rc.x() + d;
-    const int y = rc.y() + d;
-    const int w = rc.width() - 2 * d;
-    const int h = rc.height() - 2 * d;
     const bool hovered = option.state & QStyle::State_MouseOver;
 
-    const int tagsBase = TagsSeparatorY + 10;
-    const int shiftY = TagsSeparatorY - 20;
-    const int nameY = TagsSeparatorY - 20;
+    constexpr int tagsBase = TagsSeparatorY + 17;
+    constexpr int shiftY = TagsSeparatorY - 16;
+    constexpr int nameY = TagsSeparatorY - 20;
 
-    const QRect textRect = QRect(x, y + nameY, w, h);
+    const QRect textRect = textArea.translated(0, nameY);
+
+    painter->save();
+    painter->translate(rc.topLeft());
+
+    painter->fillRect(tileRect, hovered ? hoverColor : backgroundPrimaryColor);
 
     QTextOption wrapped;
     wrapped.setWrapMode(QTextOption::WordWrap);
@@ -365,121 +404,135 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     if (hovered) {
         if (index != m_previousIndex) {
             m_previousIndex = index;
+            m_blurredThumbnail = QPixmap();
             m_startTime.start();
             m_currentArea = rc;
             m_currentWidget = qobject_cast<QAbstractItemView *>(
                 const_cast<QWidget *>(option.widget));
         }
-        animationProgress = m_startTime.elapsed() / 200.0; // Duration 200 ms.
-        static const QEasingCurve animationCurve(QEasingCurve::OutQuad);
+        constexpr float hoverAnimationDuration = 260;
+        animationProgress = m_startTime.elapsed() / hoverAnimationDuration;
+        static const QEasingCurve animationCurve(QEasingCurve::OutCubic);
         offset = animationCurve.valueForProgress(animationProgress) * shiftY;
         if (offset < shiftY)
             QTimer::singleShot(10, this, &ListItemDelegate::goon);
-        else if (offset > shiftY)
-            offset = shiftY;
     } else {
         m_previousIndex = QModelIndex();
     }
 
-    const QFontMetrics fm(option.widget->font());
     const QRect shiftedTextRect = textRect.adjusted(0, -offset, 0, -offset);
 
     // The pixmap.
-    if (offset < shiftY) {
-        QPixmap pm = index.data(ListModel::ItemImageRole).value<QPixmap>();
-        QRect inner(x + 11, y, ListModel::defaultImageSize.width(),
-                    ListModel::defaultImageSize.height());
-        QRect pixmapRect = inner;
-        if (!pm.isNull()) {
-            painter->setPen(foregroundColor2);
+    const QPixmap pm = index.data(ListModel::ItemImageRole).value<QPixmap>();
+    QPoint thumbnailPos = thumbnailBgRect.center();
+    if (!pm.isNull()) {
+        painter->fillRect(thumbnailBgRect, backgroundSecondaryColor);
 
-            adjustPixmapRect(&pixmapRect);
+        thumbnailPos.rx() -= pm.width() / pm.devicePixelRatio() / 2 - 1;
+        thumbnailPos.ry() -= pm.height() / pm.devicePixelRatio() / 2 - 1;
+        painter->drawPixmap(thumbnailPos, pm);
 
-            QPoint pixmapPos = pixmapRect.center();
-            pixmapPos.rx() -= pm.width() / pm.devicePixelRatio() / 2;
-            pixmapPos.ry() -= pm.height() / pm.devicePixelRatio() / 2;
-            painter->drawPixmap(pixmapPos, pm);
-
-            drawPixmapOverlay(item, painter, option, pixmapRect);
-
-        } else {
-            // The description text as fallback.
-            painter->setPen(foregroundColor2);
-            painter->setFont(sizedFont(11, option.widget));
-            painter->drawText(pixmapRect.adjusted(6, 10, -6, -10), item->description, wrapped);
-        }
-        qDrawPlainRect(painter, pixmapRect.translated(-1, -1), foregroundColor1);
-    }
-
-    // The description background rect
-    if (offset) {
-        QRect backgroundRect = shiftedTextRect.adjusted(0, -16, 0, 0);
-        painter->fillRect(backgroundRect, backgroundColor);
-    }
-
-    // The title of the example.
-    painter->setPen(foregroundColor1);
-    painter->setFont(sizedFont(13, option.widget));
-    QRectF nameRect;
-    if (offset) {
-        nameRect = painter->boundingRect(shiftedTextRect, item->name, wrapped);
-        painter->drawText(nameRect, item->name, wrapped);
+        painter->setPen(foregroundPrimaryColor);
+        drawPixmapOverlay(item, painter, option, thumbnailBgRect);
     } else {
-        nameRect = QRect(x, y + nameY, x + w, y + nameY + 20);
-        QString elidedName = fm.elidedText(item->name, Qt::ElideRight, w - 20);
-        painter->drawText(nameRect, elidedName);
+        // The description text as fallback.
+        painter->setPen(textColor);
+        painter->setFont(sizedFont(11, option.widget));
+        painter->drawText(thumbnailBgRect.adjusted(6, 10, -6, -10), item->description, wrapped);
     }
 
-    // The separator line below the example title.
+    // The description background
+    if (offset && !pm.isNull()) {
+        if (m_blurredThumbnail.isNull()) {
+            constexpr int blurRadius = 50;
+            QImage thumbnail(tileRect.size() + QSize(blurRadius, blurRadius) * 2,
+                             QImage::Format_ARGB32_Premultiplied);
+            thumbnail.fill(hoverColor);
+            QPainter thumbnailPainter(&thumbnail);
+            thumbnailPainter.translate(blurRadius, blurRadius);
+            thumbnailPainter.fillRect(thumbnailBgRect, backgroundSecondaryColor);
+            thumbnailPainter.drawPixmap(thumbnailPos, pm);
+            thumbnailPainter.setPen(foregroundPrimaryColor);
+            drawPixmapOverlay(item, &thumbnailPainter, option, thumbnailBgRect);
+            thumbnailPainter.end();
+
+            m_blurredThumbnail = QPixmap(tileRect.size());
+            QPainter blurredThumbnailPainter(&m_blurredThumbnail);
+            blurredThumbnailPainter.translate(-blurRadius, -blurRadius);
+            qt_blurImage(&blurredThumbnailPainter, thumbnail, blurRadius, false, false);
+            blurredThumbnailPainter.setOpacity(0.825);
+            blurredThumbnailPainter.fillRect(tileRect, hoverColor);
+        }
+        QRect thumbnailPortionRect = tileRect;
+        thumbnailPortionRect.setTop(shiftY - offset);
+        const QPixmap thumbnailPortionPM = m_blurredThumbnail.copy(thumbnailPortionRect);
+        painter->drawPixmap(thumbnailPortionRect.topLeft(), thumbnailPortionPM);
+    }
+
+    // The description Text (unhovered or hovered)
+    painter->setPen(textColor);
+    painter->setFont(sizedFont(13, option.widget)); // Title font
     if (offset) {
-        int ll = nameRect.bottom() + 5;
-        painter->setPen(lightColor);
+        // The title of the example
+        const QRectF nameRect = painter->boundingRect(shiftedTextRect, item->name, wrapped);
+        painter->drawText(nameRect, item->name, wrapped);
+
+        // The separator line below the example title.
+        const int ll = nameRect.height() + 3;
+        const QLine line = QLine(0, ll, textArea.width(), ll).translated(shiftedTextRect.topLeft());
+        painter->setPen(foregroundPrimaryColor);
         painter->setOpacity(animationProgress); // "fade in" separator line and description
-        painter->drawLine(x, ll, x + w, ll);
-    }
+        painter->drawLine(line);
 
-    // The description text.
-    if (offset) {
-        int dd = nameRect.height() + 10;
-        QRect descRect = shiftedTextRect.adjusted(0, dd, 0, dd);
-        painter->setPen(foregroundColor2);
+        // The description text.
+        const int dd = ll + 5;
+        const QRect descRect = shiftedTextRect.adjusted(0, dd, 0, dd);
+        painter->setPen(textColor);
         painter->setFont(sizedFont(11, option.widget));
         painter->drawText(descRect, item->description, wrapped);
         painter->setOpacity(1);
+    } else {
+        // The title of the example
+        const QString elidedName = painter->fontMetrics()
+                .elidedText(item->name, Qt::ElideRight, textRect.width());
+        painter->drawText(textRect, elidedName);
     }
 
     // Separator line between text and 'Tags:' section
-    painter->setPen(lightColor);
-    painter->drawLine(x, y + TagsSeparatorY, x + w, y + TagsSeparatorY);
+    painter->setPen(foregroundPrimaryColor);
+    painter->drawLine(QLineF(textArea.topLeft(), textArea.topRight())
+                      .translated(0, TagsSeparatorY));
 
     // The 'Tags:' section
-    const int tagsHeight = h - tagsBase;
+    painter->setPen(foregroundPrimaryColor);
     const QFont tagsFont = sizedFont(10, option.widget);
-    const QFontMetrics tagsFontMetrics(tagsFont);
-    QRect tagsLabelRect = QRect(x, y + tagsBase, 30, tagsHeight - 2);
-    painter->setPen(foregroundColor2);
     painter->setFont(tagsFont);
-    painter->drawText(tagsLabelRect, tr("Tags:"));
+    const QFontMetrics fm = painter->fontMetrics();
+    const QString tagsLabelText = tr("Tags:");
+    constexpr int tagsHorSpacing = 5;
+    const QRect tagsLabelRect =
+            QRect(0, 0, fm.horizontalAdvance(tagsLabelText) + tagsHorSpacing, fm.height())
+            .translated(textArea.x(), tagsBase);
+    painter->drawText(tagsLabelRect, tagsLabelText);
 
     painter->setPen(themeColor(Theme::Welcome_LinkColor));
     m_currentTagRects.clear();
     int xx = 0;
-    int yy = y + tagsBase;
+    int yy = 0;
     for (const QString &tag : item->tags) {
-        const int ww = tagsFontMetrics.horizontalAdvance(tag) + 5;
-        if (xx + ww > w - 30) {
-            yy += 15;
+        const int ww = fm.horizontalAdvance(tag) + tagsHorSpacing;
+        if (xx + ww > textArea.width() - tagsLabelRect.width()) {
+            yy += fm.lineSpacing();
             xx = 0;
         }
-        const QRect tagRect(xx + x + 30, yy, ww, 15);
+        const QRect tagRect = QRect(xx, yy, ww, tagsLabelRect.height())
+                .translated(tagsLabelRect.topRight());
         painter->drawText(tagRect, tag);
-        m_currentTagRects.append({ tag, tagRect });
+        m_currentTagRects.append({ tag, tagRect.translated(rc.topLeft()) });
         xx += ww;
     }
 
-    // Box it when hovered.
-    if (hovered)
-        qDrawPlainRect(painter, rc, lightColor);
+    painter->restore();
 }
 
 bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
@@ -521,10 +574,6 @@ void ListItemDelegate::drawPixmapOverlay(const ListItem *, QPainter *,
 }
 
 void ListItemDelegate::clickAction(const ListItem *) const
-{
-}
-
-void ListItemDelegate::adjustPixmapRect(QRect *) const
 {
 }
 

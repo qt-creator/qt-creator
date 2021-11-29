@@ -65,27 +65,33 @@ class QtMarketplacePageWidget : public QWidget
 public:
     QtMarketplacePageWidget()
     {
-        const int sideMargin = 27;
         auto searchBox = new Core::SearchBox(this);
         m_searcher = searchBox->m_lineEdit;
         m_searcher->setPlaceholderText(QtMarketplaceWelcomePage::tr("Search in Marketplace..."));
 
         auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(30, sideMargin, 0, 0);
+        vbox->setContentsMargins(0, 0, 0, Core::WelcomePageHelpers::ItemGap);
+        vbox->setSpacing(Core::WelcomePageHelpers::ItemGap);
 
-        auto hbox = new QHBoxLayout;
+        auto searchBar = Core::WelcomePageHelpers::panelBar();
+        auto hbox = new QHBoxLayout(searchBar);
+        hbox->setContentsMargins(Core::WelcomePageHelpers::HSpacing, 0,
+                                 Core::WelcomePageHelpers::HSpacing, 0);
         hbox->addWidget(searchBox);
-        hbox->addSpacing(sideMargin);
-        vbox->addItem(hbox);
+        vbox->addWidget(searchBar);
         m_errorLabel = new QLabel(this);
         m_errorLabel->setVisible(false);
         vbox->addWidget(m_errorLabel);
 
+        auto resultWidget = new QWidget(this);
+        auto resultHBox = new QHBoxLayout(resultWidget);
+        resultHBox->setContentsMargins(Core::WelcomePageHelpers::HSpacing, 0, 0, 0);
         m_sectionedProducts = new SectionedProducts(this);
         auto progressIndicator = new Utils::ProgressIndicator(ProgressIndicatorSize::Large, this);
         progressIndicator->attachToWidget(m_sectionedProducts);
         progressIndicator->hide();
-        vbox->addWidget(m_sectionedProducts);
+        resultHBox->addWidget(m_sectionedProducts);
+        vbox->addWidget(resultWidget);
 
         connect(m_sectionedProducts, &SectionedProducts::toggleProgressIndicator,
                 progressIndicator, &Utils::ProgressIndicator::setVisible);

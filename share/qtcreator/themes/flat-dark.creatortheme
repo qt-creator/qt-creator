@@ -309,11 +309,11 @@ Debugger_Breakpoint_TextMarkColor=ffff4040
 Welcome_TextColor=text
 Welcome_ForegroundPrimaryColor=ff999999
 Welcome_ForegroundSecondaryColor=ff808080
-Welcome_BackgroundColor=normalBackground
-Welcome_ButtonBackgroundColor=normalBackground
-Welcome_DividerColor=ff555555
-Welcome_HoverColor=ff444444
-Welcome_LinkColor=ff7fc63c
+Welcome_BackgroundPrimaryColor=normalBackground
+Welcome_BackgroundSecondaryColor=ff242628
+Welcome_HoverColor=ff404243
+Welcome_AccentColor=ff36c148
+Welcome_LinkColor=ff5fcf4f
 Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=text
