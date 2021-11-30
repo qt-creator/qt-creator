@@ -36,6 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/settingsutils.h>
 
 #include <QDateTime>
 #include <QHash>
@@ -399,12 +400,12 @@ QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
 
 void ClangdSettings::loadSettings()
 {
-    m_data.fromMap(Core::ICore::settings()->value(clangdSettingsKey()).toMap());
+    Utils::toSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
 }
 
 void ClangdSettings::saveSettings()
 {
-    Core::ICore::settings()->setValue(clangdSettingsKey(), m_data.toMap());
+    Utils::fromSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
 }
 
 #ifdef WITH_TESTS
