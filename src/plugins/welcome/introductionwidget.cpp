@@ -113,7 +113,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
             "<tr><td style=\"padding-right: 20px\">Welcome:</td><td>Open examples, tutorials, and "
             "recent sessions and projects.</td></tr>"
             "<tr><td>Edit:</td><td>Work with code and navigate your project.</td></tr>"
-            "<tr><td>Design:</td><td>Work with UI designs for Qt Widgets or Qt Quick.</td></tr>"
+            "<tr><td>Design:</td><td>Visually edit Widget-based user interfaces, state charts and UML models.</td></tr>"
             "<tr><td>Debug:</td><td>Analyze your application with a debugger or other "
             "analyzers.</td></tr>"
             "<tr><td>Projects:</td><td>Manage project settings.</td></tr>"
