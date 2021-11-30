@@ -47,10 +47,10 @@
 
             \QDS is available either as a standalone installation package or
             as an option in the Qt online installer.
-        \li \l {Your First UI}
+        \li \l {Tutorials}
 
-            Follow a set of hands-on tutorials that build on each other to
-            design your first animated UI using preset and custom components.
+            Follow a set of hands-on tutorials that illustrate how to use the
+            features of \QDS.
         \li \l {User Interface}
 
             Describes the parts and basic features of \QDS.
@@ -71,7 +71,7 @@
         \li \l{Concepts and Terms}
 
             Describes main \QDS concepts and terms.
-        \li \l{Examples and Tutorials}
+        \li \l{Examples}
 
             A set of examples available in the \uicontrol Welcome mode
             illustrates how to use \QDS features such as the timeline.

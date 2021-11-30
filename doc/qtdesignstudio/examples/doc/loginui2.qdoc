@@ -25,7 +25,6 @@
 
 /*!
     \example loginui2
-    \ingroup studioexamples
     \ingroup gstutorials
     \previouspage {Log In UI - Components}
     \nextpage {Log In UI - States}

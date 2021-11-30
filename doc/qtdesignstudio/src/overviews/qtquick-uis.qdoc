@@ -26,7 +26,7 @@
 /*!
     \page quick-uis.html
     \if defined(qtdesignstudio)
-    \previouspage {Examples and Tutorials}
+    \previouspage {Examples}
     \nextpage studio-app-flows.html
     \else
     \previouspage qtquick-text-editor.html

@@ -32,7 +32,7 @@
 /*!
     \page creator-quick-tour.html
     \if defined(qtdesignstudio)
-    \previouspage {Your First UI}
+    \previouspage {Tutorials}
     \else
     \previouspage creator-overview.html
     \endif
