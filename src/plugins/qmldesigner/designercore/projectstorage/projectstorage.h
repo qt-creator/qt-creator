@@ -2066,7 +2066,6 @@ private:
         {
             Sqlite::Table table;
             table.setUseIfNotExists(true);
-            table.setUseWithoutRowId(true);
             table.setName("projectDatas");
             auto &projectSourceIdColumn = table.addColumn("projectSourceId");
             auto &sourceIdColumn = table.addColumn("sourceId");

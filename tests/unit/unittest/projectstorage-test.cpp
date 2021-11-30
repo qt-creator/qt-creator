@@ -3736,15 +3736,15 @@ TEST_F(ProjectStorage, UpdateProjectDataModuleId)
                                       qmlModuleId,
                                       Storage::FileType::QmlDocument};
     Storage::ProjectData projectData2{qmlProjectSourceId,
-                                      sourceId2,
+                                      sourceId3,
                                       qmlModuleId,
                                       Storage::FileType::QmlDocument};
     Storage::ProjectData projectData2b{qmlProjectSourceId,
-                                       sourceId2,
+                                       sourceId3,
                                        qtQuickModuleId,
                                        Storage::FileType::QmlDocument};
     Storage::ProjectData projectData3{qtQuickProjectSourceId,
-                                      sourceId3,
+                                      sourceId2,
                                       qtQuickModuleId,
                                       Storage::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
