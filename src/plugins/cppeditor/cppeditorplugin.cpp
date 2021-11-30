@@ -450,17 +450,15 @@ void CppEditorPlugin::extensionsInitialized()
     d->m_cppEditorFactory.addHoverHandler(new ColorPreviewHoverHandler);
     d->m_cppEditorFactory.addHoverHandler(new ResourcePreviewHoverHandler);
 
-    if (!HostOsInfo::isMacHost() && !HostOsInfo::isWindowsHost()) {
-        FileIconProvider::registerIconOverlayForMimeType(
-            creatorTheme()->imageFile(Theme::IconOverlayCppSource, ":/cppeditor/images/qt_cpp.png"),
-            Constants::CPP_SOURCE_MIMETYPE);
-        FileIconProvider::registerIconOverlayForMimeType(
-            creatorTheme()->imageFile(Theme::IconOverlayCSource, ":/cppeditor/images/qt_c.png"),
-            Constants::C_SOURCE_MIMETYPE);
-        FileIconProvider::registerIconOverlayForMimeType(
-            creatorTheme()->imageFile(Theme::IconOverlayCppHeader, ":/cppeditor/images/qt_h.png"),
-            Constants::CPP_HEADER_MIMETYPE);
-    }
+    FileIconProvider::registerIconOverlayForMimeType(
+        creatorTheme()->imageFile(Theme::IconOverlayCppSource, ":/cppeditor/images/qt_cpp.png"),
+        Constants::CPP_SOURCE_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(
+        creatorTheme()->imageFile(Theme::IconOverlayCSource, ":/cppeditor/images/qt_c.png"),
+        Constants::C_SOURCE_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(
+        creatorTheme()->imageFile(Theme::IconOverlayCppHeader, ":/cppeditor/images/qt_h.png"),
+        Constants::CPP_HEADER_MIMETYPE);
 }
 
 void CppEditorPlugin::switchDeclarationDefinition()
