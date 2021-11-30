@@ -139,6 +139,7 @@ private:
     void signPackageCheckBoxToggled(bool checked);
     void onOpenSslCheckBoxChanged();
     bool isOpenSslLibsIncluded();
+    FilePath appProjectFilePath() const;
     QString openSslIncludeFileContent(const FilePath &projectPath);
 
     QWidget *createApplicationGroup();
@@ -420,7 +421,7 @@ void AndroidBuildApkWidget::signPackageCheckBoxToggled(bool checked)
 
 void AndroidBuildApkWidget::onOpenSslCheckBoxChanged()
 {
-    Utils::FilePath projectPath = m_step->buildConfiguration()->buildSystem()->projectFilePath();
+    Utils::FilePath projectPath = appProjectFilePath();
     QFile projectFile(projectPath.toString());
     if (!projectFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
         qWarning() << "Cannot open project file to add OpenSSL extra libs: " << projectPath;
@@ -442,9 +443,21 @@ void AndroidBuildApkWidget::onOpenSslCheckBoxChanged()
     projectFile.close();
 }
 
+FilePath AndroidBuildApkWidget::appProjectFilePath() const
+{
+    const FilePath topLevelFile = m_step->buildConfiguration()->buildSystem()->projectFilePath();
+    if (topLevelFile.fileName() == "CMakeLists.txt")
+        return topLevelFile;
+    static const auto isApp = [](Node *n) { return n->asProjectNode()
+                && n->asProjectNode()->productType() == ProductType::App; };
+    Node * const appNode = m_step->buildConfiguration()->project()->rootProjectNode()
+            ->findNode(isApp);
+    return appNode ? appNode ->filePath() : topLevelFile;
+}
+
 bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
 {
-    Utils::FilePath projectPath = m_step->buildConfiguration()->buildSystem()->projectFilePath();
+    Utils::FilePath projectPath = appProjectFilePath();
     const QString searchStr = openSslIncludeFileContent(projectPath);
     QFile projectFile(projectPath.toString());
     projectFile.open(QIODevice::ReadOnly);
