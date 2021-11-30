@@ -9,6 +9,8 @@ UTILS_DIR = $$PWD/../../libs/utils
 
 DEFINES *= QTCREATOR_UTILS_STATIC_LIB
 
+win32: LIBS*= -luser32
+
 INCLUDEPATH += $$UTILS_DIR
 
 HEADERS += \
