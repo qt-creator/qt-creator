@@ -497,8 +497,27 @@ QVariant McuToolChainPackage::debuggerId() const
 {
     using namespace Debugger;
 
-    QString sub = QString::fromLatin1(m_type == TypeArmGcc ? "bin/arm-none-eabi-gdb-py"
-                                    : m_type == TypeIAR ? "../common/bin/CSpyBat" : "bar/foo-keil-gdb");
+    QString sub, displayName;
+    DebuggerEngineType engineType;
+
+    switch (m_type) {
+    case TypeArmGcc: {
+        sub = QString::fromLatin1("bin/arm-none-eabi-gdb-py");
+        displayName = McuPackage::tr("Arm GDB at %1");
+        engineType = Debugger::GdbEngineType;
+        break; }
+    case TypeIAR: {
+        sub = QString::fromLatin1("../common/bin/CSpyBat");
+        displayName = QLatin1String("CSpy");
+        engineType = Debugger::NoEngineType; // support for IAR missing
+        break; }
+    case TypeKEIL: {
+        sub = QString::fromLatin1("UV4/UV4");
+        displayName = QLatin1String("KEIL uVision Debugger");
+        engineType = Debugger::UvscEngineType;
+        break; }
+    default: return QVariant();
+    }
 
     const FilePath command = path().pathAppended(sub).withExecutableSuffix();
     const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command);
@@ -506,11 +525,8 @@ QVariant McuToolChainPackage::debuggerId() const
     if (!debugger) {
         DebuggerItem newDebugger;
         newDebugger.setCommand(command);
-        const QString displayName = m_type == TypeArmGcc
-                                        ? McuPackage::tr("Arm GDB at %1")
-                                        : m_type == TypeIAR ? QLatin1String("CSpy")
-                                                            : QLatin1String("/bar/foo-keil-gdb");
         newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
+        newDebugger.setEngineType(engineType);
         debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
     } else {
         debuggerId = debugger->id();
@@ -743,7 +759,9 @@ static void setKitDebugger(Kit *k, const McuToolChainPackage *tcPackage)
             || tcPackage->type() == McuToolChainPackage::TypeIAR)
         return;
 
-    Debugger::DebuggerKitAspect::setDebugger(k, tcPackage->debuggerId());
+    const QVariant debuggerId = tcPackage->debuggerId();
+    if (debuggerId.isValid())
+        Debugger::DebuggerKitAspect::setDebugger(k, debuggerId);
 }
 
 static void setKitDevice(Kit *k, const McuTarget* mcuTarget)
