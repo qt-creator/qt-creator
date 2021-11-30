@@ -77,15 +77,10 @@ public:
 
         TypeIds typeIdsToBeDeleted;
 
-        auto updatedSourceIdValues = Utils::transform<std::vector>(package.updatedSourceIds,
-                                                                   [](SourceId sourceId) {
-                                                                       return &sourceId;
-                                                                   });
-
-        std::sort(updatedSourceIdValues.begin(), updatedSourceIdValues.end());
+        std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
 
         synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
-        synchronizeImports(package.imports, updatedSourceIdValues);
+        synchronizeImports(package.imports, package.updatedSourceIds);
         synchronizeTypes(package.types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
@@ -93,10 +88,10 @@ public:
                          relinkableAliasPropertyDeclarations,
                          relinkablePropertyDeclarations,
                          relinkablePrototypes,
-                         updatedSourceIdValues);
+                         package.updatedSourceIds);
 
         deleteNotUpdatedTypes(updatedTypeIds,
-                              updatedSourceIdValues,
+                              package.updatedSourceIds,
                               typeIdsToBeDeleted,
                               relinkableAliasPropertyDeclarations,
                               relinkablePropertyDeclarations,
@@ -316,12 +311,8 @@ public:
 
     Storage::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
     {
-        auto projectSourceIdValues = Utils::transform<std::vector>(projectSourceIds,
-                                                                   [](SourceId id) { return &id; });
-
         return selectProjectDatasForModuleIdsStatement
-            .template valuesWithTransaction<Storage::ProjectData>(64,
-                                                                  Utils::span(projectSourceIdValues));
+            .template valuesWithTransaction<Storage::ProjectData>(64, toIntegers(projectSourceIds));
     }
 
 private:
@@ -517,7 +508,7 @@ private:
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Prototypes &relinkablePrototypes,
-                          const std::vector<int> &updatedSourceIdValues)
+                          const SourceIds &updatedSourceIds)
     {
         Storage::ExportedTypes exportedTypes;
         exportedTypes.reserve(types.size() * 3);
@@ -531,7 +522,7 @@ private:
             extractExportedTypes(typeId, type, exportedTypes);
         }
 
-        synchronizeExportedTypes(updatedSourceIdValues,
+        synchronizeExportedTypes(updatedSourceIds,
                                  updatedTypeIds,
                                  exportedTypes,
                                  relinkableAliasPropertyDeclarations,
@@ -549,11 +540,6 @@ private:
     void synchronizeProjectDatas(Storage::ProjectDatas &projectDatas,
                                  const SourceIds &updatedProjectSourceIds)
     {
-        auto updatedProjectSourceIdValues = Utils::transform<std::vector>(updatedProjectSourceIds,
-                                                                          [](SourceId id) {
-                                                                              return &id;
-                                                                          });
-
         auto compareKey = [](auto &&first, auto &&second) {
             auto projectSourceIdDifference = first.projectSourceId.id - second.projectSourceId.id;
             if (projectSourceIdDifference != 0)
@@ -568,7 +554,7 @@ private:
         });
 
         auto range = selectProjectDatasForModuleIdsStatement.template range<Storage::ProjectData>(
-            Utils::span(updatedProjectSourceIdValues));
+            toIntegers(updatedProjectSourceIds));
 
         auto insert = [&](const Storage::ProjectData &projectData) {
             if (!projectData.projectSourceId)
@@ -621,7 +607,7 @@ private:
         });
 
         auto range = selectFileStatusesForSourceIdsStatement.template range<FileStatus>(
-            Utils::span(updatedSourceIdValues));
+            toIntegers(updatedSourceIds));
 
         auto insert = [&](const FileStatus &fileStatus) {
             insertFileStatusStatement.write(&fileStatus.sourceId,
@@ -645,30 +631,32 @@ private:
         Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
-    void synchronizeImports(Storage::Imports &imports, std::vector<int> &updatedSourceIdValues)
+    void synchronizeImports(Storage::Imports &imports, const SourceIds &updatedSourceIds)
     {
-        deleteDocumentImportsForDeletedDocuments(imports, updatedSourceIdValues);
+        deleteDocumentImportsForDeletedDocuments(imports, updatedSourceIds);
 
-        synchronizeDocumentImports(imports, updatedSourceIdValues);
+        synchronizeDocumentImports(imports, updatedSourceIds);
     }
 
     void deleteDocumentImportsForDeletedDocuments(Storage::Imports &imports,
-                                                  const std::vector<int> &updatedSourceIdValues)
+                                                  const SourceIds &updatedSourceIds)
     {
-        std::vector<int> importSourceIds = Utils::transform<std::vector<int>>(
-            imports, [](const Storage::Import &import) { return &import.sourceId; });
+        SourceIds importSourceIds = Utils::transform<SourceIds>(imports,
+                                                                [](const Storage::Import &import) {
+                                                                    return import.sourceId;
+                                                                });
 
         std::sort(importSourceIds.begin(), importSourceIds.end());
 
-        std::vector<int> documentSourceIdsToBeDeleted;
+        SourceIds documentSourceIdsToBeDeleted;
 
-        std::set_difference(updatedSourceIdValues.begin(),
-                            updatedSourceIdValues.end(),
+        std::set_difference(updatedSourceIds.begin(),
+                            updatedSourceIds.end(),
                             importSourceIds.begin(),
                             importSourceIds.end(),
                             std::back_inserter(documentSourceIdsToBeDeleted));
 
-        deleteDocumentImportsWithSourceIdsStatement.write(Utils::span{documentSourceIdsToBeDeleted});
+        deleteDocumentImportsWithSourceIdsStatement.write(toIntegers(documentSourceIdsToBeDeleted));
     }
 
     ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const
@@ -845,17 +833,13 @@ private:
     }
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
-                               const std::vector<int> &updatedSourceIdValues,
+                               const SourceIds &updatedSourceIds,
                                const TypeIds &typeIdsToBeDeleted,
                                AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                PropertyDeclarations &relinkablePropertyDeclarations,
                                Prototypes &relinkablePrototypes,
                                TypeIds &deletedTypeIds)
     {
-        auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
-            return &typeId;
-        });
-
         auto callback = [&](long long typeId) {
             deletedTypeIds.push_back(TypeId{typeId});
             deleteType(TypeId{typeId},
@@ -866,8 +850,8 @@ private:
         };
 
         selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
-                                                             Utils::span(updatedSourceIdValues),
-                                                             Utils::span(updatedTypeIdValues));
+                                                             toIntegers(updatedSourceIds),
+                                                             toIntegers(updatedTypeIds));
         for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
             callback(&typeIdToBeDeleted);
     }
@@ -931,7 +915,7 @@ private:
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
     }
 
-    void synchronizeExportedTypes(const std::vector<int> &updatedSourceIdValues,
+    void synchronizeExportedTypes(const SourceIds &exportedSourceIds,
                                   const TypeIds &updatedTypeIds,
                                   Storage::ExportedTypes &exportedTypes,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
@@ -943,12 +927,9 @@ private:
                    < std::tie(second.moduleId, second.name, second.version);
         });
 
-        Utils::span typeIdValues{static_cast<const TypeIds::value_type::DatabaseType *>(
-                                     &updatedTypeIds.data()->id),
-                                 updatedTypeIds.size()};
-
-        auto range = selectExportedTypesForSourceIdsStatement.template range<Storage::ExportedTypeView>(
-            Utils::span{updatedSourceIdValues}, typeIdValues);
+        auto range = selectExportedTypesForSourceIdsStatement
+                         .template range<Storage::ExportedTypeView>(toIntegers(exportedSourceIds),
+                                                                    toIntegers(updatedTypeIds));
 
         auto compareKey = [](const Storage::ExportedTypeView &view,
                              const Storage::ExportedType &type) -> long long {
@@ -1228,8 +1209,7 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
-    void synchronizeDocumentImports(Storage::Imports &imports,
-                                    const std::vector<int> &updatedSourceIdValues)
+    void synchronizeDocumentImports(Storage::Imports &imports, const SourceIds &updatedSourceIds)
     {
         std::sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
             return std::tie(first.sourceId, first.moduleId, first.version)
@@ -1237,7 +1217,7 @@ private:
         });
 
         auto range = selectDocumentImportForSourceIdStatement.template range<Storage::ImportView>(
-            Utils::span{updatedSourceIdValues});
+            toIntegers(updatedSourceIds));
 
         auto compareKey = [](const Storage::ImportView &view,
                              const Storage::Import &import) -> long long {

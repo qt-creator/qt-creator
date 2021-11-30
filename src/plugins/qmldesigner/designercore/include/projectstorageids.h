@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/span.h>
+
 #include <vector>
 
 namespace QmlDesigner {
@@ -72,6 +74,14 @@ public:
 public:
     InternalIntergerType id = -1;
 };
+
+template<typename Container>
+auto toIntegers(const Container &container)
+{
+    using DataType = typename Container::value_type::DatabaseType;
+    const DataType *data = reinterpret_cast<const DataType *>(container.data());
+    return Utils::span{data, container.size()};
+}
 
 enum class BasicIdType {
     Type,
