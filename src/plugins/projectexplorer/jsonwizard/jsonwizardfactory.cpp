@@ -521,6 +521,19 @@ void JsonWizardFactory::registerGeneratorFactory(JsonWizardGeneratorFactory *fac
     s_generatorFactories.append(factory);
 }
 
+static QString qmlProjectName(const FilePath &folder)
+{
+    FilePath currentFolder = folder;
+    while (!currentFolder.isEmpty()) {
+        const QList<FilePath> fileList = currentFolder.dirEntries({"*.qmlproject"});
+        if (!fileList.isEmpty())
+            return fileList.first().baseName();
+        currentFolder = currentFolder.parentDir();
+    }
+
+    return {};
+}
+
 Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
                                          Id platform,
                                          const QVariantMap &variables, bool showWizard)
@@ -545,6 +558,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
         wizard->setValue(i.key(), i.value());
 
     wizard->setValue(QStringLiteral("InitialPath"), path.toString());
+    wizard->setValue(QStringLiteral("QmlProjectName"), qmlProjectName(path));
     wizard->setValue(QStringLiteral("Platform"), platform.toString());
 
     QString kindStr = QLatin1String(Core::Constants::WIZARD_KIND_UNKNOWN);
