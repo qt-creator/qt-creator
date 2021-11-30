@@ -61,6 +61,10 @@
 #include <private/qqmlmetatype_p.h>
 #include <private/qqmltimer_p.h>
 
+#ifdef QUICK3D_MODULE
+#include <private/qquick3dobject_p.h>
+#endif
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -374,6 +378,11 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
 
         if (item && DesignerSupport::isComponentComplete(item))
             return;
+#ifdef QUICK3D_MODULE
+        auto obj3d = qobject_cast<QQuick3DObject *>(object);
+        if (obj3d && QQuick3DObjectPrivate::get(obj3d)->componentComplete)
+            return;
+#endif
 
         if (!nodeInstanceServer->hasInstanceForObject(item))
             emitComponentComplete(object);
