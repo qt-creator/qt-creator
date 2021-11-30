@@ -112,7 +112,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
 
     m_comboBox = new QComboBox(this);
     for (const BuildTargetInfo &bti : buildSystem->applicationTargets()) {
-        const QString displayName = bti.buildKey;
+        const QString displayName = QDir::toNativeSeparators(bti.buildKey);
         m_comboBox->addItem(displayName, QVariant(bti.buildKey)); // TODO something more?
         if (bti.buildKey == currentBuildKey)
             m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
