@@ -80,6 +80,7 @@ auto toIntegers(const Container &container)
 {
     using DataType = typename Container::value_type::DatabaseType;
     const DataType *data = reinterpret_cast<const DataType *>(container.data());
+
     return Utils::span{data, container.size()};
 }
 

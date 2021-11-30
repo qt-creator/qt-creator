@@ -95,7 +95,7 @@ MATCHER_P4(IsStorageType,
     const Storage::Type &type = arg;
 
     return type.sourceId == sourceId && type.typeName == typeName
-           && type.accessSemantics == accessSemantics && prototypeId.id == type.prototypeId.id;
+           && type.accessSemantics == accessSemantics && &prototypeId == &type.prototypeId;
 }
 
 MATCHER_P(IsExportedType,

@@ -269,7 +269,7 @@ public:
     SourceContextId fetchSourceContextId(SourceId sourceId) const
     {
         auto sourceContextId = selectSourceContextIdFromSourcesBySourceIdStatement
-                                   .template valueWithTransaction<SourceContextId>(sourceId.id);
+                                   .template valueWithTransaction<SourceContextId>(&sourceId);
 
         if (!sourceContextId)
             throw SourceIdDoesNotExists();
@@ -337,7 +337,7 @@ private:
 
         friend bool operator==(const Module &first, const Module &second)
         {
-            return first.id == second.id && first.value == second.value;
+            return &first == &second && first.value == second.value;
         }
     };
 
@@ -541,11 +541,11 @@ private:
                                  const SourceIds &updatedProjectSourceIds)
     {
         auto compareKey = [](auto &&first, auto &&second) {
-            auto projectSourceIdDifference = first.projectSourceId.id - second.projectSourceId.id;
+            auto projectSourceIdDifference = &first.projectSourceId - &second.projectSourceId;
             if (projectSourceIdDifference != 0)
                 return projectSourceIdDifference;
 
-            return first.sourceId.id - second.sourceId.id;
+            return &first.sourceId - &second.sourceId;
         };
 
         std::sort(projectDatas.begin(), projectDatas.end(), [&](auto &&first, auto &&second) {
@@ -599,7 +599,7 @@ private:
                                                                    });
 
         auto compareKey = [](auto &&first, auto &&second) {
-            return first.sourceId.id - second.sourceId.id;
+            return &first.sourceId - &second.sourceId;
         };
 
         std::sort(fileStatuses.begin(), fileStatuses.end(), [&](auto &&first, auto &&second) {
@@ -933,7 +933,7 @@ private:
 
         auto compareKey = [](const Storage::ExportedTypeView &view,
                              const Storage::ExportedType &type) -> long long {
-            auto moduleIdDifference = view.moduleId.id - type.moduleId.id;
+            auto moduleIdDifference = &view.moduleId - &type.moduleId;
             if (moduleIdDifference != 0)
                 return moduleIdDifference;
 
@@ -1221,11 +1221,11 @@ private:
 
         auto compareKey = [](const Storage::ImportView &view,
                              const Storage::Import &import) -> long long {
-            auto sourceIdDifference = view.sourceId.id - import.sourceId.id;
+            auto sourceIdDifference = &view.sourceId - &import.sourceId;
             if (sourceIdDifference != 0)
                 return sourceIdDifference;
 
-            auto moduleIdDifference = view.moduleId.id - import.moduleId.id;
+            auto moduleIdDifference = &view.moduleId - &import.moduleId;
             if (moduleIdDifference != 0)
                 return moduleIdDifference;
 
