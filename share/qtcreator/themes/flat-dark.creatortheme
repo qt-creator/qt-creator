@@ -114,7 +114,7 @@ DStitleBarIcon=ffffffff
 DStitleBarButtonHover=40ffffff
 DStitleBarButtonPress=60ffffff
 
-DStabContainerBackground=ff0000ff
+DStabContainerBackground=ff1f1f1f
 DStabSplitter=ff595959
 
 DStabInactiveBackground=ff1f1f1f

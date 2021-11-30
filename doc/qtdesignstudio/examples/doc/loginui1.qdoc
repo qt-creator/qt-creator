@@ -55,7 +55,7 @@
     To create a project:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol General > \uicontrol {Qt Quick Application - Empty} >
             \uicontrol Choose.
         \li In the \uicontrol Name field, enter the project name: \e {loginui1}.
@@ -308,8 +308,8 @@
     To create a push button by using the wizard template:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls} >
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {Qt Quick Controls} >
             \uicontrol {Custom Button} > \uicontrol Choose.
         \li In the \uicontrol {Component name} field, enter a name for your
             button component: \e {EntryField}.

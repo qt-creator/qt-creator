@@ -70,7 +70,7 @@
     To import assets exported in \QB to \QDS projects:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol General > \uicontrol {Qt Quick Application - Empty} >
             \uicontrol Choose, and follow the instructions of the wizard to
             create an empty project.

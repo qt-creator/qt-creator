@@ -63,7 +63,7 @@
     We use the \uicontrol {Qt for MCUs Application} project template to create
     an application for MCUs, which support only a subset of the preset
     \l{glossary-component}{components}. We select \uicontrol File >
-    \uicontrol {New File or Project} > \uicontrol {Qt for MCUs Application} >
+    \uicontrol {New Project} > \uicontrol {Qt for MCUs Application} >
     \uicontrol Choose, and follow the instructions of the wizard to create our
     project.
 
@@ -100,7 +100,7 @@
     that we use to indicate that a button is pressed.
 
     Alternatively, you could create the screens from scratch in \QDS
-    by selecting \uicontrol File > \uicontrol {New File or Project} >
+    by selecting \uicontrol File > \uicontrol {New File} >
     \uicontrol {Qt Quick Files}. While designing the screens, you can
     move reusable components into separate files. For more information,
     see \l{Components}.

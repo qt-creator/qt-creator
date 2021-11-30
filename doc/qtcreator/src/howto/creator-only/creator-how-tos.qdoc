@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -111,35 +111,30 @@
 
     \section1 Find a specific setting
 
-    To find specific settings you require in \uicontrol{Tools} > \uicontrol{Options}
+    To find specific settings in \uicontrol Tools > \uicontrol Options,
     use the filter located at the top left of the \uicontrol Options dialog box.
 
     \section1 Open output panes
 
-    The output panes provide a list of errors and warnings encountered during
-    a build, detailed output from the compiler, status of a program when it is
-    executed and debug output, as well as search results.
+    The \l{Viewing Output}{output panes} provide a list of errors and warnings
+    encountered during a build, detailed output from the compiler, status of a
+    program when it is executed, debug output, and search results.
 
     To open output panes, use the following shortcuts:
 
     \list
 
-        \li \uicontrol{Issues} pane Alt+1 (Cmd+1 on \macos)
+        \li \uicontrol{Issues} - \key Alt+1 (\key Cmd+1 on \macos)
 
-        \li \uicontrol{Search Results} pane Alt+2 (Cmd+2 on \macos)
+        \li \uicontrol{Search Results} - \key Alt+2 (\key Cmd+2 on \macos)
 
-        \li \uicontrol{Application Output} pane Alt+3 (Cmd+3 on \macos)
+        \li \uicontrol{Application Output} - \key Alt+3 (\key Cmd+3 on \macos)
 
-        \li \uicontrol{Compile Output} pane Alt+4 (Cmd+4 on \macos)
+        \li \uicontrol{Compile Output} - \key Alt+4 (\key Cmd+4 on \macos)
 
     \endlist
 
-    To open the other output panes, such as \uicontrol{General Messages} and
-    \uicontrol{Version Control}, select \uicontrol View >
-    \uicontrol {Output Panes}. The menu items also display
-    the keyboard shortcuts that you can use.
-
-    For more information about output panes, see \l{Viewing Output}.
+    For additional ways to open all output panes, see \l{Viewing Output}.
 
     \section1 Find keyboard shortcuts
 
@@ -147,17 +142,17 @@
     You can see the keyboard shortcut for a menu command in the menu
     or the tooltip for a button.
 
-    To customize, import or export keyboard shortcuts, select \uicontrol Tools >
+    To customize, import, or export keyboard shortcuts, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard.
 
     \section1 Run \QC from the command line
 
-    You can launch \QC from command line using the name of an
-    existing session or \c .pro file by giving the name as the command
-    argument.
+    You can launch \QC from the command line using the name of an
+    existing \l{Managing Sessions}{session} or project file by entering
+    the name as the command argument.
 
-    For example, running \tt{qtcreator somesession}, launches \QC and
-    loads session somesession.
+    For example, running \c {qtcreator somesession}, launches \QC and
+    loads the session called \e somesession.
 
     For more information, see \l{Using Command Line Options}.
 
@@ -210,7 +205,7 @@
 
     If special debugging of Qt objects fails due to data corruption within the
     debugged objects, you can switch off the debugging helpers. When debugging
-    helpers are switched off low-level structures become visible.
+    helpers are switched off, low-level structures become visible.
 
     To switch off the debugging helpers:
     \list 1
@@ -250,7 +245,7 @@
     \section1 Quickly locate files using the keyboard
 
     The \uicontrol Locator provides one of the easiest ways in \QC to browse
-    through projects, files, classes, functions, documentation and file systems.
+    through projects, files, classes, functions, documentation, and file systems.
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
@@ -307,12 +302,14 @@
 
     \section1 Enclose selected code in curly braces, parentheses, or double quotes
 
-    Press \key {Shift} and then the opening character.
+    When you have selected code and enter one of the following opening
+    characters, the appropriate closing character is added automatically
+    at the end of the selection:
 
     \list
-    \li Curly braces: \key {Shift+\{}
-    \li Parentheses: \key {Shift+(}
-    \li Double quotes: \key {Shift+"}
+        \li {
+        \li (
+        \li "
     \endlist
 
     \section1 Select the enclosing block in C++

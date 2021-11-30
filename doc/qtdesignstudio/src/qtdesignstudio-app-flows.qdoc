@@ -92,7 +92,7 @@
     for it, as described in \l {Creating Projects}.
 
     To create the flow view, select \uicontrol File >
-    \uicontrol {New File or Project} > \uicontrol {Files and Classes} >
+    \uicontrol {New File} >
     \uicontrol {Qt Quick Files} > \uicontrol {Flow View}
     and follow the instructions of the wizard.
 
@@ -197,8 +197,8 @@
     To add flow items:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {Qt Quick Files} >
             \uicontrol {Flow Item} and follow the instructions of the wizard
             to create flow items for each screen in the UI.
         \li Add content to the flow item in one of the following ways:
@@ -649,8 +649,8 @@
     \uicontrol Components > \uicontrol {Flow View}.
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {Qt Quick Files} >
             \uicontrol {Flow Item} to create a flow item.
         \li In \l States, add states to the flow item.
         \li Open the .ui.qml file that contains the \l{Adding Flow Views}

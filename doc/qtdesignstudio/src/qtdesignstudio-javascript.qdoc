@@ -66,8 +66,8 @@
             \code
             importPaths: [ "imports", "backend" ]
             \endcode
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {Qt Quick Files} >
             \uicontrol {Qt Quick File} > \uicontrol Choose to add a Qt
             Quick file that will specify the API of the UI.
         \li Follow the instructions of the wizard to create the Qt Quick file
@@ -75,8 +75,8 @@
             \e Values.qml.
             \note Make sure to capitalize the filename, because it will become
             a custom component.
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Files and Classes} > \uicontrol {JavaScript} >
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {JavaScript} >
             \uicontrol {JavaScript File} > \uicontrol Choose to create a
             JavaScript file that generates mock data for the UI.
         \li Follow the instructions of the wizard to create the JavaScript file

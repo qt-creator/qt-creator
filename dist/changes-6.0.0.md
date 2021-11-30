@@ -47,6 +47,16 @@ Editing
   * Added option for `Insert header files on completion`
   * Improved location of generated `compile_commands.json` (QTCREATORBUG-26431)
   * Fixed missing reparsing after refactorings (QTCREATORBUG-26523)
+  * Fixed that parameters were incorrectly highlighted as output parameters
+  * Fixed highlighting of string literals in macros (QTCREATORBUG-26553)
+  * Fixed icon of signals and slots in completion list (QTCREATORBUG-26555)
+  * Fixed header completion for Qt headers (QTCREATORBUG-26482)
+  * Fixed code model update after UI header change
+  * Fixed that `Find References` could show results for deleted files
+    (QTCREATORBUG-26574)
+  * Fixed that highlighting of current symbol could vanish (QTCREATORBUG-26339)
+  * Fixed that nested items were not synchronized with cursor position in
+    outline (QTCREATORBUG-26509)
 
 ### QML
 
@@ -75,6 +85,7 @@ Projects
 * Fixed that re-detecting compilers removed compilers from kits
   (QTCREATORBUG-25697)
 * Fixed GitHub action created by Qt Creator plugin wizard for Qt 6
+* Fixed crash when canceling device test dialog (QTCREATORBUG-26285)
 
 ### CMake
 
@@ -155,10 +166,16 @@ Platforms
 * Added details to device settings (QTCREATORBUG-23991)
 * Added filter field for Android SDK manager
 * Fixed that NDK 22 and later could not be added
+* Fixed creation of Android template files (QTCREATORBUG-26580)
+
+### iOS
+
+* Fixed that no tasks were created for build issues (QTCREATORBUG-26541)
 
 ### WebAssembly
 
-* Fixed running applications (QTCREATORBUG-25905, QTCREATORBUG-26189)
+* Fixed running applications (QTCREATORBUG-25905, QTCREATORBUG-26189,
+  QTCREATORBUG-26562)
 
 ### MCU
 

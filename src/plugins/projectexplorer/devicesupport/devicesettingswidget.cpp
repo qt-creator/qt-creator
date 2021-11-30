@@ -255,8 +255,10 @@ void DeviceSettingsWidget::testDevice()
 {
     const IDevice::ConstPtr &device = currentDevice();
     QTC_ASSERT(device && device->hasDeviceTester(), return);
-    DeviceTestDialog dlg(m_deviceManager->mutableDevice(device->id()), this);
-    dlg.exec();
+    auto dlg = new DeviceTestDialog(m_deviceManager->mutableDevice(device->id()), this);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->setModal(true);
+    dlg->show();
 }
 
 void DeviceSettingsWidget::handleDeviceUpdated(Id id)
