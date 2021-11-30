@@ -375,32 +375,36 @@ jobs:
       run: |
         file(WRITE $ENV{GITHUB_WORKSPACE}/netrc.txt
           "default login runneradmin password ${{ secrets.GITHUB_TOKEN }}")
-        file(
-          DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts"
-          HTTPHEADER "Accept: application/vnd.github.v3+json"
-          NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
-          NETRC REQUIRED
-          SHOW_PROGRESS
-          artifacts.json)
-        file(READ artifacts.json artifacts_json)
 
-        string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
-        math(EXPR artifacts_length "${artifacts_length} - 1")
-        foreach(idx RANGE 0 ${artifacts_length})
-          string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
-          string(JSON name GET "${artifact_js}" "name")
-          if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
-            string(JSON download_url GET "${artifact_js}" "archive_download_url")
-            file(DOWNLOAD "${download_url}"
+        foreach(page_id RANGE 1 10)
+          file(
+            DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100&page=${page_id}"
+            HTTPHEADER "Accept: application/vnd.github.v3+json"
+            NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
+            NETRC REQUIRED
+            SHOW_PROGRESS
+            artifacts.json)
+          file(READ artifacts.json artifacts_json)
+
+          string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
+          math(EXPR artifacts_length "${artifacts_length} - 1")
+          foreach(idx RANGE 0 ${artifacts_length})
+            string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
+            string(JSON name GET "${artifact_js}" "name")
+            if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
+              string(JSON download_url GET "${artifact_js}" "archive_download_url")
+              file(DOWNLOAD "${download_url}"
                 "${{ steps.ccache.outputs.archive_name }}.zip"
                 NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
                 NETRC REQUIRED
                 SHOW_PROGRESS)
-            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
-            file(MAKE_DIRECTORY .ccache)
-            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
-            break()
-          endif()
+              execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
+              file(MAKE_DIRECTORY .ccache)
+              execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
+
+              return()
+            endif()
+          endforeach()
         endforeach()
 
     - name: Install system libs
