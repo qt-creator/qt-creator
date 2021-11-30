@@ -593,9 +593,6 @@ void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
             }
         }
     }
-    const QVector<Client *> &clients = reachableClients();
-    for (Client *client : clients)
-        client->projectOpened(project);
 }
 
 void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
@@ -603,6 +600,9 @@ void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
     connect(project, &ProjectExplorer::Project::fileListChanged, this, [this, project]() {
         updateProject(project);
     });
+    const QVector<Client *> &clients = reachableClients();
+    for (Client *client : clients)
+        client->projectOpened(project);
 }
 
 } // namespace LanguageClient
