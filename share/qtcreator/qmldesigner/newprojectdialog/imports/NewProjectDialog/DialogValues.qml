@@ -35,7 +35,7 @@ QtObject {
     readonly property int projectViewMinimumHeight: projectViewHeight
     readonly property int dialogContentHeight: projectViewHeight + 300  // i.e. dialog without header and footer
     readonly property int loadedPanesWidth: detailsPaneWidth + stylesPaneWidth
-    readonly property int detailsPaneWidth: 330 + detailsPanePadding * 2// + 10 // 50
+    readonly property int detailsPaneWidth: 330 + detailsPanePadding * 2
     readonly property int dialogTitleTextHeight: 47
     /* detailsScrollableContentHeight - the full height that may need to be scrolled to be fully
        visible, if the dialog box is too small. */
