@@ -805,6 +805,13 @@ static bool isDocker(const Kit *k)
     return DeviceTypeKitAspect::deviceTypeId(k) == Docker::Constants::DOCKER_DEVICE_TYPE;
 }
 
+static bool isWindowsARM64(const Kit *k)
+{
+    const auto targetAbi = ToolChainKitAspect::cxxToolChain(k)->targetAbi();
+    return targetAbi.os() == Abi::WindowsOS && targetAbi.architecture() == Abi::ArmArchitecture
+            && targetAbi.wordWidth() == 64;
+}
+
 static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
 {
     // Generator:
@@ -991,7 +998,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             initialArgs.append("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
         }
 
-        if (isWebAssembly(k) || isQnx(k)) {
+        if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k)) {
             const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt && qt->qtVersion().majorVersion >= 6)
                 initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
