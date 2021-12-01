@@ -215,7 +215,11 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                             bounds = geometry->bounds();
                         } else {
                             auto bufferManager = context->bufferManager();
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
                             bounds = renderModel->getModelBounds(bufferManager);
+#else
+                            bounds = bufferManager->getModelBounds(renderModel);
+#endif
                         }
 
                         center = renderModel->globalTransform.map(bounds.center());
