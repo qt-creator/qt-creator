@@ -94,7 +94,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_dialog->setWindowModality(Qt::ApplicationModal);
     m_dialog->setWindowFlags(Qt::Dialog);
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    m_dialog->setMinimumSize(1110, 554);
+    m_dialog->setMinimumSize(1066, 554);
 
     QSize screenSize = m_dialog->screen()->geometry().size();
     if (screenSize.height() < 1080)
