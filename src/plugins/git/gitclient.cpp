@@ -3739,75 +3739,79 @@ void GitClient::addChangeActions(QMenu *menu, const QString &source, const QStri
 {
     QTC_ASSERT(!change.isEmpty(), return);
     const FilePath &workingDir = fileWorkingDirectory(source);
-    menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), [workingDir, change] {
+    const bool isRange = change.contains("..");
+    menu->addAction(tr("Cherr&y-Pick %1").arg(change), [workingDir, change] {
         m_instance->synchronousCherryPick(workingDir, change);
     });
-    menu->addAction(tr("Re&vert Change %1").arg(change), [workingDir, change] {
+    menu->addAction(tr("Re&vert %1").arg(change), [workingDir, change] {
         m_instance->synchronousRevert(workingDir, change);
     });
-    menu->addAction(tr("C&heckout Change %1").arg(change), [workingDir, change] {
-        m_instance->checkout(workingDir, change);
-    });
-    connect(menu->addAction(tr("&Interactive Rebase from Change %1...").arg(change)),
-            &QAction::triggered, [workingDir, change] {
-        GitPlugin::startRebaseFromCommit(workingDir, change);
-    });
-    QAction *logAction = menu->addAction(tr("&Log for Change %1").arg(change), [workingDir, change] {
-        m_instance->log(workingDir, QString(), false, {change});
-    });
-    const FilePath filePath = FilePath::fromString(source);
-    if (!filePath.isDir()) {
-        menu->addAction(tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName()).arg(change),
-                        [workingDir, change, source] {
-            m_instance->openShowEditor(workingDir, change, source);
+    if (!isRange) {
+        menu->addAction(tr("C&heckout %1").arg(change), [workingDir, change] {
+            m_instance->checkout(workingDir, change);
+        });
+        connect(menu->addAction(tr("&Interactive Rebase from %1...").arg(change)),
+                &QAction::triggered, [workingDir, change] {
+            GitPlugin::startRebaseFromCommit(workingDir, change);
         });
     }
-    if (change.contains(".."))
-        menu->setDefaultAction(logAction);
-    menu->addAction(tr("Add &Tag for Change %1...").arg(change), [workingDir, change] {
-        QString output;
-        QString errorMessage;
-        m_instance->synchronousTagCmd(workingDir, QStringList(),
-                                               &output, &errorMessage);
-
-        const QStringList tags = output.split('\n');
-        BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, Core::ICore::dialogParent());
-
-        if (dialog.exec() == QDialog::Rejected)
-            return;
-
-        m_instance->synchronousTagCmd(workingDir,
-                                               {dialog.branchName(), change},
-                                               &output, &errorMessage);
-        VcsOutputWindow::append(output);
-        if (!errorMessage.isEmpty())
-            VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
+    QAction *logAction = menu->addAction(tr("&Log for %1").arg(change), [workingDir, change] {
+        m_instance->log(workingDir, QString(), false, {change});
     });
+    if (isRange) {
+        menu->setDefaultAction(logAction);
+    } else {
+        const FilePath filePath = FilePath::fromString(source);
+        if (!filePath.isDir()) {
+            menu->addAction(tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName()).arg(change),
+                            [workingDir, change, source] {
+                m_instance->openShowEditor(workingDir, change, source);
+            });
+        }
+        menu->addAction(tr("Add &Tag for %1...").arg(change), [workingDir, change] {
+            QString output;
+            QString errorMessage;
+            m_instance->synchronousTagCmd(workingDir, QStringList(), &output, &errorMessage);
 
-    auto resetChange = [workingDir, change](const QByteArray &resetType) {
-        m_instance->reset(
-                    workingDir, QLatin1String("--" + resetType), change);
-    };
-    auto resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
-    resetMenu->addAction(tr("&Hard"), std::bind(resetChange, "hard"));
-    resetMenu->addAction(tr("&Mixed"), std::bind(resetChange, "mixed"));
-    resetMenu->addAction(tr("&Soft"), std::bind(resetChange, "soft"));
-    menu->addMenu(resetMenu);
+            const QStringList tags = output.split('\n');
+            BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, Core::ICore::dialogParent());
 
-    menu->addAction(tr("Di&ff Against %1").arg(change),
+            if (dialog.exec() == QDialog::Rejected)
+                return;
+
+            m_instance->synchronousTagCmd(workingDir, {dialog.branchName(), change},
+                                          &output, &errorMessage);
+            VcsOutputWindow::append(output);
+            if (!errorMessage.isEmpty())
+                VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
+        });
+
+        auto resetChange = [workingDir, change](const QByteArray &resetType) {
+            m_instance->reset(workingDir, QLatin1String("--" + resetType), change);
+        };
+        auto resetMenu = new QMenu(tr("&Reset to Change %1").arg(change), menu);
+        resetMenu->addAction(tr("&Hard"), std::bind(resetChange, "hard"));
+        resetMenu->addAction(tr("&Mixed"), std::bind(resetChange, "mixed"));
+        resetMenu->addAction(tr("&Soft"), std::bind(resetChange, "soft"));
+        menu->addMenu(resetMenu);
+    }
+
+    menu->addAction((isRange ? tr("Di&ff %1") : tr("Di&ff Against %1")).arg(change),
                     [workingDir, change] {
         m_instance->diffRepository(workingDir, change, {});
     });
-    if (!m_instance->m_diffCommit.isEmpty()) {
-        menu->addAction(tr("Diff &Against Saved %1").arg(m_instance->m_diffCommit),
-                        [workingDir, change] {
-            m_instance->diffRepository(workingDir, m_instance->m_diffCommit, change);
-            m_instance->m_diffCommit.clear();
+    if (!isRange) {
+        if (!m_instance->m_diffCommit.isEmpty()) {
+            menu->addAction(tr("Diff &Against Saved %1").arg(m_instance->m_diffCommit),
+                            [workingDir, change] {
+                m_instance->diffRepository(workingDir, m_instance->m_diffCommit, change);
+                m_instance->m_diffCommit.clear();
+            });
+        }
+        menu->addAction(tr("&Save for Diff"), [change] {
+            m_instance->m_diffCommit = change;
         });
     }
-    menu->addAction(tr("&Save for Diff"), [change] {
-        m_instance->m_diffCommit = change;
-    });
 }
 
 FilePath GitClient::fileWorkingDirectory(const QString &file)
