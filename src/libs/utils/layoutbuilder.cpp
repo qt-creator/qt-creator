@@ -111,7 +111,7 @@ static QLayout *createLayoutFromType(LayoutBuilder::LayoutType layoutType)
     switch (layoutType) {
     case LayoutBuilder::FormLayout: {
         auto formLayout = new QFormLayout;
-        formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+        formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
         return formLayout;
     }
     case LayoutBuilder::GridLayout: {
