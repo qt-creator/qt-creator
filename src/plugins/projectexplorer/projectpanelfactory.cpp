@@ -90,16 +90,6 @@ void ProjectPanelFactory::setId(Utils::Id id)
     m_id = id;
 }
 
-QString ProjectPanelFactory::icon() const
-{
-    return m_icon;
-}
-
-void ProjectPanelFactory::setIcon(const QString &icon)
-{
-    m_icon = icon;
-}
-
 QWidget *ProjectPanelFactory::createWidget(Project *project) const
 {
     return m_widgetCreator(project);

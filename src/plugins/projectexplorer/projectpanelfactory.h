@@ -72,9 +72,6 @@ public:
 
     Utils::TreeItem *createPanelItem(Project *project);
 
-    QString icon() const;
-    void setIcon(const QString &icon);
-
     void setCreateWidgetFunction(const WidgetCreator &createWidgetFunction);
     QWidget *createWidget(Project *project) const;
 
@@ -87,7 +84,6 @@ private:
     QString m_displayName;
     SupportsFunction m_supportsFunction;
     WidgetCreator m_widgetCreator;
-    QString m_icon;
 };
 
 } // namespace ProjectExplorer

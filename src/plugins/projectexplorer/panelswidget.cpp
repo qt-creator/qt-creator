@@ -40,12 +40,9 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace {
 
-const int ICON_SIZE(64);
-
 const int ABOVE_HEADING_MARGIN = 10;
 const int ABOVE_CONTENTS_MARGIN = 4;
 const int BELOW_CONTENTS_MARGIN = 16;
-const int PANEL_LEFT_MARGIN = 70;
 
 }
 
@@ -57,7 +54,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
 {
     m_root = new QWidget(nullptr);
     m_root->setFocusPolicy(Qt::NoFocus);
-    m_root->setContentsMargins(0, 0, 40, 0);
+    m_root->setContentsMargins(0, 0, 0, 0);
 
     const auto scroller = new QScrollArea(this);
     scroller->setWidget(m_root);
@@ -67,11 +64,10 @@ PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
 
     // The layout holding the individual panels:
     auto topLayout = new QVBoxLayout(m_root);
-    topLayout->setContentsMargins(0, 0, 0, 0);
+    topLayout->setContentsMargins(PanelVMargin, 0, PanelVMargin, 0);
     topLayout->setSpacing(0);
 
-    m_layout = new QGridLayout;
-    m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
+    m_layout = new QVBoxLayout;
     m_layout->setSpacing(0);
 
     topLayout->addLayout(m_layout);
@@ -86,39 +82,28 @@ PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
     //layout->addWidget(new FindToolBarPlaceHolder(this));
 }
 
-PanelsWidget::PanelsWidget(const QString &displayName, const QIcon &icon, QWidget *widget)
+PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget)
     : PanelsWidget(nullptr)
 {
-    addPropertiesPanel(displayName, icon, widget);
+    addPropertiesPanel(displayName, widget);
 }
 
 PanelsWidget::~PanelsWidget() = default;
 
 /*
- * Add a widget with heading information into the grid
- * layout of the PanelsWidget.
+ * Add a widget with heading information into the layout of the PanelsWidget.
  *
  *     ...
- * +--------+-------------------------------------------+ ABOVE_HEADING_MARGIN
- * | icon   | name                                      |
- * +        +-------------------------------------------+
- * |        | line                                      |
- * +        +-------------------------------------------+ ABOVE_CONTENTS_MARGIN
- * |        | widget (with contentsmargins adjusted!)   |
- * +--------+-------------------------------------------+ BELOW_CONTENTS_MARGIN
+ * +------------+ ABOVE_HEADING_MARGIN
+ * | name       |
+ * +------------+
+ * | line       |
+ * +------------+ ABOVE_CONTENTS_MARGIN
+ * | widget     |
+ * +------------+ BELOW_CONTENTS_MARGIN
  */
-void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &icon, QWidget *widget)
+void PanelsWidget::addPropertiesPanel(const QString &displayName, QWidget *widget)
 {
-    const int headerRow = m_layout->rowCount();
-
-    // icon:
-    if (!icon.isNull()) {
-        auto iconLabel = new QLabel(m_root);
-        iconLabel->setPixmap(icon.pixmap(ICON_SIZE, ICON_SIZE));
-        iconLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
-        m_layout->addWidget(iconLabel, headerRow, 0, 3, 1, Qt::AlignTop | Qt::AlignHCenter);
-    }
-
     // name:
     auto nameLabel = new QLabel(m_root);
     nameLabel->setText(displayName);
@@ -127,24 +112,19 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &i
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.6);
     nameLabel->setFont(f);
-    m_layout->addWidget(nameLabel, headerRow, 1, 1, 1, Qt::AlignVCenter | Qt::AlignLeft);
+    m_layout->addWidget(nameLabel);
 
     // line:
-    const int lineRow = headerRow + 1;
     auto line = new QFrame(m_root);
     line->setFrameShape(QFrame::HLine);
     line->setForegroundRole(QPalette::Midlight);
     line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_layout->addWidget(line, lineRow, 1, 1, -1, Qt::AlignTop);
+    m_layout->addWidget(line);
 
     // add the widget:
-    const int widgetRow = lineRow + 1;
-
-    widget->setContentsMargins(PANEL_LEFT_MARGIN,
-                               ABOVE_CONTENTS_MARGIN, 0,
-                               BELOW_CONTENTS_MARGIN);
+    widget->setContentsMargins(0, ABOVE_CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
-    m_layout->addWidget(widget, widgetRow, 0, 1, 2);
+    m_layout->addWidget(widget);
 }
 
 } // ProjectExplorer

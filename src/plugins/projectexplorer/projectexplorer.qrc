@@ -24,11 +24,6 @@
         <file>images/debugger_overlay_small@2x.png</file>
         <file>images/analyzer_overlay_small.png</file>
         <file>images/analyzer_overlay_small@2x.png</file>
-        <file>images/BuildSettings.png</file>
-        <file>images/CodeStyleSettings.png</file>
-        <file>images/RunSettings.png</file>
-        <file>images/EditorSettings.png</file>
-        <file>images/ProjectDependencies.png</file>
         <file>images/devicestatusindicator.png</file>
         <file>images/devicestatusindicator@2x.png</file>
         <file>images/build.png</file>
@@ -51,7 +46,6 @@
         <file>images/buildstepmoveup@2x.png</file>
         <file>images/buildstepremove.png</file>
         <file>images/buildstepremove@2x.png</file>
-        <file>images/unconfigured.png</file>
         <file>images/desktopdevice.png</file>
         <file>images/desktopdevice@2x.png</file>
         <file>images/fileoverlay_qml.png</file>

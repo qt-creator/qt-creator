@@ -229,9 +229,7 @@ void TargetGroupItemPrivate::ensureWidget()
 
     if (!m_configurePage) {
         m_targetSetupPageWrapper = new TargetSetupPageWrapper(m_project);
-        m_configurePage = new PanelsWidget(tr("Configure Project"),
-                                           QIcon(":/projectexplorer/images/unconfigured.png"),
-                                           m_targetSetupPageWrapper);
+        m_configurePage = new PanelsWidget(tr("Configure Project"), m_targetSetupPageWrapper);
         m_configurePage->setFocusProxy(m_targetSetupPageWrapper);
     }
     m_targetSetupPageWrapper->ensureSetupPage();
@@ -243,9 +241,7 @@ void TargetGroupItemPrivate::ensureWidget()
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(label);
         layout->addStretch(10);
-        m_configuredPage = new PanelsWidget(tr("Configure Project"),
-                                            QIcon(":/projectexplorer/images/unconfigured.png"),
-                                            widget);
+        m_configuredPage = new PanelsWidget(tr("Configure Project"), widget);
     }
 }
 
@@ -614,10 +610,8 @@ public:
         if (!m_panel) {
             m_panel = (m_subIndex == RunPage)
                     ? new PanelsWidget(RunSettingsWidget::tr("Run Settings"),
-                                       QIcon(":/projectexplorer/images/RunSettings.png"),
                                        new RunSettingsWidget(target()))
                     : new PanelsWidget(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
-                                       QIcon(":/projectexplorer/images/BuildSettings.png"),
                                        new BuildSettingsWidget(target()));
         }
         return m_panel;

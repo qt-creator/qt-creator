@@ -30,8 +30,7 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QGridLayout;
-class QIcon;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -42,15 +41,15 @@ class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
 
 public:
     explicit PanelsWidget(QWidget *parent = nullptr);
-    PanelsWidget(const QString &displayName, const QIcon &icon,
-                 QWidget *widget);
+    PanelsWidget(const QString &displayName, QWidget *widget);
     ~PanelsWidget() override;
 
-    void addPropertiesPanel(const QString &displayName, const QIcon &icon,
-                            QWidget *widget);
+    void addPropertiesPanel(const QString &displayName, QWidget *widget);
+
+    static int constexpr PanelVMargin = 14;
 
 private:
-    QGridLayout *m_layout;
+    QVBoxLayout *m_layout;
     QWidget *m_root;
 };
 

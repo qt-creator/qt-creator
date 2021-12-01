@@ -334,19 +334,7 @@ void IconLister::addProjectExplorerIcons()
 
         {QIcon(":/projectexplorer/images/category_buildrun.png"), "category_buildrun.png", prefix,
          ""},
-        {QIcon(":/projectexplorer/images/BuildSettings.png"), "BuildSettings.png", prefix,
-         ""},
-        {QIcon(":/projectexplorer/images/CodeStyleSettings.png"), "CodeStyleSettings.png", prefix,
-         ""},
-        {QIcon(":/projectexplorer/images/RunSettings.png"), "RunSettings.png", prefix,
-         ""},
-        {QIcon(":/projectexplorer/images/EditorSettings.png"), "EditorSettings.png", prefix,
-         ""},
-        {QIcon(":/projectexplorer/images/ProjectDependencies.png"), "ProjectDependencies.png", prefix,
-         ""},
         {QIcon(":/projectexplorer/images/targetpanel_bottom.png"), "targetpanel_bottom.png", prefix,
-         ""},
-        {QIcon(":/projectexplorer/images/unconfigured.png"), "unconfigured.png", prefix,
          ""},
     };
     m_icons.append(icons);

@@ -262,9 +262,7 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
     if (role == PanelWidgetRole) {
         if (!m_widget) {
             QWidget *widget = m_factory->createWidget(m_project);
-            m_widget = new PanelsWidget(m_factory->displayName(),
-                                        QIcon(m_factory->icon()),
-                                        widget);
+            m_widget = new PanelsWidget(m_factory->displayName(), widget);
             m_widget->setFocusProxy(widget);
         }
 
@@ -610,7 +608,8 @@ public:
 
         auto innerLayout = new QVBoxLayout;
         innerLayout->setSpacing(10);
-        innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
+        innerLayout->setContentsMargins(PanelsWidget::PanelVMargin, innerLayout->spacing(),
+                                        PanelsWidget::PanelVMargin, 0);
         innerLayout->addWidget(m_manageKits);
         innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
         innerLayout->addWidget(activeLabel);

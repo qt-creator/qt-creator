@@ -882,21 +882,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     auto panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(30);
     panelFactory->setDisplayName(QCoreApplication::translate("EditorSettingsPanelFactory", "Editor"));
-    panelFactory->setIcon(":/projectexplorer/images/EditorSettings.png");
     panelFactory->setCreateWidgetFunction([](Project *project) { return new EditorSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
     panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(40);
     panelFactory->setDisplayName(QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style"));
-    panelFactory->setIcon(":/projectexplorer/images/CodeStyleSettings.png");
     panelFactory->setCreateWidgetFunction([](Project *project) { return new CodeStyleSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
     panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(50);
     panelFactory->setDisplayName(QCoreApplication::translate("DependenciesPanelFactory", "Dependencies"));
-    panelFactory->setIcon(":/projectexplorer/images/ProjectDependencies.png");
     panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
