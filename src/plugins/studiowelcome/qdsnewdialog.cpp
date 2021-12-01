@@ -23,9 +23,6 @@
 **
 ****************************************************************************/
 
-#include <QQmlContext>
-#include <QMessageBox>
-
 #include "qdsnewdialog.h"
 
 #include <coreplugin/icore.h>
@@ -36,6 +33,10 @@
 #include "createproject.h"
 #include "wizardfactories.h"
 #include "newprojectdialogimageprovider.h"
+
+#include <QMessageBox>
+#include <QQmlContext>
+#include <QScreen>
 
 using namespace StudioWelcome;
 
