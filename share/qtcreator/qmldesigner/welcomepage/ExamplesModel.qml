@@ -121,7 +121,7 @@ ListModel {
     ListElement {
         projectName: "cppdemoproject"
         explicitQmlproject: "qml/qdsproject.qmlproject"
-        qmlFileName: "Screen01.ui.qml"
+        qmlFileName: "MainFile.ui.qml"
         thumbnail: "images/cppdemo_thumbnail.png"
         displayName: "C++ Demo Project"
         url: "https://download.qt.io/learning/examples/qtdesignstudio/cppdemoproject.zip"
