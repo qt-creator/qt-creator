@@ -25,7 +25,6 @@
 
 /*!
     \example loginui4
-    \ingroup studioexamples
     \ingroup gstutorials
 
     \title Log In UI - Timeline
@@ -324,5 +323,5 @@
 
     \section1 Next Steps
 
-    For more examples about using timelines, see \l{Examples and Tutorials}.
+    For more examples about using timelines, see \l{Examples}.
 */

@@ -55,10 +55,12 @@
 
     \image qtcreator-build-environment.png "Build Environment"
 
-    \note The changes are stored in the local project specific \c{.pro.user}
-    file. Therefore, they are not suitable for sharing between developers or
-    development PCs. To share settings, incorporate them into the build system.
-    For example, if you use qmake, make the changes in the \c{.pro} file.
+    The changes are stored in the local project specific \c{CMakeLists.txt.user}
+    or \c{.pro.user} file, depending on the build system you use. Therefore,
+    they are not suitable for sharing between developers or development PCs. To
+    share settings, incorporate them into the build system. For example, if you
+    use CMake, make the changes in the \c {CMakeLists.txt} file, and if you use
+    qmake, make the changes in the \c{.pro} file.
 
     \section1 Batch Editing
 

@@ -23,9 +23,6 @@
 **
 ****************************************************************************/
 
-#include <QQmlContext>
-#include <QMessageBox>
-
 #include "qdsnewdialog.h"
 
 #include <coreplugin/icore.h>
@@ -36,6 +33,10 @@
 #include "createproject.h"
 #include "wizardfactories.h"
 #include "newprojectdialogimageprovider.h"
+
+#include <QMessageBox>
+#include <QQmlContext>
+#include <QScreen>
 
 using namespace StudioWelcome;
 
@@ -93,7 +94,11 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_dialog->setWindowModality(Qt::ApplicationModal);
     m_dialog->setWindowFlags(Qt::Dialog);
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    m_dialog->setMinimumSize(1155, 804);
+    m_dialog->setMinimumSize(1110, 554);
+
+    QSize screenSize = m_dialog->screen()->geometry().size();
+    if (screenSize.height() < 1080)
+        m_dialog->resize(parent->size());
 
     QObject::connect(&m_wizard, &WizardHandler::deletingWizard, this, &QdsNewDialog::onDeletingWizard);
     QObject::connect(&m_wizard, &WizardHandler::wizardCreated, this, &QdsNewDialog::onWizardCreated);

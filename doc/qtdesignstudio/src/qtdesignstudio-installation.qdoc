@@ -26,7 +26,7 @@
 /*!
     \page studio-installation.html
     \previouspage studio-getting-started.html
-    \nextpage {Your First UI}
+    \nextpage {Tutorials}
 
     \title Installation
 
@@ -42,8 +42,8 @@
     package \l{https://www.qt.io/product/ui-design-tools}{here}.
 
     After the installation, you can start exploring \QDS by following
-    tutorials to \l{Your First UI}{create your first UI}, opening
-    \l{Examples and Tutorials}{examples}, watching videos, and reading
+    \l{Tutorials}{tutorials}, opening
+    \l{Examples}{examples}, watching videos, and reading
     this manual.
 
     \section1 Stand-Alone Installation

@@ -342,6 +342,7 @@ public:
 
     void checkNext()
     {
+        QTC_ASSERT(m_currentHandlerIndex >= 0, return);
         QTC_ASSERT(m_currentHandlerIndex < m_handlers.size(), return);
         BaseHoverHandler *currentHandler = m_handlers[m_currentHandlerIndex];
 
@@ -352,6 +353,7 @@ public:
 
     void onHandlerFinished(int documentRevision, int position, int priority)
     {
+        QTC_ASSERT(m_currentHandlerIndex >= 0, return);
         QTC_ASSERT(m_currentHandlerIndex < m_handlers.size(), return);
         QTC_ASSERT(documentRevision == m_documentRevision, return);
         QTC_ASSERT(position == m_position, return);
