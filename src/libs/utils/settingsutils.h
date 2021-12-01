@@ -35,19 +35,16 @@ namespace Utils {
 template <class SettingsClassT>
 void fromSettings(const QString &postFix,
                   const QString &category,
-                  const QSettings *s,
+                  QSettings *s,
                   SettingsClassT *obj)
 {
     QVariantMap map;
+    s->beginGroup(category + postFix);
     const QStringList keys = s->allKeys();
     for (const QString &key : keys)
         map.insert(key, s->value(key));
-
-    QString group = postFix;
-    if (!category.isEmpty())
-        group.insert(0, category);
-    group += QLatin1Char('/');
-    obj->fromMap(group, map);
+    s->endGroup();
+    obj->fromMap(map);
 }
 
 template <class SettingsClassT>
@@ -59,13 +56,12 @@ void toSettings(const QString &postFix,
     QString group = postFix;
     if (!category.isEmpty())
         group.insert(0, category);
-    group += QLatin1Char('/');
+    const QVariantMap map = obj->toMap();
 
-    QVariantMap map;
-    obj->toMap(group, &map);
-    QVariantMap::const_iterator it = map.constBegin();
-    for (; it != map.constEnd(); ++it)
+    s->beginGroup(group);
+    for (auto it = map.constBegin(), end = map.constEnd(); it != end; ++it)
         s->setValue(it.key(), it.value());
+    s->endGroup();
 }
 
 } // Utils

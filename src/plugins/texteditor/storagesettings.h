@@ -41,10 +41,10 @@ public:
     StorageSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, const QSettings *s);
+    void fromSettings(const QString &category, QSettings *s);
 
-    void toMap(const QString &prefix, QVariantMap *map) const;
-    void fromMap(const QString &prefix, const QVariantMap &map);
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
 
     // calculated based on boolean setting plus file type blacklist examination
     bool removeTrailingWhitespace(const QString &filePattern) const;

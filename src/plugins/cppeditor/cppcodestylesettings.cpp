@@ -74,80 +74,68 @@ void CppCodeStyleSettings::toSettings(const QString &category, QSettings *s) con
     Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void CppCodeStyleSettings::fromSettings(const QString &category, const QSettings *s)
+void CppCodeStyleSettings::fromSettings(const QString &category, QSettings *s)
 {
     *this = CppCodeStyleSettings(); // Assign defaults
     Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void CppCodeStyleSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap CppCodeStyleSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(indentBlockBracesKey), indentBlockBraces);
-    map->insert(prefix + QLatin1String(indentBlockBodyKey), indentBlockBody);
-    map->insert(prefix + QLatin1String(indentClassBracesKey), indentClassBraces);
-    map->insert(prefix + QLatin1String(indentEnumBracesKey), indentEnumBraces);
-    map->insert(prefix + QLatin1String(indentNamespaceBracesKey), indentNamespaceBraces);
-    map->insert(prefix + QLatin1String(indentNamespaceBodyKey), indentNamespaceBody);
-    map->insert(prefix + QLatin1String(indentAccessSpecifiersKey), indentAccessSpecifiers);
-    map->insert(prefix + QLatin1String(indentDeclarationsRelativeToAccessSpecifiersKey), indentDeclarationsRelativeToAccessSpecifiers);
-    map->insert(prefix + QLatin1String(indentFunctionBodyKey), indentFunctionBody);
-    map->insert(prefix + QLatin1String(indentFunctionBracesKey), indentFunctionBraces);
-    map->insert(prefix + QLatin1String(indentSwitchLabelsKey), indentSwitchLabels);
-    map->insert(prefix + QLatin1String(indentStatementsRelativeToSwitchLabelsKey), indentStatementsRelativeToSwitchLabels);
-    map->insert(prefix + QLatin1String(indentBlocksRelativeToSwitchLabelsKey), indentBlocksRelativeToSwitchLabels);
-    map->insert(prefix + QLatin1String(indentControlFlowRelativeToSwitchLabelsKey), indentControlFlowRelativeToSwitchLabels);
-    map->insert(prefix + QLatin1String(bindStarToIdentifierKey), bindStarToIdentifier);
-    map->insert(prefix + QLatin1String(bindStarToTypeNameKey), bindStarToTypeName);
-    map->insert(prefix + QLatin1String(bindStarToLeftSpecifierKey), bindStarToLeftSpecifier);
-    map->insert(prefix + QLatin1String(bindStarToRightSpecifierKey), bindStarToRightSpecifier);
-    map->insert(prefix + QLatin1String(extraPaddingForConditionsIfConfusingAlignKey), extraPaddingForConditionsIfConfusingAlign);
-    map->insert(prefix + QLatin1String(alignAssignmentsKey), alignAssignments);
-    map->insert(prefix + QLatin1String(shortGetterNameKey), preferGetterNameWithoutGetPrefix);
+    return {
+        {indentBlockBracesKey, indentBlockBraces},
+        {indentBlockBodyKey, indentBlockBody},
+        {indentClassBracesKey, indentClassBraces},
+        {indentEnumBracesKey, indentEnumBraces},
+        {indentNamespaceBracesKey, indentNamespaceBraces},
+        {indentNamespaceBodyKey, indentNamespaceBody},
+        {indentAccessSpecifiersKey, indentAccessSpecifiers},
+        {indentDeclarationsRelativeToAccessSpecifiersKey, indentDeclarationsRelativeToAccessSpecifiers},
+        {indentFunctionBodyKey, indentFunctionBody},
+        {indentFunctionBracesKey, indentFunctionBraces},
+        {indentSwitchLabelsKey, indentSwitchLabels},
+        {indentStatementsRelativeToSwitchLabelsKey, indentStatementsRelativeToSwitchLabels},
+        {indentBlocksRelativeToSwitchLabelsKey, indentBlocksRelativeToSwitchLabels},
+        {indentControlFlowRelativeToSwitchLabelsKey, indentControlFlowRelativeToSwitchLabels},
+        {bindStarToIdentifierKey, bindStarToIdentifier},
+        {bindStarToTypeNameKey, bindStarToTypeName},
+        {bindStarToLeftSpecifierKey, bindStarToLeftSpecifier},
+        {bindStarToRightSpecifierKey, bindStarToRightSpecifier},
+        {extraPaddingForConditionsIfConfusingAlignKey, extraPaddingForConditionsIfConfusingAlign},
+        {alignAssignmentsKey, alignAssignments},
+        {shortGetterNameKey, preferGetterNameWithoutGetPrefix}
+    };
 }
 
-void CppCodeStyleSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void CppCodeStyleSettings::fromMap(const QVariantMap &map)
 {
-    indentBlockBraces = map.value(prefix + QLatin1String(indentBlockBracesKey),
-                                indentBlockBraces).toBool();
-    indentBlockBody = map.value(prefix + QLatin1String(indentBlockBodyKey),
-                                indentBlockBody).toBool();
-    indentClassBraces = map.value(prefix + QLatin1String(indentClassBracesKey),
-                                indentClassBraces).toBool();
-    indentEnumBraces = map.value(prefix + QLatin1String(indentEnumBracesKey),
-                                indentEnumBraces).toBool();
-    indentNamespaceBraces = map.value(prefix + QLatin1String(indentNamespaceBracesKey),
-                                indentNamespaceBraces).toBool();
-    indentNamespaceBody = map.value(prefix + QLatin1String(indentNamespaceBodyKey),
-                                indentNamespaceBody).toBool();
-    indentAccessSpecifiers = map.value(prefix + QLatin1String(indentAccessSpecifiersKey),
-                                indentAccessSpecifiers).toBool();
-    indentDeclarationsRelativeToAccessSpecifiers = map.value(prefix + QLatin1String(indentDeclarationsRelativeToAccessSpecifiersKey),
-                                indentDeclarationsRelativeToAccessSpecifiers).toBool();
-    indentFunctionBody = map.value(prefix + QLatin1String(indentFunctionBodyKey),
-                                indentFunctionBody).toBool();
-    indentFunctionBraces = map.value(prefix + QLatin1String(indentFunctionBracesKey),
-                                indentFunctionBraces).toBool();
-    indentSwitchLabels = map.value(prefix + QLatin1String(indentSwitchLabelsKey),
-                                indentSwitchLabels).toBool();
-    indentStatementsRelativeToSwitchLabels = map.value(prefix + QLatin1String(indentStatementsRelativeToSwitchLabelsKey),
+    indentBlockBraces = map.value(indentBlockBracesKey, indentBlockBraces).toBool();
+    indentBlockBody = map.value(indentBlockBodyKey, indentBlockBody).toBool();
+    indentClassBraces = map.value(indentClassBracesKey, indentClassBraces).toBool();
+    indentEnumBraces = map.value(indentEnumBracesKey, indentEnumBraces).toBool();
+    indentNamespaceBraces = map.value(indentNamespaceBracesKey, indentNamespaceBraces).toBool();
+    indentNamespaceBody = map.value(indentNamespaceBodyKey, indentNamespaceBody).toBool();
+    indentAccessSpecifiers = map.value(indentAccessSpecifiersKey, indentAccessSpecifiers).toBool();
+    indentDeclarationsRelativeToAccessSpecifiers =
+            map.value(indentDeclarationsRelativeToAccessSpecifiersKey,
+                      indentDeclarationsRelativeToAccessSpecifiers).toBool();
+    indentFunctionBody = map.value(indentFunctionBodyKey, indentFunctionBody).toBool();
+    indentFunctionBraces = map.value(indentFunctionBracesKey, indentFunctionBraces).toBool();
+    indentSwitchLabels = map.value(indentSwitchLabelsKey, indentSwitchLabels).toBool();
+    indentStatementsRelativeToSwitchLabels = map.value(indentStatementsRelativeToSwitchLabelsKey,
                                 indentStatementsRelativeToSwitchLabels).toBool();
-    indentBlocksRelativeToSwitchLabels = map.value(prefix + QLatin1String(indentBlocksRelativeToSwitchLabelsKey),
+    indentBlocksRelativeToSwitchLabels = map.value(indentBlocksRelativeToSwitchLabelsKey,
                                 indentBlocksRelativeToSwitchLabels).toBool();
-    indentControlFlowRelativeToSwitchLabels = map.value(prefix + QLatin1String(indentControlFlowRelativeToSwitchLabelsKey),
+    indentControlFlowRelativeToSwitchLabels = map.value(indentControlFlowRelativeToSwitchLabelsKey,
                                 indentControlFlowRelativeToSwitchLabels).toBool();
-    bindStarToIdentifier = map.value(prefix + QLatin1String(bindStarToIdentifierKey),
-                                bindStarToIdentifier).toBool();
-    bindStarToTypeName = map.value(prefix + QLatin1String(bindStarToTypeNameKey),
-                                bindStarToTypeName).toBool();
-    bindStarToLeftSpecifier = map.value(prefix + QLatin1String(bindStarToLeftSpecifierKey),
-                                bindStarToLeftSpecifier).toBool();
-    bindStarToRightSpecifier = map.value(prefix + QLatin1String(bindStarToRightSpecifierKey),
-                                bindStarToRightSpecifier).toBool();
-    extraPaddingForConditionsIfConfusingAlign = map.value(prefix + QLatin1String(extraPaddingForConditionsIfConfusingAlignKey),
+    bindStarToIdentifier = map.value(bindStarToIdentifierKey, bindStarToIdentifier).toBool();
+    bindStarToTypeName = map.value(bindStarToTypeNameKey, bindStarToTypeName).toBool();
+    bindStarToLeftSpecifier = map.value(bindStarToLeftSpecifierKey, bindStarToLeftSpecifier).toBool();
+    bindStarToRightSpecifier = map.value(bindStarToRightSpecifierKey, bindStarToRightSpecifier).toBool();
+    extraPaddingForConditionsIfConfusingAlign = map.value(extraPaddingForConditionsIfConfusingAlignKey,
                                 extraPaddingForConditionsIfConfusingAlign).toBool();
-    alignAssignments = map.value(prefix + QLatin1String(alignAssignmentsKey),
-                                alignAssignments).toBool();
-    preferGetterNameWithoutGetPrefix = map.value(prefix + QLatin1String(shortGetterNameKey),
+    alignAssignments = map.value(alignAssignmentsKey, alignAssignments).toBool();
+    preferGetterNameWithoutGetPrefix = map.value(shortGetterNameKey,
                                 preferGetterNameWithoutGetPrefix).toBool();
 }
 

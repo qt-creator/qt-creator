@@ -49,7 +49,7 @@ void ExtraEncodingSettings::toSettings(const QString &category, QSettings *s) co
     Utils::toSettings(QLatin1String(kGroupPostfix), QString(), s, this);
 }
 
-void ExtraEncodingSettings::fromSettings(const QString &category, const QSettings *s)
+void ExtraEncodingSettings::fromSettings(const QString &category, QSettings *s)
 {
     Q_UNUSED(category)
 
@@ -57,15 +57,16 @@ void ExtraEncodingSettings::fromSettings(const QString &category, const QSetting
     Utils::fromSettings(QLatin1String(kGroupPostfix), QString(), s, this);
 }
 
-void ExtraEncodingSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap ExtraEncodingSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(kUtf8BomBehaviorKey), m_utf8BomSetting);
+    return {
+        {kUtf8BomBehaviorKey, m_utf8BomSetting}
+    };
 }
 
-void ExtraEncodingSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void ExtraEncodingSettings::fromMap(const QVariantMap &map)
 {
-    m_utf8BomSetting = (Utf8BomSetting)
-        map.value(prefix + QLatin1String(kUtf8BomBehaviorKey), m_utf8BomSetting).toInt();
+    m_utf8BomSetting = (Utf8BomSetting)map.value(kUtf8BomBehaviorKey, m_utf8BomSetting).toInt();
 }
 
 bool ExtraEncodingSettings::equals(const ExtraEncodingSettings &s) const

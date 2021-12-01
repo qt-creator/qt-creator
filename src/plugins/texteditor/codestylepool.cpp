@@ -242,7 +242,7 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FilePath &fileN
             codeStyle = d->m_factory->createCodeStyle();
             codeStyle->setId(id);
             codeStyle->setDisplayName(displayName);
-            codeStyle->fromMap(QString(), map);
+            codeStyle->fromMap(map);
 
             addCodeStyle(codeStyle);
         }
@@ -280,12 +280,11 @@ void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
 
 void CodeStylePool::exportCodeStyle(const Utils::FilePath &fileName, ICodeStylePreferences *codeStyle) const
 {
-    QVariantMap map;
-    codeStyle->toMap(QString(), &map);
-
-    QVariantMap tmp;
-    tmp.insert(QLatin1String(displayNameKey), codeStyle->displayName());
-    tmp.insert(QLatin1String(codeStyleDataKey), map);
+    const QVariantMap map = codeStyle->toMap();
+    const QVariantMap tmp = {
+        {displayNameKey, codeStyle->displayName()},
+        {codeStyleDataKey, map}
+    };
     Utils::PersistentSettingsWriter writer(fileName, QLatin1String(codeStyleDocKey));
     writer.save(tmp, Core::ICore::dialogParent());
 }

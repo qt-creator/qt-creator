@@ -216,23 +216,25 @@ void ICodeStylePreferences::toSettings(const QString &category, QSettings *s) co
     Utils::toSettings(d->m_settingsSuffix, category, s, this);
 }
 
-void ICodeStylePreferences::fromSettings(const QString &category, const QSettings *s)
+void ICodeStylePreferences::fromSettings(const QString &category, QSettings *s)
 {
     Utils::fromSettings(d->m_settingsSuffix, category, s, this);
 }
 
-void ICodeStylePreferences::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap ICodeStylePreferences::toMap() const
 {
+    QVariantMap map;
     if (!currentDelegate())
-        d->m_tabSettings.toMap(prefix, map);
-    else
-        map->insert(prefix + QLatin1String(currentPreferencesKey), currentDelegateId());
+        return d->m_tabSettings.toMap();
+    return {
+        {currentPreferencesKey, currentDelegateId()}
+    };
 }
 
-void ICodeStylePreferences::fromMap(const QString &prefix, const QVariantMap &map)
+void ICodeStylePreferences::fromMap(const QVariantMap &map)
 {
-    d->m_tabSettings.fromMap(prefix, map);
-    const QByteArray delegateId = map.value(prefix + QLatin1String(currentPreferencesKey)).toByteArray();
+    d->m_tabSettings.fromMap(map);
+    const QByteArray delegateId = map.value(currentPreferencesKey).toByteArray();
     if (delegatingPool()) {
         ICodeStylePreferences *delegate = delegatingPool()->codeStyle(delegateId);
         if (!delegateId.isEmpty() && delegate)

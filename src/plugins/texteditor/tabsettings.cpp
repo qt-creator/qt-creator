@@ -60,32 +60,32 @@ void TabSettings::toSettings(const QString &category, QSettings *s) const
     Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void TabSettings::fromSettings(const QString &category, const QSettings *s)
+void TabSettings::fromSettings(const QString &category, QSettings *s)
 {
     *this = TabSettings(); // Assign defaults
     Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void TabSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap TabSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(spacesForTabsKey), m_tabPolicy != TabsOnlyTabPolicy);
-    map->insert(prefix + QLatin1String(autoSpacesForTabsKey), m_tabPolicy == MixedTabPolicy);
-    map->insert(prefix + QLatin1String(tabSizeKey), m_tabSize);
-    map->insert(prefix + QLatin1String(indentSizeKey), m_indentSize);
-    map->insert(prefix + QLatin1String(paddingModeKey), m_continuationAlignBehavior);
+    return {
+        {spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy},
+        {autoSpacesForTabsKey, m_tabPolicy == MixedTabPolicy},
+        {tabSizeKey, m_tabSize},
+        {indentSizeKey, m_indentSize},
+        {paddingModeKey, m_continuationAlignBehavior}
+    };
 }
 
-void TabSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void TabSettings::fromMap(const QVariantMap &map)
 {
-    const bool spacesForTabs =
-        map.value(prefix + QLatin1String(spacesForTabsKey), true).toBool();
-    const bool autoSpacesForTabs =
-        map.value(prefix + QLatin1String(autoSpacesForTabsKey), false).toBool();
+    const bool spacesForTabs = map.value(spacesForTabsKey, true).toBool();
+    const bool autoSpacesForTabs = map.value(autoSpacesForTabsKey, false).toBool();
     m_tabPolicy = spacesForTabs ? (autoSpacesForTabs ? MixedTabPolicy : SpacesOnlyTabPolicy) : TabsOnlyTabPolicy;
-    m_tabSize = map.value(prefix + QLatin1String(tabSizeKey), m_tabSize).toInt();
-    m_indentSize = map.value(prefix + QLatin1String(indentSizeKey), m_indentSize).toInt();
+    m_tabSize = map.value(tabSizeKey, m_tabSize).toInt();
+    m_indentSize = map.value(indentSizeKey, m_indentSize).toInt();
     m_continuationAlignBehavior = (ContinuationAlignBehavior)
-        map.value(prefix + QLatin1String(paddingModeKey), m_continuationAlignBehavior).toInt();
+        map.value(paddingModeKey, m_continuationAlignBehavior).toInt();
 }
 
 bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor)

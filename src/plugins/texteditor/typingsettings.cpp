@@ -51,34 +51,30 @@ void TypingSettings::toSettings(const QString &category, QSettings *s) const
     Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void TypingSettings::fromSettings(const QString &category, const QSettings *s)
+void TypingSettings::fromSettings(const QString &category, QSettings *s)
 {
     *this = TypingSettings(); // Assign defaults
     Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void TypingSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap TypingSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(autoIndentKey), m_autoIndent);
-    map->insert(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
-    map->insert(prefix + QLatin1String(smartBackspaceBehaviorKey), m_smartBackspaceBehavior);
-
-    map->insert(prefix + QLatin1String(preferSingleLineCommentsKey), m_preferSingleLineComments);
+    return {
+        {autoIndentKey, m_autoIndent},
+        {tabKeyBehaviorKey, m_tabKeyBehavior},
+        {smartBackspaceBehaviorKey, m_smartBackspaceBehavior},
+        {preferSingleLineCommentsKey, m_preferSingleLineComments}
+    };
 }
 
-void TypingSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void TypingSettings::fromMap(const QVariantMap &map)
 {
-    m_autoIndent =
-        map.value(prefix + QLatin1String(autoIndentKey), m_autoIndent).toBool();
-    m_tabKeyBehavior = (TabKeyBehavior)
-        map.value(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
-    m_smartBackspaceBehavior = (SmartBackspaceBehavior)
-        map.value(prefix + QLatin1String(smartBackspaceBehaviorKey),
-                  m_smartBackspaceBehavior).toInt();
-
+    m_autoIndent = map.value(autoIndentKey, m_autoIndent).toBool();
+    m_tabKeyBehavior = (TabKeyBehavior) map.value(tabKeyBehaviorKey, m_tabKeyBehavior).toInt();
+    m_smartBackspaceBehavior = (SmartBackspaceBehavior)map.value(
+                smartBackspaceBehaviorKey, m_smartBackspaceBehavior).toInt();
     m_preferSingleLineComments =
-        map.value(prefix + QLatin1String(preferSingleLineCommentsKey), m_preferSingleLineComments).toBool();
-
+        map.value(preferSingleLineCommentsKey, m_preferSingleLineComments).toBool();
 }
 
 bool TypingSettings::equals(const TypingSettings &ts) const

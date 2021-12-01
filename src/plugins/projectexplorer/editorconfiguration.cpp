@@ -180,33 +180,38 @@ QMap<Utils::Id, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
     return d->m_languageCodeStylePreferences;
 }
 
+static void toMapWithPrefix(QVariantMap *map, const QVariantMap &source)
+{
+    for (auto it = source.constBegin(), end = source.constEnd(); it != end; ++it)
+        map->insert(kPrefix + it.key(), it.value());
+}
+
 QVariantMap EditorConfiguration::toMap() const
 {
-    QVariantMap map;
-    map.insert(kUseGlobal, d->m_useGlobal);
-    map.insert(kCodec, d->m_textCodec->name());
-
-    map.insert(kCodeStyleCount, d->m_languageCodeStylePreferences.count());
+    QVariantMap map = {
+        {kUseGlobal, d->m_useGlobal},
+        {kCodec, d->m_textCodec->name()},
+        {kCodeStyleCount, d->m_languageCodeStylePreferences.count()}
+    };
 
     int i = 0;
     for (auto itCodeStyle = d->m_languageCodeStylePreferences.cbegin(),
                end = d->m_languageCodeStylePreferences.cend();
             itCodeStyle != end; ++itCodeStyle) {
-        QVariantMap settingsIdMap;
-        settingsIdMap.insert(QLatin1String("language"), itCodeStyle.key().toSetting());
-        QVariantMap value;
-        itCodeStyle.value()->toMap(QString(), &value);
-        settingsIdMap.insert(QLatin1String("value"), value);
+        const QVariantMap settingsIdMap = {
+            {"language", itCodeStyle.key().toSetting()},
+            {"value", itCodeStyle.value()->toMap()}
+        };
         map.insert(kCodeStylePrefix + QString::number(i), settingsIdMap);
         i++;
     }
 
-    d->m_defaultCodeStyle->tabSettings().toMap(kPrefix, &map);
-    d->m_typingSettings.toMap(kPrefix, &map);
-    d->m_storageSettings.toMap(kPrefix, &map);
-    d->m_behaviorSettings.toMap(kPrefix, &map);
-    d->m_extraEncodingSettings.toMap(kPrefix, &map);
-    d->m_marginSettings.toMap(kPrefix, &map);
+    toMapWithPrefix(&map, d->m_defaultCodeStyle->tabSettings().toMap());
+    toMapWithPrefix(&map, d->m_typingSettings.toMap());
+    toMapWithPrefix(&map, d->m_storageSettings.toMap());
+    toMapWithPrefix(&map, d->m_behaviorSettings.toMap());
+    toMapWithPrefix(&map, d->m_extraEncodingSettings.toMap());
+    toMapWithPrefix(&map, d->m_marginSettings.toMap());
 
     return map;
 }
@@ -229,15 +234,20 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
         QVariantMap value = settingsIdMap.value(QLatin1String("value")).toMap();
         ICodeStylePreferences *preferences = d->m_languageCodeStylePreferences.value(languageId);
         if (preferences)
-             preferences->fromMap(QString(), value);
+             preferences->fromMap(value);
     }
 
-    d->m_defaultCodeStyle->fromMap(kPrefix, map);
-    d->m_typingSettings.fromMap(kPrefix, map);
-    d->m_storageSettings.fromMap(kPrefix, map);
-    d->m_behaviorSettings.fromMap(kPrefix, map);
-    d->m_extraEncodingSettings.fromMap(kPrefix, map);
-    d->m_marginSettings.fromMap(kPrefix, map);
+    QVariantMap submap;
+    for (auto it = map.constBegin(), end = map.constEnd(); it != end; ++it) {
+        if (it.key().startsWith(kPrefix))
+            submap.insert(it.key().mid(kPrefix.size()), it.value());
+    }
+    d->m_defaultCodeStyle->fromMap(submap);
+    d->m_typingSettings.fromMap(submap);
+    d->m_storageSettings.fromMap(submap);
+    d->m_behaviorSettings.fromMap(submap);
+    d->m_extraEncodingSettings.fromMap(submap);
+    d->m_marginSettings.fromMap(submap);
     setUseGlobalSettings(map.value(kUseGlobal, d->m_useGlobal).toBool());
 }
 

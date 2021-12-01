@@ -58,36 +58,32 @@ void StorageSettings::toSettings(const QString &category, QSettings *s) const
     Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void StorageSettings::fromSettings(const QString &category, const QSettings *s)
+void StorageSettings::fromSettings(const QString &category, QSettings *s)
 {
     *this = StorageSettings();
     Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void StorageSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap StorageSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(cleanWhitespaceKey), m_cleanWhitespace);
-    map->insert(prefix + QLatin1String(inEntireDocumentKey), m_inEntireDocument);
-    map->insert(prefix + QLatin1String(addFinalNewLineKey), m_addFinalNewLine);
-    map->insert(prefix + QLatin1String(cleanIndentationKey), m_cleanIndentation);
-    map->insert(prefix + QLatin1String(skipTrailingWhitespaceKey), m_skipTrailingWhitespace);
-    map->insert(prefix + QLatin1String(ignoreFileTypesKey), m_ignoreFileTypes.toLatin1().data());
+    return {
+        {cleanWhitespaceKey, m_cleanWhitespace},
+        {inEntireDocumentKey, m_inEntireDocument},
+        {addFinalNewLineKey, m_addFinalNewLine},
+        {cleanIndentationKey, m_cleanIndentation},
+        {skipTrailingWhitespaceKey, m_skipTrailingWhitespace},
+        {ignoreFileTypesKey, m_ignoreFileTypes.toLatin1().data()}
+    };
 }
 
-void StorageSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void StorageSettings::fromMap(const QVariantMap &map)
 {
-    m_cleanWhitespace =
-        map.value(prefix + QLatin1String(cleanWhitespaceKey), m_cleanWhitespace).toBool();
-    m_inEntireDocument =
-        map.value(prefix + QLatin1String(inEntireDocumentKey), m_inEntireDocument).toBool();
-    m_addFinalNewLine =
-        map.value(prefix + QLatin1String(addFinalNewLineKey), m_addFinalNewLine).toBool();
-    m_cleanIndentation =
-        map.value(prefix + QLatin1String(cleanIndentationKey), m_cleanIndentation).toBool();
-    m_skipTrailingWhitespace =
-        map.value(prefix + QLatin1String(skipTrailingWhitespaceKey), m_skipTrailingWhitespace).toBool();
-    m_ignoreFileTypes =
-        map.value(prefix + QLatin1String(ignoreFileTypesKey), m_ignoreFileTypes).toString();
+    m_cleanWhitespace = map.value(cleanWhitespaceKey, m_cleanWhitespace).toBool();
+    m_inEntireDocument = map.value(inEntireDocumentKey, m_inEntireDocument).toBool();
+    m_addFinalNewLine = map.value(addFinalNewLineKey, m_addFinalNewLine).toBool();
+    m_cleanIndentation = map.value(cleanIndentationKey, m_cleanIndentation).toBool();
+    m_skipTrailingWhitespace = map.value(skipTrailingWhitespaceKey, m_skipTrailingWhitespace).toBool();
+    m_ignoreFileTypes = map.value(ignoreFileTypesKey, m_ignoreFileTypes).toString();
 }
 
 bool StorageSettings::removeTrailingWhitespace(const QString &fileName) const

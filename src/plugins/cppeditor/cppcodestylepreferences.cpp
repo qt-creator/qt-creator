@@ -89,22 +89,19 @@ void CppCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
     emit currentCodeStyleSettingsChanged(value.value<CppCodeStyleSettings>());
 }
 
-void CppCodeStylePreferences::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap CppCodeStylePreferences::toMap() const
 {
-    ICodeStylePreferences::toMap(prefix, map);
-    if (currentDelegate())
-        return;
-
-    m_data.toMap(prefix, map);
+    QVariantMap map = ICodeStylePreferences::toMap();
+    if (!currentDelegate())
+        map.insert(m_data.toMap());
+    return map;
 }
 
-void CppCodeStylePreferences::fromMap(const QString &prefix, const QVariantMap &map)
+void CppCodeStylePreferences::fromMap(const QVariantMap &map)
 {
-    ICodeStylePreferences::fromMap(prefix, map);
-    if (currentDelegate())
-        return;
-
-    m_data.fromMap(prefix, map);
+    ICodeStylePreferences::fromMap(map);
+    if (!currentDelegate())
+        m_data.fromMap(map);
 }
 
 } // namespace CppEditor

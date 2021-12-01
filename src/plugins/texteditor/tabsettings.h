@@ -59,10 +59,10 @@ public:
                 int indentSize, ContinuationAlignBehavior continuationAlignBehavior);
 
     void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, const QSettings *s);
+    void fromSettings(const QString &category, QSettings *s);
 
-    void toMap(const QString &prefix, QVariantMap *map) const;
-    void fromMap(const QString &prefix, const QVariantMap &map);
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
 
     int lineIndentPosition(const QString &text) const;
     int columnAt(const QString &text, int position) const;

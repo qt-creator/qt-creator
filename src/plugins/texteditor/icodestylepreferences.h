@@ -81,11 +81,11 @@ public:
 
     void setSettingsSuffix(const QString &suffix);
     void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, const QSettings *s);
+    void fromSettings(const QString &category, QSettings *s);
 
     // make below 2 protected?
-    virtual void toMap(const QString &prefix, QVariantMap *map) const;
-    virtual void fromMap(const QString &prefix, const QVariantMap &map);
+    virtual QVariantMap toMap() const;
+    virtual void fromMap(const QVariantMap &map);
 
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &settings);

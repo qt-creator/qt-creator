@@ -57,40 +57,34 @@ void BehaviorSettings::toSettings(const QString &category, QSettings *s) const
     Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void BehaviorSettings::fromSettings(const QString &category, const QSettings *s)
+void BehaviorSettings::fromSettings(const QString &category, QSettings *s)
 {
     *this = BehaviorSettings();
     Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
 }
 
-void BehaviorSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap BehaviorSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(mouseHidingKey), m_mouseHiding);
-    map->insert(prefix + QLatin1String(mouseNavigationKey), m_mouseNavigation);
-    map->insert(prefix + QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming);
-    map->insert(prefix + QLatin1String(constrainTooltips), m_constrainHoverTooltips);
-    map->insert(prefix + QLatin1String(camelCaseNavigationKey), m_camelCaseNavigation);
-    map->insert(prefix + QLatin1String(keyboardTooltips), m_keyboardTooltips);
-    map->insert(prefix + QLatin1String(smartSelectionChanging), m_smartSelectionChanging);
+    return {
+        {mouseHidingKey, m_mouseHiding},
+        {mouseNavigationKey, m_mouseNavigation},
+        {scrollWheelZoomingKey, m_scrollWheelZooming},
+        {constrainTooltips, m_constrainHoverTooltips},
+        {camelCaseNavigationKey, m_camelCaseNavigation},
+        {keyboardTooltips, m_keyboardTooltips},
+        {smartSelectionChanging, m_smartSelectionChanging}
+    };
 }
 
-void BehaviorSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void BehaviorSettings::fromMap(const QVariantMap &map)
 {
-    m_mouseHiding =
-            map.value(prefix + QLatin1String(mouseHidingKey), m_mouseHiding).toBool();
-    m_mouseNavigation =
-        map.value(prefix + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
-    m_scrollWheelZooming =
-        map.value(prefix + QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming).toBool();
-    m_constrainHoverTooltips =
-        map.value(prefix + QLatin1String(constrainTooltips), m_constrainHoverTooltips).toBool();
-    m_camelCaseNavigation =
-        map.value(prefix + QLatin1String(camelCaseNavigationKey), m_camelCaseNavigation).toBool();
-    m_keyboardTooltips =
-        map.value(prefix + QLatin1String(keyboardTooltips), m_keyboardTooltips).toBool();
-    m_smartSelectionChanging =
-        map.value(prefix + QLatin1String(smartSelectionChanging), m_smartSelectionChanging)
-           .toBool();
+    m_mouseHiding = map.value(mouseHidingKey, m_mouseHiding).toBool();
+    m_mouseNavigation = map.value(mouseNavigationKey, m_mouseNavigation).toBool();
+    m_scrollWheelZooming = map.value(scrollWheelZoomingKey, m_scrollWheelZooming).toBool();
+    m_constrainHoverTooltips = map.value(constrainTooltips, m_constrainHoverTooltips).toBool();
+    m_camelCaseNavigation = map.value(camelCaseNavigationKey, m_camelCaseNavigation).toBool();
+    m_keyboardTooltips = map.value(keyboardTooltips, m_keyboardTooltips).toBool();
+    m_smartSelectionChanging = map.value(smartSelectionChanging, m_smartSelectionChanging).toBool();
 }
 
 bool BehaviorSettings::equals(const BehaviorSettings &ds) const

@@ -69,18 +69,20 @@ void MarginSettings::fromSettings(const QString &category, const QSettings *s)
     m_marginColumn = s->value(group + QLatin1String(wrapColumnKey), m_marginColumn).toInt();
 }
 
-void MarginSettings::toMap(const QString &prefix, QVariantMap *map) const
+QVariantMap MarginSettings::toMap() const
 {
-    map->insert(prefix + QLatin1String(showWrapColumnKey), m_showMargin);
-    map->insert(prefix + QLatin1String(useIndenterColumnKey), m_useIndenter);
-    map->insert(prefix + QLatin1String(wrapColumnKey), m_marginColumn);
+    return {
+        {showWrapColumnKey, m_showMargin},
+        {useIndenterColumnKey, m_useIndenter},
+        {wrapColumnKey, m_marginColumn}
+    };
 }
 
-void MarginSettings::fromMap(const QString &prefix, const QVariantMap &map)
+void MarginSettings::fromMap(const QVariantMap &map)
 {
-    m_showMargin = map.value(prefix + QLatin1String(showWrapColumnKey), m_showMargin).toBool();
-    m_useIndenter = map.value(prefix + QLatin1String(useIndenterColumnKey), m_useIndenter).toBool();
-    m_marginColumn = map.value(prefix + QLatin1String(wrapColumnKey), m_marginColumn).toInt();
+    m_showMargin = map.value(showWrapColumnKey, m_showMargin).toBool();
+    m_useIndenter = map.value(useIndenterColumnKey, m_useIndenter).toBool();
+    m_marginColumn = map.value(wrapColumnKey, m_marginColumn).toInt();
 }
 
 bool MarginSettings::equals(const MarginSettings &other) const

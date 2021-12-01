@@ -47,8 +47,8 @@ public:
     // tracks parent hierarchy until currentParentSettings is null
     CppCodeStyleSettings currentCodeStyleSettings() const;
 
-    void toMap(const QString &prefix, QVariantMap *map) const override;
-    void fromMap(const QString &prefix, const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    void fromMap(const QVariantMap &map) override;
 
 public slots:
     void setCodeStyleSettings(const CppCodeStyleSettings &data);

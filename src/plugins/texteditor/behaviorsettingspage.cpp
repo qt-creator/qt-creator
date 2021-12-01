@@ -79,7 +79,7 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate()
     m_defaultCodeStylePool = new CodeStylePool(nullptr, this); // Any language
     m_defaultCodeStylePool->addCodeStyle(m_codeStyle);
 
-    const QSettings *s = Core::ICore::settings();
+    QSettings * const s = Core::ICore::settings();
     m_codeStyle->fromSettings(m_settingsPrefix, s);
     m_typingSettings.fromSettings(m_settingsPrefix, s);
     m_storageSettings.fromSettings(m_settingsPrefix, s);
