@@ -27,6 +27,8 @@
 
 #include <utils/smallstringview.h>
 
+#include <type_traits>
+
 namespace Sqlite {
 
 constexpr int compare(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
@@ -40,6 +42,8 @@ constexpr int compare(Utils::SmallStringView first, Utils::SmallStringView secon
 
     return difference;
 }
+
+enum class UpdateChange { No, Update };
 
 template<typename SqliteRange,
          typename Range,
@@ -58,6 +62,7 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
     auto endSqliteIterator = sqliteRange.end();
     auto currentValueIterator = values.begin();
     auto endValueIterator = values.end();
+    std::optional<std::decay_t<decltype(*currentValueIterator)>> lastValue;
 
     while (true) {
         bool hasMoreValues = currentValueIterator != endValueIterator;
@@ -67,21 +72,42 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
             auto &&value = *currentValueIterator;
             auto compare = compareKey(sqliteValue, value);
             if (compare == 0) {
-                updateCallback(sqliteValue, value);
-                ++currentValueIterator;
+                UpdateChange updateChange = updateCallback(sqliteValue, value);
+                switch (updateChange) {
+                case UpdateChange::Update:
+                    lastValue = value;
+                    break;
+                case UpdateChange::No:
+                    lastValue.reset();
+                    break;
+                }
                 ++currentSqliteIterator;
+                ++currentValueIterator;
             } else if (compare > 0) {
                 insertCallback(value);
                 ++currentValueIterator;
             } else if (compare < 0) {
-                deleteCallback(sqliteValue);
+                if (lastValue) {
+                    if (compareKey(sqliteValue, *lastValue) != 0)
+                        deleteCallback(sqliteValue);
+                    lastValue.reset();
+                } else {
+                    deleteCallback(sqliteValue);
+                }
                 ++currentSqliteIterator;
             }
         } else if (hasMoreValues) {
             insertCallback(*currentValueIterator);
             ++currentValueIterator;
         } else if (hasMoreSqliteValues) {
-            deleteCallback(*currentSqliteIterator);
+            auto &&sqliteValue = *currentSqliteIterator;
+            if (lastValue) {
+                if (compareKey(sqliteValue, *lastValue) != 0)
+                    deleteCallback(sqliteValue);
+                lastValue.reset();
+            } else {
+                deleteCallback(sqliteValue);
+            }
             ++currentSqliteIterator;
         } else {
             break;

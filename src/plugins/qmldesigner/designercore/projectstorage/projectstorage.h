@@ -581,7 +581,10 @@ private:
                                                  &projectData.sourceId,
                                                  &projectData.moduleId,
                                                  static_cast<int>(projectData.fileType));
+                return Sqlite::UpdateChange::Update;
             }
+
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const Storage::ProjectData &projectData) {
@@ -621,7 +624,10 @@ private:
                 updateFileStatusStatement.write(&fileStatus.sourceId,
                                                 fileStatus.size,
                                                 fileStatus.lastModified);
+                return Sqlite::UpdateChange::Update;
             }
+
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const FileStatus &fileStatus) {
@@ -982,7 +988,9 @@ private:
                                                                 relinkableAliasPropertyDeclarations);
                 handlePrototypes(view.typeId, relinkablePrototypes);
                 updateExportedTypeNameTypeIdStatement.write(&view.exportedTypeNameId, &type.typeId);
+                return Sqlite::UpdateChange::Update;
             }
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const Storage::ExportedTypeView &view) {
@@ -1056,7 +1064,7 @@ private:
                                                                   view.aliasId);
     }
 
-    void synchronizePropertyDeclarationsUpdateProperty(const Storage::PropertyDeclarationView &view,
+    auto synchronizePropertyDeclarationsUpdateProperty(const Storage::PropertyDeclarationView &view,
                                                        const Storage::PropertyDeclaration &value,
                                                        SourceId sourceId,
                                                        PropertyDeclarationIds &propertyDeclarationIds)
@@ -1070,7 +1078,7 @@ private:
 
         if (view.traits == value.traits && propertyTypeId == view.typeId
             && propertyImportedTypeNameId == view.typeNameId)
-            return;
+            return Sqlite::UpdateChange::No;
 
         updatePropertyDeclarationStatement.write(&view.id,
                                                  &propertyTypeId,
@@ -1079,6 +1087,7 @@ private:
         updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
             .write(&view.id, &propertyTypeId, static_cast<int>(value.traits));
         propertyDeclarationIds.push_back(view.id);
+        return Sqlite::UpdateChange::Update;
     }
 
     void synchronizePropertyDeclarations(TypeId typeId,
@@ -1122,11 +1131,13 @@ private:
                                                            sourceId);
                 propertyDeclarationIds.push_back(view.id);
             } else {
-                synchronizePropertyDeclarationsUpdateProperty(view,
-                                                              value,
-                                                              sourceId,
-                                                              propertyDeclarationIds);
+                return synchronizePropertyDeclarationsUpdateProperty(view,
+                                                                     value,
+                                                                     sourceId,
+                                                                     propertyDeclarationIds);
             }
+
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const Storage::PropertyDeclarationView &view) {
@@ -1185,7 +1196,7 @@ private:
         auto insert = [&](const Storage::PropertyDeclaration &) {};
 
         auto update = [&](const AliasPropertyDeclarationView &,
-                          const Storage::PropertyDeclaration &) {};
+                          const Storage::PropertyDeclaration &) { return Sqlite::UpdateChange::No; };
 
         auto remove = [&](const AliasPropertyDeclarationView &view) {
             updatePropertyDeclarationAliasIdToNullStatement.write(&view.id);
@@ -1251,7 +1262,9 @@ private:
             }
         };
 
-        auto update = [](const Storage::ImportView &, const Storage::Import &) {};
+        auto update = [](const Storage::ImportView &, const Storage::Import &) {
+            return Sqlite::UpdateChange::No;
+        };
 
         auto remove = [&](const Storage::ImportView &view) {
             deleteDocumentImportStatement.write(&view.importId);
@@ -1316,9 +1329,11 @@ private:
             Utils::PathString signature{createJson(value.parameters)};
 
             if (value.returnTypeName == view.returnTypeName && signature == view.signature)
-                return;
+                return Sqlite::UpdateChange::No;
 
             updateFunctionDeclarationStatement.write(&view.id, value.returnTypeName, signature);
+
+            return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::FunctionDeclarationView &view) {
@@ -1353,9 +1368,11 @@ private:
             Utils::PathString signature{createJson(value.parameters)};
 
             if (signature == view.signature)
-                return;
+                return Sqlite::UpdateChange::No;
 
             updateSignalDeclarationStatement.write(&view.id, signature);
+
+            return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::SignalDeclarationView &view) {
@@ -1418,9 +1435,11 @@ private:
             Utils::PathString enumeratorDeclarations{createJson(value.enumeratorDeclarations)};
 
             if (enumeratorDeclarations == view.enumeratorDeclarations)
-                return;
+                return Sqlite::UpdateChange::No;
 
             updateEnumerationDeclarationStatement.write(&view.id, enumeratorDeclarations);
+
+            return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::EnumerationDeclarationView &view) {
@@ -2066,6 +2085,7 @@ private:
         {
             Sqlite::Table table;
             table.setUseIfNotExists(true);
+            table.setUseWithoutRowId(true);
             table.setName("projectDatas");
             auto &projectSourceIdColumn = table.addColumn("projectSourceId");
             auto &sourceIdColumn = table.addColumn("sourceId");
