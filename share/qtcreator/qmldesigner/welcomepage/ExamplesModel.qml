@@ -28,7 +28,7 @@ import QtQuick 2.0
 ListModel {
     ListElement {
         projectName: "ClusterTutorial"
-        qmlFileName: "ClusterTutorial.qml"
+        qmlFileName: "content/Cluster_Art.ui.qml"
         thumbnail: "images/tutorialclusterdemo_thumbnail.png"
         displayName: "Cluster Tutorial"
         showDownload: false
@@ -36,7 +36,7 @@ ListModel {
 
     ListElement {
         projectName: "CoffeeMachine"
-        qmlFileName: "CoffeeMachine.qml"
+        qmlFileName: "content/ApplicationFlowForm.ui.qml"
         thumbnail: "images/coffeemachinedemo_thumbnail.png"
         displayName: "Coffee Machine"
         showDownload: false
@@ -44,7 +44,7 @@ ListModel {
 
     ListElement {
         projectName: "SideMenu"
-        qmlFileName: "SideMenu.qml"
+        qmlFileName: "content/MainForm.ui.qml"
         thumbnail: "images/sidemenu_demo.png"
         displayName: "Side Menu"
         showDownload: false
@@ -52,7 +52,7 @@ ListModel {
 
     ListElement {
         projectName: "WebinarDemo"
-        qmlFileName: "DesignStudioWebinar.qml"
+        qmlFileName: "content/MainApp.ui.qml"
         thumbnail: "images/webinardemo_thumbnail.png"
         displayName: "Webinar Demo"
         showDownload: false
@@ -60,7 +60,7 @@ ListModel {
 
     ListElement {
         projectName: "EBikeDesign"
-        qmlFileName: "EBikeDesign.qml"
+        qmlFileName: "content/Screen01.ui.qml"
         thumbnail: "images/ebike_demo_thumbnail.png"
         displayName: "E-Bike Design"
         showDownload: false
@@ -68,7 +68,7 @@ ListModel {
 
     ListElement {
         projectName: "ProgressBar"
-        qmlFileName: "ProgressBar.ui.qml"
+        qmlFileName: "content/ProgressBar.ui.qml"
         thumbnail: "images/progressbar_demo.png"
         displayName: "Progress Bar"
         showDownload: false
