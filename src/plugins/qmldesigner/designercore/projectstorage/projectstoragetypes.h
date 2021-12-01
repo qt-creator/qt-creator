@@ -555,7 +555,7 @@ public:
     {}
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
-                                 TypeId propetyTypeId,
+                                 TypeId propertyTypeId,
                                  PropertyDeclarationTraits traits,
                                  Utils::SmallStringView aliasPropertyName)
         : name{name}

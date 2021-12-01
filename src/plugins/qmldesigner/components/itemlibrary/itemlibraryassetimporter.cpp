@@ -661,7 +661,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             QTimer *timer = new QTimer(parent());
             static int counter;
             counter = 0;
-            timer->callOnTimeout([this, timer, progressTitle, model, doc]() {
+            timer->callOnTimeout([this, timer, progressTitle, model]() {
                 if (!isCancelled()) {
                     notifyProgress(++counter * 5, progressTitle);
                     if (counter < 10) {

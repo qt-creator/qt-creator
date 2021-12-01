@@ -96,7 +96,6 @@ QString Theme::replaceCssColors(const QString &input)
 {
     const QRegularExpression rx("creatorTheme\\.(\\w+)");
 
-    int pos = 0;
     QString output = input;
 
     QRegularExpressionMatchIterator it = rx.globalMatch(input);
@@ -119,7 +118,6 @@ QString Theme::replaceCssColors(const QString &input)
                                     .arg(color.alpha());
             output.replace(replaceExp, rgbaStr + "\\1");
         }
-        pos += match.capturedLength();
     }
 
     return output;

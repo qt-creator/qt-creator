@@ -806,8 +806,8 @@ void TimelineRulerSectionItem::setPlaybackLoopEnabled(bool value)
 void TimelineRulerSectionItem::setPlaybackLoopTimes(float startFrame, float endFrame)
 {
     if (m_playbackLoopEnabled) {
-        startFrame = startFrame;
-        endFrame = endFrame;
+        m_start = startFrame;
+        m_end = endFrame;
         m_playbackLoopStart = startFrame > m_duration ? m_duration : startFrame < 0.0 ? 0.0 : startFrame;
         m_playbackLoopEnd = endFrame > m_duration ? m_duration : endFrame < 0.0 ? 0.0 : endFrame;
         emit playbackLoopValuesChanged();

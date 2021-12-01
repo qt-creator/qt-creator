@@ -67,7 +67,6 @@ private:
     QLineEdit *m_name = nullptr;
     PathChooser *m_java = nullptr;
     PathChooser *m_ls = nullptr;
-    PathChooser *m_workspace = nullptr;
 };
 
 JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *parent)

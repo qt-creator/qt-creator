@@ -135,7 +135,7 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
 
     // Modifier offset should be opposite to indent width in order indentAccessSpecifiers
     // to be false
-    settings.indentAccessSpecifiers = (style.AccessModifierOffset != -1 * style.IndentWidth);
+    settings.indentAccessSpecifiers = (style.AccessModifierOffset != -1 * int(style.IndentWidth));
 
     settings.indentNamespaceBody = style.NamespaceIndentation
                                    == FormatStyle::NamespaceIndentationKind::NI_All;

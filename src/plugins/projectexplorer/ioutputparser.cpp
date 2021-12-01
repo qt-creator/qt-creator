@@ -121,7 +121,7 @@ void OutputTaskParser::runPostPrintActions(QPlainTextEdit *edit)
 {
     int offset = 0;
     if (const auto ow = qobject_cast<Core::OutputWindow *>(edit)) {
-        Utils::reverseForeach(taskInfo(), [this, ow, &offset](const TaskInfo &ti) {
+        Utils::reverseForeach(taskInfo(), [ow, &offset](const TaskInfo &ti) {
             ow->registerPositionOf(ti.task.taskId, ti.linkedLines, ti.skippedLines, offset);
                 offset += ti.linkedLines;
         });

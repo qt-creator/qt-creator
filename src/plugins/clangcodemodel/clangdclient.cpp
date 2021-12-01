@@ -2489,7 +2489,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         const Position endPos = startPos.withOffset(token.length, &doc);
         return Range(startPos, endPos);
     };
-    const auto isOutputParameter = [&ast, &doc, &tokenRange](const ExpandedSemanticToken &token) {
+    const auto isOutputParameter = [&ast, &tokenRange](const ExpandedSemanticToken &token) {
         if (token.modifiers.contains("usedAsMutableReference"))
             return true;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")

@@ -633,13 +633,6 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
     return kitsDir.entryInfoList();
 }
 
-static QString extractQulVersion(const QByteArray &data)
-{
-    const QJsonDocument document = QJsonDocument::fromJson(data);
-    const QJsonObject target = document.object();
-    return target.value("qulVersion").toString();
-}
-
 static McuTargetDescription parseDescriptionJsonCommon(const QString &qulVersion, const QJsonObject &target)
 {
     const QString compatVersion = target.value("compatVersion").toString();

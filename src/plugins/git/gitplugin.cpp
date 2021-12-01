@@ -479,7 +479,7 @@ void GitPluginPrivate::onApplySettings()
     QString errorMessage;
     m_settings.gitExecutable(&gitFoundOk, &errorMessage);
     if (!gitFoundOk) {
-        QTimer::singleShot(0, this, [this, errorMessage] {
+        QTimer::singleShot(0, this, [errorMessage] {
             Core::AsynchronousMessageBox::warning(tr("Git Settings"), errorMessage);
         });
     }
