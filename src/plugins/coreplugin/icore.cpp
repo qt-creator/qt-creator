@@ -426,7 +426,7 @@ static QString pathHelper(const QString &rel)
     return '/' + rel;
 }
 /*!
-    Returns the absolute path that is used for resources like
+    Returns the absolute path for the relative path \a rel that is used for resources like
     project templates and the debugger macros.
 
     This abstraction is needed to avoid platform-specific code all over
@@ -443,7 +443,7 @@ FilePath ICore::resourcePath(const QString &rel)
 }
 
 /*!
-    Returns the absolute path in the users directory that is used for
+    Returns the absolute path for the relative path \a rel in the users directory that is used for
     resources like project templates.
 
     Use this function for finding the place for resources that the user may
@@ -468,7 +468,7 @@ FilePath ICore::userResourcePath(const QString &rel)
 }
 
 /*!
-    Returns a writable path that can be used for persistent cache files.
+    Returns a writable path for the relative path \a rel that can be used for persistent cache files.
 */
 FilePath ICore::cacheResourcePath(const QString &rel)
 {
@@ -477,8 +477,8 @@ FilePath ICore::cacheResourcePath(const QString &rel)
 }
 
 /*!
-    Returns the path to resources written by the installer, for example
-    pre-defined kits and toolchains.
+    Returns the path, based on the relative path \a rel, to resources written by the installer,
+    for example pre-defined kits and toolchains.
 */
 FilePath ICore::installerResourcePath(const QString &rel)
 {
@@ -516,8 +516,8 @@ QString ICore::userPluginPath()
 }
 
 /*!
-    Returns the path to the command line tools that are included in the \QC
-    installation.
+    Returns the path, based on the relative path \a rel, to the command line tools that are
+    included in the \QC installation.
  */
 FilePath ICore::libexecPath(const QString &rel)
 {

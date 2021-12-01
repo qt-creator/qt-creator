@@ -46,8 +46,8 @@
 
     \section1 Creating Reusable Buttons
 
-    We select \uicontrol File > \uicontrol {New File or Project} >
-    \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls} >
+    We select \uicontrol File > \uicontrol {New File} >
+    \uicontrol {Qt Quick Controls} >
     \uicontrol {Custom Button} to create a reusable menu bar button
     that we call \e CustomButton.
 

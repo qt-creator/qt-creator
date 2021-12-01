@@ -180,7 +180,7 @@ static QString defaultCommand()
     return "locate";
 }
 
-/*!
+/*
     For the tools es [1] and locate [2], interpret space as AND operator.
 
     Currently doesn't support fine picking a file with a space in the path by escaped space.

@@ -279,7 +279,10 @@ bool DesignDocument::isDocumentLoaded() const
 
 void DesignDocument::resetToDocumentModel()
 {
-    plainTextEdit()->document()->clearUndoRedoStacks();
+    const QPlainTextEdit *edit = plainTextEdit();
+    if (edit)
+        edit->document()->clearUndoRedoStacks();
+
     m_inFileComponentModel.reset();
 }
 
@@ -311,7 +314,9 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    plainTextEdit()->document()->clearUndoRedoStacks();
+    const QPlainTextEdit *edit = plainTextEdit();
+    if (edit)
+        edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel.reset();
     m_inFileComponentTextModifier.reset();
@@ -348,7 +353,9 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    plainTextEdit()->document()->clearUndoRedoStacks();
+    const QPlainTextEdit *edit = plainTextEdit();
+    if (edit)
+        edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel.reset(createInFileComponentModel());
     m_inFileComponentModel->setTextModifier(m_inFileComponentTextModifier.data());

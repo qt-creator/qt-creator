@@ -186,7 +186,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 }
 
 /*!
-  Returns the icon associated with the file suffix in \a info. If there is none,
+  Returns the icon associated with the file suffix in \a filePath. If there is none,
   the default icon of the operating system is returned.
   */
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -118,6 +118,8 @@
     for particular plugins, select \uicontrol Tools > \uicontrol Options >
     \uicontrol FakeVim > \uicontrol General > \uicontrol {Plugin Emulation}.
 
+    \image qtcreator-fakevim-options-general-plugin-emulation.png "FakeVim Plugin Emulation options"
+
     Currently emulated plugins:
     \list
         \li \l{https://github.com/tpope/vim-commentary}{vim-commentary}: \c gc
@@ -129,9 +131,10 @@
         register \c x.
             \li ["x]grr to replace the current line.
         \endlist
-        \li \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}
         \li \l{https://github.com/vim-scripts/argtextobj.vim}{argtextobj.vim}:
         Defines the \c ia and \c aa text objects for function parameters.
+        \li \l{https://github.com/tommcdo/vim-exchange}{vim-exchange}:
+        A text exchange operator for vim.
         \li \l{https://github.com/tpope/vim-surround}{vim-surround}:
         Adds mappings for deleting, adding and changing surroundings.
     \endlist
@@ -287,14 +290,28 @@
 
     \section1 Mapping FakeVim Commands
 
-    To map commands entered on the \uicontrol FakeVim command line to actions
-    of the \QC core, select \uicontrol Tools > \uicontrol Options >
+    To map commands entered on the \uicontrol FakeVim command line to
+    \QC functions, select \uicontrol Tools > \uicontrol Options >
     \uicontrol FakeVim > \uicontrol {Ex Command Mapping}.
+    Enter a string in the \uicontrol Filter field to search for a specific
+    \QC function.
+
+    \image qtcreator-fakevim-options-ex-command-mapping.png "FakeVim Ex Command Mapping options"
+
+    Select a function in the list, and enter a string that will trigger the
+    function in the \uicontrol {Regular expression} field. You can view the
+    trigger expression in the \uicontrol {Ex Trigger Expression} field. To
+    remove the trigger expression, select \uicontrol Reset.
+
+    To reset the trigger expressions for all functions, select
+    \uicontrol {Reset All}.
 
     To map \e {user commands} to keyboard shortcuts, select \uicontrol Tools >
     \uicontrol Options > \uicontrol FakeVim >
     \uicontrol {User Command Mapping}. The user command mapped to the shortcut
     is executed by FakeVim as if you were typing it (as when replaying a macro).
+
+    \image qtcreator-fakevim-options-user-command-mapping.png "FakeVim User Command Mapping options"
 
     \section1 Specifying FakeVim Options
 
@@ -319,5 +336,6 @@
     \uicontrol FakeVim > \uicontrol {Use FakeVim} or press \key {Alt+V,Alt+V}.
 
     You can temporarily escape FakeVim mode to access the normal \QC keyboard
-    shortcuts like \key {Ctrl-R} for \uicontrol Run by pressing \key {,} first.
+    shortcuts like \key {Ctrl-R} for \uicontrol Run by first pressing the comma
+    key (\key {,}).
 */

@@ -34,7 +34,9 @@ namespace Constants {
 
 const char DIRNAME_CONTENT[] = "content";
 const char DIRNAME_IMPORT[] = "imports";
+const char DIRNAME_ASSET[] = "asset_imports";
 const char DIRNAME_CPP[] = "src";
+const char DIRNAME_DESIGNER[] = "designer";
 
 const char FILENAME_CMAKELISTS[] = "CMakeLists.txt";
 const char FILENAME_APPMAINQML[] = "App.qml";

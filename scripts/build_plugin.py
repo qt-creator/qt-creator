@@ -154,7 +154,8 @@ def package(args, paths):
         common.check_print_call(['7z', 'a', '-mmt2',
                                  os.path.join(paths.result, args.name + '_dev.7z'), '*'],
                                 paths.dev_install)
-    if args.with_debug_info:
+    # check for existence - the DebugInfo install target doesn't work for telemetry plugin
+    if args.with_debug_info and os.path.exists(paths.debug_install):
         common.check_print_call(['7z', 'a', '-mmt2',
                                  os.path.join(paths.result, args.name + '-debug.7z'), '*'],
                                 paths.debug_install)

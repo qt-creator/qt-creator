@@ -40,7 +40,7 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New File} >
             \if defined(qtcreator)
             \uicontrol Qt > \uicontrol {Qt Quick UI File} >
             \else
@@ -124,7 +124,6 @@
     information, see \l{Creating Scalable Buttons and Borders}.
     */
 
-
 /*!
     \previouspage quick-buttons.html
     \page quick-scalable-image.html
@@ -158,7 +157,7 @@
     \section1 Creating the Button Component
 
     To create a button component, select \uicontrol File >
-    \uicontrol {New File or Project} >
+    \uicontrol {New File} >
     \if defined(qtcreator)
     \uicontrol Qt > \uicontrol {Qt Quick UI File} >
     \else

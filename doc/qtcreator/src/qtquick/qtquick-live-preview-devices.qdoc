@@ -89,7 +89,7 @@
 
     \note At the time of this writing, \macos is not supported as a development
     host for Qt for Device Creation. This means that you cannot preview UIs on
-    devices if you are using \QDS on \macos. For more information about
+    devices if you are using \QC on \macos. For more information about
     supported development hosts, see
     \l {https://doc.qt.io/QtForDeviceCreation/qtdc-supported-platforms.html#supported-development-hosts}
     {Supported Development Hosts}.

@@ -859,7 +859,7 @@ void SearchResult::setTextToReplace(const QString &textToReplace)
 }
 
 /*!
-    Sets whether replace is enabled and can be triggered by the user
+    Sets whether replace is \a enabled and can be triggered by the user.
 */
 void SearchResult::setReplaceEnabled(bool enabled)
 {

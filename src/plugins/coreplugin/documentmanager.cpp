@@ -607,7 +607,7 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
 }
 
 /*!
-    Treats any subsequent change to \a fileName as an expected file change.
+    Treats any subsequent change to \a filePath as an expected file change.
 
     \sa unexpectFileChange()
 */
@@ -631,7 +631,7 @@ static void updateExpectedState(const FilePath &filePathKey)
 }
 
 /*!
-    Considers all changes to \a fileName unexpected again.
+    Considers all changes to \a filePath unexpected again.
 
     \sa expectFileChange()
 */

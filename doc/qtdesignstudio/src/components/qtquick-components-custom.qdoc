@@ -47,7 +47,7 @@
     To use wizard templates to create custom components:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New File} >
             \if defined(qtcreator)
             \uicontrol Qt > \uicontrol {Qt Quick UI File} >
             \else

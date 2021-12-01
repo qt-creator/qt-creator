@@ -96,7 +96,7 @@
        \endif
 
             \note To profile applications on \l{glossary-device}{devices}, you
-            must install Qt 4.7.4 or later libraries on them.
+            must install Qt libraries on them.
 
         \li Select \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
             current application.
@@ -131,8 +131,8 @@
     application is launched. Data collection starts when you select the button
     again.
 
-    To save all the collected data, right-click any QML Profiler view to open
-    the context menu, and then select \uicontrol {Save QML Trace}. To view the saved
+    To save all the collected data, select \uicontrol Analyze >
+    \uicontrol {QML Profiler Options} > \uicontrol {Save QML Trace}. To view the saved
     data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
     others for examination or load data saved by them.
 
@@ -167,13 +167,21 @@
 
     \section1 Attaching to Running Qt Quick Applications
 
-    To profile Qt Quick applications that are not launched by \QC, select
-    \uicontrol Analyze > \uicontrol {QML Profiler (External)}. You must enable
-    QML debugging and profiling for the application in the project build
-    settings. For more information, see \l{Setting Up QML Debugging}.
+    You can profile Qt Quick applications that are not launched by \QC.
+    However, you must enable QML debugging and profiling for the application
+    in the project build settings. For more information, see
+    \l{Setting Up QML Debugging}.
 
-    In the \uicontrol {QML Profiler} dialog, \uicontrol Port field, specify the port to
-    listen to.
+    To attach to waiting applications:
+
+    \list 1
+        \li Select \uicontrol Analyze >
+            \uicontrol {QML Profiler (Attach to Waiting Application)}.
+            \image qml-profiler-start-dialog.png "Start QML Profiler dialog"
+         \li In \uicontrol Kit, select the kit used to build the application.
+         \li In \uicontrol Port, specify the port to listen to.
+         \li Select \uicontrol OK.
+    \endlist
 
     \section1 Analyzing Collected Data
 
@@ -578,21 +586,19 @@
     \section2 Visualizing Statistics as Flame Graphs
 
     The \uicontrol {Flame Graph} view shows a more concise statistical overview
-    of QML and JavaScript execution. In the \uicontrol {Visualize Total Time}
-    view, the horizontal bars show the amount of
+    of QML and JavaScript execution. In the \uicontrol {Total Time} view, the
+    horizontal bars show the amount of
     time all invocations of a certain function took together, relative to the
     total runtime of all JavaScript and QML events. The nesting shows which
     functions were called by which other ones.
 
     \image qml-profiler-flamegraph.png "Flame Graph View"
 
-    To view the total amount of memory allocated by the functions in the
-    \uicontrol {Visualize Memory} view, select \uicontrol Memory in the
-    drop-down menu (1).
+    To view the total amount of memory allocated by the functions, select
+    \uicontrol Memory in the drop-down menu.
 
-    To view the the number of memory allocations performed by the functions in
-    the \uicontrol {Visualize Allocations} view, select \uicontrol Allocations
-    in the drop-down menu.
+    To view the the number of memory allocations performed by the functions,
+    select \uicontrol Allocations.
 
     Double-click an item in a view to zoom into it. Double-click an empty
     area in the view to zoom out again.

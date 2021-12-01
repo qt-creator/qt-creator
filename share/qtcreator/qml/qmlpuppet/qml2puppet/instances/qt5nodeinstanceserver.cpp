@@ -417,7 +417,7 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
     if (instance.isValid())
         renderBoundingRect = instance.boundingRect();
     else
-        renderBoundingRect = item->boundingRect();
+        renderBoundingRect = ServerNodeInstance::effectAdjustedBoundingRect(item);
 
     // Hide immediate children that have instances and are QQuickItems so we get only
     // the parent item's content, as compositing is handled on creator side.

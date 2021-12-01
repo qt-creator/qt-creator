@@ -60,6 +60,7 @@ SemanticTokenSupport::SemanticTokenSupport(Client *client)
 
 void SemanticTokenSupport::refresh()
 {
+    qCDebug(LOGLSPHIGHLIGHT) << "refresh all semantic highlights for" << m_client->name();
     m_tokens.clear();
     for (Core::IEditor *editor : Core::EditorManager::visibleEditors())
         onCurrentEditorChanged(editor);
@@ -95,6 +96,8 @@ void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
         params.setTextDocument(docId);
         SemanticTokensFullRequest request(params);
         request.setResponseCallback(responseCallback);
+        qCDebug(LOGLSPHIGHLIGHT) << "Requesting all tokens for" << filePath << "with version"
+                                 << m_client->documentVersion(filePath);
         m_client->sendContent(request);
     }
 }
@@ -107,19 +110,22 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
         const VersionedTokens versionedToken = m_tokens.value(filePath);
         const QString &previousResultId = versionedToken.tokens.resultId().value_or(QString());
         if (!previousResultId.isEmpty()) {
-            if (m_client->documentVersion(filePath) == versionedToken.version)
+            const int documentVersion = m_client->documentVersion(filePath);
+            if (documentVersion == versionedToken.version)
                 return;
             SemanticTokensDeltaParams params;
             params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
             params.setPreviousResultId(previousResultId);
             SemanticTokensFullDeltaRequest request(params);
             request.setResponseCallback(
-                [this, filePath, documentVersion = m_client->documentVersion(filePath)](
+                [this, filePath, documentVersion](
                     const SemanticTokensFullDeltaRequest::Response &response) {
                     handleSemanticTokensDelta(filePath,
                                               response.result().value_or(nullptr),
                                               documentVersion);
                 });
+            qCDebug(LOGLSPHIGHLIGHT)
+                << "Requesting delta for" << filePath << "with version" << documentVersion;
             m_client->sendContent(request);
             return;
         }
@@ -288,8 +294,10 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
     const LanguageServerProtocol::SemanticTokensDeltaResult &result,
     int documentVersion)
 {
+    qCDebug(LOGLSPHIGHLIGHT) << "Handle Tokens for " << filePath;
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = {*tokens, documentVersion};
+        qCDebug(LOGLSPHIGHLIGHT) << "New Data " << tokens->data();
     } else if (auto tokensDelta = Utils::get_if<SemanticTokensDelta>(&result)) {
         m_tokens[filePath].version = documentVersion;
         QList<SemanticTokensEdit> edits = tokensDelta->edits();
@@ -311,7 +319,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
 
         auto it = data.begin();
         const auto end = data.end();
-        qCDebug(LOGLSPHIGHLIGHT) << "Edit Tokens for " << filePath;
+        qCDebug(LOGLSPHIGHLIGHT) << "Edit Tokens";
         qCDebug(LOGLSPHIGHLIGHT) << "Data before edit " << data;
         for (const SemanticTokensEdit &edit : qAsConst(edits)) {
             if (edit.start() > data.size()) // prevent edits after the previously reported data
@@ -346,6 +354,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         tokens.setResultId(tokensDelta->resultId());
     } else {
         m_tokens.remove(filePath);
+        qCDebug(LOGLSPHIGHLIGHT) << "Data cleared";
         return;
     }
     highlight(filePath);
@@ -353,6 +362,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
 
 void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force)
 {
+    qCDebug(LOGLSPHIGHLIGHT) << "highlight" << filePath;
     TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
     if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
         return;
@@ -363,6 +373,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force
     const QList<SemanticToken> tokens = versionedTokens.tokens
             .toTokens(m_tokenTypes, m_tokenModifiers);
     if (m_tokensHandler) {
+        qCDebug(LOGLSPHIGHLIGHT) << "use tokens handler" << filePath;
         int line = 1;
         int column = 1;
         QList<ExpandedSemanticToken> expandedTokens;

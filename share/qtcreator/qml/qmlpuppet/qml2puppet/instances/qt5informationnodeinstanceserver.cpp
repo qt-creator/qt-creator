@@ -998,18 +998,17 @@ void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
 {
 #ifdef QUICK3D_MODULE
+    m_modelNode3DImageViewAsyncData.cleanup();
     if (m_modelNode3DImageViewData.rootItem) {
+        QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "destroyView");
         if (!m_modelNode3DImageViewData.contentItem)
             m_modelNode3DImageViewData.contentItem = getContentItemForRendering(m_modelNode3DImageViewData.rootItem);
 
-        // Key number is selected so that it is unlikely to conflict other ImageContainer use.
-        auto imgContainer = ImageContainer(m_modelNodePreviewImageCommand.instanceId(), {}, 2100000001);
-        QImage renderImage;
         if (m_modelNodePreviewImageCache.contains(m_modelNodePreviewImageCommand.componentPath())) {
-            renderImage = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
+            m_modelNode3DImageViewAsyncData.renderImage
+                    = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
+            modelNode3DImageViewSendImageToCreator();
         } else {
-            QObject *instanceObj = nullptr;
-            bool createdFromComponent = false;
             ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
             if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()
                     && instance.isSubclassOf("QQuick3DNode")) {
@@ -1018,14 +1017,15 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                 // wouldn't want the children of the Node to appear in the preview.
                 QQmlComponent component(engine());
                 component.loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
-                instanceObj = qobject_cast<QQuick3DObject *>(component.create());
-                if (!instanceObj) {
+                m_modelNode3DImageViewAsyncData.instanceObj = qobject_cast<QQuick3DObject *>(component.create());
+                if (!m_modelNode3DImageViewAsyncData.instanceObj) {
                     qWarning() << "Could not create preview component: " << component.errors();
+                    m_modelNode3DImageViewAsyncData.cleanup();
                     return;
                 }
-                createdFromComponent = true;
+                m_modelNode3DImageViewAsyncData.createdFromComponent = true;
             } else {
-                instanceObj = instance.internalObject();
+                m_modelNode3DImageViewAsyncData.instanceObj = instance.internalObject();
             }
             QSize renderSize = m_modelNodePreviewImageCommand.size();
             if (Internal::QuickItemNodeInstance::unifiedRenderPathOrQt6()) {
@@ -1044,51 +1044,71 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
             m_modelNode3DImageViewData.window->resize(renderSize);
             m_modelNode3DImageViewData.rootItem->setSize(renderSize);
 
-            QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "createViewForObject",
-                                      Q_ARG(QVariant, objectToVariant(instanceObj)));
+            QMetaObject::invokeMethod(
+                        m_modelNode3DImageViewData.rootItem, "createViewForObject",
+                        Q_ARG(QVariant, objectToVariant(m_modelNode3DImageViewAsyncData.instanceObj)));
 
-            bool ready = false;
-            int count = 0; // Ensure we don't ever get stuck in an infinite loop
-            while (!ready && ++count < 10) {
-                updateNodesRecursive(m_modelNode3DImageViewData.contentItem);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
-                    renderImage = m_modelNode3DImageViewData.window->grabWindow();
-                } else {
-                    // Fake render loop signaling to update things like QML items as 3D textures
-                    m_modelNode3DImageViewData.window->beforeSynchronizing();
-                    m_modelNode3DImageViewData.window->beforeRendering();
-
-                    QSizeF size = qobject_cast<QQuickItem *>(m_modelNode3DImageViewData.contentItem)->size();
-                    QRectF renderRect(QPointF(0., 0.), size);
-                    renderImage = designerSupport()->renderImageForItem(m_modelNode3DImageViewData.contentItem,
-                                                                        renderRect, size.toSize());
-
-                    m_modelNode3DImageViewData.window->afterRendering();
-                }
-#else
-                renderImage = grabRenderControl(m_modelNode3DImageViewData);
-#endif
-                QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "afterRender");
-                ready = QQmlProperty::read(m_modelNode3DImageViewData.rootItem, "ready").value<bool>();
-            }
-            QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "destroyView");
-            if (createdFromComponent) {
-                // If component changes, puppet will need a reset anyway, so we can cache the image
-                m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(), renderImage);
-                delete instanceObj;
-            }
-        }
-
-        if (!renderImage.isNull()) {
-            imgContainer.setImage(renderImage);
-
-            // send the rendered image to creator process
-            nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
-                                                                QVariant::fromValue(imgContainer)});
+            // Selection box geometry updates have an asynchronous step, so we need to do rendering
+            // in asynchronous steps as well, since we are adjusting the selection box geometry
+            // while finding correct zoom level.
+            m_modelNode3DImageViewAsyncData.timer.start();
         }
     }
 #endif
+}
+
+void Qt5InformationNodeInstanceServer::modelNode3DImageViewSendImageToCreator()
+{
+    if (!m_modelNode3DImageViewAsyncData.renderImage.isNull()) {
+        // Key number is selected so that it is unlikely to conflict other ImageContainer use.
+        ImageContainer imgContainer(m_modelNodePreviewImageCommand.instanceId(), {}, 2100000001);
+        imgContainer.setImage(m_modelNode3DImageViewAsyncData.renderImage);
+
+        // send the rendered image to creator process
+        nodeInstanceClient()->handlePuppetToCreatorCommand(
+                    {PuppetToCreatorCommand::RenderModelNodePreviewImage,
+                     QVariant::fromValue(imgContainer)});
+
+        m_modelNode3DImageViewAsyncData.cleanup();
+    }
+}
+
+void Qt5InformationNodeInstanceServer::modelNode3DImageViewRenderStep()
+{
+    ++m_modelNode3DImageViewAsyncData.count;
+
+    updateNodesRecursive(m_modelNode3DImageViewData.contentItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+        m_modelNode3DImageViewAsyncData.renderImage = m_modelNode3DImageViewData.window->grabWindow();
+    } else {
+        // Fake render loop signaling to update things like QML items as 3D textures
+        m_modelNode3DImageViewData.window->beforeSynchronizing();
+        m_modelNode3DImageViewData.window->beforeRendering();
+
+        QSizeF size = qobject_cast<QQuickItem *>(m_modelNode3DImageViewData.contentItem)->size();
+        QRectF renderRect(QPointF(0., 0.), size);
+        m_modelNode3DImageViewAsyncData.renderImage
+                = designerSupport()->renderImageForItem(m_modelNode3DImageViewData.contentItem,
+                                                        renderRect, size.toSize());
+        m_modelNode3DImageViewData.window->afterRendering();
+    }
+#else
+    m_modelNode3DImageViewAsyncData.renderImage = grabRenderControl(m_modelNode3DImageViewData);
+#endif
+    QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "afterRender");
+    const bool ready = QQmlProperty::read(m_modelNode3DImageViewData.rootItem, "ready").value<bool>();
+    if (ready || m_modelNode3DImageViewAsyncData.count >= 10) {
+        QMetaObject::invokeMethod(m_modelNode3DImageViewData.rootItem, "destroyView");
+        if (m_modelNode3DImageViewAsyncData.createdFromComponent) {
+            // If component changes, puppet will need a reset anyway, so we can cache the image
+            m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(),
+                                                m_modelNode3DImageViewAsyncData.renderImage);
+        }
+        modelNode3DImageViewSendImageToCreator();
+    } else {
+        m_modelNode3DImageViewAsyncData.timer.start();
+    }
 }
 
 static QRectF itemBoundingRect(QQuickItem *item)
@@ -1205,6 +1225,7 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_render3DEditViewTimer.setSingleShot(true);
     m_inputEventTimer.setSingleShot(true);
     m_renderModelNodeImageViewTimer.setSingleShot(true);
+    m_modelNode3DImageViewAsyncData.timer.setSingleShot(true);
 
 #ifdef FPS_COUNTER
     if (!_fpsTimer) {
@@ -1225,10 +1246,11 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     m_editView3DSetupDone = false;
 
     m_propertyChangeTimer.stop();
-    m_propertyChangeTimer.stop();
     m_selectionChangeTimer.stop();
     m_render3DEditViewTimer.stop();
     m_inputEventTimer.stop();
+    m_renderModelNodeImageViewTimer.stop();
+    m_modelNode3DImageViewAsyncData.timer.stop();
 
     if (m_editView3DData.rootItem)
         m_editView3DData.rootItem->disconnect(this);
@@ -1621,6 +1643,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
                      this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
     QObject::connect(&m_inputEventTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleInputEvents);
+    QObject::connect(&m_modelNode3DImageViewAsyncData.timer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::modelNode3DImageViewRenderStep);
 
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -2089,6 +2113,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 
 void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
+    m_modelNode3DImageViewAsyncData.timer.stop();
     m_modelNodePreviewImageCommand = command;
     renderModelNodeImageView();
 }

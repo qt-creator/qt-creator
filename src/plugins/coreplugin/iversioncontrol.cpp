@@ -61,11 +61,11 @@
  */
 
 /*!
-    \fn Core::IVersionControl::TopicCache::trackFile(const QString &repository)
+    \fn Utils::FilePath Core::IVersionControl::TopicCache::trackFile(const Utils::FilePath &repository)
     Returns the path to the file that invalidates the cache for \a repository when
     the file is modified.
 
-    \fn Core::IVersionControl::TopicCache::refreshTopic(const QString &repository)
+    \fn QString Core::IVersionControl::TopicCache::refreshTopic(const Utils::FilePath &repository)
     Returns the current topic for \a repository.
  */
 

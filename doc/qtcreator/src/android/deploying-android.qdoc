@@ -433,7 +433,8 @@
 
     By default, the splash screen is hidden automatically
     when an activity is drawn. To keep it visible until
-    \l{QNativeInterface::QAndroidApplication::hideSplashScreen()} is
+    \l{https://doc.qt.io/qt-6/qnativeinterface-qandroidapplication.html#hideSplashScreen}
+    {QNativeInterface::QAndroidApplication::hideSplashScreen()} is
     called, select the \uicontrol {Sticky splash screen} check box.
 
     In \uicontrol {Image show mode}, select whether to center the splash screen

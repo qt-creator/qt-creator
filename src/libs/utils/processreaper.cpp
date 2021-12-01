@@ -31,6 +31,13 @@
 #include <QThread>
 #include <QTimer>
 
+#ifdef Q_OS_WIN
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
+#include <qt_windows.h>
+#endif
+
 using namespace Utils;
 
 namespace Utils {
@@ -83,6 +90,26 @@ bool Reaper::isFinished() const
     return !m_process;
 }
 
+#ifdef Q_OS_WIN
+static BOOL sendMessage(UINT message, HWND hwnd, LPARAM lParam)
+{
+    DWORD dwProcessID;
+    GetWindowThreadProcessId(hwnd, &dwProcessID);
+    if ((DWORD)lParam == dwProcessID) {
+        SendNotifyMessage(hwnd, message, 0, 0);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+{
+    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
+    return sendMessage(uiShutDownMessage, hwnd, lParam);
+}
+
+#endif
+
 void Reaper::nextIteration()
 {
     QProcess::ProcessState state = m_process ? m_process->state() : QProcess::NotRunning;
@@ -96,10 +123,15 @@ void Reaper::nextIteration()
         if (m_lastState == QProcess::Starting)
             m_process->kill();
     } else if (state == QProcess::Running) {
-        if (m_lastState == QProcess::Running)
+        if (m_lastState == QProcess::Running) {
             m_process->kill();
-        else
+        } else if (m_process->program().endsWith(QLatin1String("qtcreator_ctrlc_stub.exe"))) {
+#ifdef Q_OS_WIN
+            EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, m_process->processId());
+#endif
+        } else {
             m_process->terminate();
+        }
     }
 
     m_lastState = state;
@@ -149,10 +181,7 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     if (process->state() == QProcess::NotRunning) {
         process->deleteLater();
         return;
-    } else {
-        process->kill();
     }
-
     // Neither can move object with a parent into a different thread
     // nor reaping the process with a parent makes any sense.
     process->setParent(nullptr);

@@ -149,6 +149,7 @@ void CMakeManager::updateCmakeActions(Node *node)
     auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
     const bool visible = project && !BuildManager::isBuilding(project);
     m_runCMakeAction->setVisible(visible);
+    m_runCMakeActionContextMenu->setEnabled(visible);
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
     enableBuildFileMenus(node);
