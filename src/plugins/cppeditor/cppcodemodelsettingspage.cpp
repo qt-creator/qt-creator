@@ -245,6 +245,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
            "If the document changes again while waiting, this timeout resets.\n"));
 
     const auto layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(&d->useClangdCheckBox);
     const auto formLayout = new QFormLayout;
     const auto chooserLabel = new QLabel(tr("Path to executable:"));
@@ -442,6 +443,7 @@ ClangdProjectSettingsWidget::ClangdProjectSettingsWidget(const ClangdProjectSett
     : d(new Private(settings))
 {
     const auto layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
     const auto globalSettingsLayout = new QHBoxLayout;
     globalSettingsLayout->addWidget(&d->useGlobalSettingsCheckBox);
     const auto globalSettingsLabel = new QLabel("Use <a href=\"dummy\">global settings</a>");

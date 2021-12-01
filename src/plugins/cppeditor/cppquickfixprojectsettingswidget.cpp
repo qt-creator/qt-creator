@@ -40,6 +40,8 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(ProjectExplor
     ui->setupUi(this);
     m_settingsWidget = new CppEditor::Internal::CppQuickFixSettingsWidget(this);
     m_settingsWidget->loadSettings(m_projectSettings->getSettings());
+    if (QLayout *layout = m_settingsWidget->layout())
+        layout->setContentsMargins(0, 0, 0, 0);
     ui->layout->addWidget(m_settingsWidget);
     connect(ui->comboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),

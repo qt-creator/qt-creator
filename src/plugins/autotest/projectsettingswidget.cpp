@@ -57,12 +57,14 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     , m_projectSettings(AutotestPlugin::projectSettings(project))
 {
     auto verticalLayout = new QVBoxLayout(this);
+    verticalLayout->setContentsMargins(0, 0, 0, 0);
     m_useGlobalSettings = new QComboBox;
     m_useGlobalSettings->addItem(tr("Global"));
     m_useGlobalSettings->addItem(tr("Custom"));
 
     auto generalWidget = new QWidget;
     auto groupBoxLayout = new QVBoxLayout;
+    groupBoxLayout->setContentsMargins(0, 0, 0, 0);
     m_activeFrameworks = new QTreeWidget;
     m_activeFrameworks->setHeaderHidden(true);
     m_activeFrameworks->setRootIsDecorated(false);
