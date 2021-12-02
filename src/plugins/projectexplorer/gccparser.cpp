@@ -126,7 +126,8 @@ void GccParser::createOrAmendTask(
 
     // If a "required from here" line is present, it is almost always the cause of the problem,
     // so that's where we should go when the issue is double-clicked.
-    if (originalLine.endsWith("required from here") && !file.isEmpty() && line > 0) {
+    if ((originalLine.endsWith("required from here") || originalLine.endsWith("requested here"))
+            && !file.isEmpty() && line > 0) {
         m_requiredFromHereFound = true;
         m_currentTask.setFile(file);
         m_currentTask.line = line;
@@ -1361,6 +1362,40 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  105, 1,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(46, 1458))}
+            << QString();
+
+    QTest::newRow(R"("requested here")")
+            << QString(
+                   "In file included from tst_addresscache.cpp:21:\n"
+                   "In file included from /usr/include/qt/QtTest/QTest:1:\n"
+                   "In file included from /usr/include/qt/QtTest/qtest.h:45:\n"
+                   "/usr/include/qt/QtTest/qtestcase.h:449:34: warning: comparison of integers of different signs: 'const unsigned long long' and 'const int' [-Wsign-compare]\n"
+                   "        return compare_helper(t1 == t2, \"Compared values are not the same\",\n"
+                   "                              ~~ ^  ~~\n"
+                   "tst_addresscache.cpp:79:13: note: in instantiation of function template specialization 'QTest::qCompare<unsigned long long, int>' requested here\n"
+                   "            QCOMPARE(cached.offset, 0x100);\n"
+                   "            ^\n"
+                   "/usr/include/qt/QtTest/qtestcase.h:88:17: note: expanded from macro 'QCOMPARE'\n"
+                   "    if (!QTest::qCompare(actual, expected, #actual, #expected, __FILE__, __LINE__))\\\n"
+                   "                ^\n"
+                   "1 warning generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString("1 warning generated.\n")
+            << Tasks{compileTask(Task::Warning,
+                                 "comparison of integers of different signs: 'const unsigned long long' and 'const int' [-Wsign-compare]\n"
+                                 "In file included from tst_addresscache.cpp:21:\n"
+                                 "In file included from /usr/include/qt/QtTest/QTest:1:\n"
+                                 "In file included from /usr/include/qt/QtTest/qtest.h:45:\n"
+                                 "/usr/include/qt/QtTest/qtestcase.h:449:34: warning: comparison of integers of different signs: 'const unsigned long long' and 'const int' [-Wsign-compare]\n"
+                                 "        return compare_helper(t1 == t2, \"Compared values are not the same\",\n"
+                                 "                              ~~ ^  ~~\n"
+                                 "tst_addresscache.cpp:79:13: note: in instantiation of function template specialization 'QTest::qCompare<unsigned long long, int>' requested here\n"
+                                 "            QCOMPARE(cached.offset, 0x100);\n"
+                                 "            ^\n"
+                                 "/usr/include/qt/QtTest/qtestcase.h:88:17: note: expanded from macro 'QCOMPARE'\n"
+                                 "    if (!QTest::qCompare(actual, expected, #actual, #expected, __FILE__, __LINE__))\\\n"
+                                 "                ^",
+                                 FilePath::fromUserInput("tst_addresscache.cpp"), 79, 13, {})}
             << QString();
 
     QTest::newRow("cc1plus")
