@@ -1557,12 +1557,15 @@ void DesignerActionManager::createDefaultAddResourceHandler()
     registerHandlers({"*.otf", "*.ttf"},
                      ModelNodeOperations::addFontToProject,
                      ComponentCoreConstants::addFontsDisplayString);
-    registerHandlers({"*.wav"},
+    registerHandlers({"*.wav", "*.mp3"},
                      ModelNodeOperations::addSoundToProject,
                      ComponentCoreConstants::addSoundsDisplayString);
     registerHandlers({"*.glsl", "*.glslv", "*.glslf", "*.vsh", "*.fsh", "*.vert", "*.frag"},
                      ModelNodeOperations::addShaderToProject,
                      ComponentCoreConstants::addShadersDisplayString);
+    registerHandlers({"*.mp4"},
+                     ModelNodeOperations::addVideoToProject,
+                     ComponentCoreConstants::addVideosDisplayString);
 }
 
 void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()

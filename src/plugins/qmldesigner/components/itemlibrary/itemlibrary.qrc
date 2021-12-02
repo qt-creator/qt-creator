@@ -33,5 +33,7 @@
         <file>images/x@2x.png</file>
         <file>images/browse.png</file>
         <file>images/browse@2x.png</file>
+        <file>images/item-video-icon.png</file>
+        <file>images/item-video-icon@2x.png</file>
     </qresource>
 </RCC>

@@ -1077,6 +1077,11 @@ AddFilesResult addImageToProject(const QStringList &fileNames, const QString &de
     return addFilesToProject(fileNames, getAssetDefaultDirectory("images", defaultDirectory));
 }
 
+AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &defaultDirectory)
+{
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("videos", defaultDirectory));
+}
+
 void createFlowActionArea(const SelectionContext &selectionContext)
 {
     AbstractView *view = selectionContext.view();

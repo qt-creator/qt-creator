@@ -167,7 +167,13 @@ const QStringList &ItemLibraryAssetsModel::supportedFontSuffixes()
 
 const QStringList &ItemLibraryAssetsModel::supportedAudioSuffixes()
 {
-    static const QStringList retList {"*.wav"};
+    static const QStringList retList {"*.wav", "*.mp3"};
+    return retList;
+}
+
+const QStringList &ItemLibraryAssetsModel::supportedVideoSuffixes()
+{
+    static const QStringList retList {"*.mp4"};
     return retList;
 }
 
@@ -300,6 +306,7 @@ const QSet<QString> &ItemLibraryAssetsModel::supportedSuffixes() const
         insertSuffixes(supportedShaderSuffixes());
         insertSuffixes(supportedFontSuffixes());
         insertSuffixes(supportedAudioSuffixes());
+        insertSuffixes(supportedVideoSuffixes());
         insertSuffixes(supportedTexture3DSuffixes());
     }
     return allSuffixes;
