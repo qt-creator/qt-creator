@@ -28,14 +28,22 @@
     \previouspage studio-installation.html
     \nextpage creator-quick-tour.html
 
-    \title Your First UI
+    \title Tutorials
 
     \image loginui4.gif "Log In UI"
 
-    You can follow a set of hands-on tutorials that build on each other to
+    \section1 Video Tutorials
+
+    When you run \QDS, the \uicontrol Tutorials tab in \uicontrol Welcome mode contains links
+    to video tutorials. To watch a tutorial on YouTube,
+    select it.
+
+    \section1 Written Tutorials
+
+    You can follow a set of hands-on tutorials that
     illustrate how to use the features of \QDS. Even if you plan to export your
-    designs from a design tool, it is useful to first create a small UI from
-    scratch to learn to use \QDS. In particular, \e {Log In UI - Components}
+    designs from a design tool, it is useful to go through tutorials to learn to
+    use \QDS. In particular, \l {Log In UI - Components}
     describes the terms and concepts that you will run into when exporting
     designs with \QB.
 
@@ -43,8 +51,8 @@
     yourself with the parts of \QDS in general, and the \uicontrol Design
     mode in particular: \l{User Interface} and \l{Design Views}.
 
-    In addition to these entry-level tutorials, \QDS comes with examples
-    and video tutorials that you can open from the \uicontrol Examples and
-    \uicontrol Tutorials tabs in the \uicontrol Welcome mode. For more
-    information, see \l {Examples and Tutorials}.
+    In addition to these tutorials, \QDS comes with examples that you can open
+    from the \uicontrol Examples and tabs in the \uicontrol Welcome mode. For more
+    information, see \l {Examples}.
+
 */

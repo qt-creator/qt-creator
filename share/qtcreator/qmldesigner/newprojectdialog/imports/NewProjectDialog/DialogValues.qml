@@ -30,12 +30,16 @@ import StudioTheme as StudioTheme
 
 QtObject {
     readonly property int dialogWidth: 1522
-    readonly property int dialogHeight: 994
+    readonly property int dialogHeight: 940
     readonly property int projectViewMinimumWidth: 600
     readonly property int projectViewMinimumHeight: projectViewHeight
     readonly property int dialogContentHeight: projectViewHeight + 300  // i.e. dialog without header and footer
     readonly property int loadedPanesWidth: detailsPaneWidth + stylesPaneWidth
-    readonly property int detailsPaneWidth: 330 + detailsPanePadding * 2
+    readonly property int detailsPaneWidth: 330 + detailsPanePadding * 2// + 10 // 50
+    readonly property int dialogTitleTextHeight: 47
+    /* detailsScrollableContentHeight - the full height that may need to be scrolled to be fully
+       visible, if the dialog box is too small. */
+    readonly property int detailsScrollableContentHeight: 428
     readonly property int stylesPaneWidth: styleImageWidth + stylesPanePadding * 2 + styleImageBorderWidth * 2 // i.e. 240px
     readonly property int detailsPanePadding: 18
     readonly property int stylesPanePadding: 18
@@ -44,9 +48,9 @@ QtObject {
     readonly property int styleImageWidth: 200
     readonly property int styleImageBorderWidth: 2
     readonly property int footerHeight: 73
-    readonly property int projectItemWidth: 144
+    readonly property int projectItemWidth: 90
     readonly property int projectItemHeight: 144
-    readonly property int projectViewHeight: projectItemHeight * 2 + projectViewHeaderHeight
+    readonly property int projectViewHeight: projectItemHeight * 2
     readonly property int projectViewHeaderHeight: 38
 
     readonly property int dialogButtonWidth: 100
@@ -69,6 +73,8 @@ QtObject {
     readonly property real viewHeaderLineHeight: 24
     readonly property real paneTitlePixelSize: 18
     readonly property real paneTitleLineHeight: 27
+    readonly property int dialogTitlePixelSize: 32
+    readonly property int dialogTitleLineHeight: 49
 
     // for a spacer item
     function narrowSpacing(value, layoutSpacing = DialogValues.defaultPadding) {

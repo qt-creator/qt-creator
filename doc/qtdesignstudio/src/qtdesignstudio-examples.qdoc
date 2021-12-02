@@ -27,43 +27,29 @@
     \previouspage studio-terms.html
     \group studioexamples
     \nextpage quick-uis.html
-    \title Examples and Tutorials
+    \title Examples
 
-    In the \uicontrol Welcome mode, you can open examples and tutorials that
-    illustrate how to use \QDS. Some examples are delivered together with
-    \QDS and have been documented, while you can download and install others
-    for previewing them on the desktop.
-
-    \section1 Video Tutorials
-
-    The \uicontrol Tutorials tab contains links to video tutorials that provide
-    more information about \QDS. To watch a tutorial on YouTube, select it in
-    the tab.
-
-    \include qtbridge-tutorial-links.qdocinc qtsketchbridge tutorials
-
-    \section1 Examples for Downloading
-
-    The \uicontrol Examples tab lists complex example applications for
-    downloading that demonstrate what you can accomplish with \QDS.
+    \QDS comes with a set of example projects. To see these, select \uicontrol
+    Examples on the \uicontrol Welcome page when you run \QDS.
 
     \image studio-examples-download.png "Examples for download in Welcome mode"
 
-    To download the examples and open them in \QDS:
-
+    To run an example project:
     \list 1
-        \li Select an example.
-        \li Select \uicontrol {Start Download} to download the example source
-            files.
-        \li Select the folder where the source files will be installed.
-        \li Select \uicontrol Continue to install the files.
-        \li Select \uicontrol Open to open the example in \QDS.
-        \li Select the \inlineimage live_preview.png
-            (\uicontrol {Show Live Preview}) button to preview the example.
+      \li Select the example.
+      \li Select the \inlineimage live_preview.png
+      (\uicontrol {Show Live Preview}) button to preview the example.
     \endlist
 
-    \section1 Documented Examples
+    Some of the example projects require that you download them before you can run them, to do this:
+    \list 1
+      \li Select an example.
+      \li Select \uicontrol {Start Download}.
+      \li Select the folder where the source files will be installed.
+      \li Select \uicontrol Continue to install the files.
+      \li Select \uicontrol Open to open the example in \QDS.
+    \endlist
 
-    The \uicontrol Examples tab lists documented examples of using \QDS. To
-    open an example in \QDS, select it in the tab.
+    \section1 Example Documentation
+
 */

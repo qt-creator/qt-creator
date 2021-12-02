@@ -203,13 +203,15 @@ T.ComboBox {
                      | T.Popup.CloseOnReleaseOutsideParent
 
         contentItem: ListView {
+            id: listView
             clip: true
-            implicitHeight: contentHeight
+            implicitHeight: listView.contentHeight
             model: myComboBox.popup.visible ? myComboBox.delegateModel : null
             currentIndex: myComboBox.highlightedIndex
             boundsBehavior: Flickable.StopAtBounds
             ScrollBar.vertical: ScrollBar {
                 id: comboBoxPopupScrollBar
+                visible: listView.height < listView.contentHeight
             }
         }
 

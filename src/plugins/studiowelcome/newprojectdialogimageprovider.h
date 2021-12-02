@@ -41,6 +41,7 @@ public:
 private:
     QPixmap requestStatusPixmap(const QString &id, QSize *size, const QSize &requestedSize);
     QPixmap requestStylePixmap(const QString &id, QSize *size, const QSize &requestedSize);
+    QPixmap requestDefaultPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 
     static QPixmap invalidStyleIcon();
 };
