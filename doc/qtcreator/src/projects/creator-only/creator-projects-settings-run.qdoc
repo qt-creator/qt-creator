@@ -66,31 +66,48 @@
     parsed .pro files. For more information on how the commands are constructed,
     see \l{Starting External Processes}.
 
-    \QC automatically adds run configurations for all targets specified in the
-    CMake project file, \c {CMakeLists.txt}.
-
-    \QC automatically adds run configurations for all targets declared with
-    \c {executable()} function in Meson build descriptions.
-
     \section1 Selecting Default Run Target
 
-    \QC has multiple executables, but when you run a project you typically want
-    to run \c qtcreator and not the first executable in the list. To filter the
-    run target list, set \c qtc_runnable as the value of the \c FOLDER property
+    If a project has multiple executables, you need to tell \QC which one it
+    should run.
+
+    \section2 CMake Run Targets
+
+    When using CMake, you can filter the run target list by setting
+    \c qtc_runnable as the value of the \c FOLDER property
     in the \c {CMakeLists.txt} file for the project. For example:
 
     \badcode
     set_target_properties(main_executable PROPERTIES FOLDER "qtc_runnable")
     \endcode
 
-    \section1 Creating Run Configurations for Subprojects
+    If you do not specify \c qtc_runnable for any project, \QC automatically
+    adds run configurations for all targets specified in \c {CMakeLists.txt}.
 
-    To prevent \QC from automatically creating run configurations for SUBDIRS
-    projects, specify the following variable in the .pro file of the SUBDIRS
-    project: \c {CONFIG += qtc_runnable}.
+    \section2 qmake Run Targets
 
+    When using qmake, you can prevent \QC from automatically creating run
+    configurations for subprojects by specifying the \c qtc_runnable
+    variable in the .pro files of the application projects (\c TEMPLATE=app)
+    that you want to run. For example
+
+    \badcode
+    CONFIG += qtc_runnable
+    \endcode
+
+    If none of your application projects specifies \c qtc_runnable, \QC creates
+    run configurations for all application projects.
+
+    If any of your application projects specifies \c qtc_runnable,
     \QC creates run configurations only for subprojects that also have
     \c {CONFIG += qtc_runnable} set in their .pro files.
+
+    For more information about qmake project templates, see \l {TEMPLATE}.
+
+    \section2 Meson Run Targets
+
+    \QC automatically adds run configurations for all targets declared with
+    \c {executable()} function in Meson build descriptions.
 
     \include creator-projects-settings-run-desktop.qdocinc run settings desktop
     \include creator-projects-settings-run-analyze.qdocinc settings valgrind
