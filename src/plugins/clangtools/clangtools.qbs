@@ -54,7 +54,6 @@ QtcPlugin {
         "clangtoolsprojectsettings.h",
         "clangtoolsprojectsettingswidget.cpp",
         "clangtoolsprojectsettingswidget.h",
-        "clangtoolsprojectsettingswidget.ui",
         "clangtoolssettings.cpp",
         "clangtoolssettings.h",
         "clangtoolsutils.cpp",

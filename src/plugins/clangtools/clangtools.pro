@@ -69,7 +69,6 @@ HEADERS += \
 
 FORMS += \
     clangselectablefilesdialog.ui \
-    clangtoolsprojectsettingswidget.ui \
     clazychecks.ui \
     filterdialog.ui \
     runsettingswidget.ui \

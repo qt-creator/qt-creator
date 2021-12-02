@@ -27,13 +27,19 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+class QTreeView;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer { class Project; }
 
 namespace ClangTools {
 namespace Internal {
-class ClangToolsProjectSettings;
 
-namespace Ui { class ProjectSettingsWidget; }
+class ClangToolsProjectSettings;
+class RunSettingsWidget;
 
 class ProjectSettingsWidget : public QWidget
 {
@@ -41,7 +47,6 @@ class ProjectSettingsWidget : public QWidget
 
 public:
     explicit ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = nullptr);
-    ~ProjectSettingsWidget() override;
 
 private:
     void onGlobalCustomChanged();
@@ -52,7 +57,13 @@ private:
     void updateButtonStateRemoveAll();
     void removeSelected();
 
-    Ui::ProjectSettingsWidget *const m_ui;
+    QComboBox *m_globalCustomComboBox;
+    QPushButton *m_restoreGlobal;
+    RunSettingsWidget *m_runSettingsWidget;
+    QTreeView *m_diagnosticsView;
+    QPushButton *m_removeSelectedButton;
+    QPushButton *m_removeAllButton;
+
     QSharedPointer<ClangToolsProjectSettings> const m_projectSettings;
 };
 
