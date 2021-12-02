@@ -52,5 +52,41 @@ Section {
 
             ExpandingSpacer {}
         }
+
+        PropertyLabel {
+            text: qsTr("Audio Output")
+            tooltip: qsTr("Holds the target audio output.")
+        }
+
+        SecondColumnLayout {
+            ItemFilterComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                typeFilter: "QtQuick.AudioOutput"
+                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
+                backendValue: backendValues.audioOutput
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Video Output")
+            tooltip: qsTr("Holds the target video output.")
+        }
+
+        SecondColumnLayout {
+            ItemFilterComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                typeFilter: "QtQuick.VideoOutput"
+                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
+                backendValue: backendValues.videoOutput
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }
