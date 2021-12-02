@@ -70,6 +70,8 @@
         <file>images/fileoverlay_ui@2x.png</file>
         <file>images/fileoverlay_scxml.png</file>
         <file>images/fileoverlay_scxml@2x.png</file>
+        <file>images/fileoverlay_c.png</file>
+        <file>images/fileoverlay_c@2x.png</file>
         <file>images/fileoverlay_cpp.png</file>
         <file>images/fileoverlay_cpp@2x.png</file>
         <file>images/fileoverlay_h.png</file>

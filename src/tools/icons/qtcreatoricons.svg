@@ -8897,7 +8897,7 @@
       <path
          style="fill:none;fill-rule:evenodd;stroke:#2e5e84;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 106,528.5 c -2.5,0 -3.5,0.5 -3.5,2.5 0,2 1,2.5 3.5,2.5"
-         id="path5929"
+         id="fileoverlay_c"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="czc" />
       <path
@@ -9088,6 +9088,32 @@
            id="path2812"
            sodipodi:nodetypes="ccccc" />
       </g>
+    </g>
+    <g
+       transform="translate(160)"
+       id="src/plugins/projectexplorer/images/fileoverlay_c">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#use2538"
+         id="use4568"
+         width="100%"
+         height="100%"
+         transform="translate(32)" />
+      <path
+         style="opacity:0.75;fill:#ffffff;stroke:none"
+         d="m 108,527 c -2,0 -4,1 -4,4 0,3 2,4 4,4 2,0 2,-0.5 2,-1.5 0,-1 -0.5,-1.5 -2,-1.5 -1.5,0 -1.5,-2 0,-2 1.47084,0 2,-0.5 2,-1.5 0,-1 0,-1.5 -2,-1.5 z"
+         id="path4240"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zzzssssz" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#fileoverlay_c"
+         id="use6079"
+         width="100%"
+         height="100%"
+         transform="translate(3)" />
     </g>
     <g
        id="src/libs/utils/images/filesave">
