@@ -23,13 +23,15 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtMultimedia 6.0
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import HelperWidgets 2.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
-MediaPlayer {
-    audioOutput: output
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-    AudioOutput {
-        id: output
-    }
+    VideoSection {}
 }

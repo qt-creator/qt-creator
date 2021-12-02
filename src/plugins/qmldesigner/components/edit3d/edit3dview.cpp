@@ -305,12 +305,6 @@ void Edit3DView::createEdit3DActions()
         resetPuppet();
     };
 
-    SelectionContextOperation particlesRestartTrigger = [this](const SelectionContext &) {
-        m_particlesPlayAction->action()->setChecked(true);
-        if (m_seeker)
-            m_seeker->setEnabled(false);
-    };
-
     SelectionContextOperation particlesPlayTrigger = [this](const SelectionContext &) {
         if (m_seeker)
             m_seeker->setEnabled(!m_particlesPlayAction->action()->isChecked());
@@ -334,7 +328,7 @@ void Edit3DView::createEdit3DActions()
                 QmlDesigner::Constants::EDIT3D_PARTICLES_RESTART, View3DActionCommand::ParticlesRestart,
                 QCoreApplication::translate("ParticlesRestartAction", "Restart Particles"),
                 QKeySequence(Qt::Key_E), false, false, Icons::EDIT3D_PARTICLE_RESTART.icon(),
-                Icons::EDIT3D_PARTICLE_RESTART.icon(), particlesRestartTrigger);
+                Icons::EDIT3D_PARTICLE_RESTART.icon());
     m_particlesPlayAction->action()->setEnabled(particlemode);
     m_particlesRestartAction->action()->setEnabled(particlemode);
     m_resetAction

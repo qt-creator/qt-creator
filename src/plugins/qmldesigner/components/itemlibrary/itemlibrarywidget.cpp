@@ -552,6 +552,9 @@ QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QString 
         } else if (ItemLibraryAssetsModel::supportedAudioSuffixes().contains(suffix)) {
             // No extra data for sounds
             return {"application/vnd.bauhaus.libraryresource.sound", {}};
+        } else if (ItemLibraryAssetsModel::supportedVideoSuffixes().contains(suffix)) {
+            // No extra data for videos
+            return {"application/vnd.bauhaus.libraryresource.video", {}};
         } else if (ItemLibraryAssetsModel::supportedTexture3DSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
             return {"application/vnd.bauhaus.libraryresource.texture3d", suffix.toUtf8()};

@@ -523,28 +523,6 @@ MetaInfo {
     }
 
     Type {
-        name: "QtMultimedia.MediaPlayer"
-        icon: ":/qtquickplugin/images/audio-16px.png"
-
-        Hints {
-            visibleInNavigator: true
-            canBeDroppedInNavigator: true
-            canBeDroppedInFormEditor: false
-            canBeContainer: false
-        }
-
-        ItemLibraryEntry {
-            name: "Audio"
-            category: "f.Qt Quick - Multimedia"
-            libraryIcon: ":/qtquickplugin/images/audio-24px.png"
-            version: "6.0"
-            requiredImport: "QtMultimedia"
-
-            QmlSource { source: ":/qtquickplugin/source/audio.qml" }
-        }
-    }
-
-    Type {
         name: "QtMultimedia.AudioOutput"
         icon: ":/qtquickplugin/images/audio-output-16px.png"
 
@@ -559,6 +537,26 @@ MetaInfo {
             name: "Audio Output"
             category: "f.Qt Quick - Multimedia"
             libraryIcon: ":/qtquickplugin/images/audio-output-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.VideoOutput"
+        icon: ":/qtquickplugin/images/video-output-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Video Output"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: ":/qtquickplugin/images/video-output-24px.png"
             version: "6.0"
             requiredImport: "QtMultimedia"
         }

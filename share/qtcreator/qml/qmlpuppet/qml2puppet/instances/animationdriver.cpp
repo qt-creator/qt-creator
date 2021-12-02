@@ -31,8 +31,6 @@ AnimationDriver::AnimationDriver(QObject *parent)
 {
     setProperty("allowNegativeDelta", true);
     install();
-    connect(this, SIGNAL(started()), this, SLOT(startTimer()));
-    connect(this, SIGNAL(stopped()), this, SLOT(stopTimer()));
 }
 
 AnimationDriver::~AnimationDriver()
@@ -49,10 +47,13 @@ void AnimationDriver::timerEvent(QTimerEvent *e)
     // Provide same time for all users
     if (m_seekerEnabled) {
         m_seekerElapsed += (m_seekerPos * 100) / 30;
-        if (m_seekerElapsed + m_elapsed < -100) // -100 to allow small negative value
-            m_seekerElapsed = -m_elapsed - 100;
+        if (m_seekerElapsed + m_elapsed - m_pauseTime < -100) // -100 to allow small negative value
+            m_seekerElapsed = -(m_elapsed - m_pauseTime) - 100;
     } else {
-        m_elapsed = QAnimationDriver::elapsed();
+        if (!m_elapsedTimer.isValid())
+            m_elapsedTimer.restart();
+        else
+            m_elapsed = m_elapsedTimer.elapsed();
     }
     m_delta = elapsed() - old;
     advance();
@@ -75,7 +76,7 @@ void AnimationDriver::setSeekerPosition(int position)
         return;
 
     if (!m_timer.isActive())
-        restart();
+        startTimer();
 
     m_seekerPos = position;
 }

@@ -27,6 +27,7 @@
 
 #include <qabstractanimation.h>
 #include <QtCore/qbasictimer.h>
+#include <QtCore/qelapsedtimer.h>
 #include <QtCore/qmath.h>
 
 class AnimationDriver : public QAnimationDriver
@@ -46,17 +47,34 @@ public:
     }
     void reset()
     {
-        stop();
+        m_elapsedTimer.invalidate();
+        m_pauseBegin = 0;
+        m_pauseTime = 0;
+        m_elapsed = 0;
+        m_seekerElapsed = 0;
         stopTimer();
     }
     void restart()
     {
-        start();
+        m_pauseTime = 0;
+        m_elapsed = 0;
+        m_seekerElapsed = 0;
+        startTimer();
+    }
+    void pause()
+    {
+        m_pauseBegin = m_elapsedTimer.elapsed();
+        stopTimer();
+    }
+    void play()
+    {
+        if (m_elapsedTimer.isValid())
+            m_pauseTime += m_elapsedTimer.elapsed() - m_pauseBegin;
         startTimer();
     }
     qint64 elapsed() const override
     {
-        return m_elapsed + m_seekerElapsed;
+        return m_elapsed + m_seekerElapsed - m_pauseTime;
     }
     void setSeekerPosition(int position);
     void setSeekerEnabled(bool enable)
@@ -79,10 +97,13 @@ private:
     Q_SLOT void stopTimer();
 
     QBasicTimer m_timer;
+    QElapsedTimer m_elapsedTimer;
     int m_interval = 16;
     int m_seekerPos = 0;
     bool m_seekerEnabled = false;
     qint64 m_elapsed = 0;
     qint64 m_seekerElapsed = 0;
     qint64 m_delta = 0;
+    qint64 m_pauseTime = 0;
+    qint64 m_pauseBegin = 0;
 };
