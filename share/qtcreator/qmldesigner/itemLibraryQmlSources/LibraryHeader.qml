@@ -96,6 +96,14 @@ Item {
                             color: mouseArea.containsMouse && enabled
                                    ? StudioTheme.Values.themeControlBackgroundHover
                                    : StudioTheme.Values.themeControlBackground
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: StudioTheme.Values.hoverDuration
+                                    easing.type: StudioTheme.Values.hoverEasing
+                                }
+                            }
+
                             enabled: index !== 0 || !rootView.subCompEditMode
 
                             Label { // + sign
@@ -150,13 +158,20 @@ Item {
                 color: StudioTheme.Values.themeControlBackground
                 border.color: StudioTheme.Values.themeControlOutline
                 border.width: StudioTheme.Values.border
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: StudioTheme.Values.hoverDuration
+                        easing.type: StudioTheme.Values.hoverEasing
+                    }
+                }
             }
 
             height: StudioTheme.Values.defaultControlHeight
 
             leftPadding: 32
             rightPadding: 30
-
+            topPadding: 6
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: 5
