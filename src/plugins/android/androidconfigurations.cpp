@@ -590,7 +590,7 @@ FilePath AndroidConfig::openJDKBinPath() const
 
 FilePath AndroidConfig::keytoolPath() const
 {
-    return openJDKBinPath().pathAppended(keytoolName);
+    return openJDKBinPath().pathAppended(keytoolName).withExecutableSuffix();
 }
 
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
