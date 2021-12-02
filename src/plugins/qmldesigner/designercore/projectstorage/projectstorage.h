@@ -501,6 +501,26 @@ private:
         };
     };
 
+    SourceIds filterSourceIdsWithoutType(const SourceIds &updatedSourceIds, SourceIds &sourceIdsOfTypes)
+    {
+        std::sort(sourceIdsOfTypes.begin(), sourceIdsOfTypes.end());
+
+        SourceIds sourceIdsWithoutTypeSourceIds;
+        sourceIdsWithoutTypeSourceIds.reserve(updatedSourceIds.size());
+        std::set_difference(updatedSourceIds.begin(),
+                            updatedSourceIds.end(),
+                            sourceIdsOfTypes.begin(),
+                            sourceIdsOfTypes.end(),
+                            std::back_inserter(sourceIdsWithoutTypeSourceIds));
+
+        return sourceIdsWithoutTypeSourceIds;
+    }
+
+    TypeIds fetchTypeIds(const SourceIds &sourceIds)
+    {
+        return selectTypeIdsForSourceIdsStatement.template values<TypeId>(128, toIntegers(sourceIds));
+    }
+
     void synchronizeTypes(Storage::Types &types,
                           TypeIds &updatedTypeIds,
                           AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
@@ -512,18 +532,35 @@ private:
     {
         Storage::ExportedTypes exportedTypes;
         exportedTypes.reserve(types.size() * 3);
+        SourceIds sourceIdsOfTypes;
+        sourceIdsOfTypes.reserve(updatedSourceIds.size());
+        SourceIds notUpdatedExportedSourceIds;
+        notUpdatedExportedSourceIds.reserve(updatedSourceIds.size());
+        TypeIds exportedTypeIds;
+        exportedTypeIds.reserve(types.size());
 
         for (auto &&type : types) {
             if (!type.sourceId)
                 throw TypeHasInvalidSourceId{};
 
             TypeId typeId = declareType(type);
+            sourceIdsOfTypes.push_back(type.sourceId);
             updatedTypeIds.push_back(typeId);
-            extractExportedTypes(typeId, type, exportedTypes);
+            if (type.changeLevel != Storage::ChangeLevel::ExcludeExportedTypes) {
+                exportedTypeIds.push_back(typeId);
+                extractExportedTypes(typeId, type, exportedTypes);
+            }
         }
 
-        synchronizeExportedTypes(updatedSourceIds,
-                                 updatedTypeIds,
+        std::sort(updatedTypeIds.begin(), updatedTypeIds.end());
+
+        SourceIds sourceIdsWithoutType = filterSourceIdsWithoutType(updatedSourceIds,
+                                                                    sourceIdsOfTypes);
+        TypeIds notUpdatedTypeIds = fetchTypeIds(sourceIdsWithoutType);
+        exportedTypeIds.insert(exportedTypeIds.end(),
+                               notUpdatedTypeIds.begin(),
+                               notUpdatedTypeIds.end());
+        synchronizeExportedTypes(exportedTypeIds,
                                  exportedTypes,
                                  relinkableAliasPropertyDeclarations,
                                  relinkablePropertyDeclarations,
@@ -921,8 +958,7 @@ private:
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
     }
 
-    void synchronizeExportedTypes(const SourceIds &exportedSourceIds,
-                                  const TypeIds &updatedTypeIds,
+    void synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                                   Storage::ExportedTypes &exportedTypes,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
@@ -933,9 +969,8 @@ private:
                    < std::tie(second.moduleId, second.name, second.version);
         });
 
-        auto range = selectExportedTypesForSourceIdsStatement
-                         .template range<Storage::ExportedTypeView>(toIntegers(exportedSourceIds),
-                                                                    toIntegers(updatedTypeIds));
+        auto range = selectExportedTypesForSourceIdsStatement.template range<Storage::ExportedTypeView>(
+            toIntegers(updatedTypeIds));
 
         auto compareKey = [](const Storage::ExportedTypeView &view,
                              const Storage::ExportedType &type) -> long long {
@@ -2180,7 +2215,8 @@ public:
         "SELECT sourceId, name, typeId, ifnull(prototypeId, -1), accessSemantics FROM types",
         database};
     ReadStatement<1> selectNotUpdatedTypesInSourcesStatement{
-        "SELECT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN carray(?2))",
+        "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
+        "carray(?2))",
         database};
     WriteStatement deleteTypeNamesByTypeIdStatement{"DELETE FROM exportedTypeNames WHERE typeId=?",
                                                     database};
@@ -2517,10 +2553,9 @@ public:
     WriteStatement deleteAllSourcesStatement{"DELETE FROM sources", database};
     WriteStatement deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
     mutable ReadStatement<6> selectExportedTypesForSourceIdsStatement{
-        "SELECT moduleId, etn.name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
-        "exportedTypeNameId FROM exportedTypeNames AS etn JOIN types USING(typeId) WHERE sourceId "
-        "IN carray(?1) OR typeId in carray(?2) ORDER BY moduleId, etn.name, majorVersion, "
-        "minorVersion",
+        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
+        "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY moduleId, "
+        "name, majorVersion, minorVersion",
         database};
     WriteStatement insertExportedTypeNamesWithVersionStatement{
         "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, minorVersion, typeId) "
@@ -2552,6 +2587,8 @@ public:
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId=?1",
         database};
+    ReadStatement<1> selectTypeIdsForSourceIdsStatement{
+        "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};
 };
 
 } // namespace QmlDesigner

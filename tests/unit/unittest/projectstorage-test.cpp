@@ -3843,4 +3843,30 @@ TEST_F(ProjectStorage, FetchProjectDatasByModuleId)
     ASSERT_THAT(projectData, UnorderedElementsAre(projectData1, projectData2));
 }
 
+TEST_F(ProjectStorage, ExcludeExportedTypes)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[0].exportedTypes.clear();
+    package.types[0].changeLevel = Storage::ChangeLevel::ExcludeExportedTypes;
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qmlModuleId, "Object"),
+                                             IsExportedType(qmlModuleId, "Obj"),
+                                             IsExportedType(qmlNativeModuleId, "QObject")))),
+            AllOf(IsStorageType(sourceId1,
+                                "QQuickItem",
+                                fetchTypeId(sourceId2, "QObject"),
+                                TypeAccessSemantics::Reference),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item"),
+                                             IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
+}
+
 } // namespace
