@@ -6257,10 +6257,10 @@ MultiTextCursor TextEditorWidget::multiTextCursor() const
 
 void TextEditorWidget::setMultiTextCursor(const Utils::MultiTextCursor &cursor)
 {
-    if (d->m_cursors == cursor)
-        return;
-    MultiTextCursor oldCursor = d->m_cursors;
+    const MultiTextCursor oldCursor = d->m_cursors;
     const_cast<MultiTextCursor &>(d->m_cursors) = cursor;
+    if (oldCursor == d->m_cursors)
+        return;
     doSetTextCursor(d->m_cursors.mainCursor(), /*keepMultiSelection*/ true);
     QRect updateRect = d->cursorUpdateRect(oldCursor);
     if (d->m_highlightCurrentLine)
