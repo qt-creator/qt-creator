@@ -1,8 +1,5 @@
 <RCC>
     <qresource prefix="/cppeditor">
-        <file>images/qt_cpp.png</file>
-        <file>images/qt_h.png</file>
-        <file>images/qt_c.png</file>
         <file>images/dark_qt_cpp.png</file>
         <file>images/dark_qt_h.png</file>
         <file>images/dark_qt_c.png</file>

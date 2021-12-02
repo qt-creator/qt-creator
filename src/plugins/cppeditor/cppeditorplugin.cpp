@@ -451,13 +451,16 @@ void CppEditorPlugin::extensionsInitialized()
     d->m_cppEditorFactory.addHoverHandler(new ResourcePreviewHoverHandler);
 
     FileIconProvider::registerIconOverlayForMimeType(
-        creatorTheme()->imageFile(Theme::IconOverlayCppSource, ":/cppeditor/images/qt_cpp.png"),
+        creatorTheme()->imageFile(Theme::IconOverlayCppSource,
+                                  ProjectExplorer::Constants::FILEOVERLAY_CPP),
         Constants::CPP_SOURCE_MIMETYPE);
     FileIconProvider::registerIconOverlayForMimeType(
-        creatorTheme()->imageFile(Theme::IconOverlayCSource, ":/cppeditor/images/qt_c.png"),
+        creatorTheme()->imageFile(Theme::IconOverlayCSource,
+                                  ProjectExplorer::Constants::FILEOVERLAY_C),
         Constants::C_SOURCE_MIMETYPE);
     FileIconProvider::registerIconOverlayForMimeType(
-        creatorTheme()->imageFile(Theme::IconOverlayCppHeader, ":/cppeditor/images/qt_h.png"),
+        creatorTheme()->imageFile(Theme::IconOverlayCppHeader,
+                                  ProjectExplorer::Constants::FILEOVERLAY_H),
         Constants::CPP_HEADER_MIMETYPE);
 }
 
