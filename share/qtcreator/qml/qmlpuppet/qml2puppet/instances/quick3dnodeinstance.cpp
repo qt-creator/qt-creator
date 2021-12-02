@@ -25,6 +25,7 @@
 
 #include "quick3dnodeinstance.h"
 #include "qt5nodeinstanceserver.h"
+#include "qt5informationnodeinstanceserver.h"
 
 #include <qmlprivategate.h>
 
@@ -39,6 +40,7 @@
 #include <private/qquick3dnode_p.h>
 #include <private/qquick3dmodel_p.h>
 #include <private/qquick3dnode_p_p.h>
+#include <private/qquick3drepeater_p.h>
 #endif
 
 namespace QmlDesigner {
@@ -56,6 +58,14 @@ Quick3DNodeInstance::~Quick3DNodeInstance()
 void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
                                      InstanceContainer::NodeFlags flags)
 {
+#ifdef QUICK3D_MODULE
+    if (auto repObj = qobject_cast<QQuick3DRepeater *>(object())) {
+        if (auto infoServer = qobject_cast<Qt5InformationNodeInstanceServer *>(nodeInstanceServer())) {
+            QObject::connect(repObj, &QQuick3DRepeater::objectAdded,
+                             infoServer, &Qt5InformationNodeInstanceServer::handleRepeaterAddObject);
+        }
+    }
+#endif
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
 }
 
