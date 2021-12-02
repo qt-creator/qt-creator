@@ -102,6 +102,8 @@ private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
     void handleDocumentOpened(TextEditor::TextDocument *doc) override;
     void handleDocumentClosed(TextEditor::TextDocument *doc) override;
+    QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
+                                              TextEditor::TextDocument *doc) override;
     const CustomInspectorTabs createCustomInspectorTabs() override;
 
     class Private;

@@ -248,6 +248,8 @@ private:
 
     virtual void handleDocumentClosed(TextEditor::TextDocument *) {}
     virtual void handleDocumentOpened(TextEditor::TextDocument *) {}
+    virtual QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
+                                                      TextEditor::TextDocument *doc);
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,

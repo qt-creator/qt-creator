@@ -523,8 +523,10 @@ void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
     if (m_highlightRequests.contains(widget))
         cancelRequest(m_highlightRequests.take(widget));
 
+    const QTextCursor adjustedCursor = adjustedCursorForHighlighting(widget->textCursor(),
+                                                                     widget->textDocument());
     DocumentHighlightsRequest request(
-        TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(widget->textCursor())));
+        TextDocumentPositionParams(TextDocumentIdentifier(uri), Position{adjustedCursor}));
     auto connection = connect(widget, &QObject::destroyed, this, [this, widget]() {
         if (m_highlightRequests.contains(widget))
             cancelRequest(m_highlightRequests.take(widget));
@@ -1568,6 +1570,13 @@ bool Client::sendWorkspceFolderChanges() const
         }
     }
     return false;
+}
+
+QTextCursor Client::adjustedCursorForHighlighting(const QTextCursor &cursor,
+                                                  TextEditor::TextDocument *doc)
+{
+    Q_UNUSED(doc)
+    return cursor;
 }
 
 } // namespace LanguageClient

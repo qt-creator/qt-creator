@@ -38,6 +38,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/find/searchresultwindow.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/FindUsages.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
@@ -1090,7 +1092,9 @@ public:
 
     void handleDeclDefSwitchReplies();
 
+    static CppEditor::CppEditorWidget *widgetFromDocument(const TextDocument *doc);
     QString searchTermFromCursor(const QTextCursor &cursor) const;
+    static QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
 
     void setHelpItemForTooltip(const MessageId &token, const QString &fqn = {},
                                HelpItem::Category category = HelpItem::Unknown,
@@ -1380,22 +1384,23 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm.isEmpty())
         return;
 
+    const QTextCursor adjustedCursor = Private::adjustedCursor(cursor, document);
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 
     // If it's a "normal" symbol, go right ahead.
     if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
             return c.isLetterOrNumber() || c == '_';
     })) {
-        d->findUsages(document, cursor, searchTerm, replacement, categorize);
+        d->findUsages(document, adjustedCursor, searchTerm, replacement, categorize);
         return;
     }
 
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
     const TextDocumentIdentifier docId(DocumentUri::fromFilePath(document->filePath()));
-    const TextDocumentPositionParams params(docId, Range(cursor).start());
+    const TextDocumentPositionParams params(docId, Range(adjustedCursor).start());
     SymbolInfoRequest symReq(params);
-    symReq.setResponseCallback([this, doc = QPointer(document), cursor, replacement, categorize]
+    symReq.setResponseCallback([this, doc = QPointer(document), adjustedCursor, replacement, categorize]
                                (const SymbolInfoRequest::Response &response) {
         if (!doc)
             return;
@@ -1408,7 +1413,7 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
         const SymbolDetails &sd = list->first();
         if (sd.name().isEmpty())
             return;
-        d->findUsages(doc.data(), cursor, sd.name(), replacement, categorize);
+        d->findUsages(doc.data(), adjustedCursor, sd.name(), replacement, categorize);
     });
     sendContent(symReq);
 }
@@ -1442,6 +1447,12 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
     d->astCache.remove(doc);
     d->previousTokens.remove(doc);
     d->virtualRanges.remove(doc);
+}
+
+QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &cursor,
+                                                        TextEditor::TextDocument *doc)
+{
+    return Private::adjustedCursor(cursor, doc);
 }
 
 const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
@@ -1782,15 +1793,16 @@ void ClangdClient::followSymbol(TextDocument *document,
         )
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
+    const QTextCursor adjustedCursor = Private::adjustedCursor(cursor, document);
     if (!resolveTarget) {
         d->followSymbolData.reset();
-        symbolSupport().findLinkAt(document, cursor, std::move(callback), false);
+        symbolSupport().findLinkAt(document, adjustedCursor, std::move(callback), false);
         return;
     }
 
     qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
-                       << cursor.blockNumber() << cursor.positionInBlock();
-    d->followSymbolData.emplace(this, ++d->nextJobId, cursor, editorWidget,
+                       << adjustedCursor.blockNumber() << adjustedCursor.positionInBlock();
+    d->followSymbolData.emplace(this, ++d->nextJobId, adjustedCursor, editorWidget,
                                 DocumentUri::fromFilePath(document->filePath()),
                                 std::move(callback), openInSplit);
 
@@ -1809,7 +1821,7 @@ void ClangdClient::followSymbol(TextDocument *document,
         if (d->followSymbolData->cursorNode)
             d->handleGotoDefinitionResult();
     };
-    symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
+    symbolSupport().findLinkAt(document, adjustedCursor, std::move(gotoDefCallback), true);
 
     if (versionNumber() < QVersionNumber(12)) {
         d->followSymbolData->cursorNode.emplace(AstNode());
@@ -1825,7 +1837,8 @@ void ClangdClient::followSymbol(TextDocument *document,
         if (d->followSymbolData->defLink.hasValidTarget())
             d->handleGotoDefinitionResult();
     };
-    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::AlwaysAsync, Range(cursor));
+    d->getAndHandleAst(document, astHandler, Private::AstCallbackMode::AlwaysAsync,
+                       Range(adjustedCursor));
 }
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
@@ -2347,11 +2360,48 @@ void ClangdClient::Private::handleDeclDefSwitchReplies()
     switchDeclDefData.reset();
 }
 
+CppEditor::CppEditorWidget *ClangdClient::Private::widgetFromDocument(const TextDocument *doc)
+{
+    IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
+            [doc](const IEditor *editor) { return editor->document() == doc; });
+    return qobject_cast<CppEditor::CppEditorWidget *>(TextEditorWidget::fromEditor(editor));
+}
+
 QString ClangdClient::Private::searchTermFromCursor(const QTextCursor &cursor) const
 {
     QTextCursor termCursor(cursor);
     termCursor.select(QTextCursor::WordUnderCursor);
     return termCursor.selectedText();
+}
+
+// https://github.com/clangd/clangd/issues/936
+QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
+                                                  const TextDocument *doc)
+{
+    CppEditor::CppEditorWidget * const widget = widgetFromDocument(doc);
+    if (!widget)
+        return cursor;
+    const Document::Ptr cppDoc = widget->semanticInfo().doc;
+    if (!cppDoc)
+        return cursor;
+    const QList<AST *> astPath = ASTPath(cppDoc)(cursor);
+    for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
+        const MemberAccessAST * const memberAccess = (*it)->asMemberAccess();
+        if (!memberAccess)
+            continue;
+        const TranslationUnit * const tu = cppDoc->translationUnit();
+        if (tu->tokenAt(memberAccess->access_token).kind() != T_DOT)
+            return cursor;
+        int dotLine, dotColumn;
+        tu->getTokenPosition(memberAccess->access_token, &dotLine, &dotColumn);
+        const int dotPos = Utils::Text::positionInText(doc->document(), dotLine, dotColumn);
+        if (dotPos != cursor.position())
+            return cursor;
+        QTextCursor c = cursor;
+        c.setPosition(cursor.position() - 1);
+        return c;
+    }
+    return cursor;
 }
 
 void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token, const QString &fqn,
@@ -2704,12 +2754,10 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         if (clangdLogAst().isDebugEnabled())
             ast.print();
 
-        IEditor * const editor = Utils::findOrDefault(EditorManager::visibleEditors(),
-                [doc](const IEditor *editor) { return editor->document() == doc; });
-        const auto editorWidget = TextEditorWidget::fromEditor(editor);
         const auto runner = [tokens, filePath = doc->filePath(),
                              text = doc->document()->toPlainText(), ast,
-                             w = QPointer(editorWidget), rev = doc->document()->revision(),
+                             w = QPointer<TextEditorWidget>(widgetFromDocument(doc)),
+                             rev = doc->document()->revision(),
                              clangdVersion = q->versionNumber()] {
             return Utils::runAsync(semanticHighlighter, filePath, tokens, text, ast, w, rev,
                                    clangdVersion);
