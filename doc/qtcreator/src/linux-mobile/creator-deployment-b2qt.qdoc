@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,13 +30,18 @@
 
     \title Deploying Applications to Boot2Qt Devices
 
-    You can specify the generic deployment steps for remote Linux devices also
-    for \l{Boot2Qt} devices.
+    You can specify settings for deploying applications to \l{Boot2Qt} devices
+    in the project configuration file and in \uicontrol Projects >
+    \uicontrol {Run Settings} > \uicontrol Deployment.
 
     \image qtcreator-boot2qt-deployment-steps.png "Boot2Qt deployment steps"
 
-    For more information, see \l{Generic Deployment Steps}.
+    The deployment process is described in more detail in
+    \l{Deploying Applications to Generic Remote Linux Devices}.
+
+    \section1 Launching Applications on Boot
 
     In addition, to have your application launch on boot, select
-    \uicontrol {Add Deploy Step} > \uicontrol {Change Default Application}.
+    \uicontrol {Add Deploy Step} > \uicontrol {Change default application}
+    > \uicontrol {Set this application to start by default}.
 */

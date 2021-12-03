@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -41,58 +41,70 @@
     \title Deploying Applications to Generic Remote Linux Devices
 
     You can specify settings for deploying applications to generic remote
-    Linux devices in the project .pro file. You can view the settings in
-    the \uicontrol Projects mode, in \uicontrol {Run Settings}.
+    Linux devices in the project configuration file and in the
+    \uicontrol Projects mode, in \uicontrol {Run Settings}.
 
-    \image qtcreator-embedded-linux-deployment-overview.png "Deploy to device"
+    \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
 
     The files to be installed are listed in the \uicontrol {Deployment} step,
     the \uicontrol {Files to deploy} field. The \uicontrol {Local File Path}
     field displays the location of the file on the development PC. The
-    \uicontrol {Remote Directory} field displays the folder where the file is
+    \uicontrol {Remote Directory} field displays the directory where the file is
     installed on the device. Text in red color indicates that the information is
-    missing. Edit the qmake \l{Variables#installs} {INSTALLS variable} in the
-    project \c .pro file to add the missing files.
+    missing.
+
+    \section1 Adding Missing Files
+
+    The process to add files to deploy depends on the build system you use.
+
+    \section2 CMake
+
+    When using CMake as the build system, use the \l{CMake: install command}
+    {install} command in the CMakeLists.txt file to add the missing files.
+
+    For example, add the following lines to the CMakeLists.txt file to install
+    the binary of your project to the \c /opt directory on the remote device:
+
+    \badcode
+    set(INSTALL_DESTDIR "/opt")
+
+    install(TARGETS <target>
+        RUNTIME DESTINATION "${INSTALL_DESTDIR}"
+        BUNDLE DESTINATION "${INSTALL_DESTDIR}"
+        LIBRARY DESTINATION "${INSTALL_DESTDIR}"
+    )
+    \endcode
+
+    \section2 qmake
+
+    When using qmake, edit the \l{Variables#installs}{INSTALLS variable} in
+    the project \c .pro file.
 
     When you run the application, \QC copies the necessary files to the device
     and starts the application on it.
 
-    For example, adding
+    For example, add the following lines to the \c .pro file to copy the binary
+    of your project to the \c /opt directory on the remote device:
 
     \code
-      target.path = /root
+      target.path = /opt
       INSTALLS += target
     \endcode
 
-    to the project .pro file will copy the binary of your project to \c /root
-    on the remote device. Additional files can be deployed by adding them to
-    further targets and adding those to \c INSTALLS as well.
+    To deploy additional files, add them to further targets that you also add
+    to \c INSTALLS.
 
-    \section1 Generic Deployment Steps
+    \section1 Deploy Steps
 
-    \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
+    When you run the application on the device, \QC first uploads the
+    necessary files to it, as specified by the deploy steps.
 
-    When you run the application on the device, \QC
-    deploys the application as specified by the deploy steps. By default, \QC
-    copies the application files to the device by using the SSH file transfer
-    protocol (SFTP), as specified by the \uicontrol {Upload files via SFTP}
-    step.
+    \section2 Finding Configured Devices
 
-    If you have a lot of data to copy, select \uicontrol Details in the
-    \uicontrol {Upload Files via SFTP} step, and then select the
-    \uicontrol {Incremental deployment} check box. \QC takes note of the
-    deployment time and only copies files that have changed since the last
-    deployment. However, when you make major changes on the device, such as
-    removing files from the device manually or flashing a new disk image, or
-    when you use another device with the same IP address, deselect the check box
-    once, to have \QC deploy all files again.
+    The \uicontrol {Check for a configured device} step looks for a device that
+    is ready for deployment.
 
-    To only create a tarball and not copy the files to the device, select
-    \uicontrol {Add Deploy Step} > \uicontrol {Create tarball}. Then remove all
-    other deploy steps.
-
-    The \uicontrol {Deploy tarball via SFTP upload} step specifies that \QC
-    uploads the tarball to the device and extracts it.
+    \section2 Checking for Free Disk Space
 
     The \uicontrol {Check for free disk space} step is by default the first
     deploy step. Use it to find out whether the remote file system has enough
@@ -104,7 +116,27 @@
     support will crash when an SFTP upload is being attempted. This is not a bug
     in \QC.
 
-    \if defined(qtcreator)
-    \include creator-projects-cmake-deploying.qdocinc cmake deploying embedded
-    \endif
+    \section2 Uploading Files
+
+    By default, \QC copies the application files to the device by
+    using the SSH file transfer protocol (SFTP), as specified by
+    the \uicontrol {Upload files via SFTP} step.
+
+    If you have a lot of data to copy, select \uicontrol Details in the
+    \uicontrol {Upload Files via SFTP} step, and then select the
+    \uicontrol {Incremental deployment} check box. \QC takes note of the
+    deployment time and only copies files that have changed since the last
+    deployment. However, when you make major changes on the device, such as
+    removing files from the device manually or flashing a new disk image, or
+    when you use another device with the same IP address, deselect the check box
+    once, to have \QC deploy all files again.
+
+    \section2 Creating a Tarball
+
+    To only create a tarball and not copy the files to the device, select
+    \uicontrol {Add Deploy Step} > \uicontrol {Create tarball}. Then remove all
+    other deploy steps.
+
+    The \uicontrol {Deploy tarball via SFTP upload} step specifies that \QC
+    uploads the tarball to the device and extracts it.
 */
