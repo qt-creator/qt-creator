@@ -8261,7 +8261,8 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
             g.dotCommand = "i";
             resetCount();
         }
-
+        int indentation = 0;
+        bool changedAtEnd = false;
         // Ignore changes outside inserted text (e.g. renaming other occurrences of a variable).
         if (position + charsRemoved >= insertState.pos1 && position <= insertState.pos2) {
             if (charsRemoved > 0) {
@@ -8280,17 +8281,39 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
                 if (position < insertState.pos1) {
                     // <BACKSPACE>
                     const int backspaceCount = insertState.pos1 - position;
-                    if (backspaceCount != charsRemoved || (oldPosition == charsRemoved && wholeDocumentChanged)) {
+                    const QString inserted = textAt(position, position + charsAdded);
+                    const QString unified = inserted.startsWith('\n') ? inserted.mid(1) : inserted;
+                    changedAtEnd = unified.startsWith(insertState.textBeforeCursor);
+
+                    int indentNew = 0;
+                    for (int i = 0, end = unified.size(); i < end; ++i) {
+                        if (unified.at(i) != ' ')
+                            break;
+                        ++indentNew;
+                    }
+                    int indentOld = 0;
+                    for (int i = 0, end = insertState.textBeforeCursor.size(); i < end; ++i) {
+                        if (insertState.textBeforeCursor.at(i) != ' ')
+                            break;
+                        --indentOld;
+                    }
+                    indentation = indentNew + indentOld;
+
+                    if ((backspaceCount != charsRemoved && indentation == 0 && !changedAtEnd)
+                            || (oldPosition == charsRemoved && wholeDocumentChanged)) {
                         invalidateInsertState();
                     } else {
-                        const QString inserted = textAt(position, oldPosition);
-                        const QString removed = insertState.textBeforeCursor.right(backspaceCount);
-                        // Ignore backspaces if same text was just inserted.
-                        if ( !inserted.endsWith(removed) ) {
+                        const QString removed = insertState.textBeforeCursor.right(
+                                    qMax(backspaceCount, charsRemoved));
+                        if (indentation != 0 || changedAtEnd) {
+                            // automatic indent by electric chars / skipping of automatic inserted
+                            insertState.pos1 = position + backspaceCount + indentation;
+                            insertState.pos2 = position + charsAdded;
+                        } else if ( !inserted.endsWith(removed) ) {
                             insertState.backspaces += backspaceCount;
                             insertState.pos1 = position;
                             insertState.pos2 = qMax(position, insertState.pos2 - backspaceCount);
-                        }
+                        } // Ignore backspaces if same text was just inserted.
                     }
                 } else if (position + charsRemoved > insertState.pos2) {
                     // <DELETE>
@@ -8309,7 +8332,8 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
             }
 
             const int newPosition = position + charsAdded;
-            insertState.pos2 = qMax(insertState.pos2 + charsAdded - charsRemoved, newPosition);
+            if (indentation == 0 && !changedAtEnd) // (un)indented has pos2 set correctly already
+                insertState.pos2 = qMax(insertState.pos2 + charsAdded - charsRemoved, newPosition);
             insertState.textBeforeCursor = textAt(block().position(), newPosition);
         }
     }
