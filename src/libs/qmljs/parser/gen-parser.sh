@@ -15,7 +15,7 @@
 # 1. do all changes & commit them
 # 2. run this script commenting out the two patch commands in the last lines below
 # 3. update the first patch using
-#         # git diff > grammar.patch
+#         # git diff --cached > grammar.patch
 # 4. uncomment the first (grammar) patch, re-run script
 # 5. update the second patch with
 #         # git diff > parser.patch
@@ -70,13 +70,26 @@ sed -i -e 's/DiagnosticMessage::Warning/Severity::Warning/g' $me/qmljsparser.cpp
 sed -i -e 's/DiagnosticMessage::Warning/Severity::Warning/g' $me/qmljsparser_p.h
 sed -i -e 's|#include <QtCore/qstring.h>|#include <QString>|g' $me/qmljsengine_p.h
 sed -i -e 's|#include <QtCore/qset.h>|#include <QSet>|g' $me/qmljsengine_p.h
-sed -i -e 's/qt_qnan/qQNaN/' $me/qmljsengine_p.cpp
-sed -i -e 's|#include <QtCore/private/qnumeric_p.h>|#include <QtCore/qnumeric.h>|' $me/qmljsengine_p.cpp
 perl -p -0777 -i -e 's/QT_QML_BEGIN_NAMESPACE/#include <qmljs\/qmljsconstants.h>\nQT_QML_BEGIN_NAMESPACE/' qmljsengine_p.h
 
+./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
+
+git add -u
+git clang-format
+git add -u
+git reset gen-parser.sh grammar.patch qmljsgrammar.cpp qmljsgrammar_p.h qmljsparser.cpp qmljsparser_p.h
+## comment from here to update grammar.patch using
+## git diff --cached > grammar.patch
 patch -R -p5 < grammar.patch
 $QLALR qmljs.g
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
 
+git add -u
+git clang-format
+git add -u
+git reset gen-parser.sh grammar.patch parser.patch
+## comment from here to update parser.patch
+## git diff --cached > parser.patch
 patch -p5 -R < parser.patch
+git reset

@@ -91,8 +91,7 @@ public:
     }
 
 protected:
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
+    void accept(AST::Node *node) { AST::Node::accept(node, this); }
 
     using Visitor::visit;
 
@@ -321,8 +320,7 @@ public:
     }
 
 protected:
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
+    void accept(AST::Node *node) { AST::Node::accept(node, this); }
 
     using Visitor::visit;
 
@@ -507,8 +505,7 @@ public:
     }
 
 protected:
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
+    void accept(AST::Node *node) { AST::Node::accept(node, this); }
 
     using Visitor::visit;
 
@@ -596,7 +593,7 @@ protected:
     bool visit(UiPublicMember *node) override
     {
         if (containsOffset(node->typeToken)){
-            if (node->defaultToken.isValid()) {
+            if (node->defaultToken().isValid()) {
                 _name = node->memberType->name.toString();
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
                 _scope = nullptr;

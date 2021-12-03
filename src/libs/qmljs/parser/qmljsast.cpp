@@ -23,11 +23,14 @@
 **
 ****************************************************************************/
 
-#include <QLocale>
 #include "qmljsast_p.h"
+#include <QLocale>
+#include <QString>
 
 #include "qmljsastvisitor_p.h"
 #include <qlocale.h>
+
+#include <algorithm>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -1582,7 +1585,7 @@ QString Type::toString() const
 void Type::toString(QString *out) const
 {
     for (QmlJS::AST::UiQualifiedId *it = typeId; it; it = it->next) {
-        out->append(it->name.toString());
+        out->append(it->name);
 
         if (it->next)
             out->append(QLatin1Char('.'));
@@ -1634,6 +1637,25 @@ void UiAnnotation::accept0(BaseVisitor *visitor)
     visitor->endVisit(this);
 }
 
+SourceLocation UiPropertyAttributes::firstSourceLocation() const
+{
+    std::array<const SourceLocation *, 4> tokens{&m_propertyToken,
+                                                 &m_defaultToken,
+                                                 &m_readonlyToken,
+                                                 &m_requiredToken};
+    const auto it = std::min_element(tokens.begin(), tokens.end(), compareLocationsByBegin<true>);
+    return **it;
+}
+
+SourceLocation UiPropertyAttributes::lastSourceLocation() const
+{
+    std::array<const SourceLocation *, 4> tokens{&m_propertyToken,
+                                                 &m_defaultToken,
+                                                 &m_readonlyToken,
+                                                 &m_requiredToken};
+    const auto it = std::max_element(tokens.begin(), tokens.end(), compareLocationsByBegin<false>);
+    return **it;
+}
 } } // namespace QmlJS::AST
 
 QT_QML_END_NAMESPACE

@@ -641,13 +641,13 @@ protected:
     bool visit(UiPublicMember *ast) override
     {
         if (ast->type == UiPublicMember::Property) {
-            if (ast->isRequired)
-                out("required ", ast->requiredToken);
-            if (ast->isDefaultMember)
-                out("default ", ast->defaultToken);
-            else if (ast->isReadonlyMember)
-                out("readonly ", ast->readonlyToken);
-            out("property ", ast->propertyToken);
+            if (ast->isRequired())
+                out("required ", ast->requiredToken());
+            if (ast->isDefaultMember())
+                out("default ", ast->defaultToken());
+            else if (ast->isReadonly())
+                out("readonly ", ast->readonlyToken());
+            out("property ", ast->propertyToken());
             if (!ast->typeModifier.isNull()) {
                 out(ast->typeModifierToken);
                 out("<");

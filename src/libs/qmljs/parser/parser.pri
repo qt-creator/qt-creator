@@ -16,7 +16,6 @@ HEADERS += \
 SOURCES += \
     $$PWD/qmljsast.cpp \
     $$PWD/qmljsastvisitor.cpp \
-    $$PWD/qmljsengine_p.cpp \
     $$PWD/qmlimportresolver.cpp \
     $$PWD/qmljslexer.cpp \
     $$PWD/qmldirparser.cpp \

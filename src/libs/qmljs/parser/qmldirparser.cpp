@@ -103,6 +103,7 @@ void QmlDirParser::clear()
     _designerSupported = false;
     _typeInfos.clear();
     _classNames.clear();
+    _linkTarget.clear();
 }
 
 inline static void scanSpace(const QChar *&ch) {
@@ -339,6 +340,25 @@ bool QmlDirParser::parse(const QString &source)
             }
 
             _preferredPath = sections[1];
+        } else if (sections[0] == QLatin1String("linktarget")) {
+            if (sectionCount < 2) {
+                reportError(lineNumber,
+                            0,
+                            QStringLiteral("linktarget directive requires an argument, "
+                                           "but %1 were provided")
+                                .arg(sectionCount - 1));
+                continue;
+            }
+
+            if (!_linkTarget.isEmpty()) {
+                reportError(lineNumber,
+                            0,
+                            QStringLiteral(
+                                "only one linktarget directive may be defined in a qmldir file"));
+                continue;
+            }
+
+            _linkTarget = sections[1];
         } else if (sectionCount == 2) {
             // No version specified (should only be used for relative qmldir files)
             const Component entry(sections[0], sections[1], -1, -1);

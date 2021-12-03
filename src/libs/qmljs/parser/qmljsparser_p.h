@@ -116,6 +116,7 @@ public:
       AST::UiPragma *UiPragma;
       AST::UiImport *UiImport;
       AST::UiParameterList *UiParameterList;
+      AST::UiPropertyAttributes *UiPropertyAttributes;
       AST::UiPublicMember *UiPublicMember;
       AST::UiObjectDefinition *UiObjectDefinition;
       AST::UiObjectInitializer *UiObjectInitializer;
@@ -288,29 +289,27 @@ protected:
 
 } // end of namespace QmlJS
 
+#line 1819 "qmljs.g"
 
+#define J_SCRIPT_REGEXPLITERAL_RULE1 159
 
-#line 1878 "qmljs.g"
+#line 1831 "qmljs.g"
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 164
+#define J_SCRIPT_REGEXPLITERAL_RULE2 160
 
-#line 1890 "qmljs.g"
+#line 3451 "qmljs.g"
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 165
+#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 461
 
-#line 3502 "qmljs.g"
+#line 4103 "qmljs.g"
 
-#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 466
+#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 531
 
-#line 4154 "qmljs.g"
+#line 4645 "qmljs.g"
 
-#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 536
+#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 600
 
-#line 4696 "qmljs.g"
-
-#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 605
-
-#line 4980 "qmljs.g"
+#line 4929 "qmljs.g"
 
 QT_QML_END_NAMESPACE
 

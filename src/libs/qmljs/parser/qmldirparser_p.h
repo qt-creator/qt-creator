@@ -151,6 +151,7 @@ public:
     QStringList typeInfos() const { return _typeInfos; }
     QStringList classNames() const { return _classNames; }
     QString preferredPath() const { return _preferredPath; }
+    QString linkTarget() const { return _linkTarget; }
 
 private:
     bool maybeAddComponent(const QString &typeName, const QString &fileName, const QString &version, QHash<QString,Component> &hash, int lineNumber = -1, bool multi = true);
@@ -168,6 +169,7 @@ private:
     bool _designerSupported = false;
     QStringList _typeInfos;
     QStringList _classNames;
+    QString _linkTarget;
 };
 
 using QmlDirComponents = QMultiHash<QString,QmlDirParser::Component>;

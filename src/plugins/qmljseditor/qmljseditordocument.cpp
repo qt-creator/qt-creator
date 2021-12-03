@@ -101,8 +101,7 @@ protected:
         return text;
     }
 
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
+    void accept(AST::Node *node) { AST::Node::accept(node, this); }
 
     using Visitor::visit;
     using Visitor::endVisit;
@@ -186,8 +185,7 @@ protected:
         return text;
     }
 
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
+    void accept(AST::Node *node) { AST::Node::accept(node, this); }
 
     void init(Declaration *decl, AST::UiObjectMember *member)
     {

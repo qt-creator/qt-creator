@@ -64,7 +64,7 @@ Project {
                 "qmljsast.cpp", "qmljsast_p.h",
                 "qmljsastfwd_p.h",
                 "qmljsastvisitor.cpp", "qmljsastvisitor_p.h",
-                "qmljsengine_p.cpp", "qmljsengine_p.h",
+                "qmljsengine_p.h",
                 "qmljsglobal_p.h",
                 "qmljsgrammar.cpp", "qmljsgrammar_p.h",
                 "qmljskeywords_p.h",

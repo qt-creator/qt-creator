@@ -1852,7 +1852,7 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                 if (def->type == UiPublicMember::Property && !def->name.isEmpty()) {
                     ASTPropertyReference *ref = new ASTPropertyReference(def, m_doc, valueOwner);
                     m_properties.append(ref);
-                    if (def->defaultToken.isValid())
+                    if (def->defaultToken().isValid())
                         m_defaultPropertyRef = ref;
                 } else if (def->type == UiPublicMember::Signal && !def->name.isEmpty()) {
                     ASTSignal *ref = new ASTSignal(def, m_doc, valueOwner);
@@ -1884,7 +1884,7 @@ void ASTObjectValue::processMembers(MemberProcessor *processor) const
 {
     foreach (ASTPropertyReference *ref, m_properties) {
         uint pFlags = PropertyInfo::Readable;
-        if (!ref->ast()->isReadonlyMember)
+        if (!ref->ast()->isReadonly())
             pFlags |= PropertyInfo::Writeable;
         processor->processProperty(ref->ast()->name.toString(), ref, PropertyInfo(pFlags));
         // ### Should get a different value?

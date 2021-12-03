@@ -78,40 +78,49 @@ public:
     }
 };
 
-class QML_PARSER_EXPORT Engine
+class Engine
 {
-    Lexer *_lexer;
-    Directives *_directives;
+    Lexer *_lexer = nullptr;
+    Directives *_directives = nullptr;
     MemoryPool _pool;
     QList<SourceLocation> _comments;
     QStringList _extraCode;
     QString _code;
 
 public:
-    Engine();
-    ~Engine();
-
-    void setCode(const QString &code);
+    void setCode(const QString &code) { _code = code; }
     const QString &code() const { return _code; }
 
-    void addComment(int pos, int len, int line, int col);
-    QList<SourceLocation> comments() const;
+    void addComment(int pos, int len, int line, int col)
+    {
+        if (len > 0)
+            _comments.append(QmlJS::SourceLocation(pos, len, line, col));
+    }
 
-    Lexer *lexer() const;
-    void setLexer(Lexer *lexer);
+    QList<SourceLocation> comments() const { return _comments; }
 
-    Directives *directives() const;
-    void setDirectives(Directives *directives);
+    Lexer *lexer() const { return _lexer; }
+    void setLexer(Lexer *lexer) { _lexer = lexer; }
 
-    MemoryPool *pool();
+    Directives *directives() const { return _directives; }
+    void setDirectives(Directives *directives) { _directives = directives; }
 
-    inline QStringView midRef(int position, int size) { return QStringView{_code}.mid(position, size); }
+    MemoryPool *pool() { return &_pool; }
+    const MemoryPool *pool() const { return &_pool; }
 
-    QStringView newStringRef(const QString &s);
-    QStringView newStringRef(const QChar *chars, int size);
+    QStringView midRef(int position, int size) { return QStringView{_code}.mid(position, size); }
+
+    QStringView newStringRef(const QString &text)
+    {
+        _extraCode.append(text);
+        return QStringView{_extraCode.last()};
+    }
+
+    QStringView newStringRef(const QChar *chars, int size)
+    {
+        return newStringRef(QString(chars, size));
+    }
 };
-
-double integerFromString(const char *buf, int size, int radix);
 
 } // end of namespace QmlJS
 

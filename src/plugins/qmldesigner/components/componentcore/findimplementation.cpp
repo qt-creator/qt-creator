@@ -79,8 +79,7 @@ protected:
         return m_document->source().mid(from.offset, to.end() - from.begin());
     }
 
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
+    void accept(AST::Node *node) { AST::Node::accept(node, this); }
 
     using AST::Visitor::visit;
 
