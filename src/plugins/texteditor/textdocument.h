@@ -49,6 +49,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
+class BlockRange;
 class CompletionAssistProvider;
 class ExtraEncodingSettings;
 class FontSettings;
@@ -102,6 +103,9 @@ public:
     void setFormatter(Formatter *indenter); // transfers ownership
     void autoFormat(const QTextCursor &cursor);
     bool applyChangeSet(const Utils::ChangeSet &changeSet);
+
+    // the blocks list must be sorted
+    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
 
     TextMarks marks() const;
     bool addMark(TextMark *mark);

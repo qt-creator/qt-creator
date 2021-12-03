@@ -331,9 +331,6 @@ public:
     RefactorMarkers refactorMarkers() const;
     void setRefactorMarkers(const RefactorMarkers &markers);
 
-    // the blocks list must be sorted
-    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
-
     enum Side { Left, Right };
     QAction *insertExtraToolBarWidget(Side side, QWidget *widget);
 

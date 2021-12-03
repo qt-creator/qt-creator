@@ -670,7 +670,7 @@ void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
 {
     if (revision != documentRevision())
         return;
-    setIfdefedOutBlocks(ifdefedOutBlocks);
+    textDocument()->setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
 void CppEditorWidget::onShowInfoBarAction(const Id &id, bool show)

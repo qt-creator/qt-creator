@@ -484,6 +484,56 @@ bool TextDocument::applyChangeSet(const ChangeSet &changeSet)
     return file->apply();
 }
 
+// the blocks list must be sorted
+void TextDocument::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
+{
+    QTextDocument *doc = document();
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+
+    bool needUpdate = false;
+
+    QTextBlock block = doc->firstBlock();
+
+    int rangeNumber = 0;
+    int braceDepthDelta = 0;
+    while (block.isValid()) {
+        bool cleared = false;
+        bool set = false;
+        if (rangeNumber < blocks.size()) {
+            const BlockRange &range = blocks.at(rangeNumber);
+            if (block.position() >= range.first()
+                && ((block.position() + block.length() - 1) <= range.last() || !range.last()))
+                set = TextDocumentLayout::setIfdefedOut(block);
+            else
+                cleared = TextDocumentLayout::clearIfdefedOut(block);
+            if (block.contains(range.last()))
+                ++rangeNumber;
+        } else {
+            cleared = TextDocumentLayout::clearIfdefedOut(block);
+        }
+
+        if (cleared || set) {
+            needUpdate = true;
+            int delta = TextDocumentLayout::braceDepthDelta(block);
+            if (cleared)
+                braceDepthDelta += delta;
+            else if (set)
+                braceDepthDelta -= delta;
+        }
+
+        if (braceDepthDelta) {
+            TextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
+            TextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
+        }
+
+        block = block.next();
+    }
+
+    if (needUpdate)
+        documentLayout->requestUpdate();
+}
+
 const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;

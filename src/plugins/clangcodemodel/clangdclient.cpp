@@ -2525,7 +2525,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const Utils::FilePath &filePath,
                                 const QList<ExpandedSemanticToken> &tokens,
                                 const QString &docContents, const AstNode &ast,
-                                const QPointer<TextEditorWidget> &widget,
+                                const QPointer<TextDocument> &textDocument,
                                 int docRevision, const QVersionNumber &clangdVersion)
 {
     ThreadedSubtaskTimer t("highlighting");
@@ -2677,9 +2677,9 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 
     auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, toResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
-    QMetaObject::invokeMethod(widget, [widget, ifdefedOutBlocks, docRevision] {
-        if (widget && widget->textDocument()->document()->revision() == docRevision)
-            widget->setIfdefedOutBlocks(ifdefedOutBlocks);
+    QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
+        if (textDocument && textDocument->document()->revision() == docRevision)
+            textDocument->setIfdefedOutBlocks(ifdefedOutBlocks);
     }, Qt::QueuedConnection);
     ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
@@ -2756,10 +2756,9 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
         const auto runner = [tokens, filePath = doc->filePath(),
                              text = doc->document()->toPlainText(), ast,
-                             w = QPointer<TextEditorWidget>(widgetFromDocument(doc)),
-                             rev = doc->document()->revision(),
+                             doc = QPointer(doc), rev = doc->document()->revision(),
                              clangdVersion = q->versionNumber()] {
-            return Utils::runAsync(semanticHighlighter, filePath, tokens, text, ast, w, rev,
+            return Utils::runAsync(semanticHighlighter, filePath, tokens, text, ast, doc, rev,
                                    clangdVersion);
         };
 
