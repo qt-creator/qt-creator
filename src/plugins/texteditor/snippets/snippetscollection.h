@@ -121,7 +121,7 @@ private:
     // active. Specifically, removed built-in snippets are kept as the last ones (for each
     // group there is a iterator that marks the logical end).
     QVector<QList<Snippet> > m_snippets;
-    QVector<QList<Snippet>::iterator> m_activeSnippetsEnd;
+    QVector<int> m_activeSnippetsCount;
 
     QHash<QString, int> m_groupIndexById;
 };

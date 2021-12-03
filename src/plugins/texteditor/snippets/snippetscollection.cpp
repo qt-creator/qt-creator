@@ -29,6 +29,7 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QLatin1String>
@@ -112,7 +113,7 @@ void SnippetsCollection::insertSnippet(const Snippet &snippet, const Hint &hint)
 {
     const int group = groupIndex(snippet.groupId());
     if (snippet.isBuiltIn() && snippet.isRemoved()) {
-        m_activeSnippetsEnd[group] = m_snippets[group].insert(m_activeSnippetsEnd[group], snippet);
+        m_snippets[group].append(snippet);
     } else {
         m_snippets[group].insert(hint.m_it, snippet);
         updateActiveSnippetsEnd(group);
@@ -123,8 +124,11 @@ SnippetsCollection::Hint SnippetsCollection::computeInsertionHint(const Snippet 
 {
     const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = std::upper_bound(snippets.begin(), m_activeSnippetsEnd.at(group),
-                                                   snippet, snippetComp);
+    QList<Snippet>::iterator it = std::upper_bound(snippets.begin(),
+                                                   snippets.begin()
+                                                       + m_activeSnippetsCount.at(group),
+                                                   snippet,
+                                                   snippetComp);
     return Hint(static_cast<int>(std::distance(snippets.begin(), it)), it);
 }
 
@@ -158,12 +162,15 @@ SnippetsCollection::Hint SnippetsCollection::computeReplacementHint(int index,
 {
     const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = std::lower_bound(snippets.begin(), m_activeSnippetsEnd.at(group),
-                                                    snippet, snippetComp);
+    auto activeSnippetsEnd = snippets.begin() + m_activeSnippetsCount.at(group);
+    QList<Snippet>::iterator it = std::lower_bound(snippets.begin(),
+                                                   activeSnippetsEnd,
+                                                   snippet,
+                                                   snippetComp);
     int hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index < hintIndex - 1)
         return Hint(hintIndex - 1, it);
-    it = std::upper_bound(it, m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    it = std::upper_bound(it, activeSnippetsEnd, snippet, snippetComp);
     hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index > hintIndex)
         return Hint(hintIndex, it);
@@ -176,11 +183,10 @@ void SnippetsCollection::removeSnippet(int index, const QString &groupId)
     const int group = groupIndex(groupId);
     Snippet snippet(m_snippets.at(group).at(index));
     m_snippets[group].removeAt(index);
+    updateActiveSnippetsEnd(group);
     if (snippet.isBuiltIn()) {
         snippet.setIsRemoved(true);
-        m_activeSnippetsEnd[group] = m_snippets[group].insert(m_activeSnippetsEnd[group], snippet);
-    } else {
-        updateActiveSnippetsEnd(group);
+        m_snippets[group].append(snippet);
     }
 }
 
@@ -202,8 +208,7 @@ void SnippetsCollection::setSnippetContent(int index,
 int SnippetsCollection::totalActiveSnippets(const QString &groupId) const
 {
     const int group = groupIndex(groupId);
-    return std::distance<QList<Snippet>::const_iterator>(m_snippets.at(group).begin(),
-                                                         QList<Snippet>::const_iterator(m_activeSnippetsEnd.at(group)));
+    return m_activeSnippetsCount.at(group);
 }
 
 int SnippetsCollection::totalSnippets(const QString &groupId) const
@@ -225,14 +230,14 @@ void SnippetsCollection::clearSnippets()
 void SnippetsCollection::clearSnippets(int groupIndex)
 {
     m_snippets[groupIndex].clear();
-    m_activeSnippetsEnd[groupIndex] = m_snippets[groupIndex].end();
+    m_activeSnippetsCount[groupIndex] = m_snippets[groupIndex].size();
 }
 
 void SnippetsCollection::updateActiveSnippetsEnd(int groupIndex)
 {
-    m_activeSnippetsEnd[groupIndex] = std::find_if(m_snippets[groupIndex].begin(),
-                                                   m_snippets[groupIndex].end(),
-                                                   [](const Snippet &s) { return s.isRemoved(); });
+    const int index = Utils::indexOf(m_snippets[groupIndex],
+                                     [](const Snippet &s) { return s.isRemoved(); });
+    m_activeSnippetsCount[groupIndex] = index < 0 ? m_snippets[groupIndex].size() : index;
 }
 
 void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
@@ -240,9 +245,10 @@ void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
     // The version restored contains the last modifications (if any) by the user.
     // Reverting the snippet can still bring it to the original version
     const int group = groupIndex(groupId);
-    QVector<Snippet> toRestore(std::distance(m_activeSnippetsEnd[group], m_snippets[group].end()));
-    std::copy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
-    m_snippets[group].erase(m_activeSnippetsEnd[group], m_snippets[group].end());
+    if (m_activeSnippetsCount[group] == m_snippets[group].size()) // no removed snippets
+        return;
+    const QVector<Snippet> toRestore = m_snippets[group].mid(m_activeSnippetsCount[group]);
+    m_snippets[group].resize(m_activeSnippetsCount[group]);
     for (Snippet snippet : qAsConst(toRestore)) {
         snippet.setIsRemoved(false);
         insertSnippet(snippet);
@@ -425,8 +431,8 @@ void SnippetsCollection::identifyGroups()
         const int groupIndex = m_groupIndexById.size();
         m_groupIndexById.insert(provider.groupId(), groupIndex);
         m_snippets.resize(groupIndex + 1);
-        m_activeSnippetsEnd.resize(groupIndex + 1);
-        m_activeSnippetsEnd[groupIndex] = m_snippets[groupIndex].end();
+        m_activeSnippetsCount.resize(groupIndex + 1);
+        m_activeSnippetsCount[groupIndex] = m_snippets[groupIndex].size();
     }
 
     reload();
