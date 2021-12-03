@@ -440,22 +440,49 @@
 
     \section2 Displaying Additional File Types in Projects View
 
-    \QC determines whether to display files from the project folder
-    in the \uicontrol Projects view depending on the file type (.pro, .pri, .cpp,
-    .h, .qrc, and so on). To display other types of files, edit the
-    project file. Add filenames as values of the \c {DISTFILES} variable.
-    You can also use wildcards.
+    \QC displays all files that are declared to be part of the project by the
+    project files in the \l Projects view. The files are sorted into categories
+    by file type (.cpp, .h, .qrc, and so on). To display additional files, edit
+    the project file.
 
-    For example, the following code specifies that text files are displayed
-    in the \uicontrol Projects view:
+    Alternatively, you can see all the files in a project in the
+    \l {File System} view.
 
-    \code
+    \section3 CMake Projects
+
+    When using CMake, you can specify additional files to display in the
+    \uicontrol Projects view by either adding them as sources or installing
+    them.
+
+    In the CMakeLists.txt file, define the files as values of the
+    \l{CMake: target_sources command}{target_sources} command using
+    the \c PRIVATE property, for example.
+
+    You can prevent CMake from handling some files, such as a .cpp
+    file that should not be compiled. Use the \l{CMake: set_property command}
+    {set_property} command and the \l{CMake: HEADER_FILE_ONLY}
+    {HEADER_FILE_ONLY} property to specify such files. For example:
+
+    \badcode
+    set_property(SOURCE "${files}" PROPERTY HEADER_FILE_ONLY ON)
+    \endcode
+
+    Alternatively, to install the files, use the \l {CMake: install command}
+    {install} command with the \c FILES or \c DIRECTORY property.
+
+    \section3 qmake Projects
+
+    When using qmake, add filenames as values of the \c {DISTFILES} variable
+    in the .pro file. You can also use wildcards.
+
+    For example, the following value specifies that text files are part of the
+    project:
+
+    \badcode
 
     DISTFILES += *.txt
 
     \endcode
-
-    This also makes the files available in the \uicontrol Locator.
 
     \section1 Adding Subprojects to Projects
 
