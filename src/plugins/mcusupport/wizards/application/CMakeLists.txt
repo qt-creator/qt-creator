@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.15)
 
-project(%{ProjectName} VERSION 0.0.1 LANGUAGES C CXX ASM)
+project(%{ProjectName} VERSION 0.0.1 LANGUAGES C CXX ASM ASM_MASM)
 
 find_package(Qul)
 
