@@ -79,6 +79,7 @@ private:
     QScopedPointer<QFutureWatcher<CursorInfo>> m_runnerWatcher;
     int m_runnerRevision = -1;
     int m_runnerWordStartPosition = -1;
+    bool m_updateSelections = true;
 };
 
 } // namespace Internal
