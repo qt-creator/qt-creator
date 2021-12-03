@@ -2258,6 +2258,14 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
                   ? ImportType::QrcDirectory
                   : ImportType::QrcFile;
     } else {
+        QDir dir(docPath);
+        while (dir.dirName().startsWith("+"))
+            dir.cdUp();
+
+        const QString docPathStripped = dir.absolutePath();
+        if (docPathStripped != docPath)
+            return pathImport(docPathStripped, path, version, as, ast);
+
         info.m_type = ImportType::UnknownFile;
     }
     info.m_version = version;
