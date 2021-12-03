@@ -82,13 +82,16 @@
         \endcode
     \endlist
 
+    \note On \macos \QBPS fails to load when Adobe Photoshop runs natively on an ARM
+    processor (Apple silicon). For more information, see \l {Running \QBPS on Apple Silicon}.
+
     \section1 Enabling Remote Connections
 
     To set up \QBPS:
 
     \list 1
         \li Once the installation is completed, restart Adobe Photoshop to make
-            \QBPS appear in \uicontrol Window > \uicontrol Extensions.
+            \QBPS appear in \uicontrol Window > \uicontrol {Extensions (Legacy)}.
         \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol General > \uicontrol Plug-ins to enable a remote
             connection.
@@ -106,4 +109,16 @@
     \endlist
 
     Once the connection is successfully created, \QBPS is ready to use.
+
+    \note
+
+    \section1 Running \QBPS on Apple Silicon
+
+    If you are using \macos on an ARM processor (Apple silicon), \QBPS may not be listed
+    in Adobe Photoshop under \uicontrol Window > \uicontrol {Extensions (Legacy)}.
+    Run the Adobe Photoshop app in the Rosetta emulation mode.
+    Right click the Adobe Photoshop.app and select \uicontrol{Get info} >
+    \uicontrol {Open using Rosetta}.
+    Once the app is running in the Rosetta emulation mode, make sure
+    \uicontrol Preferences > \uicontrol Plug-ins > \uicontrol {Legacy Extensions} is selected.
 */
