@@ -300,6 +300,44 @@ TimelineWidget *TimelineView::widget() const
     return m_timelineWidget;
 }
 
+QList<QmlModelState> getAllStates(TimelineView* view)
+{
+    QmlVisualNode visNode(view->rootModelNode());
+    if (visNode.isValid()) {
+        return visNode.states().allStates();
+    }
+    return {};
+}
+
+QString getStateName(TimelineView* view, bool& enableInBaseState)
+{
+    QString currentStateName;
+    if (QmlModelState state = view->currentState(); state.isValid()) {
+        if (!state.isBaseState()) {
+            enableInBaseState = false;
+            return state.name();
+        }
+    }
+    return QString();
+}
+
+void enableInCurrentState(
+    TimelineView* view, const QString& stateName,
+    const ModelNode& node, const PropertyName& propertyName)
+{
+    if (!stateName.isEmpty()) {
+        for (auto& state : getAllStates(view)) {
+            if (state.isValid()) {
+                QmlPropertyChanges propertyChanges(state.propertyChanges(node));
+                if (state.name() == stateName)
+                    propertyChanges.modelNode().variantProperty(propertyName).setValue(true);
+                else
+                    propertyChanges.modelNode().variantProperty(propertyName).setValue(false);
+            }
+        }
+    }
+}
+
 const QmlTimeline TimelineView::addNewTimeline()
 {
     const TypeName timelineType = "QtQuick.Timeline.Timeline";
@@ -322,6 +360,7 @@ const QmlTimeline TimelineView::addNewTimeline()
 
     executeInTransaction("TimelineView::addNewTimeline", [=, &timelineNode]() {
         bool hasTimelines = getTimelines().isEmpty();
+        QString currentStateName = getStateName(this, hasTimelines);
 
         timelineNode = createModelNode(timelineType,
                                        metaInfo.majorVersion(),
@@ -333,6 +372,8 @@ const QmlTimeline TimelineView::addNewTimeline()
         timelineNode.variantProperty("enabled").setValue(hasTimelines);
 
         rootModelNode().defaultNodeListProperty().reparentHere(timelineNode);
+
+        enableInCurrentState(this, currentStateName, timelineNode, "enabled");
     });
 
     return QmlTimeline(timelineNode);
@@ -353,6 +394,9 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
     ModelNode animationNode;
 
     executeInTransaction("TimelineView::addAnimation", [=, &animationNode]() {
+        bool hasAnimations = getAnimations(timeline).isEmpty();
+        QString currentStateName = getStateName(this, hasAnimations);
+
         animationNode = createModelNode(animationType,
                                         metaInfo.majorVersion(),
                                         metaInfo.minorVersion());
@@ -364,12 +408,14 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 
         animationNode.variantProperty("loops").setValue(1);
 
-        animationNode.variantProperty("running").setValue(getAnimations(timeline).isEmpty());
+        animationNode.variantProperty("running").setValue(hasAnimations);
 
         timeline.modelNode().nodeListProperty("animations").reparentHere(animationNode);
 
         if (timeline.modelNode().hasProperty("currentFrame"))
             timeline.modelNode().removeProperty("currentFrame");
+
+        enableInCurrentState(this, currentStateName, animationNode, "running");
     });
 
     return animationNode;
