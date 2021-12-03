@@ -1748,11 +1748,11 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
     *json = QJsonDocument(QJsonObject::fromVariantMap(result)).toJson();
 }
 
-void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePath &deviceRoot,
+void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
                                                   const QString &detectionSource,
                                                   QString *logMessage)
 {
-    dd->m_debuggerItemManager.autoDetectDebuggersForDevice(deviceRoot, detectionSource, logMessage);
+    dd->m_debuggerItemManager.autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
 }
 
 void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)

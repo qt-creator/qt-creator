@@ -144,7 +144,7 @@ public:
     explicit KitDetector(const ProjectExplorer::IDevice::ConstPtr &device);
     ~KitDetector() override;
 
-    void autoDetect(const QString &sharedId) const;
+    void autoDetect(const QString &sharedId, const Utils::FilePaths &selectedPaths) const;
     void undoAutoDetect(const QString &sharedId) const;
     void listAutoDetected(const QString &sharedId) const;
 

@@ -180,15 +180,14 @@ void CMakeToolManager::updateDocumentation()
     Core::HelpManager::registerDocumentation(docs);
 }
 
-void CMakeToolManager::autoDetectCMakeForDevice(const FilePath &deviceRoot,
+void CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
                                                 const QString &detectionSource,
                                                 QString *logMessage)
 {
     QStringList messages{tr("Searching CMake binaries...")};
-    const FilePaths candidates = {deviceRoot.withNewPath("cmake")};
-    for (const FilePath &candidate : candidates) {
-        const FilePath cmake = candidate.searchInPath();
-        if (!cmake.isEmpty()) {
+    for (const FilePath &path : searchPaths) {
+        const FilePath cmake = path.pathAppended("cmake").withExecutableSuffix();
+        if (cmake.isExecutableFile()) {
             registerCMakeByPath(cmake, detectionSource);
             messages.append(tr("Found \"%1\"").arg(cmake.toUserOutput()));
         }

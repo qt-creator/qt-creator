@@ -28,12 +28,12 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
+#include <utils/filepath.h>
+
 #include <QList>
 #include <QObject>
 #include <QString>
 #include <QCoreApplication>
-
-namespace Utils { class FilePath; }
 
 namespace Debugger {
 
@@ -52,7 +52,7 @@ public:
     static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const QVariant &id);
 
-    static void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot,
+    static void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
                                              const QString &detectionSource,
                                              QString *logMessage);
     static void removeDetectedDebuggers(const QString &detectionSource, QString *logMessage);

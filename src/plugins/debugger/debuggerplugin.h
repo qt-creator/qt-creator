@@ -26,10 +26,11 @@
 #pragma once
 
 #include "debugger_global.h"
+
 #include <extensionsystem/iplugin.h>
+#include <utils/filepath.h>
 
 namespace ProjectExplorer { class RunControl; }
-namespace Utils { class FilePath; }
 
 namespace Debugger {
 namespace Internal {
@@ -59,7 +60,7 @@ private:
     Q_SLOT void getEnginesState(QByteArray *json) const;
 
     // Called from DockerDevice
-    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePath &deviceRoot,
+    Q_SLOT void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
                                              const QString &detectionId,
                                              QString *logMessage);
     Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);

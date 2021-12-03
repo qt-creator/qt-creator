@@ -64,6 +64,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDateTime>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -262,6 +263,10 @@ public:
     void undoAutoDetect() const;
     void listAutoDetected() const;
 
+    void setSharedId(const QString &sharedId) { m_sharedId = sharedId; }
+    void setSearchPaths(const FilePaths &searchPaths) { m_searchPaths = searchPaths; }
+
+private:
     QList<BaseQtVersion *> autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
     void autoDetectCMake();
@@ -270,6 +275,7 @@ public:
     KitDetector *q;
     IDevice::ConstPtr m_device;
     QString m_sharedId;
+    FilePaths m_searchPaths;
 };
 
 KitDetector::KitDetector(const IDevice::ConstPtr &device)
@@ -281,21 +287,22 @@ KitDetector::~KitDetector()
     delete d;
 }
 
-void KitDetector::autoDetect(const QString &sharedId) const
+void KitDetector::autoDetect(const QString &sharedId, const FilePaths &searchPaths) const
 {
-    d->m_sharedId = sharedId;
+    d->setSharedId(sharedId);
+    d->setSearchPaths(searchPaths);
     d->autoDetect();
 }
 
 void KitDetector::undoAutoDetect(const QString &sharedId) const
 {
-    d->m_sharedId = sharedId;
+    d->setSharedId(sharedId);
     d->undoAutoDetect();
 }
 
 void KitDetector::listAutoDetected(const QString &sharedId) const
 {
-    d->m_sharedId = sharedId;
+    d->setSharedId(sharedId);
     d->listAutoDetected();
 }
 
@@ -415,10 +422,35 @@ public:
         auto undoAutoDetectButton = new QPushButton(tr("Remove Auto-Detected Kit Items"));
         auto listAutoDetectedButton = new QPushButton(tr("List Auto-Detected Kit Items"));
 
-        connect(autoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id(), dockerDevice] {
+        auto searchDirsComboBox = new QComboBox;
+        searchDirsComboBox->addItem(tr("Search in PATH"));
+        searchDirsComboBox->addItem(tr("Search in selected directories"));
+
+        auto searchDirsLineEdit = new QLineEdit;
+        searchDirsLineEdit->setText("/usr/bin;/opt");
+        searchDirsLineEdit->setToolTip(
+            tr("Select the paths in the Docker image that should be scanned for Kit entries"));
+
+        auto searchPaths = [this, searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
+            FilePaths paths;
+            if (searchDirsComboBox->currentIndex() == 0) {
+                paths = dockerDevice->systemEnvironment().path();
+            } else {
+                for (const QString &path : searchDirsLineEdit->text().split(';'))
+                    paths.append(FilePath::fromString(path.trimmed()));
+            }
+            paths = Utils::transform(paths, [dockerDevice](const FilePath &path) {
+                return dockerDevice->mapToGlobalPath(path);
+            });
+            return paths;
+        };
+
+        connect(autoDetectButton, &QPushButton::clicked, this,
+                [this, logView, id = data.id(), dockerDevice, searchPaths] {
             logView->clear();
             dockerDevice->tryCreateLocalFileAccess();
-            m_kitItemDetector.autoDetect(id);
+
+            m_kitItemDetector.autoDetect(id, searchPaths());
 
             if (DockerPlugin::isDaemonRunning().value_or(false) == false)
                 logView->append(tr("Docker daemon appears to be not running."));
@@ -451,11 +483,27 @@ public:
             }, Break(),
             Column {
                 Space(20),
-                Row { autoDetectButton, undoAutoDetectButton, listAutoDetectedButton, Stretch() },
+                Row {
+                    searchDirsComboBox,
+                    searchDirsLineEdit
+                },
+                Row {
+                    autoDetectButton,
+                    undoAutoDetectButton,
+                    listAutoDetectedButton,
+                    Stretch(),
+                },
                 new QLabel(tr("Detection log:")),
                 logView
             }
         }.attachTo(this);
+
+        searchDirsLineEdit->setVisible(false);
+        auto updateDirectoriesLineEdit = [this, searchDirsLineEdit](int index) {
+            searchDirsLineEdit->setVisible(index == 1);
+        };
+        QObject::connect(searchDirsComboBox, qOverload<int>(&QComboBox::activated),
+                         this, updateDirectoriesLineEdit);
     }
 
     void updateDeviceFromUi() final {}
@@ -658,7 +706,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
     emit q->logOutput('\n' + tr("Searching Qt installations..."));
     for (const QString &candidate : candidates) {
         emit q->logOutput(tr("Searching for %1 executable...").arg(candidate));
-        const FilePath qmake = m_device->searchExecutableInPath(candidate);
+        const FilePath qmake = m_device->searchExecutable(candidate, m_searchPaths);
         if (qmake.isEmpty())
             continue;
         BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
@@ -703,11 +751,10 @@ void KitDetectorPrivate::autoDetectCMake()
     if (!cmakeManager)
         return;
 
-    const FilePath deviceRoot = m_device->mapToGlobalPath({});
     QString logMessage;
     const bool res = QMetaObject::invokeMethod(cmakeManager,
                                                "autoDetectCMakeForDevice",
-                                               Q_ARG(Utils::FilePath, deviceRoot),
+                                               Q_ARG(Utils::FilePaths, m_searchPaths),
                                                Q_ARG(QString, m_sharedId),
                                                Q_ARG(QString *, &logMessage));
     QTC_CHECK(res);
@@ -720,11 +767,10 @@ void KitDetectorPrivate::autoDetectDebugger()
     if (!debuggerPlugin)
         return;
 
-    const FilePath deviceRoot = m_device->mapToGlobalPath({});
     QString logMessage;
     const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                "autoDetectDebuggersForDevice",
-                                               Q_ARG(Utils::FilePath, deviceRoot),
+                                               Q_ARG(Utils::FilePaths, m_searchPaths),
                                                Q_ARG(QString, m_sharedId),
                                                Q_ARG(QString *, &logMessage));
     QTC_CHECK(res);
