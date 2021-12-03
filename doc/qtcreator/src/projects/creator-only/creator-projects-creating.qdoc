@@ -467,9 +467,20 @@
     The procedure of adding a library to a project depends on the build
     system that you use.
 
-    When you create a new project, you can add it to another project as a
-    subproject in the \uicontrol{Project Management} dialog. However, the root project
-    must specify that qmake uses the \c subdirs template to build the project.
+    \section2 CMake Projects
+
+    You can add CMakeLists.txt files to any project by using the
+    \l{https://cmake.org/cmake/help/latest/command/add_subdirectory.html}
+    {add_subdirectory} command. The files can define complete projects that
+    are included into the top-level project or any other CMake commands.
+
+    \section2 qmake Projects
+
+    When you create a new project and select qmake as the build system,
+    you can add it to another project as a subproject in the
+    \uicontrol{Project Management} dialog. However, the root project
+    must specify that qmake uses the \c subdirs \l{TEMPLATE}{template} to
+    build the project.
 
     To create a root project, select \uicontrol File >
     \uicontrol {New File or Project} > \uicontrol {Other Project} >
