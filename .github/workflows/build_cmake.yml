@@ -541,6 +541,7 @@ jobs:
       run: |
         include(ProcessorCount)
         ProcessorCount(N)
+        math(EXPR N "(75 * ${N}) / 100")
 
         set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
