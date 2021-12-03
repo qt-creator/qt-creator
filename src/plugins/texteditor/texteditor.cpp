@@ -2400,7 +2400,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (camelCaseNavigationEnabled())
                 CamelCaseCursor::left(&cursor, this, QTextCursor::KeepAnchor);
             else
-                d->moveCursor(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
         }
         cursor.removeSelectedText();
         setMultiTextCursor(cursor);
@@ -2411,7 +2411,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (camelCaseNavigationEnabled())
                 CamelCaseCursor::right(&cursor, this, QTextCursor::KeepAnchor);
             else
-                d->moveCursor(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
         }
         cursor.removeSelectedText();
         setMultiTextCursor(cursor);
