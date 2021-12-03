@@ -146,6 +146,10 @@ def common_cmake_arguments(args):
     pch_option = 'ON' if args.with_pch else 'OFF'
     cmake_args += ['-DBUILD_WITH_PCH=' + pch_option]
 
+    # work around QTBUG-89754
+    # Qt otherwise adds dependencies on libGLX and libOpenGL
+    cmake_args += ['-DOpenGL_GL_PREFERENCE=LEGACY']
+
     return cmake_args
 
 def build_qtcreator(args, paths):
