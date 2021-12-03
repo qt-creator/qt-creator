@@ -1094,7 +1094,7 @@ public:
 
     static CppEditor::CppEditorWidget *widgetFromDocument(const TextDocument *doc);
     QString searchTermFromCursor(const QTextCursor &cursor) const;
-    static QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
+    QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
 
     void setHelpItemForTooltip(const MessageId &token, const QString &fqn = {},
                                HelpItem::Category category = HelpItem::Unknown,
@@ -1384,7 +1384,7 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm.isEmpty())
         return;
 
-    const QTextCursor adjustedCursor = Private::adjustedCursor(cursor, document);
+    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 
     // If it's a "normal" symbol, go right ahead.
@@ -1452,7 +1452,7 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
 QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &cursor,
                                                         TextEditor::TextDocument *doc)
 {
-    return Private::adjustedCursor(cursor, doc);
+    return d->adjustedCursor(cursor, doc);
 }
 
 const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
@@ -1793,7 +1793,7 @@ void ClangdClient::followSymbol(TextDocument *document,
         )
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
-    const QTextCursor adjustedCursor = Private::adjustedCursor(cursor, document);
+    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     if (!resolveTarget) {
         d->followSymbolData.reset();
         symbolSupport().findLinkAt(document, adjustedCursor, std::move(callback), false);
@@ -2384,14 +2384,29 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
     const Document::Ptr cppDoc = widget->semanticInfo().doc;
     if (!cppDoc)
         return cursor;
-    const QList<AST *> astPath = ASTPath(cppDoc)(cursor);
-    for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
+    const QList<AST *> builtinAstPath = ASTPath(cppDoc)(cursor);
+    for (auto it = builtinAstPath.rbegin(); it != builtinAstPath.rend(); ++it) {
         const MemberAccessAST * const memberAccess = (*it)->asMemberAccess();
         if (!memberAccess)
             continue;
         const TranslationUnit * const tu = cppDoc->translationUnit();
-        if (tu->tokenAt(memberAccess->access_token).kind() != T_DOT)
+        switch (tu->tokenAt(memberAccess->access_token).kind()) {
+        case T_DOT:
+            break;
+        case T_ARROW: {
+            const Utils::optional<AstNode> clangdAst = astCache.get(doc);
+            if (!clangdAst)
+                return cursor;
+            const QList<AstNode> clangdAstPath = getAstPath(*clangdAst, Range(cursor));
+            for (auto it = clangdAstPath.rbegin(); it != clangdAstPath.rend(); ++it) {
+                if (it->detailIs("operator->") && it->arcanaContains("CXXMethod"))
+                    return cursor;
+            }
+            break;
+        }
+        default:
             return cursor;
+        }
         int dotLine, dotColumn;
         tu->getTokenPosition(memberAccess->access_token, &dotLine, &dotColumn);
         const int dotPos = Utils::Text::positionInText(doc->document(), dotLine, dotColumn);
