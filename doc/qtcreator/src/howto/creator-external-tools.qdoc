@@ -51,14 +51,19 @@
 
     \section1 Using Qt Linguist
 
+    When you \l{Creating Projects}{create a new project}, you can automatically
+    generate a translation source file (TS) for one language. You can add other
+    languages later by editing the project file.
+
     You can use the Qt Linguist release manager tools, lupdate and lrelease,
     directly from \QC. The lupdate tool is used to synchronize source
     code and translations. The lrelease tool is used to create run-time
     translation files for use by the released application.
 
-    When you \l{Creating Projects}{create a new project}, you can automatically
-    generate a translation source file (TS) for one language. You can add other
-    languages later by editing the project file.
+    \note Running the tools from \QC is supported only when using qmake as the
+    build system. For more information about using the tools with CMake, see
+    \l{https://doc.qt.io/qt-6/cmake-command-reference.html#qt6-linguisttools}
+    {Qt6::LinguistTools}.
 
     To synchronize TS files from a translator with the
     application code, select \uicontrol Tools > \uicontrol External >
