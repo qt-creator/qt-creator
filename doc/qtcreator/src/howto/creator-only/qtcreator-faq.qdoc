@@ -266,8 +266,16 @@
     \b {On Windows:} Output is displayed differently for \e{console
     applications} and \e{GUI applications}.
 
-    The setting \c {CONFIG += console} in the .pro file specifies that the
-    application is built as a console application using some other runtime.
+    For qmake projects, the \c {CONFIG += console} setting in the .pro file
+    specifies that the application is built as a console application using
+    some other runtime.
+
+    This is the standard behavior for CMake projects. To create a GUI
+    application on Windows or an application bundle on \macos, you must
+    specify the \c WIN32 or \c MACOSX_BUNDLE property for the
+    \l{https://doc.qt.io/qt-6/qt-add-executable.html}{qt_add_executable}
+    command in the CMakeLists.txt file.
+
     When you run a console application, you can view the output in the console
     window of the calling application. If the
     calling application is a GUI application (for example, a release-built
