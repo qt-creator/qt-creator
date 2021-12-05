@@ -267,8 +267,8 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
 
 bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env)
 {
-    if (lldbCmd.baseName().contains("lldb") &&
-            (lldbCmd.path().contains("/ndk/") || lldbCmd.path().contains("/ndk-bundle/"))) {
+    if (lldbCmd.baseName().contains("lldb")
+            && lldbCmd.path().contains("/toolchains/llvm/prebuilt/")) {
         const FilePath pythonDir = lldbCmd.parentDir().parentDir().pathAppended("python3");
         const FilePath pythonBinDir =
                 HostOsInfo::isAnyUnixHost() ? pythonDir.pathAppended("bin") : pythonDir;
