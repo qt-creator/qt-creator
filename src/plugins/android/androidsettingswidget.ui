@@ -175,6 +175,16 @@
         </property>
        </widget>
       </item>
+      <item row="7" column="0" colspan="7">
+       <widget class="QCheckBox" name="CreateKitCheckBox">
+        <property name="text">
+         <string>Automatically create kits for Android tool chains</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -224,31 +234,10 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="CreateKitCheckBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QGroupBox" name="sdkManagerGroupBox">
+     <property name="title">
+      <string>SDK Manager</string>
      </property>
-     <property name="text">
-      <string>Automatically create kits for Android tool chains</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTabWidget" name="managerTabWidget">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="sdkManagerTab">
-      <attribute name="title">
-       <string>SDK Manager</string>
-      </attribute>
-     </widget>
     </widget>
    </item>
   </layout>
