@@ -126,6 +126,10 @@
     \title CMake: target_sources command
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
+    \title CMake: CMAKE_OSX_DEPLOYMENT_TARGET
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/prop_sf/HEADER_FILE_ONLY.html
     \title CMake: HEADER_FILE_ONLY
 */
