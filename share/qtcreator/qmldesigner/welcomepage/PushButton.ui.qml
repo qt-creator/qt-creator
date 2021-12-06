@@ -1,3 +1,5 @@
+
+
 /****************************************************************************
 **
 ** Copyright (C) 2021 The Qt Company Ltd.
@@ -22,9 +24,8 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 import QtQuick 2.15
-import QtQuick.Controls 2.12
+import QtQuick.Templates 2.15
 import WelcomeScreen 1.0
 
 Button {
