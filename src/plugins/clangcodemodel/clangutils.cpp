@@ -581,7 +581,15 @@ QStringList createClangOptions(const ProjectPart &projectPart, const QString &fi
     LibClangOptionsBuilder optionsBuilder(projectPart, fileOptions.useBuildSystemWarnings());
     const QStringList projectPartOptions = optionsBuilder.build(CppEditor::ProjectFile::Unsupported,
                                                                 UsePrecompiledHeaders::No);
-    return projectPartOptions + fileOptions.options();
+
+    // FIXME: Sanitize FileOptionsBuilder instead.
+    QStringList fileArgs = fileOptions.options();
+    if (projectPartOptions.contains("-TP"))
+        fileArgs.removeAll("/TP");
+    if (projectPartOptions.contains("-TC"))
+        fileArgs.removeAll("/TC");
+
+    return projectPartOptions + fileArgs;
 }
 
 ClangDiagnosticConfig warningsConfigForProject(Project *project)
