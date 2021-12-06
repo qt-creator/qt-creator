@@ -32,7 +32,8 @@
 
 namespace Core {
 
-class CORE_EXPORT SearchResultColor {
+class CORE_EXPORT SearchResultColor
+{
 public:
     enum class Style { Default, Alt1, Alt2 };
 
@@ -48,17 +49,16 @@ public:
             highlightForeground = textForeground;
     }
 
+    friend auto qHash(SearchResultColor::Style style)
+    {
+        return QT_PREPEND_NAMESPACE(qHash(int(style)));
+    }
+
     QColor textBackground;
     QColor textForeground;
     QColor highlightBackground;
     QColor highlightForeground;
 };
-
-
-inline auto qHash(SearchResultColor::Style style)
-{
-    return QT_PREPEND_NAMESPACE(qHash(int(style)));
-}
 
 using SearchResultColors = QHash<SearchResultColor::Style, SearchResultColor>;
 

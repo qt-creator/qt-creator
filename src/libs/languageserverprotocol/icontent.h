@@ -79,6 +79,15 @@ public:
         return {};
     }
 
+    friend auto qHash(const MessageId &id)
+    {
+        if (Utils::holds_alternative<int>(id))
+            return QT_PREPEND_NAMESPACE(qHash(Utils::get<int>(id)));
+        if (Utils::holds_alternative<QString>(id))
+            return QT_PREPEND_NAMESPACE(qHash(Utils::get<QString>(id)));
+        return QT_PREPEND_NAMESPACE(qHash(0));
+    }
+
 private:
     bool m_valid = true;
 };
@@ -92,15 +101,6 @@ struct ResponseHandler
 
 using ResponseHandlers = std::function<void(const MessageId &, const QByteArray &, QTextCodec *)>;
 using MethodHandler = std::function<void(const QString &, const MessageId &, const IContent *)>;
-
-inline auto qHash(const LanguageServerProtocol::MessageId &id)
-{
-    if (Utils::holds_alternative<int>(id))
-        return QT_PREPEND_NAMESPACE(qHash(Utils::get<int>(id)));
-    if (Utils::holds_alternative<QString>(id))
-        return QT_PREPEND_NAMESPACE(qHash(Utils::get<QString>(id)));
-    return QT_PREPEND_NAMESPACE(qHash(0));
-}
 
 template <typename Error>
 inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)

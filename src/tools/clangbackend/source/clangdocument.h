@@ -115,6 +115,9 @@ public:
                                         = PreferredTranslationUnit::RecentlyParsed) const;
     TranslationUnits &translationUnits() const;
 
+    friend bool operator==(const Document &first, const Document &second);
+    friend std::ostream &operator<<(std::ostream &os, const Document &document);
+
 public: // for tests
     void parse() const;
     void reparse() const;
@@ -136,6 +139,4 @@ private:
     mutable std::shared_ptr<DocumentData> d;
 };
 
-bool operator==(const Document &first, const Document &second);
-std::ostream &operator<<(std::ostream &os, const Document &document);
 } // namespace ClangBackEnd

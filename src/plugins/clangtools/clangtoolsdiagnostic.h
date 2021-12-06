@@ -57,6 +57,9 @@ public:
     bool isValid() const;
     QIcon icon() const;
 
+    friend bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
+    friend Utils::QHashValueType qHash(const Diagnostic &diagnostic);
+
     QString name;
     QString description;
     QString category;
@@ -66,11 +69,7 @@ public:
     bool hasFixits = false;
 };
 
-bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
-
 using Diagnostics = QList<Diagnostic>;
-
-Utils::QHashValueType qHash(const Diagnostic &diagnostic);
 
 } // namespace Internal
 } // namespace ClangTools

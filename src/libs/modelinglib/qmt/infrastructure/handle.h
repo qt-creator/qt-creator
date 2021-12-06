@@ -68,16 +68,12 @@ public:
 
     void clearTarget() { m_target = nullptr; }
 
+    friend auto qHash(const Handle<T> &handle) { return qHash(handle.uid()); }
+
 private:
     Uid m_uid;
     T *m_target = nullptr;
 };
-
-template<class T>
-inline auto qHash(const Handle<T> &handle)
-{
-    return qHash(handle.uid());
-}
 
 template<class T, class U>
 bool operator==(const Handle<T> &lhs, const Handle<U> &rhs)

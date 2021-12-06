@@ -47,17 +47,17 @@ public:
 
     SuppressedDiagnostic(const Diagnostic &diag);
 
+    friend bool operator==(const SuppressedDiagnostic &d1, const SuppressedDiagnostic &d2)
+    {
+        return d1.filePath == d2.filePath
+                && d1.description == d2.description
+                && d1.uniquifier == d2.uniquifier;
+    }
+
     Utils::FilePath filePath; // Relative for files in project, absolute otherwise.
     QString description;
     int uniquifier;
 };
-
-inline bool operator==(const SuppressedDiagnostic &d1, const SuppressedDiagnostic &d2)
-{
-    return d1.filePath == d2.filePath
-        && d1.description == d2.description
-        && d1.uniquifier == d2.uniquifier;
-}
 
 using SuppressedDiagnosticsList = QList<SuppressedDiagnostic>;
 

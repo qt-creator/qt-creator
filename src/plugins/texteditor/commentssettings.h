@@ -43,15 +43,15 @@ public:
 
     bool equals(const CommentsSettings &other) const;
 
+    friend bool operator==(const CommentsSettings &a, const CommentsSettings &b)
+    { return a.equals(b); }
+
+    friend bool operator!=(const CommentsSettings &a, const CommentsSettings &b)
+    { return !(a == b); }
+
     bool m_enableDoxygen;
     bool m_generateBrief;
     bool m_leadingAsterisks;
 };
-
-inline bool operator==(const CommentsSettings &a, const CommentsSettings &b)
-{ return a.equals(b); }
-
-inline bool operator!=(const CommentsSettings &a, const CommentsSettings &b)
-{ return !(a == b); }
 
 } // namespace TextEditor

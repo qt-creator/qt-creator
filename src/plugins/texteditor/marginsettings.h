@@ -48,14 +48,14 @@ public:
 
     bool equals(const MarginSettings &other) const;
 
+    friend bool operator==(const MarginSettings &one, const MarginSettings &two)
+    { return one.equals(two); }
+    friend bool operator!=(const MarginSettings &one, const MarginSettings &two)
+    { return !one.equals(two); }
+
     bool m_showMargin;
     bool m_useIndenter;
     int m_marginColumn;
 };
-
-inline bool operator==(const MarginSettings &one, const MarginSettings &two)
-{ return one.equals(two); }
-inline bool operator!=(const MarginSettings &one, const MarginSettings &two)
-{ return !one.equals(two); }
 
 } // namespace TextEditor

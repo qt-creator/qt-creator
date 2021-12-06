@@ -46,6 +46,10 @@
 #include <QJsonValue>
 #include <QPluginLoader>
 
+using namespace ExtensionSystem::Internal;
+
+namespace ExtensionSystem {
+
 /*!
     \class ExtensionSystem::PluginDependency
     \inheaderfile extensionsystem/pluginspec.h
@@ -148,14 +152,11 @@
     \sa PluginSpec::argumentDescriptions()
 */
 
-using namespace ExtensionSystem;
-using namespace ExtensionSystem::Internal;
-
 /*!
     \fn uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
     \internal
 */
-Utils::QHashValueType ExtensionSystem::qHash(const PluginDependency &value)
+Utils::QHashValueType qHash(const PluginDependency &value)
 {
     return qHash(value.name);
 }
@@ -1125,3 +1126,5 @@ void PluginSpecPrivate::kill()
     plugin = nullptr;
     state = PluginSpec::Deleted;
 }
+
+} // ExtensionSystem

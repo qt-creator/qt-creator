@@ -83,6 +83,8 @@ public:
     static bool fromString(LineType &type, const std::string &str);
     static bool fromString(SymbolKind &type, const std::string &str);
 
+    friend QDebug operator<<(QDebug debug, const Line &c);
+
     LineType line_type;
     SymbolKind symbol_kind;
     QString abs_path;
@@ -133,5 +135,3 @@ private:
 
 } // namespace Suggest
 } // namespace Nim
-
-QDebug operator<<(QDebug debug, const Nim::Suggest::Line &c);

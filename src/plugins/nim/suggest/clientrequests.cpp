@@ -51,14 +51,13 @@ NimSuggestClientRequest::NimSuggestClientRequest(quint64 id)
     : m_id(id)
 {}
 
-
-} // namespace Suggest
-} // namespace Nim
-
-QDebug operator<<(QDebug debug, const Nim::Suggest::Line &c)
+QDebug operator<<(QDebug debug, const Line &c)
 {
     QDebugStateSaver saver(debug);
     debug.space() << c.line_type << c.symbol_kind << c.symbol_type << c.data << c.row << c.column <<
                   c.abs_path;
     return debug;
 }
+
+} // namespace Suggest
+} // namespace Nim

@@ -70,6 +70,19 @@ public:
     static Macro fromKeyValue(const QByteArray &text);
     QByteArray toKeyValue(const QByteArray &prefix) const;
 
+    friend auto qHash(const Macro &macro)
+    {
+        using QT_PREPEND_NAMESPACE(qHash);
+        return qHash(macro.key) ^ qHash(macro.value) ^ qHash(int(macro.type));
+    }
+
+    friend bool operator==(const Macro &first, const Macro &second)
+    {
+        return first.type == second.type
+                && first.key == second.key
+                && first.value == second.value;
+    }
+
 public:
     QByteArray key;
     QByteArray value;
@@ -83,20 +96,5 @@ private:
     static Macro tokensToMacro(const QList<QByteArray> &tokens);
     static Macros tokensLinesToMacros(const QList<QList<QByteArray>> &tokensLines);
 };
-
-inline
-auto qHash(const Macro &macro)
-{
-    using QT_PREPEND_NAMESPACE(qHash);
-    return qHash(macro.key) ^ qHash(macro.value) ^ qHash(int(macro.type));
-}
-
-inline
-bool operator==(const Macro &first, const Macro &second)
-{
-    return first.type == second.type
-        && first.key == second.key
-        && first.value == second.value;
-}
 
 } // namespace ProjectExplorer

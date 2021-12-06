@@ -184,6 +184,15 @@ public:
     static Abi hostAbi();
     static Abis abisOfBinary(const Utils::FilePath &path);
 
+    friend auto qHash(const ProjectExplorer::Abi &abi)
+    {
+        int h = abi.architecture()
+                + (abi.os() << 3)
+                + (abi.osFlavor() << 6)
+                + (abi.binaryFormat() << 10)
+                + (abi.wordWidth() << 13);
+        return QT_PREPEND_NAMESPACE(qHash)(h);
+    }
 
 private:
     Architecture m_architecture;
@@ -193,15 +202,5 @@ private:
     unsigned char m_wordWidth;
     QString m_param;
 };
-
-inline auto qHash(const ProjectExplorer::Abi &abi)
-{
-    int h = abi.architecture()
-            + (abi.os() << 3)
-            + (abi.osFlavor() << 6)
-            + (abi.binaryFormat() << 10)
-            + (abi.wordWidth() << 13);
-    return QT_PREPEND_NAMESPACE(qHash)(h);
-}
 
 } // namespace ProjectExplorer

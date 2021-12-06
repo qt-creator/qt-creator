@@ -81,6 +81,9 @@ public:
     QString toString() const;
     bool fromString(const QString &str);
 
+    friend bool operator==(const Format &f1, const Format &f2) { return f1.equals(f2); }
+    friend bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f2); }
+
 private:
     QColor m_foreground;
     QColor m_background;
@@ -93,10 +96,6 @@ private:
     bool m_bold = false;
     bool m_italic = false;
 };
-
-inline bool operator==(const Format &f1, const Format &f2) { return f1.equals(f2); }
-inline bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f2); }
-
 
 /*! A color scheme combines a set of formats for different highlighting
     categories. It also provides saving and loading of the scheme to a file.
@@ -125,20 +124,19 @@ public:
     bool save(const QString &fileName, QWidget *parent) const;
     bool load(const QString &fileName);
 
-    inline bool equals(const ColorScheme &cs) const
+    bool equals(const ColorScheme &cs) const
     {
-        return m_formats == cs.m_formats
-                && m_displayName == cs.m_displayName;
+        return m_formats == cs.m_formats && m_displayName == cs.m_displayName;
     }
 
     static QString readNameOfScheme(const QString &fileName);
+
+    friend bool operator==(const ColorScheme &cs1, const ColorScheme &cs2) { return cs1.equals(cs2); }
+    friend bool operator!=(const ColorScheme &cs1, const ColorScheme &cs2) { return !cs1.equals(cs2); }
 
 private:
     QMap<TextStyle, Format> m_formats;
     QString m_displayName;
 };
-
-inline bool operator==(const ColorScheme &cs1, const ColorScheme &cs2) { return cs1.equals(cs2); }
-inline bool operator!=(const ColorScheme &cs1, const ColorScheme &cs2) { return !cs1.equals(cs2); }
 
 } // namespace TextEditor

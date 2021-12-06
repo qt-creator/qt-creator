@@ -55,6 +55,26 @@ public:
     int line() const { return m_line; }
     int column() const { return m_column; }
 
+    friend bool operator==(const QmlEventLocation &location1, const QmlEventLocation &location2)
+    {
+        // compare filename last as it's expensive.
+        return location1.line() == location2.line() && location1.column() == location2.column()
+                && location1.filename() == location2.filename();
+    }
+
+    friend bool operator!=(const QmlEventLocation &location1, const QmlEventLocation &location2)
+    {
+        return !(location1 == location2);
+    }
+
+    friend auto qHash(const QmlEventLocation &location)
+    {
+        return qHash(location.filename())
+                ^ ((location.line() & 0xfff)                   // 12 bits of line number
+                   | ((location.column() << 16) & 0xff0000));  // 8 bits of column
+
+    }
+
 private:
     friend QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location);
     friend QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location);
@@ -63,29 +83,6 @@ private:
     int m_line = -1;
     int m_column = -1;
 };
-
-inline bool operator==(const QmlEventLocation &location1, const QmlEventLocation &location2)
-{
-    // compare filename last as it's expensive.
-    return location1.line() == location2.line() && location1.column() == location2.column()
-            && location1.filename() == location2.filename();
-}
-
-inline bool operator!=(const QmlEventLocation &location1, const QmlEventLocation &location2)
-{
-    return !(location1 == location2);
-}
-
-inline auto qHash(const QmlEventLocation &location)
-{
-    return qHash(location.filename())
-            ^ ((location.line() & 0xfff)                   // 12 bits of line number
-               | ((location.column() << 16) & 0xff0000));  // 8 bits of column
-
-}
-
-QDataStream &operator>>(QDataStream &stream, QmlEventLocation &location);
-QDataStream &operator<<(QDataStream &stream, const QmlEventLocation &location);
 
 } // namespace QmlProfiler
 

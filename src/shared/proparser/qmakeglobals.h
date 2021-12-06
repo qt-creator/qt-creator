@@ -54,13 +54,13 @@ class QMakeBaseKey
 public:
     QMakeBaseKey(const QString &_root, const QString &_stash, bool _hostBuild);
 
+    friend Utils::QHashValueType qHash(const QMakeBaseKey &key);
+    friend bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two);
+
     QString root;
     QString stash;
     bool hostBuild;
 };
-
-Utils::QHashValueType qHash(const QMakeBaseKey &key);
-bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two);
 
 class QMakeBaseEnv
 {

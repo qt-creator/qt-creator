@@ -106,6 +106,11 @@ public:
 
     friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);
 
+    friend bool operator==(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
+    { return s1.equals(s2); }
+    friend bool operator!=(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
+    { return !s1.equals(s2); }
+
 private:
     friend class VcsBasePluginPrivate;
     bool equals(const Internal::State &s) const;
@@ -113,13 +118,6 @@ private:
 
     QSharedDataPointer<VcsBasePluginStateData> data;
 };
-
-VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);
-
-inline bool operator==(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
-{ return s1.equals(s2); }
-inline bool operator!=(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
-{ return !s1.equals(s2); }
 
 // Convenience that searches for the repository specifically for version control
 // systems that do not have directories like "CVS" in each managed subdirectory

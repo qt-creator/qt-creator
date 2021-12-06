@@ -40,6 +40,7 @@ class Type
 {
     friend class Cursor;
     friend bool operator==(Type first, Type second);
+    friend bool operator!=(Type first, Type second);
 
 public:
     bool isValid() const;
@@ -79,9 +80,6 @@ private:
 private:
     CXType m_cxType;
 };
-
-bool operator==(Type first, Type second);
-bool operator!=(Type first, Type second);
 
 std::ostream &operator<<(std::ostream &os, CXTypeKind typeKind);
 std::ostream &operator<<(std::ostream &os, const Type &type);

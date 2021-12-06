@@ -79,6 +79,8 @@ struct WinException
     void fromGdbMI(const GdbMi &);
     QString toString(bool includeLocation = false) const;
 
+    friend  QDebug operator<<(QDebug s, const WinException &e);
+
     unsigned exceptionCode = 0;
     unsigned exceptionFlags = 0;
     quint64 exceptionAddress = 0;
@@ -89,8 +91,6 @@ struct WinException
     int lineNumber = 0;
     QString function;
 };
-
-QDebug operator<<(QDebug s, const WinException &e);
 
 } // namespace Internal
 } // namespace Debugger

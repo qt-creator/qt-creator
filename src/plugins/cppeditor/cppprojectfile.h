@@ -50,6 +50,9 @@ public:
         OpenCLSource,
     };
 
+    ProjectFile() = default;
+    ProjectFile(const QString &filePath, Kind kind, bool active = true);
+
     static Kind classifyByMimeType(const QString &mt);
     static Kind classify(const QString &filePath);
 
@@ -69,12 +72,10 @@ public:
     bool isC() const;
     bool isCxx() const;
 
-public:
-    ProjectFile() = default;
-    ProjectFile(const QString &filePath, Kind kind, bool active = true);
-
     bool operator==(const ProjectFile &other) const;
+    friend QDebug operator<<(QDebug stream, const CppEditor::ProjectFile &projectFile);
 
+public:
     QString path;
     Kind kind = Unclassified;
     bool active = true;
@@ -83,6 +84,5 @@ public:
 using ProjectFiles = QVector<ProjectFile>;
 
 const char *projectFileKindToText(ProjectFile::Kind kind);
-QDebug operator<<(QDebug stream, const CppEditor::ProjectFile &projectFile);
 
 } // namespace CppEditor

@@ -78,6 +78,25 @@ public:
 
     QStringList toArguments() const;
 
+    friend bool operator==(const QMakeStepConfig &a, const QMakeStepConfig &b)
+    {
+        return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ2)
+                == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ2)
+                && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
+                == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
+    }
+
+    friend bool operator!=(const QMakeStepConfig &a, const QMakeStepConfig &b) { return !(a == b); }
+
+    friend QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
+    {
+        dbg << c.archConfig << c.osType
+            << (c.linkQmlDebuggingQQ2 == Utils::TriState::Enabled)
+            << (c.useQtQuickCompiler == Utils::TriState::Enabled)
+            << (c.separateDebugInfo == Utils::TriState::Enabled);
+        return dbg;
+    }
+
     // Actual data
     QString sysRoot;
     QString targetTriple;
@@ -88,27 +107,6 @@ public:
     Utils::TriState linkQmlDebuggingQQ2;
     Utils::TriState useQtQuickCompiler;
 };
-
-
-inline bool operator ==(const QMakeStepConfig &a, const QMakeStepConfig &b) {
-    return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ2)
-               == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ2)
-            && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
-               == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
-}
-
-inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
-    return !(a == b);
-}
-
-inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
-{
-   dbg << c.archConfig << c.osType
-       << (c.linkQmlDebuggingQQ2 == Utils::TriState::Enabled)
-       << (c.useQtQuickCompiler == Utils::TriState::Enabled)
-       << (c.separateDebugInfo == Utils::TriState::Enabled);
-   return dbg;
-}
 
 class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractProcessStep
 {

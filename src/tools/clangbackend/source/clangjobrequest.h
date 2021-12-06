@@ -96,6 +96,7 @@ public:
     bool isTakeOverable() const;
 
     bool operator==(const JobRequest &other) const;
+    friend QDebug operator<<(QDebug debug, const JobRequest &jobRequest);
 
 public:
     quint64 id = 0;
@@ -121,9 +122,7 @@ public:
 
 using JobRequests = QVector<JobRequest>;
 
-QDebug operator<<(QDebug debug, const JobRequest &jobRequest);
 std::ostream &operator<<(std::ostream &os, JobRequest::Type type);
 std::ostream &operator<<(std::ostream &os, PreferredTranslationUnit preferredTranslationUnit);
-
 
 } // namespace ClangBackEnd

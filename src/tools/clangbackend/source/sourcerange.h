@@ -37,6 +37,7 @@ class SourceRange
     friend class FixIt;
     friend class Cursor;
     friend bool operator==(const SourceRange &first, const SourceRange &second);
+    friend std::ostream &operator<<(std::ostream &os, const SourceRange &sourceRange);
 
 public:
     SourceRange();
@@ -63,6 +64,4 @@ private:
     CXTranslationUnit cxTranslationUnit = nullptr;
 };
 
-bool operator==(const SourceRange &first, const SourceRange &second);
-std::ostream &operator<<(std::ostream &os, const SourceRange &sourceRange);
 } // namespace ClangBackEnd

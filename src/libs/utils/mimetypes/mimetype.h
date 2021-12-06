@@ -109,6 +109,8 @@ public:
     bool matchesName(const QString &nameOrAlias) const;
     void setPreferredSuffix(const QString &suffix);
 
+    friend auto qHash(const MimeType &mime) { return qHash(mime.name()); }
+
 protected:
     friend class Internal::MimeTypeParserBase;
     friend class Internal::MimeTypeMapEntry;
@@ -119,8 +121,6 @@ protected:
 
     QExplicitlySharedDataPointer<Internal::MimeTypePrivate> d;
 };
-
-inline auto qHash(const MimeType &mime) { return qHash(mime.name()); }
 
 } // Utils
 

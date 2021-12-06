@@ -55,20 +55,14 @@ public:
 
     int iconTypeSortOrder() const;
 
+    friend auto qHash(const SymbolInformation &information) { return information.hash(); }
+
 private:
     const int m_iconType;
     const Utils::QHashValueType m_hash; // precalculated hash value - to speed up qHash
     const QString m_name;               // symbol name (e.g. SymbolInformation)
     const QString m_type;               // symbol type (e.g. (int char))
-
 };
-
-//! qHash overload for QHash/QSet
-inline auto qHash(const SymbolInformation &information)
-{
-    return information.hash();
-}
-
 
 } // namespace Internal
 } // namespace ClassView

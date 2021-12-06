@@ -136,6 +136,18 @@ public:
     QColor color() const { return m_color; }
     void setColor(const QColor &color);
 
+    friend auto qHash(CustomRelation::Relationship relationship) {
+        return ::qHash(static_cast<int>(relationship));
+    }
+
+    friend auto qHash(CustomRelation::ShaftPattern pattern) {
+        return ::qHash(static_cast<int>(pattern));
+    }
+
+    friend auto qHash(CustomRelation::Head head) {
+        return ::qHash(static_cast<int>(head));
+    }
+
 private:
     Element m_element = Element::Relation;
     QString m_id;
@@ -150,17 +162,5 @@ private:
     ColorType m_colorType = ColorType::EndA;
     QColor m_color;
 };
-
-inline auto qHash(CustomRelation::Relationship relationship) {
-    return ::qHash(static_cast<int>(relationship));
-}
-
-inline auto qHash(CustomRelation::ShaftPattern pattern) {
-    return ::qHash(static_cast<int>(pattern));
-}
-
-inline auto qHash(CustomRelation::Head head) {
-    return ::qHash(static_cast<int>(head));
-}
 
 } // namespace qmt

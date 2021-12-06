@@ -48,10 +48,13 @@ public:
     void setText(const QString &text) { m_text = text; }
     void setLoaded(bool loaded) { m_loaded = loaded; }
 
-private:
+    friend bool operator==(const QmlNote &note1, const QmlNote &note2);
+    friend bool operator!=(const QmlNote &note1, const QmlNote &note2);
+
     friend QDataStream &operator>>(QDataStream &stream, QmlNote &note);
     friend QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
 
+private:
     int m_typeIndex;
     int m_collapsedRow;
     qint64 m_startTime;
@@ -59,12 +62,6 @@ private:
     QString m_text;
     bool m_loaded;
 };
-
-bool operator==(const QmlNote &note1, const QmlNote &note2);
-bool operator!=(const QmlNote &note1, const QmlNote &note2);
-
-QDataStream &operator>>(QDataStream &stream, QmlNote &note);
-QDataStream &operator<<(QDataStream &stream, const QmlNote &note);
 
 } // namespace QmlProfiler
 

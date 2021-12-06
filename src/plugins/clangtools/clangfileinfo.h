@@ -46,15 +46,16 @@ public:
         , kind(kind)
         , projectPart(projectPart)
     {}
+
+    friend bool operator==(const FileInfo &lhs, const FileInfo &rhs) {
+        return lhs.file == rhs.file;
+    }
+
     Utils::FilePath file;
     CppEditor::ProjectFile::Kind kind;
     CppEditor::ProjectPart::ConstPtr projectPart;
 };
 using FileInfos = std::vector<FileInfo>;
-
-inline bool operator==(const FileInfo &lhs, const FileInfo &rhs) {
-    return lhs.file == rhs.file;
-}
 
 class FileInfoSelection {
 public:

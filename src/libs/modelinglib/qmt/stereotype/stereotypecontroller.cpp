@@ -58,6 +58,21 @@ struct IconKey {
     {
     }
 
+    friend bool operator==(const IconKey &lhs, const IconKey &rhs) {
+        return lhs.m_element == rhs.m_element
+                && lhs.m_stereotypes == rhs.m_stereotypes
+                && lhs.m_defaultIconPath == rhs.m_defaultIconPath
+                && lhs.m_styleUid == rhs.m_styleUid
+                && lhs.m_size == rhs.m_size
+                && lhs.m_margins == rhs.m_margins
+                && lhs.m_lineWidth == rhs.m_lineWidth;
+    }
+
+    friend auto qHash(const IconKey &key) {
+        return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
+                + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
+    }
+
     const StereotypeIcon::Element m_element;
     const QList<QString> m_stereotypes;
     const QString m_defaultIconPath;
@@ -66,21 +81,6 @@ struct IconKey {
     const QMarginsF m_margins;
     const qreal m_lineWidth;
 };
-
-bool operator==(const IconKey &lhs, const IconKey &rhs) {
-    return lhs.m_element == rhs.m_element
-            && lhs.m_stereotypes == rhs.m_stereotypes
-            && lhs.m_defaultIconPath == rhs.m_defaultIconPath
-            && lhs.m_styleUid == rhs.m_styleUid
-            && lhs.m_size == rhs.m_size
-            && lhs.m_margins == rhs.m_margins
-            && lhs.m_lineWidth == rhs.m_lineWidth;
-}
-
-auto qHash(const IconKey &key) {
-    return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
-            + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
-}
 
 }
 

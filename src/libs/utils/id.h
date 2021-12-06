@@ -74,21 +74,18 @@ public:
     static QSet<Id> fromStringList(const QStringList &list);
     static QStringList toStringList(const QSet<Id> &ids);
 
+    friend QHashValueType qHash(Id id) { return static_cast<QHashValueType>(id.uniqueIdentifier()); }
+    friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Utils::Id id);
+    friend QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Utils::Id &id);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::Id &id);
+
 private:
     explicit Id(quintptr uid) : m_id(uid) {}
 
     quintptr m_id = 0;
 };
 
-inline QHashValueType qHash(Id id) { return static_cast<QHashValueType>(id.uniqueIdentifier()); }
-
 } // namespace Utils
 
 Q_DECLARE_METATYPE(Utils::Id)
 Q_DECLARE_METATYPE(QList<Utils::Id>)
-
-QT_BEGIN_NAMESPACE
-QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Utils::Id id);
-QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Utils::Id &id);
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::Id &id);
-QT_END_NAMESPACE

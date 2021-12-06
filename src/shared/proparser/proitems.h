@@ -164,6 +164,8 @@ public:
 
     QByteArray toLatin1() const { return toStringView().toLatin1(); }
 
+    friend QDebug operator<<(QDebug debug, const ProString &str);
+
 private:
     ProString(const ProKey &other);
     ProString &operator=(const ProKey &other);
@@ -511,7 +513,5 @@ struct ProFunctionDefs {
     QHash<ProKey, ProFunctionDef> testFunctions;
     QHash<ProKey, ProFunctionDef> replaceFunctions;
 };
-
-QDebug operator<<(QDebug debug, const ProString &str);
 
 QT_END_NAMESPACE

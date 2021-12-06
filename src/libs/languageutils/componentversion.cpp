@@ -30,7 +30,7 @@
 
 #include <limits>
 
-using namespace LanguageUtils;
+namespace LanguageUtils {
 
 const int ComponentVersion::NoVersion = -1;
 const int ComponentVersion::MaxVersion = std::numeric_limits<int>::max();
@@ -87,8 +87,6 @@ void ComponentVersion::addToHash(QCryptographicHash &hash) const
     hash.addData(reinterpret_cast<const char *>(&_minor), sizeof(_minor));
 }
 
-namespace LanguageUtils {
-
 bool operator<(const ComponentVersion &lhs, const ComponentVersion &rhs)
 {
     return lhs.majorVersion() < rhs.majorVersion()
@@ -121,4 +119,4 @@ bool operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs)
     return !(lhs == rhs);
 }
 
-}
+} // namespace LanguageUtils

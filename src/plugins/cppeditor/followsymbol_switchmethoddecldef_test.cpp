@@ -82,14 +82,21 @@ using namespace TextEditor;
 using namespace Core;
 using namespace ProjectExplorer;
 
-class OverrideItem {
+class OverrideItem
+{
 public:
     OverrideItem() : line(0) {}
     OverrideItem(const QString &text, int line = 0) : text(text), line(line) {}
+
     bool isValid() { return line != 0; }
     QByteArray toByteArray() const
     {
         return "OverrideItem(" + text.toLatin1() + ", " + QByteArray::number(line) + ')';
+    }
+
+    friend bool operator==(const OverrideItem &lhs, const OverrideItem &rhs)
+    {
+        return lhs.text == rhs.text && lhs.line == rhs.line;
     }
 
     QString text;
@@ -97,11 +104,6 @@ public:
 };
 typedef QList<OverrideItem> OverrideItemList;
 Q_DECLARE_METATYPE(OverrideItem)
-
-inline bool operator==(const OverrideItem &lhs, const OverrideItem &rhs)
-{
-    return lhs.text == rhs.text && lhs.line == rhs.line;
-}
 
 QT_BEGIN_NAMESPACE
 namespace QTest {

@@ -76,14 +76,14 @@ public:
         return {fp, HeaderPathType::Framework};
     }
 
+    friend auto qHash(const HeaderPath &key, uint seed = 0)
+    {
+        return ((qHash(key.path) << 2) | uint(key.type)) ^ seed;
+    }
+
     QString path;
     HeaderPathType type = HeaderPathType::User;
 };
-
-inline auto qHash(const HeaderPath &key, uint seed = 0)
-{
-    return ((qHash(key.path) << 2) | uint(key.type)) ^ seed;
-}
 
 using HeaderPaths = QVector<HeaderPath>;
 template<typename C> HeaderPaths toHeaderPaths(const C &list, HeaderPathType type)

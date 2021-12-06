@@ -40,6 +40,8 @@ class CommonVcsSettings : public Utils::AspectContainer
 public:
     CommonVcsSettings();
 
+    friend QDebug operator<<(QDebug, const CommonVcsSettings &);
+
     Utils::StringAspect nickNameMailMap;
     Utils::StringAspect nickNameFieldListFile;
 
@@ -51,9 +53,6 @@ public:
     Utils::BoolAspect lineWrap;
     Utils::IntegerAspect lineWrapWidth;
 };
-
-
-QDebug operator<<(QDebug, const CommonVcsSettings &);
 
 class CommonOptionsPage final : public Core::IOptionsPage
 {

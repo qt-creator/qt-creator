@@ -46,14 +46,13 @@ public:
 
     bool equals(const SnippetsSettings &snippetsSettings) const;
 
+    friend bool operator==(const SnippetsSettings &a, const SnippetsSettings &b)
+    { return a.equals(b); }
+    friend bool operator!=(const SnippetsSettings &a, const SnippetsSettings &b)
+    { return !a.equals(b); }
+
 private:
     QString m_lastUsedSnippetGroup;
 };
-
-inline bool operator==(const SnippetsSettings &a, const SnippetsSettings &b)
-{ return a.equals(b); }
-
-inline bool operator!=(const SnippetsSettings &a, const SnippetsSettings &b)
-{ return !a.equals(b); }
 
 } // TextEditor

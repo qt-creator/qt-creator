@@ -52,6 +52,9 @@ public:
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
+    friend bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
+    friend bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
+
     bool m_displayLineNumbers = true;
     bool m_textWrapping = false;
     bool m_visualizeWhitespace = false;
@@ -77,9 +80,6 @@ public:
 
     static QLabel *createAnnotationSettingsLink();
 };
-
-inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
 

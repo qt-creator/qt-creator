@@ -107,6 +107,18 @@ public:
         QVariantMap toMap() const;
         void fromMap(const QVariantMap &map);
 
+        friend bool operator==(const Data &s1, const Data &s2)
+        {
+            return s1.useClangd == s2.useClangd
+                    && s1.executableFilePath == s2.executableFilePath
+                    && s1.sessionsWithOneClangd == s2.sessionsWithOneClangd
+                    && s1.workerThreadLimit == s2.workerThreadLimit
+                    && s1.enableIndexing == s2.enableIndexing
+                    && s1.autoIncludeHeaders == s2.autoIncludeHeaders
+                    && s1.documentUpdateThreshold == s2.documentUpdateThreshold;
+        }
+        friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
+
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
         int workerThreadLimit = 0;
@@ -152,21 +164,6 @@ private:
 
     Data m_data;
 };
-
-inline bool operator==(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
-{
-    return s1.useClangd == s2.useClangd
-            && s1.executableFilePath == s2.executableFilePath
-            && s1.sessionsWithOneClangd == s2.sessionsWithOneClangd
-            && s1.workerThreadLimit == s2.workerThreadLimit
-            && s1.enableIndexing == s2.enableIndexing
-            && s1.autoIncludeHeaders == s2.autoIncludeHeaders
-            && s1.documentUpdateThreshold == s2.documentUpdateThreshold;
-}
-inline bool operator!=(const ClangdSettings::Data &s1, const ClangdSettings::Data &s2)
-{
-    return !(s1 == s2);
-}
 
 class CPPEDITOR_EXPORT ClangdProjectSettings
 {

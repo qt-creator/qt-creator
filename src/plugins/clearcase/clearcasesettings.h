@@ -54,6 +54,11 @@ public:
 
     bool equals(const ClearCaseSettings &s) const;
 
+    friend bool operator==(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
+    { return p1.equals(p2); }
+    friend bool operator!=(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
+    { return !p1.equals(p2); }
+
     QString ccCommand;
     QString ccBinaryPath;
     DiffType diffType = GraphicalDiff;
@@ -70,11 +75,6 @@ public:
     int historyCount;
     int timeOutS;
 };
-
-inline bool operator==(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
-{ return p1.equals(p2); }
-inline bool operator!=(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
-{ return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace ClearCase

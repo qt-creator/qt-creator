@@ -66,15 +66,15 @@ public:
 
     bool equals(const TypingSettings &ts) const;
 
+    friend bool operator==(const TypingSettings &t1, const TypingSettings &t2) { return t1.equals(t2); }
+    friend bool operator!=(const TypingSettings &t1, const TypingSettings &t2) { return !t1.equals(t2); }
+
     bool m_autoIndent;
     TabKeyBehavior m_tabKeyBehavior;
     SmartBackspaceBehavior m_smartBackspaceBehavior;
 
     bool m_preferSingleLineComments;
 };
-
-inline bool operator==(const TypingSettings &t1, const TypingSettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const TypingSettings &t1, const TypingSettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
 

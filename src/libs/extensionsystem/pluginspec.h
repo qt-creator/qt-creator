@@ -60,14 +60,14 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
 
     PluginDependency() : type(Required) {}
 
+    friend Utils::QHashValueType qHash(const PluginDependency &value);
+
     QString name;
     QString version;
     Type type;
     bool operator==(const PluginDependency &other) const;
     QString toString() const;
 };
-
-Utils::QHashValueType qHash(const ExtensionSystem::PluginDependency &value);
 
 struct EXTENSIONSYSTEM_EXPORT PluginArgumentDescription
 {

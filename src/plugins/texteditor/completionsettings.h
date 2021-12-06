@@ -56,6 +56,9 @@ public:
 
     bool equals(const CompletionSettings &bs) const;
 
+    friend bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }
+    friend bool operator!=(const CompletionSettings &t1, const CompletionSettings &t2) { return !t1.equals(t2); }
+
     CaseSensitivity m_caseSensitivity = CaseInsensitive;
     CompletionTrigger m_completionTrigger = AutomaticCompletion;
     int m_automaticProposalTimeoutInMs = 400;
@@ -73,8 +76,5 @@ public:
     bool m_autoRemove = true;
     bool m_overwriteClosingChars = false;
 };
-
-inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const CompletionSettings &t1, const CompletionSettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor

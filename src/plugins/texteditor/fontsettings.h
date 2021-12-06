@@ -98,6 +98,9 @@ public:
 
     static QString defaultSchemeFileName(const QString &fileName = QString());
 
+    friend bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }
+    friend bool operator!=(const FontSettings &f1, const FontSettings &f2) { return !f1.equals(f2); }
+
 private:
     void addMixinStyle(QTextCharFormat &textCharFormat, const MixinTextStyles &mixinStyles) const;
 
@@ -111,8 +114,5 @@ private:
     mutable QHash<TextStyle, QTextCharFormat> m_formatCache;
     mutable QHash<TextStyles, QTextCharFormat> m_textCharFormatCache;
 };
-
-inline bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }
-inline bool operator!=(const FontSettings &f1, const FontSettings &f2) { return !f1.equals(f2); }
 
 } // namespace TextEditor

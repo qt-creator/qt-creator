@@ -48,9 +48,9 @@ public:
     {
         return true;
     }
-};
 
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const AliveMessage &message);
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const AliveMessage &message);
+};
 
 DECLARE_MESSAGE(AliveMessage)
 }

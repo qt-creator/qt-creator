@@ -72,22 +72,22 @@ public:
             h &= 0x0fffffff;
         }
     }
+
+    friend auto qHash(const StringHolder &sh)
+    {
+        return QT_PREPEND_NAMESPACE(qHash)(sh.h, 0);
+    }
+
+    friend bool operator==(const StringHolder &sh1, const StringHolder &sh2)
+    {
+        // sh.n is unlikely to discriminate better than the hash.
+        return sh1.h == sh2.h && sh1.str && sh2.str && strcmp(sh1.str, sh2.str) == 0;
+    }
+
     int n = 0;
     const char *str = nullptr;
     quintptr h;
 };
-
-static bool operator==(const StringHolder &sh1, const StringHolder &sh2)
-{
-    // sh.n is unlikely to discriminate better than the hash.
-    return sh1.h == sh2.h && sh1.str && sh2.str && strcmp(sh1.str, sh2.str) == 0;
-}
-
-
-static auto qHash(const StringHolder &sh)
-{
-    return QT_PREPEND_NAMESPACE(qHash)(sh.h, 0);
-}
 
 struct IdCache : public QHash<StringHolder, quintptr>
 {
@@ -338,10 +338,6 @@ QString Id::suffixAfter(Id baseId) const
     return n.startsWith(b) ? QString::fromUtf8(n.mid(b.size())) : QString();
 }
 
-} // namespace Utils
-
-QT_BEGIN_NAMESPACE
-
 QDataStream &operator<<(QDataStream &ds, Utils::Id id)
 {
     return ds << id.name();
@@ -360,4 +356,4 @@ QDebug operator<<(QDebug dbg, const Utils::Id &id)
     return dbg << id.name();
 }
 
-QT_END_NAMESPACE
+} // namespace Utils

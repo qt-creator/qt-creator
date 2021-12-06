@@ -43,9 +43,11 @@ struct TEXTEDITOR_EXPORT Parenthesis
 {
     enum Type : char { Opened, Closed };
 
-    inline Parenthesis() = default;
-    inline Parenthesis(Type t, QChar c, int position)
-        : pos(position), chr(c), type(t) {}
+    Parenthesis() = default;
+    Parenthesis(Type t, QChar c, int position) : pos(position), chr(c), type(t) {}
+
+    friend TEXTEDITOR_EXPORT QDebug operator<<(QDebug debug, const Parenthesis &parenthesis);
+
     int pos = -1;
     QChar chr;
     Utils::Id source;
@@ -55,8 +57,6 @@ struct TEXTEDITOR_EXPORT Parenthesis
 };
 using Parentheses = QVector<Parenthesis>;
 TEXTEDITOR_EXPORT void insertSorted(Parentheses &list, const Parenthesis &elem);
-
-TEXTEDITOR_EXPORT QDebug operator<<(QDebug debug, const Parenthesis &parenthesis);
 
 class TEXTEDITOR_EXPORT CodeFormatterData
 {

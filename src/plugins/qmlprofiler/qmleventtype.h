@@ -63,9 +63,6 @@ private:
     int m_detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
 };
 
-QDataStream &operator>>(QDataStream &stream, QmlEventType &type);
-QDataStream &operator<<(QDataStream &stream, const QmlEventType &type);
-
 } // namespace QmlProfiler
 
 Q_DECLARE_METATYPE(QmlProfiler::QmlEventType)

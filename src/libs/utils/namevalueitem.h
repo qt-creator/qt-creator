@@ -60,11 +60,12 @@ public:
         return first.operation == second.operation && first.name == second.name
                && first.value == second.value;
     }
-
     friend bool operator!=(const NameValueItem &first, const NameValueItem &second)
     {
         return !(first == second);
     }
+
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const NameValueItem &i);
 
 public:
     QString name;
@@ -74,7 +75,5 @@ public:
 private:
     void apply(NameValueDictionary *dictionary, Operation op) const;
 };
-
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const NameValueItem &i);
 
 } // namespace Utils

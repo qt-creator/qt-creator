@@ -55,23 +55,21 @@ public:
 
     bool isExecutable() const;
 
+    friend bool operator==(const DeployableFile &d1, const DeployableFile &d2)
+    {
+        return d1.localFilePath() == d2.localFilePath() && d1.remoteDirectory() == d2.remoteDirectory();
+    }
+
+    friend bool operator!=(const DeployableFile &d1, const DeployableFile &d2)
+    {
+        return !(d1 == d2);
+    }
+    friend PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const DeployableFile &d);
+
 private:
     Utils::FilePath m_localFilePath;
     QString m_remoteDir;
     Type m_type = TypeNormal;
 };
-
-
-inline bool operator==(const DeployableFile &d1, const DeployableFile &d2)
-{
-    return d1.localFilePath() == d2.localFilePath() && d1.remoteDirectory() == d2.remoteDirectory();
-}
-
-inline bool operator!=(const DeployableFile &d1, const DeployableFile &d2)
-{
-    return !(d1 == d2);
-}
-
-PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const DeployableFile &d);
 
 } // namespace ProjectExplorer

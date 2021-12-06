@@ -60,21 +60,21 @@ protected:
 
 struct Section
 {
+    friend bool operator<(const Section &lhs, const Section &rhs)
+    {
+        if (lhs.priority < rhs.priority)
+            return true;
+        return lhs.priority > rhs.priority ? false : lhs.name < rhs.name;
+    }
+
+    friend bool operator==(const Section &lhs, const Section &rhs)
+    {
+        return lhs.priority == rhs.priority && lhs.name == rhs.name;
+    }
+
     QString name;
     int priority;
 };
-
-inline bool operator<(const Section &lhs, const Section &rhs)
-{
-    if (lhs.priority < rhs.priority)
-        return true;
-    return lhs.priority > rhs.priority ? false : lhs.name < rhs.name;
-}
-
-inline bool operator==(const Section &lhs, const Section &rhs)
-{
-    return lhs.priority == rhs.priority && lhs.name == rhs.name;
-}
 
 class SectionedProducts : public QStackedWidget
 {

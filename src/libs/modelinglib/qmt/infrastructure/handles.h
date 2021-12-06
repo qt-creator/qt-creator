@@ -224,18 +224,16 @@ public:
         return take(indexOf(t));
     }
 
+    friend bool operator==(const Handles<T> &lhs, const Handles<T> &rhs)
+    {
+        return lhs.get() == rhs.get();
+    }
+
+    friend bool operator!=(const Handles &lhs, const Handles &rhs) { return !(lhs == rhs); }
+
 private:
     value_type m_handleList;
     bool m_takesOwnership = false;
 };
-
-template<typename T>
-bool operator==(const Handles<T> &lhs, const Handles<T> &rhs)
-{
-    return lhs.get() == rhs.get();
-}
-
-template<typename T>
-bool operator!=(const Handles<T> &lhs, const Handles<T> &rhs) { return !(lhs == rhs); }
 
 } // namespace qmt

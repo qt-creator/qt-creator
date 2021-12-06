@@ -48,6 +48,7 @@ class CMakeFileInfo
 {
 public:
     bool operator==(const CMakeFileInfo& other) const { return path == other.path; }
+    friend auto qHash(const CMakeFileInfo &info, uint seed = 0) { return info.path.hash(seed); }
 
     Utils::FilePath path;
     bool isCMake = false;
@@ -55,8 +56,6 @@ public:
     bool isExternal = false;
     bool isGenerated = false;
 };
-
-inline auto qHash(const CMakeFileInfo &info, uint seed = 0) { return info.path.hash(seed); }
 
 class FileApiQtcData
 {

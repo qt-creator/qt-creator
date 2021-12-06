@@ -82,6 +82,8 @@ public:
     virtual void setWidget(QWidget *widget) { m_widget = widget; }
     virtual void setContextHelp(const HelpItem &id) { m_contextHelp = id; }
 
+    friend CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);
+
 protected:
     Context m_context;
     QPointer<QWidget> m_widget;
@@ -89,4 +91,3 @@ protected:
 };
 
 } // namespace Core
-CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);

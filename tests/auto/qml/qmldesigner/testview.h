@@ -37,11 +37,15 @@ class TestView : public QmlDesigner::AbstractView
 {
     Q_OBJECT
 public:
-    struct MethodCall {
+    struct MethodCall
+    {
         MethodCall(const QString &n, const QStringList &args) :
                 name(n), arguments(args)
         {
         }
+
+        friend bool operator==(TestView::MethodCall call1, TestView::MethodCall call2);
+        friend QDebug operator<<(QDebug debug, TestView::MethodCall call);
 
         QString name;
         QStringList arguments;
@@ -114,6 +118,3 @@ private:
     QList<MethodCall> m_methodCalls;
     static QString serialize(AbstractView::PropertyChangeFlags change);
 };
-
-bool operator==(TestView::MethodCall call1, TestView::MethodCall call2);
-QDebug operator<<(QDebug debug, TestView::MethodCall call);

@@ -109,6 +109,8 @@ public:
         return first.filePath == second.filePath;
     }
 
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
+
 public:
     Utf8String filePath;
     Utf8StringVector compilationArguments;
@@ -118,7 +120,5 @@ public:
     quint32 documentRevision = 0;
     bool hasUnsavedFileContent = false;
 };
-
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
 
 } // namespace ClangBackEnd

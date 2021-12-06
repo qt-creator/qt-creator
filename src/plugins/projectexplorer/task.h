@@ -77,6 +77,10 @@ public:
     QString description() const;
     QIcon icon() const;
 
+    friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
+    friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
+    friend PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const Task &task);
+
     unsigned int taskId = 0;
     TaskType type = Unknown;
     Options options = AddTextMark | FlashWorthy;
@@ -135,11 +139,6 @@ public:
 };
 
 using Tasks = QVector<Task>;
-
-PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
-PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const Task &task);
-
-PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
 
 PROJECTEXPLORER_EXPORT QString toHtml(const Tasks &issues);
 PROJECTEXPLORER_EXPORT bool containsType(const Tasks &issues, Task::TaskType);

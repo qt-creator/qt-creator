@@ -97,6 +97,8 @@ public:
             && first.skippedPreprocessorRanges == second.skippedPreprocessorRanges;
     }
 
+    friend CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const AnnotationsMessage &message);
+
 public:
     FileContainer fileContainer;
     QVector<TokenInfoContainer> tokenInfos;
@@ -105,8 +107,6 @@ public:
     QVector<SourceRangeContainer> skippedPreprocessorRanges;
     bool onlyTokenInfos = false;
 };
-
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const AnnotationsMessage &message);
 
 DECLARE_MESSAGE(AnnotationsMessage)
 } // namespace ClangBackEnd

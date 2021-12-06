@@ -49,6 +49,12 @@ public:
 
     bool equals(const ExtraEncodingSettings &s) const;
 
+    friend bool operator==(const ExtraEncodingSettings &a, const ExtraEncodingSettings &b)
+    { return a.equals(b); }
+
+    friend bool operator!=(const ExtraEncodingSettings &a, const ExtraEncodingSettings &b)
+    { return !a.equals(b); }
+
     static QStringList lineTerminationModeNames();
 
     enum Utf8BomSetting {
@@ -58,11 +64,5 @@ public:
     };
     Utf8BomSetting m_utf8BomSetting;
 };
-
-inline bool operator==(const ExtraEncodingSettings &a, const ExtraEncodingSettings &b)
-{ return a.equals(b); }
-
-inline bool operator!=(const ExtraEncodingSettings &a, const ExtraEncodingSettings &b)
-{ return !a.equals(b); }
 
 } // TextEditor

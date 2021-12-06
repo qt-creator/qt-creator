@@ -68,6 +68,7 @@ public:
     QString toCMakeSetLine(const Utils::MacroExpander *expander = nullptr) const;
 
     bool operator==(const CMakeConfigItem &o) const;
+    friend Utils::QHashValueType qHash(const CMakeConfigItem &it);  // needed for MSVC
 
     QByteArray key;
     Type type = STRING;
@@ -78,8 +79,6 @@ public:
     QByteArray documentation;
     QStringList values;
 };
-
-Utils::QHashValueType qHash(const CMakeConfigItem &it);  // needed for MSVC
 
 class CMAKE_EXPORT CMakeConfig : public QList<CMakeConfigItem>
 {

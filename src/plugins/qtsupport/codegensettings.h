@@ -48,13 +48,13 @@ public:
     void fromSettings(const QSettings *settings);
     void toSettings(QSettings *settings) const;
 
+    friend bool operator==(const CodeGenSettings &p1, const CodeGenSettings &p2) { return p1.equals(p2); }
+    friend bool operator!=(const CodeGenSettings &p1, const CodeGenSettings &p2) { return !p1.equals(p2); }
+
     UiClassEmbedding embedding;
     bool retranslationSupport; // Add handling for language change events
     bool includeQtModule; // Include "<QtGui/[Class]>" or just "<[Class]>"
     bool addQtVersionCheck; // Include #ifdef when using "#include <QtGui/..."
 };
-
-inline bool operator==(const CodeGenSettings &p1, const CodeGenSettings &p2) { return p1.equals(p2); }
-inline bool operator!=(const CodeGenSettings &p1, const CodeGenSettings &p2) { return !p1.equals(p2); }
 
 } // namespace QtSupport

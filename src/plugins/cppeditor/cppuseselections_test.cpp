@@ -33,17 +33,19 @@
 #include <QtTest>
 
 // Uses 1-based line and 0-based column.
-struct Selection {
+struct Selection
+{
     Selection(int line, int column, int length) : line(line), column(column), length(length) {}
+
+    friend bool operator==(const Selection &l, const Selection &r)
+    { return l.line == r.line && l.column == r.column && l.length == r.length; }
+
     int line;
     int column;
     int length;
 };
 typedef QList<Selection> SelectionList;
 Q_DECLARE_METATYPE(SelectionList)
-
-inline bool operator==(const Selection &l, const Selection &r)
-{ return l.line == r.line && l.column == r.column && l.length == r.length; }
 
 QT_BEGIN_NAMESPACE
 namespace QTest {

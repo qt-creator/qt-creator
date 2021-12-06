@@ -51,37 +51,27 @@ public:
     QString toString() const { return m_uuid.toString(); }
     void fromString(const QString &s) { m_uuid = QUuid(s); }
 
+    friend auto qHash(const Uid &uid) { return qHash(uid.get()); }
+
+    friend bool operator==(const Uid &lhs, const Uid &rhs) { return lhs.get() == rhs.get(); }
+    friend bool operator!=(const Uid &lhs, const Uid &rhs) { return !operator==(lhs, rhs); }
+
+    friend QDataStream &operator<<(QDataStream &stream, const Uid &uid)
+    {
+        return stream << uid.get();
+    }
+
+    friend QDataStream &operator>>(QDataStream &stream, Uid &uid)
+    {
+        QUuid uuid;
+        stream >> uuid;
+        uid.setUuid(uuid);
+        return stream;
+    }
+
 private:
     QUuid m_uuid;
 };
-
-inline auto qHash(const Uid &uid)
-{
-    return qHash(uid.get());
-}
-
-inline bool operator==(const Uid &lhs, const Uid &rhs)
-{
-    return lhs.get() == rhs.get();
-}
-
-inline bool operator!=(const Uid &lhs, const Uid &rhs)
-{
-    return !operator==(lhs, rhs);
-}
-
-inline QDataStream &operator<<(QDataStream &stream, const Uid &uid)
-{
-    return stream << uid.get();
-}
-
-inline QDataStream &operator>>(QDataStream &stream, Uid &uid)
-{
-    QUuid uuid;
-    stream >> uuid;
-    uid.setUuid(uuid);
-    return stream;
-}
 
 } // namespace qmt
 

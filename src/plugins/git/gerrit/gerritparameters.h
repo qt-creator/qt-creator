@@ -46,6 +46,11 @@ public:
     void fromSettings(const QSettings *);
     void setPortFlagBySshType();
 
+    friend bool operator==(const GerritParameters &p1, const GerritParameters &p2)
+    { return p1.equals(p2); }
+    friend bool operator!=(const GerritParameters &p1, const GerritParameters &p2)
+    { return !p1.equals(p2); }
+
     GerritServer server;
     Utils::FilePath ssh;
     Utils::FilePath curl;
@@ -53,11 +58,6 @@ public:
     bool https = true;
     QString portFlag;
 };
-
-inline bool operator==(const GerritParameters &p1, const GerritParameters &p2)
-{ return p1.equals(p2); }
-inline bool operator!=(const GerritParameters &p1, const GerritParameters &p2)
-{ return !p1.equals(p2); }
 
 } // namespace Internal
 } // namespace Gerrit

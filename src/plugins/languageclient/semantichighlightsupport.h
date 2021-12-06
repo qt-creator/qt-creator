@@ -44,17 +44,19 @@ class Client;
 class LANGUAGECLIENT_EXPORT ExpandedSemanticToken
 {
 public:
+    friend bool operator==(const ExpandedSemanticToken &t1, const ExpandedSemanticToken &t2)
+    {
+        return t1.line == t2.line && t1.column == t2.column && t1.length == t2.length
+                && t1.type == t2.type && t1.modifiers == t2.modifiers;
+    }
+
     int line = -1;
     int column = -1;
     int length = -1;
     QString type;
     QStringList modifiers;
 };
-inline bool operator==(const ExpandedSemanticToken &t1, const ExpandedSemanticToken &t2)
-{
-    return t1.line == t2.line && t1.column == t2.column && t1.length == t2.length
-            && t1.type == t2.type && t1.modifiers == t2.modifiers;
-}
+
 using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
                                                  const QList<ExpandedSemanticToken> &, int, bool)>;
 
