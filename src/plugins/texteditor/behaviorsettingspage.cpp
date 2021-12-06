@@ -39,7 +39,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 // for opening the respective coding style preferences
 #include <cppeditor/cppeditorconstants.h>
@@ -142,57 +144,50 @@ void BehaviorSettingsPage::apply()
                    &newBehaviorSettings, &newExtraEncodingSettings);
 
     QSettings *s = Core::ICore::settings();
+    QTC_ASSERT(s, return);
 
     if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
         d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());
-        if (s)
-            d->m_codeStyle->toSettings(d->m_settingsPrefix, s);
+        d->m_codeStyle->toSettings(d->m_settingsPrefix, s);
     }
 
     if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate()) {
         d->m_codeStyle->setCurrentDelegate(d->m_pageCodeStyle->currentDelegate());
-        if (s)
-            d->m_codeStyle->toSettings(d->m_settingsPrefix, s);
+        d->m_codeStyle->toSettings(d->m_settingsPrefix, s);
     }
 
     if (newTypingSettings != d->m_typingSettings) {
         d->m_typingSettings = newTypingSettings;
-        if (s)
-            d->m_typingSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_typingSettings.toSettings(d->m_settingsPrefix, s);
 
         emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
     }
 
     if (newStorageSettings != d->m_storageSettings) {
         d->m_storageSettings = newStorageSettings;
-        if (s)
-            d->m_storageSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_storageSettings.toSettings(d->m_settingsPrefix, s);
 
         emit TextEditorSettings::instance()->storageSettingsChanged(newStorageSettings);
     }
 
     if (newBehaviorSettings != d->m_behaviorSettings) {
         d->m_behaviorSettings = newBehaviorSettings;
-        if (s)
-            d->m_behaviorSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_behaviorSettings.toSettings(d->m_settingsPrefix, s);
 
         emit TextEditorSettings::instance()->behaviorSettingsChanged(newBehaviorSettings);
     }
 
     if (newExtraEncodingSettings != d->m_extraEncodingSettings) {
         d->m_extraEncodingSettings = newExtraEncodingSettings;
-        if (s)
-            d->m_extraEncodingSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_extraEncodingSettings.toSettings(d->m_settingsPrefix, s);
 
         emit TextEditorSettings::instance()->extraEncodingSettingsChanged(newExtraEncodingSettings);
     }
 
-    if (s) {
-        s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
-                    d->m_page->behaviorWidget->assignedCodecName());
-        s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR),
-                    d->m_page->behaviorWidget->assignedLineEnding());
-    }
+    s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
+                d->m_page->behaviorWidget->assignedCodecName());
+    s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR),
+                d->m_page->behaviorWidget->assignedLineEnding());
 }
 
 void BehaviorSettingsPage::settingsFromUI(TypingSettings *typingSettings,
