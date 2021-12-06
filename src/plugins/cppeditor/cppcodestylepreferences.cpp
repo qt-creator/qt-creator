@@ -92,8 +92,11 @@ void CppCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
 QVariantMap CppCodeStylePreferences::toMap() const
 {
     QVariantMap map = ICodeStylePreferences::toMap();
-    if (!currentDelegate())
-        map.insert(m_data.toMap());
+    if (!currentDelegate()) {
+        const QVariantMap dataMap = m_data.toMap();
+        for (auto it = dataMap.begin(), end = dataMap.end(); it != end; ++it)
+            map.insert(it.key(), it.value());
+    }
     return map;
 }
 
