@@ -201,6 +201,8 @@ QtObject {
 
     // Theme Colors
 
+    property bool isLightTheme: themeControlBackground.hsvValue > themeTextColor.hsvValue
+
     property string themePanelBackground: Theme.color(Theme.DSpanelBackground)
 
     property string themeInteraction: Theme.color(Theme.DSinteraction)
@@ -211,7 +213,7 @@ QtObject {
     property string themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
 
     // Control colors
-    property string themeControlBackground: Theme.color(Theme.DScontrolBackground)
+    property color themeControlBackground: Theme.color(Theme.DScontrolBackground)
     property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction)
     property string themeControlBackgroundDisabled: Theme.color(Theme.DScontrolBackgroundDisabled)
     property string themeControlBackgroundGlobalHover: Theme.color(Theme.DScontrolBackgroundGlobalHover)
@@ -226,7 +228,7 @@ QtObject {
     property string themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
 
     // Text colors
-    property string themeTextColor: Theme.color(Theme.DStextColor)
+    property color themeTextColor: Theme.color(Theme.DStextColor)
     property string themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
     property string themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
     property string themeTextSelectedTextColor: Theme.color(Theme.DStextSelectedTextColor)
