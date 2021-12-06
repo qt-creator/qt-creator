@@ -122,6 +122,10 @@
     \title CMake: set_property command
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/command/target_compile_definitions.html
+    \title CMake: target_compile_definitions command
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/command/target_link_libraries.html
     \title CMake: target_link_libraries command
 */

@@ -132,8 +132,18 @@
         \li Build the application by using the appropriate configuration
             parameters (if you build the application with \QC, it automatically
             uses the correct configuration):
+            \list
+                \li When using CMake, the
+                    \l{CMake: target_compile_definitions command}
+                    {target_compile_definitions} command is defined
+                    in the CMakeLists.txt file:
+                    \c {target_compile_definitions(myapp PRIVATE QT_QML_DEBUG)}
 
-            \c {CONFIG+=qml_debug}
+                    Where \e myapp is the application to debug.
+                \li When using qmake, the following value is defined for the
+                    \l CONFIG property in the .pro file:
+                    \c {CONFIG += qml_debug}
+            \endlist
         \endif
 
         \li Start the application with the following arguments:
