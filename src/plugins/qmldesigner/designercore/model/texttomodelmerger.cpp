@@ -957,7 +957,8 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
         if (majorVersion >= 0) {
             int minorVersion = (importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion;
             QString version = QStringLiteral("%1.%2").arg(majorVersion).arg(minorVersion);
-            possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
+            if (!libraryName.endsWith(".impl"))
+                possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
 
             // In Qt6, QtQuick.Controls itself doesn't have any version as it has no types,
             // so it never gets added normally to possible imports.
