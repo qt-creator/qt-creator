@@ -78,7 +78,7 @@ const QLatin1String kModified("modified");
 SnippetsCollection::Hint::Hint(int index) : m_index(index)
 {}
 
-SnippetsCollection::Hint::Hint(int index, QList<Snippet>::iterator it) : m_index(index), m_it(it)
+SnippetsCollection::Hint::Hint(int index, QVector<Snippet>::iterator it) : m_index(index), m_it(it)
 {}
 
 int SnippetsCollection::Hint::index() const
@@ -123,8 +123,8 @@ void SnippetsCollection::insertSnippet(const Snippet &snippet, const Hint &hint)
 SnippetsCollection::Hint SnippetsCollection::computeInsertionHint(const Snippet &snippet)
 {
     const int group = groupIndex(snippet.groupId());
-    QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = std::upper_bound(snippets.begin(),
+    QVector<Snippet> &snippets = m_snippets[group];
+    QVector<Snippet>::iterator it = std::upper_bound(snippets.begin(),
                                                    snippets.begin()
                                                        + m_activeSnippetsCount.at(group),
                                                    snippet,
@@ -161,12 +161,12 @@ SnippetsCollection::Hint SnippetsCollection::computeReplacementHint(int index,
                                                                     const Snippet &snippet)
 {
     const int group = groupIndex(snippet.groupId());
-    QList<Snippet> &snippets = m_snippets[group];
+    QVector<Snippet> &snippets = m_snippets[group];
     auto activeSnippetsEnd = snippets.begin() + m_activeSnippetsCount.at(group);
-    QList<Snippet>::iterator it = std::lower_bound(snippets.begin(),
-                                                   activeSnippetsEnd,
-                                                   snippet,
-                                                   snippetComp);
+    QVector<Snippet>::iterator it = std::lower_bound(snippets.begin(),
+                                                     activeSnippetsEnd,
+                                                     snippet,
+                                                     snippetComp);
     int hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index < hintIndex - 1)
         return Hint(hintIndex - 1, it);
@@ -249,6 +249,7 @@ void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
         return;
     const QVector<Snippet> toRestore = m_snippets[group].mid(m_activeSnippetsCount[group]);
     m_snippets[group].resize(m_activeSnippetsCount[group]);
+
     for (Snippet snippet : qAsConst(toRestore)) {
         snippet.setIsRemoved(false);
         insertSnippet(snippet);

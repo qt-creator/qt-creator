@@ -61,9 +61,9 @@ public:
         int index() const;
     private:
         explicit Hint(int index);
-        Hint(int index, QList<Snippet>::iterator it);
+        Hint(int index, QVector<Snippet>::iterator it);
         int m_index;
-        QList<Snippet>::iterator m_it;
+        QVector<Snippet>::iterator m_it;
     };
 
     void insertSnippet(const Snippet &snippet);
@@ -120,7 +120,7 @@ private:
     // Snippets for each group are kept in a list. However, not all of them are necessarily
     // active. Specifically, removed built-in snippets are kept as the last ones (for each
     // group there is a iterator that marks the logical end).
-    QVector<QList<Snippet> > m_snippets;
+    QVector<QVector<Snippet> > m_snippets;
     QVector<int> m_activeSnippetsCount;
 
     QHash<QString, int> m_groupIndexById;
