@@ -75,6 +75,7 @@ protected:
     bool visit(AST::UiQualifiedId *ast) override;
 
     // QmlJS
+    bool visit(AST::TemplateLiteral *ast) override;
     bool visit(AST::ThisExpression *ast) override;
     bool visit(AST::IdentifierExpression *ast) override;
     bool visit(AST::NullExpression *ast) override;

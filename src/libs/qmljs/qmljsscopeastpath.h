@@ -44,6 +44,7 @@ protected:
     using Visitor::visit;
 
     bool preVisit(AST::Node *node) override;
+    bool visit(AST::TemplateLiteral *node) override;
     bool visit(AST::UiPublicMember *node) override;
     bool visit(AST::UiScriptBinding *node) override;
     bool visit(AST::UiObjectDefinition *node) override;

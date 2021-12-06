@@ -127,6 +127,12 @@ protected:
         return handleLocationAst(ast);
     }
 
+    bool visit(AST::TemplateLiteral *ast) override
+    {
+        AST::Node::accept(ast->expression, this);
+        return true;
+    }
+
     void throwRecursionDepthError() override
     {
         qWarning("Warning: Hit maximum recursion depth when visiting the AST in AstPath");

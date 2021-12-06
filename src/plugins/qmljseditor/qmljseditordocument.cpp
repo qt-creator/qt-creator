@@ -279,6 +279,13 @@ protected:
         --_depth;
     }
 
+    bool visit(AST::TemplateLiteral *ast) override
+    {
+        // avoid? finds function declarations in templates
+        AST::Node::accept(ast->expression, this);
+        return true;
+    }
+
     bool visit(AST::FunctionExpression *) override
     {
         return false;
@@ -395,6 +402,12 @@ protected:
     bool visit(AST::FunctionExpression *ast) override
     {
         _ranges.append(createRange(ast));
+        return true;
+    }
+
+    bool visit(AST::TemplateLiteral *ast) override
+    {
+        AST::Node::accept(ast->expression, this);
         return true;
     }
 

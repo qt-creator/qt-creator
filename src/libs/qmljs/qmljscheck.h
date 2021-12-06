@@ -77,6 +77,7 @@ protected:
     bool visit(AST::FunctionExpression *ast) override;
     bool visit(AST::UiObjectInitializer *) override;
 
+    bool visit(AST::TemplateLiteral *ast) override;
     bool visit(AST::BinaryExpression *ast) override;
     bool visit(AST::Block *ast) override;
     bool visit(AST::WithStatement *ast) override;

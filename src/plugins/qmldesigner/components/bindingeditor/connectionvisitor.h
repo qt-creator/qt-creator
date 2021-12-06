@@ -37,6 +37,7 @@ class ConnectionVisitor : public QmlJS::AST::Visitor
 public:
     explicit ConnectionVisitor();
 
+    bool visit(QmlJS::AST::TemplateLiteral *ast) override;
     bool visit(QmlJS::AST::StringLiteral *ast) override;
     bool visit(QmlJS::AST::NumericLiteral *ast) override;
     bool visit(QmlJS::AST::TrueLiteral *ast) override;

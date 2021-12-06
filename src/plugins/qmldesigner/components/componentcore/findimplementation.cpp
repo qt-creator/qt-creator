@@ -148,6 +148,12 @@ protected:
         return true;
     }
 
+    bool visit(AST::TemplateLiteral *node) override
+    {
+        AST::Node::accept(node->expression, this);
+        return true;
+    }
+
     bool visit(AST::IdentifierExpression *node) override
     {
         if (node->name != m_typeName)

@@ -350,6 +350,12 @@ bool Bind::visit(UiInlineComponent *ast)
     return true;
 }
 
+bool Bind::visit(AST::TemplateLiteral *ast)
+{
+    Node::accept(ast->expression, this);
+    return true;
+}
+
 bool Bind::visit(PatternElement *ast)
 {
     if (ast->bindingIdentifier.isEmpty() || !ast->isVariableDeclaration())

@@ -61,6 +61,12 @@ bool ScopeAstPath::preVisit(Node *node)
     return true;
 }
 
+bool ScopeAstPath::visit(AST::TemplateLiteral *node)
+{
+    Node::accept(node->expression, this);
+    return true;
+}
+
 bool ScopeAstPath::visit(UiPublicMember *node)
 {
     if (node && node->statement && node->statement->kind == node->Kind_Block

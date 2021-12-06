@@ -118,6 +118,12 @@ protected:
         return false;
     }
 
+    bool visit(AST::TemplateLiteral *el) override
+    {
+        Node::accept(el->expression, this);
+        return true;
+    }
+
     bool visit(AST::UiObjectBinding *node) override
     {
         if (node->qualifiedId
@@ -398,6 +404,12 @@ protected:
         return true;
     }
 
+    bool visit(AST::TemplateLiteral *el) override
+    {
+        Node::accept(el->expression, this);
+        return true;
+    }
+
     bool visit(AST::FunctionDeclaration *node) override
     {
         return visit(static_cast<FunctionExpression *>(node));
@@ -554,6 +566,12 @@ protected:
             }
             return false;
         }
+        return true;
+    }
+
+    bool visit(AST::TemplateLiteral *el) override
+    {
+        Node::accept(el->expression, this);
         return true;
     }
 

@@ -808,6 +808,12 @@ bool Check::visit(UiObjectInitializer *)
     return true;
 }
 
+bool Check::visit(AST::TemplateLiteral *ast)
+{
+    Node::accept(ast->expression, this);
+    return true;
+}
+
 void Check::endVisit(UiObjectInitializer *uiObjectInitializer)
 {
     Q_UNUSED(uiObjectInitializer)
