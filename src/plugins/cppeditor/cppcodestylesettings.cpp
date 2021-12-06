@@ -69,17 +69,6 @@ namespace CppEditor {
 
 CppCodeStyleSettings::CppCodeStyleSettings() = default;
 
-void CppCodeStyleSettings::toSettings(const QString &category, QSettings *s) const
-{
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-void CppCodeStyleSettings::fromSettings(const QString &category, QSettings *s)
-{
-    *this = CppCodeStyleSettings(); // Assign defaults
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
 QVariantMap CppCodeStyleSettings::toMap() const
 {
     return {

@@ -31,10 +31,6 @@
 
 #include <QVariantMap>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace CPlusPlus { class Overview; }
 namespace TextEditor { class TabSettings; }
 namespace ProjectExplorer { class Project; }
@@ -87,9 +83,6 @@ public:
     // TODO only kept to allow conversion to the new setting getterNameTemplate in
     // CppEditor/QuickFixSetting. Remove in 4.16
     bool preferGetterNameWithoutGetPrefix = true;
-
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
