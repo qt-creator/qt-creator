@@ -656,10 +656,12 @@ void ItemLibraryWidget::addResources(const QStringList &files)
         QStringList fileNames = categoryFileNames.values(category);
         AddResourceOperation operation = categoryToOperation.value(category);
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
-        AddFilesResult result = operation(fileNames, document->fileName().parentDir().toString());
-        if (result == AddFilesResult::Failed) {
-            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                  tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+        if (operation) {
+            AddFilesResult result = operation(fileNames, document->fileName().parentDir().toString());
+            if (result == AddFilesResult::Failed) {
+                Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                      tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+            }
         }
     }
 }
