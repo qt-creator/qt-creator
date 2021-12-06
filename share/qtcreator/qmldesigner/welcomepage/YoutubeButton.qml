@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick.Controls 2.12
+import QtQuick.Templates 2.15
 import WelcomeScreen 1.0
 import StudioTheme 1.0 as StudioTheme
 
@@ -74,7 +74,7 @@ Item {
     states: [
         State {
             name: "darkNormal"
-            when: StudioTheme.Values.style === 0 && !mouseArea.containsMouse
+            when: !StudioTheme.Values.isLightTheme && !mouseArea.containsMouse
                   && !mouseArea.pressed
 
             PropertyChanges {
@@ -99,7 +99,7 @@ Item {
         },
         State {
             name: "lightNormal"
-            when: StudioTheme.Values.style !== 0 && !mouseArea.containsMouse
+            when: StudioTheme.Values.isLightTheme && !mouseArea.containsMouse
                   && !mouseArea.pressed
 
             PropertyChanges {
@@ -124,7 +124,7 @@ Item {
         },
         State {
             name: "darkHover"
-            when: StudioTheme.Values.style === 0 && mouseArea.containsMouse
+            when: !StudioTheme.Values.isLightTheme && mouseArea.containsMouse
                   && !mouseArea.pressed
 
             PropertyChanges {
@@ -153,7 +153,7 @@ Item {
         },
         State {
             name: "lightHover"
-            when: StudioTheme.Values.style !== 0 && mouseArea.containsMouse
+            when: StudioTheme.Values.isLightTheme && mouseArea.containsMouse
                   && !mouseArea.pressed
 
             PropertyChanges {
@@ -183,7 +183,7 @@ Item {
         },
         State {
             name: "darkPressed"
-            when: StudioTheme.Values.style === 0
+            when: !StudioTheme.Values.isLightTheme
                   && (mouseArea.containsMouse || !mouseArea.containsMouse)
                   && mouseArea.pressed
 
@@ -215,7 +215,7 @@ Item {
         },
         State {
             name: "lightPressed"
-            when: StudioTheme.Values.style !== 0
+            when: StudioTheme.Values.isLightTheme
                   && (mouseArea.containsMouse || !mouseArea.containsMouse)
                   && mouseArea.pressed
 
