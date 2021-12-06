@@ -32,26 +32,25 @@ import projectmodel 1.0
 
 Rectangle {
     id: appBackground
-    width: Constants.width
     height: Constants.height
-    //anchors.fill: parent //this is required to make it responsive but commented out to force minimum size to work
     color: Constants.currentThemeBackground
+    width: 1842
+    //anchors.fill: parent //this is required to make it responsive but commented out to force minimum size to work
     property int pageIndex: 0
-
     property bool designMode: !(typeof (Constants.projectModel.designMode) === "undefined")
 
-    Rectangle {
-        id: modeBar
-        width: designMode ? 45 : 0
-        color: Constants.modeBarCurrent
-        border.color: "#00000000"
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-    }
+//    Rectangle {
+//        id: modeBar
+//        width: designMode ? 45 : 0
+//        color: Constants.modeBarCurrent
+//        border.color: "#00000000"
+//        anchors.left: parent.left
+//        anchors.top: parent.top
+//        anchors.bottom: parent.bottom
+//        anchors.bottomMargin: 0
+//        anchors.leftMargin: 0
+//        anchors.topMargin: 0
+//    }
 
     TestControlPanel {
         id: controlPanel
@@ -68,10 +67,11 @@ Rectangle {
     ColumnLayout {
         id: openCreatelayout
         y: 188
-        width: 250
         anchors.left: parent.left
+        anchors.right: thumbnails.left
+        anchors.rightMargin: 20
         spacing: 15
-        anchors.leftMargin: 70
+        anchors.leftMargin: 20
 
         PushButton {
             id: createProject
@@ -126,9 +126,10 @@ Rectangle {
     ColumnLayout {
         id: currentPageMenuLayout
         y: 470
-        width: 250
         anchors.left: parent.left
-        anchors.leftMargin: 70
+        anchors.right: thumbnails.left
+        anchors.rightMargin: 20
+        anchors.leftMargin: 20
         spacing: 15
 
         CheckButton {
@@ -186,7 +187,7 @@ Rectangle {
         id: brandBar
         y: 0
         anchors.left: parent.left
-        anchors.leftMargin: 70
+        anchors.leftMargin: 20
     }
 
     MainGridStack {
@@ -198,7 +199,7 @@ Rectangle {
         anchors.topMargin: Constants.basic ? 188 : 226
         anchors.rightMargin: 56
         anchors.bottomMargin: 54
-        anchors.leftMargin: 355
+        anchors.leftMargin: 290
         listStackLayoutCurrentIndex: appBackground.pageIndex
         stackLayoutCurrentIndex: appBackground.pageIndex
     }
@@ -210,7 +211,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 355
+        anchors.leftMargin: 290
         anchors.rightMargin: 55
         anchors.bottomMargin: 14
         spacing: 0
@@ -353,7 +354,7 @@ Rectangle {
         anchors.right: listGridToggle.left
         layoutDirection: Qt.LeftToRight
         spacing: 0
-        anchors.leftMargin: 355
+        anchors.leftMargin: 290
 
         Search {
             id: searchBar
@@ -410,7 +411,7 @@ Rectangle {
 
 /*##^##
 Designer {
-    D{i:0;height:1080;width:1920}
+    D{i:0;formeditorZoom:0.75;height:1080;width:1920}D{i:2}D{i:7}
 }
 ##^##*/
 
