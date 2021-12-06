@@ -142,6 +142,17 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             if (target.targetFilePath.isEmpty())
                 continue;
             projectInfo.applicationDirectories.append(target.targetFilePath.parentDir().toString());
+#if defined(Q_OS_WIN)
+            // On Windows systems QML type information is located one directory higher as we build
+            // in dedicated "debug" and "release" directories
+            projectInfo.applicationDirectories.append(
+                target.targetFilePath.parentDir().parentDir().toString());
+#elif defined(Q_OS_MACOS)
+            // On macOS this is not the case but the targetFilePath is within the bundle so we have
+            // to go up through all three additional directories (BundleName.app/Contents/MacOS)
+            projectInfo.applicationDirectories.append(
+                target.targetFilePath.parentDir().parentDir().parentDir().parentDir().toString());
+#endif
         }
     }
     if (qtVersion && qtVersion->isValid()) {
