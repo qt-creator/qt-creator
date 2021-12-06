@@ -42,6 +42,7 @@ protected:
 
     bool visit(QmlJS::AST::UiObjectBinding *ast) override;
     bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
+    bool visit(QmlJS::AST::TemplateLiteral *ast) override;
 
     void throwRecursionDepthError() override;
 

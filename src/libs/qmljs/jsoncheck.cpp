@@ -84,6 +84,12 @@ void JsonCheck::postVisit(Node *)
     analysis()->m_ranking += previous.m_ranking;
 }
 
+bool JsonCheck::visit(AST::TemplateLiteral *ast)
+{
+    Node::accept(ast->expression, this);
+    return true;
+}
+
 bool JsonCheck::visit(ObjectPattern *ast)
 {
     if (!proceedCheck(JsonValue::Object, ast->lbraceToken))

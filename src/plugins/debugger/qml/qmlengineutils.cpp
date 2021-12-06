@@ -158,6 +158,11 @@ public:
         return true;
     }
 
+    bool visit(TemplateLiteral *ast) override
+    {
+        Node::accept(ast->expression, this);
+        return true;
+    }
     bool visit(VariableStatement *ast) override { test(ast); return true; }
     bool visit(VariableDeclarationList *ast) override { test(ast); return true; }
     bool visit(ExpressionStatement *ast) override { test(ast); return true; }

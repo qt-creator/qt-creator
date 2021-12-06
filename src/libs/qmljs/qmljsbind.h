@@ -82,6 +82,7 @@ protected:
     bool visit(AST::UiInlineComponent *ast) override;
 
     // QML/JS
+    bool visit(AST::TemplateLiteral *ast) override;
     bool visit(AST::FunctionDeclaration *ast) override;
     bool visit(AST::FunctionExpression *ast) override;
     bool visit(AST::PatternElement *ast) override;

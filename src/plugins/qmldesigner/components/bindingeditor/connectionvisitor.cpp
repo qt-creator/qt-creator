@@ -31,6 +31,14 @@ ConnectionVisitor::ConnectionVisitor()
 {
 }
 
+bool ConnectionVisitor::visit(QmlJS::AST::TemplateLiteral *ast)
+{
+    m_expression.append(
+        qMakePair(QmlJS::AST::Node::Kind::Kind_StringLiteral, ast->value.toString()));
+    QmlJS::AST::Node::accept(ast->expression, this);
+    return true;
+}
+
 bool ConnectionVisitor::visit(QmlJS::AST::StringLiteral *ast)
 {
     m_expression.append(qMakePair(QmlJS::AST::Node::Kind::Kind_StringLiteral,

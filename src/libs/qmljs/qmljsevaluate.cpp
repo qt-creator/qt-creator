@@ -211,6 +211,12 @@ bool Evaluate::visit(AST::UiQualifiedId *ast)
     return false;
 }
 
+bool Evaluate::visit(AST::TemplateLiteral *ast)
+{
+    _result = _valueOwner->stringValue();
+    return false;
+}
+
 bool Evaluate::visit(AST::ThisExpression *)
 {
     return false;
