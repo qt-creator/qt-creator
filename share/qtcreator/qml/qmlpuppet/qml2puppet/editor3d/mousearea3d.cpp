@@ -898,7 +898,12 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                 // a problem
                 onCircle = false;
                 if (m_pickNode) {
-                    // We need to pick all as various other geometries can often be the first
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
+                    QQuick3DPickResult pr = m_view3D->pick(float(mousePos.x()), float(mousePos.y()));
+                    pickSuccess = pr.objectHit() == m_pickNode;
+#else
+                    // With the introduction of global picking API,
+                    // we need to pick all as various other geometries can often be the first
                     // pick result, such as camera frustum or light geometry
                     const QList<QQuick3DPickResult> results = m_view3D->pickAll(float(mousePos.x()),
                                                                                 float(mousePos.y()));
@@ -908,6 +913,7 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                             break;
                         }
                     }
+#endif
                 }
             }
         }
