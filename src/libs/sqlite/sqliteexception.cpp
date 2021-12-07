@@ -31,12 +31,9 @@
 
 namespace Sqlite {
 
-void Exception::printWarning() const
+void ExceptionWithMessage::printWarning() const
 {
-    if (!m_sqliteErrorMessage.isEmpty())
-        qWarning() << m_whatErrorHasHappen << m_sqliteErrorMessage;
-    else
-        qWarning() << m_whatErrorHasHappen;
+    qWarning() << what() << m_sqliteErrorMessage;
 }
 
 } // namespace Sqlite

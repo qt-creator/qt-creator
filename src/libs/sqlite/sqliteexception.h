@@ -37,385 +37,293 @@ namespace Sqlite {
 class SQLITE_EXPORT Exception : public std::exception
 {
 public:
-    Exception(const char *whatErrorHasHappen, Utils::SmallString &&sqliteErrorMessage)
-        : m_whatErrorHasHappen(whatErrorHasHappen)
-        , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
-    {}
-
     Exception(const char *whatErrorHasHappen)
         : m_whatErrorHasHappen(whatErrorHasHappen)
     {}
 
     const char *what() const noexcept override { return m_whatErrorHasHappen; }
 
+private:
+    const char *m_whatErrorHasHappen;
+};
+
+class SQLITE_EXPORT ExceptionWithMessage : public Exception
+{
+public:
+    ExceptionWithMessage(const char *whatErrorHasHappen,
+                         Utils::SmallString &&sqliteErrorMessage = Utils::SmallString{})
+        : Exception{whatErrorHasHappen}
+        , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
+    {}
+
     void printWarning() const;
 
 private:
-    const char *m_whatErrorHasHappen;
     Utils::SmallString m_sqliteErrorMessage;
 };
 
-class StatementIsBusy : public Exception
+class StatementIsBusy : public ExceptionWithMessage
 {
 public:
-    StatementIsBusy(const char *whatErrorHasHappen,
-                    Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class DatabaseIsBusy : public Exception
 {
 public:
-    DatabaseIsBusy(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
-class StatementHasError : public Exception
+class StatementHasError : public ExceptionWithMessage
 {
 public:
-    StatementHasError(const char *whatErrorHasHappen,
-                      Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class StatementIsMisused : public Exception
+class StatementIsMisused : public ExceptionWithMessage
 {
 public:
-    StatementIsMisused(const char *whatErrorHasHappen,
-                       Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class InputOutputError : public Exception
 {
 public:
-    InputOutputError(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
-class ConstraintPreventsModification : public Exception
+class ConstraintPreventsModification : public ExceptionWithMessage
 {
 public:
-    ConstraintPreventsModification(const char *whatErrorHasHappen,
-                                   Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class NoValuesToFetch : public Exception
 {
 public:
-    NoValuesToFetch(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class ColumnCountDoesNotMatch : public Exception
 {
 public:
-    ColumnCountDoesNotMatch(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
-class BindingIndexIsOutOfRange : public Exception
+class BindingIndexIsOutOfRange : public ExceptionWithMessage
 {
 public:
-    BindingIndexIsOutOfRange(const char *whatErrorHasHappen,
-                             Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class WrongBindingName : public Exception
 {
 public:
-    WrongBindingName(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class DatabaseIsNotOpen : public Exception
 {
 public:
-    DatabaseIsNotOpen(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
-class DatabaseCannotBeOpened : public Exception
+class DatabaseCannotBeOpened : public ExceptionWithMessage
 {
 public:
-    DatabaseCannotBeOpened(const char *whatErrorHasHappen,
-                           Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class DatabaseFilePathIsEmpty : public DatabaseCannotBeOpened
 {
 public:
-    DatabaseFilePathIsEmpty(const char *whatErrorHasHappen)
-        : DatabaseCannotBeOpened(whatErrorHasHappen)
-    {}
+    using DatabaseCannotBeOpened::DatabaseCannotBeOpened;
 };
 
 class DatabaseIsAlreadyOpen : public DatabaseCannotBeOpened
 {
 public:
-    DatabaseIsAlreadyOpen(const char *whatErrorHasHappen)
-        : DatabaseCannotBeOpened(whatErrorHasHappen)
-    {}
+    using DatabaseCannotBeOpened::DatabaseCannotBeOpened;
 };
 
 class DatabaseCannotBeClosed : public Exception
 {
 public:
-    DatabaseCannotBeClosed(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class DatabaseIsAlreadyClosed : public DatabaseCannotBeClosed
 {
 public:
-    DatabaseIsAlreadyClosed(const char *whatErrorHasHappen)
-        : DatabaseCannotBeClosed(whatErrorHasHappen)
-    {}
+    using DatabaseCannotBeClosed::DatabaseCannotBeClosed;
 };
 
-class WrongFilePath : public DatabaseCannotBeOpened
+class WrongFilePath : public ExceptionWithMessage
 {
 public:
-    WrongFilePath(const char *whatErrorHasHappen,
-                  Utils::SmallString &&errorMessage = Utils::SmallString())
-        : DatabaseCannotBeOpened(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class PragmaValueNotSet : public Exception
 {
 public:
-    PragmaValueNotSet(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class NotReadOnlySqlStatement : public Exception
 {
 public:
-    NotReadOnlySqlStatement(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class NotWriteSqlStatement : public Exception
 {
 public:
-    NotWriteSqlStatement(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class DeadLock : public Exception
 {
 public:
-    DeadLock(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
-class UnknowError : public Exception
+class UnknowError : public ExceptionWithMessage
 {
 public:
-    UnknowError(const char *whatErrorHasHappen,
-                Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class BindingTooBig : public Exception
+class BindingTooBig : public ExceptionWithMessage
 {
 public:
-    BindingTooBig(const char *whatErrorHasHappen,
-                  Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class TooBig : public Exception
+class TooBig : public ExceptionWithMessage
 {
 public:
-    TooBig(const char *whatErrorHasHappen, Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class CannotConvert : public Exception
 {
 public:
-    CannotConvert(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class ForeignKeyColumnIsNotUnique : public Exception
 {
 public:
-    ForeignKeyColumnIsNotUnique(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class CannotApplyChangeSet : public Exception
 {
 public:
-    CannotApplyChangeSet(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class ChangeSetIsMisused : public Exception
 {
 public:
-    ChangeSetIsMisused(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
-class SchemeChangeError : public Exception
+class SchemeChangeError : public ExceptionWithMessage
 {
 public:
-    SchemeChangeError(const char *whatErrorHasHappen,
-                      Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class CannotWriteToReadOnlyConnection : public Exception
+class CannotWriteToReadOnlyConnection : public ExceptionWithMessage
 {
 public:
-    CannotWriteToReadOnlyConnection(const char *whatErrorHasHappen,
-                                    Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class ProtocolError : public Exception
+class ProtocolError : public ExceptionWithMessage
 {
 public:
-    ProtocolError(const char *whatErrorHasHappen,
-                  Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class DatabaseExceedsMaximumFileSize : public Exception
+class DatabaseExceedsMaximumFileSize : public ExceptionWithMessage
 {
 public:
-    DatabaseExceedsMaximumFileSize(const char *whatErrorHasHappen,
-                                   Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class DataTypeMismatch : public Exception
+class DataTypeMismatch : public ExceptionWithMessage
 {
 public:
-    DataTypeMismatch(const char *whatErrorHasHappen,
-                     Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class ConnectionIsLocked : public Exception
+class ConnectionIsLocked : public ExceptionWithMessage
 {
 public:
-    ConnectionIsLocked(const char *whatErrorHasHappen,
-                       Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class ExecutionInterrupted : public Exception
+class ExecutionInterrupted : public ExceptionWithMessage
 {
 public:
-    ExecutionInterrupted(const char *whatErrorHasHappen,
-                         Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class DatabaseIsCorrupt : public Exception
+class DatabaseIsCorrupt : public ExceptionWithMessage
 {
 public:
-    DatabaseIsCorrupt(const char *whatErrorHasHappen,
-                      Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
-class CannotOpen : public Exception
+class CannotOpen : public ExceptionWithMessage
 {
 public:
-    CannotOpen(const char *whatErrorHasHappen,
-               Utils::SmallString &&errorMessage = Utils::SmallString())
-        : Exception(whatErrorHasHappen, std::move(errorMessage))
-    {}
+    using ExceptionWithMessage::ExceptionWithMessage;
 };
 
 class CannotCreateChangeSetIterator : public Exception
 {
 public:
-    CannotCreateChangeSetIterator(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class CannotGetChangeSetOperation : public Exception
 {
 public:
-    CannotGetChangeSetOperation(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class ChangeSetTupleIsOutOfRange : public Exception
 {
 public:
-    ChangeSetTupleIsOutOfRange(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class ChangeSetTupleIsMisused : public Exception
 {
 public:
-    ChangeSetTupleIsMisused(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-
-    {}
+    using Exception::Exception;
 };
 
 class UnknownError : public Exception
 {
 public:
-    UnknownError(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
 };
 
 class DatabaseIsNotLocked : public Exception
 {
 public:
-    DatabaseIsNotLocked(const char *whatErrorHasHappen)
-        : Exception(whatErrorHasHappen)
-    {}
+    using Exception::Exception;
+};
+
+class WrongBindingParameterCount : public Exception
+{
+public:
+    using Exception::Exception;
 };
 
 } // namespace Sqlite
