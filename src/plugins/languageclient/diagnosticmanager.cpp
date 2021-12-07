@@ -73,7 +73,11 @@ private:
 
 DiagnosticManager::DiagnosticManager(Client *client)
     : m_client(client)
-{}
+{
+    m_textMarkCreator = [this](const FilePath &filePath, const Diagnostic &diagnostic) {
+        return createTextMark(filePath, diagnostic);
+    };
+}
 
 DiagnosticManager::~DiagnosticManager()
 {
@@ -128,25 +132,9 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
         QList<QTextEdit::ExtraSelection> extraSelections;
         const VersionedDiagnostics &versionedDiagnostics =  m_diagnostics.value(uri);
         if (versionedDiagnostics.version.value_or(version) == version) {
-            const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
-            const QString tooltip = tr("Copy to Clipboard");
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
                 extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
-                if (m_textMarkCreator) {
-                    doc->addMark(m_textMarkCreator(filePath, diagnostic));
-                    continue;
-                }
-
-                QAction *action = new QAction();
-                action->setIcon(icon);
-                action->setToolTip(tooltip);
-                QObject::connect(action, &QAction::triggered, [text = diagnostic.message()]() {
-                    QApplication::clipboard()->setText(text);
-                });
-                auto mark = new TextMark(filePath, diagnostic, m_client->id());
-                mark->setActions({action});
-
-                doc->addMark(mark);
+                doc->addMark(m_textMarkCreator(filePath, diagnostic));
             }
         }
 
@@ -155,6 +143,22 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
                                                        extraSelections);
         }
     }
+}
+
+TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath,
+                                                        const Diagnostic &diagnostic) const
+{
+    static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
+    static const QString tooltip = tr("Copy to Clipboard");
+    QAction *action = new QAction();
+    action->setIcon(icon);
+    action->setToolTip(tooltip);
+    QObject::connect(action, &QAction::triggered, [text = diagnostic.message()]() {
+        QApplication::clipboard()->setText(text);
+    });
+    auto mark = new TextMark(filePath, diagnostic, m_client->id());
+    mark->setActions({action});
+    return mark;
 }
 
 void DiagnosticManager::clearDiagnostics()

@@ -74,6 +74,8 @@ public:
                                 const HideDiagnosticsHandler &removalHandler);
 
 private:
+    TextEditor::TextMark *createTextMark(const Utils::FilePath &filePath,
+                                         const LanguageServerProtocol::Diagnostic &diagnostic) const;
     struct VersionedDiagnostics {
         Utils::optional<int> version;
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
