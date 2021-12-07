@@ -167,6 +167,8 @@ public:
     QStringList getCustomNdkList() const;
     void addCustomNdk(const QString &customNdk);
     void removeCustomNdk(const QString &customNdk);
+    void setDefaultNdk(const Utils::FilePath &defaultNdk);
+    Utils::FilePath defaultNdk() const;
 
     Utils::FilePath openSslLocation() const;
     void setOpenSslLocation(const Utils::FilePath &openSslLocation);
@@ -201,6 +203,7 @@ private:
     SdkForQtVersions m_defaultSdkDepends;
     QList<SdkForQtVersions> m_specificQtVersions;
     QStringList m_customNdkList;
+    Utils::FilePath m_defaultNdk;
     bool m_sdkFullyConfigured = false;
 
     //caches

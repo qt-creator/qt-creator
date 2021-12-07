@@ -105,6 +105,7 @@ private:
 
     void downloadSdk();
     void addCustomNdkItem();
+    bool isDefaultNdkSelected() const;
     void validateOpenSsl();
 
     Ui_AndroidSettingsWidget m_ui;
@@ -263,6 +264,8 @@ void AndroidSettingsWidget::updateNdkList()
     }
 
     m_ui.ndkListWidget->setCurrentRow(0);
+
+    updateUI();
 }
 
 void AndroidSettingsWidget::addCustomNdkItem()
@@ -285,6 +288,17 @@ void AndroidSettingsWidget::addCustomNdkItem()
                "NDK version could not be retrieved because of a missing \"source.properties\" or "
                "\"RELEASE.TXT\" file"));
     }
+}
+
+
+bool AndroidSettingsWidget::isDefaultNdkSelected() const
+{
+    if (!m_androidConfig.defaultNdk().isEmpty()) {
+        if (const QListWidgetItem *item = m_ui.ndkListWidget->currentItem()) {
+            return FilePath::fromUserInput(item->text()) == m_androidConfig.defaultNdk();
+        }
+    }
+    return false;
 }
 
 AndroidSettingsWidget::AndroidSettingsWidget()
@@ -398,8 +412,17 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(m_ui.addCustomNdkButton, &QPushButton::clicked, this,
             &AndroidSettingsWidget::addCustomNdkItem);
     connect(m_ui.removeCustomNdkButton, &QPushButton::clicked, this, [this] {
+        if (isDefaultNdkSelected())
+            m_androidConfig.setDefaultNdk({});
         m_androidConfig.removeCustomNdk(m_ui.ndkListWidget->currentItem()->text());
         m_ui.ndkListWidget->takeItem(m_ui.ndkListWidget->currentRow());
+    });
+    connect(m_ui.makeDefaultNdkButton, &QPushButton::clicked, this, [this] {
+        const FilePath defaultNdk = isDefaultNdkSelected()
+                ? FilePath()
+                : FilePath::fromUserInput(m_ui.ndkListWidget->currentItem()->text());
+        m_androidConfig.setDefaultNdk(defaultNdk);
+        updateUI();
     });
 
     connect(m_ui.openSslPathChooser, &PathChooser::rawPathChanged,
@@ -658,6 +681,22 @@ void AndroidSettingsWidget::updateUI()
 
     m_androidSummary->setSetupOk(androidSetupOk);
     m_openSslSummary->setSetupOk(openSslOk);
+
+    // Mark default entry in NDK list widget
+    {
+        const QFont font = m_ui.ndkListWidget->font();
+        QFont markedFont = font;
+        markedFont.setItalic(true);
+        for (int row = 0; row < m_ui.ndkListWidget->count(); ++row) {
+            QListWidgetItem *item = m_ui.ndkListWidget->item(row);
+            const bool isDefaultNdk =
+                    FilePath::fromUserInput(item->text()) == m_androidConfig.defaultNdk();
+            item->setFont(isDefaultNdk ? markedFont : font);
+        }
+    }
+
+    m_ui.makeDefaultNdkButton->setText(isDefaultNdkSelected() ? tr("Unset Default")
+                                                              : tr("Make Default"));
 }
 
 void AndroidSettingsWidget::downloadSdk()

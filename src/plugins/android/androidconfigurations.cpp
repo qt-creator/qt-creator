@@ -108,6 +108,7 @@ namespace {
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
     const QLatin1String CustomNdkLocationsKey("CustomNdkLocations");
+    const QLatin1String DefaultNdkLocationKey("DefaultNdkLocation");
     const QLatin1String SdkFullyConfiguredKey("AllEssentialsInstalled");
     const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
@@ -226,6 +227,8 @@ void AndroidConfig::load(const QSettings &settings)
                          QStringList({"-netdelay", "none", "-netspeed", "full"})).toStringList();
     m_sdkLocation = FilePath::fromUserInput(settings.value(SDKLocationKey).toString()).cleanPath();
     m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
+    m_defaultNdk =
+            FilePath::fromUserInput(settings.value(DefaultNdkLocationKey).toString()).cleanPath();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
     m_openSslLocation = FilePath::fromString(settings.value(OpenSslPriLocationKey).toString());
@@ -246,6 +249,11 @@ void AndroidConfig::load(const QSettings &settings)
         // persistent settings
     }
     m_customNdkList.removeAll("");
+    if (!m_defaultNdk.isEmpty() && ndkVersion(m_defaultNdk).isNull()) {
+        if (avdConfigLog().isDebugEnabled())
+            qCDebug(avdConfigLog) << "Clearing invalid default NDK setting:" << m_defaultNdk.path();
+        m_defaultNdk.clear();
+    }
     parseDependenciesJson();
 }
 
@@ -258,6 +266,7 @@ void AndroidConfig::save(QSettings &settings) const
     // user settings
     settings.setValue(SDKLocationKey, m_sdkLocation.toString());
     settings.setValue(CustomNdkLocationsKey, m_customNdkList);
+    settings.setValue(DefaultNdkLocationKey, m_defaultNdk.toString());
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
     settings.setValue(OpenSslPriLocationKey, m_openSslLocation.toString());
@@ -394,6 +403,16 @@ void AndroidConfig::addCustomNdk(const QString &customNdk)
 void AndroidConfig::removeCustomNdk(const QString &customNdk)
 {
     m_customNdkList.removeAll(customNdk);
+}
+
+void AndroidConfig::setDefaultNdk(const Utils::FilePath &defaultNdk)
+{
+    m_defaultNdk = defaultNdk;
+}
+
+FilePath AndroidConfig::defaultNdk() const
+{
+    return m_defaultNdk;
 }
 
 FilePath AndroidConfig::openSslLocation() const
@@ -927,6 +946,8 @@ void AndroidConfig::setSdkManagerToolArgs(const QStringList &args)
 
 FilePath AndroidConfig::ndkLocation(const BaseQtVersion *qtVersion) const
 {
+    if (!m_defaultNdk.isEmpty())
+        return m_defaultNdk; // A selected default NDK is good for any Qt version
     return sdkLocation().pathAppended(ndkPathFromQtVersion(*qtVersion));
 }
 
@@ -1005,6 +1026,9 @@ bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
         if (essentialPkgs.isEmpty())
             break;
     }
+    if (!m_defaultNdk.isEmpty())
+        essentialPkgs = Utils::filtered(essentialPkgs,
+                                        [](const QString &p){ return !p.startsWith("ndk;"); });
     return essentialPkgs.isEmpty() ? true : false;
 }
 
