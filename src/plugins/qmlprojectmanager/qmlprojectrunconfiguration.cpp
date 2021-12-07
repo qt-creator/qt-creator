@@ -227,6 +227,11 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
         ProcessArgs::addArg(&args, "windows:fontengine=freetype", osType);
     }
 
+    if (bs->qt6Project() && bs->widgetApp()) {
+        ProcessArgs::addArg(&args, "--apptype", osType);
+        ProcessArgs::addArg(&args, "widget", osType);
+    }
+
     const QString main = bs->targetFile(FilePath::fromString(mainScript())).toString();
     if (!main.isEmpty())
         ProcessArgs::addArg(&args, main, osType);

@@ -123,6 +123,10 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
         if (qt6ProjectProperty.isValid() && qt6ProjectProperty.value.toBool())
             projectItem->setQt6Project(qt6ProjectProperty.value.toBool());
 
+        const auto widgetAppProperty = rootNode->property("widgetApp");
+        if (widgetAppProperty.isValid())
+            projectItem->setWidgetApp(widgetAppProperty.value.toBool());
+
         if (debug)
             qDebug() << "importPath:" << importPathsProperty.value << "mainFile:" << mainFileProperty.value;
 
