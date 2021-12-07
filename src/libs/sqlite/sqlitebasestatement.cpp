@@ -51,12 +51,8 @@ namespace Sqlite {
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
     : m_compiledStatement(nullptr, deleteCompiledStatement)
     , m_database(database)
-    , m_bindingParameterCount(0)
-    , m_columnCount(0)
 {
     prepare(sqlStatement);
-    setBindingParameterCount();
-    setColumnCount();
 }
 
 void BaseStatement::deleteCompiledStatement(sqlite3_stmt *compiledStatement)
@@ -139,11 +135,6 @@ bool BaseStatement::next() const
 void BaseStatement::step() const
 {
     next();
-}
-
-int BaseStatement::columnCount() const
-{
-    return m_columnCount;
 }
 
 void BaseStatement::bind(int index, NullValue)
@@ -512,34 +503,16 @@ void BaseStatement::checkForBindingError(int resultCode) const
     throwUnknowError("SqliteStatement::bind: unknown error has happened");
 }
 
+void BaseStatement::checkBindingParameterCount(int bindingParameterCount) const
+{
+    if (bindingParameterCount != sqlite3_bind_parameter_count(m_compiledStatement.get()))
+        throw WrongBindingParameterCount{"Sqlite: wrong binding parameter count!"};
+}
+
 void BaseStatement::checkColumnCount(int columnCount) const
 {
-    if (columnCount != m_columnCount)
-        throw ColumnCountDoesNotMatch("SqliteStatement::values: column count does not match!");
-}
-
-void BaseStatement::checkBindingName(int index) const
-{
-    if (index <= 0 || index > m_bindingParameterCount)
-        throwWrongBingingName("SqliteStatement::bind: binding name are not exists in this statement!");
-}
-
-void BaseStatement::setBindingParameterCount()
-{
-    m_bindingParameterCount = sqlite3_bind_parameter_count(m_compiledStatement.get());
-}
-
-Utils::SmallStringView chopFirstLetter(const char *rawBindingName)
-{
-    if (rawBindingName != nullptr)
-        return Utils::SmallStringView(++rawBindingName);
-
-    return Utils::SmallStringView("");
-}
-
-void BaseStatement::setColumnCount()
-{
-    m_columnCount = sqlite3_column_count(m_compiledStatement.get());
+    if (columnCount != sqlite3_column_count(m_compiledStatement.get()))
+        throw WrongColumnCount{"Sqlite: wrong column count!"};
 }
 
 bool BaseStatement::isReadOnlyStatement() const
@@ -580,11 +553,6 @@ void BaseStatement::throwNoValuesToFetch(const char *whatHasHappened) const
 void BaseStatement::throwBindingIndexIsOutOfRange(const char *whatHasHappened) const
 {
     throw BindingIndexIsOutOfRange(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwWrongBingingName(const char *whatHasHappened) const
-{
-    throw WrongBindingName(whatHasHappened);
 }
 
 void BaseStatement::throwUnknowError(const char *whatHasHappened) const

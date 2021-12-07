@@ -104,12 +104,6 @@ public:
     using Exception::Exception;
 };
 
-class ColumnCountDoesNotMatch : public Exception
-{
-public:
-    using Exception::Exception;
-};
-
 class BindingIndexIsOutOfRange : public ExceptionWithMessage
 {
 public:
@@ -321,6 +315,12 @@ public:
 };
 
 class WrongBindingParameterCount : public Exception
+{
+public:
+    using Exception::Exception;
+};
+
+class WrongColumnCount : public Exception
 {
 public:
     using Exception::Exception;

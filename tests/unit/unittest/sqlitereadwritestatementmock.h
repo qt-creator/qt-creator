@@ -87,7 +87,7 @@ public:
     Utils::SmallString sqlStatement;
 };
 
-template<int ResultCount>
+template<int ResultCount, int BindParameterCount = 0>
 class SqliteReadWriteStatementMock : public SqliteReadWriteStatementMockBase
 {
 public:

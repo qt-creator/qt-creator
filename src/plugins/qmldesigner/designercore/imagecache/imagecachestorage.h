@@ -43,9 +43,10 @@ template<typename DatabaseType>
 class ImageCacheStorage : public ImageCacheStorageInterface
 {
 public:
-    template<int ResultCount>
-    using ReadStatement = typename DatabaseType::template ReadStatement<ResultCount>;
-    using WriteStatement = typename DatabaseType::WriteStatement;
+    template<int ResultCount, int BindParameterCount = 0>
+    using ReadStatement = typename DatabaseType::template ReadStatement<ResultCount, BindParameterCount>;
+    template<int BindParameterCount>
+    using WriteStatement = typename DatabaseType::template WriteStatement<BindParameterCount>;
 
     ImageCacheStorage(DatabaseType &database)
         : database(database)
@@ -273,18 +274,18 @@ public:
     DatabaseType &database;
     Initializer initializer{database};
     Sqlite::ImmediateNonThrowingDestructorTransaction transaction{database};
-    mutable ReadStatement<1> selectImageStatement{
+    mutable ReadStatement<1, 2> selectImageStatement{
         "SELECT image FROM images WHERE name=?1 AND mtime >= ?2", database};
-    mutable ReadStatement<1> selectSmallImageStatement{
+    mutable ReadStatement<1, 2> selectSmallImageStatement{
         "SELECT smallImage FROM images WHERE name=?1 AND mtime >= ?2", database};
-    mutable ReadStatement<1> selectIconStatement{
+    mutable ReadStatement<1, 2> selectIconStatement{
         "SELECT icon FROM icons WHERE name=?1 AND mtime >= ?2", database};
-    WriteStatement upsertImageStatement{
+    WriteStatement<4> upsertImageStatement{
         "INSERT INTO images(name, mtime, image, smallImage) VALUES (?1, ?2, ?3, ?4) ON "
         "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, image=excluded.image, "
         "smallImage=excluded.smallImage",
         database};
-    WriteStatement upsertIconStatement{
+    WriteStatement<3> upsertIconStatement{
         "INSERT INTO icons(name, mtime, icon) VALUES (?1, ?2, ?3) ON "
         "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, icon=excluded.icon",
         database};

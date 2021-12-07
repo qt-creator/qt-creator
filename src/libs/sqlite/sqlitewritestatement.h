@@ -28,21 +28,23 @@
 #include "sqlitebasestatement.h"
 
 namespace Sqlite {
-
-class WriteStatement : protected StatementImplementation<BaseStatement, -1>
+template<int BindParameterCount = 0>
+class WriteStatement : protected StatementImplementation<BaseStatement, -1, BindParameterCount>
 {
-    using Base = StatementImplementation<BaseStatement, -1>;
+    using Base = StatementImplementation<BaseStatement, -1, BindParameterCount>;
 
 public:
     WriteStatement(Utils::SmallStringView sqlStatement, Database &database)
-        : StatementImplementation(sqlStatement, database)
+        : Base(sqlStatement, database)
     {
         checkIsWritableStatement();
+        Base::checkBindingParameterCount(BindParameterCount);
+        Base::checkColumnCount(0);
     }
 
-    using StatementImplementation::database;
-    using StatementImplementation::execute;
-    using StatementImplementation::write;
+    using Base::database;
+    using Base::execute;
+    using Base::write;
 
 protected:
     void checkIsWritableStatement()

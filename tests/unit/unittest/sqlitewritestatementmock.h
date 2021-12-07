@@ -32,11 +32,11 @@
 
 class SqliteDatabaseMock;
 
-class SqliteWriteStatementMock
+class SqliteWriteStatementMockBase
 {
 public:
-    SqliteWriteStatementMock() = default;
-    SqliteWriteStatementMock(Utils::SmallStringView sqlStatement, SqliteDatabaseMock &database);
+    SqliteWriteStatementMockBase() = default;
+    SqliteWriteStatementMockBase(Utils::SmallStringView sqlStatement, SqliteDatabaseMock &database);
 
     MOCK_METHOD(void, execute, (), ());
 
@@ -118,4 +118,11 @@ public:
     MOCK_METHOD(void, write, (Utils::span<int>), ());
 
     Utils::SmallString sqlStatement;
+};
+
+template<int BindParameterCount = 0>
+class SqliteWriteStatementMock : public SqliteWriteStatementMockBase
+{
+public:
+    using SqliteWriteStatementMockBase::SqliteWriteStatementMockBase;
 };

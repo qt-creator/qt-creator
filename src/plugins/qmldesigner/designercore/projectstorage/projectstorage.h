@@ -47,11 +47,12 @@ template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface
 {
 public:
-    template<int ResultCount>
-    using ReadStatement = typename Database::template ReadStatement<ResultCount>;
-    template<int ResultCount>
-    using ReadWriteStatement = typename Database::template ReadWriteStatement<ResultCount>;
-    using WriteStatement = typename Database::WriteStatement;
+    template<int ResultCount, int BindParameterCount = 0>
+    using ReadStatement = typename Database::template ReadStatement<ResultCount, BindParameterCount>;
+    template<int ResultCount, int BindParameterCount = 0>
+    using ReadWriteStatement = typename Database::template ReadWriteStatement<ResultCount, BindParameterCount>;
+    template<int BindParameterCount>
+    using WriteStatement = typename Database::template WriteStatement<BindParameterCount>;
 
     ProjectStorage(Database &database, bool isInitialized)
         : database{database}
@@ -2137,18 +2138,18 @@ public:
     Database &database;
     Initializer initializer;
     ModuleCache moduleCache{ModuleStorageAdapter{*this}};
-    ReadWriteStatement<1> upsertTypeStatement{
+    ReadWriteStatement<1, 3> upsertTypeStatement{
         "INSERT INTO types(sourceId, name,  accessSemantics) VALUES(?1, ?2, ?3) ON CONFLICT DO "
         "UPDATE SET accessSemantics=excluded.accessSemantics WHERE accessSemantics IS NOT "
         "excluded.accessSemantics RETURNING typeId",
         database};
-    WriteStatement updatePrototypeStatement{
+    WriteStatement<3> updatePrototypeStatement{
         "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1 AND (prototypeId IS "
         "NOT ?2 OR prototypeNameId IS NOT ?3)",
         database};
-    mutable ReadStatement<1> selectTypeIdByExportedNameStatement{
+    mutable ReadStatement<1, 1> selectTypeIdByExportedNameStatement{
         "SELECT typeId FROM exportedTypeNames WHERE name=?1", database};
-    mutable ReadStatement<1> selectPrototypeIdStatement{
+    mutable ReadStatement<1, 2> selectPrototypeIdStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("
         "      VALUES(?1) "
@@ -2157,7 +2158,7 @@ public:
         "        IS NOT NULL)"
         "SELECT typeId FROM typeSelection WHERE typeId=?2 LIMIT 1",
         database};
-    mutable ReadStatement<1> selectPropertyDeclarationIdByTypeIdAndNameStatement{
+    mutable ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
@@ -2167,7 +2168,7 @@ public:
         "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
-    mutable ReadStatement<3> selectPropertyDeclarationByTypeIdAndNameStatement{
+    mutable ReadStatement<3, 2> selectPropertyDeclarationByTypeIdAndNameStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
@@ -2178,7 +2179,7 @@ public:
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
-    mutable ReadStatement<1> selectPrototypeIdsStatement{
+    mutable ReadStatement<1, 1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
@@ -2187,69 +2188,69 @@ public:
         "        USING(typeId) WHERE prototypeId IS NOT NULL) "
         "SELECT typeId FROM typeSelection ORDER BY level DESC",
         database};
-    mutable ReadStatement<1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
+    mutable ReadStatement<1, 1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
         "SELECT sourceContextId FROM sourceContexts WHERE sourceContextPath = ?", database};
-    mutable ReadStatement<1> selectSourceContextPathFromSourceContextsBySourceContextIdStatement{
+    mutable ReadStatement<1, 1> selectSourceContextPathFromSourceContextsBySourceContextIdStatement{
         "SELECT sourceContextPath FROM sourceContexts WHERE sourceContextId = ?", database};
     mutable ReadStatement<2> selectAllSourceContextsStatement{
         "SELECT sourceContextPath, sourceContextId FROM sourceContexts", database};
-    WriteStatement insertIntoSourceContextsStatement{
+    WriteStatement<1> insertIntoSourceContextsStatement{
         "INSERT INTO sourceContexts(sourceContextPath) VALUES (?)", database};
-    mutable ReadStatement<1> selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatement{
+    mutable ReadStatement<1, 2> selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatement{
         "SELECT sourceId FROM sources WHERE sourceContextId = ? AND sourceName = ?", database};
-    mutable ReadStatement<2> selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement{
+    mutable ReadStatement<2, 1> selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement{
         "SELECT sourceName, sourceContextId FROM sources WHERE sourceId = ?", database};
-    mutable ReadStatement<1> selectSourceContextIdFromSourcesBySourceIdStatement{
+    mutable ReadStatement<1, 1> selectSourceContextIdFromSourcesBySourceIdStatement{
         "SELECT sourceContextId FROM sources WHERE sourceId = ?", database};
-    WriteStatement insertIntoSourcesStatement{
+    WriteStatement<2> insertIntoSourcesStatement{
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    mutable ReadStatement<4> selectTypeByTypeIdStatement{
+    mutable ReadStatement<4, 1> selectTypeByTypeIdStatement{
         "SELECT sourceId, name, prototypeId, accessSemantics FROM types WHERE typeId=?", database};
-    mutable ReadStatement<4> selectExportedTypesByTypeIdStatement{
+    mutable ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
         "exportedTypeNames WHERE typeId=?",
         database};
     mutable ReadStatement<5> selectTypesStatement{
         "SELECT sourceId, name, typeId, ifnull(prototypeId, -1), accessSemantics FROM types",
         database};
-    ReadStatement<1> selectNotUpdatedTypesInSourcesStatement{
+    ReadStatement<1, 2> selectNotUpdatedTypesInSourcesStatement{
         "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
         "carray(?2))",
         database};
-    WriteStatement deleteTypeNamesByTypeIdStatement{"DELETE FROM exportedTypeNames WHERE typeId=?",
-                                                    database};
-    WriteStatement deleteEnumerationDeclarationByTypeIdStatement{
+    WriteStatement<1> deleteTypeNamesByTypeIdStatement{
+        "DELETE FROM exportedTypeNames WHERE typeId=?", database};
+    WriteStatement<1> deleteEnumerationDeclarationByTypeIdStatement{
         "DELETE FROM enumerationDeclarations WHERE typeId=?", database};
-    WriteStatement deletePropertyDeclarationByTypeIdStatement{
+    WriteStatement<1> deletePropertyDeclarationByTypeIdStatement{
         "DELETE FROM propertyDeclarations WHERE typeId=?", database};
-    WriteStatement deleteFunctionDeclarationByTypeIdStatement{
+    WriteStatement<1> deleteFunctionDeclarationByTypeIdStatement{
         "DELETE FROM functionDeclarations WHERE typeId=?", database};
-    WriteStatement deleteSignalDeclarationByTypeIdStatement{
+    WriteStatement<1> deleteSignalDeclarationByTypeIdStatement{
         "DELETE FROM signalDeclarations WHERE typeId=?", database};
-    WriteStatement deleteTypeStatement{"DELETE FROM types  WHERE typeId=?", database};
-    mutable ReadStatement<4> selectPropertyDeclarationsByTypeIdStatement{
+    WriteStatement<1> deleteTypeStatement{"DELETE FROM types  WHERE typeId=?", database};
+    mutable ReadStatement<4, 1> selectPropertyDeclarationsByTypeIdStatement{
         "SELECT name, nullif(propertyTypeId, -1), propertyTraits, (SELECT name FROM "
         "propertyDeclarations WHERE propertyDeclarationId=pd.aliasPropertyDeclarationId) FROM "
         "propertyDeclarations AS pd WHERE typeId=?",
         database};
-    ReadStatement<6> selectPropertyDeclarationsForTypeIdStatement{
+    ReadStatement<6, 1> selectPropertyDeclarationsForTypeIdStatement{
         "SELECT name, propertyTraits, propertyTypeId, propertyImportedTypeNameId, "
         "propertyDeclarationId, ifnull(aliasPropertyDeclarationId, -1) FROM propertyDeclarations "
         "WHERE typeId=? ORDER BY name",
         database};
-    ReadWriteStatement<1> insertPropertyDeclarationStatement{
+    ReadWriteStatement<1, 5> insertPropertyDeclarationStatement{
         "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits, "
         "propertyImportedTypeNameId, aliasPropertyDeclarationId) VALUES(?1, ?2, ?3, ?4, ?5, NULL) "
         "RETURNING propertyDeclarationId",
         database};
-    WriteStatement updatePropertyDeclarationStatement{
+    WriteStatement<4> updatePropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
         "propertyImportedTypeNameId=?4, aliasPropertyDeclarationId=NULL WHERE "
         "propertyDeclarationId=?1",
         database};
-    WriteStatement updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement{
+    WriteStatement<3> updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement{
         "WITH RECURSIVE "
         "  properties(aliasPropertyDeclarationId) AS ( "
         "    SELECT propertyDeclarationId FROM propertyDeclarations WHERE "
@@ -2262,7 +2263,7 @@ public:
         "FROM properties AS p "
         "WHERE pd.propertyDeclarationId=p.aliasPropertyDeclarationId",
         database};
-    WriteStatement updatePropertyAliasDeclarationRecursivelyStatement{
+    WriteStatement<1> updatePropertyAliasDeclarationRecursivelyStatement{
         "WITH RECURSIVE "
         "  propertyValues(propertyTypeId, propertyTraits) AS ("
         "    SELECT propertyTypeId, propertyTraits FROM propertyDeclarations "
@@ -2278,120 +2279,120 @@ public:
         "FROM properties AS p, propertyValues AS pv "
         "WHERE pd.propertyDeclarationId=p.aliasPropertyDeclarationId",
         database};
-    WriteStatement deletePropertyDeclarationStatement{
+    WriteStatement<1> deletePropertyDeclarationStatement{
         "DELETE FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
-    ReadStatement<3> selectPropertyDeclarationsWithAliasForTypeIdStatement{
+    ReadStatement<3, 1> selectPropertyDeclarationsWithAliasForTypeIdStatement{
         "SELECT name, propertyDeclarationId, aliasPropertyDeclarationId FROM propertyDeclarations "
         "WHERE typeId=? AND aliasPropertyDeclarationId IS NOT NULL ORDER BY name",
         database};
-    WriteStatement updatePropertyDeclarationWithAliasAndTypeStatement{
+    WriteStatement<5> updatePropertyDeclarationWithAliasAndTypeStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
         "propertyImportedTypeNameId=?4, aliasPropertyDeclarationId=?5 WHERE "
         "propertyDeclarationId=?1",
         database};
-    ReadWriteStatement<1> insertAliasPropertyDeclarationStatement{
+    ReadWriteStatement<1, 2> insertAliasPropertyDeclarationStatement{
         "INSERT INTO propertyDeclarations(typeId, name) VALUES(?1, ?2) RETURNING "
         "propertyDeclarationId",
         database};
-    mutable ReadStatement<4> selectFunctionDeclarationsForTypeIdStatement{
+    mutable ReadStatement<4, 1> selectFunctionDeclarationsForTypeIdStatement{
         "SELECT name, returnTypeName, signature, functionDeclarationId FROM "
         "functionDeclarations WHERE typeId=? ORDER BY name",
         database};
-    mutable ReadStatement<3> selectFunctionDeclarationsForTypeIdWithoutSignatureStatement{
+    mutable ReadStatement<3, 1> selectFunctionDeclarationsForTypeIdWithoutSignatureStatement{
         "SELECT name, returnTypeName, functionDeclarationId FROM "
         "functionDeclarations WHERE typeId=? ORDER BY name",
         database};
-    mutable ReadStatement<3> selectFunctionParameterDeclarationsStatement{
+    mutable ReadStatement<3, 1> selectFunctionParameterDeclarationsStatement{
         "SELECT json_extract(json_each.value, '$.n'), json_extract(json_each.value, '$.tn'), "
         "json_extract(json_each.value, '$.tr') FROM functionDeclarations, "
         "json_each(functionDeclarations.signature) WHERE functionDeclarationId=?",
         database};
-    WriteStatement insertFunctionDeclarationStatement{
+    WriteStatement<4> insertFunctionDeclarationStatement{
         "INSERT INTO functionDeclarations(typeId, name, returnTypeName, signature) VALUES(?1, ?2, "
         "?3, ?4)",
         database};
-    WriteStatement updateFunctionDeclarationStatement{
+    WriteStatement<3> updateFunctionDeclarationStatement{
         "UPDATE functionDeclarations SET returnTypeName=?2, signature=?3 WHERE "
         "functionDeclarationId=?1",
         database};
-    WriteStatement deleteFunctionDeclarationStatement{
+    WriteStatement<1> deleteFunctionDeclarationStatement{
         "DELETE FROM functionDeclarations WHERE functionDeclarationId=?", database};
-    mutable ReadStatement<3> selectSignalDeclarationsForTypeIdStatement{
+    mutable ReadStatement<3, 1> selectSignalDeclarationsForTypeIdStatement{
         "SELECT name, signature, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER "
         "BY name",
         database};
-    mutable ReadStatement<2> selectSignalDeclarationsForTypeIdWithoutSignatureStatement{
+    mutable ReadStatement<2, 1> selectSignalDeclarationsForTypeIdWithoutSignatureStatement{
         "SELECT name, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER BY name",
         database};
-    mutable ReadStatement<3> selectSignalParameterDeclarationsStatement{
+    mutable ReadStatement<3, 1> selectSignalParameterDeclarationsStatement{
         "SELECT json_extract(json_each.value, '$.n'), json_extract(json_each.value, '$.tn'), "
         "json_extract(json_each.value, '$.tr') FROM signalDeclarations, "
         "json_each(signalDeclarations.signature) WHERE signalDeclarationId=?",
         database};
-    WriteStatement insertSignalDeclarationStatement{
+    WriteStatement<3> insertSignalDeclarationStatement{
         "INSERT INTO signalDeclarations(typeId, name, signature) VALUES(?1, ?2, ?3)", database};
-    WriteStatement updateSignalDeclarationStatement{
+    WriteStatement<2> updateSignalDeclarationStatement{
         "UPDATE signalDeclarations SET  signature=?2 WHERE signalDeclarationId=?1", database};
-    WriteStatement deleteSignalDeclarationStatement{
+    WriteStatement<1> deleteSignalDeclarationStatement{
         "DELETE FROM signalDeclarations WHERE signalDeclarationId=?", database};
-    mutable ReadStatement<3> selectEnumerationDeclarationsForTypeIdStatement{
+    mutable ReadStatement<3, 1> selectEnumerationDeclarationsForTypeIdStatement{
         "SELECT name, enumeratorDeclarations, enumerationDeclarationId FROM "
         "enumerationDeclarations WHERE typeId=? ORDER BY name",
         database};
-    mutable ReadStatement<2> selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement{
+    mutable ReadStatement<2, 1> selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement{
         "SELECT name, enumerationDeclarationId FROM enumerationDeclarations WHERE typeId=? ORDER "
         "BY name",
         database};
-    mutable ReadStatement<3> selectEnumeratorDeclarationStatement{
+    mutable ReadStatement<3, 1> selectEnumeratorDeclarationStatement{
         "SELECT json_each.key, json_each.value, json_each.type!='null' FROM "
         "enumerationDeclarations, json_each(enumerationDeclarations.enumeratorDeclarations) WHERE "
         "enumerationDeclarationId=?",
         database};
-    WriteStatement insertEnumerationDeclarationStatement{
+    WriteStatement<3> insertEnumerationDeclarationStatement{
         "INSERT INTO enumerationDeclarations(typeId, name, enumeratorDeclarations) VALUES(?1, ?2, "
         "?3)",
         database};
-    WriteStatement updateEnumerationDeclarationStatement{
+    WriteStatement<2> updateEnumerationDeclarationStatement{
         "UPDATE enumerationDeclarations SET  enumeratorDeclarations=?2 WHERE "
         "enumerationDeclarationId=?1",
         database};
-    WriteStatement deleteEnumerationDeclarationStatement{
+    WriteStatement<1> deleteEnumerationDeclarationStatement{
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
-    mutable ReadStatement<1> selectModuleIdByNameStatement{
+    mutable ReadStatement<1, 1> selectModuleIdByNameStatement{
         "SELECT moduleId FROM modules WHERE name=? LIMIT 1", database};
-    mutable ReadWriteStatement<1> insertModuleNameStatement{
+    mutable ReadWriteStatement<1, 1> insertModuleNameStatement{
         "INSERT INTO modules(name) VALUES(?1) RETURNING moduleId", database};
-    mutable ReadStatement<1> selectModuleNameStatement{
+    mutable ReadStatement<1, 1> selectModuleNameStatement{
         "SELECT name FROM modules WHERE moduleId =?1", database};
     mutable ReadStatement<2> selectAllModulesStatement{"SELECT name, moduleId FROM modules", database};
-    mutable ReadStatement<1> selectTypeIdBySourceIdAndNameStatement{
+    mutable ReadStatement<1, 2> selectTypeIdBySourceIdAndNameStatement{
         "SELECT typeId FROM types WHERE sourceId=?1 and name=?2", database};
-    mutable ReadStatement<1> selectTypeIdByModuleIdsAndExportedNameStatement{
+    mutable ReadStatement<1, 3> selectTypeIdByModuleIdsAndExportedNameStatement{
         "SELECT typeId FROM exportedTypeNames WHERE moduleId IN carray(?1, ?2, 'int32') AND "
         "name=?3",
         database};
-    mutable ReadStatement<5> selectDocumentImportForSourceIdStatement{
+    mutable ReadStatement<5, 1> selectDocumentImportForSourceIdStatement{
         "SELECT importId, sourceId, moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
         "FROM documentImports WHERE sourceId IN carray(?1) ORDER BY sourceId, moduleId, "
         "majorVersion, minorVersion",
         database};
-    WriteStatement insertDocumentImportWithoutVersionStatement{
+    WriteStatement<2> insertDocumentImportWithoutVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId) "
         "VALUES (?1, ?2)",
         database};
-    WriteStatement insertDocumentImportWithMajorVersionStatement{
+    WriteStatement<3> insertDocumentImportWithMajorVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, majorVersion) "
         "VALUES (?1, ?2, ?3)",
         database};
-    WriteStatement insertDocumentImportWithVersionStatement{
+    WriteStatement<4> insertDocumentImportWithVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, majorVersion, minorVersion) "
         "VALUES (?1, ?2, ?3, ?4)",
         database};
-    WriteStatement deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
-                                                 database};
-    WriteStatement deleteDocumentImportsWithSourceIdsStatement{
+    WriteStatement<1> deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
+                                                    database};
+    WriteStatement<1> deleteDocumentImportsWithSourceIdsStatement{
         "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
-    ReadStatement<1> selectPropertyDeclarationIdPrototypeChainDownStatement{
+    ReadStatement<1, 2> selectPropertyDeclarationIdPrototypeChainDownStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId, level) AS ("
         "      SELECT prototypeId, 0 FROM types WHERE typeId=?1 AND prototypeId IS NOT NULL"
@@ -2401,22 +2402,22 @@ public:
         "SELECT propertyDeclarationId FROM typeSelection JOIN propertyDeclarations "
         "  USING(typeId) WHERE name=?2 ORDER BY level LIMIT 1",
         database};
-    WriteStatement updateAliasIdPropertyDeclarationStatement{
+    WriteStatement<2> updateAliasIdPropertyDeclarationStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2  WHERE "
         "aliasPropertyDeclarationId=?1",
         database};
-    WriteStatement updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement{
+    WriteStatement<2> updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=new.propertyTypeId, "
         "propertyTraits=new.propertyTraits, aliasPropertyDeclarationId=?1 FROM (SELECT "
         "propertyTypeId, propertyTraits FROM propertyDeclarations WHERE propertyDeclarationId=?1) "
         "AS new WHERE aliasPropertyDeclarationId=?2",
         database};
-    WriteStatement updateAliasPropertyDeclarationToNullStatement{
+    WriteStatement<1> updateAliasPropertyDeclarationToNullStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=NULL, propertyTypeId=NULL, "
         "propertyTraits=NULL WHERE propertyDeclarationId=? AND (aliasPropertyDeclarationId IS NOT "
         "NULL OR propertyTypeId IS NOT NULL OR propertyTraits IS NOT NULL)",
         database};
-    ReadStatement<4> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
+    ReadStatement<4, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
         "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
         "target.propertyDeclarationId FROM propertyDeclarations AS alias JOIN propertyDeclarations "
         "AS target ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId WHERE "
@@ -2424,7 +2425,7 @@ public:
         "(SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
         "WHERE typeId=?1)",
         database};
-    ReadStatement<3> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
+    ReadStatement<3, 1> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
         "WITH RECURSIVE "
         "  properties(propertyDeclarationId, propertyImportedTypeNameId, typeId, "
         "    aliasPropertyDeclarationId) AS ("
@@ -2438,22 +2439,22 @@ public:
         "SELECT propertyDeclarationId, propertyImportedTypeNameId, aliasPropertyDeclarationId "
         "  FROM properties",
         database};
-    ReadWriteStatement<3> updatesPropertyDeclarationPropertyTypeToNullStatement{
+    ReadWriteStatement<3, 1> updatesPropertyDeclarationPropertyTypeToNullStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=NULL WHERE propertyTypeId=?1 AND "
         "aliasPropertyDeclarationId IS NULL RETURNING typeId, propertyDeclarationId, "
         "propertyImportedTypeNameId",
         database};
-    ReadStatement<1> selectPropertyNameStatement{
+    ReadStatement<1, 1> selectPropertyNameStatement{
         "SELECT name FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
-    WriteStatement updatePropertyDeclarationTypeStatement{
+    WriteStatement<2> updatePropertyDeclarationTypeStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=?2 WHERE propertyDeclarationId=?1", database};
-    ReadWriteStatement<2> updatePrototypeIdToNullStatement{
+    ReadWriteStatement<2, 1> updatePrototypeIdToNullStatement{
         "UPDATE types SET prototypeId=NULL WHERE prototypeId=?1 RETURNING "
         "typeId, prototypeNameId",
         database};
-    WriteStatement updateTypePrototypeStatement{"UPDATE types SET prototypeId=?2 WHERE typeId=?1",
-                                                database};
-    mutable ReadStatement<1> selectTypeIdsForPrototypeChainIdStatement{
+    WriteStatement<2> updateTypePrototypeStatement{
+        "UPDATE types SET prototypeId=?2 WHERE typeId=?1", database};
+    mutable ReadStatement<1, 1> selectTypeIdsForPrototypeChainIdStatement{
         "WITH RECURSIVE "
         "  prototypes(typeId) AS ("
         "       SELECT prototypeId FROM types WHERE typeId=? AND prototypeId IS NOT NULL"
@@ -2462,12 +2463,12 @@ public:
         "        IS NOT NULL)"
         "SELECT typeId FROM prototypes",
         database};
-    WriteStatement updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
+    WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, "
         "propertyImportedTypeNameId=?3 WHERE propertyDeclarationId=?1 AND "
         "(aliasPropertyDeclarationId IS NOT ?2 OR propertyImportedTypeNameId IS NOT ?3)",
         database};
-    WriteStatement updatetPropertiesDeclarationValuesOfAliasStatement{
+    WriteStatement<1> updatetPropertiesDeclarationValuesOfAliasStatement{
         "WITH RECURSIVE "
         "  properties(propertyDeclarationId, propertyTypeId, propertyTraits) AS ( "
         "      SELECT aliasPropertyDeclarationId, propertyTypeId, propertyTraits FROM "
@@ -2482,11 +2483,11 @@ public:
         "  (pd.propertyTypeId IS NOT p.propertyTypeId OR pd.propertyTraits IS NOT "
         "  p.propertyTraits)",
         database};
-    WriteStatement updatePropertyDeclarationAliasIdToNullStatement{
+    WriteStatement<1> updatePropertyDeclarationAliasIdToNullStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=NULL  WHERE "
         "propertyDeclarationId=?1",
         database};
-    mutable ReadStatement<1> selectPropertyDeclarationIdsForAliasChainStatement{
+    mutable ReadStatement<1, 1> selectPropertyDeclarationIdsForAliasChainStatement{
         "WITH RECURSIVE "
         "  properties(propertyDeclarationId) AS ( "
         "    SELECT aliasPropertyDeclarationId FROM propertyDeclarations WHERE "
@@ -2498,43 +2499,44 @@ public:
         database};
     mutable ReadStatement<3> selectAllFileStatusesStatement{
         "SELECT sourceId, size, lastModified FROM fileStatuses ORDER BY sourceId", database};
-    mutable ReadStatement<3> selectFileStatusesForSourceIdsStatement{
+    mutable ReadStatement<3, 1> selectFileStatusesForSourceIdsStatement{
         "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) ORDER "
         "BY sourceId",
         database};
-    mutable ReadStatement<3> selectFileStatusesForSourceIdStatement{
+    mutable ReadStatement<3, 1> selectFileStatusesForSourceIdStatement{
         "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId=?1 ORDER BY sourceId",
         database};
-    WriteStatement insertFileStatusStatement{
+    WriteStatement<3> insertFileStatusStatement{
         "INSERT INTO fileStatuses(sourceId, size, lastModified) VALUES(?1, ?2, ?3)", database};
-    WriteStatement deleteFileStatusStatement{"DELETE FROM fileStatuses WHERE sourceId=?1", database};
-    WriteStatement updateFileStatusStatement{
+    WriteStatement<1> deleteFileStatusStatement{"DELETE FROM fileStatuses WHERE sourceId=?1",
+                                                database};
+    WriteStatement<3> updateFileStatusStatement{
         "UPDATE fileStatuses SET size=?2, lastModified=?3 WHERE sourceId=?1", database};
-    ReadStatement<1> selectTypeIdBySourceIdStatement{"SELECT typeId FROM types WHERE sourceId=?",
-                                                     database};
-    mutable ReadStatement<1> selectImportedTypeNameIdStatement{
+    ReadStatement<1, 1> selectTypeIdBySourceIdStatement{"SELECT typeId FROM types WHERE sourceId=?",
+                                                        database};
+    mutable ReadStatement<1, 3> selectImportedTypeNameIdStatement{
         "SELECT importedTypeNameId FROM importedTypeNames WHERE kind=?1 AND importOrSourceId=?2 "
         "AND name=?3 LIMIT 1",
         database};
-    mutable ReadWriteStatement<1> insertImportedTypeNameIdStatement{
+    mutable ReadWriteStatement<1, 3> insertImportedTypeNameIdStatement{
         "INSERT INTO importedTypeNames(kind, importOrSourceId, name) VALUES (?1, ?2, ?3) "
         "RETURNING importedTypeNameId",
         database};
-    mutable ReadStatement<1> selectImportIdBySourceIdAndModuleIdStatement{
+    mutable ReadStatement<1, 2> selectImportIdBySourceIdAndModuleIdStatement{
         "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND majorVersion "
         "IS NULL AND minorVersion IS NULL LIMIT 1",
         database};
-    mutable ReadStatement<1> selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement{
+    mutable ReadStatement<1, 3> selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement{
         "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
         "majorVersion=?3 AND minorVersion IS NULL LIMIT 1",
         database};
-    mutable ReadStatement<1> selectImportIdBySourceIdAndModuleIdAndVersionStatement{
+    mutable ReadStatement<1, 4> selectImportIdBySourceIdAndModuleIdAndVersionStatement{
         "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
         "majorVersion=?3 AND minorVersion=?4 LIMIT 1",
         database};
-    mutable ReadStatement<1> selectKindFromImportedTypeNamesStatement{
+    mutable ReadStatement<1, 1> selectKindFromImportedTypeNamesStatement{
         "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
-    mutable ReadStatement<1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
+    mutable ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
         "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
         "importOrSourceId=importId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
         "itn.kind=2 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
@@ -2542,7 +2544,7 @@ public:
         "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
         "etn.minorVersion DESC NULLS FIRST LIMIT 1",
         database};
-    mutable ReadStatement<1> selectTypeIdForImportedTypeNameNamesStatement{
+    mutable ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
         "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
         "importOrSourceId=sourceId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
         "itn.kind=1 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
@@ -2550,44 +2552,45 @@ public:
         "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
         "etn.minorVersion DESC NULLS FIRST LIMIT 1",
         database};
-    WriteStatement deleteAllSourcesStatement{"DELETE FROM sources", database};
-    WriteStatement deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
-    mutable ReadStatement<6> selectExportedTypesForSourceIdsStatement{
+    WriteStatement<0> deleteAllSourcesStatement{"DELETE FROM sources", database};
+    WriteStatement<0> deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
+    mutable ReadStatement<6, 1> selectExportedTypesForSourceIdsStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
         "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY moduleId, "
         "name, majorVersion, minorVersion",
         database};
-    WriteStatement insertExportedTypeNamesWithVersionStatement{
+    WriteStatement<5> insertExportedTypeNamesWithVersionStatement{
         "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, minorVersion, typeId) "
         "VALUES(?1, ?2, ?3, ?4, ?5)",
         database};
-    WriteStatement insertExportedTypeNamesWithMajorVersionStatement{
+    WriteStatement<4> insertExportedTypeNamesWithMajorVersionStatement{
         "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, typeId) "
         "VALUES(?1, ?2, ?3, ?4)",
         database};
-    WriteStatement insertExportedTypeNamesWithoutVersionStatement{
+    WriteStatement<3> insertExportedTypeNamesWithoutVersionStatement{
         "INSERT INTO exportedTypeNames(moduleId, name, typeId) VALUES(?1, ?2, ?3)", database};
-    WriteStatement deleteExportedTypeNameStatement{
+    WriteStatement<1> deleteExportedTypeNameStatement{
         "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
-    WriteStatement updateExportedTypeNameTypeIdStatement{
+    WriteStatement<2> updateExportedTypeNameTypeIdStatement{
         "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
-    mutable ReadStatement<4> selectProjectDatasForModuleIdsStatement{
+    mutable ReadStatement<4, 1> selectProjectDatasForModuleIdsStatement{
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
         database};
-    WriteStatement insertProjectDataStatement{"INSERT INTO projectDatas(projectSourceId, sourceId, "
-                                              "moduleId, fileType) VALUES(?1, ?2, ?3, ?4)",
-                                              database};
-    WriteStatement deleteProjectDataStatement{
+    WriteStatement<4> insertProjectDataStatement{
+        "INSERT INTO projectDatas(projectSourceId, sourceId, "
+        "moduleId, fileType) VALUES(?1, ?2, ?3, ?4)",
+        database};
+    WriteStatement<2> deleteProjectDataStatement{
         "DELETE FROM projectDatas WHERE projectSourceId=?1 AND sourceId=?2", database};
-    WriteStatement updateProjectDataStatement{
+    WriteStatement<4> updateProjectDataStatement{
         "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
         database};
-    mutable ReadStatement<4> selectProjectDatasForModuleIdStatement{
+    mutable ReadStatement<4, 1> selectProjectDatasForModuleIdStatement{
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId=?1",
         database};
-    ReadStatement<1> selectTypeIdsForSourceIdsStatement{
+    ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
         "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};
 };
 

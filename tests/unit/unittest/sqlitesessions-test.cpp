@@ -138,18 +138,19 @@ protected:
                                  "INITIALLY DEFERRED, tag NUMERIC)",
                                  database};
     Sqlite::Sessions sessions{database, "main", "testsessions"};
-    Sqlite::WriteStatement insertData{"INSERT INTO data(name, number, value) VALUES (?1, ?2, ?3) "
-                                      "ON CONFLICT (name) DO UPDATE SET (number, value) = (?2, ?3)",
-                                      database};
-    Sqlite::WriteStatement insertOneDatum{"INSERT INTO data(value, name) VALUES (?1, ?2) "
-                                          "ON CONFLICT (name) DO UPDATE SET (value) = (?2)",
-                                          database};
-    Sqlite::WriteStatement updateNumber{"UPDATE data SET number = ?002 WHERE name=?001", database};
-    Sqlite::WriteStatement updateValue{"UPDATE data SET value = ?002 WHERE name=?001", database};
-    Sqlite::WriteStatement deleteData{"DELETE FROM data WHERE name=?", database};
-    Sqlite::WriteStatement deleteTag{
+    Sqlite::WriteStatement<3> insertData{
+        "INSERT INTO data(name, number, value) VALUES (?1, ?2, ?3) "
+        "ON CONFLICT (name) DO UPDATE SET (number, value) = (?2, ?3)",
+        database};
+    Sqlite::WriteStatement<2> insertOneDatum{"INSERT INTO data(value, name) VALUES (?1, ?2) "
+                                             "ON CONFLICT (name) DO UPDATE SET (value) = (?2)",
+                                             database};
+    Sqlite::WriteStatement<2> updateNumber{"UPDATE data SET number = ?2 WHERE name=?1", database};
+    Sqlite::WriteStatement<2> updateValue{"UPDATE data SET value = ?2 WHERE name=?1", database};
+    Sqlite::WriteStatement<1> deleteData{"DELETE FROM data WHERE name=?", database};
+    Sqlite::WriteStatement<1> deleteTag{
         "DELETE FROM tags WHERE dataId=(SELECT id FROM data WHERE name=?)", database};
-    Sqlite::WriteStatement insertTag{
+    Sqlite::WriteStatement<2> insertTag{
         "INSERT INTO tags(dataId, tag) VALUES ((SELECT id FROM data WHERE name=?1), ?2) ", database};
     Sqlite::ReadStatement<3> selectData{"SELECT name, number, value FROM data", database};
     Sqlite::ReadStatement<2> selectTags{
@@ -599,7 +600,7 @@ TEST_F(SqliteSessions, ConvertAllValueTypesInChangeSet)
 TEST_F(SqliteSessions, InsertOneValueChangeSet)
 {
     sessions.create();
-    insertOneDatum.write("foo");
+    insertOneDatum.write("foo", Sqlite::NullValue{});
     sessions.commit();
     auto changeSets = sessions.changeSets();
     auto &&changeSet = changeSets.front();
@@ -669,7 +670,7 @@ TEST_F(SqliteSessions, EmptyChangeSet)
 TEST_F(SqliteSessions, AccessInsertOneValueChangeSet)
 {
     sessions.create();
-    insertOneDatum.write("foo");
+    insertOneDatum.write("foo", Sqlite::NullValue{});
     sessions.commit();
     auto changeSets = sessions.changeSets();
     auto &&changeSet = changeSets.front();
