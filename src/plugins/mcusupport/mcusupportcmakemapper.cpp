@@ -56,7 +56,7 @@ static const QHash<QString, QString> &envVarToCMakeVarMapping()
         {"RenesasFlashProgrammer_PATH", "RENESAS_FLASH_PROGRAMMER_PATH"},
         {"MCUXpressoIDE_PATH", "MCUXPRESSO_IDE_PATH"},
         {"JLINK_PATH", "JLINK_PATH"},
-        {"CYPRESS_AUTO_FLASH_UTILITY_DIR", "CYPRESS_AUTO_FLASH_UTILITY_DIR"},
+        {"CYPRESS_AUTO_FLASH_UTILITY_DIR", "INFINEON_AUTO_FLASH_UTILITY_DIR"},
         {"EK_RA6M3G_E2_PROJECT_PATH", "EK_RA6M3G_E2_PROJECT_PATH"},
     };
     return mapping;
