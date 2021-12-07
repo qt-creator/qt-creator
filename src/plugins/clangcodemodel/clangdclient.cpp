@@ -2385,36 +2385,60 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
     if (!cppDoc)
         return cursor;
     const QList<AST *> builtinAstPath = ASTPath(cppDoc)(cursor);
-    for (auto it = builtinAstPath.rbegin(); it != builtinAstPath.rend(); ++it) {
-        const MemberAccessAST * const memberAccess = (*it)->asMemberAccess();
-        if (!memberAccess)
-            continue;
-        const TranslationUnit * const tu = cppDoc->translationUnit();
-        switch (tu->tokenAt(memberAccess->access_token).kind()) {
-        case T_DOT:
-            break;
-        case T_ARROW: {
-            const Utils::optional<AstNode> clangdAst = astCache.get(doc);
-            if (!clangdAst)
-                return cursor;
-            const QList<AstNode> clangdAstPath = getAstPath(*clangdAst, Range(cursor));
-            for (auto it = clangdAstPath.rbegin(); it != clangdAstPath.rend(); ++it) {
-                if (it->detailIs("operator->") && it->arcanaContains("CXXMethod"))
-                    return cursor;
-            }
-            break;
-        }
-        default:
-            return cursor;
-        }
-        int dotLine, dotColumn;
-        tu->getTokenPosition(memberAccess->access_token, &dotLine, &dotColumn);
-        const int dotPos = Utils::Text::positionInText(doc->document(), dotLine, dotColumn);
-        if (dotPos != cursor.position())
-            return cursor;
+    const TranslationUnit * const tu = cppDoc->translationUnit();
+    const auto posForToken = [doc, tu](int tok) {
+        int line, column;
+        tu->getTokenPosition(tok, &line, &column);
+        return Utils::Text::positionInText(doc->document(), line, column);
+    };
+    const auto leftMovedCursor = [cursor] {
         QTextCursor c = cursor;
         c.setPosition(cursor.position() - 1);
         return c;
+    };
+    for (auto it = builtinAstPath.rbegin(); it != builtinAstPath.rend(); ++it) {
+
+        // s|.x or s|->x
+        if (const MemberAccessAST * const memberAccess = (*it)->asMemberAccess()) {
+            switch (tu->tokenAt(memberAccess->access_token).kind()) {
+            case T_DOT:
+                break;
+            case T_ARROW: {
+                const Utils::optional<AstNode> clangdAst = astCache.get(doc);
+                if (!clangdAst)
+                    return cursor;
+                const QList<AstNode> clangdAstPath = getAstPath(*clangdAst, Range(cursor));
+                for (auto it = clangdAstPath.rbegin(); it != clangdAstPath.rend(); ++it) {
+                    if (it->detailIs("operator->") && it->arcanaContains("CXXMethod"))
+                        return cursor;
+                }
+                break;
+            }
+            default:
+                return cursor;
+            }
+            if (posForToken(memberAccess->access_token) != cursor.position())
+                return cursor;
+            return leftMovedCursor();
+        }
+
+        // f(arg1|, arg2)
+        if (const CallAST *const callAst = (*it)->asCall()) {
+            const int tok = builtinAstPath.last()->lastToken();
+            if (posForToken(tok) != cursor.position())
+                return cursor;
+            if (tok == callAst->rparen_token)
+                return leftMovedCursor();
+            if (tu->tokenKind(tok) != T_COMMA)
+                return cursor;
+
+            // Guard against edge case of overloaded comma operator.
+            for (auto list = callAst->expression_list; list; list = list->next) {
+                if (list->value->lastToken() == tok)
+                    return leftMovedCursor();
+            }
+            return cursor;
+        }
     }
     return cursor;
 }
