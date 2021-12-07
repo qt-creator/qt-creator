@@ -400,12 +400,12 @@ QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
 
 void ClangdSettings::loadSettings()
 {
-    Utils::toSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
+    Utils::fromSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
 }
 
 void ClangdSettings::saveSettings()
 {
-    Utils::fromSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
+    Utils::toSettings(clangdSettingsKey(), {}, Core::ICore::settings(), &m_data);
 }
 
 #ifdef WITH_TESTS
