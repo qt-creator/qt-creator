@@ -301,9 +301,13 @@ static McuPackage *createCypressProgrammerPackage()
     if (qEnvironmentVariableIsSet(envVar)) {
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
     } else if (HostOsInfo::isWindowsHost()) {
-        const FilePath candidate = findInProgramFiles("Cypress/Cypress Auto Flash Utility 1.0");
-        if (candidate.exists())
-            defaultPath = candidate;
+        const FilePath candidate = findInProgramFiles("Cypress");
+        if (candidate.exists()) {
+            // "Cypress Auto Flash Utility 1.0"
+            const auto subDirs = candidate.dirEntries({"Cypress Auto Flash Utility*"}, QDir::Dirs, QDir::Unsorted);
+            if (!subDirs.empty())
+                defaultPath = subDirs.first();
+        }
     }
 
     auto result = new McuPackage(
@@ -311,6 +315,32 @@ static McuPackage *createCypressProgrammerPackage()
                 defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("/bin/openocd"),
                 "CypressAutoFlashUtil");
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
+static McuPackage *createRenesasProgrammerPackage()
+{
+    const char envVar[] = "RenesasFlashProgrammer_PATH";
+
+    FilePath defaultPath;
+    if (qEnvironmentVariableIsSet(envVar)) {
+        defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
+    } else if (HostOsInfo::isWindowsHost()) {
+        const FilePath candidate = findInProgramFiles("Renesas Electronics/Programming Tools");
+        if (candidate.exists()) {
+            // "Renesas Flash Programmer V3.09"
+            const auto subDirs = candidate.dirEntries({"Renesas Flash Programmer*"}, QDir::Dirs, QDir::Unsorted);
+            if (!subDirs.empty())
+                defaultPath = subDirs.first();
+        }
+    }
+
+    auto result = new McuPackage(
+                "Renesas Flash Programmer",
+                defaultPath,
+                Utils::HostOsInfo::withExecutableSuffix("rfp-cli"),
+                "RenesasFlashProgrammer");
     result->setEnvironmentVariableName(envVar);
     return result;
 }
@@ -603,6 +633,7 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
         {{"ST"}, createStm32CubeProgrammerPackage()},
         {{"NXP"}, createMcuXpressoIdePackage()},
         {{"CYPRESS"}, createCypressProgrammerPackage()},
+        {{"RENESAS"}, createRenesasProgrammerPackage()},
     };
 
     McuTargetFactory targetFactory(tcPkgs, vendorPkgs);
