@@ -836,7 +836,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
 #endif
     setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
     m_clazyChecks->filterLineEdit->setFiltering(true);
-    m_clazyChecks->filterLineEdit->setPlaceholderText(tr("Textual Filter"));
+    m_clazyChecks->filterLineEdit->setPlaceholderText(tr("Filter by name"));
     connect(m_clazyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             m_clazySortFilterProxyModel,
             qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
@@ -889,6 +889,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     tidyFilterModel->setSourceModel(m_tidyTreeModel.get());
     setupTreeView(m_tidyChecks->checksPrefixesTree, tidyFilterModel);
     m_tidyChecks->filterLineEdit->setFiltering(true);
+    m_tidyChecks->filterLineEdit->setPlaceholderText(tr("Filter by name"));
     connect(m_tidyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged, tidyFilterModel,
             qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
 
@@ -977,6 +978,7 @@ void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &
     case ClangDiagnosticConfig::TidyMode::UseConfigFile:
         m_tidyChecks->tidyMode->setCurrentIndex(1);
         m_tidyChecks->plainTextEditButton->setVisible(false);
+        m_tidyChecks->filterLineEdit->setVisible(false);
         m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::EmptyPage);
         break;
     case ClangDiagnosticConfig::TidyMode::UseCustomChecks:
@@ -984,9 +986,11 @@ void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &
         m_tidyChecks->tidyMode->setCurrentIndex(0);
         if (m_tidyInfo.supportedChecks.isEmpty()) {
             m_tidyChecks->plainTextEditButton->setVisible(false);
+            m_tidyChecks->filterLineEdit->setVisible(false);
             m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::InvalidExecutablePage);
         } else {
             m_tidyChecks->plainTextEditButton->setVisible(true);
+            m_tidyChecks->filterLineEdit->setVisible(true);
             m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::ChecksPage);
             syncTidyChecksToTree(config);
         }
