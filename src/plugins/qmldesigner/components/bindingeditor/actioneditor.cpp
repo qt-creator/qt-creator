@@ -202,26 +202,26 @@ void ActionEditor::prepareConnections()
                 continue;
 
             const QString name = QString::fromUtf8(propertyName);
+            const bool writeable = modelNode.metaInfo().propertyIsWritable(propertyName);
             TypeName type = modelNode.metaInfo().propertyTypeName(propertyName);
             if (type.contains("<cpp>."))
                 type.remove(0, 6);
 
-            connection.properties.append(ActionEditorDialog::PropertyOption(name, type));
+            connection.properties.append(ActionEditorDialog::PropertyOption(name, type, writeable));
         }
 
         for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
-            if (variantProperty.isValid()) {
-                if (variantProperty.isDynamic()) {
-                    if (!typeWhiteList.contains(variantProperty.dynamicTypeName()))
-                        continue;
+            if (variantProperty.isValid() && variantProperty.isDynamic()) {
+                if (!typeWhiteList.contains(variantProperty.dynamicTypeName()))
+                    continue;
 
-                    const QString name = QString::fromUtf8(variantProperty.name());
-                    TypeName type = variantProperty.dynamicTypeName();
-                    if (type.contains("<cpp>."))
-                        type.remove(0, 6);
+                const QString name = QString::fromUtf8(variantProperty.name());
+                const bool writeable = modelNode.metaInfo().propertyIsWritable(variantProperty.name());
+                TypeName type = variantProperty.dynamicTypeName();
+                if (type.contains("<cpp>."))
+                    type.remove(0, 6);
 
-                    connection.properties.append(ActionEditorDialog::PropertyOption(name, type));
-                }
+                connection.properties.append(ActionEditorDialog::PropertyOption(name, type, writeable));
             }
         }
 
@@ -266,10 +266,11 @@ void ActionEditor::prepareConnections()
                             continue;
 
                         const QString name = QString::fromUtf8(propertyName);
+                        const bool writeable = metaInfo.propertyIsWritable(propertyName);
                         if (type.contains("<cpp>."))
                             type.remove(0, 6);
 
-                        singelton.properties.append(ActionEditorDialog::PropertyOption(name, type));
+                        singelton.properties.append(ActionEditorDialog::PropertyOption(name, type, writeable));
                     }
 
                     if (!singelton.properties.isEmpty()) {

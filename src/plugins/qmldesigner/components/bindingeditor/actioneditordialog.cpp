@@ -472,7 +472,7 @@ void ActionEditorDialog::fillAndSetTargetItem(const QString &value, bool useDefa
     } else { // ConnectionType::Assignment
         m_assignmentTargetItem->clear();
         for (const auto &connection : qAsConst(m_connections)) {
-            if (!connection.properties.isEmpty())
+            if (!connection.properties.isEmpty() && connection.hasWriteableProperties())
                 m_assignmentTargetItem->addItem(connection.item);
         }
 
@@ -516,8 +516,10 @@ void ActionEditorDialog::fillAndSetTargetProperty(const QString &value, bool use
         if (idx == -1) {
             insertAndSetUndefined(m_assignmentTargetProperty);
         } else {
-            for (const auto &property : qAsConst(m_connections[idx].properties))
-                m_assignmentTargetProperty->addItem(property.name, property.type);
+            for (const auto &property : qAsConst(m_connections[idx].properties)) {
+                if (property.isWriteable)
+                    m_assignmentTargetProperty->addItem(property.name, property.type);
+            }
 
             if (m_assignmentTargetProperty->findText(value) != -1) {
                 m_assignmentTargetProperty->setCurrentText(value);
