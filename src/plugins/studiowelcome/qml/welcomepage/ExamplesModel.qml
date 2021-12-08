@@ -130,7 +130,7 @@ ListModel {
 
     ListElement {
         projectName: "particles"
-        qmlFileName: "Screen01.ui.qml"
+        qmlFileName: "Fire.ui.qml"
         thumbnail: "images/particles_thumbnail.png"
         displayName: "Particle Demo"
         url: "https://download.qt.io/learning/examples/qtdesignstudio/particles.zip"
