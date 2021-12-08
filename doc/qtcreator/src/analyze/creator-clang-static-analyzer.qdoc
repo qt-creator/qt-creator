@@ -96,7 +96,7 @@
 
     \note If you select \uicontrol Debug in the mode selector to open the
     \uicontrol Debug mode and then select \uicontrol {Clang-Tidy and Clazy},
-    you must select the \inlineimage qtcreator-analyze-start-button.png
+    you must select the \inlineimage icons/qtcreator-analyze-start-button.png
     (\uicontrol Start) button to open the \uicontrol {Files to Analyze}
     dialog.
 
@@ -109,7 +109,7 @@
     hovering the mouse pointer over the icon next to the check box.
 
     To see more information about an issue that is marked with the
-    \inlineimage refactormarker.png
+    \inlineimage icons/refactormarker.png
     icon, hover the mouse pointer over the line.
 
     You can disable particular type of checks either globally or for a

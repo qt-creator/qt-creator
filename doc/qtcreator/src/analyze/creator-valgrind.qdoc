@@ -59,7 +59,7 @@
             select \uicontrol Memcheck on the toolbar.
 
         \li Select the
-            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            \inlineimage icons/qtcreator-analyze-start-button.png "Start button"
             button to start the application.
 
         \li Use the application to analyze it.
@@ -218,7 +218,7 @@
             \image qtcreator-valgrind-callgrind-toolbar.png "Callgrind view toolbar"
 
         \li Select the
-            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            \inlineimage icons/qtcreator-analyze-start-button.png "Start button"
             button to start the application.
 
         \li Use the application to analyze it.

@@ -115,7 +115,7 @@
     \image qtcreator-class-view.png "Class View"
 
     To organize the view by subprojects, click
-    \inlineimage qtcreator-show-subprojects.png
+    \inlineimage icons/qtcreator-show-subprojects.png
     (\uicontrol {Show Subprojects}).
 
     To visit all parts of a namespace, double-click on the namespace item

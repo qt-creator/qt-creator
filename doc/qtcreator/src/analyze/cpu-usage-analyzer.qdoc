@@ -70,7 +70,7 @@
             profile the current application.
 
         \li Select the
-            \inlineimage qtcreator-analyze-start-button.png
+            \inlineimage icons/qtcreator-analyze-start-button.png
             (\uicontrol Start) button to start the application from the
             \uicontrol {Performance Analyzer}.
 

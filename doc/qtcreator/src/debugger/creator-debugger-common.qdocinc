@@ -67,7 +67,7 @@
     Unclaimed breakpoints are stored as a part of a session and exist
     independently of whether a program is being debugged or not. They
     are listed in the \uicontrol {Breakpoint Preset} view and in the
-    editor using the \inlineimage qtcreator-unclaimed-breakpoint-icon.png
+    editor using the \inlineimage icons/qtcreator-unclaimed-breakpoint-icon.png
     (\uicontrol {Unclaimed Breakpoint}) icon, when they refer to a position
     in code.
 

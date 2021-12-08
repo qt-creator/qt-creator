@@ -327,14 +327,14 @@
             \list
                 \li \inlineimage run_small.png
                     (\uicontrol {Run All Tests}) to run all tests.
-                 \li \inlineimage qtcreator-run-selected-tests.png
+                 \li \inlineimage icons/qtcreator-run-selected-tests.png
                     (\uicontrol {Run Selected Tests}) to run the selected tests.
-                 \li \inlineimage qtcreator-run-failed-tests.png
+                 \li \inlineimage icons/qtcreator-run-failed-tests.png
                     (\uicontrol {Run Failed Tests}) to re-run the tests which failed
                     in the last run.
                     Depending on the framework this may select additional tests if it
                     is impossible to distinguish or to fully address the test.
-                 \li \inlineimage qtcreator-run-tests-in-current-file.png
+                 \li \inlineimage icons/qtcreator-run-tests-in-current-file.png
                     (\uicontrol {Run Tests for Current File}) to run the tests
                     in the file currently open in the code editor.
             \endlist

@@ -592,7 +592,7 @@
                 edit a function signature and by applying the changes to the
                 matching code.
             \li Function signature. When this action is available, a light bulb
-                icon appears: \inlineimage refactormarker.png
+                icon appears: \inlineimage icons/refactormarker.png
         \row
             \li Add #include for undeclared or forward declared identifier
             \li Adds an \c {#include} directive to the current file to make the

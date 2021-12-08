@@ -91,7 +91,7 @@
             the view.
 
         \li Add a breakpoint at the end of the \c {startNewGame()} function, and
-            click \inlineimage qtcreator-debugging-continue.png
+            click \inlineimage icons/qtcreator-debugging-continue.png
             (\uicontrol Continue) to hit the breakpoint.
 
             \image qtquick-example-setting-breakpoint3.png

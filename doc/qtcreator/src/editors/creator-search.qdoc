@@ -213,7 +213,7 @@
     To expand and collapse the search results, select the
     \uicontrol {Expand All} button.
 
-    To start a new search, select the \inlineimage qtcreator-new-search-icon.png
+    To start a new search, select the \inlineimage icons/qtcreator-new-search-icon.png
     (\uicontrol {New Search}) button.
 
     \note You can use \uicontrol {Advanced Find} also to search for symbols. For

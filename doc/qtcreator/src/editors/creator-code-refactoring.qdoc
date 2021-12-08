@@ -108,7 +108,7 @@
             (\uicontrol {Previous Item}) button in the
             \uicontrol {Search Results} pane.
         \li To expand and collapse the list of all instances, click the
-            \inlineimage qtcreator-expand.png
+            \inlineimage icons/qtcreator-expand.png
             (\uicontrol {Expand All}) button.
         \li To filter the search results for the usage of symbols according to
             access type, such as read, write, or declaration, click the
@@ -118,7 +118,7 @@
             \inlineimage clean_pane_small.png
             (\uicontrol Clear) button.
         \li To start a new search, click the
-            \inlineimage qtcreator-new-search-icon.png
+            \inlineimage icons/qtcreator-new-search-icon.png
             (\uicontrol {New Search}) button.
     \endlist
 

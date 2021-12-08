@@ -31,7 +31,7 @@
     directories. The variables take care of quoting their expansions, so you do
     not need to put them in quotes.
 
-    Select the \inlineimage replace.png
+    Select the \inlineimage icons/replace.png
     (\uicontrol {Variables}) button in a field to select from a list of
     variables that are available in a particular context.
     For more information about each variable, move the cursor over it in the

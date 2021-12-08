@@ -108,7 +108,7 @@
 
     \image qtcreator-external-tools.png
 
-    Select the \inlineimage replace.png
+    Select the \inlineimage icons/replace.png
     (\uicontrol {Variables}) button in a field to select from a list of
     \l{Using Qt Creator Variables}{variables} that are available in a
     particular context.
