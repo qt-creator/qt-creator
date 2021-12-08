@@ -67,6 +67,7 @@ Tokens SimpleLexer::operator()(const QString &text, int state)
     const char *lastChar = firstChar + bytes.size();
 
     Lexer lex(firstChar, lastChar);
+    lex.setExpectedRawStringSuffix(_expectedRawStringSuffix);
     lex.setLanguageFeatures(_languageFeatures);
     lex.setStartWithNewline(true);
     lex.setPreprocessorMode(_ppMode);
@@ -108,6 +109,7 @@ Tokens SimpleLexer::operator()(const QString &text, int state)
     }
 
     _lastState = lex.state();
+    _expectedRawStringSuffix = lex.expectedRawStringSuffix();
     return tokens;
 }
 

@@ -25,6 +25,8 @@
 
 #include "cppassert.h"
 
+#include <utils/executeondestruction.h>
+
 #include <cctype>
 
 using namespace CPlusPlus;
@@ -213,7 +215,9 @@ void Lexer::scan_helper(Token *tok)
         return;
     } else if (!control() && isRawStringLiteral(s._tokenKind)) {
         tok->f.kind = s._tokenKind;
-        if (scanUntilRawStringLiteralEndSimple())
+        const bool found = _expectedRawStringSuffix.isEmpty()
+                ? scanUntilRawStringLiteralEndSimple() : scanUntilRawStringLiteralEndPrecise();
+        if (found)
             _state = 0;
         return;
     } else { // non-raw strings
@@ -744,6 +748,10 @@ void Lexer::scanStringLiteral(Token *tok, unsigned char hint)
 
 void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
 {
+    Utils::ExecuteOnDestruction suffixCleaner;
+    if (!control())
+        suffixCleaner.reset([this] { _expectedRawStringSuffix.clear(); });
+
     const char *yytext = _currentChar;
 
     int delimLength = -1;
@@ -766,6 +774,8 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
                     tok->f.kind = T_ERROR;
                     return;
                 }
+                if (!control())
+                    _expectedRawStringSuffix.append(_yychar);
                 yyinp();
             } else {
                 if (!closingDelimCandidate) {
@@ -808,12 +818,34 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
     else
         tok->f.kind = T_RAW_STRING_LITERAL;
 
-    if (!control() && !closed)
+    if (!control() && !closed) {
+        suffixCleaner.reset([]{});
         s._tokenKind = tok->f.kind;
+        _expectedRawStringSuffix.prepend(')');
+        _expectedRawStringSuffix.append('"');
+    }
 }
 
-// In the highlighting case we don't have any further information
-// like the delimiter or its length, so just match for: ...)..."
+bool Lexer::scanUntilRawStringLiteralEndPrecise()
+{
+    int matchLen = 0;
+    while (_yychar) {
+        if (_yychar == _expectedRawStringSuffix.at(matchLen)) {
+            if (++matchLen == _expectedRawStringSuffix.length()) {
+                _expectedRawStringSuffix.clear();
+                yyinp();
+                return true;
+            }
+        } else {
+            matchLen = 0;
+        }
+        yyinp();
+    }
+    return false;
+}
+
+// In case we don't have any further information
+// like the delimiter or its length, just match for: ...)..."
 bool Lexer::scanUntilRawStringLiteralEndSimple()
 {
     bool closingParenthesisPassed = false;

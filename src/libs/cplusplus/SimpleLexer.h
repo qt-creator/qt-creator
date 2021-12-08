@@ -59,6 +59,10 @@ public:
     int state() const
     { return _lastState; }
 
+    QByteArray expectedRawStringSuffix() const { return _expectedRawStringSuffix; }
+    void setExpectedRawStringSuffix(const QByteArray &suffix)
+    { _expectedRawStringSuffix = suffix; }
+
     static int tokenAt(const Tokens &tokens, int utf16charsOffset);
     static Token tokenAt(const QString &text,
                          int utf16charsOffset,
@@ -68,6 +72,7 @@ public:
     static int tokenBefore(const Tokens &tokens, int utf16charsOffset);
 
 private:
+    QByteArray _expectedRawStringSuffix;
     int _lastState;
     LanguageFeatures _languageFeatures;
     bool _skipComments: 1;

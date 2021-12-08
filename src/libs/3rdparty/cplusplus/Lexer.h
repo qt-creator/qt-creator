@@ -23,6 +23,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
 
+#include <QByteArray>
+
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Lexer
@@ -62,6 +64,10 @@ public:
     void setPreprocessorMode(bool onoff)
     { f._ppMode = onoff; }
 
+    QByteArray expectedRawStringSuffix() const { return _expectedRawStringSuffix; }
+    void setExpectedRawStringSuffix(const QByteArray &suffix)
+    { _expectedRawStringSuffix = suffix; }
+
 public:
     static void yyinp_utf8(const char *&currentSourceChar, unsigned char &yychar,
                            unsigned &utf16charCounter)
@@ -94,6 +100,7 @@ private:
 
     void scanStringLiteral(Token *tok, unsigned char hint = 0);
     void scanRawStringLiteral(Token *tok, unsigned char hint = 0);
+    bool scanUntilRawStringLiteralEndPrecise();
     bool scanUntilRawStringLiteralEndSimple();
     void scanCharLiteral(Token *tok, unsigned char hint = 0);
     void scanUntilQuote(Token *tok, unsigned char quote);
@@ -134,6 +141,7 @@ private:
 
     TranslationUnit *_translationUnit;
     Control *_control;
+    QByteArray _expectedRawStringSuffix;
     const char *_firstChar;
     const char *_currentChar;
     const char *_lastChar;

@@ -523,6 +523,22 @@ void TextDocumentLayout::setFolded(const QTextBlock &block, bool folded)
         emit layout->foldChanged(block.blockNumber(), folded);
 }
 
+void TextDocumentLayout::setExpectedRawStringSuffix(const QTextBlock &block,
+                                                    const QByteArray &suffix)
+{
+    if (TextBlockUserData * const data = textUserData(block))
+        data->setExpectedRawStringSuffix(suffix);
+    else if (!suffix.isEmpty())
+        userData(block)->setExpectedRawStringSuffix(suffix);
+}
+
+QByteArray TextDocumentLayout::expectedRawStringSuffix(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block))
+        return userData->expectedRawStringSuffix();
+    return {};
+}
+
 void TextDocumentLayout::requestExtraAreaUpdate()
 {
     emit updateExtraArea();

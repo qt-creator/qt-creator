@@ -61,6 +61,9 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(m_languageFeatures);
+    const QTextBlock prevBlock = currentBlock().previous();
+    if (prevBlock.isValid())
+        tokenize.setExpectedRawStringSuffix(TextDocumentLayout::expectedRawStringSuffix(prevBlock));
 
     int initialLexerState = lexerState;
     const Tokens tokens = tokenize(text, initialLexerState);
@@ -99,7 +102,6 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     bool expectPreprocessorKeyword = false;
     bool onlyHighlightComments = false;
-    bool blockHasPreprocessorDirective = false;
 
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
@@ -157,7 +159,6 @@ void CppHighlighter::highlightBlock(const QString &text)
             setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                           formatForCategory(C_PREPROCESSOR));
             expectPreprocessorKeyword = true;
-            blockHasPreprocessorDirective = true;
         } else if (highlightCurrentWordAsPreprocessor && (tk.isKeyword() || tk.is(T_IDENTIFIER))
                    && isPPKeyword(Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars()))) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_PREPROCESSOR));
@@ -171,22 +172,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_NUMERIC_LITERAL)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_NUMBER));
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
-            // Our highlighting is broken for multi-line raw string literals, so if a superior
-            // option is available, don't do anything.
-            // Note that this does not just save unneeded work, but can actually be required,
-            // because mis-detected strings are not necessarily overwritten by the semantic
-            // highlighter. Example:
-            // const char *s = R"delim(
-            //    line1
-            //    "line)"  // <- is misdeteced by SimpleLexer as end of raw string literal
-            //    line3    // <- erroneously not formatted by us, but that would be ok;
-            //             //    the semantic highlighter does it for us later
-            //    )delim"; // <- end quote is erroneously interpreted as *start* of a string,
-            //             //    and because clangd does not include punctuation in its semantic
-            //             //    tokens, the semicolon would stay formatted as a string even
-            //             //    after the semantic highlighter has run.
-            if ((!CppModelManager::instance()->isClangCodeModelActive()
-                 || blockHasPreprocessorDirective) && !highlightRawStringLiteral(text, tk)) {
+            if (!highlightRawStringLiteral(text, tk)) {
                 setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                                     formatForCategory(C_STRING));
             }
@@ -288,6 +274,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     setCurrentBlockState((braceDepth << 8) | tokenize.state());
+    TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(),
+                                                   tokenize.expectedRawStringSuffix());
 }
 
 void CppHighlighter::setLanguageFeatures(const LanguageFeatures &languageFeatures)
