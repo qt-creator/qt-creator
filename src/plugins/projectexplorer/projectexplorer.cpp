@@ -3952,6 +3952,12 @@ void ProjectExplorerPluginPrivate::removeFile()
     Core::FileUtils::removeFiles(pathList, deleteFile);
 }
 
+static HandleIncludeGuards canTryToRenameIncludeGuards(const Node *node)
+{
+    return node->asFileNode() && node->asFileNode()->fileType() == FileType::Header
+            ? HandleIncludeGuards::Yes : HandleIncludeGuards::No;
+}
+
 void ProjectExplorerPluginPrivate::duplicateFile()
 {
     Node *currentNode = ProjectTree::currentNode();
@@ -3987,6 +3993,9 @@ void ProjectExplorerPluginPrivate::duplicateFile()
                                   QDir::toNativeSeparators(newFilePath), sourceFile.errorString()));
         return;
     }
+    Core::FileUtils::updateHeaderFileGuardIfApplicable(currentNode->filePath(),
+                                                       FilePath::fromString(newFilePath),
+                                                       canTryToRenameIncludeGuards(currentNode));
     if (!folderNode->addFiles({FilePath::fromString(newFilePath)})) {
         QMessageBox::critical(ICore::dialogParent(), tr("Duplicating File Failed"),
                               tr("Failed to add new file \"%1\" to the project.")
@@ -4055,9 +4064,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
     if (oldFilePath == newFilePath)
         return;
 
-    auto handleGuards = Core::HandleIncludeGuards::No;
-    if (node->asFileNode() && node->asFileNode()->fileType() == FileType::Header)
-        handleGuards = Core::HandleIncludeGuards::Yes;
+    const HandleIncludeGuards handleGuards = canTryToRenameIncludeGuards(node);
     if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
         QTimer::singleShot(0, [oldFilePath, newFilePath, projectFileName, handleGuards] {
             int res = QMessageBox::question(ICore::dialogParent(),

@@ -228,18 +228,25 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
         DocumentManager::renamedFile(orgFilePath, newFilePath);
     }
 
-    if (result && handleGuards == HandleIncludeGuards::Yes) {
-        bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toString(),
-                                                                    orgFilePath.baseName());
-        if (!headerUpdateSuccess) {
-            Core::MessageManager::writeDisrupting(
+    if (result)
+        updateHeaderFileGuardIfApplicable(orgFilePath, newFilePath, handleGuards);
+    return result;
+}
+
+void FileUtils::updateHeaderFileGuardIfApplicable(const Utils::FilePath &oldFilePath,
+                                                  const Utils::FilePath &newFilePath,
+                                                  HandleIncludeGuards handleGuards)
+{
+    if (handleGuards == HandleIncludeGuards::No)
+        return;
+    const bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toString(),
+                                                                      oldFilePath.baseName());
+    if (headerUpdateSuccess)
+        return;
+    MessageManager::writeDisrupting(
                 QCoreApplication::translate("Core::FileUtils",
                                             "Failed to rename the include guard in file \"%1\".")
-                    .arg(newFilePath.toUserOutput()));
-        }
-    }
-
-    return result;
+                .arg(newFilePath.toUserOutput()));
 }
 
 bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,

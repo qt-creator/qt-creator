@@ -56,8 +56,15 @@ struct CORE_EXPORT FileUtils
     static void removeFiles(const Utils::FilePaths &filePaths, bool deleteFromFS);
     static bool renameFile(const Utils::FilePath &from, const Utils::FilePath &to,
                            HandleIncludeGuards handleGuards = HandleIncludeGuards::No);
+
+    static void updateHeaderFileGuardIfApplicable(const Utils::FilePath &oldFilePath,
+                                                  const Utils::FilePath &newFilePath,
+                                                  HandleIncludeGuards handleGuards);
+
+private:
     // This method is used to refactor the include guards in the renamed headers
-    static bool updateHeaderFileGuardAfterRename(const QString &headerPath, const QString &oldHeaderBaseName);
+    static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
+                                                 const QString &oldHeaderBaseName);
 };
 
 } // namespace Core
