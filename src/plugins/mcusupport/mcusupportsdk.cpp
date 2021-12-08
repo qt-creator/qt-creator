@@ -801,13 +801,13 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
     // Desktop JSON file is shipped starting from Qul 1.5.
     // This whole section could be removed when minimalQulVersion will reach 1.5 or above
     {
-        const bool hasDesktopDescription = Utils::contains(descriptions, [](const McuTargetDescription &desc) {
+        const bool hasDesktopDescription = contains(descriptions, [](const McuTargetDescription &desc) {
             return desc.platform.type == McuTargetDescription::TargetType::Desktop;
         });
 
         if (!hasDesktopDescription) {
-            QVector<Utils::FilePath> desktopLibs;
-            if (Utils::HostOsInfo::isWindowsHost()) {
+            QVector<FilePath> desktopLibs;
+            if (HostOsInfo::isWindowsHost()) {
                 desktopLibs << dir / "lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib"; // older versions of QUL (<1.5?)
                 desktopLibs << dir / "lib/QulQuickUltralitePlatform_QT_32bpp_Windows_msvc_Release.lib"; // newer versions of QUL
             } else {
@@ -815,7 +815,7 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
                 desktopLibs << dir / "lib/libQulQuickUltralitePlatform_QT_32bpp_Linux_gnu_Debug.a"; // newer versions of QUL
             }
 
-            if (Utils::anyOf(desktopLibs, [](const Utils::FilePath &desktopLib) {
+            if (anyOf(desktopLibs, [](const FilePath &desktopLib) {
                              return desktopLib.exists(); })
                     ) {
                 McuTargetDescription desktopDescription;
@@ -826,13 +826,17 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
                 desktopDescription.platform.name = "Desktop";
                 desktopDescription.platform.vendor = "Qt";
                 desktopDescription.platform.colorDepths = {32};
-                desktopDescription.toolchain.id = Utils::HostOsInfo::isWindowsHost() ? QString("msvc") : QString("gcc");
+                desktopDescription.toolchain.id = HostOsInfo::isWindowsHost() ? QString("msvc") : QString("gcc");
                 desktopDescription.platform.type = McuTargetDescription::TargetType::Desktop;
                 descriptions.prepend(desktopDescription);
             } else {
-                if (dir.exists())
+                // show error only on 1.x SDKs, but skip on 2.x
+                const FilePath desktopLibV2 = HostOsInfo::isWindowsHost() ?
+                            dir / "lib/QulPlatform_qt_32bpp_Windows_msvc_Release.lib"
+                          : dir / "lib/libQulPlatform_qt_32bpp_Linux_gnu_Release.a";
+                if (dir.exists() && !desktopLibV2.exists())
                     printMessage(McuTarget::tr("Skipped creating fallback desktop kit: Could not find any of %1.")
-                                 .arg(Utils::transform(desktopLibs, [](const auto &path) {
+                                 .arg(transform(desktopLibs, [](const auto &path) {
                                     return QDir::toNativeSeparators(path.fileNameWithPathComponents(1));
                                  }).toList().join(" or ")),
                                  false);
