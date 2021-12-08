@@ -38,19 +38,19 @@ ToolBar {
     signal rangeSelectChanged()
     signal lockChanged()
 
-    function updateLockButton(locked) {
+    function updateLockButton(locked: bool) {
         lockButton.checked = !locked;
     }
 
-    function lockButtonChecked() {
+    function lockButtonChecked(): bool {
         return lockButton.checked;
     }
 
-    function updateRangeButton(rangeMode) {
+    function updateRangeButton(rangeMode: bool) {
         rangeButton.checked = rangeMode;
     }
 
-    function rangeButtonChecked() {
+    function rangeButtonChecked() : bool {
         return rangeButton.checked
     }
 
