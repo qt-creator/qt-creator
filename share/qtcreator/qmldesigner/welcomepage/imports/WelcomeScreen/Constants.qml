@@ -30,9 +30,10 @@ import StudioTheme 1.0
 import projectmodel 1.0
 
 QtObject {
+    id: singleton
     readonly property int width: 1842
     readonly property int height: 1080
-    property bool communityEdition: false
+    property bool communityEdition: singleton.projectModel.communityVersion
 
     property alias fontDirectory: directoryFontLoader.fontDirectory
     property alias relativeFontDirectory: directoryFontLoader.relativeFontDirectory
