@@ -49,10 +49,11 @@ public:
     void setSerialNumber(const QString &serial);
     QString serialNumber() const;
 
+    void setupDefaultNetworkSettings(const QString &host);
+
+protected:
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
-
-    void setupDefaultNetworkSettings(const QString &host);
 
 private:
     QdbDevice();

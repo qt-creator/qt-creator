@@ -43,12 +43,14 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    void fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
 
     static QString displayNameForType(Utils::Id type);
     int deviceId() const { return m_deviceId; }
     void setDeviceId(int deviceId) { m_deviceId = deviceId; }
+
+protected:
+    void fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
 
 private:
     WinRtDevice();

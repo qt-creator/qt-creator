@@ -46,8 +46,6 @@ class AndroidDevice final : public ProjectExplorer::IDevice
 public:
     AndroidDevice();
 
-    void fromMap(const QVariantMap &map) override;
-
     static IDevice::Ptr create();
     static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
     static void setAndroidDeviceInfoExtras(IDevice *dev, const AndroidDeviceInfo &info);
@@ -73,6 +71,9 @@ public:
     QString sdcardSize() const;
     QString openGlStatusString() const;
     AndroidConfig::OpenGl openGlStatus() const;
+
+protected:
+    void fromMap(const QVariantMap &map) final;
 
 private:
     void addEmulatorActionsIfNotFound();

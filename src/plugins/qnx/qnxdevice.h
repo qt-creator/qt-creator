@@ -51,10 +51,10 @@ public:
 
     int qnxVersion() const;
 
-    void fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
 protected:
+    void fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
 

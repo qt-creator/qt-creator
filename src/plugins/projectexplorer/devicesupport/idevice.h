@@ -193,9 +193,6 @@ public:
     void setDeviceState(const DeviceState state);
     QString deviceStateToString() const;
 
-    virtual void fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
-
     static Utils::Id typeFromMap(const QVariantMap &map);
     static Utils::Id idFromMap(const QVariantMap &map);
 
@@ -288,6 +285,9 @@ public:
 
 protected:
     IDevice();
+
+    virtual void fromMap(const QVariantMap &map);
+    virtual QVariantMap toMap() const;
 
     using OpenTerminal = std::function<void(const Utils::Environment &, const Utils::FilePath &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);

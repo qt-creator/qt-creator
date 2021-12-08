@@ -119,13 +119,15 @@ public:
     Utils::FilePath mapFromLocalAccess(const Utils::FilePath &filePath) const;
     Utils::FilePath mapFromLocalAccess(const QString &filePath) const;
 
+protected:
+    void fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+
 private:
     Utils::FilePaths findFilesWithFind(const Utils::FilePath &filePath,
                                        const QStringList &nameFilters,
                                        QDir::Filters filters,
                                        QDir::SortFlags sort) const;
-    void fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
 
     void aboutToBeRemoved() const final;
 

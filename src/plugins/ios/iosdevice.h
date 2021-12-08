@@ -55,8 +55,6 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
-    void fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
     QString deviceName() const;
     QString uniqueDeviceID() const;
     QString uniqueInternalDeviceId() const;
@@ -68,6 +66,9 @@ public:
     static QString name();
 
 protected:
+    void fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+
     friend class IosDeviceFactory;
     friend class Ios::Internal::IosDeviceManager;
     IosDevice();

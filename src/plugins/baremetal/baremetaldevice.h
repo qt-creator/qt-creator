@@ -57,6 +57,7 @@ public:
     void setDebugServerProviderId(const QString &id);
     void unregisterDebugServerProvider(IDebugServerProvider *provider);
 
+protected:
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
 
