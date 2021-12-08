@@ -1084,6 +1084,8 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
+    tokenize.setExpectedRawStringSuffix(
+                TextDocumentLayout::expectedRawStringSuffix(block.previous()));
 
     m_currentLine = block.text();
     // to determine whether a line was joined, Tokenizer needs a
@@ -1096,6 +1098,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
 
     const int lexerState = tokenize.state();
     TextDocumentLayout::setLexerState(block, lexerState);
+    TextDocumentLayout::setExpectedRawStringSuffix(block, tokenize.expectedRawStringSuffix());
     return lexerState;
 }
 
