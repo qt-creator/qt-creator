@@ -81,7 +81,6 @@ Button {
         color: "#047eff"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        font.weight: Font.Light
     }
 
     states: [
