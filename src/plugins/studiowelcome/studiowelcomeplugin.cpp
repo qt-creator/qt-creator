@@ -360,6 +360,8 @@ void StudioWelcomePlugin::extensionsInitialized()
     // Enable QDS new project dialog
     Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
+    return;
+
     if (Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
                                                    DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY)) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
@@ -447,6 +449,8 @@ WelcomeMode::WelcomeMode()
     setId(Core::Constants::MODE_WELCOME);
     setContextHelp("Qt Design Studio Manual");
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
+
+    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
 
     m_modeWidget = new QQuickWidget;
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
