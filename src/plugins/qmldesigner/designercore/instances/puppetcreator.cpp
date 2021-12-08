@@ -539,8 +539,13 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set("QMLDESIGNER_QUICK3D_PARTICLES3D_MODE", "true");
 
     import = QmlDesigner::Import::createLibraryImport("QtCharts", "2.0");
-    if (m_model->hasImport(import, true, true))
+    if (m_model->hasImport(import, true, true)) {
         environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
+    } else if (m_target) {
+        auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_target->buildSystem());
+        if (bs && bs->widgetApp())
+            environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
+    }
 
     bool particlemode = QmlDesigner::DesignerSettings::getValue("particleMode").toBool();
     if (!particlemode)
