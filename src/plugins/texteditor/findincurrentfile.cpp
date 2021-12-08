@@ -93,10 +93,8 @@ bool FindInCurrentFile::isEnabled() const
 void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
 {
     if (!editor) {
-        if (m_currentDocument) {
-            m_currentDocument = nullptr;
-            emit enabledChanged(isEnabled());
-        }
+        m_currentDocument = nullptr;
+        emit enabledChanged(isEnabled());
     } else {
         Core::IDocument *document = editor->document();
         if (document != m_currentDocument) {
