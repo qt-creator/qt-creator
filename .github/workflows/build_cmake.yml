@@ -76,11 +76,24 @@ jobs:
         endif()
 
         set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
-        file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
+        foreach(retry RANGE 10)
+          file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
+          file(SIZE ./ninja.zip fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
+
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
 
         set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
-        file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
+        foreach(retry RANGE 10)
+          file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
+          file(SIZE ./cmake.zip fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
 
         # Add to PATH environment variable
@@ -357,7 +370,13 @@ jobs:
       shell: cmake -P {0}
       run: |
         set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
-        file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
+        foreach(retry RANGE 10)
+          file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
+          file(SIZE ./ccache.tar.xz fileSize)
+          if (fileSize GREATER 0)
+            break()
+          endif()
+        endforeach()
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
 
     - name: Prepare ccache archive name
@@ -393,11 +412,19 @@ jobs:
             string(JSON name GET "${artifact_js}" "name")
             if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
               string(JSON download_url GET "${artifact_js}" "archive_download_url")
-              file(DOWNLOAD "${download_url}"
-                "${{ steps.ccache.outputs.archive_name }}.zip"
-                NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
-                NETRC REQUIRED
-                SHOW_PROGRESS)
+
+              foreach(retry RANGE 10)
+                file(DOWNLOAD "${download_url}"
+                  "${{ steps.ccache.outputs.archive_name }}.zip"
+                  NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
+                  NETRC REQUIRED
+                  SHOW_PROGRESS)
+                file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
+                if (fileSize GREATER 0)
+                  break()
+                endif()
+              endforeach()
+
               execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
               file(MAKE_DIRECTORY .ccache)
               execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
