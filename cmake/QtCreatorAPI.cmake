@@ -310,6 +310,11 @@ function(add_qtc_library name)
       OPTIONAL
     )
   endif()
+
+  get_target_property(have_automoc_prop ${name} AUTOMOC)
+  if("${Qt5_VERSION}" VERSION_GREATER_EQUAL "6.2.0" AND "${have_automoc_prop}")
+    qt_extract_metatypes(${name})
+  endif()
 endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
