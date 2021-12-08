@@ -900,8 +900,10 @@ public:
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+        m_comboBox->setSizePolicy(QSizePolicy::Preferred,
+                                  m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setModel(m_model);
+        m_comboBox->setMinimumContentsLength(16); // Don't stretch too much for Kit Page
         m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
         refresh();
         m_comboBox->setToolTip(ki->description());
