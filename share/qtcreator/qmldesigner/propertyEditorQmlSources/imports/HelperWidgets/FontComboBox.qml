@@ -60,6 +60,8 @@ StudioControls.ComboBox {
             familyNames.push(fontLoader.name)
         }
 
+        // Remove duplicate family names
+        familyNames = [...new Set(familyNames)]
         familyNames.sort()
         comboBox.model = familyNames
     }
