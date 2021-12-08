@@ -41,6 +41,7 @@ public:
     explicit HeaderViewStretcher(QHeaderView *headerView, int columnToStretch);
 
     void stretch();
+    void softStretch();
     bool eventFilter(QObject *obj, QEvent *ev) override;
 };
 

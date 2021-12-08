@@ -233,7 +233,11 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setRootIsDecorated(false);
     d->m_environmentView->setUniformRowHeights(true);
-    new Utils::HeaderViewStretcher(d->m_environmentView->header(), 1);
+    const auto stretcher = new HeaderViewStretcher(d->m_environmentView->header(), 1);
+    connect(d->m_model, &QAbstractItemModel::dataChanged,
+            stretcher, &HeaderViewStretcher::softStretch);
+    connect(d->m_model, &EnvironmentModel::userChangesChanged,
+            stretcher, &HeaderViewStretcher::softStretch);
     d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_environmentView->setSelectionBehavior(QAbstractItemView::SelectItems);
     d->m_environmentView->setFrameShape(QFrame::NoFrame);

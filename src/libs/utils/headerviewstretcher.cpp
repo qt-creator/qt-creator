@@ -53,6 +53,13 @@ void HeaderViewStretcher::stretch()
     HeaderViewStretcher::eventFilter(parent(), &fake);
 }
 
+void HeaderViewStretcher::softStretch()
+{
+    const auto hv = qobject_cast<QHeaderView*>(parent());
+    for (int i = 0; i < hv->count(); ++i)
+        hv->resizeSections(QHeaderView::ResizeToContents);
+}
+
 bool HeaderViewStretcher::eventFilter(QObject *obj, QEvent *ev)
 {
     if (obj == parent()) {
