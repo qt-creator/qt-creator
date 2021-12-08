@@ -37,6 +37,19 @@ bool CMakeIndenter::isElectricCharacter(const QChar &ch) const
     return ch == QLatin1Char('(') || ch == QLatin1Char(')');
 }
 
+static int startsWithChar(const QString &line, char character)
+{
+    int occurrences = 0;
+    for (int i = 0; i < line.size(); ++i) {
+        if (line.at(i) == character) {
+            occurrences++;
+        } else if (!line.at(i).isSpace()) {
+            break;
+        }
+    }
+    return occurrences;
+}
+
 static bool lineContainsFunction(const QString &line, const QString &function)
 {
     const int indexOfFunction = line.indexOf(function);
@@ -88,12 +101,8 @@ static int paranthesesLevel(const QString &line)
     const QString beforeComment = line.mid(0, line.indexOf(QLatin1Char('#')));
     const int opening = beforeComment.count(QLatin1Char('('));
     const int closing = beforeComment.count(QLatin1Char(')'));
-    if (opening == closing)
-        return 0;
-    else if (opening > closing)
-        return 1;
-    else
-        return -1;
+
+    return opening - closing;
 }
 
 int CMakeIndenter::indentFor(const QTextBlock &block,
@@ -114,10 +123,14 @@ int CMakeIndenter::indentFor(const QTextBlock &block,
     if (lineStartsBlock(previousLine))
         indentation += tabSettings.m_indentSize;
     if (lineEndsBlock(currentLine))
-        indentation = qMax(0, indentation - tabSettings.m_indentSize);
+        indentation -= tabSettings.m_indentSize;
 
-    // increase/decrease/keep the indentation level depending on if we have more opening or closing parantheses
-    return qMax(0, indentation + tabSettings.m_indentSize * paranthesesLevel(previousLine));
+    // de-dent lines that start with closing parantheses immediately
+    indentation -= tabSettings.m_indentSize * startsWithChar(currentLine, ')');
+
+    if (int paranthesesCount = paranthesesLevel(previousLine) - startsWithChar(previousLine, ')'))
+            indentation += tabSettings.m_indentSize * (paranthesesCount > 0 ? 1 : -1);
+    return qMax(0, indentation);
 }
 
 } // namespace Internal
