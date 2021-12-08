@@ -79,13 +79,17 @@ def openCmakeProject(projectPath, buildDir):
 # this list can be used in __chooseTargets__()
 def __createProjectOrFileSelectType__(category, template, fromWelcome = False, isProject=True):
     if fromWelcome:
+        if not isProject:
+            test.fatal("'New' on Welcome screen only handles projects nowadays.")
         wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton("New")
         if not all((wsButtonFrame, wsButtonLabel)):
             test.fatal("Could not find 'New' button on Welcome Page")
             return []
         mouseClick(wsButtonLabel)
+    elif isProject:
+        invokeMenuItem("File", "New Project...")
     else:
-        invokeMenuItem("File", "New File or Project...")
+        invokeMenuItem("File", "New File...")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     if isProject:
         mouseClick(waitForObjectItem(categoriesView, "Projects." + category))

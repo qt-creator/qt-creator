@@ -39,7 +39,7 @@ def main():
     kits = getConfiguredKits()
     test.log("Collecting potential project types...")
     availableProjectTypes = []
-    invokeMenuItem("File", "New File or Project...")
+    invokeMenuItem("File", "New Project...")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     catModel = categoriesView.model()
     projects = catModel.index(0, 0)
@@ -146,7 +146,7 @@ def __createProject__(category, template):
         except:
             return ""
 
-    invokeMenuItem("File", "New File or Project...")
+    invokeMenuItem("File", "New Project...")
     selectFromCombo(waitForObject(":New.comboBox_QComboBox"), "All Templates")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     mouseClick(waitForObjectItem(categoriesView, "Projects." + category))

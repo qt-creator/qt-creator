@@ -69,7 +69,7 @@ def main():
             clickButton(waitForObject("{text='Yes' type='QPushButton' window=%s}" % mBox))
         else:
             # modify the current and the former file after AUT had lost focus and use 'Yes to All'
-            invokeMenuItem("File", "New File or Project...")
+            invokeMenuItem("File", "New Project...")
             modifyExternally(currentFile)
             modifyExternally(files[i - 1])
             # clicking Cancel does not work when running inside Squish - mBox would not come up
