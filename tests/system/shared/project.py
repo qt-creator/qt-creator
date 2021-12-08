@@ -131,10 +131,11 @@ def __handleBuildSystem__(buildSystem):
         comboObj = waitForObject(combo, 2000)
     except:
         test.warning("No build system combo box found at all.")
-        return
+        return None
     try:
         if buildSystem is None:
-            test.log("Keeping default build system '%s'" % str(comboObj.currentText))
+            buildSystem = str(comboObj.currentText)
+            test.log("Keeping default build system '%s'" % buildSystem)
         else:
             test.log("Trying to select build system '%s'" % buildSystem)
             selectFromCombo(combo, buildSystem)
@@ -142,6 +143,7 @@ def __handleBuildSystem__(buildSystem):
         t, v = sys.exc_info()[:2]
         test.warning("Exception while handling build system", "%s(%s)" % (str(t), str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
+    return buildSystem
 
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
     comboBox = waitForObject("{leftWidget=':Minimal required Qt version:_QLabel' name='QtVersion' "
@@ -155,10 +157,11 @@ def __createProjectHandleQtQuickSelection__(minimumQtVersion):
     return minimumQtVersion
 
 # Selects the Qt versions for a project
+# param buildSystem is a string holding the build system selected for the project
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
 # withoutQt4 if True Qt4 will get unchecked / not selected while checking the targets
-def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
+def __selectQtVersionDesktop__(buildSystem, checks, available=None, withoutQt4=False):
     wanted = Targets.desktopTargetClasses()
     if withoutQt4:
         wanted.discard(Targets.DESKTOP_4_8_7_DEFAULT)
@@ -173,9 +176,15 @@ def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
                 cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
                             "container=%s}")
                 verifyChecked(cbObject % ("Debug", objectMap.realName(detailsWidget)))
-                if target not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
-                    verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
                 verifyChecked(cbObject % ("Release", objectMap.realName(detailsWidget)))
+                if buildSystem == "CMake":
+                    verifyChecked(cbObject % ("Release with Debug Information",
+                                              objectMap.realName(detailsWidget)))
+                    verifyChecked(cbObject % ("Minimum Size Release",
+                                              objectMap.realName(detailsWidget)))
+                elif (buildSystem == "qmake"
+                      and target not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)):
+                        verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
 
@@ -220,7 +229,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application (Qt)", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __handleBuildSystem__(None)
+    buildSystem = __handleBuildSystem__(None)
 
     if checks:
         exp_filename = "mainwindow"
@@ -239,7 +248,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
 
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleTranslationSelection__()
-    __selectQtVersionDesktop__(checks, available, True)
+    __selectQtVersionDesktop__(buildSystem, checks, available, True)
 
     expectedFiles = []
     if checks:
@@ -261,9 +270,9 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
 def createProject_Qt_Console(path, projectName, checks = True, buildSystem = None):
     available = __createProjectOrFileSelectType__("  Application (Qt)", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __handleBuildSystem__(buildSystem)
+    buildSystem = __handleBuildSystem__(buildSystem)
     __createProjectHandleTranslationSelection__()
-    __selectQtVersionDesktop__(checks, available)
+    __selectQtVersionDesktop__(buildSystem, checks, available)
 
     expectedFiles = []
     if checks:
