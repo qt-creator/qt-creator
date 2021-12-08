@@ -467,8 +467,8 @@ public:
     Q_ENUM(Gradient)
     Q_ENUM(Flag)
 
-    Q_INVOKABLE bool flag(Flag f) const;
-    Q_INVOKABLE QColor color(Color role) const;
+    Q_INVOKABLE bool flag(Utils::Theme::Flag f) const;
+    Q_INVOKABLE QColor color(Utils::Theme::Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
     QGradientStops gradient(Gradient role) const;
     QPalette palette() const;
