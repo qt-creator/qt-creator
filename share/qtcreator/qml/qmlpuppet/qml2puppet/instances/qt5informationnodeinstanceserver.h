@@ -82,6 +82,7 @@ public:
     void handleInstanceHidden(const ServerNodeInstance &instance, bool enable, bool checkAncestors) override;
 
     bool isInformationServer() const override;
+    void handleRepeaterAddObject();
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);
@@ -108,6 +109,7 @@ protected:
 private:
     void handleObjectPropertyChangeTimeout();
     void handleSelectionChangeTimeout();
+    void handleRepeaterAddObjectTimeout();
     void createEditView3D();
     void create3DPreviewView();
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
@@ -174,6 +176,7 @@ private:
     QTimer m_render3DEditViewTimer;
     QTimer m_renderModelNodeImageViewTimer;
     QTimer m_inputEventTimer;
+    QTimer m_repeaterAddObjectTimer;
 #ifdef QUICK3D_PARTICLES_MODULE
     bool m_particleAnimationPlaying = true;
     AnimationDriver *m_particleAnimationDriver = nullptr;
@@ -186,6 +189,7 @@ private:
     QList<InputEventCommand> m_pendingInputEventCommands;
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
+    QSet<QObject *> m_addObjectRepeaters;
 
     struct ModelNode3DImageViewAsyncData {
         QTimer timer;

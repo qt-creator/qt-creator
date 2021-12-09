@@ -57,7 +57,7 @@
     When using the Clang code model, errors and warnings are additionally marked
     with icons and annotated. If a \l{http://clang.llvm.org/diagnostics.html}
     {Clang fix-it} is available, you can execute it by clicking the
-    \inlineimage refactormarker.png
+    \inlineimage icons/refactormarker.png
     icon and pressing \key Enter.
 
     In the following screenshot, a Qt class name contains a typo:

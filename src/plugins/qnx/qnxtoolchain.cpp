@@ -185,7 +185,13 @@ void QnxToolChain::setCpuDir(const QString &cpuDir)
 
 GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
 {
-    return detectTargetAbis(m_sdpPath);
+    // "unknown-qnx-gnu"is needed to get the "--target=xxx" parameter sent code model,
+    // which gets translated as "x86_64-qnx-gnu", which gets Clang to happily parse
+    // the QNX code.
+    //
+    // Without it on Windows Clang defaults to a MSVC mode, which breaks with
+    // the QNX code, which is mostly GNU based.
+    return GccToolChain::DetectedAbisResult{detectTargetAbis(m_sdpPath), "unknown-qnx-gnu"};
 }
 
 bool QnxToolChain::operator ==(const ToolChain &other) const

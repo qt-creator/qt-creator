@@ -74,8 +74,7 @@ CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType cal
     auto *cppEditorDocument = qobject_cast<CppEditorDocument *>(cppEditorWidget->textDocument());
     QTC_ASSERT(cppEditorDocument, return RunnerInfo::FailedToStart);
 
-    if (!CppModelManager::instance()->supportsLocalUses(cppEditorDocument))
-        return RunnerInfo::AlreadyUpToDate;
+    m_updateSelections = CppModelManager::instance()->supportsLocalUses(cppEditorDocument);
 
     CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();
@@ -130,16 +129,16 @@ bool CppUseSelectionsUpdater::isSameIdentifierAsBefore(const QTextCursor &cursor
 
 void CppUseSelectionsUpdater::processResults(const CursorInfo &result)
 {
-    ExtraSelections localVariableSelections;
-    if (!result.useRanges.isEmpty() || !currentUseSelections().isEmpty()) {
-        ExtraSelections selections = updateUseSelections(result.useRanges);
-        if (result.areUseRangesForLocalVariable)
-            localVariableSelections = selections;
+    if (m_updateSelections) {
+        ExtraSelections localVariableSelections;
+        if (!result.useRanges.isEmpty() || !currentUseSelections().isEmpty()) {
+            ExtraSelections selections = updateUseSelections(result.useRanges);
+            if (result.areUseRangesForLocalVariable)
+                localVariableSelections = selections;
+        }
+        updateUnusedSelections(result.unusedVariablesRanges);
+        emit selectionsForVariableUnderCursorUpdated(localVariableSelections);
     }
-
-    updateUnusedSelections(result.unusedVariablesRanges);
-
-    emit selectionsForVariableUnderCursorUpdated(localVariableSelections);
     emit finished(result.localUses, true);
 }
 

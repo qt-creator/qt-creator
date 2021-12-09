@@ -106,7 +106,7 @@
             \uicontrol {New Generic StdIO Language Server}
             to add a generic language server.
         \li In the \uicontrol Name field, enter a name for the language server.
-            Select the \inlineimage replace.png
+            Select the \inlineimage icons/replace.png
             (\uicontrol {Variables}) button to use a variable for the server
             name. For more information, see \l{Using Qt Creator Variables}.
         \li In the \uicontrol {Language} field, select
@@ -137,7 +137,7 @@
             \uicontrol {New Java Language Server} to add a Java language server.
             \image qtcreator-language-client-options-java.png "Java language server options"
         \li In the \uicontrol Name field, enter a name for the language server.
-            Select the \inlineimage replace.png
+            Select the \inlineimage icons/replace.png
             (\uicontrol {Variables}) button to use a variable for the server
             name. For more information, see \l{Using Qt Creator Variables}.
         \li In the \uicontrol Java field, enter the path to the Java executable.

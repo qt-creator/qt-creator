@@ -392,8 +392,10 @@ bool LanguageClientCompletionAssistProcessor::running()
 void LanguageClientCompletionAssistProcessor::cancel()
 {
     if (m_currentRequest.has_value()) {
-        m_client->cancelRequest(m_currentRequest.value());
-        m_client->removeAssistProcessor(this);
+        if (m_client) {
+            m_client->cancelRequest(m_currentRequest.value());
+            m_client->removeAssistProcessor(this);
+        }
         m_currentRequest.reset();
     } else if (m_postponedUpdateConnection) {
         QObject::disconnect(m_postponedUpdateConnection);

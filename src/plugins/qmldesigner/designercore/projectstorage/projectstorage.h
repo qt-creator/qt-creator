@@ -77,14 +77,10 @@ public:
 
         TypeIds typeIdsToBeDeleted;
 
-        auto sourceIdValues = Utils::transform<std::vector>(package.sourceIds, [](SourceId sourceId) {
-            return &sourceId;
-        });
+        std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
 
-        std::sort(sourceIdValues.begin(), sourceIdValues.end());
-
-        synchronizeFileStatuses(package.fileStatuses, sourceIdValues);
-        synchronizeImports(package.imports, sourceIdValues);
+        synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
+        synchronizeImports(package.imports, package.updatedSourceIds);
         synchronizeTypes(package.types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
@@ -92,10 +88,10 @@ public:
                          relinkableAliasPropertyDeclarations,
                          relinkablePropertyDeclarations,
                          relinkablePrototypes,
-                         sourceIdValues);
+                         package.updatedSourceIds);
 
         deleteNotUpdatedTypes(updatedTypeIds,
-                              sourceIdValues,
+                              package.updatedSourceIds,
                               typeIdsToBeDeleted,
                               relinkableAliasPropertyDeclarations,
                               relinkablePropertyDeclarations,
@@ -108,6 +104,8 @@ public:
                deletedTypeIds);
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+
+        synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
 
         transaction.commit();
     }
@@ -271,7 +269,7 @@ public:
     SourceContextId fetchSourceContextId(SourceId sourceId) const
     {
         auto sourceContextId = selectSourceContextIdFromSourcesBySourceIdStatement
-                                   .template valueWithTransaction<SourceContextId>(sourceId.id);
+                                   .template valueWithTransaction<SourceContextId>(&sourceId);
 
         if (!sourceContextId)
             throw SourceIdDoesNotExists();
@@ -305,9 +303,16 @@ public:
             &sourceId);
     }
 
-    Storage::ProjectDatas fetchProjectDatas(SourceId sourceId) const override
+    Storage::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
-        return Storage::ProjectDatas{};
+        return selectProjectDatasForModuleIdStatement
+            .template valuesWithTransaction<Storage::ProjectData>(64, &projectSourceId);
+    }
+
+    Storage::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
+    {
+        return selectProjectDatasForModuleIdsStatement
+            .template valuesWithTransaction<Storage::ProjectData>(64, toIntegers(projectSourceIds));
     }
 
 private:
@@ -332,7 +337,7 @@ private:
 
         friend bool operator==(const Module &first, const Module &second)
         {
-            return first.id == second.id && first.value == second.value;
+            return &first == &second && first.value == second.value;
         }
     };
 
@@ -503,7 +508,7 @@ private:
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Prototypes &relinkablePrototypes,
-                          const std::vector<int> &sourceIdValues)
+                          const SourceIds &updatedSourceIds)
     {
         Storage::ExportedTypes exportedTypes;
         exportedTypes.reserve(types.size() * 3);
@@ -517,7 +522,7 @@ private:
             extractExportedTypes(typeId, type, exportedTypes);
         }
 
-        synchronizeExportedTypes(sourceIdValues,
+        synchronizeExportedTypes(updatedSourceIds,
                                  updatedTypeIds,
                                  exportedTypes,
                                  relinkableAliasPropertyDeclarations,
@@ -532,10 +537,72 @@ private:
                          relinkablePropertyDeclarations);
     }
 
-    void synchronizeFileStatuses(FileStatuses &fileStatuses, const std::vector<int> &sourceIdValues)
+    void synchronizeProjectDatas(Storage::ProjectDatas &projectDatas,
+                                 const SourceIds &updatedProjectSourceIds)
     {
         auto compareKey = [](auto &&first, auto &&second) {
-            return first.sourceId.id - second.sourceId.id;
+            auto projectSourceIdDifference = &first.projectSourceId - &second.projectSourceId;
+            if (projectSourceIdDifference != 0)
+                return projectSourceIdDifference;
+
+            return &first.sourceId - &second.sourceId;
+        };
+
+        std::sort(projectDatas.begin(), projectDatas.end(), [&](auto &&first, auto &&second) {
+            return std::tie(first.projectSourceId, first.sourceId)
+                   < std::tie(second.projectSourceId, second.sourceId);
+        });
+
+        auto range = selectProjectDatasForModuleIdsStatement.template range<Storage::ProjectData>(
+            toIntegers(updatedProjectSourceIds));
+
+        auto insert = [&](const Storage::ProjectData &projectData) {
+            if (!projectData.projectSourceId)
+                throw ProjectDataHasInvalidProjectSourceId{};
+            if (!projectData.sourceId)
+                throw ProjectDataHasInvalidSourceId{};
+            if (!projectData.moduleId)
+                throw ProjectDataHasInvalidModuleId{};
+
+            insertProjectDataStatement.write(&projectData.projectSourceId,
+                                             &projectData.sourceId,
+                                             &projectData.moduleId,
+                                             static_cast<int>(projectData.fileType));
+        };
+
+        auto update = [&](const Storage::ProjectData &projectDataFromDatabase,
+                          const Storage::ProjectData &projectData) {
+            if (!projectData.moduleId)
+                throw ProjectDataHasInvalidModuleId{};
+
+            if (projectDataFromDatabase.fileType != projectData.fileType
+                || projectDataFromDatabase.moduleId != projectData.moduleId) {
+                updateProjectDataStatement.write(&projectData.projectSourceId,
+                                                 &projectData.sourceId,
+                                                 &projectData.moduleId,
+                                                 static_cast<int>(projectData.fileType));
+                return Sqlite::UpdateChange::Update;
+            }
+
+            return Sqlite::UpdateChange::No;
+        };
+
+        auto remove = [&](const Storage::ProjectData &projectData) {
+            deleteProjectDataStatement.write(&projectData.projectSourceId, &projectData.sourceId);
+        };
+
+        Sqlite::insertUpdateDelete(range, projectDatas, compareKey, insert, update, remove);
+    }
+
+    void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds)
+    {
+        auto updatedSourceIdValues = Utils::transform<std::vector>(updatedSourceIds,
+                                                                   [](SourceId sourceId) {
+                                                                       return &sourceId;
+                                                                   });
+
+        auto compareKey = [](auto &&first, auto &&second) {
+            return &first.sourceId - &second.sourceId;
         };
 
         std::sort(fileStatuses.begin(), fileStatuses.end(), [&](auto &&first, auto &&second) {
@@ -543,7 +610,7 @@ private:
         });
 
         auto range = selectFileStatusesForSourceIdsStatement.template range<FileStatus>(
-            Utils::span(sourceIdValues));
+            toIntegers(updatedSourceIds));
 
         auto insert = [&](const FileStatus &fileStatus) {
             insertFileStatusStatement.write(&fileStatus.sourceId,
@@ -557,7 +624,10 @@ private:
                 updateFileStatusStatement.write(&fileStatus.sourceId,
                                                 fileStatus.size,
                                                 fileStatus.lastModified);
+                return Sqlite::UpdateChange::Update;
             }
+
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const FileStatus &fileStatus) {
@@ -567,30 +637,32 @@ private:
         Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
-    void synchronizeImports(Storage::Imports &imports, std::vector<int> &sourceIdValues)
+    void synchronizeImports(Storage::Imports &imports, const SourceIds &updatedSourceIds)
     {
-        deleteDocumentImportsForDeletedDocuments(imports, sourceIdValues);
+        deleteDocumentImportsForDeletedDocuments(imports, updatedSourceIds);
 
-        synchronizeDocumentImports(imports, sourceIdValues);
+        synchronizeDocumentImports(imports, updatedSourceIds);
     }
 
     void deleteDocumentImportsForDeletedDocuments(Storage::Imports &imports,
-                                                  const std::vector<int> &sourceIdValues)
+                                                  const SourceIds &updatedSourceIds)
     {
-        std::vector<int> importSourceIds = Utils::transform<std::vector<int>>(
-            imports, [](const Storage::Import &import) { return &import.sourceId; });
+        SourceIds importSourceIds = Utils::transform<SourceIds>(imports,
+                                                                [](const Storage::Import &import) {
+                                                                    return import.sourceId;
+                                                                });
 
         std::sort(importSourceIds.begin(), importSourceIds.end());
 
-        std::vector<int> documentSourceIdsToBeDeleted;
+        SourceIds documentSourceIdsToBeDeleted;
 
-        std::set_difference(sourceIdValues.begin(),
-                            sourceIdValues.end(),
+        std::set_difference(updatedSourceIds.begin(),
+                            updatedSourceIds.end(),
                             importSourceIds.begin(),
                             importSourceIds.end(),
                             std::back_inserter(documentSourceIdsToBeDeleted));
 
-        deleteDocumentImportsWithSourceIdsStatement.write(Utils::span{documentSourceIdsToBeDeleted});
+        deleteDocumentImportsWithSourceIdsStatement.write(toIntegers(documentSourceIdsToBeDeleted));
     }
 
     ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const
@@ -767,17 +839,13 @@ private:
     }
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
-                               const std::vector<int> &sourceIdValues,
+                               const SourceIds &updatedSourceIds,
                                const TypeIds &typeIdsToBeDeleted,
                                AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                PropertyDeclarations &relinkablePropertyDeclarations,
                                Prototypes &relinkablePrototypes,
                                TypeIds &deletedTypeIds)
     {
-        auto updatedTypeIdValues = Utils::transform<std::vector>(updatedTypeIds, [](TypeId typeId) {
-            return &typeId;
-        });
-
         auto callback = [&](long long typeId) {
             deletedTypeIds.push_back(TypeId{typeId});
             deleteType(TypeId{typeId},
@@ -788,8 +856,8 @@ private:
         };
 
         selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
-                                                             Utils::span(sourceIdValues),
-                                                             Utils::span(updatedTypeIdValues));
+                                                             toIntegers(updatedSourceIds),
+                                                             toIntegers(updatedTypeIds));
         for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
             callback(&typeIdToBeDeleted);
     }
@@ -853,7 +921,7 @@ private:
         updateAliasPropertyDeclarationValues(updatedAliasPropertyDeclarations);
     }
 
-    void synchronizeExportedTypes(const std::vector<int> &sourceIdValues,
+    void synchronizeExportedTypes(const SourceIds &exportedSourceIds,
                                   const TypeIds &updatedTypeIds,
                                   Storage::ExportedTypes &exportedTypes,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
@@ -865,17 +933,13 @@ private:
                    < std::tie(second.moduleId, second.name, second.version);
         });
 
-        Utils::span typeIdValues{static_cast<const TypeIds::value_type::DatabaseType *>(
-                                     &updatedTypeIds.data()->id),
-                                 updatedTypeIds.size()};
-
         auto range = selectExportedTypesForSourceIdsStatement
-                         .template range<Storage::ExportedTypeView>(Utils::span{sourceIdValues},
-                                                                    typeIdValues);
+                         .template range<Storage::ExportedTypeView>(toIntegers(exportedSourceIds),
+                                                                    toIntegers(updatedTypeIds));
 
         auto compareKey = [](const Storage::ExportedTypeView &view,
                              const Storage::ExportedType &type) -> long long {
-            auto moduleIdDifference = view.moduleId.id - type.moduleId.id;
+            auto moduleIdDifference = &view.moduleId - &type.moduleId;
             if (moduleIdDifference != 0)
                 return moduleIdDifference;
 
@@ -924,7 +988,9 @@ private:
                                                                 relinkableAliasPropertyDeclarations);
                 handlePrototypes(view.typeId, relinkablePrototypes);
                 updateExportedTypeNameTypeIdStatement.write(&view.exportedTypeNameId, &type.typeId);
+                return Sqlite::UpdateChange::Update;
             }
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const Storage::ExportedTypeView &view) {
@@ -998,7 +1064,7 @@ private:
                                                                   view.aliasId);
     }
 
-    void synchronizePropertyDeclarationsUpdateProperty(const Storage::PropertyDeclarationView &view,
+    auto synchronizePropertyDeclarationsUpdateProperty(const Storage::PropertyDeclarationView &view,
                                                        const Storage::PropertyDeclaration &value,
                                                        SourceId sourceId,
                                                        PropertyDeclarationIds &propertyDeclarationIds)
@@ -1012,7 +1078,7 @@ private:
 
         if (view.traits == value.traits && propertyTypeId == view.typeId
             && propertyImportedTypeNameId == view.typeNameId)
-            return;
+            return Sqlite::UpdateChange::No;
 
         updatePropertyDeclarationStatement.write(&view.id,
                                                  &propertyTypeId,
@@ -1021,6 +1087,7 @@ private:
         updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
             .write(&view.id, &propertyTypeId, static_cast<int>(value.traits));
         propertyDeclarationIds.push_back(view.id);
+        return Sqlite::UpdateChange::Update;
     }
 
     void synchronizePropertyDeclarations(TypeId typeId,
@@ -1064,11 +1131,13 @@ private:
                                                            sourceId);
                 propertyDeclarationIds.push_back(view.id);
             } else {
-                synchronizePropertyDeclarationsUpdateProperty(view,
-                                                              value,
-                                                              sourceId,
-                                                              propertyDeclarationIds);
+                return synchronizePropertyDeclarationsUpdateProperty(view,
+                                                                     value,
+                                                                     sourceId,
+                                                                     propertyDeclarationIds);
             }
+
+            return Sqlite::UpdateChange::No;
         };
 
         auto remove = [&](const Storage::PropertyDeclarationView &view) {
@@ -1127,7 +1196,7 @@ private:
         auto insert = [&](const Storage::PropertyDeclaration &) {};
 
         auto update = [&](const AliasPropertyDeclarationView &,
-                          const Storage::PropertyDeclaration &) {};
+                          const Storage::PropertyDeclaration &) { return Sqlite::UpdateChange::No; };
 
         auto remove = [&](const AliasPropertyDeclarationView &view) {
             updatePropertyDeclarationAliasIdToNullStatement.write(&view.id);
@@ -1151,7 +1220,7 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
-    void synchronizeDocumentImports(Storage::Imports &imports, const std::vector<int> &sourceIdValues)
+    void synchronizeDocumentImports(Storage::Imports &imports, const SourceIds &updatedSourceIds)
     {
         std::sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
             return std::tie(first.sourceId, first.moduleId, first.version)
@@ -1159,15 +1228,15 @@ private:
         });
 
         auto range = selectDocumentImportForSourceIdStatement.template range<Storage::ImportView>(
-            Utils::span{sourceIdValues});
+            toIntegers(updatedSourceIds));
 
         auto compareKey = [](const Storage::ImportView &view,
                              const Storage::Import &import) -> long long {
-            auto sourceIdDifference = view.sourceId.id - import.sourceId.id;
+            auto sourceIdDifference = &view.sourceId - &import.sourceId;
             if (sourceIdDifference != 0)
                 return sourceIdDifference;
 
-            auto moduleIdDifference = view.moduleId.id - import.moduleId.id;
+            auto moduleIdDifference = &view.moduleId - &import.moduleId;
             if (moduleIdDifference != 0)
                 return moduleIdDifference;
 
@@ -1193,7 +1262,9 @@ private:
             }
         };
 
-        auto update = [](const Storage::ImportView &, const Storage::Import &) {};
+        auto update = [](const Storage::ImportView &, const Storage::Import &) {
+            return Sqlite::UpdateChange::No;
+        };
 
         auto remove = [&](const Storage::ImportView &view) {
             deleteDocumentImportStatement.write(&view.importId);
@@ -1258,9 +1329,11 @@ private:
             Utils::PathString signature{createJson(value.parameters)};
 
             if (value.returnTypeName == view.returnTypeName && signature == view.signature)
-                return;
+                return Sqlite::UpdateChange::No;
 
             updateFunctionDeclarationStatement.write(&view.id, value.returnTypeName, signature);
+
+            return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::FunctionDeclarationView &view) {
@@ -1295,9 +1368,11 @@ private:
             Utils::PathString signature{createJson(value.parameters)};
 
             if (signature == view.signature)
-                return;
+                return Sqlite::UpdateChange::No;
 
             updateSignalDeclarationStatement.write(&view.id, signature);
+
+            return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::SignalDeclarationView &view) {
@@ -1360,9 +1435,11 @@ private:
             Utils::PathString enumeratorDeclarations{createJson(value.enumeratorDeclarations)};
 
             if (enumeratorDeclarations == view.enumeratorDeclarations)
-                return;
+                return Sqlite::UpdateChange::No;
 
             updateEnumerationDeclarationStatement.write(&view.id, enumeratorDeclarations);
+
+            return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::EnumerationDeclarationView &view) {
@@ -1760,6 +1837,7 @@ private:
                 createSignalsTable(database);
                 createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
+                createProjectDatasTable(database);
 
                 transaction.commit();
 
@@ -1999,6 +2077,22 @@ private:
                                                 Sqlite::ForeignKeyAction::Cascade}});
             table.addColumn("size");
             table.addColumn("lastModified");
+
+            table.initialize(database);
+        }
+
+        void createProjectDatasTable(Database &database)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setUseWithoutRowId(true);
+            table.setName("projectDatas");
+            auto &projectSourceIdColumn = table.addColumn("projectSourceId");
+            auto &sourceIdColumn = table.addColumn("sourceId");
+            table.addColumn("moduleId");
+            table.addColumn("fileType");
+
+            table.addPrimaryKeyContraint({projectSourceIdColumn, sourceIdColumn});
 
             table.initialize(database);
         }
@@ -2442,6 +2536,22 @@ public:
         "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
     WriteStatement updateExportedTypeNameTypeIdStatement{
         "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
+    mutable ReadStatement<4> selectProjectDatasForModuleIdsStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
+        database};
+    WriteStatement insertProjectDataStatement{"INSERT INTO projectDatas(projectSourceId, sourceId, "
+                                              "moduleId, fileType) VALUES(?1, ?2, ?3, ?4)",
+                                              database};
+    WriteStatement deleteProjectDataStatement{
+        "DELETE FROM projectDatas WHERE projectSourceId=?1 AND sourceId=?2", database};
+    WriteStatement updateProjectDataStatement{
+        "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
+        database};
+    mutable ReadStatement<4> selectProjectDatasForModuleIdStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "projectSourceId=?1",
+        database};
 };
 
 } // namespace QmlDesigner

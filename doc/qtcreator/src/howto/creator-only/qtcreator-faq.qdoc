@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -83,14 +83,15 @@
 
     By default, \QC looks in the QML import path of Qt for QML modules.
     Sometimes, it does not get it right and you need to tell it where the
-    modules are by specifying the \c{QML_IMPORT_PATH} in the \c{.pro} file of
-    your application.
+    modules are. When using qmake as the build system, specify the
+    \c{QML_IMPORT_PATH} in the \c{.pro} file of your application. When
+    using CMake, add the \c set command to the CMakeLists.txt file.
 
     This also enables code completion of QML code and removes error messages.
 
-    The following example illustrates how to specify the import path so that
-    it works when switching between build and run kits for different target
-    platforms:
+    The following example illustrates how to specify the import path for qmake
+    projects so that it works when switching between build and run kits for
+    different target platforms:
 
     \code
     TEMPNAME = $${QMAKE_QMAKE}
@@ -99,8 +100,8 @@
     message("my QML Import Path: "$$QML_IMPORT_PATH)
     \endcode
 
-    For more information about how to set the import path when using CMake, see
-    \l {Importing QML Modules}.
+    For more information about how to set the import path for CMake projects,
+    see \l {Importing QML Modules}.
 
     \b {What should I do when \QC complains about missing OpenGL support?}
 
@@ -265,8 +266,16 @@
     \b {On Windows:} Output is displayed differently for \e{console
     applications} and \e{GUI applications}.
 
-    The setting \c {CONFIG += console} in the .pro file specifies that the
-    application is built as a console application using some other runtime.
+    For qmake projects, the \c {CONFIG += console} setting in the .pro file
+    specifies that the application is built as a console application using
+    some other runtime.
+
+    This is the standard behavior for CMake projects. To create a GUI
+    application on Windows or an application bundle on \macos, you must
+    specify the \c WIN32 or \c MACOSX_BUNDLE property for the
+    \l{https://doc.qt.io/qt-6/qt-add-executable.html}{qt_add_executable}
+    command in the CMakeLists.txt file.
+
     When you run a console application, you can view the output in the console
     window of the calling application. If the
     calling application is a GUI application (for example, a release-built

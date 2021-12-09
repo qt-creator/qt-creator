@@ -254,6 +254,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
     const QList<IDocument *> openedDocuments = DocumentModel::openedDocuments();
 
     for (IDocument *doc : openedDocuments) {
+        QTC_ASSERT(doc, continue);
         auto textDocument = qobject_cast<TextEditor::TextDocument *>(doc);
 
         if (textDocument && textDocument->isModified()) {
@@ -518,6 +519,7 @@ void DiffEditorPluginPrivate::updateDiffCurrentFileAction()
 void DiffEditorPluginPrivate::updateDiffOpenFilesAction()
 {
     const bool enabled = Utils::anyOf(DocumentModel::openedDocuments(), [](IDocument *doc) {
+            QTC_ASSERT(doc, return false);
             return doc->isModified() && qobject_cast<TextEditor::TextDocument *>(doc);
         });
     m_diffOpenFilesAction->setEnabled(enabled);

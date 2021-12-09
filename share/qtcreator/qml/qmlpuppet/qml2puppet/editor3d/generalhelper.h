@@ -80,9 +80,9 @@ public:
 
     Q_INVOKABLE void registerGizmoTarget(QQuick3DNode *node);
     Q_INVOKABLE void unregisterGizmoTarget(QQuick3DNode *node);
-    Q_INVOKABLE bool isLocked(QQuick3DNode *node);
-    Q_INVOKABLE bool isHidden(QQuick3DNode *node);
-    Q_INVOKABLE bool isPickable(QQuick3DNode *node);
+    Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
+    Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;
+    Q_INVOKABLE bool isPickable(QQuick3DNode *node) const;
 
     Q_INVOKABLE void storeToolState(const QString &sceneId, const QString &tool,
                                     const QVariant &state, int delayEmit = 0);

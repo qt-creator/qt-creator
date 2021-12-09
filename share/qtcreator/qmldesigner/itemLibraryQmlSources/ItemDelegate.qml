@@ -42,6 +42,12 @@ Item {
         anchors.fill: parent
 
         color: mouseRegion.containsMouse ? StudioTheme.Values.themeControlBackgroundHover : StudioTheme.Values.themePanelBackground
+        Behavior on color {
+            ColorAnimation {
+                duration: StudioTheme.Values.hoverDuration
+                easing.type: StudioTheme.Values.hoverEasing
+            }
+        }
 
         Image {
             id: itemIcon // to be set by model

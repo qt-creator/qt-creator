@@ -62,8 +62,8 @@
     to navigate between open files and symbols in use.
 
     To browse backward or forward through your
-    location history, click \inlineimage prev.png
-    (\uicontrol {Go Back}) and \inlineimage next.png
+    location history, click \inlineimage icons/prev.png
+    (\uicontrol {Go Back}) and \inlineimage icons/next.png
     (\uicontrol {Go Forward}).
 
     To return to the last location where you made a change, select
@@ -151,7 +151,7 @@
 
         \li To split the editor view into a top and bottom view, select
             \uicontrol Window > \uicontrol Split, press \key {Ctrl+E, 2}, or
-            select the \inlineimage splitbutton_horizontal.png
+            select the \inlineimage icons/splitbutton_horizontal.png
             (\uicontrol Split) button and then select \uicontrol Split.
 
             Split command creates views below the currently active editor view.
@@ -179,7 +179,7 @@
 
     To remove a split view, place the cursor within the view you want to
     remove and select \uicontrol Window > \uicontrol {Remove Current Split},
-    press \key {Ctrl+E, 0}, or select the \inlineimage splitbutton_closetop.png
+    press \key {Ctrl+E, 0}, or select the \inlineimage icons/splitbutton_closetop.png
     (\uicontrol {Remove Split}) button. To remove all but the currently selected
     split view, select \uicontrol Window > \uicontrol {Remove All Splits} or
     press \key {Ctrl+E, 1}.

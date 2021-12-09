@@ -95,7 +95,7 @@ MATCHER_P4(IsStorageType,
     const Storage::Type &type = arg;
 
     return type.sourceId == sourceId && type.typeName == typeName
-           && type.accessSemantics == accessSemantics && prototypeId.id == type.prototypeId.id;
+           && type.accessSemantics == accessSemantics && &prototypeId == &type.prototypeId;
 }
 
 MATCHER_P(IsExportedType,
@@ -266,7 +266,7 @@ protected:
                            Storage::ExportedType{qmlModuleId, "Obj", Storage::Version{2}},
                            Storage::ExportedType{qmlNativeModuleId, "QObject"}}});
 
-        package.sourceIds = {sourceId1, sourceId2};
+        package.updatedSourceIds = {sourceId1, sourceId2};
 
         return package;
     }
@@ -324,8 +324,8 @@ protected:
                                          Storage::ImportedType{"QObject"},
                                          Storage::PropertyDeclarationTraits::IsList});
 
-        package.sourceIds.push_back(sourceId3);
-        package.sourceIds.push_back(sourceId4);
+        package.updatedSourceIds.push_back(sourceId3);
+        package.updatedSourceIds.push_back(sourceId4);
 
         return package;
     }
@@ -359,7 +359,7 @@ protected:
         package.types.back().propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects", Storage::ImportedType{"AliasItem"}, "objects"});
 
-        package.sourceIds.push_back(sourceId5);
+        package.updatedSourceIds.push_back(sourceId5);
 
         return package;
     }
@@ -403,7 +403,7 @@ protected:
                            Storage::ExportedType{qmlModuleId, "BuiltInObj", Storage::Version{3, 4}},
                            Storage::ExportedType{qmlNativeModuleId, "QObject4"}}});
 
-        package.sourceIds.push_back(sourceId1);
+        package.updatedSourceIds.push_back(sourceId1);
 
         return package;
     }
@@ -435,6 +435,8 @@ protected:
     SourceId sourceId3{sourcePathCache.sourceId(path3)};
     SourceId sourceId4{sourcePathCache.sourceId(path4)};
     SourceId sourceId5{sourcePathCache.sourceId(path5)};
+    SourceId qmlProjectSourceId{sourcePathCache.sourceId("/path1/qmldir")};
+    SourceId qtQuickProjectSourceId{sourcePathCache.sourceId("/path2/qmldir")};
     ModuleId qmlModuleId{storage.moduleId("Qml")};
     ModuleId qmlNativeModuleId{storage.moduleId("Qml-cppnative")};
     ModuleId qtQuickModuleId{storage.moduleId("QtQuick")};
@@ -2400,7 +2402,7 @@ TEST_F(ProjectStorage,
                                           sourceId5,
                                           {Storage::ExportedType{qtQuickModuleId, "Object2"},
                                            Storage::ExportedType{qtQuickModuleId, "Obj2"}}});
-    package.sourceIds.push_back(sourceId5);
+    package.updatedSourceIds.push_back(sourceId5);
 
     storage.synchronize(package);
 
@@ -2849,7 +2851,7 @@ TEST_F(ProjectStorage, QualifiedPrototype)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2884,7 +2886,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2908,7 +2910,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
@@ -2924,7 +2926,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2948,7 +2950,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
                       sourceId3,
                       {Storage::ExportedType{qtQuickModuleId, "Object", Storage::Version{2}}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -2981,7 +2983,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -3013,7 +3015,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
                                           sourceId3,
                                           {Storage::ExportedType{qtQuickModuleId, "Object"}}});
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-    package.sourceIds.push_back(sourceId3);
+    package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
 
@@ -3115,7 +3117,7 @@ TEST_F(ProjectStorage, UpdateFileStatus)
                 UnorderedElementsAre(fileStatus1, fileStatus2b));
 }
 
-TEST_F(ProjectStorage, ThrowForInvalidSourceId)
+TEST_F(ProjectStorage, ThrowForInvalidSourceIdInFileStatus)
 {
     FileStatus fileStatus1{SourceId{}, 100, 100};
 
@@ -3652,6 +3654,193 @@ TEST_F(ProjectStorage, PopulateModuleCache)
     QmlDesigner::ProjectStorage<Sqlite::Database> newStorage{database, database.isInitialized()};
 
     ASSERT_THAT(newStorage.moduleName(id), Eq("Qml"));
+}
+
+TEST_F(ProjectStorage, AddProjectDataes)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2{qmlProjectSourceId,
+                                      sourceId2,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData3{qtQuickProjectSourceId,
+                                      sourceId3,
+                                      qtQuickModuleId,
+                                      Storage::FileType::QmlTypes};
+
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(projectData1, projectData2, projectData3));
+}
+
+TEST_F(ProjectStorage, RemoveProjectData)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2{qmlProjectSourceId,
+                                      sourceId2,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData3{qtQuickProjectSourceId,
+                                      sourceId3,
+                                      qtQuickModuleId,
+                                      Storage::FileType::QmlTypes};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    storage.synchronize(
+        SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId}, {projectData1}});
+
+    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(projectData1));
+}
+
+TEST_F(ProjectStorage, UpdateProjectDataFileType)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2{qmlProjectSourceId,
+                                      sourceId2,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2b{qmlProjectSourceId,
+                                       sourceId2,
+                                       qmlModuleId,
+                                       Storage::FileType::QmlTypes};
+    Storage::ProjectData projectData3{qtQuickProjectSourceId,
+                                      sourceId3,
+                                      qtQuickModuleId,
+                                      Storage::FileType::QmlTypes};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1, projectData2b}});
+
+    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(projectData1, projectData2b, projectData3));
+}
+
+TEST_F(ProjectStorage, UpdateProjectDataModuleId)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2{qmlProjectSourceId,
+                                      sourceId3,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2b{qmlProjectSourceId,
+                                       sourceId3,
+                                       qtQuickModuleId,
+                                       Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData3{qtQuickProjectSourceId,
+                                      sourceId2,
+                                      qtQuickModuleId,
+                                      Storage::FileType::QmlTypes};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1, projectData2b}});
+
+    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(projectData1, projectData2b, projectData3));
+}
+
+TEST_F(ProjectStorage, ThrowForInvalidSourceIdInProjectData)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      SourceId{},
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
+                 QmlDesigner::ProjectDataHasInvalidSourceId);
+}
+
+TEST_F(ProjectStorage, ThrowForInvalidModuleIdInProjectData)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      ModuleId{},
+                                      Storage::FileType::QmlDocument};
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
+                 QmlDesigner::ProjectDataHasInvalidModuleId);
+}
+
+TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidModuleIdInProjectData)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
+    projectData1.moduleId = ModuleId{};
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
+                 QmlDesigner::ProjectDataHasInvalidModuleId);
+}
+
+TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidProjectSourceIdInProjectData)
+{
+    Storage::ProjectData projectData1{SourceId{}, sourceId1, qmlModuleId, Storage::FileType::QmlDocument};
+
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
+                 QmlDesigner::ProjectDataHasInvalidProjectSourceId);
+}
+
+TEST_F(ProjectStorage, FetchProjectDatasByModuleIds)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2{qmlProjectSourceId,
+                                      sourceId2,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData3{qtQuickProjectSourceId,
+                                      sourceId3,
+                                      qtQuickModuleId,
+                                      Storage::FileType::QmlTypes};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    auto projectDatas = storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId});
+
+    ASSERT_THAT(projectDatas, UnorderedElementsAre(projectData1, projectData2, projectData3));
+}
+
+TEST_F(ProjectStorage, FetchProjectDatasByModuleId)
+{
+    Storage::ProjectData projectData1{qmlProjectSourceId,
+                                      sourceId1,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData2{qmlProjectSourceId,
+                                      sourceId2,
+                                      qmlModuleId,
+                                      Storage::FileType::QmlDocument};
+    Storage::ProjectData projectData3{qtQuickProjectSourceId,
+                                      sourceId3,
+                                      qtQuickModuleId,
+                                      Storage::FileType::QmlTypes};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    auto projectData = storage.fetchProjectDatas(qmlProjectSourceId);
+
+    ASSERT_THAT(projectData, UnorderedElementsAre(projectData1, projectData2));
 }
 
 } // namespace

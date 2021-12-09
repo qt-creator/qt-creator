@@ -2110,7 +2110,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     Utils::Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
-    run.setTimeoutS(30);
+    run.setTimeoutS(60);
     Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(
         QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())

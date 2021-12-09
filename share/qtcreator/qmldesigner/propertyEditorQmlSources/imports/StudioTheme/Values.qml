@@ -91,6 +91,10 @@ QtObject {
     property real toolTipHeight: 25
     property int toolTipDelay: 1000
 
+    // Controls hover animation params
+    property int hoverDuration: 500
+    property int hoverEasing: Easing.OutExpo
+
     // Layout sizes
     property real sectionColumnSpacing: 20 // distance between label and sliderControlSize
     property real sectionRowSpacing: 5

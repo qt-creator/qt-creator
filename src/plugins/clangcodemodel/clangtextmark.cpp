@@ -395,10 +395,14 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 bool ClangdTextMark::addToolTipContent(QLayout *target) const
 {
     const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = fileName()] {
-        return c && c->reachable() && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
+        return QTC_GUARD(c) && c->reachable()
+               && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
     };
+    const QString clientName = QTC_GUARD(m_client) ? m_client->name() : "clangd [unknown]";
     target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},
-        ClangDiagnosticWidget::ToolTip, canApplyFixIt, m_client ? m_client->name() : "clangd"));
+                                                          ClangDiagnosticWidget::ToolTip,
+                                                          canApplyFixIt,
+                                                          clientName));
     return true;
 }
 

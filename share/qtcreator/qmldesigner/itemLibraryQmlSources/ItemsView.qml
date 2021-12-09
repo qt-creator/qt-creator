@@ -266,8 +266,7 @@ Item {
                                     Grid {
                                         id: itemGrid
 
-                                        property real actualWidth: parent.width - itemGrid.leftPadding -itemGrid.rightPadding
-                                        property int flexibleWidth: (itemGrid.actualWidth / columns) - styleConstants.cellWidth
+                                        property real actualWidth: parent.width - itemGrid.leftPadding - itemGrid.rightPadding
 
                                         leftPadding: 6
                                         rightPadding: 6
@@ -280,7 +279,7 @@ Item {
                                                 visible: itemVisible
                                                 textColor: importUnimported ? StudioTheme.Values.themeUnimportedModuleColor
                                                                             : StudioTheme.Values.themeTextColor
-                                                width: styleConstants.cellWidth + itemGrid.flexibleWidth
+                                                width: styleConstants.cellWidth
                                                 height: styleConstants.cellHeight
                                                 onShowContextMenu: {
                                                     if (!itemUsable) {
@@ -304,7 +303,7 @@ Item {
         id: horizontalView
 
         Row {
-            padding: 5
+            leftPadding: 5
 
             ScrollView {
                 id: horizontalScrollView
@@ -421,7 +420,6 @@ Item {
                 Grid {
                     id: hItemGrid
                     property real actualWidth: itemsView.width - 294
-                    property int flexibleWidth: (hItemGrid.actualWidth / hItemGrid.columns) - styleConstants.cellWidth
 
                     leftPadding: 9
                     rightPadding: 9
@@ -435,7 +433,7 @@ Item {
                             visible: itemVisible
                             textColor: itemLibraryModel.importUnimportedSelected
                                        ? StudioTheme.Values.themeUnimportedModuleColor : StudioTheme.Values.themeTextColor
-                            width: styleConstants.cellWidth + hItemGrid.flexibleWidth
+                            width: styleConstants.cellWidth
                             height: styleConstants.cellHeight
                             onShowContextMenu: {
                                 if (!itemUsable) {

@@ -38,11 +38,7 @@ FocusScope {
     property int delegateColumnSpacing: 2
     property int delegateStateMargin: 16
     property int delegatePreviewMargin: 16
-
-    height: (root.expanded ? (root.delegateTopAreaHeight + root.delegateBottomAreaHeight + root.delegateColumnSpacing)
-                           : root.delegateTopAreaHeight)
-            + StudioTheme.Values.scrollBarThickness
-            + 2 * (root.delegateStateMargin + StudioTheme.Values.border + root.padding)
+    property int effectiveHeight: root.expanded ? 287 : 85 // height of the states area
 
     signal createNewState
     signal deleteState(int internalNodeId)
@@ -52,7 +48,7 @@ FocusScope {
     property int padding: 2
     property int delegateWidth: root.stateImageSize
                                 + 2 * (root.delegateStateMargin + root.delegatePreviewMargin)
-    property int delegateHeight: root.height
+    property int delegateHeight: effectiveHeight
                                  - StudioTheme.Values.scrollBarThickness
                                  - 2 * (root.padding + StudioTheme.Values.border)
     property int innerSpacing: 2
@@ -63,10 +59,6 @@ FocusScope {
     Connections {
         target: statesEditorModel
         function onChangedToState(n) { root.currentStateInternalId = n }
-    }
-
-    SystemPalette {
-        id: palette
     }
 
     Rectangle {
@@ -93,70 +85,51 @@ FocusScope {
 
             StudioControls.MenuItem {
                 text: root.expanded ? qsTr("Collapse") : qsTr("Expand")
-                onTriggered: {
-                    root.expanded = !root.expanded
-                }
+                onTriggered: root.expanded = !root.expanded
             }
         }
     }
 
-    function closeContextMenu() {
-        if (contextMenu.open)
-            contextMenu.dismiss()
-    }
+    AbstractButton {
+        id: addStateButton
 
-    Item {
-        id: addStateItem
-
-        property int buttonLeftSpacing: 8 * (root.expanded ? 1 : 2)
-
+        buttonIcon: root.expanded ? qsTr("Create New State") : StudioTheme.Constants.plus
+        iconFont: root.expanded ? StudioTheme.Constants.font : StudioTheme.Constants.iconFont
+        iconSize: root.expanded ? StudioTheme.Values.myFontSize : StudioTheme.Values.myIconFontSize
+        iconItalic: root.expanded
+        tooltip: qsTr("Add a new state.")
+        visible: canAddNewStates
         anchors.right: parent.right
-        width: root.delegateHeight / 2 + buttonLeftSpacing
-        height: root.delegateHeight
+        anchors.rightMargin: 8
+        y: (Math.min(effectiveHeight, root.height) - height) / 2
+        width: Math.max(root.delegateHeight / 2 - 8, 18)
+        height: root.expanded ? 60 : width
 
-        AbstractButton {
-            id: addStateButton
-
-            buttonIcon: root.expanded ? qsTr("Create New State") : StudioTheme.Constants.plus
-            iconFont: root.expanded ? StudioTheme.Constants.font : StudioTheme.Constants.iconFont
-            iconSize: root.expanded ? StudioTheme.Values.myFontSize : StudioTheme.Values.myIconFontSize
-            iconItalic: root.expanded ? true : false
-            tooltip: qsTr("Add a new state.")
-            visible: canAddNewStates
-            anchors.right: parent.right
-            anchors.rightMargin: 8
-            anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(parent.height / 2 - 8, 18)
-            height: root.expanded ? 80 : width
-
-            onClicked: {
-                root.closeContextMenu()
-                root.createNewState()
-            }
+        onClicked: {
+            contextMenu.dismiss()
+            root.createNewState()
         }
     }
 
-    Rectangle {
+    Rectangle { // separator lines between state items
         color: StudioTheme.Values.themeStateSeparator
         x: root.padding
         y: root.padding
-        width: Math.min((root.delegateWidth * flickable.count) + (2 * (flickable.count - 1)),
-                        flickable.width)
+        width: statesListView.width
         height: root.delegateHeight
     }
 
     ListView {
-        id: flickable
+        id: statesListView
 
         boundsBehavior: Flickable.StopAtBounds
         clip: true
 
-        anchors.left: parent.left
-        anchors.right: addStateItem.left
-        height: root.delegateHeight + StudioTheme.Values.scrollBarThickness
+        x: root.padding
         y: root.padding
-        anchors.leftMargin: root.padding
-        anchors.rightMargin: root.padding
+        width: Math.min(root.delegateWidth * statesListView.count + root.innerSpacing * (statesListView.count - 1),
+                        root.width - addStateButton.width - root.padding - 16) // 16 = 2 * 8 (addStateButton margin)
+        height: root.delegateHeight + StudioTheme.Values.scrollBarThickness
 
         model: statesEditorModel
         orientation: ListView.Horizontal
@@ -174,7 +147,7 @@ FocusScope {
             delegateStateImageSize: stateImageSize
             delegateHasWhenCondition: hasWhenCondition
             delegateWhenConditionString: whenConditionString
-            onDelegateInteraction: root.closeContextMenu()
+            onDelegateInteraction: contextMenu.dismiss()
 
             columnSpacing: root.delegateColumnSpacing
             topAreaHeight: root.delegateTopAreaHeight
@@ -183,16 +156,6 @@ FocusScope {
             previewMargin: root.delegatePreviewMargin
         }
 
-        property bool bothVisible: horizontal.scrollBarVisible && vertical.scrollBarVisible
-
-        ScrollBar.horizontal: HorizontalScrollBar {
-            id: horizontal
-            parent: flickable
-        }
-
-        ScrollBar.vertical: VerticalScrollBar {
-            id: vertical
-            parent: flickable
-        }
+        ScrollBar.horizontal: HorizontalScrollBar {}
     }
 }

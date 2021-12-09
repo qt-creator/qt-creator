@@ -80,6 +80,7 @@ AddFilesResult addImageToProject(const QStringList &fileNames, const QString &di
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &directory);
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory);
 AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &directory);
+AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &directory);
 void createFlowActionArea(const SelectionContext &selectionContext);
 void addTransition(const SelectionContext &selectionState);
 void addFlowEffect(const SelectionContext &selectionState, const TypeName &typeName);

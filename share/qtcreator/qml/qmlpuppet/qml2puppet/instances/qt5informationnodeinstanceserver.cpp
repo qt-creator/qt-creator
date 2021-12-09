@@ -99,6 +99,7 @@
 #include <QtQuick3D/private/qquick3dabstractlight_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qquick3dscenerootnode_p.h>
+#include <QtQuick3D/private/qquick3drepeater_p.h>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include "../editor3d/qt5compat/qquick3darealight_p.h"
 #endif
@@ -1226,6 +1227,7 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_inputEventTimer.setSingleShot(true);
     m_renderModelNodeImageViewTimer.setSingleShot(true);
     m_modelNode3DImageViewAsyncData.timer.setSingleShot(true);
+    m_repeaterAddObjectTimer.setSingleShot(true);
 
 #ifdef FPS_COUNTER
     if (!_fpsTimer) {
@@ -1251,6 +1253,7 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     m_inputEventTimer.stop();
     m_renderModelNodeImageViewTimer.stop();
     m_modelNode3DImageViewAsyncData.timer.stop();
+    m_repeaterAddObjectTimer.stop();
 
     if (m_editView3DData.rootItem)
         m_editView3DData.rootItem->disconnect(this);
@@ -1392,6 +1395,22 @@ void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
 void Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout()
 {
     changeSelection(m_lastSelectionChangeCommand);
+}
+
+void Qt5InformationNodeInstanceServer::handleRepeaterAddObjectTimeout()
+{
+#ifdef QUICK3D_MODULE
+    for (auto obj : std::as_const(m_addObjectRepeaters)) {
+        if (auto repObj = qobject_cast<QQuick3DRepeater *>(obj)) {
+            if (hasInstanceForObject(repObj)) {
+                ServerNodeInstance instance = instanceForObject(repObj);
+                handleInstanceHidden(instance, instance.internalInstance()->isHiddenInEditor(),
+                                     false);
+            }
+        }
+    }
+#endif
+    m_addObjectRepeaters.clear();
 }
 
 void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
@@ -1645,6 +1664,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
                      this, &Qt5InformationNodeInstanceServer::handleInputEvents);
     QObject::connect(&m_modelNode3DImageViewAsyncData.timer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::modelNode3DImageViewRenderStep);
+    QObject::connect(&m_repeaterAddObjectTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleRepeaterAddObjectTimeout);
 
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -1803,6 +1824,7 @@ void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &comma
 
     m_parentChangedSet.clear();
     m_completedComponentList.clear();
+    m_addObjectRepeaters.clear();
 }
 
 void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &command)
@@ -2291,6 +2313,12 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
 bool Qt5InformationNodeInstanceServer::isInformationServer() const
 {
     return true;
+}
+
+void Qt5InformationNodeInstanceServer::handleRepeaterAddObject()
+{
+    m_addObjectRepeaters.insert(sender());
+    m_repeaterAddObjectTimer.start();
 }
 
 // update 3D view size when it changes in creator side

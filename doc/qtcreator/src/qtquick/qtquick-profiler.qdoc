@@ -102,12 +102,12 @@
             current application.
 
         \li Select the
-            \inlineimage qtcreator-analyze-start-button.png
+            \inlineimage icons/qtcreator-analyze-start-button.png
             (\uicontrol Start) button to start the application from the
             QML Profiler.
 
             \note If data collection does not start automatically, select the
-            \inlineimage recordfill.png
+            \inlineimage icons/recordfill.png
             (\uicontrol {Enable Profiling}) button.
 
     \endlist

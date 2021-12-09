@@ -35,6 +35,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 
+#include <qnx/qnxconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/fileutils.h>
@@ -152,6 +154,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     undefineClangVersionMacrosForMsvc();
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
+    addDefineFunctionMacrosQnx();
 
     addHeaderPathOptions();
 
@@ -404,8 +407,8 @@ void CompilerOptionsBuilder::addProjectMacros()
     static const int useMacros = qEnvironmentVariableIntValue("QTC_CLANG_USE_TOOLCHAIN_MACROS");
 
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::CUSTOM_TOOLCHAIN_TYPEID
-            || m_projectPart.toolchainType.name().contains("BareMetal")
-            || useMacros) {
+        || m_projectPart.toolchainType == Qnx::Constants::QNX_TOOLCHAIN_ID
+        || m_projectPart.toolchainType.name().contains("BareMetal") || useMacros) {
         addMacros(m_projectPart.toolChainMacros);
     }
 
@@ -769,6 +772,17 @@ void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()
                 add(undefineOption + macroName);
         }
     }
+}
+
+void CompilerOptionsBuilder::addDefineFunctionMacrosQnx()
+{
+    // QNX 7.0+ uses GCC with LIBCPP from Clang, and in that context GCC is giving
+    // the builtin operator new and delete.
+    //
+    // In our case we have only Clang and need to instruct LIBCPP that it doesn't
+    // have these operators. This makes the code model happy and doesn't produce errors.
+    if (m_projectPart.toolchainType == Qnx::Constants::QNX_TOOLCHAIN_ID)
+        addMacros({{"_LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE"}});
 }
 
 void CompilerOptionsBuilder::reset()

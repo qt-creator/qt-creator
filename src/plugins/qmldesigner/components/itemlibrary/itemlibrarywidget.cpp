@@ -552,6 +552,9 @@ QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QString 
         } else if (ItemLibraryAssetsModel::supportedAudioSuffixes().contains(suffix)) {
             // No extra data for sounds
             return {"application/vnd.bauhaus.libraryresource.sound", {}};
+        } else if (ItemLibraryAssetsModel::supportedVideoSuffixes().contains(suffix)) {
+            // No extra data for videos
+            return {"application/vnd.bauhaus.libraryresource.video", {}};
         } else if (ItemLibraryAssetsModel::supportedTexture3DSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
             return {"application/vnd.bauhaus.libraryresource.texture3d", suffix.toUtf8()};
@@ -653,10 +656,12 @@ void ItemLibraryWidget::addResources(const QStringList &files)
         QStringList fileNames = categoryFileNames.values(category);
         AddResourceOperation operation = categoryToOperation.value(category);
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
-        AddFilesResult result = operation(fileNames, document->fileName().parentDir().toString());
-        if (result == AddFilesResult::Failed) {
-            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                  tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+        if (operation) {
+            AddFilesResult result = operation(fileNames, document->fileName().parentDir().toString());
+            if (result == AddFilesResult::Failed) {
+                Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                      tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+            }
         }
     }
 }

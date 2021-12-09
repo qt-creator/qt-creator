@@ -692,7 +692,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = m_serverCapabilities.textDocumentSyncKindHelper();
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        syncKind = registered.value() ? TextDocumentSyncKind::None : TextDocumentSyncKind::Full;
+        syncKind = registered.value() ? TextDocumentSyncKind::Full : TextDocumentSyncKind::None;
         if (syncKind != TextDocumentSyncKind::None) {
             const TextDocumentChangeRegistrationOptions option(
                                     m_dynamicCapabilities.option(method).toObject());

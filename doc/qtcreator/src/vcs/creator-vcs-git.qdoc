@@ -118,7 +118,7 @@
 
     To show log also for previous names of the file, select \uicontrol Follow.
 
-    Select \inlineimage reload_gray.png
+    Select \inlineimage icons/reload_gray.png
     (\uicontrol Reload) to rescan the files.
 
     To display a description of the change including the diff in the
@@ -141,7 +141,7 @@
     The other actions in the context-menu enable you to apply actions to the
     commit, such as cherry-pick, checkout, or revert it.
 
-    To rescan the files, click \inlineimage reload_gray.png
+    To rescan the files, click \inlineimage icons/reload_gray.png
     (\uicontrol Reload).
 
     \section2 Staging Changes
@@ -288,7 +288,7 @@
     \image qtcreator-vcs-gitbranch.png "Git Branches sidebar view"
 
     Old entries and tags are filtered out of the list of branches
-    by default. To include them, select \inlineimage filtericon.png
+    by default. To include them, select \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}), and then select
     \uicontrol {Include Old Entries} and \uicontrol {Include Tags}.
 
@@ -302,7 +302,7 @@
     For local and remote branches, the changes log can be shown by double
     clicking on the branch name.
 
-    To refresh the list of branches, click \inlineimage reload_gray.png
+    To refresh the list of branches, click \inlineimage icons/reload_gray.png
     (\uicontrol Refresh).
 
     The following operations are supported in the context-menu for a branch:

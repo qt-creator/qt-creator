@@ -308,6 +308,7 @@ public:
     void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
+    void setElideMode(Qt::TextElideMode elideMode);
 
     void validateInput();
 

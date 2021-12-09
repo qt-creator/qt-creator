@@ -23,11 +23,6 @@ imagedirs = ../images \
             ../../../share/qtcreator/qml/qmlpuppet/mockfiles/images \
             ../../../share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images \
             ../../../src/libs/qmleditorwidgets/images \
-            ../../../src/libs/utils/images \
-            ../../../src/plugins/debugger/images \
-            ../../../src/plugins/diffeditor/images \
-            ../../../src/plugins/help/images \
-            ../../../src/plugins/projectexplorer/images \
             ../../../src/plugins/qmldesigner/components/componentcore/images \
             ../../../src/plugins/qmldesigner/components/edit3d/images \
             ../../../src/plugins/qmldesigner/components/formeditor \
@@ -36,7 +31,6 @@ imagedirs = ../images \
             ../../../src/plugins/qmldesigner/componentsplugin/images \
             ../../../src/plugins/qmldesigner/qmlpreviewplugin/images \
             ../../../src/plugins/qmldesigner/qtquickplugin/images \
-            ../../../src/plugins/texteditor/images
 
 include(../../qtcreator/images/extraimages/qtdesignstudio-extraimages.qdocconf)
 

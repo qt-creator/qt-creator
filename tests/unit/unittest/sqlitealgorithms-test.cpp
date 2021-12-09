@@ -36,16 +36,14 @@ namespace {
 class KeyValueView
 {
 public:
-    KeyValueView(Utils::SmallStringView key, long long value, long long rowid)
+    KeyValueView(Utils::SmallStringView key, long long value)
         : key{key}
         , value{value}
-        , rowid{rowid}
     {}
 
 public:
     Utils::SmallStringView key;
     long long value = 0;
-    long long rowid = -1;
 };
 
 std::ostream &operator<<(std::ostream &out, KeyValueView keyValueView)
@@ -103,6 +101,7 @@ public:
         {
             Sqlite::Table table;
             table.setName("data");
+            table.setUseWithoutRowId(true);
             table.addColumn("key", Sqlite::ColumnType::None, {Sqlite::PrimaryKey{}});
             table.addColumn("value");
 
@@ -118,22 +117,26 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     Sqlite::ImmediateTransaction transaction{database};
     Initializer initializer{database};
-    Sqlite::ReadStatement<3> selectViewsStatement{"SELECT key, value, rowid FROM data ORDER BY key",
+    Sqlite::ReadStatement<2> selectViewsStatement{"SELECT key, value FROM data ORDER BY key",
                                                   database};
     Sqlite::ReadStatement<2> selectValuesStatement{"SELECT key, value FROM data ORDER BY key",
                                                    database};
     Sqlite::WriteStatement insertStatement{"INSERT INTO data(key, value) VALUES (?1, ?2)", database};
-    Sqlite::WriteStatement updateStatement{"UPDATE data SET value = ?2 WHERE rowid = ?1", database};
-    Sqlite::WriteStatement deleteStatement{"DELETE FROM data WHERE rowid = ?", database};
+    Sqlite::WriteStatement updateStatement{"UPDATE data SET value = ?2 WHERE key=?1", database};
+    Sqlite::WriteStatement deleteStatement{"DELETE FROM data WHERE key=?", database};
     std::function<void(const KeyValue &keyValue)> insert{
         [&](const KeyValue &keyValue) { insertStatement.write(keyValue.key, keyValue.value); }};
-    std::function<void(KeyValueView keyValueView, const KeyValue &keyValue)> update{
+    std::function<Sqlite::UpdateChange(KeyValueView keyValueView, const KeyValue &keyValue)> update{
         [&](KeyValueView keyValueView, const KeyValue &keyValue) {
-            if (!(keyValueView == keyValue))
-                updateStatement.write(keyValueView.rowid, keyValue.value);
+            if (!(keyValueView == keyValue)) {
+                updateStatement.write(keyValueView.key, keyValue.value);
+                return Sqlite::UpdateChange::Update;
+            }
+
+            return Sqlite::UpdateChange::No;
         }};
     std::function<void(KeyValueView keyValueView)> remove{
-        [&](KeyValueView keyValueView) { deleteStatement.write(keyValueView.rowid); }};
+        [&](KeyValueView keyValueView) { deleteStatement.write(keyValueView.key); }};
 };
 
 auto compareKey = [](KeyValueView keyValueView, const KeyValue &keyValue) {

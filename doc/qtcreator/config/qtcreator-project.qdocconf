@@ -15,21 +15,7 @@ ignorewords += \
 headerdirs =
 sourcedirs = ../src
 
-imagedirs = ../images \
-            ../../../src/libs/qmleditorwidgets/images \
-            ../../../src/libs/utils/images \
-            ../../../src/plugins/android/images \
-            ../../../src/plugins/autotest/images \
-            ../../../src/plugins/classview/images \
-            ../../../src/plugins/coreplugin/images \
-            ../../../src/plugins/debugger/images \
-            ../../../src/plugins/diffeditor/images \
-            ../../../src/plugins/help/images \
-            ../../../src/plugins/projectexplorer/images \
-            ../../../src/plugins/scxmleditor/common/images \
-            ../../../src/plugins/texteditor/images \
-            ../../../src/plugins/valgrind/images \
-            ../../../src/plugins/welcome/images
+imagedirs = ../images
 
 exampledirs = ../examples
 examples.fileextensions += *.qml *.svg

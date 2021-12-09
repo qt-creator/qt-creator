@@ -31,7 +31,6 @@
         <file>images/text-edit-icon16.png</file>
         <file>images/text-input-icon16.png</file>
         <file>images/webview-icon16.png</file>
-        <file>source/audio.qml</file>
         <file>source/listview.qml</file>
         <file>source/listviewv2.qml</file>
         <file>source/gridview.qml</file>
@@ -84,9 +83,6 @@
         <file>images/loader-icon.png</file>
         <file>images/loader-icon@2x.png</file>
         <file>images/loader-icon16.png</file>
-        <file>images/audio-16px.png</file>
-        <file>images/audio-24px.png</file>
-        <file>images/audio-24px@2x.png</file>
         <file>images/audio-output-16px.png</file>
         <file>images/audio-output-24px.png</file>
         <file>images/audio-output-24px@2x.png</file>

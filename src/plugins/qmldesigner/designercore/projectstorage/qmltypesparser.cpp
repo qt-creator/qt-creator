@@ -283,7 +283,7 @@ void addTypes(Storage::Types &types,
     types.reserve(Utils::usize(objects) + types.size());
 
     for (const auto &object : objects)
-        addType(types, projectData.sourceId, projectData.extraModuleId, *object.get(), storage);
+        addType(types, projectData.sourceId, projectData.moduleId, *object.get(), storage);
 }
 
 } // namespace

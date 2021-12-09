@@ -2400,7 +2400,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (camelCaseNavigationEnabled())
                 CamelCaseCursor::left(&cursor, this, QTextCursor::KeepAnchor);
             else
-                d->moveCursor(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
         }
         cursor.removeSelectedText();
         setMultiTextCursor(cursor);
@@ -2411,7 +2411,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (camelCaseNavigationEnabled())
                 CamelCaseCursor::right(&cursor, this, QTextCursor::KeepAnchor);
             else
-                d->moveCursor(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+                cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
         }
         cursor.removeSelectedText();
         setMultiTextCursor(cursor);
@@ -6257,10 +6257,10 @@ MultiTextCursor TextEditorWidget::multiTextCursor() const
 
 void TextEditorWidget::setMultiTextCursor(const Utils::MultiTextCursor &cursor)
 {
-    if (d->m_cursors == cursor)
-        return;
-    MultiTextCursor oldCursor = d->m_cursors;
+    const MultiTextCursor oldCursor = d->m_cursors;
     const_cast<MultiTextCursor &>(d->m_cursors) = cursor;
+    if (oldCursor == d->m_cursors)
+        return;
     doSetTextCursor(d->m_cursors.mainCursor(), /*keepMultiSelection*/ true);
     QRect updateRect = d->cursorUpdateRect(oldCursor);
     if (d->m_highlightCurrentLine)

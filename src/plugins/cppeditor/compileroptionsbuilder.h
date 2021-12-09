@@ -84,6 +84,8 @@ public:
     void addProjectConfigFileInclude();
     void undefineClangVersionMacrosForMsvc();
 
+    void addDefineFunctionMacrosQnx();
+
     // Add custom options
     void add(const QString &arg, bool gccOnlyOption = false);
     void prepend(const QString &arg);
