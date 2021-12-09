@@ -32,6 +32,7 @@
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilerplugin.h"
 
+#include "quick3dmodel.h"
 #include "inputeventsmodel.h"
 #include "pixmapcachemodel.h"
 #include "debugmessagesmodel.h"
@@ -155,6 +156,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     models.append(QVariant::fromValue(new MemoryUsageModel(modelManager, d->m_modelProxy)));
     models.append(QVariant::fromValue(new InputEventsModel(modelManager, d->m_modelProxy)));
     models.append(QVariant::fromValue(new DebugMessagesModel(modelManager, d->m_modelProxy)));
+    models.append(QVariant::fromValue(new Quick3DModel(modelManager, d->m_modelProxy)));
     models.append(QVariant::fromValue(new QmlProfilerAnimationsModel(modelManager,
                                                                      d->m_modelProxy)));
     for (int i = 0; i < MaximumRangeType; ++i) {

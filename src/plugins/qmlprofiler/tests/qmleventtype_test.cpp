@@ -99,7 +99,10 @@ void QmlEventTypeTest::testFeature()
          ProfileMemory, ProfileMemory, ProfileMemory},
         // DebugMessage
         {ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages,
-         ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages}
+         ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages},
+        // ProfileQuick3D
+        {ProfileQuick3D, ProfileQuick3D, ProfileQuick3D,
+         ProfileQuick3D, ProfileQuick3D, ProfileQuick3D}
     };
 
     for (int i = 0; i < MaximumMessage; ++i) {

@@ -66,7 +66,8 @@ static const char *MESSAGE_STRINGS[] = {
     "PixmapCache",
     "SceneGraph",
     "MemoryAllocation",
-    "DebugMessage"
+    "DebugMessage",
+    "Quick3D"
 };
 
 Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == MaximumMessage * sizeof(const char *));
