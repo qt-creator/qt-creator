@@ -63,6 +63,7 @@
 
 #ifdef QUICK3D_MODULE
 #include <private/qquick3dobject_p.h>
+#include <private/qquick3drepeater_p.h>
 #endif
 
 namespace QmlDesigner {
@@ -379,7 +380,7 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
         if (item && DesignerSupport::isComponentComplete(item))
             return;
 #ifdef QUICK3D_MODULE
-        auto obj3d = qobject_cast<QQuick3DObject *>(object);
+        auto obj3d = qobject_cast<QQuick3DRepeater *>(object);
         if (obj3d && QQuick3DObjectPrivate::get(obj3d)->componentComplete)
             return;
 #endif
