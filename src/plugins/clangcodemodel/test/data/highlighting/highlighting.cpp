@@ -859,3 +859,13 @@ void useOperator()
     struct S { S& operator++(); } s;
     ++s;
 }
+
+static void takesFoo(const Foo &);
+void constMemberAsFunctionArg()
+{
+    struct S {
+        S(const Foo& f) : constMember(f) {}
+        void func() { takesFoo(constMember); }
+        const Foo &constMember;
+    };
+}

@@ -1277,6 +1277,8 @@ void ClangdTestHighlighting::test_data()
                                       << QList<int>{C_STRING} << 0;
     QTest::newRow("user-defined operator call") << 860 << 7 << 860 << 8
                                       << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("const member as function argument") << 868 << 32 << 868 << 43
+                                      << QList<int>{C_FIELD} << 0;
 }
 
 void ClangdTestHighlighting::test()

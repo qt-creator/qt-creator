@@ -2605,8 +2605,6 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         const QList<AstNode> path = getAstPath(ast, range);
         if (path.size() < 2)
             return false;
-        if (path.last().hasConstType())
-            return false;
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
                     || it->kind() == "MemberInitializer") {
@@ -2636,7 +2634,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 
             if (it->kind() == "Lambda")
                 return false;
-            if (it->kind().endsWith("Cast") && it->hasConstType())
+            if (it->hasConstType())
                 return false;
             if (it->kind() == "Member" && it->arcanaContains("(")
                     && !it->arcanaContains("bound member function type")) {
