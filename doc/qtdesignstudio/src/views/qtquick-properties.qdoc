@@ -112,10 +112,10 @@
     \section2 Resetting Component Position and Size
 
     To return a component to its default position after moving it,
-    select the \inlineimage qtcreator-reset-position-icon.png
+    select the \inlineimage icons/qtcreator-reset-position-icon.png
     (\uicontrol {Reset Position}) button on the \l{Design Views}
     {Design mode toolbar}. To return it to its default size, select
-    \inlineimage qtcreator-reset-size-icon.png
+    \inlineimage icons/qtcreator-reset-size-icon.png
     (\uicontrol {Reset Size}) button.
 
     \section2 Managing 2D Transformations

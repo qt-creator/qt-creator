@@ -85,7 +85,7 @@
     \l{Completing Code}.
 
     When a binding is set, the \uicontrol Actions menu icon changes to
-    \inlineimage icons/action-icon-binding
+    \inlineimage icons/action-icon-binding.png
     . To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
     You can set bindings also in \l {Connection View} > \uicontrol Bindings.

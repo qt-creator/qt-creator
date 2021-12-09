@@ -59,7 +59,7 @@
 
     \image studio-timeline-with-empty-tracks.png "Timeline view with a property"
 
-    You can now select \inlineimage local_record_keyframes.png
+    You can now select \inlineimage icons/local_record_keyframes.png
     to \l{Setting Keyframe Values}{record changes} in component properties
     while you \l{Navigating in Timeline}{navigate the timeline}.
 
@@ -99,8 +99,8 @@
     \section1 Zooming in Timeline
 
     Use the slider on the toolbar to set the zooming level in the
-    \uicontrol Timeline view. Select the \inlineimage zoom_small.png
-    and \inlineimage zoom_big.png
+    \uicontrol Timeline view. Select the \inlineimage icons/zoom_small.png
+    and \inlineimage icons/zoom_big.png
     buttons to zoom out of or into the view.
 
     \section1 Setting Keyframe Track Color
@@ -121,7 +121,7 @@
         \li Action
         \li Read More
     \row
-        \li \inlineimage animation.png
+        \li \inlineimage icons/animation.png
         \li Opens the \uicontrol {Timeline Settings} dialog for editing
             timeline settings.
         \li \l{Creating Timelines}
@@ -130,25 +130,25 @@
         \li Displays the ID of the current timeline.
         \li \l{Creating Timelines}
     \row
-        \li \inlineimage to_first_frame.png
+        \li \inlineimage icons/to_first_frame.png
         \li \uicontrol {To Start (Home)} moves to the first frame on the
             timeline.
         \li \l{Navigating in Timeline}
     \row
-        \li \inlineimage back_one_frame.png
+        \li \inlineimage icons/back_one_frame.png
         \li \uicontrol {Previous (,)} moves to the previous frame on the
             timeline.
         \li \l{Navigating in Timeline}
     \row
-        \li \inlineimage start_playback.png
+        \li \inlineimage icons/start_playback.png
         \li \uicontrol {Play (Space)} previews the animation.
         \li \l{Viewing the Animation}
     \row
-        \li \inlineimage forward_one_frame.png
+        \li \inlineimage icons/forward_one_frame.png
         \li \uicontrol {Next (.)} moves to the next frame on the timeline.
         \li \l{Navigating in Timeline}
     \row
-        \li \inlineimage to_last_frame.png
+        \li \inlineimage icons/to_last_frame.png
         \li \uicontrol {To End (End)} moves to the last frame on the timeline.
         \li \l{Navigating in Timeline}
     \row
@@ -157,11 +157,11 @@
             number in the field to move the playhead to the respective frame.
         \li \l{Navigating in Timeline}
     \row
-        \li \inlineimage global_record_keyframes.png
+        \li \inlineimage icons/global_record_keyframes.png
         \li Records changes in keyframe values.
         \li \l {Setting Keyframe Values}
     \row
-        \li \inlineimage curve_editor.png
+        \li \inlineimage icons/curve_editor.png
         \li Opens \uicontrol {Easing Curve Editor} for attaching an easing
             curve to the selected transition.
         \li \l{Editing Easing Curves}
@@ -172,7 +172,7 @@
             determines the duration of the animation.
         \li \l{Creating Timelines}
     \row
-        \li \inlineimage zoom_small.png
+        \li \inlineimage icons/zoom_small.png
         \li \uicontrol {Zoom Out} (\key Ctrl+-) zooms out of the view.
         \li \l{Zooming in Timeline}
     \row
@@ -180,7 +180,7 @@
         \li Sets the zooming level.
         \li \l{Zooming in Timeline}
     \row
-        \li \inlineimage zoom_big.png
+        \li \inlineimage icons/zoom_big.png
         \li \uicontrol {Zoom In} (\key Ctrl++) zooms into the view.
         \li \l{Zooming in Timeline}
     \row
@@ -206,20 +206,20 @@
         \li Action
         \li Read More
     \row
-        \li \inlineimage previous_keyframe.png
+        \li \inlineimage icons/previous_keyframe.png
         \li Jumps to the previous frame on the timeline.
         \li \l{Setting Keyframe Values}
     \row
-        \li \inlineimage next_keyframe.png
+        \li \inlineimage icons/next_keyframe.png
         \li Jumps to the next frame on the timeline.
         \li \l{Setting Keyframe Values}
     \row
-        \li \inlineimage local_record_keyframes.png
+        \li \inlineimage icons/local_record_keyframes.png
         \li Records changes in keyframe values for a particular property.
         \li \l {Setting Keyframe Values}
     \target keyframe_marker
     \row
-        \li \inlineimage keyframe.png
+        \li \inlineimage icons/keyframe.png
         \li Indicates the type of easing curve attached to the keyframe.
             When a keyframe track is selected, the keyframe markers on it turn
             gray, and when a keyframe itself is selected, its marker turns

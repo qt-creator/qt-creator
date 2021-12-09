@@ -110,7 +110,7 @@
     To attach easing curves to transitions:
 
     \list 1
-        \li In \l{Transition Editor}, select the \inlineimage curve_editor.png
+        \li In \l{Transition Editor}, select the \inlineimage icons/curve_editor.png
             (\uicontrol {Easing Curve Editor}) button.
         \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist
@@ -122,7 +122,7 @@
     \list 1
         \li In \l Navigator, select an \l{Animations}{Animation} component
             instance.
-        \li In \l Properties, select the \inlineimage curve_editor.png
+        \li In \l Properties, select the \inlineimage icons/curve_editor.png
             (\uicontrol {Easing Curve Editor}) button.
         \li Select an easing curve, as described in \l{Selecting Easing Curves}.
     \endlist

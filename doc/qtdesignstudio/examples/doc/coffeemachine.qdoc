@@ -159,7 +159,7 @@
     \c {"settings"} and \c {"selection"} states.
 
     We then return to the \uicontrol Timeline view and select
-    \inlineimage animation.png "Timeline Settings button"
+    \inlineimage icons/animation.png "Timeline Settings button"
     to open the \uicontrol {Timeline Settings} dialog. We select
     the \uicontrol Add button to create animations for each part
     of the timeline. Therefore, the start and end frame of each

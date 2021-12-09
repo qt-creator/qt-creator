@@ -183,7 +183,7 @@
         \li \key Ctrl+W (\key Cmd+W on \macos)
         \li
     \row
-        \li \inlineimage live_preview.png
+        \li \inlineimage icons/live_preview.png
         \li \uicontrol {Show Live Preview} shows a preview of the current file
             or the entire UI. The changes you make to the UI are instantly
             visible to you in the preview.
@@ -210,13 +210,13 @@
         \li
         \li
     \row
-        \li \inlineimage qtcreator-reset-position-icon.png
+        \li \inlineimage icons/qtcreator-reset-position-icon.png
         \li Returns a component to its \e {implicit position} after
             being moved.
         \li \key Ctrl+D (\key Cmd+D on \macos)
         \li \l{Resetting Component Position and Size}
     \row
-        \li \inlineimage qtcreator-reset-size-icon.png
+        \li \inlineimage icons/qtcreator-reset-size-icon.png
         \li Returns a component to its implicit size after it was scaled.
         \li \key Shift+S
         \li \l{Resetting Component Position and Size}

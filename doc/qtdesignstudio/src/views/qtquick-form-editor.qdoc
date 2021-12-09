@@ -58,16 +58,16 @@
         \li Tooltip
         \li Read More
     \row
-        \li \inlineimage no_snapping.png
+        \li \inlineimage icons/no_snapping.png
         \li Disables snapping.
         \li \l{Snapping to Parent and Sibling Components}
     \row
-        \li \inlineimage snapping_and_anchoring.png
+        \li \inlineimage icons/snapping_and_anchoring.png
         \li Anchors the component instance to the component instances that it
             is snapped to.
         \li \l{Snapping to Parent and Sibling Components}
     \row
-        \li \inlineimage snapping.png
+        \li \inlineimage icons/snapping.png
         \li Snaps component instances to their parent or siblings when you
             align them.
         \li \l{Snapping to Parent and Sibling Components}
@@ -171,10 +171,10 @@
     \section1 Snapping to Parent and Sibling Components
 
     You can use snapping to align component instances in
-    \uicontrol {Form Editor}. Select the \inlineimage snapping.png
+    \uicontrol {Form Editor}. Select the \inlineimage icons/snapping.png
     button to have the component instances snap to their parent or siblings.
     Snapping lines automatically appear to help you position the component
-    instances. Click the \inlineimage snapping_and_anchoring.png
+    instances. Click the \inlineimage icons/snapping_and_anchoring.png
     button to anchor the selected component instance to those that you snap to.
     Only one snapping button can be selected at the time. Selecting
     one snapping button automatically deselects the others.
