@@ -57,4 +57,5 @@ int main()
     int array[3];
     array[S::value] = S::value;
     S::value = array[S::value];
+    const auto funcPtr = &func1;
 }

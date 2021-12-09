@@ -477,7 +477,9 @@ static QList<AstNode> getAstPath(const AstNode &root, const Position &pos)
 static Usage::Type getUsageType(const QList<AstNode> &path)
 {
     bool potentialWrite = false;
+    bool isFunction = false;
     const bool symbolIsDataType = path.last().role() == "type" && path.last().kind() == "Record";
+    const auto isPotentialWrite = [&] { return potentialWrite && !isFunction; };
     for (auto pathIt = path.rbegin(); pathIt != path.rend(); ++pathIt) {
         if (pathIt->arcanaContains("non_odr_use_unevaluated"))
             return Usage::Type::Other;
@@ -487,11 +489,24 @@ static Usage::Type getUsageType(const QList<AstNode> &path)
             return Usage::Type::Other;
         if (pathIt->kind() == "Switch" || pathIt->kind() == "If")
             return Usage::Type::Read;
-        if (pathIt->kind() == "Call" || pathIt->kind() == "CXXMemberCall")
-            return potentialWrite ? Usage::Type::WritableRef : Usage::Type::Read;
+        if (pathIt->kind() == "Call")
+            return isFunction ? Usage::Type::Other
+                              : potentialWrite ? Usage::Type::WritableRef : Usage::Type::Read;
+        if (pathIt->kind() == "CXXMemberCall") {
+            const auto children = pathIt->children();
+            if (children && children->size() == 1
+                    && children->first() == path.last()
+                    && children->first().arcanaContains("bound member function")) {
+                return Usage::Type::Other;
+            }
+            return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
+        }
         if ((pathIt->kind() == "DeclRef" || pathIt->kind() == "Member")
                 && pathIt->arcanaContains("lvalue")) {
-            potentialWrite = true;
+            if (pathIt->arcanaContains(" Function "))
+                isFunction = true;
+            else
+                potentialWrite = true;
         }
         if (pathIt->role() == "declaration") {
             if (symbolIsDataType)
@@ -501,6 +516,8 @@ static Usage::Type getUsageType(const QList<AstNode> &path)
                     return Usage::Type::Initialization;
                 if (pathIt->childContainsRange(0, path.last().range()))
                     return Usage::Type::Initialization;
+                if (isFunction)
+                    return Usage::Type::Read;
                 if (!pathIt->hasConstType())
                     return Usage::Type::WritableRef;
                 return Usage::Type::Read;
@@ -528,7 +545,7 @@ static Usage::Type getUsageType(const QList<AstNode> &path)
                 const int lhsIndex = isBinaryOp ? 0 : 1;
                 if (pathIt->childContainsRange(lhsIndex, path.last().range()))
                     return Usage::Type::Write;
-                return potentialWrite ? Usage::Type::WritableRef : Usage::Type::Read;
+                return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
             }
             return Usage::Type::Read;
         }

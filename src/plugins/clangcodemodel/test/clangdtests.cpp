@@ -284,6 +284,11 @@ void ClangdTestFindReferences::test_data()
     QTest::newRow("array variable") << "main.cpp" << 1134 << ItemList{
         makeItem(57, 8, Usage::Type::Declaration), makeItem(58, 4, Usage::Type::Write),
         makeItem(59, 15, Usage::Type::Read)};
+    QTest::newRow("free function") << "defs.h" << 510 << ItemList{
+        makeItem(24, 5, Usage::Type::Declaration), makeItem(19, 4, Usage::Type::Other),
+        makeItem(25, 4, Usage::Type::Other), makeItem(60, 26, Usage::Type::Read)};
+    QTest::newRow("member function") << "defs.h" << 192 << ItemList{
+        makeItem(9, 12, Usage::Type::Declaration), makeItem(40, 8, Usage::Type::Other)};
 }
 
 // The main point here is to test our access type categorization.
