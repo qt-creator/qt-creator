@@ -709,14 +709,14 @@ jobs:
 
     - name: Download qtcreatorcdbext artifact
       if: matrix.config.artifact == 'Windows-MSVC'
-      uses: actions/upload-artifact@v2
+      uses: actions/download-artifact@v2
       with:
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
     - name: Download disk image artifact
       if: matrix.config.artifact == 'macOS'
-      uses: actions/upload-artifact@v2
+      uses: actions/download-artifact@v2
       with:
         name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
         path: ./
