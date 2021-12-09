@@ -25,6 +25,7 @@
 
 #include "navigatortreemodel.h"
 #include "navigatorview.h"
+#include "navigatorwidget.h"
 #include "choosefrompropertylistdialog.h"
 #include "qmldesignerplugin.h"
 #include "itemlibrarywidget.h"
@@ -537,6 +538,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
     if (m_reverseItemOrder)
         rowNumber = rowCount(dropModelIndex) - rowNumber;
 
+    NavigatorWidget *widget = qobject_cast<NavigatorWidget *>(m_view->widgetInfo().widget);
+    if (widget)
+        widget->setDragType("");
+
     if (dropModelIndex.model() == this) {
         if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
@@ -661,92 +666,46 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
         m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
             newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
             ModelNode newModelNode = newQmlObjectNode.modelNode();
-            auto insertIntoList = [&](const QByteArray &listPropertyName, const ModelNode &targetNode) {
-                if (targetNode.isValid()) {
-                    BindingProperty listProp = targetNode.bindingProperty(listPropertyName);
-                    if (listProp.isValid()) {
-                        QString expression = listProp.expression();
-                        int bracketIndex = expression.indexOf(']');
-                        if (expression.isEmpty())
-                            expression = newModelNode.validId();
-                        else if (bracketIndex == -1)
-                            expression = QStringLiteral("[%1,%2]").arg(expression).arg(newModelNode.validId());
-                        else
-                            expression.insert(bracketIndex, QStringLiteral(",%1").arg(newModelNode.validId()));
-                        listProp.setExpression(expression);
-                    }
-                }
-            };
             if (newModelNode.isValid()) {
-                if (newModelNode.isSubclassOf("QtQuick3D.Effect")) {
-                    // Insert effects dropped to either View3D or SceneEnvironment into the
-                    // SceneEnvironment's effects list
-                    ModelNode targetEnv;
-                    if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.SceneEnvironment")) {
-                        targetEnv = targetProperty.parentModelNode();
-                        validContainer = true;
-                    } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.View3D")) {
-                        // see if View3D has environment set to it
-                        BindingProperty envNodeProp = targetProperty.parentModelNode().bindingProperty("environment");
-                        if (envNodeProp.isValid())  {
-                            ModelNode envNode = envNodeProp.resolveToModelNode();
-                            if (envNode.isValid())
-                                targetEnv = envNode;
-                        }
-                        validContainer = true;
-                    }
-                    insertIntoList("effects", targetEnv);
-                } else if (newModelNode.isSubclassOf("QtQuick3D.Material")) {
-                    if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Model")) {
-                        // Insert material dropped to a model node into the materials list of the model
-                        ModelNode targetModel;
-                        targetModel = targetProperty.parentModelNode();
-                        insertIntoList("materials", targetModel);
-                        validContainer = true;
-                    } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Node")
-                               && targetProperty.parentModelNode().isComponent()) {
-                        // Inserting materials under imported components is likely a mistake, so
-                        // notify user with a helpful messagebox that suggests the correct action.
-                        showMatToCompInfo = true;
-                    }
-                } else if (newModelNode.isSubclassOf("QtQuick3D.Shader")
-                           || newModelNode.isSubclassOf("QtQuick3D.Command")) {
-                    const bool isShader = newModelNode.isSubclassOf("QtQuick3D.Shader");
-                    if (isShader || newModelNode.isSubclassOf("QtQuick3D.Command")) {
-                        if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass")) {
-                            // Shaders and commands inserted into a Pass will be added to proper list.
-                            // They are also moved to the same level as the pass, as passes don't
-                            // allow child nodes (QTBUG-86219).
-                            ModelNode targetModel;
-                            targetModel = targetProperty.parentModelNode();
-                            if (isShader)
-                                insertIntoList("shaders", targetModel);
-                            else
-                                insertIntoList("commands", targetModel);
-                            NodeAbstractProperty parentProp = targetProperty.parentProperty();
-                            if (parentProp.isValid()) {
-                                targetProperty = parentProp;
-                                targetModel = targetProperty.parentModelNode();
-                                targetRowNumber = rowCount(indexForModelNode(targetModel));
-
-                                // Move node to new parent within the same transaction as we don't
-                                // want undo to place the node under invalid parent
-                                moveNodesAfter = false;
-                                moveNodesInteractive(targetProperty, {newQmlObjectNode}, targetRowNumber, false);
-                                validContainer = true;
-                            }
-                        }
-                    }
-                } else {
-                    ModelNode targetNode = targetProperty.parentModelNode();
-                    ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
-                                targetNode, newModelNode, Core::ICore::dialogParent());
-                    if (dialog) {
+                ModelNode targetNode = targetProperty.parentModelNode();
+                ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
+                            targetNode, newModelNode, Core::ICore::dialogParent());
+                if (dialog) {
+                    bool soloProperty = dialog->isSoloProperty();
+                    if (!soloProperty)
                         dialog->exec();
-                        if (dialog->result() == QDialog::Accepted)
+                    if (soloProperty || dialog->result() == QDialog::Accepted) {
+                        TypeName selectedProp = dialog->selectedProperty();
+                        BindingProperty listProp = targetNode.bindingProperty(selectedProp);
+                        if (targetNode.metaInfo().propertyIsListProperty(selectedProp)) {
+                            if ((newModelNode.isSubclassOf("QtQuick3D.Shader") || newModelNode.isSubclassOf("QtQuick3D.Command"))
+                                && targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass")) {
+                                NodeAbstractProperty parentProp = targetProperty.parentProperty();
+                                if (parentProp.isValid()) {
+                                    targetProperty = parentProp;
+                                    ModelNode targetModel = targetProperty.parentModelNode();
+                                    targetRowNumber = rowCount(indexForModelNode(targetModel));
+                                    // Move node to new parent within the same transaction as we don't
+                                    // want undo to place the node under invalid parent
+                                    moveNodesInteractive(targetProperty, {newQmlObjectNode}, targetRowNumber, false);
+                                    moveNodesAfter = false;
+                                }
+                            }
+                            listProp.addModelNodeToArray(newModelNode);
+                            validContainer = true;
+                        } else {
                             targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
-                        delete dialog;
+                            validContainer = true;
+                        }
                     }
+                    delete dialog;
+                }
+                if (newModelNode.isSubclassOf("QtQuick3D.Material")
+                    && targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Node")
+                    && targetProperty.parentModelNode().isComponent()) {
+                    // Inserting materials under imported components is likely a mistake, so
+                    // notify user with a helpful messagebox that suggests the correct action.
+                    showMatToCompInfo = true;
                 }
 
                 if (!validContainer) {

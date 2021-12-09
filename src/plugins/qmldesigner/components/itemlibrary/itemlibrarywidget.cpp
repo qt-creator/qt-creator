@@ -41,6 +41,7 @@
 #include "modelnodeoperations.h"
 #include <metainfo.h>
 #include <model.h>
+#include <navigatorwidget.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -117,7 +118,14 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                         }
                     }
                 }
-
+                QWidget *view = QmlDesignerPlugin::instance()->viewManager().widget("Navigator");
+                if (view) {
+                    NavigatorWidget *navView = qobject_cast<NavigatorWidget *>(view);
+                    if (navView) {
+                        navView->setDragType(entry.typeName());
+                        navView->update();
+                    }
+                }
                 auto drag = new QDrag(this);
                 drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
                 drag->setMimeData(m_itemLibraryModel->getMimeData(entry));
@@ -143,6 +151,14 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_itemToDrag = {};
         m_assetsToDrag.clear();
+        QWidget *view = QmlDesignerPlugin::instance()->viewManager().widget("Navigator");
+        if (view) {
+            NavigatorWidget *navView = qobject_cast<NavigatorWidget *>(view);
+            if (navView) {
+                navView->setDragType("");
+                navView->update();
+            }
+        }
     }
 
     return QObject::eventFilter(obj, event);

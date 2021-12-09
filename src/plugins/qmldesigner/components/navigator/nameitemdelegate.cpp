@@ -29,6 +29,8 @@
 
 #include "navigatorview.h"
 #include "navigatortreeview.h"
+#include "navigatorwidget.h"
+#include "choosefrompropertylistdialog.h"
 #include "qproxystyle.h"
 
 #include <metainfo.h>
@@ -228,6 +230,24 @@ void NameItemDelegate::paint(QPainter *painter,
     if (styleOption.state & QStyle::State_Selected) {
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
         painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextSelected));
+    }
+
+    ModelNode node = getModelNode(modelIndex);
+    NavigatorWidget *widget = qobject_cast<NavigatorWidget *>(styleOption.widget->parent());
+    if (widget && !widget->dragType().isEmpty()) {
+        QByteArray dragType = widget->dragType();
+        const NodeMetaInfo metaInfo = node.metaInfo();
+        const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
+        ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);
+
+        if (!filter->propertyList.isEmpty()) {
+            painter->setOpacity(0.5);
+            painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
+                              Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground));
+            painter->setOpacity(1.0);
+            painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextSelected));
+        }
+        delete filter;
     }
 
     iconOffset = drawIcon(painter, styleOption, modelIndex);

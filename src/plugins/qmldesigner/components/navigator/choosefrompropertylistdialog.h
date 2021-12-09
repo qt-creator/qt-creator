@@ -33,7 +33,16 @@
 namespace QmlDesigner {
 namespace Ui {
 class ChooseFromPropertyListDialog;
+class ChooseFromPropertyListFilter;
 }
+
+class ChooseFromPropertyListFilter
+{
+public:
+    ChooseFromPropertyListFilter(const NodeMetaInfo &metaInfo, const NodeMetaInfo &newInfo, bool breakOnFirst = false);
+    ~ChooseFromPropertyListFilter() {}
+    QStringList propertyList;
+};
 
 class ChooseFromPropertyListDialog : public QDialog
 {
@@ -43,6 +52,7 @@ public:
     ~ChooseFromPropertyListDialog();
 
     TypeName selectedProperty() const;
+    bool isSoloProperty() const { return m_isSoloProperty; }
 
     static ChooseFromPropertyListDialog *createIfNeeded(const ModelNode &targetNode,
                                                         const ModelNode &newNode,
@@ -57,5 +67,6 @@ private:
 
     Ui::ChooseFromPropertyListDialog *m_ui;
     TypeName m_selectedProperty;
+    bool m_isSoloProperty = false;
 };
 }

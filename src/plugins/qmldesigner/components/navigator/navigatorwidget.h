@@ -56,6 +56,9 @@ public:
     void disableNavigator();
     void enableNavigator();
 
+    void setDragType(const QByteArray &type);
+    QByteArray dragType() const;
+
 signals:
     void leftButtonClicked();
     void rightButtonClicked();
@@ -73,6 +76,7 @@ private:
 
     NavigatorTreeView *m_treeView;
     QPointer<NavigatorView> m_navigatorView;
+    QByteArray m_dragType;
 };
 
 }

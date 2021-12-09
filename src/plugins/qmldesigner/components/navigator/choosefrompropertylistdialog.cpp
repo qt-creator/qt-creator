@@ -29,12 +29,54 @@
 
 namespace QmlDesigner {
 
+// This will filter and return possible properties that the given type can be bound to
+ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &insertInfo,
+                                                           const NodeMetaInfo &parentInfo,
+                                                           bool breakOnFirst)
+{
+    TypeName typeName = insertInfo.typeName();
+    TypeName superClass = insertInfo.directSuperClass().typeName();
+    TypeName nodePackage = insertInfo.typeName().replace(insertInfo.simplifiedTypeName().toStdString(), "");
+    TypeName targetPackage = parentInfo.typeName().replace(parentInfo.simplifiedTypeName().toStdString(), "");
+    if (!nodePackage.contains(targetPackage))
+        return;
+
+    // Common base types cause too many rarely valid matches, so they are ignored
+    const QSet<TypeName> ignoredTypes {"<cpp>.QObject",
+                                       "<cpp>.QQuickItem",
+                                       "<cpp>.QQuick3DObject",
+                                       "QtQuick.Item",
+                                       "QtQuick3D.Object3D",
+                                       "QtQuick3D.Node",
+                                       "QtQuick3D.Particles3D.ParticleSystem3D"};
+    const PropertyNameList targetNodeNameList = parentInfo.propertyNames();
+    for (const PropertyName &name : targetNodeNameList) {
+        if (!name.contains('.')) {
+            TypeName propType = parentInfo.propertyTypeName(name).replace("<cpp>.", targetPackage);
+            // Skip properties that are not sub classes of anything
+            if (propType.contains('.')
+                && !ignoredTypes.contains(propType)
+                && (typeName == propType || propType == superClass)
+                && parentInfo.propertyIsWritable(propType)) {
+                propertyList.append(QString::fromLatin1(name));
+                if (breakOnFirst)
+                    break;
+            }
+        }
+    }
+}
+
 // This dialog displays specified properties and allows the user to choose one
 ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const QStringList &propNames,
                                                            QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui::ChooseFromPropertyListDialog)
 {
+    if (propNames.count() == 1) {
+       m_selectedProperty = propNames.first().toLatin1();
+       m_isSoloProperty = true;
+       return;
+    }
     m_ui->setupUi(this);
     setWindowTitle(tr("Select property"));
     m_ui->label->setText(tr("Bind to property:"));
@@ -76,30 +118,12 @@ ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
     if (typeName == "QtQml.Component")
         return nullptr;
 
-    const NodeMetaInfo metaInfo = targetNode.metaInfo();
-    const PropertyNameList propNames = metaInfo.propertyNames();
-    QStringList matchingNames;
+    const NodeMetaInfo info = newNode.metaInfo();
+    const NodeMetaInfo targetInfo = targetNode.metaInfo();
+    ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(info, targetInfo);
 
-    // Common base types cause too many rarely valid matches, so they are ignored
-    const QSet<TypeName> ignoredTypes {"<cpp>.QObject",
-                                       "<cpp>.QQuickItem",
-                                       "<cpp>.QQuick3DObject",
-                                       "QtQuick.Item",
-                                       "QtQuick3D.Object3D",
-                                       "QtQuick3D.Node",
-                                       "QtQuick3D.Particles3D.ParticleSystem3D"};
-
-    for (const auto &propName : propNames) {
-        const TypeName testType = metaInfo.propertyTypeName(propName);
-        if (!ignoredTypes.contains(testType)
-                && metaInfo.propertyIsWritable(propName)
-                && (testType == typeName || newNode.isSubclassOf(testType))) {
-            matchingNames.append(QString::fromLatin1(propName));
-        }
-    }
-
-    if (!matchingNames.isEmpty())
-        return new ChooseFromPropertyListDialog(matchingNames, parent);
+    if (!filter->propertyList.isEmpty())
+        return new ChooseFromPropertyListDialog(filter->propertyList, parent);
 
     return nullptr;
 }

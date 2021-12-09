@@ -201,4 +201,14 @@ void NavigatorWidget::dropEvent(QDropEvent *dropEvent)
     actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
 }
 
+void NavigatorWidget::setDragType(const QByteArray &type)
+{
+    m_dragType = type;
+}
+
+QByteArray NavigatorWidget::dragType() const
+{
+    return m_dragType;
+}
+
 }
