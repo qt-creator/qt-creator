@@ -97,13 +97,13 @@
 
     \list
         \li To see a complete list of all bindings, select
-            \inlineimage filtericon.png
+            \inlineimage icons/filtericon.png
             (\uicontrol {Filter Tree}) > \uicontrol {Show All Bindings}.
         \li To sort types or symbols alphabetically, select
-            \inlineimage sort_alphabetically.png
+            \inlineimage icons/sort_alphabetically.png
             (\uicontrol {Sort Alphabetically}).
         \li To stop the synchronization with the type or symbol selected in the
-            editor, deselect \inlineimage linkicon.png
+            editor, deselect \inlineimage icons/linkicon.png
             (\uicontrol {Synchronize with Editor}).
     \endlist
 
@@ -146,6 +146,6 @@
     \image qtcreator-include-hierarchy-view.png "Include Hierarchy view"
 
     To keep the view synchronized with the file currently opened in the editor,
-    select \inlineimage linkicon.png
+    select \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 */

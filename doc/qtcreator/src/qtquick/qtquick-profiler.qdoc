@@ -107,7 +107,7 @@
             QML Profiler.
 
             \note If data collection does not start automatically, select the
-            \inlineimage recordfill.png
+            \inlineimage icons/recordfill.png
             (\uicontrol {Enable Profiling}) button.
 
     \endlist

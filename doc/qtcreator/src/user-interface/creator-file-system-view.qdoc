@@ -60,7 +60,7 @@
     \endlist
 
     To stop the synchronization between the editor and the
-    \uicontrol {File System} view, delesect the \inlineimage linkicon.png
+    \uicontrol {File System} view, delesect the \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize Root Directory with Editor}) button.
 
     The path to the active file is displayed as bread crumbs. You can move to
@@ -106,7 +106,7 @@
     \endif
 
 
-    To manage view contents, select \inlineimage filtericon.png
+    To manage view contents, select \inlineimage icons/filtericon.png
     (\uicontrol Options):
 
     \list
@@ -119,6 +119,6 @@
     \endlist
 
     To stop the synchronization with the file currently opened in the
-    editor, deselect \inlineimage linkicon.png
+    editor, deselect \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 */

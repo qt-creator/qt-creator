@@ -41,9 +41,9 @@
 
             If the text is found, all occurrences are highlighted as you type.
 
-        \li To go to the next occurrence, click \inlineimage next.png
+        \li To go to the next occurrence, click \inlineimage icons/next.png
             (\uicontrol {Find Next}), or press \key F3. To go to the previous
-            occurrence click \inlineimage prev.png
+            occurrence click \inlineimage icons/prev.png
             (\uicontrol {Find Previous}), or press \key {Shift+F3}.
 
     \endlist
@@ -207,7 +207,7 @@
     The search results are stored in the search history from which you can
     select earlier searches.
 
-    To clear the search results, select the \inlineimage clean_pane_small.png
+    To clear the search results, select the \inlineimage icons/clean_pane_small.png
     (\uicontrol Clear) button.
 
     To expand and collapse the search results, select the

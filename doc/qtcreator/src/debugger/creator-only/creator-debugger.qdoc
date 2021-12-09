@@ -786,7 +786,8 @@
 
     To access the \uicontrol Disassembler view, check
     \uicontrol Debug > \uicontrol {Operate by Instruction} while the debugger is
-    running. Alternatively, click the \inlineimage debugger_singleinstructionmode.png
+    running. Alternatively, click the
+    \inlineimage icons/debugger_singleinstructionmode.png
     (\uicontrol {Operate by Instruction}) tool button on the debugger tool bar.
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,

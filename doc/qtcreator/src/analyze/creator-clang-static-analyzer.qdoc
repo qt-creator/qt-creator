@@ -60,7 +60,7 @@
     need to set them up separately.
 
     In addition to running the tools to collect diagnostics, you can select
-    \inlineimage open.png
+    \inlineimage icons/open.png
     to load diagnostics from \l{https://yaml.org/}{YAML} files that you exported
     using the \c {-export fixes} option.
 
@@ -69,7 +69,7 @@
     To run the Clang tools to analyze the currently open file:
 
     \list
-        \li Select the \inlineimage debugger_singleinstructionmode.png
+        \li Select the \inlineimage icons/debugger_singleinstructionmode.png
             (\uicontrol {Analyze File}) button on the editor toolbar.
         \li Select \uicontrol Tools > \uicontrol {C++} >
             \uicontrol {Analyze Current File}.
@@ -116,7 +116,7 @@
     particular project by selecting \uicontrol {Disable This Check} or
     \uicontrol {Disable These Checks} in the context menu.
 
-    Select the \inlineimage settings.png
+    Select the \inlineimage icons/settings.png
     button to customize Clang diagnostics for the current project.
 
     \image qtcreator-clang-tools-options-customized.png "Clang Tools customized settings"

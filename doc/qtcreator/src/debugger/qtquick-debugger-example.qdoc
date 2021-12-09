@@ -79,7 +79,7 @@
 
             \image qtquick-example-setting-breakpoint2.png
 
-        \li Click the \inlineimage debugger_stepinto_small.png
+        \li Click the \inlineimage icons/debugger_stepinto_small.png
             (\uicontrol {Step Into}) button on the toolbar or press \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
             editor at the function that starts a new game.

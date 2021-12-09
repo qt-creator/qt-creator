@@ -79,7 +79,7 @@
     \endlist
 
     \note If data collection does not start automatically, select the
-    \inlineimage recordfill.png
+    \inlineimage icons/recordfill.png
     (\uicontrol {Collect profile data}) button.
 
     When you start analyzing an application, the application is launched, and

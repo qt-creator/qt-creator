@@ -91,7 +91,7 @@
             By default, \QC tries to find a supported \l{AdoptOpenJDK} or
             \l{OpenJDK} installation. If none is found, you must set the path
             manually. If you don't have a supported JDK installed, select
-            \inlineimage online.png
+            \inlineimage icons/online.png
             to open the JDK download web page in the default browser.
 
             \note We recommended using a 64-bit JDK, because the 32-bit one
@@ -182,7 +182,7 @@
     be modified from the SDK Manager tab. For more information, see
     \l{Managing Android SDK Packages}.
 
-    To manually download NDKs, select \inlineimage online.png
+    To manually download NDKs, select \inlineimage icons/online.png
     .
 
     To add custom NDK paths manually to the global list of NDKs, select
