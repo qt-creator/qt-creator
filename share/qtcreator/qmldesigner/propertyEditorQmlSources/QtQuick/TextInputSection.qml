@@ -199,7 +199,7 @@ Section {
                 id: checkBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                text: backendValue.valueToString
+                text: (checkBox.backendValue === undefined) ? "" : checkBox.backendValue.valueToString
             }
 
             ExpandingSpacer {}

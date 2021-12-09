@@ -35,18 +35,17 @@ Column {
         showVerticalAlignment: true
     }
 
-   TextInputSection {
-       isTextInput: true
-   }
+    TextInputSection {
+        isTextInput: true
+    }
 
-   TextExtrasSection {
-       showWrapMode: true
-       showFormatProperty: true
-   }
+    TextExtrasSection {
+        showWrapMode: true
+    }
 
-   FontExtrasSection {
-       showStyle: false
-   }
+    FontExtrasSection {
+        showStyle: false
+    }
 
-   PaddingSection {}
+    PaddingSection {}
 }

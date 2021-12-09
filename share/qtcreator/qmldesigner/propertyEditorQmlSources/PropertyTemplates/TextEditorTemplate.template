@@ -136,7 +136,7 @@ Section {
             SpinBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: (backendValues.%2_lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
+                backendValue: (backendValues.%2_lineHeight === undefined) ? 1.0 : backendValues.lineHeight
                 maximumValue: 500
                 minimumValue: 0
                 decimals: 2
