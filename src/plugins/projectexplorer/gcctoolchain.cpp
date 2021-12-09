@@ -1002,7 +1002,7 @@ GccToolChainFactory::GccToolChainFactory()
 Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     // GCC is almost never what you want on macOS, but it is by default found in /usr/bin
-    if (HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost() && (!device || device->type() == Constants::DESKTOP_DEVICE_TYPE))
         return {};
     Toolchains tcs;
     static const auto tcChecker = [](const ToolChain *tc) {
