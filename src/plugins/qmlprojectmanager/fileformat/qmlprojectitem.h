@@ -78,6 +78,9 @@ public:
     QString mainFile() const { return m_mainFile; }
     void setMainFile(const QString &mainFilePath) { m_mainFile = mainFilePath; }
 
+    bool widgetApp() const { return m_widgetApp; }
+    void setWidgetApp(bool widgetApp) { m_widgetApp = widgetApp; }
+
     void appendContent(QmlProjectContentItem *item) { m_content.append(item); }
 
     Utils::EnvironmentItems environment() const;
@@ -99,6 +102,7 @@ protected:
     bool m_forceFreeType = false;
     bool m_qtForMCUs = false;
     bool m_qt6Project = false;
+    bool m_widgetApp = false;
 };
 
 } // namespace QmlProjectManager

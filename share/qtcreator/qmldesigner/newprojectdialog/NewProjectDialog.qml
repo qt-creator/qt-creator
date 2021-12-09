@@ -133,7 +133,7 @@ Item {
 
                             Rectangle { // TabBar
                                 readonly property int animDur: 500
-                                id: samTabRect
+                                id: tabBar
                                 x: 10                       // left padding
                                 width: parent.width - 64    // right padding
                                 height: DialogValues.projectViewHeaderHeight
@@ -153,15 +153,15 @@ Item {
                                             verticalAlignment: Text.AlignVCenter
                                             color: tabBarRow.currIndex === index ? DialogValues.textColorInteraction
                                                                                  : DialogValues.textColor
-                                            Behavior on color { ColorAnimation { duration: samTabRect.animDur } }
+                                            Behavior on color { ColorAnimation { duration: tabBar.animDur } }
 
                                             MouseArea {
                                                 anchors.fill: parent
                                                 onClicked: {
                                                     tabBarRow.currIndex = index
                                                     projectModel.setPage(index)
-                                                    projectViewId.currentIndex = 0
-                                                    projectViewId.currentIndexChanged()
+                                                    projectView.currentIndex = 0
+                                                    projectView.currentIndexChanged()
 
                                                     strip.x = parent.x
                                                     strip.width = parent.width
@@ -180,13 +180,26 @@ Item {
                                     color: DialogValues.textColorInteraction
                                     anchors.bottom: parent.bottom
 
-                                    Behavior on x { SmoothedAnimation { duration: samTabRect.animDur } }
-                                    Behavior on width { SmoothedAnimation { duration: strip.width === 0 ? 0 : samTabRect.animDur } } // do not animate initial width
+                                    Behavior on x { SmoothedAnimation { duration: tabBar.animDur } }
+                                    Behavior on width { SmoothedAnimation { duration: strip.width === 0 ? 0 : tabBar.animDur } } // do not animate initial width
+                                }
+
+                                Connections {
+                                    target: rootDialog
+                                    function onWidthChanged() {
+                                        if (rootDialog.width < 1200) { // 1200 = the width threshold
+                                            tabBar.width = tabBar.parent.width - 20
+                                            projectView.width = projectView.parent.width - 20
+                                        } else {
+                                            tabBar.width = tabBar.parent.width - 64
+                                            projectView.width = projectView.parent.width - 64
+                                        }
+                                    }
                                 }
                             } // Rectangle
 
                             NewProjectView {
-                                id: projectViewId
+                                id: projectView
                                 x: 10                       // left padding
                                 width: parent.width - 64    // right padding
                                 height: DialogValues.projectViewHeight
@@ -196,9 +209,9 @@ Item {
                                     target: rootDialog
                                     function onHeightChanged() {
                                         if (rootDialog.height < 700) { // 700 = minimum height big dialog
-                                            projectViewId.height = DialogValues.projectViewHeight / 2
+                                            projectView.height = DialogValues.projectViewHeight / 2
                                         } else {
-                                            projectViewId.height = DialogValues.projectViewHeight
+                                            projectView.height = DialogValues.projectViewHeight
                                         }
                                     }
                                 }
@@ -213,7 +226,7 @@ Item {
                                 lineHeight: DialogValues.defaultLineHeight
                                 lineHeightMode: Text.FixedHeight
                                 leftPadding: 14
-                                width: projectViewId.width
+                                width: projectView.width
                                 color: DialogValues.textColor
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 4

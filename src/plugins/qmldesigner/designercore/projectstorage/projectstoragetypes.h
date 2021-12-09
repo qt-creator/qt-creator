@@ -47,6 +47,8 @@ enum class PropertyDeclarationTraits : unsigned int {
 
 enum class TypeNameKind { Native = 0, Exported = 1, QualifiedExported = 2 };
 
+enum class FileType : char { QmlTypes, QmlDocument };
+
 constexpr PropertyDeclarationTraits operator|(PropertyDeclarationTraits first,
                                               PropertyDeclarationTraits second)
 {
@@ -630,7 +632,7 @@ public:
     PropertyDeclarationId aliasId;
 };
 
-enum class ChangeLevel { Full, Minimal };
+enum class ChangeLevel : char { Full, Minimal, ExcludeExportedTypes };
 
 class Type
 {
@@ -666,6 +668,18 @@ public:
         , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , prototypeId{prototypeId}
+    {}
+
+    explicit Type(Utils::SmallStringView typeName,
+                  ImportedTypeName prototype,
+                  TypeAccessSemantics accessSemantics,
+                  SourceId sourceId,
+                  ChangeLevel changeLevel)
+        : typeName{typeName}
+        , prototype{std::move(prototype)}
+        , accessSemantics{accessSemantics}
+        , sourceId{sourceId}
+        , changeLevel{changeLevel}
     {}
 
     explicit Type(Utils::SmallStringView typeName,
@@ -721,8 +735,31 @@ using Types = std::vector<Type>;
 class ProjectData
 {
 public:
-    ModuleId extraModuleId;
+    ProjectData(SourceId projectSourceId, SourceId sourceId, ModuleId moduleId, FileType fileType)
+        : projectSourceId{projectSourceId}
+        , sourceId{sourceId}
+        , moduleId{moduleId}
+        , fileType{fileType}
+    {}
+
+    ProjectData(int projectSourceId, int sourceId, int moduleId, int fileType)
+        : projectSourceId{projectSourceId}
+        , sourceId{sourceId}
+        , moduleId{moduleId}
+        , fileType{static_cast<Storage::FileType>(fileType)}
+    {}
+
+    friend bool operator==(const ProjectData &first, const ProjectData &second)
+    {
+        return first.projectSourceId == second.projectSourceId && first.sourceId == second.sourceId
+               && first.moduleId == second.moduleId && first.fileType == second.fileType;
+    }
+
+public:
+    SourceId projectSourceId;
     SourceId sourceId;
+    ModuleId moduleId;
+    FileType fileType;
 };
 
 using ProjectDatas = std::vector<ProjectData>;
@@ -731,30 +768,38 @@ class SynchronizationPackage
 {
 public:
     SynchronizationPackage() = default;
-    SynchronizationPackage(Imports imports, Types types, SourceIds sourceIds)
+    SynchronizationPackage(Imports imports, Types types, SourceIds updatedSourceIds)
         : imports{std::move(imports)}
         , types{std::move(types)}
-        , sourceIds(std::move(sourceIds))
+        , updatedSourceIds(std::move(updatedSourceIds))
     {}
 
     SynchronizationPackage(Types types)
         : types{std::move(types)}
     {}
 
-    SynchronizationPackage(SourceIds sourceIds)
-        : sourceIds(std::move(sourceIds))
+    SynchronizationPackage(SourceIds updatedSourceIds)
+        : updatedSourceIds(std::move(updatedSourceIds))
     {}
 
-    SynchronizationPackage(SourceIds sourceIds, FileStatuses fileStatuses)
-        : sourceIds(std::move(sourceIds))
+    SynchronizationPackage(SourceIds updatedFileStatusSourceIds, FileStatuses fileStatuses)
+        : updatedFileStatusSourceIds(std::move(updatedFileStatusSourceIds))
         , fileStatuses(std::move(fileStatuses))
+    {}
+
+    SynchronizationPackage(SourceIds updatedProjectSourceIds, ProjectDatas projectDatas)
+        : projectDatas(std::move(projectDatas))
+        , updatedProjectSourceIds(std::move(updatedProjectSourceIds))
     {}
 
 public:
     Imports imports;
     Types types;
-    SourceIds sourceIds;
+    SourceIds updatedSourceIds;
     FileStatuses fileStatuses;
+    ProjectDatas projectDatas;
+    SourceIds updatedProjectSourceIds;
+    SourceIds updatedFileStatusSourceIds;
 };
 
 } // namespace QmlDesigner::Storage

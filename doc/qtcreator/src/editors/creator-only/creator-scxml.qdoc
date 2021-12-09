@@ -69,34 +69,34 @@
     \uicontrol {Zoom In} or \uicontrol {Zoom Out} or press \key Ctrl and use the
     mouse wheel. To make
     the whole state chart visible in the state editor at a time, select
-    \inlineimage fittoview.png
+    \inlineimage icons/fittoview.png
     (\uicontrol {Fit to View}).
 
     To view a particular part of a large state chart in the state editor, select
-    \inlineimage navigator.png
+    \inlineimage icons/navigator.png
     (\uicontrol {Navigator}) and move the navigator frame on the part you want
     to view.
 
     To use the magnifier to zoom into a part of the state chart, select
-    \inlineimage zoom.png
+    \inlineimage icons/zoom.png
     (\uicontrol {Magnifier Tool}). To move the magnifier tool faster, press down
     the \key Alt key.
 
-    To pan the state chart, select \inlineimage pan.png
+    To pan the state chart, select \inlineimage icons/pan.png
     (\uicontrol Panning). To increase the pace of panning, press down the
     \key Shift key.
 
     To view statistics about the numbers of states and transitions in the state
-    chart, select \inlineimage statistics.png
+    chart, select \inlineimage icons/statistics.png
     (\uicontrol {View Statistics}).
 
     To search from the state chart, use the \uicontrol Search pane. The search
     checks the whole SCXML tree for attributes that match the search criteria.
 
     To save the currently visible part of the state chart as an image, select
-    \inlineimage snapshot.png
+    \inlineimage icons/snapshot.png
     (\uicontrol {Save Screenshot}). To save the whole state chart as an image,
-    select \inlineimage icon-export-canvas.png
+    select \inlineimage icons/icon-export-canvas.png
     (\uicontrol {Export Canvas to Image}).
 
     \section1 Creating State Charts
@@ -208,7 +208,7 @@
     select \uicontrol {Zoom to State}.
 
     To ensure that the state ids are unique within a compound state machine,
-    select \inlineimage namespace.png
+    select \inlineimage icons/namespace.png
     (\uicontrol {Toggle Full Namespace}). The name of the parent state is
     added to the names of the child states, separated by two colons (::).
     For example:

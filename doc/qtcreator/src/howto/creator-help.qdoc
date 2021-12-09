@@ -140,7 +140,7 @@
 
     \list 1
 
-        \li Click the \inlineimage bookmark.png
+        \li Click the \inlineimage icons/bookmark.png
             (\uicontrol {Add Bookmark}) button on the toolbar.
 
         \li In the \uicontrol {Add Bookmark} dialog, click \uicontrol OK to save the
@@ -188,7 +188,7 @@
 
     If you cannot find words that you know are there, indexing might not have
     been completed for some reason. To regenerate the index, click
-    \inlineimage reload_gray.png
+    \inlineimage icons/reload_gray.png
     (\uicontrol {Regenerate Index}).
 
     Punctuation is not included in indexed terms. To find terms that contain
@@ -225,7 +225,7 @@
     in the \uicontrol {On context help} field. To detach the help window, select
     \uicontrol {Always Show in External Window}.
 
-    To change this setting in a help view, select the \inlineimage linkicon.png
+    To change this setting in a help view, select the \inlineimage icons/linkicon.png
     toolbar button.
 
     \section1 Selecting the Start Page
@@ -266,7 +266,7 @@
 
             \image qtcreator-help-filter-attributes.png "Filters tab in Help options"
 
-        \li Select \inlineimage plus.png
+        \li Select \inlineimage icons/plus.png
             to add a new filter in the \uicontrol {Add Filter} dialog.
 
         \li In the \uicontrol {Filter name} field, enter a name for the filter,
@@ -291,6 +291,6 @@
 
     To rename the selected filter, select \uicontrol Rename.
 
-    To remove the selected filter select \inlineimage minus.png
+    To remove the selected filter select \inlineimage icons/minus.png
     .
 */

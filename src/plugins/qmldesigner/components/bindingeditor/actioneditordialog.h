@@ -51,10 +51,10 @@ public:
     class PropertyOption
     {
     public:
-        PropertyOption() {}
-        PropertyOption(const QString &n, const TypeName &t)
+        PropertyOption(const QString &n, const TypeName &t, bool writeable = true)
             : name(n)
             , type(t)
+            , isWriteable(writeable)
         {}
 
         bool operator==(const QString &value) const { return value == name; }
@@ -62,6 +62,7 @@ public:
 
         QString name;
         TypeName type;
+        bool isWriteable;
     };
 
     class SingletonOption
@@ -80,6 +81,16 @@ public:
             return false;
         }
 
+        bool hasWriteableProperties() const
+        {
+            for (const auto &p : properties) {
+                if (p.isWriteable)
+                    return true;
+            }
+
+            return false;
+        }
+
         bool operator==(const QString &value) const { return value == item; }
         bool operator==(const SingletonOption &value) const { return value.item == item; }
 
@@ -90,7 +101,6 @@ public:
     class ConnectionOption : public SingletonOption
     {
     public:
-        ConnectionOption() {}
         ConnectionOption(const QString &value) : SingletonOption(value) {}
 
         QStringList methods;

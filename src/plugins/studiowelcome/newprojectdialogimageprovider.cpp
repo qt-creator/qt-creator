@@ -96,7 +96,7 @@ QPixmap NewProjectDialogImageProvider::requestDefaultPixmap(const QString &id, Q
     }
 
     if (pixmap.isNull())
-        return QPixmap{};
+        return {};
 
     if (requestedSize.isValid())
         return pixmap.scaled(requestedSize);

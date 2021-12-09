@@ -133,15 +133,17 @@
 
     \section1 Specifying Supported iOS Versions
 
-    Qt 5 applications can be built for the latest iOS version and deployed to
+    You can build applications for the latest iOS version and deploy them to
     previous versions. For the most part, this works automatically. However,
     you must take care when you manually set your own target version. If you set
     it to a value higher than what Qt requires and supply your own \c Info.plist
     file, you must add an \c LSMinimumSystemVersion entry to the \c Info.plist
-    that matches the value of \c QMAKE_IOS_DEPLOYMENT_TARGET (when using qmake)
-    or \c cpp.minimumIosVersion (when using Qbs), because iOS (and the
-    App Store) will use the \c LSMinimumSystemVersion value as the authoritative
-    one.
+    that matches the value of \l{CMake: CMAKE_OSX_DEPLOYMENT_TARGET}
+    {CMAKE_OSX_DEPLOYMENT_TARGET} (when using CMake),
+    \l QMAKE_IOS_DEPLOYMENT_TARGET (when using qmake), or
+    \l{https://doc.qt.io/qbs/qml-qbsmodules-cpp.html#minimumIosVersion-prop}
+    {cpp.minimumIosVersion} (when using Qbs) because iOS (and the App Store)
+    will use the \c LSMinimumSystemVersion value as the authoritative one.
 
     If you specify a deployment target value lower than what Qt requires, your
     application will almost certainly crash somewhere in the Qt libraries when

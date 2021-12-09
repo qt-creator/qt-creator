@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -29,21 +29,21 @@
 
     To integrate the wizard into \QC and to deliver it as part of the \QC build,
     place the wizard files in the \QC sources. Then select \uicontrol Build >
-    \uicontrol {Run qmake}, so that the new files you added for your wizard are
+    \uicontrol {Run CMake} or \uicontrol {Run qmake}, depending on the build
+    system you use. This ensures that the new files you added for your wizard are
     actually copied from the \QC source directory into the \QC build directory
     as part of the next \QC build.
 
-    If you do not run qmake, your new wizard will not show up, because it does
-    not exist in the build directory you run your newly built \QC from. It never
-    got copied there, because make did not know that the files exist in the
-    source tree, because qmake did not inform make that the files were added
-    recently.
+    If you do not run CMake or qmake, your new wizard will not show up, because
+    it does not exist in the build directory you run your newly built \QC from.
+    It never got copied there because CMake or qmake did not inform the
+    build tool, such as make or ninja, about the new files in the source tree.
 
-    Basically, qmake generates a fixed list of files to copy from the source
-    directory to the sudirectory of the build directory that is checked for
-    wizards at runtime. Therefore, you need to run qmake or execute the
-    \uicontrol {Factory.Reset} function each time the names or locations of the
-    files change.
+    Basically, CMake and qmake generate a fixed list of files to copy from the
+    source directory to the subdirectory of the build directory that is checked
+    for wizards at runtime. Therefore, you need to run CMake or qmake or execute
+    the \uicontrol {Factory.Reset} function each time the names or locations of
+    the files change.
 
     \section1 Using Variables in Wizards
 
@@ -717,6 +717,7 @@
         "data":
         {
             "items": [
+                { "trKey": "CMake", "value": "cmake", "icon": "cmake_icon.png", "trToolTip": "Building with CMake." },
                 { "trKey": "Qbs", "value": "qbs", "icon": "qbs_icon.png", "trToolTip": "Building with Qbs." },
                 { "trKey": "QMake", "value": "qmake", "icon": "qmake_icon.png", "trToolTip": "Building with QMake." }
             ]

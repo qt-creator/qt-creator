@@ -54,6 +54,8 @@ QPixmap ItemLibraryAssetsIconProvider::requestPixmap(const QString &id, QSize *s
         pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_shader_48.png");
     else if (ItemLibraryAssetsModel::supportedAudioSuffixes().contains(suffix))
         pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_sound_48.png");
+    else if (ItemLibraryAssetsModel::supportedVideoSuffixes().contains(suffix))
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-video-icon.png");
 
     if (size) {
         size->setWidth(pixmap.width());

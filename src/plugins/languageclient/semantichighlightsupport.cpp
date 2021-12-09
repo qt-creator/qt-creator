@@ -75,6 +75,10 @@ void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
     const TextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
     auto responseCallback = [this, filePath, documentVersion = m_client->documentVersion(filePath)](
                                 const SemanticTokensFullRequest::Response &response) {
+        if (const auto error = response.error()) {
+            qCDebug(LOGLSPHIGHLIGHT)
+                << "received error" << error->code() << error->message() << "for" << filePath;
+        }
         handleSemanticTokens(filePath, response.result().value_or(nullptr), documentVersion);
     };
     /*if (supportedRequests.testFlag(SemanticRequestType::Range)) {
@@ -120,6 +124,10 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
             request.setResponseCallback(
                 [this, filePath, documentVersion](
                     const SemanticTokensFullDeltaRequest::Response &response) {
+                    if (const auto error = response.error()) {
+                        qCDebug(LOGLSPHIGHLIGHT) << "received error" << error->code()
+                                                 << error->message() << "for" << filePath;
+                    }
                     handleSemanticTokensDelta(filePath,
                                               response.result().value_or(nullptr),
                                               documentVersion);
@@ -285,6 +293,9 @@ void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
         m_tokens[filePath] = {*tokens, documentVersion};
         highlight(filePath);
     } else {
+        qCDebug(LOGLSPHIGHLIGHT)
+                << "no data in reply to full semantic tokens request, clearing tokens"
+                << m_client->name() << filePath;
         m_tokens.remove(filePath);
     }
 }
@@ -353,8 +364,10 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         tokens.setData(newData);
         tokens.setResultId(tokensDelta->resultId());
     } else {
+        qCDebug(LOGLSPHIGHLIGHT)
+                << "no data in reply to semantic tokens delta request, clearing tokens"
+                << m_client->name() << filePath;
         m_tokens.remove(filePath);
-        qCDebug(LOGLSPHIGHLIGHT) << "Data cleared";
         return;
     }
     highlight(filePath);

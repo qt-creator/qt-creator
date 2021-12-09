@@ -124,7 +124,7 @@
     \endif
 
 
-    To filter view contents, select \inlineimage filtericon.png
+    To filter view contents, select \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}):
 
     \list
@@ -142,7 +142,7 @@
     \endlist
 
     To stop synchronizing the position in the project tree with the file
-    currently opened in the editor, deselect \inlineimage linkicon.png
+    currently opened in the editor, deselect \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 
     \if defined(qtcreator)

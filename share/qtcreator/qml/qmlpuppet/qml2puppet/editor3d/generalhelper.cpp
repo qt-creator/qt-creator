@@ -215,7 +215,11 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                             bounds = geometry->bounds();
                         } else {
                             auto bufferManager = context->bufferManager();
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
                             bounds = renderModel->getModelBounds(bufferManager);
+#else
+                            bounds = bufferManager->getModelBounds(renderModel);
+#endif
                         }
 
                         center = renderModel->globalTransform.map(bounds.center());
@@ -333,7 +337,7 @@ void GeneralHelper::unregisterGizmoTarget(QQuick3DNode *node)
     }
 }
 
-bool GeneralHelper::isLocked(QQuick3DNode *node)
+bool GeneralHelper::isLocked(QQuick3DNode *node) const
 {
     if (node) {
         QVariant lockValue = node->property("_edit3dLocked");
@@ -342,7 +346,7 @@ bool GeneralHelper::isLocked(QQuick3DNode *node)
     return false;
 }
 
-bool GeneralHelper::isHidden(QQuick3DNode *node)
+bool GeneralHelper::isHidden(QQuick3DNode *node) const
 {
     if (node) {
         QVariant hideValue = node->property("_edit3dHidden");
@@ -351,8 +355,18 @@ bool GeneralHelper::isHidden(QQuick3DNode *node)
     return false;
 }
 
-bool GeneralHelper::isPickable(QQuick3DNode *node) {
-    return (node && !isLocked(node) && !isHidden(node) && node->visible());
+bool GeneralHelper::isPickable(QQuick3DNode *node) const
+{
+    if (!node)
+        return false;
+
+    QQuick3DNode *n = node;
+    while (n) {
+        if (!n->visible() || isLocked(n) || isHidden(n))
+            return false;
+        n = n->parentNode();
+    }
+    return true;
 }
 
 void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, const QVariant &state,

@@ -121,8 +121,10 @@
 
                 \li Select \uicontrol {Use file *.astylerc defined in project files}
                     or \uicontrol {Use file uncrustify.cfg defined in project files},
-                    to use the configuration file defined in the qmake DISTFILES
-                    variable as the configuration file for the selected tool.
+                    to use the configuration file
+                    \l{Displaying Additional File Types in Projects View}
+                    {defined in the project file} as the configuration file
+                    for the selected tool.
 
                 \li Select \uicontrol {Use specific config file} or
                     \uicontrol {Use file specific uncrustify.cfg} to

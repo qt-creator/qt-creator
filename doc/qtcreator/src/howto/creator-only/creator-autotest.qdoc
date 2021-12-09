@@ -325,16 +325,16 @@
         \li In the \uicontrol {Test Results} output pane, select:
 
             \list
-                \li \inlineimage run_small.png
+                \li \inlineimage icons/run_small.png
                     (\uicontrol {Run All Tests}) to run all tests.
-                 \li \inlineimage qtcreator-run-selected-tests.png
+                 \li \inlineimage icons/qtcreator-run-selected-tests.png
                     (\uicontrol {Run Selected Tests}) to run the selected tests.
-                 \li \inlineimage qtcreator-run-failed-tests.png
+                 \li \inlineimage icons/qtcreator-run-failed-tests.png
                     (\uicontrol {Run Failed Tests}) to re-run the tests which failed
                     in the last run.
                     Depending on the framework this may select additional tests if it
                     is impossible to distinguish or to fully address the test.
-                 \li \inlineimage qtcreator-run-tests-in-current-file.png
+                 \li \inlineimage icons/qtcreator-run-tests-in-current-file.png
                     (\uicontrol {Run Tests for Current File}) to run the tests
                     in the file currently open in the code editor.
             \endlist
@@ -376,14 +376,14 @@
     To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
 
     To show or hide init and cleanup or data functions in the \uicontrol Tests
-    view, select \inlineimage filtericon.png
+    view, select \inlineimage icons/filtericon.png
     (\uicontrol {Filter Test Tree}), and then select \uicontrol {Show Init and
     Cleanup Functions} or \uicontrol {Show Data Functions}. Double-click a
     function in the list to open its source code in the code editor.
 
     The test cases are listed in alphabetic, case insensitive order. To list
     them in the order in which they are defined in the source code,
-    select \inlineimage leafsort.png
+    select \inlineimage icons/leafsort.png
     (\uicontrol {Sort Naturally}).
 
     \section2 Running and Debugging Tests from Code Editor
@@ -592,7 +592,7 @@
     To view the results of Qt tests as plain text, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Testing} > \uicontrol {Qt Test}, and
     then deselect the \uicontrol {Use XML output} check box. Then select the
-    \inlineimage text.png
+    \inlineimage icons/text.png
     (\uicontrol {Switch Between Visual and Text Display}) button in the
     \uicontrol {Test Results} output pane to switch to the text display.
 
@@ -668,7 +668,7 @@
     \endtable
 
     To view only messages of a particular type, select
-    \inlineimage filtericon.png
+    \inlineimage icons/filtericon.png
     (\uicontrol {Filter Test Results}), and then select the types of messages to
     show. To show all messages, select \uicontrol {Check All Filters}. To
     deselect all message types, select \uicontrol {Uncheck All Filters}.

@@ -585,6 +585,13 @@ bool QmlBuildSystem::forceFreeType() const
     return false;
 }
 
+bool QmlBuildSystem::widgetApp() const
+{
+    if (m_projectItem)
+        return m_projectItem.data()->widgetApp();
+    return false;
+}
+
 bool QmlBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *)
 {
     if (!dynamic_cast<QmlProjectNode *>(context))

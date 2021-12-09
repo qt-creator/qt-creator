@@ -61,4 +61,61 @@
     \l Projects and \l {File System} views in \QDS and Qt Creator:
 
     \image studio-project-structure.png "\QDS project in \QDS and Qt Creator views"
+
+    \section1 Converting Project Structure for CMake
+
+    \QDS can generate \e CMakeLists.txt and other related files to use with \QC and to compile into
+    an executable application but only if the project has a certain folder structure. If you have a
+    \QDS QML project that doesn't have the CMake configuration, follow these steps to convert it's
+    file structure to correct format.
+
+    \list 1
+    \li Create a folder named \e content in the project's folder. This folder contains the
+    application's main module.
+    \li Move all QML files of the project's main module to the \e content folder. If your project
+    has multiple modules, place the other modules in the \e imports or
+    \e asset_imports folder.
+    \li If your project's main module has resource folders such as \e fonts or \e {images}, move
+    them to the \e content folder.
+    \li Create a folder named \e src in the project's folder. This folder contains C++ code for
+    compiling the project.
+    \li If your project doesn't have an \e imports folder for other QML modules, create it
+    now even if you do not have other modules. The CMake file generator expects it.
+    \li In the project's \e .qmlproject file:
+        \list
+        \li Add \e "." in importPaths. For example:
+        \code
+            importPaths: [ "imports", "asset_imports", "." ]
+        \endcode
+        \li Change mainFile to \e "content/App.qml":
+        \code
+            mainFile: "content/App.qml"
+        \endcode
+        \endlist
+    \li In the \e content folder, create a file named \e App.qml and add the following content:
+
+        \qml
+        import QtQuick
+        import QtQuick.Window
+        import YourImportModuleHere
+        Window {
+            width: Constants.width
+            height: Constants.height
+            visible: true
+            title: "YourWindowTitleHere"
+            <YourMainQmlClassHere> {
+            }
+        }
+        \endqml
+
+    \li In \e{App.qml}, modify imported modules, window dimensions, window title, and main QML
+    class appropriately.
+
+    \note This template assumes that your project has a module named \e YourImportModuleHere in
+    the \a imports folder containing a singleton class named \a Constants.
+    This isn't mandatory.
+
+    \li Generate CMake files and C++ source files that are used to compile the application into
+    an executable file by selecting \uicontrol Build > \uicontrol{Generate CMakeLists.txt files}.
+    \endlist
 */

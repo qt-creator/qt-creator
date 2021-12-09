@@ -231,6 +231,7 @@ void DesignModeWidget::setup()
 
     ADS::DockManager::setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
     ADS::DockManager::setConfigFlag(ADS::DockManager::FocusHighlighting, true);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::OpaqueSplitterResize, true);
     ADS::DockManager::setConfigFlag(ADS::DockManager::AllTabsHaveCloseButton, true);
     m_dockManager = new ADS::DockManager(this);
     m_dockManager->setSettings(settings);

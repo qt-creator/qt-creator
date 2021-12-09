@@ -306,7 +306,11 @@ void SelectionBoxGeometry::getBounds(
 #endif
                 if (!context.isNull()) {
                     auto bufferManager = context->bufferManager();
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
                     QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
+#else
+                    QSSGBounds3 bounds = bufferManager->getModelBounds(renderModel);
+#endif
                     QVector3D center = bounds.center();
                     QVector3D extents = bounds.extents();
                     QVector3D localMin = center - extents;

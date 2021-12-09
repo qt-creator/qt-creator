@@ -145,7 +145,7 @@
     \uicontrol {Add Build Step} > \uicontrol {Custom Process Step}.
 
     By default, custom steps are enabled. To disable a custom step, select
-    the \inlineimage buildstepdisable.png
+    the \inlineimage icons/buildstepdisable.png
     (\uicontrol Disable) button.
 
     \image qtcreator-build-steps-custom.png "Custom Process Step"
@@ -184,8 +184,8 @@
 
         \li To remove a clean step, click \uicontrol{Remove Item}.
 
-        \li To change the order of steps, click \inlineimage arrowup.png
-            (\uicontrol {Move Up}) and \inlineimage arrowdown.png
+        \li To change the order of steps, click \inlineimage icons/arrowup.png
+            (\uicontrol {Move Up}) and \inlineimage icons/arrowdown.png
             (\uicontrol {Move Down}).
     \endlist
 */

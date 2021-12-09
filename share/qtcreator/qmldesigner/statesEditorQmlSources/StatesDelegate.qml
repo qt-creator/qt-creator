@@ -239,6 +239,14 @@ Rectangle {
                 Component.onCompleted: {
                     text = myRoot.delegateStateName
                 }
+
+                //QDS-5649:
+                Keys.priority: Keys.BeforeItem
+                Keys.onEscapePressed: function (event) {
+                    event.accepted = true
+                    stateNameField.text = myRoot.delegateStateName
+                    stateNameField.focus = false
+                }
             }
 
             Text {

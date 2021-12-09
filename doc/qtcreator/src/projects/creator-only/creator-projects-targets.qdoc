@@ -93,7 +93,7 @@
 
         \li In the \uicontrol Name column, enter a name for the kit.
 
-        \li Select the \inlineimage qtcreator-desktopdevice-button.png
+        \li Select the \inlineimage icons/qtcreator-desktopdevice-button.png
             button to select an image to use as an icon for the kit.
 
         \li In the \uicontrol {File system name} field, enter a name for the kit

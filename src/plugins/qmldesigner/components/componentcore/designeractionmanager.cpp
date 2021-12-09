@@ -57,6 +57,7 @@
 
 #include <QGraphicsLinearLayout>
 #include <QHBoxLayout>
+#include <QImageReader>
 #include <QMessageBox>
 #include <QMimeData>
 
@@ -1549,20 +1550,27 @@ void DesignerActionManager::createDefaultAddResourceHandler()
             registerAddResourceHandler(AddResourceHandler(category, ext, op));
     };
 
+    auto transformer = [](const QByteArray& format) -> QString { return QString("*.") + format; };
+    auto imageFormats = Utils::transform(QImageReader::supportedImageFormats(), transformer);
+    imageFormats.push_back("*.hdr");
+
     // The filters will be displayed in reverse order to these lists in file dialog,
     // so declare most common types last
-    registerHandlers({"*.webp",  "*.hdr", "*.svg", "*.bmp", "*.jpg", "*.png"},
+    registerHandlers(imageFormats,
                      ModelNodeOperations::addImageToProject,
                      ComponentCoreConstants::addImagesDisplayString);
     registerHandlers({"*.otf", "*.ttf"},
                      ModelNodeOperations::addFontToProject,
                      ComponentCoreConstants::addFontsDisplayString);
-    registerHandlers({"*.wav"},
+    registerHandlers({"*.wav", "*.mp3"},
                      ModelNodeOperations::addSoundToProject,
                      ComponentCoreConstants::addSoundsDisplayString);
     registerHandlers({"*.glsl", "*.glslv", "*.glslf", "*.vsh", "*.fsh", "*.vert", "*.frag"},
                      ModelNodeOperations::addShaderToProject,
                      ComponentCoreConstants::addShadersDisplayString);
+    registerHandlers({"*.mp4"},
+                     ModelNodeOperations::addVideoToProject,
+                     ComponentCoreConstants::addVideosDisplayString);
 }
 
 void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()

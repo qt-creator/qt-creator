@@ -103,7 +103,7 @@
     When you start typing the QML type name, \QC suggests available types
     and properties to \l{Completing Code}{complete the code}.
 
-    Select the light bulb icon \inlineimage refactormarker.png
+    Select the light bulb icon \inlineimage icons/refactormarker.png
     next to the type name to open the \l{Editing Rectangles}
     {Qt Quick Toolbar for rectangles}. You can use it to specify
     rectangle properties, such as color, transparency, and gradients.

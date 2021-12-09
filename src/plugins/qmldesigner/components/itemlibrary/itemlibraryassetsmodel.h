@@ -66,6 +66,7 @@ public:
     static const QStringList &supportedShaderSuffixes();
     static const QStringList &supportedFontSuffixes();
     static const QStringList &supportedAudioSuffixes();
+    static const QStringList &supportedVideoSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
 
     const QSet<QString> &previewableSuffixes() const;

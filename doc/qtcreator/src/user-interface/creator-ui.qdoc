@@ -400,12 +400,12 @@
             The menu items also display the keyboard shortcuts that you can use.
     \endlist
 
-    To maximize an open output pane, select the \inlineimage arrowup.png
+    To maximize an open output pane, select the \inlineimage icons/arrowup.png
     (\uicontrol {Maximize Output Pane}) button or press \key {Alt+Shift+9}.
 
 
-    To increase or decrease the output text size, select \inlineimage plus.png
-    (\uicontrol {Zoom In}) or \inlineimage minus.png
+    To increase or decrease the output text size, select \inlineimage icons/plus.png
+    (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
     (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-. Zooming is
     not supported in all output panes.
 
@@ -440,7 +440,7 @@
 
     Besides searching from the output, you can enter a string in the
     \uicontrol Filter field to filter it. To specify filtering options,
-    select the \inlineimage magnifier.png "Filtering options menu"
+    select the \inlineimage icons/magnifier.png "Filtering options menu"
     button. You can filter output by using regular expressions or
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
     hide the lines that match the filter.
@@ -503,7 +503,7 @@
 
     The pane filters out irrelevant output from the build tools and presents the
     issues in an organized way. To further filter the output by type, select
-    \inlineimage filtericon.png
+    \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}) and then select a filter.
 
     \image qtcreator-issues.png "Issues output pane"
@@ -566,7 +566,7 @@
 
     To specify settings for displaying application output, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
-    \uicontrol {Application Output}, or click the \inlineimage settings.png
+    \uicontrol {Application Output}, or click the \inlineimage icons/settings.png
     (\uicontrol {Open Settings Page}) button. You can select whether to open
     the \uicontrol{Application Output} pane on output when running or debugging
     applications, to clear old output on a new run,
@@ -592,7 +592,7 @@
     In the \uicontrol {Limit output to} field, you can specify the maximum
     amount of build output lines to display in the pane.
 
-    You can also reach the options page by clicking \inlineimage settings.png
+    You can also reach the options page by clicking \inlineimage icons/settings.png
     (\uicontrol {Open Settings Page}).
 
     To copy the output from the pane to the clipboard, select

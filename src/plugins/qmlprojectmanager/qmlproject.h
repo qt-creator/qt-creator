@@ -93,6 +93,7 @@ public:
     QString primaryLanguage() const;
     void setPrimaryLanguage(QString language);
     bool forceFreeType() const;
+    bool widgetApp() const;
 
     bool addFiles(const QStringList &filePaths);
 

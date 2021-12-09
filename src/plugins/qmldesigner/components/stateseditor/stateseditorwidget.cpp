@@ -168,12 +168,9 @@ void StatesEditorWidget::reloadQmlSource()
     connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
     connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
     m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
-    setFixedHeight(initialSize().height());
 
-    if (!DesignerSettings::getValue(DesignerSettingsKey::STATESEDITOR_EXPANDED).toBool()) {
+    if (!DesignerSettings::getValue(DesignerSettingsKey::STATESEDITOR_EXPANDED).toBool())
         toggleStatesViewExpanded();
-        setFixedHeight(rootObject()->height());
-    }
 
     connect(rootObject(), SIGNAL(expandedChanged()), this, SLOT(handleExpandedChanged()));
 }
@@ -184,7 +181,5 @@ void StatesEditorWidget::handleExpandedChanged()
 
     bool expanded = rootObject()->property("expanded").toBool();
     DesignerSettings::setValue(DesignerSettingsKey::STATESEDITOR_EXPANDED, expanded);
-
-    setFixedHeight(rootObject()->height());
 }
 }
