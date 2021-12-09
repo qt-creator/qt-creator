@@ -26,8 +26,11 @@
 /*!
     \previouspage creator-live-preview-desktop.html
     \page creator-live-preview-devices.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-live-preview-android.html
+    \else
     \nextpage qt-design-viewer.html
-
+    \endif
     \title Previewing on Devices
 
     To preview UIs on Android devices, you need to enable USB debugging on them

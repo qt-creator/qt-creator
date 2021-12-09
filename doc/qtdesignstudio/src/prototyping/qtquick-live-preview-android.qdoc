@@ -1,0 +1,200 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage creator-live-preview-devices.html
+    \page creator-live-preview-android.html
+    \nextpage qt-design-viewer.html
+
+    \title Previewing Android Applications
+
+    In \QDS, you can preview Android applications live using an Android emulator.
+
+    \section1 Prerequisites
+
+    \section2 Install OpenJDK 11
+
+    You need to install OpenJDK 11 as described in \l{Getting Started with Qt for Android},
+    to do this:
+
+    \list
+      \li On Linux:
+        \list 1
+          \li In the command line, run:
+          \code
+          sudo apt-get install openjdk-11-jdk
+          \endcode
+        \endlist
+      \li On macOS:
+        \list 1
+          \li Download OpenJDK 11 from \l{Download OpenJDK}.
+          \li In the command line, run:
+          \code
+          cd ~/Downloads
+          tar xf microsoft-jdk-11.0.13.8.1-macos-x64.tar.gz
+          \endcode
+          \li Copy the unzipped folder to a location where macOS searches for Java by default:
+          \code
+          sudo cp -Rv jdk-11.0.13+8 /Library/Java/JavaVirtualMachines/
+          \endcode
+          \li Check if Java was correctly installed:
+          \code
+          java -version
+          \endcode
+          The Java installation is correct if the command returns something like:
+          \code
+          openjdk version "11.0.13" 2021-10-19 LTS
+          OpenJDK Runtime Environment Microsoft-27990 (build 11.0.13+8-LTS)
+          OpenJDK 64-Bit Server VM Microsoft-27990 (build 11.0.13+8-LTS, mixed mode)
+          \endcode
+        \endlist
+      \li On Windows:
+        \list
+          \li OpenJDK 11 is automatically installed with Android Studio.
+        \endlist
+    \endlist
+
+    \section2 Install Android Studio and SDK Tools
+
+    You need to install Android Studio:
+
+    \list 1
+      \li Download Android Studio from \l{Download Android Studio}.
+      \li Install Android Studio according to the
+      \l{Android Studio Installation Guide}.
+    \endlist
+
+    Next, you need to install Android SDK command-line tools:
+
+    \list 1
+      \li Run Android Studio and on the welcome page, select \uicontrol{More Actions} >
+      \uicontrol{SDK Manager}.
+      \image android-studio-sdk-manager.png
+      \li Select \uicontrol{Android SDK Build-Tools 32-rc1}, \uicontrol{NDK (Side by side)}, and
+      \uicontrol{Android SDK Command-line Tools (latest)}.
+      \image android-studio-sdk-tools.png
+      \li Select \uicontrol{Apply} and follow the instructions in the wizard to finalize the
+      installation.
+    \endlist
+
+    \section2 Install Android SDK Packages in \QDS
+
+    You need to install Android SDK packages in \QDS:
+    \list 1
+      \li Run \QDS.
+      \li Go to \uicontrol Tools > \uicontrol Options > \uicontrol{Devices}.
+      \li Select \uicontrol Yes on the \uicontrol{Missing Android SDK Packages} dialog.
+      \image qtds-options-dialog-missing-packages.png
+      \li Select \uicontrol OK on the \uicontrol{Android SDK Changes} dialog.
+      \image qtds-android-sdk-changes-dialog.png
+      \li Select \uicontrol Yes on the \uicontrol{Android SDK Licenses} dialog.
+      \image qtds-android-sdk-licenses-dialog.png
+    \endlist
+
+    \note The installation can take a while. If the installation process seems to
+    have stopped working, try to restart \QDS and run the installation again.
+
+    After completing these steps, you should no longer have any errors on the
+    \uicontrol Tools > \uicontrol Options > \uicontrol Devices page.
+    \image qtds-options-accept-licenses.png
+
+    \section2 Create Android Virtual Devices
+
+    Next, you need to create an Android Virtual Device (AVD):
+
+    \note You might need to download a system image depending on your setup.
+
+    \list 1
+      \li Run Android Studio and on the welcome page, select \uicontrol{More Actions} >
+      \uicontrol{AVD Manager}.
+      \image android-studio-avd-manager.png
+      \li Select \uicontrol{Create Virtual Device} and follow the instructions in the wizard to
+      finalize the creation.
+    \endlist
+
+    \QDS has a AVD manager where you can create AVDs as well but it is recommended to use Android
+    Studio because then you can directly install the needed system package for the selected device
+    configuration.
+
+    To create an AVD in \QDS:
+    \list 1
+      \li Go to \uicontrol Tools > \uicontrol Options.
+      \li On the \uicontrol Devices tab, select \uicontrol Add and follow the wizard to finalize
+      the creation. If there is no entry for \e{Android Device} in the
+     \uicontrol{Available device types} list, try restarting \QDS.
+    \endlist
+
+    \note Many device images require Intel HAXM to work on Windows 10 and later, you can
+    download and install the drivers from
+    \l{https://github.com/intel/haxm/wiki/Installation-Instructions-on-Windows}{here}.
+
+    \image qtds-options-devices.png
+
+    \section2 Set the AVD as the Device in the Android Kit
+
+    Next, you need to set the AVD as the Android device kit. You do this under the the
+    \uicontrol Kits tab. If the \uicontrol Kits list is empty, restart \QDS.
+
+    \image qtds-options-kits.png
+
+    \section1 Create a Project and Run the Emulator
+
+    Now, you are set up and can create a project in \QDS. In the project, configure it to run on the
+    Android device:
+    \list 1
+      \li Select the \uicontrol Projects mode tab.
+      \li Under \uicontrol{Build & Run}, select the Android device.
+    \endlist
+
+    \image qtds-run-settings.png
+
+    Next, to run the emulator, do one of the following:
+    \list
+      \li Select \uicontrol{Show Live Preview} in the \uicontrol{Form Editor} toolbar.
+      \image toolbar-show-live-preview.png
+      \li Select \uicontrol Build > \uicontrol{QML Preview}.
+      \note The \uicontrol Build menu option is not visible by default. To show
+      it, go to \uicontrol Tools > \uicontrol Options > \uicontrol Environment
+      > \uicontrol {Qt Design Studio Configuration}.
+      \image menu-build-qml-preview.png
+    \endlist
+
+    Now the emulator runs, the qtdesignviewer APK delivered with the \QDS installation
+    is uploaded, and the project is uploaded and shown in the emulator.
+    \image qtds-running-emulator.png
+
+    Note the following:
+    \list
+      \li The qtdesignviewer for Android currently has no live preview. You have to restart
+      the preview to see updates.
+      \li Android typically has very high DPI and it is good to familiarize yourself with how
+      \l{https://doc-snapshots.qt.io/qt6-dev/highdpi.html}{high DPI works in Qt 6}. You can,
+      for example, use QT_SCALE_FACTOR or QT_USE_PHYSICAL_DPI. You can define those in the
+      \e .qmlproject file.
+      \li The qtdesignviewer for Android is currently built with Qt 6.2 and comes with all
+      QML modules shipped with \QDS 2.3.
+    \endlist
+
+*/
