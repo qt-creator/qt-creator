@@ -806,10 +806,18 @@ void KitDetectorPrivate::autoDetect()
 
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
         DeviceKitAspect::setDevice(k, m_device);
-        for (ToolChain *tc : toolChains)
-            ToolChainKitAspect::setToolChain(k, tc);
-        if (!qtVersions.isEmpty())
-            QtSupport::QtKitAspect::setQtVersion(k, qtVersions.at(0));
+        QtVersion *qt = nullptr;
+        if (!qtVersions.isEmpty()) {
+            qt = qtVersions.at(0);
+            QtSupport::QtKitAspect::setQtVersion(k, qt);
+        }
+        Toolchains toolchainsToSet;
+        toolchainsToSet = ToolChainManager::toolchains([qt, this](const ToolChain *tc){
+             return tc->detectionSource() == m_sharedId
+                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
+        });
+        for (ToolChain *toolChain : toolchainsToSet)
+            ToolChainKitAspect::setToolChain(k, toolChain);
 
         k->setSticky(ToolChainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
