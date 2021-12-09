@@ -177,7 +177,7 @@
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Connection View} to open the \uicontrol Connections tab.
         \li Select \e createAccount in \uicontrol Navigator.
-        \li In the \uicontrol Connections tab, select the \inlineimage plus.png
+        \li In the \uicontrol Connections tab, select the \inlineimage icons/plus.png
             button to add the action that the \c onClicked signal handler of
             \e createAccount should apply.
         \li Double-click the value \uicontrol Action column and select

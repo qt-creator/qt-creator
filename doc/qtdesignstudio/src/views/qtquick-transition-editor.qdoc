@@ -101,7 +101,7 @@
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Transition Editor}.
             \image qmldesigner-transition-editor-startup.png "Empty Transition Editor"
-        \li Select the \inlineimage plus.png
+        \li Select the \inlineimage icons/plus.png
             (\uicontrol {Add Transition}) button to add a transition. This
             works only if you have added at least one state and modified at
             least one property in it.
@@ -125,7 +125,7 @@
     To add transitions:
 
     \list 1
-        \li Select the \inlineimage plus.png
+        \li Select the \inlineimage icons/plus.png
             (\uicontrol {Add Transition}) button.
         \li In the \uicontrol {Transition ID} field, enter an ID for the
             transition.
@@ -133,7 +133,7 @@
         \li In the \uicontrol To field, select the state to transition to.
     \endlist
 
-    To remove the current transition, select the \inlineimage minus.png
+    To remove the current transition, select the \inlineimage icons/minus.png
     (\uicontrol {Remove Transition}) button.
 
     \if defined(qtcreator)

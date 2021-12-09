@@ -120,7 +120,7 @@
     In addition, we set the \uicontrol Checked property to \c true for the
     first button instance on the menu bar to make it appear selected.
 
-    We can now select the \inlineimage run_small.png "Run button"
+    We can now select the \inlineimage icons/run_small.png "Run button"
     (\uicontrol Run) button to run the application and test our menu bar.
 
     \section1 Creating a Side Menu
@@ -153,7 +153,7 @@
 
     \image sidemenu-states.png "Side menu states"
 
-    We then select the \inlineimage plus.png
+    We then select the \inlineimage icons/plus.png
     button in the \l Timeline view to add animation
     for transitions to the \e open and \e close states:
 
@@ -167,7 +167,7 @@
     We want to change the position of the outline and background images. To
     start recording the transition from the closed state to the open state,
     we select \e imageOutline in \uicontrol Navigator. We check that the
-    playhead is at frame 0, and then select the \inlineimage recordfill.png
+    playhead is at frame 0, and then select the \inlineimage icons/recordfill.png
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
     At frame 0, we set the X coordinate to -423 in \uicontrol Properties >

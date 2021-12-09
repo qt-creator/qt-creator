@@ -146,7 +146,7 @@
 
     To integrate the Simulink model into \QDS, you first need to add the
     Simulink connector module to your project. In the \l Library view, select
-    \uicontrol Components > \inlineimage plus.png
+    \uicontrol Components > \inlineimage icons/plus.png
     > \uicontrol SimulinkConnector. \QDS is now ready to communicate with the
     Simulink model.
 
@@ -156,7 +156,7 @@
     \uicontrol SimulinkConnector item in \l Navigator and set the IP address
     and/or port in the \l Properties view. If you cannot see
     \uicontrol SimulinkConnector in \uicontrol Navigator, you need to click
-    \inlineimage filtericon.png
+    \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}) and unselect \uicontrol {Show only visible items}.
 
     To communicate with a specific model in Simulink, you need to create

@@ -65,7 +65,7 @@
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Connection View} > \uicontrol {Properties}.
-        \li Select the \inlineimage plus.png
+        \li Select the \inlineimage icons/plus.png
             (\uicontrol Add) button to add a dynamic property for the currently
             selected component. The component ID is displayed in the \uicontrol Item
             column.

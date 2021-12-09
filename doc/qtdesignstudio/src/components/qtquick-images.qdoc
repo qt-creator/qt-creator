@@ -37,7 +37,7 @@
     first add them to \l Library:
     \list 1
         \li Select \uicontrol Library > \uicontrol Assets
-            > \inlineimage plus.png
+            > \inlineimage icons/plus.png
             .
         \li Select the image file, and then select \uicontrol Open.
         \li Select the location where the image will be saved in the

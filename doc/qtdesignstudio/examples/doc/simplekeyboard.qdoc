@@ -40,7 +40,7 @@
     text into \l{Text Edit} or \l{Text Input} components. For more information
     about using it, see \l{User Guide}{Virtual Keyboard: User Guide}.
 
-    To test the virtual keyboard, you need to select the \inlineimage run_small.png
+    To test the virtual keyboard, you need to select the \inlineimage icons/run_small.png
     (\uicontrol Run) button to run the example on the desktop or a device.
     The keyboard is not available during preview.
 

@@ -176,7 +176,7 @@
 
     \list 1
         \li Click \uicontrol {Design} to edit the UI file in \l {Form Editor}.
-        \li Select \l Library > \uicontrol Assets > \inlineimage plus.png
+        \li Select \l Library > \uicontrol Assets > \inlineimage icons/plus.png
             to copy the image files you want to use to the project folder.
         \li In \l Navigator, select the root component and set the
             width (\uicontrol W) and height (\uicontrol H) of the button in the

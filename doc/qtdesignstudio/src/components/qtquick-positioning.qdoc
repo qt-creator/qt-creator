@@ -117,7 +117,7 @@
 
     For convenience, you can click the \inlineimage icons/anchor-fill.png
     (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to a
-    component and the \inlineimage qtcreator-anchors-reset-icon.png
+    component and the \inlineimage icons/qtcreator-anchors-reset-icon.png
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
     state.
 
@@ -484,10 +484,10 @@
     \image qtquick-designer-stacked-view.png
 
     To add components to a \uicontrol {Stack Layout}, select the
-    \inlineimage plus.png
+    \inlineimage icons/plus.png
     button next to the component name in \l {Form Editor}.
-    To move between components, select the \inlineimage prev.png
-    (\uicontrol Previous) and \inlineimage next.png
+    To move between components, select the \inlineimage icons/prev.png
+    (\uicontrol Previous) and \inlineimage icons/next.png
     (\uicontrol Next) buttons.
 
     To add a tab bar to a stack layout, right-click on the

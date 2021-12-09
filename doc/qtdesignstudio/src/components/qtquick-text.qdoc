@@ -123,7 +123,7 @@
 
     \list 1
         \li Select \uicontrol Library > \l Assets
-            > \inlineimage plus.png
+            > \inlineimage icons/plus.png
             .
         \li Select the font file, and then select \uicontrol Open.
         \li Select the location where the file will be saved in the

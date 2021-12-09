@@ -102,7 +102,7 @@
 
     When you attach easing curves to keyframes, the shape of the
     \l{keyframe_marker}{keyframe marker} on a keyframe track in
-    \l Timeline changes from \inlineimage keyframe_linear_inactive.png
+    \l Timeline changes from \inlineimage icons/keyframe_linear_active.png
     to a marker that describes the type of the selected easing curve.
 
     \section1 Attaching Easing Curves to Transitions

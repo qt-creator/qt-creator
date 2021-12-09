@@ -160,7 +160,7 @@
     To add the assets to \l Library:
     \list 1
         \li Select \uicontrol Library > \uicontrol Assets
-            > \inlineimage plus.png
+            > \inlineimage icons/plus.png
             .
         \li Select the asset files, and then select \uicontrol Open.
         \li Select the location where the files will be saved in the
@@ -281,7 +281,7 @@
     The \l {Images}{Image} component is used for adding images to the UI in several
     supported formats, including bitmap formats such as PNG and JPEG and vector
     graphics formats such as SVG. To add an image to \uicontrol Library, select
-    \uicontrol Assets > \inlineimage plus.png
+    \uicontrol Assets > \inlineimage icons/plus.png
     , and then select the image file.
 
     If you need to display animated images, use the \l {Animated Image}

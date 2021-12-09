@@ -36,7 +36,7 @@
     To import an asset, drag-and-drop the external file containing the asset from,
     for example, File Explorer on Windows, to \uicontrol {Form Editor},
     \uicontrol Navigator, or \uicontrol {Text Editor}. Alternatively, select
-    \l Library > \uicontrol Assets > \inlineimage plus.png
+    \l Library > \uicontrol Assets > \inlineimage icons/plus.png
     and follow the instructions in the \uicontrol {Asset Import} dialog. You can
     also multiselect several external asset files to drag-and-drop them to
     \QDS simultaneously.
@@ -76,7 +76,7 @@
             create an empty project.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
-        \li Select \l Library > \uicontrol Assets > \inlineimage plus.png
+        \li Select \l Library > \uicontrol Assets > \inlineimage icons/plus.png
             .
         \li Select the folder where you exported the assets.
         \li Select \uicontrol {Exported Assets (*.metadata)} in the dropdown
@@ -121,7 +121,7 @@
 
     After importing the metadata files, wait a few moments to allow all
     imported assets to appear in your project files before selecting your
-    metadata filename from \uicontrol Assets > \inlineimage plus.png
+    metadata filename from \uicontrol Assets > \inlineimage icons/plus.png
     .
 
     If asset importer conflicts, warnings, and errors are displayed in the

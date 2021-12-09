@@ -53,7 +53,7 @@
     \section1 Model Properties
 
     You can change the model type in \uicontrol Properties > \uicontrol Model
-    > \uicontrol Source field. Select the \inlineimage plus.png
+    > \uicontrol Source field. Select the \inlineimage icons/plus.png
     button to add custom model types to the list.
 
     \image studio-qtquick-3d-model.png "Model properties"
@@ -69,7 +69,7 @@
 
     A model can consist of several sub-meshes, each of which can have its own
     material. Select the material from the list in the \uicontrol {Materials}
-    field. Select the \inlineimage plus.png
+    field. Select the \inlineimage icons/plus.png
     button to add materials to the list. For more information about materials,
     see \l {Materials and Shaders}.
 

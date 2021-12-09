@@ -119,7 +119,7 @@
                 \uicontrol Instances, select each \uicontrol {Instance List Entry}
                 you wish to include in the \uicontrol {Instance List} by using
                 the dropdown menu. You can add more fields for the property by
-                clicking the \inlineimage plus.png
+                clicking the \inlineimage icons/plus.png
                 icon.
             \li To define an \uicontrol {Instance List Entry}, select it in
                 \uicontrol Navigator, and specify its properties in

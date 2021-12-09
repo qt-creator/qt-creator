@@ -155,7 +155,7 @@
 
             The \uicontrol Passes property contains a list of render passes
             implemented by the effect. You can add more entry fields to the list
-            by selecting \inlineimage plus.png
+            by selecting \inlineimage icons/plus.png
             . For more information, see \l {Custom Effects and Materials}.
 
     \row

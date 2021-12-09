@@ -122,14 +122,14 @@
     \image coffee-machine-timeline.png
 
     Our viewport contains 200 frames, so we select the
-    \inlineimage plus.png "Plus button"
+    \inlineimage icons/plus.png "Plus button"
     button to add a 1200-frame timeline to the root component.
     We use the default values for all other fields.
 
     To start recording the transition from the startup screen to the coffee
     selection screen on the timeline, we select \e choosingCoffee in
     \l Navigator. We check that the playhead is at frame 0, and then
-    select the \inlineimage recordfill.png
+    select the \inlineimage icons/recordfill.png
     (\uicontrol {Auto Key (K)}) button (or press \key k).
 
     At frame 0, we set the X coordinate to 0 in \l Properties >
