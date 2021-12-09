@@ -522,6 +522,13 @@ private:
         return selectTypeIdsForSourceIdsStatement.template values<TypeId>(128, toIntegers(sourceIds));
     }
 
+    void unique(SourceIds &sourceIds)
+    {
+        std::sort(sourceIds.begin(), sourceIds.end());
+        auto newEnd = std::unique(sourceIds.begin(), sourceIds.end());
+        sourceIds.erase(newEnd, sourceIds.end());
+    }
+
     void synchronizeTypes(Storage::Types &types,
                           TypeIds &updatedTypeIds,
                           AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
@@ -537,8 +544,8 @@ private:
         sourceIdsOfTypes.reserve(updatedSourceIds.size());
         SourceIds notUpdatedExportedSourceIds;
         notUpdatedExportedSourceIds.reserve(updatedSourceIds.size());
-        TypeIds exportedTypeIds;
-        exportedTypeIds.reserve(types.size());
+        SourceIds exportedSourceIds;
+        exportedSourceIds.reserve(types.size());
 
         for (auto &&type : types) {
             if (!type.sourceId)
@@ -548,19 +555,19 @@ private:
             sourceIdsOfTypes.push_back(type.sourceId);
             updatedTypeIds.push_back(typeId);
             if (type.changeLevel != Storage::ChangeLevel::ExcludeExportedTypes) {
-                exportedTypeIds.push_back(typeId);
+                exportedSourceIds.push_back(type.sourceId);
                 extractExportedTypes(typeId, type, exportedTypes);
             }
         }
 
-        std::sort(updatedTypeIds.begin(), updatedTypeIds.end());
+        unique(exportedSourceIds);
 
         SourceIds sourceIdsWithoutType = filterSourceIdsWithoutType(updatedSourceIds,
                                                                     sourceIdsOfTypes);
-        TypeIds notUpdatedTypeIds = fetchTypeIds(sourceIdsWithoutType);
-        exportedTypeIds.insert(exportedTypeIds.end(),
-                               notUpdatedTypeIds.begin(),
-                               notUpdatedTypeIds.end());
+        exportedSourceIds.insert(exportedSourceIds.end(),
+                                 sourceIdsWithoutType.begin(),
+                                 sourceIdsWithoutType.end());
+        TypeIds exportedTypeIds = fetchTypeIds(exportedSourceIds);
         synchronizeExportedTypes(exportedTypeIds,
                                  exportedTypes,
                                  relinkableAliasPropertyDeclarations,
