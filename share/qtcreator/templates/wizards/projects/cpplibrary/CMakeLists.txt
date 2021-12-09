@@ -13,13 +13,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 @if '%{QtModule}' != 'none'
 
 @if %{HasTranslation}
-find_package(QT NAMES Qt6 Qt5 COMPONENTS %{QtModuleUpperCase} LinguistTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS %{QtModuleUpperCase} LinguistTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS %{QtModuleUpperCase} LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS %{QtModuleUpperCase} LinguistTools)
 
 set(TS_FILES %{TsFileName})
 @else
-find_package(QT NAMES Qt6 Qt5 COMPONENTS %{QtModuleUpperCase} REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS %{QtModuleUpperCase} REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS %{QtModuleUpperCase})
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS %{QtModuleUpperCase})
 @endif
 @endif
 
