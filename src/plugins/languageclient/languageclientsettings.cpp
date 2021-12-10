@@ -360,6 +360,7 @@ QList<BaseSettings *> LanguageClientSettingsPage::changedSettings() const
 void LanguageClientSettingsPage::addSettings(BaseSettings *settings)
 {
     m_model.insertSettings(settings);
+    m_changedSettings << settings->m_id;
 }
 
 void LanguageClientSettingsPage::enableSettings(const QString &id)
