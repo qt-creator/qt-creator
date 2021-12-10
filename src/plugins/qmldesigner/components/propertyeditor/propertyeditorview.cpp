@@ -165,9 +165,9 @@ void PropertyEditorView::changeValue(const QString &name)
             m_locked = false;
             QString errMsg = QmlDesigner::ModelNode::getIdValidityErrorMessage(newId);
             if (!errMsg.isEmpty())
-                Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  errMsg);
+                Core::AsynchronousMessageBox::warning(tr("Invalid ID"), errMsg);
             else
-                Core::AsynchronousMessageBox::warning(tr("Invalid ID"),  tr("%1 already exists.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid ID"), tr("%1 already exists.").arg(newId));
         }
         return;
     }
@@ -176,24 +176,24 @@ void PropertyEditorView::changeValue(const QString &name)
     underscoreName.replace('.', '_');
     PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));
 
-    if (value ==nullptr)
+    if (value == nullptr)
         return;
 
-    if (propertyName.endsWith( "__AUX")) {
+    if (propertyName.endsWith("__AUX")) {
         commitAuxValueToModel(propertyName, value->value());
         return;
     }
 
-    QmlObjectNode qmlObjectNode(m_selectedNode);
+    const NodeMetaInfo metaInfo = QmlObjectNode(m_selectedNode).modelNode().metaInfo();
 
     QVariant castedValue;
 
-    if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName)) {
-        castedValue = qmlObjectNode.modelNode().metaInfo().propertyCastedValue(propertyName, value->value());
+    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
+        castedValue = metaInfo.propertyCastedValue(propertyName, value->value());
     } else if (propertyIsAttachedLayoutProperty(propertyName)) {
         castedValue = value->value();
     } else {
-        qWarning() << "PropertyEditor:" <<propertyName << "cannot be casted (metainfo)";
+        qWarning() << "PropertyEditor:" << propertyName << "cannot be casted (metainfo)";
         return ;
     }
 
@@ -202,10 +202,14 @@ void PropertyEditorView::changeValue(const QString &name)
         return ;
     }
 
-    if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName)) {
-        if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "QUrl"
-                || qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "url") { //turn absolute local file paths into relative paths
-                QString filePath = castedValue.toUrl().toString();
+    bool propertyTypeUrl = false;
+
+    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
+        if (metaInfo.propertyTypeName(propertyName) == "QUrl"
+                || metaInfo.propertyTypeName(propertyName) == "url") {
+            // turn absolute local file paths into relative paths
+            propertyTypeUrl = true;
+            QString filePath = castedValue.toUrl().toString();
             QFileInfo fi(filePath);
             if (fi.exists() && fi.isAbsolute()) {
                 QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
@@ -224,7 +228,8 @@ void PropertyEditorView::changeValue(const QString &name)
         castedValue = QVariant(newColor);
     }
 
-    if (!value->value().isValid()) { //reset
+    if (!value->value().isValid()
+            || (propertyTypeUrl && value->value().toString().isEmpty())) { // reset
         removePropertyFromModel(propertyName);
     } else {
         // QVector*D(0, 0, 0) detects as null variant though it is valid value
