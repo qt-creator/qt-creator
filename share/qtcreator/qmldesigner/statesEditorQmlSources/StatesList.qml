@@ -34,20 +34,18 @@ FocusScope {
     id: root
 
     property int delegateTopAreaHeight: StudioTheme.Values.height + 8
-    property int delegateBottomAreaHeight: 200
+    property int delegateBottomAreaHeight: delegateHeight - 2 * delegateStateMargin - delegateTopAreaHeight - delegateColumnSpacing
     property int delegateColumnSpacing: 2
     property int delegateStateMargin: 16
-    property int delegatePreviewMargin: 16
-    property int effectiveHeight: root.expanded ? 287 : 85 // height of the states area
+    property int delegatePreviewMargin: 10
+    property int effectiveHeight: root.expanded ? Math.max(85, Math.min(287, root.height)) : 85 // height of the states area
 
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
 
-    property int stateImageSize: 200
     property int padding: 2
-    property int delegateWidth: root.stateImageSize
-                                + 2 * (root.delegateStateMargin + root.delegatePreviewMargin)
+    property int delegateWidth: 264
     property int delegateHeight: effectiveHeight
                                  - StudioTheme.Values.scrollBarThickness
                                  - 2 * (root.padding + StudioTheme.Values.border)
@@ -102,8 +100,8 @@ FocusScope {
         anchors.right: parent.right
         anchors.rightMargin: 8
         y: (Math.min(effectiveHeight, root.height) - height) / 2
-        width: Math.max(root.delegateHeight / 2 - 8, 18)
-        height: root.expanded ? 60 : width
+        width: root.expanded ? 140 : 18
+        height: root.expanded ? 60 : 18
 
         onClicked: {
             contextMenu.dismiss()
@@ -144,7 +142,6 @@ FocusScope {
             baseColor: isCurrentState ? StudioTheme.Values.themeInteraction : background.color
             delegateStateName: stateName
             delegateStateImageSource: stateImageSource
-            delegateStateImageSize: stateImageSize
             delegateHasWhenCondition: hasWhenCondition
             delegateWhenConditionString: whenConditionString
             onDelegateInteraction: contextMenu.dismiss()
