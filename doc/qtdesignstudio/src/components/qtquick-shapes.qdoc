@@ -281,7 +281,7 @@
         \li \inlineimage rect-icon16.png
         \li \l Rectangle
         \li Default Components - Basic
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li A rectangle that is painted with a solid fill color or linear
             gradient and an optional border. You can use the radius property
             to draw circles.

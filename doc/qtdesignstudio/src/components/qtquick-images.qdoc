@@ -256,13 +256,13 @@
         \li \inlineimage border-image-icon16.png
         \li \l [QtQuick]{BorderImage}{Border Image}
         \li Default Components - Basic
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li An image that is used as a border or background.
     \row
         \li \inlineimage image-icon16.png
         \li \l [QtQuick]{Image}
         \li Default Components - Basic
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li An image in one of the supported formats, including bitmap formats
             such as PNG and JPEG and vector graphics formats such as SVG.
     \if defined(qtdesignstudio)
