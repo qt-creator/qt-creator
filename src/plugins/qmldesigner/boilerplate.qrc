@@ -2,6 +2,7 @@
     <qresource prefix="/boilerplatetemplates">
         <file>qmlprojectmaincpp.tpl</file>
         <file>qmlprojectmaincppheader.tpl</file>
+        <file>qmlprojectenvheader.tpl</file>
         <file>qmlprojectmodules.tpl</file>
         <file>qmlprojectmaincmakelists.tpl</file>
         <file>qmlprojectmodulecmakelists.tpl</file>
