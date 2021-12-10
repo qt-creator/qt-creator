@@ -4062,6 +4062,8 @@ void GdbEngine::setEnvironmentVariables()
                 || item.operation == EnvironmentItem::SetDisabled) {
             runCommand({"unset environment " + name});
         } else {
+            if (name != item.name)
+                runCommand({"unset environment " + item.name});
             runCommand({"-gdb-set environment " + name + '=' + item.value});
         }
     }
