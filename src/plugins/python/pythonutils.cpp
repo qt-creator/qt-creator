@@ -116,7 +116,7 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
 
     static const QString pylsInitPattern = "(.*)"
                                            + QRegularExpression::escape(
-                                               QDir::toNativeSeparators("/pyls/__init__.py"))
+                                               QDir::toNativeSeparators("/pylsp/__init__.py"))
                                            + '$';
     static const QRegularExpression regexCached(" matches " + pylsInitPattern,
                                                 QRegularExpression::MultilineOption);
@@ -149,7 +149,7 @@ QList<const StdIOSettings *> configuredPythonLanguageServer()
 static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python)
 {
     using namespace LanguageClient;
-    const CommandLine pythonLShelpCommand(python, {"-m", "pyls", "-h"});
+    const CommandLine pythonLShelpCommand(python, {"-m", "pylsp", "-h"});
     const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
     for (const StdIOSettings *serverSetting : configuredPythonLanguageServer()) {
         if (modulePath == getPylsModulePath(serverSetting->command())) {
@@ -217,7 +217,7 @@ const StdIOSettings *PyLSConfigureAssistant::languageServerForPython(const FileP
 {
     return findOrDefault(configuredPythonLanguageServer(),
                          [pythonModulePath = getPylsModulePath(
-                              CommandLine(python, {"-m", "pyls"}))](const StdIOSettings *setting) {
+                              CommandLine(python, {"-m", "pylsp"}))](const StdIOSettings *setting) {
                              return getPylsModulePath(setting->command()) == pythonModulePath;
                          });
 }
@@ -226,7 +226,7 @@ static Client *registerLanguageServer(const FilePath &python)
 {
     auto *settings = new StdIOSettings();
     settings->m_executable = python;
-    settings->m_arguments = "-m pyls";
+    settings->m_arguments = "-m pylsp";
     settings->m_name = PyLSConfigureAssistant::tr("Python Language Server (%1)")
                            .arg(pythonName(python));
     settings->m_languageFilter.mimeTypes = QStringList(Constants::C_PY_MIMETYPE);
@@ -266,7 +266,7 @@ public:
         connect(&m_killTimer, &QTimer::timeout, this, &PythonLSInstallHelper::cancel);
         connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PythonLSInstallHelper::cancel);
 
-        QStringList arguments = {"-m", "pip", "install", "python-language-server[all]"};
+        QStringList arguments = {"-m", "pip", "install", "python-lsp-server[all]"};
 
         // add --user to global pythons, but skip it for venv pythons
         if (!QDir(m_python.parentDir().toString()).exists("activate"))
