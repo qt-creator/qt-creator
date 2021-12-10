@@ -30,6 +30,7 @@ import QtQuick
 import QtQuick.Layouts
 
 import StudioControls as SC
+import StudioTheme as StudioTheme
 
 Item {
     width: DialogValues.stylesPaneWidth
@@ -55,8 +56,8 @@ Item {
         radius: 6
 
         Item {
-            x: DialogValues.stylesPanePadding                               // left padding
-            width: parent.width - DialogValues.stylesPanePadding * 2        // right padding
+            x: DialogValues.stylesPanePadding
+            width: parent.width - DialogValues.stylesPanePadding * 2 + styleScrollBar.width
             height: parent.height
 
             ColumnLayout {
@@ -100,6 +101,8 @@ Item {
                     }
                 } // Style Filter ComboBox
 
+                Item { implicitWidth: 1; implicitHeight: 9 }
+
                 ListView {
                     id: stylesList
                     Layout.fillWidth: true
@@ -107,10 +110,25 @@ Item {
                     clip: true
                     model: styleModel
 
+                    MouseArea {
+                        id: listViewMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        propagateComposedEvents: true
+                    }
+
                     focus: true
                     boundsBehavior: Flickable.StopAtBounds
 
                     highlightFollowsCurrentItem: false
+
+                    ScrollBar.vertical: SC.VerticalScrollBar {
+                        id: styleScrollBar
+                        property int extraPadding: 0
+                        bottomInset: extraPadding
+                        bottomPadding: bottomInset + 16
+                        viewMouseArea: listViewMouseArea
+                    } // ScrollBar
 
                     onCurrentIndexChanged: {
                         if (styleModel.rowCount() > 0)
@@ -120,7 +138,11 @@ Item {
                     delegate: ItemDelegate {
                         id: delegateId
                         height: styleImage.height + DialogValues.styleImageBorderWidth + styleText.height + extraPadding.height + 1
-                        width: stylesList.width
+                        width: stylesList.width - styleScrollBar.width
+
+                        Component.onCompleted: {
+                            styleScrollBar.extraPadding = styleText.height + extraPadding.height
+                        }
 
                         Rectangle {
                             anchors.fill: parent

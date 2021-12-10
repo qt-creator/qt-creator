@@ -77,33 +77,8 @@ Item {
                     boundsBehavior: Flickable.StopAtBounds
                     clip: true
 
-                    ScrollBar.vertical:  ScrollBar {
-                        implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                                                implicitContentWidth + leftPadding + rightPadding)
-                        implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                                                 implicitContentHeight + topPadding + bottomPadding)
-
-                        property bool scrollBarVisible: parent.childrenRect.height > parent.height
-
-                        minimumSize: orientation == Qt.Horizontal ? height / width : width / height
-
-                        orientation: Qt.Vertical
-                        policy: scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
-                        x: parent.width - width
-                        y: 0
-                        height: parent.availableHeight
-                                - (parent.bothVisible ? parent.horizontalThickness : 0)
-                        padding: 0
-
-                        background: Rectangle {
-                            color: StudioTheme.Values.themeScrollBarTrack
-                        }
-
-                        contentItem: Rectangle {
-                            implicitWidth: StudioTheme.Values.scrollBarThickness
-                            color: StudioTheme.Values.themeScrollBarHandle
-                        }
-                    } // ScrollBar
+                    ScrollBar.vertical: SC.VerticalScrollBar {
+                    }
 
                     Column {
                         id: scrollContent
