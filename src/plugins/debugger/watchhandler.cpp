@@ -620,6 +620,14 @@ template <class IntType> QString reformatInteger(IntType value, int format)
             return "(bin) " + QString::number(value, 2);
         case OctalIntegerFormat:
             return "(oct) " + QString::number(value, 8);
+        case CharCodeIntegerFormat: {
+            QString res = "\"";
+            while (value > 0) {
+                res = QChar(ushort(value & 255)) + res;
+                value /= 256;
+            }
+            return "\"" + res;
+        }
     }
     return QString::number(value, 10); // not reached
 }
@@ -750,7 +758,8 @@ static QString formattedValue(const WatchItem *item)
     if (format == HexadecimalIntegerFormat
             || format == DecimalIntegerFormat
             || format == OctalIntegerFormat
-            || format == BinaryIntegerFormat) {
+            || format == BinaryIntegerFormat
+            || format == CharCodeIntegerFormat) {
         bool isSigned = item->value.startsWith('-');
         quint64 raw = isSigned ? quint64(item->value.toLongLong()) : item->value.toULongLong();
         return reformatInteger(raw, format, item->size, isSigned);
@@ -899,7 +908,8 @@ static QString displayName(const WatchItem *item)
 
 static QString displayValue(const WatchItem *item)
 {
-    QString result = watchModel(item)->removeNamespaces(truncateValue(formattedValue(item)));
+    QString result = truncateValue(formattedValue(item));
+    result = watchModel(item)->removeNamespaces(result);
     if (result.isEmpty() && item->address)
         result += QString::fromLatin1("@0x" + QByteArray::number(item->address, 16));
 //    if (origaddr)
@@ -1003,6 +1013,7 @@ static DisplayFormats typeFormatList(const WatchItem *item)
         formats.append(HexadecimalIntegerFormat);
         formats.append(BinaryIntegerFormat);
         formats.append(OctalIntegerFormat);
+        formats.append(CharCodeIntegerFormat);
     }
 
     return formats;
@@ -2074,6 +2085,7 @@ QString WatchModel::nameForFormat(int format)
         case HexadecimalIntegerFormat: return tr("Hexadecimal Integer");
         case BinaryIntegerFormat: return tr("Binary Integer");
         case OctalIntegerFormat: return tr("Octal Integer");
+        case CharCodeIntegerFormat: return tr("Char Code Integer");
 
         case CompactFloatFormat: return tr("Compact Float");
         case ScientificFloatFormat: return tr("Scientific Float");

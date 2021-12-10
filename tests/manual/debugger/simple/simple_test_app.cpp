@@ -4134,10 +4134,30 @@ namespace formats {
         dummyStatement(&s, &w, &t);
     }
 
+    void testCharsFromInteger()
+    {
+        // These tests should result in properly displayed Four Character Codes
+        // https://en.wikipedia.org/wiki/FourCC
+
+        unsigned i = 1886144836;
+        unsigned long long l = 1886144836;
+
+        BREAK_HERE;
+        // CheckType i unsigned int.
+
+        // Select "Char Code Integer" for "Change Format for Type" in L&W context menu.
+        // Check i "pIID" unsigned int
+        // Check l "pIID" unsigned long long
+
+        // Make sure to undo "Change Format".
+        dummyStatement(&i, &l);
+    }
+
     void testFormats()
     {
         testCharPointers();
         testCharArrays();
+        testCharsFromInteger();
         testString();
     }
 

@@ -273,9 +273,9 @@ QString decodeData(const QString &baIn, const QString &encoding);
 // "Change Value Display Format". They are passed from the frontend to
 // the dumpers.
 //
-// Keep in sync with dumper.py.
+// Keep in sync with share/qtcreator/debugger/utils.py
 //
-// \note Add new enum values only at the end, as the numeric values are
+// \note Add new enum values only with increasing numeric values as they are
 // persisted in user settings.
 
 enum DisplayFormat
@@ -313,6 +313,7 @@ enum DisplayFormat
     HexadecimalIntegerFormat    = 23, // Frontend internal only
     BinaryIntegerFormat         = 24, // Frontend internal only
     OctalIntegerFormat          = 25, // Frontend internal only
+    CharCodeIntegerFormat       = 28, // Frontend internal only
 
     CompactFloatFormat          = 26, // Frontend internal only
     ScientificFloatFormat       = 27  // Frontend internal only
