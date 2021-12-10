@@ -548,7 +548,7 @@ bool generateMainCpp(const FilePath &dir)
     QString modulesAsPlugins;
     for (const QString &moduleName : GenerateCmakeLists::moduleNames)
         modulesAsPlugins.append(
-                    QString(MAIN_CPPFILE_HEADER_PLUGIN_LINE).arg(moduleName + "plugin"));
+                    QString(MAIN_CPPFILE_HEADER_PLUGIN_LINE).arg(moduleName + "Plugin"));
 
     QString headerContent = GenerateCmake::readTemplate(MAIN_CPPFILE_HEADER_TEMPLATE_PATH)
             .arg(modulesAsPlugins);
