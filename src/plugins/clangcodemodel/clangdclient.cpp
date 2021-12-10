@@ -2647,6 +2647,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                                     << version << q->documentVersion(doc->filePath());
         return;
     }
+    force = force || isTesting;
     const auto previous = previousTokens.find(doc);
     if (previous != previousTokens.end()) {
         if (!force && previous->first == tokens && previous->second == version) {
