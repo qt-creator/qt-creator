@@ -237,42 +237,24 @@ void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
     m_editor->widget()->setFocus();
 }
 
-bool LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(
-    const Client *client, const TextEditor::TextDocument *doc)
-{
-    if (!client)
-        return false;
-    DynamicCapabilities dc = client->dynamicCapabilities();
-    if (dc.isRegistered(DocumentSymbolsRequest::methodName).value_or(false)) {
-        TextDocumentRegistrationOptions options(dc.option(DocumentSymbolsRequest::methodName));
-        return !options.isValid()
-               || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
-    }
-    const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
-        = client->capabilities().documentSymbolProvider();
-    if (!provider.has_value())
-        return false;
-    if (Utils::holds_alternative<bool>(*provider))
-        return Utils::get<bool>(*provider);
-    return true;
-}
-
 bool LanguageClientOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    auto doc = qobject_cast<TextEditor::TextDocument *>(editor->document());
-    if (!doc)
-        return false;
-    return clientSupportsDocumentSymbols(LanguageClientManager::clientForDocument(doc), doc);
+    if (auto doc = qobject_cast<TextEditor::TextDocument *>(editor->document())) {
+        if (Client *client = LanguageClientManager::clientForDocument(doc))
+            return client->supportsDocumentSymbols(doc);
+    }
+    return false;
 }
 
 TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
     auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     QTC_ASSERT(textEditor, return nullptr);
-    Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
-    if (!client || !clientSupportsDocumentSymbols(client, textEditor->textDocument()))
-        return nullptr;
-    return new LanguageClientOutlineWidget(client, textEditor);
+    if (Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument())) {
+        if (client->supportsDocumentSymbols(textEditor->textDocument()))
+            return new LanguageClientOutlineWidget(client, textEditor);
+    }
+    return nullptr;
 }
 
 class OutlineComboBox : public Utils::TreeViewComboBox
@@ -297,8 +279,7 @@ Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(Clie
 {
     auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     QTC_ASSERT(textEditor, return nullptr);
-    TextEditor::TextDocument *document = textEditor->textDocument();
-    if (!client || !clientSupportsDocumentSymbols(client, document))
+    if (!client || !client->supportsDocumentSymbols(textEditor->textDocument()))
         return nullptr;
 
     return new OutlineComboBox(client, textEditor);

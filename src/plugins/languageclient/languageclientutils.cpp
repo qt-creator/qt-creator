@@ -278,8 +278,8 @@ void updateEditorToolBar(Core::IEditor *editor)
         });
     }
 
-    if (!extras->m_client || extras->m_client != client ||
-            !LanguageClientOutlineWidgetFactory::clientSupportsDocumentSymbols(client, document)) {
+    if (!extras->m_client || !client || extras->m_client != client
+        || !client->supportsDocumentSymbols(document)) {
         if (extras->m_outlineAction) {
             widget->toolBar()->removeAction(extras->m_outlineAction);
             delete extras->m_outlineAction;

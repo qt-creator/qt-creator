@@ -193,6 +193,7 @@ public:
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
+    virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
 
     // logging
     enum class LogTarget { Console, Ui };

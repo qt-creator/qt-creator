@@ -40,8 +40,6 @@ public:
     using IOutlineWidgetFactory::IOutlineWidgetFactory;
 
     static Utils::TreeViewComboBox *createComboBox(Client *client, Core::IEditor *editor);
-    static bool clientSupportsDocumentSymbols(const Client *client,
-                                              const TextEditor::TextDocument *doc);
     // IOutlineWidgetFactory interface
 public:
     bool supportsEditor(Core::IEditor *editor) const override;

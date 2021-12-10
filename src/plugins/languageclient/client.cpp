@@ -1085,6 +1085,25 @@ void Client::setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider)
     m_clientProviders.quickFixAssistProvider = provider;
 }
 
+bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
+{
+    if (!doc)
+        return false;
+    DynamicCapabilities dc = dynamicCapabilities();
+    if (dc.isRegistered(DocumentSymbolsRequest::methodName).value_or(false)) {
+        TextDocumentRegistrationOptions options(dc.option(DocumentSymbolsRequest::methodName));
+        return !options.isValid()
+               || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
+    }
+    const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+        = capabilities().documentSymbolProvider();
+    if (!provider.has_value())
+        return false;
+    if (Utils::holds_alternative<bool>(*provider))
+        return Utils::get<bool>(*provider);
+    return true;
+}
+
 void Client::start()
 {
     LanguageClientManager::addClient(this);

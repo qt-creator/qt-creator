@@ -67,6 +67,13 @@ void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedu
     }
 }
 
+bool clientSupportsDocumentSymbols(const Client *client, const DocumentUri &uri)
+{
+    QTC_ASSERT(client, return false);
+    const auto doc = TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath());
+    return client->supportsDocumentSymbols(doc);
+}
+
 void DocumentSymbolCache::requestSymbolsImpl()
 {
     if (!m_client->reachable()) {
@@ -77,6 +84,11 @@ void DocumentSymbolCache::requestSymbolsImpl()
         auto entry = m_cache.find(uri);
         if (entry != m_cache.end()) {
             emit gotSymbols(uri, entry.value());
+            continue;
+        }
+
+        if (!LanguageClient::clientSupportsDocumentSymbols(m_client, uri)) {
+            emit gotSymbols(uri, nullptr);
             continue;
         }
 
