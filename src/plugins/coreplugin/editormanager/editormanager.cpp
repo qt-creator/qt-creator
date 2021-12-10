@@ -1236,8 +1236,9 @@ void EditorManagerPrivate::saveSettings()
                                    def.maxRecentFiles);
 
     qsettings->setValueWithDefault(fileSystemCaseSensitivityKey,
-                                   HostOsInfo::fileNameCaseSensitivity(),
-                                   OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs()));
+                                   int(HostOsInfo::fileNameCaseSensitivity()),
+                                   int(OsSpecificAspects::fileNameCaseSensitivity(
+                                       HostOsInfo::hostOs())));
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
                                    toMap(userPreferredEditorFactories()));
 }
