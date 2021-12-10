@@ -100,6 +100,7 @@
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qquick3dscenerootnode_p.h>
 #include <QtQuick3D/private/qquick3drepeater_p.h>
+#include <QtQuick3D/private/qquick3dloader_p.h>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include "../editor3d/qt5compat/qquick3darealight_p.h"
 #endif
@@ -1227,7 +1228,7 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_inputEventTimer.setSingleShot(true);
     m_renderModelNodeImageViewTimer.setSingleShot(true);
     m_modelNode3DImageViewAsyncData.timer.setSingleShot(true);
-    m_repeaterAddObjectTimer.setSingleShot(true);
+    m_dynamicAddObjectTimer.setSingleShot(true);
 
 #ifdef FPS_COUNTER
     if (!_fpsTimer) {
@@ -1253,7 +1254,7 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     m_inputEventTimer.stop();
     m_renderModelNodeImageViewTimer.stop();
     m_modelNode3DImageViewAsyncData.timer.stop();
-    m_repeaterAddObjectTimer.stop();
+    m_dynamicAddObjectTimer.stop();
 
     if (m_editView3DData.rootItem)
         m_editView3DData.rootItem->disconnect(this);
@@ -1397,20 +1398,27 @@ void Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout()
     changeSelection(m_lastSelectionChangeCommand);
 }
 
-void Qt5InformationNodeInstanceServer::handleRepeaterAddObjectTimeout()
+void Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout()
 {
 #ifdef QUICK3D_MODULE
-    for (auto obj : std::as_const(m_addObjectRepeaters)) {
-        if (auto repObj = qobject_cast<QQuick3DRepeater *>(obj)) {
-            if (hasInstanceForObject(repObj)) {
-                ServerNodeInstance instance = instanceForObject(repObj);
+    for (auto obj : std::as_const(m_dynamicObjectConstructors)) {
+        auto handleHiding = [this](QQuick3DNode *node) -> bool {
+            if (node && hasInstanceForObject(node)) {
+                ServerNodeInstance instance = instanceForObject(node);
                 handleInstanceHidden(instance, instance.internalInstance()->isHiddenInEditor(),
                                      false);
+                return true;
             }
+            return false;
+        };
+        auto nodeObj = qobject_cast<QQuick3DNode *>(obj);
+        if (!handleHiding(nodeObj)) {
+            if (auto pickTarget = obj->property("_pickTarget").value<QQuick3DNode *>())
+                handleHiding(pickTarget);
         }
     }
 #endif
-    m_addObjectRepeaters.clear();
+    m_dynamicObjectConstructors.clear();
 }
 
 void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
@@ -1664,8 +1672,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
                      this, &Qt5InformationNodeInstanceServer::handleInputEvents);
     QObject::connect(&m_modelNode3DImageViewAsyncData.timer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::modelNode3DImageViewRenderStep);
-    QObject::connect(&m_repeaterAddObjectTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::handleRepeaterAddObjectTimeout);
+    QObject::connect(&m_dynamicAddObjectTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout);
 
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -1824,7 +1832,7 @@ void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &comma
 
     m_parentChangedSet.clear();
     m_completedComponentList.clear();
-    m_addObjectRepeaters.clear();
+    m_dynamicObjectConstructors.clear();
 }
 
 void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &command)
@@ -2296,6 +2304,23 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
 #if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
                         checkModel->setPickable(!edit3dHidden);
 #endif
+                    } else {
+                        auto checkRepeater = qobject_cast<QQuick3DRepeater *>(checkNode);
+                        auto checkLoader = qobject_cast<QQuick3DLoader *>(checkNode);
+                        if (checkRepeater || checkLoader) {
+                            // Repeaters/loaders may not yet have created their children, so we set
+                            // _pickTarget on them and connect the notifier.
+                            if (checkNode->property("_pickTarget").isNull()) {
+                                if (checkRepeater) {
+                                    QObject::connect(checkRepeater, &QQuick3DRepeater::objectAdded,
+                                                     this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                                } else {
+                                    QObject::connect(checkLoader, &QQuick3DLoader::loaded,
+                                                     this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                                }
+                            }
+                            checkNode->setProperty("_pickTarget", QVariant::fromValue(node));
+                        }
                     }
                 };
                 if (auto childNode = qobject_cast<QQuick3DNode *>(childItem))
@@ -2315,10 +2340,12 @@ bool Qt5InformationNodeInstanceServer::isInformationServer() const
     return true;
 }
 
-void Qt5InformationNodeInstanceServer::handleRepeaterAddObject()
+// This method should be connected to signals indicating a new object has been constructed outside
+// normal scene creation. E.g. QQuick3DRepeater::objectAdded.
+void Qt5InformationNodeInstanceServer::handleDynamicAddObject()
 {
-    m_addObjectRepeaters.insert(sender());
-    m_repeaterAddObjectTimer.start();
+    m_dynamicObjectConstructors.insert(sender());
+    m_dynamicAddObjectTimer.start();
 }
 
 // update 3D view size when it changes in creator side
