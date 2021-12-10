@@ -33,5 +33,8 @@ Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    MediaPlayerSection {}
+    MediaPlayerSection {
+        showAudioOutput: true
+        showVideoOutput: true
+    }
 }
