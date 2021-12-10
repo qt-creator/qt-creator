@@ -47,6 +47,4 @@ def main():
     type(editorArea, "<Up>")
     test.compare(str(lineUnderCursor(editorArea)).strip(), "// @disable-check M16",
                  "Verifying 'Add comment to suppress message' refactoring")
-    # save and exit
-    invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
