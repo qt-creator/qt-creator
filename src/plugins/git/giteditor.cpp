@@ -88,11 +88,16 @@ public:
         pickaxeLineEdit = addLineEdit(tr("Filter by content"),
                                       tr("Filter log entries by added or removed string."),
                                       editor);
+        authorLineEdit = addLineEdit(tr("Filter by author"),
+                                     tr("Filter log entries by author."),
+                                     editor);
         addWidget(new QLabel(tr("Filter:")));
         addSeparator();
         addWidget(grepLineEdit);
         addSeparator();
         addWidget(pickaxeLineEdit);
+        addSeparator();
+        addWidget(authorLineEdit);
         addSeparator();
         caseAction = new QAction(tr("Case Sensitive"), this);
         caseAction->setCheckable(true);
@@ -105,6 +110,7 @@ public:
 
     Utils::FancyLineEdit *grepLineEdit;
     Utils::FancyLineEdit *pickaxeLineEdit;
+    Utils::FancyLineEdit *authorLineEdit;
     QAction *caseAction;
 };
 
@@ -393,6 +399,13 @@ QString GitEditorWidget::pickaxeValue() const
     if (!m_logFilterWidget)
         return QString();
     return m_logFilterWidget->pickaxeLineEdit->text();
+}
+
+QString GitEditorWidget::authorValue() const
+{
+    if (!m_logFilterWidget)
+        return QString();
+    return m_logFilterWidget->authorLineEdit->text();
 }
 
 bool GitEditorWidget::caseSensitive() const

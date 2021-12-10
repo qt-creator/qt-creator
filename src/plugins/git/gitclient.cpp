@@ -44,6 +44,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -1137,15 +1138,19 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
         arguments << normalLogArguments();
 
+    const QString authorValue = editor->authorValue();
+    if (!authorValue.isEmpty())
+        arguments << "--author=" + ProcessArgs::quoteArg(authorValue);
+
     const QString grepValue = editor->grepValue();
     if (!grepValue.isEmpty())
-        arguments << "--grep=" + grepValue;
+        arguments << "--grep=" + ProcessArgs::quoteArg(grepValue);
 
     const QString pickaxeValue = editor->pickaxeValue();
     if (!pickaxeValue.isEmpty())
-        arguments << "-S" << pickaxeValue;
+        arguments << "-S" << ProcessArgs::quoteArg(pickaxeValue);
 
-    if ((!grepValue.isEmpty() || !pickaxeValue.isEmpty()) && !editor->caseSensitive())
+    if (!editor->caseSensitive())
         arguments << "-i";
 
     if (!fileName.isEmpty())
