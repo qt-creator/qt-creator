@@ -211,6 +211,8 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     contextMenu->addAction(cmd);
 
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QML, "qml");
+    FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
+                                                     "application/x-qt.ui+qml");
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &QmlJSEditorPluginPrivate::currentEditorChanged);
