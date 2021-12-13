@@ -27,17 +27,40 @@
 
 #include <utils/fileutils.h>
 
+#include <languageclient/client.h>
+#include <languageclient/languageclientsettings.h>
+
 namespace Core { class IDocument; }
-namespace LanguageClient {
-class Client;
-class StdIOSettings;
-}
+namespace LanguageClient { class Client; }
 namespace TextEditor { class TextDocument; }
 
 namespace Python {
 namespace Internal {
 
+class Interpreter;
 struct PythonLanguageServerState;
+
+class PyLSSettings : public LanguageClient::StdIOSettings
+{
+public:
+    PyLSSettings();
+
+    QString interpreterId() const { return m_interpreterId; }
+    void setInterpreter(const QString &interpreterId);
+
+    bool isValid() const final;
+    QVariantMap toMap() const final;
+    void fromMap(const QVariantMap &map) final;
+    bool applyFromSettingsWidget(QWidget *widget) final;
+    QWidget *createSettingsWidget(QWidget *parent) const final;
+    LanguageClient::BaseSettings *copy() const final;
+    LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
+
+private:
+    QString m_interpreterId;
+
+    PyLSSettings(const PyLSSettings &other) = default;
+};
 
 class PyLSConfigureAssistant : public QObject
 {
