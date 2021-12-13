@@ -273,7 +273,7 @@ private:
 public:
     DatabaseType &database;
     Initializer initializer{database};
-    Sqlite::ImmediateNonThrowingDestructorTransaction transaction{database};
+    Sqlite::ImmediateNonThrowingDestructorTransaction<DatabaseType> transaction{database};
     mutable ReadStatement<1, 2> selectImageStatement{
         "SELECT image FROM images WHERE name=?1 AND mtime >= ?2", database};
     mutable ReadStatement<1, 2> selectSmallImageStatement{

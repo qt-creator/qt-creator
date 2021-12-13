@@ -59,6 +59,8 @@ enum class Type : char { Invalid, Integer, Float, Text, Blob, Null };
 class SQLITE_EXPORT BaseStatement
 {
 public:
+    using Database = ::Sqlite::Database;
+
     explicit BaseStatement(Utils::SmallStringView sqlStatement, Database &database);
 
     BaseStatement(const BaseStatement &) = delete;
@@ -403,7 +405,7 @@ public:
         }
 
     private:
-        DeferredTransaction m_transaction;
+        DeferredTransaction<typename BaseStatement::Database> m_transaction;
         Resetter resetter;
     };
 

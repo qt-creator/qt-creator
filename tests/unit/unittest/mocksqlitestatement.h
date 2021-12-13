@@ -34,6 +34,8 @@
 class BaseMockSqliteStatement
 {
 public:
+    using Database = SqliteDatabaseMock;
+
     BaseMockSqliteStatement() = default;
     BaseMockSqliteStatement(SqliteDatabaseMock &databaseMock)
         : m_databaseMock{&databaseMock}
@@ -112,9 +114,9 @@ Utils::PathString BaseMockSqliteStatement::fetchValue<Utils::PathString>(int col
 
 template<int ResultCount = 1, int BindParameterCount = 0>
 class MockSqliteStatement
-    : public Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>, ResultCount, BindParameterCount>
+    : public Sqlite::StatementImplementation<BaseMockSqliteStatement, ResultCount, BindParameterCount>
 {
-    using Base = Sqlite::StatementImplementation<NiceMock<BaseMockSqliteStatement>, ResultCount, BindParameterCount>;
+    using Base = Sqlite::StatementImplementation<BaseMockSqliteStatement, ResultCount, BindParameterCount>;
 
 public:
     explicit MockSqliteStatement(SqliteDatabaseMock &databaseMock)

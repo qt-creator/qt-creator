@@ -115,7 +115,7 @@ public:
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    Sqlite::ImmediateTransaction transaction{database};
+    Sqlite::ImmediateTransaction<Sqlite::Database> transaction{database};
     Initializer initializer{database};
     Sqlite::ReadStatement<2> selectViewsStatement{"SELECT key, value FROM data ORDER BY key",
                                                   database};

@@ -163,7 +163,6 @@ public:
     void lock() override;
     void unlock() override;
 
-private:
     void deferredBegin() override;
     void immediateBegin() override;
     void exclusiveBegin() override;
@@ -173,6 +172,7 @@ private:
     void sessionCommit() override;
     void sessionRollback() override;
 
+private:
     void initializeTables();
     void registerTransactionStatements();
     void deleteTransactionStatements();
