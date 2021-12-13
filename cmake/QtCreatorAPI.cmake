@@ -862,7 +862,7 @@ function(finalize_qtc_gtest test_name exclude_sources_regex)
     list(FILTER test_sources EXCLUDE REGEX "${exclude_sources_regex}")
   endif()
   include(GoogleTest)
-  gtest_add_tests(TARGET ${test_name} SOURCES ${test_sources} TEST_LIST test_list)
+  gtest_add_tests(TARGET ${test_name} SOURCES ${test_sources} TEST_LIST test_list SKIP_DEPENDENCY)
 
   foreach(test IN LISTS test_list)
     finalize_test_setup(${test})
