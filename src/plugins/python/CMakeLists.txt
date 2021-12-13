@@ -3,15 +3,16 @@ add_qtc_plugin(Python
   PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor
   SOURCES
     python.qrc
-    pythoneditor.cpp pythoneditor.h
     pythonconstants.h
-    pythonplugin.cpp pythonplugin.h
+    pythoneditor.cpp pythoneditor.h
     pythonformattoken.h
     pythonhighlighter.cpp pythonhighlighter.h
     pythonindenter.cpp pythonindenter.h
+    pythonlanguageclient.cpp pythonlanguageclient.h
+    pythonplugin.cpp pythonplugin.h
     pythonproject.cpp pythonproject.h
     pythonrunconfiguration.cpp pythonrunconfiguration.h
-    pythonsettings.cpp pythonsettings.h
     pythonscanner.cpp pythonscanner.h
+    pythonsettings.cpp pythonsettings.h
     pythonutils.cpp pythonutils.h
 )

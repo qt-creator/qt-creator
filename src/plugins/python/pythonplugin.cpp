@@ -26,10 +26,10 @@
 #include "pythonplugin.h"
 
 #include "pythoneditor.h"
+#include "pythonlanguageclient.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythonrunconfiguration.h"
-#include "pythonutils.h"
 
 #include <coreplugin/fileiconprovider.h>
 

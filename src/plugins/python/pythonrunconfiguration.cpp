@@ -26,9 +26,9 @@
 #include "pythonrunconfiguration.h"
 
 #include "pythonconstants.h"
+#include "pythonlanguageclient.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
-#include "pythonutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
