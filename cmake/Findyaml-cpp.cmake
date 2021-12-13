@@ -26,6 +26,7 @@ else()
     INCLUDES ${YAML_SOURCE_DIR}/include
     PUBLIC_DEFINES YAML_CPP_DLL
     PUBLIC_INCLUDES ${YAML_SOURCE_DIR}/include
+    PROPERTIES AUTOMOC OFF AUTOUIC OFF
     SOURCES
       ${YAML_SOURCE_DIR}/include/yaml-cpp
       ${YAML_SOURCE_DIR}/include/yaml-cpp/anchor.h
