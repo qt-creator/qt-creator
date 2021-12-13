@@ -1014,6 +1014,7 @@ function(qtc_add_resources target resourceName)
 
   target_sources(${target} PRIVATE "${generatedSourceCode}")
   set_property(SOURCE "${generatedSourceCode}" PROPERTY SKIP_AUTOGEN ON)
+  set_property(SOURCE "${generatedResourceFile}.in" PROPERTY SKIP_AUTOGEN ON)
 endfunction()
 
 function(qtc_add_public_header header)
