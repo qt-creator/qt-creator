@@ -357,8 +357,6 @@ void StudioWelcomePlugin::extensionsInitialized()
     // Enable QDS new project dialog
     Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
-    return;
-
     if (Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
                                                    DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY)) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
