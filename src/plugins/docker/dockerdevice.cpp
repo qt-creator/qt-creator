@@ -949,6 +949,9 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
 
 bool DockerDevice::hasLocalFileAccess() const
 {
+    static const bool denyLocalAccess = qEnvironmentVariableIsSet("QTC_DOCKER_DENY_LOCAL_ACCESS");
+    if (denyLocalAccess)
+        return false;
     return !d->m_mergedDir.isEmpty();
 }
 
