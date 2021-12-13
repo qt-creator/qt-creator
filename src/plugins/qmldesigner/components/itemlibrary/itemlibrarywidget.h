@@ -72,6 +72,7 @@ class ItemLibraryWidget : public QFrame
 
 public:
     Q_PROPERTY(bool subCompEditMode READ subCompEditMode NOTIFY subCompEditModeChanged)
+    Q_PROPERTY(bool searchActive READ searchActive NOTIFY searchActiveChanged)
 
     ItemLibraryWidget(AsynchronousImageCache &imageCache,
                       AsynchronousImageCache &asynchronousFontImageCache,
@@ -97,6 +98,7 @@ public:
     inline static bool isHorizontalLayout = false;
 
     bool subCompEditMode() const;
+    bool searchActive() const;
 
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
@@ -107,13 +109,13 @@ public:
     Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
     Q_INVOKABLE void handleAddImport(int index);
-    Q_INVOKABLE bool isSearchActive() const;
     Q_INVOKABLE void handleFilesDrop(const QStringList &filesPaths);
     Q_INVOKABLE QSet<QString> supportedDropSuffixes();
 
 signals:
     void itemActivated(const QString &itemName);
     void subCompEditModeChanged();
+    void searchActiveChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
