@@ -72,7 +72,7 @@ static void startFlashingWizard()
 {
     const FilePath filePath = flashWizardFilePath();
     if (HostOsInfo::isWindowsHost()) {
-        if (QtcProcess::startDetached({"explorer.exe", {filePath.toString()}}))
+        if (QtcProcess::startDetached({"explorer.exe", {filePath.toUserOutput()}}))
             return;
     } else if (QtcProcess::startDetached({filePath, {}})) {
         return;
