@@ -25,8 +25,6 @@
 
 #include "copytaskhandler.h"
 
-#include "task.h"
-
 #include <coreplugin/coreconstants.h>
 
 #include <QAction>
@@ -36,25 +34,27 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-void CopyTaskHandler::handle(const Task &task)
+void CopyTaskHandler::handle(const Tasks &tasks)
 {
-    QString type;
-    switch (task.type) {
-    case Task::Error:
-        //: Task is of type: error
-        type = tr("error:") + QLatin1Char(' ');
-        break;
-    case Task::Warning:
-        //: Task is of type: warning
-        type = tr("warning:") + QLatin1Char(' ');
-        break;
-    default:
-        break;
+    QStringList lines;
+    for (const Task &task : tasks) {
+        QString type;
+        switch (task.type) {
+        case Task::Error:
+            //: Task is of type: error
+            type = tr("error:") + QLatin1Char(' ');
+            break;
+        case Task::Warning:
+            //: Task is of type: warning
+            type = tr("warning:") + QLatin1Char(' ');
+            break;
+        default:
+            break;
+        }
+        lines << task.file.toUserOutput() + ':' + QString::number(task.line)
+                 + ": " + type + task.description();
     }
-
-    QApplication::clipboard()->setText(task.file.toUserOutput() + QLatin1Char(':') +
-                                       QString::number(task.line) + QLatin1String(": ")
-                                       + type + task.description());
+    QApplication::clipboard()->setText(lines.join('\n'));
 }
 
 Utils::Id CopyTaskHandler::actionManagerId() const

@@ -67,7 +67,7 @@ namespace ProjectExplorer {
 
 static QList<ITaskHandler *> g_taskHandlers;
 
-ITaskHandler::ITaskHandler()
+ITaskHandler::ITaskHandler(bool isMultiHandler) : m_isMultiHandler(isMultiHandler)
 {
     g_taskHandlers.append(this);
 }
@@ -75,6 +75,30 @@ ITaskHandler::ITaskHandler()
 ITaskHandler::~ITaskHandler()
 {
     g_taskHandlers.removeOne(this);
+}
+
+void ITaskHandler::handle(const Task &task)
+{
+    QTC_ASSERT(m_isMultiHandler, return);
+    handle(Tasks{task});
+}
+
+void ITaskHandler::handle(const Tasks &tasks)
+{
+    QTC_ASSERT(canHandle(tasks), return);
+    QTC_ASSERT(!m_isMultiHandler, return);
+    handle(tasks.first());
+}
+
+bool ITaskHandler::canHandle(const Tasks &tasks) const
+{
+    if (tasks.isEmpty())
+        return false;
+    if (m_isMultiHandler)
+        return true;
+    if (tasks.size() > 1)
+        return false;
+    return canHandle(tasks.first());
 }
 
 namespace Internal {
@@ -322,7 +346,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_listview->setModel(d->m_filter);
     d->m_listview->setFrameStyle(QFrame::NoFrame);
     d->m_listview->setWindowTitle(displayName());
-    d->m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
+    d->m_listview->setSelectionMode(QAbstractItemView::ExtendedSelection);
     auto *tld = new Internal::TaskDelegate(this);
     d->m_listview->setItemDelegate(tld);
     d->m_listview->setWindowIcon(Icons::WINDOW.icon());
@@ -336,11 +360,18 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     connect(d->m_listview->selectionModel(), &QItemSelectionModel::currentChanged,
             tld, &TaskDelegate::currentChanged);
-
     connect(d->m_listview->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &TaskWindow::currentChanged);
+            this, [this](const QModelIndex &index) { d->m_listview->scrollTo(index); });
     connect(d->m_listview, &QAbstractItemView::activated,
             this, &TaskWindow::triggerDefaultHandler);
+    connect(d->m_listview->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this] {
+        const Tasks tasks = d->m_filter->tasks(d->m_listview->selectionModel()->selectedIndexes());
+        for (QAction * const action : qAsConst(d->m_actions)) {
+            ITaskHandler * const h = d->handler(action);
+            action->setEnabled(h && h->canHandle(tasks));
+        }
+    });
 
     d->m_contextMenu = new QMenu(d->m_listview);
 
@@ -417,6 +448,7 @@ void TaskWindow::delayedInitialization()
             d->m_defaultHandler = h;
 
         QAction *action = h->createAction(this);
+        action->setEnabled(false);
         QTC_ASSERT(action, continue);
         d->m_actionToHandlerMap.insert(action, h);
         connect(action, &QAction::triggered, this, &TaskWindow::actionTriggered);
@@ -430,9 +462,6 @@ void TaskWindow::delayedInitialization()
         }
         d->m_listview->addAction(action);
     }
-
-    // Disable everything for now:
-    currentChanged(QModelIndex());
 }
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
@@ -466,16 +495,6 @@ void TaskWindow::setCategoryVisibility(Utils::Id categoryId, bool visible)
         categories.append(categoryId);
 
     d->m_filter->setFilteredCategories(categories);
-}
-
-void TaskWindow::currentChanged(const QModelIndex &index)
-{
-    const Task task = index.isValid() ? d->m_filter->task(index) : Task();
-    foreach (QAction *action, d->m_actions) {
-        ITaskHandler *h = d->handler(action);
-        action->setEnabled((task.isNull() || !h) ? false : h->canHandle(task));
-    }
-    d->m_listview->scrollTo(index);
 }
 
 void TaskWindow::saveSettings()
@@ -605,12 +624,7 @@ void TaskWindow::actionTriggered()
     if (!h)
         return;
 
-    QModelIndex index = d->m_listview->selectionModel()->currentIndex();
-    Task task = d->m_filter->task(index);
-    if (task.isNull())
-        return;
-
-    h->handle(task);
+    h->handle(d->m_filter->tasks(d->m_listview->selectionModel()->selectedIndexes()));
 }
 
 void TaskWindow::setShowWarnings(bool show)
@@ -774,11 +788,11 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     initStyleOption(&opt, index);
 
     auto view = qobject_cast<const QAbstractItemView *>(opt.widget);
-    const bool selected = (view->selectionModel()->currentIndex() == index);
+    const bool current = view->selectionModel()->currentIndex() == index;
     QSize s;
     s.setWidth(option.rect.width());
 
-    if (!selected && option.font == m_cachedFont && m_cachedHeight > 0) {
+    if (!current && option.font == m_cachedFont && m_cachedHeight > 0) {
         s.setHeight(m_cachedHeight);
         return s;
     }
@@ -790,7 +804,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     auto model = static_cast<TaskFilterModel *>(view->model())->taskModel();
     Positions positions(option, model);
 
-    if (selected) {
+    if (current) {
         QString description = index.data(TaskModel::Description).toString();
         // Layout the description
         int leading = fontLeading;
@@ -817,7 +831,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     if (s.height() < Positions::minimumHeight())
         s.setHeight(Positions::minimumHeight());
 
-    if (!selected) {
+    if (!current) {
         m_cachedHeight = s.height();
         m_cachedFont = option.font;
     }
@@ -856,7 +870,8 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     QColor textColor;
 
     auto view = qobject_cast<const QAbstractItemView *>(opt.widget);
-    bool selected = view->selectionModel()->currentIndex() == index;
+    const bool selected = view->selectionModel()->isSelected(index);
+    const bool current = view->selectionModel()->currentIndex() == index;
 
     if (selected) {
         painter->setBrush(opt.palette.highlight().color());
@@ -885,7 +900,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
                         icon.pixmap(Positions::taskIconWidth(), Positions::taskIconHeight()));
 
     // Paint TextArea:
-    if (!selected) {
+    if (!current) {
         // in small mode we lay out differently
         QString bottom = index.data(TaskModel::Description).toString().split(QLatin1Char('\n')).first();
         painter->setClipRect(positions.textArea());
@@ -908,7 +923,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         QTextLayout tl(description);
         QVector<QTextLayout::FormatRange> formats = index.data(TaskModel::Task_t).value<Task>().formats;
         for (QTextLayout::FormatRange &format : formats)
-            format.format.setForeground(opt.palette.highlightedText());
+            format.format.setForeground(textColor);
         tl.setFormats(formats);
         tl.beginLayout();
         while (true) {

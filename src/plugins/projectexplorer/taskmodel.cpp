@@ -29,6 +29,7 @@
 #include "task.h"
 #include "taskhub.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -286,6 +287,13 @@ Task TaskModel::task(const QModelIndex &index) const
     return m_tasks.at(row);
 }
 
+Tasks TaskModel::tasks(const QModelIndexList &indexes) const
+{
+    return Utils::filtered(
+                Utils::transform<Tasks>(indexes, [this](const QModelIndex &i) { return task(i); }),
+                [](const Task &t) { return !t.isNull(); });
+}
+
 QList<Utils::Id> TaskModel::categoryIds() const
 {
     QList<Utils::Id> categories = m_categories.keys();
@@ -358,6 +366,12 @@ void TaskFilterModel::setFilterIncludesWarnings(bool b)
     m_includeWarnings = b;
     m_includeUnknowns = b; // "Unknowns" are often associated with warnings
     invalidateFilter();
+}
+
+Tasks TaskFilterModel::tasks(const QModelIndexList &indexes) const
+{
+    return taskModel()->tasks(Utils::transform(indexes, [this](const QModelIndex &i) {
+        return mapToSource(i); }));
 }
 
 int TaskFilterModel::issuesCount(int startRow, int endRow) const

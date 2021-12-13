@@ -49,6 +49,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Task task(const QModelIndex &index) const;
+    Tasks tasks(const QModelIndexList &indexes) const;
 
     QList<Utils::Id> categoryIds() const;
     QString categoryDisplayName(Utils::Id categoryId) const;
@@ -142,6 +143,7 @@ public:
     void setFilteredCategories(const QList<Utils::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
 
     Task task(const QModelIndex &index) const { return taskModel()->task(mapToSource(index)); }
+    Tasks tasks(const QModelIndexList &indexes) const;
     int issuesCount(int startRow, int endRow) const;
 
     bool hasFile(const QModelIndex &index) const

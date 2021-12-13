@@ -35,8 +35,9 @@ class CopyTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    bool canHandle(const Task &) const override { return true; }
-    void handle(const Task &task) override;
+    CopyTaskHandler() : ITaskHandler(true) {}
+
+    void handle(const Tasks &tasks) override;
     Utils::Id actionManagerId() const override;
     QAction *createAction(QObject *parent) const override;
 };
