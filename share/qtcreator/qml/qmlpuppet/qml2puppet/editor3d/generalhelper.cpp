@@ -360,6 +360,14 @@ bool GeneralHelper::isPickable(QQuick3DNode *node) const
     if (!node)
         return false;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    // Instancing doesn't hide child nodes, so only check for instancing on the requested node
+    if (auto model = qobject_cast<QQuick3DModel *>(node)) {
+        if (model->instancing())
+            return false;
+    }
+#endif
+
     QQuick3DNode *n = node;
     while (n) {
         if (!n->visible() || isLocked(n) || isHidden(n))
