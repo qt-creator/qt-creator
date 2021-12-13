@@ -41,7 +41,10 @@ def main():
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in cpp file
-    openDocument("SampleApp.Sources.main\\.cpp")
+    if not openDocument("SampleApp.SampleApp.Source Files.main\\.cpp"):
+        test.fatal("Could not open main.cpp - exiting.")
+        invokeMenuItem("File", "Exit")
+        return
     if not appendToLine(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget"), "QQmlApplicationEngine engine;", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return
