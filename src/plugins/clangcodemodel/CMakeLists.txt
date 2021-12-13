@@ -68,7 +68,7 @@ elseif(MSVC)
   set(big_obj_compile_option "/bigobj")
 endif()
 
-extend_qtc_plugin(ClangCodeModel
-  CONDITION DEFINED big_obj_compile_option
-  PROPERTIES COMPILE_OPTIONS ${big_obj_compile_option}
-)
+if(big_obj_compile_option)
+  set_property(TARGET ClangCodeModel
+               APPEND PROPERTY COMPILE_OPTIONS ${big_obj_compile_option})
+endif()
