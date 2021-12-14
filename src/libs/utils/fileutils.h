@@ -80,8 +80,10 @@ public:
     std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<FilePath(const FilePath &)> mapToGlobalPath;
     std::function<QString(const FilePath &)> mapToDevicePath;
-    std::function<QList<FilePath>(const FilePath &, const QStringList &,
-                                  QDir::Filters, QDir::SortFlags)> dirEntries;
+    std::function<void(const FilePath &,
+                       const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
+                       const QStringList &,
+                       QDir::Filters)> iterateDirectory;
     std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;

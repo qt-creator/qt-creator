@@ -32,7 +32,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 
@@ -755,12 +754,9 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
     if (searchPaths.isEmpty())
         return;
 
-    IDevice::ConstPtr device = DeviceManager::deviceForPath(searchPaths.front());
-    QTC_ASSERT(device, return);
-
     FilePaths suspects;
 
-    if (device->osType() == OsTypeMac) {
+    if (searchPaths.front().osType() == OsTypeMac) {
         QtcProcess proc;
         proc.setTimeoutS(2);
         proc.setCommand({"xcrun", {"--find", "lldb"}});
@@ -782,9 +778,9 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
 
     paths = Utils::filteredUnique(paths);
 
-    for (const FilePath &path : paths) {
-        suspects.append(device->directoryEntries(path, filters, QDir::Files | QDir::Executable));
-    }
+    const auto addSuspect = [&suspects](const FilePath &entry) { suspects.append(entry); return true; };
+    for (const FilePath &path : paths)
+        path.iterateDirectory(addSuspect, filters, QDir::Files | QDir::Executable);
 
     QStringList logMessages{tr("Searching debuggers...")};
     for (const FilePath &command : qAsConst(suspects)) {

@@ -361,17 +361,16 @@ FilePath IDevice::symLinkTarget(const FilePath &filePath) const
     return {};
 }
 
-QList<FilePath> IDevice::directoryEntries(const FilePath &filePath,
-                                          const QStringList &nameFilters,
-                                          QDir::Filters filters,
-                                          QDir::SortFlags sort) const
+void IDevice::iterateDirectory(const FilePath &filePath,
+                               const std::function<bool(const FilePath &)> &callBack,
+                               const QStringList &nameFilters,
+                               QDir::Filters filters) const
 {
     Q_UNUSED(filePath);
+    Q_UNUSED(callBack);
     Q_UNUSED(nameFilters);
     Q_UNUSED(filters);
-    Q_UNUSED(sort);
     QTC_CHECK(false);
-    return {};
 }
 
 QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const

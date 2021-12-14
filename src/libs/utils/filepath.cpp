@@ -721,8 +721,11 @@ FilePaths FilePath::dirEntries(const QStringList &nameFilters,
                                QDir::SortFlags sort) const
 {
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.dirEntries, return {});
-        return s_deviceHooks.dirEntries(*this, nameFilters, filters, sort);
+        QTC_ASSERT(s_deviceHooks.iterateDirectory, return {});
+        FilePaths result;
+        const auto callBack = [&result](const FilePath &path) { result.append(path); return true; };
+        s_deviceHooks.iterateDirectory(*this, callBack, nameFilters, filters);
+        return result;
     }
 
     const QFileInfoList entryInfoList = QDir(m_data).entryInfoList(nameFilters, filters, sort);
@@ -741,10 +744,9 @@ void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> 
                                 QDirIterator::IteratorFlags flags) const
 {
     if (needsDevice()) {
-        for (const FilePath &filePath :
-             s_deviceHooks.dirEntries(*this, nameFilters, filters, QDir::NoSort))
-            if (!callBack(filePath))
-                return;
+        QTC_ASSERT(s_deviceHooks.iterateDirectory, return);
+        s_deviceHooks.iterateDirectory(*this, callBack, nameFilters, filters);
+        return;
     }
 
     QDirIterator it(m_data, nameFilters, filters, flags);

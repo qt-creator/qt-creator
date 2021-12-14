@@ -1062,15 +1062,15 @@ static FilePaths findCompilerCandidates(const IDevice::Ptr &device,
         FilePaths searchPaths = device->systemEnvironment().path();
         for (const FilePath &deviceDir : qAsConst(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
+            const auto callBack = [&compilerPaths, compilerName](const FilePath &candidate) {
+                if (candidate.fileName() == compilerName)
+                    compilerPaths << candidate;
+                else if (regexp.match(candidate.path()).hasMatch())
+                    compilerPaths << candidate;
+                return true;
+            };
             const FilePath globalDir = device->mapToGlobalPath(deviceDir);
-            const FilePaths fileNames = device->directoryEntries(globalDir, nameFilters,
-                                                                 QDir::Files | QDir::Executable);
-            for (const FilePath &fileName : fileNames) {
-                if (fileName.fileName() == compilerName)
-                    compilerPaths << fileName;
-                else if (regexp.match(fileName.path()).hasMatch())
-                    compilerPaths << fileName;
-            }
+            device->iterateDirectory(globalDir, callBack, nameFilters, QDir::Files | QDir::Executable);
         }
     } else {
         // The normal, local host case.

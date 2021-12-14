@@ -176,15 +176,13 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
     return !filePath.needsDevice();
 }
 
-QList<FilePath> DesktopDevice::directoryEntries(const FilePath &filePath,
-                                                const QStringList &nameFilters,
-                                                QDir::Filters filters,
-                                                QDir::SortFlags sort) const
+void DesktopDevice::iterateDirectory(const FilePath &filePath,
+                                     const std::function<bool(const Utils::FilePath &)> &callBack,
+                                     const QStringList &nameFilters,
+                                     QDir::Filters filters) const
 {
     QTC_CHECK(!filePath.needsDevice());
-    const QDir dir(filePath.path());
-    const QFileInfoList entryInfoList = dir.entryInfoList(nameFilters, filters, sort);
-    return Utils::transform(entryInfoList, &FilePath::fromFileInfo);
+    filePath.iterateDirectory(callBack, nameFilters, filters);
 }
 
 qint64 DesktopDevice::fileSize(const FilePath &filePath) const

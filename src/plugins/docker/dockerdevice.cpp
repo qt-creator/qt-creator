@@ -1429,11 +1429,12 @@ bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permiss
     return false;
 }
 
-FilePaths DockerDevice::findFilesWithFind(const FilePath &filePath,
-                                          const QStringList &nameFilters,
-                                          QDir::Filters filters,
-                                          QDir::SortFlags sort) const
+void DockerDevice::iterateWithFind(const FilePath &filePath,
+                                   const std::function<bool(const Utils::FilePath &)> &callBack,
+                                   const QStringList &nameFilters,
+                                   QDir::Filters filters) const
 {
+    QTC_ASSERT(callBack, return);
     QTC_CHECK(filePath.isAbsolutePath());
     QStringList arguments{filePath.path(), "-maxdepth", "1"};
     if (filters & QDir::NoSymLinks)
@@ -1481,28 +1482,23 @@ FilePaths DockerDevice::findFilesWithFind(const FilePath &filePath,
     if (!output.isEmpty() && !output.startsWith(filePath.path())) { // missing find, unknown option
         LOG("Setting 'do not use find'" << output.left(output.indexOf('\n')));
         d->m_useFind = false;
-        return {};
+        return;
     }
 
-    QStringList entries = output.split("\n", Qt::SkipEmptyParts);
-    if (sort & QDir::Name)
-        entries.sort(filters & QDir::CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    QTC_CHECK(sort == QDir::Name || sort == QDir::NoSort || sort == QDir::Unsorted);
-
-    // strip out find messages
-    entries = Utils::filtered(entries,
-                              [](const QString &entry) { return !entry.startsWith("find: "); });
-    FilePaths result;
-    for (const QString &entry : qAsConst(entries))
-        result.append(FilePath::fromString(entry).onDevice(filePath));
-    return result;
+    const QStringList entries = output.split("\n", Qt::SkipEmptyParts);
+    for (const QString &entry : entries) {
+        if (entry.startsWith("find: "))
+            continue;
+        if (!callBack(FilePath::fromString(entry).onDevice(filePath)))
+            break;
+    }
 }
 
-static FilePaths filterEntriesHelper(const FilePath &base,
-                                     const QStringList &entries,
-                                     const QStringList &nameFilters,
-                                     QDir::Filters filters,
-                                     QDir::SortFlags sort)
+static void filterEntriesHelper(const FilePath &base,
+                                const std::function<bool(const FilePath &)> &callBack,
+                                const QStringList &entries,
+                                const QStringList &nameFilters,
+                                QDir::Filters filters)
 {
     const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
         QRegularExpression re;
@@ -1520,43 +1516,46 @@ static FilePaths filterEntriesHelper(const FilePath &base,
         return nameRegexps.isEmpty();
     };
 
-    // FIXME: Handle sort and filters. For now bark on unsupported options.
+    // FIXME: Handle filters. For now bark on unsupported options.
     QTC_CHECK(filters == QDir::NoFilter);
-    QTC_CHECK(sort == QDir::NoSort);
 
     FilePaths result;
     for (const QString &entry : entries) {
         if (!nameMatches(entry))
             continue;
-        result.append(base.pathAppended(entry));
+        if (!callBack(base.pathAppended(entry)))
+            break;
     }
-    return result;
 }
 
-FilePaths DockerDevice::directoryEntries(const FilePath &filePath,
-                                         const QStringList &nameFilters,
-                                         QDir::Filters filters,
-                                         QDir::SortFlags sort) const
+void DockerDevice::iterateDirectory(const FilePath &filePath,
+                                    const std::function<bool(const FilePath &)> &callBack,
+                                    const QStringList &nameFilters,
+                                    QDir::Filters filters) const
 {
-    QTC_ASSERT(handlesFile(filePath), return {});
+    QTC_ASSERT(handlesFile(filePath), return);
     tryCreateLocalFileAccess();
     if (hasLocalFileAccess()) {
-        const FilePaths entries = mapToLocalAccess(filePath).dirEntries(nameFilters, filters, sort);
-        return Utils::transform(entries, [this](const FilePath &entry) {
-            return mapFromLocalAccess(entry);
-        });
+        const FilePath local = mapToLocalAccess(filePath);
+        local.iterateDirectory([&callBack, this](const FilePath &entry) {
+                                    return callBack(mapFromLocalAccess(entry));
+                               },
+                               nameFilters, filters);
+        return;
     }
 
     if (d->m_useFind) {
-        const FilePaths result = findFilesWithFind(filePath, nameFilters, filters, sort);
+        iterateWithFind(filePath, callBack, nameFilters, filters);
+        // d->m_useFind will be set to false if 'find' is not found. In this
+        // case fall back to 'ls' below.
         if (d->m_useFind)
-            return result;
+            return;
     }
 
     // if we do not have find - use ls as fallback
     const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
-    QStringList entries = output.split('\n', Qt::SkipEmptyParts);
-    return filterEntriesHelper(filePath, entries, nameFilters, filters, sort);
+    const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
+    filterEntriesHelper(filePath, callBack, entries, nameFilters, filters);
 }
 
 QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const

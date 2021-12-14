@@ -259,10 +259,10 @@ public:
     virtual Utils::FilePath searchExecutable(const QString &fileName,
                                              const QList<Utils::FilePath> &dirs) const;
     virtual Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const;
-    virtual QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
-                                                    const QStringList &nameFilters,
-                                                    QDir::Filters filters,
-                                                    QDir::SortFlags sort = QDir::NoSort) const;
+    virtual void iterateDirectory(const Utils::FilePath &filePath,
+                                  const std::function<bool(const Utils::FilePath &)> &callBack,
+                                  const QStringList &nameFilters,
+                                  QDir::Filters filters) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath,
                                     qint64 limit,
                                     qint64 offset) const;

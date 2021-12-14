@@ -56,10 +56,6 @@ public:
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
-    QList<Utils::FilePath> directoryEntries(const Utils::FilePath &filePath,
-                                            const QStringList &nameFilters,
-                                            QDir::Filters filters,
-                                            QDir::SortFlags sort) const override;
     Utils::Environment systemEnvironment() const override;
     bool isExecutableFile(const Utils::FilePath &filePath) const override;
     bool isReadableFile(const Utils::FilePath &filePath) const override;
@@ -77,6 +73,10 @@ public:
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
+    void iterateDirectory(const Utils::FilePath &filePath,
+                          const std::function<bool(const Utils::FilePath &)> &callBack,
+                          const QStringList &nameFilters,
+                          QDir::Filters filters) const override;
     QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
