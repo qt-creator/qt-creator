@@ -28,6 +28,8 @@
 #include <QAbstractListModel>
 #include <QStandardItemModel>
 
+namespace StudioWelcome {
+
 class StyleModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -94,3 +96,4 @@ private:
     QHash<int, QByteArray> m_roles;
 };
 
+} // namespace StudioWelcome
