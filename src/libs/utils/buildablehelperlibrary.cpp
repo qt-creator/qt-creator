@@ -90,6 +90,7 @@ static FilePath findQmakeInDir(const FilePath &dir)
     const FilePaths candidates = dir.dirEntries(
                 BuildableHelperLibrary::possibleQMakeCommands(),
                 QDir::Files,
+                QDirIterator::NoIteratorFlags,
                 QDir::Name | QDir::Reversed);
     for (const FilePath &candidate : candidates) {
         if (candidate == qmakePath)

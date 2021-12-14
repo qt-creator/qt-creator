@@ -677,7 +677,8 @@ static void filterEntriesHelper(const FilePath &base,
                                 const std::function<bool(const FilePath &)> &callBack,
                                 const QStringList &entries,
                                 const QStringList &nameFilters,
-                                QDir::Filters filters)
+                                QDir::Filters filters,
+                                QDirIterator::IteratorFlags flags)
 {
     const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
         QRegularExpression re;
@@ -697,6 +698,7 @@ static void filterEntriesHelper(const FilePath &base,
 
     // FIXME: Handle filters. For now bark on unsupported options.
     QTC_CHECK(filters == QDir::NoFilter);
+    QTC_CHECK(flags == QDirIterator::NoIteratorFlags);
 
     for (const QString &entry : entries) {
         if (!nameMatches(entry))
@@ -709,13 +711,14 @@ static void filterEntriesHelper(const FilePath &base,
 void LinuxDevice::iterateDirectory(const FilePath &filePath,
                                    const std::function<bool(const FilePath &)> &callBack,
                                    const QStringList &nameFilters,
-                                   QDir::Filters filters) const
+                                   QDir::Filters filters,
+                                   QDirIterator::IteratorFlags flags) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
     // if we do not have find - use ls as fallback
     const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
     const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
-    filterEntriesHelper(filePath, callBack, entries, nameFilters, filters);
+    filterEntriesHelper(filePath, callBack, entries, nameFilters, filters, flags);
 }
 
 QByteArray LinuxDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const

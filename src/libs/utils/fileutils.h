@@ -83,7 +83,8 @@ public:
     std::function<void(const FilePath &,
                        const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
                        const QStringList &,
-                       QDir::Filters)> iterateDirectory;
+                       QDir::Filters,
+                       QDirIterator::IteratorFlags)> iterateDirectory;
     std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;

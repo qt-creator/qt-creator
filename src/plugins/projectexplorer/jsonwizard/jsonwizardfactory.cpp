@@ -425,7 +425,8 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
         const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
         const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-        FilePaths dirs = path.dirEntries({}, filters, sortflags);
+        const QDirIterator::IteratorFlag iteratorFlags = QDirIterator::NoIteratorFlags;
+        FilePaths dirs = path.dirEntries({}, filters, iteratorFlags, sortflags);
 
         while (!dirs.isEmpty()) {
             const FilePath currentDir = dirs.takeFirst();
@@ -482,7 +483,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
                 result << factory;
             } else {
-                FilePaths subDirs = currentDir.dirEntries({}, filters, sortflags);
+                FilePaths subDirs = currentDir.dirEntries({}, filters, iteratorFlags, sortflags);
                 if (!subDirs.isEmpty()) {
                     // There is no QList::prepend(QList)...
                     dirs.swap(subDirs);

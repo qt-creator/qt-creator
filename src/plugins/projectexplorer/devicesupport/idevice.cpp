@@ -364,12 +364,14 @@ FilePath IDevice::symLinkTarget(const FilePath &filePath) const
 void IDevice::iterateDirectory(const FilePath &filePath,
                                const std::function<bool(const FilePath &)> &callBack,
                                const QStringList &nameFilters,
-                               QDir::Filters filters) const
+                               QDir::Filters filters,
+                               QDirIterator::IteratorFlags flags) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(callBack);
     Q_UNUSED(nameFilters);
     Q_UNUSED(filters);
+    Q_UNUSED(flags);
     QTC_CHECK(false);
 }
 

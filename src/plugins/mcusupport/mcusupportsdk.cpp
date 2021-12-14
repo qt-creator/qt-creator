@@ -304,7 +304,8 @@ static McuPackage *createCypressProgrammerPackage()
         const FilePath candidate = findInProgramFiles("Cypress");
         if (candidate.exists()) {
             // "Cypress Auto Flash Utility 1.0"
-            const auto subDirs = candidate.dirEntries({"Cypress Auto Flash Utility*"}, QDir::Dirs, QDir::Unsorted);
+            const auto subDirs = candidate.dirEntries({"Cypress Auto Flash Utility*"},
+                                          QDir::Dirs, QDirIterator::NoIteratorFlags, QDir::Unsorted);
             if (!subDirs.empty())
                 defaultPath = subDirs.first();
         }
@@ -330,7 +331,8 @@ static McuPackage *createRenesasProgrammerPackage()
         const FilePath candidate = findInProgramFiles("Renesas Electronics/Programming Tools");
         if (candidate.exists()) {
             // "Renesas Flash Programmer V3.09"
-            const auto subDirs = candidate.dirEntries({"Renesas Flash Programmer*"}, QDir::Dirs, QDir::Unsorted);
+            const auto subDirs = candidate.dirEntries({"Renesas Flash Programmer*"},
+                                          QDir::Dirs, QDirIterator::NoIteratorFlags, QDir::Unsorted);
             if (!subDirs.empty())
                 defaultPath = subDirs.first();
         }

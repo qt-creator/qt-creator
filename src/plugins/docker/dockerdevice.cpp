@@ -1547,8 +1547,11 @@ static void filterEntriesHelper(const FilePath &base,
 void DockerDevice::iterateDirectory(const FilePath &filePath,
                                     const std::function<bool(const FilePath &)> &callBack,
                                     const QStringList &nameFilters,
-                                    QDir::Filters filters) const
+                                    QDir::Filters filters,
+                                    QDirIterator::IteratorFlags flags) const
 {
+    Q_UNUSED(flags) // FIXME: Use it.
+
     QTC_ASSERT(handlesFile(filePath), return);
     updateContainerAccess();
     if (hasLocalFileAccess()) {

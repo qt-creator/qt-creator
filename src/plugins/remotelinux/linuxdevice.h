@@ -79,7 +79,8 @@ public:
     void iterateDirectory(const Utils::FilePath &filePath,
                           const std::function<bool(const Utils::FilePath &)> &callBack,
                           const QStringList &nameFilters,
-                          QDir::Filters filters) const override;
+                          QDir::Filters filters,
+                          QDirIterator::IteratorFlags flags) const override;
     QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;

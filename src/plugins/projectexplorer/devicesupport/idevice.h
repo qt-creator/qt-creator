@@ -262,7 +262,8 @@ public:
     virtual void iterateDirectory(const Utils::FilePath &filePath,
                                   const std::function<bool(const Utils::FilePath &)> &callBack,
                                   const QStringList &nameFilters,
-                                  QDir::Filters filters) const;
+                                  QDir::Filters filters,
+                                  QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath,
                                     qint64 limit,
                                     qint64 offset) const;
