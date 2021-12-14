@@ -286,16 +286,30 @@ def package_qtcreator(args, paths):
                                          '*'],
                                         paths.qtcreatorcdbext_install)
 
-    if common.is_mac_platform() and not args.no_dmg and not args.no_qtcreator:
+    if common.is_mac_platform() and not args.no_qtcreator:
         if args.keychain_unlock_script:
             common.check_print_call([args.keychain_unlock_script], paths.install)
-        common.check_print_call(['python', '-u',
-                                 os.path.join(paths.src, 'scripts', 'makedmg.py'),
-                                 'qt-creator' + args.zip_infix + '.dmg',
-                                 'Qt Creator',
-                                 paths.src,
-                                 paths.install],
-                                paths.result)
+        if os.environ.get('SIGNING_IDENTITY'):
+            signed_install_path = paths.install + '-signed'
+            common.copytree(paths.install, signed_install_path, symlinks=True)
+            apps = [d for d in os.listdir(signed_install_path) if d.endswith('.app')]
+            if apps:
+                app = apps[0]
+                common.codesign(os.path.join(signed_install_path, app))
+                if not args.no_zip:
+                    common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
+                                             os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
+                                             app],
+                                            signed_install_path)
+        if not args.no_dmg:
+            common.check_print_call(['python', '-u',
+                                     os.path.join(paths.src, 'scripts', 'makedmg.py'),
+                                     'qt-creator' + args.zip_infix + '.dmg',
+                                     'Qt Creator',
+                                     paths.src,
+                                     paths.install],
+                                    paths.result)
+
 
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
