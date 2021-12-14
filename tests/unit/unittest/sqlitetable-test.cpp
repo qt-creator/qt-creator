@@ -32,7 +32,6 @@
 
 namespace {
 
-using Sqlite::Column;
 using Sqlite::ColumnType;
 using Sqlite::ConstraintType;
 using Sqlite::Database;
@@ -41,10 +40,13 @@ using Sqlite::ForeignKey;
 using Sqlite::ForeignKeyAction;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
+using Sqlite::StrictColumnType;
 
 class SqliteTable : public ::testing::Test
 {
 protected:
+    using Column = Sqlite::Column;
+
     NiceMock<SqliteDatabaseMock> databaseMock;
     Sqlite::Table table;
     Utils::SmallString tableName = "testTable";
@@ -325,6 +327,304 @@ TEST_F(SqliteTable, AddPrimaryTableContraint)
     table.addPrimaryKeyContraint({idColumn, nameColumn});
 
     EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(id, name, PRIMARY KEY(id, name))")));
+
+    table.initialize(databaseMock);
+}
+
+class StrictSqliteTable : public ::testing::Test
+{
+protected:
+    using Column = Sqlite::StrictColumn;
+
+    NiceMock<SqliteDatabaseMock> databaseMock;
+    Sqlite::StrictTable table;
+    Utils::SmallString tableName = "testTable";
+};
+
+TEST_F(StrictSqliteTable, ColumnIsAddedToTable)
+{
+    table.setUseWithoutRowId(true);
+
+    ASSERT_TRUE(table.useWithoutRowId());
+}
+
+TEST_F(StrictSqliteTable, SetTableName)
+{
+    table.setName(tableName.clone());
+
+    ASSERT_THAT(table.name(), tableName);
+}
+
+TEST_F(StrictSqliteTable, SetUseWithoutRowid)
+{
+    table.setUseWithoutRowId(true);
+
+    ASSERT_TRUE(table.useWithoutRowId());
+}
+
+TEST_F(StrictSqliteTable, AddIndex)
+{
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+
+    auto index = table.addIndex({column, column2});
+
+    ASSERT_THAT(Utils::SmallStringView(index.sqlStatement()),
+                Eq("CREATE INDEX IF NOT EXISTS index_testTable_name_value ON testTable(name, "
+                   "value)"));
+}
+
+TEST_F(StrictSqliteTable, InitializeTable)
+{
+    table.setName(tableName.clone());
+    table.setUseIfNotExists(true);
+    table.setUseTemporaryTable(true);
+    table.setUseWithoutRowId(true);
+    table.addColumn("name");
+    table.addColumn("value");
+
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE TEMPORARY TABLE IF NOT EXISTS testTable(name ANY, value ANY) "
+                           "WITHOUT ROWID STRICT")));
+
+    table.initialize(databaseMock);
+}
+
+TEST_F(StrictSqliteTable, InitializeTableWithIndex)
+{
+    InSequence sequence;
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+    table.addIndex({column});
+    table.addIndex({column2}, "value IS NOT NULL");
+
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name ANY, value ANY) STRICT")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value) "
+                           "WHERE value IS NOT NULL")));
+
+    table.initialize(databaseMock);
+}
+
+TEST_F(StrictSqliteTable, InitializeTableWithUniqueIndex)
+{
+    InSequence sequence;
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+    table.addUniqueIndex({column});
+    table.addUniqueIndex({column2}, "value IS NOT NULL");
+
+    EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name ANY, value ANY) STRICT")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+    EXPECT_CALL(databaseMock,
+                execute(Eq(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_value ON testTable(value) "
+                    "WHERE value IS NOT NULL")));
+
+    table.initialize(databaseMock);
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTableCalls)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+    table.setName(tableName);
+    table.addForeignKeyColumn("name",
+                              foreignTable,
+                              ForeignKeyAction::SetNull,
+                              ForeignKeyAction::Cascade,
+                              Enforment::Deferred);
+
+    EXPECT_CALL(databaseMock,
+                execute(Eq("CREATE TABLE testTable(name INTEGER REFERENCES foreignTable ON UPDATE "
+                           "SET NULL ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED) STRICT")));
+
+    table.initialize(databaseMock);
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumnCalls)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn",
+                                                 StrictColumnType::Text,
+                                                 {Sqlite::Unique{}});
+    table.setName(tableName);
+    table.addForeignKeyColumn("name",
+                              foreignColumn,
+                              ForeignKeyAction::SetDefault,
+                              ForeignKeyAction::Restrict,
+                              Enforment::Deferred);
+
+    EXPECT_CALL(
+        databaseMock,
+        execute(
+            Eq("CREATE TABLE testTable(name TEXT REFERENCES foreignTable(foreignColumn) ON UPDATE "
+               "SET DEFAULT ON DELETE RESTRICT DEFERRABLE INITIALLY DEFERRED) STRICT")));
+
+    table.initialize(databaseMock);
+}
+
+TEST_F(StrictSqliteTable, AddColumn)
+{
+    table.setName(tableName);
+
+    auto &column = table.addColumn("name", StrictColumnType::Text, {Sqlite::Unique{}});
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, StrictColumnType::Text),
+                      Field(&Column::constraints,
+                            ElementsAre(VariantWith<Sqlite::Unique>(Eq(Sqlite::Unique{}))))));
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTable)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+
+    table.setName(tableName);
+
+    auto &column = table.addForeignKeyColumn("name",
+                                             foreignTable,
+                                             ForeignKeyAction::SetNull,
+                                             ForeignKeyAction::Cascade,
+                                             Enforment::Deferred);
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, StrictColumnType::Integer),
+                      Field(&Column::constraints,
+                            ElementsAre(VariantWith<ForeignKey>(
+                                AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                      Field(&ForeignKey::column, IsEmpty()),
+                                      Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                      Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                      Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumn)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn",
+                                                 StrictColumnType::Text,
+                                                 {Sqlite::Unique{}});
+    table.setName(tableName);
+
+    auto &column = table.addForeignKeyColumn("name",
+                                             foreignColumn,
+                                             ForeignKeyAction::SetNull,
+                                             ForeignKeyAction::Cascade,
+                                             Enforment::Deferred);
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, StrictColumnType::Text),
+                      Field(&Column::constraints,
+                            ElementsAre(VariantWith<ForeignKey>(
+                                AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                      Field(&ForeignKey::column, Eq("foreignColumn")),
+                                      Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                      Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                      Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn", StrictColumnType::Text);
+    table.setName(tableName);
+
+    ASSERT_THROW(table.addForeignKeyColumn("name",
+                                           foreignColumn,
+                                           ForeignKeyAction::SetNull,
+                                           ForeignKeyAction::Cascade,
+                                           Enforment::Deferred),
+                 Sqlite::ForeignKeyColumnIsNotUnique);
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTableAndNotNull)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+
+    table.setName(tableName);
+
+    auto &column = table.addForeignKeyColumn("name",
+                                             foreignTable,
+                                             ForeignKeyAction::SetNull,
+                                             ForeignKeyAction::Cascade,
+                                             Enforment::Deferred,
+                                             {Sqlite::NotNull{}});
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, StrictColumnType::Integer),
+                      Field(&Column::constraints,
+                            UnorderedElementsAre(
+                                VariantWith<ForeignKey>(
+                                    AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                          Field(&ForeignKey::column, IsEmpty()),
+                                          Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                          Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                          Field(&ForeignKey::enforcement, Enforment::Deferred))),
+                                VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
+}
+
+TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
+{
+    Sqlite::StrictTable foreignTable;
+    foreignTable.setName("foreignTable");
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn",
+                                                 StrictColumnType::Text,
+                                                 {Sqlite::Unique{}});
+    table.setName(tableName);
+
+    auto &column = table.addForeignKeyColumn("name",
+                                             foreignColumn,
+                                             ForeignKeyAction::SetNull,
+                                             ForeignKeyAction::Cascade,
+                                             Enforment::Deferred,
+                                             {Sqlite::NotNull{}});
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, StrictColumnType::Text),
+                      Field(&Column::constraints,
+                            UnorderedElementsAre(
+                                VariantWith<ForeignKey>(
+                                    AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                          Field(&ForeignKey::column, Eq("foreignColumn")),
+                                          Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                          Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                          Field(&ForeignKey::enforcement, Enforment::Deferred))),
+                                VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
+}
+
+TEST_F(StrictSqliteTable, AddPrimaryTableContraint)
+{
+    table.setName(tableName.clone());
+    const auto &idColumn = table.addColumn("id");
+    const auto &nameColumn = table.addColumn("name");
+    table.addPrimaryKeyContraint({idColumn, nameColumn});
+
+    EXPECT_CALL(databaseMock,
+                execute(
+                    Eq("CREATE TABLE testTable(id ANY, name ANY, PRIMARY KEY(id, name)) STRICT")));
 
     table.initialize(databaseMock);
 }

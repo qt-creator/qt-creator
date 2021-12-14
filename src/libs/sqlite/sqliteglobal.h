@@ -40,6 +40,7 @@
 namespace Sqlite {
 
 enum class ColumnType : char { None, Numeric, Integer, Real, Text, Blob };
+enum class StrictColumnType : char { Any, Integer, Int, Real, Text, Blob };
 
 enum class ConstraintType : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
 

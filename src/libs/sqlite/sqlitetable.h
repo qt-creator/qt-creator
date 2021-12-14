@@ -35,10 +35,15 @@ namespace Sqlite {
 
 class Database;
 
-class Table
+template<typename ColumnType>
+class BasicTable
 {
 public:
-    Table(std::size_t reserve = 10)
+    using Column = ::Sqlite::BasicColumn<ColumnType>;
+    using ColumnConstReferences = ::Sqlite::BasicColumnConstReferences<ColumnType>;
+    using Columns = ::Sqlite::BasicColumns<ColumnType>;
+
+    BasicTable(std::size_t reserve = 10)
     {
         m_sqliteColumns.reserve(reserve);
         m_sqliteIndices.reserve(reserve);
@@ -71,9 +76,7 @@ public:
         m_useTemporaryTable = useTemporaryTable;
     }
 
-    Column &addColumn(Utils::SmallStringView name,
-                      ColumnType type = ColumnType::None,
-                      Constraints &&constraints = {})
+    Column &addColumn(Utils::SmallStringView name, ColumnType type = {}, Constraints &&constraints = {})
     {
         m_sqliteColumns.emplace_back(m_tableName, name, type, std::move(constraints));
 
@@ -81,7 +84,7 @@ public:
     }
 
     Column &addForeignKeyColumn(Utils::SmallStringView name,
-                                const Table &referencedTable,
+                                const BasicTable &referencedTable,
                                 ForeignKeyAction foreignKeyupdateAction = {},
                                 ForeignKeyAction foreignKeyDeleteAction = {},
                                 Enforment foreignKeyEnforcement = {},
@@ -123,18 +126,19 @@ public:
         return m_sqliteColumns.back();
     }
 
-    void addPrimaryKeyContraint(const SqliteColumnConstReferences &columns)
+    void addPrimaryKeyContraint(const BasicColumnConstReferences<ColumnType> &columns)
     {
         Utils::SmallStringVector columnNames;
         columnNames.reserve(columns.size());
 
         for (const auto &column : columns)
-            columnNames.emplace_back(column.get().name);
+            columnNames.emplace_back(column.name);
 
         m_tableConstraints.emplace_back(TablePrimaryKey{std::move(columnNames)});
     }
 
-    Index &addIndex(const SqliteColumnConstReferences &columns, Utils::SmallStringView condition = {})
+    Index &addIndex(const BasicColumnConstReferences<ColumnType> &columns,
+                    Utils::SmallStringView condition = {})
     {
         return m_sqliteIndices.emplace_back(m_tableName,
                                             sqliteColumnNames(columns),
@@ -142,7 +146,7 @@ public:
                                             condition);
     }
 
-    Index &addUniqueIndex(const SqliteColumnConstReferences &columns,
+    Index &addUniqueIndex(const BasicColumnConstReferences<ColumnType> &columns,
                           Utils::SmallStringView condition = {})
     {
         return m_sqliteIndices.emplace_back(m_tableName,
@@ -151,10 +155,7 @@ public:
                                             condition);
     }
 
-    const SqliteColumns &columns() const
-    {
-        return m_sqliteColumns;
-    }
+    const Columns &columns() const { return m_sqliteColumns; }
 
     bool isReady() const
     {
@@ -164,7 +165,7 @@ public:
     template <typename Database>
     void initialize(Database &database)
     {
-        CreateTableSqlStatementBuilder builder;
+        CreateTableSqlStatementBuilder<ColumnType> builder;
 
         builder.setTableName(m_tableName.clone());
         builder.setUseWithoutRowId(m_withoutRowId);
@@ -186,7 +187,7 @@ public:
             database.execute(index.sqlStatement());
     }
 
-    friend bool operator==(const Table &first, const Table &second)
+    friend bool operator==(const BasicTable &first, const BasicTable &second)
     {
         return first.m_tableName == second.m_tableName
             && first.m_withoutRowId == second.m_withoutRowId
@@ -207,7 +208,7 @@ public:
     }
 
 private:
-    Utils::SmallStringVector sqliteColumnNames(const SqliteColumnConstReferences &columns)
+    Utils::SmallStringVector sqliteColumnNames(const ColumnConstReferences &columns)
     {
         Utils::SmallStringVector columnNames;
 
@@ -219,7 +220,7 @@ private:
 
 private:
     Utils::SmallString m_tableName;
-    SqliteColumns m_sqliteColumns;
+    Columns m_sqliteColumns;
     SqliteIndices m_sqliteIndices;
     TableConstraints m_tableConstraints;
     bool m_withoutRowId = false;
@@ -227,5 +228,8 @@ private:
     bool m_useTemporaryTable = false;
     bool m_isReady = false;
 };
+
+using Table = BasicTable<ColumnType>;
+using StrictTable = BasicTable<StrictColumnType>;
 
 } // namespace Sqlite

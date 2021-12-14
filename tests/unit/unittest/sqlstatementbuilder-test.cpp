@@ -135,16 +135,6 @@ TEST(SqlStatementBuilder, ClearBinding)
     ASSERT_THROW(sqlStatementBuilder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST(SqlStatementBuilder, ColumnType)
-{
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Numeric), " NUMERIC");
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Integer), " INTEGER");
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Real), " REAL");
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Text), " TEXT");
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Blob), " BLOB");
-    ASSERT_TRUE(SqlStatementBuilder::columnTypeToString(ColumnType::None).isEmpty());
-}
-
 TEST(SqlStatementBuilder, SqlStatementFailure)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
