@@ -211,8 +211,6 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     contextMenu->addAction(cmd);
 
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QML, "qml");
-    FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
-                                                     "application/x-qt.ui+qml");
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &QmlJSEditorPluginPrivate::currentEditorChanged);
@@ -223,6 +221,9 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 
 void QmlJSEditorPlugin::extensionsInitialized()
 {
+    FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
+                                                     "application/x-qt.ui+qml");
+
     TaskHub::addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
     TaskHub::addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, tr("QML Analysis"), false);
 }
