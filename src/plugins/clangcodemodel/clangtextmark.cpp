@@ -48,6 +48,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QLayout>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QString>
 
 using namespace CppEditor;
@@ -317,7 +319,46 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
     ClangBackEnd::DiagnosticContainer target;
     target.ranges.append(convertRange(filePath, src.range()));
     target.location = target.ranges.first().start;
-    target.text = src.message();
+    const QStringList messages = src.message().split("\n\n", Qt::SkipEmptyParts);
+    if (!messages.isEmpty())
+        target.text = messages.first();
+    for (int i = 1; i < messages.size(); ++i) {
+        QString auxMessage = messages.at(i);
+        auxMessage.replace('\n', ' ');
+
+        // TODO: Taken from ClangParser; consolidate
+        static const QRegularExpression msgRegex(
+                    "^(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)"
+                    "(:(\\d+):(\\d+)|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$");
+
+        ClangBackEnd::DiagnosticContainer aux;
+        if (const QRegularExpressionMatch match = msgRegex.match(auxMessage); match.hasMatch()) {
+            bool ok = false;
+            int line = match.captured(4).toInt(&ok);
+            int column = match.captured(5).toInt();
+            if (!ok) {
+                line = match.captured(6).toInt(&ok);
+                column = 0;
+            }
+            FilePath auxFilePath = FilePath::fromUserInput(match.captured(1));
+            if (auxFilePath.isRelativePath() && auxFilePath.fileName() == filePath.fileName())
+                auxFilePath = filePath;
+            aux.location = {auxFilePath.toString(), line, column};
+            aux.text = match.captured(9);
+            const QString type = match.captured(8);
+            if (type == "fatal")
+                aux.severity = ClangBackEnd::DiagnosticSeverity::Fatal;
+            else if (type == "error")
+                aux.severity = ClangBackEnd::DiagnosticSeverity::Error;
+            else if (type == "warning")
+                aux.severity = ClangBackEnd::DiagnosticSeverity::Warning;
+            else if (type == "note")
+                aux.severity = ClangBackEnd::DiagnosticSeverity::Note;
+        } else {
+            aux.text = auxMessage;
+        }
+        target.children << aux;
+    }
     target.category = src.category();
     if (src.severity())
         target.severity = convertSeverity(*src.severity());
