@@ -1696,13 +1696,14 @@ QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 {
     if (!DockerPlugin::isDaemonRunning().value_or(false))
         return {};
-    QTC_ASSERT(m_shell, return {});
+    QTC_ASSERT(m_shell && m_shell->isRunning(), return {});
     QMutexLocker l(&m_shellMutex);
     m_shell->readAllStandardOutput(); // clean possible left-overs
     const QByteArray markerWithNewLine("___QC_DOCKER_" + randomHex() + "_OUTPUT_MARKER___\n");
     m_shell->write(cmd.toUserOutput().toUtf8() + "\necho -n \"" + markerWithNewLine + "\"\n");
     QByteArray output;
     while (!output.endsWith(markerWithNewLine)) {
+        QTC_ASSERT(m_shell->isRunning(), return {});
         m_shell->waitForReadyRead();
         output.append(m_shell->readAllStandardOutput());
     }
