@@ -84,7 +84,7 @@ ListModel {
 
     ListElement {
         projectName: "SimpleKeyboard"
-        qmlFileName: "SimpleKeyboard.qml"
+        qmlFileName: "content/Parameters.ui.qml"
         thumbnail: "images/virtualkeyboard_thumbnail.png"
         displayName: "Virtual Keyboard"
         showDownload: false
