@@ -74,7 +74,9 @@ void QmlTimelineKeyframeGroup::setTarget(const ModelNode &target)
 {
     QTC_ASSERT(isValid(), return );
 
-    modelNode().bindingProperty("target").setExpression(target.id());
+    ModelNode nonConstTarget = target;
+
+    modelNode().bindingProperty("target").setExpression(nonConstTarget.validId());
 }
 
 PropertyName QmlTimelineKeyframeGroup::propertyName() const
