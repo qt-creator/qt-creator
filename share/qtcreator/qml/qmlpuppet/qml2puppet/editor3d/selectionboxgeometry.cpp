@@ -200,7 +200,7 @@ void SelectionBoxGeometry::doUpdateGeometry()
             update();
         }
         getBounds(m_targetNode, vertexData, indexData, minBounds, maxBounds);
-        appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
+        generateVertexData(vertexData, indexData, minBounds, maxBounds);
 
         // Track changes in ancestors, as they can move node without affecting node properties
         auto parentNode = m_targetNode->parentNode();
@@ -212,7 +212,7 @@ void SelectionBoxGeometry::doUpdateGeometry()
         // Fill some dummy data so geometry won't get rejected
         minBounds = {};
         maxBounds = {};
-        appendVertexData(QMatrix4x4(), vertexData, indexData, minBounds, maxBounds);
+        generateVertexData(vertexData, indexData, minBounds, maxBounds);
     }
 
     addAttribute(QQuick3DGeometry::Attribute::IndexSemantic, 0,
@@ -333,31 +333,24 @@ void SelectionBoxGeometry::getBounds(
 
     // Transform local space bounding box to parent space
     transformCorners(localTransform, minBounds, maxBounds, localMinBounds, localMaxBounds);
-
-    // Immediate child boxes
-    if (node->parentNode() == m_targetNode)
-        appendVertexData(localTransform, vertexData, indexData, localMinBounds, localMaxBounds);
 }
 
-void SelectionBoxGeometry::appendVertexData(const QMatrix4x4 &m, QByteArray &vertexData,
-                                            QByteArray &indexData, const QVector3D &minBounds,
-                                            const QVector3D &maxBounds)
+void SelectionBoxGeometry::generateVertexData(QByteArray &vertexData, QByteArray &indexData,
+                                              const QVector3D &minBounds, const QVector3D &maxBounds)
 {
     // Adjust bounds to reduce targetNode pixels obscuring the selection box
     QVector3D extents = (maxBounds - minBounds) / 1000.f;
     QVector3D minAdjBounds = minBounds - extents;
     QVector3D maxAdjBounds = maxBounds + extents;
 
-    int initialVertexSize = vertexData.size();
-    int initialIndexSize = indexData.size();
-    const int vertexSize = int(sizeof(float)) * 8 * 3; // 8 vertices, 3 floats/vert
-    quint16 indexAdd = quint16(initialVertexSize / 12);
-    vertexData.resize(initialVertexSize + vertexSize);
-    const int indexSize = int(sizeof(quint16)) * 12 * 2; // 12 lines, 2 vert/line
-    indexData.resize(initialIndexSize + indexSize);
+    // Selection box has 8 corners with three short lines towards other corners on each corner
+    const int vertexSize = int(sizeof(float)) * 8 * 4 * 3; // 8 corners, 4 verts/corner, 3 floats/vert
+    vertexData.resize(vertexSize);
+    const int indexSize = int(sizeof(quint16)) * 8 * 3 * 2; // 8 * 3 lines, 2 vert/line
+    indexData.resize(indexSize);
 
-    auto dataPtr = reinterpret_cast<float *>(vertexData.data() + initialVertexSize);
-    auto indexPtr = reinterpret_cast<quint16 *>(indexData.data() + initialIndexSize);
+    auto dataPtr = reinterpret_cast<float *>(vertexData.data());
+    auto indexPtr = reinterpret_cast<quint16 *>(indexData.data());
 
     QVector3D corners[8];
     corners[0] = QVector3D(maxAdjBounds.x(), maxAdjBounds.y(), maxAdjBounds.z());
@@ -370,24 +363,54 @@ void SelectionBoxGeometry::appendVertexData(const QMatrix4x4 &m, QByteArray &ver
     corners[7] = QVector3D(maxAdjBounds.x(), minAdjBounds.y(), minAdjBounds.z());
 
     for (int i = 0; i < 8; ++i) {
-        corners[i] = m.map(corners[i]);
-        *dataPtr++ = corners[i].x(); *dataPtr++ = corners[i].y(); *dataPtr++ = corners[i].z();
+        *dataPtr++ = corners[i].x();
+        *dataPtr++ = corners[i].y();
+        *dataPtr++ = corners[i].z();
     }
 
-    *indexPtr++ = 0 + indexAdd; *indexPtr++ = 1 + indexAdd;
-    *indexPtr++ = 1 + indexAdd; *indexPtr++ = 2 + indexAdd;
-    *indexPtr++ = 2 + indexAdd; *indexPtr++ = 3 + indexAdd;
-    *indexPtr++ = 3 + indexAdd; *indexPtr++ = 0 + indexAdd;
+    // Percentage of full box lines to show at each corner. Set to .5 for full box
+    static const float lineLen = .15f;
 
-    *indexPtr++ = 0 + indexAdd; *indexPtr++ = 4 + indexAdd;
-    *indexPtr++ = 1 + indexAdd; *indexPtr++ = 5 + indexAdd;
-    *indexPtr++ = 2 + indexAdd; *indexPtr++ = 6 + indexAdd;
-    *indexPtr++ = 3 + indexAdd; *indexPtr++ = 7 + indexAdd;
+    int nextVertIdx = 8;
 
-    *indexPtr++ = 4 + indexAdd; *indexPtr++ = 5 + indexAdd;
-    *indexPtr++ = 5 + indexAdd; *indexPtr++ = 6 + indexAdd;
-    *indexPtr++ = 6 + indexAdd; *indexPtr++ = 7 + indexAdd;
-    *indexPtr++ = 7 + indexAdd; *indexPtr++ = 4 + indexAdd;
+    // Add line from corner 'start', towards corner 'end'
+    auto addCornerLine = [&](int start, int end) {
+        QVector3D vert = corners[start] + lineLen * (corners[end] - corners[start]);
+        *dataPtr++ = vert.x(); *dataPtr++ = vert.y(); *dataPtr++ = vert.z();
+        *indexPtr++ = start; *indexPtr++ = nextVertIdx++;
+    };
+
+    addCornerLine(0, 1);
+    addCornerLine(0, 3);
+    addCornerLine(0, 4);
+
+    addCornerLine(1, 0);
+    addCornerLine(1, 2);
+    addCornerLine(1, 5);
+
+    addCornerLine(2, 1);
+    addCornerLine(2, 3);
+    addCornerLine(2, 6);
+
+    addCornerLine(3, 0);
+    addCornerLine(3, 2);
+    addCornerLine(3, 7);
+
+    addCornerLine(4, 0);
+    addCornerLine(4, 5);
+    addCornerLine(4, 7);
+
+    addCornerLine(5, 1);
+    addCornerLine(5, 4);
+    addCornerLine(5, 6);
+
+    addCornerLine(6, 2);
+    addCornerLine(6, 5);
+    addCornerLine(6, 7);
+
+    addCornerLine(7, 3);
+    addCornerLine(7, 4);
+    addCornerLine(7, 6);
 }
 
 void SelectionBoxGeometry::trackNodeChanges(QQuick3DNode *node)

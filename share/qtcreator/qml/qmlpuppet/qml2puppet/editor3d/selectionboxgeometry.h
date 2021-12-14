@@ -74,8 +74,8 @@ protected:
 private:
     void getBounds(QQuick3DNode *node, QByteArray &vertexData,
                    QByteArray &indexData, QVector3D &minBounds, QVector3D &maxBounds);
-    void appendVertexData(const QMatrix4x4 &m, QByteArray &vertexData, QByteArray &indexData,
-                          const QVector3D &minBounds, const QVector3D &maxBounds);
+    void generateVertexData(QByteArray &vertexData, QByteArray &indexData,
+                            const QVector3D &minBounds, const QVector3D &maxBounds);
     void trackNodeChanges(QQuick3DNode *node);
     void spatialNodeUpdateNeeded();
     void clearGeometry();
