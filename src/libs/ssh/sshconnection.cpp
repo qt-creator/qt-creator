@@ -32,15 +32,12 @@
 #include "sshremoteprocess.h"
 #include "sshsettings.h"
 
-#include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QByteArrayList>
-#include <QDir>
-#include <QFileInfo>
 #include <QTemporaryDir>
 #include <QTimer>
 
@@ -168,32 +165,10 @@ SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject 
     qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
     qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
     d->connParams = serverInfo;
-    connect(&d->masterProcess, &QtcProcess::started, [this] {
-        QFileInfo socketInfo(d->socketFilePath());
-        if (socketInfo.exists()) {
+    connect(&d->masterProcess, &QtcProcess::readyReadStandardOutput, [this] {
+        const QByteArray reply = d->masterProcess.readAllStandardOutput();
+        if (reply == "\n")
             emitConnected();
-            return;
-        }
-        auto * const socketWatcher = new FileSystemWatcher(this);
-        auto * const socketWatcherTimer = new QTimer(this);
-        const auto socketFileChecker = [this, socketWatcher, socketWatcherTimer] {
-            if (!QFileInfo::exists(d->socketFilePath()))
-                return;
-            socketWatcher->disconnect();
-            socketWatcher->deleteLater();
-            socketWatcherTimer->disconnect();
-            socketWatcherTimer->stop();
-            socketWatcherTimer->deleteLater();
-            emitConnected();
-        };
-        connect(socketWatcher, &FileSystemWatcher::directoryChanged, socketFileChecker);
-        socketWatcher->addDirectory(socketInfo.path(), FileSystemWatcher::WatchAllChanges);
-        if (HostOsInfo::isMacHost()) {
-            // QTBUG-72455
-            socketWatcherTimer->setInterval(1000);
-            connect(socketWatcherTimer, &QTimer::timeout, socketFileChecker);
-            socketWatcherTimer->start();
-        }
     });
     connect(&d->masterProcess, &QtcProcess::errorOccurred, [this] (QProcess::ProcessError error) {
         switch (error) {
@@ -370,7 +345,11 @@ void SshConnection::doConnectToHost()
                   .arg(d->masterSocketDir->errorString()));
         return;
     }
-    QStringList args = QStringList{"-M", "-N", "-o", "ControlPersist=no"}
+    QStringList args = QStringList{"-M", "-N", "-o", "ControlPersist=no",
+            "-o", "PermitLocalCommand=yes", // Enable local command
+            "-o", "LocalCommand=echo"}      // Local command is executed after successfully
+                                            // connecting to the server. "echo" will print "\n"
+                                            // on the process output if everything went fine.
             << d->connectionArgs(sshBinary);
     if (!d->connParams.x11DisplayName.isEmpty())
         args.prepend("-X");
