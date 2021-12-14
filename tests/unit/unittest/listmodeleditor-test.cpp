@@ -1347,8 +1347,8 @@ TEST_F(ListModelEditor, AddBooleanProperties)
     model.setValue(0, 1, true);
 
     ASSERT_THAT(properties(),
-                ElementsAre(UnorderedElementsAre(IsVariantProperty("name", "foo"),
-                                                 IsVariantProperty("value", true),
+                ElementsAre(UnorderedElementsAre(IsVariantProperty("name", true),
+                                                 IsVariantProperty("value", 1),
                                                  IsVariantProperty("value2", 42)),
                             UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
                                                  IsVariantProperty("name", "bar"),
