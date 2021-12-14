@@ -68,7 +68,7 @@ elseif(MSVC)
   set(big_obj_compile_option "/bigobj")
 endif()
 
-if(big_obj_compile_option)
+if(big_obj_compile_option AND TARGET ClangCodeModel)
   set_property(TARGET ClangCodeModel
                APPEND PROPERTY COMPILE_OPTIONS ${big_obj_compile_option})
 endif()
