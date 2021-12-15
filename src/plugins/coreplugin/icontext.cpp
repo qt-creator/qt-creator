@@ -27,6 +27,7 @@
 
 #include <QDebug>
 
+namespace Core {
 QDebug operator<<(QDebug debug, const Core::Context &context)
 {
     debug.nospace() << "Context(";
@@ -44,6 +45,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 
     return debug;
 }
+} // namespace Core
 
 /*!
     \class Core::Context
