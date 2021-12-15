@@ -154,13 +154,12 @@ void AndroidDebugSupport::start()
         QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);
         setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
 
-        QUrl debugServer;
-        debugServer.setPort(m_runner->debugServerPort().number());
         if (cppEngineType() == LldbEngineType) {
-            debugServer.setScheme("adb");
-            debugServer.setHost(AndroidManager::deviceSerialNumber(target));
-            setRemoteChannel(debugServer.toString());
+            setRemoteChannel("adb://" + AndroidManager::deviceSerialNumber(target),
+                             m_runner->debugServerPort().number());
         } else {
+            QUrl debugServer;
+            debugServer.setPort(m_runner->debugServerPort().number());
             debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
             setRemoteChannel(debugServer);
         }
