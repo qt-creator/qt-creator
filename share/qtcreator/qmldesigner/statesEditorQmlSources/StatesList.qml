@@ -33,26 +33,23 @@ import StudioTheme 1.0 as StudioTheme
 FocusScope {
     id: root
 
-    property int delegateTopAreaHeight: StudioTheme.Values.height + 8
-    property int delegateBottomAreaHeight: delegateHeight - 2 * delegateStateMargin - delegateTopAreaHeight - delegateColumnSpacing
-    property int delegateColumnSpacing: 2
-    property int delegateStateMargin: 16
-    property int delegatePreviewMargin: 10
-    property int effectiveHeight: root.expanded ? Math.max(85, Math.min(287, root.height)) : 85 // height of the states area
+    readonly property int delegateTopAreaHeight: StudioTheme.Values.height + 8
+    readonly property int delegateBottomAreaHeight: delegateHeight - 2 * delegateStateMargin - delegateTopAreaHeight - 2
+    readonly property int delegateStateMargin: 16
+    readonly property int delegatePreviewMargin: 10
+    readonly property int effectiveHeight: root.height < 130 ? 89 : Math.min(root.height, 287)
+
+    readonly property int scrollBarH: statesListView.ScrollBar.horizontal.scrollBarVisible ? StudioTheme.Values.scrollBarThickness : 0
+    readonly property int listMargin: 10
+    readonly property int delegateWidth: 264
+    readonly property int delegateHeight: Math.max(effectiveHeight - scrollBarH - 2 * listMargin, 69)
+    readonly property int innerSpacing: 2
+
+    property int currentStateInternalId: 0
 
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
-
-    property int padding: 2
-    property int delegateWidth: 264
-    property int delegateHeight: effectiveHeight
-                                 - StudioTheme.Values.scrollBarThickness
-                                 - 2 * (root.padding + StudioTheme.Values.border)
-    property int innerSpacing: 2
-    property int currentStateInternalId: 0
-
-    property bool expanded: true
 
     Connections {
         target: statesEditorModel
@@ -65,69 +62,32 @@ FocusScope {
         color: StudioTheme.Values.themePanelBackground
     }
 
-    MouseArea {
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-        onClicked: function(mouse) {
-            if (mouse.button === Qt.LeftButton) {
-                contextMenu.dismiss()
-                focus = true
-            } else if (mouse.button === Qt.RightButton) {
-                contextMenu.popup()
-            }
-        }
-
-        StudioControls.Menu {
-            id: contextMenu
-
-            StudioControls.MenuItem {
-                text: root.expanded ? qsTr("Collapse") : qsTr("Expand")
-                onTriggered: root.expanded = !root.expanded
-            }
-        }
-    }
-
     AbstractButton {
         id: addStateButton
 
-        buttonIcon: root.expanded ? qsTr("Create New State") : StudioTheme.Constants.plus
-        iconFont: root.expanded ? StudioTheme.Constants.font : StudioTheme.Constants.iconFont
-        iconSize: root.expanded ? StudioTheme.Values.myFontSize : StudioTheme.Values.myIconFontSize
-        iconItalic: root.expanded
+        buttonIcon: StudioTheme.Constants.plus
+        iconFont: StudioTheme.Constants.iconFont
+        iconSize: StudioTheme.Values.myIconFontSize
         tooltip: qsTr("Add a new state.")
         visible: canAddNewStates
         anchors.right: parent.right
-        anchors.rightMargin: 8
-        y: (Math.min(effectiveHeight, root.height) - height) / 2
-        width: root.expanded ? 140 : 18
-        height: root.expanded ? 60 : 18
+        anchors.rightMargin: 4
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 4 + scrollBarH
+        width: 30
+        height: 30
 
-        onClicked: {
-            contextMenu.dismiss()
-            root.createNewState()
-        }
-    }
-
-    Rectangle { // separator lines between state items
-        color: StudioTheme.Values.themeStateSeparator
-        x: root.padding
-        y: root.padding
-        width: statesListView.width
-        height: root.delegateHeight
+        onClicked: root.createNewState()
     }
 
     ListView {
         id: statesListView
 
-        boundsBehavior: Flickable.StopAtBounds
         clip: true
-
-        x: root.padding
-        y: root.padding
-        width: Math.min(root.delegateWidth * statesListView.count + root.innerSpacing * (statesListView.count - 1),
-                        root.width - addStateButton.width - root.padding - 16) // 16 = 2 * 8 (addStateButton margin)
-        height: root.delegateHeight + StudioTheme.Values.scrollBarThickness
+        anchors.fill: parent
+        anchors.topMargin: listMargin
+        anchors.leftMargin: listMargin
+        anchors.rightMargin: listMargin
 
         model: statesEditorModel
         orientation: ListView.Horizontal
@@ -139,20 +99,18 @@ FocusScope {
             height: root.delegateHeight
             isBaseState: 0 === internalNodeId
             isCurrentState: root.currentStateInternalId === internalNodeId
-            baseColor: isCurrentState ? StudioTheme.Values.themeInteraction : background.color
             delegateStateName: stateName
             delegateStateImageSource: stateImageSource
             delegateHasWhenCondition: hasWhenCondition
             delegateWhenConditionString: whenConditionString
-            onDelegateInteraction: contextMenu.dismiss()
 
-            columnSpacing: root.delegateColumnSpacing
             topAreaHeight: root.delegateTopAreaHeight
             bottomAreaHeight: root.delegateBottomAreaHeight
             stateMargin: root.delegateStateMargin
             previewMargin: root.delegatePreviewMargin
+            scrollBarH: root.scrollBarH
+            listMargin: root.listMargin
         }
-
         ScrollBar.horizontal: HorizontalScrollBar {}
     }
 }

@@ -87,8 +87,6 @@ public:
 
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
-    void toggleStatesViewExpanded();
-
 public slots:
     void synchonizeCurrentStateFromWidget();
     void createNewState();
