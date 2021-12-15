@@ -31,27 +31,13 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QList>
+#include <QHash>
 #include <QObject>
 #include <QThread>
 #include <QTimer>
 
 namespace QSsh {
 namespace Internal {
-
-class UnacquiredConnection {
-public:
-    UnacquiredConnection(SshConnection *conn) : connection(conn), scheduledForRemoval(false) {}
-
-    SshConnection *connection;
-    bool scheduledForRemoval;
-};
-bool operator==(const UnacquiredConnection &c1, const UnacquiredConnection &c2) {
-    return c1.connection == c2.connection;
-}
-bool operator!=(const UnacquiredConnection &c1, const UnacquiredConnection &c2) {
-    return !(c1 == c2);
-}
 
 class SshConnectionManagerPrivate : public QObject
 {
@@ -65,137 +51,146 @@ public:
 
     ~SshConnectionManagerPrivate() override
     {
-        for (const UnacquiredConnection &connection : qAsConst(m_unacquiredConnections)) {
-            disconnect(connection.connection, nullptr, this, nullptr);
-            delete connection.connection;
+        for (auto it = m_connections.cbegin(); it != m_connections.cend(); ++it) {
+            SshConnection * const connection = it.key();
+            const SshConnectionState &state = it.value();
+            QTC_CHECK(state.refCount() == 0);
+            QTC_CHECK(!state.isStale());
+            disconnect(connection, nullptr, this, nullptr);
+            delete connection;
         }
-
-        QTC_CHECK(m_acquiredConnections.isEmpty());
-        QTC_CHECK(m_deprecatedConnections.isEmpty());
     }
 
     SshConnection *acquireConnection(const SshConnectionParameters &sshParams)
     {
-        // Check in-use connections:
-        for (SshConnection * const connection : qAsConst(m_acquiredConnections)) {
-            if (connection->connectionParameters() != sshParams)
-                continue;
+        if (SshSettings::connectionSharingEnabled()) {
+            for (auto it = m_connections.begin(); it != m_connections.end(); ++it) {
+                SshConnection * const connection = it.key();
+                if (connection->connectionParameters() != sshParams)
+                    continue;
 
-            if (connection->sharingEnabled() != SshSettings::connectionSharingEnabled())
-                continue;
+                SshConnectionState &state = it.value();
+                if (state.isStale())
+                    continue;
 
-            if (m_deprecatedConnections.contains(connection)) // we were asked to no longer use this one...
-                continue;
+                if (state.refCount() == 0 && connection->state() != SshConnection::Connected)
+                    continue;
 
-            m_acquiredConnections.append(connection);
-            return connection;
+                state.ref();
+                return connection;
+            }
         }
 
-        // Check cached open connections:
-        for (int i = 0; i < m_unacquiredConnections.count(); ++i) {
-            SshConnection * const connection = m_unacquiredConnections.at(i).connection;
-            if (connection->state() != SshConnection::Connected
-                    || connection->connectionParameters() != sshParams)
-                continue;
-
-            m_unacquiredConnections.removeAt(i);
-            m_acquiredConnections.append(connection);
-            return connection;
-        }
-
-        // create a new connection:
         SshConnection * const connection = new SshConnection(sshParams);
-        connect(connection, &SshConnection::disconnected,
-                this, &SshConnectionManagerPrivate::cleanup);
-        if (SshSettings::connectionSharingEnabled())
-            m_acquiredConnections.append(connection);
+        if (SshSettings::connectionSharingEnabled()) {
+            connect(connection, &SshConnection::disconnected,
+                    this, [this, connection] { cleanup(connection); });
+            m_connections.insert(connection, {});
+        }
 
         return connection;
     }
 
     void releaseConnection(SshConnection *connection)
     {
-        const bool wasAcquired = m_acquiredConnections.removeOne(connection);
-        QTC_ASSERT(wasAcquired == connection->sharingEnabled(), return);
-        if (m_acquiredConnections.contains(connection))
-            return;
-
+        auto it = m_connections.find(connection);
         bool doDelete = false;
-        if (!connection->sharingEnabled()) {
-            doDelete = true;
-        } else if (m_deprecatedConnections.removeOne(connection)
-                || connection->state() != SshConnection::Connected) {
+        if (it == m_connections.end()) {
+            QTC_ASSERT(!connection->sharingEnabled(), return);
             doDelete = true;
         } else {
-            UnacquiredConnection uc(connection);
-            QTC_ASSERT(!m_unacquiredConnections.contains(uc), return);
-            m_unacquiredConnections.append(uc);
+            SshConnectionState &state = it.value();
+            if (state.deref())
+                return;
+
+            if (state.isStale() || connection->state() != SshConnection::Connected) {
+                doDelete = true;
+                m_connections.erase(it);
+            }
         }
 
         if (doDelete) {
             disconnect(connection, nullptr, this, nullptr);
-            m_deprecatedConnections.removeAll(connection);
             connection->deleteLater();
         }
     }
 
     void forceNewConnection(const SshConnectionParameters &sshParams)
     {
-        for (int i = 0; i < m_unacquiredConnections.count(); ++i) {
-            SshConnection * const connection = m_unacquiredConnections.at(i).connection;
-            if (connection->connectionParameters() == sshParams) {
-                disconnect(connection, nullptr, this, nullptr);
-                delete connection;
-                m_unacquiredConnections.removeAt(i);
-                break;
+        auto it = m_connections.begin();
+        while (it != m_connections.end()) {
+            SshConnection * const connection = it.key();
+            if (connection->connectionParameters() != sshParams) {
+                ++it;
+                continue;
             }
-        }
 
-        for (SshConnection * const connection : qAsConst(m_acquiredConnections)) {
-            if (connection->connectionParameters() == sshParams) {
-                if (!m_deprecatedConnections.contains(connection))
-                    m_deprecatedConnections.append(connection);
+            SshConnectionState &state = it.value();
+            if (state.refCount()) {
+                state.makeStale();
+                ++it;
+                continue;
             }
+
+            disconnect(connection, nullptr, this, nullptr);
+            delete connection;
+            it = m_connections.erase(it);
         }
     }
 
 private:
-    void cleanup()
+    void cleanup(SshConnection *connection)
     {
-        SshConnection *currentConnection = qobject_cast<SshConnection *>(sender());
-        if (!currentConnection)
+        auto it = m_connections.find(connection);
+        if (it == m_connections.end())
             return;
 
-        if (m_unacquiredConnections.removeOne(UnacquiredConnection(currentConnection))) {
-            disconnect(currentConnection, nullptr, this, nullptr);
-            currentConnection->deleteLater();
-        }
+        SshConnectionState &state = it.value();
+        if (state.refCount())
+            return;
+
+        disconnect(connection, nullptr, this, nullptr);
+        connection->deleteLater();
     }
 
     void removeInactiveConnections()
     {
-        for (int i = m_unacquiredConnections.count() - 1; i >= 0; --i) {
-            UnacquiredConnection &c = m_unacquiredConnections[i];
-            if (c.scheduledForRemoval) {
-                disconnect(c.connection, nullptr, this, nullptr);
-                c.connection->deleteLater();
-                m_unacquiredConnections.removeAt(i);
+        auto it = m_connections.begin();
+        while (it != m_connections.end()) {
+            SshConnection * const connection = it.key();
+            SshConnectionState &state = it.value();
+            if (state.refCount() == 0 && state.scheduleForRemoval()) {
+                disconnect(connection, nullptr, this, nullptr);
+                connection->deleteLater();
+                it = m_connections.erase(it);
             } else {
-                c.scheduledForRemoval = true;
+                ++it;
             }
         }
     }
 
 private:
-    // We expect the number of concurrently open connections to be small.
-    // If that turns out to not be the case, we can still use a data
-    // structure with faster access.
-    QList<UnacquiredConnection> m_unacquiredConnections;
+    struct SshConnectionState {
+        void ref() { ++m_ref; m_scheduledForRemoval = false; }
+        bool deref() { QTC_ASSERT(m_ref, return false); return --m_ref; }
+        int refCount() const { return m_ref; }
 
-    // Can contain the same connection more than once; this acts as a reference count.
-    QList<SshConnection *> m_acquiredConnections;
+        void makeStale() { m_isStale = true; }
+        bool isStale() const { return m_isStale; }
 
-    QList<SshConnection *> m_deprecatedConnections;
+        bool scheduleForRemoval()
+        {
+            const bool ret = m_scheduledForRemoval;
+            m_scheduledForRemoval = true;
+            return ret;
+        }
+    private:
+        int m_ref = 1; // 0 means unacquired connection
+        bool m_isStale = false;
+        bool m_scheduledForRemoval = false;
+    };
+
+    QHash<SshConnection *, SshConnectionState> m_connections;
     QTimer m_removalTimer;
 };
 
