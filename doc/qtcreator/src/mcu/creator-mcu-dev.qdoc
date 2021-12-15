@@ -197,7 +197,8 @@
 
     \section1 Supported Qt for MCUs SDKs
 
-    Since version 4.12.4, \QC supports version 1.3 and later of the Qt for MCUs SDK.
+    Since version 4.12.4, \QC supports versions 1.3 through 1.9 of the Qt for MCUs SDK.
+    Since version 6.0.0, \QC adds support for versions 2.0 and later of the Qt for MCUs SDK.
     For older versions refer to the following table.
 
     \table
@@ -205,8 +206,11 @@
         \li \QC version
         \li Qt for MCUs SDK version
     \row
-        \li 4.12.4 or later
-        \li 1.3 or later
+        \li 6.0.0 or later
+        \li 1.3 or later, including 2.0 or later
+    \row
+        \li 4.12.4 up to 5.0.3
+        \li 1.3 up to 1.9
     \row
         \li 4.12.2 or 4.12.3
         \li 1.2
