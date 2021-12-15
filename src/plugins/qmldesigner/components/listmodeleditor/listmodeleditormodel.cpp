@@ -270,7 +270,7 @@ void ListModelEditorModel::addColumn(const QString &columnName)
 
     auto found = std::lower_bound(m_propertyNames.begin(), m_propertyNames.end(), propertyName);
 
-    if (found != m_propertyNames.end() && *found == columnName)
+    if (found != m_propertyNames.end() && *found == propertyName)
         return;
 
     int newIndex = static_cast<int>(std::distance(m_propertyNames.begin(), found));
