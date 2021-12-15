@@ -39,7 +39,8 @@ class MessageEnvelop
 public:
     MessageEnvelop() = default;
 
-    template <class Message>
+    template <class Message, typename = std::enable_if_t<
+                  std::is_enum_v<decltype(MessageTrait<Message>::enumeration)>>>
     MessageEnvelop(const Message &message)
         : messageType_(MessageTrait<Message>::enumeration)
     {
