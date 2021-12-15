@@ -266,6 +266,8 @@ void QmlBuildSystem::refresh(RefreshOptions options)
     modelManager->updateProjectInfo(projectInfo, project());
 
     guard.markAsSuccess();
+
+    emit projectChanged();
 }
 
 QString QmlBuildSystem::mainFile() const
@@ -597,6 +599,20 @@ bool QmlBuildSystem::widgetApp() const
     if (m_projectItem)
         return m_projectItem->widgetApp();
     return false;
+}
+
+QStringList QmlBuildSystem::importPaths() const
+{
+    if (m_projectItem)
+        return m_projectItem->importPaths();
+    return {};
+}
+
+QStringList QmlBuildSystem::files() const
+{
+    if (m_projectItem)
+        return m_projectItem->files();
+    return {};
 }
 
 bool QmlBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *)

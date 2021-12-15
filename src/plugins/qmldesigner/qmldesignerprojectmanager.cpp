@@ -97,20 +97,47 @@ public:
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
+    ImageCacheConnectionManager connectionManager;
+    ImageCacheCollector collector{connectionManager,
+                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
+    TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
+    AsynchronousImageFactory factory{storage, timeStampProvider, collector};
+};
+
+class ProjectStorageData
+{
+public:
+    ProjectStorageData(::ProjectExplorer::Project *project)
+        : database{project->projectDirectory().pathAppended("projectstorage.db").toString()}
+    {}
+
+    Sqlite::Database database;
+    ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
+    ProjectStorageUpdater::PathCache pathCache{storage};
+    FileSystem fileSystem{pathCache};
+    FileStatusCache fileStatusCache{fileSystem};
+    QmlDocumentParser qmlDocumentParser{storage};
+    QmlTypesParser qmlTypesParser{pathCache, storage};
+    ProjectStorageUpdater updater{
+        fileSystem, storage, fileStatusCache, pathCache, qmlDocumentParser, qmlTypesParser};
 };
 
 class QmlDesignerProjectManagerProjectData
 {
 public:
-    QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage)
+    QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage,
+                                         ::ProjectExplorer::Project *project)
         : factory{storage, timeStampProvider, collector}
+        , projectStorageData{project}
     {}
+
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager,
                                   ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
     TimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
+    ProjectStorageData projectStorageData;
     ::ProjectExplorer::Target *activeTarget = nullptr;
 };
 
@@ -160,8 +187,8 @@ void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
         m_projectData->activeTarget);
 
     if (qmlBuildSystem) {
-        m_projectData->collector.setTarget(m_projectData->activeTarget);
-        m_projectData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
+        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
+        m_imageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
     }
 }
 
@@ -169,14 +196,17 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage);
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage,
+                                                                           project);
     m_projectData->activeTarget = project->activeTarget();
 }
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
 {
-    if (m_projectData)
+    if (m_projectData) {
+        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
         m_projectData.reset();
+    }
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}

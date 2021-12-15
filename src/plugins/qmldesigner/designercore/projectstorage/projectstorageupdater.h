@@ -42,7 +42,6 @@ class Database;
 }
 
 namespace QmlDesigner {
-class ProjectManagerInterface;
 class FileSystemInterface;
 class ProjectStorageInterface;
 template<typename ProjectStorage, typename Mutex>
@@ -55,20 +54,18 @@ class QmlTypesParserInterface;
 
 using ComponentReferences = std::vector<std::reference_wrapper<const QmlDirParser::Component>>;
 
-class ProjectUpdater
+class ProjectStorageUpdater
 {
 public:
     using PathCache = SourcePathCache<ProjectStorage<Sqlite::Database>, NonLockingMutex>;
 
-    ProjectUpdater(ProjectManagerInterface &projectManager,
-                   FileSystemInterface &fileSystem,
-                   ProjectStorageInterface &projectStorage,
-                   FileStatusCache &fileStatusCache,
-                   PathCache &pathCache,
-                   QmlDocumentParserInterface &qmlDocumentParser,
-                   QmlTypesParserInterface &qmlTypesParser)
-        : m_projectManager{projectManager}
-        , m_fileSystem{fileSystem}
+    ProjectStorageUpdater(FileSystemInterface &fileSystem,
+                          ProjectStorageInterface &projectStorage,
+                          FileStatusCache &fileStatusCache,
+                          PathCache &pathCache,
+                          QmlDocumentParserInterface &qmlDocumentParser,
+                          QmlTypesParserInterface &qmlTypesParser)
+        : m_fileSystem{fileSystem}
         , m_projectStorage{projectStorage}
         , m_fileStatusCache{fileStatusCache}
         , m_pathCache{pathCache}
@@ -76,7 +73,7 @@ public:
         , m_qmlTypesParser{qmlTypesParser}
     {}
 
-    void update();
+    void update(QStringList qmlDirs);
     void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths);
 
 private:
@@ -132,7 +129,6 @@ private:
                         SourceIds &notUpdatedSourceIds) const;
 
 private:
-    ProjectManagerInterface &m_projectManager;
     FileSystemInterface &m_fileSystem;
     ProjectStorageInterface &m_projectStorage;
     FileStatusCache &m_fileStatusCache;

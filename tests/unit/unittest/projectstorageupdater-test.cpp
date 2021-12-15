@@ -26,7 +26,6 @@
 #include "googletest.h"
 
 #include "filesystemmock.h"
-#include "projectmanagermock.h"
 #include "projectstoragemock.h"
 #include "qmldocumentparsermock.h"
 #include "qmltypesparsermock.h"
@@ -153,7 +152,6 @@ public:
         ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
             .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 2, 421}));
 
-        ON_CALL(projectManagerMock, qtQmlDirs()).WillByDefault(Return(QStringList{"/path/qmldir"}));
         ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir"))))
             .WillByDefault(Return(qmldirContent));
 
@@ -187,18 +185,21 @@ public:
         ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example2.qmltypes"))))
             .WillByDefault(Return(qmltypes2));
 
-        ON_CALL(qmlDocumentParserMock, parse(qmlDocument1, _)).WillByDefault([&](auto, auto &imports) {
-            imports.push_back(import1);
-            return firstType;
-        });
-        ON_CALL(qmlDocumentParserMock, parse(qmlDocument2, _)).WillByDefault([&](auto, auto &imports) {
-            imports.push_back(import2);
-            return secondType;
-        });
-        ON_CALL(qmlDocumentParserMock, parse(qmlDocument3, _)).WillByDefault([&](auto, auto &imports) {
-            imports.push_back(import3);
-            return thirdType;
-        });
+        ON_CALL(qmlDocumentParserMock, parse(qmlDocument1, _, _, _))
+            .WillByDefault([&](auto, auto &imports, auto, auto) {
+                imports.push_back(import1);
+                return firstType;
+            });
+        ON_CALL(qmlDocumentParserMock, parse(qmlDocument2, _, _, _))
+            .WillByDefault([&](auto, auto &imports, auto, auto) {
+                imports.push_back(import2);
+                return secondType;
+            });
+        ON_CALL(qmlDocumentParserMock, parse(qmlDocument3, _, _, _))
+            .WillByDefault([&](auto, auto &imports, auto, auto) {
+                imports.push_back(import3);
+                return thirdType;
+            });
         ON_CALL(qmlTypesParserMock, parse(Eq(qmltypes1), _, _, _))
             .WillByDefault([&](auto, auto &imports, auto &types, auto) {
                 types.push_back(objectType);
@@ -212,7 +213,6 @@ public:
     }
 
 protected:
-    NiceMock<ProjectManagerMock> projectManagerMock;
     NiceMock<FileSystemMock> fileSystemMock;
     NiceMock<ProjectStorageMock> projectStorageMock;
     NiceMock<QmlTypesParserMock> qmlTypesParserMock;
@@ -222,13 +222,12 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
-    QmlDesigner::ProjectUpdater updater{projectManagerMock,
-                                        fileSystemMock,
-                                        projectStorageMock,
-                                        fileStatusCache,
-                                        sourcePathCache,
-                                        qmlDocumentParserMock,
-                                        qmlTypesParserMock};
+    QmlDesigner::ProjectStorageUpdater updater{fileSystemMock,
+                                               projectStorageMock,
+                                               fileStatusCache,
+                                               sourcePathCache,
+                                               qmlDocumentParserMock,
+                                               qmlTypesParserMock};
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
@@ -262,6 +261,7 @@ protected:
     QString qmldirContent{"module Example\ntypeinfo example.qmltypes\n"};
     QString qmltypes1{"Module {\ndependencies: [module1]}"};
     QString qmltypes2{"Module {\ndependencies: [module2]}"};
+    QStringList qmlDirs = {"/path/qmldir"};
 };
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
@@ -269,9 +269,7 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
     SourceId qmlDir1PathSourceId = sourcePathCache.sourceId("/path/one/qmldir");
     SourceId qmlDir2PathSourceId = sourcePathCache.sourceId("/path/two/qmldir");
     SourceId qmlDir3PathSourceId = sourcePathCache.sourceId("/path/three/qmldir");
-    ON_CALL(projectManagerMock, qtQmlDirs())
-        .WillByDefault(
-            Return(QStringList{"/path/one/qmldir", "/path/two/qmldir", "/path/three/qmldir"}));
+    QStringList qmlDirs = {"/path/one/qmldir", "/path/two/qmldir", "/path/three/qmldir"};
     ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](auto sourceId) {
         return FileStatus{sourceId, 21, 421};
     });
@@ -286,7 +284,7 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/qmldir"))));
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/two/qmldir"))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, RequestFileStatusFromFileSystem)
@@ -295,7 +293,7 @@ TEST_F(ProjectStorageUpdater, RequestFileStatusFromFileSystem)
 
     EXPECT_CALL(fileSystemMock, fileStatus(Eq(qmlDirPathSourceId)));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlTypes)
@@ -307,7 +305,7 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlTypes)
 
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlTypesIfProjectStorageFileStatusIsInvalid)
@@ -321,7 +319,7 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlTypesIfProjectStorageFileStatusIsI
 
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, DontGetContentForQmlTypesIfFileSystemFileStatusIsInvalid)
@@ -334,7 +332,7 @@ TEST_F(ProjectStorageUpdater, DontGetContentForQmlTypesIfFileSystemFileStatusIsI
 
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes")))).Times(0);
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, ParseQmlTypes)
@@ -353,7 +351,7 @@ TEST_F(ProjectStorageUpdater, ParseQmlTypes)
     EXPECT_CALL(qmlTypesParserMock, parse(qmltypes, _, _, _));
     EXPECT_CALL(qmlTypesParserMock, parse(qmltypes2, _, _, _));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeIsEmptyForNoChange)
@@ -367,7 +365,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeIsEmptyForNoChange)
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
@@ -400,7 +398,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
                           Field(&SynchronizationPackage::updatedProjectSourceIds,
                                 UnorderedElementsAre(qmlDirPathSourceId)))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
@@ -419,7 +417,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlDocuments)
@@ -433,7 +431,7 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlDocuments)
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/First.2.qml"))));
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/Second.qml"))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, ParseQmlDocuments)
@@ -453,11 +451,11 @@ TEST_F(ProjectStorageUpdater, ParseQmlDocuments)
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/Second.qml"))))
         .WillByDefault(Return(qmlDocument3));
 
-    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument1, _));
-    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument2, _));
-    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument3, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument1, _, _, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument2, _, _, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument3, _, _, _));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, ParseQmlDocumentsWithNonExistingQmlDocumentThrows)
@@ -466,7 +464,7 @@ TEST_F(ProjectStorageUpdater, ParseQmlDocumentsWithNonExistingQmlDocumentThrows)
                       NonexitingType 1.0 NonexitingType.qml)"};
     ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
 
-    ASSERT_THROW(updater.update(), QmlDesigner::CannotParseQmlDocumentFile);
+    ASSERT_THROW(updater.update(qmlDirs), QmlDesigner::CannotParseQmlDocumentFile);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
@@ -535,7 +533,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
                                                      exampleModuleId,
                                                      FileType::QmlDocument))))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeRemoved)
@@ -615,7 +613,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeRemoved)
                                                      exampleModuleId,
                                                      FileType::QmlTypes))))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsDontUpdateIfUpToDate)
@@ -682,7 +680,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsDontUpdateIfUpToDate)
                                                      exampleModuleId,
                                                      FileType::QmlDocument))))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, UpdateQmldirDocuments)
@@ -716,7 +714,7 @@ TEST_F(ProjectStorageUpdater, AddSourceIdForForInvalidQmldirFileStatus)
                                   Field(&SynchronizationPackage::fileStatuses, IsEmpty()),
                                   Field(&SynchronizationPackage::updatedFileStatusSourceIds, IsEmpty()),
                                   Field(&SynchronizationPackage::projectDatas, IsEmpty()))));
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChanged)
@@ -767,7 +765,7 @@ TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChanged)
                                                      qmlDocumentSourceId2)),
                           Field(&SynchronizationPackage::projectDatas, IsEmpty()))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChangedAndSomeUpdatedFiles)
@@ -806,7 +804,7 @@ TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChangedAndSomeUpdatedF
                         UnorderedElementsAre(qmltypesPathSourceId, qmlDocumentSourceId1)),
                   Field(&SynchronizationPackage::projectDatas, IsEmpty()))));
 
-    updater.update();
+    updater.update(qmlDirs);
 }
 
 } // namespace

@@ -348,7 +348,6 @@ extend_qtc_test(unittest
     projectstorage/filestatus.h
     projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
     projectstorage/nonlockingmutex.h
-    projectstorage/projectmanagerinterface.h
     projectstorage/projectstorageinterface.h
     projectstorage/projectstorage.h
     projectstorage/projectstoragepathwatcher.h
@@ -384,7 +383,6 @@ extend_qtc_test(unittest
     filesystemmock.h
     filestatuscache-test.cpp
     listmodeleditor-test.cpp
-    projectmanagermock.h
     projectstorage-test.cpp
     projectstorageupdater-test.cpp
     projectstoragesqlitefunctionregistry-test.cpp
@@ -472,25 +470,29 @@ get_filename_component(
     ABSOLUTE
 )
 
-if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS} AND Qt6_FOUND)
+if(EXISTS ${QMLDOM_STANDALONE_CMAKELISTS} AND Qt6_FOUND AND NOT TARGET qmldomlib)
   add_subdirectory(
     ../../../../qmldom_standalone/src/qmldom/standalone
-    ${CMAKE_CURRENT_BINARY_DIR}/qmldom_standalone)
+    ${CMAKE_BINARY_DIR}/qmldom_standalone)
 
   set_target_properties(qmldomlib PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
     LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
-
-  extend_qtc_test(unittest
-    DEPENDS qmldomlib
-    SOURCES
-      qmldocumentparser-test.cpp
-      qmltypesparser-test.cpp
-  )
-  extend_qtc_test(unittest
-    SOURCES_PREFIX "${QmlDesignerDir}/designercore"
-    SOURCES
-      projectstorage/qmldocumentparser.cpp projectstorage/qmldocumentparser.h
-      projectstorage/qmltypesparser.cpp projectstorage/qmltypesparser.h
-    )
 endif()
+
+extend_qtc_test(unittest
+  CONDITION TARGET qmldomlib
+  DEPENDS qmldomlib
+  SOURCES
+    qmldocumentparser-test.cpp
+    qmltypesparser-test.cpp
+)
+
+extend_qtc_test(unittest
+  SOURCES_PREFIX "${QmlDesignerDir}/designercore"
+  CONDITION TARGET qmldomlib
+  DEPENDS qmldomlib
+  SOURCES
+    projectstorage/qmldocumentparser.cpp projectstorage/qmldocumentparser.h
+    projectstorage/qmltypesparser.cpp projectstorage/qmltypesparser.h
+)

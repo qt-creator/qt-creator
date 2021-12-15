@@ -61,6 +61,15 @@ private:
     void aboutToRemoveProject(::ProjectExplorer::Project *project);
     void projectRemoved(::ProjectExplorer::Project *project);
 
+    void fileListChanged();
+    void activeTargetChanged(::ProjectExplorer::Target *target);
+    void aboutToRemoveTarget(::ProjectExplorer::Target *target);
+    void kitChanged();
+    void projectChanged();
+
+private:
+    void update();
+
 private:
     std::unique_ptr<PreviewImageCacheData> m_imageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;

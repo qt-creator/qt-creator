@@ -95,6 +95,8 @@ public:
     void setPrimaryLanguage(QString language);
     bool forceFreeType() const;
     bool widgetApp() const;
+    QStringList importPaths() const;
+    QStringList files() const;
 
     bool addFiles(const QStringList &filePaths);
 
@@ -112,6 +114,9 @@ public:
 
     // plain format
     void parseProject(RefreshOptions options);
+
+signals:
+    void projectChanged();
 
 private:
     std::unique_ptr<QmlProjectItem> m_projectItem;

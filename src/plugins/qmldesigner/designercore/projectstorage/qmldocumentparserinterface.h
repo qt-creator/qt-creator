@@ -34,7 +34,11 @@ namespace QmlDesigner {
 class QmlDocumentParserInterface
 {
 public:
-    virtual Storage::Type parse(const QString &sourceContent, Storage::Imports &imports) = 0;
+    virtual Storage::Type parse(const QString &sourceContent,
+                                Storage::Imports &imports,
+                                SourceId sourceId,
+                                const QString &directoryPath)
+        = 0;
 
 protected:
     ~QmlDocumentParserInterface() = default;
