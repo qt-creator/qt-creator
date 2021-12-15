@@ -167,6 +167,7 @@ private :
 
 void static doStat(QFileInfo &fi)
 {
+    Q_UNUSED(fi)
 //            driveInfo.stat();
 }
 
@@ -2341,6 +2342,7 @@ static QString volumeName(const QString &path)
     item->Release();
     return result;
 #else
+    Q_UNUSED(path)
     QTC_CHECK(false);
     return {};
 #endif // Q_OS_WIN

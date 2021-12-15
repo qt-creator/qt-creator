@@ -102,14 +102,6 @@ namespace Internal {
 
 enum { debugMainWindow = 0 };
 
-static bool isQtDesignStudio()
-{
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
-
-    return settings->value(qdsStandaloneEntry, false).toBool();
-}
-
 MainWindow::MainWindow()
     : AppMainWindow()
     , m_coreImpl(new ICore(this))

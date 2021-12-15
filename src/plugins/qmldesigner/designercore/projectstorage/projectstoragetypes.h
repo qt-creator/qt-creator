@@ -796,10 +796,10 @@ public:
     Imports imports;
     Types types;
     SourceIds updatedSourceIds;
+    SourceIds updatedFileStatusSourceIds;
     FileStatuses fileStatuses;
     ProjectDatas projectDatas;
     SourceIds updatedProjectSourceIds;
-    SourceIds updatedFileStatusSourceIds;
 };
 
 } // namespace QmlDesigner::Storage
