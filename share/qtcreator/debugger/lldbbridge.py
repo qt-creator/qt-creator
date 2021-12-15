@@ -933,7 +933,7 @@ class Dumper(DumperBase):
                         self.target.GetPlatform().GetName(),
                         self.target.GetPlatform().IsConnected()))
             if not res.Success():
-                self.report(self.describeError(error))
+                self.report(self.describeError(res))
                 self.reportState('enginerunfailed')
                 return
 
