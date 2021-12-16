@@ -178,7 +178,7 @@ class PathChooserPrivate
 public:
     PathChooserPrivate();
 
-    FilePath expandedPath(const QString &path) const;
+    FilePath expandedPath(const FilePath &path) const;
 
     QHBoxLayout *m_hLayout = nullptr;
     FancyLineEdit *m_lineEdit = nullptr;
@@ -202,12 +202,12 @@ PathChooserPrivate::PathChooserPrivate()
 {
 }
 
-FilePath PathChooserPrivate::expandedPath(const QString &input) const
+FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
 {
     if (input.isEmpty())
         return {};
 
-    FilePath path = FilePath::fromUserInput(input);
+    FilePath path = input;
 
     Environment env = path.deviceEnvironment();
     m_environmentChange.applyToEnvironment(env);
@@ -353,7 +353,7 @@ FilePath PathChooser::rawFilePath() const
 
 FilePath PathChooser::filePath() const
 {
-    return d->expandedPath(rawFilePath().toString());
+    return d->expandedPath(rawFilePath());
 }
 
 FilePath PathChooser::absoluteFilePath() const
@@ -529,11 +529,11 @@ FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
 
 bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
 {
-    QString path = edit->text();
+    QString input = edit->text();
 
-    if (path.isEmpty()) {
+    if (input.isEmpty()) {
         if (!d->m_defaultValue.isEmpty()) {
-            path = d->m_defaultValue;
+            input = d->m_defaultValue;
         } else {
             if (errorMessage)
                 *errorMessage = tr("The path must not be empty.");
@@ -541,10 +541,10 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         }
     }
 
-    const FilePath filePath = d->expandedPath(path);
+    const FilePath filePath = d->expandedPath(FilePath::fromUserInput(input));
     if (filePath.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(QDir::toNativeSeparators(path));
+            *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(input);
         return false;
     }
 
