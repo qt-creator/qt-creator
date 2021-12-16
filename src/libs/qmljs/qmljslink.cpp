@@ -414,7 +414,8 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
     const QString packageName = importInfo.name();
     const ComponentVersion version = importInfo.version();
 
-    QStringList libraryPaths = modulePaths(packageName, version.toString(), m_importPaths);
+    QStringList libraryPaths = modulePaths(packageName, version.toString(), m_importPaths + m_applicationDirectories);
+
     bool importFound = false;
     for (const QString &libPath : libraryPaths) {
         importFound = !libPath.isEmpty() && importLibrary(doc, libPath, &import, import.object);

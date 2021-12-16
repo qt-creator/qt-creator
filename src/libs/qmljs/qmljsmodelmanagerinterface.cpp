@@ -1252,8 +1252,10 @@ void ModelManagerInterface::updateImportPaths()
     QSet<QString> newLibraries;
     for (const Document::Ptr &doc : qAsConst(snapshot))
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
-    for (const QString &path : qAsConst(allApplicationDirectories))
+    for (const QString &path : qAsConst(allApplicationDirectories)) {
+        allImportPaths.maybeInsert(FilePath::fromString(path), Dialect::Qml);
         findNewQmlApplicationInPath(FilePath::fromString(path), snapshot, this, &newLibraries);
+    }
 
     updateSourceFiles(importedFiles, true);
 
