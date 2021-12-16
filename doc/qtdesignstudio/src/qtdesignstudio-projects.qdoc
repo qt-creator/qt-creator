@@ -169,7 +169,7 @@
     \endlist
 
     To use JavaScript and image files in the UI, select \uicontrol Library >
-    \uicontrol Assets > \inlineimage plus.png
+    \uicontrol Assets > \inlineimage icons/plus.png
     .
 
     \section1 Adding Files to Projects

@@ -54,7 +54,7 @@
     \l Properties view. You can apply the same material to another component as
     well. Again, delete the default material first. You should then select the
     component and go to the \uicontrol Properties view. Find the
-    \uicontrol Materials property, select the \inlineimage plus.png
+    \uicontrol Materials property, select the \inlineimage icons/plus.png
     icon, and choose the new material in the dropdown menu.
 
     Each material has its own set of properties that can be used to further

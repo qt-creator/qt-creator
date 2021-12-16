@@ -297,7 +297,7 @@ void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
             return;
         default:
             closeWithoutException();
-            throw Exception(
+            throw UnknowError(
                 "SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:",
                 sqlite3_errmsg(sqliteDatabaseHandle()));
         }
@@ -473,7 +473,7 @@ void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)
 void DatabaseBackend::throwException(const char *whatHasHappens) const
 {
     if (m_databaseHandle)
-        throw Exception(whatHasHappens, sqlite3_errmsg(m_databaseHandle));
+        throw ExceptionWithMessage(whatHasHappens, sqlite3_errmsg(m_databaseHandle));
     else
         throw Exception(whatHasHappens);
 }

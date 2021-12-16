@@ -148,19 +148,19 @@
         \li Keyboard Shortcut
         \li Read More
     \row
-        \li \inlineimage prev.png
+        \li \inlineimage icons/prev.png
         \li \uicontrol {Go Back}: moves a step backwards in your location history.
             That is, returns the focus to the last location in the last file it
             was on.
         \li \key Alt+< (\key Opt+Cmd+< on \macos)
         \li \l{Navigating Between Open Files and Symbols}
     \row
-        \li \inlineimage next.png
+        \li \inlineimage icons/next.png
         \li \uicontrol {Go Forward}: moves a step forward in your location history.
         \li \key Alt+> (\key Opt+Cmd+> on \macos)
         \li \l{Navigating Between Open Files and Symbols}
     \row
-        \li \inlineimage unlocked.png
+        \li \inlineimage icons/unlocked.png
         \li File is writable: the currently open file can be modified and saved.
         \li
         \li \l{Open Documents}
@@ -178,7 +178,7 @@
         \li
         \li \l{Open Documents}
     \row
-        \li \inlineimage close.png
+        \li \inlineimage icons/close.png
         \li \uicontrol {Close Document}: closes the current file.
         \li \key Ctrl+W (\key Cmd+W on \macos)
         \li
@@ -226,7 +226,7 @@
         \li \key Shift+F
         \li \l{Setting Anchors and Margins}
     \row
-        \li \inlineimage qtcreator-anchors-reset-icon.png
+        \li \inlineimage icons/qtcreator-anchors-reset-icon.png
         \li Resets anchors to their saved state for the selected component.
         \li \key Ctrl+Shift+R (\key Shift+Cmd+R on \macos)
         \li \l{Setting Anchors and Margins}

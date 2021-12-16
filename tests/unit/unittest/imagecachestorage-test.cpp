@@ -55,17 +55,19 @@ MATCHER_P2(IsIconEntry,
 class ImageCacheStorageTest : public testing::Test
 {
 protected:
-    template<int ResultCount>
-    using ReadStatement = QmlDesigner::ImageCacheStorage<SqliteDatabaseMock>::ReadStatement<ResultCount>;
-    using WriteStatement = QmlDesigner::ImageCacheStorage<SqliteDatabaseMock>::WriteStatement;
+    template<int ResultCount, int BindParameterCount = 0>
+    using ReadStatement = QmlDesigner::ImageCacheStorage<
+        SqliteDatabaseMock>::ReadStatement<ResultCount, BindParameterCount>;
+    template<int BindParameterCount>
+    using WriteStatement = QmlDesigner::ImageCacheStorage<SqliteDatabaseMock>::WriteStatement<BindParameterCount>;
 
     NiceMock<SqliteDatabaseMock> databaseMock;
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
-    ReadStatement<1> &selectImageStatement = storage.selectImageStatement;
-    ReadStatement<1> &selectSmallImageStatement = storage.selectSmallImageStatement;
-    ReadStatement<1> &selectIconStatement = storage.selectIconStatement;
-    WriteStatement &upsertImageStatement = storage.upsertImageStatement;
-    WriteStatement &upsertIconStatement = storage.upsertIconStatement;
+    ReadStatement<1, 2> &selectImageStatement = storage.selectImageStatement;
+    ReadStatement<1, 2> &selectSmallImageStatement = storage.selectSmallImageStatement;
+    ReadStatement<1, 2> &selectIconStatement = storage.selectIconStatement;
+    WriteStatement<4> &upsertImageStatement = storage.upsertImageStatement;
+    WriteStatement<3> &upsertIconStatement = storage.upsertIconStatement;
     QImage image1{10, 10, QImage::Format_ARGB32};
     QImage smallImage1{10, 10, QImage::Format_ARGB32};
     QIcon icon1{QPixmap::fromImage(image1)};

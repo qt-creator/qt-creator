@@ -29,16 +29,18 @@
 
 namespace Sqlite {
 
-template<int ResultCount>
-class ReadStatement final : protected StatementImplementation<BaseStatement, ResultCount>
+template<int ResultCount, int BindParameterCount = 0>
+class ReadStatement final
+    : protected StatementImplementation<BaseStatement, ResultCount, BindParameterCount>
 {
-    using Base = StatementImplementation<BaseStatement, ResultCount>;
+    using Base = StatementImplementation<BaseStatement, ResultCount, BindParameterCount>;
 
 public:
     ReadStatement(Utils::SmallStringView sqlStatement, Database &database)
         : Base{sqlStatement, database}
     {
         checkIsReadOnlyStatement();
+        Base::checkBindingParameterCount(BindParameterCount);
         Base::checkColumnCount(ResultCount);
     }
 

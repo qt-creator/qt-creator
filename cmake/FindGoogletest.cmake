@@ -100,6 +100,7 @@ if(Googletest_FOUND AND NOT TARGET Googletest)
       GTEST_HAS_PARAM_TEST
       GTEST_HAS_DEATH_TEST
    )
+  set_target_properties(Googletest PROPERTIES AUTOMOC OFF AUTOUIC OFF)
 
   target_link_libraries(Googletest Threads::Threads)
 endif()

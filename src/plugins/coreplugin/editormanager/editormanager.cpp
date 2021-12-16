@@ -1245,10 +1245,6 @@ void EditorManagerPrivate::saveSettings()
     qsettings->setValueWithDefault(maxRecentFilesKey,
                                    d->m_settings.maxRecentFiles,
                                    def.maxRecentFiles);
-
-    qsettings->setValueWithDefault(fileSystemCaseSensitivityKey,
-                                   HostOsInfo::fileNameCaseSensitivity(),
-                                   OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs()));
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
                                    toMap(userPreferredEditorTypes()));
 }
@@ -1266,26 +1262,14 @@ void EditorManagerPrivate::readSettings()
     if (maxRecentFiles > 0)
         d->m_settings.maxRecentFiles = maxRecentFiles;
 
-    if (qs->contains(fileSystemCaseSensitivityKey)) {
-        Qt::CaseSensitivity defaultSensitivity
-                = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
-        bool ok = false;
-        Qt::CaseSensitivity sensitivity = defaultSensitivity;
-        int sensitivitySetting = qs->value(fileSystemCaseSensitivityKey).toInt(&ok);
-        if (ok) {
-            switch (Qt::CaseSensitivity(sensitivitySetting)) {
-            case Qt::CaseSensitive:
-                sensitivity = Qt::CaseSensitive;
-                break;
-            case Qt::CaseInsensitive:
-                sensitivity = Qt::CaseInsensitive;
-            }
-        }
-        if (sensitivity == defaultSensitivity)
-            HostOsInfo::unsetOverrideFileNameCaseSensitivity();
-        else
-            HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
-    }
+    const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
+        HostOsInfo::hostOs());
+    const Qt::CaseSensitivity sensitivity = readFileSystemSensitivity(qs);
+    if (sensitivity == defaultSensitivity)
+        HostOsInfo::unsetOverrideFileNameCaseSensitivity();
+    else
+        HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
+
     const QHash<Utils::MimeType, EditorType *> preferredEditorFactories = fromMap(
         qs->value(preferredEditorFactoriesKey).toMap());
     setUserPreferredEditorTypes(preferredEditorFactories);
@@ -1310,6 +1294,34 @@ void EditorManagerPrivate::readSettings()
         = qs->value(autoSuspendMinDocumentCountKey, def.autoSuspendMinDocumentCount).toInt();
 
     updateAutoSave();
+}
+
+Qt::CaseSensitivity EditorManagerPrivate::readFileSystemSensitivity(QSettings *settings)
+{
+    const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
+        HostOsInfo::hostOs());
+    if (!settings->contains(fileSystemCaseSensitivityKey))
+        return defaultSensitivity;
+    bool ok = false;
+    const int sensitivitySetting = settings->value(fileSystemCaseSensitivityKey).toInt(&ok);
+    if (ok) {
+        switch (Qt::CaseSensitivity(sensitivitySetting)) {
+        case Qt::CaseSensitive:
+            return Qt::CaseSensitive;
+        case Qt::CaseInsensitive:
+            return Qt::CaseInsensitive;
+        }
+    }
+    return defaultSensitivity;
+}
+
+void EditorManagerPrivate::writeFileSystemSensitivity(Utils::QtcSettings *settings,
+                                                      Qt::CaseSensitivity sensitivity)
+{
+    settings->setValueWithDefault(fileSystemCaseSensitivityKey,
+                                  int(sensitivity),
+                                  int(OsSpecificAspects::fileNameCaseSensitivity(
+                                      HostOsInfo::hostOs())));
 }
 
 void EditorManagerPrivate::setAutoSaveEnabled(bool enabled)

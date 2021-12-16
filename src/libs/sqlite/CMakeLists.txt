@@ -14,7 +14,7 @@ add_qtc_library(Sqlite
     ../3rdparty/sqlite/config.h
     ../3rdparty/sqlite/sqlite.h
     constraints.h
-    createtablesqlstatementbuilder.cpp createtablesqlstatementbuilder.h
+    createtablesqlstatementbuilder.h
     lastchangedrowid.h
     sqlitealgorithms.h
     sqlitebasestatement.cpp sqlitebasestatement.h

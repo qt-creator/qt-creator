@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -59,7 +59,8 @@
 
     Specify whether the library is statically or dynamically linked. For a
     statically linked internal library, \QC adds dependencies
-    (PRE_TARGETDEPS) in the project file.
+    (\l{CMake: target_link_libraries command}{target_link_libraries} when using
+    CMake or \l PRE_TARGETDEPS when using  qmake) in the project file.
 
     Depending on the development platform, some options might be detected
     automatically. For example, on \macos, the library type (\uicontrol Library or
@@ -128,22 +129,29 @@
         \li In the \uicontrol Library field, select \b mylib, and then select
             \uicontrol Next.
 
-        \li Select \uicontrol Finish to add the following library declaration to the
-            project file:
-
-            \code
-            win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib
-            else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/debug/ -lmylib
-            else:unix: LIBS += -L$$OUT_PWD/../../../projects/mylib/ -lmylib
-
-            INCLUDEPATH += $$PWD/../../../projects/mylib
-            DEPENDPATH += $$PWD/../../../projects/mylib
-
-            win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/release/mylib.lib
-            else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
-            else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
-            \endcode
+        \li Select \uicontrol Finish to add the library declaration to the
+            project file.
 
     \endlist
 
+    When using CMake, the \c target_link_libraries command is added to the
+    CMakeLists.txt file:
+
+    \badcode
+    target_link_libraries(myapp PRIVATE mylib)
+    \endcode
+
+    When using qmake, the following library declaration is added to the .pro
+    file:
+
+    \badcode
+    win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/debug/ -lmylib
+    else:unix: LIBS += -L$$OUT_PWD/../../../projects/mylib/ -lmylib
+    INCLUDEPATH += $$PWD/../../../projects/mylib
+    DEPENDPATH += $$PWD/../../../projects/mylib
+    win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/release/mylib.lib
+    else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
+    else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
+    \endcode
 */

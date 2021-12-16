@@ -27,8 +27,8 @@
 
 #include "sqlitedatabasemock.h"
 
-SqliteWriteStatementMock::SqliteWriteStatementMock(Utils::SmallStringView sqlStatement,
-                                                   SqliteDatabaseMock &database)
+SqliteWriteStatementMockBase::SqliteWriteStatementMockBase(Utils::SmallStringView sqlStatement,
+                                                           SqliteDatabaseMock &database)
     : sqlStatement(sqlStatement)
 {
     database.prepare(sqlStatement);

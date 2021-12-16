@@ -31,7 +31,7 @@
     \title Preset Components
 
     To use preset components, add the modules that contain them to your project
-    by selecting \l Library > \uicontrol Components > \inlineimage plus.png
+    by selecting \l Library > \uicontrol Components > \inlineimage icons/plus.png
     . For more information, see \l{Adding and Removing Modules}. You can then
     create instances of the components by dragging-and-dropping them from
     \uicontrol Library to \l {Form Editor}, \l {3D Editor}, or \l Navigator.

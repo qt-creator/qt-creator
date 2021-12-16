@@ -41,11 +41,20 @@ Section {
     property bool showFontSizeMode: false
     property bool showLineHeight: false
 
+    function isBackendValueAvailable(name) {
+        if (backendValues[name] !== undefined)
+            return backendValues[name].isAvailable
+
+        return false
+    }
+
     SectionLayout {
+        id: sectionLayout
+
         PropertyLabel {
             visible: root.showWrapMode
             text: qsTr("Wrap mode")
-            blockedByTemplate: !backendValues.wrapMode.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("wrapMode")
         }
 
         SecondColumnLayout {
@@ -58,7 +67,7 @@ Section {
                 backendValue: backendValues.wrapMode
                 scope: "Text"
                 model: ["NoWrap", "WordWrap", "WrapAnywhere", "Wrap"]
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("wrapMode")
             }
 
             ExpandingSpacer {}
@@ -67,7 +76,7 @@ Section {
         PropertyLabel {
             visible: root.showElide
             text: qsTr("Elide")
-            blockedByTemplate: !backendValues.elide.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("elide")
         }
 
         SecondColumnLayout {
@@ -80,7 +89,7 @@ Section {
                 backendValue: backendValues.elide
                 scope: "Text"
                 model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("elide")
             }
 
             ExpandingSpacer {}
@@ -89,7 +98,7 @@ Section {
         PropertyLabel {
             visible: root.showFormatProperty
             text: qsTr("Format")
-            blockedByTemplate: !backendValues.textFormat.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("textFormat")
         }
 
         SecondColumnLayout {
@@ -100,9 +109,9 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 scope: "Text"
-                model: ["PlainText", "RichText", "AutoText"]
+                model: ["PlainText", "RichText", "AutoText", "StyledText", "MarkdownText"]
                 backendValue: backendValues.textFormat
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("textFormat")
             }
 
             ExpandingSpacer {}
@@ -111,7 +120,7 @@ Section {
         PropertyLabel {
             text: qsTr("Render type")
             tooltip: qsTr("Overrides the default rendering type for this component.")
-            blockedByTemplate: !backendValues.renderType.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("renderType")
         }
 
         SecondColumnLayout {
@@ -122,7 +131,7 @@ Section {
                 scope: "Text"
                 model: ["QtRendering", "NativeRendering"]
                 backendValue: backendValues.renderType
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("renderType")
             }
 
             ExpandingSpacer {}
@@ -132,7 +141,7 @@ Section {
             visible: root.showLineHeight
             text: qsTr("Line height mode")
             tooltip: qsTr("Determines how the line height is specified.")
-            blockedByTemplate: !backendValues.lineHeightMode.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("lineHeightMode")
         }
 
         SecondColumnLayout {
@@ -145,7 +154,7 @@ Section {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("lineHeightMode")
             }
 
             ExpandingSpacer {}
@@ -155,7 +164,7 @@ Section {
             visible: root.showFontSizeMode
             text: qsTr("Size mode")
             tooltip: qsTr("Specifies how the font size of the displayed text is determined.")
-            blockedByTemplate: !backendValues.fontSizeMode.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("fontSizeMode")
         }
 
         SecondColumnLayout {
@@ -169,7 +178,7 @@ Section {
                 scope: "Text"
                 model: ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
                 backendValue: backendValues.fontSizeMode
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("fontSizeMode")
             }
 
             ExpandingSpacer {}
@@ -178,15 +187,16 @@ Section {
         PropertyLabel {
             visible: root.showFontSizeMode
             text: qsTr("Min size")
-            blockedByTemplate: !backendValues.minimumPixelSize.isAvailable
-                               && !backendValues.minimumPointSize.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("minimumPixelSize")
+                               && !root.isBackendValueAvailable("minimumPointSize")
         }
 
         SecondColumnLayout {
             visible: root.showFontSizeMode
 
             SpinBox {
-                enabled: (fontSizeMode.currentIndex !== 0) || backendValue.isAvailable
+                enabled: (fontSizeMode.currentIndex !== 0)
+                         || root.isBackendValueAvailable("minimumPixelSize")
                 minimumValue: 0
                 maximumValue: 500
                 decimals: 0
@@ -200,13 +210,14 @@ Section {
             ControlLabel {
                 text: "px"
                 tooltip: qsTr("Minimum font pixel size of scaled text.")
-                enabled: backendValues.minimumPixelSize.isAvailable
+                enabled: root.isBackendValueAvailable("minimumPixelSize")
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
             SpinBox {
-                enabled: (fontSizeMode.currentIndex !== 0) || backendValue.isAvailable
+                enabled: (fontSizeMode.currentIndex !== 0)
+                         || root.isBackendValueAvailable("minimumPointSize")
                 minimumValue: 0
                 maximumValue: 500
                 decimals: 0
@@ -220,7 +231,7 @@ Section {
             ControlLabel {
                 text: "pt"
                 tooltip: qsTr("Minimum font point size of scaled text.")
-                enabled: backendValues.minimumPointSize.isAvailable
+                enabled: root.isBackendValueAvailable("minimumPointSize")
             }
 
             ExpandingSpacer {}
@@ -230,7 +241,7 @@ Section {
             visible: root.showElide
             text: qsTr("Max line count")
             tooltip: qsTr("Limits the number of lines that the text component will show.")
-            blockedByTemplate: !backendValues.maximumLineCount.isAvailable
+            blockedByTemplate: !root.isBackendValueAvailable("maximumLineCount")
         }
 
         SecondColumnLayout {
@@ -243,7 +254,7 @@ Section {
                 minimumValue: 0
                 maximumValue: 10000
                 decimals: 0
-                enabled: backendValue.isAvailable
+                enabled: root.isBackendValueAvailable("maximumLineCount")
             }
 
             ExpandingSpacer {}

@@ -510,7 +510,7 @@
         \li Select the \inlineimage icons/edit.png
             (\uicontrol {Show Event List}) button on the Design mode
             \l{Summary of Main Toolbar Actions}{toolbar}, or press \key {Alt+E}.
-        \li In the \uicontrol {Event List} dialog, select \inlineimage plus.png
+        \li In the \uicontrol {Event List} dialog, select \inlineimage icons/plus.png
             to add a keyboard shortcut for triggering an event to the list.
             \image studio-flow-event-list.png "Event List dialog"
         \li In the \uicontrol {Event ID} field, enter an identifier for the

@@ -54,7 +54,7 @@
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
              \l {Connection View} > \uicontrol {Bindings}.
-        \li Select the \inlineimage plus.png
+        \li Select the \inlineimage icons/plus.png
             (\uicontrol Add) button to add a binding for the currently selected
             component. The component ID is displayed in the \uicontrol Item
             column.

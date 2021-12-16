@@ -88,7 +88,7 @@ private:
 
 public:
     Database &database;
-    WriteStatement insertSession;
+    WriteStatement<1> insertSession;
     Utils::SmallString databaseName;
     Utils::SmallStringVector tableNames;
     std::unique_ptr<sqlite3_session, decltype(&sqlite3session_delete)> session;

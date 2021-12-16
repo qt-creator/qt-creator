@@ -196,7 +196,7 @@ TEST_F(SqliteDatabase, DatabaseIsNotInitializedIfDatabasePathDoesNotExistAtOpeni
 
 TEST_F(SqliteDatabase, GetChangesCount)
 {
-    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     statement.write(42);
 
     ASSERT_THAT(database.changesCount(), 1);
@@ -204,7 +204,7 @@ TEST_F(SqliteDatabase, GetChangesCount)
 
 TEST_F(SqliteDatabase, GetTotalChangesCount)
 {
-    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     statement.write(42);
 
     ASSERT_THAT(database.lastInsertedRowId(), 1);
@@ -212,7 +212,7 @@ TEST_F(SqliteDatabase, GetTotalChangesCount)
 
 TEST_F(SqliteDatabase, GetLastInsertedRowId)
 {
-    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     statement.write(42);
 
     ASSERT_THAT(database.lastInsertedRowId(), 1);
@@ -265,7 +265,7 @@ TEST_F(SqliteDatabase, SetUpdateHookSet)
     database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(_, _, _, _));
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, SetNullUpdateHook)
@@ -275,7 +275,7 @@ TEST_F(SqliteDatabase, SetNullUpdateHook)
     database.setUpdateHook(nullptr, nullptr);
 
     EXPECT_CALL(callbackMock, Call(_, _, _, _)).Times(0);
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, ResetUpdateHook)
@@ -285,12 +285,12 @@ TEST_F(SqliteDatabase, ResetUpdateHook)
     database.resetUpdateHook();
 
     EXPECT_CALL(callbackMock, Call(_, _, _, _)).Times(0);
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, DeleteUpdateHookCall)
 {
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
     database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Delete), _, _, _));
@@ -304,7 +304,7 @@ TEST_F(SqliteDatabase, InsertUpdateHookCall)
 
     EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Insert), _, _, _));
 
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, UpdateUpdateHookCall)
@@ -313,7 +313,7 @@ TEST_F(SqliteDatabase, UpdateUpdateHookCall)
 
     EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Insert), _, _, _));
 
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, RowIdUpdateHookCall)
@@ -322,7 +322,7 @@ TEST_F(SqliteDatabase, RowIdUpdateHookCall)
 
     EXPECT_CALL(callbackMock, Call(_, _, _, Eq(42)));
 
-    Sqlite::WriteStatement("INSERT INTO test(rowid, name) VALUES (?,?)", database).write(42, "foo");
+    Sqlite::WriteStatement<2>("INSERT INTO test(rowid, name) VALUES (?,?)", database).write(42, "foo");
 }
 
 TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
@@ -331,7 +331,7 @@ TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
 
     EXPECT_CALL(callbackMock, Call(_, StrEq("main"), _, _));
 
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, TableUpdateHookCall)
@@ -340,20 +340,21 @@ TEST_F(SqliteDatabase, TableUpdateHookCall)
 
     EXPECT_CALL(callbackMock, Call(_, _, StrEq("test"), _));
 
-    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
 TEST_F(SqliteDatabase, SessionsCommit)
 {
     database.setAttachedTables({"test"});
-    Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
+    Sqlite::WriteStatement<2>("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
     database.unlock();
 
     Sqlite::ImmediateSessionTransaction transaction{database};
-    Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
+    Sqlite::WriteStatement<2>("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
     transaction.commit();
     database.lock();
-    Sqlite::WriteStatement("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database).write(2, "hoo");
+    Sqlite::WriteStatement<2>("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database)
+        .write(2, "hoo");
     database.applyAndUpdateSessions();
 
     ASSERT_THAT(names(), ElementsAre("foo", "bar"));
@@ -362,15 +363,16 @@ TEST_F(SqliteDatabase, SessionsCommit)
 TEST_F(SqliteDatabase, SessionsRollback)
 {
     database.setAttachedTables({"test"});
-    Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
+    Sqlite::WriteStatement<2>("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
     database.unlock();
 
     {
         Sqlite::ImmediateSessionTransaction transaction{database};
-        Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
+        Sqlite::WriteStatement<2>("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
     }
     database.lock();
-    Sqlite::WriteStatement("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database).write(2, "hoo");
+    Sqlite::WriteStatement<2>("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database)
+        .write(2, "hoo");
     database.applyAndUpdateSessions();
 
     ASSERT_THAT(names(), ElementsAre("foo", "hoo"));

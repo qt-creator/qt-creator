@@ -212,7 +212,9 @@ public:
                 m_ui.fileSystemCaseSensitivityChooser->addItem(tr("Case Insensitive"),
                                                                   Qt::CaseInsensitive);
             }
-            if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseSensitive)
+            const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
+                ICore::settings());
+            if (sensitivity == Qt::CaseSensitive)
                 m_ui.fileSystemCaseSensitivityChooser->setCurrentIndex(0);
             else
                 m_ui.fileSystemCaseSensitivityChooser->setCurrentIndex(1);
@@ -260,15 +262,15 @@ private:
 
 void SystemSettingsWidget::apply()
 {
+    QtcSettings *settings = ICore::settings();
     EditorManager::setReloadSetting(IDocument::ReloadSetting(m_ui.reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
-        ConsoleProcess::setTerminalEmulator(ICore::settings(),
+        ConsoleProcess::setTerminalEmulator(settings,
                                             {m_ui.terminalComboBox->lineEdit()->text(),
                                              m_ui.terminalOpenArgs->text(),
                                              m_ui.terminalExecuteArgs->text()});
         if (!HostOsInfo::isMacHost()) {
-            UnixUtils::setFileBrowser(ICore::settings(),
-                                      m_ui.externalFileBrowserEdit->text());
+            UnixUtils::setFileBrowser(settings, m_ui.externalFileBrowserEdit->text());
         }
     }
     PatchTool::setPatchCommand(m_ui.patchChooser->filePath());
@@ -291,14 +293,17 @@ void SystemSettingsWidget::apply()
                 m_ui.askBeforeExitCheckBox->isChecked());
 
     if (HostOsInfo::isMacHost()) {
-        Qt::CaseSensitivity defaultSensitivity
-                = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
-        Qt::CaseSensitivity selectedSensitivity = Qt::CaseSensitivity(
-                m_ui.fileSystemCaseSensitivityChooser->currentData().toInt());
-        if (defaultSensitivity == selectedSensitivity)
-            HostOsInfo::unsetOverrideFileNameCaseSensitivity();
-        else
-            HostOsInfo::setOverrideFileNameCaseSensitivity(selectedSensitivity);
+        const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
+            settings);
+        const Qt::CaseSensitivity selectedSensitivity = Qt::CaseSensitivity(
+            m_ui.fileSystemCaseSensitivityChooser->currentData().toInt());
+        if (selectedSensitivity != sensitivity) {
+            EditorManagerPrivate::writeFileSystemSensitivity(settings, selectedSensitivity);
+            RestartDialog dialog(
+                ICore::dialogParent(),
+                tr("The file system case sensitivity change will take effect after restart."));
+            dialog.exec();
+        }
     }
 
     CorePlugin::setEnvironmentChanges(m_environmentChanges);

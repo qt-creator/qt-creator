@@ -178,7 +178,7 @@
     \list 1
         \li In the base state, add all components you will need in the
             application (1). While you work on one view, you can click the
-            \inlineimage eye_open.png
+            \inlineimage icons/eye_open.png
             icon in \l Navigator to hide components on the canvas that are
             not part of a view.
         \li In \uicontrol States, select \uicontrol {Create New State} to create

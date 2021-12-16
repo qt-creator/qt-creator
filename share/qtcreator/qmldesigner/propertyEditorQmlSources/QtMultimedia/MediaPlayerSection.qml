@@ -30,10 +30,14 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
     caption: qsTr("Media Player")
 
     anchors.left: parent.left
     anchors.right: parent.right
+
+    property bool showAudioOutput: false
+    property bool showVideoOutput: false
 
     // TODO position property, what should be the range?!
 
@@ -54,11 +58,14 @@ Section {
         }
 
         PropertyLabel {
+            visible: root.showAudioOutput
             text: qsTr("Audio Output")
             tooltip: qsTr("Holds the target audio output.")
         }
 
         SecondColumnLayout {
+            visible: root.showAudioOutput
+
             ItemFilterComboBox {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -72,11 +79,14 @@ Section {
         }
 
         PropertyLabel {
+            visible: root.showVideoOutput
             text: qsTr("Video Output")
             tooltip: qsTr("Holds the target video output.")
         }
 
         SecondColumnLayout {
+            visible: root.showVideoOutput
+
             ItemFilterComboBox {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth

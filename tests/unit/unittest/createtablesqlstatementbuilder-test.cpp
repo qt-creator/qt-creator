@@ -39,13 +39,15 @@ using Sqlite::ForeignKeyAction;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
 using Sqlite::PrimaryKey;
-using Sqlite::SqliteColumns;
 using Sqlite::SqlStatementBuilderException;
+using Sqlite::StrictColumnType;
 using Sqlite::Unique;
 
 class CreateTableSqlStatementBuilder : public ::testing::Test
 {
 protected:
+    using Columns = ::Sqlite::Columns;
+    using Builder = Sqlite::CreateTableSqlStatementBuilder<ColumnType>;
     void bindValues()
     {
         builder.clear();
@@ -55,9 +57,9 @@ protected:
         builder.addColumn("number", ColumnType::Numeric);
     }
 
-    static SqliteColumns createColumns()
+    static Columns createColumns()
     {
-        SqliteColumns columns;
+        Columns columns;
         columns.emplace_back("", "id", ColumnType::Integer, Sqlite::Constraints{PrimaryKey{}});
         columns.emplace_back("", "name", ColumnType::Text);
         columns.emplace_back("", "number", ColumnType::Numeric);
@@ -66,7 +68,7 @@ protected:
     }
 
 protected:
-    Sqlite::CreateTableSqlStatementBuilder builder;
+    Builder builder;
 };
 
 TEST_F(CreateTableSqlStatementBuilder, IsNotValidAfterCreation)
@@ -125,8 +127,7 @@ TEST_F(CreateTableSqlStatementBuilder, ChangeTable)
     builder.setTableName("test2");
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)"
-                );
+                "CREATE TABLE test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
@@ -163,7 +164,6 @@ TEST_F(CreateTableSqlStatementBuilder, SetWitoutRowId)
 
 TEST_F(CreateTableSqlStatementBuilder, SetColumnDefinitions)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.setColumns(createColumns());
@@ -174,7 +174,6 @@ TEST_F(CreateTableSqlStatementBuilder, SetColumnDefinitions)
 
 TEST_F(CreateTableSqlStatementBuilder, UniqueContraint)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {Unique{}});
@@ -185,7 +184,6 @@ TEST_F(CreateTableSqlStatementBuilder, UniqueContraint)
 
 TEST_F(CreateTableSqlStatementBuilder, IfNotExitsModifier)
 {
-    builder.clear();
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer, {});
 
@@ -197,7 +195,6 @@ TEST_F(CreateTableSqlStatementBuilder, IfNotExitsModifier)
 
 TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
 {
-    builder.clear();
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer, {});
 
@@ -209,7 +206,6 @@ TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithoutColumn)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", ""}});
@@ -219,7 +215,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithoutColumn)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithColumn)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
@@ -230,7 +225,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithColumn)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
@@ -241,7 +235,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -255,7 +248,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -269,7 +261,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -283,7 +274,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateCascade)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -297,7 +287,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateCascade)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
@@ -308,7 +297,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -322,7 +310,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -336,7 +323,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -350,7 +336,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteCascade)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -364,7 +349,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteCascade)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -381,7 +365,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
 
 TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeferred)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -399,7 +382,6 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeferred)
 
 TEST_F(CreateTableSqlStatementBuilder, NotNullConstraint)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {Sqlite::NotNull{}});
@@ -409,7 +391,6 @@ TEST_F(CreateTableSqlStatementBuilder, NotNullConstraint)
 
 TEST_F(CreateTableSqlStatementBuilder, NotNullAndUniqueConstraint)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {Sqlite::Unique{}, Sqlite::NotNull{}});
@@ -419,7 +400,6 @@ TEST_F(CreateTableSqlStatementBuilder, NotNullAndUniqueConstraint)
 
 TEST_F(CreateTableSqlStatementBuilder, Check)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Text, {Sqlite::Check{"id != ''"}});
@@ -429,7 +409,6 @@ TEST_F(CreateTableSqlStatementBuilder, Check)
 
 TEST_F(CreateTableSqlStatementBuilder, DefaultValueInt)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {Sqlite::DefaultValue{1LL}});
@@ -439,7 +418,6 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueInt)
 
 TEST_F(CreateTableSqlStatementBuilder, DefaultValueFloat)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Real, {Sqlite::DefaultValue{1.1}});
@@ -449,7 +427,6 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueFloat)
 
 TEST_F(CreateTableSqlStatementBuilder, DefaultValueString)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Text, {Sqlite::DefaultValue{"foo"}});
@@ -459,7 +436,6 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueString)
 
 TEST_F(CreateTableSqlStatementBuilder, DefaultExpression)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -472,7 +448,6 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultExpression)
 
 TEST_F(CreateTableSqlStatementBuilder, Collation)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Text, {Sqlite::Collate{"unicode"}});
@@ -482,7 +457,6 @@ TEST_F(CreateTableSqlStatementBuilder, Collation)
 
 TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysStored)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -497,7 +471,6 @@ TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysStored)
 
 TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysVirtual)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id",
@@ -512,7 +485,6 @@ TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysVirtual)
 
 TEST_F(CreateTableSqlStatementBuilder, PrimaryKeyAutoincrement)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("id", ColumnType::Integer, {Sqlite::PrimaryKey{Sqlite::AutoIncrement::Yes}});
@@ -522,7 +494,6 @@ TEST_F(CreateTableSqlStatementBuilder, PrimaryKeyAutoincrement)
 
 TEST_F(CreateTableSqlStatementBuilder, BlobType)
 {
-    builder.clear();
     builder.setTableName("test");
 
     builder.addColumn("data", ColumnType::Blob);
@@ -532,7 +503,6 @@ TEST_F(CreateTableSqlStatementBuilder, BlobType)
 
 TEST_F(CreateTableSqlStatementBuilder, TablePrimaryKeyConstaint)
 {
-    builder.clear();
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer);
     builder.addColumn("text", ColumnType::Text);
@@ -541,6 +511,597 @@ TEST_F(CreateTableSqlStatementBuilder, TablePrimaryKeyConstaint)
     auto statement = builder.sqlStatement();
 
     ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER, text TEXT, PRIMARY KEY(id, text))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, NoneColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::None);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, NumericColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Numeric);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id NUMERIC)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, IntegerColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Integer);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, RealColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Real);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id REAL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, TextColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Text);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id TEXT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, BlobColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Blob);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id BLOB)");
+}
+
+class CreateStrictTableSqlStatementBuilder : public ::testing::Test
+{
+protected:
+    using Columns = ::Sqlite::StrictColumns;
+
+    void bindValues()
+    {
+        builder.clear();
+        builder.setTableName("test");
+        builder.addColumn("id", StrictColumnType::Integer, {PrimaryKey{}});
+        builder.addColumn("name", StrictColumnType::Text);
+        builder.addColumn("number", StrictColumnType::Any);
+    }
+
+    static Columns createColumns()
+    {
+        Columns columns;
+        columns.emplace_back("", "id", StrictColumnType::Integer, Sqlite::Constraints{PrimaryKey{}});
+        columns.emplace_back("", "name", StrictColumnType::Text);
+        columns.emplace_back("", "number", StrictColumnType::Any);
+
+        return columns;
+    }
+
+protected:
+    Sqlite::CreateTableSqlStatementBuilder<StrictColumnType> builder;
+};
+
+TEST_F(CreateStrictTableSqlStatementBuilder, IsNotValidAfterCreation)
+{
+    ASSERT_FALSE(builder.isValid());
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, IsValidAfterBinding)
+{
+    bindValues();
+
+    ASSERT_TRUE(builder.isValid());
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, InvalidAfterClear)
+{
+    bindValues();
+
+    builder.clear();
+
+    ASSERT_TRUE(!builder.isValid());
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, NoSqlStatementAfterClear)
+{
+    bindValues();
+    builder.sqlStatement();
+
+    builder.clear();
+
+    ASSERT_THROW(builder.sqlStatement(), SqlStatementBuilderException);
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, SqlStatement)
+{
+    bindValues();
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, AddColumnToExistingColumns)
+{
+    bindValues();
+
+    builder.addColumn("number2", StrictColumnType::Real);
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY, number2 REAL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ChangeTable)
+{
+    bindValues();
+
+    builder.setTableName("test2");
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test2(id INTEGER PRIMARY KEY, name TEXT, number ANY) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
+{
+    bindValues();
+    builder.sqlStatement();
+
+    builder.clearColumns();
+
+    ASSERT_THROW(builder.sqlStatement(), SqlStatementBuilderException);
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ClearColumnsAndAddColumnNewColumns)
+{
+    bindValues();
+    builder.clearColumns();
+
+    builder.addColumn("name3", StrictColumnType::Text);
+    builder.addColumn("number3", StrictColumnType::Real);
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(name3 TEXT, number3 REAL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, SetWitoutRowId)
+{
+    bindValues();
+
+    builder.setUseWithoutRowId(true);
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) WITHOUT ROWID STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, SetColumnDefinitions)
+{
+    builder.setTableName("test");
+
+    builder.setColumns(createColumns());
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, UniqueContraint)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {Unique{}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, IfNotExitsModifier)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Integer, {});
+
+    builder.setUseIfNotExists(true);
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE IF NOT EXISTS test(id INTEGER) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, TemporaryTable)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Integer, {});
+
+    builder.setUseTemporaryTable(true);
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TEMPORARY TABLE test(id INTEGER) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyWithoutColumn)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {ForeignKey{"otherTable", ""}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER REFERENCES otherTable) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyWithColumn)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn)) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn)) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::Restrict}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE "
+                "RESTRICT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::SetNull}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "NULL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::SetDefault}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateCascade)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::Cascade}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE "
+                "CASCADE) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn)) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::Restrict}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE "
+                "RESTRICT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::SetNull}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET "
+                "NULL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::SetDefault}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET "
+                "DEFAULT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteCascade)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::Cascade}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE "
+                "CASCADE) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable",
+                                  "otherColumn",
+                                  ForeignKeyAction::SetDefault,
+                                  ForeignKeyAction::Cascade}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT ON DELETE CASCADE) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeferred)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {ForeignKey{"otherTable",
+                                  "otherColumn",
+                                  ForeignKeyAction::SetDefault,
+                                  ForeignKeyAction::Cascade,
+                                  Enforment::Deferred}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, NotNullConstraint)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {Sqlite::NotNull{}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER NOT NULL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, NotNullAndUniqueConstraint)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {Sqlite::Unique{}, Sqlite::NotNull{}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE NOT NULL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, Check)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Text, {Sqlite::Check{"id != ''"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT CHECK (id != '')) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueInt)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Integer, {Sqlite::DefaultValue{1LL}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER DEFAULT 1) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueFloat)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Real, {Sqlite::DefaultValue{1.1}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.100000) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueString)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Text, {Sqlite::DefaultValue{"foo"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT DEFAULT 'foo') STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, DefaultExpression)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {Sqlite::DefaultExpression{"SELECT name FROM foo WHERE id=?"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER DEFAULT (SELECT name FROM foo WHERE id=?)) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, Collation)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id", StrictColumnType::Text, {Sqlite::Collate{"unicode"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT COLLATE unicode) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, GeneratedAlwaysStored)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Text,
+                      {Sqlite::GeneratedAlways{"SELECT name FROM foo WHERE id=?",
+                                               Sqlite::GeneratedAlwaysStorage::Stored}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id TEXT GENERATED ALWAYS AS (SELECT name FROM foo WHERE id=?) "
+                "STORED) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, GeneratedAlwaysVirtual)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Text,
+                      {Sqlite::GeneratedAlways{"SELECT name FROM foo WHERE id=?",
+                                               Sqlite::GeneratedAlwaysStorage::Virtual}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id TEXT GENERATED ALWAYS AS (SELECT name FROM foo WHERE id=?) "
+                "VIRTUAL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, PrimaryKeyAutoincrement)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      StrictColumnType::Integer,
+                      {Sqlite::PrimaryKey{Sqlite::AutoIncrement::Yes}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER PRIMARY KEY AUTOINCREMENT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, BlobType)
+{
+    builder.setTableName("test");
+
+    builder.addColumn("data", StrictColumnType::Blob);
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(data BLOB) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, TablePrimaryKeyConstaint)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Integer);
+    builder.addColumn("text", StrictColumnType::Text);
+
+    builder.addConstraint(Sqlite::TablePrimaryKey{{"id, text"}});
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER, text TEXT, PRIMARY KEY(id, text)) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, AnyColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Any);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id ANY) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, IntColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Int);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id INT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, IntegerColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Integer);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, RealColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Real);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id REAL) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, TextColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Text);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id TEXT) STRICT");
+}
+
+TEST_F(CreateStrictTableSqlStatementBuilder, BlobColumnTypeStringConversion)
+{
+    builder.setTableName("test");
+    builder.addColumn("id", StrictColumnType::Blob);
+
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id BLOB) STRICT");
 }
 
 } // namespace

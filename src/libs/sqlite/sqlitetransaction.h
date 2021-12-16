@@ -59,9 +59,12 @@ protected:
     ~TransactionInterface() = default;
 };
 
+template<typename TransactionInterface>
 class AbstractTransaction
 {
 public:
+    using Transaction = TransactionInterface;
+
     AbstractTransaction(const AbstractTransaction &) = delete;
     AbstractTransaction &operator=(const AbstractTransaction &) = delete;
 
@@ -87,11 +90,14 @@ protected:
     bool m_rollback = false;
 };
 
+template<typename TransactionInterface>
 class AbstractThrowingSessionTransaction
 {
 public:
-    AbstractThrowingSessionTransaction(const AbstractTransaction &) = delete;
-    AbstractThrowingSessionTransaction &operator=(const AbstractTransaction &) = delete;
+    using Transaction = TransactionInterface;
+
+    AbstractThrowingSessionTransaction(const AbstractThrowingSessionTransaction &) = delete;
+    AbstractThrowingSessionTransaction &operator=(const AbstractThrowingSessionTransaction &) = delete;
 
     void commit()
     {
@@ -123,16 +129,19 @@ protected:
     bool m_rollback = false;
 };
 
-class AbstractThrowingTransaction : public AbstractTransaction
+template<typename TransactionInterface>
+class AbstractThrowingTransaction : public AbstractTransaction<TransactionInterface>
 {
+    using Base = AbstractTransaction<TransactionInterface>;
+
 public:
     AbstractThrowingTransaction(const AbstractThrowingTransaction &) = delete;
     AbstractThrowingTransaction &operator=(const AbstractThrowingTransaction &) = delete;
     ~AbstractThrowingTransaction() noexcept(false)
     {
         try {
-            if (m_rollback)
-                m_interface.rollback();
+            if (Base::m_rollback)
+                Base::m_interface.rollback();
         } catch (...) {
             if (!std::uncaught_exceptions())
                 throw;
@@ -141,37 +150,40 @@ public:
 
 protected:
     AbstractThrowingTransaction(TransactionInterface &transactionInterface)
-        : AbstractTransaction(transactionInterface)
+        : AbstractTransaction<TransactionInterface>(transactionInterface)
     {
     }
 };
 
-class AbstractNonThrowingDestructorTransaction : public AbstractTransaction
+template<typename TransactionInterface>
+class AbstractNonThrowingDestructorTransaction : public AbstractTransaction<TransactionInterface>
 {
+    using Base = AbstractTransaction<TransactionInterface>;
+
 public:
     AbstractNonThrowingDestructorTransaction(const AbstractNonThrowingDestructorTransaction &) = delete;
     AbstractNonThrowingDestructorTransaction &operator=(const AbstractNonThrowingDestructorTransaction &) = delete;
     ~AbstractNonThrowingDestructorTransaction()
     {
         try {
-            if (m_rollback)
-                m_interface.rollback();
+            if (Base::m_rollback)
+                Base::m_interface.rollback();
         } catch (...) {
         }
     }
 
 protected:
     AbstractNonThrowingDestructorTransaction(TransactionInterface &transactionInterface)
-        : AbstractTransaction(transactionInterface)
+        : AbstractTransaction<TransactionInterface>(transactionInterface)
     {
     }
 };
 
-template <typename BaseTransaction>
-class BasicDeferredTransaction final : public BaseTransaction
+template<typename BaseTransaction>
+class BasicDeferredTransaction : public BaseTransaction
 {
 public:
-    BasicDeferredTransaction(TransactionInterface &transactionInterface)
+    BasicDeferredTransaction(typename BaseTransaction::Transaction &transactionInterface)
         : BaseTransaction(transactionInterface)
     {
         transactionInterface.deferredBegin();
@@ -183,14 +195,38 @@ public:
     }
 };
 
-using DeferredTransaction = BasicDeferredTransaction<AbstractThrowingTransaction>;
-using DeferredNonThrowingDestructorTransaction = BasicDeferredTransaction<AbstractNonThrowingDestructorTransaction>;
+template<typename TransactionInterface>
+class DeferredTransaction final
+    : public BasicDeferredTransaction<AbstractThrowingTransaction<TransactionInterface>>
+{
+    using Base = BasicDeferredTransaction<AbstractThrowingTransaction<TransactionInterface>>;
 
-template <typename BaseTransaction>
-class BasicImmediateTransaction final : public BaseTransaction
+public:
+    using Base::Base;
+};
+
+template<typename TransactionInterface>
+DeferredTransaction(TransactionInterface &) -> DeferredTransaction<TransactionInterface>;
+
+template<typename TransactionInterface>
+class DeferredNonThrowingDestructorTransaction final
+    : public BasicDeferredTransaction<AbstractNonThrowingDestructorTransaction<TransactionInterface>>
+{
+    using Base = BasicDeferredTransaction<AbstractNonThrowingDestructorTransaction<TransactionInterface>>;
+
+public:
+    using Base::Base;
+};
+
+template<typename TransactionInterface>
+DeferredNonThrowingDestructorTransaction(TransactionInterface &)
+    -> DeferredNonThrowingDestructorTransaction<TransactionInterface>;
+
+template<typename BaseTransaction>
+class BasicImmediateTransaction : public BaseTransaction
 {
 public:
-    BasicImmediateTransaction(TransactionInterface &transactionInterface)
+    BasicImmediateTransaction(typename BaseTransaction::Transaction &transactionInterface)
         : BaseTransaction(transactionInterface)
     {
         transactionInterface.immediateBegin();
@@ -202,14 +238,38 @@ public:
     }
 };
 
-using ImmediateTransaction = BasicImmediateTransaction<AbstractThrowingTransaction>;
-using ImmediateNonThrowingDestructorTransaction = BasicImmediateTransaction<AbstractNonThrowingDestructorTransaction>;
+template<typename TransactionInterface>
+class ImmediateTransaction final
+    : public BasicImmediateTransaction<AbstractThrowingTransaction<TransactionInterface>>
+{
+    using Base = BasicImmediateTransaction<AbstractThrowingTransaction<TransactionInterface>>;
 
-template <typename BaseTransaction>
-class BasicExclusiveTransaction final : public BaseTransaction
+public:
+    using Base::Base;
+};
+
+template<typename TransactionInterface>
+ImmediateTransaction(TransactionInterface &) -> ImmediateTransaction<TransactionInterface>;
+
+template<typename TransactionInterface>
+class ImmediateNonThrowingDestructorTransaction final
+    : public BasicImmediateTransaction<AbstractNonThrowingDestructorTransaction<TransactionInterface>>
+{
+    using Base = BasicImmediateTransaction<AbstractNonThrowingDestructorTransaction<TransactionInterface>>;
+
+public:
+    using Base::Base;
+};
+
+template<typename TransactionInterface>
+ImmediateNonThrowingDestructorTransaction(TransactionInterface &)
+    -> ImmediateNonThrowingDestructorTransaction<TransactionInterface>;
+
+template<typename BaseTransaction>
+class BasicExclusiveTransaction : public BaseTransaction
 {
 public:
-    BasicExclusiveTransaction(TransactionInterface &transactionInterface)
+    BasicExclusiveTransaction(typename BaseTransaction::Transaction &transactionInterface)
         : BaseTransaction(transactionInterface)
     {
         transactionInterface.exclusiveBegin();
@@ -221,24 +281,51 @@ public:
     }
 };
 
-using ExclusiveTransaction = BasicExclusiveTransaction<AbstractThrowingTransaction>;
-using ExclusiveNonThrowingDestructorTransaction
-    = BasicExclusiveTransaction<AbstractNonThrowingDestructorTransaction>;
-
-class ImmediateSessionTransaction final : public AbstractThrowingSessionTransaction
+template<typename TransactionInterface>
+class ExclusiveTransaction final
+    : public BasicExclusiveTransaction<AbstractThrowingTransaction<TransactionInterface>>
 {
+    using Base = BasicExclusiveTransaction<AbstractThrowingTransaction<TransactionInterface>>;
+
 public:
-    ImmediateSessionTransaction(TransactionInterface &transactionInterface)
-        : AbstractThrowingSessionTransaction(transactionInterface)
+    using Base::Base;
+};
+
+template<typename TransactionInterface>
+ExclusiveTransaction(TransactionInterface &) -> ExclusiveTransaction<TransactionInterface>;
+
+template<typename TransactionInterface>
+class ExclusiveNonThrowingDestructorTransaction final
+    : public BasicExclusiveTransaction<AbstractNonThrowingDestructorTransaction<TransactionInterface>>
+{
+    using Base = BasicExclusiveTransaction<AbstractNonThrowingDestructorTransaction<TransactionInterface>>;
+
+public:
+    using Base::Base;
+};
+
+template<typename TransactionInterface>
+ExclusiveNonThrowingDestructorTransaction(TransactionInterface &)
+    -> ExclusiveNonThrowingDestructorTransaction<TransactionInterface>;
+
+template<typename TransactionInterface>
+class ImmediateSessionTransaction final
+    : public AbstractThrowingSessionTransaction<TransactionInterface>
+{
+    using Base = AbstractThrowingSessionTransaction<TransactionInterface>;
+
+public:
+    ImmediateSessionTransaction(typename Base::Transaction &transactionInterface)
+        : AbstractThrowingSessionTransaction<TransactionInterface>(transactionInterface)
     {
         transactionInterface.immediateSessionBegin();
     }
 
-    ~ImmediateSessionTransaction()
-    {
-        AbstractThrowingSessionTransaction::m_rollback
-            = !AbstractThrowingSessionTransaction::m_isAlreadyCommited;
-    }
+    ~ImmediateSessionTransaction() { Base::m_rollback = !Base::m_isAlreadyCommited; }
 };
+
+template<typename TransactionInterface>
+ImmediateSessionTransaction(TransactionInterface &)
+    -> ImmediateSessionTransaction<TransactionInterface>;
 
 } // namespace Sqlite

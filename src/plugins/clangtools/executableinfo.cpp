@@ -228,8 +228,9 @@ QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
         static const QStringList versionPrefixes{"LLVM version ", "clang version: "};
         const QString line = stream.readLine().simplified();
         for (const QString &prefix : versionPrefixes) {
-            if (line.startsWith(prefix))
-                return line.mid(prefix.length());
+            auto idx = line.indexOf(prefix);
+            if (idx >= 0)
+                return line.mid(idx + prefix.length());
         }
     }
     return {};

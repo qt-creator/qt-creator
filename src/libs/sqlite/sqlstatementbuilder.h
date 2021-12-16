@@ -57,8 +57,6 @@ public:
 
     bool isBuild() const;
 
-    static Utils::SmallString columnTypeToString(ColumnType columnType);
-
 protected:
     static Utils::SmallString insertTemplateParameters(const Utils::SmallStringVector &columns);
     static Utils::SmallString updateTemplateParameters(const Utils::SmallStringVector &columns);

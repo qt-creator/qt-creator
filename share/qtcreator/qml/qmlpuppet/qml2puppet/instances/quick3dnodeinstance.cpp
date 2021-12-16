@@ -41,6 +41,7 @@
 #include <private/qquick3dmodel_p.h>
 #include <private/qquick3dnode_p_p.h>
 #include <private/qquick3drepeater_p.h>
+#include <private/qquick3dloader_p.h>
 #endif
 
 namespace QmlDesigner {
@@ -59,10 +60,18 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
                                      InstanceContainer::NodeFlags flags)
 {
 #ifdef QUICK3D_MODULE
-    if (auto repObj = qobject_cast<QQuick3DRepeater *>(object())) {
+    QObject *obj = object();
+    auto repObj = qobject_cast<QQuick3DRepeater *>(obj);
+    auto loadObj = qobject_cast<QQuick3DLoader *>(obj);
+    if (repObj || loadObj) {
         if (auto infoServer = qobject_cast<Qt5InformationNodeInstanceServer *>(nodeInstanceServer())) {
-            QObject::connect(repObj, &QQuick3DRepeater::objectAdded,
-                             infoServer, &Qt5InformationNodeInstanceServer::handleRepeaterAddObject);
+            if (repObj) {
+                QObject::connect(repObj, &QQuick3DRepeater::objectAdded,
+                                 infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+            } else {
+                QObject::connect(loadObj, &QQuick3DLoader::loaded,
+                                 infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+            }
         }
     }
 #endif

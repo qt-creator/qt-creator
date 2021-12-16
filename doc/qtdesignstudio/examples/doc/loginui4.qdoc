@@ -85,7 +85,7 @@
         \li Double-click \e Screen01.ui.qml in \l Projects to open it
             in \l {Form Editor}.
         \li In the \l States view, select \e login, and then select
-            \inlineimage close.png
+            \inlineimage icons/close.png
             to remove the state. Repeat for the \e createAccount state.
         \li Select \e username in \l Navigator, and then select
             \inlineimage arrowleft.png
@@ -143,7 +143,7 @@
     \list 1
             \li Select \uicontrol View > \uicontrol Views >
             \uicontrol Timeline to open the \l Timeline view.
-        \li In \uicontrol Timeline, select \inlineimage plus.png
+        \li In \uicontrol Timeline, select \inlineimage icons/plus.png
             to add a 1000-frame timeline and settings for running the animation.
             \image loginui4-timeline-settings.png
         \li In the \uicontrol {Animation ID} field, enter
@@ -172,7 +172,7 @@
             opacity property of the component.
             \image loginui4-keyframe-opacity.png "Inserting keyframe for opacity property"
         \li In \uicontrol Timeline, check that the playhead is in
-            frame 0, and select the \inlineimage recordfill.png
+            frame 0, and select the \inlineimage icons/recordfill.png
             (\uicontrol {Per Property Recording}) button for the
             \uicontrol opacity property of \e repeatPassword to start
             recording property changes.
@@ -183,7 +183,7 @@
             to show the button.
 
             To fine-tune the value of a keyframe, you can also right-click the
-            keyframe marker \inlineimage keyframe_linear_inactive.png
+            keyframe marker \inlineimage icons/keyframe_linear_active.png
             , and select \uicontrol {Edit Keyframe}.
         \li Select the record button again to stop recording property changes.
             If you forget this, all the following changes will be recorded, and
@@ -236,7 +236,7 @@
     margin animation that will make the transition seem smoother:
 
     \list 1
-        \li Click the keyframe marker \inlineimage keyframe_linear_inactive.png
+        \li Click the keyframe marker \inlineimage icons/keyframe_linear_active.png
             for the \e anchors.topMargin property at frame 1000 on the
             timeline to select it.
             \image loginui4-easing-curve-top-anchor-margin.png "Top anchor margin keyframe marker"
@@ -249,8 +249,8 @@
     \endlist
 
     When you attach easing curves to keyframes, the shape of the keyframe
-    marker changes from \inlineimage keyframe_linear_inactive.png
-    to \inlineimage keyframe_manualbezier_inactive.png
+    marker changes from \inlineimage icons/keyframe_linear_active.png
+    to \inlineimage icons/keyframe_manualbezier_active.png
     .
 
     Your timeline should now look something like this:

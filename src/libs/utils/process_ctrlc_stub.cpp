@@ -50,6 +50,40 @@
 #define CALLBACK WINAPI
 #endif
 
+/// Class that ensures that when the parent process cancels, the child
+/// process will also be cancelled by the operating system.
+///
+/// This allows handling of GUI applications that do not react to Ctrl+C
+/// or console applications that ignore Ctrl+C.
+class JobKillOnClose
+{
+    HANDLE m_job = nullptr;
+public:
+    JobKillOnClose()
+    {
+        m_job = CreateJobObject(nullptr, nullptr);
+        if (!m_job) {
+            fwprintf(stderr, L"qtcreator_ctrlc_stub: CreateJobObject failed: 0x%x.\n", GetLastError());
+            return;
+        }
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {0};
+        jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        if (!SetInformationJobObject(m_job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli))) {
+            fwprintf(stderr, L"qtcreator_ctrlc_stub: SetInformationJobObject failed: 0x%x.\n", GetLastError());
+        }
+    }
+
+    BOOL AssignProcessToJob(HANDLE process) const
+    {
+        return AssignProcessToJobObject(m_job, process);
+    }
+
+    ~JobKillOnClose()
+    {
+        CloseHandle(m_job);
+    }
+};
+
 const wchar_t szTitle[] = L"qtcctrlcstub";
 const wchar_t szWindowClass[] = L"wcqtcctrlcstub";
 const wchar_t szNice[] = L"-nice ";
@@ -61,7 +95,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL WINAPI shutdownHandler(DWORD dwCtrlType);
 BOOL WINAPI interruptHandler(DWORD dwCtrlType);
 bool isSpaceOrTab(const wchar_t c);
-bool startProcess(wchar_t pCommandLine[], bool lowerPriority);
+bool startProcess(wchar_t pCommandLine[], bool lowerPriority, const JobKillOnClose& job);
 
 int main(int argc, char **)
 {
@@ -108,7 +142,9 @@ int main(int argc, char **)
         while (isSpaceOrTab(strCommandLine[++pos]))
             ;
     }
-    bool bSuccess = startProcess(strCommandLine + pos, lowerPriority);
+
+    JobKillOnClose job;
+    bool bSuccess = startProcess(strCommandLine + pos, lowerPriority, job);
     free(strCommandLine);
 
     if (!bSuccess)
@@ -181,7 +217,7 @@ DWORD WINAPI processWatcherThread(LPVOID lpParameter)
     return 0;
 }
 
-bool startProcess(wchar_t *pCommandLine, bool lowerPriority)
+bool startProcess(wchar_t *pCommandLine, bool lowerPriority, const JobKillOnClose& job)
 {
     SECURITY_ATTRIBUTES sa = {0};
     sa.nLength = sizeof(sa);
@@ -198,6 +234,11 @@ bool startProcess(wchar_t *pCommandLine, bool lowerPriority)
         return false;
     }
     CloseHandle(pi.hThread);
+
+    if (!job.AssignProcessToJob(pi.hProcess)) {
+        fwprintf(stderr, L"qtcreator_ctrlc_stub: AssignProcessToJobObject failed: 0x%x.\n", GetLastError());
+        return false;
+    }
 
     HANDLE hThread = CreateThread(NULL, 0, processWatcherThread, reinterpret_cast<void*>(pi.hProcess), 0, NULL);
     if (!hThread) {

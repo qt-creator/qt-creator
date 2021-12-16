@@ -19,7 +19,6 @@ sourcedirs = ../src \
 imagedirs = ../images \
             ../examples/doc/images \
             ../../qtcreator/images \
-            ../../../plugins/qmldesigner/qmlpreviewplugin/images \
             ../../../share/qtcreator/qml/qmlpuppet/mockfiles/images \
             ../../../share/qtcreator/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images \
             ../../../src/libs/qmleditorwidgets/images \

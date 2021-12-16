@@ -37,7 +37,7 @@
 
     \image studio-timeline-empty.png "Empty Timeline view"
 
-    Select the \inlineimage plus.png
+    Select the \inlineimage icons/plus.png
     (\uicontrol {Add Timeline}) button to \l{Creating Timelines}
     {create a timeline} and specify settings for it in the
     \uicontrol {Timeline Settings} dialog.
@@ -225,13 +225,13 @@
             gray, and when a keyframe itself is selected, its marker turns
             brown:
             \list
-                \li \inlineimage keyframe_linear_inactive.png
+                \li \inlineimage icons/keyframe_linear_active.png
                     - linear easing curve
-                \li \inlineimage keyframe_manualbezier_inactive.png
+                \li \inlineimage icons/keyframe_manualbezier_active.png
                     - manually set Bezier curve
-                \li \inlineimage keyframe_autobezier_inactive.png
+                \li \inlineimage icons/keyframe_autobezier_active.png
                     - automatically set Bezier curve
-                \li \inlineimage keyframe_lineartobezier_inactive.png
+                \li \inlineimage icons/keyframe_lineartobezier_active.png
                     - linear-to-Bezier curve
             \endlist
         \li \l {Editing Easing Curves}

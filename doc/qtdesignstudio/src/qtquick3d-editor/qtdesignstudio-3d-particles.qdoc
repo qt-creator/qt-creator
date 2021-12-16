@@ -86,7 +86,7 @@
     To add a particle system that emits sprite particles:
 
     \list 1
-        \li Select \uicontrol Library > \uicontrol Assets > \inlineimage plus.png
+        \li Select \uicontrol Library > \uicontrol Assets > \inlineimage icons/plus.png
             to add your sprites, 3D models, textures, and other graphical
             \l{Assets}{assets} to the project.
         \li Drag-and-drop an instance of the \uicontrol {Particle System}
@@ -1016,7 +1016,7 @@
     \uicontrol System.
 
     To only affect some of the particles in the particle system, select
-    them in \uicontrol Particles. Select \inlineimage plus.png
+    them in \uicontrol Particles. Select \inlineimage icons/plus.png
     to add logical particles to the list.
 
     Deselect \uicontrol Enabled to turn the affector off. Usually, this

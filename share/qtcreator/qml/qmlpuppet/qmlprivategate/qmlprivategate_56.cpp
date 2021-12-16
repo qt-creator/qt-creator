@@ -25,7 +25,6 @@
 
 #include "qmlprivategate.h"
 
-#include "metaobject.h"
 #include "designercustomobjectdata.h"
 
 #include <objectnodeinstance.h>

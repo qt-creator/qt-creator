@@ -40,7 +40,6 @@ Rectangle {
     property color baseColor
     property string delegateStateName
     property string delegateStateImageSource
-    property int delegateStateImageSize
     property bool delegateHasWhenCondition
     property string delegateWhenConditionString
     property bool hasAnnotation: checkAnnotation()
@@ -70,7 +69,6 @@ Rectangle {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        acceptedButtons: Qt.LeftButton
         onClicked: {
             focus = true
             root.currentStateInternalId = internalNodeId
@@ -168,14 +166,13 @@ Rectangle {
     }
 
 
-    Rectangle {
+    Rectangle { // highlight for default state
         anchors.margins: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? -myRoot.highlightBorderWidth : 0
         anchors.fill: column
         color: StudioTheme.Values.themeStateSeparator
         border.color: StudioTheme.Values.themeStateDefaultHighlight
         border.width: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? myRoot.highlightBorderWidth : 0
     }
-
 
     Column {
         id: column
@@ -185,7 +182,6 @@ Rectangle {
         spacing: expanded ? myRoot.columnSpacing : 0
 
         Rectangle {
-
             width: myRoot.width - 2 * myRoot.stateMargin
             height: myRoot.topAreaHeight
 
@@ -261,12 +257,11 @@ Rectangle {
                 font.pixelSize: StudioTheme.Values.myFontSize
                 font.family: StudioTheme.Constants.font
 
-                visible: (isDefaultState || (isBaseState && !modelHasDefaultState))
+                visible: isDefaultState || (isBaseState && !modelHasDefaultState)
 
                 text: qsTr("Default")
             }
         }
-
 
         Rectangle {
             id: stateImageArea
@@ -297,8 +292,6 @@ Rectangle {
                 anchors.centerIn: parent
                 anchors.fill: parent
                 source: delegateStateImageSource
-                sourceSize.width: delegateStateImageSize
-                sourceSize.height: delegateStateImageSize
                 fillMode: Image.PreserveAspectFit
             }
         }
@@ -329,5 +322,4 @@ Rectangle {
             hideWidget()
         }
     }
-
 }

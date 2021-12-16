@@ -77,10 +77,10 @@
         \li Select \uicontrol OK.
     \endlist
 
-    To add more comments about the component, select the \inlineimage plus.png
+    To add more comments about the component, select the \inlineimage icons/plus.png
     (\uicontrol {Add Comment}) button.
 
-    To remove the active comment, select the \inlineimage minus.png
+    To remove the active comment, select the \inlineimage icons/minus.png
     (\uicontrol {Remove Comment}) button. To remove the annotation, right-click
     the annotation icon, and then select \uicontrol {Remove Annotation}.
 

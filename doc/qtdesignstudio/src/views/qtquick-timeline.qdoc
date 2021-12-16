@@ -46,7 +46,7 @@
     To create a timeline to animate a UI component:
 
     \list 1
-        \li In the \l Timeline view, select the \inlineimage plus.png
+        \li In the \l Timeline view, select the \inlineimage icons/plus.png
             (\uicontrol {Add Timeline}) button to specify settings
             for the timeline and running the animation
             in the \uicontrol {Timeline Settings} dialog.
@@ -82,12 +82,12 @@
         \li Select \uicontrol Close to close the dialog and save the settings.
     \endlist
 
-    To create additional timelines, select the \inlineimage plus.png
+    To create additional timelines, select the \inlineimage icons/plus.png
     (\uicontrol {Add Timeline}) button next to the
     \uicontrol {Timeline Settings} tab.
 
     To specify settings for running timeline animations, select the
-    \inlineimage plus.png
+    \inlineimage icons/plus.png
     (\uicontrol {Add Animation}) button next to the
     \uicontrol {Animation Settings} tab. For example, you could create
     settings for running a part of the timeline animation between specified

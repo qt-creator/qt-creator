@@ -353,13 +353,14 @@ Section {
                 id: lineHeightSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: (backendValues.lineHeight === undefined) ? dummyBackendValue
+                backendValue: (backendValues.lineHeight === undefined) ? 1.0
                                                                        : backendValues.lineHeight
                 decimals: 2
                 minimumValue: 0
                 maximumValue: 500
                 stepSize: 0.1
-                enabled: backendValue.isAvailable
+                enabled: (backendValues.lineHeight === undefined) ? false
+                                                                  : backendValue.isAvailable
             }
 
             ExpandingSpacer {}

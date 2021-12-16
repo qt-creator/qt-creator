@@ -62,7 +62,7 @@ public:
                            ImageCache::AuxiliaryData auxiliaryData = {}) override;
 
     void clean();
-    void waitForFinished();
+    //   void waitForFinished();
 
 private:
     enum class RequestType { Image, SmallImage, Icon };

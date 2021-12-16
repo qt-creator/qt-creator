@@ -44,7 +44,7 @@
     \l{Lights}{light}, \l{3D Models}{model}, and
     \l {Materials and Shaders}{materials}. If your scene did not contain
     them, you can add the corresponding \l {3D Components}{Qt Quick 3D}
-    components from \l Library > \uicontrol Components > \inlineimage plus.png
+    components from \l Library > \uicontrol Components > \inlineimage icons/plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
     You can use the \l{Summary of the 3D Editor Toolbar Buttons}{toolbar buttons}
@@ -71,7 +71,7 @@
     grid.
 
     To refresh the contents of \uicontrol {3D Editor}, press \key P or
-    select the \inlineimage reset.png
+    select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.
 
     \image studio-3d-editor.png "3D Editor"
@@ -297,7 +297,7 @@
         \li \key G
         \li
     \row
-        \li \inlineimage reset.png
+        \li \inlineimage icons/reset.png
         \li Reset View
         \li \key R
         \li

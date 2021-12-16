@@ -55,7 +55,5 @@ def main():
     for line in ["Item {", "x: 10;", "y: 20;", "width: 10", "}"]:
         verifyCurrentLine(editorArea, line, verifyMessage)
         type(editorArea, "<Down>")
-    #save and exit
-    invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 

@@ -182,7 +182,7 @@ void Sessions::applyAndUpdateSessions()
 
 void Sessions::deleteAll()
 {
-    WriteStatement{Utils::SmallString::join({"DELETE FROM ", sessionsTableName}), database}.execute();
+    WriteStatement<0>{Utils::SmallString::join({"DELETE FROM ", sessionsTableName}), database}.execute();
 }
 
 SessionChangeSets Sessions::changeSets() const

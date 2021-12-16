@@ -98,7 +98,7 @@
     contains basic components and UI controls, while a 3D application project
     contains additional 3D components.
 
-    To view the list of available modules, select \inlineimage plus.png
+    To view the list of available modules, select \inlineimage icons/plus.png
     . Most commonly used modules are placed at the top of the list in
     alphabetical order. You can search for components and modules by entering
     search criteria in the \uicontrol Search field.
@@ -120,7 +120,7 @@
 
     \uicontrol Library > \uicontrol {Assets} displays the images and other files
     that you add to the project folder by dragging-and-dropping external asset
-    files to \QDS or by selecting \inlineimage plus.png
+    files to \QDS or by selecting \inlineimage icons/plus.png
     . For more information about importing assets to \QDS, see
     \l {Importing 2D Assets} and \l {Importing 3D Assets}.
 

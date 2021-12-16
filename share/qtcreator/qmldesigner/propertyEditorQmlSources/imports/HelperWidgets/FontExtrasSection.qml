@@ -42,6 +42,13 @@ Section {
         return backendValues[root.fontName + "_" + name]
     }
 
+    function isBackendValueAvailable(name) {
+        if (backendValues[name] !== undefined)
+            return backendValues[name].isAvailable
+
+        return false
+    }
+
     SectionLayout {
         PropertyLabel {
             text: qsTr("Capitalization")
@@ -89,11 +96,11 @@ Section {
 
         PropertyLabel {
             text: qsTr("Style color")
-            visible: backendValues.styleColor.isAvailable
+            visible: root.isBackendValueAvailable("styleColor")
         }
 
         ColorEditor {
-            visible: backendValues.styleColor.isAvailable
+            visible: root.isBackendValueAvailable("styleColor")
             backendValue: backendValues.styleColor
             supportGradient: false
         }

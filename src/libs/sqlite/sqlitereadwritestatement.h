@@ -29,16 +29,18 @@
 
 namespace Sqlite {
 
-template<int ResultCount = 0>
-class ReadWriteStatement final : protected StatementImplementation<BaseStatement, ResultCount>
+template<int ResultCount = 0, int BindParameterCount = 0>
+class ReadWriteStatement final
+    : protected StatementImplementation<BaseStatement, ResultCount, BindParameterCount>
 {
     friend class DatabaseBackend;
-    using Base = StatementImplementation<BaseStatement, ResultCount>;
+    using Base = StatementImplementation<BaseStatement, ResultCount, BindParameterCount>;
 
 public:
     ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database)
         : Base{sqlStatement, database}
     {
+        Base::checkBindingParameterCount(BindParameterCount);
         Base::checkColumnCount(ResultCount);
     }
 

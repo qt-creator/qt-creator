@@ -86,7 +86,7 @@
         \li Moves the component up within its parent.
         \li \l{Arranging Components}
     \row
-        \li \inlineimage filtericon.png
+        \li \inlineimage icons/filtericon.png
         \li Shows and hides invisible components in \uicontrol Navigator.
         \li \l{Showing and Hiding Components}
     \row
@@ -122,7 +122,7 @@
     parent component.
 
     To hide invisible components in \uicontrol Navigator, click
-    \inlineimage filtericon.png
+    \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}) and select
     \uicontrol {Show Only Visible Components}.
 
@@ -164,7 +164,7 @@
     the bottom of the \uicontrol Navigator tree and behind overlapping
     components in \uicontrol {Form Editor}. To list the components in the order
     in which they appear in the file, as some other tools do, click
-    \inlineimage filtericon.png
+    \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}), and select \uicontrol {Reverse Component Order}.
 
     To move a component to the top or bottom of the tree within its parent,

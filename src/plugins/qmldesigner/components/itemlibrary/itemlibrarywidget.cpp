@@ -334,7 +334,10 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 
 void ItemLibraryWidget::handleSearchfilterChanged(const QString &filterText)
 {
-    m_filterText = filterText;
+    if (filterText != m_filterText) {
+        m_filterText = filterText;
+        emit searchActiveChanged();
+    }
 
     updateSearch();
 }
@@ -364,11 +367,6 @@ void ItemLibraryWidget::handleAddImport(int index)
 
     m_stackedWidget->setCurrentIndex(0); // switch to the Components view after import is added
     updateSearch();
-}
-
-bool ItemLibraryWidget::isSearchActive() const
-{
-    return !m_filterText.isEmpty();
 }
 
 void ItemLibraryWidget::handleFilesDrop(const QStringList &filesPaths)
@@ -566,6 +564,11 @@ QPair<QString, QByteArray> ItemLibraryWidget::getAssetTypeAndData(const QString 
 bool ItemLibraryWidget::subCompEditMode() const
 {
     return m_subCompEditMode;
+}
+
+bool ItemLibraryWidget::searchActive() const
+{
+    return !m_filterText.isEmpty();
 }
 
 void ItemLibraryWidget::setFlowMode(bool b)

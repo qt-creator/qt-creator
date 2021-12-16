@@ -70,6 +70,4 @@ def main():
     verifyCurrentLine(editorArea, "sourceComponent: component_Item", verifyMessage)
     type(editorArea, "<Down>")
     verifyCurrentLine(editorArea, "}", verifyMessage)
-    # save and exit
-    invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")

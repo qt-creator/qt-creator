@@ -121,27 +121,27 @@ Item {
             }
 
             StudioControls.MenuSeparator {
-                visible: itemsView.currentCategory === null
-                height: StudioTheme.Values.border
+                visible: itemsView.currentCategory === null && !rootView.searchActive
+                height: visible ? StudioTheme.Values.border : 0
             }
 
             StudioControls.MenuItem {
                 text: qsTr("Expand All")
-                visible: itemsView.currentCategory === null
+                visible: itemsView.currentCategory === null && !rootView.searchActive
                 height: visible ? implicitHeight : 0
                 onTriggered: itemLibraryModel.expandAll()
             }
 
             StudioControls.MenuItem {
                 text: qsTr("Collapse All")
-                visible: itemsView.currentCategory === null
+                visible: itemsView.currentCategory === null && !rootView.searchActive
                 height: visible ? implicitHeight : 0
                 onTriggered: itemLibraryModel.collapseAll()
             }
 
             StudioControls.MenuSeparator {
-                visible: itemsView.currentCategory === null
-                height: StudioTheme.Values.border
+                visible: itemsView.currentCategory === null && !rootView.searchActive
+                height: visible ? StudioTheme.Values.border : 0
             }
 
             StudioControls.MenuItem {
@@ -154,18 +154,22 @@ Item {
 
             StudioControls.MenuSeparator {
                 visible: itemsView.currentCategory
-                height: StudioTheme.Values.border
+                height: visible ? StudioTheme.Values.border : 0
             }
 
             StudioControls.MenuItem {
                 text: qsTr("Show Module Hidden Categories")
+                visible: !rootView.searchActive
                 enabled: itemsView.currentImport && !itemsView.currentImport.allCategoriesVisible
+                height: visible ? implicitHeight : 0
                 onTriggered: itemLibraryModel.showImportHiddenCategories(itemsView.currentImport.importUrl)
             }
 
             StudioControls.MenuItem {
                 text: qsTr("Show All Hidden Categories")
+                visible: !rootView.searchActive
                 enabled: itemLibraryModel.isAnyCategoryHidden
+                height: visible ? implicitHeight : 0
                 onTriggered: itemLibraryModel.showAllHiddenCategories()
             }
         }
@@ -230,8 +234,7 @@ Item {
                             itemsView.importToRemove = importRemovable ? importUrl : ""
                             itemsView.currentImport = model
                             itemsView.currentCategory = null
-                            if (!rootView.isSearchActive())
-                                moduleContextMenu.popup()
+                            moduleContextMenu.popup()
                         }
 
                         Column {
@@ -257,10 +260,11 @@ Item {
                                     onToggleExpand: categoryExpanded = !categoryExpanded
                                     useDefaulContextMenu: false
                                     onShowContextMenu: {
-                                        itemsView.currentCategory = model
-                                        itemsView.currentImport = parent.currentImportModel
-                                        if (!rootView.isSearchActive())
+                                        if (!rootView.searchActive) {
+                                            itemsView.currentCategory = model
+                                            itemsView.currentImport = parent.currentImportModel
                                             moduleContextMenu.popup()
+                                        }
                                     }
 
                                     Grid {
@@ -344,8 +348,7 @@ Item {
                                 itemsView.importToRemove = importRemovable ? importUrl : ""
                                 itemsView.currentImport = model
                                 itemsView.currentCategory = null
-                                if (!rootView.isSearchActive())
-                                    moduleContextMenu.popup()
+                                moduleContextMenu.popup()
                             }
 
                             Column {
@@ -385,7 +388,9 @@ Item {
                                             onClicked: (mouse) => {
                                                 itemLibraryModel.selectImportCategory(parent.parent.currentImportModel.importUrl, model.index)
 
-                                                if (mouse.button === Qt.RightButton && !rootView.isSearchActive() && categoryModel.rowCount() !== 1) {
+                                                if (mouse.button === Qt.RightButton
+                                                    && categoryModel.rowCount() !== 1
+                                                    && !rootView.searchActive) {
                                                     itemsView.currentCategory = model
                                                     itemsView.currentImport = parent.parent.currentImportModel
                                                     moduleContextMenu.popup()

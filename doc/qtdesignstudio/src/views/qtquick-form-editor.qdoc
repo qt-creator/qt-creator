@@ -72,7 +72,7 @@
             align them.
         \li \l{Snapping to Parent and Sibling Components}
     \row
-        \li \inlineimage boundingrect.png
+        \li \inlineimage icons/boundingrect.png
         \li Hides and shows component instance boundaries.
         \li \l{Hiding Component Boundaries}
     \row
@@ -108,7 +108,7 @@
         \li Zooms to fit the current selection.
         \li \l{Zooming}
     \row
-        \li \inlineimage reset.png
+        \li \inlineimage icons/reset.png
         \li Refreshes the contents of \uicontrol {Form Editor}.
         \li \l{Refreshing Form Editor Contents}
     \endtable
@@ -199,7 +199,7 @@
     \section1 Hiding Component Boundaries
 
     \uicontrol {Form Editor} displays the boundaries of component instances.
-    To hide them, select the \inlineimage boundingrect.png
+    To hide them, select the \inlineimage icons/boundingrect.png
     button.
 
     \section1 Previewing Component Size
@@ -254,7 +254,7 @@
     \uicontrol {Form Editor}.
 
     To refresh the contents of \uicontrol {Form Editor}, press \key R or
-    select the \inlineimage reset.png
+    select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.
 
     \include qtquick-component-context-menu.qdocinc context-menu

@@ -324,34 +324,6 @@ TEST_F(AsynchronousImageCache, AfterCleanNewJobsWorks)
     notification.wait();
 }
 
-TEST_F(AsynchronousImageCache, WaitForFinished)
-{
-    ON_CALL(mockStorage, fetchImage(Eq("/path/to/Component1.qml"), _)).WillByDefault([&](auto, auto) {
-        waitInThread.notify();
-        return QmlDesigner::ImageCacheStorageInterface::ImageEntry{image1, true};
-    });
-    ON_CALL(mockStorage, fetchImage(Eq("/path/to/Component2.qml"), _))
-        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image1, true}));
-    cache.requestImage("/path/to/Component1.qml",
-                       mockCaptureCallback.AsStdFunction(),
-                       mockAbortCallback.AsStdFunction());
-    cache.requestImage("/path/to/Component2.qml",
-                       mockCaptureCallback.AsStdFunction(),
-                       mockAbortCallback.AsStdFunction());
-
-    EXPECT_CALL(mockCaptureCallback, Call(_)).Times(2);
-
-    waitInThread.wait();
-    cache.waitForFinished();
-}
-
-TEST_F(AsynchronousImageCache, WaitForFinishedInGenerator)
-{
-    EXPECT_CALL(mockGenerator, waitForFinished());
-
-    cache.waitForFinished();
-}
-
 TEST_F(AsynchronousImageCache, RequestImageWithExtraIdFetchesImageFromStorage)
 {
     EXPECT_CALL(mockStorage, fetchImage(Eq("/path/to/Component.qml+extraId1"), _))

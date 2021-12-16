@@ -43,8 +43,13 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QSettings;
 class QTimer;
 QT_END_NAMESPACE
+
+namespace Utils {
+class QtcSettings;
+}
 
 namespace Core {
 
@@ -112,6 +117,9 @@ public:
 
     static void saveSettings();
     static void readSettings();
+    static Qt::CaseSensitivity readFileSystemSensitivity(QSettings *settings);
+    static void writeFileSystemSensitivity(Utils::QtcSettings *settings,
+                                           Qt::CaseSensitivity sensitivity);
     static void setAutoSaveEnabled(bool enabled);
     static bool autoSaveEnabled();
     static void setAutoSaveInterval(int interval);

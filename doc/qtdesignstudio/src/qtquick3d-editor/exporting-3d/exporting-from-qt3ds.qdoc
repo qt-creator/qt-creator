@@ -166,7 +166,7 @@
 
     \section2 Importing Assets
     \list 1
-    \li Select \uicontrol Library > \uicontrol Assets > \inlineimage plus.png
+    \li Select \uicontrol Library > \uicontrol Assets > \inlineimage icons/plus.png
         .
         \image exporting-from-qt3ds/09-add-new-assets.png
 

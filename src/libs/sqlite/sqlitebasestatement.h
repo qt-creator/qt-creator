@@ -59,6 +59,8 @@ enum class Type : char { Invalid, Integer, Float, Text, Blob, Null };
 class SQLITE_EXPORT BaseStatement
 {
 public:
+    using Database = ::Sqlite::Database;
+
     explicit BaseStatement(Utils::SmallStringView sqlStatement, Database &database);
 
     BaseStatement(const BaseStatement &) = delete;
@@ -80,7 +82,6 @@ public:
     BlobView fetchBlobValue(int column) const;
     template<typename Type>
     Type fetchValue(int column) const;
-    int columnCount() const;
 
     void bind(int index, NullValue);
     void bind(int index, int value);
@@ -112,10 +113,9 @@ public:
     [[noreturn]] void checkForPrepareError(int resultCode) const;
     [[noreturn]] void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
-    void checkColumnCount(int columnCount) const;
     void checkBindingName(int index) const;
-    void setBindingParameterCount();
-    void setColumnCount();
+    void checkBindingParameterCount(int bindingParameterCount) const;
+    void checkColumnCount(int columnCount) const;
     bool isReadOnlyStatement() const;
     [[noreturn]] void throwStatementIsBusy(const char *whatHasHappened) const;
     [[noreturn]] void throwStatementHasError(const char *whatHasHappened) const;
@@ -149,8 +149,6 @@ protected:
 private:
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt *)> m_compiledStatement;
     Database &m_database;
-    int m_bindingParameterCount;
-    int m_columnCount;
 };
 
 template <> SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
@@ -161,7 +159,7 @@ extern template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<U
 extern template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
 extern template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
 
-template<typename BaseStatement, int ResultCount>
+template<typename BaseStatement, int ResultCount, int BindParameterCount>
 class StatementImplementation : public BaseStatement
 {
     struct Resetter;
@@ -175,11 +173,11 @@ public:
         BaseStatement::next();
     }
 
-    void bindValues() {}
-
     template<typename... ValueType>
-    void bindValues(const ValueType&... values)
+    void bindValues(const ValueType &...values)
     {
+        static_assert(BindParameterCount == sizeof...(values), "Wrong binding parameter count!");
+
         int index = 0;
         (BaseStatement::bind(++index, values), ...);
     }
@@ -344,10 +342,9 @@ public:
         using const_iterator = iterator;
 
         template<typename... QueryTypes>
-        BaseSqliteResultRange(StatementImplementation &statement, const QueryTypes &...queryValues)
+        BaseSqliteResultRange(StatementImplementation &statement)
             : m_statement{statement}
         {
-            statement.bindValues(queryValues...);
         }
 
         BaseSqliteResultRange(BaseSqliteResultRange &) = delete;
@@ -376,7 +373,6 @@ public:
         SqliteResultRange(StatementImplementation &statement, const QueryTypes &...queryValues)
             : BaseSqliteResultRange<ResultType>{statement}
             , resetter{&statement}
-
         {
             statement.bindValues(queryValues...);
         }
@@ -409,7 +405,7 @@ public:
         }
 
     private:
-        DeferredTransaction m_transaction;
+        DeferredTransaction<typename BaseStatement::Database> m_transaction;
         Resetter resetter;
     };
 

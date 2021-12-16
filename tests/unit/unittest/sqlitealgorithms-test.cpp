@@ -115,15 +115,16 @@ public:
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    Sqlite::ImmediateTransaction transaction{database};
+    Sqlite::ImmediateTransaction<Sqlite::Database> transaction{database};
     Initializer initializer{database};
     Sqlite::ReadStatement<2> selectViewsStatement{"SELECT key, value FROM data ORDER BY key",
                                                   database};
     Sqlite::ReadStatement<2> selectValuesStatement{"SELECT key, value FROM data ORDER BY key",
                                                    database};
-    Sqlite::WriteStatement insertStatement{"INSERT INTO data(key, value) VALUES (?1, ?2)", database};
-    Sqlite::WriteStatement updateStatement{"UPDATE data SET value = ?2 WHERE key=?1", database};
-    Sqlite::WriteStatement deleteStatement{"DELETE FROM data WHERE key=?", database};
+    Sqlite::WriteStatement<2> insertStatement{"INSERT INTO data(key, value) VALUES (?1, ?2)",
+                                              database};
+    Sqlite::WriteStatement<2> updateStatement{"UPDATE data SET value = ?2 WHERE key=?1", database};
+    Sqlite::WriteStatement<1> deleteStatement{"DELETE FROM data WHERE key=?", database};
     std::function<void(const KeyValue &keyValue)> insert{
         [&](const KeyValue &keyValue) { insertStatement.write(keyValue.key, keyValue.value); }};
     std::function<Sqlite::UpdateChange(KeyValueView keyValueView, const KeyValue &keyValue)> update{

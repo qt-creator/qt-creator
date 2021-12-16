@@ -145,13 +145,6 @@ void AsynchronousImageCache::clean()
     m_generator.clean();
 }
 
-void AsynchronousImageCache::waitForFinished()
-{
-    wait();
-
-    m_generator.waitForFinished();
-}
-
 std::tuple<bool, AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
 {
     std::unique_lock lock{m_mutex};
