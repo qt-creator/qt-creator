@@ -254,39 +254,5 @@
 	<string>${IDE_VERSION}</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>This application wants to run AppleScript.</string>
-	<key>NSDesktopFolderUsageDescription</key>
-	<string>This application wants to access the Desktop folder.</string>
-	<key>NSDocumentsFolderUsageDescription</key>
-	<string>This application wants to access the Documents folder.</string>
-	<key>NSDownloadsFolderUsageDescription</key>
-	<string>This application wants to access the Downloads folder.</string>
-	<key>NSNetworkVolumesUsageDescription</key>
-	<string>This application wants to access network volumes.</string>
-	<key>NSRemovableVolumesUsageDescription</key>
-	<string>This application wants to access removable volumes.</string>
-	<key>NSFileProviderDomainUsageDescription</key>
-	<string>This application wants to access files from a provider.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>A user application wants to access bluetooth.</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>A user application wants to access bluetooth.</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>A user application wants to access calendars.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>A user application wants to access the camera.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>A user application wants to access contacts.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>A user application wants to access location information.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>A user application wants to access the microphone.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>A user application wants write access to the photo library.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>A user application wants to access the photo library.</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>A user application wants to access the reminders.</string>
 </dict>
 </plist>

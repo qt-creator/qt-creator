@@ -30,6 +30,7 @@ if (BUILD_CPLUSPLUS_TOOLS)
 endif()
 
 if (APPLE)
+  add_subdirectory(disclaim)
   add_subdirectory(iostool)
 endif()
 

@@ -386,6 +386,13 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
     #endif
 
         CommandLine cmdLine = runnable.command;
+
+        if (HostOsInfo::isMacHost()) {
+            CommandLine disclaim(Core::ICore::libexecPath("disclaim"));
+            disclaim.addCommandLineAsArgs(cmdLine);
+            cmdLine = disclaim;
+        }
+
         if (m_runAsRoot) {
             CommandLine wrapped("sudo", {"-A"});
             wrapped.addCommandLineAsArgs(cmdLine);
