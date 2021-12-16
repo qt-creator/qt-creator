@@ -38,23 +38,26 @@ enum class ProcessMode {
 
 class ProcessStartHandler {
 public:
+    ProcessStartHandler(QProcess *process) : m_process(process) {}
+
     void setProcessMode(ProcessMode mode) { m_processMode = mode; }
     void setWriteData(const QByteArray &writeData) { m_writeData = writeData; }
     QIODevice::OpenMode openMode() const;
-    void handleProcessStart(QProcess *process);
-    void handleProcessStarted(QProcess *process);
-    void setBelowNormalPriority(QProcess *process);
-    void setNativeArguments(QProcess *process, const QString &arguments);
+    void handleProcessStart();
+    void handleProcessStarted();
+    void setBelowNormalPriority();
+    void setNativeArguments(const QString &arguments);
 
 private:
     ProcessMode m_processMode = ProcessMode::Reader;
     QByteArray m_writeData;
+    QProcess *m_process;
 };
 
 class ProcessHelper : public QProcess
 {
 public:
-    ProcessHelper(QObject *parent) : QProcess(parent)
+    ProcessHelper(QObject *parent) : QProcess(parent), m_processStartHandler(this)
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
         setChildProcessModifier([this] { setupChildProcess_impl(); });
@@ -65,6 +68,8 @@ public:
     void setupChildProcess() override { setupChildProcess_impl(); }
 #endif
 
+    ProcessStartHandler *processStartHandler() { return &m_processStartHandler; }
+
     using QProcess::setErrorString;
 
     void setLowPriority() { m_lowPriority = true; }
@@ -74,6 +79,7 @@ private:
     void setupChildProcess_impl();
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
+    ProcessStartHandler m_processStartHandler;
 };
 
 } // namespace Utils

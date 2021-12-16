@@ -314,17 +314,18 @@ public:
     { m_process->setWorkingDirectory(dir); }
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
-        m_processStartHandler.setProcessMode(processMode());
-        m_processStartHandler.setWriteData(writeData);
+        ProcessStartHandler *handler = m_process->processStartHandler();
+        handler->setProcessMode(processMode());
+        handler->setWriteData(writeData);
         if (isBelowNormalPriority())
-            m_processStartHandler.setBelowNormalPriority(m_process);
-        m_processStartHandler.setNativeArguments(m_process, nativeArguments());
+            handler->setBelowNormalPriority();
+        handler->setNativeArguments(nativeArguments());
         if (isLowPriority())
             m_process->setLowPriority();
         if (isUnixTerminalDisabled())
             m_process->setUnixTerminalDisabled();
-        m_process->start(program, arguments, m_processStartHandler.openMode());
-        m_processStartHandler.handleProcessStart(m_process);
+        m_process->start(program, arguments, handler->openMode());
+        handler->handleProcessStart();
     }
     void terminate() override
     { m_process->terminate(); }
@@ -367,11 +368,10 @@ public:
 private:
     void handleStarted()
     {
-        m_processStartHandler.handleProcessStarted(m_process);
+        m_process->processStartHandler()->handleProcessStarted();
         emit started();
     }
     ProcessHelper *m_process;
-    ProcessStartHandler m_processStartHandler;
 };
 
 static uint uniqueToken()
