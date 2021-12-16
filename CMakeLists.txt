@@ -71,7 +71,9 @@ find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help 
 
 find_package(Threads)
 find_package(Clang QUIET)
-find_package(KF5SyntaxHighlighting QUIET)
+if (Qt5_VERSION VERSION_LESS 6.0.0)
+  find_package(KF5SyntaxHighlighting QUIET)
+endif()
 
 # Crashpad
 set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
