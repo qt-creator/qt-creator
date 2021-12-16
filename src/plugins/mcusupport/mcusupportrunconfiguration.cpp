@@ -51,12 +51,11 @@ static FilePath cmakeFilePath(const Target *target)
     return tool->filePath();
 }
 
-static QStringList flashAndRunArgs(const Target *target)
+static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *target)
 {
-    const QString projectName = target->project()->displayName();
-
-    // TODO: Hack! Implement flash target name handling, properly
-    const QString targetName = "flash_" + projectName;
+    // Use buildKey if provided, fallback to projectName
+    const QString targetName = QLatin1String("flash_%1").arg(
+                !rc->buildKey().isEmpty() ? rc->buildKey() : target->project()->displayName());
 
     return {"--build", ".", "--target", targetName};
 }
@@ -74,8 +73,8 @@ public:
         flashAndRunParameters->setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters->setSettingsKey("FlashAndRunConfiguration.Parameters");
 
-        setUpdater([target, flashAndRunParameters] {
-            flashAndRunParameters->setValue(flashAndRunArgs(target).join(' '));
+        setUpdater([target, flashAndRunParameters, this] {
+            flashAndRunParameters->setValue(flashAndRunArgs(this, target).join(' '));
         });
 
         update();
@@ -109,7 +108,7 @@ RunWorkerFactory::WorkerCreator makeFlashAndRunWorker()
 }
 
 McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
-    : FixedRunConfigurationFactory(FlashAndRunConfiguration::tr("Flash and run"))
+    : RunConfigurationFactory()
 {
     registerRunConfiguration<FlashAndRunConfiguration>(Constants::RUNCONFIGURATION);
     addSupportedTargetDeviceType(Constants::DEVICE_TYPE);

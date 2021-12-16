@@ -31,7 +31,7 @@
 namespace McuSupport {
 namespace Internal {
 
-class McuSupportRunConfigurationFactory final : public ProjectExplorer::FixedRunConfigurationFactory
+class McuSupportRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
 public:
     McuSupportRunConfigurationFactory();
