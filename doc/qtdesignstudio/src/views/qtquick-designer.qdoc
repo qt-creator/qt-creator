@@ -107,6 +107,11 @@
             the changes between states.
         \li \l{Animating Transitions Between States}
     \row
+        \li \l Translations
+        \li Provides functionality to add multi-language support to your
+        project.
+        \li \l{Translations}
+    \row
         \li \l Timeline
         \li Provides a timeline and keyframe based editor for animating
             the properties of components.
