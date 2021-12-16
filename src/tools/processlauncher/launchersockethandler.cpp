@@ -299,8 +299,8 @@ Process *LauncherSocketHandler::setupProcess(quintptr token)
 
 void LauncherSocketHandler::removeProcess(quintptr token)
 {
-    const auto it = m_processes.find(token);
-    if (it == m_processes.end())
+    const auto it = m_processes.constFind(token);
+    if (it == m_processes.constEnd())
         return;
 
     Process *process = it.value();
