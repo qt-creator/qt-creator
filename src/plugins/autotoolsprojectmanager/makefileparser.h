@@ -264,6 +264,7 @@ private:
     bool maybeParseCPPFlag(const QString &term);
 
     bool m_success = false;     ///< Return value for MakefileParser::parse().
+    bool m_subDirsEmpty = false;///< States if last subdirs var was empty
 
     std::atomic_bool m_cancel = false;      ///< True, if the parsing should be cancelled.
 

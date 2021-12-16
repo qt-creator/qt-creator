@@ -83,6 +83,9 @@ bool MakefileParser::parse()
 
     parseIncludePaths();
 
+    if (m_subDirsEmpty)
+        m_success = false;
+
     return m_success;
 }
 
@@ -308,8 +311,7 @@ void MakefileParser::parseSubDirs()
     m_makefiles.removeDuplicates();
     m_sources.removeDuplicates();
 
-    if (subDirs.isEmpty())
-        m_success = false;
+    m_subDirsEmpty = subDirs.isEmpty();
 }
 
 QStringList MakefileParser::directorySources(const QString &directory,
@@ -426,13 +428,14 @@ QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
 {
     int end = 0;
     for (; end < line.size(); ++end)
-        if (!line[end].isLetterOrNumber() && line[end] != QLatin1Char('_'))
+        if (!line[end].isLetterOrNumber() && line[end] != '_')
             break;
 
     QString ret = line.left(end);
     while (end < line.size() && line[end].isSpace())
         ++end;
-    return (end < line.size() && line[end] == QLatin1Char('=')) ? ret : QString();
+    return ((end < line.size() && line[end] == '=') ||
+            (end < line.size() - 1 && line[end] == '+' && line[end + 1] == '=')) ? ret : QString();
 }
 
 QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
