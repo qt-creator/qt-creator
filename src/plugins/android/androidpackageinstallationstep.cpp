@@ -107,8 +107,12 @@ bool AndroidPackageInstallationStep::init()
     const QString innerQuoted = ProcessArgs::quoteArg(dirPath);
     const QString outerQuoted = ProcessArgs::quoteArg("INSTALL_ROOT=" + innerQuoted);
 
-    CommandLine cmd{tc->makeCommand(buildEnvironment())};
-    cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
+    const FilePath makeCommand = tc->makeCommand(buildEnvironment());
+    CommandLine cmd{makeCommand};
+    // Run install on both the target and the whole project as a workaround for QTCREATORBUG-26550.
+    cmd.addArgs(QString("%1 install && cd %2 && %3 %1 install")
+                .arg(outerQuoted).arg(ProcessArgs::quoteArg(buildDirectory().toUserOutput()))
+                .arg(ProcessArgs::quoteArg(makeCommand.toUserOutput())), CommandLine::Raw);
 
     processParameters()->setCommandLine(cmd);
     // This is useful when running an example target from a Qt module project.
