@@ -3514,3 +3514,36 @@ def qdump__QCborValue_proxy(d, value):
         d.putType('QCborValue (Unknown)')
         d.putValue(item_data)
 
+
+def qendian_helper(d, value, code, endian):
+    data = value.data()
+    size = len(data)
+    v = struct.unpack_from(endian + code, data)
+    d.putValue('%d (%s)' % (v[0], 'LE' if endian == '<' else 'BE'))
+    d.putNumChild(size)
+    if d.isExpanded():
+        s = struct.unpack_from(endian + 'b' * size, data)
+        with Children(d):
+            for i in range(size):
+                with SubItem(d, '[%d]' % i):
+                    d.putValue(s[i])
+                    d.putType('byte')
+
+
+def qdump__quint16_le(d, value):
+    qendian_helper(d, value, 'H', '<')
+
+def qdump__quint32_le(d, value):
+    qendian_helper(d, value, 'I', '<')
+
+def qdump__quint64_le(d, value):
+    qendian_helper(d, value, 'Q', '<')
+
+def qdump__quint16_be(d, value):
+    qendian_helper(d, value, 'H', '>')
+
+def qdump__quint32_be(d, value):
+    qendian_helper(d, value, 'I', '>')
+
+def qdump__quint64_be(d, value):
+    qendian_helper(d, value, 'Q', '>')
