@@ -166,6 +166,12 @@ public:
         connection.connectToHost();
     }
 
+    void stop() override
+    {
+        connection.disconnectFromHost();
+        reportStopped();
+    }
+
     QSsh::SshConnection connection;
 };
 
@@ -1170,8 +1176,11 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     }
 
     // We need a real address to connect to from the outside.
-    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        addStartDependency(new LocalAddressFinder(runControl, &m_localServerAddress));
+    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        auto *dependentWorker = new LocalAddressFinder(runControl, &m_localServerAddress);
+        addStartDependency(dependentWorker);
+        addStopDependency(dependentWorker);
+    }
 
     dd->setupRunner(this);
 }
