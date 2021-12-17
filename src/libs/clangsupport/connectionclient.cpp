@@ -36,8 +36,6 @@
 #include <QProcess>
 #include <QThread>
 
-using namespace Utils;
-
 namespace ClangBackEnd {
 
 ConnectionClient::ConnectionClient(const QString &connectionName)
@@ -161,7 +159,7 @@ void ConnectionClient::restartProcessIfTimerIsNotResettedAndSocketIsEmpty()
     restartProcessAsynchronously();
 }
 
-void ConnectionClient::endProcess(QtcProcess *process)
+void ConnectionClient::endProcess(QProcess *process)
 {
     if (isProcessRunning(process) && isConnected()) {
         sendEndMessage();
@@ -169,15 +167,15 @@ void ConnectionClient::endProcess(QtcProcess *process)
     }
 }
 
-void ConnectionClient::terminateProcess(QtcProcess *process)
+void ConnectionClient::terminateProcess(QProcess *process)
 {
-    if (!HostOsInfo::isWindowsHost() && isProcessRunning()) {
+    if (!Utils::HostOsInfo::isWindowsHost() && isProcessRunning()) {
         process->terminate();
         process->waitForFinished(1000);
     }
 }
 
-void ConnectionClient::killProcess(QtcProcess *process)
+void ConnectionClient::killProcess(QProcess *process)
 {
     if (isProcessRunning(process)) {
         process->kill();
@@ -215,7 +213,7 @@ void ConnectionClient::resetTemporaryDirectory()
     m_processCreator.resetTemporaryDirectory();
 }
 
-void ConnectionClient::initializeProcess(QtcProcess *process)
+void ConnectionClient::initializeProcess(QProcess *process)
 {
     connectStandardOutputAndError(process);
 
@@ -301,7 +299,7 @@ bool ConnectionClient::waitForConnected()
 }
 
 
-QtcProcess *ConnectionClient::processForTestOnly()
+QProcess *ConnectionClient::processForTestOnly()
 {
     getProcessFromFuture();
 
@@ -313,15 +311,15 @@ QIODevice *ConnectionClient::ioDevice()
     return m_localSocket;
 }
 
-bool ConnectionClient::isProcessRunning(QtcProcess *process)
+bool ConnectionClient::isProcessRunning(QProcess *process)
 {
     return process && process->state() == QProcess::Running;
 }
 
-void ConnectionClient::connectStandardOutputAndError(QtcProcess *process) const
+void ConnectionClient::connectStandardOutputAndError(QProcess *process) const
 {
-    connect(process, &QtcProcess::readyReadStandardOutput, this, &ConnectionClient::printStandardOutput);
-    connect(process, &QtcProcess::readyReadStandardError, this, &ConnectionClient::printStandardError);
+    connect(process, &QProcess::readyReadStandardOutput, this, &ConnectionClient::printStandardOutput);
+    connect(process, &QProcess::readyReadStandardError, this, &ConnectionClient::printStandardError);
 }
 
 void ConnectionClient::connectLocalSocketError() const
