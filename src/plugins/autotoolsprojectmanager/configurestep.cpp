@@ -86,6 +86,8 @@ public:
 private:
     void doRun() final;
 
+    CommandLine getCommandLine(const QString &arguments);
+
     bool m_runConfigure = false;
 };
 
@@ -105,11 +107,7 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
 
     setCommandLineProvider([this, arguments] {
-        BuildConfiguration *bc = buildConfiguration();
-
-        return CommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
-                            arguments->value(),
-                            CommandLine::Raw});
+        return getCommandLine(arguments->value());
     });
 
     setSummaryUpdater([this] {
@@ -118,6 +116,15 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
 
         return param.summaryInWorkdir(displayName());
     });
+}
+
+CommandLine ConfigureStep::getCommandLine(const QString &arguments)
+{
+    BuildConfiguration *bc = buildConfiguration();
+
+    return CommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
+                        arguments,
+                        CommandLine::Raw});
 }
 
 void ConfigureStep::doRun()
@@ -136,6 +143,12 @@ void ConfigureStep::doRun()
         emit addOutput(tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
         emit finished(true);
         return;
+    }
+
+    ProcessParameters *param = processParameters();
+    if (!param->effectiveCommand().exists()) {
+        param->setCommandLine(getCommandLine(param->command().arguments()));
+        setSummaryText(param->summaryInWorkdir(displayName()));
     }
 
     m_runConfigure = false;
