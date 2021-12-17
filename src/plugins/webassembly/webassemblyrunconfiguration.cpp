@@ -28,6 +28,7 @@
 #include "webassemblyconstants.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/project.h>
@@ -55,12 +56,6 @@ static FilePath pythonInterpreter(const Environment &env)
     return {};
 }
 
-static FilePath htmlFileInDir(const FilePath &dir)
-{
-    const FilePaths htmlFiles = dir.dirEntries(QStringList("*.html"), QDir::Files);
-    return htmlFiles.isEmpty() ? FilePath() : htmlFiles.first();
-}
-
 static CommandLine emrunCommand(const RunConfiguration *rc, const QString &browser,
                                 const QString &port)
 {
@@ -68,7 +63,7 @@ static CommandLine emrunCommand(const RunConfiguration *rc, const QString &brows
         const Environment env = bc->environment();
         const FilePath emrun = env.searchInPath("emrun");
         const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
-        const FilePath html = htmlFileInDir(bc->buildDirectory());
+        const FilePath html = bc->buildDirectory() / rc->buildKey() + ".html";
 
         return CommandLine(pythonInterpreter(env), {
                 emrunPy.path(),
@@ -103,17 +98,7 @@ public:
                                                       "<port>").toUserOutput());
         });
 
-        update(); // FIXME: Looks spurious
-
-        // FIXME: A case for acquaintSiblings?
-        connect(webBrowserAspect, &WebBrowserSelectionAspect::changed,
-                this, &RunConfiguration::update);
-        // FIXME: Is wrong after active build config changes, but probably
-        // not needed anyway.
-        connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-                this, &RunConfiguration::update);
-        connect(target->project(), &Project::displayNameChanged,
-                this, &RunConfiguration::update);
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 };
 
@@ -144,7 +129,6 @@ RunWorkerFactory::WorkerCreator makeEmrunWorker()
 // Factories
 
 EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
-    : FixedRunConfigurationFactory(EmrunRunConfigurationFactory::tr("Launch with emrun"))
 {
     registerRunConfiguration<EmrunRunConfiguration>(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
     addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);

@@ -31,7 +31,7 @@
 namespace WebAssembly {
 namespace Internal {
 
-class EmrunRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
     Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::EmrunRunConfigurationFactory)
 
