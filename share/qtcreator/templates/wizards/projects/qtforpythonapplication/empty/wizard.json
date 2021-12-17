@@ -4,7 +4,7 @@
     "id": "F.QtForPythonApplicationEmpty",
     "category": "F.ApplicationPySide",
     "trDescription": "Creates a Qt for Python application that contains only the main code for a QApplication.",
-    "trDisplayName": "Qt for Python - Empty",
+    "trDisplayName": "Empty Application",
     "trDisplayCategory": "Application (Qt for Python)",
     "icon": "icon.png",
     "iconKind": "Themed",

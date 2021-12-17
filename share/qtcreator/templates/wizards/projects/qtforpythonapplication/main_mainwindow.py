@@ -16,12 +16,9 @@ class %{Class}(%{BaseCB}):
 @else
 class %{Class}:
 @endif
-    def __init__(self):
-@if '%{BaseCB}' === 'QWidget'
-        QWidget.__init__(self)
-@endif
-@if '%{BaseCB}' === 'QMainWindow'
-        QMainWindow.__init__(self)
+    def __init__(self, parent=None):
+@if '%{BaseCB}' === 'QWidget' || '%{BaseCB}' === 'QMainWindow'
+        super().__init__(parent)
 @endif
 @if '%{BaseCB}' === ''
         pass  # call __init__(self) of the custom base class here
@@ -36,4 +33,8 @@ if __name__ == "__main__":
 @else
     window.show()
 @endif
+@if '%{PySideVersion}' === 'PySide6'
+    sys.exit(app.exec())
+@else
     sys.exit(app.exec_())
+@endif
