@@ -712,14 +712,8 @@ void AndroidSettingsWidget::downloadSdk()
                         .arg(m_ui.SDKLocationPathChooser->filePath().cleanPath().toUserOutput());
     auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
                                               message, QMessageBox::Yes | QMessageBox::No);
-    if (userInput == QMessageBox::Yes) {
-        if (m_androidSummary->rowsOk({JavaPathExistsAndWritableRow})) {
-            auto javaPath = m_ui.OpenJDKLocationPathChooser->filePath();
-            m_sdkDownloader.downloadAndExtractSdk(
-                        javaPath,
-                        m_ui.SDKLocationPathChooser->filePath().cleanPath());
-        }
-    }
+    if (userInput == QMessageBox::Yes)
+        m_sdkDownloader.downloadAndExtractSdk(m_ui.SDKLocationPathChooser->filePath().cleanPath());
 }
 
 // AndroidSettingsPage
