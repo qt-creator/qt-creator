@@ -8,6 +8,12 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt6 COMPONENTS Gui Qml Quick)
 add_executable(%1 src/main.cpp)
 
+qt_add_resources(%1 "configuration"
+    PREFIX "/"
+    FILES
+        qtquickcontrols2.conf
+)
+
 target_link_libraries(%1 PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui

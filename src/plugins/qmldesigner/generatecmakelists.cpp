@@ -576,6 +576,8 @@ bool generateMainCpp(const FilePath &dir)
             for (EnvironmentItem &envItem : buildSystem->environment()) {
                 QString key = envItem.name;
                 QString value = envItem.value;
+                if (isFileResource(value))
+                    value.prepend(":/");
                 environment.append(QString(ENV_HEADER_VARIABLE_LINE).arg(key).arg(value));
             }
             QString envHeaderContent = GenerateCmake::readTemplate(ENV_HEADER_TEMPLATE_PATH)
@@ -597,7 +599,17 @@ bool generateMainQml(const FilePath &dir)
     return GenerateCmake::queueFile(filePath, content);
 }
 
+const QStringList resourceFileLocations = {"qtquickcontrols2.conf"};
+
+bool isFileResource(QString &relativeFilePath)
+{
+    if (resourceFileLocations.contains(relativeFilePath))
+        return true;
+
+    return false;
 }
 
-}
+} //GenerateEntryPoints
+
+} //QmlDesigner
 
