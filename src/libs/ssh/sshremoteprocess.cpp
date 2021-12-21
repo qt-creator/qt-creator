@@ -31,11 +31,7 @@
 #include <utils/commandline.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QTimer>
-
-#include <cstring>
-#include <cstdlib>
 
 /*!
     \class QSsh::SshRemoteProcess
@@ -49,23 +45,16 @@
     via requestTerminal() before calling start().
  */
 
-namespace QSsh {
-using namespace Internal;
+using namespace QSsh::Internal;
 
-struct SshRemoteProcess::SshRemoteProcessPrivate
-{
-    QString remoteCommand;
-    QStringList connectionArgs;
-    QString displayName;
-};
+namespace QSsh {
 
 SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
                                    Utils::ProcessMode processMode)
     : SshProcess(processMode)
-    , d(new SshRemoteProcessPrivate)
 {
-    d->remoteCommand = command;
-    d->connectionArgs = connectionArgs;
+    m_remoteCommand = command;
+    m_connectionArgs = connectionArgs;
 
     connect(this, &QtcProcess::finished, this, [this] {
         QString error;
@@ -81,13 +70,13 @@ SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &co
     });
 }
 
-void SshRemoteProcess::doStart()
+void SshRemoteProcess::start()
 {
     QTC_ASSERT(!isRunning(), return);
     const Utils::CommandLine cmd = fullLocalCommandLine();
-    if (!d->displayName.isEmpty()) {
+    if (!m_displayName.isEmpty()) {
         Utils::Environment env = environment();
-        env.set("DISPLAY", d->displayName);
+        env.set("DISPLAY", m_displayName);
         setEnvironment(env);
     }
     qCDebug(sshLog) << "starting remote process:" << cmd.toUserOutput();
@@ -95,35 +84,25 @@ void SshRemoteProcess::doStart()
     QtcProcess::start();
 }
 
-SshRemoteProcess::~SshRemoteProcess()
-{
-    delete d;
-}
-
 void SshRemoteProcess::requestX11Forwarding(const QString &displayName)
 {
-    d->displayName = displayName;
-}
-
-void SshRemoteProcess::start()
-{
-    doStart();
+    m_displayName = displayName;
 }
 
 Utils::CommandLine SshRemoteProcess::fullLocalCommandLine() const
 {
     Utils::CommandLine cmd{SshSettings::sshFilePath()};
 
-    if (!d->displayName.isEmpty())
+    if (!m_displayName.isEmpty())
         cmd.addArg("-X");
     if (useTerminal())
         cmd.addArg("-tt");
 
     cmd.addArg("-q");
-    cmd.addArgs(d->connectionArgs);
+    cmd.addArgs(m_connectionArgs);
 
-    if (!d->remoteCommand.isEmpty())
-        cmd.addArg(d->remoteCommand);
+    if (!m_remoteCommand.isEmpty())
+        cmd.addArg(m_remoteCommand);
 
     return cmd;
 }

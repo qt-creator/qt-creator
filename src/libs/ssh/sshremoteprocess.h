@@ -25,14 +25,10 @@
 
 #pragma once
 
-#include "ssh_global.h"
 #include "sshprocess.h"
 
-namespace Utils {
-class CommandLine;
-}
-
 namespace QSsh {
+
 class SshConnection;
 
 class QSSH_EXPORT SshRemoteProcess : public SshProcess
@@ -40,9 +36,10 @@ class QSSH_EXPORT SshRemoteProcess : public SshProcess
     Q_OBJECT
 
     friend class SshConnection;
-public:
-    ~SshRemoteProcess();
+    SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
+                     Utils::ProcessMode processMode = Utils::ProcessMode::Reader);
 
+public:
     void requestX11Forwarding(const QString &displayName);
     void start();
 
@@ -52,12 +49,9 @@ signals:
     void done(const QString &error);
 
 private:
-    SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
-                     Utils::ProcessMode processMode = Utils::ProcessMode::Reader);
-    void doStart();
-
-    struct SshRemoteProcessPrivate;
-    SshRemoteProcessPrivate * const d;
+    QString m_remoteCommand;
+    QStringList m_connectionArgs;
+    QString m_displayName;
 };
 
 } // namespace QSsh
