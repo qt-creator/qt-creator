@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #include "cmakegeneratordialog.h"
+#include "cmakegeneratordialogtreemodel.h"
 #include "generatecmakelistsconstants.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QLayout>
 #include <QLabel>
-#include <QListView>
+#include <QTreeView>
 
 using namespace Utils;
 
@@ -51,12 +52,15 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    model = new CMakeGeneratorDialogModel(rootDir, files, this);
+    m_model = new CMakeGeneratorDialogTreeModel(rootDir, files, this);
 
-    QListView *list = new QListView(this);
-    list->setModel(model);
+    QTreeView *tree = new QTreeView(this);
+    tree->setModel(m_model);
+    tree->expandAll();
+    tree->setHeaderHidden(true);
+    tree->setItemsExpandable(false);
 
-    layout->addWidget(list);
+    layout->addWidget(tree);
     layout->addWidget(buttons);
 }
 
@@ -64,43 +68,12 @@ FilePaths CmakeGeneratorDialog::getFilePaths()
 {
     FilePaths paths;
 
-    QList<CheckableStandardItem*> items = model->checkedItems();
-    for (CheckableStandardItem *item: items) {
+    QList<CheckableFileTreeItem*> items = m_model->checkedItems();
+    for (CheckableFileTreeItem *item: items) {
         paths.append(FilePath::fromString(item->text()));
     }
 
     return paths;
-}
-
-CMakeGeneratorDialogModel::CMakeGeneratorDialogModel(const Utils::FilePath &rootDir, const Utils::FilePaths &files, QObject *parent)
-    :CheckableFileListModel(rootDir, files, parent)
-{
-    for (int i=0; i<rowCount(); i++) {
-        CheckableStandardItem *item = static_cast<CheckableStandardItem*>(QStandardItemModel::item(i));
-        item->setChecked(CMakeGeneratorDialogModel::checkedByDefault(FilePath::fromString(item->text())));
-    }
-}
-
-bool CMakeGeneratorDialogModel::checkedByDefault(const FilePath &path) const
-{
-    if (path.exists()) {
-        QString relativePath = path.relativeChildPath(rootDir).toString();
-        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS) == 0)
-            return false;
-        if (relativePath.endsWith(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS)
-            && relativePath.length() > QString(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS).length())
-            return true;
-        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_MODULES) == 0)
-            return true;
-        if (relativePath.compare(
-                FilePath::fromString(QmlDesigner::GenerateCmake::Constants::DIRNAME_CPP)
-                .pathAppended(QmlDesigner::GenerateCmake::Constants::FILENAME_MAINCPP_HEADER)
-                .toString())
-                == 0)
-            return true;
-    }
-
-    return !path.exists();
 }
 
 }

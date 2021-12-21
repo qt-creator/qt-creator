@@ -27,11 +27,12 @@ add_qtc_plugin(QmlDesigner
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
-    cmakegeneratordialog.h cmakegeneratordialog.cpp
+    checkablefiletreeitem.cpp checkablefiletreeitem.h
+    cmakegeneratordialog.cpp cmakegeneratordialog.h
+    cmakegeneratordialogtreemodel.cpp cmakegeneratordialogtreemodel.h
     generateresource.cpp generateresource.h
     generatecmakelists.cpp generatecmakelists.h
     generatecmakelistsconstants.h
-    checkablefilelistmodel.cpp checkablefilelistmodel.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
     qmldesignerconstants.h
     qmldesignericons.h

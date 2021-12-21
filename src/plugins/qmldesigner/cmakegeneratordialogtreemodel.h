@@ -23,31 +23,45 @@
 **
 ****************************************************************************/
 
+#ifndef CMAKEGENERATORDIALOGTREEMODEL_H
+#define CMAKEGENERATORDIALOGTREEMODEL_H
 
-#ifndef CMAKEGENERATORDIALOG_H
-#define CMAKEGENERATORDIALOG_H
+#include "checkablefiletreeitem.h"
 
-#include "cmakegeneratordialogtreemodel.h"
+#include <QFileIconProvider>
+#include <QStandardItemModel>
 
 #include <utils/fileutils.h>
-
-#include <QDialog>
-
 
 namespace QmlDesigner {
 namespace GenerateCmake {
 
-class CmakeGeneratorDialog : public QDialog
+class CMakeGeneratorDialogTreeModel : public QStandardItemModel
 {
 public:
-    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
-    Utils::FilePaths getFilePaths();
+    CMakeGeneratorDialogTreeModel(const Utils::FilePath &rootDir,
+                                  const Utils::FilePaths &files, QObject *parent = nullptr);
+    ~CMakeGeneratorDialogTreeModel();
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+
+    const QList<CheckableFileTreeItem*> checkedItems() const;
+    const CheckableFileTreeItem* constNodeForIndex(const QModelIndex &index) const;
+    CheckableFileTreeItem* nodeForIndex(const QModelIndex &index);
+
+protected:
+    bool checkedByDefault(const Utils::FilePath &file) const;
+    Utils::FilePath rootDir;
 
 private:
-    CMakeGeneratorDialogTreeModel *m_model;
+    void createNodes(const Utils::FilePaths &candidates, QStandardItem *parent);
+
+    QFileIconProvider* m_icons;
 };
 
-}
-}
+} //GenerateCmake
+} //QmlDesigner
 
-#endif // CMAKEGENERATORDIALOG_H
+
+#endif // CMAKEGENERATORDIALOGTREEMODEL_H

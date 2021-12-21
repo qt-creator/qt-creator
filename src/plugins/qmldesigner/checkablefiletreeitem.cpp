@@ -23,43 +23,45 @@
 **
 ****************************************************************************/
 
-#ifndef CHECKABLEFILELISTMODEL_H
-#define CHECKABLEFILELISTMODEL_H
+#include "checkablefiletreeitem.h"
 
-#include <utils/fileutils.h>
-#include <QStandardItemModel>
+using namespace Utils;
 
 namespace QmlDesigner {
 
-class CheckableStandardItem : public QStandardItem
+CheckableFileTreeItem::CheckableFileTreeItem(const FilePath &filePath)
+    :QStandardItem(filePath.toString())
 {
-public:
-    explicit CheckableStandardItem(const QString &text = QString(), bool checked = false);
-    bool isChecked() const;
-    void setChecked(bool checked);
-    int type() const;
+    Qt::ItemFlags itemFlags = flags();
+    if (isFile())
+        itemFlags |= Qt::ItemIsUserCheckable;
+    itemFlags &= ~(Qt::ItemIsEditable | Qt::ItemIsSelectable);
+    setFlags(itemFlags);
+}
 
-private:
-    bool checked;
-};
-
-class CheckableFileListModel : public QStandardItemModel
+const FilePath CheckableFileTreeItem::toFilePath() const
 {
-public:
-    CheckableFileListModel(const Utils::FilePath &rootDir,
-                           const Utils::FilePaths &files,
-                           bool checkedByDefault = false,
-                           QObject *parent = nullptr);
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-    QList<CheckableStandardItem*> checkedItems() const;
+    return FilePath::fromString(text());
+}
 
-protected:
-    Utils::FilePath rootDir;
-};
+bool CheckableFileTreeItem::isFile() const
+{
+    return FilePath::fromString(text()).isFile();
+}
+
+bool CheckableFileTreeItem::isDir() const
+{
+    return FilePath::fromString(text()).isDir();
+}
+
+void CheckableFileTreeItem::setChecked(bool checked)
+{
+    this->checked = checked;
+}
+
+bool CheckableFileTreeItem::isChecked() const
+{
+    return this->checked;
+}
 
 } //QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::CheckableStandardItem)
-
-#endif // CHECKABLEFILELISTMODEL_H
