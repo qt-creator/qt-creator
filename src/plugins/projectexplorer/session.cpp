@@ -67,6 +67,8 @@ using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
 
+const char DEFAULT_SESSION[] = "default";
+
 /*!
      \class ProjectExplorer::SessionManager
 
@@ -99,7 +101,7 @@ public:
 
     bool hasProjects() const { return !m_projects.isEmpty(); }
 
-    QString m_sessionName = QLatin1String("default");
+    QString m_sessionName = QLatin1String(DEFAULT_SESSION);
     bool m_virginSession = true;
     bool m_loadingSession = false;
     bool m_casadeSetActive = false;
@@ -176,7 +178,7 @@ bool SessionManager::isDefaultVirgin()
 
 bool SessionManager::isDefaultSession(const QString &session)
 {
-    return session == QLatin1String("default");
+    return session == QLatin1String(DEFAULT_SESSION);
 }
 
 void SessionManager::saveActiveMode(Id mode)
@@ -794,10 +796,10 @@ QStringList SessionManager::sessions()
         for (const FilePath &file : sessionFiles) {
             const QString &name = file.completeBaseName();
             d->m_sessionDateTimes.insert(name, file.lastModified());
-            if (name != QLatin1String("default"))
+            if (name != QLatin1String(DEFAULT_SESSION))
                 d->m_sessions << name;
         }
-        d->m_sessions.prepend(QLatin1String("default"));
+        d->m_sessions.prepend(QLatin1String(DEFAULT_SESSION));
     }
     return d->m_sessions;
 }
@@ -1004,8 +1006,8 @@ void SessionManagerPrivate::restoreProjects(const FilePaths &fileList)
 bool SessionManager::loadSession(const QString &session, bool initial)
 {
     const bool loadImplicitDefault = session.isEmpty();
-    const bool switchFromImplicitToExplicitDefault = session == "default"
-            && d->m_sessionName == "default" && !initial;
+    const bool switchFromImplicitToExplicitDefault = session == DEFAULT_SESSION
+            && d->m_sessionName == DEFAULT_SESSION && !initial;
 
     // Do nothing if we have that session already loaded,
     // exception if the session is the default virgin session
@@ -1018,7 +1020,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
     FilePaths fileList;
     // Try loading the file
-    FilePath fileName = sessionNameToFileName(loadImplicitDefault ? "default" : session);
+    FilePath fileName = sessionNameToFileName(loadImplicitDefault ? DEFAULT_SESSION : session);
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
@@ -1030,7 +1032,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
         if (loadImplicitDefault) {
             d->restoreValues(reader);
-            emit m_instance->sessionLoaded("default");
+            emit m_instance->sessionLoaded(DEFAULT_SESSION);
             return true;
         }
 
