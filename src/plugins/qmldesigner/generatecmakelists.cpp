@@ -601,7 +601,7 @@ bool generateMainQml(const FilePath &dir)
 
 const QStringList resourceFileLocations = {"qtquickcontrols2.conf"};
 
-bool isFileResource(QString &relativeFilePath)
+bool isFileResource(const QString &relativeFilePath)
 {
     if (resourceFileLocations.contains(relativeFilePath))
         return true;
