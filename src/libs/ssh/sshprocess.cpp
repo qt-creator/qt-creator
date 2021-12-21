@@ -29,11 +29,6 @@
 
 #include <utils/environment.h>
 
-#ifdef Q_OS_UNIX
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-
 namespace QSsh {
 
 SshProcess::SshProcess(Utils::ProcessMode processMode)
