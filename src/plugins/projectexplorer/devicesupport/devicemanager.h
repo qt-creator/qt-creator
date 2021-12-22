@@ -36,9 +36,6 @@
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
-class IDevice;
-class IDeviceFactory;
-
 class ProjectExplorerPlugin;
 
 namespace Internal {
@@ -88,7 +85,6 @@ private:
     DeviceManager(bool isInstance = true);
 
     void load();
-    static const IDeviceFactory *restoreFactory(const QVariantMap &map);
     QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
     QVariantMap toMap() const;
 
@@ -99,8 +95,6 @@ private:
     static void replaceInstance();
     static void removeClonedInstance();
 
-    static Utils::FilePath settingsFilePath(const QString &extension);
-    static Utils::FilePath systemSettingsFilePath(const QString &deviceFileRelativePath);
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
 
     const std::unique_ptr<Internal::DeviceManagerPrivate> d;

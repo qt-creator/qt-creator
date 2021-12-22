@@ -149,6 +149,16 @@ void DeviceManager::save()
     d->writer->save(data, Core::ICore::dialogParent());
 }
 
+static FilePath settingsFilePath(const QString &extension)
+{
+    return Core::ICore::userResourcePath(extension);
+}
+
+static FilePath systemSettingsFilePath(const QString &deviceFileRelativePath)
+{
+    return Core::ICore::installerResourcePath(deviceFileRelativePath);
+}
+
 void DeviceManager::load()
 {
     QTC_ASSERT(!d->writer, return);
@@ -193,6 +203,21 @@ void DeviceManager::load()
     emit devicesLoaded();
 }
 
+static const IDeviceFactory *restoreFactory(const QVariantMap &map)
+{
+    const Utils::Id deviceType = IDevice::typeFromMap(map);
+    IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
+        [&map, deviceType](IDeviceFactory *factory) {
+            return factory->canRestore(map) && factory->deviceType() == deviceType;
+        });
+
+    if (!factory)
+        qWarning("Warning: No factory found for device '%s' of type '%s'.",
+                 qPrintable(IDevice::idFromMap(map).toString()),
+                 qPrintable(IDevice::typeFromMap(map).toString()));
+    return factory;
+}
+
 QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map,
                                            QHash<Utils::Id, Utils::Id> *defaultDevices)
 {
@@ -232,16 +257,6 @@ QVariantMap DeviceManager::toMap() const
         deviceList << device->toMap();
     map.insert(QLatin1String(DeviceListKey), deviceList);
     return map;
-}
-
-FilePath DeviceManager::settingsFilePath(const QString &extension)
-{
-    return Core::ICore::userResourcePath(extension);
-}
-
-FilePath DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
-{
-    return Core::ICore::installerResourcePath(deviceFileRelativePath);
 }
 
 void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
@@ -352,21 +367,6 @@ void DeviceManager::setDefaultDevice(Utils::Id id)
     emit deviceUpdated(oldDefaultDevice->id());
 
     emit updated();
-}
-
-const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
-{
-    const Utils::Id deviceType = IDevice::typeFromMap(map);
-    IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
-        [&map, deviceType](IDeviceFactory *factory) {
-            return factory->canRestore(map) && factory->deviceType() == deviceType;
-        });
-
-    if (!factory)
-        qWarning("Warning: No factory found for device '%s' of type '%s'.",
-                 qPrintable(IDevice::idFromMap(map).toString()),
-                 qPrintable(IDevice::typeFromMap(map).toString()));
-    return factory;
 }
 
 DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManagerPrivate>())
