@@ -1,0 +1,2 @@
+module QtQuick.Controls.MCUDefaultStyle
+singleton DefaultStyle 1.0 DefaultStyle.qml

@@ -1,0 +1,4 @@
+singleton Constants 1.0 Constants.qml
+EventListModel 1.0 EventListModel.qml
+EventListSimulator 1.0 EventListSimulator.qml
+DirectoryFontLoader 1.0 DirectoryFontLoader.qml

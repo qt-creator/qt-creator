@@ -1,0 +1,197 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "QmlProjectManager.QmlProject" ],
+    "id": "QA.QtStudioUiMCU",
+    "category": "D.StudioMCUProject",
+    "trDescription": "Creates an application that uses a subset of default components (as supported by Qt for MCUs) that you can deploy, run, and debug on MCU boards.",
+    "trDisplayName": "MCU",
+    "trDisplayCategory": "Qt for MCUs",
+    "icon": "desktop_blank.png",
+    "fontIconName": "wizardsMcuEmpty",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
+    "featuresRequired": [ "QtStudio" ],
+    "platformIndependent": true,
+
+    "options":
+        [
+        { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qmlproject')}" },
+        { "key": "RootItemName", "value": "%{ProjectName}" },
+        { "key": "MainQmlFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qml')}" },
+        { "key": "ScreenWidth", "value": "%{JS: %{ScreenFactor}.ScreenWidth}" },
+        { "key": "ScreenHeight","value": "%{JS: %{ScreenFactor}.ScreenHeight}" },
+        { "key": "UseStandardResolution", "value": "%{JS: value('CustomScreenWidth') === '' || value('CustomScreenHeight') === ''}" },
+        { "key": "ScreenWidth", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenWidth : value('CustomScreenWidth')}" },
+        { "key": "ScreenHeight", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenHeight : value('CustomScreenHeight')}" }
+    ],
+
+    "pages":
+        [
+        {
+            "defaultValues": "qmlapplication-project-page"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+                [
+                {
+                    "name": "ScreenFactor",
+                    "trDisplayName": "Screen Resolution:",
+                    "type": "ComboBox",
+                    "enabled": "%{JS: value('UseStandardResolution')}",
+                    "data":
+                    {
+                        "index": 2,
+                        "items":
+                            [
+                            {
+                                "trKey": "390 x 390",
+                                "value":
+                                "({
+                                    'ScreenWidth': '390',
+                                    'ScreenHeight': '390'
+                                })"
+                            },
+                            {
+                                "trKey": "480 x 272",
+                                "value":
+                                "({
+                                    'ScreenWidth': '480',
+                                    'ScreenHeight': '272'
+                                })"
+                            },
+                            {
+                                "trKey": "640 x 480",
+                                "value":
+                                "({
+                                    'ScreenWidth': '640',
+                                    'ScreenHeight': '480'
+                                })"
+                            },
+                            {
+                                "trKey": "720 x 1280 (HD)",
+                                "value":
+                                "({
+                                    'ScreenWidth': '720',
+                                    'ScreenHeight': '1280'
+                                })"
+                            },
+                            {
+                                "trKey": "1280 x 720 (HD)",
+                                "value":
+                                "({
+                                    'ScreenWidth': '1280',
+                                    'ScreenHeight': '720'
+                                })"
+                            },
+                            {
+                                "trKey": "800 x 480",
+                                "value":
+                                "({
+                                    'ScreenWidth': '800',
+                                    'ScreenHeight': '480'
+                                })"
+                            },
+                            {
+                                "trKey": "960 x 1280",
+                                "value":
+                                "({
+                                    'ScreenWidth': '960',
+                                    'ScreenHeight': '1280'
+                                })"
+                            },
+                            {
+                                "trKey": "1024 x 768",
+                                "value":
+                                "({
+                                    'ScreenWidth': '1024',
+                                    'ScreenHeight': '768'
+                                })"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "CustomScreenWidth",
+                    "trDisplayName": "Custom screen width:",
+                    "mandatory": false,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "^[0-9]*$",
+                        "trText": ""
+                    }
+                },
+                {
+                    "name": "CustomScreenHeight",
+                    "trDisplayName": "Custom screen height:",
+                    "mandatory": false,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "^[0-9]*$",
+                        "trText": ""
+                    }
+                }
+            ]
+        }
+
+    ],
+    "generators":
+        [
+        {
+            "typeId": "File",
+            "data":
+                [
+                {
+                    "source": "../app_mcu.qmlproject",
+                    "target": "%{QmlProjectFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{MainQmlFileName}"
+                },
+                {
+                    "source": "qmldir",
+                    "target": "%{ProjectDirectory}/imports/Constants/qmldir"
+                },
+                {
+                    "source": "Constants.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/Constants/Constants.qml"
+                },
+                {
+                    "source": "DirectoryFontLoader.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/Constants/DirectoryFontLoader.qml"
+                },
+                {
+                    "source": "Screen01.ui.qml.tpl",
+                    "target": "%{ProjectDirectory}/Screen01.ui.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "CMakeLists.txt",
+                    "target": "%{ProjectDirectory}/CMakeLists.txt"
+                },
+                {
+                    "source": "../fonts.txt",
+                    "target": "%{ProjectDirectory}/fonts/fonts.txt"
+                },
+                {
+                    "source": "mcuqtquickcontrols2.conf",
+                    "target": "%{ProjectDirectory}/qtquickcontrols2.conf"
+                },
+                {
+                    "source": "MCUDefaultStyle",
+                    "target": "%{ProjectDirectory}/MCUDefaultStyle"
+                },
+                {
+                    "isBinary": true,
+                    "source": "MCUDefaultStyle/images",
+                    "target": "%{ProjectDirectory}/MCUDefaultStyle/images"
+                }
+            ]
+        }
+    ]
+}

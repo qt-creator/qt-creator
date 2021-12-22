@@ -1,0 +1,47 @@
+MetaInfo {
+    Type {
+        name: "QtStudio3D.Studio3D"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Studio 3D"
+            category: "Qt 3D Studio"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+            requiredImport: "QtStudio3D"
+
+            QmlSource { source: ":/studioplugin/data/qt3ditem.qml" }
+        }
+    }
+
+    Imports {
+        blacklistImports: [
+        "Qt.labs.",
+        "Qt3D.",
+        "QtCanvas3D",
+        "QtGamepad",
+        "QtPositioning",
+        "QtQuick.LocalStorage",
+        "QtQuick.Scene2D",
+        "QtQuick.Scene3D",
+        "QtQuick.VirtualKeyboard",
+        "QtScxml",
+        "QtTest",
+        "QtWebEngine",
+        "QtWebSockets",
+        "QtQuick.Dialogs."
+        ]
+
+    showTagsForImports: [
+        "QtQuick.Controls",
+        "QtQuick.Layouts",
+        "QtQuick.Studio.Effects",
+        "QtQuick.Studio.Components",
+        "QtQuick.Studio.MultiText",
+        "QtQuick.Studio.LogicHelper",
+        "Qt.SafeRenderer",
+        "QtQuick3D",
+        "FlowView"
+        ]
+    }
+}

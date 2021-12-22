@@ -1,0 +1,9 @@
+{
+    "trDisplayName": "Project Location",
+    "trShortTitle": "Location",
+    "typeId": "Project",
+    "data": {
+        "projectNameValidator": "^(?!(import))(?!(QtQml))(?!(QtQuick))(?:[A-Z][a-zA-Z0-9-_]*)$",
+        "trProjectNameValidatorUserMessage": "Project name must start with a capital letter. It cannot start with QtQml or QtQuick. Use only letters and digits separated by `_` or `-`"
+    }
+}

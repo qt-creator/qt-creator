@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "Z.QtStudio.JavaScript.2",
+    "category": "R.StudioJSFiles",
+    "trDescription": "Creates a JavaScript file.",
+    "trDisplayName": "Java Script File",
+    "trDisplayCategory": "Java Script",
+    "icon": "file_javascript.png",
+    "featuresRequired": [ "QtStudio" ],
+    "platformIndependent": true,
+
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Options",
+            "trShortTitle": "Options",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "Stateless",
+                    "trDisplayName": "Stateless library",
+                    "type": "CheckBox",
+                    "span": true,
+                    "data":
+                    {
+                        "checked": false
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.js.tpl",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/javascript')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

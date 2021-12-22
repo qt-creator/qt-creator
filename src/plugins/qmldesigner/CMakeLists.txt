@@ -110,6 +110,8 @@ add_qtc_plugin(qtquickplugin
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
 )
 
+add_subdirectory(studioplugin)
+
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/componentcore
   PUBLIC_INCLUDES components/componentcore

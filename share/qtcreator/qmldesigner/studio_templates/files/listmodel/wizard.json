@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "Q.QtStudio.QmlModel.2",
+    "category": "H.StudioQMLFiles",
+    "trDescription": "Creates a list model that contains list elements.",
+    "trDisplayName": "ListModel",
+    "trDisplayCategory": "QML Files",
+    "icon": "data_listmodel.png",
+    "featuresRequired": [ "QtStudio" ],
+    "platformIndependent": true,
+
+    "options":
+        [
+        { "key": "QmlFile", "value": "%{Class}.%{JS: Util.preferredSuffix('text/x-qml')}" },
+        { "key": "ApplicationImport", "value": "%{QmlProjectName} 1.0" },
+        { "key": "RootItem", "value": "%{JS: %{RootItemCB}.RootItem}" }
+    ],
+
+    "pages" :
+        [
+        {
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+                [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Component name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }"
+                    }
+                },
+                {
+                    "name": "TargetPath",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        }
+    ],
+    "generators" :
+        [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.qml.tpl",
+                "target": "%{TargetPath}/%{QmlFile}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

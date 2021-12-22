@@ -1,0 +1,13 @@
+MetaInfo {
+    Type {
+        name: "%{ProjectName}.EventListSimulator"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: false
+        }
+    }
+}
