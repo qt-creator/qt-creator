@@ -141,7 +141,6 @@ private:
     QPushButton *m_setButton;
     QPushButton *m_unsetButton;
     QPushButton *m_resetButton;
-    QPushButton *m_clearSelectionButton;
     QCheckBox *m_showAdvancedCheckBox;
     QPushButton *m_reconfigureButton;
     QTimer m_showProgressTimer;
@@ -309,10 +308,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_resetButton->setToolTip(tr("Reset all unapplied changes."));
     m_resetButton->setEnabled(false);
 
-    m_clearSelectionButton = new QPushButton(tr("Clear Selection"));
-    m_clearSelectionButton->setToolTip(tr("Clear selection."));
-    m_clearSelectionButton->setEnabled(false);
-
     m_batchEditButton = new QPushButton(tr("Batch Edit..."));
     m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake Configuration."));
 
@@ -335,7 +330,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             m_editButton,
             m_setButton,
             m_unsetButton,
-            m_clearSelectionButton,
             m_resetButton,
             m_batchEditButton,
             Space(10),
@@ -433,9 +427,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             idx = idx.sibling(idx.row(), 1);
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
-    });
-    connect(m_clearSelectionButton, &QPushButton::clicked, this, [this]() {
-        m_configView->selectionModel()->clear();
     });
     connect(addButtonMenu, &QMenu::triggered, this, [this](QAction *action) {
         ConfigModel::DataItem::Type type =
@@ -686,7 +677,6 @@ void CMakeBuildSettingsWidget::updateSelection()
             editableCount++;
     }
 
-    m_clearSelectionButton->setEnabled(!selectedIndexes.isEmpty());
     m_setButton->setEnabled(setableCount > 0);
     m_unsetButton->setEnabled(unsetableCount > 0);
     m_editButton->setEnabled(editableCount == 1);
