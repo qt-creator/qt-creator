@@ -1553,6 +1553,7 @@ void DesignerActionManager::createDefaultAddResourceHandler()
     auto transformer = [](const QByteArray& format) -> QString { return QString("*.") + format; };
     auto imageFormats = Utils::transform(QImageReader::supportedImageFormats(), transformer);
     imageFormats.push_back("*.hdr");
+    imageFormats.push_back("*.ktx");
 
     // The filters will be displayed in reverse order to these lists in file dialog,
     // so declare most common types last

@@ -37,7 +37,7 @@ Row {
     property variant backendValue
     property color textColor: colorLogic.highlight ? colorLogic.textColor
                                                    : StudioTheme.Values.themeTextColor
-    property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg *.pbm *.pgm *.ppm *.xbm *.xpm *.hdr *.webp"
+    property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg *.pbm *.pgm *.ppm *.xbm *.xpm *.hdr *.ktx *.webp"
 
     // This property takes an array of strings which define default items that should be added
     // to the ComboBox model in addition to the items from the FileResourcesModel. This is used
