@@ -125,7 +125,7 @@ bool ConfigModel::hasChanges() const
 
 bool ConfigModel::canForceTo(const QModelIndex &idx, const ConfigModel::DataItem::Type type) const
 {
-    if (idx.model() != const_cast<ConfigModel *>(this) || idx.column() != 1)
+    if (idx.model() != const_cast<ConfigModel *>(this))
         return false;
     Utils::TreeItem *item = itemForIndex(idx);
     auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
