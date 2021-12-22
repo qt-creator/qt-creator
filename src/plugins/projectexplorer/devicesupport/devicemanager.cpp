@@ -43,6 +43,8 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QList>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QString>
 #include <QVariantList>
 
@@ -74,10 +76,17 @@ public:
         return -1;
     }
 
+    QList<IDevice::Ptr> deviceList() const
+    {
+        QMutexLocker locker(&mutex);
+        return devices;
+    }
+
     static DeviceManager *clonedInstance;
+
+    mutable QMutex mutex;
     QList<IDevice::Ptr> devices;
     QHash<Utils::Id, Utils::Id> defaultDevices;
-
     Utils::PersistentSettingsWriter *writer = nullptr;
 };
 DeviceManager *DeviceManagerPrivate::clonedInstance = nullptr;
@@ -108,7 +117,10 @@ void DeviceManager::replaceInstance()
             dev->aboutToBeRemoved();
     }
 
-    copy(DeviceManagerPrivate::clonedInstance, instance(), false);
+    {
+        QMutexLocker locker(&instance()->d->mutex);
+        copy(DeviceManagerPrivate::clonedInstance, instance(), false);
+    }
 
     emit instance()->deviceListReplaced();
     emit instance()->updated();
@@ -269,6 +281,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
             names << tmp->displayName();
     }
 
+    // TODO: make it thread safe?
     device->setDisplayName(Utils::makeUniquelyNumbered(device->displayName(), names));
 
     const int pos = d->indexForId(device->id());
@@ -279,10 +292,16 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
         d->clonedInstance->addDevice(device->clone());
 
     if (pos >= 0) {
-        d->devices[pos] = device;
+        {
+            QMutexLocker locker(&d->mutex);
+            d->devices[pos] = device;
+        }
         emit deviceUpdated(device->id());
     } else {
-        d->devices << device;
+        {
+            QMutexLocker locker(&d->mutex);
+            d->devices << device;
+        }
         emit deviceAdded(device->id());
     }
 
@@ -297,7 +316,10 @@ void DeviceManager::removeDevice(Utils::Id id)
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const Utils::Id deviceType = device->type();
-    d->devices.removeAt(d->indexForId(id));
+    {
+        QMutexLocker locker(&d->mutex);
+        d->devices.removeAt(d->indexForId(id));
+    }
     emit deviceRemoved(device->id());
 
     if (wasDefault) {
@@ -329,6 +351,7 @@ void DeviceManager::setDeviceState(Utils::Id deviceId, IDevice::DeviceState devi
     if (device->deviceState() == deviceState)
         return;
 
+    // TODO: make it thread safe?
     device->setDeviceState(deviceState);
     emit deviceUpdated(deviceId);
     emit updated();
@@ -339,9 +362,12 @@ bool DeviceManager::isLoaded() const
     return d->writer;
 }
 
+// Thread safe
 IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
 {
-    for (IDevice::Ptr &dev : instance()->d->devices) {
+    const QList<IDevice::Ptr> devices = instance()->d->deviceList();
+    for (const IDevice::ConstPtr &dev : devices) {
+        // TODO: ensure handlesFile is thread safe
         if (dev->handlesFile(path))
             return dev;
     }
