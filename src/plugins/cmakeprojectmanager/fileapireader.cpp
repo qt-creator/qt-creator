@@ -170,6 +170,12 @@ void FileApiReader::stop()
     m_isParsing = false;
 }
 
+void FileApiReader::stopCMakeRun()
+{
+    if (m_cmakeProcess)
+        m_cmakeProcess->terminate();
+}
+
 bool FileApiReader::isParsing() const
 {
     return m_isParsing;

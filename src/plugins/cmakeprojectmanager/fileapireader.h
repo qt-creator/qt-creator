@@ -64,6 +64,7 @@ public:
     void resetData();
     void parse(bool forceCMakeRun, bool forceInitialConfiguration, bool forceExtraConfiguration);
     void stop();
+    void stopCMakeRun();
 
     bool isParsing() const;
 

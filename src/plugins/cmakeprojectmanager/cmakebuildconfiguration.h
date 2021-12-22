@@ -69,8 +69,6 @@ public:
     void buildTarget(const QString &buildTarget);
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
-    void runCMakeWithExtraArguments();
-
     void setSourceDirectory(const Utils::FilePath& path);
     Utils::FilePath sourceDirectory() const;
 

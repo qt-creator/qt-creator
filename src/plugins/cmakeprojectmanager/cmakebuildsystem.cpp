@@ -434,6 +434,13 @@ void CMakeBuildSystem::runCMakeWithExtraArguments()
                                      | REPARSE_URGENT);
 }
 
+void CMakeBuildSystem::stopCMakeRun()
+{
+    qCDebug(cmakeBuildSystemLog) << cmakeBuildConfiguration()->displayName()
+                                 << "stopping CMake's runb";
+    m_reader.stopCMakeRun();
+}
+
 void CMakeBuildSystem::buildCMakeTarget(const QString &buildTarget)
 {
     QTC_ASSERT(!buildTarget.isEmpty(), return);

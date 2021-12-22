@@ -411,13 +411,16 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             });
 
     connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
-    connect(m_reconfigureButton,
-            &QPushButton::clicked,
-            m_buildConfiguration,
-            &CMakeBuildConfiguration::runCMakeWithExtraArguments);
-    connect(m_setButton, &QPushButton::clicked, this, [this]() {
-        setVariableUnsetFlag(false);
+    connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
+        auto buildSystem = static_cast<CMakeBuildSystem *>(m_buildConfiguration->buildSystem());
+        if (!buildSystem->isParsing()) {
+            buildSystem->runCMakeWithExtraArguments();
+        } else {
+            buildSystem->stopCMakeRun();
+            m_reconfigureButton->setEnabled(false);
+        }
     });
+    connect(m_setButton, &QPushButton::clicked, this, [this]() { setVariableUnsetFlag(false); });
     connect(m_unsetButton, &QPushButton::clicked, this, [this]() {
         setVariableUnsetFlag(true);
     });
@@ -570,7 +573,15 @@ void CMakeBuildSettingsWidget::updateButtonState()
             });
 
     m_resetButton->setEnabled(m_configModel->hasChanges() && !isParsing);
-    m_reconfigureButton->setEnabled(!configChanges.isEmpty() && !isParsing);
+    m_reconfigureButton->setEnabled(true);
+
+    if (isParsing)
+        m_reconfigureButton->setText(tr("Stop CMake"));
+    else if (m_configModel->hasChanges())
+        m_reconfigureButton->setText(tr("Apply Configuration Changes"));
+    else
+        m_reconfigureButton->setText(tr("Run CMake"));
+
     m_buildConfiguration->setConfigurationChanges(configChanges);
 }
 
@@ -1321,11 +1332,6 @@ BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 BuildSystem *CMakeBuildConfiguration::buildSystem() const
 {
     return m_buildSystem;
-}
-
-void CMakeBuildConfiguration::runCMakeWithExtraArguments()
-{
-    m_buildSystem->runCMakeWithExtraArguments();
 }
 
 void CMakeBuildConfiguration::setSourceDirectory(const FilePath &path)

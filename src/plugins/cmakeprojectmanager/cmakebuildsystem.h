@@ -77,6 +77,7 @@ public:
     void runCMake();
     void runCMakeAndScanProjectTree();
     void runCMakeWithExtraArguments();
+    void stopCMakeRun();
 
     bool persistCMakeState();
     void clearCMakeCache();

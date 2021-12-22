@@ -148,6 +148,14 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     m_future = std::move(future);
 }
 
+void CMakeProcess::terminate()
+{
+    if (m_process) {
+        m_processWasCanceled = true;
+        m_process->terminate();
+    }
+}
+
 QProcess::ProcessState CMakeProcess::state() const
 {
     if (m_process)

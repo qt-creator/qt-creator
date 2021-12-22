@@ -51,6 +51,7 @@ public:
     ~CMakeProcess();
 
     void run(const BuildDirParameters &parameters, const QStringList &arguments);
+    void terminate();
 
     QProcess::ProcessState state() const;
 
