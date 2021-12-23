@@ -278,50 +278,11 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &c
     generateTree();
 }
 
-static QString prefix(const QString &key)
-{
-    int pos = key.indexOf('_');
-    if (pos > 0)
-        return key.left(pos);
-    return key;
-}
-
 void ConfigModel::generateTree()
 {
-    QList<QString> prefixList;
-
-    // Generate nodes for *all* prefixes
-    QHash<QString, QList<Utils::TreeItem *>> prefixes;
-    for (const InternalDataItem &di : qAsConst(m_configuration)) {
-        const QString p = prefix(di.key);
-        if (!prefixes.contains(p)) {
-            prefixes.insert(p, {});
-            prefixList.append(p);
-        }
-    }
-
-    // Fill prefix nodes:
-    for (InternalDataItem &di : m_configuration)
-        prefixes[prefix(di.key)].append(new Internal::ConfigModelTreeItem(&di));
-
     auto root = new Utils::TreeItem;
-
-    for (const QString &p : qAsConst(prefixList)) {
-        const QList<Utils::TreeItem *> &prefixItemList = prefixes.value(p);
-        QTC_ASSERT(!prefixItemList.isEmpty(), continue);
-
-        if (prefixItemList.count() == 1) {
-            root->appendChild(prefixItemList.at(0));
-        } else {
-            Utils::TreeItem *sti = new Utils::StaticTreeItem(p);
-            for (Utils::TreeItem *const ti : prefixItemList)
-                sti->appendChild(ti);
-            root->appendChild(sti);
-        }
-        prefixes.remove(p);
-    }
-    QTC_CHECK(prefixes.isEmpty());
-
+    for (InternalDataItem &di : m_configuration)
+        root->appendChild(new Internal::ConfigModelTreeItem(&di));
     setRootItem(root);
 }
 
