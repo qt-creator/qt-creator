@@ -35,49 +35,40 @@
 
 namespace QmlDesigner {
 
-class TimeStampProviderInterface;
 class ImageCacheStorageInterface;
-class ImageCacheGeneratorInterface;
-class ImageCacheCollectorInterface;
 
-class AsynchronousImageCache final : public AsynchronousImageCacheInterface
+class AsynchronousExplicitImageCache
 {
 public:
-    ~AsynchronousImageCache();
+    ~AsynchronousExplicitImageCache();
 
-    AsynchronousImageCache(ImageCacheStorageInterface &storage,
-                           ImageCacheGeneratorInterface &generator,
-                           TimeStampProviderInterface &timeStampProvider);
+    AsynchronousExplicitImageCache(ImageCacheStorageInterface &storage);
 
     void requestImage(Utils::PathString name,
                       ImageCache::CaptureImageCallback captureCallback,
                       ImageCache::AbortCallback abortCallback,
-                      Utils::SmallString extraId = {},
-                      ImageCache::AuxiliaryData auxiliaryData = {}) override;
+                      Utils::SmallString extraId = {});
     void requestSmallImage(Utils::PathString name,
                            ImageCache::CaptureImageCallback captureCallback,
                            ImageCache::AbortCallback abortCallback,
-                           Utils::SmallString extraId = {},
-                           ImageCache::AuxiliaryData auxiliaryData = {}) override;
+                           Utils::SmallString extraId = {});
 
     void clean();
 
 private:
     enum class RequestType { Image, SmallImage, Icon };
-    struct Entry
+    struct RequestEntry
     {
-        Entry() = default;
-        Entry(Utils::PathString name,
-              Utils::SmallString extraId,
-              ImageCache::CaptureImageCallback &&captureCallback,
-              ImageCache::AbortCallback &&abortCallback,
-              ImageCache::AuxiliaryData &&auxiliaryData,
-              RequestType requestType)
+        RequestEntry() = default;
+        RequestEntry(Utils::PathString name,
+                     Utils::SmallString extraId,
+                     ImageCache::CaptureImageCallback &&captureCallback,
+                     ImageCache::AbortCallback &&abortCallback,
+                     RequestType requestType)
             : name{std::move(name)}
             , extraId{std::move(extraId)}
             , captureCallback{std::move(captureCallback)}
             , abortCallback{std::move(abortCallback)}
-            , auxiliaryData{std::move(auxiliaryData)}
             , requestType{requestType}
         {}
 
@@ -85,16 +76,14 @@ private:
         Utils::SmallString extraId;
         ImageCache::CaptureImageCallback captureCallback;
         ImageCache::AbortCallback abortCallback;
-        ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
     };
 
-    std::tuple<bool, Entry> getEntry();
+    std::tuple<bool, RequestEntry> getEntry();
     void addEntry(Utils::PathString &&name,
                   Utils::SmallString &&extraId,
                   ImageCache::CaptureImageCallback &&captureCallback,
                   ImageCache::AbortCallback &&abortCallback,
-                  ImageCache::AuxiliaryData &&auxiliaryData,
                   RequestType requestType);
     void clearEntries();
     void waitForEntries();
@@ -102,25 +91,20 @@ private:
     bool isRunning();
     static void request(Utils::SmallStringView name,
                         Utils::SmallStringView extraId,
-                        AsynchronousImageCache::RequestType requestType,
+                        AsynchronousExplicitImageCache::RequestType requestType,
                         ImageCache::CaptureImageCallback captureCallback,
                         ImageCache::AbortCallback abortCallback,
-                        ImageCache::AuxiliaryData auxiliaryData,
-                        ImageCacheStorageInterface &storage,
-                        ImageCacheGeneratorInterface &generator,
-                        TimeStampProviderInterface &timeStampProvider);
+                        ImageCacheStorageInterface &storage);
 
 private:
     void wait();
 
 private:
-    std::deque<Entry> m_entries;
+    std::deque<RequestEntry> m_requestEntries;
     mutable std::mutex m_mutex;
     std::condition_variable m_condition;
     std::thread m_backgroundThread;
     ImageCacheStorageInterface &m_storage;
-    ImageCacheGeneratorInterface &m_generator;
-    TimeStampProviderInterface &m_timeStampProvider;
     bool m_finishing{false};
 };
 
