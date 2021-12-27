@@ -33,7 +33,7 @@ CheckableFileTreeItem::CheckableFileTreeItem(const FilePath &filePath)
     :QStandardItem(filePath.toString())
 {
     Qt::ItemFlags itemFlags = flags();
-    if (isFile())
+    if (!isDir())
         itemFlags |= Qt::ItemIsUserCheckable;
     itemFlags &= ~(Qt::ItemIsEditable | Qt::ItemIsSelectable);
     setFlags(itemFlags);

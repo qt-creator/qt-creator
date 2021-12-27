@@ -32,6 +32,7 @@
 #include <utils/fileutils.h>
 
 #include <QDialog>
+#include <QTextEdit>
 
 
 namespace QmlDesigner {
@@ -39,12 +40,21 @@ namespace GenerateCmake {
 
 class CmakeGeneratorDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
     CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
     Utils::FilePaths getFilePaths();
 
+public slots:
+    void refreshNotificationText();
+
 private:
     CMakeGeneratorDialogTreeModel *m_model;
+    QTextEdit *m_notifications;
+    QVariant m_warningIcon;
+    Utils::FilePath m_rootDir;
+    Utils::FilePaths m_files;
 };
 
 }

@@ -38,6 +38,8 @@ namespace GenerateCmake {
 
 class CMakeGeneratorDialogTreeModel : public QStandardItemModel
 {
+    Q_OBJECT
+
 public:
     CMakeGeneratorDialogTreeModel(const Utils::FilePath &rootDir,
                                   const Utils::FilePaths &files, QObject *parent = nullptr);
@@ -46,9 +48,13 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
 
+    const QList<CheckableFileTreeItem*> items() const;
     const QList<CheckableFileTreeItem*> checkedItems() const;
     const CheckableFileTreeItem* constNodeForIndex(const QModelIndex &index) const;
     CheckableFileTreeItem* nodeForIndex(const QModelIndex &index);
+
+signals:
+    void checkedStateChanged(CheckableFileTreeItem *item);
 
 protected:
     bool checkedByDefault(const Utils::FilePath &file) const;

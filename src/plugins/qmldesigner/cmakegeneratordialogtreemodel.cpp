@@ -27,6 +27,8 @@
 #include "generatecmakelistsconstants.h"
 #include "checkablefiletreeitem.h"
 
+#include <utils/utilsicons.h>
+
 using namespace Utils;
 
 namespace QmlDesigner {
@@ -51,7 +53,7 @@ QVariant CMakeGeneratorDialogTreeModel::data(const QModelIndex &index, int role)
     if (index.isValid()) {
         const CheckableFileTreeItem *node = constNodeForIndex(index);
         if (role == Qt::CheckStateRole) {
-            if (node->isFile())
+            if (!node->isDir())
                 return node->isChecked() ? Qt::Checked : Qt::Unchecked;
             return {};
         }
@@ -60,8 +62,20 @@ QVariant CMakeGeneratorDialogTreeModel::data(const QModelIndex &index, int role)
             return QVariant(fullPath.fileName());
         }
         else if (role == Qt::DecorationRole) {
-            if (!node->isFile())
+            if (node->isFile())
+                return Utils::Icons::WARNING.icon();
+            if (node->isDir())
                 return m_icons->icon(QFileIconProvider::Folder);
+            else
+                return Utils::Icons::NEWFILE.icon();
+        }
+        else if (role == Qt::ToolTipRole) {
+            if (node->isFile())
+                return QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                "This file already exists and will be overwritten.");
+            if (!node->toFilePath().exists())
+                return QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                "This file or folder will be created.");
         }
     }
 
@@ -74,6 +88,7 @@ bool CMakeGeneratorDialogTreeModel::setData(const QModelIndex &index, const QVar
         CheckableFileTreeItem *node = nodeForIndex(index);
         if (role == Qt::CheckStateRole) {
             node->setChecked(value.value<bool>());
+            emit checkedStateChanged(node);
             return true;
         }
     }
@@ -81,17 +96,26 @@ bool CMakeGeneratorDialogTreeModel::setData(const QModelIndex &index, const QVar
     return QStandardItemModel::setData(index, value, role);;
 }
 
+const QList<CheckableFileTreeItem*> CMakeGeneratorDialogTreeModel::items() const
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    QList<QStandardItem*> standardItems = findItems("*", Qt::MatchWildcard | Qt::MatchRecursive);
+#else
+    QList<QStandardItem*> standardItems = findItems(".*", Qt::MatchRegularExpression | Qt::MatchRecursive);
+#endif
+    QList<CheckableFileTreeItem*> checkableItems;
+    for (QStandardItem *item : standardItems)
+        checkableItems.append(static_cast<CheckableFileTreeItem*>(item));
+
+    return checkableItems;
+}
 
 const QList<CheckableFileTreeItem*> CMakeGeneratorDialogTreeModel::checkedItems() const
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    QList<QStandardItem*> allItems = findItems("*", Qt::MatchWildcard);
-#else
-    QList<QStandardItem*> allItems = findItems(".*", Qt::MatchRegularExpression);
-#endif
+    QList<CheckableFileTreeItem*> allItems = items();
+
     QList<CheckableFileTreeItem*> checkedItems;
-    for (QStandardItem *standardItem : allItems) {
-        CheckableFileTreeItem *item = static_cast<CheckableFileTreeItem*>(standardItem);
+    for (CheckableFileTreeItem *item : allItems) {
         if (item->isChecked())
             checkedItems.append(item);
     }
@@ -133,6 +157,8 @@ void CMakeGeneratorDialogTreeModel::createNodes(const FilePaths &candidates, QSt
         if (file.parentDir() == thisDir) {
             CheckableFileTreeItem *fileNode = new CheckableFileTreeItem(file);
             fileNode->setChecked(checkedByDefault(file));
+            if (!file.exists())
+                fileNode->setChecked(true);
             parent->appendRow(fileNode);
         }
     }
