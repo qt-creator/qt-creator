@@ -171,19 +171,6 @@ void static doStat(QFileInfo &fi)
 //            driveInfo.stat();
 }
 
-#ifdef QT_BUILD_INTERNAL
-static QBasicAtomicInt fetchedRoot = Q_BASIC_ATOMIC_INITIALIZER(false);
-Q_AUTOTEST_EXPORT void qt_test_resetFetchedRoot()
-{
-    fetchedRoot.storeRelaxed(false);
-}
-
-Q_AUTOTEST_EXPORT bool qt_test_isFetchedRoot()
-{
-    return fetchedRoot.loadRelaxed();
-}
-#endif
-
 static QString translateDriveName(const QFileInfo &drive)
 {
     QString driveName = drive.absoluteFilePath();
@@ -520,9 +507,6 @@ void FileInfoGatherer::getFileInfos(const QString &path, const QStringList &file
 {
     // List drives
     if (path.isEmpty()) {
-#ifdef QT_BUILD_INTERNAL
-        fetchedRoot.storeRelaxed(true);
-#endif
         QFileInfoList infoList;
         if (files.isEmpty()) {
             infoList = QDir::drives();
