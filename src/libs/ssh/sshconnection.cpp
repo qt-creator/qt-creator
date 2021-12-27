@@ -88,6 +88,9 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
 
 struct SshConnection::SshConnectionPrivate
 {
+    SshConnectionPrivate(const SshConnectionParameters &sshParameters)
+        : connParams(sshParameters) {}
+
     QString fullProcessError()
     {
         QString error;
@@ -149,7 +152,7 @@ struct SshConnection::SshConnectionPrivate
         return connectionOptions(binary) << connParams.host();
     }
 
-    SshConnectionParameters connParams;
+    const SshConnectionParameters connParams;
     SshConnectionInfo connInfo;
     SshProcess masterProcess;
     QString errorString;
@@ -160,11 +163,10 @@ struct SshConnection::SshConnectionPrivate
 
 
 SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject *parent)
-    : QObject(parent), d(new SshConnectionPrivate)
+    : QObject(parent), d(new SshConnectionPrivate(serverInfo))
 {
     qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
     qRegisterMetaType<QList <QSsh::SftpFileInfo> >("QList<QSsh::SftpFileInfo>");
-    d->connParams = serverInfo;
     connect(&d->masterProcess, &QtcProcess::readyReadStandardOutput, [this] {
         const QByteArray reply = d->masterProcess.readAllStandardOutput();
         if (reply == "\n")
