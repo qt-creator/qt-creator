@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include <ssh/sftpdefs.h>
 #include <ssh/sshremoteprocess.h>
-#include <ssh/sshconnection.h>
 
 #include <projectexplorer/runcontrol.h>
 
@@ -86,7 +86,6 @@ private:
     Option m_lastOption = Unknown;
 
     // remote callgrind support
-    QSsh::SshConnection *m_ssh = nullptr;
     Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
     Utils::FilePath m_hostOutputFile; // On the device that runs creator
     QSsh::SftpSessionPtr m_sftp;
