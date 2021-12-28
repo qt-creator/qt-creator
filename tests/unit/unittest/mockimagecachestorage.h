@@ -61,4 +61,8 @@ public:
                 (override));
 
     MOCK_METHOD(void, walCheckpointFull, (), (override));
+    MOCK_METHOD(Sqlite::TimeStamp,
+                fetchModifiedImageTime,
+                (Utils::SmallStringView name),
+                (const, override));
 };

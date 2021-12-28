@@ -40,6 +40,12 @@ public:
         return first.value == second.value;
     }
 
+    friend bool operator!=(TimeStamp first, TimeStamp second) { return !(first == second); }
+
+    bool isValid() const { return value >= 0; }
+
+    long long operator*() { return value; }
+
 public:
     long long value = -1;
 };

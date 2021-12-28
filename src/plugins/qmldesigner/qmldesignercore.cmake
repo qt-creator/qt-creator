@@ -109,6 +109,8 @@ function(extend_with_qmldesigner_core target_name)
 
       imagecache/asynchronousexplicitimagecache.cpp
       imagecache/asynchronousimagecache.cpp
+      imagecache/asynchronousimagefactory.cpp
+      imagecache/asynchronousimagefactory.h
       imagecache/imagecachecollector.cpp
       imagecache/imagecachecollector.h
       imagecache/imagecachecollectorinterface.h

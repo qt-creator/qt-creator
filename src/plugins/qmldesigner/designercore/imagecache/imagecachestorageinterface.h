@@ -52,6 +52,7 @@ public:
         = 0;
     virtual void storeIcon(Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QIcon &icon) = 0;
     virtual void walCheckpointFull() = 0;
+    virtual Sqlite::TimeStamp fetchModifiedImageTime(Utils::SmallStringView name) const = 0;
 
 protected:
     ~ImageCacheStorageInterface() = default;

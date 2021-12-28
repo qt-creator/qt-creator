@@ -160,6 +160,11 @@ public:
         }
     }
 
+    Sqlite::TimeStamp fetchModifiedImageTime(Utils::SmallStringView name) const override
+    {
+        return selectModifiedImageTimeStatement.template valueWithTransaction<Sqlite::TimeStamp>(name);
+    }
+
 private:
     class Initializer
     {
@@ -289,6 +294,8 @@ public:
         "INSERT INTO icons(name, mtime, icon) VALUES (?1, ?2, ?3) ON "
         "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, icon=excluded.icon",
         database};
+    mutable ReadStatement<1, 1> selectModifiedImageTimeStatement{
+        "SELECT mtime FROM images WHERE name=?1", database};
 };
 
 } // namespace QmlDesigner

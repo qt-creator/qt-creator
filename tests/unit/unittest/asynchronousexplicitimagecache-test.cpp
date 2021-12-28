@@ -25,9 +25,7 @@
 
 #include "googletest.h"
 
-#include "mockimagecachegenerator.h"
 #include "mockimagecachestorage.h"
-#include "mocktimestampprovider.h"
 #include "notification.h"
 
 #include <asynchronousexplicitimagecache.h>

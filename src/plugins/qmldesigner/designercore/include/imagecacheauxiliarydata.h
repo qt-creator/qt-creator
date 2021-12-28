@@ -38,9 +38,6 @@ namespace QmlDesigner {
 
 namespace ImageCache {
 
-class NullAuxiliaryData
-{};
-
 class FontCollectorSizeAuxiliaryData
 {
 public:
@@ -57,7 +54,7 @@ public:
     QString text;
 };
 
-using AuxiliaryData = Utils::variant<NullAuxiliaryData, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
+using AuxiliaryData = Utils::variant<Utils::monostate, FontCollectorSizeAuxiliaryData, FontCollectorSizesAuxiliaryData>;
 
 enum class AbortReason : char { Abort, Failed };
 

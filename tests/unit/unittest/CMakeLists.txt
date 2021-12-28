@@ -115,6 +115,7 @@ add_qtc_test(unittest GTEST
     mockimagecachegenerator.h
     mockimagecachestorage.h
     asynchronousexplicitimagecache-test.cpp
+    asynchronousimagefactory-test.cpp
 )
 
 if (NOT TARGET unittest)
@@ -284,6 +285,8 @@ extend_qtc_test(unittest
     exceptions/rewritingexception.cpp
     imagecache/asynchronousexplicitimagecache.cpp
     imagecache/asynchronousimagecache.cpp
+    imagecache/asynchronousimagefactory.cpp
+    imagecache/asynchronousimagefactory.h
     imagecache/imagecachecollectorinterface.h
     imagecache/imagecachegenerator.cpp
     imagecache/imagecachegenerator.h

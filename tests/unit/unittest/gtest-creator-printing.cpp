@@ -363,6 +363,11 @@ std::ostream &operator<<(std::ostream &out, Operation operation)
     return out << toText(operation);
 }
 
+std::ostream &operator<<(std::ostream &out, TimeStamp timeStamp)
+{
+    return out << timeStamp.value;
+}
+
 namespace SessionChangeSetInternal {
 namespace {
 

@@ -57,29 +57,6 @@ protected:
     QIcon icon1{QPixmap::fromImage(image1)};
 };
 
-TEST_F(ImageCacheStorageTest, Initialize)
-{
-    InSequence s;
-
-    EXPECT_CALL(databaseMock, exclusiveBegin());
-    EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE TABLE IF NOT EXISTS images(id INTEGER PRIMARY KEY, name TEXT "
-                           "NOT NULL UNIQUE, mtime INTEGER, image BLOB, smallImage BLOB)")));
-    EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE TABLE IF NOT EXISTS icons(id INTEGER PRIMARY KEY, name TEXT "
-                           "NOT NULL UNIQUE, mtime INTEGER, icon BLOB)")));
-    EXPECT_CALL(databaseMock, commit());
-    EXPECT_CALL(databaseMock, immediateBegin());
-    EXPECT_CALL(databaseMock, prepare(Eq(selectImageStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(selectSmallImageStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(selectIconStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(upsertImageStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(upsertIconStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, commit());
-
-    QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
-}
-
 TEST_F(ImageCacheStorageTest, FetchImageCalls)
 {
     InSequence s;
@@ -448,5 +425,23 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerIcon)
     auto image = storage.fetchIcon("/path/to/component", {122});
 
     ASSERT_THAT(image, Optional(IsIcon(icon1)));
+}
+
+TEST_F(ImageCacheStorageSlowTest, FetchModifiedImageTime)
+{
+    storage.storeImage("/path/to/component", {123}, image1, smallImage1);
+
+    auto timeStamp = storage.fetchModifiedImageTime("/path/to/component");
+
+    ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{123}));
+}
+
+TEST_F(ImageCacheStorageSlowTest, FetchInvalidModifiedImageTimeForNoEntry)
+{
+    storage.storeImage("/path/to/component2", {123}, image1, smallImage1);
+
+    auto timeStamp = storage.fetchModifiedImageTime("/path/to/component");
+
+    ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{}));
 }
 } // namespace
