@@ -343,6 +343,7 @@ extend_qtc_plugin(QmlDesigner
     include/propertybinding.h
     include/qml3dnode.h
     include/qmlvisualnode.h
+
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -350,6 +351,14 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     capturingconnectionmanager.cpp capturingconnectionmanager.h
     interactiveconnectionmanager.cpp interactiveconnectionmanager.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX designercore/imagecache
+  SOURCES
+    explicitimagecacheimageprovider.cpp
+    explicitimagecacheimageprovider.h
+
 )
 
 extend_qtc_plugin(QmlDesigner
