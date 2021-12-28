@@ -42,11 +42,12 @@ class ConfigModel : public Utils::TreeModel<>
 public:
     enum Roles {
         ItemIsAdvancedRole = Qt::UserRole,
+        ItemIsInitialRole
     };
 
     struct DataItem {
         bool operator == (const DataItem& other) const {
-            return key == other.key;
+            return key == other.key && isInitial == other.isInitial;
         }
 
         DataItem() {}
@@ -58,6 +59,7 @@ public:
             inCMakeCache = cmi.inCMakeCache;
 
             isAdvanced = cmi.isAdvanced;
+            isInitial = cmi.isInitial;
             isHidden = cmi.type == CMakeConfigItem::INTERNAL || cmi.type == CMakeConfigItem::STATIC;
 
             setType(cmi.type);
@@ -106,6 +108,7 @@ public:
             }
             cmi.isUnset = isUnset;
             cmi.isAdvanced = isAdvanced;
+            cmi.isInitial = isInitial;
             cmi.values = values;
             cmi.documentation = description.toUtf8();
 
@@ -118,6 +121,7 @@ public:
         Type type = STRING;
         bool isHidden = false;
         bool isAdvanced = false;
+        bool isInitial = false;
         bool inCMakeCache = false;
         bool isUnset = false;
         QString value;
@@ -133,17 +137,21 @@ public:
     void appendConfiguration(const QString &key,
                              const QString &value = QString(),
                              const DataItem::Type type = DataItem::UNKNOWN,
+                             bool isInitial = false,
                              const QString &description = QString(),
                              const QStringList &values = QStringList());
     void setConfiguration(const CMakeConfig &config);
     void setBatchEditConfiguration(const CMakeConfig &config);
+    void setInitialParametersConfiguration(const CMakeConfig &config);
     void setConfiguration(const QList<DataItem> &config);
-    void setConfigurationFromKit(const QHash<QString, QString> &kitConfig);
+
+    using KitConfiguration = QHash<QString, QPair<QString,QString>>;
+    void setConfigurationFromKit(const KitConfiguration &kitConfig);
 
     void flush();
-    void resetAllChanges();
+    void resetAllChanges(bool initialParameters = false);
 
-    bool hasChanges() const;
+    bool hasChanges(bool initialParameters = false) const;
 
     bool canForceTo(const QModelIndex &idx, const DataItem::Type type) const;
     void forceTo(const QModelIndex &idx, const DataItem::Type type);
@@ -175,7 +183,7 @@ private:
 
     void setConfiguration(const QList<InternalDataItem> &config);
     QList<InternalDataItem> m_configuration;
-    QHash<QString, QString> m_kitConfiguration;
+    KitConfiguration m_kitConfiguration;
 
     friend class Internal::ConfigModelTreeItem;
 };

@@ -110,8 +110,10 @@ void FileApiReader::parse(bool forceCMakeRun,
 
     const QStringList args = (forceInitialConfiguration ? m_parameters.initialCMakeArguments
                                                         : QStringList())
-                             + (forceExtraConfiguration ? m_parameters.extraCMakeArguments
-                                                        : QStringList());
+                             + (forceExtraConfiguration
+                                    ? (m_parameters.configurationChangesArguments
+                                       + m_parameters.additionalCMakeArguments)
+                                    : QStringList());
     qCDebug(cmakeFileApiMode) << "Parameters request these CMake arguments:" << args;
 
     const FilePath replyFile = FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory);
@@ -323,12 +325,11 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
     QTC_CHECK(buildDir.ensureWritableDir());
 
     QByteArray contents;
+    QStringList unknownArguments;
     contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
     contents.append(
-        transform(CMakeConfig::fromArguments(configurationArguments).toList(),
-            [](const CMakeConfigItem &item) {
-                return item.toCMakeSetLine(nullptr);
-            })
+        transform(CMakeConfig::fromArguments(configurationArguments, unknownArguments).toList(),
+                  [](const CMakeConfigItem &item) { return item.toCMakeSetLine(nullptr); })
             .join('\n')
             .toUtf8());
 

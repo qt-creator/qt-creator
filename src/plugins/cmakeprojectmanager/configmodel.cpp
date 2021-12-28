@@ -52,6 +52,14 @@ QVariant ConfigModel::data(const QModelIndex &idx, int role) const
         }) != nullptr;
         return hasNormalChildren ? "0" : "1";
     }
+    if (role == ItemIsInitialRole && item->childCount() > 0) {
+        const bool hasInitialChildren = item->findAnyChild([](const Utils::TreeItem *ti) {
+            if (auto cmti = dynamic_cast<const Internal::ConfigModelTreeItem*>(ti))
+                return cmti->dataItem->isInitial;
+            return false;
+        }) != nullptr;
+        return hasInitialChildren ? "1" : "0";
+    }
     return Utils::TreeModel<>::data(idx, role);
 }
 
@@ -59,7 +67,7 @@ ConfigModel::~ConfigModel() = default;
 
 void ConfigModel::appendConfiguration(const QString &key,
                                       const QString &value,
-                                      const ConfigModel::DataItem::Type type,
+                                      const ConfigModel::DataItem::Type type, bool isInitial,
                                       const QString &description,
                                       const QStringList &values)
 {
@@ -67,6 +75,7 @@ void ConfigModel::appendConfiguration(const QString &key,
     item.key = key;
     item.type = type;
     item.value = value;
+    item.isInitial = isInitial;
     item.description = description;
     item.values = values;
 
@@ -74,7 +83,8 @@ void ConfigModel::appendConfiguration(const QString &key,
     internalItem.isUserNew = true;
 
     if (m_kitConfiguration.contains(key))
-        internalItem.kitValue = m_kitConfiguration.value(key);
+        internalItem.kitValue = isInitial ? m_kitConfiguration.value(key).first
+                                          : m_kitConfiguration.value(key).second;
 
     m_configuration.append(internalItem);
     setConfiguration(m_configuration);
@@ -85,13 +95,14 @@ void ConfigModel::setConfiguration(const QList<DataItem> &config)
     setConfiguration(Utils::transform(config, [](const DataItem &di) { return InternalDataItem(di); }));
 }
 
-void ConfigModel::setConfigurationFromKit(const QHash<QString, QString> &kitConfig)
+void ConfigModel::setConfigurationFromKit(const KitConfiguration &kitConfig)
 {
     m_kitConfiguration = kitConfig;
 
     for (InternalDataItem &i : m_configuration) {
         if (m_kitConfiguration.contains(i.key))
-            i.kitValue = m_kitConfiguration.value(i.key);
+            i.kitValue = i.isInitial ? m_kitConfiguration.value(i.key).first
+                                     : m_kitConfiguration.value(i.key).second;
     }
     setConfiguration(m_configuration);
 }
@@ -101,24 +112,36 @@ void ConfigModel::flush()
     setConfiguration(QList<InternalDataItem>());
 }
 
-void ConfigModel::resetAllChanges()
+void ConfigModel::resetAllChanges(bool initialParameters)
 {
-    const QList<InternalDataItem> tmp
+    QList<InternalDataItem> notNew
             = Utils::filtered(m_configuration,
                               [](const InternalDataItem &i) { return !i.isUserNew; });
 
-    setConfiguration(Utils::transform(tmp, [](const InternalDataItem &i) {
+    notNew = Utils::transform(notNew, [](const InternalDataItem &i) {
         InternalDataItem ni(i);
         ni.newValue.clear();
         ni.isUserChanged = false;
         ni.isUnset = false;
         return ni;
+    });
+
+    // add the changes from the other list, which shouldn't get reset
+    notNew.append(Utils::filtered(m_configuration, [initialParameters](const InternalDataItem &i) {
+        return !(initialParameters ? i.isInitial : !i.isInitial) && i.isUserNew;
     }));
+
+    setConfiguration(notNew);
 }
 
-bool ConfigModel::hasChanges() const
+bool ConfigModel::hasChanges(bool initialParameters) const
 {
-    return Utils::contains(m_configuration, [](const InternalDataItem &i) {
+    const QList<InternalDataItem> filtered
+        = Utils::filtered(m_configuration, [initialParameters](const InternalDataItem &i) {
+              return initialParameters ? i.isInitial : !i.isInitial;
+          });
+
+    return Utils::contains(filtered, [initialParameters](const InternalDataItem &i) {
         return i.isUserChanged || i.isUserNew || i.isUnset;
     });
 }
@@ -177,6 +200,7 @@ ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
         di.type = cmti->dataItem->type;
         di.isHidden = cmti->dataItem->isHidden;
         di.isAdvanced = cmti->dataItem->isAdvanced;
+        di.isInitial = cmti->dataItem->isInitial;
         di.inCMakeCache = cmti->dataItem->inCMakeCache;
         di.value = cmti->dataItem->currentValue();
         di.description = cmti->dataItem->description;
@@ -229,6 +253,19 @@ void ConfigModel::setBatchEditConfiguration(const CMakeConfig &config)
         }
     }
 
+    generateTree();
+}
+
+void ConfigModel::setInitialParametersConfiguration(const CMakeConfig &config)
+{
+    for (const auto &c: config) {
+        DataItem di(c);
+        InternalDataItem i(di);
+        i.inCMakeCache = true;
+        i.isInitial = true;
+        i.newValue = di.value;
+        m_configuration.append(i);
+    }
     generateTree();
 }
 
@@ -331,8 +368,14 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
     }
 
     // Leaf node:
-    if (role == ConfigModel::ItemIsAdvancedRole)
+    if (role == ConfigModel::ItemIsAdvancedRole) {
+        if (dataItem->isInitial)
+            return "2";
         return dataItem->isAdvanced ? "1" : "0";
+    }
+    if (role == ConfigModel::ItemIsInitialRole) {
+        return dataItem->isInitial ? "1" : "0";
+    }
 
     switch (column) {
     case 0:

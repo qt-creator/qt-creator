@@ -64,7 +64,8 @@ public:
     static bool less(const CMakeConfigItem &a, const CMakeConfigItem &b);
     static CMakeConfigItem fromString(const QString &s);
     QString toString(const Utils::MacroExpander *expander = nullptr) const;
-    QString toArgument(const Utils::MacroExpander *expander = nullptr) const;
+    QString toArgument() const;
+    QString toArgument(const Utils::MacroExpander *expander) const;
     QString toCMakeSetLine(const Utils::MacroExpander *expander = nullptr) const;
 
     bool operator==(const CMakeConfigItem &o) const;
@@ -75,6 +76,7 @@ public:
     bool isAdvanced = false;
     bool inCMakeCache = false;
     bool isUnset = false;
+    bool isInitial = false;
     QByteArray value; // converted to string as needed
     QByteArray documentation;
     QStringList values;
@@ -89,7 +91,7 @@ public:
 
     const QList<CMakeConfigItem> &toList() const { return *this; }
 
-    static CMakeConfig fromArguments(const QStringList &list);
+    static CMakeConfig fromArguments(const QStringList &list, QStringList &unknownArguments);
     static CMakeConfig fromFile(const Utils::FilePath &input, QString *errorMessage);
 
     QByteArray valueOf(const QByteArray &key) const;

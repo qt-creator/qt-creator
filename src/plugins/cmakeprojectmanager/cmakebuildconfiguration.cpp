@@ -35,6 +35,7 @@
 #include "cmakespecificsettings.h"
 #include "configmodel.h"
 #include "configmodelitemdelegate.h"
+#include "fileapiparser.h"
 
 #include <android/androidconstants.h>
 #include <docker/dockerconstants.h>
@@ -119,16 +120,21 @@ private:
     void updateButtonState();
     void updateAdvancedCheckBox();
     void updateFromKit();
+    void updateConfigurationStateIndex(int index);
     CMakeProjectManager::CMakeConfig getQmlDebugCxxFlags();
     CMakeProjectManager::CMakeConfig getSigningFlagsChanges();
 
     void updateSelection();
+    void updateConfigurationStateSelection();
+    bool isInitialConfiguration() const;
     void setVariableUnsetFlag(bool unsetFlag);
     QAction *createForceAction(int type, const QModelIndex &idx);
 
     bool eventFilter(QObject *target, QEvent *event) override;
 
     void batchEditConfiguration();
+    void reconfigureWithInitialParameters(CMakeBuildConfiguration *bc);
+    void updateInitialCMakeArguments();
 
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
@@ -142,6 +148,7 @@ private:
     QPushButton *m_unsetButton;
     QPushButton *m_resetButton;
     QCheckBox *m_showAdvancedCheckBox;
+    QTabBar *m_configurationStates;
     QPushButton *m_reconfigureButton;
     QTimer m_showProgressTimer;
     FancyLineEdit *m_filterEdit;
@@ -188,34 +195,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configModel->flush(); // clear out config cache...;
     });
 
-    auto clearCMakeConfiguration = new QPushButton(tr("Re-configure with Initial Parameters"));
-    connect(clearCMakeConfiguration, &QPushButton::clicked, this, [bc]() {
-        auto *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
-        bool doNotAsk = !settings->askBeforeReConfigureInitialParams.value();
-        if (!doNotAsk) {
-            QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
-                Core::ICore::dialogParent(),
-                tr("Re-configure with Initial Parameters"),
-                tr("Clear CMake configuration and configure with initial parameters?"),
-                tr("Do not ask again"),
-                &doNotAsk,
-                QDialogButtonBox::Yes | QDialogButtonBox::No,
-                QDialogButtonBox::Yes);
-
-            settings->askBeforeReConfigureInitialParams.setValue(!doNotAsk);
-            settings->writeSettings(Core::ICore::settings());
-
-            if (reply != QDialogButtonBox::Yes) {
-                return;
-            }
-        }
-
-        auto cbc = static_cast<CMakeBuildSystem*>(bc->buildSystem());
-        cbc->clearCMakeCache();
-        if (ProjectExplorerPlugin::saveModifiedFiles())
-            cbc->runCMake();
-    });
-
     auto buildTypeAspect = bc->aspect<BuildTypeAspect>();
     connect(buildTypeAspect, &BaseAspect::changed, this, [this, buildTypeAspect]() {
         if (!m_buildConfiguration->isMultiConfig()) {
@@ -233,6 +212,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     m_warningMessageLabel = new InfoLabel({}, InfoLabel::Warning);
     m_warningMessageLabel->setVisible(false);
+
+    m_configurationStates = new QTabBar(this);
+    m_configurationStates->addTab(tr("Initial Configuration"));
+    m_configurationStates->addTab(tr("Current Configuration"));
+    connect(m_configurationStates, &QTabBar::currentChanged, this, [this](int index) {
+        updateConfigurationStateIndex(index);
+    });
 
     m_filterEdit = new FancyLineEdit;
     m_filterEdit->setPlaceholderText(tr("Filter"));
@@ -318,7 +304,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
                 updateSelection();
     });
 
-    m_reconfigureButton = new QPushButton(tr("Apply Configuration Changes"));
+    m_reconfigureButton = new QPushButton(tr("Run CMake"));
     m_reconfigureButton->setEnabled(false);
 
     using namespace Layouting;
@@ -342,14 +328,19 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         Form {
             buildDirAspect,
             bc->aspect<BuildTypeAspect>(),
-            bc->aspect<InitialCMakeArgumentsAspect>(),
-            QString(), clearCMakeConfiguration, Break(),
             qmlDebugAspect
         },
         m_warningMessageLabel,
         Space(10),
-        cmakeConfiguration,
-        m_reconfigureButton,
+        m_configurationStates,
+        Group {
+            cmakeConfiguration,
+            Row {
+                bc->aspect<InitialCMakeArgumentsAspect>(),
+                bc->aspect<AdditionalCMakeArgumentsAspect>()
+            },
+            m_reconfigureButton,
+        }
     }.attachTo(details, false);
 
     updateAdvancedCheckBox();
@@ -366,22 +357,36 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.start();
     else {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
+        m_configModel->setInitialParametersConfiguration(
+            m_buildConfiguration->initialCMakeConfiguration());
         m_configView->expandAll();
     }
 
     connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, [this, stretcher] {
+        m_configModel->flush();
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
+        m_configModel->setInitialParametersConfiguration(
+            m_buildConfiguration->initialCMakeConfiguration());
+        m_buildConfiguration->filterConfigArgumentsFromAdditionalCMakeArguments();
         m_configView->expandAll();
         m_configView->setEnabled(true);
         stretcher->stretch();
         updateButtonState();
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
+        updateConfigurationStateSelection();
     });
+
+    auto cbc = static_cast<CMakeBuildSystem *>(bc->buildSystem());
+    connect(cbc, &CMakeBuildSystem::configurationCleared, this, [this]() {
+        updateConfigurationStateSelection();
+    });
+
     connect(m_buildConfiguration, &CMakeBuildConfiguration::errorOccurred,
             this, [this]() {
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
+        updateConfigurationStateSelection();
     });
     connect(m_configTextFilterModel, &QAbstractItemModel::modelReset, this, [this, stretcher]() {
         m_configView->expandAll();
@@ -410,11 +415,17 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
                                        QRegularExpression::CaseInsensitiveOption));
             });
 
-    connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
-    connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
+    connect(m_resetButton, &QPushButton::clicked, this, [this](){
+        m_configModel->resetAllChanges(isInitialConfiguration());
+    });
+    connect(m_reconfigureButton, &QPushButton::clicked, this, [this, bc]() {
         auto buildSystem = static_cast<CMakeBuildSystem *>(m_buildConfiguration->buildSystem());
         if (!buildSystem->isParsing()) {
-            buildSystem->runCMakeWithExtraArguments();
+            if (isInitialConfiguration()) {
+                reconfigureWithInitialParameters(bc);
+            } else {
+                buildSystem->runCMakeWithExtraArguments();
+            }
         } else {
             buildSystem->stopCMakeRun();
             m_reconfigureButton->setEnabled(false);
@@ -438,7 +449,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         if (type == ConfigModel::DataItem::BOOLEAN)
             value = QString::fromLatin1("OFF");
 
-        m_configModel->appendConfiguration(tr("<UNSET>"), value, type);
+        m_configModel->appendConfiguration(tr("<UNSET>"), value, type, isInitialConfiguration());
         const TreeItem *item = m_configModel->findNonRootItem([&value, type](TreeItem *item) {
                 ConfigModel::DataItem dataItem = ConfigModel::dataItemFromIndex(item->index());
                 return dataItem.key == tr("<UNSET>") && dataItem.type == type && dataItem.value == value;
@@ -466,12 +477,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, [this]() {
         if (m_buildConfiguration->isEnabled())
             setError(QString());
-
-        m_batchEditButton->setEnabled(m_buildConfiguration->isEnabled());
-        m_addButton->setEnabled(m_buildConfiguration->isEnabled());
     });
 
     updateSelection();
+    updateConfigurationStateSelection();
 }
 
 
@@ -511,14 +520,82 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
                                            [expander](const QString &s) {
                                                return expander->expand(s);
                                            });
-        const CMakeConfig config = CMakeConfig::fromArguments(expandedLines);
+        const bool isInitial = isInitialConfiguration();
+        QStringList unknownArguments;
+        CMakeConfig config = CMakeConfig::fromArguments(isInitial ? lines : expandedLines,
+                                                        unknownArguments);
+        for (auto &ci : config)
+            ci.isInitial = isInitial;
 
         m_configModel->setBatchEditConfiguration(config);
     });
 
-    editor->setPlainText(m_buildConfiguration->configurationChangesArguments().join('\n'));
+    editor->setPlainText(
+        m_buildConfiguration->configurationChangesArguments(isInitialConfiguration())
+            .join('\n'));
 
     dialog->show();
+}
+
+void CMakeBuildSettingsWidget::reconfigureWithInitialParameters(CMakeBuildConfiguration *bc)
+{
+    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    bool doNotAsk = !settings->askBeforeReConfigureInitialParams.value();
+    if (!doNotAsk) {
+        QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
+            Core::ICore::dialogParent(),
+            tr("Re-configure with Initial Parameters"),
+            tr("Clear CMake configuration and configure with initial parameters?"),
+            tr("Do not ask again"),
+            &doNotAsk,
+            QDialogButtonBox::Yes | QDialogButtonBox::No,
+            QDialogButtonBox::Yes);
+
+        settings->askBeforeReConfigureInitialParams.setValue(!doNotAsk);
+        settings->writeSettings(Core::ICore::settings());
+
+        if (reply != QDialogButtonBox::Yes) {
+            return;
+        }
+    }
+
+    auto cbc = static_cast<CMakeBuildSystem*>(bc->buildSystem());
+    cbc->clearCMakeCache();
+
+    updateInitialCMakeArguments();
+
+    if (ProjectExplorerPlugin::saveModifiedFiles())
+        cbc->runCMake();
+}
+
+void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
+{
+    CMakeConfig initialList = m_buildConfiguration->initialCMakeConfiguration();
+
+    for (const CMakeConfigItem &ci : m_buildConfiguration->configurationChanges()) {
+        if (!ci.isInitial)
+            continue;
+        auto it = std::find_if(initialList.begin(),
+                               initialList.end(),
+                               [ci](const CMakeConfigItem &item) {
+                                   return item.key == ci.key;
+                               });
+        if (it != initialList.end()) {
+            *it = ci;
+            if (ci.isUnset)
+                initialList.erase(it);
+        } else {
+            initialList.push_back(ci);
+        }
+    }
+
+    m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setCMakeConfiguration(initialList);
+
+    // value() will contain only the unknown arguments (the non -D/-U arguments)
+    // As the user would expect to have e.g. "--preset" from "Initial Configuration"
+    // to "Current Configuration" as additional parameters
+    m_buildConfiguration->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
+        m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->value()));
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
@@ -548,6 +625,7 @@ void CMakeBuildSettingsWidget::updateButtonState()
                 ni.value = i.value.toUtf8();
                 ni.documentation = i.description.toUtf8();
                 ni.isAdvanced = i.isAdvanced;
+                ni.isInitial = i.isInitial;
                 ni.isUnset = i.isUnset;
                 ni.inCMakeCache = i.inCMakeCache;
                 ni.values = i.values;
@@ -572,30 +650,49 @@ void CMakeBuildSettingsWidget::updateButtonState()
                 return ni;
             });
 
-    m_resetButton->setEnabled(m_configModel->hasChanges() && !isParsing);
-    m_reconfigureButton->setEnabled(true);
+    const bool isInitial = isInitialConfiguration();
+    m_resetButton->setEnabled(m_configModel->hasChanges(isInitial) && !isParsing);
 
-    if (isParsing)
+    m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setVisible(isInitialConfiguration());
+    m_buildConfiguration->aspect<AdditionalCMakeArgumentsAspect>()->setVisible(!isInitialConfiguration());
+
+    m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setEnabled(!isParsing);
+    m_buildConfiguration->aspect<AdditionalCMakeArgumentsAspect>()->setEnabled(!isParsing);
+
+    // Update label and text boldness of the reconfigure button
+    QFont reconfigureButtonFont = m_reconfigureButton->font();
+    if (isParsing) {
         m_reconfigureButton->setText(tr("Stop CMake"));
-    else if (m_configModel->hasChanges())
-        m_reconfigureButton->setText(tr("Apply Configuration Changes"));
-    else
-        m_reconfigureButton->setText(tr("Run CMake"));
+        reconfigureButtonFont.setBold(false);
+    } else {
+        m_reconfigureButton->setEnabled(true);
+        if (isInitial) {
+            m_reconfigureButton->setText(tr("Re-configure with Initial Parameters"));
+        } else {
+            m_reconfigureButton->setText(tr("Run CMake"));
+        }
+        reconfigureButtonFont.setBold(m_configModel->hasChanges(isInitial));
+    }
+    m_reconfigureButton->setFont(reconfigureButtonFont);
 
     m_buildConfiguration->setConfigurationChanges(configChanges);
+
+    // Update the tooltip with the changes
+    m_reconfigureButton->setToolTip(
+        m_buildConfiguration->configurationChangesArguments(isInitialConfiguration()).join('\n'));
 }
 
 void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 {
     if (m_showAdvancedCheckBox->isChecked()) {
-        m_configFilterModel->setSourceModel(nullptr);
-        m_configTextFilterModel->setSourceModel(m_configModel);
+        m_configFilterModel->setFilterRole(ConfigModel::ItemIsAdvancedRole);
+        m_configFilterModel->setFilterRegularExpression("[01]");
 
     } else {
-        m_configTextFilterModel->setSourceModel(nullptr);
-        m_configFilterModel->setSourceModel(m_configModel);
-        m_configTextFilterModel->setSourceModel(m_configFilterModel);
+        m_configFilterModel->setFilterRole(ConfigModel::ItemIsAdvancedRole);
+        m_configFilterModel->setFilterFixedString("0");
     }
+    updateButtonState();
 }
 
 void CMakeBuildSettingsWidget::updateFromKit()
@@ -603,11 +700,26 @@ void CMakeBuildSettingsWidget::updateFromKit()
     const Kit *k = m_buildConfiguration->kit();
     const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
 
-    QHash<QString, QString> configHash;
+    ConfigModel::KitConfiguration configHash;
     for (const CMakeConfigItem &i : config)
-        configHash.insert(QString::fromUtf8(i.key), i.expandedValue(k));
+        configHash.insert(QString::fromUtf8(i.key),
+                          qMakePair(QString::fromUtf8(i.value), i.expandedValue(k)));
 
     m_configModel->setConfigurationFromKit(configHash);
+}
+
+void CMakeBuildSettingsWidget::updateConfigurationStateIndex(int index)
+{
+    if (index == 0) {
+        m_configFilterModel->setFilterRole(ConfigModel::ItemIsInitialRole);
+        m_configFilterModel->setFilterFixedString("1");
+    } else {
+        updateAdvancedCheckBox();
+    }
+
+    m_showAdvancedCheckBox->setEnabled(index != 0);
+
+    updateButtonState();
 }
 
 CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
@@ -693,6 +805,23 @@ void CMakeBuildSettingsWidget::updateSelection()
     m_editButton->setEnabled(editableCount == 1);
 }
 
+void CMakeBuildSettingsWidget::updateConfigurationStateSelection()
+{
+    const bool hasReplyFile
+        = FileApiParser::scanForCMakeReplyFile(m_buildConfiguration->buildDirectory()).exists();
+
+    const int switchToIndex = hasReplyFile ? 1 : 0;
+    if (m_configurationStates->currentIndex() != switchToIndex)
+        m_configurationStates->setCurrentIndex(switchToIndex);
+    else
+        emit m_configurationStates->currentChanged(switchToIndex);
+}
+
+bool CMakeBuildSettingsWidget::isInitialConfiguration() const
+{
+    return m_configurationStates->currentIndex() == 0;
+}
+
 void CMakeBuildSettingsWidget::setVariableUnsetFlag(bool unsetFlag)
 {
     const QModelIndexList selectedIndexes = m_configView->selectionModel()->selectedIndexes();
@@ -771,10 +900,11 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
             return index.isValid() && index.flags().testFlag(Qt::ItemIsSelectable);
         });
 
-        const QStringList variableList = Utils::transform(validIndexes, [this](const QModelIndex &index) {
-            return ConfigModel::dataItemFromIndex(index)
-                    .toCMakeConfigItem().toArgument(m_buildConfiguration->macroExpander());
-        });
+        const QStringList variableList
+            = Utils::transform(validIndexes, [this](const QModelIndex &index) {
+                  return ConfigModel::dataItemFromIndex(index).toCMakeConfigItem().toArgument(
+                      isInitialConfiguration() ? nullptr : m_buildConfiguration->macroExpander());
+              });
 
         QApplication::clipboard()->setText(variableList.join('\n'), QClipboard::Clipboard);
     });
@@ -887,7 +1017,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         });
 
     auto initialCMakeArgumentsAspect = addAspect<InitialCMakeArgumentsAspect>();
-    initialCMakeArgumentsAspect->setMacroExpanderProvider([this]{ return macroExpander(); });
+    initialCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
+
+    auto additionalCMakeArgumentsAspect = addAspect<AdditionalCMakeArgumentsAspect>();
+    additionalCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
+
     macroExpander()->registerVariable(DEVELOPMENT_TEAM_FLAG,
                                       tr("The CMake flag for the development team"),
                                       [this] {
@@ -1126,15 +1260,23 @@ CMakeConfig CMakeBuildConfiguration::configurationChanges() const
     return m_configurationChanges;
 }
 
-QStringList CMakeBuildConfiguration::configurationChangesArguments() const
+QStringList CMakeBuildConfiguration::configurationChangesArguments(bool initialParameters) const
 {
-    return Utils::transform(m_configurationChanges.toList(),
-                            [](const CMakeConfigItem &i) { return i.toArgument(); });
+    const QList<CMakeConfigItem> filteredInitials
+        = Utils::filtered(m_configurationChanges, [initialParameters](const CMakeConfigItem &ci) {
+              return initialParameters ? ci.isInitial : !ci.isInitial;
+          });
+    return Utils::transform(filteredInitials, &CMakeConfigItem::toArgument);
 }
 
 QStringList CMakeBuildConfiguration::initialCMakeArguments() const
 {
-    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n', Qt::SkipEmptyParts);
+    return aspect<InitialCMakeArgumentsAspect>()->allValues();
+}
+
+CMakeConfig CMakeBuildConfiguration::initialCMakeConfiguration() const
+{
+    return aspect<InitialCMakeArgumentsAspect>()->cmakeConfiguration();
 }
 
 void CMakeBuildConfiguration::setConfigurationFromCMake(const CMakeConfig &config)
@@ -1170,7 +1312,43 @@ void CMakeBuildConfiguration::clearError(ForceEnabledChanged fec)
 
 void CMakeBuildConfiguration::setInitialCMakeArguments(const QStringList &args)
 {
-    aspect<InitialCMakeArgumentsAspect>()->setValue(args.join('\n'));
+    QStringList additionalArguments;
+    aspect<InitialCMakeArgumentsAspect>()->setAllValues(args.join('\n'), additionalArguments);
+
+    // Set the unknown additional arguments also for the "Current Configuration"
+    setAdditionalCMakeArguments(additionalArguments);
+}
+
+QStringList CMakeBuildConfiguration::additionalCMakeArguments() const
+{
+    return ProcessArgs::splitArgs(aspect<AdditionalCMakeArgumentsAspect>()->value());
+}
+
+void CMakeBuildConfiguration::setAdditionalCMakeArguments(const QStringList &args)
+{
+    const QStringList expandedAdditionalArguments = Utils::transform(args, [this](const QString &s) {
+        return macroExpander()->expand(s);
+    });
+    const QStringList nonEmptyAdditionalArguments = Utils::filtered(expandedAdditionalArguments,
+                                                                    [](const QString &s) {
+                                                                        return !s.isEmpty();
+                                                                    });
+    aspect<AdditionalCMakeArgumentsAspect>()->setValue(
+        ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
+}
+
+void CMakeBuildConfiguration::filterConfigArgumentsFromAdditionalCMakeArguments()
+{
+    // On iOS the %{Ios:DevelopmentTeam:Flag} evalues to something like
+    // -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM:STRING=MAGICSTRING
+    // which is already part of the CMake variables and should not be also
+    // in the addtional CMake parameters
+    const QStringList arguments = ProcessArgs::splitArgs(
+        aspect<AdditionalCMakeArgumentsAspect>()->value());
+    QStringList unknownArguments;
+    const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownArguments);
+
+    aspect<AdditionalCMakeArgumentsAspect>()->setValue(ProcessArgs::joinArgs(unknownArguments));
 }
 
 void CMakeBuildConfiguration::setError(const QString &message)
@@ -1346,9 +1524,10 @@ FilePath CMakeBuildConfiguration::sourceDirectory() const
 
 QString CMakeBuildConfiguration::cmakeBuildType() const
 {
-    auto setBuildTypeFromConfig = [this](const CMakeConfig &config){
-        auto it = std::find_if(config.begin(), config.end(),
-                            [](const CMakeConfigItem &item) { return item.key == "CMAKE_BUILD_TYPE";});
+    auto setBuildTypeFromConfig = [this](const CMakeConfig &config) {
+        auto it = std::find_if(config.begin(), config.end(), [](const CMakeConfigItem &item) {
+            return item.key == "CMAKE_BUILD_TYPE" && !item.isInitial;
+        });
         if (it != config.end())
             const_cast<CMakeBuildConfiguration*>(this)
                 ->setCMakeBuildType(QString::fromUtf8(it->value));
@@ -1370,10 +1549,10 @@ QString CMakeBuildConfiguration::cmakeBuildType() const
             QString errorMessage;
             config = CMakeBuildSystem::parseCMakeCacheDotTxt(cmakeCacheTxt, &errorMessage);
         } else {
-            config = CMakeConfig::fromArguments(initialCMakeArguments());
+            config = initialCMakeConfiguration();
         }
     } else if (!hasCMakeCache) {
-        config = CMakeConfig::fromArguments(initialCMakeArguments());
+        config = initialCMakeConfiguration();
     }
 
     if (!config.isEmpty() && !isMultiConfig())
@@ -1408,11 +1587,74 @@ namespace Internal {
 // - InitialCMakeParametersAspect:
 // ----------------------------------------------------------------------
 
+const CMakeConfig &InitialCMakeArgumentsAspect::cmakeConfiguration() const
+{
+    return m_cmakeConfiguration;
+}
+
+const QStringList InitialCMakeArgumentsAspect::allValues() const
+{
+    QStringList initialCMakeArguments = Utils::transform(m_cmakeConfiguration.toList(),
+                                                         [](const CMakeConfigItem &ci) {
+                                                             return ci.toArgument(nullptr);
+                                                         });
+
+    initialCMakeArguments.append(ProcessArgs::splitArgs(value()));
+
+    return initialCMakeArguments;
+}
+
+void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringList &additionalArguments)
+{
+    QStringList arguments = values.split('\n', Qt::SkipEmptyParts);
+    for (QString &arg: arguments) {
+        if (arg.startsWith("-G"))
+            arg.replace("-G", "-DCMAKE_GENERATOR:STRING=");
+        if (arg.startsWith("-A"))
+            arg.replace("-A", "-DCMAKE_GENERATOR_PLATFORM:STRING=");
+        if (arg.startsWith("-T"))
+            arg.replace("-T", "-DCMAKE_GENERATOR_TOOLSET:STRING=");
+    }
+    m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalArguments);
+
+    // Display the unknown arguments in "Additional CMake parameters"
+    const QString additionalArgumentsValue = ProcessArgs::joinArgs(additionalArguments);
+    BaseAspect::setValueQuietly(additionalArgumentsValue);
+}
+
+void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &config)
+{
+    m_cmakeConfiguration = config;
+}
+
+void InitialCMakeArgumentsAspect::fromMap(const QVariantMap &map)
+{
+    const QString value = map.value(settingsKey(), defaultValue()).toString();
+    QStringList additionalArguments;
+    setAllValues(value, additionalArguments);
+}
+
+void InitialCMakeArgumentsAspect::toMap(QVariantMap &map) const
+{
+    saveToMap(map, allValues().join('\n'), defaultValue(), settingsKey());
+}
+
 InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
 {
     setSettingsKey("CMake.Initial.Parameters");
-    setLabelText(tr("Initial CMake parameters:"));
-    setDisplayStyle(TextEditDisplay);
+    setLabelText(tr("Additional CMake parameters:"));
+    setDisplayStyle(LineEditDisplay);
+}
+
+// ----------------------------------------------------------------------
+// - AdditionalCMakeParametersAspect:
+// ----------------------------------------------------------------------
+
+AdditionalCMakeArgumentsAspect::AdditionalCMakeArgumentsAspect()
+{
+    setSettingsKey("CMake.Additional.Parameters");
+    setLabelText(tr("Additional CMake parameters:"));
+    setDisplayStyle(LineEditDisplay);
 }
 
 // -----------------------------------------------------------------------------

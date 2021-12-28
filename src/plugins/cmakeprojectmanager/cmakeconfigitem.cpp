@@ -310,7 +310,7 @@ static CMakeConfigItem unsetItemFromString(const QString &input)
     return item;
 }
 
-CMakeConfig CMakeConfig::fromArguments(const QStringList &list)
+CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unknownArguments)
 {
     CMakeConfig result;
     bool inSet = false;
@@ -340,8 +340,10 @@ CMakeConfig CMakeConfig::fromArguments(const QStringList &list)
         }
         if (i.startsWith("-D")) {
             result.append(setItemFromString(i.mid(2)));
+            continue;
         }
-        // ignore everything else as that does not define a configuration option
+
+        unknownArguments.append(i);
     }
     return result;
 }
@@ -446,6 +448,11 @@ QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const
     return QString::fromUtf8(key) + QLatin1Char(':') + typeStr + QLatin1Char('=') + expandedValue;
 }
 
+QString CMakeConfigItem::toArgument() const
+{
+    return toArgument(nullptr);
+}
+
 QString CMakeConfigItem::toArgument(const Utils::MacroExpander *expander) const
 {
     if (isUnset)
@@ -468,12 +475,12 @@ QString CMakeConfigItem::toCMakeSetLine(const Utils::MacroExpander *expander) co
 bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const
 {
     // type, isAdvanced and documentation do not matter for a match!
-    return o.key == key && o.value == value && o.isUnset == isUnset;
+    return o.key == key && o.value == value && o.isUnset == isUnset && o.isInitial == isInitial;
 }
 
 Utils::QHashValueType qHash(const CMakeConfigItem &it)
 {
-    return ::qHash(it.key) ^ ::qHash(it.value) ^ ::qHash(it.isUnset);
+    return ::qHash(it.key) ^ ::qHash(it.value) ^ ::qHash(it.isUnset) ^ ::qHash(it.isInitial);
 }
 
 #if WITH_TESTS

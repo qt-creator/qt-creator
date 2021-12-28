@@ -264,7 +264,7 @@ void CMakeBuildSystem::triggerParsing()
     }
 
     if ((0 == (reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION))
-        && mustApplyExtraArguments(m_parameters)) {
+        && mustApplyConfigurationChangesArguments(m_parameters)) {
         reparseParameters |= REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION;
     }
 
@@ -395,16 +395,17 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     }
 }
 
-bool CMakeBuildSystem::mustApplyExtraArguments(const BuildDirParameters &parameters) const
+bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters) const
 {
-    if (parameters.extraCMakeArguments.isEmpty())
+    if (parameters.configurationChangesArguments.isEmpty())
         return false;
 
     auto answer = QMessageBox::question(Core::ICore::mainWindow(),
                                         tr("Apply configuration changes?"),
                                         "<p>" + tr("Run CMake with configuration changes?")
                                             + "</p><pre>"
-                                            + parameters.extraCMakeArguments.join("\n") + "</pre>",
+                                            + parameters.configurationChangesArguments.join("\n")
+                                            + "</pre>",
                                         QMessageBox::Apply | QMessageBox::Discard,
                                         QMessageBox::Apply);
     return answer == QMessageBox::Apply;
@@ -437,7 +438,7 @@ void CMakeBuildSystem::runCMakeWithExtraArguments()
 void CMakeBuildSystem::stopCMakeRun()
 {
     qCDebug(cmakeBuildSystemLog) << cmakeBuildConfiguration()->displayName()
-                                 << "stopping CMake's runb";
+                                 << "stopping CMake's run";
     m_reader.stopCMakeRun();
 }
 
@@ -459,10 +460,10 @@ bool CMakeBuildSystem::persistCMakeState()
     int reparseFlags = REPARSE_DEFAULT;
     qCDebug(cmakeBuildSystemLog) << "Checking whether build system needs to be persisted:"
                                  << "buildDir:" << parameters.buildDirectory
-                                 << "Has extraargs:" << !parameters.extraCMakeArguments.isEmpty();
+                                 << "Has extraargs:" << !parameters.configurationChangesArguments.isEmpty();
 
     if (parameters.buildDirectory == parameters.buildDirectory
-        && mustApplyExtraArguments(parameters)) {
+        && mustApplyConfigurationChangesArguments(parameters)) {
         reparseFlags = REPARSE_FORCE_EXTRA_CONFIGURATION;
         qCDebug(cmakeBuildSystemLog) << "   -> must run CMake with extra arguments.";
     }
@@ -497,6 +498,8 @@ void CMakeBuildSystem::clearCMakeCache()
 
     for (const FilePath &path : pathsToDelete)
         path.removeRecursively();
+
+    emit configurationCleared();
 }
 
 void CMakeBuildSystem::combineScanAndParse(bool restoredFromBackup)
@@ -730,6 +733,8 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
     if (!errorMessage.isEmpty()) {
         const CMakeConfig changes = cmakeBuildConfiguration()->configurationChanges();
         for (const auto &ci : changes) {
+            if (ci.isInitial)
+                continue;
             const bool haveConfigItem = Utils::contains(cmakeConfig, [ci](const CMakeConfigItem& i) {
                 return i.key == ci.key;
             });
@@ -1252,8 +1257,8 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
 void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 {
     const CMakeConfig &cm = cmakeBuildConfiguration()->configurationFromCMake();
-    const CMakeConfig &initialConfig =
-            CMakeConfig::fromArguments(cmakeBuildConfiguration()->initialCMakeArguments());
+    const CMakeConfig &initialConfig
+        = cmakeBuildConfiguration()->initialCMakeConfiguration();
 
     CMakeConfig config;
 
@@ -1280,7 +1285,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
     };
     for (const auto &var : singlePathList) {
         auto it = std::find_if(cm.cbegin(), cm.cend(), [var](const CMakeConfigItem &item) {
-            return item.key == var;
+            return item.key == var && !item.isInitial;
         });
 
         if (it != cm.cend()) {
@@ -1304,7 +1309,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
     };
     for (const auto &var : multiplePathList) {
         auto it = std::find_if(cm.cbegin(), cm.cend(), [var](const CMakeConfigItem &item) {
-            return item.key == var;
+            return item.key == var && !item.isInitial;
         });
 
         if (it != cm.cend()) {

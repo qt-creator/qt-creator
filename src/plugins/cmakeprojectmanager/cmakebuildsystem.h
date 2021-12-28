@@ -108,6 +108,9 @@ public:
 
     CMakeProject *project() const;
 
+signals:
+    void configurationCleared();
+
 private:
     // Actually ask for parsing:
     enum ReparseParameters {
@@ -123,7 +126,7 @@ private:
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       const int reparseParameters);
 
-    bool mustApplyExtraArguments(const BuildDirParameters &parameters) const;
+    bool mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters) const;
 
     // State handling:
     // Parser states:

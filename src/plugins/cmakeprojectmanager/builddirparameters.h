@@ -61,7 +61,8 @@ public:
     Utils::Id cmakeToolId;
 
     QStringList initialCMakeArguments;
-    QStringList extraCMakeArguments;
+    QStringList configurationChangesArguments;
+    QStringList additionalCMakeArguments;
 };
 
 } // namespace Internal

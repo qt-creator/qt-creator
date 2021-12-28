@@ -54,9 +54,10 @@ public:
     CMakeConfig configurationFromCMake() const;
     CMakeConfig configurationChanges() const;
 
-    QStringList configurationChangesArguments() const;
+    QStringList configurationChangesArguments(bool initialParameters = false) const;
 
     QStringList initialCMakeArguments() const;
+    CMakeConfig initialCMakeConfiguration() const;
 
     QString error() const;
     QString warning() const;
@@ -77,6 +78,10 @@ public:
 
     bool isMultiConfig() const;
     void setIsMultiConfig(bool isMultiConfig);
+
+    QStringList additionalCMakeArguments() const;
+    void setAdditionalCMakeArguments(const QStringList &args);
+    void filterConfigArgumentsFromAdditionalCMakeArguments();
 
 signals:
     void errorOccurred(const QString &message);
@@ -106,7 +111,6 @@ private:
     void setError(const QString &message);
     void setWarning(const QString &message);
 
-    CMakeConfig m_initialConfiguration;
     QString m_error;
     QString m_warning;
 
@@ -114,7 +118,6 @@ private:
     CMakeConfig m_configurationChanges;
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
-    QStringList m_extraCMakeArguments;
     bool m_isMultiConfig = false;
 
     friend class Internal::CMakeBuildSettingsWidget;
@@ -148,8 +151,25 @@ class InitialCMakeArgumentsAspect final : public Utils::StringAspect
 {
     Q_OBJECT
 
+    CMakeConfig m_cmakeConfiguration;
 public:
     InitialCMakeArgumentsAspect();
+
+    const CMakeConfig &cmakeConfiguration() const;
+    const QStringList allValues() const;
+    void setAllValues(const QString &values, QStringList &additionalArguments);
+    void setCMakeConfiguration(const CMakeConfig &config);
+
+    void fromMap(const QVariantMap &map) final;
+    void toMap(QVariantMap &map) const final;
+};
+
+class AdditionalCMakeArgumentsAspect final : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    AdditionalCMakeArgumentsAspect();
 };
 
 class SourceDirectoryAspect final : public Utils::StringAspect
