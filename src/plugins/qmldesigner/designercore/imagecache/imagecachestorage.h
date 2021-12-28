@@ -65,7 +65,7 @@ public:
             transaction.commit();
 
             if (optionalBlob)
-                return {readImage(optionalBlob->byteArray), true};
+                return {readImage(optionalBlob->byteArray)};
 
             return {};
         } catch (const Sqlite::StatementIsBusy &) {
@@ -85,7 +85,7 @@ public:
             transaction.commit();
 
             if (optionalBlob)
-                return ImageEntry{readImage(optionalBlob->byteArray), true};
+                return ImageEntry{readImage(optionalBlob->byteArray)};
 
             return {};
 
@@ -105,7 +105,7 @@ public:
             transaction.commit();
 
             if (optionalBlob)
-                return {readIcon(optionalBlob->byteArray), true};
+                return {readIcon(optionalBlob->byteArray)};
 
             return {};
 

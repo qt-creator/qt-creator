@@ -1248,17 +1248,4 @@ std::ostream &operator<<(std::ostream &out, const Import &import)
 
 } // namespace Storage
 
-namespace Internal {
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry)
-{
-    return out << "(" << entry.image << ", " << entry.hasEntry << ")";
-}
-
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageIconEntry &entry)
-{
-    return out << "(" << entry.icon << ", " << entry.hasEntry << ")";
-}
-
-} // namespace Internal
-
 } // namespace QmlDesigner

@@ -293,12 +293,4 @@ std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
 
 } // namespace Storage
 
-namespace Internal {
-class ImageCacheStorageImageEntry;
-class ImageCacheStorageIconEntry;
-
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry);
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageIconEntry &entry);
-
-} // namespace Internal
 } // namespace QmlDesigner

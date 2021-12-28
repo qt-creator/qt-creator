@@ -36,12 +36,12 @@ AsynchronousExplicitImageCache::AsynchronousExplicitImageCache(ImageCacheStorage
 {
     m_backgroundThread = std::thread{[this] {
         while (isRunning()) {
-            if (auto [hasEntry, entry] = getEntry(); hasEntry) {
-                request(entry.name,
-                        entry.extraId,
-                        entry.requestType,
-                        std::move(entry.captureCallback),
-                        std::move(entry.abortCallback),
+            if (auto entry = getEntry(); entry) {
+                request(entry->name,
+                        entry->extraId,
+                        entry->requestType,
+                        std::move(entry->captureCallback),
+                        std::move(entry->abortCallback),
                         m_storage);
             }
 
@@ -70,8 +70,8 @@ void AsynchronousExplicitImageCache::request(Utils::SmallStringView name,
                            ? storage.fetchImage(id, Sqlite::TimeStamp{})
                            : storage.fetchSmallImage(id, Sqlite::TimeStamp{});
 
-    if (entry.hasEntry && !entry.image.isNull())
-        captureCallback(entry.image);
+    if (entry && !entry->isNull())
+        captureCallback(*entry);
     else
         abortCallback(ImageCache::AbortReason::Failed);
 }
@@ -115,17 +115,17 @@ void AsynchronousExplicitImageCache::clean()
     clearEntries();
 }
 
-std::tuple<bool, AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry()
+std::optional<AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry()
 {
     std::unique_lock lock{m_mutex};
 
     if (m_requestEntries.empty())
-        return {false, RequestEntry{}};
+        return {};
 
     RequestEntry entry = m_requestEntries.front();
     m_requestEntries.pop_front();
 
-    return {true, entry};
+    return {entry};
 }
 
 void AsynchronousExplicitImageCache::addEntry(Utils::PathString &&name,

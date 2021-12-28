@@ -31,6 +31,7 @@
 #include <deque>
 #include <functional>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace QmlDesigner {
@@ -79,7 +80,7 @@ private:
         RequestType requestType = RequestType::Image;
     };
 
-    std::tuple<bool, RequestEntry> getEntry();
+    std::optional<RequestEntry> getEntry();
     void addEntry(Utils::PathString &&name,
                   Utils::SmallString &&extraId,
                   ImageCache::CaptureImageCallback &&captureCallback,
