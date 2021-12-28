@@ -28,6 +28,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
+#include <QReadWriteLock>
 #include <QSettings>
 
 using namespace Utils;
@@ -44,6 +45,7 @@ struct SshSettings
     FilePath askpassFilePath;
     FilePath keygenFilePath;
     QSsh::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePaths(); };
+    QReadWriteLock lock;
 };
 
 } // namespace Internal
@@ -72,6 +74,7 @@ static QString keygenFilePathKey() { return QString("KeygenFilePath"); }
 
 void SshSettings::loadSettings(QSettings *settings)
 {
+    QWriteLocker locker(&sshSettings->lock);
     AccessSettingsGroup g(settings);
     QVariant value = settings->value(connectionSharingKey());
     if (value.isValid() && !HostOsInfo::isWindowsHost())
@@ -89,6 +92,7 @@ void SshSettings::loadSettings(QSettings *settings)
 
 void SshSettings::storeSettings(QSettings *settings)
 {
+    QReadLocker locker(&sshSettings->lock);
     AccessSettingsGroup g(settings);
     settings->setValue(connectionSharingKey(), sshSettings->useConnectionSharing);
     settings->setValue(connectionSharingTimeoutKey(),
@@ -101,19 +105,27 @@ void SshSettings::storeSettings(QSettings *settings)
 
 void SshSettings::setConnectionSharingEnabled(bool share)
 {
+    QWriteLocker locker(&sshSettings->lock);
     sshSettings->useConnectionSharing = share;
 }
-bool SshSettings::connectionSharingEnabled() { return sshSettings->useConnectionSharing; }
+bool SshSettings::connectionSharingEnabled()
+{
+    QReadLocker locker(&sshSettings->lock);
+    return sshSettings->useConnectionSharing;
+}
 
 void SshSettings::setConnectionSharingTimeout(int timeInMinutes)
 {
+    QWriteLocker locker(&sshSettings->lock);
     sshSettings->connectionSharingTimeOutInMinutes = timeInMinutes;
 }
 int SshSettings::connectionSharingTimeout()
 {
+    QReadLocker locker(&sshSettings->lock);
     return sshSettings->connectionSharingTimeOutInMinutes;
 }
 
+// Keep read locker locked while calling this method
 static FilePath filePathValue(const FilePath &value, const QStringList &candidateFileNames)
 {
     if (!value.isEmpty())
@@ -128,24 +140,45 @@ static FilePath filePathValue(const FilePath &value, const QStringList &candidat
     return FilePath();
 }
 
+// Keep read locker locked while calling this method
 static FilePath filePathValue(const FilePath &value, const QString &candidateFileName)
 {
     return filePathValue(value, QStringList(candidateFileName));
 }
 
-void SshSettings::setSshFilePath(const FilePath &ssh) { sshSettings->sshFilePath = ssh; }
-FilePath SshSettings::sshFilePath() { return filePathValue(sshSettings->sshFilePath, "ssh"); }
+void SshSettings::setSshFilePath(const FilePath &ssh)
+{
+    QWriteLocker locker(&sshSettings->lock);
+    sshSettings->sshFilePath = ssh;
+}
 
-void SshSettings::setSftpFilePath(const FilePath &sftp) { sshSettings->sftpFilePath = sftp; }
-FilePath SshSettings::sftpFilePath() { return filePathValue(sshSettings->sftpFilePath, "sftp"); }
+FilePath SshSettings::sshFilePath()
+{
+    QReadLocker locker(&sshSettings->lock);
+    return filePathValue(sshSettings->sshFilePath, "ssh");
+}
+
+void SshSettings::setSftpFilePath(const FilePath &sftp)
+{
+    QWriteLocker locker(&sshSettings->lock);
+    sshSettings->sftpFilePath = sftp;
+}
+
+FilePath SshSettings::sftpFilePath()
+{
+    QReadLocker locker(&sshSettings->lock);
+    return filePathValue(sshSettings->sftpFilePath, "sftp");
+}
 
 void SshSettings::setAskpassFilePath(const FilePath &askPass)
 {
+    QWriteLocker locker(&sshSettings->lock);
     sshSettings->askpassFilePath = askPass;
 }
 
 FilePath SshSettings::askpassFilePath()
 {
+    QReadLocker locker(&sshSettings->lock);
     FilePath candidate;
     candidate = sshSettings->askpassFilePath;
     if (candidate.isEmpty())
@@ -155,16 +188,19 @@ FilePath SshSettings::askpassFilePath()
 
 void SshSettings::setKeygenFilePath(const FilePath &keygen)
 {
+    QWriteLocker locker(&sshSettings->lock);
     sshSettings->keygenFilePath = keygen;
 }
 
 FilePath SshSettings::keygenFilePath()
 {
+    QReadLocker locker(&sshSettings->lock);
     return filePathValue(sshSettings->keygenFilePath, "ssh-keygen");
 }
 
 void SshSettings::setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever)
 {
+    QWriteLocker locker(&sshSettings->lock);
     sshSettings->searchPathRetriever = pathRetriever;
 }
 
