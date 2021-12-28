@@ -183,13 +183,10 @@ void tst_Ssh::errorHandling()
     SshConnection connection(params);
     QEventLoop loop;
     bool disconnected = false;
-    QString dataReceived;
     QObject::connect(&connection, &SshConnection::connected, &loop, &QEventLoop::quit);
     QObject::connect(&connection, &SshConnection::errorOccurred, &loop, &QEventLoop::quit);
     QObject::connect(&connection, &SshConnection::disconnected,
                      [&disconnected] { disconnected = true; });
-    QObject::connect(&connection, &SshConnection::dataAvailable,
-                     [&dataReceived](const QString &data) { dataReceived = data; });
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.setSingleShot(true);
@@ -202,7 +199,6 @@ void tst_Ssh::errorHandling()
                                                  : SshConnection::Unconnected);
     QCOMPARE(connection.errorString().isEmpty(), expectConnected);
     QVERIFY(!disconnected);
-    QVERIFY2(dataReceived.isEmpty(), qPrintable(dataReceived));
 }
 
 void tst_Ssh::pristineConnectionObject()

@@ -127,7 +127,6 @@ public:
 signals:
     void connected();
     void disconnected();
-    void dataAvailable(const QString &message);
     void errorOccurred();
 
 private:
