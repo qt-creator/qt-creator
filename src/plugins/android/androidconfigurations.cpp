@@ -881,7 +881,7 @@ bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
     const FilePath ndkPlatformsDir = ndkPath.pathAppended("platforms");
     if (version.majorVersion() <= 22
             && (!ndkPlatformsDir.exists() || ndkPlatformsDir.toString().contains(' ')))
-        return false; // TODO: Adapt code that assumes the presence of a "platforms" folder
+        return false;
 
     return true;
 }
