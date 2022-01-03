@@ -36,6 +36,7 @@ add_qtc_plugin(QmlDesigner
     qmldesignerconstants.h
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h
+    qmldesignerprojectmanager.cpp qmldesignerprojectmanager.h
     settingspage.cpp settingspage.h settingspage.ui
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h

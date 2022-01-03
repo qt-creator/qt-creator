@@ -24,15 +24,16 @@
 ****************************************************************************/
 
 #include "qmldesignerplugin.h"
-#include "exception.h"
-#include "qmldesignerconstants.h"
-#include "designmodewidget.h"
-#include "settingspage.h"
 #include "designmodecontext.h"
-#include "openuiqmlfiledialog.h"
-#include "generateresource.h"
+#include "designmodewidget.h"
+#include "exception.h"
 #include "generatecmakelists.h"
+#include "generateresource.h"
 #include "nodeinstanceview.h"
+#include "openuiqmlfiledialog.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignerprojectmanager.h"
+#include "settingspage.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -118,6 +119,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 class QmlDesignerPluginPrivate
 {
 public:
+    QmlDesignerProjectManager projectManager;
     ViewManager viewManager;
     DocumentManager documentManager;
     ShortCutManager shortCutManager;
