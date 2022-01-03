@@ -545,7 +545,8 @@ public:
     QAction m_returnFromFunctionAction{tr("Immediately Return From Inner Function")};
     QAction m_stepOverAction{tr("Step Over")};
     QAction m_watchAction{tr("Add Expression Evaluator")};
-    QAction m_breakAction{tr("Toggle Breakpoint")};
+    QAction m_setOrRemoveBreakpointAction{tr("Set or Remove Breakpoint")};
+    QAction m_enableOrDisableBreakpointAction{tr("Enable or Disable Breakpoint")};
     QAction m_resetAction{tr("Restart Debugging")};
     OptionalAction m_operateByInstructionAction{tr("Operate by Instruction")};
     QAction m_recordForReverseOperationAction{tr("Record Information to Allow Reversal of Direction")};
@@ -1412,7 +1413,8 @@ void DebuggerEnginePrivate::setInitialActionStates()
     m_detachAction.setEnabled(false);
 
     m_watchAction.setEnabled(true);
-    m_breakAction.setEnabled(false);
+    m_setOrRemoveBreakpointAction.setEnabled(false);
+    m_enableOrDisableBreakpointAction.setEnabled(false);
     m_snapshotAction.setEnabled(false);
     m_operateByInstructionAction.setEnabled(false);
 
@@ -1537,7 +1539,8 @@ void DebuggerEnginePrivate::updateState()
     m_snapshotAction.setEnabled(stopped && !isCore);
 
     m_watchAction.setEnabled(true);
-    m_breakAction.setEnabled(true);
+    m_setOrRemoveBreakpointAction.setEnabled(true);
+    m_enableOrDisableBreakpointAction.setEnabled(true);
 
     const bool canOperateByInstruction = m_engine->hasCapability(OperateByInstructionCapability);
     m_operateByInstructionAction.setVisible(canOperateByInstruction);

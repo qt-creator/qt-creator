@@ -623,7 +623,7 @@ public:
                 return;
             message = dialog.textValue();
         }
-        BreakpointManager::toggleBreakpoint(data, message);
+        BreakpointManager::setOrRemoveBreakpoint(data, message);
     }
 
     void editorOpened(IEditor *editor);
@@ -633,7 +633,8 @@ public:
     void requestContextMenu(TextEditorWidget *widget,
                             int lineNumber, QMenu *menu);
 
-    void toggleBreakpointHelper();
+    void setOrRemoveBreakpoint();
+    void enableOrDisableBreakpoint();
     void updateDebugWithoutDeployMenu();
 
     void startRemoteCdbSession();
@@ -683,7 +684,8 @@ public:
     QAction m_startAndBreakOnMain{tr("Start and Break on Main")};
     QAction m_watchAction{tr("Add Expression Evaluator")};
     Command *m_watchCommand = nullptr;
-    QAction m_breakAction{tr("Toggle Breakpoint")};
+    QAction m_setOrRemoveBreakpointAction{tr("Set or Remove Breakpoint")};
+    QAction m_enableOrDisableBreakpointAction{tr("Enable or Disable Breakpoint")};
     QAction m_reloadDebuggingHelpersAction{tr("Reload Debugging Helpers")};
 
     BreakpointManager m_breakpointManager;
@@ -1094,11 +1096,18 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     cmd = ActionManager::registerAction(act, Constants::OPERATE_BY_INSTRUCTION);
     debugMenu->addAction(cmd);
 
-    cmd = ActionManager::registerAction(&m_breakAction, "Debugger.ToggleBreak");
+    cmd = ActionManager::registerAction(&m_setOrRemoveBreakpointAction, "Debugger.ToggleBreak");
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("F8") : tr("F9")));
     debugMenu->addAction(cmd);
-    connect(&m_breakAction, &QAction::triggered,
-        this, &DebuggerPluginPrivate::toggleBreakpointHelper);
+    connect(&m_setOrRemoveBreakpointAction, &QAction::triggered,
+            this, &DebuggerPluginPrivate::setOrRemoveBreakpoint);
+
+    cmd = ActionManager::registerAction(&m_enableOrDisableBreakpointAction,
+                                        "Debugger.EnableOrDisableBreakpoint");
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+F8") : tr("Ctrl+F9")));
+    debugMenu->addAction(cmd);
+    connect(&m_enableOrDisableBreakpointAction, &QAction::triggered,
+            this, &DebuggerPluginPrivate::enableOrDisableBreakpoint);
 
     debugMenu->addSeparator();
 
@@ -1493,7 +1502,8 @@ void DebuggerPluginPrivate::updatePresetState()
     m_attachToUnstartedApplication.setEnabled(true);
 
     m_watchAction.setEnabled(state != DebuggerFinished && state != DebuggerNotReady);
-    m_breakAction.setEnabled(true);
+    m_setOrRemoveBreakpointAction.setEnabled(true);
+    m_enableOrDisableBreakpointAction.setEnabled(true);
 }
 
 void DebuggerPluginPrivate::onStartupProjectChanged(Project *project)
@@ -1825,7 +1835,8 @@ void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 {
     BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
-    m_breakAction.setEnabled(textEditor != nullptr);
+    m_setOrRemoveBreakpointAction.setEnabled(textEditor != nullptr);
+    m_enableOrDisableBreakpointAction.setEnabled(textEditor != nullptr);
 }
 
 void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
@@ -1921,14 +1932,24 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     }
 }
 
-void DebuggerPluginPrivate::toggleBreakpointHelper()
+void DebuggerPluginPrivate::setOrRemoveBreakpoint()
 {
-    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
+    const BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
     ContextData location = getLocationContext(textEditor->textDocument(), lineNumber);
     if (location.isValid())
-        BreakpointManager::toggleBreakpoint(location);
+        BreakpointManager::setOrRemoveBreakpoint(location);
+}
+
+void DebuggerPluginPrivate::enableOrDisableBreakpoint()
+{
+    const BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    const int lineNumber = textEditor->currentLine();
+    ContextData location = getLocationContext(textEditor->textDocument(), lineNumber);
+    if (location.isValid())
+        BreakpointManager::enableOrDisableBreakpoint(location);
 }
 
 void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber,
@@ -1937,7 +1958,7 @@ void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber
     if (kind == BreakpointRequest) {
         ContextData location = getLocationContext(widget->textDocument(), lineNumber);
         if (location.isValid())
-            BreakpointManager::toggleBreakpoint(location);
+            BreakpointManager::setOrRemoveBreakpoint(location);
     }
 }
 
@@ -1951,7 +1972,8 @@ void DebuggerPluginPrivate::setInitialState()
     m_attachToUnstartedApplication.setEnabled(true);
 
     m_watchAction.setEnabled(false);
-    m_breakAction.setEnabled(false);
+    m_setOrRemoveBreakpointAction.setEnabled(false);
+    m_enableOrDisableBreakpointAction.setEnabled(false);
     //m_snapshotAction.setEnabled(false);
 
     debuggerSettings()->autoDerefPointers.setEnabled(true);

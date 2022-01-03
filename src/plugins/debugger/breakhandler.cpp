@@ -2490,7 +2490,7 @@ void BreakpointManager::createBreakpointForEngine(const BreakpointParameters &pa
     engine->breakHandler()->tryClaimBreakpoint(gbp);
 }
 
-void BreakpointManager::toggleBreakpoint(const ContextData &location, const QString &tracePointMessage)
+void BreakpointManager::setOrRemoveBreakpoint(const ContextData &location, const QString &tracePointMessage)
 {
     QTC_ASSERT(location.isValid(), return);
     GlobalBreakpoint gbp = findBreakpointFromContext(location);
@@ -2515,6 +2515,15 @@ void BreakpointManager::toggleBreakpoint(const ContextData &location, const QStr
         }
         BreakpointManager::createBreakpoint(data);
     }
+}
+
+void BreakpointManager::enableOrDisableBreakpoint(const ContextData &location)
+{
+    QTC_ASSERT(location.isValid(), return);
+    if (GlobalBreakpoint gbp = findBreakpointFromContext(location))
+        gbp->setEnabled(!gbp->isEnabled());
+    else
+        setOrRemoveBreakpoint(location);
 }
 
 GlobalBreakpoint BreakpointManager::findBreakpointFromContext(const ContextData &location)

@@ -304,7 +304,8 @@ public:
     static GlobalBreakpoint findBreakpointFromContext(const ContextData &location);
 
     static void claimBreakpointsForEngine(DebuggerEngine *engine);
-    static void toggleBreakpoint(const ContextData &location, const QString &tracePointMessage = QString());
+    static void setOrRemoveBreakpoint(const ContextData &location, const QString &tracePointMessage = {});
+    static void enableOrDisableBreakpoint(const ContextData &location);
     static void createBreakpointForEngine(const BreakpointParameters &data, DebuggerEngine *engine);
     static void editBreakpoint(const GlobalBreakpoint &gbp, QWidget *parent);
 
