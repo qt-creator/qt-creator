@@ -1754,6 +1754,28 @@ def qdump__QStringData(d, value):
     d.putPlainChildren(value)
 
 
+def qdump__QStringView(d, value):
+    data = value['m_data']
+    idata = data.integer()
+    if idata == 0:
+        d.putValue('(null)')
+        return
+    size = value['m_size']
+    isize = size.integer()
+    elided, shown = d.computeLimit(isize, d.displayStringLimit)
+    mem = d.readMemory(idata, shown * 2)
+    d.putValue(mem, 'utf16', elided=elided)
+    d.putExpandable()
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem('m_size', size)
+            with SubItem(d, 'm_data'):
+                d.putValue('0x%x' % idata)
+                d.putType(data.type)
+            with SubItem(d, '[raw]'):
+                d.putCharArrayHelper(idata, isize, d.lookupType('QChar'))
+
+
 def qdump__QHashedString(d, value):
     qdump__QString(d, value)
     d.putBetterType(value.type)

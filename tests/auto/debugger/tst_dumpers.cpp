@@ -3902,6 +3902,22 @@ void tst_Dumpers::dumper_data()
                + Check("refstring", "\"Ref String Test\"", "@QString") % CdbEngine;
 
 
+    QTest::newRow("QStringView")
+            << Data("#include <QString>\n",
+
+                    "QString hi = \"Hi\";\n"
+                    "QStringView sv(hi);\n"
+                    "QStringView empty;\n",
+
+                    "&hi, &sv, &empty")
+
+               + CoreProfile()
+               + QtVersion(0x50a00)
+
+               + Check("sv", "\"Hi\"", "@QStringView")
+               + Check("empty", "(null)", "@QStringView");
+
+
     QTest::newRow("QText")
             << Data("#include <QApplication>\n"
                     "#include <QTextCursor>\n"
