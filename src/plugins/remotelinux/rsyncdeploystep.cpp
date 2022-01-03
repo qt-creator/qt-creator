@@ -57,9 +57,6 @@ public:
 private:
     bool isDeploymentNecessary() const override;
 
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); };
-
     void doDeploy() override;
     void stopDeployment() override { setFinished(); };
 

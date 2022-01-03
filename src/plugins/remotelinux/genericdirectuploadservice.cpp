@@ -118,15 +118,13 @@ bool GenericDirectUploadService::isDeploymentNecessary() const
 void GenericDirectUploadService::doDeviceSetup()
 {
     QTC_ASSERT(d->state == Inactive, return);
-
-    handleDeviceSetupDone(true);
+    AbstractRemoteLinuxDeployService::doDeviceSetup();
 }
 
 void GenericDirectUploadService::stopDeviceSetup()
 {
     QTC_ASSERT(d->state == Inactive, return);
-
-    handleDeviceSetupDone(false);
+    AbstractRemoteLinuxDeployService::stopDeviceSetup();
 }
 
 void GenericDirectUploadService::doDeploy()

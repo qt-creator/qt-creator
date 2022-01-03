@@ -89,15 +89,13 @@ bool AbstractUploadAndInstallPackageService::isDeploymentNecessary() const
 void AbstractUploadAndInstallPackageService::doDeviceSetup()
 {
     QTC_ASSERT(d->state == Inactive, return);
-
-    handleDeviceSetupDone(true);
+    AbstractRemoteLinuxDeployService::doDeviceSetup();
 }
 
 void AbstractUploadAndInstallPackageService::stopDeviceSetup()
 {
     QTC_ASSERT(d->state == Inactive, return);
-
-    handleDeviceSetupDone(false);
+    AbstractRemoteLinuxDeployService::stopDeviceSetup();
 }
 
 void AbstractUploadAndInstallPackageService::doDeploy()

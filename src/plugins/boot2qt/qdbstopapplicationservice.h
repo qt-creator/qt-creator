@@ -47,8 +47,6 @@ private:
     void handleAppendMessage(const QString &message, Utils::OutputFormat format);
 
     bool isDeploymentNecessary() const final { return true; }
-    void doDeviceSetup() final { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() final { handleDeviceSetupDone(false); }
 
     void doDeploy() final;
     void stopDeployment() final;

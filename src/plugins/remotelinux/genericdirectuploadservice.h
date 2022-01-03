@@ -53,7 +53,7 @@ public:
     void setIncrementalDeployment(IncrementalDeployment incremental);
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
 
-  protected:
+protected:
     bool isDeploymentNecessary() const override;
 
     void doDeviceSetup() override;

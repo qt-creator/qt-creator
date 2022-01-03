@@ -46,8 +46,6 @@ private:
     void handleProcessFinished();
 
     bool isDeploymentNecessary() const override { return true; }
-    void doDeviceSetup() override { handleDeviceSetupDone(true); }
-    void stopDeviceSetup() override { handleDeviceSetupDone(false); }
 
     CheckResult isDeploymentPossible() const override;
     void doDeploy() override;

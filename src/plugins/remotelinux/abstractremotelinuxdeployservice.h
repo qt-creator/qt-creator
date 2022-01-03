@@ -102,15 +102,15 @@ protected:
     void handleDeviceSetupDone(bool success);
     void handleDeploymentDone();
 
+    // Should do things needed *before* connecting. Call default implementation afterwards.
+    virtual void doDeviceSetup() { handleDeviceSetupDone(true); }
+    virtual void stopDeviceSetup() { handleDeviceSetupDone(false); }
+
 private:
     void handleConnected();
     void handleConnectionFailure();
 
     virtual bool isDeploymentNecessary() const = 0;
-
-    // Should do things needed *before* connecting. Call handleDeviceSetupDone() afterwards.
-    virtual void doDeviceSetup() = 0;
-    virtual void stopDeviceSetup() = 0;
 
     virtual void doDeploy() = 0;
     virtual void stopDeployment() = 0;
