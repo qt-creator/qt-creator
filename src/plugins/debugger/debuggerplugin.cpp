@@ -1415,7 +1415,7 @@ void DebuggerPluginPrivate::updatePresetState()
             canRun ? tr("Start debugging of startup project") : whyNot;
 
     m_startAction.setToolTip(startToolTip);
-    m_startAction.setText(canRun ? startToolTip : tr("Start Debugging"));
+    m_startAction.setText(tr("Start Debugging of Startup Project"));
 
     if (!currentEngine) {
         // No engine running  -- or -- we have a running engine but it does not
