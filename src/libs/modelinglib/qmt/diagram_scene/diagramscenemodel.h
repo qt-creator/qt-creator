@@ -80,8 +80,8 @@ public:
     ~DiagramSceneModel() override;
 
 signals:
-    void diagramSceneActivated(const MDiagram *diagram);
-    void selectionHasChanged(const MDiagram *diagram);
+    void diagramSceneActivated(const qmt::MDiagram *diagram);
+    void selectionHasChanged(const qmt::MDiagram *diagram);
     void sceneRectChanged(const QRectF &sceneRect);
 
 public:

@@ -61,8 +61,8 @@ public:
 
 signals:
     void someDiagramOpened(bool);
-    void diagramActivated(const MDiagram *diagram);
-    void diagramSelectionChanged(const MDiagram *diagram);
+    void diagramActivated(const qmt::MDiagram *diagram);
+    void diagramSelectionChanged(const qmt::MDiagram *diagram);
 
 public:
     void setModel(TreeModel *model);

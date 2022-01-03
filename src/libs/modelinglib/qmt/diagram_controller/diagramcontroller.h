@@ -71,16 +71,16 @@ public:
 signals:
     void beginResetAllDiagrams();
     void endResetAllDiagrams();
-    void beginResetDiagram(const MDiagram *diagram);
-    void endResetDiagram(const MDiagram *diagram);
-    void beginUpdateElement(int row, const MDiagram *diagram);
-    void endUpdateElement(int row, const MDiagram *diagram);
-    void beginInsertElement(int row, const MDiagram *diagram);
-    void endInsertElement(int row, const MDiagram *diagram);
-    void beginRemoveElement(int row, const MDiagram *diagram);
-    void endRemoveElement(int row, const MDiagram *diagram);
-    void modified(const MDiagram *diagram);
-    void diagramAboutToBeRemoved(const MDiagram *diagram);
+    void beginResetDiagram(const qmt::MDiagram *diagram);
+    void endResetDiagram(const qmt::MDiagram *diagram);
+    void beginUpdateElement(int row, const qmt::MDiagram *diagram);
+    void endUpdateElement(int row, const qmt::MDiagram *diagram);
+    void beginInsertElement(int row, const qmt::MDiagram *diagram);
+    void endInsertElement(int row, const qmt::MDiagram *diagram);
+    void beginRemoveElement(int row, const qmt::MDiagram *diagram);
+    void endRemoveElement(int row, const qmt::MDiagram *diagram);
+    void modified(const qmt::MDiagram *diagram);
+    void diagramAboutToBeRemoved(const qmt::MDiagram *diagram);
 
 public:
     ModelController *modelController() const { return m_modelController; }

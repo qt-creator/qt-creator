@@ -72,8 +72,8 @@ public:
     ~DiagramSceneController() override;
 
 signals:
-    void newElementCreated(DElement *element, MDiagram *diagram);
-    void elementAdded(DElement *element, MDiagram *diagram);
+    void newElementCreated(DElement *element, qmt::MDiagram *diagram);
+    void elementAdded(DElement *element, qmt::MDiagram *diagram);
 
 public:
     ModelController *modelController() const { return m_modelController; }

@@ -50,8 +50,8 @@ public:
     ~DiagramsView() override;
 
 signals:
-    void currentDiagramChanged(const MDiagram *diagram);
-    void diagramCloseRequested(const MDiagram *diagram);
+    void currentDiagramChanged(const qmt::MDiagram *diagram);
+    void diagramCloseRequested(const qmt::MDiagram *diagram);
     void someDiagramOpened(bool);
 
 public:
