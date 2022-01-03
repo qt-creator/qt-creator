@@ -2223,8 +2223,14 @@ Environment GitClient::processEnvironment() const
     Environment environment = VcsBaseClientImpl::processEnvironment();
     QString gitPath = settings().path.value();
     environment.prependOrSetPath(FilePath::fromUserInput(gitPath));
-    if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value())
-        environment.set("HOME", QDir::toNativeSeparators(QDir::homePath()));
+    if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value()) {
+        QString homePath;
+        if (const char *homeDrive = qgetenv("HOMEDRIVE"))
+            homePath = QString::fromLocal8Bit(homeDrive) + QString::fromLocal8Bit(qgetenv("HOMEPATH"));
+        else
+            homePath = QDir::toNativeSeparators(QDir::homePath());
+        environment.set("HOME", homePath);
+    }
     environment.set("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
     return environment;
 }
