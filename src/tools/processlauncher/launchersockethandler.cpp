@@ -44,11 +44,9 @@ public:
         ProcessHelper(parent), m_token(token) { }
 
     quintptr token() const { return m_token; }
-    ProcessStartHandler *processStartHandler() { return &m_processStartHandler; }
 
 private:
     const quintptr m_token;
-    ProcessStartHandler m_processStartHandler;
 };
 
 LauncherSocketHandler::LauncherSocketHandler(QString serverPath, QObject *parent)
@@ -156,7 +154,7 @@ void LauncherSocketHandler::handleProcessStarted()
     Process *proc = senderProcess();
     ProcessStartedPacket packet(proc->token());
     packet.processId = proc->processId();
-    proc->processStartHandler()->handleProcessStarted(proc);
+    proc->processStartHandler()->handleProcessStarted();
     sendPacket(packet);
 }
 
@@ -212,14 +210,14 @@ void LauncherSocketHandler::handleStartPacket()
     handler->setProcessMode(packet.processMode);
     handler->setWriteData(packet.writeData);
     if (packet.belowNormalPriority)
-        handler->setBelowNormalPriority(process);
-    handler->setNativeArguments(process, packet.nativeArguments);
+        handler->setBelowNormalPriority();
+    handler->setNativeArguments(packet.nativeArguments);
     if (packet.lowPriority)
         process->setLowPriority();
     if (packet.unixTerminalDisabled)
         process->setUnixTerminalDisabled();
     process->start(packet.command, packet.arguments, handler->openMode());
-    handler->handleProcessStart(process);
+    handler->handleProcessStart();
 }
 
 void LauncherSocketHandler::handleWritePacket()

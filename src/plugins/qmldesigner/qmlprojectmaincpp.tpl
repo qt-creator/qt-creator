@@ -30,9 +30,12 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#include "app_environment.h"
+#include "import_qml_plugins.h"
+
 int main(int argc, char *argv[])
 {
-    qputenv("QT_LOGGING_RULES", "qt.qml.connections=false");
+    set_qt_environment();
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;

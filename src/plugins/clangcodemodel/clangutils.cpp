@@ -584,10 +584,10 @@ QStringList createClangOptions(const ProjectPart &projectPart, const QString &fi
 
     // FIXME: Sanitize FileOptionsBuilder instead.
     QStringList fileArgs = fileOptions.options();
-    if (projectPartOptions.contains("-TP"))
-        fileArgs.removeAll("/TP");
-    if (projectPartOptions.contains("-TC"))
-        fileArgs.removeAll("/TC");
+    if (projectPartOptions.contains(QLatin1String("-TP")))
+        fileArgs.removeAll(QLatin1String("/TP"));
+    if (projectPartOptions.contains(QLatin1String("-TC")))
+        fileArgs.removeAll(QLatin1String("/TC"));
 
     return projectPartOptions + fileArgs;
 }

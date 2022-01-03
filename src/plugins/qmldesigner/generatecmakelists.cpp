@@ -30,11 +30,14 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 #include <qmlprojectmanager/qmlmainfileaspect.h>
 
@@ -70,7 +73,8 @@ enum ProjectDirectoryError {
     MissingAppMainQml = 1<<7,
     MissingQmlModules = 1<<8,
     MissingMainCpp = 1<<9,
-    MissingMainCppHeader = 1<<10
+    MissingMainCppHeader = 1<<10,
+    MissingEnvHeader = 1<<11
 };
 
 QVector<GeneratableFile> queuedFiles;
@@ -104,8 +108,7 @@ void onGenerateCmakeLists()
 
     queuedFiles.clear();
     GenerateCmakeLists::generateCmakes(rootDir);
-    GenerateEntryPoints::generateMainCpp(rootDir);
-    GenerateEntryPoints::generateMainQml(rootDir);
+    GenerateEntryPoints::generateEntryPointFiles(rootDir);
     if (showConfirmationDialog(rootDir))
         writeQueuedFiles();
 }
@@ -141,6 +144,8 @@ int isProjectCorrectlyFormed(const FilePath &rootDir)
         errors |= MissingMainCpp;
     if (!rootDir.pathAppended(DIRNAME_CPP).pathAppended(FILENAME_MAINCPP_HEADER).exists())
         errors |= MissingMainCppHeader;
+    if (!rootDir.pathAppended(DIRNAME_CPP).pathAppended(FILENAME_ENV_HEADER).exists())
+        errors |= MissingEnvHeader;
 
     if (!rootDir.pathAppended(FILENAME_CMAKELISTS).exists())
         errors |= MissingMainCMake;
@@ -204,6 +209,11 @@ void showProjectDirErrorDialog(int error)
         nonFatalList.append(QString(DIRNAME_CPP)
                             + QDir::separator()
                             + QString(FILENAME_MAINCPP_HEADER)
+                            + "\n");
+    if (error & MissingEnvHeader)
+        nonFatalList.append(QString(DIRNAME_CPP)
+                            + QDir::separator()
+                            + QString(FILENAME_ENV_HEADER)
                             + "\n");
 
     bool isFatal = isErrorFatal(error);
@@ -536,6 +546,8 @@ bool generateEntryPointFiles(const FilePath &dir)
 const char MAIN_CPPFILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmaincpp.tpl";
 const char MAIN_CPPFILE_HEADER_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmaincppheader.tpl";
 const char MAIN_CPPFILE_HEADER_PLUGIN_LINE[] = "Q_IMPORT_QML_PLUGIN(%1)\n";
+const char ENV_HEADER_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectenvheader.tpl";
+const char ENV_HEADER_VARIABLE_LINE[] = "    qputenv(\"%1\", \"%2\");\n";
 
 bool generateMainCpp(const FilePath &dir)
 {
@@ -553,9 +565,29 @@ bool generateMainCpp(const FilePath &dir)
     QString headerContent = GenerateCmake::readTemplate(MAIN_CPPFILE_HEADER_TEMPLATE_PATH)
             .arg(modulesAsPlugins);
     FilePath headerFilePath = srcDir.pathAppended(FILENAME_MAINCPP_HEADER);
-    bool headerOk = GenerateCmake::queueFile(headerFilePath, headerContent);
+    bool pluginHeaderOk = GenerateCmake::queueFile(headerFilePath, headerContent);
 
-    return cppOk && headerOk;
+    bool envHeaderOk = true;
+    QString environment;
+    auto *target = ProjectExplorer::SessionManager::startupProject()->activeTarget();
+    if (target && target->buildSystem()) {
+        auto buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
+        if (buildSystem) {
+            for (EnvironmentItem &envItem : buildSystem->environment()) {
+                QString key = envItem.name;
+                QString value = envItem.value;
+                if (isFileResource(value))
+                    value.prepend(":/");
+                environment.append(QString(ENV_HEADER_VARIABLE_LINE).arg(key).arg(value));
+            }
+            QString envHeaderContent = GenerateCmake::readTemplate(ENV_HEADER_TEMPLATE_PATH)
+                    .arg(environment);
+            FilePath envHeaderPath = srcDir.pathAppended(FILENAME_ENV_HEADER);
+            envHeaderOk = GenerateCmake::queueFile(envHeaderPath, envHeaderContent);
+        }
+    }
+
+    return cppOk && pluginHeaderOk && envHeaderOk;
 }
 
 const char MAIN_QMLFILE_TEMPLATE_PATH[] = ":/boilerplatetemplates/qmlprojectmainqml.tpl";
@@ -567,7 +599,17 @@ bool generateMainQml(const FilePath &dir)
     return GenerateCmake::queueFile(filePath, content);
 }
 
+const QStringList resourceFileLocations = {"qtquickcontrols2.conf"};
+
+bool isFileResource(const QString &relativeFilePath)
+{
+    if (resourceFileLocations.contains(relativeFilePath))
+        return true;
+
+    return false;
 }
 
-}
+} //GenerateEntryPoints
+
+} //QmlDesigner
 

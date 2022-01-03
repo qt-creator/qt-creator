@@ -44,44 +44,40 @@ QIODevice::OpenMode ProcessStartHandler::openMode() const
     return QIODevice::ReadWrite; // initial write and then reading (close the write channel)
 }
 
-void ProcessStartHandler::handleProcessStart(QProcess *process)
+void ProcessStartHandler::handleProcessStart()
 {
     if (m_processMode == ProcessMode::Writer)
         return;
     if (m_writeData.isEmpty())
-        process->closeWriteChannel();
+        m_process->closeWriteChannel();
 }
 
-void ProcessStartHandler::handleProcessStarted(QProcess *process)
+void ProcessStartHandler::handleProcessStarted()
 {
     if (!m_writeData.isEmpty()) {
-        process->write(m_writeData);
+        m_process->write(m_writeData);
         m_writeData = {};
         if (m_processMode == ProcessMode::Reader)
-            process->closeWriteChannel();
+            m_process->closeWriteChannel();
     }
 }
 
-
-void ProcessStartHandler::setBelowNormalPriority(QProcess *process)
+void ProcessStartHandler::setBelowNormalPriority()
 {
 #ifdef Q_OS_WIN
-    process->setCreateProcessArgumentsModifier(
+    m_process->setCreateProcessArgumentsModifier(
         [](QProcess::CreateProcessArguments *args) {
             args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
     });
-#else
-    Q_UNUSED(process)
 #endif // Q_OS_WIN
 }
 
-void ProcessStartHandler::setNativeArguments(QProcess *process, const QString &arguments)
+void ProcessStartHandler::setNativeArguments(const QString &arguments)
 {
 #ifdef Q_OS_WIN
     if (!arguments.isEmpty())
-        process->setNativeArguments(arguments);
+        m_process->setNativeArguments(arguments);
 #else
-    Q_UNUSED(process)
     Q_UNUSED(arguments)
 #endif // Q_OS_WIN
 }

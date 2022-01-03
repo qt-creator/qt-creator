@@ -1397,12 +1397,14 @@ QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
 
     while (block.isValid()) {
         const QString &blockText = block.text();
-        cursor.setPosition(block.position()
-                           + tabSettings.positionAtColumn(blockText, blockSelection.anchorColumn));
-        cursor.setPosition(block.position()
-                               + tabSettings.positionAtColumn(blockText, blockSelection.column),
-                           QTextCursor::KeepAnchor);
-        result.append(cursor);
+        const int columnCount = tabSettings.columnCountForText(blockText);
+        if (blockSelection.anchorColumn < columnCount || blockSelection.column < columnCount) {
+            const int anchor = tabSettings.positionAtColumn(blockText, blockSelection.anchorColumn);
+            const int position = tabSettings.positionAtColumn(blockText, blockSelection.column);
+            cursor.setPosition(block.position() + anchor);
+            cursor.setPosition(block.position() + position, QTextCursor::KeepAnchor);
+            result.append(cursor);
+        }
         if (block.blockNumber() == blockSelection.blockNumber)
             break;
         block = forward ? block.next() : block.previous();
@@ -5234,11 +5236,6 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
         MultiTextCursor cursor = *startMouseMoveCursor;
         const QTextCursor anchorCursor = cursor.takeMainCursor();
         const QTextCursor eventCursor = cursorForPosition(e->pos());
-        const int eventCursorPos = eventCursor.position();
-        const bool forward = anchorCursor.position() < eventCursorPos;
-        QTextBlock block = anchorCursor.block();
-        const QTextBlock end = forward ? eventCursor.block().next()
-                                       : eventCursor.block().previous();
 
         const TabSettings tabSettings = d->m_document->tabSettings();
         int eventColumn = tabSettings.columnAt(eventCursor.block().text(),
@@ -5247,18 +5244,15 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
             eventColumn += int((e->pos().x() - cursorRect(eventCursor).center().x())
                                / QFontMetricsF(font()).horizontalAdvance(' '));
         }
+
         int anchorColumn = tabSettings.columnAt(anchorCursor.block().text(),
                                                 anchorCursor.positionInBlock());
+        const TextEditorWidgetPrivate::BlockSelection blockSelection = {eventCursor.blockNumber(),
+                                                                        eventColumn,
+                                                                        anchorCursor.blockNumber(),
+                                                                        anchorColumn};
 
-        for (; block.isValid() && block != end; block = forward ? block.next() : block.previous()) {
-            const QString &blockText = block.text();
-            QTextCursor c = eventCursor;
-            c.setPosition(block.position() + tabSettings.positionAtColumn(blockText, anchorColumn));
-            c.setPosition(block.position() + tabSettings.positionAtColumn(blockText, eventColumn),
-                          QTextCursor::KeepAnchor);
-            cursor.addCursor(c);
-        }
-        cursor.mergeCursors();
+        cursor.setCursors(d->generateCursorsForBlockSelection(blockSelection));
         if (!cursor.isNull())
             setMultiTextCursor(cursor);
     } else {

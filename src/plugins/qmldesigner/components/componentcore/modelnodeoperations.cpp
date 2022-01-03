@@ -1049,7 +1049,12 @@ static AddFilesResult addFilesToProject(const QStringList &fileNames, const QStr
 static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)
 {
     QString adjustedDefaultDirectory = defaultDirectory;
-    Utils::FilePath assetPath = projectFilePath().pathAppended(assetDir);
+
+    Utils::FilePath assetPath = projectFilePath();
+    if (assetPath.pathAppended("content").exists())
+            assetPath= assetPath.pathAppended("content");
+
+    assetPath = assetPath.pathAppended(assetDir);
 
     if (!assetPath.exists()) {
         // Create the default asset type directory if it doesn't exist

@@ -317,7 +317,9 @@ void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
     QTC_ASSERT(timeline.isValid(), return );
     QTC_ASSERT(selectedNode.isValid(), return );
 
-    timeline.insertKeyframe(selectedNode, propertyName.toUtf8());
+    rewriterView->executeInTransaction("PropertyEditorContextObject::insertKeyframe", [&]{
+        timeline.insertKeyframe(selectedNode, propertyName.toUtf8());
+    });
 }
 
 int PropertyEditorContextObject::majorVersion() const

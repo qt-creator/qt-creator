@@ -45,6 +45,7 @@ const char FILENAME_MAINCPP[] = "main.cpp";
 const char FILENAME_MAINCPP_HEADER[] = "import_qml_plugins.h";
 const char FILENAME_MODULES[] = "qmlmodules";
 const char FILENAME_QMLDIR[] = "qmldir";
+const char FILENAME_ENV_HEADER[] = "app_environment.h";
 
 } //Constants
 } //GenerateCmake

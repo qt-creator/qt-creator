@@ -68,5 +68,6 @@ namespace GenerateEntryPoints {
 bool generateEntryPointFiles(const Utils::FilePath &dir);
 bool generateMainCpp(const Utils::FilePath &dir);
 bool generateMainQml(const Utils::FilePath &dir);
+bool isFileResource(const QString &relativeFilePath);
 }
 }
