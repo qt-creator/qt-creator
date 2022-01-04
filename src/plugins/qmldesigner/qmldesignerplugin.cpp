@@ -265,11 +265,11 @@ bool QmlDesignerPlugin::delayedInitialize()
         std::make_unique<QmlDesigner::TransitionEditorView>());
     transitionEditorView->registerActions();
 
-    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
-    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::ColorTool);
-    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
-    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
-    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TransitionTool);
+    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::SourceTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::ColorTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TextTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::PathTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TransitionTool>());
 
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         emitUsageStatistics("StandaloneMode");

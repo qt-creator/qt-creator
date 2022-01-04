@@ -74,7 +74,6 @@ FormEditorScene* FormEditorView::scene() const
 FormEditorView::~FormEditorView()
 {
     m_currentTool = nullptr;
-    qDeleteAll(m_customToolList);
 }
 
 void FormEditorView::modelAttached(Model *model)
@@ -256,7 +255,7 @@ void FormEditorView::cleanupToolsAndScene()
     m_moveTool->clear();
     m_resizeTool->clear();
     m_dragTool->clear();
-    foreach (AbstractCustomTool *customTool, m_customToolList)
+    for (auto &customTool : m_customTools)
         customTool->clear();
     m_scene->clearFormEditorItems();
     m_formEditorWidget->updateActions();
@@ -573,10 +572,10 @@ void FormEditorView::changeToCustomTool()
 
         const ModelNode selectedModelNode = selectedModelNodes().constFirst();
 
-        for (AbstractCustomTool *customTool : qAsConst(m_customToolList)) {
+        for (const auto &customTool : qAsConst(m_customTools)) {
             if (customTool->wantHandleItem(selectedModelNode) > handlingRank) {
                 handlingRank = customTool->wantHandleItem(selectedModelNode);
-                selectedCustomTool = customTool;
+                selectedCustomTool = customTool.get();
             }
         }
 
@@ -596,10 +595,10 @@ void FormEditorView::changeCurrentToolTo(AbstractFormEditorTool *newTool)
     m_currentTool->start();
 }
 
-void FormEditorView::registerTool(AbstractCustomTool *tool)
+void FormEditorView::registerTool(std::unique_ptr<AbstractCustomTool> &&tool)
 {
     tool->setView(this);
-    m_customToolList.append(tool);
+    m_customTools.push_back(std::move(tool));
 }
 
 void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)

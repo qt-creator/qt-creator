@@ -71,7 +71,7 @@ public:
 
     void resetPropertyEditorView();
 
-    void registerFormEditorToolTakingOwnership(AbstractCustomTool *tool);
+    void registerFormEditorTool(std::unique_ptr<AbstractCustomTool> &&tool);
     template<typename View>
     View *registerView(std::unique_ptr<View> &&view)
     {

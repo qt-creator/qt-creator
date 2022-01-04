@@ -195,9 +195,9 @@ void ViewManager::resetPropertyEditorView()
     d->propertyEditorView.resetView();
 }
 
-void ViewManager::registerFormEditorToolTakingOwnership(AbstractCustomTool *tool)
+void ViewManager::registerFormEditorTool(std::unique_ptr<AbstractCustomTool> &&tool)
 {
-    d->formEditorView.registerTool(tool);
+    d->formEditorView.registerTool(std::move(tool));
 }
 
 void ViewManager::detachViewsExceptRewriterAndComponetView()
