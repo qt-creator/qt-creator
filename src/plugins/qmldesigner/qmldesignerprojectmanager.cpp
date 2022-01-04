@@ -127,15 +127,17 @@ namespace {
 
 } // namespace
 
-void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *) {}
-
-void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *project)
+void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
     ::QmlProjectManager::QmlBuildSystem *qmlBuildSystem = getQmlBuildSystem(project->activeTarget());
 
-    if (qmlBuildSystem)
+    if (qmlBuildSystem) {
+        m_imageCacheData->collector.setTarget(project->activeTarget());
         m_imageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
+    }
 }
+
+void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *) {}
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
 
