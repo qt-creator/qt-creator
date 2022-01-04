@@ -42,6 +42,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <qmldesigner/qmldesignerplugin.h>
+
 #include <utils/checkablemessagebox.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
@@ -155,7 +157,7 @@ class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole };
+    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole, PreviewUrl };
 
     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
 
@@ -256,6 +258,11 @@ int ProjectModel::rowCount(const QModelIndex &) const
     return ProjectExplorer::ProjectExplorerPlugin::recentProjects().count();
 }
 
+QString appQmlFile(const QString &projectFilePath)
+{
+    return QFileInfo(projectFilePath).dir().absolutePath() + "/content/App.qml";
+}
+
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
     QPair<QString, QString> data = ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(
@@ -268,6 +275,8 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return data.first;
     case PrettyFilePathRole:
         return Utils::withTildeHomePath(data.first);
+    case PreviewUrl:
+        return QVariant(QStringLiteral("image://project_preview/") + appQmlFile(data.first));
     default:
         return QVariant();
     }
@@ -281,6 +290,7 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
     roleNames[Qt::DisplayRole] = "displayName";
     roleNames[FilePathRole] = "filePath";
     roleNames[PrettyFilePathRole] = "prettyFilePath";
+    roleNames[PreviewUrl] = "previewUrl";
     return roleNames;
 }
 
@@ -447,6 +457,9 @@ WelcomeMode::WelcomeMode()
     m_modeWidget = new QQuickWidget;
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
+
+    QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_modeWidget->engine());
+
 #ifdef QT_DEBUG
     m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
                                     + "welcomepage/imports");
