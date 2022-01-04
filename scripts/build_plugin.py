@@ -107,6 +107,10 @@ def build(args, paths):
     # TODO this works around a CMake bug https://gitlab.kitware.com/cmake/cmake/issues/20119
     cmake_args += ['-DBUILD_WITH_PCH=OFF']
 
+    # work around QTBUG-89754
+    # Qt otherwise adds dependencies on libGLX and libOpenGL
+    cmake_args += ['-DOpenGL_GL_PREFERENCE=LEGACY']
+
     if args.with_docs:
         cmake_args += ['-DWITH_DOCS=ON']
 
