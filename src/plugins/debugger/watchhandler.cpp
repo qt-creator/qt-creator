@@ -624,7 +624,7 @@ template <class IntType> QString reformatInteger(IntType value, int format)
             QString res = "\"";
             while (value > 0) {
                 res = QChar(ushort(value & 255)) + res;
-                value /= 256;
+                value >>= 8;
             }
             return "\"" + res;
         }
@@ -639,26 +639,21 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
         isSigned = false;
 
     switch (size) {
-        case 1:
-            value = value & 0xff;
-            return isSigned
-                ? reformatInteger<qint8>(value, format)
-                : reformatInteger<quint8>(value, format);
-        case 2:
-            value = value & 0xffff;
-            return isSigned
-                ? reformatInteger<qint16>(value, format)
-                : reformatInteger<quint16>(value, format);
-        case 4:
-            value = value & 0xffffffff;
-            return isSigned
-                ? reformatInteger<qint32>(value, format)
-                : reformatInteger<quint32>(value, format);
-        default:
-        case 8: return isSigned
+    case 1:
+        value = value & 0xff;
+        break;
+    case 2:
+        value = value & 0xffff;
+        break;
+    case 4:
+        value = value & 0xffffffff;
+        break;
+    default:
+        break;
+    }
+    return isSigned
                 ? reformatInteger<qint64>(value, format)
                 : reformatInteger<quint64>(value, format);
-    }
 }
 
 // Format printable (char-type) characters
