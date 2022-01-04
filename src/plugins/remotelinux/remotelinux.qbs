@@ -24,6 +24,8 @@ Project {
             "abstractuploadandinstallpackageservice.h",
             "deploymenttimeinfo.cpp",
             "deploymenttimeinfo.h",
+            "filesystemaccess_test.cpp",
+            "filesystemaccess_test.h",
             "genericdirectuploadservice.cpp",
             "genericdirectuploadservice.h",
             "genericdirectuploadstep.cpp",
