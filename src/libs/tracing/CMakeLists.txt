@@ -104,6 +104,8 @@ qt_add_qml_module(Tracing
   URI "QtCreator.Tracing"
   VERSION "1.0"
   NO_PLUGIN
+  DEPENDENCIES
+    QtQuick
   QML_FILES
     ${TRACING_QML_FILES}
   RESOURCES
