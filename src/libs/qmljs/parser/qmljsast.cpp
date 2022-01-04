@@ -31,6 +31,7 @@
 #include <qlocale.h>
 
 #include <algorithm>
+#include <array>
 
 QT_QML_BEGIN_NAMESPACE
 
