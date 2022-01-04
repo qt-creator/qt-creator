@@ -71,7 +71,7 @@ TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAsynchronously)
     ASSERT_TRUE(client.isConnected());
 }
 
-TEST_F(ClientServerOutsideProcessSlowTest, DISABLED_RestartProcessAfterAliveTimeout)
+TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAfterAliveTimeout)
 {
     QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
@@ -81,7 +81,7 @@ TEST_F(ClientServerOutsideProcessSlowTest, DISABLED_RestartProcessAfterAliveTime
     ASSERT_THAT(clientSpy, SizeIs(1));
 }
 
-TEST_F(ClientServerOutsideProcessSlowTest, DISABLED_RestartProcessAfterTermination)
+TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAfterTermination)
 {
     QSignalSpy clientSpy(&client, &ConnectionClient::connectedToLocalSocket);
 
