@@ -38,8 +38,6 @@ class TestLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 public:
     TestLinuxDeviceFactory();
 
-    Utils::FilePaths defaultKeys() const;
-
     ProjectExplorer::IDevice::Ptr create() const override;
 };
 
@@ -49,6 +47,7 @@ class FileSystemAccessTest : public QObject
 
 private slots:
     void initTestCase();
+    void cleanupTestCase();
 
     void testDirStatuses();
     void testFileActions();

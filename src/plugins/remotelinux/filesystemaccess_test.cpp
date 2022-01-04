@@ -28,12 +28,12 @@
 #include "linuxdevice.h"
 #include "remotelinux_constants.h"
 
-#include <utils/filepath.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <ssh/sshconnection.h>
+#include <utils/filepath.h>
 
-#include <QTest>
 #include <QDebug>
+#include <QTest>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -42,6 +42,9 @@ namespace RemoteLinux {
 namespace Internal {
 
 static const char TEST_IP[] = "127.0.0.1";
+static const char TEST_DIR[] = "/tmp/testdir";
+static const FilePath baseFilePath = FilePath::fromString("ssh://" + QString(TEST_IP)
+                                                          + QString(TEST_DIR));
 
 TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     : IDeviceFactory("test")
@@ -64,9 +67,17 @@ IDevice::Ptr TestLinuxDeviceFactory::create() const
     return newDev;
 }
 
+FilePath createFile(const QString &name)
+{
+    FilePath testFilePath = baseFilePath / name;
+    FilePath dummyFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/dev/null");
+    dummyFilePath.copyFile(testFilePath);
+    return testFilePath;
+}
+
 void FileSystemAccessTest::initTestCase()
 {
-    FilePath filePath = FilePath::fromString("ssh://"+ QString(TEST_IP) +"/tmp");
+    FilePath filePath = baseFilePath;
 
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
         DeviceManager *const devMgr = DeviceManager::instance();
@@ -74,25 +85,30 @@ void FileSystemAccessTest::initTestCase()
         QVERIFY(!newDev.isNull());
         devMgr->addDevice(newDev);
     }
+    QVERIFY(filePath.createDir());
+}
+
+void FileSystemAccessTest::cleanupTestCase()
+{
+    QVERIFY(baseFilePath.exists());
+    QVERIFY(baseFilePath.removeRecursively());
 }
 
 void FileSystemAccessTest::testDirStatuses()
 {
-    FilePath filePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp");
+    FilePath filePath = baseFilePath;
     QVERIFY(filePath.exists());
     QVERIFY(filePath.isDir());
     QVERIFY(filePath.isWritableDir());
 
-    FilePath testFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp/test");
-    FilePath dummyFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/dev/null");
-    dummyFilePath.copyFile(testFilePath);
+    FilePath testFilePath = createFile("test");
     QVERIFY(testFilePath.exists());
     QVERIFY(testFilePath.isFile());
 
     bool fileExists = false;
     filePath.iterateDirectory(
         [&fileExists](const FilePath &filePath) {
-            if (filePath.baseName() == "test"){
+            if (filePath.baseName() == "test") {
                 fileExists = true;
                 return true;
             }
@@ -104,14 +120,11 @@ void FileSystemAccessTest::testDirStatuses()
     QVERIFY(fileExists);
     QVERIFY(testFilePath.removeFile());
     QVERIFY(!testFilePath.exists());
-
 }
 
 void FileSystemAccessTest::testFileActions()
 {
-    FilePath testFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp/test");
-    FilePath dummyFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/dev/null");
-    dummyFilePath.copyFile(testFilePath);
+    FilePath testFilePath = createFile("test");
     QVERIFY(testFilePath.exists());
     QVERIFY(testFilePath.isFile());
 
@@ -127,9 +140,9 @@ void FileSystemAccessTest::testFileActions()
     // ToDo: remove ".contains", make fileContents exact equal content
     QVERIFY(testFilePath.fileContents().contains(content));
 
-    QVERIFY(testFilePath.renameFile(FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp/test1")));
+    QVERIFY(testFilePath.renameFile(baseFilePath / "test1"));
     // It is Ok that FilePath doesn't change itself after rename.
-    FilePath newTestFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp/test1");
+    FilePath newTestFilePath = baseFilePath / "test1";
     QVERIFY(newTestFilePath.exists());
     QVERIFY(!testFilePath.removeFile());
     QVERIFY(newTestFilePath.exists());

@@ -404,7 +404,6 @@ QString LinuxDevice::userAtHost() const
 
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
 {
-    DEBUG("handlesFile " << filePath.scheme() << filePath.host() << userAtHost());
     return filePath.scheme() == "ssh" && filePath.host() == userAtHost();
 }
 
@@ -555,7 +554,7 @@ bool LinuxDevice::removeRecursively(const FilePath &filePath) const
     // We are expecting this only to be called in a context of build directories or similar.
     // Chicken out in some cases that _might_ be user code errors.
     QTC_ASSERT(path.startsWith('/'), return false);
-    const int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
+    const int levelsNeeded = path.startsWith("/home/") ? 3 : 2;
     QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
 
     return d->runInShell({"rm", {"-rf", "--", path}});
