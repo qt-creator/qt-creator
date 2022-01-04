@@ -50,6 +50,7 @@ private slots:
     void cleanupTestCase();
 
     void testDirStatuses();
+    void testBytesAvailable();
     void testFileActions();
 
 private:

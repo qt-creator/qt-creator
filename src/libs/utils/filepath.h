@@ -119,6 +119,7 @@ public:
     bool copyFile(const FilePath &target) const;
     bool renameFile(const FilePath &target) const;
     qint64 fileSize() const;
+    qint64 bytesAvailable() const;
     bool createDir() const;
     QList<FilePath> dirEntries(const QStringList &nameFilters,
                                QDir::Filters filters = QDir::NoFilter,

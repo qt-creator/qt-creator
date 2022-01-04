@@ -92,6 +92,7 @@ public:
     std::function<OsType(const FilePath &)> osType;
     std::function<Environment(const FilePath &)> environment;
     std::function<qint64(const FilePath &)> fileSize;
+    std::function<qint64(const FilePath &)> bytesAvailable;
 
     template <class ...Args> using Continuation = std::function<void(Args...)>;
     std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;

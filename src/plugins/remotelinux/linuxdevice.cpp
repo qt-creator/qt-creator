@@ -230,18 +230,18 @@ public:
         return ok && result == 0;
     }
 
-    QString outputForRunInShell(const CommandLine &cmd)
+    QString outputForRunInShell(const QString &cmd)
     {
         QTC_ASSERT(m_shell, return {});
 
         static int val = 0;
         const QByteArray delim = QString::number(++val, 16).toUtf8();
 
-        DEBUG("RUN2 " << cmd.toUserOutput());
+        DEBUG("RUN2 " << cmd);
         m_shell->readAllStandardOutput(); // clean possible left-overs
         const QByteArray marker = "___QTC___" + delim + "_OUTPUT_MARKER___";
-        DEBUG(" CMD: " << cmd.toUserOutput().toUtf8() + "\necho " + marker + "\n");
-        m_shell->write(cmd.toUserOutput().toUtf8() + "\necho " + marker + "\n");
+        DEBUG(" CMD: " << cmd.toUtf8() + "\necho " + marker + "\n");
+        m_shell->write(cmd.toUtf8() + "\necho " + marker + "\n");
         QByteArray output;
         while (!output.contains(marker)) {
             DEBUG("OUTPUT" << output);
@@ -249,7 +249,7 @@ public:
             output.append(m_shell->readAllStandardOutput());
         }
         DEBUG("GOT2 " << output);
-        LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
+        LOG("Run command in shell:" << cmd << "output size:" << output.size());
         const int pos = output.indexOf(marker);
         if (pos >= 0)
             output = output.left(pos);
@@ -272,6 +272,7 @@ public:
 
     bool setupShell();
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {});
+    QString outputForRunInShell(const QString &cmd);
     QString outputForRunInShell(const CommandLine &cmd);
 
     LinuxDevice *q = nullptr;
@@ -452,10 +453,10 @@ bool LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &da
     return ret;
 }
 
-QString LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
+QString LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
 {
     QMutexLocker locker(&m_shellMutex);
-    DEBUG(cmd.toUserOutput());
+    DEBUG(cmd);
     if (!m_handler->isRunning()) {
         const bool ok = setupShell();
         QTC_ASSERT(ok, return {});
@@ -466,6 +467,11 @@ QString LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
         return m_handler->outputForRunInShell(cmd);
     }, Qt::BlockingQueuedConnection, &ret);
     return ret;
+}
+
+QString LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
+{
+    return outputForRunInShell(cmd.toUserOutput());
 }
 
 bool LinuxDevice::isExecutableFile(const FilePath &filePath) const
@@ -595,6 +601,20 @@ qint64 LinuxDevice::fileSize(const FilePath &filePath) const
     QTC_ASSERT(handlesFile(filePath), return -1);
     const QString output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
     return output.toLongLong();
+}
+
+qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return -1);
+    CommandLine cmd("df", {"-k"});
+    cmd.addArg(filePath.path());
+    cmd.addArgs("|tail -n 1 |sed 's/  */ /g'|cut -d ' ' -f 4", CommandLine::Raw);
+    const QString output = d->outputForRunInShell(cmd.toUserOutput());
+    bool ok = false;
+    const qint64 size = output.toLongLong(&ok);
+    if (ok)
+        return size * 1024;
+    return -1;
 }
 
 QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const

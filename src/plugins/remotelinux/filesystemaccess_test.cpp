@@ -122,6 +122,13 @@ void FileSystemAccessTest::testDirStatuses()
     QVERIFY(!testFilePath.exists());
 }
 
+void FileSystemAccessTest::testBytesAvailable()
+{
+    FilePath testFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp");
+    QVERIFY(testFilePath.exists());
+    QVERIFY(testFilePath.bytesAvailable() > 0);
+}
+
 void FileSystemAccessTest::testFileActions()
 {
     FilePath testFilePath = createFile("test");

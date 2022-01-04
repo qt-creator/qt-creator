@@ -273,6 +273,7 @@ public:
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
     virtual qint64 fileSize(const Utils::FilePath &filePath) const;
+    virtual qint64 bytesAvailable(const Utils::FilePath &filePath) const;
 
     virtual void aboutToBeRemoved() const {}
 

@@ -40,6 +40,7 @@
 #include <QFileInfo>
 #include <QOperatingSystemVersion>
 #include <QRegularExpression>
+#include <QStorageInfo>
 #include <QUrl>
 #include <qplatformdefs.h>
 
@@ -1420,6 +1421,16 @@ qint64 FilePath::fileSize() const
     }
     return QFileInfo(m_data).size();
 }
+
+qint64 FilePath::bytesAvailable() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.bytesAvailable, return false);
+        return s_deviceHooks.bytesAvailable(*this);
+    }
+    return QStorageInfo(m_data).bytesAvailable();
+}
+
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {

@@ -443,6 +443,13 @@ qint64 IDevice::fileSize(const FilePath &filePath) const
     return -1;
 }
 
+qint64 IDevice::bytesAvailable(const Utils::FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return -1;
+}
+
 IDevice::~IDevice() = default;
 
 /*!
