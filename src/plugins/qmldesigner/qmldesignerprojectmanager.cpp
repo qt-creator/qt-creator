@@ -52,6 +52,8 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 
+#include <QQmlEngine>
+
 #include <filesystem>
 #include <type_traits>
 
@@ -101,6 +103,11 @@ QmlDesignerProjectManager::QmlDesignerProjectManager()
     QObject::connect(sessionManager,
                      &::ProjectExplorer::SessionManager::projectRemoved,
                      [&](auto *project) { projectRemoved(project); });
+}
+
+void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine) const
+{
+    engine->addImageProvider("project_preview", &m_imageCacheData->imageProvider);
 }
 
 QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;

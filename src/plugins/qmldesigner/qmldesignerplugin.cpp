@@ -584,6 +584,11 @@ AsynchronousImageCache &QmlDesignerPlugin::imageCache()
     return m_instance->d->viewManager.imageCache();
 }
 
+void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
+{
+    m_instance->d->projectManager.registerPreviewImageProvider(engine);
+}
+
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
 {
     emit instance()->usageStatisticsUsageTimer(identifier, elapsed);

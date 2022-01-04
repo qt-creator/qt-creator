@@ -29,6 +29,8 @@
 
 #include <memory>
 
+QT_FORWARD_DECLARE_CLASS(QQmlEngine)
+
 namespace Core {
 class IEditor;
 } // namespace Core
@@ -48,6 +50,8 @@ class QmlDesignerProjectManager
 public:
     QmlDesignerProjectManager();
     ~QmlDesignerProjectManager();
+
+    void registerPreviewImageProvider(QQmlEngine *engine) const;
 
 private:
     void editorOpened(::Core::IEditor *editor);
