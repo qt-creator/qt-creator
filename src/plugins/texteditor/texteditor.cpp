@@ -6604,9 +6604,9 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
 
 void TextEditorWidgetPrivate::maybeSelectLine()
 {
-    if (q->textCursor().hasSelection() && !q->multiTextCursor().hasMultipleCursors())
-        return;
     MultiTextCursor cursor = m_cursors;
+    if (cursor.hasSelection())
+        return;
     for (QTextCursor &c : cursor) {
         const QTextBlock &block = m_document->document()->findBlock(c.selectionStart());
         const QTextBlock &end = m_document->document()->findBlock(c.selectionEnd()).next();
