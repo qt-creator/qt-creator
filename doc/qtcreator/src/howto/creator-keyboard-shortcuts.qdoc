@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -631,8 +631,11 @@
             \li  Step out
             \li  Shift+F11
         \row
-            \li  Toggle breakpoint
-            \li  F9
+            \li  Set or remove breakpoint
+            \li  F9 (F8 on \macos)
+        \row
+            \li  Enable or disable breakpoint
+            \li  Ctrl+F9 (Ctrl+F8 on \macos)
         \row
             \li  Run to selected function
             \li  Ctrl+F6

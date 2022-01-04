@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -113,7 +113,7 @@
             \list
 
                 \li In the code editor, click the left margin or press \key F9
-                    (\key F8 for \macos) at a particular line you want the
+                    (\key F8 on \macos) on a particular line you want the
                     program to stop.
 
                 \li In the \uicontrol {Breakpoint Preset} view or the
@@ -226,6 +226,9 @@
 
         \li Right-click the breakpoint marker in the text editor and select
             \uicontrol{Disable Breakpoint}.
+
+        \li Select a line that contains a breakpoint and press \key Ctrl+F9
+            (\key Ctrl+F8 on \macos).
 
         \li In the \uicontrol {Breakpoint Preset} view or the
             \uicontrol Breakpoints view:
