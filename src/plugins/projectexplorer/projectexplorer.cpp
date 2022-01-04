@@ -196,7 +196,6 @@ namespace Constants {
 const int  P_MODE_SESSION         = 85;
 
 // Actions
-const char NEWPROJECT[]           = "ProjectExplorer.NewProject";
 const char LOAD[]                 = "ProjectExplorer.Load";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
 const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
@@ -1071,8 +1070,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // new action
     dd->m_newAction = new QAction(tr("New Project..."), this);
-    cmd = ActionManager::registerAction(dd->m_newAction, Constants::NEWPROJECT);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+N")));
+    cmd = ActionManager::registerAction(dd->m_newAction, Core::Constants::NEW, projectTreeContext);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // open action
