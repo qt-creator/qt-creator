@@ -49,8 +49,6 @@ signals:
     void done(const QString &error);
 
 private:
-    void doStart();
-
     QString m_remoteCommand;
     QStringList m_connectionArgs;
     QString m_displayName;
