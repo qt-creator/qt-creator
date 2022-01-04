@@ -72,7 +72,13 @@ public:
     void resetPropertyEditorView();
 
     void registerFormEditorToolTakingOwnership(AbstractCustomTool *tool);
-    void registerViewTakingOwnership(AbstractView *view);
+    template<typename View>
+    View *registerView(std::unique_ptr<View> &&view)
+    {
+        auto notOwningPointer = view.get();
+        addView(std::move(view));
+        return notOwningPointer;
+    }
 
     QList<WidgetInfo> widgetInfos() const;
     QWidget *widget(const QString & uniqueId) const;
@@ -109,6 +115,8 @@ public:
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 
+    void addView(std::unique_ptr<AbstractView> &&view);
+
     void attachNodeInstanceView();
     void attachItemLibraryView();
     void attachAdditionalViews();
@@ -121,8 +129,8 @@ private: // functions
 
     void switchStateEditorViewToBaseState();
     void switchStateEditorViewToSavedState();
-    QList<QPointer<AbstractView>> views() const;
-    const QList<QPointer<AbstractView> > standardViews() const;
+    QList<AbstractView *> views() const;
+    QList<AbstractView *> standardViews() const;
 
 private: // variables
     std::unique_ptr<ViewManagerData> d;

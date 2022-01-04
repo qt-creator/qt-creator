@@ -58,15 +58,14 @@
 
 namespace QmlDesigner {
 
-AssetExporterPlugin::AssetExporterPlugin() :
-    m_view(new AssetExporterView)
+AssetExporterPlugin::AssetExporterPlugin()
 {
     ProjectExplorer::TaskHub::addCategory( Constants::TASK_CATEGORY_ASSET_EXPORT,
                                            tr("Asset Export"), false);
 
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
     auto &viewManager = designerPlugin->viewManager();
-    viewManager.registerViewTakingOwnership(m_view);
+    m_view = viewManager.registerView(std::make_unique<AssetExporterView>());
 
     // Add dumper templates for factory instantiation.
     Component::addNodeDumper<ItemNodeDumper>();

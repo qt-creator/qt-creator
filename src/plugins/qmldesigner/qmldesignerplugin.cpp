@@ -249,22 +249,20 @@ bool QmlDesignerPlugin::delayedInitialize()
 
     d->settings.fromSettings(Core::ICore::settings());
 
-    d->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView);
+    d->viewManager.registerView(std::make_unique<QmlDesigner::Internal::ConnectionView>());
     if (DesignerSettings::getValue(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool()) {
-        auto timelineView = new QmlDesigner::TimelineView;
-        d->viewManager.registerViewTakingOwnership(timelineView);
+        auto timelineView = d->viewManager.registerView(std::make_unique<QmlDesigner::TimelineView>());
         timelineView->registerActions();
 
-        auto curveEditorView = new QmlDesigner::CurveEditorView;
-        d->viewManager.registerViewTakingOwnership(curveEditorView);
+        d->viewManager.registerView(std::make_unique<QmlDesigner::CurveEditorView>());
 
-        auto eventlistView = new QmlDesigner::EventListPluginView;
-        d->viewManager.registerViewTakingOwnership(eventlistView);
+        auto eventlistView = d->viewManager.registerView(
+            std::make_unique<QmlDesigner::EventListPluginView>());
         eventlistView->registerActions();
     }
 
-    auto transitionEditorView = new QmlDesigner::TransitionEditorView;
-    d->viewManager.registerViewTakingOwnership(transitionEditorView);
+    auto transitionEditorView = d->viewManager.registerView(
+        std::make_unique<QmlDesigner::TransitionEditorView>());
     transitionEditorView->registerActions();
 
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
