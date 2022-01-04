@@ -403,6 +403,20 @@ QString LinuxDevice::userAtHost() const
     return sshParameters().userName() + '@' + sshParameters().host();
 }
 
+FilePath LinuxDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
+{
+    if (pathOnDevice.needsDevice()) {
+        // Already correct form, only sanity check it's ours...
+        QTC_CHECK(handlesFile(pathOnDevice));
+        return pathOnDevice;
+    }
+    FilePath result;
+    result.setScheme("ssh");
+    result.setHost(userAtHost());
+    result.setPath(pathOnDevice.path());
+    return result;
+}
+
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
 {
     return filePath.scheme() == "ssh" && filePath.host() == userAtHost();

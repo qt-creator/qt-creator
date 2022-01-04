@@ -58,6 +58,8 @@ public:
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
 
     QString userAtHost() const;
+    Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
+
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool isExecutableFile(const Utils::FilePath &filePath) const override;
     bool isReadableFile(const Utils::FilePath &filePath) const override;

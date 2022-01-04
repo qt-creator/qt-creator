@@ -42,16 +42,15 @@ public:
     void setRequiredSpaceInBytes(quint64 sizeInBytes);
 
 private:
-    void handleStdErr();
-    void handleProcessFinished();
-
+    void deployAndFinish();
     bool isDeploymentNecessary() const override { return true; }
 
     CheckResult isDeploymentPossible() const override;
-    void doDeploy() override;
-    void stopDeployment() override;
+    void doDeviceSetup() final { deployAndFinish(); }
+    void stopDeviceSetup() final { }
 
-    void cleanup();
+    void doDeploy() final {};
+    void stopDeployment() final {};
 
     Internal::RemoteLinuxCheckForFreeDiskSpaceServicePrivate * const d;
 };

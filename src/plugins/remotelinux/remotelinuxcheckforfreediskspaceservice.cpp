@@ -28,14 +28,15 @@
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/fileutils.h>
 
+#include <QScopeGuard>
+
 namespace RemoteLinux {
 namespace Internal {
 class RemoteLinuxCheckForFreeDiskSpaceServicePrivate
 {
 public:
     QString pathToCheck;
-    quint64 requiredSpaceInBytes;
-    QSsh::SshRemoteProcessRunner *processRunner;
+    quint64 requiredSpaceInBytes = 0;
 };
 } // namespace Internal
 
@@ -43,13 +44,10 @@ RemoteLinuxCheckForFreeDiskSpaceService::RemoteLinuxCheckForFreeDiskSpaceService
         : AbstractRemoteLinuxDeployService(parent),
           d(new Internal::RemoteLinuxCheckForFreeDiskSpaceServicePrivate)
 {
-    d->processRunner = nullptr;
-    d->requiredSpaceInBytes = 0;
 }
 
 RemoteLinuxCheckForFreeDiskSpaceService::~RemoteLinuxCheckForFreeDiskSpaceService()
 {
-    cleanup();
     delete d;
 }
 
@@ -63,44 +61,31 @@ void RemoteLinuxCheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 si
     d->requiredSpaceInBytes = sizeInBytes;
 }
 
-void RemoteLinuxCheckForFreeDiskSpaceService::handleStdErr()
+void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
 {
-    emit stdErrData(QString::fromUtf8(d->processRunner->readAllStandardError()));
-}
-
-void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
-{
-    if (!d->processRunner->processErrorString().isEmpty()) {
-        emit errorMessage(tr("Remote process failed: %1")
-                          .arg(d->processRunner->processErrorString()));
-        stopDeployment();
-        return;
-
-    }
-
-    bool isNumber;
-    QByteArray processOutput = d->processRunner->readAllStandardOutput();
-    processOutput.chop(1); // newline
-    quint64 freeSpace = processOutput.toULongLong(&isNumber);
-    quint64 requiredSpaceInMegaBytes = d->requiredSpaceInBytes / (1024 * 1024);
-    if (!isNumber) {
-        emit errorMessage(tr("Unexpected output from remote process: \"%1\"")
-                .arg(QString::fromUtf8(processOutput)));
-        stopDeployment();
+    auto cleanup = qScopeGuard([this] { setFinished(); });
+    const Utils::FilePath path
+            = deviceConfiguration()->mapToGlobalPath(Utils::FilePath::fromString(d->pathToCheck));
+    const quint64 freeSpace = path.bytesAvailable();
+    if (freeSpace < 0) {
+        emit errorMessage(tr("Can't get the info about the free disk space for \"%1\"")
+                .arg(path.toUserOutput()));
         return;
     }
 
-    freeSpace /= 1024; // convert kilobyte to megabyte
-    if (freeSpace < requiredSpaceInMegaBytes) {
+    const quint64 mb = 1024 * 1024;
+    const quint64 freeSpaceMB = freeSpace / mb;
+    const quint64 requiredSpaceMB = d->requiredSpaceInBytes / mb;
+
+    if (freeSpaceMB < requiredSpaceMB) {
         emit errorMessage(tr("The remote file system has only %n megabytes of free space, "
-                "but %1 megabytes are required.", nullptr, freeSpace).arg(requiredSpaceInMegaBytes));
-        stopDeployment();
+                "but %1 megabytes are required.", nullptr, freeSpaceMB)
+                          .arg(requiredSpaceMB));
         return;
     }
 
     emit progressMessage(tr("The remote file system has %n megabytes of free space, going ahead.",
-                            nullptr, freeSpace));
-    stopDeployment();
+                            nullptr, freeSpaceMB));
 }
 
 CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() const
@@ -112,34 +97,6 @@ CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() cons
     }
 
     return AbstractRemoteLinuxDeployService::isDeploymentPossible();
-}
-
-void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
-{
-    d->processRunner = new QSsh::SshRemoteProcessRunner;
-    connect(d->processRunner, &QSsh::SshRemoteProcessRunner::processClosed,
-            this, &RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished);
-    connect(d->processRunner, &QSsh::SshRemoteProcessRunner::readyReadStandardError,
-            this, &RemoteLinuxCheckForFreeDiskSpaceService::handleStdErr);
-    const QString command = QString::fromLatin1("df -k %1 |tail -n 1 |sed 's/  */ /g' "
-            "|cut -d ' ' -f 4").arg(d->pathToCheck);
-    d->processRunner->run(command, deviceConfiguration()->sshParameters());
-}
-
-void RemoteLinuxCheckForFreeDiskSpaceService::stopDeployment()
-{
-    cleanup();
-    handleDeploymentDone();
-}
-
-void RemoteLinuxCheckForFreeDiskSpaceService::cleanup()
-{
-    if (d->processRunner) {
-        disconnect(d->processRunner, nullptr, this, nullptr);
-        d->processRunner->cancel();
-        delete d->processRunner;
-        d->processRunner = nullptr;
-    }
 }
 
 } // namespace RemoteLinux

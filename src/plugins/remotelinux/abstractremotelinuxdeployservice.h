@@ -106,6 +106,8 @@ protected:
     virtual void doDeviceSetup() { handleDeviceSetupDone(true); }
     virtual void stopDeviceSetup() { handleDeviceSetupDone(false); }
 
+    void setFinished();
+
 private:
     void handleConnected();
     void handleConnectionFailure();
@@ -115,7 +117,6 @@ private:
     virtual void doDeploy() = 0;
     virtual void stopDeployment() = 0;
 
-    void setFinished();
 
     Internal::AbstractRemoteLinuxDeployServicePrivate * const d;
 };
