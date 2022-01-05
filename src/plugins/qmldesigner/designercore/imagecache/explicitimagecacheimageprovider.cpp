@@ -62,7 +62,7 @@ QQuickImageResponse *ExplicitImageCacheImageProvider::requestImageResponse(const
 {
     auto response = std::make_unique<ImageRespose>(m_defaultImage);
 
-    m_cache.requestSmallImage(
+    m_cache.requestImage(
         id,
         [response = QPointer<ImageRespose>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
