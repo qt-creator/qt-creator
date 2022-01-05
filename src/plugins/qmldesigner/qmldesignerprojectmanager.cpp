@@ -61,16 +61,27 @@
 
 namespace QmlDesigner {
 
-static QString defaultImagePath()
+namespace {
+
+QString defaultImagePath()
 {
     return Core::ICore::resourcePath("qmldesigner/welcomepage/images/newThumbnail.png").toString();
 }
 
+::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(::ProjectExplorer::Target *target)
+{
+    return qobject_cast<::QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
+}
+
+} // namespace
+
 class PreviewImageCacheData
 {
 public:
-    Sqlite::Database database{
-        Utils::PathString{Core::ICore::cacheResourcePath("previewcache.db").toString()}};
+    Sqlite::Database database{Utils::PathString{
+                                  Core::ICore::cacheResourcePath("previewcache.db").toString()},
+                              Sqlite::JournalMode::Wal,
+                              Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager};
@@ -78,7 +89,6 @@ public:
     TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
     AsynchronousImageFactory factory{storage, generator, timeStampProvider};
-    ExplicitImageCacheImageProvider imageProvider{cache, QImage(defaultImagePath())};
 };
 
 class QmlDesignerProjectManagerProjectData
@@ -112,39 +122,44 @@ QmlDesignerProjectManager::QmlDesignerProjectManager()
                      [&](auto *project) { projectRemoved(project); });
 }
 
+QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
+
 void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine) const
 {
-    engine->addImageProvider("project_preview", &m_imageCacheData->imageProvider);
-}
+    auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(m_imageCacheData->cache,
+                                                                           QImage{defaultImagePath()});
 
-QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
+    engine->addImageProvider("project_preview", imageProvider.release());
+}
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
 
-void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *) {}
-
-void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) {}
-
-namespace {
-
-::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(::ProjectExplorer::Target *target)
+void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
 {
-    return qobject_cast<::QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
-}
+    if (!m_projectData || !m_projectData->activeTarget)
+        return;
 
-} // namespace
-
-void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
-{
-    ::QmlProjectManager::QmlBuildSystem *qmlBuildSystem = getQmlBuildSystem(project->activeTarget());
+    ::QmlProjectManager::QmlBuildSystem *qmlBuildSystem = getQmlBuildSystem(
+        m_projectData->activeTarget);
 
     if (qmlBuildSystem) {
-        m_imageCacheData->collector.setTarget(project->activeTarget());
+        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
         m_imageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
     }
 }
 
-void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *) {}
+void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) {}
+
+void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
+{
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>();
+    m_projectData->activeTarget = project->activeTarget();
+}
+
+void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
+{
+    m_projectData.reset();
+}
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
 
