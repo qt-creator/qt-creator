@@ -132,8 +132,11 @@ QString MultiTextCursor::selectedText() const
         const QString &cursorText = cursor.selectedText();
         if (cursorText.isEmpty())
             continue;
-        if (!text.isEmpty())
+        if (!text.isEmpty()) {
+            if (text.endsWith(QChar::ParagraphSeparator))
+                text.chop(1);
             text.append('\n');
+        }
         text.append(cursorText);
     }
     return text;
