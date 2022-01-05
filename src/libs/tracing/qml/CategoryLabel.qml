@@ -31,7 +31,7 @@ import QtCreator.Tracing
 Item {
     id: labelContainer
 
-    property QtObject model
+    property TimelineModel model
     property QtObject notesModel
     property string text: model ? model.displayName : ""
     property bool expanded: model && model.expanded
