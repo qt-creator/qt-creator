@@ -258,9 +258,27 @@ int ProjectModel::rowCount(const QModelIndex &) const
     return ProjectExplorer::ProjectExplorerPlugin::recentProjects().count();
 }
 
+QString getMainQmlFile(const QString &projectFilePath)
+{
+    const QString defaultReturn = "content/App.qml";
+    Utils::FileReader reader;
+    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
+            return defaultReturn;
+
+    const QByteArray data = reader.data();
+
+    QRegularExpression regexp(R"x(mainFile: "(.*)")x");
+    QRegularExpressionMatch match = regexp.match(QString::fromUtf8(data));
+
+    if (!match.hasMatch())
+        return defaultReturn;
+
+    return match.captured(1);
+}
+
 QString appQmlFile(const QString &projectFilePath)
 {
-    return QFileInfo(projectFilePath).dir().absolutePath() + "/content/App.qml";
+    return QFileInfo(projectFilePath).dir().absolutePath() + "/" +  getMainQmlFile(projectFilePath);
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
