@@ -43,6 +43,7 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <qmldesigner/components/componentcore/theme.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/icon.h>
@@ -57,6 +58,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QPointer>
+#include <QShortcut>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -70,6 +72,14 @@
 
 namespace StudioWelcome {
 namespace Internal {
+
+static bool useNewWelcomePage()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
+
+    return settings->value(newWelcomePageEntry, false).toBool();
+}
 
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
@@ -473,20 +483,41 @@ WelcomeMode::WelcomeMode()
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     m_modeWidget = new QQuickWidget;
+    m_modeWidget->setMinimumSize(1024, 768);
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    QmlDesigner::Theme::setupTheme(m_modeWidget->engine());
     m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
 
     QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_modeWidget->engine());
 
+    if (!useNewWelcomePage()) {
+
 #ifdef QT_DEBUG
-    m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
-                                    + "welcomepage/imports");
-    m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
-                                  + "welcomepage/main.qml"));
+        m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
+                                              + "welcomepage/imports");
+        m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
+                                                    + "welcomepage/main.qml"));
 #else
-    m_modeWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
-    m_modeWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
+        m_modeWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
+        m_modeWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
 #endif
+    } else {
+
+        m_modeWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
+
+        const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toString();
+        m_modeWidget->engine()->addImportPath(welcomePagePath + "/imports");
+        m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+
+        QShortcut *updateShortcut = nullptr;
+        if (Utils::HostOsInfo::isMacHost())
+            updateShortcut = new QShortcut(QKeySequence(Qt::ALT + Qt::Key_F5), m_modeWidget);
+        else
+            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), m_modeWidget);
+        connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
+            m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+        });
+    }
 
     setWidget(m_modeWidget);
 
