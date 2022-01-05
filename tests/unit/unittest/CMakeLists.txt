@@ -152,7 +152,7 @@ if (NOT TARGET Sqlite)
   add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
 endif()
 extend_qtc_test_with_target_sources(Sqlite
-  DEFINES _HAVE_SQLITE_CONFIG_H
+  DEFINES SQLITE_CUSTOM_INCLUDE=config.h
 )
 
 if (APPLE)

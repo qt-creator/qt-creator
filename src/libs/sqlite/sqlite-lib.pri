@@ -52,7 +52,7 @@ HEADERS += \
     $$PWD/sqliteindex.h \
     $$PWD/sqlitebasestatement.h
 
-DEFINES += _HAVE_SQLITE_CONFIG_H SQLITE_CORE
+DEFINES += SQLITE_CUSTOM_INCLUDE=config.h SQLITE_CORE
 
 CONFIG(debug, debug|release): DEFINES += SQLITE_ENABLE_API_ARMOR
 

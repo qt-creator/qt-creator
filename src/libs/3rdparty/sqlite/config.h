@@ -39,10 +39,6 @@
 #define HAVE_USLEEP 1
 #endif
 
-#ifdef _GNU_SOURCE
-#define HAVE_STRCHRNUL 1
-#endif
-
 #if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
 #define HAVE_FDATASYNC 1
 #endif
