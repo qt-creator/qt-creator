@@ -4,7 +4,6 @@ VPATH += $$PWD
 SOURCES += \
     columndefinition.cpp \
     createtablecommand.cpp \
-    createtablesqlstatementbuilder.cpp \
     sqlitedatabasebackend.cpp \
     sqlitedatabaseconnection.cpp \
     sqlitedatabaseconnectionproxy.cpp \
