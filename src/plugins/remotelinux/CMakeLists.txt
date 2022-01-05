@@ -7,7 +7,6 @@ add_qtc_plugin(RemoteLinux
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
     abstractuploadandinstallpackageservice.cpp abstractuploadandinstallpackageservice.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
-    filesystemaccess_test.cpp filesystemaccess_test.h
     genericdirectuploadservice.cpp genericdirectuploadservice.h
     genericdirectuploadstep.cpp genericdirectuploadstep.h
     genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h genericlinuxdeviceconfigurationwidget.ui
@@ -45,4 +44,11 @@ add_qtc_plugin(RemoteLinux
     sshkeydeployer.cpp sshkeydeployer.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
     uploadandinstalltarpackagestep.cpp uploadandinstalltarpackagestep.h
+)
+
+extend_qtc_plugin(RemoteLinux
+  CONDITION WITH_TESTS
+  SOURCES
+    filesystemaccess_test.cpp
+    filesystemaccess_test.h
 )
