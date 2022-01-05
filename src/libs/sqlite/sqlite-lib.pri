@@ -11,7 +11,6 @@ unix:!bsd: LIBS += -ldl
 include(../3rdparty/sqlite/sqlite.pri)
 
 SOURCES += \
-    $$PWD/createtablesqlstatementbuilder.cpp \
     $$PWD/sqlitedatabasebackend.cpp \
     $$PWD/sqliteexception.cpp \
     $$PWD/sqliteglobal.cpp \

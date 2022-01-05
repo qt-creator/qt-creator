@@ -13,6 +13,7 @@ HEADERS += \
     publickeydeploymentdialog.h \
     genericlinuxdeviceconfigurationwizard.h \
     remotelinuxdebugsupport.h \
+    filesystemaccess_test.h \
     genericlinuxdeviceconfigurationwizardpages.h \
     abstractremotelinuxdeploystep.h \
     genericdirectuploadstep.h \
@@ -54,6 +55,7 @@ SOURCES += \
     publickeydeploymentdialog.cpp \
     genericlinuxdeviceconfigurationwizard.cpp \
     remotelinuxdebugsupport.cpp \
+    filesystemaccess_test.cpp \
     genericlinuxdeviceconfigurationwizardpages.cpp \
     abstractremotelinuxdeploystep.cpp \
     genericdirectuploadstep.cpp \
