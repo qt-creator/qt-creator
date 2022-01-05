@@ -52,12 +52,19 @@
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
 
+#include <coreplugin/icore.h>
+
 #include <QQmlEngine>
 
 #include <filesystem>
 #include <type_traits>
 
 namespace QmlDesigner {
+
+static QString defaultImagePath()
+{
+    return Core::ICore::resourcePath("qmldesigner/welcomepage/images/newThumbnail.png").toString();
+}
 
 class PreviewImageCacheData
 {
@@ -71,7 +78,7 @@ public:
     TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
     AsynchronousImageFactory factory{storage, generator, timeStampProvider};
-    ExplicitImageCacheImageProvider imageProvider{cache, QImage{}};
+    ExplicitImageCacheImageProvider imageProvider{cache, QImage(defaultImagePath())};
 };
 
 class QmlDesignerProjectManagerProjectData
