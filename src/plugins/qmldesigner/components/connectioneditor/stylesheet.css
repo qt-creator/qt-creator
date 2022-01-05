@@ -28,14 +28,15 @@ QTableView::item:focus {
 }
 
 QTableView::item:selected {
-    border: none
+    border: none;
 }
 
 QHeaderView::section {
     background-color: creatorTheme.DSheaderViewBackground;
     border: 0px;
     color: creatorTheme.DStextColor;
-    margin-right: 1px
+    margin-right: 1px;
+    padding-left: 6px;
 }
 
 QTableView {
