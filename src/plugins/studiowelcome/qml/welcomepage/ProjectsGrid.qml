@@ -37,7 +37,7 @@ GridView {
 
     delegate: HoverOverDesaturate {
         id: hoverOverDesaturate
-        imageSource: typeof(thumbnail) === "undefined" ? "images/thumbnail_test.png" : thumbnail;
+        imageSource: typeof(thumbnail) === "undefined" ? previewUrl : thumbnail
         labelText: displayName
         downloadIcon: typeof(showDownload) === "undefined" ? false : showDownload;
         onClicked: root.itemSelected(index, root.model.get(index))
