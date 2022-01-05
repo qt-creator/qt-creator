@@ -193,7 +193,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     auto addMenu = new QMenu;
     addMenu->clear();
     for (const ClientType &type : clientTypes()) {
-        auto action = new QAction(LanguageClientSettingsPage::tr("New %1").arg(type.name));
+        auto action = new QAction(type.name);
         connect(action, &QAction::triggered, this, [this, id = type.id]() { addItem(id); });
         addMenu->addAction(action);
     }
