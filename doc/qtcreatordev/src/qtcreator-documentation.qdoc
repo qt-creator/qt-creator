@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -359,6 +359,35 @@
 
     To use the numbers, copy-paste the number images on the screenshot to the
     places that you want to refer to from text.
+
+    \section2 Icons
+
+    The \l{https://doc.qt.io/}{Qt Documentation} published online can be viewed
+    in dark and light modes. To make the icons used in the docs visible in both
+    modes, save icon files as gray-scale images with a transparent background in
+    the following locations, depending on whether they are used in both manuals
+    or just the \QDS Manual:
+
+    \list
+        \li \c qtcreator/doc/qtcreator/images/icons - used in the \QC Manual
+        \li \c qtcreator/doc/qtdesignstudio/images/icons - used only in the
+            \QDS Manual
+    \endlist
+
+    If you receive a large number of icons that are not visible in either light
+    or dark mode or have a solid background, run the \c recolordocsicons.py
+    Python script from the \c src/tools/icons/ directory. By default, the script
+    recolors icons in \c qtcreator/doc/qtcreator/images/icons. Use the
+    \c -docspath option to specify the path to another icon source directory.
+
+    To run the script, you will need to install the following tools and add them
+    to the PATH:
+
+    \list
+        \li Python 3.x (the script has been tested to work with 3.10)
+        \li ImageMagick
+        \li optipng
+    \endlist
 
     \section2 Optimizing Images
 
