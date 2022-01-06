@@ -173,15 +173,15 @@ Environment ProcessCreator::processEnvironment() const
 
     if (temporaryDirectory().isValid()) {
         const QString temporaryDirectoryPath = temporaryDirectory().path();
-        processEnvironment.appendOrSet("TMPDIR", temporaryDirectoryPath);
-        processEnvironment.appendOrSet("TMP", temporaryDirectoryPath);
-        processEnvironment.appendOrSet("TEMP", temporaryDirectoryPath);
+        processEnvironment.set("TMPDIR", temporaryDirectoryPath);
+        processEnvironment.set("TMP", temporaryDirectoryPath);
+        processEnvironment.set("TEMP", temporaryDirectoryPath);
     }
 
     const Environment &env = m_environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
         if (env.isEnabled(it))
-            processEnvironment.appendOrSet(env.key(it), env.expandedValueForKey(env.key(it)));
+            processEnvironment.set(env.key(it), env.expandedValueForKey(env.key(it)));
     }
 
     return processEnvironment;
