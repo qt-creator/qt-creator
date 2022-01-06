@@ -442,7 +442,7 @@
         \li \inlineimage text-icon16.png
         \li \l [QtQuick]{Text}
         \li Default Components - Basic
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li Formatted read-only text.
     \row
         \li \inlineimage icons/textarea-icon16.png

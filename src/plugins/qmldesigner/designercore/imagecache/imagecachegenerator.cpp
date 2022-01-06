@@ -86,8 +86,10 @@ Utils::PathString createId(Utils::SmallStringView name, Utils::SmallStringView e
 template<typename Callbacks, typename... Argument>
 void callCallbacks(const Callbacks &callbacks, Argument &&...arguments)
 {
-    for (auto &&callback : callbacks)
-        callback(std::forward<Argument>(arguments)...);
+    for (auto &&callback : callbacks) {
+        if (callback)
+            callback(std::forward<Argument>(arguments)...);
+    }
 }
 
 } // namespace

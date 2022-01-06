@@ -32,6 +32,8 @@
 
 using namespace StudioWelcome;
 
+WizardFactories::GetIconUnicodeFunc WizardFactories::m_getIconUnicode = &QmlDesigner::Theme::getIconUnicode;
+
 WizardFactories::WizardFactories(QList<Core::IWizardFactory *> &factories, QWidget *wizardParent, const Utils::Id &platform)
     : m_wizardParent{wizardParent}
     , m_platform{platform}
@@ -54,10 +56,7 @@ void WizardFactories::sortByCategoryAndId()
 
 void WizardFactories::filter()
 {
-    QList<Core::IWizardFactory *> acceptedFactories;
-    // TODO: perhaps I could use Utils::filtered here.
-    std::copy_if(std::begin(m_factories), std::end(m_factories), std::back_inserter(acceptedFactories),
-                 [&](auto *wizard) {
+    QList<Core::IWizardFactory *> acceptedFactories = Utils::filtered(m_factories, [&](auto *wizard) {
         return wizard->isAvailable(m_platform)
                 && wizard->kind() == Core::IWizardFactory::ProjectWizard
                 && wizard->requiredFeatures().contains("QtStudio");
@@ -76,7 +75,7 @@ ProjectItem WizardFactories::makeProjectItem(Core::IWizardFactory *f, QWidget *p
         /*.categoryId =*/f->category(),
         /*. description =*/f->description(),
         /*.qmlPath =*/f->detailsPageQmlPath(),
-        /*.fontIconCode =*/QmlDesigner::Theme::getIconUnicode(f->fontIconName()),
+        /*.fontIconCode =*/m_getIconUnicode(f->fontIconName()),
         /*.create =*/ std::bind(&Core::IWizardFactory::runWizard, f, _1, parent, platform,
                                QVariantMap(), false),
     };

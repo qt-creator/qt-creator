@@ -1,6 +1,7 @@
 HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/shortcutmanager.h \
     $$PWD/qmldesignerplugin.h \
+    $$PWD/qmldesignerprojectmanager.h \
     $$PWD/designmodewidget.h \
     $$PWD/designersettings.h \
     $$PWD/editorproxy.h \
@@ -19,6 +20,7 @@ HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/richtexteditordialog.h
 
 SOURCES += $$PWD/qmldesignerplugin.cpp \
+    $$PWD/qmldesignerprojectmanager.cpp \
     $$PWD/shortcutmanager.cpp \
     $$PWD/designmodewidget.cpp \
     $$PWD/designersettings.cpp \
@@ -34,6 +36,7 @@ SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/openuiqmlfiledialog.cpp \
     $$PWD/designermcumanager.cpp \
     $$PWD/richtexteditordialog.cpp
+
 
 FORMS += $$PWD/settingspage.ui \
     $$PWD/openuiqmlfiledialog.ui

@@ -169,7 +169,7 @@
     \endlist
 
     To preview the changes that you make to the UI while you make
-    them, select the \inlineimage live_preview.png
+    them, select the \inlineimage icons/live_preview.png
     (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
     view toolbar or press \key {Alt+P}.
 

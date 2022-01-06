@@ -168,7 +168,7 @@
     We can now start playing with the particle system component properties to
     achieve the artistic effect that we want. To see how the changes in property
     values affect the simulation, we will open the live preview by selecting
-    \inlineimage live_preview.png
+    \inlineimage icons/live_preview.png
     on the main toolbar (or by pressing \key {Alt+P}).
 
     First, we will specify property values for the \uicontrol {Particle System}

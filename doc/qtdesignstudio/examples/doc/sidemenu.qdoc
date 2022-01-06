@@ -187,7 +187,7 @@
     X coordinate -424. We then move the playhead to frame 1000 and set the X
     coordinate to 0.
 
-    We select \inlineimage animation.png "Timeline Settings button"
+    We select \inlineimage icons/animation.png "Timeline Settings button"
     to open the \uicontrol {Timeline Settings} dialog. In the
     \uicontrol {Transitions to states} field, we select the state to
     apply when the animation finishes. In the lower part of the

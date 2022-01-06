@@ -180,7 +180,7 @@ const QStringList &ItemLibraryAssetsModel::supportedVideoSuffixes()
 const QStringList &ItemLibraryAssetsModel::supportedTexture3DSuffixes()
 {
     // These are file types only supported by 3D textures
-    static QStringList retList {"*.hdr"};
+    static QStringList retList {"*.hdr", "*.ktx"};
     return retList;
 }
 

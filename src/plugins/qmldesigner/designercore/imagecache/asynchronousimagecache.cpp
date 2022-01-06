@@ -42,13 +42,13 @@ AsynchronousImageCache::AsynchronousImageCache(ImageCacheStorageInterface &stora
 {
     m_backgroundThread = std::thread{[this] {
         while (isRunning()) {
-            if (auto [hasEntry, entry] = getEntry(); hasEntry) {
-                request(entry.name,
-                        entry.extraId,
-                        entry.requestType,
-                        std::move(entry.captureCallback),
-                        std::move(entry.abortCallback),
-                        std::move(entry.auxiliaryData),
+            if (auto entry = getEntry(); entry) {
+                request(entry->name,
+                        entry->extraId,
+                        entry->requestType,
+                        std::move(entry->captureCallback),
+                        std::move(entry->abortCallback),
+                        std::move(entry->auxiliaryData),
                         m_storage,
                         m_generator,
                         m_timeStampProvider);
@@ -82,11 +82,11 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
     const auto entry = requestType == RequestType::Image ? storage.fetchImage(id, timeStamp)
                                                          : storage.fetchSmallImage(id, timeStamp);
 
-    if (entry.hasEntry) {
-        if (entry.image.isNull())
+    if (entry) {
+        if (entry->isNull())
             abortCallback(ImageCache::AbortReason::Failed);
         else
-            captureCallback(entry.image);
+            captureCallback(*entry);
     } else {
         auto callback = [captureCallback = std::move(captureCallback),
                          requestType](const QImage &image, const QImage &smallImage) {
@@ -145,17 +145,17 @@ void AsynchronousImageCache::clean()
     m_generator.clean();
 }
 
-std::tuple<bool, AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
+std::optional<AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
 {
     std::unique_lock lock{m_mutex};
 
     if (m_entries.empty())
-        return {false, Entry{}};
+        return {};
 
     Entry entry = m_entries.front();
     m_entries.pop_front();
 
-    return {true, entry};
+    return {entry};
 }
 
 void AsynchronousImageCache::addEntry(Utils::PathString &&name,

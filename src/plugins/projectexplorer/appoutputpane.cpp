@@ -605,9 +605,10 @@ void AppOutputPane::stopRunControl()
     RunControl *rc = m_runControlTabs.at(index).runControl;
     QTC_ASSERT(rc, return);
 
-    if (rc->isRunning() && optionallyPromptToStop(rc))
-        rc->initiateStop();
-    else {
+    if (rc->isRunning()) {
+        if (optionallyPromptToStop(rc))
+            rc->initiateStop();
+    } else {
         QTC_CHECK(false);
         rc->forceStop();
     }

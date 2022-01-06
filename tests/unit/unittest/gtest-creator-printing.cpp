@@ -363,6 +363,11 @@ std::ostream &operator<<(std::ostream &out, Operation operation)
     return out << toText(operation);
 }
 
+std::ostream &operator<<(std::ostream &out, TimeStamp timeStamp)
+{
+    return out << timeStamp.value;
+}
+
 namespace SessionChangeSetInternal {
 namespace {
 
@@ -1247,18 +1252,5 @@ std::ostream &operator<<(std::ostream &out, const Import &import)
 }
 
 } // namespace Storage
-
-namespace Internal {
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry)
-{
-    return out << "(" << entry.image << ", " << entry.hasEntry << ")";
-}
-
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageIconEntry &entry)
-{
-    return out << "(" << entry.icon << ", " << entry.hasEntry << ")";
-}
-
-} // namespace Internal
 
 } // namespace QmlDesigner

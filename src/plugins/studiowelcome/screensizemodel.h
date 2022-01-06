@@ -29,6 +29,8 @@
 #include <QStandardItemModel>
 #include <QRegularExpression>
 
+namespace StudioWelcome {
+
 class ScreenSizeModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -109,3 +111,4 @@ private:
     QStandardItemModel *m_backendModel = nullptr;
 };
 
+} // namespace StudioWelcome

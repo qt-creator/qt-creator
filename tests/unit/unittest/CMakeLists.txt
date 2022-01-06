@@ -23,9 +23,6 @@ elseif (MINGW)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
 endif()
 
-file(RELATIVE_PATH RELATIVE_TEST_PATH "${PROJECT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
-file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_LIBEXEC_PATH}")
-
 add_qtc_test(unittest GTEST
   INCLUDES
     BEFORE "../mockup"
@@ -43,7 +40,6 @@ add_qtc_test(unittest GTEST
     QTC_RESOURCE_DIR="${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator"
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
     ECHOSERVER="$<TARGET_FILE_DIR:echo>/echo"
-    TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     abstractviewmock.h
     clientserverinprocess-test.cpp
@@ -114,6 +110,8 @@ add_qtc_test(unittest GTEST
     imagecachecollectormock.h
     mockimagecachegenerator.h
     mockimagecachestorage.h
+    asynchronousexplicitimagecache-test.cpp
+    asynchronousimagefactory-test.cpp
 )
 
 if (NOT TARGET unittest)
@@ -281,7 +279,10 @@ extend_qtc_test(unittest
     exceptions/notimplementedexception.cpp
     exceptions/removebasestateexception.cpp
     exceptions/rewritingexception.cpp
+    imagecache/asynchronousexplicitimagecache.cpp
     imagecache/asynchronousimagecache.cpp
+    imagecache/asynchronousimagefactory.cpp
+    imagecache/asynchronousimagefactory.h
     imagecache/imagecachecollectorinterface.h
     imagecache/imagecachegenerator.cpp
     imagecache/imagecachegenerator.h
@@ -292,6 +293,7 @@ extend_qtc_test(unittest
     imagecache/timestampproviderinterface.h
     include/abstractproperty.h
     include/abstractview.h
+    include/asynchronousexplicitimagecache.h
     include/asynchronousimagecache.h
     include/asynchronousimagecacheinterface.h
     include/bindingproperty.h

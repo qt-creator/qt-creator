@@ -35,6 +35,8 @@
 #include "shortcutmanager.h"
 #include <designeractionmanager.h>
 
+QT_FORWARD_DECLARE_CLASS(QQmlEngine)
+
 namespace Core {
     class IEditor;
 }
@@ -88,6 +90,8 @@ public:
     static void emitUsageStatisticsTime(const QString &identifier, int elapsed);
 
     static AsynchronousImageCache &imageCache();
+
+    static void registerPreviewImageProvider(QQmlEngine *engine);
 
 signals:
     void usageStatisticsNotifier(const QString &identifier);

@@ -94,7 +94,7 @@
     frames or for running the animation backwards from the last frame to the
     first.
 
-    To modify the settings, select the \inlineimage animation.png
+    To modify the settings, select the \inlineimage icons/animation.png
     (\uicontrol {Timeline Settings (S)}) button on the \l{Timeline Toolbar}
     {toolbar} (or press \key S) in the \l Timeline view.
 
@@ -119,7 +119,7 @@
 
     You can insert keyframes for all the properties of all the components that
     you want to animate first, and then record the changes in their values by
-    selecting the \inlineimage local_record_keyframes.png
+    selecting the \inlineimage icons/local_record_keyframes.png
     (\uicontrol {Per Property Recording}) button for one property at a time.
     For example, you can hide and show components by turning their visibility
     off and on or by setting their opacity to 0 or 1.
@@ -194,7 +194,7 @@
 
     To preview the animation, select the \uicontrol {Play (Space)}
     button or press \key Space. To preview the whole UI, select the
-    \inlineimage live_preview.png
+    \inlineimage icons/live_preview.png
     (\uicontrol {Show Live Preview}) button on the canvas toolbar
     or press \key {Alt+P}.
 

@@ -73,7 +73,7 @@
     column component and anchor them to the rectangle and to each other instead.
 
     To preview the changes that you make to the UI while you make
-    them, select the \inlineimage live_preview.png
+    them, select the \inlineimage icons/live_preview.png
     (\uicontrol {Show Live Preview}) button on the \uicontrol Design
     mode \l {Summary of Main Toolbar Actions}{toolbar} or press \key {Alt+P}.
 
@@ -88,7 +88,7 @@
             \inlineimage icons/close.png
             to remove the state. Repeat for the \e createAccount state.
         \li Select \e username in \l Navigator, and then select
-            \inlineimage arrowleft.png
+            \inlineimage icons/arrowleft.png
             to move it into the parent rectangle to prepare for
             deleting the \e fields column component instance.
         \li Select \inlineimage icons/navigator-arrowup.png
@@ -275,7 +275,7 @@
             for \e login to open the \uicontrol Actions menu, and then
             select \uicontrol {Set as Default} to determine that the \e login
             state is applied when the application starts.
-        \li In \uicontrol Timeline, select the \inlineimage animation.png
+        \li In \uicontrol Timeline, select the \inlineimage icons/animation.png
             (\uicontrol {Timeline Settings (S)}) button on the toolbar (or press
             \key S) to open the \uicontrol {Timeline Settings} dialog.
             \image loginui4-timeline-settings-states.png

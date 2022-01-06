@@ -171,10 +171,7 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     updateDeploymentData();
 }
 
-QmlBuildSystem::~QmlBuildSystem()
-{
-    delete m_projectItem.data();
-}
+QmlBuildSystem::~QmlBuildSystem() = default;
 
 void QmlBuildSystem::triggerParsing()
 {
@@ -202,29 +199,32 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
 {
     if (options & Files) {
         if (options & ProjectFile)
-            delete m_projectItem.data();
+            m_projectItem.reset();
         if (!m_projectItem) {
-              QString errorMessage;
-              m_projectItem = QmlProjectFileFormat::parseProjectFile(projectFilePath(), &errorMessage);
-              if (m_projectItem) {
-                  connect(m_projectItem.data(), &QmlProjectItem::qmlFilesChanged,
-                          this, &QmlBuildSystem::refreshFiles);
+            QString errorMessage;
+            m_projectItem.reset(
+                QmlProjectFileFormat::parseProjectFile(projectFilePath(), &errorMessage));
+            if (m_projectItem) {
+                connect(m_projectItem.get(),
+                        &QmlProjectItem::qmlFilesChanged,
+                        this,
+                        &QmlBuildSystem::refreshFiles);
 
-              } else {
-                  MessageManager::writeFlashing(tr("Error while loading project file %1.")
-                                                    .arg(projectFilePath().toUserOutput()));
-                  MessageManager::writeSilently(errorMessage);
-              }
+            } else {
+                MessageManager::writeFlashing(
+                    tr("Error while loading project file %1.").arg(projectFilePath().toUserOutput()));
+                MessageManager::writeSilently(errorMessage);
+            }
         }
         if (m_projectItem) {
-            m_projectItem.data()->setSourceDirectory(canonicalProjectDir().toString());
+            m_projectItem->setSourceDirectory(canonicalProjectDir().toString());
             if (m_projectItem->targetDirectory().isEmpty())
                 m_projectItem->setTargetDirectory(canonicalProjectDir().toString());
 
             if (auto modelManager = QmlJS::ModelManagerInterface::instance())
-                modelManager->updateSourceFiles(m_projectItem.data()->files(), true);
+                modelManager->updateSourceFiles(m_projectItem->files(), true);
 
-            QString mainFilePath = m_projectItem.data()->mainFile();
+            QString mainFilePath = m_projectItem->mainFile();
             if (!mainFilePath.isEmpty()) {
                 mainFilePath
                         = QDir(canonicalProjectDir().toString()).absoluteFilePath(mainFilePath);
@@ -271,7 +271,7 @@ void QmlBuildSystem::refresh(RefreshOptions options)
 QString QmlBuildSystem::mainFile() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->mainFile();
+        return m_projectItem->mainFile();
     return QString();
 }
 
@@ -283,21 +283,21 @@ Utils::FilePath QmlBuildSystem::mainFilePath() const
 bool QmlBuildSystem::qtForMCUs() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->qtForMCUs();
+        return m_projectItem->qtForMCUs();
     return false;
 }
 
 bool QmlBuildSystem::qt6Project() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->qt6Project();
+        return m_projectItem->qt6Project();
     return false;
 }
 
 void QmlBuildSystem::setMainFile(const QString &mainFilePath)
 {
     if (m_projectItem)
-        m_projectItem.data()->setMainFile(mainFilePath);
+        m_projectItem->setMainFile(mainFilePath);
 }
 
 Utils::FilePath QmlBuildSystem::targetDirectory() const
@@ -322,48 +322,48 @@ Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) co
 Utils::EnvironmentItems QmlBuildSystem::environment() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->environment();
+        return m_projectItem->environment();
     return {};
 }
 
 QStringList QmlBuildSystem::customImportPaths() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->importPaths();
+        return m_projectItem->importPaths();
     return {};
 }
 
 QStringList QmlBuildSystem::customFileSelectors() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->fileSelectors();
+        return m_projectItem->fileSelectors();
     return {};
 }
 
 QStringList QmlBuildSystem::supportedLanguages() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->supportedLanguages();
+        return m_projectItem->supportedLanguages();
     return {};
 }
 
 void QmlBuildSystem::setSupportedLanguages(QStringList languages)
 {
     if (m_projectItem)
-        m_projectItem.data()->setSupportedLanguages(languages);
+        m_projectItem->setSupportedLanguages(languages);
 }
 
 QString QmlBuildSystem::primaryLanguage() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->primaryLanguage();
+        return m_projectItem->primaryLanguage();
     return {};
 }
 
 void QmlBuildSystem::setPrimaryLanguage(QString language)
 {
     if (m_projectItem)
-        m_projectItem.data()->setPrimaryLanguage(language);
+        m_projectItem->setPrimaryLanguage(language);
 }
 
 void QmlBuildSystem::refreshProjectFile()
@@ -581,14 +581,14 @@ QmlProject *QmlBuildSystem::qmlProject() const
 bool QmlBuildSystem::forceFreeType() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->forceFreeType();
+        return m_projectItem->forceFreeType();
     return false;
 }
 
 bool QmlBuildSystem::widgetApp() const
 {
     if (m_projectItem)
-        return m_projectItem.data()->widgetApp();
+        return m_projectItem->widgetApp();
     return false;
 }
 
@@ -599,7 +599,7 @@ bool QmlBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePat
 
     FilePaths toAdd;
     for (const FilePath &filePath : filePaths) {
-        if (!m_projectItem.data()->matchesFile(filePath.toString()))
+        if (!m_projectItem->matchesFile(filePath.toString()))
             toAdd << filePaths;
     }
     return toAdd.isEmpty();

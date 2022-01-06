@@ -34,7 +34,8 @@
 #include "uicontroller.h"
 #include "actionhandler.h"
 
-#include "qmt/infrastructure/uid.h"
+#include <qmt/infrastructure/uid.h>
+#include <qmt/model/mdiagram.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -70,6 +71,8 @@ ModelEditorPlugin::ModelEditorPlugin()
     pluginInstance = this;
     qRegisterMetaType<QItemSelection>("QItemSelection");
     qRegisterMetaType<qmt::Uid>("qmt::Uid");
+    qRegisterMetaType<qmt::MDiagram *>();
+    qRegisterMetaType<const qmt::MDiagram *>();
 }
 
 ModelEditorPlugin::~ModelEditorPlugin()

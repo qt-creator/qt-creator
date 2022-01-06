@@ -84,6 +84,12 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->tabBar->addTab(tr("Bindings", "Title of connection view"));
     ui->tabBar->addTab(tr("Properties", "Title of dynamic properties view"));
 
+    const Qt::Alignment headerAlignment = Qt::AlignLeft | Qt::AlignVCenter;
+    ui->connectionView->horizontalHeader()->setDefaultAlignment(headerAlignment);
+    ui->bindingView->horizontalHeader()->setDefaultAlignment(headerAlignment);
+    ui->dynamicPropertiesView->horizontalHeader()->setDefaultAlignment(headerAlignment);
+    ui->backendView->horizontalHeader()->setDefaultAlignment(headerAlignment);
+
     const QList<QToolButton*> buttons = createToolBarWidgets();
 
     for (auto toolButton : buttons)

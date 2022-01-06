@@ -80,6 +80,9 @@ T.ComboBox {
         text: myComboBox.editText
 
         onEditingFinished: {
+            comboBoxInput.deselect()
+            comboBoxInput.focus = false
+
             // Only trigger the signal, if the value was modified
             if (myComboBox.dirty) {
                 myTimer.stop()

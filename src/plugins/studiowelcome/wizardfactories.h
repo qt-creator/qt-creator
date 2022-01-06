@@ -38,6 +38,9 @@ namespace StudioWelcome {
 class WizardFactories
 {
 public:
+    using GetIconUnicodeFunc = QString (*)(const QString &);
+
+public:
     WizardFactories(QList<Core::IWizardFactory *> &factories, QWidget *wizardParent,
                     const Utils::Id &platform);
 
@@ -46,6 +49,10 @@ public:
     { return m_projectItems; }
 
     bool empty() const { return m_factories.empty(); }
+    static GetIconUnicodeFunc setIconUnicodeCallback(GetIconUnicodeFunc cb)
+    {
+        return std::exchange(m_getIconUnicode, cb);
+    }
 
 private:
     void sortByCategoryAndId();
@@ -56,10 +63,12 @@ private:
 
 private:
     QWidget *m_wizardParent;
-    Utils::Id m_platform;
+    Utils::Id m_platform; // filter wizards to only those supported by this platform.
 
     QList<Core::IWizardFactory *> m_factories;
     std::map<QString, ProjectCategory> m_projectItems;
+
+    static GetIconUnicodeFunc m_getIconUnicode;
 };
 
 } // namespace StudioWelcome

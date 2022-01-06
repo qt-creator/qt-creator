@@ -72,3 +72,6 @@ private:
 };
 
 } // namespace qmt
+
+Q_DECLARE_METATYPE(qmt::MDiagram *)
+Q_DECLARE_METATYPE(const qmt::MDiagram *)

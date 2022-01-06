@@ -300,6 +300,7 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     // supported image formats according to
     QList<QByteArray> extensions = QImageReader::supportedImageFormats();
     extensions.append("hdr");
+    extensions.append("ktx");
     for (const QByteArray &extension : qAsConst(extensions))
         filter.append(QString::fromLatin1("*.%1;").arg(QString::fromLatin1(extension)));
     setFilter(filter);

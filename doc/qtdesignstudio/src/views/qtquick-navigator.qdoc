@@ -68,12 +68,12 @@
         \li Tooltip
         \li Read More
     \row
-        \li \inlineimage arrowleft.png
+        \li \inlineimage icons/arrowleft.png
         \li Moves the component one level up in the component tree, so that
             it becomes the last sibling of its current parent.
         \li \l{Arranging Components}
     \row
-        \li \inlineimage arrowright.png
+        \li \inlineimage icons/arrowright.png
         \li Moves the component one level down in the component tree, so that it
             becomes the child of its last sibling.
         \li \l{Arranging Components}

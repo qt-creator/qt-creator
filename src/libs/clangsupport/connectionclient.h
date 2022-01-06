@@ -28,7 +28,6 @@
 #include "clangcodemodelserverproxy.h"
 #include "lineprefixer.h"
 #include "processcreator.h"
-#include "processhandle.h"
 
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -38,7 +37,9 @@
 #include <future>
 #include <memory>
 
-namespace Utils { class QtcProcess; }
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
 
 class Utf8String;
 class Utf8StringVector;
@@ -76,7 +77,7 @@ public:
     bool waitForEcho();
     bool waitForConnected();
 
-    Utils::QtcProcess *processForTestOnly();
+    QProcess *processForTestOnly();
 
 signals:
     void connectedToLocalSocket();
@@ -102,22 +103,22 @@ protected:
     virtual void newConnectedServer(QLocalSocket *localSocket) = 0;
 
 private:
-    static bool isProcessRunning(Utils::QtcProcess *process);
+    static bool isProcessRunning(QProcess *process);
     void finishProcess(QProcessUniquePointer &&process);
-    void endProcess(Utils::QtcProcess *process);
-    void terminateProcess(Utils::QtcProcess *process);
-    void killProcess(Utils::QtcProcess *process);
+    void endProcess(QProcess *process);
+    void terminateProcess(QProcess *process);
+    void killProcess(QProcess *process);
     void finishConnection();
     void printLocalSocketError(QLocalSocket::LocalSocketError socketError);
     void printStandardOutput();
     void printStandardError();
-    void initializeProcess(Utils::QtcProcess *process);
+    void initializeProcess(QProcess *process);
 
     void resetTemporaryDirectory();
 
     void connectLocalSocketDisconnected();
     void disconnectLocalSocketDisconnected();
-    void connectStandardOutputAndError(Utils::QtcProcess *process) const;
+    void connectStandardOutputAndError(QProcess *process) const;
     void connectLocalSocketError() const;
     void connectAliveTimer();
     void connectNewConnection();

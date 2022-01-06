@@ -27,8 +27,6 @@
 
 #include <qmlitemnode.h>
 
-#include <utils/filesystemwatcher.h>
-
 #include <QDir>
 #include <QObject>
 #include <QStringList>
@@ -87,7 +85,6 @@ private:
     QString m_lastResourcePath;
     QStringList m_fullPathModel;
     QStringList m_fileNameModel;
-    Utils::FileSystemWatcher *m_fileSystemWatcher;
 };
 
 QML_DECLARE_TYPE(FileResourcesModel)
