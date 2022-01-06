@@ -106,9 +106,11 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
         captureCallback(image, smallImage);
     };
 
-    m_connectionManager.setCallback(std::move(callback));
+    if (!m_target)
+        return;
 
     nodeInstanceView.setTarget(m_target.data());
+    m_connectionManager.setCallback(std::move(callback));
     nodeInstanceView.setCrashCallback([=] { abortCallback(ImageCache::AbortReason::Failed); });
     model->setNodeInstanceView(&nodeInstanceView);
 
