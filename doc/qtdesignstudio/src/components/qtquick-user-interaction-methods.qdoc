@@ -331,7 +331,7 @@
     \row
         \li \inlineimage flickable-icon16.png
         \li \l [QML]{Flickable}
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li Enables flicking components horizontally or vertically.
     \row
         \li \inlineimage focusscope-icon16.png
@@ -342,7 +342,7 @@
     \row
         \li \inlineimage mouse-area-icon16.png
         \li \l [QtQuick]{MouseArea}{Mouse Area}
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li Enables simple mouse handling.
     \endtable
 */

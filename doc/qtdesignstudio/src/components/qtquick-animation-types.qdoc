@@ -151,7 +151,7 @@
     (\uicontrol Paused) check box.
 
     To attach an \l{Editing Easing Curves}{easing curve} to
-    the animation, select the \inlineimage curve_editor.png
+    the animation, select the \inlineimage icons/curve_editor.png
     (\uicontrol {Easing Curve Editor}) button in the
     \uicontrol {Easing Curve} field.
 

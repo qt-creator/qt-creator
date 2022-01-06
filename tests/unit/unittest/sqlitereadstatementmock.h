@@ -32,6 +32,7 @@
 #include <projectstorage/sourcepathcachetypes.h>
 #include <projectstorageids.h>
 #include <sqliteblob.h>
+#include <sqlitetimestamp.h>
 #include <utils/optional.h>
 #include <utils/smallstring.h>
 
@@ -95,6 +96,8 @@ public:
     MOCK_METHOD(QmlDesigner::Cache::SourceNameAndSourceContextId,
                 valueReturnCacheSourceNameAndSourceContextId,
                 (int) );
+
+    MOCK_METHOD(Sqlite::TimeStamp, valueWithTransactionReturnsTimeStamp, (Utils::SmallStringView), ());
 
     MOCK_METHOD(QmlDesigner::SourceContextId, valueReturnsSourceContextId, (Utils::SmallStringView), ());
     MOCK_METHOD(QmlDesigner::SourceContextId, valueWithTransactionReturnsSourceContextId, (int), ());
@@ -201,6 +204,8 @@ public:
             return valueReturnsPropertyDeclaration(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
             return valueWithTransactionReturnsSourceContextId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, Sqlite::TimeStamp>)
+            return valueWithTransactionReturnsTimeStamp(queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::value does not handle result type!");

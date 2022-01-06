@@ -518,7 +518,7 @@ void openPythonRepl(const FilePath &file, ReplType type)
                 return project->projectDirectory();
             return FilePath::fromString(QDir::currentPath());
         }
-        return file;
+        return file.absolutePath();
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);

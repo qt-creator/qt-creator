@@ -859,8 +859,10 @@ bool FormEditorView::isMoveToolAvailable() const
 
 void FormEditorView::resetNodeInstanceView()
 {
+    ModelNode currentStateNode = currentState().modelNode();
     setCurrentStateNode(rootModelNode());
     resetPuppet();
+    setCurrentStateNode(currentStateNode);
 }
 
 void FormEditorView::addOrRemoveFormEditorItem(const ModelNode &node)

@@ -51,8 +51,8 @@ QImage SynchronousImageCache::image(Utils::PathString filePath,
     const auto timeStamp = m_timeStampProvider.timeStamp(filePath);
     const auto entry = m_storage.fetchImage(id, timeStamp);
 
-    if (entry.hasEntry)
-        return entry.image;
+    if (entry)
+        return *entry;
 
     const auto &[image, smallImage] = m_collector.createImage(filePath, extraId, auxiliaryData);
 
@@ -70,8 +70,8 @@ QImage SynchronousImageCache::smallImage(Utils::PathString filePath,
     const auto timeStamp = m_timeStampProvider.timeStamp(filePath);
     const auto entry = m_storage.fetchSmallImage(id, timeStamp);
 
-    if (entry.hasEntry)
-        return entry.image;
+    if (entry)
+        return *entry;
 
     const auto &[image, smallImage] = m_collector.createImage(filePath, extraId, auxiliaryData);
 
@@ -89,8 +89,8 @@ QIcon SynchronousImageCache::icon(Utils::PathString filePath,
     const auto timeStamp = m_timeStampProvider.timeStamp(filePath);
     const auto entry = m_storage.fetchIcon(id, timeStamp);
 
-    if (entry.hasEntry)
-        return entry.icon;
+    if (entry)
+        return *entry;
 
     const auto icon = m_collector.createIcon(filePath, extraId, auxiliaryData);
 

@@ -32,26 +32,10 @@
 
 namespace {
 
-MATCHER_P2(IsImageEntry,
-           image,
-           hasEntry,
-           std::string(negation ? "is't" : "is")
-               + PrintToString(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image, hasEntry}))
+MATCHER_P(IsIcon, icon, std::string(negation ? "is't" : "is") + PrintToString(icon))
 {
-    const QmlDesigner::ImageCacheStorageInterface::ImageEntry &entry = arg;
-    return entry.image == image && entry.hasEntry == hasEntry;
+    return arg.availableSizes() == icon.availableSizes();
 }
-
-MATCHER_P2(IsIconEntry,
-           icon,
-           hasEntry,
-           std::string(negation ? "is't" : "is")
-               + PrintToString(QmlDesigner::ImageCacheStorageInterface::IconEntry{icon, hasEntry}))
-{
-    const QmlDesigner::ImageCacheStorageInterface::IconEntry &entry = arg;
-    return entry.icon.availableSizes() == icon.availableSizes() && entry.hasEntry == hasEntry;
-}
-
 class ImageCacheStorageTest : public testing::Test
 {
 protected:
@@ -72,29 +56,6 @@ protected:
     QImage smallImage1{10, 10, QImage::Format_ARGB32};
     QIcon icon1{QPixmap::fromImage(image1)};
 };
-
-TEST_F(ImageCacheStorageTest, Initialize)
-{
-    InSequence s;
-
-    EXPECT_CALL(databaseMock, exclusiveBegin());
-    EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE TABLE IF NOT EXISTS images(id INTEGER PRIMARY KEY, name TEXT "
-                           "NOT NULL UNIQUE, mtime INTEGER, image BLOB, smallImage BLOB)")));
-    EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE TABLE IF NOT EXISTS icons(id INTEGER PRIMARY KEY, name TEXT "
-                           "NOT NULL UNIQUE, mtime INTEGER, icon BLOB)")));
-    EXPECT_CALL(databaseMock, commit());
-    EXPECT_CALL(databaseMock, immediateBegin());
-    EXPECT_CALL(databaseMock, prepare(Eq(selectImageStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(selectSmallImageStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(selectIconStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(upsertImageStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, prepare(Eq(upsertIconStatement.sqlStatement)));
-    EXPECT_CALL(databaseMock, commit());
-
-    QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
-}
 
 TEST_F(ImageCacheStorageTest, FetchImageCalls)
 {
@@ -322,7 +283,7 @@ TEST_F(ImageCacheStorageSlowTest, StoreImage)
 {
     storage.storeImage("/path/to/component", {123}, image1, smallImage1);
 
-    ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), IsImageEntry(image1, true));
+    ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), Optional(image1));
 }
 
 TEST_F(ImageCacheStorageSlowTest, StoreEmptyImageAfterEntry)
@@ -331,21 +292,21 @@ TEST_F(ImageCacheStorageSlowTest, StoreEmptyImageAfterEntry)
 
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{});
 
-    ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), IsImageEntry(QImage{}, true));
+    ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), Optional(QImage{}));
 }
 
 TEST_F(ImageCacheStorageSlowTest, StoreEmptyEntry)
 {
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{});
 
-    ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), IsImageEntry(QImage{}, true));
+    ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), Optional(QImage{}));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNonExistingImageIsEmpty)
 {
     auto image = storage.fetchImage("/path/to/component", {123});
 
-    ASSERT_THAT(image, IsImageEntry(QImage{}, false));
+    ASSERT_THAT(image, Eq(std::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchSameTimeImage)
@@ -354,7 +315,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeImage)
 
     auto image = storage.fetchImage("/path/to/component", {123});
 
-    ASSERT_THAT(image, IsImageEntry(image1, true));
+    ASSERT_THAT(image, Optional(image1));
 }
 
 TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderImage)
@@ -363,7 +324,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderImage)
 
     auto image = storage.fetchImage("/path/to/component", {124});
 
-    ASSERT_THAT(image, IsImageEntry(QImage{}, false));
+    ASSERT_THAT(image, Eq(std::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNewerImage)
@@ -372,14 +333,14 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerImage)
 
     auto image = storage.fetchImage("/path/to/component", {122});
 
-    ASSERT_THAT(image, IsImageEntry(image1, true));
+    ASSERT_THAT(image, Optional(image1));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNonExistingSmallImageIsEmpty)
 {
     auto image = storage.fetchSmallImage("/path/to/component", {123});
 
-    ASSERT_THAT(image, IsImageEntry(QImage{}, false));
+    ASSERT_THAT(image, Eq(std::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchSameTimeSmallImage)
@@ -388,7 +349,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeSmallImage)
 
     auto image = storage.fetchSmallImage("/path/to/component", {123});
 
-    ASSERT_THAT(image, IsImageEntry(smallImage1, true));
+    ASSERT_THAT(image, Optional(smallImage1));
 }
 
 TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderSmallImage)
@@ -397,7 +358,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderSmallImage)
 
     auto image = storage.fetchSmallImage("/path/to/component", {124});
 
-    ASSERT_THAT(image, IsImageEntry(QImage{}, false));
+    ASSERT_THAT(image, Eq(std::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNewerSmallImage)
@@ -406,14 +367,14 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerSmallImage)
 
     auto image = storage.fetchSmallImage("/path/to/component", {122});
 
-    ASSERT_THAT(image, IsImageEntry(smallImage1, true));
+    ASSERT_THAT(image, Optional(smallImage1));
 }
 
 TEST_F(ImageCacheStorageSlowTest, StoreIcon)
 {
     storage.storeIcon("/path/to/component", {123}, icon1);
 
-    ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), IsIconEntry(icon1, true));
+    ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), Optional(IsIcon(icon1)));
 }
 
 TEST_F(ImageCacheStorageSlowTest, StoreEmptyIconAfterEntry)
@@ -422,21 +383,21 @@ TEST_F(ImageCacheStorageSlowTest, StoreEmptyIconAfterEntry)
 
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 
-    ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), IsIconEntry(QIcon{}, true));
+    ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), Optional(IsIcon(QIcon{})));
 }
 
 TEST_F(ImageCacheStorageSlowTest, StoreEmptyIconEntry)
 {
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 
-    ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), IsIconEntry(QIcon{}, true));
+    ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), Optional(IsIcon(QIcon{})));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNonExistingIconIsEmpty)
 {
     auto image = storage.fetchIcon("/path/to/component", {123});
 
-    ASSERT_THAT(image, IsIconEntry(QIcon{}, false));
+    ASSERT_THAT(image, Eq(std::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchSameTimeIcon)
@@ -445,7 +406,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeIcon)
 
     auto image = storage.fetchIcon("/path/to/component", {123});
 
-    ASSERT_THAT(image, IsIconEntry(icon1, true));
+    ASSERT_THAT(image, Optional(IsIcon(icon1)));
 }
 
 TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderIcon)
@@ -454,7 +415,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderIcon)
 
     auto image = storage.fetchIcon("/path/to/component", {124});
 
-    ASSERT_THAT(image, IsIconEntry(QIcon{}, false));
+    ASSERT_THAT(image, Eq(std::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNewerIcon)
@@ -463,6 +424,24 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerIcon)
 
     auto image = storage.fetchIcon("/path/to/component", {122});
 
-    ASSERT_THAT(image, IsIconEntry(icon1, true));
+    ASSERT_THAT(image, Optional(IsIcon(icon1)));
+}
+
+TEST_F(ImageCacheStorageSlowTest, FetchModifiedImageTime)
+{
+    storage.storeImage("/path/to/component", {123}, image1, smallImage1);
+
+    auto timeStamp = storage.fetchModifiedImageTime("/path/to/component");
+
+    ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{123}));
+}
+
+TEST_F(ImageCacheStorageSlowTest, FetchInvalidModifiedImageTimeForNoEntry)
+{
+    storage.storeImage("/path/to/component2", {123}, image1, smallImage1);
+
+    auto timeStamp = storage.fetchModifiedImageTime("/path/to/component");
+
+    ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{}));
 }
 } // namespace

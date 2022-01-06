@@ -65,7 +65,7 @@ public:
             transaction.commit();
 
             if (optionalBlob)
-                return {readImage(optionalBlob->byteArray), true};
+                return {readImage(optionalBlob->byteArray)};
 
             return {};
         } catch (const Sqlite::StatementIsBusy &) {
@@ -85,7 +85,7 @@ public:
             transaction.commit();
 
             if (optionalBlob)
-                return ImageEntry{readImage(optionalBlob->byteArray), true};
+                return ImageEntry{readImage(optionalBlob->byteArray)};
 
             return {};
 
@@ -105,7 +105,7 @@ public:
             transaction.commit();
 
             if (optionalBlob)
-                return {readIcon(optionalBlob->byteArray), true};
+                return {readIcon(optionalBlob->byteArray)};
 
             return {};
 
@@ -158,6 +158,11 @@ public:
         } catch (const Sqlite::StatementIsBusy &) {
             return walCheckpointFull();
         }
+    }
+
+    Sqlite::TimeStamp fetchModifiedImageTime(Utils::SmallStringView name) const override
+    {
+        return selectModifiedImageTimeStatement.template valueWithTransaction<Sqlite::TimeStamp>(name);
     }
 
 private:
@@ -289,6 +294,8 @@ public:
         "INSERT INTO icons(name, mtime, icon) VALUES (?1, ?2, ?3) ON "
         "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, icon=excluded.icon",
         database};
+    mutable ReadStatement<1, 1> selectModifiedImageTimeStatement{
+        "SELECT mtime FROM images WHERE name=?1", database};
 };
 
 } // namespace QmlDesigner

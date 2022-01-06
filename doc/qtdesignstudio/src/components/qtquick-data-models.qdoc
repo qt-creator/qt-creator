@@ -224,7 +224,7 @@
         \li \inlineimage listview-icon16.png
         \li \l{ListView}{List View}
         \li Default Components - Views
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li A list vizualization of a model.
     \row
         \li \inlineimage pathview-icon16.png
@@ -265,7 +265,7 @@
         \li \inlineimage icons/swipeview-icon16.png
         \li \l[QtQuickControls] {SwipeView}{Swipe View}
         \li Qt Quick Controls
-        \li \inlineimage ok
+        \li \inlineimage ok.png
         \li Enables users to navigate pages by swiping sideways.
     \endtable
 */

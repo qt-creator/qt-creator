@@ -1,0 +1,24 @@
+set(StudioWelcomeDir "${PROJECT_SOURCE_DIR}/src/plugins/studiowelcome")
+
+set(WITH_TESTS ON)
+
+find_package(Googletest MODULE)
+
+add_qtc_test(tst_qml_wizard
+  DEPENDS Core Utils StudioWelcome QmlDesigner Googletest
+  DEFINES
+    QT_CREATOR
+    QMLDESIGNER_TEST
+  INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins"
+           "${StudioWelcomeDir}"
+    IDE_PLUGIN_PATH="${PROJECT_BINARY_DIR}/${IDE_PLUGIN_PATH}"
+    IDE_DATA_PATH="${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}"
+    TESTSRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
+  SOURCES
+    wizardfactories-test.cpp
+    stylemodel-test.cpp
+    test-utilities.h
+    "${StudioWelcomeDir}/wizardfactories.cpp"
+    "${StudioWelcomeDir}/stylemodel.cpp"
+)
+

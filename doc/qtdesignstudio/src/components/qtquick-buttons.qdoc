@@ -261,7 +261,7 @@
             pressed down.
             \image qmldesigner-borderimage-bindings1.png "Inactive state when condition"
         \li Press \key {Ctrl+S} to save the button.
-        \li Select the \inlineimage live_preview.png
+        \li Select the \inlineimage icons/live_preview.png
             (\uicontrol {Show Live Preview}) button to check how the
             button behaves when you click it. You can drag the preview
             window borders to see what happens when you resize the

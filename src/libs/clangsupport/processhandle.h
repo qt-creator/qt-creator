@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <utils/qtcprocess.h>
+#include <QProcess>
 
 #include <memory>
 
@@ -34,7 +34,7 @@ namespace ClangBackEnd {
 class QProcessUniquePointerDeleter
 {
 public:
-  void operator()(Utils::QtcProcess* process)
+  void operator()(QProcess* process)
   {
       process->kill();
       process->waitForFinished();
@@ -42,6 +42,6 @@ public:
   }
 };
 
-using QProcessUniquePointer = std::unique_ptr<Utils::QtcProcess, QProcessUniquePointerDeleter>;
+using QProcessUniquePointer = std::unique_ptr<QProcess, QProcessUniquePointerDeleter>;
 
 } // namespace ClangBackEnd

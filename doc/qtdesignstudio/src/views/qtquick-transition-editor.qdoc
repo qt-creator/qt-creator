@@ -49,8 +49,8 @@
     \section1 Zooming in Transition Editor
 
     Use the slider on the toolbar to set the zooming level in
-    \uicontrol {Transition Editor}. Select the \inlineimage zoom_small.png
-    and \inlineimage zoom_big.png
+    \uicontrol {Transition Editor}. Select the \inlineimage icons/zoom_small.png
+    and \inlineimage icons/zoom_big.png
     buttons to zoom out of or into the view.
 
     \section1 Summary of Transition Editor Toolbar Actions
@@ -61,7 +61,7 @@
         \li Action
         \li Read More
     \row
-        \li \inlineimage animation.png
+        \li \inlineimage icons/animation.png
         \li Opens \uicontrol {Transition Settings} dialog for editing
             transition settings.
         \li \l{Specifying Transition Settings}
@@ -71,12 +71,12 @@
             \uicontrol {Transition Editor}.
         \li \l{Animating Transitions Between States}
     \row
-        \li \inlineimage curve_editor.png
+        \li \inlineimage icons/curve_editor.png
         \li Opens \uicontrol {Easing Curve Editor} for attaching an easing
             curve to the selected transition.
         \li \l{Editing Easing Curves}
     \row
-        \li \inlineimage zoom_small.png
+        \li \inlineimage icons/zoom_small.png
         \li \uicontrol {Zoom Out} (\key Ctrl+-): zooms out of the view.
         \li \l{Zooming in Transition Editor}
     \row
@@ -84,7 +84,7 @@
         \li Sets the zooming level.
         \li \l{Zooming in Transition Editor}
     \row
-        \li \inlineimage zoom_big.png
+        \li \inlineimage icons/zoom_big.png
         \li \uicontrol {Zoom In} (\key Ctrl++): zooms into the view.
         \li \l{Zooming in Transition Editor}
     \row
@@ -110,13 +110,13 @@
             the start and end frame of the animation of the property. Pull its
             left and right edges to set the duration of the animation.
         \li To attach an \l{Editing Easing Curves}{easing curve} to the
-            selected transition, select the \inlineimage curve_editor.png
+            selected transition, select the \inlineimage icons/curve_editor.png
             (\uicontrol {Easing Curve Editor (C)}) button.
     \endlist
 
     \section1 Specifying Transition Settings
 
-    To modify transition settings, select the \inlineimage animation.png
+    To modify transition settings, select the \inlineimage icons/animation.png
     (\uicontrol {Transition Settings (S)}) button in
     \uicontrol {Transition Editor}.
 

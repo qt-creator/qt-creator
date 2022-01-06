@@ -7,26 +7,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Quick Sensors Svg Xml REQUIRED)
 
-qt_add_executable(accelbubbleexample
+qt_add_executable(appaccelbubble
     main.cpp
     MANUAL_FINALIZATION
 )
-set_target_properties(accelbubbleexample PROPERTIES
+set_target_properties(appaccelbubble PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
 )
-set_property(TARGET accelbubbleexample APPEND PROPERTY
+set_property(TARGET appaccelbubble APPEND PROPERTY
     QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
 )
-qt_add_qml_module(accelbubbleexample
+qt_add_qml_module(appaccelbubble
     URI accelbubble
     VERSION 1.0
     QML_FILES main.qml
     RESOURCES Bluebubble.svg
 )
 
-target_compile_definitions(accelbubbleexample
+target_compile_definitions(appaccelbubble
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(accelbubbleexample
+target_link_libraries(appaccelbubble
     PRIVATE Qt6::Quick Qt6::Sensors Qt6::Svg Qt6::Xml)
 
-qt_finalize_executable(accelbubbleexample)
+qt_finalize_executable(appaccelbubble)

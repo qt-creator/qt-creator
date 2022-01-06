@@ -6674,9 +6674,9 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
 
 void TextEditorWidgetPrivate::maybeSelectLine()
 {
-    if (q->textCursor().hasSelection() && !q->multiTextCursor().hasMultipleCursors())
-        return;
     MultiTextCursor cursor = m_cursors;
+    if (cursor.hasSelection())
+        return;
     for (QTextCursor &c : cursor) {
         const QTextBlock &block = m_document->document()->findBlock(c.selectionStart());
         const QTextBlock &end = m_document->document()->findBlock(c.selectionEnd()).next();
@@ -7257,9 +7257,10 @@ void TextEditorWidget::cut()
 
 void TextEditorWidget::selectAll()
 {
-    QTextCursor c = textCursor();
-    c.select(QTextCursor::Document);
-    doSetTextCursor(c);
+    QPlainTextEdit::selectAll();
+    // Directly update the internal multi text cursor here to prevent calling setTextCursor.
+    // This would indirectly makes sure the cursor is visible which is not desired for select all.
+    const_cast<MultiTextCursor &>(d->m_cursors).setCursors({QPlainTextEdit::textCursor()});
 }
 
 void TextEditorWidget::copy()

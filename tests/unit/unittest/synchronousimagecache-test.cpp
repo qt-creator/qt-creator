@@ -47,22 +47,20 @@ protected:
         ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
             .WillByDefault(Return(Sqlite::TimeStamp{123}));
         ON_CALL(mockStorage, fetchImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123})))
-            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image1, true}));
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image1}));
         ON_CALL(mockStorage,
                 fetchImage(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
-            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image2, true}));
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image2}));
         ON_CALL(mockStorage, fetchSmallImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123})))
-            .WillByDefault(
-                Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage1, true}));
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage1}));
         ON_CALL(mockStorage,
                 fetchSmallImage(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
-            .WillByDefault(
-                Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage2, true}));
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage2}));
         ON_CALL(mockStorage, fetchIcon(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123})))
-            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::IconEntry{icon1, true}));
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::IconEntry{icon1}));
         ON_CALL(mockStorage,
                 fetchIcon(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
-            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::IconEntry{icon2, true}));
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::IconEntry{icon2}));
         ON_CALL(mockCollector, createImage(Eq("/path/to/Component.qml"), Eq("extraId1"), _))
             .WillByDefault(Return(std::make_pair(image3, smallImage3)));
         ON_CALL(mockCollector, createIcon(Eq("/path/to/Component.qml"), Eq("extraId1"), _))

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -200,7 +200,7 @@
     arguments to the linker and makes sure that the appropriate include
     directories and compiler definitions are passed to the C++ compiler.
 
-    \skipto target_link_libraries(accelbubble
+    \skipto target_link_libraries(appaccelbubble
     \printuntil Qt6
 
     After adding the dependencies, select \uicontrol Build >

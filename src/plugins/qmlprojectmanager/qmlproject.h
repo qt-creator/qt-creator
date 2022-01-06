@@ -112,10 +112,9 @@ public:
     // plain format
     void parseProject(RefreshOptions options);
 
-    QPointer<QmlProjectItem> m_projectItem;
-    Utils::FilePath m_canonicalProjectDir;
-
 private:
+    std::unique_ptr<QmlProjectItem> m_projectItem;
+    Utils::FilePath m_canonicalProjectDir;
     bool m_blockFilesUpdate = false;
     friend class FilesUpdateBlocker;
 };

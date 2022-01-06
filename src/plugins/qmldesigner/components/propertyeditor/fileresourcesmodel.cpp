@@ -36,15 +36,22 @@
 #include <QDirIterator>
 #include <qmlmodelnodeproxy.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+
 static QString s_lastBrowserPath;
 
 FileResourcesModel::FileResourcesModel(QObject *parent)
     : QObject(parent)
     , m_filter(QLatin1String("(*.*)"))
-    , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
 {
-    connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged,
-            this, &FileResourcesModel::refreshModel);
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+                QmlDesigner::DocumentManager::currentFilePath());
+
+    if (project) {
+        connect(project, &ProjectExplorer::Project::fileListChanged,
+                this, &FileResourcesModel::refreshModel);
+    }
 }
 
 void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
@@ -195,12 +202,7 @@ bool filterMetaIcons(const QString &fileName)
 void FileResourcesModel::setupModel()
 {
     m_dirPath = QDir(m_path.toLocalFile());
-
     refreshModel();
-
-    m_fileSystemWatcher->removeDirectories(m_fileSystemWatcher->directories());
-    m_fileSystemWatcher->addDirectory(m_dirPath.absolutePath(),
-                                      Utils::FileSystemWatcher::WatchAllChanges);
 }
 
 void FileResourcesModel::refreshModel()

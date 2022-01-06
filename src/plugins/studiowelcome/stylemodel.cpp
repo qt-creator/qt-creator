@@ -30,6 +30,8 @@
 
 #include <QRegularExpression>
 
+using namespace StudioWelcome;
+
 StyleModel::StyleModel(QObject *parent)
     : QAbstractListModel(parent)
     , m_backendModel(nullptr)
@@ -50,6 +52,8 @@ QString StyleModel::iconId(int index) const
 
 void StyleModel::filter(const QString &what)
 {
+    QTC_ASSERT(!what.isEmpty(), return);
+
     if (what.toLower() == "all")
         m_filteredItems = this->filterItems(m_items, "");
     else if (what.toLower() == "light")

@@ -107,7 +107,10 @@ function(extend_with_qmldesigner_core target_name)
       filemanager/removeuiobjectmembervisitor.cpp
       filemanager/removeuiobjectmembervisitor.h
 
+      imagecache/asynchronousexplicitimagecache.cpp
       imagecache/asynchronousimagecache.cpp
+      imagecache/asynchronousimagefactory.cpp
+      imagecache/asynchronousimagefactory.h
       imagecache/imagecachecollector.cpp
       imagecache/imagecachecollector.h
       imagecache/imagecachecollectorinterface.h
@@ -129,6 +132,7 @@ function(extend_with_qmldesigner_core target_name)
       include/abstractview.h
       include/anchorline.h
       include/annotation.h
+      include/asynchronousexplicitimagecache.h
       include/asynchronousimagecache.h
       include/basetexteditmodifier.h
       include/bindingproperty.h

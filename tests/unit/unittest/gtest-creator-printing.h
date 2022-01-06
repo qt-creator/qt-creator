@@ -47,12 +47,14 @@ class ValueView;
 class SessionChangeSet;
 enum class Operation : char;
 enum class LockingMode : char;
+class TimeStamp;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
 std::ostream &operator<<(std::ostream &out, const ValueView &value);
 std::ostream &operator<<(std::ostream &out, Operation operation);
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset);
 std::ostream &operator<<(std::ostream &out, LockingMode lockingMode);
+std::ostream &operator<<(std::ostream &out, TimeStamp timeStamp);
 
 namespace SessionChangeSetInternal {
 class ConstIterator;
@@ -293,12 +295,4 @@ std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
 
 } // namespace Storage
 
-namespace Internal {
-class ImageCacheStorageImageEntry;
-class ImageCacheStorageIconEntry;
-
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageImageEntry &entry);
-std::ostream &operator<<(std::ostream &out, const ImageCacheStorageIconEntry &entry);
-
-} // namespace Internal
 } // namespace QmlDesigner

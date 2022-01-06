@@ -485,4 +485,40 @@ TEST_F(ImageCacheGenerator, MergeAbortCallbackIfTasksAreMerged)
     notification.wait();
 }
 
+TEST_F(ImageCacheGenerator, DontCallNullImageCallback)
+{
+    EXPECT_CALL(collectorMock, start(_, _, _, _, _))
+        .WillOnce([&](auto, auto, auto, auto captureCallback, auto) {
+            captureCallback(image1, smallImage1);
+            notification.notify();
+        });
+
+    generator.generateImage("name", {}, {}, {}, {}, {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, DontCallNullAbortCallbackForNullImage)
+{
+    EXPECT_CALL(collectorMock, start(_, _, _, _, _))
+        .WillOnce([&](auto, auto, auto, auto captureCallback, auto) {
+            captureCallback(QImage{}, QImage{});
+            notification.notify();
+        });
+
+    generator.generateImage("name", {}, {}, {}, {}, {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, DontCallNullAbortCallback)
+{
+    EXPECT_CALL(collectorMock, start(_, _, _, _, _))
+        .WillOnce([&](auto, auto, auto, auto, auto abortCallback) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
+            notification.notify();
+        });
+
+    generator.generateImage("name", {}, {}, {}, {}, {});
+    notification.wait();
+}
+
 } // namespace

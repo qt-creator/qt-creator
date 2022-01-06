@@ -7,18 +7,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
-qt_add_executable(transitionsexample
+qt_add_executable(apptransitions
     main.cpp
 )
 
-qt_add_qml_module(transitionsexample
+qt_add_qml_module(apptransitions
     URI transitions
     VERSION 1.0
     QML_FILES main.qml Page.qml
     RESOURCES qt-logo.png
 )
 
-target_compile_definitions(transitionsexample
+target_compile_definitions(apptransitions
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(transitionsexample
+target_link_libraries(apptransitions
     PRIVATE Qt6::Quick)

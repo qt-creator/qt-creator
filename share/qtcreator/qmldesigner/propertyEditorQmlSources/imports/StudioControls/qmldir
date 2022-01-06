@@ -38,3 +38,4 @@ TabButton 1.0 TabButton.qml
 TextArea 1.0 TextArea.qml
 TextField 1.0 TextField.qml
 TranslationIndicator 1.0 TranslationIndicator.qml
+VerticalScrollBar 1.0 VerticalScrollBar.qml

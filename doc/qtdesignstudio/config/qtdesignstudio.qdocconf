@@ -24,11 +24,7 @@ imagedirs = ../images \
             ../../../src/libs/qmleditorwidgets/images \
             ../../../src/plugins/qmldesigner/components/componentcore/images \
             ../../../src/plugins/qmldesigner/components/edit3d/images \
-            ../../../src/plugins/qmldesigner/components/formeditor \
-            ../../../src/plugins/qmldesigner/components/navigator \
-            ../../../src/plugins/qmldesigner/components/timelineeditor/images \
             ../../../src/plugins/qmldesigner/componentsplugin/images \
-            ../../../src/plugins/qmldesigner/qmlpreviewplugin/images \
             ../../../src/plugins/qmldesigner/qtquickplugin/images \
 
 include(../../qtcreator/images/extraimages/qtdesignstudio-extraimages.qdocconf)

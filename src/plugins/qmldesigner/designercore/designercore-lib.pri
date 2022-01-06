@@ -92,7 +92,10 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/imagecache/synchronousimagecache.cpp \
     $$PWD/imagecache/imagecacheconnectionmanager.cpp \
     $$PWD/imagecache/imagecachegenerator.cpp \
-    $$PWD/imagecache/timestampprovider.cpp
+    $$PWD/imagecache/timestampprovider.cpp \
+    $$PWD/imagecache/explicitimagecacheimageprovider.cpp \
+    $$PWD/imagecache/asynchronousimagefactory.cpp \
+    $$PWD/imagecache/asynchronousexplicitimagecache.cpp
 
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
@@ -185,7 +188,10 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/imagecache/imagecachegenerator.h \
     $$PWD/imagecache/imagecachestorage.h \
     $$PWD/imagecache/timestampprovider.h   \
-    $$PWD/imagecache/timestampproviderinterface.h
+    $$PWD/imagecache/timestampproviderinterface.h \
+    $$PWD/imagecache/explicitimagecacheimageprovider.h \
+    $$PWD/imagecache/asynchronousimagefactory.h \
+    $$PWD/include/asynchronousexplicitimagecache.h
 
 
 FORMS += \
