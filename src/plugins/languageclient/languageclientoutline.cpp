@@ -274,15 +274,12 @@ private:
     const DocumentUri m_uri;
 };
 
-Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(Client *client,
-                                                                            Core::IEditor *editor)
+Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(
+    Client *client, TextEditor::BaseTextEditor *editor)
 {
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-    QTC_ASSERT(textEditor, return nullptr);
-    if (!client || !client->supportsDocumentSymbols(textEditor->textDocument()))
-        return nullptr;
-
-    return new OutlineComboBox(client, textEditor);
+    if (client && client->supportsDocumentSymbols(editor->textDocument()))
+        return new OutlineComboBox(client, editor);
+    return nullptr;
 }
 
 OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)

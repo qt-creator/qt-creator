@@ -27,7 +27,10 @@
 
 #include <texteditor/ioutlinewidget.h>
 
-namespace TextEditor { class TextDocument; }
+namespace TextEditor {
+class TextDocument;
+class BaseTextEditor;
+} // namespace TextEditor
 namespace Utils { class TreeViewComboBox; }
 
 namespace LanguageClient {
@@ -39,7 +42,7 @@ class LanguageClientOutlineWidgetFactory : public TextEditor::IOutlineWidgetFact
 public:
     using IOutlineWidgetFactory::IOutlineWidgetFactory;
 
-    static Utils::TreeViewComboBox *createComboBox(Client *client, Core::IEditor *editor);
+    static Utils::TreeViewComboBox *createComboBox(Client *client, TextEditor::BaseTextEditor *editor);
     // IOutlineWidgetFactory interface
 public:
     bool supportsEditor(Core::IEditor *editor) const override;

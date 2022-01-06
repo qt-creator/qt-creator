@@ -288,10 +288,11 @@ void updateEditorToolBar(Core::IEditor *editor)
     }
 
     if (!extras->m_client) {
-        if (QWidget *comboBox = LanguageClientOutlineWidgetFactory::createComboBox(client, editor)) {
+        QWidget *comboBox = LanguageClientOutlineWidgetFactory::createComboBox(client, textEditor);
+        if (comboBox) {
             extras->m_client = client;
             extras->m_outlineAction = widget->insertExtraToolBarWidget(TextEditorWidget::Left,
-                                                                        comboBox);
+                                                                       comboBox);
         }
     }
 }
