@@ -36,8 +36,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
 {
     TypeName typeName = insertInfo.typeName();
     TypeName superClass = insertInfo.directSuperClass().typeName();
-    TypeName nodePackage = insertInfo.typeName().replace(insertInfo.simplifiedTypeName().toStdString(), "");
-    TypeName targetPackage = parentInfo.typeName().replace(parentInfo.simplifiedTypeName().toStdString(), "");
+    TypeName nodePackage = insertInfo.typeName().replace(insertInfo.simplifiedTypeName(), "");
+    TypeName targetPackage = parentInfo.typeName().replace(parentInfo.simplifiedTypeName(), "");
     if (!nodePackage.contains(targetPackage))
         return;
 
