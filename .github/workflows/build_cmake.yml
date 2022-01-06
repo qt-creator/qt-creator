@@ -564,11 +564,11 @@ jobs:
         execute_process(COMMAND ccache -s)
 
     - name: Run tests
+      if: matrix.config.artifact == 'running-of-tests-is-disabled'
       shell: cmake -P {0}
       run: |
         include(ProcessorCount)
         ProcessorCount(N)
-        math(EXPR N "(75 * ${N}) / 100")
 
         set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
