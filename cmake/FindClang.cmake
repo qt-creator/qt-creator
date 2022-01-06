@@ -20,7 +20,7 @@ if (WIN32 AND TARGET clangTooling)
   # check that we can compile against clangTooling
   # which requires the build modes to be compatible
   # (debug vs release on Windows)
-  include(CheckCxxSourceCompiles)
+  include(CheckCXXSourceCompiles)
 
   set(CMAKE_TRY_COMPILE_CONFIGURATION ${CMAKE_BUILD_TYPE})
   set(CMAKE_REQUIRED_INCLUDES ${CLANG_INCLUDE_DIRS})
