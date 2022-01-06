@@ -56,9 +56,6 @@
 
 #include <QQmlEngine>
 
-#include <filesystem>
-#include <type_traits>
-
 namespace QmlDesigner {
 
 namespace {
