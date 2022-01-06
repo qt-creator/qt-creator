@@ -28,9 +28,14 @@
 #include "processexception.h"
 #include "processstartedevent.h"
 
+#include <utils/commandline.h>
+#include <utils/qtcprocess.h>
+
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QTemporaryDir>
+
+using namespace Utils;
 
 namespace ClangBackEnd {
 
@@ -56,7 +61,7 @@ void ProcessCreator::setArguments(const QStringList &arguments)
     m_arguments = arguments;
 }
 
-void ProcessCreator::setEnvironment(const Utils::Environment &environment)
+void ProcessCreator::setEnvironment(const Environment &environment)
 {
     m_environment = environment;
 }
@@ -65,10 +70,11 @@ std::future<QProcessUniquePointer> ProcessCreator::createProcess() const
 {
     return std::async(std::launch::async, [&] {
         checkIfProcessPathExists();
-        auto process = QProcessUniquePointer(new QProcess);
-        process->setProcessChannelMode(QProcess::QProcess::ForwardedChannels);
-        process->setProcessEnvironment(processEnvironment());
-        process->start(m_processPath, m_arguments);
+        auto process = QProcessUniquePointer(new QtcProcess(ProcessMode::Writer));
+        process->setProcessChannelMode(QProcess::ForwardedChannels);
+        process->setEnvironment(processEnvironment());
+        process->setCommand(CommandLine(FilePath::fromString(m_processPath), m_arguments));
+        process->start();
         process->waitForStarted(5000);
 
         checkIfProcessWasStartingSuccessful(process.get());
@@ -95,13 +101,13 @@ void ProcessCreator::checkIfProcessPathExists() const
     }
 }
 
-void ProcessCreator::checkIfProcessWasStartingSuccessful(QProcess *process) const
+void ProcessCreator::checkIfProcessWasStartingSuccessful(QtcProcess *process) const
 {
     if (process->exitStatus() == QProcess::CrashExit || process->exitCode() != 0)
         dispatchProcessError(process);
 }
 
-void ProcessCreator::dispatchProcessError(QProcess *process) const
+void ProcessCreator::dispatchProcessError(QtcProcess *process) const
 {
     switch (process->error()) {
         case QProcess::UnknownError: {
@@ -158,24 +164,24 @@ const QTemporaryDir &ProcessCreator::temporaryDirectory() const
 
 void ProcessCreator::resetTemporaryDirectory()
 {
-    m_temporaryDirectory = std::make_unique<Utils::TemporaryDirectory>(m_temporaryDirectoryPattern);
+    m_temporaryDirectory = std::make_unique<TemporaryDirectory>(m_temporaryDirectoryPattern);
 }
 
-QProcessEnvironment ProcessCreator::processEnvironment() const
+Environment ProcessCreator::processEnvironment() const
 {
-    auto processEnvironment = QProcessEnvironment::systemEnvironment();
+    auto processEnvironment = Environment::systemEnvironment();
 
     if (temporaryDirectory().isValid()) {
         const QString temporaryDirectoryPath = temporaryDirectory().path();
-        processEnvironment.insert("TMPDIR", temporaryDirectoryPath);
-        processEnvironment.insert("TMP", temporaryDirectoryPath);
-        processEnvironment.insert("TEMP", temporaryDirectoryPath);
+        processEnvironment.appendOrSet("TMPDIR", temporaryDirectoryPath);
+        processEnvironment.appendOrSet("TMP", temporaryDirectoryPath);
+        processEnvironment.appendOrSet("TEMP", temporaryDirectoryPath);
     }
 
-    const Utils::Environment &env = m_environment;
+    const Environment &env = m_environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
         if (env.isEnabled(it))
-            processEnvironment.insert(env.key(it), env.expandedValueForKey(env.key(it)));
+            processEnvironment.appendOrSet(env.key(it), env.expandedValueForKey(env.key(it)));
     }
 
     return processEnvironment;
