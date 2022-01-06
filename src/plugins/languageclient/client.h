@@ -243,6 +243,7 @@ private:
     void updateFunctionHintProvider(TextEditor::TextDocument *document);
 
     void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
+    void requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget);
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
     void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
 

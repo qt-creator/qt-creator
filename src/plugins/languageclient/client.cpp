@@ -505,6 +505,28 @@ void Client::updateFunctionHintProvider(TextEditor::TextDocument *document)
 
 void Client::requestDocumentHighlights(TextEditor::TextEditorWidget *widget)
 {
+    QTimer *timer = m_documentHighlightsTimer[widget];
+    if (!timer) {
+        const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
+        if (m_highlightRequests.contains(widget))
+            cancelRequest(m_highlightRequests.take(widget));
+        timer = new QTimer;
+        timer->setSingleShot(true);
+        m_documentHighlightsTimer.insert(widget, timer);
+        auto connection = connect(widget, &QWidget::destroyed, this, [widget, this]() {
+            delete m_documentHighlightsTimer.take(widget);
+        });
+        connect(timer, &QTimer::timeout, this, [this, widget, connection]() {
+            disconnect(connection);
+            requestDocumentHighlightsNow(widget);
+            m_documentHighlightsTimer.take(widget)->deleteLater();
+        });
+    }
+    timer->start(250);
+}
+
+void Client::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
+{
     const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
     if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
         TextDocumentRegistrationOptions option(
@@ -814,23 +836,7 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     TextEditor::TextDocument *document = widget->textDocument();
     if (m_documentsToUpdate.find(document) != m_documentsToUpdate.end())
         return; // we are currently changing this document so postpone the DocumentHighlightsRequest
-    QTimer *timer = m_documentHighlightsTimer[widget];
-    if (!timer) {
-        const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
-        if (m_highlightRequests.contains(widget))
-            cancelRequest(m_highlightRequests.take(widget));
-        timer = new QTimer;
-        timer->setSingleShot(true);
-        m_documentHighlightsTimer.insert(widget, timer);
-        auto connection = connect(widget, &QWidget::destroyed, this, [widget, this]() {
-            delete m_documentHighlightsTimer.take(widget);
-        });
-        connect(timer, &QTimer::timeout, this, [this, widget, connection]() {
-            disconnect(connection);
-            requestDocumentHighlights(widget);
-            m_documentHighlightsTimer.take(widget)->deleteLater();
-        });
-    }
+    requestDocumentHighlights(widget);
     const Id selectionsId(TextEditor::TextEditorWidget::CodeSemanticsSelection);
     const QList semanticSelections = widget->extraSelections(selectionsId);
     if (!semanticSelections.isEmpty()) {
@@ -842,7 +848,6 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
         if (!Utils::anyOf(semanticSelections, selectionContainsPos))
             widget->setExtraSelections(selectionsId, {});
     }
-    timer->start(250);
 }
 
 SymbolSupport &Client::symbolSupport()
