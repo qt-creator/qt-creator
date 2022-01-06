@@ -628,6 +628,19 @@ QString WatchItem::sourceExpression() const
     return QString("%1.%2").arg(p->sourceExpression(), name);
 }
 
+int WatchItem::guessSize() const
+{
+    if (size != 0)
+        return size;
+    if (type == "double")
+        return 8;
+    if (type == "float")
+        return 4;
+    if (type == "qfloat16")
+        return 2;
+    return 0;
+}
+
 } // namespace Internal
 } // namespace Debugger
 

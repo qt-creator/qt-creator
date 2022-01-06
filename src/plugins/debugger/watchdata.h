@@ -65,6 +65,7 @@ public:
 
     bool isValid()   const { return !iname.isEmpty(); }
     bool isVTablePointer() const;
+    int guessSize() const;
 
     void setError(const QString &);
     void setValue(const QString &);

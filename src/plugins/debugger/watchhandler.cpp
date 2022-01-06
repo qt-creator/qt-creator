@@ -63,6 +63,7 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QFile>
+#include <QFloat16>
 #include <QItemDelegate>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -80,7 +81,10 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
+#include <sstream>
+
 #include <ctype.h>
 
 using namespace Core;
@@ -770,6 +774,32 @@ static QString formattedValue(const WatchItem *item)
         return QString::number(dd, 'g');
     }
 
+    if (format == HexFloatFormat) {
+        double dd = item->value.toDouble();
+        std::ostringstream ss;
+        ss << std::hexfloat;
+        switch (item->guessSize()) {
+            case 2: ss << qfloat16(dd); break;
+            case 4: ss << float(dd); break;
+            default: ss << dd; break;
+        }
+        return QString::fromStdString(ss.str());
+    }
+
+    if (format == NormalizedTwoFloatFormat) {
+        double dd = item->value.toDouble();
+        std::ostringstream ss;
+        int pow2_exp;
+        double norm = std::frexp(dd, &pow2_exp);
+        int numDecimalDigits = 12;
+        switch (item->guessSize()) {
+            case 2: numDecimalDigits = 4; break;
+            case 4: numDecimalDigits = 8; break;
+            default: break;
+        }
+        return QString::number(norm, 'f', numDecimalDigits) + " * 2^" + QString::number(pow2_exp);
+    }
+
     if (item->type == "va_list")
         return item->value;
 
@@ -992,6 +1022,8 @@ static DisplayFormats typeFormatList(const WatchItem *item)
     if (ok) {
         formats.append(CompactFloatFormat);
         formats.append(ScientificFloatFormat);
+        formats.append(HexFloatFormat);
+        formats.append(NormalizedTwoFloatFormat);
     }
 
     // Fixed artificial integral types.
@@ -2084,6 +2116,8 @@ QString WatchModel::nameForFormat(int format)
 
         case CompactFloatFormat: return tr("Compact Float");
         case ScientificFloatFormat: return tr("Scientific Float");
+        case HexFloatFormat: return tr("Hexadecimal Float");
+        case NormalizedTwoFloatFormat: return tr("Normalized, with Power-of-Two Exponent");
     }
 
     QTC_CHECK(false);
