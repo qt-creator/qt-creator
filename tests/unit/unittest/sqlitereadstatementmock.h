@@ -98,6 +98,7 @@ public:
                 (int) );
 
     MOCK_METHOD(Sqlite::TimeStamp, valueWithTransactionReturnsTimeStamp, (Utils::SmallStringView), ());
+    MOCK_METHOD(int, valueWithTransactionReturnsInt, (Utils::SmallStringView), ());
 
     MOCK_METHOD(QmlDesigner::SourceContextId, valueReturnsSourceContextId, (Utils::SmallStringView), ());
     MOCK_METHOD(QmlDesigner::SourceContextId, valueWithTransactionReturnsSourceContextId, (int), ());
@@ -206,6 +207,8 @@ public:
             return valueWithTransactionReturnsSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, Sqlite::TimeStamp>)
             return valueWithTransactionReturnsTimeStamp(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, int>)
+            return valueWithTransactionReturnsInt(queryValues...);
         else
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::value does not handle result type!");

@@ -165,6 +165,11 @@ public:
         return selectModifiedImageTimeStatement.template valueWithTransaction<Sqlite::TimeStamp>(name);
     }
 
+    bool fetchHasImage(Utils::SmallStringView name) const override
+    {
+        return selectHasImageStatement.template valueWithTransaction<int>(name);
+    }
+
 private:
     class Initializer
     {
@@ -296,6 +301,8 @@ public:
         database};
     mutable ReadStatement<1, 1> selectModifiedImageTimeStatement{
         "SELECT mtime FROM images WHERE name=?1", database};
+    mutable ReadStatement<1, 1> selectHasImageStatement{
+        "SELECT image IS NOT NULL FROM images WHERE name=?1", database};
 };
 
 } // namespace QmlDesigner
