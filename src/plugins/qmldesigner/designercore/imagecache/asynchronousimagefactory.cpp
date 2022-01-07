@@ -90,7 +90,7 @@ void AsynchronousImageFactory::waitForEntries()
         m_condition.wait(lock, [&] { return m_entries.size() || m_finishing; });
 }
 
-std::optional<AsynchronousImageFactory::Entry> AsynchronousImageFactory::getEntry()
+Utils::optional<AsynchronousImageFactory::Entry> AsynchronousImageFactory::getEntry()
 {
     std::unique_lock lock{m_mutex};
 

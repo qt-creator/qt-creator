@@ -306,7 +306,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchNonExistingImageIsEmpty)
 {
     auto image = storage.fetchImage("/path/to/component", {123});
 
-    ASSERT_THAT(image, Eq(std::nullopt));
+    ASSERT_THAT(image, Eq(Utils::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchSameTimeImage)
@@ -324,7 +324,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderImage)
 
     auto image = storage.fetchImage("/path/to/component", {124});
 
-    ASSERT_THAT(image, Eq(std::nullopt));
+    ASSERT_THAT(image, Eq(Utils::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNewerImage)
@@ -340,7 +340,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchNonExistingSmallImageIsEmpty)
 {
     auto image = storage.fetchSmallImage("/path/to/component", {123});
 
-    ASSERT_THAT(image, Eq(std::nullopt));
+    ASSERT_THAT(image, Eq(Utils::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchSameTimeSmallImage)
@@ -358,7 +358,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderSmallImage)
 
     auto image = storage.fetchSmallImage("/path/to/component", {124});
 
-    ASSERT_THAT(image, Eq(std::nullopt));
+    ASSERT_THAT(image, Eq(Utils::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNewerSmallImage)
@@ -397,7 +397,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchNonExistingIconIsEmpty)
 {
     auto image = storage.fetchIcon("/path/to/component", {123});
 
-    ASSERT_THAT(image, Eq(std::nullopt));
+    ASSERT_THAT(image, Eq(Utils::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchSameTimeIcon)
@@ -415,7 +415,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderIcon)
 
     auto image = storage.fetchIcon("/path/to/component", {124});
 
-    ASSERT_THAT(image, Eq(std::nullopt));
+    ASSERT_THAT(image, Eq(Utils::nullopt));
 }
 
 TEST_F(ImageCacheStorageSlowTest, FetchNewerIcon)
