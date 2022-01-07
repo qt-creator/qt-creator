@@ -167,7 +167,7 @@ class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole, PreviewUrl };
+    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole, PreviewUrl, TagData, Description };
 
     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
 
@@ -291,6 +291,50 @@ QString appQmlFile(const QString &projectFilePath)
     return QFileInfo(projectFilePath).dir().absolutePath() + "/" +  getMainQmlFile(projectFilePath);
 }
 
+static QString fromCamelCase(const QString &s) {
+
+   static QRegularExpression regExp1 {"(.)([A-Z][a-z]+)"};
+   static QRegularExpression regExp2 {"([a-z0-9])([A-Z])"};
+   QString result = s;
+   result.replace(regExp1, "\\1 \\2");
+   result.replace(regExp2, "\\1 \\2");
+   result = result.left(1).toUpper() + result.mid(1);
+   return result;
+}
+
+static QString description(const QString &projectFilePath)
+{
+
+    const QString created = "Created: " +
+            QFileInfo(projectFilePath).fileTime(QFileDevice::FileBirthTime).toString();
+    const QString lastEdited = "Last Edited: " +
+            QFileInfo(projectFilePath).fileTime(QFileDevice::FileModificationTime).toString();
+
+    return fromCamelCase(QFileInfo(projectFilePath).baseName()) + "\n" + created + "\n" + lastEdited;
+}
+
+static QString tags(const QString &projectFilePath)
+{
+    QStringList ret;
+    const QString defaultReturn = "content/App.qml";
+    Utils::FileReader reader;
+    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
+            return defaultReturn;
+
+    const QByteArray data = reader.data();
+
+    bool mcu = data.contains("qtForMCUs: true");
+
+    if (data.contains("qt6Project: true"))
+        ret.append("Qt 6");
+    else if (mcu)
+        ret.append("Qt For MCU");
+    else
+        ret.append("Qt 5");
+
+    return ret.join(",");
+}
+
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
     QPair<QString, QString> data = ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(
@@ -305,6 +349,10 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return Utils::withTildeHomePath(data.first);
     case PreviewUrl:
         return QVariant(QStringLiteral("image://project_preview/") + appQmlFile(data.first));
+    case TagData:
+        return tags(data.first);
+    case Description:
+        return description(data.first);
     default:
         return QVariant();
     }
@@ -319,6 +367,8 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
     roleNames[FilePathRole] = "filePath";
     roleNames[PrettyFilePathRole] = "prettyFilePath";
     roleNames[PreviewUrl] = "previewUrl";
+    roleNames[TagData] = "tagData";
+    roleNames[Description] = "description";
     return roleNames;
 }
 
