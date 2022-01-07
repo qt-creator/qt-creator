@@ -292,13 +292,18 @@ void Client::initialize()
     InitializeParams params;
     params.setCapabilities(m_clientCapabilities);
     params.setInitializationOptions(m_initializationOptions);
-    if (m_project) {
+    if (m_project)
         params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
-        params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro) {
-            return WorkSpaceFolder(DocumentUri::fromFilePath(pro->projectDirectory()),
-                                   pro->displayName());
-        }));
-    }
+
+    const QList<WorkSpaceFolder> workspaces
+        = Utils::transform(SessionManager::projects(), [](Project *pro) {
+              return WorkSpaceFolder(DocumentUri::fromFilePath(pro->projectDirectory()),
+                                     pro->displayName());
+          });
+    if (workspaces.isEmpty())
+        params.setWorkSpaceFolders(nullptr);
+    else
+        params.setWorkSpaceFolders(workspaces);
     InitializeRequest initRequest(params);
     initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
         initializeCallback(initResponse);
