@@ -47,6 +47,7 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
         ConfigModel::DataItem data = ConfigModel::dataItemFromIndex(index);
         if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
             auto edit = new Utils::PathChooser(parent);
+            edit->setAttribute(Qt::WA_MacSmallSize);
             edit->setFocusPolicy(Qt::StrongFocus);
             edit->setBaseDirectory(m_base);
             edit->setAutoFillBackground(true);
@@ -60,6 +61,7 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
             return edit;
         } else if (!data.values.isEmpty()) {
             auto edit = new QComboBox(parent);
+            edit->setAttribute(Qt::WA_MacSmallSize);
             edit->setFocusPolicy(Qt::StrongFocus);
             for (const QString &s : qAsConst(data.values))
                 edit->addItem(s);
@@ -132,9 +134,24 @@ void ConfigModelItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *
 QSize CMakeProjectManager::ConfigModelItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                                              const QModelIndex &index) const
 {
+    static int height = -1;
+    if (height < 0) {
+        const auto setMaxSize = [](const QWidget &w) {
+            if (w.sizeHint().height() > height)
+                height = w.sizeHint().height();
+        };
+        QComboBox box;
+        box.setAttribute(Qt::WA_MacSmallSize);
+        QCheckBox check;
+        setMaxSize(box);
+        setMaxSize(check);
+        // Do not take the path chooser into consideration, because that would make the height
+        // larger on Windows, leading to less items displayed, and the size of PathChooser looks
+        // "fine enough" as is.
+    }
     Q_UNUSED(option)
     Q_UNUSED(index)
-    return QSize(100, m_measurement.sizeHint().height());
+    return QSize(100, height);
 }
 
 } // namespace CMakeProjectManager

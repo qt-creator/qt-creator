@@ -49,7 +49,6 @@ public:
 
 private:
     Utils::FilePath m_base;
-    QComboBox m_measurement;
 };
 
 } // namespace CMakeProjectManager
