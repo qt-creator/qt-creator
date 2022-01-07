@@ -29,6 +29,7 @@
 #include "launcherpackets.h"
 #include "launchersocket.h"
 #include "qtcassert.h"
+#include "temporarydirectory.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -72,8 +73,8 @@ private:
 
 static QString launcherSocketName()
 {
-    return QStringLiteral("qtcreator_processlauncher-%1")
-            .arg(QString::number(qApp->applicationPid()));
+    return Utils::TemporaryDirectory::masterDirectoryPath()
+           + QStringLiteral("/launcher-%1").arg(QString::number(qApp->applicationPid()));
 }
 
 class LauncherInterfacePrivate : public QObject
