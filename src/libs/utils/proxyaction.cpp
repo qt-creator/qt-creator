@@ -63,17 +63,16 @@ void ProxyAction::disconnectAction()
 {
     if (m_action) {
         disconnect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged);
-        disconnect(this, &QAction::triggered, m_action.data(), &QAction::triggered);
-        disconnect(this, &QAction::toggled, m_action.data(), &QAction::setChecked);
+        disconnect(this, &ProxyAction::triggered, m_action.data(), &QAction::triggered);
+        disconnect(this, &ProxyAction::toggled, m_action.data(), &QAction::setChecked);
     }
 }
 
 void ProxyAction::connectAction()
 {
     if (m_action) {
-        connect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged,
-                Qt::QueuedConnection);
-        connect(this, &QAction::triggered, m_action.data(), &QAction::triggered);
+        connect(m_action.data(), &QAction::changed, this, &ProxyAction::actionChanged);
+        connect(this, &ProxyAction::triggered, m_action.data(), &QAction::triggered);
         connect(this, &ProxyAction::toggled, m_action.data(), &QAction::setChecked);
     }
 }
@@ -114,8 +113,7 @@ void ProxyAction::update(QAction *action, bool initialize)
 {
     if (!action)
         return;
-    disconnectAction();
-    disconnect(this, &QAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
+    disconnect(this, &ProxyAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
     if (initialize) {
         setSeparator(action->isSeparator());
         setMenuRole(action->menuRole());
@@ -136,12 +134,17 @@ void ProxyAction::update(QAction *action, bool initialize)
     setCheckable(action->isCheckable());
 
     if (!initialize) {
-        setChecked(action->isChecked());
+        if (isChecked() != action->isChecked()) {
+            if (m_action)
+                disconnect(this, &ProxyAction::toggled, m_action.data(), &QAction::setChecked);
+            setChecked(action->isChecked());
+            if (m_action)
+                connect(this, &ProxyAction::toggled, m_action.data(), &QAction::setChecked);
+        }
         setEnabled(action->isEnabled());
         setVisible(action->isVisible());
     }
-    connectAction();
-    connect(this, &QAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
+    connect(this, &ProxyAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
 }
 
 bool ProxyAction::shortcutVisibleInToolTip() const
