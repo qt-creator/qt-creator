@@ -19,7 +19,7 @@ CONFIG -= qtquickcompiler
 
 include(../../../qttest.pri)
 
-QT += qml network core-private
+QT += qml quick network core-private
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport
