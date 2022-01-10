@@ -444,4 +444,31 @@ TEST_F(ImageCacheStorageSlowTest, FetchInvalidModifiedImageTimeForNoEntry)
 
     ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{}));
 }
+
+TEST_F(ImageCacheStorageSlowTest, FetchHasImage)
+{
+    storage.storeImage("/path/to/component", {123}, image1, smallImage1);
+
+    auto hasImage = storage.fetchHasImage("/path/to/component");
+
+    ASSERT_TRUE(hasImage);
+}
+
+TEST_F(ImageCacheStorageSlowTest, FetchHasImageForNullImage)
+{
+    storage.storeImage("/path/to/component", {123}, QImage{}, QImage{});
+
+    auto hasImage = storage.fetchHasImage("/path/to/component");
+
+    ASSERT_FALSE(hasImage);
+}
+
+TEST_F(ImageCacheStorageSlowTest, FetchHasImageForNoEntry)
+{
+    storage.storeImage("/path/to/component", {123}, QImage{}, QImage{});
+
+    auto hasImage = storage.fetchHasImage("/path/to/component");
+
+    ASSERT_FALSE(hasImage);
+}
 } // namespace

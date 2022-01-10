@@ -116,14 +116,15 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
     const auto currentModifiedTime = timeStampProvider.timeStamp(name);
     const auto storageModifiedTime = storage.fetchModifiedImageTime(id);
 
-    if (currentModifiedTime != storageModifiedTime) {
-        generator.generateImage(name,
-                                extraId,
-                                currentModifiedTime,
-                                ImageCache::CaptureImageWithSmallImageCallback{},
-                                ImageCache::AbortCallback{},
-                                std::move(auxiliaryData));
-    }
+    if (currentModifiedTime == storageModifiedTime && storage.fetchHasImage(id))
+        return;
+
+    generator.generateImage(name,
+                            extraId,
+                            currentModifiedTime,
+                            ImageCache::CaptureImageWithSmallImageCallback{},
+                            ImageCache::AbortCallback{},
+                            std::move(auxiliaryData));
 }
 
 void AsynchronousImageFactory::clean()

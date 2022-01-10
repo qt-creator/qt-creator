@@ -65,4 +65,5 @@ public:
                 fetchModifiedImageTime,
                 (Utils::SmallStringView name),
                 (const, override));
+    MOCK_METHOD(bool, fetchHasImage, (Utils::SmallStringView name), (const, override));
 };

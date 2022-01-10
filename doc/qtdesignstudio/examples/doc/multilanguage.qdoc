@@ -1,0 +1,203 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page multilanguage-tutorial.html
+    \ingroup gstutorials
+
+    \title Adding Multi-language Support to Your Project
+    \brief Illustrates how to add support for multiple languages to your
+    project.
+
+    \image multilanguage-project.png
+
+    The \e{Multi-language Support} tutorial illustrates how you can add
+    support for multiple languages to your project. In this tutorial you
+    prepare a simple log in UI for multi-language support and import
+    translations from a JSON file.
+
+    You need to download the starting project for this tutorial from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/examples/
+    loginui2}{here} before you start.
+
+    Download the project and open the \e loginui2.qmlproject file in \QDS
+    to get started.
+
+    This project consists of a login page with a couple of text elements.
+
+    Additionally, you will use a JSON translation file in this tutorial.
+    Download it from \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/
+    master/tutorial%20projects/multi-language}{here}.
+
+    \section1 JSON Translation File
+
+    The JSON translation file you are using in this project has the following
+    structure:
+
+    \code
+    {
+    "translatables": [
+        {
+            "trId": "translation_password",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Password"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Lösenord"
+                }
+            ]
+        },
+        {
+            "trId": "translation_account",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Qt Account"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Qt Konto"
+                }
+            ]
+        },
+        {
+            "trId": "translation_createaccount",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Create Account"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Skapa Konto"
+                }
+            ]
+        },
+        {
+            "trId": "translation_login",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Log In"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Logga In"
+                }
+            ]
+        },
+        {
+            "trId": "translation_username",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Username"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Användarnamn"
+                }
+            ]
+        }
+    ]
+}
+    \endcode
+
+\section1 Preparing Your Project
+
+    First, you need to prepare your project for translation:
+
+    \list 1
+      \li All text strings that you want to translate need to be of \c
+      qsTrId type. In this project the text strings are of \c qsTr type so you
+      need to change them. Open \uicontrol{Text Editor}, find all five
+      occurrences of \c QsTr and replace them with \c{QsTrId}. For example,
+      replace:
+      \code
+        text: qsTr("Qt Account")
+      \endcode
+      with:
+      \code
+        text: qsTrId("Qt Account")
+      \endcode
+      \li Next, you need to replace the text value with the text string
+      variable from the translation file for the five text strings you want
+      to translate. For example, replace:
+      \code
+        text: qsTrId("Qt Account")
+      \endcode
+      with:
+      \code
+        text: qsTrId("translation_account")
+      \endcode
+    \endlist
+
+    \section1 Importing Translations
+
+    Next, you need to import your JSON translation file:
+
+    \list 1
+      \li Go to \uicontrol View > \uicontrol Views and select \uicontrol
+      Translations to open the \uicontrol Translations view. You can
+      drag it to a workspace to dock it.
+
+      When you open the \uicontrol Translations view for the first time, \QDS
+      prompts you to enable the multi-language database, select
+      \uicontrol{Yes}.
+      \image enable-multilanguage.png
+      \li In \uicontrol Translations, select
+      \inlineimage icons/select-languages.png
+      .
+
+      When you enable the multi-language database, an SQLite database named
+      \e translations.db is created in the project folder root.
+      \li Select the languages that you want to support in your project,
+      in this case \uicontrol{English - American English} and
+      \uicontrol{Swedish}.
+      \li Set \uicontrol English as primary language and select \uicontrol{OK}.
+      \li Select \inlineimage icons/import-json-translations.png
+      and open the \e ml_translations.json file. Now you can see all your
+      imported translations in the \uicontrol Translations view.
+      \image imported-translations.png
+    \endlist
+
+    You can select language from the dropdown list on the left side of the
+    \uicontrol Translations view. Translations for the selected languages will
+    show in the \uicontrol Translations view as well as in
+    \uicontrol{Form Editor}.
+
+    You can run translation tests, import, and export translations as described
+    in \l{Translations}.
+
+    Finally, before you can see your translations in the application or in
+    \uicontrol{Live Preview}, you must generate Qt translation source files.
+    To do this, select
+    \inlineimage icons/generate-translation-files.png
+    in the \uicontrol Translations view.
+
+*/

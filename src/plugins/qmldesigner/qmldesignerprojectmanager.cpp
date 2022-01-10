@@ -56,9 +56,6 @@
 
 #include <QQmlEngine>
 
-#include <filesystem>
-#include <type_traits>
-
 namespace QmlDesigner {
 
 namespace {
@@ -158,6 +155,7 @@ void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
 {
+    m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
     m_projectData.reset();
 }
 

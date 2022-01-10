@@ -25,6 +25,11 @@ qmlDesignerButtonColor=ff3c3e40
 ;DS controls theme START
 DSpanelBackground=ff323232
 
+DSwelcomeScreenBackground=ff242424
+DSsubPanelBackground=ff040404
+DSthumbnailBackground=ff292929
+DSthumbnailLabelBackground=ff3D3D3D
+
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning

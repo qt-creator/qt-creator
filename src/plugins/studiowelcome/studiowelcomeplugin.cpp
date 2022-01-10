@@ -43,6 +43,7 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <qmldesigner/components/componentcore/theme.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/icon.h>
@@ -57,6 +58,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QPointer>
+#include <QShortcut>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -70,6 +72,14 @@
 
 namespace StudioWelcome {
 namespace Internal {
+
+static bool useNewWelcomePage()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
+
+    return settings->value(newWelcomePageEntry, false).toBool();
+}
 
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
@@ -157,7 +167,7 @@ class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole, PreviewUrl };
+    enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole, PreviewUrl, TagData, Description };
 
     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
 
@@ -281,6 +291,50 @@ QString appQmlFile(const QString &projectFilePath)
     return QFileInfo(projectFilePath).dir().absolutePath() + "/" +  getMainQmlFile(projectFilePath);
 }
 
+static QString fromCamelCase(const QString &s) {
+
+   static QRegularExpression regExp1 {"(.)([A-Z][a-z]+)"};
+   static QRegularExpression regExp2 {"([a-z0-9])([A-Z])"};
+   QString result = s;
+   result.replace(regExp1, "\\1 \\2");
+   result.replace(regExp2, "\\1 \\2");
+   result = result.left(1).toUpper() + result.mid(1);
+   return result;
+}
+
+static QString description(const QString &projectFilePath)
+{
+
+    const QString created = "Created: " +
+            QFileInfo(projectFilePath).fileTime(QFileDevice::FileBirthTime).toString();
+    const QString lastEdited = "Last Edited: " +
+            QFileInfo(projectFilePath).fileTime(QFileDevice::FileModificationTime).toString();
+
+    return fromCamelCase(QFileInfo(projectFilePath).baseName()) + "\n" + created + "\n" + lastEdited;
+}
+
+static QString tags(const QString &projectFilePath)
+{
+    QStringList ret;
+    const QString defaultReturn = "content/App.qml";
+    Utils::FileReader reader;
+    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
+            return defaultReturn;
+
+    const QByteArray data = reader.data();
+
+    bool mcu = data.contains("qtForMCUs: true");
+
+    if (data.contains("qt6Project: true"))
+        ret.append("Qt 6");
+    else if (mcu)
+        ret.append("Qt For MCU");
+    else
+        ret.append("Qt 5");
+
+    return ret.join(",");
+}
+
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
     QPair<QString, QString> data = ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(
@@ -295,6 +349,10 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return Utils::withTildeHomePath(data.first);
     case PreviewUrl:
         return QVariant(QStringLiteral("image://project_preview/") + appQmlFile(data.first));
+    case TagData:
+        return tags(data.first);
+    case Description:
+        return description(data.first);
     default:
         return QVariant();
     }
@@ -309,6 +367,8 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
     roleNames[FilePathRole] = "filePath";
     roleNames[PrettyFilePathRole] = "prettyFilePath";
     roleNames[PreviewUrl] = "previewUrl";
+    roleNames[TagData] = "tagData";
+    roleNames[Description] = "description";
     return roleNames;
 }
 
@@ -473,20 +533,41 @@ WelcomeMode::WelcomeMode()
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     m_modeWidget = new QQuickWidget;
+    m_modeWidget->setMinimumSize(1024, 768);
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    QmlDesigner::Theme::setupTheme(m_modeWidget->engine());
     m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
 
     QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_modeWidget->engine());
 
+    if (!useNewWelcomePage()) {
+
 #ifdef QT_DEBUG
-    m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
-                                    + "welcomepage/imports");
-    m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
-                                  + "welcomepage/main.qml"));
+        m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
+                                              + "welcomepage/imports");
+        m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
+                                                    + "welcomepage/main.qml"));
 #else
-    m_modeWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
-    m_modeWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
+        m_modeWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
+        m_modeWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
 #endif
+    } else {
+
+        m_modeWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
+
+        const QString welcomePagePath = Core::ICore::resourcePath("qmldesigner/welcomepage").toString();
+        m_modeWidget->engine()->addImportPath(welcomePagePath + "/imports");
+        m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+
+        QShortcut *updateShortcut = nullptr;
+        if (Utils::HostOsInfo::isMacHost())
+            updateShortcut = new QShortcut(QKeySequence(Qt::ALT + Qt::Key_F5), m_modeWidget);
+        else
+            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), m_modeWidget);
+        connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
+            m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+        });
+    }
 
     setWidget(m_modeWidget);
 

@@ -98,6 +98,10 @@ Project {
             if (libclang.present) {
                 defines.push("CLANG_UNIT_TESTS");
             }
+            var absLibExecPath = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix,
+                                                    qtc.ide_libexec_path);
+            var relLibExecPath = FileInfo.relativePath(destinationDirectory, absLibExecPath);
+            defines.push('TEST_RELATIVE_LIBEXEC_PATH="' + relLibExecPath + '"');
             return defines;
         }
         cpp.cxxFlags: {

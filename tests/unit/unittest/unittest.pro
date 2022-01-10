@@ -56,6 +56,10 @@ QMAKE_LFLAGS += /INCREMENTAL
 
 }
 
+TEST_RELATIVE_LIBEXEC_PATH = $$relative_path($$IDE_LIBEXEC_PATH, $$OUT_PWD)
+win32:TEST_RELATIVE_LIBEXEC_PATH=../$$TEST_RELATIVE_LIBEXEC_PATH
+DEFINES += 'TEST_RELATIVE_LIBEXEC_PATH="\\\"$$TEST_RELATIVE_LIBEXEC_PATH\\\""'
+
 SOURCES += \
     clientserverinprocess-test.cpp \
     clientserveroutsideprocess-test.cpp \
