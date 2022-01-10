@@ -67,6 +67,9 @@ CppApplication {
 @if "%{TestFrameWork}" == "QtQuickTest"
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
+@if "%{UseSetupCode}" === "true"
+    Depends { name: "Qt.qml" }
+@endif
     Depends {
         condition: Qt.core.versionMajor > 4
         name: "Qt.qmltest"
@@ -74,7 +77,13 @@ CppApplication {
 
     Group {
         name: "main application"
-        files: [ "%{MainCppName}" ]
+        files: [
+            "%{MainCppName}",
+@if "%{UseSetupCode}" === "true"
+            "setup.cpp",
+            "setup.h"
+@endif
+        ]
     }
 
     Group {

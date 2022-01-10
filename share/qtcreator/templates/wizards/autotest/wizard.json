@@ -135,6 +135,15 @@
                     }
                 },
                 {
+                    "name": "UseSetupCode",
+                    "trDisplayName": "Generate setup code",
+                    "visible": "%{JS: value('TestFrameWork') === 'QtQuickTest'}",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
                     "name": "GenerateInitAndCleanup",
                     "trDisplayName": "Generate initialization and cleanup code",
                     "visible": "%{JS: [ 'QtTest', 'QtQuickTest' ].indexOf(value('TestFrameWork')) >= 0 }",
@@ -297,6 +306,18 @@
                 {
                     "source": "files/tst_qml.tmpl",
                     "target": "%{TestCaseFileWithQmlSuffix}",
+                    "condition": "%{JS: value('TestFrameWork') === 'QtQuickTest'}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "files/setup.cpp",
+                    "target": "setup.cpp",
+                    "condition": "%{JS: value('TestFrameWork') === 'QtQuickTest'}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "files/setup.h",
+                    "target": "setup.h",
                     "condition": "%{JS: value('TestFrameWork') === 'QtQuickTest'}",
                     "openInEditor": true
                 },

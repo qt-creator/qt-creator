@@ -33,8 +33,13 @@ target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Test)
 
 @endif
 @if "%{TestFrameWork}" == "QtQuickTest"
+@if "%{UseSetupCode}" === "true"
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS QuickTest Qml)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS QuickTest Qml)
+@else
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS QuickTest)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS QuickTest)
+@endif
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -48,10 +53,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # no need to copy around qml test files for shadow builds - just set the respective define
 add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
+@if "%{UseSetupCode}" === "true"
+add_executable(%{TestCaseName} %{MainCppName}
+               setup.cpp setup.h)
+@else
 add_executable(%{TestCaseName} %{MainCppName})
+@endif
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
+@if "%{UseSetupCode}" === "true"
+target_link_libraries(%{TestCaseName}
+                      PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest
+                      PRIVATE Qt${QT_VERSION_MAJOR}::Qml)
+@else
 target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest)
+@endif
 
 @endif
 @if  "%{TestFrameWork}" == "GTest"

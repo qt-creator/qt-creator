@@ -1,7 +1,13 @@
 @if  "%{TestFrameWork}" == "QtQuickTest"
 #include <QtQuickTest/quicktest.h>
+@if "%{UseSetupCode}" === "true"
+#include "setup.h"
+
+QUICK_TEST_MAIN_WITH_SETUP(example, Setup)
+@else
 
 QUICK_TEST_MAIN(example)
+@endif
 @endif
 @if "%{TestFrameWork}" == "GTest"
 %{Cpp:LicenseTemplate}\

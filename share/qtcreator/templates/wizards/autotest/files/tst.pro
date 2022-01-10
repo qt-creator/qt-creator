@@ -22,8 +22,16 @@ TEMPLATE = app
 DISTFILES += \\
     %{TestCaseFileWithQmlSuffix}
 
+@if "%{UseSetupCode}" === "false"
 SOURCES += \\
     %{MainCppName}
+@else
+HEADERS += setup.h
+
+SOURCES += \\
+    %{MainCppName} \\
+    setup.cpp
+@endif
 @endif
 @if "%{TestFrameWork}" == "GTest"
 include(gtest_dependency.pri)
