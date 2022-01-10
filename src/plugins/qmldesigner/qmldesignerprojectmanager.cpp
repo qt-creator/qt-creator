@@ -81,7 +81,8 @@ public:
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager};
+    ImageCacheCollector collector{connectionManager,
+                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
     ImageCacheGenerator generator{collector, storage};
     TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};

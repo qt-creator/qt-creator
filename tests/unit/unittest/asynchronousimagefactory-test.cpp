@@ -113,38 +113,14 @@ TEST_F(AsynchronousImageFactory, RequestImageWithAuxiliaryDataRequestImageFromGe
 
 TEST_F(AsynchronousImageFactory, DontRequestImageRequestImageFromGeneratorIfFileWasNotUpdated)
 {
-    ON_CALL(mockStorage, fetchHasImage(Eq("/path/to/Component.qml"))).WillByDefault([&](auto) {
+    ON_CALL(mockStorage, fetchModifiedImageTime(Eq("/path/to/Component.qml"))).WillByDefault([&](auto) {
         notification.notify();
-        return true;
+        return Sqlite::TimeStamp{124};
     });
-    ON_CALL(mockStorage, fetchModifiedImageTime(Eq("/path/to/Component.qml")))
-        .WillByDefault(Return(Sqlite::TimeStamp{124}));
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
 
     EXPECT_CALL(mockGenerator, generateImage(_, _, _, _, _, _)).Times(0);
-
-    factory.generate("/path/to/Component.qml");
-    notification.wait();
-}
-
-TEST_F(AsynchronousImageFactory,
-       RequestImageRequestImageFromGeneratorIfFileWasNotUpdatedButTheImageIsNull)
-{
-    ON_CALL(mockStorage, fetchHasImage(Eq("/path/to/Component.qml"))).WillByDefault(Return(false));
-    ON_CALL(mockStorage, fetchModifiedImageTime(Eq("/path/to/Component.qml")))
-        .WillByDefault(Return(Sqlite::TimeStamp{124}));
-    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
-        .WillByDefault(Return(Sqlite::TimeStamp{124}));
-
-    EXPECT_CALL(mockGenerator,
-                generateImage(Eq("/path/to/Component.qml"),
-                              IsEmpty(),
-                              Eq(Sqlite::TimeStamp{124}),
-                              _,
-                              _,
-                              VariantWith<Utils::monostate>(Utils::monostate{})))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml");
     notification.wait();

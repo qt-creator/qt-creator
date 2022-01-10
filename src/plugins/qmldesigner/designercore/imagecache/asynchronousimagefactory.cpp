@@ -116,7 +116,7 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
     const auto currentModifiedTime = timeStampProvider.timeStamp(name);
     const auto storageModifiedTime = storage.fetchModifiedImageTime(id);
 
-    if (currentModifiedTime == storageModifiedTime && storage.fetchHasImage(id))
+    if (currentModifiedTime == storageModifiedTime)
         return;
 
     generator.generateImage(name,
