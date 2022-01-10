@@ -45,6 +45,11 @@ InputEventCommand::InputEventCommand(QInputEvent *e)
 #endif
         m_buttons = we->buttons();
         m_angleDelta = we->angleDelta().y();
+    } else if (m_type == QEvent::KeyPress || m_type == QEvent::KeyRelease) {
+        auto ke = static_cast<QKeyEvent *>(e);
+        m_key = ke->key();
+        m_count = ke->count();
+        m_autoRepeat = ke->isAutoRepeat();
     } else {
         auto me = static_cast<QMouseEvent *>(e);
         m_pos = me->pos();
@@ -61,6 +66,9 @@ QDataStream &operator<<(QDataStream &out, const InputEventCommand &command)
     out << command.buttons();
     out << command.modifiers();
     out << command.angleDelta();
+    out << command.key();
+    out << command.count();
+    out << command.autoRepeat();
 
     return out;
 }
@@ -77,6 +85,9 @@ QDataStream &operator>>(QDataStream &in, InputEventCommand &command)
     in >> command.m_buttons;
     in >> command.m_modifiers;
     in >> command.m_angleDelta;
+    in >> command.m_key;
+    in >> command.m_count;
+    in >> command.m_autoRepeat;
 
     return in;
 }
@@ -89,7 +100,10 @@ QDebug operator <<(QDebug debug, const InputEventCommand &command)
                            << "button: " << command.button() << ", "
                            << "buttons: " << command.buttons() << ", "
                            << "modifiers: " << command.modifiers() << ", "
-                           << "angleDelta: " << command.angleDelta() << ")";
+                           << "angleDelta: " << command.angleDelta() << ", "
+                           << "key: " << command.key() << ", "
+                           << "count: " << command.count() << ", "
+                           << "autoRepeat: " << command.autoRepeat() << ")";
 
 }
 

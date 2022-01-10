@@ -98,6 +98,7 @@ Item {
             editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
 
             selectionBoxes.length = 0;
+            cameraControl.forceActiveFocus();
             return true;
         }
         return false;

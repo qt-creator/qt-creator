@@ -88,6 +88,18 @@ void Edit3DCanvas::wheelEvent(QWheelEvent *e)
     QWidget::wheelEvent(e);
 }
 
+void Edit3DCanvas::keyPressEvent(QKeyEvent *e)
+{
+    m_parent->view()->sendInputEvent(e);
+    QWidget::keyPressEvent(e);
+}
+
+void Edit3DCanvas::keyReleaseEvent(QKeyEvent *e)
+{
+    m_parent->view()->sendInputEvent(e);
+    QWidget::keyReleaseEvent(e);
+}
+
 void Edit3DCanvas::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)

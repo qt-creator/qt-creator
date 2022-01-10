@@ -262,6 +262,10 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
 #endif
                 angleDelta = 0;
                 QGuiApplication::sendEvent(m_editView3DData.window, we);
+            } else if (command.type() == QEvent::KeyPress || command.type() == QEvent::KeyRelease) {
+                QKeyEvent *ke = new QKeyEvent(command.type(), command.key(), command.modifiers(),
+                                              QString(), command.autoRepeat(), command.count());
+                QGuiApplication::sendEvent(m_editView3DData.window, ke);
             } else {
                 if (command.type() == QEvent::MouseMove && i < m_pendingInputEventCommands.size() - 1) {
                     // Peek at next command. If that is also a move with only difference being

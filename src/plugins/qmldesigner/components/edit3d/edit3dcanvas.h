@@ -54,6 +54,8 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
+    void keyReleaseEvent(QKeyEvent *e) override;
     void paintEvent(QPaintEvent *e) override;
     void resizeEvent(QResizeEvent *e) override;
     void dragEnterEvent(QDragEnterEvent *e) override;

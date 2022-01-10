@@ -48,14 +48,26 @@ public:
     Qt::MouseButtons buttons() const { return m_buttons; }
     Qt::KeyboardModifiers modifiers() const { return m_modifiers; }
     int angleDelta() const { return m_angleDelta; }
+    int key() const { return m_key; }
+    int count() const { return m_count; }
+    bool autoRepeat() const { return m_autoRepeat; }
 
 private:
     QEvent::Type m_type = QEvent::None;
+    Qt::KeyboardModifiers m_modifiers = Qt::NoModifier;
+
+    // Mouse events
     QPoint m_pos;
     Qt::MouseButton m_button = Qt::NoButton;
     Qt::MouseButtons m_buttons = Qt::NoButton;
-    Qt::KeyboardModifiers m_modifiers = Qt::NoModifier;
+
+    // Wheel events
     int m_angleDelta = 0;
+
+    // Key events
+    int m_key = 0;
+    int m_count = 1;
+    bool m_autoRepeat = false;
 };
 
 QDataStream &operator<<(QDataStream &out, const InputEventCommand &command);

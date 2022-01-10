@@ -46,6 +46,7 @@ Item {
     readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, 600)
     readonly property vector3d _defaultCameraRotation: Qt.vector3d(-45, 0, 0)
     readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
+    readonly property real _keyPanAmount: 5
     property bool ignoreToolState: false
 
     function restoreCameraState(cameraState)
@@ -186,6 +187,36 @@ Item {
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
                 cameraCtrl.storeCameraState(500);
             }
+        }
+    }
+
+    Keys.onPressed: {
+        var pressPoint = Qt.vector3d(view3d.width / 2, view3d.height / 2, 0);
+        var currentPoint;
+
+        switch (event.key) {
+        case Qt.Key_Left:
+            currentPoint = pressPoint.plus(Qt.vector3d(_keyPanAmount, 0, 0));
+            break;
+        case Qt.Key_Right:
+            currentPoint = pressPoint.plus(Qt.vector3d(-_keyPanAmount, 0, 0));
+            break;
+        case Qt.Key_Up:
+            currentPoint = pressPoint.plus(Qt.vector3d(0, _keyPanAmount, 0));
+            break;
+        case Qt.Key_Down:
+            currentPoint = pressPoint.plus(Qt.vector3d(0, -_keyPanAmount, 0));
+            break;
+        default:
+            break;
+        }
+
+        if (currentPoint) {
+            _lookAtPoint = _generalHelper.panCamera(
+                        camera, cameraCtrl.camera.sceneTransform,
+                        cameraCtrl.camera.position, _lookAtPoint,
+                        pressPoint, currentPoint, _zoomFactor);
+            event.accepted = true;
         }
     }
 }
