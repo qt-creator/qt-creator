@@ -83,6 +83,8 @@ public:
 
     bool isAvailable(Utils::Id platformId) const override;
 
+    std::pair<int, QStringList> screenSizeInfoFromPage(const QString &pageType) const;
+
 private:
     Utils::Wizard *runWizardImpl(const Utils::FilePath &path, QWidget *parent, Utils::Id platform,
                                  const QVariantMap &variables, bool showWizard = true) override;

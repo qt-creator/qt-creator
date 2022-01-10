@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,38 +32,47 @@
 #include <utils/filepath.h>
 #include <utils/optional.h>
 
+#include "recentpresets.h"
+
 namespace Utils {
 class Wizard;
 }
 
 namespace StudioWelcome {
 
-struct ProjectItem
+struct PresetItem
 {
     QString name;
     QString categoryId;
+    QString screenSizeName;
     QString description;
     QUrl qmlPath;
     QString fontIconCode;
     std::function<Utils::Wizard *(const Utils::FilePath &path)> create;
 };
 
-inline QDebug &operator<<(QDebug &d, const ProjectItem &item)
+inline QDebug &operator<<(QDebug &d, const PresetItem &item)
 {
     d << "name=" << item.name;
     d << "; category = " << item.categoryId;
+    d << "; size = " << item.screenSizeName;
 
     return d;
 }
 
-struct ProjectCategory
+inline bool operator==(const PresetItem &lhs, const PresetItem &rhs)
+{
+    return lhs.categoryId == rhs.categoryId && lhs.name == rhs.name;
+}
+
+struct WizardCategory
 {
     QString id;
     QString name;
-    std::vector<ProjectItem> items;
+    std::vector<PresetItem> items;
 };
 
-inline QDebug &operator<<(QDebug &d, const ProjectCategory &cat)
+inline QDebug &operator<<(QDebug &d, const WizardCategory &cat)
 {
     d << "id=" << cat.id;
     d << "; name=" << cat.name;
@@ -72,46 +81,66 @@ inline QDebug &operator<<(QDebug &d, const ProjectCategory &cat)
     return d;
 }
 
-using ProjectsByCategory = std::map<QString, ProjectCategory>;
+using PresetsByCategory = std::map<QString, WizardCategory>;
+using PresetItems = std::vector<PresetItem>;
+using Categories = std::vector<QString>;
 
-/****************** BaseNewProjectModel ******************/
+/****************** PresetData  ******************/
 
-class BaseNewProjectModel : public QAbstractListModel
+class PresetData
 {
-    using ProjectItems = std::vector<std::vector<ProjectItem>>;
-    using Categories = std::vector<QString>;
-
 public:
-    explicit BaseNewProjectModel(QObject *parent = nullptr);
-    QHash<int, QByteArray> roleNames() const override;
-    void setProjects(const ProjectsByCategory &projects);
+    void setData(const PresetsByCategory &presets, const std::vector<RecentPreset> &recents);
 
-protected:
-    const ProjectItems &projects() const { return m_projects; }
+    const std::vector<PresetItems> &presets() const { return m_presets; }
     const Categories &categories() const { return m_categories; }
 
 private:
-    ProjectItems m_projects;
+    std::vector<PresetItem> makeRecentPresets(const PresetItems &wizardPresets);
+
+private:
+    std::vector<PresetItems> m_presets;
     Categories m_categories;
+    std::vector<RecentPreset> m_recents;
 };
 
-/****************** NewProjectCategoryModel ******************/
+/****************** PresetCategoryModel ******************/
 
-class NewProjectCategoryModel : public BaseNewProjectModel
+class BasePresetModel : public QAbstractListModel
 {
 public:
-    explicit NewProjectCategoryModel(QObject *parent = nullptr);
+    BasePresetModel(const PresetData *data, QObject *parent = nullptr);
+    QHash<int, QByteArray> roleNames() const override;
+
+    void reset()
+    {
+        beginResetModel();
+        endResetModel();
+    }
+
+protected:
+    const PresetData *m_data = nullptr;
+};
+
+/****************** PresetCategoryModel ******************/
+
+class PresetCategoryModel : public BasePresetModel
+{
+public:
+    PresetCategoryModel(const PresetData *data, QObject *parent = nullptr);
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 };
 
-/****************** NewProjectModel ******************/
+/****************** PresetModel ******************/
 
-class NewProjectModel : public BaseNewProjectModel
+class PresetModel : public BasePresetModel
 {
     Q_OBJECT
+
 public:
-    explicit NewProjectModel(QObject *parent = nullptr);
+    PresetModel(const PresetData *data, QObject *parent = nullptr);
+    QHash<int, QByteArray> roleNames() const override;
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 
@@ -120,24 +149,29 @@ public:
 
     int page() const { return static_cast<int>(m_page); }
 
-    Utils::optional<ProjectItem> project(size_t selection) const
+    Utils::optional<PresetItem> preset(size_t selection) const
     {
-        if (projects().empty())
+        auto presets = m_data->presets();
+        if (presets.empty())
             return {};
 
-        if (m_page < projects().size()) {
-            const std::vector<ProjectItem> projectsOfCategory = projects().at(m_page);
-            if (selection < projectsOfCategory.size())
-                return projects().at(m_page).at(selection);
+        if (m_page < presets.size()) {
+            const std::vector<PresetItem> presetsOfCategory = presets.at(m_page);
+            if (selection < presetsOfCategory.size())
+                return presets.at(m_page).at(selection);
         }
         return {};
     }
 
-    bool empty() const { return projects().empty(); }
+    bool empty() const { return m_data->presets().empty(); }
 
 private:
-    const std::vector<ProjectItem> projectsOfCurrentCategory() const
-    { return projects().at(m_page); }
+    const std::vector<PresetItem> presetsOfCurrentCategory() const
+    {
+        return m_data->presets().at(m_page);
+    }
+
+    std::vector<PresetItems> presets() const { return m_data->presets(); }
 
 private:
     size_t m_page = 0;

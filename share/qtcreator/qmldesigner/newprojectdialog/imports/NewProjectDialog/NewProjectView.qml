@@ -49,17 +49,17 @@ GridView {
         }
     ]
 
-    model: projectModel
+    model: presetModel
 
     // called by onModelReset and when user clicks on an item, or when the header item is changed.
     onCurrentIndexChanged: {
-        dialogBox.selectedProject = projectView.currentIndex
-        var source = dialogBox.currentProjectQmlPath()
+        dialogBox.selectedPreset = projectView.currentIndex
+        var source = dialogBox.currentPresetQmlPath()
         loader.source = source
     }
 
     Connections {
-        target: projectModel
+        target: presetModel
 
         // called when data is set (setWizardFactories)
         function onModelReset() {
@@ -76,7 +76,7 @@ GridView {
         background: null
 
         function fontIconCode(index) {
-            var code = projectModel.fontIconCode(index)
+            var code = presetModel.fontIconCode(index)
             return code ? code : StudioTheme.Constants.wizardsUnknown
         }
 

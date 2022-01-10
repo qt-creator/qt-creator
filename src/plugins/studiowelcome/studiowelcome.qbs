@@ -21,8 +21,8 @@ QtcPlugin {
         "examplecheckout.cpp",
         "newprojectdialogimageprovider.h",
         "newprojectdialogimageprovider.cpp",
-        "newprojectmodel.cpp",
-        "newprojectmodel.h",
+        "presetmodel.cpp",
+        "presetmodel.h",
         "qdsnewdialog.cpp",
         "qdsnewdialog.h",
         "screensizemodel.h",
@@ -36,6 +36,8 @@ QtcPlugin {
         "wizardfactories.h",
         "wizardhandler.cpp",
         "wizardhandler.h",
+        "recentpresets.cpp",
+        "recentpresets.h"
     ]
 
     Group {

@@ -185,7 +185,7 @@ Item {
                                                 anchors.fill: parent
                                                 onClicked: {
                                                     tabBarRow.currIndex = index
-                                                    projectModel.setPage(index)
+                                                    presetModel.setPage(index)
                                                     projectView.currentIndex = 0
                                                     projectView.currentIndexChanged()
 

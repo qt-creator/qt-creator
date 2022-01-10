@@ -17,9 +17,10 @@ HEADERS += \
     wizardfactories.h \
     wizardhandler.h \
     createproject.h \
-    newprojectmodel.h \
+    presetmodel.h \
     examplecheckout.h \
     screensizemodel.h \
+    recentpresets.h \
     stylemodel.h
 
 SOURCES += \
@@ -29,8 +30,9 @@ SOURCES += \
     wizardhandler.cpp \
     createproject.cpp \
     newprojectdialogimageprovider.cpp \
-    newprojectmodel.cpp \
+    presetmodel.cpp \
     examplecheckout.cpp \
+    recentpresets.cpp \
     stylemodel.cpp
 
 OTHER_FILES += \
