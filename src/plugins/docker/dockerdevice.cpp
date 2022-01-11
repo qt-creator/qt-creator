@@ -396,6 +396,13 @@ public:
             data.useLocalUidGid = on;
         });
 
+        // This tries to find the directory in the host file system that corresponds to the
+        // docker container root file system, which is a merge of the layers from the
+        // container image and the volumes mapped using -v on container startup.
+        //
+        // Accessing files there is much faster than using 'docker exec', but conceptually
+        // only works on Linux, and is restricted there by proper matching of user
+        // permissions between host and container.
         m_usePathMapping = new QCheckBox(tr("Use local file path mapping"));
         m_usePathMapping->setToolTip(tr("Maps docker filesystem to a local directory."));
         m_usePathMapping->setChecked(data.useFilePathMapping);
@@ -960,8 +967,10 @@ void DockerDevicePrivate::tryCreateLocalFileAccess()
         }
         return;
     }
+
     if (!DockerPlugin::isDaemonRunning().value_or(false))
         return;
+
     QtcProcess proc;
     proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", m_container}});
     LOG(proc.commandLine().toUserOutput());
