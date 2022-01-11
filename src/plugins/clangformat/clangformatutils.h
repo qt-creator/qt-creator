@@ -51,4 +51,6 @@ clang::format::FormatStyle currentGlobalStyle();
 QString configForFile(Utils::FilePath fileName);
 clang::format::FormatStyle styleForFile(Utils::FilePath fileName);
 
+void addQtcStatementMacros(clang::format::FormatStyle &style);
+clang::format::FormatStyle qtcStyle();
 }

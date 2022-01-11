@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "clangformatbaseindenter.h"
+#include "clangformatutils.h"
 
 #include <clang/Tooling/Core/Replacement.h>
 
@@ -728,14 +729,16 @@ clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
 {
     llvm::Expected<clang::format::FormatStyle> style
         = clang::format::getStyle("file", m_fileName.toString().toStdString(), "none");
-    if (style)
+    if (style) {
+        addQtcStatementMacros(*style);
         return *style;
+    }
 
     handleAllErrors(style.takeError(), [](const llvm::ErrorInfoBase &) {
         // do nothing
     });
 
-    return clang::format::getLLVMStyle();
+    return qtcStyle();
 }
 
 } // namespace ClangFormat

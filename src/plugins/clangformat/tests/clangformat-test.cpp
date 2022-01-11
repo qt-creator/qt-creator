@@ -646,4 +646,12 @@ void ClangFormatTest::testCommentBlock()
                     "****************************************************************************/"}));
 }
 
+void ClangFormatTest::testClassIndentStructure()
+{
+    insertLines({"class test {", "    Q_OBJECT", "    public:", "};"});
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{"class test {", "    Q_OBJECT", "public:", "};"}));
+}
+
 } // namespace ClangFormat::Internal

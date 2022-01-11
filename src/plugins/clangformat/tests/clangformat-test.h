@@ -109,6 +109,7 @@ private slots:
     void testSortIncludes();
     void testChainedMemberFunctionCalls();
     void testCommentBlock();
+    void testClassIndentStructure();
 
 private:
     void insertLines(const std::vector<QString> &lines);
