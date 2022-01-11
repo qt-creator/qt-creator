@@ -83,10 +83,9 @@ public:
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector{connectionManager,
                                   ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
-    ImageCacheGenerator generator{collector, storage};
     TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
-    AsynchronousImageFactory factory{storage, generator, timeStampProvider};
+    AsynchronousImageFactory factory{storage, timeStampProvider, collector};
 };
 
 class QmlDesignerProjectManagerProjectData

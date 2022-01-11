@@ -25,6 +25,7 @@
 
 #include "asynchronousimagefactory.h"
 
+#include "imagecachecollector.h"
 #include "imagecachegenerator.h"
 #include "imagecachestorage.h"
 #include "timestampprovider.h"
@@ -32,11 +33,11 @@
 namespace QmlDesigner {
 
 AsynchronousImageFactory::AsynchronousImageFactory(ImageCacheStorageInterface &storage,
-                                                   ImageCacheGeneratorInterface &generator,
-                                                   TimeStampProviderInterface &timeStampProvider)
+                                                   TimeStampProviderInterface &timeStampProvider,
+                                                   ImageCacheCollectorInterface &collector)
     : m_storage(storage)
-    , m_generator(generator)
     , m_timeStampProvider(timeStampProvider)
+    , m_collector(collector)
 {
     m_backgroundThread = std::thread{[this] {
         while (isRunning()) {
@@ -45,8 +46,8 @@ AsynchronousImageFactory::AsynchronousImageFactory(ImageCacheStorageInterface &s
                         entry->extraId,
                         std::move(entry->auxiliaryData),
                         m_storage,
-                        m_generator,
-                        m_timeStampProvider);
+                        m_timeStampProvider,
+                        m_collector);
             }
 
             waitForEntries();
@@ -107,8 +108,8 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                                        Utils::SmallStringView extraId,
                                        ImageCache::AuxiliaryData auxiliaryData,
                                        ImageCacheStorageInterface &storage,
-                                       ImageCacheGeneratorInterface &generator,
-                                       TimeStampProviderInterface &timeStampProvider)
+                                       TimeStampProviderInterface &timeStampProvider,
+                                       ImageCacheCollectorInterface &collector)
 {
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
@@ -118,19 +119,20 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
 
     if (currentModifiedTime == storageModifiedTime)
         return;
+    auto capture = [=](const QImage &image, const QImage &smallImage) {
+        m_storage.storeImage(id, currentModifiedTime, image, smallImage);
+    };
 
-    generator.generateImage(name,
-                            extraId,
-                            currentModifiedTime,
-                            ImageCache::CaptureImageWithSmallImageCallback{},
-                            ImageCache::AbortCallback{},
-                            std::move(auxiliaryData));
+    collector.start(name,
+                    extraId,
+                    std::move(auxiliaryData),
+                    std::move(capture),
+                    ImageCache::AbortCallback{});
 }
 
 void AsynchronousImageFactory::clean()
 {
     clearEntries();
-    m_generator.clean();
 }
 
 void AsynchronousImageFactory::wait()
