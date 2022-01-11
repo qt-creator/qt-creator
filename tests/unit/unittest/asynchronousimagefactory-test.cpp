@@ -109,16 +109,34 @@ TEST_F(AsynchronousImageFactory, RequestImageWithAuxiliaryDataRequestImageFromCo
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, DontRequestImageRequestImageFromCollectorIfFileWasNotUpdated)
+TEST_F(AsynchronousImageFactory, DontRequestImageRequestImageFromCollectorIfFileWasUpdatedRecently)
 {
     ON_CALL(storageMock, fetchModifiedImageTime(Eq("/path/to/Component.qml"))).WillByDefault([&](auto) {
         notification.notify();
         return Sqlite::TimeStamp{124};
     });
     ON_CALL(timeStampProviderMock, timeStamp(Eq("/path/to/Component.qml")))
-        .WillByDefault(Return(Sqlite::TimeStamp{124}));
+        .WillByDefault(Return(Sqlite::TimeStamp{125}));
+    ON_CALL(timeStampProviderMock, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{1}));
 
     EXPECT_CALL(collectorMock, start(_, _, _, _, _)).Times(0);
+
+    factory.generate("/path/to/Component.qml");
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageFactory, RequestImageRequestImageFromCollectorIfFileWasNotUpdatedRecently)
+{
+    ON_CALL(storageMock, fetchModifiedImageTime(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{123}));
+    ON_CALL(timeStampProviderMock, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{125}));
+    ON_CALL(timeStampProviderMock, pause()).WillByDefault(Return(Sqlite::TimeStamp{1}));
+
+    EXPECT_CALL(collectorMock, start(_, _, _, _, _)).WillOnce([&](auto, auto, auto, auto, auto) {
+        notification.notify();
+    });
 
     factory.generate("/path/to/Component.qml");
     notification.wait();
@@ -150,6 +168,32 @@ TEST_F(AsynchronousImageFactory, AfterCleanNewJobsWorks)
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml");
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageFactory, CaptureImageCallbackStoresImage)
+{
+    ON_CALL(storageMock, fetchModifiedImageTime(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{123}));
+    ON_CALL(timeStampProviderMock, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{125}));
+    ON_CALL(timeStampProviderMock, pause()).WillByDefault(Return(Sqlite::TimeStamp{1}));
+    ON_CALL(collectorMock,
+            start(Eq("/path/to/Component.qml"),
+                  Eq("id"),
+                  VariantWith<Utils::monostate>(Utils::monostate{}),
+                  _,
+                  _))
+        .WillByDefault([&](auto, auto, auto, auto capture, auto) { capture(image1, smallImage1); });
+
+    EXPECT_CALL(storageMock,
+                storeImage(Eq("/path/to/Component.qml+id"),
+                           Sqlite::TimeStamp{125},
+                           Eq(image1),
+                           Eq(smallImage1)))
+        .WillOnce([&](auto, auto, auto, auto) { notification.notify(); });
+
+    factory.generate("/path/to/Component.qml", "id");
     notification.wait();
 }
 

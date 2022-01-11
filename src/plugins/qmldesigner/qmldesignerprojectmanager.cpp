@@ -50,7 +50,7 @@
 #include <imagecache/imagecacheconnectionmanager.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
-#include <imagecache/timestampprovider.h>
+#include <imagecache/timestampproviderinterface.h>
 
 #include <coreplugin/icore.h>
 
@@ -69,6 +69,23 @@ QString defaultImagePath()
 {
     return qobject_cast<::QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
 }
+
+class TimeStampProvider : public TimeStampProviderInterface
+{
+public:
+    Sqlite::TimeStamp timeStamp(Utils::SmallStringView) const override
+    {
+        auto now = std::chrono::steady_clock::now();
+
+        return std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+    }
+
+    Sqlite::TimeStamp pause() const override
+    {
+        using namespace std::chrono_literals;
+        return std::chrono::duration_cast<std::chrono::seconds>(1h).count();
+    }
+};
 
 } // namespace
 

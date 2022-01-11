@@ -36,6 +36,7 @@ class TimeStampProviderInterface
 {
 public:
     virtual Sqlite::TimeStamp timeStamp(Utils::SmallStringView name) const = 0;
+    virtual Sqlite::TimeStamp pause() const = 0;
 
 protected:
     ~TimeStampProviderInterface() = default;

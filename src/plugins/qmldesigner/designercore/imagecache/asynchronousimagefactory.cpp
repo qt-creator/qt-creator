@@ -28,7 +28,7 @@
 #include "imagecachecollector.h"
 #include "imagecachegenerator.h"
 #include "imagecachestorage.h"
-#include "timestampprovider.h"
+#include "timestampproviderinterface.h"
 
 namespace QmlDesigner {
 
@@ -116,9 +116,11 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
 
     const auto currentModifiedTime = timeStampProvider.timeStamp(name);
     const auto storageModifiedTime = storage.fetchModifiedImageTime(id);
+    const auto pause = timeStampProvider.pause();
 
-    if (currentModifiedTime == storageModifiedTime)
+    if (currentModifiedTime < (storageModifiedTime + pause))
         return;
+
     auto capture = [=](const QImage &image, const QImage &smallImage) {
         m_storage.storeImage(id, currentModifiedTime, image, smallImage);
     };
