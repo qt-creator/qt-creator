@@ -111,7 +111,7 @@ public:
     const DockerDeviceData &data() const;
     DockerDeviceData &data();
 
-    void tryCreateLocalFileAccess() const;
+    void updateContainerAccess() const;
     bool hasLocalFileAccess() const;
     void setMounts(const QStringList &mounts) const;
 
