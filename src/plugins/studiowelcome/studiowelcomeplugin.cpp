@@ -28,6 +28,8 @@
 
 #include "qdsnewdialog.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -490,6 +492,26 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     return true;
 }
 
+static bool showSplashScreen()
+{
+    const QString lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
+
+    QSettings *settings = Core::ICore::settings();
+
+    const QString lastQDSVersion = settings->value(lastQDSVersionEntry).toString();
+
+
+    const QString currentVersion = Core::Constants::IDE_VERSION_DISPLAY;
+
+    if (currentVersion != lastQDSVersion) {
+        settings->setValue(lastQDSVersionEntry, currentVersion);
+        return true;
+    }
+
+    return Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
+                                                      DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+}
+
 void StudioWelcomePlugin::extensionsInitialized()
 {
     Core::ModeManager::activateMode(m_welcomeMode->id());
@@ -497,8 +519,7 @@ void StudioWelcomePlugin::extensionsInitialized()
     // Enable QDS new project dialog
     Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
-    if (Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
-                                                   DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY)) {
+    if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
             s_view = new QQuickWidget(Core::ICore::dialogParent());
             s_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
