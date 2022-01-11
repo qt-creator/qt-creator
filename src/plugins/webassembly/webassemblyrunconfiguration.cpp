@@ -63,7 +63,8 @@ static CommandLine emrunCommand(const RunConfiguration *rc, const QString &brows
         const Environment env = bc->environment();
         const FilePath emrun = env.searchInPath("emrun");
         const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
-        const FilePath html = bc->buildDirectory() / rc->buildKey() + ".html";
+        const FilePath target = rc->buildTargetInfo().targetFilePath;
+        const FilePath html = target.absolutePath() / target.baseName() + ".html";
 
         return CommandLine(pythonInterpreter(env), {
                 emrunPy.path(),
