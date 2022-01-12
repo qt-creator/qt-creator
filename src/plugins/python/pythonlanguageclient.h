@@ -57,6 +57,8 @@ public:
     LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
 
 private:
+    static QJsonObject defaultConfiguration();
+
     QString m_interpreterId;
 
     PyLSSettings(const PyLSSettings &other) = default;

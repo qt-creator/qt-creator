@@ -51,6 +51,7 @@ class FancyLineEdit;
 
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class Project; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace LanguageClient {
 
@@ -88,8 +89,10 @@ public:
     StartBehavior m_startBehavior = RequiresFile;
     LanguageFilter m_languageFilter;
     QString m_initializationOptions;
+    QString m_configuration;
 
     QJsonObject initializationOptions() const;
+    QJsonValue configuration() const;
 
     virtual bool applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
@@ -211,5 +214,7 @@ private:
     Utils::PathChooser *m_executable = nullptr;
     QLineEdit *m_arguments = nullptr;
 };
+
+LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *jsonEditor();
 
 } // namespace LanguageClient

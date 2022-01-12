@@ -37,6 +37,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 
+#include <texteditor/plaintexteditorfactory.h>
+#include <texteditor/textmark.h>
+
 #include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 #include <utils/delegates.h>
@@ -75,6 +78,7 @@ constexpr char startupBehaviorKey[] = "startupBehavior";
 constexpr char mimeTypeKey[] = "mimeType";
 constexpr char filePatternKey[] = "filePattern";
 constexpr char initializationOptionsKey[] = "initializationOptions";
+constexpr char configurationKey[] = "configuration";
 constexpr char executableKey[] = "executable";
 constexpr char argumentsKey[] = "arguments";
 constexpr char settingsGroupKey[] = "LanguageClient";
@@ -523,6 +527,16 @@ QJsonObject BaseSettings::initializationOptions() const
                                    expand(m_initializationOptions).toUtf8()).object();
 }
 
+QJsonValue BaseSettings::configuration() const
+{
+    const QJsonDocument document = QJsonDocument::fromJson(m_configuration.toUtf8());
+    if (document.isArray())
+        return document.array();
+    if (document.isObject())
+        return document.object();
+    return {};
+}
+
 bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
 {
     bool changed = false;
@@ -593,6 +607,7 @@ QVariantMap BaseSettings::toMap() const
     map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
     map.insert(filePatternKey, m_languageFilter.filePattern);
     map.insert(initializationOptionsKey, m_initializationOptions);
+    map.insert(configurationKey, m_configuration);
     return map;
 }
 
@@ -607,6 +622,7 @@ void BaseSettings::fromMap(const QVariantMap &map)
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
     m_languageFilter.filePattern.removeAll(QString()); // remove empty entries
     m_initializationOptions = map[initializationOptionsKey].toString();
+    m_configuration = map[configurationKey].toString();
 }
 
 static LanguageClientSettingsPage &settingsPage()
@@ -1023,6 +1039,41 @@ bool LanguageFilter::operator==(const LanguageFilter &other) const
 bool LanguageFilter::operator!=(const LanguageFilter &other) const
 {
     return this->filePattern != other.filePattern || this->mimeTypes != other.mimeTypes;
+}
+
+TextEditor::BaseTextEditor *jsonEditor()
+{
+    using namespace TextEditor;
+    BaseTextEditor *editor = PlainTextEditorFactory::createPlainTextEditor();
+    TextDocument *document = editor->textDocument();
+    TextEditorWidget *widget = editor->editorWidget();
+    widget->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
+    widget->setLineNumbersVisible(false);
+    widget->setMarksVisible(false);
+    widget->setRevisionsVisible(false);
+    widget->setCodeFoldingSupported(false);
+    QObject::connect(document, &TextDocument::contentsChanged, widget, [document](){
+        const Utils::Id jsonMarkId("LanguageClient.JsonTextMarkId");
+        qDeleteAll(
+            Utils::filtered(document->marks(), Utils::equal(&TextMark::category, jsonMarkId)));
+        const QString content = document->plainText().trimmed();
+        if (content.isEmpty())
+            return;
+        QJsonParseError error;
+        QJsonDocument::fromJson(content.toUtf8(), &error);
+        if (error.error == QJsonParseError::NoError)
+            return;
+        const Utils::OptionalLineColumn lineColumn
+            = Utils::Text::convertPosition(document->document(), error.offset);
+        if (!lineColumn.has_value())
+            return;
+        auto mark = new TextMark(Utils::FilePath(), lineColumn->line, jsonMarkId);
+        mark->setLineAnnotation(error.errorString());
+        mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
+        mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());
+        document->addMark(mark);
+    });
+    return editor;
 }
 
 } // namespace LanguageClient

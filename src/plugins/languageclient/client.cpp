@@ -1579,6 +1579,12 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
         }
     }
 
+    if (const BaseSettings *settings = LanguageClientManager::settingForClient(this)) {
+        const QJsonValue configuration = settings->configuration();
+        if (!configuration.isNull())
+            updateConfiguration(configuration);
+    }
+
     for (TextEditor::TextDocument *doc : m_postponedDocuments)
         openDocument(doc);
     m_postponedDocuments.clear();
