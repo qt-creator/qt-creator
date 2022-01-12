@@ -34,14 +34,24 @@ StudioControls.ButtonRow {
     enabled: anchorBackend.hasParent && isBaseState
     actionIndicatorVisible: false
 
+    function pickToolTip(defaultText) {
+        if (!anchorBackend.hasParent)
+            return qsTr("Anchors can only be applied to child items.")
+        else if (!isBaseState)
+            return qsTr("Anchors can only be applied to the base state.")
+
+        return defaultText
+    }
+
     StudioControls.ButtonGroup { id: group }
 
     AbstractButton {
         property bool topAnchored: anchorBackend.topAnchored
+        property string toolTipText: qsTr("Anchor component to the top.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorTop
-        tooltip: qsTr("Anchor component to the top.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onTopAnchoredChanged: checked = topAnchored
 
@@ -59,10 +69,11 @@ StudioControls.ButtonRow {
 
     AbstractButton {
         property bool bottomAnchored: anchorBackend.bottomAnchored
+        property string toolTipText: qsTr("Anchor component to the bottom.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorBottom
-        tooltip: qsTr("Anchor component to the bottom.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onBottomAnchoredChanged: checked = bottomAnchored
 
@@ -80,10 +91,11 @@ StudioControls.ButtonRow {
 
     AbstractButton {
         property bool leftAnchored: anchorBackend.leftAnchored
+        property string toolTipText: qsTr("Anchor component to the left.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorLeft
-        tooltip: qsTr("Anchor component to the left.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onLeftAnchoredChanged: checked = leftAnchored
 
@@ -101,10 +113,11 @@ StudioControls.ButtonRow {
 
     AbstractButton {
         property bool rightAnchored: anchorBackend.rightAnchored
+        property string toolTipText: qsTr("Anchor component to the right.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorRight
-        tooltip: qsTr("Anchor component to the right.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onRightAnchoredChanged: checked = rightAnchored
 
@@ -126,10 +139,11 @@ StudioControls.ButtonRow {
 
     AbstractButton {
         property bool isFilled: anchorBackend.isFilled
+        property string toolTipText: qsTr("Fill parent component.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorFill
-        tooltip: qsTr("Fill parent component.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onIsFilledChanged: checked = isFilled
 
@@ -147,10 +161,11 @@ StudioControls.ButtonRow {
 
     AbstractButton {
         property bool verticalCentered: anchorBackend.verticalCentered
+        property string toolTipText: qsTr("Anchor component vertically.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.centerVertical
-        tooltip: qsTr("Anchor component vertically.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onVerticalCenteredChanged: checked = verticalCentered
 
@@ -169,10 +184,11 @@ StudioControls.ButtonRow {
 
     AbstractButton {
         property bool horizontalCentered: anchorBackend.horizontalCentered
+        property string toolTipText: qsTr("Anchor component horizontally.")
 
         checkable: true
         buttonIcon: StudioTheme.Constants.centerHorizontal
-        tooltip: qsTr("Anchor component horizontally.")
+        tooltip: buttonRow.pickToolTip(toolTipText)
 
         onHorizontalCenteredChanged: checked = horizontalCentered
 
