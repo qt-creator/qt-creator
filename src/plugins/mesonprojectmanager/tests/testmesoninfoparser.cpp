@@ -28,6 +28,7 @@
 
 #include <utils/launcherinterface.h>
 #include <utils/singleton.h>
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -56,7 +57,9 @@ static const QList<projectData> projectList{
 #define WITH_CONFIGURED_PROJECT(_source_dir, _build_dir, ...) \
     { \
         QTemporaryDir _build_dir{"test-meson"}; \
-        const auto _meson = MesonWrapper("name", *MesonWrapper::find()); \
+        const auto tool = MesonWrapper::find(); \
+        QVERIFY(tool.has_value()); \
+        const auto _meson = MesonWrapper("name", *tool); \
         run_meson(_meson.setup(Utils::FilePath::fromString(_source_dir), \
                                Utils::FilePath::fromString(_build_dir.path()))); \
         QVERIFY(isSetup(Utils::FilePath::fromString(_build_dir.path()))); \
@@ -67,7 +70,9 @@ static const QList<projectData> projectList{
     { \
         QTemporaryFile _intro_file; \
         _intro_file.open(); \
-        const auto _meson = MesonWrapper("name", *MesonWrapper::find()); \
+        const auto tool = MesonWrapper::find(); \
+        QVERIFY(tool.has_value()); \
+        const auto _meson = MesonWrapper("name", *tool); \
         run_meson(_meson.introspect(Utils::FilePath::fromString(_source_dir)), &_intro_file); \
         __VA_ARGS__ \
     }
@@ -79,6 +84,8 @@ class AMesonInfoParser : public QObject
 private slots:
     void initTestCase()
     {
+        Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
+                                                               + "/mesontest-XXXXXX");
         Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                     + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     }
@@ -126,5 +133,5 @@ private slots:
 private:
 };
 
-QTEST_MAIN(AMesonInfoParser)
+QTEST_GUILESS_MAIN(AMesonInfoParser)
 #include "testmesoninfoparser.moc"

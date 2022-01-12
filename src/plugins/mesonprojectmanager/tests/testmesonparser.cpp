@@ -296,6 +296,6 @@ private slots:
     void cleanupTestCase() {}
 };
 
-QTEST_MAIN(AMesonOutputParser)
+QTEST_GUILESS_MAIN(AMesonOutputParser)
 
 #include "testmesonparser.moc"

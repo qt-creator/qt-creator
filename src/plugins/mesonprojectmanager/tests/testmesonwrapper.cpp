@@ -27,6 +27,7 @@
 
 #include <utils/launcherinterface.h>
 #include <utils/singleton.h>
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -50,6 +51,8 @@ class AMesonWrapper : public QObject
 private slots:
     void initTestCase()
     {
+        Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
+                                                               + "/mesontest-XXXXXX");
         Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                     + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     }
@@ -120,5 +123,5 @@ private slots:
 private:
 };
 
-QTEST_MAIN(AMesonWrapper)
+QTEST_GUILESS_MAIN(AMesonWrapper)
 #include "testmesonwrapper.moc"

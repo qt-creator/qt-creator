@@ -108,5 +108,5 @@ private slots:
     void cleanupTestCase() {}
 };
 
-QTEST_MAIN(ANinjaParser)
+QTEST_GUILESS_MAIN(ANinjaParser)
 #include "testninjaparser.moc"
