@@ -1147,7 +1147,12 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                                            unsigned baseLine)
 {
     QVector<PPToken> expanded;
-    expanded.reserve(MAX_TOKEN_EXPANSION_COUNT);
+
+    const auto addToken = [&expanded](PPToken &&tok) {
+        if (expanded.isEmpty())
+            expanded.reserve(50);
+        expanded.push_back(std::move(tok));
+    };
 
     const size_t bodySize = body.size();
     for (size_t i = 0; i < bodySize && expanded.size() < MAX_TOKEN_EXPANSION_COUNT;
@@ -1189,10 +1194,10 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                         enclosedString.replace("\\", "\\\\");
                         enclosedString.replace("\"", "\\\"");
 
-                        expanded.push_back(generateToken(T_STRING_LITERAL,
-                                                         enclosedString.constData(),
-                                                         enclosedString.size(),
-                                                         lineno, true));
+                        addToken(generateToken(T_STRING_LITERAL,
+                                               enclosedString.constData(),
+                                               enclosedString.size(),
+                                               lineno, true));
                     } else {
                         for (int k = 0; k < actualsSize; ++k) {
                             // Mark the actual tokens (which are the replaced version of the
@@ -1202,9 +1207,9 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                             actual.f.expanded = true;
                             if (k == 0)
                                 actual.f.whitespace = bodyTk.whitespace();
-                            expanded += actual;
                             if (k == actualsSize - 1)
                                 lineno = actual.lineno;
+                            addToken(std::move(actual));
                         }
                     }
 
@@ -1219,12 +1224,12 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                 // No formal macro parameter for this identifier in the body.
                 bodyTk.f.generated = true;
                 bodyTk.lineno = baseLine;
-                expanded.push_back(std::move(bodyTk));
+                addToken(std::move(bodyTk));
             }
         } else if (bodyTk.isNot(T_POUND) && bodyTk.isNot(T_POUND_POUND)) {
             bodyTk.f.generated = true;
             bodyTk.lineno = baseLine;
-            expanded.push_back(std::move(bodyTk));
+            addToken(std::move(bodyTk));
         }
 
         if (i > 1 && body[int(i) - 1].is(T_POUND_POUND)) {
