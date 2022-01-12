@@ -138,6 +138,31 @@ Section {
         }
 
         PropertyLabel {
+            text: qsTr("Render type quality")
+            tooltip: qsTr("Overrides the default rendering type quality for this component.")
+            blockedByTemplate: !root.isBackendValueAvailable("renderTypeQuality")
+            enabled: backendValues.renderType !== undefined
+                        ? backendValues.renderType.enumeration === "QtRendering"
+                        : false
+        }
+
+        SecondColumnLayout {
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                scope: "Text"
+                model: ["DefaultRenderTypeQuality", "LowRenderTypeQuality", "NormalRenderTypeQuality",
+                        "HighRenderTypeQuality", "VeryHighRenderTypeQuality"]
+                backendValue: backendValues.renderTypeQuality
+                enabled: root.isBackendValueAvailable("renderTypeQuality")
+                         && backendValues.renderType.enumeration === "QtRendering"
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
             visible: root.showLineHeight
             text: qsTr("Line height mode")
             tooltip: qsTr("Determines how the line height is specified.")

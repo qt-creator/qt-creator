@@ -46,12 +46,13 @@
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 
+#include <QApplication>
+#include <QCheckBox>
 #include <QFileInfo>
 #include <QLabel>
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include <QCheckBox>
 
 using namespace Utils;
 
@@ -512,6 +513,7 @@ void TargetSetupPage::kitSelectionChanged()
 
 void TargetSetupPage::kitFilterChanged(const QString &filterText)
 {
+    QPointer<QWidget> focusWidget = QApplication::focusWidget();
     // Remember selected kits:
     const std::vector<TargetSetupWidget *> selectedWidgets
         = filtered(m_widgets, &TargetSetupWidget::isKitSelected);
@@ -527,6 +529,11 @@ void TargetSetupPage::kitFilterChanged(const QString &filterText)
     // Re-select kits:
     for (TargetSetupWidget *w : qAsConst(m_widgets))
         w->setKitSelected(selectedKitIds.contains(w->kit()->id()));
+
+    emit completeChanged();
+
+    if (focusWidget)
+        focusWidget->setFocus();
 }
 
 void TargetSetupPage::doInitializePage()

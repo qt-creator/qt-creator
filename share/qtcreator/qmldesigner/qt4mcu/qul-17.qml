@@ -120,7 +120,7 @@ VersionData {
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
             "styleColor", "minimumPointSize", "minimumPixelSize",
-            "fontSizeMode", "renderType", "textFormat", "maximumLineCount"]
+            "fontSizeMode", "renderType", "renderTypeQuality", "textFormat", "maximumLineCount"]
     }
 
     //Padding is not an actual item, but rather set of properties in Text

@@ -156,7 +156,10 @@ void ToolTip::show(
     if (content && content->count()) {
         auto tooltipWidget = new FakeToolTip;
         // limit the size of the widget to 90% of the screen size to have some context around it
-        tooltipWidget->setMaximumSize(QGuiApplication::screenAt(pos)->availableSize() * 0.9);
+        QScreen *qscreen = QGuiApplication::screenAt(pos);
+        if (!qscreen)
+            qscreen = QGuiApplication::primaryScreen();
+        tooltipWidget->setMaximumSize(qscreen->availableSize() * 0.9);
         if (contextHelp.isNull()) {
             tooltipWidget->setLayout(content);
         } else {

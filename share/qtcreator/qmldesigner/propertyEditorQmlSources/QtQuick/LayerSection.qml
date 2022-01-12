@@ -80,7 +80,7 @@ Section {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
-                model: [2, 4, 8, 16]
+                model: [0, 2, 4, 8, 16]
                 backendValue: backendValues.layer_samples
                 manualMapping: true
 

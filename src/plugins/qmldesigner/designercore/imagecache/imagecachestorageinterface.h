@@ -29,6 +29,7 @@
 #include <QImage>
 
 #include <sqlitetimestamp.h>
+#include <utils/optional.h>
 #include <utils/smallstringview.h>
 
 namespace QmlDesigner {
@@ -36,8 +37,8 @@ namespace QmlDesigner {
 class ImageCacheStorageInterface
 {
 public:
-    using ImageEntry = std::optional<QImage>;
-    using IconEntry = std::optional<QIcon>;
+    using ImageEntry = Utils::optional<QImage>;
+    using IconEntry = Utils::optional<QIcon>;
 
     virtual ImageEntry fetchImage(Utils::SmallStringView name,
                                   Sqlite::TimeStamp minimumTimeStamp) const = 0;

@@ -166,67 +166,35 @@ void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles)
 
 const QString WARNING_MISSING_STRUCTURE_FATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                                     "The project is not properly structured for automatically generating CMake files.\n\nAborting process.\n\nThe following files or directories are missing:\n\n%1");
-const QString WARNING_MISSING_STRUCTURE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                    "The project is not properly structured for automatically generating CMake files.\n\nThe following files or directories are missing and may be created:\n\n%1");
+//const QString WARNING_MISSING_STRUCTURE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
+//                                                    "The project is not properly structured for automatically generating CMake files.\n\nThe following files or directories are missing and may be created:\n\n%1");
 const QString WARNING_TITLE_FATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                         "Cannot Generate CMake Files");
-const QString WARNING_TITLE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                            "Problems with Generating CMake Files");
+//const QString WARNING_TITLE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
+//                                            "Problems with Generating CMake Files");
 
 void showProjectDirErrorDialog(int error)
 {
-    QString fatalList;
-    QString nonFatalList;
-
-    if (error & MissingContentDir)
-        fatalList.append(QString(DIRNAME_CONTENT) + "\n");
-    if (error & MissingAppMainQml)
-        fatalList.append(QString(DIRNAME_CONTENT)
-                         + QDir::separator()
-                         + QString(FILENAME_APPMAINQML)
-                         + "\n");
-    if (error & MissingCppDir)
-        fatalList.append(QString(DIRNAME_CPP) + "\n");
-    if (error & MissingImportDir)
-        fatalList.append(QString(DIRNAME_IMPORT) + "\n");
-
-    if (error & MissingAssetImportDir)
-        nonFatalList.append(QString(DIRNAME_ASSET) + "\n");
-    if (error & MissingMainCMake)
-        nonFatalList.append(QString(FILENAME_CMAKELISTS) + "\n");
-    if (error & MissingQmlModules)
-        nonFatalList.append(QString(FILENAME_MODULES) + "\n");
-
-    if (error & MissingMainQml)
-        nonFatalList.append(QString(FILENAME_MAINQML) + "\n");
-
-    if (error & MissingMainCpp)
-        nonFatalList.append(QString(DIRNAME_CPP)
-                            + QDir::separator()
-                            + QString(FILENAME_MAINCPP)
-                            + "\n");
-    if (error & MissingMainCppHeader)
-        nonFatalList.append(QString(DIRNAME_CPP)
-                            + QDir::separator()
-                            + QString(FILENAME_MAINCPP_HEADER)
-                            + "\n");
-    if (error & MissingEnvHeader)
-        nonFatalList.append(QString(DIRNAME_CPP)
-                            + QDir::separator()
-                            + QString(FILENAME_ENV_HEADER)
-                            + "\n");
-
     bool isFatal = isErrorFatal(error);
 
     if (isFatal) {
+        QString fatalList;
+
+        if (error & MissingContentDir)
+            fatalList.append(QString(DIRNAME_CONTENT) + "\n");
+        if (error & MissingAppMainQml)
+            fatalList.append(QString(DIRNAME_CONTENT)
+                             + QDir::separator()
+                             + QString(FILENAME_APPMAINQML)
+                             + "\n");
+        if (error & MissingCppDir)
+            fatalList.append(QString(DIRNAME_CPP) + "\n");
+        if (error & MissingImportDir)
+            fatalList.append(QString(DIRNAME_IMPORT) + "\n");
+
         QMessageBox::critical(nullptr,
                               WARNING_TITLE_FATAL,
-                              WARNING_MISSING_STRUCTURE_FATAL.arg(fatalList + nonFatalList));
-    }
-    else {
-        QMessageBox::warning(nullptr,
-                              WARNING_TITLE_NONFATAL,
-                              WARNING_MISSING_STRUCTURE_NONFATAL.arg(nonFatalList));
+                              WARNING_MISSING_STRUCTURE_FATAL.arg(fatalList));
     }
 }
 
@@ -237,6 +205,8 @@ bool showConfirmationDialog(const Utils::FilePath &rootDir)
         files.append(file.filePath);
 
     CmakeGeneratorDialog dialog(rootDir, files);
+    dialog.setMinimumWidth(600);
+    dialog.setMinimumHeight(640);
     if (dialog.exec()) {
         Utils::FilePaths confirmedFiles = dialog.getFilePaths();
         removeUnconfirmedQueuedFiles(confirmedFiles);

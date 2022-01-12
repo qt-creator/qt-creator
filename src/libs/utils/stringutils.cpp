@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QLocale>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTime>
@@ -464,4 +465,16 @@ QString wildcardToRegularExpression(const QString &original)
     return "\\A" + rx + "\\z";
 #endif
 }
+
+QTCREATOR_UTILS_EXPORT QString languageNameFromLanguageCode(const QString &languageCode)
+{
+    QLocale locale(languageCode);
+    QString languageName = QLocale::languageToString(locale.language());
+    QString nativeLanguageName = locale.nativeLanguageName().simplified();
+
+    if (!nativeLanguageName.isEmpty() && languageName != nativeLanguageName)
+        languageName += " - " + locale.nativeLanguageName();
+    return languageName;
+}
+
 } // namespace Utils

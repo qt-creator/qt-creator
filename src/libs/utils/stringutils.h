@@ -121,4 +121,7 @@ QTCREATOR_UTILS_EXPORT QString formatElapsedTime(qint64 elapsed);
  * into account and handling them to disallow matching a wildcard characters.
  */
 QTCREATOR_UTILS_EXPORT QString wildcardToRegularExpression(const QString &original);
+
+QTCREATOR_UTILS_EXPORT QString languageNameFromLanguageCode(const QString &languageCode);
+
 } // namespace Utils

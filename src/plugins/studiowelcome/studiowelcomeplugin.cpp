@@ -540,6 +540,8 @@ WelcomeMode::WelcomeMode()
 
     QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_modeWidget->engine());
 
+    m_modeWidget->engine()->setOutputWarningsToStandardError(false);
+
     if (!useNewWelcomePage()) {
 
 #ifdef QT_DEBUG

@@ -23,41 +23,31 @@
 **
 ****************************************************************************/
 
-
-#ifndef CMAKEGENERATORDIALOG_H
-#define CMAKEGENERATORDIALOG_H
-
-#include "cmakegeneratordialogtreemodel.h"
+#ifndef CHECKABLEFILETREEITEM_H
+#define CHECKABLEFILETREEITEM_H
 
 #include <utils/fileutils.h>
 
-#include <QDialog>
-#include <QTextEdit>
-
+#include <QStandardItem>
 
 namespace QmlDesigner {
-namespace GenerateCmake {
 
-class CmakeGeneratorDialog : public QDialog
+class CheckableFileTreeItem : public QStandardItem
 {
-    Q_OBJECT
-
 public:
-    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
-    Utils::FilePaths getFilePaths();
+    explicit CheckableFileTreeItem(const Utils::FilePath &text = Utils::FilePath());
 
-public slots:
-    void refreshNotificationText();
+    const Utils::FilePath toFilePath() const;
+    bool isFile() const;
+    bool isDir() const;
+
+    bool isChecked() const;
+    void setChecked(bool checked);
 
 private:
-    CMakeGeneratorDialogTreeModel *m_model;
-    QTextEdit *m_notifications;
-    QVariant m_warningIcon;
-    Utils::FilePath m_rootDir;
-    Utils::FilePaths m_files;
+    bool checked;
 };
 
-}
-}
+} //QmlDesigner
 
-#endif // CMAKEGENERATORDIALOG_H
+#endif // CHECKABLEFILETREEITEM_H

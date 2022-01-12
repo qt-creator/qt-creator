@@ -6,7 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 COMPONENTS Gui Qml Quick)
-add_executable(%1 src/main.cpp)
+qt_add_executable(%1 src/main.cpp)
 
 qt_add_resources(%1 "configuration"
     PREFIX "/"

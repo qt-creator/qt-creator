@@ -24,13 +24,16 @@
 ****************************************************************************/
 
 #include "cmakegeneratordialog.h"
+#include "cmakegeneratordialogtreemodel.h"
 #include "generatecmakelistsconstants.h"
+
+#include <utils/utilsicons.h>
 
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QLayout>
 #include <QLabel>
-#include <QListView>
+#include <QTreeView>
 
 using namespace Utils;
 
@@ -38,8 +41,15 @@ namespace QmlDesigner {
 namespace GenerateCmake {
 
 CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePaths &files)
-    : QDialog()
+    : QDialog(),
+      m_rootDir(rootDir),
+      m_files(files)
 {
+    setWindowTitle(QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                               "Select Files to Generate"));
+
+    m_model = new CMakeGeneratorDialogTreeModel(rootDir, files, this);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     setLayout(layout);
 
@@ -50,13 +60,20 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
 
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_model, &CMakeGeneratorDialogTreeModel::checkedStateChanged, this, &CmakeGeneratorDialog::refreshNotificationText);
 
-    model = new CMakeGeneratorDialogModel(rootDir, files, this);
+    QTreeView *tree = new QTreeView(this);
+    tree->setModel(m_model);
+    tree->expandAll();
+    tree->setHeaderHidden(true);
 
-    QListView *list = new QListView(this);
-    list->setModel(model);
+    m_notifications = new QTextEdit(this);
+    m_warningIcon = Utils::Icons::WARNING.pixmap();
 
-    layout->addWidget(list);
+    refreshNotificationText();
+
+    layout->addWidget(tree, 2);
+    layout->addWidget(m_notifications, 1);
     layout->addWidget(buttons);
 }
 
@@ -64,43 +81,54 @@ FilePaths CmakeGeneratorDialog::getFilePaths()
 {
     FilePaths paths;
 
-    QList<CheckableStandardItem*> items = model->checkedItems();
-    for (CheckableStandardItem *item: items) {
+    QList<CheckableFileTreeItem*> items = m_model->checkedItems();
+    for (CheckableFileTreeItem *item: items) {
         paths.append(FilePath::fromString(item->text()));
     }
 
     return paths;
 }
 
-CMakeGeneratorDialogModel::CMakeGeneratorDialogModel(const Utils::FilePath &rootDir, const Utils::FilePaths &files, QObject *parent)
-    :CheckableFileListModel(rootDir, files, parent)
-{
-    for (int i=0; i<rowCount(); i++) {
-        CheckableStandardItem *item = static_cast<CheckableStandardItem*>(QStandardItemModel::item(i));
-        item->setChecked(CMakeGeneratorDialogModel::checkedByDefault(FilePath::fromString(item->text())));
-    }
-}
+const QString FILE_CREATE_NOTIFICATION = QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                                                    "File %1 will be created.\n");
+const QString FILE_OVERWRITE_NOTIFICATION = QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                                                       "File %1 will be overwritten.\n");
 
-bool CMakeGeneratorDialogModel::checkedByDefault(const FilePath &path) const
+void CmakeGeneratorDialog::refreshNotificationText()
 {
-    if (path.exists()) {
-        QString relativePath = path.relativeChildPath(rootDir).toString();
-        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS) == 0)
-            return false;
-        if (relativePath.endsWith(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS)
-            && relativePath.length() > QString(QmlDesigner::GenerateCmake::Constants::FILENAME_CMAKELISTS).length())
-            return true;
-        if (relativePath.compare(QmlDesigner::GenerateCmake::Constants::FILENAME_MODULES) == 0)
-            return true;
-        if (relativePath.compare(
-                FilePath::fromString(QmlDesigner::GenerateCmake::Constants::DIRNAME_CPP)
-                .pathAppended(QmlDesigner::GenerateCmake::Constants::FILENAME_MAINCPP_HEADER)
-                .toString())
-                == 0)
-            return true;
+    QTextDocument *document = m_notifications->document();
+    document->clear();
+    document->addResource(QTextDocument::ImageResource, QUrl("cmakegendialog://warningicon"), m_warningIcon);
+
+    QTextCursor cursor = m_notifications->textCursor();
+    QTextImageFormat iformat;
+    iformat.setName("cmakegendialog://warningicon");
+
+    QList<CheckableFileTreeItem*> nodes = m_model->items();
+
+    for (CheckableFileTreeItem *node : nodes) {
+        if (!m_files.contains(node->toFilePath()))
+            continue;
+
+        if (!node->toFilePath().exists() && node->isChecked()) {
+            QString relativePath = QString(node->toFilePath().toString()).remove(m_rootDir.toString()+'/');
+            cursor.insertText(QString(FILE_CREATE_NOTIFICATION).arg(relativePath));
+        }
     }
 
-    return !path.exists();
+    if (!document->toPlainText().isEmpty())
+        cursor.insertBlock();
+
+    for (CheckableFileTreeItem *node : nodes) {
+        if (!m_files.contains(node->toFilePath()))
+            continue;
+
+        if (node->toFilePath().exists() && node->isChecked()) {
+            QString relativePath = node->toFilePath().relativePath(m_rootDir).toString();
+            cursor.insertImage(iformat);
+            cursor.insertText(QString(FILE_OVERWRITE_NOTIFICATION).arg(relativePath));
+        }
+    }
 }
 
 }

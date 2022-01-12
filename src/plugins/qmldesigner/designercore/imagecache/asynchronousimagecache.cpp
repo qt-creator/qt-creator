@@ -145,7 +145,7 @@ void AsynchronousImageCache::clean()
     m_generator.clean();
 }
 
-std::optional<AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
+Utils::optional<AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
 {
     std::unique_lock lock{m_mutex};
 
