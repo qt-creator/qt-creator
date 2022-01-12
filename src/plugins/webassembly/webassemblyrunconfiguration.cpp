@@ -66,14 +66,18 @@ static CommandLine emrunCommand(const RunConfiguration *rc, const QString &brows
         const FilePath target = rc->buildTargetInfo().targetFilePath;
         const FilePath html = target.absolutePath() / target.baseName() + ".html";
 
-        return CommandLine(pythonInterpreter(env), {
-                emrunPy.path(),
-                "--browser", browser,
-                "--port", port,
-                "--no_emrun_detect",
-                "--serve_after_close",
-                html.toString()
-            });
+        QStringList args(emrunPy.path());
+        if (!browser.isEmpty()) {
+            args.append("--browser");
+            args.append(browser);
+        }
+        args.append("--port");
+        args.append(port);
+        args.append("--no_emrun_detect");
+        args.append("--serve_after_close");
+        args.append(html.toString());
+
+        return CommandLine(pythonInterpreter(env), args);
     }
     return {};
 }
@@ -99,6 +103,7 @@ public:
                                                       "<port>").toUserOutput());
         });
 
+        connect(webBrowserAspect, &BaseAspect::changed, this, &RunConfiguration::update);
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 };
@@ -114,8 +119,10 @@ public:
 
         setStarter([this, runControl, portsGatherer] {
             Runnable r;
+            const QString browserId =
+                    runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser();
             r.command = emrunCommand(runControl->runConfiguration(),
-                                     runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
+                                     browserId,
                                      QString::number(portsGatherer->findEndPoint().port()));
             SimpleTargetRunner::doStart(r, {});
         });

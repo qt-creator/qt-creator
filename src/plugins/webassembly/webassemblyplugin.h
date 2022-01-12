@@ -49,6 +49,8 @@ public:
 private slots:
     void testEmSdkEnvParsing();
     void testEmSdkEnvParsing_data();
+    void testEmrunBrowserListParsing();
+    void testEmrunBrowserListParsing_data();
 #endif // WITH_TESTS
 };
 
