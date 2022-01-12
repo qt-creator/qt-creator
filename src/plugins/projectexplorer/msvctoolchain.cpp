@@ -1572,7 +1572,9 @@ static const MsvcToolChain *selectMsvcToolChain(const QString &displayedVarsBat,
     QTC_CHECK(displayedVarsBat.isEmpty());
     const QVersionNumber version = clangClVersion(clangClPath);
     if (version.majorVersion() >= 6) {
-        toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2019Flavor);
+        toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2022Flavor);
+        if (!toolChain)
+            toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2019Flavor);
         if (!toolChain)
             toolChain = findMsvcToolChain(wordWidth, Abi::WindowsMsvc2017Flavor);
     }
