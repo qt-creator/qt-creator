@@ -140,11 +140,10 @@ void DPasteDotComProtocol::paste(
     });
 }
 
-bool DPasteDotComProtocol::checkConfiguration(QString *errorMessage)
+bool DPasteDotComProtocol::checkConfiguration(QString * /*errorMessage*/)
 {
-    if (!m_hostKnownOk)
-        m_hostKnownOk = httpStatus(baseUrl(), errorMessage);
-    return m_hostKnownOk;
+    // we need a 1s gap between requests, so skip status check to avoid failing
+    return true;
 }
 
 void DPasteDotComProtocol::reportError(const QString &message)

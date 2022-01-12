@@ -51,8 +51,6 @@ private:
     bool checkConfiguration(QString *errorMessage) override;
 
     static void reportError(const QString &message);
-
-    bool m_hostKnownOk = false;
 };
 
 } // namespace CodePaster
