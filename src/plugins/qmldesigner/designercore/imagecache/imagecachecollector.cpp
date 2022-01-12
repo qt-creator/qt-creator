@@ -91,7 +91,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     model->setRewriterView(&rewriterView);
 
     if (rewriterView.inErrorState() || !rewriterView.rootModelNode().metaInfo().isGraphicalItem()) {
-        abortCallback(ImageCache::AbortReason::Failed);
+        if (abortCallback)
+            abortCallback(ImageCache::AbortReason::Failed);
         return;
     }
 
@@ -126,7 +127,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     model->setNodeInstanceView({});
     model->setRewriterView({});
 
-    if (!capturedDataArrived)
+    if (!capturedDataArrived && abortCallback)
         abortCallback(ImageCache::AbortReason::Failed);
 }
 
