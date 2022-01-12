@@ -532,6 +532,8 @@ WelcomeMode::WelcomeMode()
     setContextHelp("Qt Design Studio Manual");
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
+    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+
     m_modeWidget = new QQuickWidget;
     m_modeWidget->setMinimumSize(1024, 768);
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
