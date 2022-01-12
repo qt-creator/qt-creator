@@ -504,6 +504,12 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     return autoDetectToolchains(candidates, alreadyKnown);
 }
 
+QList<ProjectExplorer::ToolChain *> IarToolChainFactory::detectForImport(
+        const ProjectExplorer::ToolChainDescription &tcd)
+{
+    return { autoDetectToolchain({tcd.compilerPath, {}}, tcd.language) };
+}
+
 QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(
         const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
 {

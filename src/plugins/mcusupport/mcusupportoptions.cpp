@@ -427,7 +427,7 @@ static ToolChain *armGccToolChain(const FilePath &path, Id language)
     return toolChain;
 }
 
-static ToolChain *iarToolChain(Id language)
+static ToolChain *iarToolChain(const FilePath &path, Id language)
 {
     ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t){
         return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
@@ -439,7 +439,9 @@ static ToolChain *iarToolChain(Id language)
             return f->supportedToolChainType() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
         });
         if (iarFactory) {
-            const QList<ToolChain*> detected = iarFactory->autoDetect({}, {});
+            QList<ToolChain*> detected = iarFactory->autoDetect({}, {});
+            if (detected.isEmpty())
+                detected = iarFactory->detectForImport({path, language});
             for (auto tc: detected) {
                 if (tc->language() == language) {
                     toolChain = tc;
@@ -462,7 +464,8 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
     else if (m_type == TypeGCC)
         tc = gccToolChain(language);
     else if (m_type == TypeIAR) {
-        tc = iarToolChain(language);
+        const FilePath compiler = path().pathAppended("/bin/iccarm").withExecutableSuffix();
+        tc = iarToolChain(compiler, language);
     }
     else {
         const QLatin1String compilerName(
