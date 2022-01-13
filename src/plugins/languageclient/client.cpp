@@ -996,6 +996,17 @@ void Client::projectClosed(ProjectExplorer::Project *project)
     }
 }
 
+void Client::updateConfiguration(const QJsonValue &configuration)
+{
+    if (m_dynamicCapabilities.isRegistered(DidChangeConfigurationNotification::methodName)
+            .value_or(true)) {
+        DidChangeConfigurationParams params;
+        params.setSettings(configuration);
+        DidChangeConfigurationNotification notification(params);
+        sendContent(notification);
+    }
+}
+
 void Client::setSupportedLanguage(const LanguageFilter &filter)
 {
     m_languagFilter = filter;
