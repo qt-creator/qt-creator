@@ -1550,16 +1550,27 @@ void DesignerActionManager::createDefaultAddResourceHandler()
             registerAddResourceHandler(AddResourceHandler(category, ext, op));
     };
 
+    // Having a single image type category creates too large of a filter, so we split images into
+    // categories according to their mime types
+    const QList<QByteArray> mimeTypes = QImageReader::supportedMimeTypes();
     auto transformer = [](const QByteArray& format) -> QString { return QString("*.") + format; };
-    auto imageFormats = Utils::transform(QImageReader::supportedImageFormats(), transformer);
-    imageFormats.push_back("*.hdr");
-    imageFormats.push_back("*.ktx");
+    QHash<QByteArray, QStringList> imageFormats;
+    for (const auto &mimeType : mimeTypes)
+        imageFormats.insert(mimeType, Utils::transform(QImageReader::imageFormatsForMimeType(mimeType), transformer));
+    imageFormats.insert("image/vnd.radiance", {"*.hdr"});
+    imageFormats.insert("image/ktx", {"*.ktx"});
 
     // The filters will be displayed in reverse order to these lists in file dialog,
     // so declare most common types last
-    registerHandlers(imageFormats,
-                     ModelNodeOperations::addImageToProject,
-                     ComponentCoreConstants::addImagesDisplayString);
+    QHash<QByteArray, QStringList>::const_iterator i = imageFormats.constBegin();
+    while (i != imageFormats.constEnd()) {
+        registerHandlers(i.value(),
+                         ModelNodeOperations::addImageToProject,
+                         QObject::tr("%1: %2")
+                             .arg(ComponentCoreConstants::addImagesDisplayString)
+                             .arg(QString::fromLatin1(i.key())));
+        ++i;
+    }
     registerHandlers({"*.otf", "*.ttf"},
                      ModelNodeOperations::addFontToProject,
                      ComponentCoreConstants::addFontsDisplayString);
