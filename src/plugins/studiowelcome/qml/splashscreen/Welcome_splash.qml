@@ -38,8 +38,8 @@ Rectangle {
     gradient: Gradient {
         orientation: Gradient.Horizontal
 
-        GradientStop { position: 0.0; color: "#333d56" }
-        GradientStop { position: 1.0; color: "#000728" }
+        GradientStop { position: 0.0; color: "#1d212a" }
+        GradientStop { position: 1.0; color: "#232c56" }
     }
 
     signal goNext
@@ -56,33 +56,36 @@ Rectangle {
 
         if (crashReportingEnabled) {
             var configureButton = "<a href='#' style='text-decoration:none;color:#ffff00'>"
-                                  + qsTr("[Configure]") + "</a>";
+                    + qsTr("[Configure]") + "</a>";
             var settingPath = Qt.platform.os === "osx"
-                              ? qsTr("Qt Creator > Preferences > Environment > System")
-                              : qsTr("Tools > Options > Environment > System")
+                    ? qsTr("Qt Creator > Preferences > Environment > System")
+                    : qsTr("Tools > Options > Environment > System")
             var strOn = qsTr("Qt Design Studio collects crash reports for the sole purpose of fixing bugs. "
-                        + "You can disable this feature under %1. %2").arg(settingPath).arg(configureButton)
-           var strOff = qsTr("Qt Design Studio can collect crash reports for the sole purpose of fixing bugs. "
-                        + "You can enable this feature under %1. %2").arg(settingPath).arg(configureButton)
+                             + "You can disable this feature under %1. %2").arg(settingPath).arg(configureButton)
+            var strOff = qsTr("Qt Design Studio can collect crash reports for the sole purpose of fixing bugs. "
+                              + "You can enable this feature under %1. %2").arg(settingPath).arg(configureButton)
 
             crash_reporting_text.text = crashReportingOn ? strOn : strOff;
+            crashReportCheckBox.visible = true
         }
     }
 
     Image {
         id: logo
-        x: 16
-        y: 16
+        x: 15
+        y: 11
+        width: 66
+        height: 50
         source: "welcome_windows/logo.png"
     }
 
     Text {
         id: qt_design_studio
-        x: 16
-        y: 93
-        width: 250
-        height: 55
-        color: "#4cd265"
+        x: 13
+        y: 81
+        width: 336
+        height: 46
+        color: "#25709a"
         text: qsTr("Qt Design Studio")
         font.pixelSize: 36
         font.family: StudioFonts.titilliumWeb_light
@@ -90,46 +93,46 @@ Rectangle {
 
     Text {
         id: software_for_ui
-        x: 16
-        y: 141
-        width: 250
+        x: 15
+        y: 124
+        width: 300
         height: 30
         color: "#ffffff"
         text: qsTr("Software for UI and UX Designers")
         renderType: Text.QtRendering
-        font.pixelSize: 18
+        font.pixelSize: 15
         font.family: StudioFonts.titilliumWeb_light
     }
 
     Text {
         id: copyright
-        x: 16
-        y: 183
+        x: 15
+        y: 155
         width: 270
         height: 24
         color: "#ffffff"
-        text: qsTr("Copyright 2008 - 2021 The Qt Company")
-        font.pixelSize: 16
+        text: qsTr("Copyright 2008 - 2022 The Qt Company")
+        font.pixelSize: 14
         font.family: StudioFonts.titilliumWeb_light
     }
 
     Text {
         id: all_rights_reserved
-        x: 16
-        y: 207
+        x: 15
+        y: 174
         width: 250
         height: 24
         color: "#ffffff"
         text: qsTr("All Rights Reserved")
-        font.pixelSize: 16
+        font.pixelSize: 14
         font.family: StudioFonts.titilliumWeb_light
     }
 
     Text {
         id: marketing_1
-        x: 16
-        y: 252
-        width: 355
+        x: 15
+        y: 206
+        width: 406
         height: 31
         color: "#ffffff"
         text: qsTr("Multi-paradigm language for creating highly dynamic applications.")
@@ -141,9 +144,9 @@ Rectangle {
 
     Text {
         id: marketing_2
-        x: 16
-        y: 273
-        width: 311
+        x: 15
+        y: 229
+        width: 341
         height: 31
         color: "#ffffff"
         text: qsTr("Run your concepts and prototypes on your final hardware.")
@@ -155,9 +158,9 @@ Rectangle {
 
     Text {
         id: marketing_3
-        x: 16
-        y: 294
-        width: 311
+        x: 15
+        y: 252
+        width: 336
         height: 31
         color: "#ffffff"
         text: qsTr("Seamless integration between designer and developer.")
@@ -171,8 +174,8 @@ Rectangle {
         id: crash_reporting_text
         color: "#ffffff"
         textFormat: Text.RichText
-        x: 16
-        y: 330
+        x: 15
+        y: 280
         width: 311
         wrapMode: Text.WordWrap
         font.family: StudioFonts.titilliumWeb_light
@@ -229,20 +232,9 @@ Rectangle {
     ColumnLayout {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.margins: 16
-
-        CheckBox {
-            id: doNotShowCheckBox
-            text: qsTr("Do not show this again")
-            padding: 0
-            spacing: 12
-
-            contentItem: Text {
-                text: doNotShowCheckBox.text
-                color: "#ffffff"
-                leftPadding: doNotShowCheckBox.indicator.width + doNotShowCheckBox.spacing
-            }
-        }
+        anchors.leftMargin: 16
+        anchors.bottomMargin: 10
+        spacing: 3
 
         CheckBox {
             id: usageStatisticCheckBox
@@ -257,13 +249,49 @@ Rectangle {
                 text: usageStatisticCheckBox.text
                 color: "#ffffff"
                 leftPadding: usageStatisticCheckBox.indicator.width + usageStatisticCheckBox.spacing
+                font.pixelSize: 12
+            }
+        }
+
+        CheckBox {
+            id: crashReportCheckBox
+            text: qsTr("Enable Crash Reports")
+            spacing: 12
+            checked: usageStatisticModel.crashReporterEnabled
+            visible: false
+
+            onCheckedChanged: {
+                usageStatisticModel.setCrashReporterEnabled(crashReportCheckBox.checked)
+                welcome_splash.onPluginInitialized(true, crashReportCheckBox.checked)
+            }
+
+            contentItem: Text {
+                color: "#ffffff"
+                text: crashReportCheckBox.text
+                leftPadding: crashReportCheckBox.indicator.width + crashReportCheckBox.spacing
+                font.pixelSize: 12
+            }
+            padding: 0
+        }
+
+        CheckBox {
+            id: doNotShowCheckBox
+            text: qsTr("Do not show this again")
+            padding: 0
+            spacing: 12
+
+            contentItem: Text {
+                text: doNotShowCheckBox.text
+                color: "#ffffff"
+                leftPadding: doNotShowCheckBox.indicator.width + doNotShowCheckBox.spacing
+                font.pixelSize: 12
             }
         }
     }
 
     RowLayout {
         x: 16
-        y: 330
+        y: 277
         visible: welcome_splash.loadingPlugins
 
         Text {
@@ -309,8 +337,8 @@ Rectangle {
 
     Text {
         id: all_rights_reserved1
-        x: 16
-        y: 75
+        x: 15
+        y: 65
         color: "#ffffff"
         text: qsTr("Community Edition")
         font.pixelSize: 13
