@@ -66,16 +66,16 @@ void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
     auto cleanup = qScopeGuard([this] { setFinished(); });
     const Utils::FilePath path
             = deviceConfiguration()->mapToGlobalPath(Utils::FilePath::fromString(d->pathToCheck));
-    const quint64 freeSpace = path.bytesAvailable();
+    const qint64 freeSpace = path.bytesAvailable();
     if (freeSpace < 0) {
         emit errorMessage(tr("Can't get the info about the free disk space for \"%1\"")
                 .arg(path.toUserOutput()));
         return;
     }
 
-    const quint64 mb = 1024 * 1024;
-    const quint64 freeSpaceMB = freeSpace / mb;
-    const quint64 requiredSpaceMB = d->requiredSpaceInBytes / mb;
+    const qint64 mb = 1024 * 1024;
+    const qint64 freeSpaceMB = freeSpace / mb;
+    const qint64 requiredSpaceMB = d->requiredSpaceInBytes / mb;
 
     if (freeSpaceMB < requiredSpaceMB) {
         emit errorMessage(tr("The remote file system has only %n megabytes of free space, "
