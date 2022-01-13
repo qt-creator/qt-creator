@@ -642,6 +642,7 @@ public:
 
     void reconfigure();
     void updateSyntaxInfoBar(const Highlighter::Definitions &definitions, const QString &fileName);
+    void removeSyntaxInfoBar();
     void configureGenericHighlighter(const KSyntaxHighlighting::Definition &definition);
     void rememberCurrentSyntaxDefinition();
     void openLinkUnderCursor(bool openInNextSplit);
@@ -3261,6 +3262,13 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
         infoBar->removeInfo(multiple);
         infoBar->removeInfo(missing);
     }
+}
+
+void TextEditorWidgetPrivate::removeSyntaxInfoBar()
+{
+    InfoBar *infoBar = m_document->infoBar();
+    infoBar->removeInfo(Constants::INFO_MISSING_SYNTAX_DEFINITION);
+    infoBar->removeInfo(Constants::INFO_MULTIPLE_SYNTAX_DEFINITIONS);
 }
 
 void TextEditorWidgetPrivate::configureGenericHighlighter(
@@ -8161,6 +8169,14 @@ void TextEditorWidget::configureGenericHighlighter()
     d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
                                                          : definitions.first());
     d->updateSyntaxInfoBar(definitions, textDocument()->filePath().fileName());
+}
+
+void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeType)
+{
+    Highlighter::Definitions definitions = Highlighter::definitionsForMimeType(mimeType.name());
+    d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
+                                                         : definitions.first());
+    d->removeSyntaxInfoBar();
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const

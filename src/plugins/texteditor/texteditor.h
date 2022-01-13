@@ -457,7 +457,11 @@ public:
     /// Abort code assistant if it is running.
     void abortAssist();
 
+    /// Overwrite the current highlighter with a new generic highlighter based on the mimetype of
+    /// the current document
     void configureGenericHighlighter();
+    /// Overwrite the current highlighter with a new generic highlighter based on the given mimetype
+    void configureGenericHighlighter(const Utils::MimeType &mimeType);
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 
