@@ -1754,6 +1754,10 @@ def qdump__QStringData(d, value):
     d.putPlainChildren(value)
 
 
+def qform__QStringView():
+    return [DisplayFormat.Simple, DisplayFormat.Separate]
+
+
 def qdump__QStringView(d, value):
     data = value['m_data']
     idata = data.integer()
@@ -1765,15 +1769,11 @@ def qdump__QStringView(d, value):
     elided, shown = d.computeLimit(isize, d.displayStringLimit)
     mem = d.readMemory(idata, shown * 2)
     d.putValue(mem, 'utf16', elided=elided)
+    if d.currentItemFormat() == DisplayFormat.Separate:
+        d.putDisplay('utf16:separate', mem)
     d.putExpandable()
     if d.isExpanded():
-        with Children(d):
-            d.putSubItem('m_size', size)
-            with SubItem(d, 'm_data'):
-                d.putValue('0x%x' % idata)
-                d.putType(data.type)
-            with SubItem(d, '[raw]'):
-                d.putCharArrayHelper(idata, isize, d.lookupType('QChar'))
+        d.putArrayData(idata, isize, d.createType('char16_t'))
 
 
 def qdump__QHashedString(d, value):
