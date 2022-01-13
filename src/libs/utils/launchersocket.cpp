@@ -559,6 +559,9 @@ bool LauncherHandle::waitForSignal(int msecs, CallerHandle::SignalType newSignal
             return true;
         if (wasCanceled)
             return true; // or false? is false only in case of timeout?
+        const bool finishedSignalFlushed = flushedSignals.contains(CallerHandle::SignalType::Finished);
+        if (finishedSignalFlushed)
+            return false; // finish has appeared but we were waiting for other signal
     }
     return false;
 }
