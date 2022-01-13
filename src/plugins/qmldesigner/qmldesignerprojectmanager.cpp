@@ -172,8 +172,10 @@ void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
 {
-    m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
-    m_projectData.reset();
+    if (m_projectData) {
+        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
+        m_projectData.reset();
+    }
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
