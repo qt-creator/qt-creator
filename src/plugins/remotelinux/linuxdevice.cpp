@@ -197,19 +197,34 @@ public:
             delete m_shell;
     }
 
+    bool startFailed(const SshConnectionParameters &parameters)
+    {
+        delete m_shell;
+        m_shell = nullptr;
+        DEBUG("Failed to connect to " << parameters.host());
+        return false;
+    }
+
     bool start(const SshConnectionParameters &parameters)
     {
         m_shell = new SshRemoteProcess("/bin/sh",
                   parameters.connectionOptions(SshSettings::sshFilePath()) << parameters.host(),
                   ProcessMode::Writer);
         m_shell->start();
-        const bool ret = m_shell->waitForStarted();
-        if (!ret) {
-            delete m_shell;
-            m_shell = nullptr;
-            DEBUG("Failed to connect to " << parameters.host());
-        }
-        return ret;
+        const bool startOK = m_shell->waitForStarted();
+        if (!startOK)
+            return startFailed(parameters);
+
+        m_shell->write("echo\n");
+        const bool readOK = m_shell->waitForReadyRead();
+        if (!readOK)
+            return startFailed(parameters);
+
+        const QByteArray output = m_shell->readAllStandardOutput();
+        if (output != "\n")
+            return startFailed(parameters);
+
+        return true;
     }
 
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {})
