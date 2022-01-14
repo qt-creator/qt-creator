@@ -181,12 +181,6 @@ function(add_qtc_library name)
   add_library(QtCreator::${name} ALIAS ${name})
 
   set_public_headers(${name} "${_arg_SOURCES}")
-  # transitional qmake plugin build support
-  string(TOLOWER "${name}" lowername)
-  set(dependencies_pri "${CMAKE_CURRENT_SOURCE_DIR}/${lowername}_dependencies.pri")
-  if(EXISTS ${dependencies_pri})
-    qtc_add_public_header(${dependencies_pri})
-  endif()
 
   # TODO remove, see above
   if (_arg_SOURCES_PREFIX)
@@ -446,12 +440,6 @@ function(add_qtc_plugin target_name)
   add_library(QtCreator::${target_name} ALIAS ${target_name})
 
   set_public_headers(${target_name} "${_arg_SOURCES}")
-  # transitional qmake plugin build support
-  string(TOLOWER "${target_name}" lowername)
-  set(dependencies_pri "${CMAKE_CURRENT_SOURCE_DIR}/${lowername}_dependencies.pri")
-  if(EXISTS ${dependencies_pri})
-    qtc_add_public_header(${dependencies_pri})
-  endif()
 
   ### Generate EXPORT_SYMBOL
   string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)

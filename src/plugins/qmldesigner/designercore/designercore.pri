@@ -1,2 +1,0 @@
-INCLUDEPATH += $$PWD \
-    $$PWD/include

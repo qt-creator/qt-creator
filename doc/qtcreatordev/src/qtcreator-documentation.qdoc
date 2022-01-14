@@ -470,8 +470,6 @@
 
     \section2 Setting Up Documentation Builds
 
-    You can configure documentation builds using CMake or qmake.
-
     For more information about setting up the build environment with a
     self-built Qt if you do not want to build the whole Qt, see
     \l{https://wiki.qt.io/Building_Qt_Documentation}{Building Qt Documentation}
@@ -595,103 +593,6 @@
     the help files to \QC, see
     \l{http://doc.qt.io/qtcreator/creator-help.html#adding-external-documentation}
     {Adding External Documentation}.
-
-    \section3 Using qmake
-
-    To build offline documentation using qmake:
-
-    \list 1
-        \li In the project folder, run \c qmake from an installed Qt.
-            For example:
-           \badcode
-            C:\dev\qtc-super\qtcreator>..\..\..\Qt\5.15.1\msvc2019_64\bin\qmake.exe
-           \endcode
-        \li Enter the following doc build command:
-            \list
-                \li On Windows: \c {nmake docs}
-                \li On Linux and \macos: \c {make docs}
-            \endlist
-    \endlist
-
-    To build online documentation using qmake:
-
-    \list 1
-        \li In the project folder, run \c qmake from an installed Qt with the
-            online configuration option. For example:
-            \badcode
-            C:\dev\qtc-super\qtcreator>..\..\..\Qt\5.15.1\msvc2019_64\bin\qmake.exe
-                "CONFIG+=build_online_docs"
-           \endcode
-        \li Enter the following doc build command:
-            \list
-                \li On Windows: \c {nmake html_docs}
-                \li On Linux and \macos: \c {make html_docs}
-            \endlist
-    \endlist
-
-    To get the correct product name and version when building the \QDS
-    Manual, you must run \c {qmake -r} on \c {qtcreator.pro} with the
-    \c IDE_BRANDING_PRI option set to the absolute path of
-    \c {ide_branding.pri} in the \QDS (private) repository.
-
-    For example, on Windows enter (all on one line):
-
-    \badcode
-    C:\dev\qtc-super\qtcreator>..\..\..\Qt\5.14.1\msvc2017_64\bin\qmake.exe
-        qtcreator.pro -r
-        IDE_BRANDING_PRI=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding\ide_branding.pri
-    \endcode
-
-    To use the offline style to build the \QDS help with qmake:
-
-    \list 1
-        \li In the \c {doc/qtdesignstudio} folder, run \c qmake from Qt 5.14.0,
-            or later with the path to the branding information as an option
-            (all on one line):
-            \badcode
-            <relative_path_to>/qmake.exe qtcreator.pro -r
-            IDE_BRANDING_PRI=<absolute_path_to>/ide_branding.pri
-            \endcode
-        \li Run \c {make docs} on Linux and macOS or \c {nmake docs}
-            on Windows.
-    \endlist
-
-    To use the online style to build the \QDS Manual with qmake:
-
-    \list 1
-        \li In the \c {doc/qtdesignstudio} folder, run \c qmake from Qt 5.14.0,
-            or later with the path to the branding information as an option
-            (all on one line):
-            \badcode
-            <relative_path_to>/qmake.exe qtcreator.pro -r
-            IDE_BRANDING_PRI=<absolute_path_to>/ide_branding.pri
-            \endcode
-        \li Run \c {make html_docs} on Linux and macOS or \c {nmake html_docs}
-            on Windows.
-    \endlist
-
-    The HTML files for the offline documentation are generated in the following
-    folders:
-
-    \list
-        \li \c doc/html/qtcreator
-        \li \c doc/html/qtcreator-dev
-        \li \c doc/qtdesignstudio/doc/html/qtdesignstudio
-    \endlist
-
-    The help files (\c {.qch}) are generated in the
-    \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
-    Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
-    on \macos.
-
-   The HTML files for the online documentation are generated in the following
-   folders:
-
-    \list
-        \li \c doc/html/qtcreator-online
-        \li \c doc/html/qtcreator-dev-online
-        \li \c doc/qtdesignstudio/doc/html/qtdesignstudio-online
-    \endlist
 
     \section2 Additional Build Commands
 

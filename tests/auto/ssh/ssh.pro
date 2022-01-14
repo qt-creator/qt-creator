@@ -1,9 +1,0 @@
-QT = core network
-QTC_LIB_DEPENDS += ssh utils
-include(../qttest.pri)
-
-TEST_RELATIVE_LIBEXEC_PATH = $$relative_path($$IDE_LIBEXEC_PATH, $$OUT_PWD)
-win32:TEST_RELATIVE_LIBEXEC_PATH=../$$TEST_RELATIVE_LIBEXEC_PATH
-DEFINES += 'TEST_RELATIVE_LIBEXEC_PATH="\\\"$$TEST_RELATIVE_LIBEXEC_PATH\\\""'
-
-SOURCES += tst_ssh.cpp
