@@ -40,12 +40,8 @@ RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(
 
 RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation()
 {
-    if (m_runner) {
-        connect(m_runner, &QSsh::SshRemoteProcessRunner::processClosed,
-                m_runner, &QSsh::SshRemoteProcessRunner::deleteLater);
-        connect(m_runner, &QSsh::SshRemoteProcessRunner::connectionError,
-                m_runner, &QSsh::SshRemoteProcessRunner::deleteLater);
-    }
+    if (m_runner)
+        m_runner->deleteLater();
 }
 
 static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)

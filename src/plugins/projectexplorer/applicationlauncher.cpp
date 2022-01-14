@@ -462,12 +462,8 @@ void ApplicationLauncherPrivate::setFinished()
         return;
 
     int exitCode = 0;
-    if (m_deviceProcess) {
+    if (m_deviceProcess)
         exitCode = m_deviceProcess->exitCode();
-        m_deviceProcess->disconnect(this);
-        m_deviceProcess->deleteLater();
-        m_deviceProcess = nullptr;
-    }
 
     m_state = Inactive;
     emit q->processExited(exitCode, m_remoteExitStatus);
