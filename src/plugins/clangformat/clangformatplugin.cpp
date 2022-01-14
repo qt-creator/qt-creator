@@ -29,6 +29,7 @@
 #include "clangformatconstants.h"
 #include "clangformatindenter.h"
 #include "clangformatutils.h"
+#include "tests/clangformat-test.h"
 
 #include <utils/qtcassert.h>
 
@@ -158,6 +159,15 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     ICore::infoBar()->addInfo(info);
 #endif
     return true;
+}
+
+QVector<QObject *> ClangFormatPlugin::createTestObjects() const
+{
+    return {
+#ifdef WITH_TESTS
+        new Internal::ClangFormatTest,
+#endif
+    };
 }
 
 } // namespace ClangFormat

@@ -170,10 +170,6 @@ SOURCES += \
     gtest-llvm-printing.cpp \
 }
 
-!isEmpty(CLANGFORMAT_LIBS) {
-    SOURCES += clangformat-test.cpp
-}
-
 !isEmpty(GOOGLEBENCHMARK_DIR):exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \
     smallstring-benchmark.cpp

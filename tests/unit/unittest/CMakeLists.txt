@@ -466,21 +466,6 @@ extend_qtc_test(unittest
     cppprojectfile.cpp cppprojectfile.h
 )
 
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/clangformat
-  CONDITION HAVE_LIBCLANG
-  DEPENDS ${CLANG_TOOLING_LIBS}
-  SOURCES
-    clangformatconstants.h
-    clangformatbaseindenter.cpp clangformatbaseindenter.h
-)
-
-extend_qtc_test(unittest
-  CONDITION HAVE_LIBCLANG
-  SOURCES
-    clangformat-test.cpp
-)
-
 get_filename_component(
     QMLDOM_STANDALONE_CMAKELISTS
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../../qmldom_standalone/src/qmldom/standalone/"

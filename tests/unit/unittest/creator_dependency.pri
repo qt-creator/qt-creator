@@ -13,7 +13,6 @@ include($$PWD/../../../src/plugins/clangtools/clangtoolsunittestfiles.pri)
 include($$PWD/../../../src/shared/clang/clang_defines.pri)
 include($$PWD/../../../src/tools/clangbackend/source/clangbackendclangipc-source.pri)
 include($$PWD/../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pri)
-!isEmpty(CLANGFORMAT_LIBS): include($$PWD/../../../src/plugins/clangformat/clangformat-source.pri)
 } else {
 DEFINES += CLANG_VERSION=\\\"6.0.0\\\"
 DEFINES += "\"CLANG_INCLUDE_DIR=\\\"/usr/include\\\"\""

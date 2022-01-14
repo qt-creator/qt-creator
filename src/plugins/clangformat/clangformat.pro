@@ -32,3 +32,9 @@ HEADERS += \
 FORMS += \
     clangformatchecks.ui \
     clangformatconfigwidget.ui
+
+equals(TEST, 1) {
+    DEFINES += TESTDATA_DIR=\"R\\\"xxx($$PWD/tests/data)xxx\\\"\"
+    HEADERS += tests/clangformat-test.h
+    SOURCES += tests/clangformat-test.cpp
+}
