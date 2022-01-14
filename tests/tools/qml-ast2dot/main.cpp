@@ -221,9 +221,9 @@ protected: // visiting functions:
         // TODO: place the parameters...
 //        UiParameterList *parameters;
 
-        terminal(ast->defaultToken);
-        terminal(ast->readonlyToken);
-        terminal(ast->propertyToken);
+        terminal(ast->defaultToken());
+        terminal(ast->readonlyToken());
+        terminal(ast->propertyToken());
         terminal(ast->typeModifierToken);
         terminal(ast->typeToken);
         terminal(ast->identifierToken);
