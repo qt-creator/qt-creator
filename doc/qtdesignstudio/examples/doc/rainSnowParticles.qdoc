@@ -1,0 +1,198 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page rain-snow-particle-effect.html
+    \ingroup gstutorials
+
+    \title Rain and Snow Effect
+    \brief Illustrates how to create a rain and snow effect with the \QDS
+    particle system.
+
+    \image snow-particles.png
+
+    The \e{Rain and Snow Effect} tutorial illustrates how you can add a rain and
+    a snow effect to your
+    scene using the \QDS particle system.
+
+    You need to download the starting project for this tutorial from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/
+    tutorial%20projects/rain-snow-particles/Start}{here} before you start.
+
+    Download the project and open the \e faceparticles.qmlproject file in \QDS
+    to get started.
+
+    \image rain-snow-tutorial-start.png
+    \section1 Creating a Rain Effect
+
+    \section2 Adding a Particle System to Your Scene
+
+    To add a particle system, you first need to import the QtQuick3D.Particles3D
+    module to your project:
+
+    \list 1
+      \li In the \uicontrol Library view, select
+      \inlineimage icons/plus.png
+      next to \uicontrol Components.
+      \li Find QtQuick3D.Particles3D and select it to add it to your project.
+      \li From \uicontrol Library > \uicontrol Components, drag a
+      \uicontrol{Particle System} to \uicontrol scene in \uicontrol Navigator.
+    \endlist
+
+    Now you have added a particle system to your scene.
+
+    \image rain-snow-tutorial-particle-system
+
+    \section2 Adjusting the Behavior and Apperance of the Particle System
+    Next, you adjust the position, behavior, and apperance of the particle
+    system to create a simple rain effect:
+
+    \list 1
+      \li Adjust the position of the particle system to align with the sphere.
+      In \uicontrol Navigator, select \e particleSystem and in
+      \uicontrol Properties, set \uicontrol Translation > \uicontrol Y to 193.
+      \li Set the \e rain-drop-white-square.png as texture for the particles.
+      From \uicontrol Library > \uicontrol Components, drag a \uicontrol Texture
+      to \e spriteParticle.
+      \li In \uicontrol Navigator, select \uicontrol texture1 and in \uicontrol
+      Properties, set \uicontrol Source to \e rain-drop-white-square.png.
+      \li In \uicontrol Navigator, select \uicontrol spriteParticle and in the
+      \uicontrol Properties, set \uicontrol Sprite to texture.
+      \li Adjust the apperance and behavior of the sprite further. In \uicontrol
+      Properties, set:
+        \list
+          \li \uicontrol{Particle Scale} to 10.
+          \li \uicontrol{Max Amount} to 1000.
+          \li \uicontrol Color to #91ffffff.
+          \li \uicontrol{Fade In Effect} to FadeNone.
+          \li \uicontrol{Fade Out Effect} to FadeNone.
+        \endlist
+      \li Now you have set the apperance of the particles. Next, adjust
+      the particle emitter. In \uicontrol Navigator, select \uicontrol
+      particleEmitter, and in \uicontrol Properties set:
+        \list
+          \li \uicontrol System to particleSystem.
+          \li \uicontrol{Emit Rate} to 1500.
+          \li \uicontrol{Life Span} to 100.
+          \li \uicontrol{Life Span Variation} to 0.
+          \li \uicontrol{Particle End Scale} to 1.
+          \li \uicontrol{Particle Scale Variation} to 0,5.
+          \li \uicontrol{Particle End Scale Variation} to 0,5.
+          \li \uicontrol{Particle Rotation} > \uicontrol Variation >
+          \uicontrol X, \uicontrol Y,
+          and \uicontrol Z to 0.
+          \li \uicontrol{Particle Rotation} > \uicontrol{Velocity Variation} >
+          \uicontrol X,
+          \uicontrol Y, and \uicontrol Z to 0.
+          \li \uicontrol Transform > \uicontrol Translation \uicontrol Y to -69.
+        \endlist
+      \li Finally, you set the direction of the particles. In \uicontrol
+      Navigator, select \uicontrol dir3d and in \uicontrol
+      Properties set:
+        \list
+          \li \uicontrol Direction > \uicontrol Y to -500.
+          \li \uicontrol Direction > \uicontrol Z to 0.
+          \li \uicontrol{Direction Variation} > \uicontrol X, \uicontrol Y, and
+          \uicontrol Z to 0.
+        \endlist
+    \endlist
+
+    \section2 Adjusting the Size of the Emitting Area
+
+    By default, the \uicontrol {Particle Emitter} emits particles from one
+    point in the scene. In this scene you want to emit particles from a bigger
+    area matching the size of the sphere. To do this, you need to add
+    a \uicontrol{Particle Shape} component:
+
+    \list 1
+      \li From \uicontrol Components, drag a \uicontrol{Particle Shape}
+      component to \uicontrol{particleSystem} in \uicontrol Navigator.
+      \li In \uicontrol Navigator, select \uicontrol particleShape, and in
+      \uicontrol Properties set:
+        \list
+          \li \uicontrol Type to \uicontrol Sphere.
+          \li \uicontrol Extends \uicontrol X to 85.
+          \li \uicontrol Extends \uicontrol Y to 85.
+          \li \uicontrol Extends \uicontrol Z to 85.
+        \endlist
+      \li In \uicontrol Navigator, select \uicontrol particleEmitter, and in
+      \uicontrol Particle set
+      \uicontrol Shape to \uicontrol particleShape.
+    \endlist
+
+    \image rain-snow-tutorial-navigator.png
+
+    Now, the rain effect is ready. Press \key Alt+P to see it in the live
+    preview.
+
+    \section1 Creating a Snow Effect
+
+    To make it easy, you can duplicate the particle system you created for the
+    rain effect and adjust the properties to create a snow effect. To do this,
+    first create a new state for the snow effect:
+
+    \list
+      \li In \uicontrol{States}, select \uicontrol{Create New State}.
+    \endlist
+
+    \image rain-snow-tutorial-states.png
+
+    \section2 Turning the Rain into Snow
+
+    \list 1
+      \li With the new state that you just created selected in
+      \uicontrol{States}, in \uicontrol{Navigator}, select \uicontrol
+      spriteParticle and set \uicontrol Color to #ffffff.
+      \li In \uicontrol{Navigator}, select \uicontrol texture1 and set
+      \uicontrol Source to \e{snowflake.png}.
+      \li In \uicontrol{Navigator}, select \uicontrol particleEmitter and set:
+        \list
+          \li \uicontrol{Emit Rate} to 250.
+          \li \uicontrol{Life Span} to 450.
+          \li \uicontrol{Particle Rotation} > \uicontrol Variation >
+          \uicontrol{X}, \uicontrol{Y}, and \uicontrol Z to 180.
+          \li \uicontrol{Particle Rotation} > \uicontrol{Velocity Variation} >
+          \uicontrol{X}, \uicontrol{Y}, and \uicontrol Z to 200.
+        \endlist
+      \li In \uicontrol{Navigator}, select \uicontrol particleEmitter
+      > \uicontrol dir3d and set:
+        \list
+          \li \uicontrol Direction > \uicontrol Y to -100.
+          \li \uicontrol{Direction Variation} \uicontrol{X}, \uicontrol{Y},
+          and \uicontrol Z
+          to 10.
+        \endlist
+    \endlist
+
+    Now you can run the snow effect in the live preview:
+    \list 1
+      \li In \uicontrol{States} next to \uicontrol State1 select
+      \inlineimage icons/action-icon.png
+      and select \uicontrol{Set as Default}.
+      \li Press \key{Alt+P}.
+    \endlist
+
+    \image rain-snow-tutorial-default-state.png
+*/

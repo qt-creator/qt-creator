@@ -1,13 +1,13 @@
 /****************************************************************************
 **
-** This file is part of Qt Creator
-**
 ** Copyright (C) 2018 Blackberry
-**
 ** Contact: Blackberry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
-** This file is part of the documentation of the Qt Toolkit.
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -40,19 +40,12 @@
 
     \title Deploying Applications to QNX Neutrino Devices
 
-    You can deploy applications to QNX Neutrino devices in the way that is
-    described in \l{Deploying Applications to Generic Remote Linux Devices}.
+    You can specify settings for deploying applications to QNX Neutrino
+    devices in the project configuration file and in \uicontrol Projects
+    > \uicontrol {Run Settings} > \uicontrol Deployment.
 
     \image qtcreator-qnx-deployment.png "Deploy to device"
 
-    The files to be installed are listed in the \uicontrol {Deployment} step,
-    the \uicontrol {Files to deploy} field. The
-    \uicontrol {Local File Path} field displays the location of the file on the
-    development PC. The \uicontrol {Remote Directory} field displays the folder
-    where the file is installed on the device. Text in red color indicates that
-    the information is missing. Edit the qmake \l{Variables#installs}
-    {INSTALLS variable} in the project \c .pro file to add the missing files.
-
-    When you run the application, \QC copies the necessary files to the device
-    and starts the application on it.
+    The deployment process is described in more detail in
+    \l{Deploying Applications to Generic Remote Linux Devices}.
 */

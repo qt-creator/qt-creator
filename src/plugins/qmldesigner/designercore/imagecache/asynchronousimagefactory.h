@@ -39,15 +39,14 @@ namespace QmlDesigner {
 
 class TimeStampProviderInterface;
 class ImageCacheStorageInterface;
-class ImageCacheGeneratorInterface;
 class ImageCacheCollectorInterface;
 
 class AsynchronousImageFactory
 {
 public:
     AsynchronousImageFactory(ImageCacheStorageInterface &storage,
-                             ImageCacheGeneratorInterface &generator,
-                             TimeStampProviderInterface &timeStampProvider);
+                             TimeStampProviderInterface &timeStampProvider,
+                             ImageCacheCollectorInterface &collector);
 
     ~AsynchronousImageFactory();
 
@@ -83,8 +82,8 @@ private:
                  Utils::SmallStringView extraId,
                  ImageCache::AuxiliaryData auxiliaryData,
                  ImageCacheStorageInterface &storage,
-                 ImageCacheGeneratorInterface &generator,
-                 TimeStampProviderInterface &timeStampProvider);
+                 TimeStampProviderInterface &timeStampProvider,
+                 ImageCacheCollectorInterface &collector);
     void wait();
     void clearEntries();
     void stopThread();
@@ -95,8 +94,8 @@ private:
     std::condition_variable m_condition;
     std::thread m_backgroundThread;
     ImageCacheStorageInterface &m_storage;
-    ImageCacheGeneratorInterface &m_generator;
     TimeStampProviderInterface &m_timeStampProvider;
+    ImageCacheCollectorInterface &m_collector;
     bool m_finishing{false};
 };
 

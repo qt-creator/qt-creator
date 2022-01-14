@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -144,8 +144,8 @@
     If you want to run your application on a generic remote Linux device,
     you first need to deploy your executable and possibly other files.
     \QC does that for you automatically if you provide the necessary
-    information. This works the same way as explained for CMake
-    \l {Deploying CMake Projects to Generic Remote Linux Devices}{here},
+    information. This works the same way as explained for CMake in
+    \l {Deploying Applications to Generic Remote Linux Devices},
     except that you also need to include your application binary in the list.
 
     \section1 Creating a Run Configuration

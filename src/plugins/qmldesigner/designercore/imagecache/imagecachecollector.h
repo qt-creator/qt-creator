@@ -45,10 +45,13 @@ class ImageCacheConnectionManager;
 class RewriterView;
 class NodeInstanceView;
 
+enum class ImageCacheCollectorNullImageHandling { CaptureNullImage, DontCaptureNullImage };
+
 class ImageCacheCollector final : public ImageCacheCollectorInterface
 {
 public:
-    ImageCacheCollector(ImageCacheConnectionManager &connectionManager);
+    ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
+                        ImageCacheCollectorNullImageHandling nullImageHandling = {});
 
     ~ImageCacheCollector();
 
@@ -72,6 +75,7 @@ public:
 private:
     ImageCacheConnectionManager &m_connectionManager;
     QPointer<ProjectExplorer::Target> m_target;
+    ImageCacheCollectorNullImageHandling nullImageHandling{};
 };
 
 } // namespace QmlDesigner

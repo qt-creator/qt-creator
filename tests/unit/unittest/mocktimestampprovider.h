@@ -33,4 +33,5 @@ class MockTimeStampProvider : public QmlDesigner::TimeStampProviderInterface
 {
 public:
     MOCK_METHOD(Sqlite::TimeStamp, timeStamp, (Utils::SmallStringView name), (const, override));
+    MOCK_METHOD(Sqlite::TimeStamp, pause, (), (const, override));
 };
