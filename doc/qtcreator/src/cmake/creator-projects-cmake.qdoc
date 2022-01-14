@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -42,8 +42,9 @@
     native build configurations and workspaces that you can use in the compiler
     environment of your choice.
 
-    You can use CMake from \QC to build applications for the desktop and
-    Android devices. You can also build single files to test your changes.
+    You can use CMake from \QC to build applications for the desktop, as well
+    as mobile and embedded devices. You can also build single files to test
+    your changes.
 
     \QC automatically detects the CMake executable specified in the \c PATH.
     You can add paths to other CMake executables and use them in different
@@ -168,6 +169,6 @@
         \li \l {Opening Projects}
         \li \l {CMake Build Configuration}
         \li \l {Specifying Run Settings}
-        \li \l {Deploying CMake Projects to Generic Remote Linux Devices}
+        \li \l {Deploying Applications to Generic Remote Linux Devices}
     \endlist
 */

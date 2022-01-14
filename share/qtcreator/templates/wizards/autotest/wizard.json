@@ -237,7 +237,7 @@
             "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{JS: (value('TestFrameWork') === 'QtQuickTest' ? 'QtSupport.Wizards.FeatureQt.5' : ((value('BuildSystem') === 'qmake' || value('TestFrameWork') === 'QtTest') ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' )) }" ]
+                 "requiredFeatures": [ "%{JS: (value('TestFrameWork') === 'QtQuickTest' ? 'QtSupport.Wizards.FeatureQtQuick.2' : ((value('BuildSystem') === 'qmake' || value('TestFrameWork') === 'QtTest') ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' )) }" ]
             }
         },
         {

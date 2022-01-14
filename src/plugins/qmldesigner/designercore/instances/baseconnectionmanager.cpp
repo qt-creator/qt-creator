@@ -137,7 +137,8 @@ void BaseConnectionManager::callCrashCallback()
 {
     std::lock_guard<std::mutex> lock{m_callbackMutex};
 
-    m_crashCallback();
+    if (m_crashCallback)
+        m_crashCallback();
 }
 } // namespace QmlDesigner
 

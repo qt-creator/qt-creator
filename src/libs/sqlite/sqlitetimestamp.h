@@ -41,6 +41,17 @@ public:
     }
 
     friend bool operator!=(TimeStamp first, TimeStamp second) { return !(first == second); }
+    friend bool operator<(TimeStamp first, TimeStamp second) { return first.value < second.value; }
+
+    friend TimeStamp operator+(TimeStamp first, TimeStamp second)
+    {
+        return first.value + second.value;
+    }
+
+    friend TimeStamp operator-(TimeStamp first, TimeStamp second)
+    {
+        return first.value - second.value;
+    }
 
     bool isValid() const { return value >= 0; }
 

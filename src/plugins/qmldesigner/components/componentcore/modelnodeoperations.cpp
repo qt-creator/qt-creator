@@ -1050,15 +1050,16 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 {
     QString adjustedDefaultDirectory = defaultDirectory;
 
-    Utils::FilePath assetPath = projectFilePath();
-    if (assetPath.pathAppended("content").exists())
-            assetPath= assetPath.pathAppended("content");
+    Utils::FilePath contentPath = projectFilePath();
 
-    assetPath = assetPath.pathAppended(assetDir);
+    if (contentPath.pathAppended("content").exists())
+            contentPath = contentPath.pathAppended("content");
+
+    Utils::FilePath assetPath = contentPath.pathAppended(assetDir);
 
     if (!assetPath.exists()) {
         // Create the default asset type directory if it doesn't exist
-        QDir dir(projectFilePath().toString());
+        QDir dir(contentPath.toString());
         dir.mkpath(assetDir);
     }
 

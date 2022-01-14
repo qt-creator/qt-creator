@@ -185,7 +185,7 @@ void CMakeGeneratorDialogTreeModel::createNodes(const FilePaths &candidates, QSt
 
 const CheckableFileTreeItem* CMakeGeneratorDialogTreeModel::constNodeForIndex(const QModelIndex &index) const
 {
-    const QStandardItem *parent = static_cast<const QStandardItem*>(index.constInternalPointer());
+    const QStandardItem *parent = static_cast<const QStandardItem*>(index.internalPointer());
     const QStandardItem *item = parent->child(index.row(), index.column());
     return static_cast<const CheckableFileTreeItem*>(item);
 }

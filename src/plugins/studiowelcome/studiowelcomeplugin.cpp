@@ -28,6 +28,8 @@
 
 #include "qdsnewdialog.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -268,6 +270,24 @@ int ProjectModel::rowCount(const QModelIndex &) const
     return ProjectExplorer::ProjectExplorerPlugin::recentProjects().count();
 }
 
+QString getQDSVersion(const QString &projectFilePath)
+{
+    const QString defaultReturn = "";
+    Utils::FileReader reader;
+    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
+        return defaultReturn;
+
+    const QByteArray data = reader.data();
+
+    QRegularExpression regexp(R"x(qdsVersion: "(.*)")x");
+    QRegularExpressionMatch match = regexp.match(QString::fromUtf8(data));
+
+    if (!match.hasMatch())
+        return defaultReturn;
+
+    return ProjectModel::tr("Created with Qt Design Studio version: %1").arg(match.captured(1));
+}
+
 QString getMainQmlFile(const QString &projectFilePath)
 {
     const QString defaultReturn = "content/App.qml";
@@ -293,8 +313,8 @@ QString appQmlFile(const QString &projectFilePath)
 
 static QString fromCamelCase(const QString &s) {
 
-   static QRegularExpression regExp1 {"(.)([A-Z][a-z]+)"};
-   static QRegularExpression regExp2 {"([a-z0-9])([A-Z])"};
+   const QRegularExpression regExp1 {"(.)([A-Z][a-z]+)"};
+   const QRegularExpression regExp2 {"([a-z0-9])([A-Z])"};
    QString result = s;
    result.replace(regExp1, "\\1 \\2");
    result.replace(regExp2, "\\1 \\2");
@@ -302,15 +322,49 @@ static QString fromCamelCase(const QString &s) {
    return result;
 }
 
+static QString resolutionFromConstants(const QString &projectFilePath)
+{
+    const QFileInfo fileInfo(projectFilePath);
+    const QString fileName = fileInfo.dir().absolutePath()
+            + "/"  + "imports" + "/" + fileInfo.baseName() + "/Constants.qml";
+
+    Utils::FileReader reader;
+    if (!reader.fetch(Utils::FilePath::fromString(fileName)))
+        return {};
+
+    const QByteArray data = reader.data();
+
+    const QRegularExpression regexpWidth(R"x(readonly\s+property\s+int\s+width:\s+(\d*))x");
+    const QRegularExpression regexpHeight(R"x(readonly\s+property\s+int\s+height:\s+(\d*))x");
+
+    int width = -1;
+    int height = -1;
+
+    QRegularExpressionMatch match = regexpHeight.match(QString::fromUtf8(data));
+    if (match.hasMatch())
+        height = match.captured(1).toInt();
+
+    match = regexpWidth.match(QString::fromUtf8(data));
+    if (match.hasMatch())
+        width = match.captured(1).toInt();
+
+    if (width > 0 && height > 0)
+        return ProjectModel::tr("Resolution: %1x%2").arg(width).arg(height);
+
+    return {};
+}
+
 static QString description(const QString &projectFilePath)
 {
 
-    const QString created = "Created: " +
-            QFileInfo(projectFilePath).fileTime(QFileDevice::FileBirthTime).toString();
-    const QString lastEdited = "Last Edited: " +
-            QFileInfo(projectFilePath).fileTime(QFileDevice::FileModificationTime).toString();
+    const QString created = ProjectModel::tr("Created: %1").arg(
+            QFileInfo(projectFilePath).fileTime(QFileDevice::FileBirthTime).toString());
+    const QString lastEdited =  ProjectModel::tr("Last Edited: %1").arg(
+            QFileInfo(projectFilePath).fileTime(QFileDevice::FileModificationTime).toString());
 
-    return fromCamelCase(QFileInfo(projectFilePath).baseName()) + "\n" + created + "\n" + lastEdited;
+    return fromCamelCase(QFileInfo(projectFilePath).baseName()) + "\n\n" + created + "\n" + lastEdited
+            + "\n" + resolutionFromConstants(projectFilePath)
+            + "\n" + getQDSVersion(projectFilePath);
 }
 
 static QString tags(const QString &projectFilePath)
@@ -438,6 +492,26 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     return true;
 }
 
+static bool showSplashScreen()
+{
+    const QString lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
+
+    QSettings *settings = Core::ICore::settings();
+
+    const QString lastQDSVersion = settings->value(lastQDSVersionEntry).toString();
+
+
+    const QString currentVersion = Core::Constants::IDE_VERSION_DISPLAY;
+
+    if (currentVersion != lastQDSVersion) {
+        settings->setValue(lastQDSVersionEntry, currentVersion);
+        return true;
+    }
+
+    return Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
+                                                      DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+}
+
 void StudioWelcomePlugin::extensionsInitialized()
 {
     Core::ModeManager::activateMode(m_welcomeMode->id());
@@ -445,8 +519,7 @@ void StudioWelcomePlugin::extensionsInitialized()
     // Enable QDS new project dialog
     Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
-    if (Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
-                                                   DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY)) {
+    if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
             s_view = new QQuickWidget(Core::ICore::dialogParent());
             s_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -531,6 +604,8 @@ WelcomeMode::WelcomeMode()
     setId(Core::Constants::MODE_WELCOME);
     setContextHelp("Qt Design Studio Manual");
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
+
+    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
 
     m_modeWidget = new QQuickWidget;
     m_modeWidget->setMinimumSize(1024, 768);

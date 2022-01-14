@@ -33,6 +33,7 @@ class TimeStampProvider : public TimeStampProviderInterface
 {
 public:
     Sqlite::TimeStamp timeStamp(Utils::SmallStringView name) const override;
+    Sqlite::TimeStamp pause() const override { return 0; }
 };
 
 } // namespace QmlDesigner

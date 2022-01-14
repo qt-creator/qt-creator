@@ -50,7 +50,7 @@
 #include <imagecache/imagecacheconnectionmanager.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
-#include <imagecache/timestampprovider.h>
+#include <imagecache/timestampproviderinterface.h>
 
 #include <coreplugin/icore.h>
 
@@ -70,6 +70,23 @@ QString defaultImagePath()
     return qobject_cast<::QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
 }
 
+class TimeStampProvider : public TimeStampProviderInterface
+{
+public:
+    Sqlite::TimeStamp timeStamp(Utils::SmallStringView) const override
+    {
+        auto now = std::chrono::steady_clock::now();
+
+        return std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+    }
+
+    Sqlite::TimeStamp pause() const override
+    {
+        using namespace std::chrono_literals;
+        return std::chrono::duration_cast<std::chrono::seconds>(1h).count();
+    }
+};
+
 } // namespace
 
 class PreviewImageCacheData
@@ -81,11 +98,11 @@ public:
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager};
-    ImageCacheGenerator generator{collector, storage};
+    ImageCacheCollector collector{connectionManager,
+                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
     TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
-    AsynchronousImageFactory factory{storage, generator, timeStampProvider};
+    AsynchronousImageFactory factory{storage, timeStampProvider, collector};
 };
 
 class QmlDesignerProjectManagerProjectData
@@ -155,8 +172,10 @@ void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
 {
-    m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
-    m_projectData.reset();
+    if (m_projectData) {
+        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
+        m_projectData.reset();
+    }
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}

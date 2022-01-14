@@ -48,95 +48,83 @@
     prompt you to enter the settings needed for a particular type of project
     and create the necessary files for you.
 
-    \QDS projects are useful for creating UIs. You cannot use them for
-    application development, because they do not contain:
-
-    \list
-        \li C++ code
-        \li Resource files (.qrc)
-        \li Code needed for deploying applications to devices.
-    \endlist
-
-    Because the projects do not contain any C++ code, you do not need
-    to build them. To test how well your designs work, you can preview the
-    UIs on the desktop or embedded Linux devices. For more
+    To test how well your designs work, you can preview the
+    UIs on the desktop, embedded Linux devices, or Android devices. For more
     information, see \l{Validating with Target Hardware}.
 
     \image studio-project-wizards.png "A list of project wizards"
 
     You can export designs from other design tools and import them to projects
-    or create them from scratch using the following wizard templates:
+    or create them from scratch using the following wizard presets:
 
     \table
     \header
         \li Category
-        \li Wizard Template
+        \li Wizard Preset
         \li Purpose
     \row
         \li {1,2} General
-        \li Qt Quick Application - Empty
-        \li Creates a project that uses default components and preset UI
-            controls and can be run on all target platforms.
+        \li Empty
+        \li Creates a project that uses default components such as rectangles,
+            images, and text. You can run the application on all target
+            platforms.
     \row
-        \li Qt Quick 3D Application
-        \li Creates a project that uses default components, UI controls, and
-            3D components.
+        \li 3D
+        \li Creates a project that uses default and 3D components such as
+            cameras, lights, 3D models, and materials.
     \row
         \li Qt for MCUs
-        \li Qt for MCUs Application
-        \li Creates an application that uses a subset of preset components
+        \li MCU
+        \li Creates an application that uses a subset of default components
             (as supported by Qt for MCUs) that you can deploy, run, and debug
             on MCU boards.
     \row
-        \li {1,2} Mobile
-        \li Qt Quick Application - Scroll
-        \li Creates an application that uses UI controls to implement a
+        \li {1,3} Mobile
+        \li Scroll
+        \li Creates an application that uses Qt Quick controls to implement a
             scrollable list.
     \row
-        \li Qt Quick Application - Stack
-        \li Creates an application that uses UI controls to implement a
+        \li Stack
+        \li Creates an application that uses Qt Quick controls to implement a
             set of pages with a stack-based navigation model.
     \row
+        \li Swipe
+        \li Creates an application that uses Qt Quick controls to implement a
+            swipable screen.
+    \row
         \li Desktop
-        \li Qt Quick Application - Launcher
-        \li Creates a project that uses default components and UI controls and
-            defines a launcher application.
+        \li Launcher
+        \li Creates a project that uses default components such as rectangles,
+            images, and text, and defines a launcher application.
     \endtable
-
-    For an example of creating a \uicontrol {Qt Quick 3D Application} project,
-    watch the following video:
-
-    \youtube 9ihYeC0YJ0M
 
     \section1 Using Project Wizards
 
+    To create a new project:
+
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project}.
-        \li Select a wizard template, and then select \uicontrol Choose.
-        \li In the \uicontrol Name field, enter a name for the project.
-            Keep in mind that projects cannot be easily renamed later.
-            \image studio-project-location.png "Project Location dialog"
-        \li In the \uicontrol {Create in} field, enter the path for the project
-            files. You can move project folders later without problems.
-        \li Select \uicontrol Next (or \uicontrol Continue on \macos).
-        \li In the \uicontrol {Screen resolution} field, select the screen
-            resolution for previewing the UI on the desktop or on a device.
-            This determines the screen size.
-            \image studio-project-custom-screen-size.png "Define Project Details dialog"
-        \li To use a custom screen size, specify the width and height of the
-            screen in the \uicontrol {Custom screen width} and
-            \uicontrol {Custom screen height} fields.
-            You can easily change the screen size later in \l Properties.
-        \li In the \uicontrol {Qt Quick Controls Style} field, select one of
+        \li In the \uicontrol Presets tab, select a wizard preset.
+        \li In the \uicontrol Details tab:
+            \list
+                \li Enter a name for the project. Keep in mind that projects
+                cannot be easily renamed later.
+                \li Select the path for the project files. You can move project
+                folders later.
+                \li Set the screen resolution for previewing the UI on the
+                desktop or on a device. This determines the screen size. You can
+                change the screen size later in \l Properties.
+                \li Select \uicontrol {Use Qt Virtual Keyboard} to
+                enable users to enter text using a virtual keyboard.
+                \li In \uicontrol {Target Qt Version}, select the Qt
+                version to use for developing the application. While you can
+                change the Qt version later in the \uicontrol {Run Settings}
+                of the project, keep in mind that the two versions are not fully
+                compatible.
+            \endlist
+        \li In the \uicontrol {Style} tab, select one of
             the predefined \l{Styling Qt Quick Controls}{UI styles} to use.
-        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to enable
-            users to enter text using a virtual keyboard.
-        \li In the \uicontrol {Target Qt Version} field, select the Qt version
-            to use for developing the application. While you can change the
-            Qt version later in the \uicontrol {Run Settings} of the project,
-            keep in mind that the two versions are not fully compatible.
-        \li Select \uicontrol Finish (or \uicontrol Done on \macos) to create
-            the project.
+        \li Select \uicontrol Create to create the project.
     \endlist
 
     \QDS creates the following files and folders:
@@ -155,6 +143,9 @@
             Specifically, if you export and import designs using \QB, your main
             file is most likely called something else. For more information,
             see \l {Exporting from Design Tools}.
+        \li \e CMakeLists.txt project configuration file allowing you to
+            share your project as a fully working C++ application with
+            developers.
         \li qtquickcontrols2.conf file specifies the preferred style and some
             style-specific arguments.
         \li \e fonts folder contains font files that you have added in
