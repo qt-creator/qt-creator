@@ -164,14 +164,15 @@ bool AndroidDeployQtStep::init()
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
-    // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
     if (!info.isValid()) {
-        const IDevice *dev = DeviceKitAspect::device(kit()).data();
+        const auto dev =
+                static_cast<const AndroidDevice *>(DeviceKitAspect::device(kit()).data());
         if (!dev) {
             reportWarningOrError(tr("No valid deployment device is set."), Task::Error);
             return false;
         }
 
+        // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
         info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
         m_deviceInfo = info; // Keep around for later steps
 
@@ -181,18 +182,17 @@ bool AndroidDeployQtStep::init()
             return false;
         }
 
-        const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(dev);
-        if (androidDev && !androidDev->canSupportAbis(selectedAbis)) {
+        if (!dev->canSupportAbis(selectedAbis)) {
             const QString error = tr("The deployment device \"%1\" does not support the "
                                      "architectures used by the kit.\n"
                                      "The kit supports \"%2\", but the device uses \"%3\".")
                                       .arg(dev->displayName()).arg(selectedAbis.join(", "))
-                                      .arg(androidDev->supportedAbis().join(", "));
+                                      .arg(dev->supportedAbis().join(", "));
             reportWarningOrError(error, Task::Error);
             return false;
         }
 
-        if (androidDev && !androidDev->canHandleDeployments()) {
+        if (!dev->canHandleDeployments()) {
             reportWarningOrError(tr("The deployment device \"%1\" is disconnected.")
                                  .arg(dev->displayName()), Task::Error);
             return false;
