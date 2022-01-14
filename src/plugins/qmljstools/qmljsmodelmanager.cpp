@@ -130,28 +130,61 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     projectInfo.tryQmlDump = false;
 
     if (activeTarget) {
+        QDir baseDir;
+        auto addAppDir = [&baseDir, & projectInfo](const QString &mdir) {
+            auto dir = QDir::cleanPath(mdir);
+            if (!baseDir.path().isEmpty()) {
+                auto rDir = baseDir.relativeFilePath(dir);
+                // do not add directories outside the build directory
+                // this might happen for example when we think an executable path belongs to
+                // a bundle, and we need to remove extra directories, but that was not the case
+                if (rDir.split(u'/').contains(QStringLiteral(u"..")))
+                    return;
+            }
+            if (!projectInfo.applicationDirectories.contains(dir))
+                projectInfo.applicationDirectories.append(dir);
+        };
+
         if (BuildConfiguration *bc = activeTarget->activeBuildConfiguration()) {
             // Append QML2_IMPORT_PATH if it is defined in build configuration.
             // It enables qmlplugindump to correctly dump custom plugins or other dependent
             // plugins that are not installed in default Qt qml installation directory.
             projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().expandedValueForKey("QML2_IMPORT_PATH"), ":");
-        }
+            // Treat every target (library or application) in the build directory
 
+            QString dir = bc->buildDirectory().toString();
+            baseDir.setPath(QDir{dir}.absolutePath());
+            addAppDir(dir);
+        }
+        // Qml loads modules from the following sources
+        // 1. The build directory of the executable
+        // 2. Any QML_IMPORT_PATH (environment variable) or IMPORT_PATH (parameter to qt_add_qml_module)
+        // 3. The Qt import path
+        // For an IDE things are a bit more complicated because source files might be edited,
+        // and the directory of the executable might be outdated.
+        // Here we try to get the directory of the executable, adding all targets
         const auto appTargets = activeTarget->buildSystem()->applicationTargets();
         for (const auto &target : appTargets) {
             if (target.targetFilePath.isEmpty())
                 continue;
-            projectInfo.applicationDirectories.append(target.targetFilePath.parentDir().toString());
+            auto dir = target.targetFilePath.parentDir();
+            projectInfo.applicationDirectories.append(dir.toString());
+            // unfortunately the build directory of the executable where cmake puts the qml
+            // might be different than the directory of the executable:
 #if defined(Q_OS_WIN)
             // On Windows systems QML type information is located one directory higher as we build
             // in dedicated "debug" and "release" directories
-            projectInfo.applicationDirectories.append(
-                target.targetFilePath.parentDir().parentDir().toString());
+            addAppDir(
+                dir.parentDir().toString());
 #elif defined(Q_OS_MACOS)
-            // On macOS this is not the case but the targetFilePath is within the bundle so we have
-            // to go up through all three additional directories (BundleName.app/Contents/MacOS)
-            projectInfo.applicationDirectories.append(
-                target.targetFilePath.parentDir().parentDir().parentDir().parentDir().toString());
+            // On macOS and iOS when building a bundle this is not the case and
+            // we have to go up up to three additional directories
+            // (BundleName.app/Contents/MacOS or BundleName.app/Contents for iOS)
+            if (dir.fileName() == u"MacOS")
+                dir = dir.parentDir();
+            if (dir.fileName() == u"Contents")
+                dir = dir.parentDir().parentDir();
+            addAppDir(dir.toString());
 #endif
         }
     }
