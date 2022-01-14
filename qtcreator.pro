@@ -1,9 +1,9 @@
 include(qtcreator.pri)
 
 #version check qt
-!minQtVersion(5, 14, 0) {
+!minQtVersion(5, 15, 2) {
     message("Cannot build $$IDE_DISPLAY_NAME with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 5.14.0.")
+    error("Use at least Qt 5.15.2.")
 }
 
 include(doc/doc.pri)

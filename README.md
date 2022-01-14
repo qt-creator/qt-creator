@@ -35,7 +35,7 @@ https://doc.qt.io/qtcreator-extending/coding-style.html
 
 Prerequisites:
 
-* Qt 5.14.0 or later
+* Qt 5.15.2 or later
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * MinGW with GCC 7 or Visual Studio 2017 or later

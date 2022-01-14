@@ -29,7 +29,7 @@ Product {
             enableFallback: false
         }
     }
-    Depends { name: "Qt.core"; versionAtLeast: "5.14.0" }
+    Depends { name: "Qt.core"; versionAtLeast: "5.15.2" }
     Depends {
         name: "Qt.core5compat"
         condition: usesQt6

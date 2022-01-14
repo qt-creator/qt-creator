@@ -472,9 +472,6 @@
 
     You can configure documentation builds using CMake or qmake.
 
-    \note Since \QC version 4.12, only Qt 5.14.0 or later is supported
-    for building documentation.
-
     For more information about setting up the build environment with a
     self-built Qt if you do not want to build the whole Qt, see
     \l{https://wiki.qt.io/Building_Qt_Documentation}{Building Qt Documentation}
