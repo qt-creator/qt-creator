@@ -60,12 +60,10 @@ Rectangle {
             var settingPath = Qt.platform.os === "osx"
                     ? qsTr("Qt Creator > Preferences > Environment > System")
                     : qsTr("Tools > Options > Environment > System")
-            var strOn = qsTr("Qt Design Studio collects crash reports for the sole purpose of fixing bugs. "
-                             + "You can disable this feature under %1. %2").arg(settingPath).arg(configureButton)
-            var strOff = qsTr("Qt Design Studio can collect crash reports for the sole purpose of fixing bugs. "
-                              + "You can enable this feature under %1. %2").arg(settingPath).arg(configureButton)
+            var strConfigure = qsTr("Qt Design Studio collects usage statistics and crash reports for the sole purpose of fixing bugs and improving the tool. "
+                             + "You can configure the crash reporter under %1. %2").arg(settingPath).arg(configureButton)
 
-            crash_reporting_text.text = crashReportingOn ? strOn : strOff;
+            crash_reporting_text.text = strConfigure
             crashReportCheckBox.visible = true
         }
     }
@@ -173,11 +171,13 @@ Rectangle {
     Text {
         id: crash_reporting_text
         color: "#ffffff"
+        anchors.bottom: columnLayout.top
         textFormat: Text.RichText
         x: 15
         y: 280
         width: 311
         wrapMode: Text.WordWrap
+        anchors.bottomMargin: 8
         font.family: StudioFonts.titilliumWeb_light
         font.pixelSize: 12
         font.wordSpacing: 0
@@ -230,6 +230,7 @@ Rectangle {
     }
 
     ColumnLayout {
+        id: columnLayout
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: 16
