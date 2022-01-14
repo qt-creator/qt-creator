@@ -68,18 +68,32 @@ void SemanticTokenSupport::refresh()
 
 void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
 {
+    reloadSemanticTokensImpl(textDocument);
+}
+
+void SemanticTokenSupport::reloadSemanticTokensImpl(TextDocument *textDocument,
+                                                    int remainingRerequests)
+{
     const SemanticRequestTypes supportedRequests = supportedSemanticRequests(textDocument);
     if (supportedRequests.testFlag(SemanticRequestType::None))
         return;
     const Utils::FilePath filePath = textDocument->filePath();
     const TextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
-    auto responseCallback = [this, filePath, documentVersion = m_client->documentVersion(filePath)](
+    auto responseCallback = [this,
+                             remainingRerequests,
+                             filePath,
+                             documentVersion = m_client->documentVersion(filePath)](
                                 const SemanticTokensFullRequest::Response &response) {
         if (const auto error = response.error()) {
             qCDebug(LOGLSPHIGHLIGHT)
                 << "received error" << error->code() << error->message() << "for" << filePath;
+            if (remainingRerequests > 0) {
+                if (auto document = TextDocument::textDocumentForFilePath(filePath))
+                    reloadSemanticTokensImpl(document, remainingRerequests - 1);
+            }
+        } else {
+            handleSemanticTokens(filePath, response.result().value_or(nullptr), documentVersion);
         }
-        handleSemanticTokens(filePath, response.result().value_or(nullptr), documentVersion);
     };
     /*if (supportedRequests.testFlag(SemanticRequestType::Range)) {
         const int start = widget->firstVisibleBlockNumber();
@@ -108,6 +122,12 @@ void SemanticTokenSupport::reloadSemanticTokens(TextDocument *textDocument)
 
 void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
 {
+    updateSemanticTokensImpl(textDocument);
+}
+
+void SemanticTokenSupport::updateSemanticTokensImpl(TextDocument *textDocument,
+                                                    int remainingRerequests)
+{
     const SemanticRequestTypes supportedRequests = supportedSemanticRequests(textDocument);
     if (supportedRequests.testFlag(SemanticRequestType::FullDelta)) {
         const Utils::FilePath filePath = textDocument->filePath();
@@ -122,15 +142,22 @@ void SemanticTokenSupport::updateSemanticTokens(TextDocument *textDocument)
             params.setPreviousResultId(previousResultId);
             SemanticTokensFullDeltaRequest request(params);
             request.setResponseCallback(
-                [this, filePath, documentVersion](
+                [this, filePath, documentVersion, remainingRerequests](
                     const SemanticTokensFullDeltaRequest::Response &response) {
                     if (const auto error = response.error()) {
                         qCDebug(LOGLSPHIGHLIGHT) << "received error" << error->code()
                                                  << error->message() << "for" << filePath;
+                        if (auto document = TextDocument::textDocumentForFilePath(filePath)) {
+                            if (remainingRerequests > 0)
+                                updateSemanticTokensImpl(document, remainingRerequests - 1);
+                            else
+                                reloadSemanticTokensImpl(document, 1); // try a full reload once
+                        }
+                    } else {
+                        handleSemanticTokensDelta(filePath,
+                                                  response.result().value_or(nullptr),
+                                                  documentVersion);
                     }
-                    handleSemanticTokensDelta(filePath,
-                                              response.result().value_or(nullptr),
-                                              documentVersion);
                 });
             qCDebug(LOGLSPHIGHLIGHT)
                 << "Requesting delta for" << filePath << "with version" << documentVersion;
@@ -292,11 +319,6 @@ void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
     if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = {*tokens, documentVersion};
         highlight(filePath);
-    } else {
-        qCDebug(LOGLSPHIGHLIGHT)
-                << "no data in reply to full semantic tokens request, clearing tokens"
-                << m_client->name() << filePath;
-        m_tokens.remove(filePath);
     }
 }
 
@@ -363,12 +385,6 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         qCDebug(LOGLSPHIGHLIGHT) << "New Data " << newData;
         tokens.setData(newData);
         tokens.setResultId(tokensDelta->resultId());
-    } else {
-        qCDebug(LOGLSPHIGHLIGHT)
-                << "no data in reply to semantic tokens delta request, clearing tokens"
-                << m_client->name() << filePath;
-        m_tokens.remove(filePath);
-        return;
     }
     highlight(filePath);
 }

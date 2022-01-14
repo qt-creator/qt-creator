@@ -83,6 +83,8 @@ public:
     void setTokensHandler(const SemanticTokensHandler &handler) { m_tokensHandler = handler; }
 
 private:
+    void reloadSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
+    void updateSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
     LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
         TextEditor::TextDocument *document) const;
     void handleSemanticTokens(const Utils::FilePath &filePath,
