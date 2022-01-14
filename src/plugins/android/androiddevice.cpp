@@ -294,7 +294,7 @@ bool AndroidDevice::canSupportAbis(const QStringList &abis) const
     // arm64 usually can run {arm, armv7}, x86 can support {arm, armv7}, and 64-bit devices
     // can support their 32-bit variants.
     using namespace ProjectExplorer::Constants;
-    const bool isTheirsArm = abis.contains(ANDROID_ABI_ARMEABI_V7A)
+    const bool isTheirsArm = abis.contains(ANDROID_ABI_ARMEABI)
                                 || abis.contains(ANDROID_ABI_ARMEABI_V7A);
     // The primary ABI at the first index
     const bool oursSupportsArm = ourAbis.first() == ANDROID_ABI_ARM64_V8A
