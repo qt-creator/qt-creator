@@ -212,6 +212,17 @@ private:
     friend class ToolChainFactory;
 };
 
+using Toolchains = QList<ToolChain *>;
+
+class PROJECTEXPLORER_EXPORT ToolchainDetector
+{
+public:
+    ToolchainDetector(const Toolchains &alreadyKnown = {}, const IDevice::ConstPtr &device = {});
+
+    const Toolchains alreadyKnown;
+    const IDevice::ConstPtr device;
+};
+
 class PROJECTEXPLORER_EXPORT ToolChainFactory
 {
     ToolChainFactory(const ToolChainFactory &) = delete;
@@ -226,12 +237,11 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Id supportedToolChainType() const;
 
-    virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                          const IDevice::Ptr &device);
-    virtual QList<ToolChain *> detectForImport(const ToolChainDescription &tcd);
+    virtual Toolchains autoDetect(const ToolchainDetector &detector) const;
+    virtual Toolchains detectForImport(const ToolChainDescription &tcd) const;
 
     virtual bool canCreate() const;
-    virtual ToolChain *create();
+    virtual ToolChain *create() const;
 
     ToolChain *restore(const QVariantMap &data);
 

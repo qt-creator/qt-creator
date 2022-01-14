@@ -218,17 +218,12 @@ QnxToolChainFactory::QnxToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
-        const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
-        const IDevice::Ptr &device)
+Toolchains QnxToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(device);
-
-    QList<ToolChain *> tcs;
-    QList<QnxConfiguration *> configurations =
-            QnxConfigurationManager::instance()->configurations();
-    foreach (QnxConfiguration *configuration, configurations)
-        tcs += configuration->autoDetect(alreadyKnown);
+    Toolchains tcs;
+    const auto configurations = QnxConfigurationManager::instance()->configurations();
+    for (QnxConfiguration *configuration : configurations)
+        tcs += configuration->autoDetect(detector.alreadyKnown);
     return tcs;
 }
 

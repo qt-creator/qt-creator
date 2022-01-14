@@ -439,7 +439,7 @@ static ToolChain *iarToolChain(const FilePath &path, Id language)
             return f->supportedToolChainType() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
         });
         if (iarFactory) {
-            QList<ToolChain*> detected = iarFactory->autoDetect({}, {});
+            Toolchains detected = iarFactory->autoDetect(ToolchainDetector({}, {}));
             if (detected.isEmpty())
                 detected = iarFactory->detectForImport({path, language});
             for (auto tc: detected) {

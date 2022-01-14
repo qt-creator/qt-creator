@@ -539,15 +539,13 @@ const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
     return Internal::g_toolChainFactories;
 }
 
-QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                const IDevice::Ptr &device)
+Toolchains ToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(alreadyKnown)
-    Q_UNUSED(device)
+    Q_UNUSED(detector)
     return {};
 }
 
-QList<ToolChain *> ToolChainFactory::detectForImport(const ToolChainDescription &tcd)
+Toolchains ToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     Q_UNUSED(tcd)
     return {};
@@ -558,7 +556,7 @@ bool ToolChainFactory::canCreate() const
     return m_userCreatable;
 }
 
-ToolChain *ToolChainFactory::create()
+ToolChain *ToolChainFactory::create() const
 {
     return m_toolchainConstructor ? m_toolchainConstructor() : nullptr;
 }
@@ -649,5 +647,9 @@ void ToolChainFactory::setUserCreatable(bool userCreatable)
 {
     m_userCreatable = userCreatable;
 }
+
+ToolchainDetector::ToolchainDetector(const Toolchains &alreadyKnown, const IDevice::ConstPtr &device)
+    : alreadyKnown(alreadyKnown), device(device)
+{}
 
 } // namespace ProjectExplorer

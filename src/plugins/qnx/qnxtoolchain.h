@@ -70,9 +70,8 @@ class QnxToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     QnxToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
-            const ProjectExplorer::IDevice::Ptr &device) final;
+    ProjectExplorer::Toolchains autoDetect(
+            const ProjectExplorer::ToolchainDetector &detector) const final;
 };
 
 //----------------------------------------------------------------------------

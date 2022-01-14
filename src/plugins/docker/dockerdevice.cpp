@@ -729,17 +729,18 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
     return qtVersions;
 }
 
-QList<ToolChain *> KitDetectorPrivate::autoDetectToolChains()
+Toolchains KitDetectorPrivate::autoDetectToolChains()
 {
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
-    QList<ToolChain *> alreadyKnown = ToolChainManager::toolChains();
-    QList<ToolChain *> allNewToolChains;
+    Toolchains alreadyKnown = ToolChainManager::toolChains();
+    Toolchains allNewToolChains;
     QApplication::processEvents();
     emit q->logOutput('\n' + tr("Searching toolchains..."));
     for (ToolChainFactory *factory : factories) {
         emit q->logOutput(tr("Searching toolchains of type %1").arg(factory->displayName()));
-        const QList<ToolChain *> newToolChains = factory->autoDetect(alreadyKnown, m_device.constCast<IDevice>());
+        const ToolchainDetector detector(alreadyKnown, m_device);
+        const Toolchains newToolChains = factory->autoDetect(detector);
         for (ToolChain *toolChain : newToolChains) {
             emit q->logOutput(tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
             toolChain->setDetectionSource(m_sharedId);

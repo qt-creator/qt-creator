@@ -57,9 +57,8 @@ class WebAssemblyToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     WebAssemblyToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
-            const ProjectExplorer::IDevice::Ptr &device) override;
+    ProjectExplorer::Toolchains autoDetect(
+        const ProjectExplorer::ToolchainDetector &detector) const final;
 };
 
 } // namespace Internal

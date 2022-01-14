@@ -601,10 +601,8 @@ static QString extractVersion(const QString &toolsFile, const QString &section)
     return {};
 }
 
-QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                    const IDevice::Ptr &device)
+Toolchains KeilToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(device)
 #ifdef Q_OS_WIN64
     static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\" \
                                         "Windows\\CurrentVersion\\Uninstall\\Keil µVision4";
@@ -651,16 +649,16 @@ QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &al
         registry.endGroup();
     }
 
-    return autoDetectToolchains(candidates, alreadyKnown);
+    return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-QList<ToolChain *> KeilToolChainFactory::autoDetectToolchains(
-        const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
+Toolchains KeilToolChainFactory::autoDetectToolchains(
+        const Candidates &candidates, const Toolchains &alreadyKnown) const
 {
-    QList<ToolChain *> result;
+    Toolchains result;
 
     for (const Candidate &candidate : qAsConst(candidates)) {
-        const QList<ToolChain *> filtered = Utils::filtered(
+        const Toolchains filtered = Utils::filtered(
                     alreadyKnown, [candidate](ToolChain *tc) {
             return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID
                 && tc->compilerCommand() == candidate.compilerPath
@@ -681,8 +679,7 @@ QList<ToolChain *> KeilToolChainFactory::autoDetectToolchains(
     return result;
 }
 
-QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
-        const Candidate &candidate, Utils::Id language) const
+Toolchains KeilToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
 {
     const auto env = Environment::systemEnvironment();
 
