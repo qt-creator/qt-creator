@@ -43,11 +43,13 @@ class ExampleCheckout : public QObject
 public:
     explicit ExampleCheckout(QObject *parent = nullptr);
 
-    Q_INVOKABLE void checkoutExample(const QUrl &url);
+    Q_INVOKABLE void checkoutExample(const QUrl &url, const QString &tempFile, const QString &completeBaseFileName);
 
     QString extractionFolder() const;
 
     ~ExampleCheckout();
+
+    static void registerTypes();
 
 public slots:
     void handleCancel();
@@ -55,6 +57,7 @@ public slots:
 
 signals:
     void finishedSucessfully();
+    void progressChanged(int);
 
 private:
     std::unique_ptr<QDialog> m_dialog;

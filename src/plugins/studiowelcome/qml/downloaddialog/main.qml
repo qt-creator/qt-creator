@@ -45,15 +45,18 @@ Rectangle {
     signal canceled
     signal accepted
 
+    property string tempFile
+    property string completeBaseName
+
     StackLayout {
         id: stackLayout
         anchors.fill: parent
-        currentIndex: 0
+        currentIndex: root.tempFile.length === 0 ? 0 : 1
 
         FileExtractor {
             id: fileExtractor
-            sourceFile: downloader.tempFile
-            archiveName: downloader.completeBaseName
+            archiveName: root.completeBaseName.length === 0 ? downloader.completeBaseName : root.completeBaseName
+            sourceFile: root.tempFile.length === 0 ? downloader.tempFile : root.tempFile
         }
 
         FileDownloader {
