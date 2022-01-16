@@ -116,6 +116,14 @@ def qdump__boost__container__static_vector(d, value):
     qdump__boost__container__vector(d, value)
 
 
+def qform__boost__container__small_vector():
+    return [DisplayFormat.ArrayPlot]
+
+
+def qdump__boost__container__small_vector(d, value):
+    qdump__boost__container__vector(d, value)
+
+
 def qdump__boost__gregorian__date(d, value):
     d.putValue(value.integer(), "juliandate")
 

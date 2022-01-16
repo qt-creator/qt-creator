@@ -6752,6 +6752,29 @@ void tst_Dumpers::dumper_data()
              + Check("v.2.second", FloatValue("65"), "double");
 
 
+    QTest::newRow("BoostSmallVector")
+            << Data("#include <boost/container/small_vector.hpp>\n",
+                    "typedef std::pair<int, double> p;\n"
+                    "boost::container::small_vector<p, 3> v0;\n"
+                    "boost::container::small_vector<p, 3> v2;\n"
+                    "v2.push_back(p(13, 61));\n"
+                    "v2.push_back(p(14, 64));\n"
+                    "boost::container::small_vector<p, 3> v4;\n"
+                    "v4.push_back(p(13, 61));\n"
+                    "v4.push_back(p(14, 64));\n"
+                    "v4.push_back(p(15, 65));\n"
+                    "v4.push_back(p(16, 66));\n",
+                    "&v0, &v2, &v4")
+             + BoostProfile()
+             + Check("v0", "<0 items>", TypePattern("boost::container::small_vector<std::pair<int,double>.*>"))
+             + Check("v2", "<2 items>", TypePattern("boost::container::small_vector<std::pair<int,double>.*>"))
+             + Check("v2.0.first", "13", "int")
+             + Check("v2.1.second", FloatValue("64"), "double")
+             + Check("v4", "<4 items>", TypePattern("boost::container::small_vector<std::pair<int,double>.*>"))
+             + Check("v4.1.first", "14", "int")
+             + Check("v4.3.second", FloatValue("66"), "double");
+
+
     QTest::newRow("BoostUnorderedSet")
             << Data("#include <boost/unordered_set.hpp>\n"
                     "#include <boost/version.hpp>\n"
