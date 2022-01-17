@@ -263,11 +263,13 @@ Row {
         // Build the combobox model
         comboBox.items.clear()
 
-        for (var i = 0; i < urlChooser.defaultItems.length; ++i) {
-            comboBox.items.append({
-                fullPath: urlChooser.defaultItems[i],
-                name: urlChooser.defaultItems[i]
-            })
+        if (urlChooser.defaultItems !== undefined) {
+            for (var i = 0; i < urlChooser.defaultItems.length; ++i) {
+                comboBox.items.append({
+                    fullPath: urlChooser.defaultItems[i],
+                    name: urlChooser.defaultItems[i]
+                })
+            }
         }
 
         for (var j = 0; j < fileModel.fullPathModel.length; ++j) {
