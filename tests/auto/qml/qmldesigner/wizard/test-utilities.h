@@ -26,6 +26,7 @@
 **
 ****************************************************************************/
 
+#include "gmock/gmock-matchers.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -38,8 +39,10 @@
 using ::testing::Return;
 using ::testing::AtLeast;
 using ::testing::ElementsAreArray;
+using ::testing::ElementsAre;
 using ::testing::IsEmpty;
 using ::testing::Not;
+using ::testing::SizeIs;
 
 QT_BEGIN_NAMESPACE
 

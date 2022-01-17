@@ -5,7 +5,7 @@ set(WITH_TESTS ON)
 find_package(Googletest MODULE)
 
 add_qtc_test(tst_qml_wizard
-  DEPENDS Core Utils StudioWelcome QmlDesigner Googletest
+  DEPENDS Core Utils StudioWelcome ProjectExplorer QmlDesigner Googletest
   DEFINES
     QT_CREATOR
     QMLDESIGNER_TEST
@@ -17,8 +17,13 @@ add_qtc_test(tst_qml_wizard
   SOURCES
     wizardfactories-test.cpp
     stylemodel-test.cpp
+    recentpresets-test.cpp
+    presetmodel-test.cpp
     test-utilities.h
+    test-main.cpp
     "${StudioWelcomeDir}/wizardfactories.cpp"
     "${StudioWelcomeDir}/stylemodel.cpp"
+    "${StudioWelcomeDir}/recentpresets.cpp"
+    "${StudioWelcomeDir}/presetmodel.cpp"
 )
 

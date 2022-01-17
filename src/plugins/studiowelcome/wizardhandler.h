@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "newprojectmodel.h"
+#include "presetmodel.h"
 
 #include <utils/filepath.h>
 #include <utils/infolabel.h>
@@ -47,9 +47,10 @@ class WizardHandler: public QObject
     Q_OBJECT
 
 public:
-     //TODO: location should not be needed in reset() -- only when creating the project
-    void reset(const ProjectItem &projectInfo, int projectSelection, const Utils::FilePath &location);
+    void reset(const PresetItem &presetInfo, int presetSelection);
     void setScreenSizeIndex(int index);
+    int screenSizeIndex(const QString &sizeName) const;
+    QString screenSizeName(int index) const;
     int screenSizeIndex() const;
     void setTargetQtVersionIndex(int index);
     bool haveTargetQtVersion() const;
@@ -64,6 +65,8 @@ public:
     void setProjectLocation(const Utils::FilePath &location);
 
     void run(const std::function<void (QWizardPage *)> &processPage);
+
+    PresetItem preset() const { return m_preset; }
 
 signals:
     void deletingWizard();
@@ -88,9 +91,9 @@ private:
     Utils::Wizard *m_wizard = nullptr;
     ProjectExplorer::JsonFieldPage *m_detailsPage = nullptr;
 
-    int m_selectedProject = -1;
+    int m_selectedPreset = -1;
 
-    ProjectItem m_projectItem;
+    PresetItem m_preset;
     Utils::FilePath m_projectLocation;
 };
 

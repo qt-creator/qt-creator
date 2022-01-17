@@ -23,30 +23,42 @@
 **
 ****************************************************************************/
 
+#include "wizardfactories.h"
+#include "algorithm.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
-#include <utils/algorithm.h>
 
-#include "wizardfactories.h"
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <qmldesigner/components/componentcore/theme.h>
 
 using namespace StudioWelcome;
 
 WizardFactories::GetIconUnicodeFunc WizardFactories::m_getIconUnicode = &QmlDesigner::Theme::getIconUnicode;
 
-WizardFactories::WizardFactories(QList<Core::IWizardFactory *> &factories, QWidget *wizardParent, const Utils::Id &platform)
+WizardFactories::WizardFactories(const QList<Core::IWizardFactory *> &factories,
+                                 QWidget *wizardParent,
+                                 const Utils::Id &platform)
     : m_wizardParent{wizardParent}
     , m_platform{platform}
-    , m_factories{factories}
 {
+    m_factories = Utils::filtered(Utils::transform(factories, [](Core::IWizardFactory *f) {
+        return qobject_cast<JsonWizardFactory *>(f);
+    }));
+
     sortByCategoryAndId();
     filter();
-    m_projectItems = makeProjectItemsGroupedByCategory();
+    m_presetItems = makePresetItemsGroupedByCategory();
+}
+
+const Core::IWizardFactory *WizardFactories::front() const
+{
+    return m_factories.front();
 }
 
 void WizardFactories::sortByCategoryAndId()
 {
-    Utils::sort(m_factories, [](Core::IWizardFactory *lhs, Core::IWizardFactory *rhs) {
+    Utils::sort(m_factories, [](JsonWizardFactory *lhs, JsonWizardFactory *rhs) {
         if (lhs->category() == rhs->category())
             return lhs->id().toString() < rhs->id().toString();
         else
@@ -56,34 +68,43 @@ void WizardFactories::sortByCategoryAndId()
 
 void WizardFactories::filter()
 {
-    QList<Core::IWizardFactory *> acceptedFactories = Utils::filtered(m_factories, [&](auto *wizard) {
+    QList<JsonWizardFactory *> acceptedFactories = Utils::filtered(m_factories, [&](auto *wizard) {
         return wizard->isAvailable(m_platform)
-                && wizard->kind() == Core::IWizardFactory::ProjectWizard
-                && wizard->requiredFeatures().contains("QtStudio");
+               && wizard->kind() == JsonWizardFactory::ProjectWizard
+               && wizard->requiredFeatures().contains("QtStudio");
     });
 
     m_factories = acceptedFactories;
 }
 
-ProjectItem WizardFactories::makeProjectItem(Core::IWizardFactory *f, QWidget *parent,
+PresetItem WizardFactories::makePresetItem(JsonWizardFactory *f, QWidget *parent,
                                              const Utils::Id &platform)
 {
     using namespace std::placeholders;
 
+    QString sizeName;
+    auto [index, screenSizes] = f->screenSizeInfoFromPage("Fields");
+
+    if (index < 0 || index >= screenSizes.size())
+        sizeName.clear();
+    else
+        sizeName = screenSizes[index];
+
     return {
         /*.name =*/f->displayName(),
         /*.categoryId =*/f->category(),
-        /*. description =*/f->description(),
+        /*.screenSizeName=*/sizeName,
+        /*.description =*/f->description(),
         /*.qmlPath =*/f->detailsPageQmlPath(),
         /*.fontIconCode =*/m_getIconUnicode(f->fontIconName()),
-        /*.create =*/ std::bind(&Core::IWizardFactory::runWizard, f, _1, parent, platform,
+        /*.create =*/ std::bind(&JsonWizardFactory::runWizard, f, _1, parent, platform,
                                QVariantMap(), false),
     };
 }
 
-std::map<QString, ProjectCategory> WizardFactories::makeProjectItemsGroupedByCategory()
+std::map<QString, WizardCategory> WizardFactories::makePresetItemsGroupedByCategory()
 {
-    QMap<QString, ProjectCategory> categories;
+    QMap<QString, WizardCategory> categories;
 
     for (auto *f : std::as_const(m_factories)) {
         if (!categories.contains(f->category())) {
@@ -92,12 +113,12 @@ std::map<QString, ProjectCategory> WizardFactories::makeProjectItemsGroupedByCat
                 /*.name =*/ f->displayCategory(),
                 /*.items = */
                 {
-                    makeProjectItem(f, m_wizardParent, m_platform),
+                    makePresetItem(f, m_wizardParent, m_platform),
                 },
             };
         } else {
-            auto projectItem = makeProjectItem(f, m_wizardParent, m_platform);
-            categories[f->category()].items.push_back(projectItem);
+            auto presetItem = makePresetItem(f, m_wizardParent, m_platform);
+            categories[f->category()].items.push_back(presetItem);
         }
     }
 

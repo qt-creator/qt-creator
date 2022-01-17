@@ -88,6 +88,7 @@ const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
 const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
 const char NO_TELEMETRY[] = "NoTelemetry";
+const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
 
 QPointer<QQuickWidget> s_view = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
@@ -122,6 +123,8 @@ class UsageStatisticPluginModel : public QObject
     Q_OBJECT
 
     Q_PROPERTY(bool usageStatisticEnabled MEMBER m_usageStatisticEnabled NOTIFY usageStatisticChanged)
+    Q_PROPERTY(bool crashReporterEnabled MEMBER m_crashReporterEnabled NOTIFY crashReporterEnabledChanged)
+
 public:
     explicit UsageStatisticPluginModel(QObject *parent = nullptr)
         : QObject(parent)
@@ -135,7 +138,27 @@ public:
         QVariant value = settings->value(STATISTICS_COLLECTION_MODE);
         m_usageStatisticEnabled = value.isValid() && value.toString() == DETAILED_USAGE_STATISTICS;
 
+        m_crashReporterEnabled = Core::ICore::settings()->value(CRASH_REPORTER_SETTING, false).toBool();
+
         emit usageStatisticChanged();
+        emit crashReporterEnabledChanged();
+    }
+
+    Q_INVOKABLE void setCrashReporterEnabled(bool b)
+    {
+        if (m_crashReporterEnabled == b)
+            return;
+
+        Core::ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
+
+        s_pluginInstance->pauseRemoveSplashTimer();
+
+        const QString restartText = tr("The change will take effect after restart.");
+        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
+        restartDialog.exec();
+
+        s_pluginInstance->resumeRemoveSplashTimer();
+        setupModel();
     }
 
     Q_INVOKABLE void setTelemetryEnabled(bool b)
@@ -160,9 +183,11 @@ public:
 
 signals:
     void usageStatisticChanged();
+    void crashReporterEnabledChanged();
 
 private:
     bool m_usageStatisticEnabled = false;
+    bool m_crashReporterEnabled = false;
 };
 
 class ProjectModel : public QAbstractListModel
@@ -564,7 +589,7 @@ bool StudioWelcomePlugin::delayedInitialize()
 
 #ifdef ENABLE_CRASHPAD
     const bool crashReportingEnabled = true;
-    const bool crashReportingOn = Core::ICore::settings()->value("CrashReportingEnabled", false).toBool();
+    const bool crashReportingOn = Core::ICore::settings()->value(CRASH_REPORTER_SETTING, false).toBool();
 #else
     const bool crashReportingEnabled = false;
     const bool crashReportingOn = false;
