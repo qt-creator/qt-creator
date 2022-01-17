@@ -6,14 +6,16 @@ add_qtc_plugin(StudioWelcome
   SOURCES
     studiowelcomeplugin.cpp studiowelcomeplugin.h
     newprojectdialogimageprovider.cpp newprojectdialogimageprovider.h
-    newprojectmodel.cpp newprojectmodel.h
+    presetmodel.cpp presetmodel.h
     examplecheckout.cpp examplecheckout.h
     studiowelcome_global.h
     qdsnewdialog.cpp qdsnewdialog.h
     wizardfactories.cpp wizardfactories.h
     createproject.cpp createproject.h
     wizardhandler.cpp wizardhandler.h
+    recentpresets.cpp recentpresets.h
     screensizemodel.h
+    algorithm.h
     stylemodel.h stylemodel.cpp
     studiowelcome.qrc
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"

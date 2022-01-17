@@ -84,7 +84,7 @@ public:
             return item->text();
         }
 
-        return "";
+        return {};
     }
 
     QHash<int, QByteArray> roleNames() const override

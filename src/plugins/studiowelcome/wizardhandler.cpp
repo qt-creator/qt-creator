@@ -38,18 +38,17 @@
 
 using namespace StudioWelcome;
 
-void WizardHandler::reset(const ProjectItem &projectInfo, int projectSelection, const Utils::FilePath &location)
+void WizardHandler::reset(const PresetItem &presetInfo, int presetSelection)
 {
-    m_projectItem = projectInfo;
-    m_projectLocation = location;
-    m_selectedProject = projectSelection;
+    m_preset = presetInfo;
+    m_selectedPreset = presetSelection;
 
     if (!m_wizard) {
         setupWizard();
     } else {
         QObject::connect(m_wizard, &QObject::destroyed, this, &WizardHandler::onWizardResetting);
 
-        // DON'T SET `m_selectedProject = -1` --- we are switching now to a separate project.
+        // DON'T SET `m_selectedPreset = -1` --- we are switching now to a separate preset.
         emit deletingWizard();
 
         m_wizard->deleteLater();
@@ -60,7 +59,7 @@ void WizardHandler::destroyWizard()
 {
     emit deletingWizard();
 
-    m_selectedProject = -1;
+    m_selectedPreset = -1;
     m_wizard->deleteLater();
     m_wizard = nullptr;
     m_detailsPage = nullptr;
@@ -68,7 +67,7 @@ void WizardHandler::destroyWizard()
 
 void WizardHandler::setupWizard()
 {
-    m_wizard = m_projectItem.create(m_projectLocation);
+    m_wizard = m_preset.create(m_projectLocation);
     if (!m_wizard) {
         emit wizardCreationFailed();
         return;
@@ -161,8 +160,8 @@ void WizardHandler::onWizardResetting()
 
     // if have a wizard request pending => create new wizard
     // note: we always have a wizard request pending here, unless the dialogbox was requested to be destroyed.
-    // if m_selectedProject != -1 => the wizard was destroyed as a result of reset to a different project type
-    if (m_selectedProject > -1)
+    // if m_selectedPreset != -1 => the wizard was destroyed as a result of reset to a different preset type
+    if (m_selectedPreset > -1)
         setupWizard();
 }
 
@@ -175,6 +174,20 @@ void WizardHandler::setScreenSizeIndex(int index)
     cbfield->selectRow(index);
 }
 
+QString WizardHandler::screenSizeName(int index) const
+{
+    auto *field = m_detailsPage->jsonField("ScreenFactor");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return "");
+
+    QStandardItemModel *model = cbfield->model();
+    if (index < 0 || index >= model->rowCount())
+        return {};
+
+    QString text = model->item(index)->text();
+    return text;
+}
+
 int WizardHandler::screenSizeIndex() const
 {
     auto *field = m_detailsPage->jsonField("ScreenFactor");
@@ -182,6 +195,24 @@ int WizardHandler::screenSizeIndex() const
     QTC_ASSERT(cbfield, return -1);
 
     return cbfield->selectedRow();
+}
+
+int WizardHandler::screenSizeIndex(const QString &sizeName) const
+{
+    auto *field = m_detailsPage->jsonField("ScreenFactor");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return false);
+
+    const QStandardItemModel *model = cbfield->model();
+    for (int i = 0; i < model->rowCount(); ++i) {
+        const QStandardItem *item = model->item(i, 0);
+        const QString text = item->text();
+
+        if (text == sizeName)
+            return i;
+    }
+
+    return -1;
 }
 
 void WizardHandler::setTargetQtVersionIndex(int index)
@@ -250,7 +281,7 @@ void WizardHandler::run(const std::function<void(QWizardPage *)> &processPage)
         m_wizard->next();
     } while (-1 != nextId);
 
-    m_selectedProject = -1;
+    m_selectedPreset = -1;
 
     // Note: don't call `emit deletingWizard()` here.
 

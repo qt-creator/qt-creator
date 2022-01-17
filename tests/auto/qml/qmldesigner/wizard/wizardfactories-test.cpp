@@ -26,15 +26,17 @@
 #include "test-utilities.h"
 
 #include <coreplugin/iwizardfactory.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include "wizardfactories.h"
 
 using namespace StudioWelcome;
 using Core::IWizardFactory;
+using ProjectExplorer::JsonWizardFactory;
 
 namespace {
 
-class MockWizardFactory : public IWizardFactory
+class MockWizardFactory : public JsonWizardFactory
 {
 public:
     MOCK_METHOD(Utils::Wizard *, runWizardImpl,
@@ -46,6 +48,8 @@ public:
                     bool
                  ),
                 (override));
+
+    MOCK_METHOD((std::pair<int, QStringList>), screenSizeInfoFromPage, (const QString &), (const));
 
     MOCK_METHOD(bool, isAvailable, (Utils::Id), (const, override));
 };
@@ -78,12 +82,14 @@ protected:
 
     // a good wizard factory is a wizard factory that is not filtered out, and which is available on
     // platform `this->platform`
-    IWizardFactory *aGoodWizardFactory(const QString &name = "", const QString &id = "", const QString &categoryId = "")
+    IWizardFactory *aGoodWizardFactory(const QString &name = "", const QString &id = "",
+            const QString &categoryId = "", const std::pair<int, QStringList> &sizes = {})
     {
         MockWizardFactory *factory = new MockWizardFactory;
         m_factories.push_back(std::unique_ptr<IWizardFactory>(factory));
 
-        configureFactory(*factory, IWizardFactory::ProjectWizard, /*req QtStudio*/true, {platform, true});
+        configureFactory(*factory, IWizardFactory::ProjectWizard, /*req QtStudio*/true,
+                         {platform, true}, sizes);
 
         if (!name.isEmpty())
             factory->setDisplayName(name);
@@ -97,7 +103,8 @@ protected:
 
     void configureFactory(MockWizardFactory &factory, IWizardFactory::WizardKind kind,
                           bool requiresQtStudio = true,
-                          const QPair<QString, bool> &availableOnPlatform = {})
+                          const QPair<QString, bool> &availableOnPlatform = {},
+                          const QPair<int, QStringList> &sizes = {})
     {
         if (kind == IWizardFactory::ProjectWizard) {
             QSet<Utils::Id> supported{Utils::Id{"QmlProjectManager.QmlProject"}};
@@ -127,6 +134,14 @@ protected:
                   .Times(AtLeast(1))
                   .WillRepeatedly(Return(value));
         }
+
+        auto screenSizes = (sizes == std::pair<int, QStringList>{}
+                                ? std::make_pair(0, QStringList({"640 x 480"}))
+                                : sizes);
+
+        EXPECT_CALL(factory, screenSizeInfoFromPage(QString("Fields")))
+            .Times(AtLeast(0))
+            .WillRepeatedly(Return(screenSizes));
     }
 
     WizardFactories makeWizardFactoriesHandler(QList<IWizardFactory *> source,
@@ -143,15 +158,21 @@ private:
     WizardFactories::GetIconUnicodeFunc oldIconUnicodeFunc;
 };
 
-inline QStringList projectNames(const ProjectCategory &cat)
+QStringList presetNames(const WizardCategory &cat)
 {
-    QStringList result = Utils::transform<QStringList>(cat.items, &ProjectItem::name);
+    QStringList result = Utils::transform<QStringList>(cat.items, &PresetItem::name);
     return result;
 }
 
-inline QStringList categoryNames(const std::map<QString, ProjectCategory> &projects)
+QStringList screenSizes(const WizardCategory &cat)
 {
-    QMap<QString, ProjectCategory> qmap{projects};
+    QStringList result = Utils::transform<QStringList>(cat.items, &PresetItem::screenSizeName);
+    return result;
+}
+
+QStringList categoryNames(const std::map<QString, WizardCategory> &presets)
+{
+    const QMap<QString, WizardCategory> qmap{presets};
     return qmap.keys();
 }
 
@@ -166,9 +187,9 @@ TEST_F(QdsWizardFactories, haveEmptyListOfWizardFactories)
                 /*get wizards supporting platform*/ "platform"
                 );
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(projects, IsEmpty());
+    ASSERT_THAT(presets, IsEmpty());
 }
 
 TEST_F(QdsWizardFactories, filtersOutNonProjectWizardFactories)
@@ -178,9 +199,9 @@ TEST_F(QdsWizardFactories, filtersOutNonProjectWizardFactories)
                 /*get wizards supporting platform*/ platform
                 );
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(projects, IsEmpty());
+    ASSERT_THAT(presets, IsEmpty());
 }
 
 TEST_F(QdsWizardFactories, filtersOutWizardFactoriesUnavailableForPlatform)
@@ -190,9 +211,9 @@ TEST_F(QdsWizardFactories, filtersOutWizardFactoriesUnavailableForPlatform)
                 /*get wizards supporting platform*/ "Non-Desktop"
                 );
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(projects, IsEmpty());
+    ASSERT_THAT(presets, IsEmpty());
 }
 
 TEST_F(QdsWizardFactories, filtersOutWizardFactoriesThatDontRequireQtStudio)
@@ -203,18 +224,48 @@ TEST_F(QdsWizardFactories, filtersOutWizardFactoriesThatDontRequireQtStudio)
                 },
                 /*get wizards supporting platform*/ platform);
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(projects, IsEmpty());
+    ASSERT_THAT(presets, IsEmpty());
 }
 
 TEST_F(QdsWizardFactories, doesNotFilterOutAGoodWizardFactory)
 {
     WizardFactories wf = makeWizardFactoriesHandler({aGoodWizardFactory()}, platform);
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(projects, Not(IsEmpty()));
+    ASSERT_THAT(presets, Not(IsEmpty()));
+}
+
+TEST_F(QdsWizardFactories, DISABLED_buildsPresetItemWithCorrectSizeName)
+{
+    WizardFactories wf = makeWizardFactoriesHandler(
+                {
+                    aGoodWizardFactory("A", "A_id", "A.category", {1, {"size 0", "size 1"}}),
+                },
+                platform);
+
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
+
+    ASSERT_THAT(categoryNames(presets), ElementsAreArray({"A.category"}));
+    ASSERT_THAT(presetNames(presets["A.category"]), ElementsAreArray({"A"}));
+    ASSERT_THAT(screenSizes(presets["A.category"]), ElementsAreArray({"size 1"}));
+}
+
+TEST_F(QdsWizardFactories, whenSizeInfoIsBadBuildsPresetItemWithEmptySizeName)
+{
+    WizardFactories wf = makeWizardFactoriesHandler(
+                {
+                    aGoodWizardFactory("A", "A_id", "A.category", {1, {/*empty*/}}),
+                },
+                platform);
+
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
+
+    ASSERT_THAT(categoryNames(presets), ElementsAreArray({"A.category"}));
+    ASSERT_THAT(presetNames(presets["A.category"]), ElementsAreArray({"A"}));
+    ASSERT_THAT(screenSizes(presets["A.category"]), ElementsAreArray({""}));
 }
 
 TEST_F(QdsWizardFactories, sortsWizardFactoriesByCategory)
@@ -226,11 +277,11 @@ TEST_F(QdsWizardFactories, sortsWizardFactoriesByCategory)
                 },
                 platform);
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(categoryNames(projects), ElementsAreArray({"A.category", "Z.category"}));
-    ASSERT_THAT(projectNames(projects["A.category"]), ElementsAreArray({"X"}));
-    ASSERT_THAT(projectNames(projects["Z.category"]), ElementsAreArray({"B"}));
+    ASSERT_THAT(categoryNames(presets), ElementsAreArray({"A.category", "Z.category"}));
+    ASSERT_THAT(presetNames(presets["A.category"]), ElementsAreArray({"X"}));
+    ASSERT_THAT(presetNames(presets["Z.category"]), ElementsAreArray({"B"}));
 }
 
 TEST_F(QdsWizardFactories, sortsWizardFactoriesById)
@@ -242,10 +293,10 @@ TEST_F(QdsWizardFactories, sortsWizardFactoriesById)
                 },
                 platform);
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(categoryNames(projects), ElementsAreArray({"category"}));
-    ASSERT_THAT(projectNames(projects["category"]), ElementsAreArray({"X", "B"}));
+    ASSERT_THAT(categoryNames(presets), ElementsAreArray({"category"}));
+    ASSERT_THAT(presetNames(presets["category"]), ElementsAreArray({"X", "B"}));
 }
 
 TEST_F(QdsWizardFactories, groupsWizardFactoriesByCategory)
@@ -258,14 +309,14 @@ TEST_F(QdsWizardFactories, groupsWizardFactoriesByCategory)
                 },
                 platform);
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(categoryNames(projects), ElementsAreArray({"A.category", "Z.category"}));
-    ASSERT_THAT(projectNames(projects["A.category"]), ElementsAreArray({"A", "B"}));
-    ASSERT_THAT(projectNames(projects["Z.category"]), ElementsAreArray({"C"}));
+    ASSERT_THAT(categoryNames(presets), ElementsAreArray({"A.category", "Z.category"}));
+    ASSERT_THAT(presetNames(presets["A.category"]), ElementsAreArray({"A", "B"}));
+    ASSERT_THAT(presetNames(presets["Z.category"]), ElementsAreArray({"C"}));
 }
 
-TEST_F(QdsWizardFactories, createsProjectItemAndCategoryCorrectlyFromWizardFactory)
+TEST_F(QdsWizardFactories, createsPresetItemAndCategoryCorrectlyFromWizardFactory)
 {
     IWizardFactory *source = aGoodWizardFactory("myName", "myId", "myCategoryId");
 
@@ -280,23 +331,19 @@ TEST_F(QdsWizardFactories, createsProjectItemAndCategoryCorrectlyFromWizardFacto
 
     WizardFactories wf = makeWizardFactoriesHandler({source}, platform);
 
-    std::map<QString, ProjectCategory> projects = wf.projectsGroupedByCategory();
+    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 
-    ASSERT_THAT(categoryNames(projects), ElementsAreArray({"myCategoryId"}));
-    ASSERT_THAT(projectNames(projects["myCategoryId"]), ElementsAreArray({"myName"}));
+    ASSERT_THAT(categoryNames(presets), ElementsAreArray({"myCategoryId"}));
+    ASSERT_THAT(presetNames(presets["myCategoryId"]), ElementsAreArray({"myName"}));
 
-    auto category = projects["myCategoryId"];
+    auto category = presets["myCategoryId"];
     ASSERT_EQ("myCategoryId", category.id);
     ASSERT_EQ("myDisplayCategory", category.name);
 
-    auto projectItem = projects["myCategoryId"].items[0];
-    ASSERT_EQ("myName", projectItem.name);
-    ASSERT_EQ("myDescription", projectItem.description);
-    ASSERT_EQ("qrc:/my/qml/path", projectItem.qmlPath.toString());
-    ASSERT_EQ("\uABCD", projectItem.fontIconCode);
+    auto presetItem = presets["myCategoryId"].items[0];
+    ASSERT_EQ("myName", presetItem.name);
+    ASSERT_EQ("myDescription", presetItem.description);
+    ASSERT_EQ("qrc:/my/qml/path", presetItem.qmlPath.toString());
+    ASSERT_EQ("\uABCD", presetItem.fontIconCode);
 }
 
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

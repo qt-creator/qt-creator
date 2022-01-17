@@ -28,6 +28,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 #include <qmldesigner/components/componentcore/theme.h>
 
 #include "createproject.h"
@@ -67,16 +68,17 @@ QString uniqueProjectName(const QString &path)
 
 QdsNewDialog::QdsNewDialog(QWidget *parent)
     : m_dialog{new QQuickWidget(parent)}
-    , m_categoryModel{new NewProjectCategoryModel(this)}
-    , m_projectModel{new NewProjectModel(this)}
+    , m_categoryModel{new PresetCategoryModel(&m_presetData, this)}
+    , m_presetModel{new PresetModel(&m_presetData, this)}
     , m_screenSizeModel{new ScreenSizeModel(this)}
     , m_styleModel{new StyleModel(this)}
+    , m_recentsStore{Core::ICore::settings()}
 {
     setParent(m_dialog);
 
     m_dialog->rootContext()->setContextProperties(QVector<QQmlContext::PropertyPair>{
         {{"categoryModel"}, QVariant::fromValue(m_categoryModel.data())},
-        {{"projectModel"}, QVariant::fromValue(m_projectModel.data())},
+        {{"presetModel"}, QVariant::fromValue(m_presetModel.data())},
         {{"screenSizeModel"}, QVariant::fromValue(m_screenSizeModel.data())},
         {{"styleModel"}, QVariant::fromValue(m_styleModel.data())},
         {{"dialogBox"}, QVariant::fromValue(this)},
@@ -94,7 +96,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_dialog->setWindowModality(Qt::ApplicationModal);
     m_dialog->setWindowFlags(Qt::Dialog);
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    m_dialog->setMinimumSize(1066, 554);
+    m_dialog->setMinimumSize(1149, 554);
 
     QSize screenSize = m_dialog->screen()->geometry().size();
     if (screenSize.height() < 1080)
@@ -174,7 +176,12 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
     m_styleModel->setBackendModel(styleModel);
 
     if (m_qmlDetailsLoaded) {
+        int index = m_wizard.screenSizeIndex(m_currentPreset->screenSizeName);
+        if (index > -1)
+            setScreenSizeIndex(index);
+
         m_screenSizeModel->reset();
+
         emit haveVirtualKeyboardChanged();
         emit haveTargetQtVersionChanged();
 
@@ -186,12 +193,12 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
         m_styleModel->reset();
 }
 
-QString QdsNewDialog::currentProjectQmlPath() const
+QString QdsNewDialog::currentPresetQmlPath() const
 {
-    if (!m_currentProject || m_currentProject->qmlPath.isEmpty())
-        return "";
+    if (!m_currentPreset || m_currentPreset->qmlPath.isEmpty())
+        return {};
 
-    return m_currentProject->qmlPath.toString();
+    return m_currentPreset->qmlPath.toString();
 }
 
 void QdsNewDialog::setScreenSizeIndex(int index)
@@ -259,11 +266,14 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
 
     WizardFactories factories{factories_, m_dialog, platform};
 
-    m_categoryModel->setProjects(factories.projectsGroupedByCategory()); // calls model reset
-    m_projectModel->setProjects(factories.projectsGroupedByCategory()); // calls model reset
+    std::vector<RecentPreset> recents = m_recentsStore.fetchAll();
+    m_presetData.setData(factories.presetsGroupedByCategory(), recents);
 
-    if (m_qmlSelectedProject > -1)
-        setSelectedProject(m_qmlSelectedProject);
+    m_categoryModel->reset();
+    m_presetModel->reset();
+
+    if (m_qmlSelectedPreset > -1)
+        setSelectedPreset(m_qmlSelectedPreset);
 
     if (factories.empty())
         return; // TODO: some message box?
@@ -277,8 +287,13 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
     m_qmlProjectLocation = Utils::FilePath::fromString(QDir::toNativeSeparators(projectLocation.toString()));
     emit projectLocationChanged(); // So that QML knows to update the field
 
-    if (m_qmlDetailsLoaded)
+    if (m_qmlDetailsLoaded) {
+        int index = m_wizard.screenSizeIndex(m_currentPreset->screenSizeName);
+        if (index > -1)
+            setScreenSizeIndex(index);
+
         m_screenSizeModel->reset();
+    }
 
     if (m_qmlStylesLoaded)
         m_styleModel->reset();
@@ -318,6 +333,11 @@ void QdsNewDialog::accept()
         .withTargetQtVersion(m_qmlTargetQtVersionIndex)
         .execute();
 
+    PresetItem item = m_wizard.preset();
+    QString screenSize = m_wizard.screenSizeName(m_qmlScreenSizeIndex);
+
+    m_recentsStore.add(item.categoryId, item.name, screenSize);
+
     m_dialog->close();
     m_dialog->deleteLater();
     m_dialog = nullptr;
@@ -340,17 +360,17 @@ QString QdsNewDialog::chooseProjectLocation()
     return QDir::toNativeSeparators(newPath.toString());
 }
 
-void QdsNewDialog::setSelectedProject(int selection)
+void QdsNewDialog::setSelectedPreset(int selection)
 {
-    if (m_qmlSelectedProject != selection || m_projectPage != m_projectModel->page()) {
-        m_qmlSelectedProject = selection;
+    if (m_qmlSelectedPreset != selection || m_presetPage != m_presetModel->page()) {
+        m_qmlSelectedPreset = selection;
 
-        m_currentProject = m_projectModel->project(m_qmlSelectedProject);
-        if (m_currentProject) {
-            setProjectDescription(m_currentProject->description);
+        m_currentPreset = m_presetModel->preset(m_qmlSelectedPreset);
+        if (m_currentPreset) {
+            setProjectDescription(m_currentPreset->description);
 
-            m_projectPage = m_projectModel->page();
-            m_wizard.reset(m_currentProject.value(), m_qmlSelectedProject, m_qmlProjectLocation);
+            m_presetPage = m_presetModel->page();
+            m_wizard.reset(m_currentPreset.value(), m_qmlSelectedPreset);
         }
     }
 }

@@ -221,7 +221,7 @@ void FunctionHintProposalWidget::closeProposal()
 
 bool FunctionHintProposalWidget::proposalIsVisible() const
 {
-    return d->m_popupFrame->isVisible();
+    return d->m_popupFrame && d->m_popupFrame->isVisible();
 }
 
 void FunctionHintProposalWidget::abort()

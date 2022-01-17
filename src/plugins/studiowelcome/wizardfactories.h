@@ -25,13 +25,19 @@
 
 #pragma once
 
-#include "newprojectmodel.h"
+#include "presetmodel.h"
 
 #include <utils/id.h>
 
 namespace Core {
 class IWizardFactory;
 }
+
+namespace ProjectExplorer {
+class JsonWizardFactory;
+}
+
+using ProjectExplorer::JsonWizardFactory;
 
 namespace StudioWelcome {
 
@@ -41,12 +47,12 @@ public:
     using GetIconUnicodeFunc = QString (*)(const QString &);
 
 public:
-    WizardFactories(QList<Core::IWizardFactory *> &factories, QWidget *wizardParent,
+    WizardFactories(const QList<Core::IWizardFactory *> &factories, QWidget *wizardParent,
                     const Utils::Id &platform);
 
-    const Core::IWizardFactory *front() const { return m_factories.front(); }
-    const std::map<QString, ProjectCategory> &projectsGroupedByCategory() const
-    { return m_projectItems; }
+    const Core::IWizardFactory *front() const;
+    const std::map<QString, WizardCategory> &presetsGroupedByCategory() const
+    { return m_presetItems; }
 
     bool empty() const { return m_factories.empty(); }
     static GetIconUnicodeFunc setIconUnicodeCallback(GetIconUnicodeFunc cb)
@@ -58,15 +64,15 @@ private:
     void sortByCategoryAndId();
     void filter();
 
-    ProjectItem makeProjectItem(Core::IWizardFactory *f, QWidget *parent, const Utils::Id &platform);
-    std::map<QString, ProjectCategory> makeProjectItemsGroupedByCategory();
+    PresetItem makePresetItem(JsonWizardFactory *f, QWidget *parent, const Utils::Id &platform);
+    std::map<QString, WizardCategory> makePresetItemsGroupedByCategory();
 
 private:
     QWidget *m_wizardParent;
     Utils::Id m_platform; // filter wizards to only those supported by this platform.
 
-    QList<Core::IWizardFactory *> m_factories;
-    std::map<QString, ProjectCategory> m_projectItems;
+    QList<JsonWizardFactory *> m_factories;
+    std::map<QString, WizardCategory> m_presetItems;
 
     static GetIconUnicodeFunc m_getIconUnicode;
 };

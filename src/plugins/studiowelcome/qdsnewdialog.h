@@ -32,9 +32,10 @@
 #include <utils/optional.h>
 
 #include "wizardhandler.h"
-#include "newprojectmodel.h"
+#include "presetmodel.h"
 #include "screensizemodel.h"
 #include "stylemodel.h"
+#include "recentpresets.h"
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
@@ -46,7 +47,7 @@ class QdsNewDialog : public QObject, public Core::NewDialog
     Q_OBJECT
 
 public:
-    Q_PROPERTY(int selectedProject MEMBER m_qmlSelectedProject WRITE setSelectedProject)
+    Q_PROPERTY(int selectedPreset MEMBER m_qmlSelectedPreset WRITE setSelectedPreset)
     Q_PROPERTY(QString projectName MEMBER m_qmlProjectName WRITE setProjectName NOTIFY projectNameChanged)
     Q_PROPERTY(QString projectLocation MEMBER m_qmlProjectLocation READ projectLocation WRITE setProjectLocation NOTIFY projectLocationChanged)
     Q_PROPERTY(QString projectDescription MEMBER m_qmlProjectDescription READ projectDescription WRITE setProjectDescription NOTIFY projectDescriptionChanged)
@@ -64,7 +65,8 @@ public:
     Q_PROPERTY(bool detailsLoaded MEMBER m_qmlDetailsLoaded)
     Q_PROPERTY(bool stylesLoaded MEMBER m_qmlStylesLoaded)
 
-    Q_INVOKABLE QString currentProjectQmlPath() const;
+    Q_INVOKABLE QString currentPresetQmlPath() const;
+    // TODO: screen size index should better be a property
     Q_INVOKABLE void setScreenSizeIndex(int index); // called when ComboBox item is "activated"
     Q_INVOKABLE int screenSizeIndex() const;
     Q_INVOKABLE void setTargetQtVersion(int index);
@@ -79,7 +81,7 @@ public:
                             const QVariantMap &extraVariables) override;
     void setWindowTitle(const QString &title) override { m_dialog->setWindowTitle(title); }
     void showDialog() override;
-    void setSelectedProject(int selection);
+    void setSelectedPreset(int selection);
 
     void setStyleIndex(int index);
     int getStyleIndex() const;
@@ -135,14 +137,16 @@ private slots:
 
 private:
     QQuickWidget *m_dialog = nullptr;
-    QPointer<NewProjectCategoryModel> m_categoryModel;
-    QPointer<NewProjectModel> m_projectModel;
+
+    PresetData m_presetData;
+    QPointer<PresetCategoryModel> m_categoryModel;
+    QPointer<PresetModel> m_presetModel;
     QPointer<ScreenSizeModel> m_screenSizeModel;
     QPointer<StyleModel> m_styleModel;
     QString m_qmlProjectName;
     Utils::FilePath m_qmlProjectLocation;
     QString m_qmlProjectDescription;
-    int m_qmlSelectedProject = -1;
+    int m_qmlSelectedPreset = -1;
     int m_qmlScreenSizeIndex = -1;
     int m_qmlTargetQtVersionIndex = -1;
     // m_qmlStyleIndex is like a cache, so it needs to be updated on get()
@@ -155,7 +159,7 @@ private:
     QString m_qmlStatusMessage;
     QString m_qmlStatusType;
 
-    int m_projectPage = -1; // i.e. the page in the Presets View
+    int m_presetPage = -1; // i.e. the page in the Presets View
 
     QString m_qmlCustomWidth;
     QString m_qmlCustomHeight;
@@ -163,9 +167,10 @@ private:
     bool m_qmlDetailsLoaded = false;
     bool m_qmlStylesLoaded = false;
 
-    Utils::optional<ProjectItem> m_currentProject;
+    Utils::optional<PresetItem> m_currentPreset;
 
     WizardHandler m_wizard;
+    RecentPresetsStore m_recentsStore;
 };
 
 } //namespace StudioWelcome
