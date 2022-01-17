@@ -778,7 +778,7 @@ IEditor *FormEditorData::createEditor()
     if (formWindowEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
                                  tr("This file can only be edited in <b>Design</b> mode."));
-        info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
+        info.addCustomButton(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         formWindowEditor->document()->infoBar()->addInfo(info);
     }
     return formWindowEditor;

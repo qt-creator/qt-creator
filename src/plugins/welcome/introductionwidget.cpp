@@ -60,7 +60,7 @@ void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *se
                 "interface elements and shows how they are used. To take the tour later, "
                 "select Help > UI Tour."),
              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.setCustomButtonInfo(tr("Take UI Tour"), [parent] {
+    info.addCustomButton(tr("Take UI Tour"), [parent] {
         Core::ICore::infoBar()->removeInfo(kTakeTourSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);
         auto intro = new IntroductionWidget(parent);

@@ -315,7 +315,7 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
                                  tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
                                      .arg(m_document->displayName(),
                                           QString::fromLatin1(m_document->codec()->name())));
-        info.setCustomButtonInfo(tr("Select Encoding"), [this]() { m_document->selectEncoding(); });
+        info.addCustomButton(tr("Select Encoding"), [this]() { m_document->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);

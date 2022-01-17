@@ -85,10 +85,9 @@ InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _
 {
 }
 
-void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, CallBack callBack)
+void InfoBarEntry::addCustomButton(const QString &buttonText, CallBack callBack)
 {
-    m_buttonText = _buttonText;
-    m_buttonCallBack = callBack;
+    m_buttons.append({buttonText, callBack});
 }
 
 void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
@@ -317,11 +316,10 @@ void InfoBarDisplay::update()
             hbox->addWidget(cb);
         }
 
-        if (!info.m_buttonText.isEmpty()) {
+        for (const InfoBarEntry::Button &button : qAsConst(info.m_buttons)) {
             auto infoWidgetButton = new QToolButton;
-            infoWidgetButton->setText(info.m_buttonText);
-            connect(infoWidgetButton, &QAbstractButton::clicked, [info]() { info.m_buttonCallBack(); });
-
+            infoWidgetButton->setText(button.text);
+            connect(infoWidgetButton, &QAbstractButton::clicked, [button]() { button.callback(); });
             hbox->addWidget(infoWidgetButton);
         }
 

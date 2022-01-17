@@ -382,8 +382,8 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         Utils::InfoBarEntry info(installPylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.setCustomButtonInfo(tr("Install"),
-                                 [=]() { installPythonLanguageServer(python, document); });
+        info.addCustomButton(tr("Install"),
+                             [=]() { installPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
     } else if (state.state == PythonLanguageServerState::AlreadyInstalled
@@ -394,8 +394,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         Utils::InfoBarEntry info(startPylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.setCustomButtonInfo(tr("Set Up"),
-                                 [=]() { setupPythonLanguageServer(python, document); });
+        info.addCustomButton(tr("Set Up"), [=]() { setupPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
     } else if (state.state == PythonLanguageServerState::ConfiguredButDisabled
@@ -405,8 +404,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         Utils::InfoBarEntry info(enablePylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.setCustomButtonInfo(tr("Enable"),
-                                 [=]() { enablePythonLanguageServer(python, document); });
+        info.addCustomButton(tr("Enable"), [=]() { enablePythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
     }

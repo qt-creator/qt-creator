@@ -308,7 +308,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
                                              .arg(versionControl->displayName()),
                                          Utils::InfoBarEntry::GlobalSuppression::Enabled);
                 d->m_unconfiguredVcs = versionControl;
-                info.setCustomButtonInfo(ICore::msgShowOptionsDialog(), []() {
+                info.addCustomButton(ICore::msgShowOptionsDialog(), []() {
                     QTC_ASSERT(d->m_unconfiguredVcs, return);
                     ICore::showOptionsDialog(d->m_unconfiguredVcs->id());
                  });

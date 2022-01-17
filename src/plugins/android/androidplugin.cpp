@@ -195,7 +195,7 @@ void AndroidPlugin::askUserAboutAndroidSetup()
                 "Android kits can be usable and all essential packages are installed. "
                 "To do it later, select Options > Devices > Android."),
              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.setCustomButtonInfo(tr("Configure Android"), [this] {
+    info.addCustomButton(tr("Configure Android"), [this] {
         Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
         QTimer::singleShot(0, this, [this]() { d->potentialKit.executeFromMenu(); });

@@ -108,7 +108,7 @@ void WebAssemblyPlugin::askUserAboutEmSdkSetup()
                       tr("Setup Emscripten SDK for WebAssembly? "
                          "To do it later, select Options > Devices > WebAssembly."),
                       InfoBarEntry::GlobalSuppression::Enabled);
-    info.setCustomButtonInfo(tr("Setup Emscripten SDK"), [setupWebAssemblyEmSdk] {
+    info.addCustomButton(tr("Setup Emscripten SDK"), [setupWebAssemblyEmSdk] {
         ICore::infoBar()->removeInfo(setupWebAssemblyEmSdk);
         QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
     });

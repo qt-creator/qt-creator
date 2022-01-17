@@ -139,7 +139,7 @@ static InfoBarEntry createMinimizableInfo(const Id &id,
     // The minimizer() might delete the "Minimize" button immediately and as
     // result invalid reads will happen in QToolButton::mouseReleaseEvent().
     // Avoid this by running the minimizer in the next event loop iteration.
-    info.setCustomButtonInfo(MinimizableInfoBars::tr("Minimize"), [minimizer] {
+    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [minimizer] {
         QMetaObject::invokeMethod(settings(), [minimizer] { minimizer(); }, Qt::QueuedConnection);
     });
 

@@ -2034,12 +2034,12 @@ void EditorManagerPrivate::updateMakeWritableWarning()
                 InfoBarEntry info(Id(kMakeWritableWarning),
                                   tr("<b>Warning:</b> This file was not opened in %1 yet.")
                                   .arg(versionControl->displayName()));
-                info.setCustomButtonInfo(tr("Open"), &vcsOpenCurrentEditor);
+                info.addCustomButton(tr("Open"), &vcsOpenCurrentEditor);
                 document->infoBar()->addInfo(info);
             } else {
                 InfoBarEntry info(Id(kMakeWritableWarning),
                                   tr("<b>Warning:</b> You are changing a read-only file."));
-                info.setCustomButtonInfo(tr("Make Writable"), &makeCurrentEditorWritable);
+                info.addCustomButton(tr("Make Writable"), &makeCurrentEditorWritable);
                 document->infoBar()->addInfo(info);
             }
         } else {

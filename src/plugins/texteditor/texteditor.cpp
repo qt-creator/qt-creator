@@ -1599,7 +1599,7 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
         InfoBarEntry info(selectEncodingId,
             TextEditorWidget::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
                 .arg(m_document->displayName(), QString::fromLatin1(m_document->codec()->name())));
-        info.setCustomButtonInfo(TextEditorWidget::tr("Select Encoding"), [this]() { q->selectEncoding(); });
+        info.addCustomButton(TextEditorWidget::tr("Select Encoding"), [this]() { q->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);
@@ -3234,7 +3234,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
                           BaseTextEditor::tr("A highlight definition was not found for this file. "
                                              "Would you like to download additional highlight definition files?"),
                           InfoBarEntry::GlobalSuppression::Enabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Download Definitions"), [missing, this]() {
+        info.addCustomButton(BaseTextEditor::tr("Download Definitions"), [missing, this]() {
             m_document->infoBar()->removeInfo(missing);
             Highlighter::downloadDefinitions();
         });
@@ -3250,7 +3250,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
             this->configureGenericHighlighter(Highlighter::definitionForName(definition));
         });
 
-        info.setCustomButtonInfo(BaseTextEditor::tr("Remember My Choice"), [multiple, this]() {
+        info.addCustomButton(BaseTextEditor::tr("Remember My Choice"), [multiple, this]() {
             m_document->infoBar()->removeInfo(multiple);
             rememberCurrentSyntaxDefinition();
         });

@@ -57,7 +57,7 @@ public:
     InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression = GlobalSuppression::Disabled);
 
     using CallBack = std::function<void()>;
-    void setCustomButtonInfo(const QString &_buttonText, CallBack callBack);
+    void addCustomButton(const QString &_buttonText, CallBack callBack);
     void setCancelButtonInfo(CallBack callBack);
     void setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack);
     using ComboCallBack = std::function<void(const QString &)>;
@@ -68,10 +68,15 @@ public:
     void setDetailsWidgetCreator(const DetailsWidgetCreator &creator);
 
 private:
+    struct Button
+    {
+        QString text;
+        CallBack callback;
+    };
+
     Id m_id;
     QString m_infoText;
-    QString m_buttonText;
-    CallBack m_buttonCallBack;
+    QList<Button> m_buttons;
     QString m_cancelButtonText;
     CallBack m_cancelButtonCallBack;
     GlobalSuppression m_globalSuppression;

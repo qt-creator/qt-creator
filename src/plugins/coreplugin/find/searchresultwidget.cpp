@@ -285,7 +285,7 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
                           tr("The search resulted in more than %n items, do you still want to continue?",
                              nullptr, SEARCHRESULT_WARNING_LIMIT));
         info.setCancelButtonInfo(tr("Cancel"), [this]() { cancelAfterSizeWarning(); });
-        info.setCustomButtonInfo(tr("Continue"), [this]() { continueAfterSizeWarning(); });
+        info.addCustomButton(tr("Continue"), [this]() { continueAfterSizeWarning(); });
         m_infoBar.addInfo(info);
         emit requestPopup(false/*no focus*/);
     }

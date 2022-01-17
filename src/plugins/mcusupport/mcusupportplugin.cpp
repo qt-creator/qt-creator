@@ -114,7 +114,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
                              tr("Create Kits for Qt for MCUs? "
                                 "To do it later, select Options > Devices > MCU."),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.setCustomButtonInfo(tr("Create Kits for Qt for MCUs"), [setupMcuSupportKits] {
+    info.addCustomButton(tr("Create Kits for Qt for MCUs"), [setupMcuSupportKits] {
         ICore::infoBar()->removeInfo(setupMcuSupportKits);
         QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
     });
@@ -141,7 +141,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
                     McuSupportOptions::UpgradeOption::Replace;
     });
 
-    info.setCustomButtonInfo(tr("Proceed"), [upgradeMcuSupportKits] {
+    info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits] {
         ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
         QTimer::singleShot(0, []() { McuSupportOptions::upgradeKits(selectedOption); });
     });

@@ -163,7 +163,7 @@ IEditor *ScxmlEditorData::createEditor()
     if (xmlEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
                                  tr("This file can only be edited in <b>Design</b> mode."));
-        info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
+        info.addCustomButton(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         xmlEditor->document()->infoBar()->addInfo(info);
     }
 

@@ -212,7 +212,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                                     info(openInQDSAppSetting,
                                          description + "\n" + tr("Do you want to open this file in Qt Design Studio?"),
                                          Utils::InfoBarEntry::GlobalSuppression::Disabled);
-                            info.setCustomButtonInfo(tr("Open in Qt Design Studio"), [filePath] {
+                            info.addCustomButton(tr("Open in Qt Design Studio"), [filePath] {
                                 Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
 
                                 if (findAndOpenProject(filePath)) {

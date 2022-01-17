@@ -700,7 +700,7 @@ void QmlJSEditorDocument::setIsDesignModePreferred(bool value)
         if (infoBar()->canInfoBeAdded(QML_UI_FILE_WARNING)) {
             Utils::InfoBarEntry info(QML_UI_FILE_WARNING,
                                      tr("This file should only be edited in <b>Design</b> mode."));
-            info.setCustomButtonInfo(tr("Switch Mode"), []() {
+            info.addCustomButton(tr("Switch Mode"), []() {
                 Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
             });
             infoBar()->addInfo(info);

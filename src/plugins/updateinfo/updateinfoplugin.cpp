@@ -206,7 +206,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
         Utils::InfoBarEntry info(InstallUpdates, tr("New updates are available. Start the update?"));
-        info.setCustomButtonInfo(tr("Start Update"), [this] {
+        info.addCustomButton(tr("Start Update"), [this] {
             Core::ICore::infoBar()->removeInfo(InstallUpdates);
             startUpdater();
         });
