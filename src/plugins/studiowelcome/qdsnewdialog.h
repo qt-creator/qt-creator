@@ -131,6 +131,8 @@ private:
 
     QString projectDescription() const { return m_qmlProjectDescription; }
 
+    void updateScreenSizes();
+
 private slots:
     void onDeletingWizard();
     void onWizardCreated(QStandardItemModel *screenSizeModel, QStandardItemModel *styleModel);
