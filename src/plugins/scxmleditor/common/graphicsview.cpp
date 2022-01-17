@@ -168,14 +168,12 @@ QImage GraphicsView::grabView()
 void GraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
     emit panningChanged(event->modifiers() == Qt::ShiftModifier);
-    emit magnifierChanged(event->modifiers() == Qt::AltModifier);
     QGraphicsView::keyReleaseEvent(event);
 }
 
 void GraphicsView::keyPressEvent(QKeyEvent *event)
 {
     emit panningChanged(event->modifiers() == Qt::ShiftModifier);
-    emit magnifierChanged(event->modifiers() == Qt::AltModifier);
     QGraphicsView::keyPressEvent(event);
 }
 

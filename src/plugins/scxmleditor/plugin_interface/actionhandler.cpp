@@ -47,7 +47,7 @@ ActionHandler::ActionHandler(QObject *parent)
         {Utils::Icons::FITTOVIEW_TOOLBAR, tr("Fit to View"), tr("Fit to View (F11)"), "F11", false},
         {Utils::Icons::PAN_TOOLBAR, tr("Panning"), tr("Panning (Shift)"), "Shift", true},
 
-        {Utils::Icons::ZOOM_TOOLBAR, tr("Magnifier"), tr("Magnifier Tool (Alt)"), "Alt", true},
+        {Utils::Icons::ZOOM_TOOLBAR, tr("Magnifier"), tr("Magnifier Tool"), "", true},
         {Utils::Icon(":/scxmleditor/images/navigator.png"), tr("Navigator"), tr("Navigator (Ctrl+E)"), "Ctrl+E", true},
 
         {Utils::Icons::COPY_TOOLBAR, tr("Copy"), tr("Copy (Ctrl + C)"), "Ctrl+C", false},

@@ -104,10 +104,6 @@ void Magnifier::wheelEvent(QWheelEvent *e)
 
 bool Magnifier::eventFilter(QObject * /*obj*/, QEvent *event)
 {
-    if (event->type() == QEvent::KeyRelease
-        && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Alt) {
-        setVisible(false);
-    }
     if (event->type() == QEvent::ApplicationStateChange
         && QGuiApplication::applicationState() != Qt::ApplicationActive) {
         setVisible(false);
