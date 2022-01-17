@@ -37,8 +37,6 @@
 namespace UpdateInfo {
 namespace Internal {
 
-const char FILTER_OPTIONS_PAGE_ID[] = "Update";
-
 class UpdateInfoSettingsPageWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(UpdateInfo::Internal::UpdateInfoSettingsPage)
@@ -60,6 +58,7 @@ public:
         }
 
         m_ui.m_updatesGroupBox->setChecked(m_plugin->isAutomaticCheck());
+        m_ui.m_checkForNewQtVersions->setChecked(m_plugin->isCheckingForQtVersions());
 
         updateLastCheckDate();
         checkRunningChanged(m_plugin->isCheckForUpdatesRunning());
@@ -153,6 +152,7 @@ void UpdateInfoSettingsPageWidget::apply()
 {
     m_plugin->setCheckUpdateInterval(currentCheckInterval());
     m_plugin->setAutomaticCheck(m_ui.m_updatesGroupBox->isChecked());
+    m_plugin->setCheckingForQtVersions(m_ui.m_checkForNewQtVersions->isChecked());
 }
 
 // SettingsPage

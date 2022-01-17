@@ -35,6 +35,8 @@ namespace UpdateInfo {
 
 namespace Internal {
 
+const char FILTER_OPTIONS_PAGE_ID[] = "Update";
+
 class UpdateInfoPluginPrivate;
 
 class UpdateInfoPlugin final : public ExtensionSystem::IPlugin
@@ -61,6 +63,9 @@ public:
     CheckUpdateInterval checkUpdateInterval() const;
     void setCheckUpdateInterval(CheckUpdateInterval interval);
 
+    bool isCheckingForQtVersions() const;
+    void setCheckingForQtVersions(bool on);
+
     QDate lastCheckDate() const;
     QDate nextCheckDate() const;
     QDate nextCheckDate(CheckUpdateInterval interval) const;
@@ -81,6 +86,7 @@ private:
     void doAutoCheckForUpdates();
 
     void startUpdater();
+    void startPackageManager();
     void stopCheckForUpdates();
 
     void collectCheckForUpdatesOutput(const QString &contents);

@@ -43,22 +43,27 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QMetaEnum>
 #include <QPointer>
 #include <QProcessEnvironment>
 #include <QTimer>
+#include <QVersionNumber>
 
-namespace {
-    static const char UpdaterGroup[] = "Updater";
-    static const char MaintenanceToolKey[] = "MaintenanceTool";
-    static const char AutomaticCheckKey[] = "AutomaticCheck";
-    static const char CheckIntervalKey[] = "CheckUpdateInterval";
-    static const char LastCheckDateKey[] = "LastCheckDate";
-    static const quint32 OneMinute = 60000;
-    static const quint32 OneHour = 3600000;
-    static const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
-}
+Q_LOGGING_CATEGORY(log, "qtc.updateinfo", QtWarningMsg)
+
+const char UpdaterGroup[] = "Updater";
+const char MaintenanceToolKey[] = "MaintenanceTool";
+const char AutomaticCheckKey[] = "AutomaticCheck";
+const char CheckForNewQtVersionsKey[] = "CheckForNewQtVersions";
+const char CheckIntervalKey[] = "CheckUpdateInterval";
+const char LastCheckDateKey[] = "LastCheckDate";
+const char LastMaxQtVersionKey[] = "LastMaxQtVersion";
+const quint32 OneMinute = 60000;
+const quint32 OneHour = 3600000;
+const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
+const char InstallQtUpdates[] = "UpdateInfo.InstallQtUpdates";
 
 using namespace Core;
 
@@ -78,9 +83,11 @@ public:
     {
         bool automaticCheck = true;
         UpdateInfoPlugin::CheckUpdateInterval checkInterval = UpdateInfoPlugin::WeeklyCheck;
+        bool checkForQtVersions = true;
     };
     Settings m_settings;
     QDate m_lastCheckDate;
+    QVersionNumber m_lastMaxQtVersion;
 };
 
 UpdateInfoPlugin::UpdateInfoPlugin()
@@ -140,6 +147,14 @@ void UpdateInfoPlugin::startCheckForUpdates()
                                      [](int /*exitCode*/) {
                                          return Utils::QtcProcess::FinishedWithSuccess;
                                      });
+    if (d->m_settings.checkForQtVersions) {
+        d->m_checkUpdatesCommand
+            ->addJob({Utils::FilePath::fromString(d->m_maintenanceTool),
+                      {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"}},
+                     60 * 3, // 3 minutes timeout
+                     /*workingDirectory=*/{},
+                     [](int /*exitCode*/) { return Utils::QtcProcess::FinishedWithSuccess; });
+    }
     d->m_checkUpdatesCommand->execute();
     d->m_progress = d->m_checkUpdatesCommand->futureProgress();
     if (d->m_progress) {
@@ -189,44 +204,173 @@ static QList<Update> availableUpdates(const QDomDocument &document)
     return result;
 }
 
+struct QtPackage
+{
+    QString displayName;
+    QVersionNumber version;
+    bool installed;
+    bool isPrerelease;
+};
+
+static QList<QtPackage> availableQtPackages(const QDomDocument &document)
+{
+    if (document.isNull() || !document.firstChildElement().hasChildNodes())
+        return {};
+    QList<QtPackage> result;
+    const QDomNodeList packages = document.firstChildElement().elementsByTagName("package");
+    for (int i = 0; i < packages.size(); ++i) {
+        const QDomNode node = packages.item(i);
+        if (node.isElement()) {
+            const QDomElement element = node.toElement();
+            if (element.hasAttribute("displayname") && element.hasAttribute("name")
+                && element.hasAttribute("version")) {
+                QtPackage package{element.attribute("displayname"),
+                                  QVersionNumber::fromString(element.attribute("version")),
+                                  element.hasAttribute("installedVersion")};
+                // Heuristic: Prerelease if the name is not "Qt x.y.z"
+                // (prereleases are named "Qt x.y.z-alpha" etc)
+                package.isPrerelease = package.displayName
+                                       != QString("Qt %1").arg(package.version.toString());
+                result.append(package);
+            }
+        }
+    }
+    std::sort(result.begin(), result.end(), [](const QtPackage &p1, const QtPackage &p2) {
+        return p1.version > p2.version;
+    });
+    return result;
+}
+
+// Expects packages to be sorted, high version first.
+static Utils::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
+{
+    const auto highestInstalledIt = std::find_if(packages.cbegin(),
+                                                 packages.cend(),
+                                                 [](const QtPackage &p) { return p.installed; });
+    if (highestInstalledIt == packages.cend()) // Qt not installed
+        return {};
+    return *highestInstalledIt;
+}
+
+// Expects packages to be sorted, high version first.
+static Utils::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
+                                               QVersionNumber *highestSeen)
+{
+    // Filter out any Qt prereleases
+    const QList<QtPackage> packages = Utils::filtered(allPackages, [](const QtPackage &p) {
+        return !p.isPrerelease;
+    });
+    if (packages.isEmpty())
+        return {};
+    const QtPackage highest = packages.constFirst();
+    qCDebug(log) << "Highest available (non-prerelease) Qt:" << highest.version;
+    qCDebug(log) << "Highest previously seen (non-prerelease) Qt:" << *highestSeen;
+    // if the highestSeen version is null, we don't know if the Qt version is new, and better don't nag
+    const bool isNew = !highestSeen->isNull() && highest.version > *highestSeen;
+    if (highestSeen->isNull() || isNew)
+        *highestSeen = highest.version;
+    if (!isNew)
+        return {};
+    const Utils::optional<QtPackage> highestInstalled = highestInstalledQt(packages);
+    qCDebug(log) << "Highest installed Qt:"
+                 << qPrintable(highestInstalled ? highestInstalled->version.toString()
+                                                : QString("none"));
+    if (!highestInstalled) // don't nag if no Qt is installed at all
+        return {};
+    if (highestInstalled->version == highest.version)
+        return {};
+    return highest;
+}
+
+static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
+{
+    Utils::InfoBarEntry info(InstallUpdates,
+                             UpdateInfoPlugin::tr("New updates are available. Start the update?"));
+    info.addCustomButton(UpdateInfoPlugin::tr("Start Update"), [startUpdater] {
+        Core::ICore::infoBar()->removeInfo(InstallUpdates);
+        startUpdater();
+    });
+    info.setDetailsWidgetCreator([updates]() -> QWidget * {
+        const QString updateText = Utils::transform(updates, [](const Update &u) {
+                                       return u.version.isEmpty()
+                                                  ? u.name
+                                                  : UpdateInfoPlugin::tr("%1 (%2)",
+                                                                         "Package name and version")
+                                                        .arg(u.name, u.version);
+                                   }).join("</li><li>");
+        auto label = new QLabel;
+        label->setText("<qt><p>" + UpdateInfoPlugin::tr("Available updates:") + "<ul><li>"
+                       + updateText + "</li></ul></p></qt>");
+        label->setContentsMargins(0, 0, 0, 8);
+        return label;
+    });
+    Core::ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
+    Core::ICore::infoBar()->unsuppressInfo(InstallUpdates);
+    Core::ICore::infoBar()->addInfo(info);
+}
+
+static void showQtUpdateInfo(const QtPackage &package,
+                             const std::function<void()> &startPackageManager)
+{
+    Utils::InfoBarEntry info(InstallQtUpdates,
+                             UpdateInfoPlugin::tr(
+                                 "%1 is available. Check the <a "
+                                 "href=\"https://www.qt.io/blog\">Qt blog</a> for details.")
+                                 .arg(package.displayName));
+    info.addCustomButton(UpdateInfoPlugin::tr("Start Package Manager"), [startPackageManager] {
+        Core::ICore::infoBar()->removeInfo(InstallQtUpdates);
+        startPackageManager();
+    });
+    info.addCustomButton(UpdateInfoPlugin::tr("Open Settings"), [] {
+        Core::ICore::infoBar()->removeInfo(InstallQtUpdates);
+        Core::ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);
+    });
+    Core::ICore::infoBar()->removeInfo(InstallQtUpdates); // remove any existing notifications
+    Core::ICore::infoBar()->unsuppressInfo(InstallQtUpdates);
+    Core::ICore::infoBar()->addInfo(info);
+}
+
 void UpdateInfoPlugin::checkForUpdatesFinished()
 {
     setLastCheckDate(QDate::currentDate());
 
     QDomDocument document;
-    document.setContent(d->m_collectedOutput);
+    // since the output can contain two toplevel items from the two separate MaintenanceTool runs,
+    // surround with a toplevel element
+    const QString xml = d->m_collectedOutput.isEmpty()
+                            ? QString()
+                            : ("<doc>" + d->m_collectedOutput + "</doc>");
+    qCDebug(log) << "--- MaintenanceTool output (combined):";
+    qCDebug(log) << qPrintable(xml);
+    document.setContent(xml);
 
     stopCheckForUpdates();
 
-    if (!document.isNull() && document.firstChildElement().hasChildNodes()) {
+    const QList<Update> updates = availableUpdates(document);
+    const QList<QtPackage> qtPackages = availableQtPackages(document);
+    if (log().isDebugEnabled()) {
+        qCDebug(log) << "--- Available updates:";
+        for (const Update &u : updates)
+            qCDebug(log) << u.name << u.version;
+        qCDebug(log) << "--- Available Qt packages:";
+        for (const QtPackage &p : qtPackages) {
+            qCDebug(log) << p.displayName << p.version << "installed:" << p.installed
+                         << "prerelease:" << p.isPrerelease;
+        }
+    }
+    Utils::optional<QtPackage> qtToNag = qtToNagAbout(qtPackages, &d->m_lastMaxQtVersion);
+
+    if (!updates.isEmpty() || qtToNag) {
         // progress details are shown until user interaction for the "no updates" case,
         // so we can show the "No updates found" text, but if we have updates we don't
         // want to keep it around
         if (d->m_progress)
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
-        Utils::InfoBarEntry info(InstallUpdates, tr("New updates are available. Start the update?"));
-        info.addCustomButton(tr("Start Update"), [this] {
-            Core::ICore::infoBar()->removeInfo(InstallUpdates);
-            startUpdater();
-        });
-        const QList<Update> updates = availableUpdates(document);
-        info.setDetailsWidgetCreator([updates]() -> QWidget * {
-            const QString updateText = Utils::transform(updates, [](const Update &u) {
-                                           return u.version.isEmpty()
-                                                      ? u.name
-                                                      : tr("%1 (%2)", "Package name and version")
-                                                            .arg(u.name, u.version);
-                                       }).join("</li><li>");
-            auto label = new QLabel;
-            label->setText("<qt><p>" + tr("Available updates:") + "<ul><li>" + updateText
-                           + "</li></ul></p></qt>");
-            label->setContentsMargins(0, 0, 0, 8);
-            return label;
-        });
-        Core::ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
-        Core::ICore::infoBar()->unsuppressInfo(InstallUpdates);
-        Core::ICore::infoBar()->addInfo(info);
+        if (!updates.isEmpty())
+            showUpdateInfo(updates, [this] { startUpdater(); });
+        if (qtToNag)
+            showQtUpdateInfo(*qtToNag, [this] { startPackageManager(); });
     } else {
         emit newUpdatesAvailable(false);
         if (d->m_progress)
@@ -298,6 +442,11 @@ void UpdateInfoPlugin::loadSettings() const
         if (ok)
             d->m_settings.checkInterval = static_cast<CheckUpdateInterval>(newValue);
     }
+    const QString lastMaxQtVersionString = settings->value(updaterKey + LastMaxQtVersionKey)
+                                               .toString();
+    d->m_lastMaxQtVersion = QVersionNumber::fromString(lastMaxQtVersionString);
+    d->m_settings.checkForQtVersions
+        = settings->value(updaterKey + CheckForNewQtVersionsKey, def.checkForQtVersions).toBool();
 }
 
 void UpdateInfoPlugin::saveSettings()
@@ -318,6 +467,10 @@ void UpdateInfoPlugin::saveSettings()
     settings->setValueWithDefault(CheckIntervalKey,
                                   QString::fromUtf8(me.valueToKey(d->m_settings.checkInterval)),
                                   QString::fromUtf8(me.valueToKey(def.checkInterval)));
+    settings->setValueWithDefault(LastMaxQtVersionKey, d->m_lastMaxQtVersion.toString());
+    settings->setValueWithDefault(CheckForNewQtVersionsKey,
+                                  d->m_settings.checkForQtVersions,
+                                  def.checkForQtVersions);
     settings->endGroup();
 }
 
@@ -349,6 +502,16 @@ void UpdateInfoPlugin::setCheckUpdateInterval(UpdateInfoPlugin::CheckUpdateInter
         return;
 
     d->m_settings.checkInterval = interval;
+}
+
+bool UpdateInfoPlugin::isCheckingForQtVersions() const
+{
+    return d->m_settings.checkForQtVersions;
+}
+
+void UpdateInfoPlugin::setCheckingForQtVersions(bool on)
+{
+    d->m_settings.checkForQtVersions = on;
 }
 
 QDate UpdateInfoPlugin::lastCheckDate() const
@@ -384,7 +547,14 @@ QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
 
 void UpdateInfoPlugin::startUpdater()
 {
-    Utils::QtcProcess::startDetached({Utils::FilePath::fromString(d->m_maintenanceTool), {"--updater"}});
+    Utils::QtcProcess::startDetached(
+        {Utils::FilePath::fromString(d->m_maintenanceTool), {"--updater"}});
+}
+
+void UpdateInfoPlugin::startPackageManager()
+{
+    Utils::QtcProcess::startDetached(
+        {Utils::FilePath::fromString(d->m_maintenanceTool), {"--start-package-manager"}});
 }
 
 } //namespace Internal

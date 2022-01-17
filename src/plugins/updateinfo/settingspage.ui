@@ -26,13 +26,6 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Check interval basis:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0" colspan="3">
        <widget class="QLabel" name="m_infoLabel">
         <property name="sizePolicy">
@@ -46,13 +39,6 @@
         </property>
         <property name="wordWrap">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="m_checkIntervalComboBox">
-        <property name="currentIndex">
-         <number>-1</number>
         </property>
        </widget>
       </item>
@@ -76,10 +62,31 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Check interval basis:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="m_checkIntervalComboBox">
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="1" colspan="2">
        <widget class="QLabel" name="m_nextCheckDateLabel">
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QCheckBox" name="m_checkForNewQtVersions">
+        <property name="text">
+         <string>Check for new Qt versions</string>
         </property>
        </widget>
       </item>
@@ -134,6 +141,12 @@
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
     </spacer>
    </item>
