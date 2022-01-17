@@ -385,7 +385,11 @@ static QVariant logEntryDataAccessor(const LogEntry &entry, int column, int role
         case 0: return entry.timestamp;
         case 1: return entry.category;
         case 2: return entry.type;
-        case 3: return entry.message;
+        case 3: {
+            if (role == Qt::ToolTipRole)
+                return entry.message;
+            return entry.message.left(1000);
+        }
         }
     }
     if (role == Qt::TextAlignmentRole)
@@ -458,10 +462,9 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     m_logModel->setDataAccessor(&logEntryDataAccessor);
     m_logView->setModel(m_logModel);
     horizontal->addWidget(m_logView);
-    m_logView->setUniformRowHeights(false);
+    m_logView->setUniformRowHeights(true);
     m_logView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_logView->setFrameStyle(QFrame::Box);
-    m_logView->setTextElideMode(Qt::ElideNone);
     m_logView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_logView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_logView->setColumnHidden(2, true);
@@ -471,7 +474,6 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     m_categoryView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_categoryView->setUniformRowHeights(true);
     m_categoryView->setFrameStyle(QFrame::Box);
-    m_categoryView->setTextElideMode(Qt::ElideNone);
     m_categoryView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -491,14 +493,18 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     resize(800, 300);
 
     connect(m_manager, &LoggingViewManager::receivedLog,
-            this, [this, autoScroll](const QString &timestamp, const QString &type,
-                                     const QString &category, const QString &msg) {
-        if (m_logModel->rowCount() >= 1000000) // limit log to 1000000 items
-            m_logModel->destroyItem(m_logModel->itemForIndex(m_logModel->index(0, 0)));
-        m_logModel->appendItem(LogEntry{timestamp, type, category, msg});
-        if (autoScroll->isChecked())
-            m_logView->scrollToBottom();
-    }, Qt::QueuedConnection);
+        this, [this](const QString &timestamp,
+                     const QString &type,
+                     const QString &category,
+                     const QString &msg) {
+            if (m_logModel->rowCount() >= 1000000) // limit log to 1000000 items
+                m_logModel->destroyItem(m_logModel->itemForIndex(m_logModel->index(0, 0)));
+            m_logModel->appendItem(LogEntry{timestamp, type, category, msg});
+        }, Qt::QueuedConnection);
+    connect(m_logModel, &QAbstractItemModel::rowsInserted, this, [this, autoScroll]() {
+            if (autoScroll->isChecked())
+                m_logView->scrollToBottom();
+        }, Qt::QueuedConnection);
     connect(m_manager, &LoggingViewManager::foundNewCategory,
             m_categoryModel, &LoggingCategoryModel::append, Qt::QueuedConnection);
     connect(m_manager, &LoggingViewManager::updatedCategory,
