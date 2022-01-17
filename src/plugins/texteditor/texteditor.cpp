@@ -1398,7 +1398,7 @@ QList<QTextCursor> TextEditorWidgetPrivate::generateCursorsForBlockSelection(
     while (block.isValid()) {
         const QString &blockText = block.text();
         const int columnCount = tabSettings.columnCountForText(blockText);
-        if (blockSelection.anchorColumn < columnCount || blockSelection.column < columnCount) {
+        if (blockSelection.anchorColumn <= columnCount || blockSelection.column <= columnCount) {
             const int anchor = tabSettings.positionAtColumn(blockText, blockSelection.anchorColumn);
             const int position = tabSettings.positionAtColumn(blockText, blockSelection.column);
             cursor.setPosition(block.position() + anchor);
