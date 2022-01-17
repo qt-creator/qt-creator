@@ -252,10 +252,12 @@ void LanguageClientManager::shutdown()
         return;
     qCDebug(Log) << "shutdown manager";
     managerInstance->m_shuttingDown = true;
-    for (Client *client : qAsConst(managerInstance->m_clients))
+    const auto clients = managerInstance->clients();
+    for (Client *client : clients)
         shutdownClient(client);
-    QTimer::singleShot(3000, managerInstance, [](){
-        for (Client *client : qAsConst(managerInstance->m_clients))
+    QTimer::singleShot(3000, managerInstance, [] {
+        const auto clients = managerInstance->clients();
+        for (Client *client : clients)
             deleteClient(client);
         emit managerInstance->shutdownFinished();
     });

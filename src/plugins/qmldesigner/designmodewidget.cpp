@@ -231,6 +231,9 @@ void DesignModeWidget::setup()
 
     ADS::DockManager::setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
     ADS::DockManager::setConfigFlag(ADS::DockManager::FocusHighlighting, true);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::DockAreaHasCloseButton, false);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::DockAreaHasUndockButton, false);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::DockAreaHasTabsMenuButton, false);
     ADS::DockManager::setConfigFlag(ADS::DockManager::OpaqueSplitterResize, true);
     ADS::DockManager::setConfigFlag(ADS::DockManager::AllTabsHaveCloseButton, true);
     m_dockManager = new ADS::DockManager(this);
@@ -251,10 +254,6 @@ void DesignModeWidget::setup()
     const QString fontName = "qtds_propertyIconFont.ttf";
     const QSize size = QSize(28, 28);
 
-    const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, iconColor);
-    const QIcon menuIcon = Utils::StyleHelper::getIconFromIconFont(fontName, menuUnicode, 28, 28, iconColor);
-    const QIcon undockIcon = Utils::StyleHelper::getIconFromIconFont(fontName, undockUnicode, 28, 28, iconColor);
-
     auto tabCloseIconNormal = Utils::StyleHelper::IconFontHelper(
         closeUnicode, Theme::getColor(Theme::DStabInactiveIcon), size, QIcon::Normal, QIcon::Off);
     auto tabCloseIconActive = Utils::StyleHelper::IconFontHelper(
@@ -268,10 +267,6 @@ void DesignModeWidget::setup()
                            tabCloseIconFocus});
 
     ADS::DockManager::iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
-    ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaMenuIcon, menuIcon);
-    ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaUndockIcon, undockIcon);
-    ADS::DockManager::iconProvider().registerCustomIcon(ADS::DockAreaCloseIcon, closeIcon);
-    ADS::DockManager::iconProvider().registerCustomIcon(ADS::FloatingWidgetCloseIcon, closeIcon);
 
     // Setup Actions and Menus
     Core::ActionContainer *mview = Core::ActionManager::actionContainer(Core::Constants::M_VIEW);

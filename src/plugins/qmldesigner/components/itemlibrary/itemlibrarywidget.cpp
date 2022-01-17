@@ -635,7 +635,7 @@ void ItemLibraryWidget::addResources(const QStringList &files)
             return priorities.value(first) < priorities.value(second);
         });
 
-        QStringList filters { tr("All Files (%1)").arg(map.values().join(' ')) };
+        QStringList filters { tr("All Files (%1)").arg("*.*") };
         QString filterTemplate = "%1 (%2)";
         for (const QString &key : qAsConst(sortedKeys))
             filters.append(filterTemplate.arg(key, map.values(key).join(' ')));
@@ -676,11 +676,17 @@ void ItemLibraryWidget::addResources(const QStringList &files)
         AddResourceOperation operation = categoryToOperation.value(category);
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
         if (operation) {
-            AddFilesResult result = operation(fileNames, document->fileName().parentDir().toString());
+            AddFilesResult result = operation(fileNames,
+                                              document->fileName().parentDir().toString());
             if (result == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                      tr("Could not add %1 to project.").arg(fileNames.join(' ')));
+                                                      tr("Could not add %1 to project.")
+                                                          .arg(fileNames.join(' ')));
             }
+        } else {
+            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                  tr("Could not add %1 to project. Unsupported file format.")
+                                                      .arg(fileNames.join(' ')));
         }
     }
 }

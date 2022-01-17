@@ -45,7 +45,7 @@ using namespace Utils;
 
 ExampleCheckout::ExampleCheckout(QObject *) {}
 
-void ExampleCheckout::checkoutExample(const QUrl &url)
+void ExampleCheckout::registerTypes()
 {
     FileDownloader::registerQmlType();
     static bool once = []() {
@@ -55,6 +55,11 @@ void ExampleCheckout::checkoutExample(const QUrl &url)
     }();
 
     QTC_ASSERT(once, ;);
+}
+
+void ExampleCheckout::checkoutExample(const QUrl &url, const QString &tempFile, const QString &completeBaseFileName)
+{
+    registerTypes();
 
     m_dialog.reset(new QDialog(Core::ICore::dialogParent()));
     m_dialog->setModal(true);
@@ -80,6 +85,8 @@ void ExampleCheckout::checkoutExample(const QUrl &url)
     QTC_ASSERT(rootObject, qWarning() << "QML error"; return );
 
     rootObject->setProperty("url", url);
+    rootObject->setProperty("tempFile", tempFile);
+    rootObject->setProperty("completeBaseName", completeBaseFileName);
 
     m_dialog->show();
 
@@ -260,6 +267,7 @@ void FileExtractor::setSourceFile(QString &sourceFilePath)
 void FileExtractor::setArchiveName(QString &filePath)
 {
     m_archiveName = filePath;
+    emit targetFolderExistsChanged();
 }
 
 const QString FileExtractor::detailedText()

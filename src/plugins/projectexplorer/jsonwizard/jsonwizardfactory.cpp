@@ -311,7 +311,7 @@ std::pair<int, QStringList> JsonWizardFactory::screenSizeInfoFromPage(const QStr
         return {};
 
     const QVariantMap screenFactorDataMap = screenFactorData.toMap();
-    if (not screenFactorDataMap.contains("items"))
+    if (!screenFactorDataMap.contains("items"))
         return {};
 
     bool ok = false;

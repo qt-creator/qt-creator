@@ -231,11 +231,13 @@ public:
     Q_INVOKABLE void openExample(const QString &example,
                                  const QString &formFile,
                                  const QString &url,
-                                 const QString &explicitQmlproject)
+                                 const QString &explicitQmlproject,
+                                 const QString &tempFile,
+                                 const QString &completeBaseName)
     {
         if (!url.isEmpty()) {
             ExampleCheckout *checkout = new ExampleCheckout;
-            checkout->checkoutExample(QUrl::fromUserInput(url));
+            checkout->checkoutExample(QUrl::fromUserInput(url), tempFile, completeBaseName);
             connect(checkout,
                     &ExampleCheckout::finishedSucessfully,
                     this,
@@ -631,6 +633,7 @@ WelcomeMode::WelcomeMode()
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+    ExampleCheckout::registerTypes();
 
     m_modeWidget = new QQuickWidget;
     m_modeWidget->setMinimumSize(1024, 768);

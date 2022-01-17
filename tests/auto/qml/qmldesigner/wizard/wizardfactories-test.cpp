@@ -104,7 +104,7 @@ protected:
     void configureFactory(MockWizardFactory &factory, IWizardFactory::WizardKind kind,
                           bool requiresQtStudio = true,
                           const QPair<QString, bool> &availableOnPlatform = {},
-                          const QPair<int, QStringList> &sizes = {})
+                          const std::pair<int, QStringList> &sizes = {})
     {
         if (kind == IWizardFactory::ProjectWizard) {
             QSet<Utils::Id> supported{Utils::Id{"QmlProjectManager.QmlProject"}};
