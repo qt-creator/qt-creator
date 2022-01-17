@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cropimageview.h"
+
 #include <QPainter>
 #include <QMouseEvent>
 
@@ -34,19 +35,18 @@ CropImageView::CropImageView(QWidget *parent)
 
 void CropImageView::mousePressEvent(QMouseEvent *event)
 {
-    setArea(QRect(event->pos(), m_area.bottomRight()));
-    update();
+    m_initialPoint = event->pos();
+    setEndPoint(m_initialPoint);
 }
 
 void CropImageView::mouseMoveEvent(QMouseEvent *event)
 {
-    setArea(QRect(m_area.topLeft(), event->pos()));
-    update();
+    setEndPoint(event->pos());
 }
 
 void CropImageView::mouseReleaseEvent(QMouseEvent *event)
 {
-    mouseMoveEvent(event);
+    setEndPoint(event->pos());
 }
 
 void CropImageView::setImage(const QImage &image)
@@ -61,6 +61,11 @@ void CropImageView::setArea(const QRect &area)
     m_area = m_image.rect().intersected(area);
     emit cropAreaChanged(m_area);
     update();
+}
+
+void CropImageView::setEndPoint(const QPoint &point)
+{
+    setArea(QRect(m_initialPoint, point));
 }
 
 void CropImageView::paintEvent(QPaintEvent *event)

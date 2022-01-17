@@ -25,10 +25,12 @@
 
 #include "screenshotcropperwindow.h"
 #include "ui_screenshotcropperwindow.h"
+
+#include <coreplugin/welcomepagehelper.h>
+#include <qtsupport/screenshotcropper.h>
+
 #include <QListWidget>
 #include <QDebug>
-
-using namespace QtSupport::Internal;
 
 ScreenShotCropperWindow::ScreenShotCropperWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -51,7 +53,7 @@ void ScreenShotCropperWindow::loadData(const QString &areasXmlFile, const QStrin
     typedef QMap<QString, QRect>::ConstIterator StringRectConstIt;
 
     m_areasOfInterestFile = areasXmlFile;
-    m_areasOfInterest = ScreenshotCropper::loadAreasOfInterest(m_areasOfInterestFile);
+    m_areasOfInterest = QtSupport::ScreenshotCropper::loadAreasOfInterest(m_areasOfInterestFile);
     m_imagesFolder = imagesFolder;
     const StringRectConstIt cend = m_areasOfInterest.constEnd();
     for (StringRectConstIt it = m_areasOfInterest.constBegin(); it != cend; ++it)
@@ -70,12 +72,25 @@ void ScreenShotCropperWindow::setArea(const QRect &area)
     const QListWidgetItem *item = ui->m_filenamesList->currentItem();
     if (!item)
         return;
+
+    if (!area.isValid()) {
+        ui->m_previewLabel->setPixmap({});
+        return;
+    }
+
     const QString currentFile = item->text();
     m_areasOfInterest.insert(currentFile, area);
+    const QImage img(m_imagesFolder + QLatin1Char('/') + currentFile);
+    const QPixmap cropped = QPixmap::fromImage(
+                QtSupport::ScreenshotCropper::croppedImage(img, currentFile,
+                                                           Core::ListModel::defaultImageSize,
+                                                           area));
+    ui->m_previewLabel->setPixmap(cropped);
 }
 
 void ScreenShotCropperWindow::saveData()
 {
-    if (!ScreenshotCropper::saveAreasOfInterest(m_areasOfInterestFile, m_areasOfInterest))
+    if (!QtSupport::ScreenshotCropper::saveAreasOfInterest(m_areasOfInterestFile,
+                                                           m_areasOfInterest))
         qFatal("Cannot write %s", qPrintable(m_areasOfInterestFile));
 }

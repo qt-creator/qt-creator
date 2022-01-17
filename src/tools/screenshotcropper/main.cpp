@@ -29,8 +29,6 @@
 
 #include "screenshotcropperwindow.h"
 
-using namespace QtSupport::Internal;
-
 const QString settingsKeyAreasXmlFile = QLatin1String("areasXmlFile");
 const QString settingsKeyImagesFolder = QLatin1String("imagesFolder");
 

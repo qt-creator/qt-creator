@@ -58,9 +58,8 @@ static inline QString fileNameForPath(const QString &path)
 static QRect cropRectForAreaOfInterest(const QSize &imageSize, const QSize &cropSize, const QRect &areaOfInterest)
 {
     QRect result;
-    const qreal cropSizeToAreaSizeFactor = qMin(cropSize.width() / qreal(areaOfInterest.width()),
-                                                cropSize.height() / qreal(areaOfInterest.height()));
-    if (cropSizeToAreaSizeFactor >= 1) {
+    if (areaOfInterest.width() <= cropSize.width()
+            && areaOfInterest.height() <= cropSize.height()) {
         const QPoint areaOfInterestCenter = areaOfInterest.center();
         const int cropX = qBound(0,
                                  areaOfInterestCenter.x() - cropSize.width() / 2,
@@ -72,19 +71,28 @@ static QRect cropRectForAreaOfInterest(const QSize &imageSize, const QSize &crop
         const int cropHeight = qMin(imageSize.height(), cropSize.height());
         result = QRect(cropX, cropY, cropWidth, cropHeight);
     } else {
-        QSize resultSize = cropSize.expandedTo(areaOfInterest.size());
+        QSize resultSize = cropSize.scaled(areaOfInterest.width(), areaOfInterest.height(),
+                                           Qt::KeepAspectRatioByExpanding);
         result = QRect(QPoint(), resultSize);
+        result.moveCenter(areaOfInterest.center());
     }
     return result;
 }
 
-QImage ScreenshotCropper::croppedImage(const QImage &sourceImage, const QString &filePath, const QSize &cropSize)
+} // namespace Internal
+
+namespace ScreenshotCropper {
+
+QImage croppedImage(const QImage &sourceImage, const QString &filePath, const QSize &cropSize,
+                    const QRect &areaOfInterest)
 {
-    const QRect areaOfInterest = welcomeScreenAreas()->areas.value(fileNameForPath(filePath));
+    const QRect area = areaOfInterest.isValid() ? areaOfInterest :
+            Internal::welcomeScreenAreas()->areas.value(Internal::fileNameForPath(filePath));
 
     QImage result;
-    if (areaOfInterest.isValid()) {
-        const QRect cropRect = cropRectForAreaOfInterest(sourceImage.size(), cropSize, areaOfInterest);
+    if (area.isValid()) {
+        const QRect cropRect = Internal::cropRectForAreaOfInterest(sourceImage.size(),
+                                                                   cropSize, areaOfInterest);
         const QSize cropRectSize = cropRect.size();
         result = sourceImage.copy(cropRect);
         if (cropRectSize.width() <= cropSize.width() && cropRectSize.height() <= cropSize.height())
@@ -115,7 +123,7 @@ static const QString xmlAttributeY = QLatin1String("y");
 static const QString xmlAttributeWidth = QLatin1String("width");
 static const QString xmlAttributeHeight = QLatin1String("height");
 
-QMap<QString, QRect> ScreenshotCropper::loadAreasOfInterest(const QString &areasXmlFile)
+QMap<QString, QRect> loadAreasOfInterest(const QString &areasXmlFile)
 {
     QMap<QString, QRect> areasOfInterest;
     QFile xmlFile(areasXmlFile);
@@ -146,7 +154,7 @@ QMap<QString, QRect> ScreenshotCropper::loadAreasOfInterest(const QString &areas
     return areasOfInterest;
 }
 
-bool ScreenshotCropper::saveAreasOfInterest(const QString &areasXmlFile, QMap<QString, QRect> &areas)
+bool saveAreasOfInterest(const QString &areasXmlFile, QMap<QString, QRect> &areas)
 {
     QFile file(areasXmlFile);
     if (!file.open(QIODevice::WriteOnly))
@@ -169,5 +177,5 @@ bool ScreenshotCropper::saveAreasOfInterest(const QString &areasXmlFile, QMap<QS
     return true;
 }
 
-} // namespace Internal
+} // ScreenshotCropper
 } // namespace QtSupport

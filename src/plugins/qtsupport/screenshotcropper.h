@@ -25,20 +25,24 @@
 
 #pragma once
 
+#include "qtsupport_global.h"
+
 #include <QMap>
 #include <QRect>
-#include <QImage>
+
+QT_BEGIN_NAMESPACE
+class QImage;
+class QSize;
+QT_END_NAMESPACE
 
 namespace QtSupport {
-namespace Internal {
+namespace ScreenshotCropper {
 
-class ScreenshotCropper
-{
-public:
-    static QImage croppedImage(const QImage &sourceImage, const QString &filePath, const QSize &cropSize);
-    static QMap<QString, QRect> loadAreasOfInterest(const QString &areasXmlFile);
-    static bool saveAreasOfInterest(const QString &areasXmlFile, QMap<QString, QRect> &areas);
-};
+QTSUPPORT_EXPORT QImage croppedImage(const QImage &sourceImage, const QString &filePath,
+                                     const QSize &cropSize, const QRect &areaOfInterest = {});
+QTSUPPORT_EXPORT QMap<QString, QRect> loadAreasOfInterest(const QString &areasXmlFile);
+QTSUPPORT_EXPORT bool saveAreasOfInterest(const QString &areasXmlFile,
+                                          QMap<QString, QRect> &areas);
 
-} // namespace Internal
+} // ScreenshotCropper
 } // namespace QtSupport
