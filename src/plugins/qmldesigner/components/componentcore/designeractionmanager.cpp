@@ -1471,16 +1471,20 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection,
                           &singleSelection));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          goToImplementationCommandId,
-                          goToImplementationDisplayName,
-                          {},
-                          rootCategory,
-                          QKeySequence(),
-                          42,
-                          &goImplementation,
-                          &singleSelectedAndUiFile,
-                          &singleSelectedAndUiFile));
+    const bool standaloneMode
+        = Core::ICore::settings()->value(DesignerSettingsKey::STANDALONE_MODE).toBool();
+
+    if (!standaloneMode) {
+        addDesignerAction(new ModelNodeContextMenuAction(goToImplementationCommandId,
+                                                         goToImplementationDisplayName,
+                                                         {},
+                                                         rootCategory,
+                                                         QKeySequence(),
+                                                         42,
+                                                         &goImplementation,
+                                                         &singleSelectedAndUiFile,
+                                                         &singleSelectedAndUiFile));
+    }
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           addSignalHandlerCommandId,
