@@ -131,6 +131,12 @@
             \li Creates a Qt for Python application that contains an empty
                 window.
         \row
+            \li Window UI
+            \li Creates a Qt for Python application that contains an empty
+                window with a widget-based UI. Preferred approach that requires
+                you to generate a Python file from the .ui file, to import
+                it directly into your application.
+        \row
             \li Window UI - Dynamic load
             \li Creates a Qt for Python application that contains an empty
                 window with a widget-based UI.
