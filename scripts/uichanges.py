@@ -176,7 +176,7 @@ def diffContext(ctx, old, new):
         report += '\n\n    Git Commits:\n'
         for g in gitResults:
             if g:
-                g = u'        {}'.format(unicode(g.replace('\n', '\n        '), errors='replace'))
+                g = u'        {}'.format(g.replace('\n', '\n        '), errors='replace')
                 report += g
 
     return report
