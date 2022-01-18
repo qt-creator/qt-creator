@@ -38,10 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
-#include <QDir>
 #include <QSettings>
-
-#include <tuple>
 
 using namespace Utils;
 
@@ -65,7 +62,7 @@ public:
 
     std::unique_ptr<ToolChainSettingsAccessor> m_accessor;
 
-    QList<ToolChain *> m_toolChains; // prioritized List
+    Toolchains m_toolChains; // prioritized List
     QVector<LanguageDisplayPair> m_languages;
     ToolchainDetectionSettings m_detectionSettings;
     bool m_loaded = false;
@@ -144,7 +141,7 @@ void ToolChainManager::saveToolChains()
                            ToolchainDetectionSettings().detectX64AsX32);
 }
 
-QList<ToolChain *> ToolChainManager::toolChains(const ToolChain::Predicate &predicate)
+Toolchains ToolChainManager::toolChains(const ToolChain::Predicate &predicate)
 {
     if (predicate)
         return Utils::filtered(d->m_toolChains, predicate);
@@ -156,10 +153,10 @@ ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)
     return Utils::findOrDefault(d->m_toolChains, predicate);
 }
 
-QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi)
+Toolchains ToolChainManager::findToolChains(const Abi &abi)
 {
-    QList<ToolChain *> result;
-    foreach (ToolChain *tc, d->m_toolChains) {
+    Toolchains result;
+    for (ToolChain *tc : qAsConst(d->m_toolChains)) {
         bool isCompatible = Utils::anyOf(tc->supportedAbis(), [abi](const Abi &supportedAbi) {
             return supportedAbi.isCompatibleWith(abi);
         });

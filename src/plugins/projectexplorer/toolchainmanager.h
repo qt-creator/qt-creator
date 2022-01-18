@@ -97,11 +97,8 @@ signals:
 private:
     explicit ToolChainManager(QObject *parent = nullptr);
 
-    // Make sure the this is only called after all
-    // Tool chain Factories are registered!
+    // Make sure the this is only called after all toolchain factories are registered!
     static void restoreToolChains();
-
-    static QList<ToolChain *> readSystemFileToolChains();
 
     static void notifyAboutUpdate(ToolChain *);
 
