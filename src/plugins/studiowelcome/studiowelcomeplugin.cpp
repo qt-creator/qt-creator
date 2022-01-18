@@ -549,7 +549,9 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     m_welcomeMode = new WelcomeMode;
 
     m_removeSplashTimer.setSingleShot(true);
-    m_removeSplashTimer.setInterval(15000);
+    const QString splashScreenTimeoutEntry = "QML/Designer/splashScreenTimeout";
+    m_removeSplashTimer.setInterval(
+        Core::ICore::settings()->value(splashScreenTimeoutEntry, 15000).toInt());
     connect(&m_removeSplashTimer, &QTimer::timeout, this, [this] { closeSplashScreen(); });
     return true;
 }
