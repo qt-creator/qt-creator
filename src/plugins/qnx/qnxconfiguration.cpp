@@ -170,10 +170,10 @@ void QnxConfiguration::deactivate()
     if (!isActive())
         return;
 
-    QList<DebuggerItem> debuggersToRemove;
-    const QList<ToolChain *> toolChainsToRemove
-            = ToolChainManager::toolChains(Utils::equal(&ToolChain::compilerCommand, qccCompilerPath()));
+    const Toolchains toolChainsToRemove =
+        ToolChainManager::toolchains(Utils::equal(&ToolChain::compilerCommand, qccCompilerPath()));
 
+    QList<DebuggerItem> debuggersToRemove;
     foreach (DebuggerItem debuggerItem,
              DebuggerItemManager::debuggers()) {
         if (findTargetByDebuggerPath(debuggerItem.command()))
@@ -187,7 +187,7 @@ void QnxConfiguration::deactivate()
             KitManager::deregisterKit(kit);
     }
 
-    foreach (ToolChain *tc, toolChainsToRemove)
+    for (ToolChain *tc : toolChainsToRemove)
         ToolChainManager::deregisterToolChain(tc);
 
     foreach (DebuggerItem debuggerItem, debuggersToRemove)

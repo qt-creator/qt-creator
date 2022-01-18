@@ -61,7 +61,9 @@ public:
     static ToolChainManager *instance();
     ~ToolChainManager() override;
 
-    static QList<ToolChain *> toolChains(const ToolChain::Predicate &predicate = ToolChain::Predicate());
+    static const Toolchains &toolchains();
+    static Toolchains toolchains(const ToolChain::Predicate &predicate);
+
     static ToolChain *toolChain(const ToolChain::Predicate &predicate);
     static QList<ToolChain *> findToolChains(const Abi &abi);
     static ToolChain *findToolChain(const QByteArray &id);

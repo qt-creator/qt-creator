@@ -628,7 +628,7 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + tr("Removing toolchain entries..."));
-    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
+    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
         QString detectionSource = toolChain->detectionSource();
         if (toolChain->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removed \"%1\"").arg(toolChain->displayName()));
@@ -676,10 +676,9 @@ void KitDetectorPrivate::listAutoDetected() const
     };
 
     emit q->logOutput('\n' + tr("Toolchains:"));
-    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
-        if (toolChain->detectionSource() == m_sharedId) {
+    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
+        if (toolChain->detectionSource() == m_sharedId)
             emit q->logOutput(toolChain->displayName());
-        }
     };
 
     if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
@@ -733,7 +732,7 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
 {
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
-    Toolchains alreadyKnown = ToolChainManager::toolChains();
+    Toolchains alreadyKnown = ToolChainManager::toolchains();
     Toolchains allNewToolChains;
     QApplication::processEvents();
     emit q->logOutput('\n' + tr("Searching toolchains..."));

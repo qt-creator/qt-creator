@@ -249,7 +249,7 @@ public:
         m_widgetStack = new QStackedWidget;
         m_container->setWidget(m_widgetStack);
 
-        foreach (ToolChain *tc, ToolChainManager::toolChains())
+        for (ToolChain *tc : ToolChainManager::toolchains())
             insertToolChain(tc);
 
         auto buttonLayout = new QVBoxLayout;

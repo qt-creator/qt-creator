@@ -114,10 +114,10 @@ static bool isSimulatorDeviceId(const Utils::Id &id)
     return id == Constants::IOS_SIMULATOR_TYPE;
 }
 
-static QList<ClangToolChain *> clangToolChains(const QList<ToolChain *> &toolChains)
+static QList<ClangToolChain *> clangToolChains(const Toolchains &toolChains)
 {
     QList<ClangToolChain *> clangToolChains;
-    foreach (ToolChain *toolChain, toolChains)
+    for (ToolChain *toolChain : toolChains)
         if (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID)
             clangToolChains.append(static_cast<ClangToolChain *>(toolChain));
     return clangToolChains;
@@ -125,7 +125,7 @@ static QList<ClangToolChain *> clangToolChains(const QList<ToolChain *> &toolCha
 
 static QList<ClangToolChain *> autoDetectedIosToolChains()
 {
-    const QList<ClangToolChain *> toolChains = clangToolChains(ToolChainManager::toolChains());
+    const QList<ClangToolChain *> toolChains = clangToolChains(ToolChainManager::toolchains());
     return Utils::filtered(toolChains, [](ClangToolChain *toolChain) {
         return toolChain->isAutoDetected()
                && (toolChain->displayName().startsWith("iphone")

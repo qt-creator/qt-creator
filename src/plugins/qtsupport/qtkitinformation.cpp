@@ -219,7 +219,7 @@ void QtKitAspect::fix(Kit *k)
         return;
 
     const QString spec = version->mkspec();
-    QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version](const ToolChain *t) {
+    Toolchains possibleTcs = ToolChainManager::toolchains([version](const ToolChain *t) {
         if (!t->isValid() || t->language() != ProjectExplorer::Constants::CXX_LANGUAGE_ID)
             return false;
         return Utils::anyOf(version->qtAbis(), [t](const Abi &qtAbi) {
@@ -243,8 +243,7 @@ void QtKitAspect::fix(Kit *k)
             return tc1->priority() > tc2->priority();
         });
 
-        const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
-                                                           [&spec](const ToolChain *t) {
+        const Toolchains goodTcs = Utils::filtered(possibleTcs, [&spec](const ToolChain *t) {
             return t->suggestedMkspecList().contains(spec);
         });
         // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.

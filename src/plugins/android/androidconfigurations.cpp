@@ -1192,7 +1192,7 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
 void AndroidConfigurations::registerNewToolChains()
 {
     const Toolchains existingAndroidToolChains
-            = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
+            = ToolChainManager::toolchains(Utils::equal(&ToolChain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
     const Toolchains newToolchains = AndroidToolChainFactory::autodetectToolChains(
         existingAndroidToolChains);
@@ -1205,7 +1205,7 @@ void AndroidConfigurations::registerNewToolChains()
 
 void AndroidConfigurations::removeOldToolChains()
 {
-    const auto tcs = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId,
+    const auto tcs = ToolChainManager::toolchains(Utils::equal(&ToolChain::typeId,
                                                                Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
     for (ToolChain *tc : tcs) {
         if (!tc->isValid())
@@ -1352,7 +1352,7 @@ static QVariant findOrRegisterDebugger(ToolChain *tc,
 
 void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
 {
-    const Toolchains existingAndroidToolChains = ToolChainManager::toolChains(
+    const Toolchains existingAndroidToolChains = ToolChainManager::toolchains(
         Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
     const FilePaths customNdks = Utils::transform(currentConfig().getCustomNdkList(),
@@ -1406,7 +1406,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     // register new kits
-    const Toolchains toolchains = ToolChainManager::toolChains([](const ToolChain *tc) {
+    const Toolchains toolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
         return tc->isAutoDetected()
             && tc->isValid()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;

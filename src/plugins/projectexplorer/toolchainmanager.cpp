@@ -141,11 +141,15 @@ void ToolChainManager::saveToolChains()
                            ToolchainDetectionSettings().detectX64AsX32);
 }
 
-Toolchains ToolChainManager::toolChains(const ToolChain::Predicate &predicate)
+const Toolchains &ToolChainManager::toolchains()
 {
-    if (predicate)
-        return Utils::filtered(d->m_toolChains, predicate);
     return d->m_toolChains;
+}
+
+Toolchains ToolChainManager::toolchains(const ToolChain::Predicate &predicate)
+{
+    QTC_ASSERT(predicate, return {});
+    return Utils::filtered(d->m_toolChains, predicate);
 }
 
 ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)

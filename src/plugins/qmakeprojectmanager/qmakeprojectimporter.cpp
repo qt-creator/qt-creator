@@ -241,11 +241,11 @@ void QmakeProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
-static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, const QString &ms)
+static const Toolchains preferredToolChains(BaseQtVersion *qtVersion, const QString &ms)
 {
     const QString spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
-    const QList<ToolChain *> toolchains = ToolChainManager::toolChains();
+    const Toolchains toolchains = ToolChainManager::toolchains();
     const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const ToolChain *tc) {
         return qtAbis.contains(tc->targetAbi()) && tc->suggestedMkspecList().contains(spec);
@@ -256,7 +256,7 @@ static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, co
     ToolChain * const cToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {
         return tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID && matcher(tc);
     });
-    QList<ToolChain *> chosenToolchains;
+    Toolchains chosenToolchains;
     for (ToolChain * const tc : {cxxToolchain, cToolchain}) {
         if (tc)
             chosenToolchains << tc;

@@ -1847,9 +1847,10 @@ bool BaseQtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Env
         // Try running qmake with all kinds of tool chains set up in the environment.
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
-        Abis abiList = Abi::abisOfBinary(binary);
-        const QList<ToolChain *> tcList
-                = ToolChainManager::toolChains([&abiList](const ToolChain *t) { return abiList.contains(t->targetAbi()); });
+        const Abis abiList = Abi::abisOfBinary(binary);
+        const Toolchains tcList = ToolChainManager::toolchains([&abiList](const ToolChain *t) {
+            return abiList.contains(t->targetAbi());
+        });
         for (ToolChain *tc : tcList) {
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);

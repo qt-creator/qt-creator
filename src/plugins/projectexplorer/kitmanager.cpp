@@ -283,7 +283,7 @@ void KitManager::restoreKits()
         // TODO: This should not need to be done here. Instead, it should be a convenience
         // operation on some lower level, e.g. in the toolchain class(es).
         // Also, we shouldn't detect so many doublets in the first place.
-        for (ToolChain * const tc : ToolChainManager::toolChains()) {
+        for (ToolChain * const tc : ToolChainManager::toolchains()) {
             ToolChain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
             if (!bestTc) {
                 bestTc = tc;

@@ -1362,9 +1362,9 @@ void GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
 // ClangToolChain
 // --------------------------------------------------------------------------
 
-static QList<ToolChain *> mingwToolChains()
+static const Toolchains mingwToolChains()
 {
-    return ToolChainManager::toolChains([](const ToolChain *tc) -> bool {
+    return ToolChainManager::toolchains([](const ToolChain *tc) -> bool {
         return tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID;
     });
 }
