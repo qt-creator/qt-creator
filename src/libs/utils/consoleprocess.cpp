@@ -596,12 +596,20 @@ bool ConsoleProcess::start()
     return true;
 }
 
-void Utils::ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
+void ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
 {
     stubServerShutdown();
     emitError(QProcess::FailedToStart, errorMessage);
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
+}
+
+void ConsoleProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    d->m_appPid = 0;
+    d->m_appCode = exitCode;
+    d->m_appStatus = exitStatus;
+    emit finished();
 }
 
 void Utils::ConsoleProcess::kickoffProcess()
@@ -640,8 +648,8 @@ void ConsoleProcess::killProcess()
         d->m_stubSocket->write("k", 1);
         d->m_stubSocket->flush();
     }
-    d->m_appPid = 0;
 #endif
+    d->m_appPid = 0;
 }
 
 void ConsoleProcess::killStub()
@@ -798,12 +806,10 @@ void ConsoleProcess::readStubOutput()
                 emitError(QProcess::UnknownError, tr("Cannot obtain exit status from inferior: %1")
                           .arg(winErrorMessage(GetLastError())));
                 cleanupInferior();
-                d->m_appStatus = QProcess::NormalExit;
-                d->m_appCode = chldStatus;
-                emit processStopped(d->m_appCode, d->m_appStatus);
+                finish(chldStatus, QProcess::NormalExit);
             });
 
-            emit processStarted();
+            emit started();
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
@@ -822,17 +828,11 @@ void ConsoleProcess::readStubOutput()
             d->m_stubPid = out.mid(4).toInt();
         } else if (out.startsWith("pid ")) {
             d->m_appPid = out.mid(4).toInt();
-            emit processStarted();
+            emit started();
         } else if (out.startsWith("exit ")) {
-            d->m_appStatus = QProcess::NormalExit;
-            d->m_appCode = out.mid(5).toInt();
-            d->m_appPid = 0;
-            emit processStopped(d->m_appCode, d->m_appStatus);
+            finish(out.mid(5).toInt(), QProcess::NormalExit);
         } else if (out.startsWith("crash ")) {
-            d->m_appStatus = QProcess::CrashExit;
-            d->m_appCode = out.mid(6).toInt();
-            d->m_appPid = 0;
-            emit processStopped(d->m_appCode, d->m_appStatus);
+            finish(out.mid(6).toInt(), QProcess::CrashExit);
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             d->m_stubPid = 0;
@@ -855,9 +855,7 @@ void ConsoleProcess::stubExited()
     if (d->m_hInferior != NULL) {
         TerminateProcess(d->m_hInferior, (unsigned)-1);
         cleanupInferior();
-        d->m_appStatus = QProcess::CrashExit;
-        d->m_appCode = -1;
-        emit processStopped(d->m_appCode, d->m_appStatus);
+        finish(-1, QProcess::CrashExit);
     }
 #else
     stubServerShutdown();
@@ -865,10 +863,7 @@ void ConsoleProcess::stubExited()
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
     if (d->m_appPid) {
-        d->m_appStatus = QProcess::CrashExit;
-        d->m_appCode = -1;
-        d->m_appPid = 0;
-        emit processStopped(d->m_appCode, d->m_appStatus); // Maybe it actually did not, but keep state consistent
+        finish(-1, QProcess::CrashExit);
     }
 #endif
     emit stubStopped();
@@ -893,7 +888,6 @@ void ConsoleProcess::cleanupInferior()
     d->inferiorFinishedNotifier = nullptr;
     CloseHandle(d->m_hInferior);
     d->m_hInferior = NULL;
-    d->m_appPid = 0;
 #endif
 }
 

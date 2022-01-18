@@ -117,8 +117,8 @@ signals:
     void processError(const QString &errorString);
 
     // These reflect the state of the actual client process
-    void processStarted();
-    void processStopped(int, QProcess::ExitStatus);
+    void started();
+    void finished();
 
     // These reflect the state of the console+stub
     void stubStarted();
@@ -129,6 +129,7 @@ private:
     void readStubOutput();
     void stubExited();
     void cleanupAfterStartFailure(const QString &errorMessage);
+    void finish(int exitCode, QProcess::ExitStatus exitStatus);
 
     static QString modeOption(Mode m);
     static QString msgCommChannelFailed(const QString &error);

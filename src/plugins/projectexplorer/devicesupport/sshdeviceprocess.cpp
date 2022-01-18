@@ -195,9 +195,9 @@ void SshDeviceProcess::handleConnected()
         d->process->setUseTerminal(true);
         connect(&d->consoleProcess, &ConsoleProcess::errorOccurred,
                 this, &DeviceProcess::error);
-        connect(&d->consoleProcess, &ConsoleProcess::processStarted,
+        connect(&d->consoleProcess, &ConsoleProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
-        connect(&d->consoleProcess, &ConsoleProcess::processStopped,
+        connect(&d->consoleProcess, &ConsoleProcess::finished,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         connect(&d->consoleProcess, &ConsoleProcess::stubStopped,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });

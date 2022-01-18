@@ -176,10 +176,10 @@ TerminalRunner::TerminalRunner(RunControl *runControl,
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &TerminalRunner::stubError);
-    connect(&m_stubProc, &ConsoleProcess::processStarted,
+    connect(&m_stubProc, &ConsoleProcess::started,
             this, &TerminalRunner::stubStarted);
-    connect(&m_stubProc, &ConsoleProcess::processStopped,
-            this, [this] { reportDone(); });
+    connect(&m_stubProc, &ConsoleProcess::finished,
+            this, &TerminalRunner::reportDone);
 }
 
 void TerminalRunner::kickoffProcess()

@@ -149,11 +149,11 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
 
     m_consoleProcess.setSettings(Core::ICore::settings());
 
-    connect(&m_consoleProcess, &ConsoleProcess::processStarted,
+    connect(&m_consoleProcess, &ConsoleProcess::started,
             this, &ApplicationLauncherPrivate::handleProcessStarted);
     connect(&m_consoleProcess, &ConsoleProcess::processError,
             this, &ApplicationLauncherPrivate::localConsoleProcessError);
-    connect(&m_consoleProcess, &ConsoleProcess::processStopped, this, [this] {
+    connect(&m_consoleProcess, &ConsoleProcess::finished, this, [this] {
         localProcessDone(m_consoleProcess.exitCode(), m_consoleProcess.exitStatus());
     });
     connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,
