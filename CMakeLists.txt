@@ -138,7 +138,14 @@ endif()
 
 add_subdirectory(doc)
 
-find_package(PythonInterp)
+# TODO: Remove when cmake_minimum_required greater than 3.12
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  find_package(Python3 COMPONENTS Interpreter)
+  set(PYTHONINTERP_FOUND ${Python3_Interpreter_FOUND})
+  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+else()
+  find_package(PythonInterp)
+endif()
 if (NOT PYTHONINTERP_FOUND)
   message("No python interpreter found, skipping \"Dependencies\" install component.")
 else()
