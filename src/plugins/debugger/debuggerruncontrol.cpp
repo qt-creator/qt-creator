@@ -134,7 +134,7 @@ private:
             m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
         }
 
-        m_coreUnpackProcess.setWorkingDirectory(FilePath::fromString(TemporaryDirectory::masterDirectoryPath()));
+        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
         connect(&m_coreUnpackProcess, &QtcProcess::finished, this, &CoreUnpacker::reportStarted);
 
         const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");

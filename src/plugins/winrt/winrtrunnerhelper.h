@@ -28,6 +28,7 @@
 #include "winrtdevice.h"
 
 #include <utils/environment.h>
+#include <utils/filepath.h>
 #include <utils/outputformat.h>
 
 #include <QObject>
@@ -72,7 +73,7 @@ private:
     ProjectExplorer::RunWorker *m_worker = nullptr;
     WinRtDevice::ConstPtr m_device;
     QString m_runnerFilePath;
-    QString m_executableFilePath;
+    Utils::FilePath m_executableFilePath;
     QString m_debuggerExecutable;
     QString m_debuggerArguments;
     QString m_arguments;

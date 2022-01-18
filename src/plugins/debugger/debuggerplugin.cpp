@@ -1994,8 +1994,8 @@ void DebuggerPluginPrivate::dumpLog()
     LogWindow *logWindow = engine->logWindow();
     QTC_ASSERT(logWindow, return);
 
-    FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Debugger Log"),
-                                   FilePath::fromString(TemporaryDirectory::masterDirectoryPath()));
+    const FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Debugger Log"),
+                              TemporaryDirectory::masterDirectoryFilePath());
     if (filePath.isEmpty())
         return;
     FileSaver saver(filePath);

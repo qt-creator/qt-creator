@@ -1721,7 +1721,7 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 
     QtcProcess proc;
     proc.setCommand(dcmd);
-    proc.setWorkingDirectory(QDir::tempPath());
+    proc.setWorkingDirectory(FilePath::fromString(QDir::tempPath()));
     proc.start();
     proc.waitForFinished();
 

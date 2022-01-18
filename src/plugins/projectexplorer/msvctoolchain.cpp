@@ -638,7 +638,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     }
     Utils::QtcProcess cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
+    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
     QStringList arguments;
     const Utils::FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {
@@ -1766,7 +1766,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 
     QtcProcess cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
+    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
 
     QStringList arguments = cxxflags;
     arguments.append(gccPredefinedMacrosOptions(language()));

@@ -935,7 +935,7 @@ void CMakeBuildSystem::runCTest()
     QTC_ASSERT(parameters.isValid(), return);
 
     const CommandLine cmd { m_ctestPath, { "-N", "--show-only=json-v1" } };
-    const QString workingDirectory = buildDirectory(parameters).toString();
+    const FilePath workingDirectory = buildDirectory(parameters);
     const Environment environment = cmakeBuildConfiguration()->environment();
 
     auto future = Utils::runAsync([cmd, workingDirectory, environment]

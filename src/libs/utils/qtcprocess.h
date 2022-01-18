@@ -99,7 +99,6 @@ public:
 
     FilePath workingDirectory() const;
     void setWorkingDirectory(const FilePath &dir);
-    void setWorkingDirectory(const QString &dir); // FIXME: Kept to ease downstream transition
 
     void setUseCtrlCStub(bool enabled);
     void setLowPriority();

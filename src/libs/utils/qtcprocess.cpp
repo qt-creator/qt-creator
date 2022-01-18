@@ -678,11 +678,6 @@ void QtcProcess::setWorkingDirectory(const FilePath &dir)
     d->m_workingDirectory = dir;
 }
 
-void QtcProcess::setWorkingDirectory(const QString &dir)
-{
-    setWorkingDirectory(FilePath::fromString(dir));
-}
-
 void QtcProcess::setUseCtrlCStub(bool enabled)
 {
     // Do not use the stub in debug mode. Activating the stub will shut down
