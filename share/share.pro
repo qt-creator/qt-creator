@@ -12,7 +12,7 @@ linux {
     appstream.files = $$OUT_PWD/metainfo/org.qt-project.qtcreator.appdata.xml
     appstream.path = $$QTC_PREFIX/share/metainfo/
 
-    desktop.files = share/applications/org.qt-project.qtcreator.desktop
+    desktop.files = $$PWD/applications/org.qt-project.qtcreator.desktop
     desktop.path = $$QTC_PREFIX/share/applications/
 
     INSTALLS += appstream desktop
