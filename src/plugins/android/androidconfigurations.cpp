@@ -1191,12 +1191,13 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
 
 void AndroidConfigurations::registerNewToolChains()
 {
-    const QList<ToolChain *> existingAndroidToolChains
+    const Toolchains existingAndroidToolChains
             = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
-    QList<ToolChain *> newToolchains = AndroidToolChainFactory::autodetectToolChains(
+
+    const Toolchains newToolchains = AndroidToolChainFactory::autodetectToolChains(
         existingAndroidToolChains);
 
-    foreach (ToolChain *tc, newToolchains)
+    for (ToolChain *tc : newToolchains)
         ToolChainManager::registerToolChain(tc);
 
     registerCustomToolChainsAndDebuggers();
@@ -1351,11 +1352,12 @@ static QVariant findOrRegisterDebugger(ToolChain *tc,
 
 void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
 {
-    const QList<ToolChain *> existingAndroidToolChains = ToolChainManager::toolChains(
+    const Toolchains existingAndroidToolChains = ToolChainManager::toolChains(
         Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
-    QList<FilePath> customNdks = Utils::transform(currentConfig().getCustomNdkList(),
+
+    const FilePaths customNdks = Utils::transform(currentConfig().getCustomNdkList(),
                                                   FilePath::fromString);
-    QList<ToolChain *> customToolchains
+    const Toolchains customToolchains
         = AndroidToolChainFactory::autodetectToolChainsFromNdks(existingAndroidToolChains,
                                                                 customNdks,
                                                                 true);
@@ -1404,7 +1406,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     // register new kits
-    const QList<ToolChain *> toolchains = ToolChainManager::toolChains([](const ToolChain *tc) {
+    const Toolchains toolchains = ToolChainManager::toolChains([](const ToolChain *tc) {
         return tc->isAutoDetected()
             && tc->isValid()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
@@ -1419,7 +1421,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             if (tcNdk != currentConfig().ndkLocation(qt))
                 continue;
 
-            const QList<ToolChain *> allLanguages
+            const Toolchains allLanguages
                 = Utils::filtered(toolchains, [tc, tcNdk](ToolChain *otherTc) {
                       FilePath otherNdk = static_cast<const AndroidToolChain *>(otherTc)->ndkLocation();
                       return tc->targetAbi() == otherTc->targetAbi() && tcNdk == otherNdk;
