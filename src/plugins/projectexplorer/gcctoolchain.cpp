@@ -1112,18 +1112,8 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
 {
     const FilePaths compilerPaths =
         findCompilerCandidates(detector.device, compilerName, detectVariants == DetectVariants::Yes);
-
-    Toolchains existingCandidates
-            = filtered(detector.alreadyKnown, [requiredTypeId, language, &checker](const ToolChain *tc) {
-        if (tc->typeId() != requiredTypeId)
-            return false;
-        if (tc->language() != language)
-            return false;
-        if (checker && !checker(tc))
-            return false;
-        return true;
-    });
-
+    Toolchains existingCandidates = filtered(detector.alreadyKnown,
+            [language](const ToolChain *tc) { return tc->language() == language; });
     Toolchains result;
     for (const FilePath &compilerPath : qAsConst(compilerPaths)) {
         bool alreadyExists = false;
@@ -1148,8 +1138,10 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
                             == compilerPath.toFileInfo().size());
             }
             if (existingTcMatches) {
-                if (!result.contains(existingTc))
+                if (existingTc->typeId() == requiredTypeId && (!checker || checker(existingTc))
+                        && !result.contains(existingTc)) {
                     result << existingTc;
+                }
                 alreadyExists = true;
             }
         }
