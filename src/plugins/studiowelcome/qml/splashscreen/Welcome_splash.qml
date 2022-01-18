@@ -341,10 +341,16 @@ Rectangle {
         x: 15
         y: 65
         color: "#ffffff"
-        text: qsTr("Community Edition")
+
         font.pixelSize: 13
         font.family: StudioFonts.titilliumWeb_light
-        visible: projectModel.communityVersion
+        text: {
+            if (projectModel.communityVersion)
+                return qsTr("Community Edition")
+            if (projectModel.enterpriseVersion)
+                 return qsTr("Enterprise Edition")
+            return qsTr("Professional Edition")
+        }
 
         ProjectModel {
             id: projectModel

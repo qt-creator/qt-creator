@@ -197,6 +197,7 @@ public:
     enum { FilePathRole = Qt::UserRole + 1, PrettyFilePathRole, PreviewUrl, TagData, Description };
 
     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
+    Q_PROPERTY(bool enterpriseVersion MEMBER m_enterpriseVersion NOTIFY enterpriseVersionChanged)
 
     explicit ProjectModel(QObject *parent = nullptr);
 
@@ -273,10 +274,47 @@ public slots:
 
 signals:
     void communityVersionChanged();
+    void enterpriseVersionChanged();
 
 private:
-    bool m_communityVersion = false;
+    void setupVersion();
+
+    bool m_communityVersion = true;
+    bool m_enterpriseVersion = false;
 };
+
+void ProjectModel::setupVersion()
+{
+    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
+        ExtensionSystem::PluginManager::plugins(),
+        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker")));
+
+    if (!pluginSpec)
+        return;
+
+    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
+
+    if (!plugin)
+        return;
+
+    m_communityVersion = false;
+
+    bool retVal = false;
+    bool success = QMetaObject::invokeMethod(plugin,
+                                             "qdsEnterpriseLicense",
+                                             Qt::DirectConnection,
+                                             Q_RETURN_ARG(bool, retVal));
+
+    if (!success) {
+        qWarning("Check for Qt Design Studio Enterprise License failed.");
+        return;
+    }
+    if (!retVal) {
+        qWarning("No Qt Design Studio Enterprise License. Disabling asset importer.");
+        return;
+    }
+    m_enterpriseVersion = true;
+}
 
 ProjectModel::ProjectModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -286,10 +324,7 @@ ProjectModel::ProjectModel(QObject *parent)
             this,
             &ProjectModel::resetProjects);
 
-    if (!Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
-                              Utils::equal(&ExtensionSystem::PluginSpec::name,
-                                           QString("LicenseChecker"))))
-        m_communityVersion = true;
+    setupVersion();
 }
 
 int ProjectModel::rowCount(const QModelIndex &) const
