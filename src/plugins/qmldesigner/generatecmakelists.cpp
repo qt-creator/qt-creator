@@ -205,8 +205,6 @@ bool showConfirmationDialog(const Utils::FilePath &rootDir)
         files.append(file.filePath);
 
     CmakeGeneratorDialog dialog(rootDir, files);
-    dialog.setMinimumWidth(600);
-    dialog.setMinimumHeight(640);
     if (dialog.exec()) {
         Utils::FilePaths confirmedFiles = dialog.getFilePaths();
         removeUnconfirmedQueuedFiles(confirmedFiles);
