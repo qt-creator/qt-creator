@@ -39,6 +39,7 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QStringList>
 #include <QVariantMap>
@@ -214,10 +215,40 @@ private:
 
 using Toolchains = QList<ToolChain *>;
 
+class PROJECTEXPLORER_EXPORT BadToolchain
+{
+public:
+    BadToolchain(const Utils::FilePath &filePath);
+    BadToolchain(const Utils::FilePath &filePath, const Utils::FilePath &symlinkTarget,
+                 const QDateTime &timestamp);
+
+    QVariantMap toMap() const;
+    static BadToolchain fromMap(const QVariantMap &map);
+
+    Utils::FilePath filePath;
+    Utils::FilePath symlinkTarget;
+    QDateTime timestamp;
+};
+
+class PROJECTEXPLORER_EXPORT BadToolchains
+{
+public:
+    BadToolchains(const QList<BadToolchain> &toolchains = {});
+    bool isBadToolchain(const Utils::FilePath &toolchain) const;
+
+    QVariant toVariant() const;
+    static BadToolchains fromVariant(const QVariant &v);
+
+    QList<BadToolchain> toolchains;
+};
+
 class PROJECTEXPLORER_EXPORT ToolchainDetector
 {
 public:
     ToolchainDetector(const Toolchains &alreadyKnown, const IDevice::ConstPtr &device);
+
+    bool isBadToolchain(const Utils::FilePath &toolchain) const;
+    void addBadToolchain(const Utils::FilePath &toolchain) const;
 
     const Toolchains alreadyKnown;
     const IDevice::ConstPtr device;

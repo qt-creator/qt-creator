@@ -1023,10 +1023,11 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
                                                   || fileName == "cc"))
             || (tcd.language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
                                                            || fileName.endsWith("g++")
-                                                           || fileName == "c++")))
+                                                           || fileName == "c++"))) {
         return autoDetectToolChain(tcd, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor;
         });
+    }
     return {};
 }
 
@@ -1164,11 +1165,15 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
     Environment systemEnvironment = Environment::systemEnvironment();
     GccToolChain::addCommandPathToEnvironment(tcd.compilerPath, systemEnvironment);
     const FilePath localCompilerPath = findLocalCompiler(tcd.compilerPath, systemEnvironment);
+    if (ToolChainManager::isBadToolchain(localCompilerPath))
+        return result;
     Macros macros
             = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(tcd.language),
                                   systemEnvironment);
-    if (macros.isEmpty())
+    if (macros.isEmpty()) {
+        ToolChainManager::addBadToolchain(localCompilerPath);
         return result;
+    }
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
                                                                       systemEnvironment,
                                                                       macros);
@@ -1640,8 +1645,9 @@ Toolchains ClangToolChainFactory::detectForImport(const ToolChainDescription &tc
 {
     const QString fileName = tcd.compilerPath.toString();
     if ((tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("clang") && !fileName.startsWith("clang++"))
-            || (tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("clang++")))
+            || (tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("clang++"))) {
         return autoDetectToolChain(tcd);
+    }
     return {};
 }
 
@@ -1820,10 +1826,11 @@ Toolchains MingwToolChainFactory::detectForImport(const ToolChainDescription &tc
     if ((tcd.language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
                                                       || fileName.endsWith("gcc")))
             || (tcd.language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
-                                                               || fileName.endsWith("g++"))))
+                                                               || fileName.endsWith("g++")))) {
         return autoDetectToolChain(tcd, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
         });
+    }
 
     return {};
 }
@@ -1896,8 +1903,9 @@ Toolchains LinuxIccToolChainFactory::detectForImport(const ToolChainDescription 
 {
     const QString fileName = tcd.compilerPath.toString();
     if ((tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc")) ||
-        (tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc")))
+        (tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc"))) {
         return autoDetectToolChain(tcd);
+    }
     return {};
 }
 

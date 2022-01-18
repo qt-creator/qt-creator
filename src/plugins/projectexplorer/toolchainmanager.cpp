@@ -63,6 +63,7 @@ public:
     std::unique_ptr<ToolChainSettingsAccessor> m_accessor;
 
     Toolchains m_toolChains; // prioritized List
+    BadToolchains m_badToolchains;   // to be skipped when auto-detecting
     QVector<LanguageDisplayPair> m_languages;
     ToolchainDetectionSettings m_detectionSettings;
     bool m_loaded = false;
@@ -82,6 +83,8 @@ static ToolChainManagerPrivate *d = nullptr;
 using namespace Internal;
 
 const char DETECT_X64_AS_X32_KEY[] = "ProjectExplorer/Toolchains/DetectX64AsX32";
+
+static QString badToolchainsKey() { return {"BadToolChains"}; }
 
 // --------------------------------------------------------------------------
 // ToolChainManager
@@ -104,6 +107,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
     QSettings * const s = Core::ICore::settings();
     d->m_detectionSettings.detectX64AsX32
         = s->value(DETECT_X64_AS_X32_KEY, ToolchainDetectionSettings().detectX64AsX32).toBool();
+    d->m_badToolchains = BadToolchains::fromVariant(s->value(badToolchainsKey()));
 }
 
 ToolChainManager::~ToolChainManager()
@@ -139,6 +143,7 @@ void ToolChainManager::saveToolChains()
     s->setValueWithDefault(DETECT_X64_AS_X32_KEY,
                            d->m_detectionSettings.detectX64AsX32,
                            ToolchainDetectionSettings().detectX64AsX32);
+    s->setValue(badToolchainsKey(), d->m_badToolchains.toVariant());
 }
 
 const Toolchains &ToolChainManager::toolchains()
@@ -276,6 +281,21 @@ ToolchainDetectionSettings ToolChainManager::detectionSettings()
 void ToolChainManager::setDetectionSettings(const ToolchainDetectionSettings &settings)
 {
     d->m_detectionSettings = settings;
+}
+
+void ToolChainManager::resetBadToolchains()
+{
+    d->m_badToolchains.toolchains.clear();
+}
+
+bool ToolChainManager::isBadToolchain(const Utils::FilePath &toolchain)
+{
+    return d->m_badToolchains.isBadToolchain(toolchain);
+}
+
+void ToolChainManager::addBadToolchain(const Utils::FilePath &toolchain)
+{
+    d->m_badToolchains.toolchains << toolchain;
 }
 
 } // namespace ProjectExplorer

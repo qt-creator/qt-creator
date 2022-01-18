@@ -83,6 +83,10 @@ public:
     static ToolchainDetectionSettings detectionSettings();
     static void setDetectionSettings(const ToolchainDetectionSettings &settings);
 
+    static void resetBadToolchains();
+    static bool isBadToolchain(const Utils::FilePath &toolchain);
+    static void addBadToolchain(const Utils::FilePath &toolchain);
+
     void saveToolChains();
 
 signals:

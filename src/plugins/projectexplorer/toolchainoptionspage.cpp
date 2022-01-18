@@ -412,6 +412,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     });
     Toolchains toAdd;
     QSet<ToolChain *> toDelete;
+    ToolChainManager::resetBadToolchains();
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
         const ToolchainDetector detector(knownTcs, {});  // FIXME: Pass device.
         for (ToolChain * const tc : f->autoDetect(detector)) {
