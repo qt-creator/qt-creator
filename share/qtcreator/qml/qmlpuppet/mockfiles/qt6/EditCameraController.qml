@@ -190,7 +190,7 @@ Item {
         }
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         var pressPoint = Qt.vector3d(view3d.width / 2, view3d.height / 2, 0);
         var currentPoint;
 
