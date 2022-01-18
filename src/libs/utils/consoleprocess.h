@@ -128,6 +128,7 @@ private:
     void stubConnectionAvailable();
     void readStubOutput();
     void stubExited();
+    void cleanupAfterStartFailure(const QString &errorMessage);
 
     static QString modeOption(Mode m);
     static QString msgCommChannelFailed(const QString &error);

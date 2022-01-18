@@ -411,10 +411,7 @@ bool ConsoleProcess::start()
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
-            stubServerShutdown();
-            emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
-            delete d->m_tempFile;
-            d->m_tempFile = nullptr;
+            cleanupAfterStartFailure(msgCannotCreateTempFile(d->m_tempFile->errorString()));
             return false;
         }
         QString outString;
@@ -444,10 +441,7 @@ bool ConsoleProcess::start()
         QTC_CHECK(textCodec);
         const QByteArray outBytes = textCodec ? textCodec->fromUnicode(outString) : QByteArray();
         if (!textCodec || d->m_tempFile->write(outBytes) < 0) {
-            stubServerShutdown();
-            emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
-            delete d->m_tempFile;
-            d->m_tempFile = nullptr;
+            cleanupAfterStartFailure(msgCannotWriteTempFile());
             return false;
         }
         d->m_tempFile->flush();
@@ -483,10 +477,9 @@ bool ConsoleProcess::start()
     if (!success) {
         delete d->m_pid;
         d->m_pid = nullptr;
-        delete d->m_tempFile;
-        d->m_tempFile = nullptr;
-        stubServerShutdown();
-        emitError(QProcess::FailedToStart, tr("The process \"%1\" could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
+        const QString msg = tr("The process \"%1\" could not be started: %2")
+                .arg(cmdLine, winErrorMessage(GetLastError()));
+        cleanupAfterStartFailure(msg);
         return false;
     }
 
@@ -550,22 +543,16 @@ bool ConsoleProcess::start()
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
-            stubServerShutdown();
-            emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
-            delete d->m_tempFile;
-            d->m_tempFile = nullptr;
+            cleanupAfterStartFailure(msgCannotCreateTempFile(d->m_tempFile->errorString()));
             return false;
         }
         QByteArray contents;
         for (const QString &var : env) {
-            QByteArray l8b = var.toLocal8Bit();
+            const QByteArray l8b = var.toLocal8Bit();
             contents.append(l8b.constData(), l8b.size() + 1);
         }
         if (d->m_tempFile->write(contents) != contents.size() || !d->m_tempFile->flush()) {
-            stubServerShutdown();
-            emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
-            delete d->m_tempFile;
-            d->m_tempFile = nullptr;
+            cleanupAfterStartFailure(msgCannotWriteTempFile());
             return false;
         }
     }
@@ -594,11 +581,9 @@ bool ConsoleProcess::start()
     d->m_process.setCommand({FilePath::fromString(terminal.command), allArgs});
     d->m_process.start();
     if (!d->m_process.waitForStarted()) {
-        stubServerShutdown();
-        emitError(QProcess::UnknownError, tr("Cannot start the terminal emulator \"%1\", change the setting in the "
-                             "Environment options.").arg(terminal.command));
-        delete d->m_tempFile;
-        d->m_tempFile = nullptr;
+        const QString msg = tr("Cannot start the terminal emulator \"%1\", change the setting in the "
+                               "Environment options.").arg(terminal.command);
+        cleanupAfterStartFailure(msg);
         return false;
     }
     d->m_stubConnectTimer = new QTimer(this);
@@ -609,6 +594,14 @@ bool ConsoleProcess::start()
 #endif
 
     return true;
+}
+
+void Utils::ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
+{
+    stubServerShutdown();
+    emitError(QProcess::FailedToStart, errorMessage);
+    delete d->m_tempFile;
+    d->m_tempFile = nullptr;
 }
 
 void Utils::ConsoleProcess::kickoffProcess()
