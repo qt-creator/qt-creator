@@ -217,7 +217,7 @@ using Toolchains = QList<ToolChain *>;
 class PROJECTEXPLORER_EXPORT ToolchainDetector
 {
 public:
-    ToolchainDetector(const Toolchains &alreadyKnown = {}, const IDevice::ConstPtr &device = {});
+    ToolchainDetector(const Toolchains &alreadyKnown, const IDevice::ConstPtr &device);
 
     const Toolchains alreadyKnown;
     const IDevice::ConstPtr device;

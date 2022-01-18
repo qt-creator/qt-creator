@@ -1938,7 +1938,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                 {MsvcToolChain::ia64, "ia64"},
             };
             for (const auto &platform : platforms) {
-                tmp.append(findOrCreateToolchains(detector.alreadyKnown,
+                tmp.append(findOrCreateToolchains(detector,
                                                   generateDisplayName(name,
                                                                       MsvcToolChain::WindowsSDK,
                                                                       platform.first),
@@ -1979,7 +1979,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
                 = QFileInfo(vcVarsBatFor(i.vcVarsPath, platform, i.version)).isFile();
             if (hostSupportsPlatform(platform) && toolchainInstalled) {
                 results.append(
-                    findOrCreateToolchains(detector.alreadyKnown,
+                    findOrCreateToolchains(detector,
                                            generateDisplayName(i.vsName, MsvcToolChain::VS, platform),
                                            findAbiOfMsvc(MsvcToolChain::VS, platform, i.vsName),
                                            i.vcVarsAll,
