@@ -174,7 +174,7 @@ TerminalRunner::TerminalRunner(RunControl *runControl,
 {
     setId("TerminalRunner");
 
-    connect(&m_stubProc, &ConsoleProcess::processError,
+    connect(&m_stubProc, &ConsoleProcess::errorOccurred,
             this, &TerminalRunner::stubError);
     connect(&m_stubProc, &ConsoleProcess::started,
             this, &TerminalRunner::stubStarted);
@@ -235,9 +235,9 @@ void TerminalRunner::stubStarted()
     reportStarted();
 }
 
-void TerminalRunner::stubError(const QString &msg)
+void TerminalRunner::stubError()
 {
-    reportFailure(msg);
+    reportFailure(m_stubProc.errorString());
 }
 
 } // namespace Internal

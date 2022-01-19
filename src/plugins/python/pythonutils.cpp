@@ -113,13 +113,13 @@ void openPythonRepl(const FilePath &file, ReplType type)
     process->setWorkingDirectory(workingDir(file));
     const QString commandLine = process->command().toUserOutput();
     QObject::connect(process,
-                     &ConsoleProcess::processError,
+                     &ConsoleProcess::errorOccurred,
                      process,
-                     [process, commandLine](const QString &errorString) {
+                     [process, commandLine] {
                          Core::MessageManager::writeDisrupting(
                              QCoreApplication::translate("Python",
                                                          "Failed to run Python (%1): \"%2\".")
-                                 .arg(commandLine, errorString));
+                                 .arg(commandLine, process->errorString()));
                          process->deleteLater();
                      });
     QObject::connect(process, &ConsoleProcess::stubStopped, process, &QObject::deleteLater);

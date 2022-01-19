@@ -77,7 +77,7 @@ public:
     // Local
     void handleProcessStarted();
     void localGuiProcessError();
-    void localConsoleProcessError(const QString &error);
+    void localConsoleProcessError();
     void readLocalStandardOutput();
     void readLocalStandardError();
     void cannotRetrieveLocalDebugOutput();
@@ -151,7 +151,7 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
 
     connect(&m_consoleProcess, &ConsoleProcess::started,
             this, &ApplicationLauncherPrivate::handleProcessStarted);
-    connect(&m_consoleProcess, &ConsoleProcess::processError,
+    connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,
             this, &ApplicationLauncherPrivate::localConsoleProcessError);
     connect(&m_consoleProcess, &ConsoleProcess::finished, this, [this] {
         localProcessDone(m_consoleProcess.exitCode(), m_consoleProcess.exitStatus());
@@ -294,9 +294,9 @@ void ApplicationLauncherPrivate::localGuiProcessError()
     }
 }
 
-void ApplicationLauncherPrivate::localConsoleProcessError(const QString &error)
+void ApplicationLauncherPrivate::localConsoleProcessError()
 {
-    emit q->appendMessage(error, ErrorMessageFormat);
+    emit q->appendMessage(m_consoleProcess.errorString(), ErrorMessageFormat);
     if (m_processRunning && m_consoleProcess.applicationPID() == 0) {
         m_processRunning = false;
         emit q->processExited(-1, QProcess::NormalExit);

@@ -1026,7 +1026,6 @@ void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorS
     d->m_error = err;
     d->m_errorString = errorString;
     emit errorOccurred(err);
-    emit processError(errorString);
 }
 
 bool TerminalCommand::operator==(const TerminalCommand &other) const

@@ -86,7 +86,7 @@ private:
     void stop() final;
 
     void stubStarted();
-    void stubError(const QString &msg);
+    void stubError();
 
     Utils::ConsoleProcess m_stubProc;
     std::function<ProjectExplorer::Runnable()> m_stubRunnable;

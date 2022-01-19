@@ -114,7 +114,6 @@ public:
 
 signals:
     void errorOccurred(QProcess::ProcessError error);
-    void processError(const QString &errorString);
 
     // These reflect the state of the actual client process
     void started();
