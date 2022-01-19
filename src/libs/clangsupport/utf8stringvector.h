@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "sqliteglobal.h"
+#include "clangsupport_global.h"
 #include "utf8string.h"
 
 #include <QDataStream>
@@ -33,7 +33,7 @@
 
 #include <ostream>
 
-class SQLITE_EXPORT Utf8StringVector : public QVector<Utf8String>
+class CLANGSUPPORT_EXPORT Utf8StringVector : public QVector<Utf8String>
 {
 public:
     Utf8StringVector();
@@ -100,6 +100,6 @@ inline QDataStream &operator<<(QDataStream &s, const Utf8StringVector &v)
 inline QDataStream &operator>>(QDataStream &s, Utf8StringVector &v)
 { return s >> static_cast<QVector<Utf8String> &>(v); }
 
-SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8StringVector &textVector);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const Utf8StringVector &textVector);
 
 Q_DECLARE_METATYPE(Utf8StringVector)

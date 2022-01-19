@@ -50,6 +50,8 @@ SOURCES += \
     $$PWD/tooltipmessage.cpp \
     $$PWD/tooltipinfo.cpp \
     $$PWD/unsavedfilesremovedmessage.cpp \
+    $$PWD/utf8string.cpp \
+    $$PWD/utf8stringvector.cpp \
     $$PWD/documentschangedmessage.cpp \
     $$PWD/documentvisibilitychangedmessage.cpp \
     $$PWD/writemessageblock.cpp \
@@ -104,6 +106,8 @@ HEADERS += \
     $$PWD/tooltipmessage.h \
     $$PWD/tooltipinfo.h \
     $$PWD/unsavedfilesremovedmessage.h \
+    $$PWD/utf8string.h \
+    $$PWD/utf8stringvector.h \
     $$PWD/documentschangedmessage.h \
     $$PWD/documentvisibilitychangedmessage.h \
     $$PWD/writemessageblock.h \

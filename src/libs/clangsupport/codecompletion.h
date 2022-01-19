@@ -29,7 +29,7 @@
 #include "codecompletionchunk.h"
 #include "fixitcontainer.h"
 
-#include <sqlite/utf8string.h>
+#include "utf8string.h"
 
 #include <QDataStream>
 #include <QVector>

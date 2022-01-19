@@ -18,8 +18,6 @@ SOURCES += \
     $$PWD/sqlitesessionchangeset.cpp \
     $$PWD/sqlitesessions.cpp \
     $$PWD/sqlstatementbuilder.cpp \
-    $$PWD/utf8string.cpp \
-    $$PWD/utf8stringvector.cpp \
     $$PWD/sqlitedatabase.cpp \
     $$PWD/sqlitebasestatement.cpp
 HEADERS += \
@@ -44,8 +42,6 @@ HEADERS += \
     $$PWD/sqlitewritestatement.h \
     $$PWD/sqlstatementbuilder.h \
     $$PWD/sqlstatementbuilderexception.h \
-    $$PWD/utf8string.h \
-    $$PWD/utf8stringvector.h \
     $$PWD/sqlitedatabase.h \
     $$PWD/sqlitetable.h \
     $$PWD/sqlitecolumn.h \

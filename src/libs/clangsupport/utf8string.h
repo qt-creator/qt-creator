@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "sqliteglobal.h"
+#include "clangsupport_global.h"
 
 #include <QByteArray>
 #include <QDataStream>
@@ -108,7 +108,7 @@ public:
         byteArray.replace(position, length, after.byteArray);
     }
 
-    SQLITE_EXPORT Utf8StringVector split(char separator) const;
+    CLANGSUPPORT_EXPORT Utf8StringVector split(char separator) const;
 
     void clear()
     {
@@ -317,7 +317,7 @@ private:
     QByteArray byteArray;
 };
 
-SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8String &text);
-SQLITE_EXPORT std::ostream& operator<<(std::ostream &os, const Utf8String &utf8String);
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const Utf8String &text);
+CLANGSUPPORT_EXPORT std::ostream &operator<<(std::ostream &os, const Utf8String &utf8String);
 
 #define Utf8StringLiteral(str) Utf8String::fromByteArray(QByteArrayLiteral(str))

@@ -27,7 +27,7 @@
 
 #include "filecontainer.h"
 
-#include <utf8string.h>
+#include "utf8string.h"
 
 #include <QDir>
 #include <QLoggingCategory>

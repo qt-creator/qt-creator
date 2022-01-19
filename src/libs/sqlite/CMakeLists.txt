@@ -37,8 +37,6 @@ add_qtc_library(Sqlite
     sqlstatementbuilder.cpp sqlstatementbuilder.h
     sqlstatementbuilderexception.h
     tableconstraints.h
-    utf8string.cpp utf8string.h
-    utf8stringvector.cpp utf8stringvector.h
     sqliteblob.h
     sqlitetimestamp.h
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h

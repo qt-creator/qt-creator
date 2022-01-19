@@ -27,9 +27,9 @@
 
 #include "clangsupport_global.h"
 
+#include "utf8string.h"
 #include <QString>
 #include <QTextStream>
-#include <utf8string.h>
 
 namespace ClangBackEnd {
 

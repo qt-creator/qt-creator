@@ -2,7 +2,7 @@ set(CLANG_VERSION ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}.${LLVM_VERSION_PAT
 
 add_qtc_library(ClangSupport
   DEPENDS Threads::Threads
-  PUBLIC_DEPENDS Utils Sqlite Qt5::Core Qt5::Network
+  PUBLIC_DEPENDS Utils Qt5::Core Qt5::Network
   PUBLIC_DEFINES
     CLANG_VERSION="${CLANG_VERSION}"
     CLANG_INCLUDE_DIR="${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
@@ -63,6 +63,8 @@ add_qtc_library(ClangSupport
     tooltipmessage.cpp tooltipmessage.h
     unsavedfilesremovedmessage.cpp unsavedfilesremovedmessage.h
     unsavedfilesupdatedmessage.cpp unsavedfilesupdatedmessage.h
+    utf8string.cpp utf8string.h
+    utf8stringvector.cpp utf8stringvector.h
     writemessageblock.cpp writemessageblock.h
 )
 
