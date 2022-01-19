@@ -195,8 +195,8 @@ QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProjec
 
 void GenerateResource::generateMenuEntry()
 {
-    Core::ActionContainer *buildMenu =
-            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+    Core::ActionContainer *menu =
+            Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
@@ -573,8 +573,8 @@ void GenerateResource::generateMenuEntry()
             }
         }
     });
-    buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
-    buildMenu->addAction(cmd2, ProjectExplorer::Constants::G_BUILD_RUN);
+    menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
+    menu->addAction(cmd2, Core::Constants::G_FILE_EXPORT);
 }
 
 } // namespace QmlDesigner

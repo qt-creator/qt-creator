@@ -408,10 +408,7 @@ QFuture<ResultType> runAsync_internal(QThreadPool *pool,
     QFuture<ResultType> future = job->future();
     if (pool) {
         job->setThreadPool(pool);
-        if (QThread::currentThread() == pool->thread())
-            pool->start(job);
-        else
-            QMetaObject::invokeMethod(pool, [pool, job]() { pool->start(job); }, Qt::QueuedConnection);
+        pool->start(job);
     } else {
         auto thread = new Internal::RunnableThread(job);
         if (stackSize)

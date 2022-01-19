@@ -53,7 +53,6 @@ Rectangle {
 
     property int closeButtonMargin: 6
     property int textFieldMargin: 4
-    property int highlightBorderWidth: 2
 
     signal delegateInteraction
 
@@ -165,21 +164,11 @@ Rectangle {
         }
     }
 
-
-    Rectangle { // highlight for default state
-        anchors.margins: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? -myRoot.highlightBorderWidth : 0
-        anchors.fill: column
-        color: StudioTheme.Values.themeStateSeparator
-        border.color: StudioTheme.Values.themeStateDefaultHighlight
-        border.width: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? myRoot.highlightBorderWidth : 0
-    }
-
     Column {
         id: column
 
         anchors.margins: myRoot.stateMargin
         anchors.fill: parent
-        spacing: expanded ? myRoot.columnSpacing : 0
 
         Rectangle {
             width: myRoot.width - 2 * myRoot.stateMargin
@@ -261,6 +250,13 @@ Rectangle {
 
                 text: qsTr("Default")
             }
+        }
+
+        Rectangle { // separator
+            width: column.width
+            height: myRoot.columnSpacing
+            color: StudioTheme.Values.themeStateSeparator
+            visible: expanded
         }
 
         Rectangle {

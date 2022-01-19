@@ -81,12 +81,12 @@ QVector<GeneratableFile> queuedFiles;
 
 void generateMenuEntry()
 {
-    Core::ActionContainer *buildMenu =
-            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateCmake", "Generate CMakeLists.txt Files"));
+    Core::ActionContainer *menu =
+            Core::ActionManager::actionContainer(Core::Constants::M_FILE);
+    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateCmake", "Export to Qt Creator (CMake)"));
     QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
-    buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
+    menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
 
     action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
