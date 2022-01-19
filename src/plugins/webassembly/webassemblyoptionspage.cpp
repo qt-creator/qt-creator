@@ -76,8 +76,12 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
                     tr("Select the root directory of an "
                        "<a href=\"https://emscripten.org/docs/getting_started/downloads.html\">"
                        "installed Emscripten SDK</a>. Ensure that the activated SDK version is "
-                       "<a href=\"https://doc.qt.io/qt-5/wasm.html#install-emscripten\">"
-                       "compatible</a> with the Qt version that you plan to develop against."));
+                       "compatible with the "
+                       "<a href=\"https://doc.qt.io/qt-5/wasm.html#install-emscripten\">Qt 5</a> "
+                       "or "
+                       "<a href=\"https://doc.qt.io/qt-6/wasm.html#install-emscripten\">Qt 6</a> "
+                       "version that you plan to develop against."));
+
         instruction->setOpenExternalLinks(true);
         instruction->setWordWrap(true);
         layout->addWidget(instruction);
