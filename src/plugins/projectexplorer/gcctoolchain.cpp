@@ -1635,7 +1635,7 @@ Toolchains ClangToolChainFactory::autoDetect(const ToolchainDetector &detector) 
         const FilePath clang = compilerPath.parentDir().pathAppended("clang").withExecutableSuffix();
         tcs.append(autoDetectToolchains(clang.toString(), DetectVariants::No,
                                         Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
-                                        ToolchainDetector(tcs, detector.device)));
+                                        ToolchainDetector(known, detector.device)));
     }
 
     return tcs;
