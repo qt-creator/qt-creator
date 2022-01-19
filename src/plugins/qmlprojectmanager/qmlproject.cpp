@@ -340,6 +340,13 @@ QStringList QmlBuildSystem::customFileSelectors() const
     return {};
 }
 
+bool QmlBuildSystem::multilanguageSupport() const
+{
+    if (m_projectItem)
+        return m_projectItem->multilanguageSupport();
+    return false;
+}
+
 QStringList QmlBuildSystem::supportedLanguages() const
 {
     if (m_projectItem)
