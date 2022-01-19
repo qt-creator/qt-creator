@@ -255,6 +255,10 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("Components are only allowed to have a single child element."));
     newMsg(WarnComponentRequiresChildren, Warning,
            tr("Components require a child element."));
+    newMsg(ErrAliasReferRoot, Error,
+           tr("Do not reference the root item as alias."));
+    newMsg(WarnAliasReferRootHierarchy, Warning,
+           tr("Avoid referencing the root item in a hierarchy."));
 }
 
 } // anonymous namespace

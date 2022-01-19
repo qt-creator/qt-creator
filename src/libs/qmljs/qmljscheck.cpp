@@ -1128,6 +1128,44 @@ bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
         const QStringView typeName = ast->memberType->name;
+
+        // Check alias properties don't reference root item
+        // Item {
+        //     id: root
+        //     property alias p1: root
+        //     property alias p2: root.child
+        //
+        //     Item { id: child }
+        // }
+        // - Show error for alias property p1
+        // - Show warning for alias property p2
+
+        // Check if type and id stack only contain one item as we are only looking for alias
+        // properties in the root item.
+        if (typeName == QLatin1String("alias") && ast->type == AST::UiPublicMember::Property
+            && m_typeStack.count() == 1 && m_idStack.count() == 1 && m_idStack.top().count() == 1) {
+
+            const QString rootId = m_idStack.top().values().first();
+            if (!rootId.isEmpty()) {
+                if (ExpressionStatement *exp = cast<ExpressionStatement *>(ast->statement)) {
+                    ExpressionNode *node = exp->expression;
+
+                    // Check for case property alias p1: root
+                    if (IdentifierExpression *idExp = cast<IdentifierExpression *>(node)) {
+                        if (!idExp->name.isEmpty() && idExp->name.toString() == rootId)
+                            addMessage(ErrAliasReferRoot, idExp->identifierToken);
+
+                    // Check for case property alias p2: root.child
+                    } else if (FieldMemberExpression *fmExp = cast<FieldMemberExpression *>(node)) {
+                        if (IdentifierExpression *base = cast<IdentifierExpression *>(fmExp->base)) {
+                            if (!base->name.isEmpty() && base->name.toString() == rootId)
+                                addMessage(WarnAliasReferRootHierarchy, base->identifierToken);
+                        }
+                    }
+                }
+            }
+        }
+
         // warn about dubious use of var/variant
         if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
             Evaluate evaluator(&_scopeChain);

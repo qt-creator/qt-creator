@@ -134,7 +134,9 @@ enum Type {
     WarnLogicalValueDoesNotDependOnValues = 325,
     ErrToManyComponentChildren = 326,
     WarnComponentRequiresChildren = 327,
-    WarnDuplicateImport = 400
+    WarnDuplicateImport = 400,
+    ErrAliasReferRoot = 401,
+    WarnAliasReferRootHierarchy = 402
 };
 
 class QMLJS_EXPORT PrototypeMessageData {
