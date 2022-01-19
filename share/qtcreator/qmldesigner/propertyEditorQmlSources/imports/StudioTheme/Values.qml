@@ -289,7 +289,6 @@ QtObject {
     property string themeTabInactiveBackground: Theme.color(Theme.DStabInactiveBackground)
     property string themeTabInactiveText: Theme.color(Theme.DStabInactiveText)
 
-    property string themeStateDefaultHighlight: Theme.color(Theme.DSstateDefaultHighlight)
     property string themeStateSeparator: Theme.color(Theme.DSstateSeparatorColor)
     property string themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)
     property string themeStatePreviewOutline: Theme.color(Theme.DSstatePreviewOutline)

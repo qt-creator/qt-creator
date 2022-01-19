@@ -4,7 +4,7 @@ if (APPLE)
 endif()
 
 add_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
