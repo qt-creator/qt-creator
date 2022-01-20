@@ -190,7 +190,7 @@ void ConsoleProcess::setCommand(const CommandLine &command)
     d->m_commandLine = command;
 }
 
-CommandLine ConsoleProcess::command() const
+const CommandLine &ConsoleProcess::commandLine() const
 {
     return d->m_commandLine;
 }
@@ -973,7 +973,7 @@ void ConsoleProcess::setEnvironment(const Environment &env)
     d->m_environment = env;
 }
 
-Environment ConsoleProcess::environment() const
+const Utils::Environment &ConsoleProcess::environment() const
 {
     return d->m_environment;
 }

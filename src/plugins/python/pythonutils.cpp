@@ -111,7 +111,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     const FilePath pythonCommand = detectPython(file);
     process->setCommand({pythonCommand, args});
     process->setWorkingDirectory(workingDir(file));
-    const QString commandLine = process->command().toUserOutput();
+    const QString commandLine = process->commandLine().toUserOutput();
     QObject::connect(process,
                      &ConsoleProcess::errorOccurred,
                      process,

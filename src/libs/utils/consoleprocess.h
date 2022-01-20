@@ -66,7 +66,7 @@ public:
     ~ConsoleProcess() override;
 
     void setCommand(const Utils::CommandLine &command);
-    Utils::CommandLine command() const;
+    const Utils::CommandLine &commandLine() const;
 
     void setAbortOnMetaChars(bool abort);
 
@@ -74,7 +74,7 @@ public:
     Utils::FilePath workingDirectory() const;
 
     void setEnvironment(const Environment &env);
-    Environment environment() const;
+    const Environment &environment() const;
 
     void setRunAsRoot(bool on);
 
