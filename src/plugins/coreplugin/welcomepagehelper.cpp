@@ -416,7 +416,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         offset = animationCurve.valueForProgress(animationProgress) * shiftY;
         if (offset < shiftY)
             QTimer::singleShot(10, this, &ListItemDelegate::goon);
-    } else {
+    } else if (index == m_previousIndex) {
         m_previousIndex = QModelIndex();
     }
 
