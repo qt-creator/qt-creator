@@ -181,7 +181,7 @@ ConsoleProcess::ConsoleProcess(QObject *parent) :
 
 ConsoleProcess::~ConsoleProcess()
 {
-    stop();
+    stopProcess();
     delete d;
 }
 
@@ -430,10 +430,10 @@ qint64 ConsoleProcess::applicationMainThreadID() const
     return -1;
 }
 
-bool ConsoleProcess::start()
+void ConsoleProcess::start()
 {
     if (isRunning())
-        return false;
+        return;
 
     d->m_errorString.clear();
     d->m_error = QProcess::UnknownError;
@@ -455,7 +455,7 @@ bool ConsoleProcess::start()
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
         emitError(QProcess::FailedToStart, msgCommChannelFailed(err));
-        return false;
+        return;
     }
 
     QStringList env = d->m_environment.toStringList();
@@ -463,7 +463,7 @@ bool ConsoleProcess::start()
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             cleanupAfterStartFailure(msgCannotCreateTempFile(d->m_tempFile->errorString()));
-            return false;
+            return;
         }
         QString outString;
         QTextStream out(&outString);
@@ -493,7 +493,7 @@ bool ConsoleProcess::start()
         const QByteArray outBytes = textCodec ? textCodec->fromUnicode(outString) : QByteArray();
         if (!textCodec || d->m_tempFile->write(outBytes) < 0) {
             cleanupAfterStartFailure(msgCannotWriteTempFile());
-            return false;
+            return;
         }
         d->m_tempFile->flush();
     }
@@ -531,7 +531,7 @@ bool ConsoleProcess::start()
         const QString msg = tr("The process \"%1\" could not be started: %2")
                 .arg(cmdLine, winErrorMessage(GetLastError()));
         cleanupAfterStartFailure(msg);
-        return false;
+        return;
     }
 
     d->processFinishedNotifier = new QWinEventNotifier(d->m_pid->hProcess, this);
@@ -554,13 +554,13 @@ bool ConsoleProcess::start()
     } else {
         if (perr != ProcessArgs::FoundMeta) {
             emitError(QProcess::FailedToStart, tr("Quoting error in command."));
-            return false;
+            return;
         }
         if (d->m_mode == Debug) {
             // FIXME: QTCREATORBUG-2809
             emitError(QProcess::FailedToStart, tr("Debugging complex shell commands in a terminal"
                                  " is currently not supported."));
-            return false;
+            return;
         }
         pcmd = qEnvironmentVariable("SHELL", "/bin/sh");
         pargs = ProcessArgs::createUnixArgs(
@@ -579,13 +579,13 @@ bool ConsoleProcess::start()
         emitError(QProcess::FailedToStart, qerr == ProcessArgs::BadQuoting
                           ? tr("Quoting error in terminal command.")
                           : tr("Terminal command may not be a shell command."));
-        return false;
+        return;
     }
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
         emitError(QProcess::FailedToStart, msgCommChannelFailed(err));
-        return false;
+        return;
     }
 
     d->m_environment.unset(QLatin1String("TERM"));
@@ -595,7 +595,7 @@ bool ConsoleProcess::start()
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             cleanupAfterStartFailure(msgCannotCreateTempFile(d->m_tempFile->errorString()));
-            return false;
+            return;
         }
         QByteArray contents;
         for (const QString &var : env) {
@@ -604,7 +604,7 @@ bool ConsoleProcess::start()
         }
         if (d->m_tempFile->write(contents) != contents.size() || !d->m_tempFile->flush()) {
             cleanupAfterStartFailure(msgCannotWriteTempFile());
-            return false;
+            return;
         }
     }
 
@@ -635,16 +635,14 @@ bool ConsoleProcess::start()
         const QString msg = tr("Cannot start the terminal emulator \"%1\", change the setting in the "
                                "Environment options.").arg(terminal.command);
         cleanupAfterStartFailure(msg);
-        return false;
+        return;
     }
     d->m_stubConnectTimer = new QTimer(this);
-    connect(d->m_stubConnectTimer, &QTimer::timeout, this, &ConsoleProcess::stop);
+    connect(d->m_stubConnectTimer, &QTimer::timeout, this, &ConsoleProcess::stopProcess);
     d->m_stubConnectTimer->setSingleShot(true);
     d->m_stubConnectTimer->start(10000);
 
 #endif
-
-    return true;
 }
 
 void ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
@@ -720,7 +718,7 @@ void ConsoleProcess::killStub()
 #endif
 }
 
-void ConsoleProcess::stop()
+void ConsoleProcess::stopProcess()
 {
     killProcess();
     killStub();

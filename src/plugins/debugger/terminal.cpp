@@ -224,7 +224,7 @@ void TerminalRunner::start()
 
 void TerminalRunner::stop()
 {
-    m_stubProc.stop();
+    m_stubProc.stopProcess();
     reportStopped();
 }
 

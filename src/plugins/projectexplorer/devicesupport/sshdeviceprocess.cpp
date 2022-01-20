@@ -358,7 +358,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         killOperation->disconnect(q);
         killOperation.clear();
         if (q->runInTerminal())
-            QMetaObject::invokeMethod(&consoleProcess, &ConsoleProcess::stop, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(&consoleProcess, &ConsoleProcess::stopProcess, Qt::QueuedConnection);
     }
     killTimer.stop();
     consoleProcess.disconnect();

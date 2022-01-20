@@ -81,8 +81,8 @@ public:
     QProcess::ProcessError error() const;
     QString errorString() const;
 
-    bool start();
-    void stop();
+    void start();
+    void stopProcess();
 
 public:
     void setMode(Mode m);

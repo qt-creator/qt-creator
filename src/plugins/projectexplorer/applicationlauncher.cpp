@@ -199,7 +199,7 @@ void ApplicationLauncherPrivate::stop()
         if (!isRunning())
             return;
         if (m_useTerminal) {
-            m_consoleProcess.stop();
+            m_consoleProcess.stopProcess();
             localProcessDone(0, QProcess::CrashExit);
         } else {
             m_guiProcess.terminate();
