@@ -862,9 +862,8 @@ void ConsoleProcess::stubExited()
     d->m_stubPid = 0;
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
-    if (d->m_appPid) {
+    if (d->m_appPid)
         finish(-1, QProcess::CrashExit);
-    }
 #endif
     emit stubStopped();
 }

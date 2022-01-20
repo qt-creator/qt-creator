@@ -199,8 +199,6 @@ void SshDeviceProcess::handleConnected()
                 this, &SshDeviceProcess::handleProcessStarted);
         connect(&d->consoleProcess, &ConsoleProcess::finished,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
-        connect(&d->consoleProcess, &ConsoleProcess::stubStopped,
-                this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         d->consoleProcess.setAbortOnMetaChars(false);
         d->consoleProcess.setSettings(Core::ICore::settings());
         d->consoleProcess.setCommand(d->process->fullLocalCommandLine());
