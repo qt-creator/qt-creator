@@ -33,13 +33,13 @@ namespace ProjectExplorer { class Project; }
 namespace ConanPackageManager {
 namespace Internal {
 
-class ConanPluginRunData;
 class ConanSettings;
 
 class ConanPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Conan.json")
+
 public:
     static ConanSettings *conanSettings();
     static Utils::FilePath conanFilePath(ProjectExplorer::Project *project,
@@ -52,7 +52,7 @@ private:
     void extensionsInitialized() final;
     bool initialize(const QStringList &arguments, QString *errorString) final;
 
-    ConanPluginRunData *m_runData = nullptr;
+    class ConanPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
