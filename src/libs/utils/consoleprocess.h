@@ -119,10 +119,6 @@ signals:
     void started();
     void finished();
 
-    // These reflect the state of the console+stub
-    void stubStarted();
-    void stubStopped();
-
 private:
     void stubConnectionAvailable();
     void readStubOutput();

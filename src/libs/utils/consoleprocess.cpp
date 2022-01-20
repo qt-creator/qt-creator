@@ -752,7 +752,6 @@ void ConsoleProcess::stubServerShutdown()
 void ConsoleProcess::stubConnectionAvailable()
 {
     d->m_stubConnected = true;
-    emit stubStarted();
 
     if (d->m_stubConnectTimer) {
         delete d->m_stubConnectTimer;
@@ -865,7 +864,6 @@ void ConsoleProcess::stubExited()
     if (d->m_appPid)
         finish(-1, QProcess::CrashExit);
 #endif
-    emit stubStopped();
 }
 
 void ConsoleProcess::detachStub()
