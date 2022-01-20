@@ -93,11 +93,8 @@ public:
 
     void kickoffProcess();
     void interruptProcess();
-    void killProcess();
-    void killStub();
 
     qint64 applicationMainThreadID() const;
-    void detachStub();
 
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
@@ -125,6 +122,8 @@ private:
     void stubExited();
     void cleanupAfterStartFailure(const QString &errorMessage);
     void finish(int exitCode, QProcess::ExitStatus exitStatus);
+    void killProcess();
+    void killStub();
 
     static QString modeOption(Mode m);
     static QString msgCommChannelFailed(const QString &error);

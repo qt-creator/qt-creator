@@ -866,18 +866,6 @@ void ConsoleProcess::stubExited()
 #endif
 }
 
-void ConsoleProcess::detachStub()
-{
-    if (HostOsInfo::isAnyUnixHost()) {
-        if (d->m_stubSocket && d->m_stubSocket->isWritable()) {
-            d->m_stubSocket->write("d", 1);
-            d->m_stubSocket->flush();
-        }
-        stubServerShutdown();
-        d->m_stubPid = 0;
-    }
-}
-
 void ConsoleProcess::cleanupInferior()
 {
 #ifdef Q_OS_WIN
