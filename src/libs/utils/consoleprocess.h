@@ -124,17 +124,6 @@ private:
     void finish(int exitCode, QProcess::ExitStatus exitStatus);
     void killProcess();
     void killStub();
-
-    static QString modeOption(Mode m);
-    static QString msgCommChannelFailed(const QString &error);
-    static QString msgPromptToClose();
-    static QString msgCannotCreateTempFile(const QString &why);
-    static QString msgCannotWriteTempFile();
-    static QString msgCannotCreateTempDir(const QString & dir, const QString &why);
-    static QString msgUnexpectedOutput(const QByteArray &what);
-    static QString msgCannotChangeToWorkDir(const Utils::FilePath &dir, const QString &why);
-    static QString msgCannotExecute(const QString & p, const QString &why);
-
     void emitError(QProcess::ProcessError err, const QString &errorString);
     QString stubServerListen();
     void stubServerShutdown();

@@ -64,6 +64,60 @@
 
 namespace Utils {
 
+static QString modeOption(ConsoleProcess::Mode m)
+{
+    switch (m) {
+        case ConsoleProcess::Debug:
+        return QLatin1String("debug");
+        case ConsoleProcess::Suspend:
+        return QLatin1String("suspend");
+        case ConsoleProcess::Run:
+        break;
+    }
+    return QLatin1String("run");
+}
+
+static QString msgCommChannelFailed(const QString &error)
+{
+    return ConsoleProcess::tr("Cannot set up communication channel: %1").arg(error);
+}
+
+static QString msgPromptToClose()
+{
+    // Shown in a terminal which might have a different character set on Windows.
+    return ConsoleProcess::tr("Press <RETURN> to close this window...");
+}
+
+static QString msgCannotCreateTempFile(const QString &why)
+{
+    return ConsoleProcess::tr("Cannot create temporary file: %1").arg(why);
+}
+
+static QString msgCannotWriteTempFile()
+{
+    return ConsoleProcess::tr("Cannot write temporary file. Disk full?");
+}
+
+static QString msgCannotCreateTempDir(const QString & dir, const QString &why)
+{
+    return ConsoleProcess::tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
+}
+
+static QString msgUnexpectedOutput(const QByteArray &what)
+{
+    return ConsoleProcess::tr("Unexpected output from helper program (%1).").arg(QString::fromLatin1(what));
+}
+
+static QString msgCannotChangeToWorkDir(const FilePath &dir, const QString &why)
+{
+    return ConsoleProcess::tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
+}
+
+static QString msgCannotExecute(const QString & p, const QString &why)
+{
+    return ConsoleProcess::tr("Cannot execute \"%1\": %2").arg(p, why);
+}
+
 // TerminalCommand
 
 TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs, bool needsQuotes)
@@ -901,19 +955,6 @@ ConsoleProcess::Mode ConsoleProcess::mode() const
     return d->m_mode;
 }
 
-QString ConsoleProcess::modeOption(Mode m)
-{
-    switch (m) {
-        case Debug:
-        return QLatin1String("debug");
-        case Suspend:
-        return QLatin1String("suspend");
-        case Run:
-        break;
-    }
-    return QLatin1String("run");
-}
-
 qint64 ConsoleProcess::applicationPID() const
 {
     return d->m_appPid;
@@ -962,48 +1003,6 @@ QProcess::ProcessError ConsoleProcess::error() const
 QString ConsoleProcess::errorString() const
 {
     return d->m_errorString;
-}
-
-QString ConsoleProcess::msgCommChannelFailed(const QString &error)
-{
-    return tr("Cannot set up communication channel: %1").arg(error);
-}
-
-QString ConsoleProcess::msgPromptToClose()
-{
-    //! Showed in a terminal which might have
-    //! a different character set on Windows.
-    return tr("Press <RETURN> to close this window...");
-}
-
-QString ConsoleProcess::msgCannotCreateTempFile(const QString &why)
-{
-    return tr("Cannot create temporary file: %1").arg(why);
-}
-
-QString ConsoleProcess::msgCannotWriteTempFile()
-{
-    return tr("Cannot write temporary file. Disk full?");
-}
-
-QString ConsoleProcess::msgCannotCreateTempDir(const QString & dir, const QString &why)
-{
-    return tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
-}
-
-QString ConsoleProcess::msgUnexpectedOutput(const QByteArray &what)
-{
-    return tr("Unexpected output from helper program (%1).").arg(QString::fromLatin1(what));
-}
-
-QString ConsoleProcess::msgCannotChangeToWorkDir(const FilePath &dir, const QString &why)
-{
-    return tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
-}
-
-QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)
-{
-    return tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
 void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorString)
