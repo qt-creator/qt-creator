@@ -406,7 +406,6 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             m_previousIndex = index;
             m_blurredThumbnail = QPixmap();
             m_startTime.start();
-            m_currentArea = rc;
             m_currentWidget = qobject_cast<QAbstractItemView *>(
                 const_cast<QWidget *>(option.widget));
         }
@@ -580,7 +579,7 @@ void ListItemDelegate::clickAction(const ListItem *) const
 void ListItemDelegate::goon()
 {
     if (m_currentWidget)
-        m_currentWidget->viewport()->update(m_currentArea);
+        m_currentWidget->update(m_previousIndex);
 }
 
 } // namespace Core
