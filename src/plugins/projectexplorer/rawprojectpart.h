@@ -154,6 +154,7 @@ public:
 public:
     Utils::Id type;
     bool isMsvc2015ToolChain = false;
+    bool targetTripleIsAuthoritative = false;
     unsigned wordWidth = 0;
     QString targetTriple;
     Utils::FilePath compilerFilePath;

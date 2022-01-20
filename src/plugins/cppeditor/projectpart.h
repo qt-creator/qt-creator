@@ -114,6 +114,7 @@ public:
     const Utils::Id toolchainType;
     const bool isMsvc2015Toolchain = false;
     const QString toolChainTargetTriple;
+    const bool targetTripleIsAuthoritative;
     const ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     const Utils::FilePath toolChainInstallDir;
     const Utils::FilePath compilerFilePath;

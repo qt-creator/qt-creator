@@ -254,7 +254,7 @@ void CompilerOptionsBuilder::addWordWidth()
 
 void CompilerOptionsBuilder::addTargetTriple()
 {
-    const QString target = m_explicitTarget.isEmpty()
+    const QString target = m_explicitTarget.isEmpty() || m_projectPart.targetTripleIsAuthoritative
             ? m_projectPart.toolChainTargetTriple : m_explicitTarget;
 
     // Only "--target=" style is accepted in both g++ and cl driver modes.

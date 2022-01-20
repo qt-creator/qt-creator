@@ -127,6 +127,10 @@ public:
     virtual QStringList includedFiles(const QStringList &flags, const QString &directory) const;
     virtual QString sysRoot() const;
 
+    QString explicitCodeModelTargetTriple() const;
+    QString effectiveCodeModelTargetTriple() const;
+    void setExplicitCodeModelTargetTriple(const QString &triple);
+
     class MacroInspectionReport
     {
     public:

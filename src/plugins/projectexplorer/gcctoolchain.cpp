@@ -42,11 +42,13 @@
 #include <utils/qtcprocess.h>
 
 #include <QBuffer>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QRegularExpression>
@@ -1203,10 +1205,53 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
 // GccToolChainConfigWidget
 // --------------------------------------------------------------------------
 
+namespace Internal {
+class TargetTripleWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    TargetTripleWidget(const ToolChain *toolchain)
+    {
+        const auto layout = new QHBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        m_tripleLineEdit.setEnabled(false);
+        m_overrideCheckBox.setText(tr("Override for code model"));
+        m_overrideCheckBox.setToolTip(tr("Check this button in the rare case that the code model\n"
+                "fails because clang does not understand the target architecture."));
+        layout->addWidget(&m_tripleLineEdit);
+        layout->addWidget(&m_overrideCheckBox);
+        layout->addStretch(1);
+
+        connect(&m_tripleLineEdit, &QLineEdit::textEdited, this, &TargetTripleWidget::valueChanged);
+        connect(&m_overrideCheckBox, &QCheckBox::toggled,
+                &m_tripleLineEdit, &QLineEdit::setEnabled);
+
+        m_tripleLineEdit.setText(toolchain->effectiveCodeModelTargetTriple());
+        m_overrideCheckBox.setChecked(!toolchain->explicitCodeModelTargetTriple().isEmpty());
+    }
+
+    QString explicitCodeModelTargetTriple() const
+    {
+        if (m_overrideCheckBox.isChecked())
+            return m_tripleLineEdit.text();
+        return {};
+    }
+
+signals:
+    void valueChanged();
+
+private:
+    QLineEdit m_tripleLineEdit;
+    QCheckBox m_overrideCheckBox;
+};
+}
+
 GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_abiWidget(new AbiWidget),
-    m_compilerCommand(new PathChooser)
+    m_compilerCommand(new PathChooser),
+    m_targetTripleWidget(new TargetTripleWidget(tc))
 {
     Q_ASSERT(tc);
 
@@ -1222,6 +1267,7 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_platformLinkerFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformLinkerFlags()));
     m_mainLayout->addRow(tr("Platform linker flags:"), m_platformLinkerFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(tr("Target triple:"), m_targetTripleWidget);
 
     m_abiWidget->setEnabled(false);
     addErrorLabel();
@@ -1235,6 +1281,8 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     connect(m_platformLinkerFlagsLineEdit, &QLineEdit::editingFinished,
             this, &GccToolChainConfigWidget::handlePlatformLinkerFlagsChange);
     connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_targetTripleWidget, &TargetTripleWidget::valueChanged,
+            this, &ToolChainConfigWidget::dirty);
 }
 
 void GccToolChainConfigWidget::applyImpl()
@@ -1252,6 +1300,7 @@ void GccToolChainConfigWidget::applyImpl()
     }
     tc->setInstallDir(tc->detectInstallDir());
     tc->setOriginalTargetTriple(tc->detectSupportedAbis().originalTargetTriple);
+    tc->setExplicitCodeModelTargetTriple(m_targetTripleWidget->explicitCodeModelTargetTriple());
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
@@ -1290,6 +1339,8 @@ bool GccToolChainConfigWidget::isDirtyImpl() const
                   != ProcessArgs::joinArgs(tc->platformCodeGenFlags())
            || m_platformLinkerFlagsLineEdit->text()
                   != ProcessArgs::joinArgs(tc->platformLinkerFlags())
+           || m_targetTripleWidget->explicitCodeModelTargetTriple()
+                  != tc->explicitCodeModelTargetTriple()
            || (m_abiWidget && m_abiWidget->currentAbi() != tc->targetAbi());
 }
 
@@ -1300,6 +1351,7 @@ void GccToolChainConfigWidget::makeReadOnlyImpl()
         m_abiWidget->setEnabled(false);
     m_platformCodeGenFlagsLineEdit->setEnabled(false);
     m_platformLinkerFlagsLineEdit->setEnabled(false);
+    m_targetTripleWidget->setEnabled(false);
     m_isReadOnly = true;
 }
 
@@ -2103,3 +2155,5 @@ void ProjectExplorerPlugin::testGccAbiGuessing()
 } // namespace ProjectExplorer
 
 #endif
+
+#include <gcctoolchain.moc>

@@ -71,6 +71,8 @@ protected:
 // GccToolChainConfigWidget
 // --------------------------------------------------------------------------
 
+class TargetTripleWidget;
+
 class GccToolChainConfigWidget : public ToolChainConfigWidget
 {
     Q_OBJECT
@@ -96,6 +98,7 @@ private:
     Utils::PathChooser *m_compilerCommand;
     QLineEdit *m_platformCodeGenFlagsLineEdit;
     QLineEdit *m_platformLinkerFlagsLineEdit;
+    TargetTripleWidget * const m_targetTripleWidget;
 
     bool m_isReadOnly = false;
     ProjectExplorer::Macros m_macros;

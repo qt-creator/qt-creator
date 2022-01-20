@@ -153,6 +153,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
       toolchainType(tcInfo.type),
       isMsvc2015Toolchain(tcInfo.isMsvc2015ToolChain),
       toolChainTargetTriple(tcInfo.targetTriple),
+      targetTripleIsAuthoritative(tcInfo.targetTripleIsAuthoritative),
       toolChainWordWidth(tcInfo.wordWidth == 64 ? ProjectPart::WordWidth64Bit
                                                 : ProjectPart::WordWidth32Bit),
       toolChainInstallDir(tcInfo.installDir),

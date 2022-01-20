@@ -49,6 +49,7 @@ static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
 static const char DETECTION_SOURCE_KEY[] = "ProjectExplorer.ToolChain.DetectionSource";
 static const char LANGUAGE_KEY_V1[] = "ProjectExplorer.ToolChain.Language"; // For QtCreator <= 4.2
 static const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For QtCreator > 4.2
+const char CODE_MODEL_TRIPLE_KEY[] = "ExplicitCodeModelTargetTriple";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -86,6 +87,7 @@ public:
     Utils::Id m_language;
     Detection m_detection = ToolChain::UninitializedDetection;
     QString m_detectionSource;
+    QString m_explicitCodeModelTargetTriple;
 
     ToolChain::MacrosCache m_predefinedMacrosCache;
     ToolChain::HeaderPathsCache m_headerPathsCache;
@@ -262,6 +264,7 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
     result.insert(QLatin1String(DETECTION_SOURCE_KEY), d->m_detectionSource);
+    result.insert(CODE_MODEL_TRIPLE_KEY, d->m_explicitCodeModelTargetTriple);
     // <Compatibility with QtC 4.2>
     int oldLanguageId = -1;
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
@@ -369,6 +372,8 @@ bool ToolChain::fromMap(const QVariantMap &data)
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetection : ManualDetection;
     d->m_detectionSource = data.value(DETECTION_SOURCE_KEY).toString();
+
+    d->m_explicitCodeModelTargetTriple = data.value(CODE_MODEL_TRIPLE_KEY).toString();
 
     if (data.contains(LANGUAGE_KEY_V2)) {
         // remove hack to trim language id in 4.4: This is to fix up broken language
@@ -501,6 +506,24 @@ Tasks ToolChain::validateKit(const Kit *) const
 QString ToolChain::sysRoot() const
 {
     return QString();
+}
+
+QString ToolChain::explicitCodeModelTargetTriple() const
+{
+    return d->m_explicitCodeModelTargetTriple;
+}
+
+QString ToolChain::effectiveCodeModelTargetTriple() const
+{
+    const QString overridden = explicitCodeModelTargetTriple();
+    if (!overridden.isEmpty())
+        return overridden;
+    return originalTargetTriple();
+}
+
+void ToolChain::setExplicitCodeModelTargetTriple(const QString &triple)
+{
+    d->m_explicitCodeModelTargetTriple = triple;
 }
 
 /*!
