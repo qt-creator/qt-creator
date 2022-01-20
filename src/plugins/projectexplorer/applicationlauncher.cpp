@@ -253,7 +253,7 @@ qint64 ApplicationLauncherPrivate::applicationPID() const
         return 0;
 
     if (m_useTerminal)
-        return m_consoleProcess.applicationPID();
+        return m_consoleProcess.processId();
 
     return m_guiProcess.processId();
 }
@@ -297,7 +297,7 @@ void ApplicationLauncherPrivate::localGuiProcessError()
 void ApplicationLauncherPrivate::localConsoleProcessError()
 {
     emit q->appendMessage(m_consoleProcess.errorString(), ErrorMessageFormat);
-    if (m_processRunning && m_consoleProcess.applicationPID() == 0) {
+    if (m_processRunning && m_consoleProcess.processId() == 0) {
         m_processRunning = false;
         emit q->processExited(-1, QProcess::NormalExit);
     }

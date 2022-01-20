@@ -89,7 +89,7 @@ public:
     Mode mode() const;
 
     bool isRunning() const; // This reflects the state of the console+stub
-    qint64 applicationPID() const;
+    qint64 processId() const;
 
     void kickoffProcess();
     void interruptProcess();

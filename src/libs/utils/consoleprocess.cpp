@@ -138,7 +138,7 @@ public:
     ConsoleProcess::Mode m_mode = ConsoleProcess::Run;
     FilePath m_workingDir;
     Environment m_environment;
-    qint64 m_appPid = 0;
+    qint64 m_processId = 0;
     int m_exitCode = 0;
     CommandLine m_commandLine;
     QProcess::ExitStatus m_appStatus = QProcess::NormalExit;
@@ -657,7 +657,7 @@ void ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
 
 void ConsoleProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    d->m_appPid = 0;
+    d->m_processId = 0;
     d->m_exitCode = exitCode;
     d->m_appStatus = exitStatus;
     emit finished();
@@ -700,7 +700,7 @@ void ConsoleProcess::killProcess()
         d->m_stubSocket->flush();
     }
 #endif
-    d->m_appPid = 0;
+    d->m_processId = 0;
 }
 
 void ConsoleProcess::killStub()
@@ -834,11 +834,11 @@ void ConsoleProcess::readStubOutput()
             // Will not need it any more
             delete d->m_tempFile;
             d->m_tempFile = nullptr;
-            d->m_appPid = out.mid(4).toLongLong();
+            d->m_processId = out.mid(4).toLongLong();
 
             d->m_hInferior = OpenProcess(
                     SYNCHRONIZE | PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
-                    FALSE, d->m_appPid);
+                    FALSE, d->m_processId);
             if (d->m_hInferior == NULL) {
                 emitError(QProcess::FailedToStart, tr("Cannot obtain a handle to the inferior: %1")
                                   .arg(winErrorMessage(GetLastError())));
@@ -872,7 +872,7 @@ void ConsoleProcess::readStubOutput()
             delete d->m_tempFile;
             d->m_tempFile = nullptr;
         } else if (out.startsWith("pid ")) {
-            d->m_appPid = out.mid(4).toInt();
+            d->m_processId = out.mid(4).toInt();
             emit started();
         } else if (out.startsWith("exit ")) {
             finish(out.mid(5).toInt(), QProcess::NormalExit);
@@ -905,7 +905,7 @@ void ConsoleProcess::stubExited()
     stubServerShutdown();
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
-    if (d->m_appPid)
+    if (d->m_processId)
         finish(-1, QProcess::CrashExit);
 #endif
 }
@@ -945,9 +945,9 @@ ConsoleProcess::Mode ConsoleProcess::mode() const
     return d->m_mode;
 }
 
-qint64 ConsoleProcess::applicationPID() const
+qint64 ConsoleProcess::processId() const
 {
-    return d->m_appPid;
+    return d->m_processId;
 }
 
 int ConsoleProcess::exitCode() const

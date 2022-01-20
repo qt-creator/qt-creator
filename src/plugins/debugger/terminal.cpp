@@ -230,7 +230,7 @@ void TerminalRunner::stop()
 
 void TerminalRunner::stubStarted()
 {
-    m_applicationPid = m_stubProc.applicationPID();
+    m_applicationPid = m_stubProc.processId();
     m_applicationMainThreadId = m_stubProc.applicationMainThreadID();
     reportStarted();
 }
