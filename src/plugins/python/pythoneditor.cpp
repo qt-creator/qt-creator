@@ -63,9 +63,9 @@ static QAction *createAction(QObject *parent, ReplType type)
         break;
     }
 
-    QObject::connect(action, &QAction::triggered, parent, [type] {
+    QObject::connect(action, &QAction::triggered, parent, [type, parent] {
         Core::IDocument *doc = Core::EditorManager::currentDocument();
-        openPythonRepl(doc ? doc->filePath() : Utils::FilePath(), type);
+        openPythonRepl(parent, doc ? doc->filePath() : Utils::FilePath(), type);
     });
     return action;
 }
