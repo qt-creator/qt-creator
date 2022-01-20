@@ -135,14 +135,13 @@ class ConsoleProcessPrivate
 public:
     ConsoleProcessPrivate() = default;
 
-    static QString m_defaultConsoleProcess;
     ConsoleProcess::Mode m_mode = ConsoleProcess::Run;
     FilePath m_workingDir;
     Environment m_environment;
     qint64 m_appPid = 0;
-    int m_appCode;
+    int m_exitCode = 0;
     CommandLine m_commandLine;
-    QProcess::ExitStatus m_appStatus;
+    QProcess::ExitStatus m_appStatus = QProcess::NormalExit;
     QLocalServer m_stubServer;
     QLocalSocket *m_stubSocket = nullptr;
     QTemporaryFile *m_tempFile = nullptr;
@@ -154,10 +153,8 @@ public:
 
     // Used on Unix only
     QtcProcess m_process;
-    bool m_stubConnected = false;
     QTimer *m_stubConnectTimer = nullptr;
     QByteArray m_stubServerDir;
-    qint64 m_stubPid = 0;
 
     // Used on Windows only
     qint64 m_appMainThreadId = 0;
@@ -661,7 +658,7 @@ void ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
 void ConsoleProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
 {
     d->m_appPid = 0;
-    d->m_appCode = exitCode;
+    d->m_exitCode = exitCode;
     d->m_appStatus = exitStatus;
     emit finished();
 }
@@ -720,7 +717,6 @@ void ConsoleProcess::killStub()
         d->m_stubSocket->flush();
     }
     stubServerShutdown();
-    d->m_stubPid = 0;
 #endif
 }
 
@@ -805,8 +801,6 @@ void ConsoleProcess::stubServerShutdown()
 
 void ConsoleProcess::stubConnectionAvailable()
 {
-    d->m_stubConnected = true;
-
     if (d->m_stubConnectTimer) {
         delete d->m_stubConnectTimer;
         d->m_stubConnectTimer = nullptr;
@@ -877,8 +871,6 @@ void ConsoleProcess::readStubOutput()
         } else if (out.startsWith("spid ")) {
             delete d->m_tempFile;
             d->m_tempFile = nullptr;
-
-            d->m_stubPid = out.mid(4).toInt();
         } else if (out.startsWith("pid ")) {
             d->m_appPid = out.mid(4).toInt();
             emit started();
@@ -888,7 +880,6 @@ void ConsoleProcess::readStubOutput()
             finish(out.mid(6).toInt(), QProcess::CrashExit);
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
-            d->m_stubPid = 0;
             d->m_process.terminate();
             break;
         }
@@ -912,7 +903,6 @@ void ConsoleProcess::stubExited()
     }
 #else
     stubServerShutdown();
-    d->m_stubPid = 0;
     delete d->m_tempFile;
     d->m_tempFile = nullptr;
     if (d->m_appPid)
@@ -962,7 +952,7 @@ qint64 ConsoleProcess::applicationPID() const
 
 int ConsoleProcess::exitCode() const
 {
-    return d->m_appCode;
+    return d->m_exitCode;
 } // This will be the signal number if exitStatus == CrashExit
 
 QProcess::ExitStatus ConsoleProcess::exitStatus() const
