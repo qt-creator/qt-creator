@@ -412,10 +412,13 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         }
         constexpr float hoverAnimationDuration = 260;
         animationProgress = m_startTime.elapsed() / hoverAnimationDuration;
-        static const QEasingCurve animationCurve(QEasingCurve::OutCubic);
-        offset = animationCurve.valueForProgress(animationProgress) * shiftY;
-        if (offset < shiftY)
+        if (animationProgress < 1) {
+            static const QEasingCurve animationCurve(QEasingCurve::OutCubic);
+            offset = animationCurve.valueForProgress(animationProgress) * shiftY;
             QTimer::singleShot(10, this, &ListItemDelegate::goon);
+        } else {
+            offset = shiftY;
+        }
     } else if (index == m_previousIndex) {
         m_previousIndex = QModelIndex();
     }
