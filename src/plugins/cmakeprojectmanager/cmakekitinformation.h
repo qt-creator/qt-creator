@@ -101,6 +101,9 @@ public:
     static CMakeConfig configuration(const ProjectExplorer::Kit *k);
     static void setConfiguration(ProjectExplorer::Kit *k, const CMakeConfig &config);
 
+    static QString additionalConfiguration(const ProjectExplorer::Kit *k);
+    static void setAdditionalConfiguration(ProjectExplorer::Kit *k, const QString &config);
+
     static QStringList toStringList(const ProjectExplorer::Kit *k);
     static void fromStringList(ProjectExplorer::Kit *k, const QStringList &in);
 

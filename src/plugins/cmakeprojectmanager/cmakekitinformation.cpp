@@ -49,6 +49,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
@@ -858,6 +859,7 @@ void CMakeGeneratorKitAspect::addToBuildEnvironment(const Kit *k, Environment &e
 // --------------------------------------------------------------------
 
 const char CONFIGURATION_ID[] = "CMake.ConfigurationKitInformation";
+const char ADDITIONAL_CONFIGURATION_ID[] = "CMake.AdditionalConfigurationParameters";
 
 const char CMAKE_C_TOOLCHAIN_KEY[] = "CMAKE_C_COMPILER";
 const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
@@ -898,11 +900,19 @@ private:
 
     void refresh() override
     {
-        const QStringList current = CMakeConfigurationKitAspect::toStringList(kit());
+        const QStringList current = CMakeConfigurationKitAspect::toArgumentsList(kit());
+        const QString additionalText = CMakeConfigurationKitAspect::additionalConfiguration(kit());
+        const QString labelText = additionalText.isEmpty()
+                                      ? current.join(' ')
+                                      : current.join(' ') + " " + additionalText;
 
-        m_summaryLabel->setText(current.join("; "));
+        m_summaryLabel->setText(labelText);
+
         if (m_editor)
             m_editor->setPlainText(current.join('\n'));
+
+        if (m_additionalEditor)
+            m_additionalEditor->setText(additionalText);
     }
 
     void editConfigurationChanges()
@@ -919,19 +929,35 @@ private:
         m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
         auto layout = new QVBoxLayout(m_dialog);
         m_editor = new QPlainTextEdit;
-        m_editor->setToolTip(tr("Enter one variable per line with the variable name "
-                                "separated from the variable value by \"=\".<br>"
-                                "You may provide a type hint by adding \":TYPE\" before the \"=\"."));
+        auto editorLabel = new QLabel(m_dialog);
+        editorLabel->setText(tr("Enter one CMake variable per line.\n"
+                                "To set a variable, use -D<variable>:<type>=<value>.\n"
+                                "<type> can have one of the following values: FILEPATH, PATH, "
+                                "BOOL, INTERNAL, or STRING."));
         m_editor->setMinimumSize(800, 200);
 
         auto chooser = new VariableChooser(m_dialog);
         chooser->addSupportedWidget(m_editor);
         chooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
 
+        m_additionalEditor = new QLineEdit;
+        auto additionalLabel = new QLabel(m_dialog);
+        additionalLabel->setText(tr("Additional CMake parameters: "));
+
+        auto additionalChooser = new VariableChooser(m_dialog);
+        additionalChooser->addSupportedWidget(m_additionalEditor);
+        additionalChooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
+
+        auto additionalLayout = new QHBoxLayout();
+        additionalLayout->addWidget(additionalLabel);
+        additionalLayout->addWidget(m_additionalEditor);
+
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply
                                             |QDialogButtonBox::Reset|QDialogButtonBox::Cancel);
 
         layout->addWidget(m_editor);
+        layout->addWidget(editorLabel);
+        layout->addLayout(additionalLayout);
         layout->addWidget(buttons);
 
         connect(buttons, &QDialogButtonBox::accepted, m_dialog, &QDialog::accept);
@@ -939,8 +965,10 @@ private:
         connect(buttons, &QDialogButtonBox::clicked, m_dialog, [buttons, this](QAbstractButton *button) {
             if (button != buttons->button(QDialogButtonBox::Reset))
                 return;
+            KitGuard guard(kit());
             CMakeConfigurationKitAspect::setConfiguration(kit(),
                                                           CMakeConfigurationKitAspect::defaultConfiguration(kit()));
+            CMakeConfigurationKitAspect::setAdditionalConfiguration(kit(), QString());
         });
         connect(m_dialog, &QDialog::accepted, this, &CMakeConfigurationKitAspectWidget::acceptChangesDialog);
         connect(m_dialog, &QDialog::rejected, this, &CMakeConfigurationKitAspectWidget::closeChangesDialog);
@@ -954,13 +982,27 @@ private:
     void applyChanges()
     {
         QTC_ASSERT(m_editor, return);
-        CMakeConfigurationKitAspect::fromStringList(kit(), m_editor->toPlainText().split(QLatin1Char('\n')));
+        KitGuard guard(kit());
+
+        QStringList unknownArguments;
+        const CMakeConfig config = CMakeConfig::fromArguments(m_editor->toPlainText().split('\n'),
+                                                              unknownArguments);
+        CMakeConfigurationKitAspect::setConfiguration(kit(), config);
+
+        QString additionalConfiguration = m_additionalEditor->text();
+        if (!unknownArguments.isEmpty()) {
+            if (!additionalConfiguration.isEmpty())
+                additionalConfiguration += " ";
+            additionalConfiguration += ProcessArgs::joinArgs(unknownArguments);
+        }
+        CMakeConfigurationKitAspect::setAdditionalConfiguration(kit(), additionalConfiguration);
     }
     void closeChangesDialog()
     {
         m_dialog->deleteLater();
         m_dialog = nullptr;
         m_editor = nullptr;
+        m_additionalEditor = nullptr;
     }
     void acceptChangesDialog()
     {
@@ -972,6 +1014,7 @@ private:
     QPushButton *m_manageButton;
     QDialog *m_dialog = nullptr;
     QPlainTextEdit *m_editor = nullptr;
+    QLineEdit *m_additionalEditor = nullptr;
 };
 
 
@@ -999,6 +1042,20 @@ void CMakeConfigurationKitAspect::setConfiguration(Kit *k, const CMakeConfig &co
     const QStringList tmp = Utils::transform(config.toList(),
                                              [](const CMakeConfigItem &i) { return i.toString(); });
     k->setValue(CONFIGURATION_ID, tmp);
+}
+
+QString CMakeConfigurationKitAspect::additionalConfiguration(const ProjectExplorer::Kit *k)
+{
+    if (!k)
+        return QString();
+    return k->value(ADDITIONAL_CONFIGURATION_ID).toString();
+}
+
+void CMakeConfigurationKitAspect::setAdditionalConfiguration(ProjectExplorer::Kit *k, const QString &config)
+{
+    if (!k)
+        return;
+    k->setValue(ADDITIONAL_CONFIGURATION_ID, config);
 }
 
 QStringList CMakeConfigurationKitAspect::toStringList(const Kit *k)

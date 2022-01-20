@@ -980,6 +980,7 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
     }
 
     initialArgs += CMakeConfigurationKitAspect::toArgumentsList(k);
+    initialArgs += ProcessArgs::splitArgs(CMakeConfigurationKitAspect::additionalConfiguration(k));
 
     return initialArgs;
 }
