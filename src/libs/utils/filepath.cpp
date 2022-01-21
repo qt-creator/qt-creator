@@ -718,19 +718,16 @@ bool FilePath::createDir() const
     return dir.mkpath(dir.absolutePath());
 }
 
-FilePaths FilePath::dirEntries(const QStringList &nameFilters,
-                               QDir::Filters filters,
-                               QDirIterator::IteratorFlags flags,
-                               QDir::SortFlags sort) const
+FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) const
 {
     FilePaths result;
 
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.iterateDirectory, return {});
         const auto callBack = [&result](const FilePath &path) { result.append(path); return true; };
-        s_deviceHooks.iterateDirectory(*this, callBack, nameFilters, filters, flags);
+        s_deviceHooks.iterateDirectory(*this, callBack, filter);
     } else {
-        QDirIterator dit(m_data, nameFilters, filters, flags);
+        QDirIterator dit(m_data, filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
         while (dit.hasNext())
             result.append(FilePath::fromString(dit.next()));
     }
@@ -748,7 +745,7 @@ FilePaths FilePath::dirEntries(const QStringList &nameFilters,
 
 FilePaths FilePath::dirEntries(QDir::Filters filters) const
 {
-    return dirEntries({}, filters);
+    return dirEntries(FileFilter({}, filters));
 }
 
 // This runs \a callBack on each directory entry matching all \a filters and
@@ -756,17 +753,15 @@ FilePaths FilePath::dirEntries(QDir::Filters filters) const
 // An empty \nameFilters list matches every name.
 
 void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
-                                const QStringList &nameFilters,
-                                QDir::Filters filters,
-                                QDirIterator::IteratorFlags flags) const
+                                const FileFilter &filter) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.iterateDirectory, return);
-        s_deviceHooks.iterateDirectory(*this, callBack, nameFilters, filters, flags);
+        s_deviceHooks.iterateDirectory(*this, callBack, filter);
         return;
     }
 
-    QDirIterator it(m_data, nameFilters, filters, flags);
+    QDirIterator it(m_data, filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
     while (it.hasNext()) {
         if (!callBack(FilePath::fromString(it.next())))
             return;
@@ -1452,6 +1447,15 @@ qint64 FilePath::bytesAvailable() const
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toString();
+}
+
+FileFilter::FileFilter(const QStringList &nameFilters,
+                               const QDir::Filters fileFilters,
+                               const QDirIterator::IteratorFlags flags)
+    : nameFilters(nameFilters),
+      fileFilters(fileFilters),
+      iteratorFlags(flags)
+{
 }
 
 } // namespace Utils

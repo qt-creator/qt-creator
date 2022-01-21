@@ -382,8 +382,7 @@ QVector<int> AndroidConfig::availableNdkPlatforms(const QtVersion *qtVersion) co
                         .toInt());
                 return true;
             },
-            {"android-*"},
-            QDir::Dirs);
+            {{"android-*"}, QDir::Dirs});
 
     Utils::sort(availableNdkPlatforms, std::greater<>());
     return availableNdkPlatforms;

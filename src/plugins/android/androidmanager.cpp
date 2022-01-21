@@ -423,7 +423,7 @@ QString AndroidManager::apkDevicePreferredAbi(const Target *target)
     QStringList apkAbis;
     const FilePaths libsPaths = libsPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const FilePath &abiDir : libsPaths) {
-        if (!abiDir.dirEntries(QStringList("*.so"), QDir::Files | QDir::NoDotAndDotDot).isEmpty())
+        if (!abiDir.dirEntries({{"*.so"}, QDir::Files | QDir::NoDotAndDotDot}).isEmpty())
             apkAbis << abiDir.fileName();
     }
     return preferredAbi(apkAbis, target);

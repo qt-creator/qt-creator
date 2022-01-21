@@ -423,10 +423,11 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
             continue;
         }
 
-        const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
+        const FileFilter filter {
+            {}, QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags
+        };
         const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-        const QDirIterator::IteratorFlag iteratorFlags = QDirIterator::NoIteratorFlags;
-        FilePaths dirs = path.dirEntries({}, filters, iteratorFlags, sortflags);
+        FilePaths dirs = path.dirEntries(filter, sortflags);
 
         while (!dirs.isEmpty()) {
             const FilePath currentDir = dirs.takeFirst();
@@ -483,7 +484,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
                 result << factory;
             } else {
-                FilePaths subDirs = currentDir.dirEntries({}, filters, iteratorFlags, sortflags);
+                FilePaths subDirs = currentDir.dirEntries(filter, sortflags);
                 if (!subDirs.isEmpty()) {
                     // There is no QList::prepend(QList)...
                     dirs.swap(subDirs);
@@ -579,7 +580,7 @@ static QString qmlProjectName(const FilePath &folder)
 {
     FilePath currentFolder = folder;
     while (!currentFolder.isEmpty()) {
-        const QList<FilePath> fileList = currentFolder.dirEntries({"*.qmlproject"});
+        const FilePaths fileList = currentFolder.dirEntries({{"*.qmlproject"}});
         if (!fileList.isEmpty())
             return fileList.first().baseName();
         currentFolder = currentFolder.parentDir();

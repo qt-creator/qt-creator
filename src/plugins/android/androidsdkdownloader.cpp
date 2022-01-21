@@ -73,9 +73,7 @@ static void setSdkFilesExecPermission( const FilePath &sdkExtractPath)
             }
             return true;
         },
-        {"*"},
-        QDir::Files,
-        QDirIterator::Subdirectories);
+        {{"*"}, QDir::Files, QDirIterator::Subdirectories});
 }
 
 void AndroidSdkDownloader::downloadAndExtractSdk(const FilePath &jdkPath, const FilePath &sdkExtractPath)

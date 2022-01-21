@@ -88,9 +88,7 @@ static FilePath findQmakeInDir(const FilePath &dir)
 
     // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
     const FilePaths candidates = dir.dirEntries(
-                BuildableHelperLibrary::possibleQMakeCommands(),
-                QDir::Files,
-                QDirIterator::NoIteratorFlags,
+                {BuildableHelperLibrary::possibleQMakeCommands(), QDir::Files},
                 QDir::Name | QDir::Reversed);
     for (const FilePath &candidate : candidates) {
         if (candidate == qmakePath)

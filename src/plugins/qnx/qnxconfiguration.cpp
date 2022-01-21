@@ -444,9 +444,8 @@ void QnxConfiguration::updateTargets()
 void QnxConfiguration::assignDebuggersToTargets()
 {
     const FilePath hostUsrBinDir = m_qnxHost.pathAppended("usr/bin");
-    FilePaths debuggerNames = hostUsrBinDir.dirEntries(
-                QStringList(HostOsInfo::withExecutableSuffix("nto*-gdb")),
-                QDir::Files);
+    const FilePaths debuggerNames = hostUsrBinDir.dirEntries(
+                {{HostOsInfo::withExecutableSuffix("nto*-gdb")}, QDir::Files});
     Environment sysEnv = Environment::systemEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
     for (const FilePath &debuggerPath : debuggerNames) {

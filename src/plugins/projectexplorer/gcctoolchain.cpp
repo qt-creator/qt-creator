@@ -1126,7 +1126,8 @@ static FilePaths findCompilerCandidates(const IDevice::ConstPtr &device,
                 return true;
             };
             const FilePath globalDir = device->mapToGlobalPath(deviceDir);
-            device->iterateDirectory(globalDir, callBack, nameFilters, QDir::Files | QDir::Executable);
+            device->iterateDirectory(globalDir, callBack,
+                                     {nameFilters, QDir::Files | QDir::Executable});
         }
     } else {
         // The normal, local host case.

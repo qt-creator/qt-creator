@@ -694,7 +694,7 @@ static ProjectExplorerPluginPrivate *dd = nullptr;
 
 static FilePaths projectFilesInDirectory(const FilePath &path)
 {
-    return path.dirEntries(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files);
+    return path.dirEntries({ProjectExplorerPlugin::projectFileGlobs(), QDir::Files});
 }
 
 static FilePaths projectsInDirectory(const FilePath &filePath)
