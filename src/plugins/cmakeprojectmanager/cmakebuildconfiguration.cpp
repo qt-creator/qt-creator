@@ -939,7 +939,9 @@ static bool isDocker(const Kit *k)
 
 static bool isWindowsARM64(const Kit *k)
 {
-    const auto targetAbi = ToolChainKitAspect::cxxToolChain(k)->targetAbi();
+    ToolChain *toolchain = ToolChainKitAspect::cxxToolChain(k);
+    QTC_ASSERT(toolchain, return false);
+    const Abi targetAbi = toolchain->targetAbi();
     return targetAbi.os() == Abi::WindowsOS && targetAbi.architecture() == Abi::ArmArchitecture
             && targetAbi.wordWidth() == 64;
 }
