@@ -24,11 +24,14 @@
 ****************************************************************************/
 
 #include "gcctoolchain.h"
+
+#include "abiwidget.h"
 #include "clangparser.h"
 #include "gcctoolchainfactories.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
 #include "projectmacro.h"
+#include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
@@ -63,6 +66,59 @@ static Q_LOGGING_CATEGORY(gccLog, "qtc.projectexplorer.toolchain.gcc", QtWarning
 using namespace Utils;
 
 namespace ProjectExplorer {
+namespace Internal {
+
+class TargetTripleWidget;
+class GccToolChainConfigWidget : public ToolChainConfigWidget
+{
+    Q_OBJECT
+
+public:
+    explicit GccToolChainConfigWidget(GccToolChain *tc);
+
+protected:
+    void handleCompilerCommandChange();
+    void handlePlatformCodeGenFlagsChange();
+    void handlePlatformLinkerFlagsChange();
+
+    void applyImpl() override;
+    void discardImpl() override { setFromToolchain(); }
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
+
+    void setFromToolchain();
+
+    AbiWidget *m_abiWidget;
+
+private:
+    Utils::PathChooser *m_compilerCommand;
+    QLineEdit *m_platformCodeGenFlagsLineEdit;
+    QLineEdit *m_platformLinkerFlagsLineEdit;
+    TargetTripleWidget * const m_targetTripleWidget;
+
+    bool m_isReadOnly = false;
+    ProjectExplorer::Macros m_macros;
+};
+
+class ClangToolChainConfigWidget : public GccToolChainConfigWidget
+{
+    Q_OBJECT
+public:
+    explicit ClangToolChainConfigWidget(ClangToolChain *tc);
+
+private:
+    void applyImpl() override;
+    void discardImpl() override { setFromClangToolchain(); }
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
+
+    void setFromClangToolchain();
+    void updateParentToolChainComboBox();
+    QList<QMetaObject::Connection> m_parentToolChainConnections;
+    QComboBox *m_parentToolchainCombo = nullptr;
+};
+
+} // namespace Internal
 
 using namespace Internal;
 

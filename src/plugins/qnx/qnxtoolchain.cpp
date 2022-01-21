@@ -29,6 +29,7 @@
 #include "qnxconstants.h"
 #include "qnxutils.h"
 
+#include <projectexplorer/abiwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/pathchooser.h>
