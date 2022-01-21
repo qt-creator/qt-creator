@@ -56,7 +56,8 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
-const char openInQDSAppSetting[] = "OpenInQDSAppUiQml";
+const char openInQDSAppInfoBar[] = "OpenInQDSAppUiQml";
+const char alwaysOpenUiQmlInQDS[] = "J.QtQuick/QmlJSEditor.openUiQmlFilesInQDS";
 
 static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
 {
@@ -71,6 +72,16 @@ static bool qmlDesignerEnabled()
     const auto plugins = ExtensionSystem::PluginManager::plugins();
     const auto it = std::find_if(plugins.begin(), plugins.end(), &isQmlDesigner);
     return it != plugins.end() && (*it)->plugin();
+}
+
+static bool alwaysOpenUiQmlfileInQds()
+{
+    return Core::ICore::settings()->value(alwaysOpenUiQmlInQDS, false).toBool();
+}
+
+static void enableAlwaysOpenUiQmlfileInQds()
+{
+    return Core::ICore::settings()->setValue(alwaysOpenUiQmlInQDS, true);
 }
 
 class QmlProjectPluginPrivate
@@ -169,6 +180,21 @@ static bool findAndOpenProject(const Utils::FilePath &filePath)
     return false;
 }
 
+void QmlProjectPlugin::openInQDSWithProject(const Utils::FilePath &filePath)
+{
+    if (findAndOpenProject(filePath)) {
+        openQDS(filePath);
+        //The first one might be ignored when QDS is starting up
+        QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
+    } else {
+        Core::AsynchronousMessageBox::warning(
+            tr("Qt Design Studio"),
+            tr("No project file (*.qmlproject) found for Qt Design "
+               "Studio.\n Qt Design Studio requires a .qmlproject "
+               "based project to open the .ui.qml file."));
+    }
+}
+
 bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -196,9 +222,9 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                         const QString description = tr("Files of the type ui.qml are intended for Qt Design Studio.");
 
                         if (!qdsInstallationExists()) {
-                            if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
+                            if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppInfoBar)) {
                                                 Utils::InfoBarEntry
-                                                    info(openInQDSAppSetting,
+                                                    info(openInQDSAppInfoBar,
                                                          description + tr(" Learn more about Qt Design Studio here: ")
                                                          + "<a href='https://www.qt.io/product/ui-design-tools'>Qt Design Studio</a>",
                                                          Utils::InfoBarEntry::GlobalSuppression::Disabled);
@@ -207,25 +233,19 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                             return;
                         }
 
-                        if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
-                            Utils::InfoBarEntry
-                                    info(openInQDSAppSetting,
-                                         description + "\n" + tr("Do you want to open this file in Qt Design Studio?"),
-                                         Utils::InfoBarEntry::GlobalSuppression::Disabled);
-                            info.addCustomButton(tr("Open in Qt Design Studio"), [filePath] {
-                                Core::ICore::infoBar()->removeInfo(openInQDSAppSetting);
 
-                                if (findAndOpenProject(filePath)) {
-                                    openQDS(filePath);
-                                    //The first one might be ignored when QDS is starting up
-                                    QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
-                                } else {
-                                    Core::AsynchronousMessageBox::warning(
-                                        tr("Qt Design Studio"),
-                                        tr("No project file (*.qmlproject) found for Qt Design"
-                                           "Studio.\n Qt Design Studio requires a .qmlproject "
-                                           "based project to open the ui.qml file."));
-                                }
+                        if (alwaysOpenUiQmlfileInQds()) {
+                            openInQDSWithProject(filePath);
+                        } else if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppInfoBar)) {
+                            Utils::InfoBarEntry
+                                    info(openInQDSAppInfoBar,
+                                         description + "\n" + tr("Do you want to open this file always in Qt Design Studio?"),
+                                         Utils::InfoBarEntry::GlobalSuppression::Disabled);
+                            info.addCustomButton(tr("Always open in Qt Design Studio"), [filePath] {
+                                Core::ICore::infoBar()->removeInfo(openInQDSAppInfoBar);
+
+                                enableAlwaysOpenUiQmlfileInQds();
+                                openInQDSWithProject(filePath);
                             });
                             Core::ICore::infoBar()->addInfo(info);
                         }
