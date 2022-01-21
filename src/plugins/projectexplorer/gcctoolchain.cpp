@@ -1177,9 +1177,6 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
                                                                       systemEnvironment,
                                                                       macros);
-    const Utils::FilePath installDir = gccInstallDir(localCompilerPath,
-                                                     systemEnvironment);
-
     for (const Abi &abi : detectedAbis.supportedAbis) {
         std::unique_ptr<GccToolChain> tc(dynamic_cast<GccToolChain *>(create()));
         if (!tc)
@@ -1195,7 +1192,6 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
         tc->setSupportedAbis(detectedAbis.supportedAbis);
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
-        tc->setInstallDir(installDir);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
         if (!checker || checker(tc.get()))
             result.append(tc.release());
