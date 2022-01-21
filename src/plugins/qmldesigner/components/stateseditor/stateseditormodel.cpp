@@ -53,7 +53,6 @@ StatesEditorModel::StatesEditorModel(StatesEditorView *view)
 {
 }
 
-
 int StatesEditorModel::count() const
 {
     return rowCount();
@@ -64,9 +63,8 @@ QModelIndex StatesEditorModel::index(int row, int column, const QModelIndex &par
     if (m_statesEditorView.isNull())
         return {};
 
-
     int internalNodeId = 0;
-    if (row > 0)
+    if (row > 0 && row < rowCount() - 1) // first and last rows are base state, add state
         internalNodeId = m_statesEditorView->rootModelNode().nodeListProperty("states").at(row - 1).internalId();
 
     return hasIndex(row, column, parent) ? createIndex(row, column,  internalNodeId) : QModelIndex();
@@ -78,9 +76,9 @@ int StatesEditorModel::rowCount(const QModelIndex &parent) const
         return 0;
 
     if (!m_statesEditorView->rootModelNode().hasNodeListProperty("states"))
-        return 1;
+        return 2; // base state + add new state
 
-    return m_statesEditorView->rootModelNode().nodeListProperty("states").count() + 1;
+    return m_statesEditorView->rootModelNode().nodeListProperty("states").count() + 2; // 2 = base state + add new state
 }
 
 void StatesEditorModel::reset()
@@ -101,16 +99,16 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case StateNameRole: {
-            if (index.row() == 0) {
-                return tr("base state", "Implicit default state");
-            } else {
-                if (stateNode.hasVariantProperty("name"))
-                    return stateNode.variantProperty("name").value();
-                else
-                    return QVariant();
-            }
-
+        if (index.row() == 0) {
+            return tr("base state", "Implicit default state");
+        } else {
+            if (stateNode.hasVariantProperty("name"))
+                return stateNode.variantProperty("name").value();
+            else
+                return QVariant();
         }
+    }
+
     case StateImageSourceRole: {
         static int randomNumber = 0;
         randomNumber++;
@@ -119,9 +117,12 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
         else
             return QString("image://qmldesigner_stateseditor/%1-%2").arg(index.internalId()).arg(randomNumber);
     }
-    case InternalNodeId: return index.internalId();
 
-    case HasWhenCondition: return stateNode.isValid() && stateNode.hasProperty("when");
+    case InternalNodeId:
+        return index.internalId();
+
+    case HasWhenCondition:
+        return stateNode.isValid() && stateNode.hasProperty("when");
 
     case WhenConditionString: {
         if (stateNode.isValid() && stateNode.hasBindingProperty("when"))
@@ -137,10 +138,11 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
         return false;
     }
 
-    case ModelHasDefaultState: {
+    case ModelHasDefaultState:
         return hasDefaultState();
-    }
 
+    case StateType:
+        return index.row() == rowCount() - 1 ? "add" : "state";
     }
 
     return QVariant();
@@ -148,14 +150,15 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> StatesEditorModel::roleNames() const
 {
-    static QHash<int, QByteArray> roleNames{
+    static QHash<int, QByteArray> roleNames {
         {StateNameRole, "stateName"},
         {StateImageSourceRole, "stateImageSource"},
         {InternalNodeId, "internalNodeId"},
         {HasWhenCondition, "hasWhenCondition"},
         {WhenConditionString, "whenConditionString"},
         {IsDefault, "isDefault"},
-        {ModelHasDefaultState, "modelHasDefaultState"}
+        {ModelHasDefaultState, "modelHasDefaultState"},
+        {StateType, "type"}
     };
     return roleNames;
 }
@@ -163,10 +166,8 @@ QHash<int, QByteArray> StatesEditorModel::roleNames() const
 void StatesEditorModel::insertState(int stateIndex)
 {
     if (stateIndex >= 0) {
-
         const int updateIndex = stateIndex + 1;
         beginInsertRows(QModelIndex(), updateIndex, updateIndex);
-
         endInsertRows();
 
         emit dataChanged(index(updateIndex, 0), index(updateIndex, 0));

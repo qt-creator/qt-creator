@@ -26,6 +26,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
+import Qt.labs.qmlmodels 1.0
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -73,9 +74,16 @@ FocusScope {
         anchors.right: parent.right
         anchors.rightMargin: 4
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 4 + scrollBarH
-        width: 30
-        height: 30
+        anchors.bottomMargin: statesListView.contentWidth - statesListView.contentX - root.delegateWidth / 2 > statesListView.width ? scrollBarH + 5 : -35
+        width: 35
+        height: 35
+
+        Behavior on anchors.bottomMargin {
+            PropertyAnimation {
+                duration: 700
+                easing.type: Easing.InOutBack
+            }
+        }
 
         onClicked: root.createNewState()
     }
@@ -93,24 +101,81 @@ FocusScope {
         orientation: ListView.Horizontal
         spacing: root.innerSpacing
 
-        delegate: StatesDelegate {
-            id: statesDelegate
-            width: root.delegateWidth
-            height: root.delegateHeight
-            isBaseState: 0 === internalNodeId
-            isCurrentState: root.currentStateInternalId === internalNodeId
-            delegateStateName: stateName
-            delegateStateImageSource: stateImageSource
-            delegateHasWhenCondition: hasWhenCondition
-            delegateWhenConditionString: whenConditionString
-
-            topAreaHeight: root.delegateTopAreaHeight
-            bottomAreaHeight: root.delegateBottomAreaHeight
-            stateMargin: root.delegateStateMargin
-            previewMargin: root.delegatePreviewMargin
-            scrollBarH: root.scrollBarH
-            listMargin: root.listMargin
+        property int prevCount: 0
+        onCountChanged: {
+            if (count > prevCount)
+                Qt.callLater(statesListView.positionViewAtEnd)
+            prevCount = count
         }
+
+        delegate: DelegateChooser {
+            role: "type"
+
+            DelegateChoice {
+                roleValue: "state"
+
+                StatesDelegate {
+                    width: root.delegateWidth
+                    height: root.delegateHeight
+                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                    anchors.verticalCenterOffset: -.5 * (scrollBarH + listMargin)
+                    isBaseState: 0 === internalNodeId
+                    isCurrentState: root.currentStateInternalId === internalNodeId
+                    delegateStateName: stateName
+                    delegateStateImageSource: stateImageSource
+                    delegateHasWhenCondition: hasWhenCondition
+                    delegateWhenConditionString: whenConditionString
+
+                    topAreaHeight: root.delegateTopAreaHeight
+                    bottomAreaHeight: root.delegateBottomAreaHeight
+                    stateMargin: root.delegateStateMargin
+                    previewMargin: root.delegatePreviewMargin
+                    scrollBarH: root.scrollBarH
+                    listMargin: root.listMargin
+                }
+            }
+
+            DelegateChoice {
+                roleValue: "add"
+
+                Rectangle {
+                    visible: canAddNewStates
+
+                    width: root.delegateWidth
+                    height: root.delegateHeight
+                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                    anchors.verticalCenterOffset: -.5 * (scrollBarH + listMargin)
+                    color: Qt.lighter(StudioTheme.Values.themeControlBackgroundInteraction, addState.containsMouse ? 1.5 : 1)
+
+                    ToolTip.text: qsTr("Add a new state.")
+                    ToolTip.visible: addState.containsMouse
+                    ToolTip.delay: 1000
+
+                    Rectangle { // inner rect
+                        width: parent.width - 30
+                        height: parent.height - 30
+                        anchors.centerIn: parent
+                        color: StudioTheme.Values.themeStateBackground
+                    }
+
+                    Text {
+                        text: "+"
+                        anchors.centerIn: parent
+                        anchors.verticalCenterOffset: -5
+                        font.pixelSize: parent.height * .5
+                        color: Qt.lighter(StudioTheme.Values.themeControlBackgroundInteraction, addState.containsMouse ? 1.5 : 1)
+                    }
+
+                    MouseArea {
+                        id: addState
+                        hoverEnabled: true
+                        anchors.fill: parent
+                        onClicked: root.createNewState()
+                    }
+                }
+            }
+        }
+
         ScrollBar.horizontal: HorizontalScrollBar {}
     }
 }

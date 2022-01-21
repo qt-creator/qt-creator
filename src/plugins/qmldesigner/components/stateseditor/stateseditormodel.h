@@ -44,7 +44,8 @@ class StatesEditorModel : public QAbstractListModel
         HasWhenCondition,
         WhenConditionString,
         IsDefault,
-        ModelHasDefaultState
+        ModelHasDefaultState,
+        StateType
     };
 
 public:

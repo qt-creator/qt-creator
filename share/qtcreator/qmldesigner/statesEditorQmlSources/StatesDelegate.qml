@@ -64,9 +64,6 @@ Rectangle {
 
     color: isCurrentState ? StudioTheme.Values.themeInteraction
                           : StudioTheme.Values.themeControlBackgroundInteraction
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.verticalCenterOffset: -.5 * (scrollBarH + listMargin)
-
     MouseArea {
         id: mouseArea
         anchors.fill: parent
