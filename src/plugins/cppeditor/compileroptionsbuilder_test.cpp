@@ -54,7 +54,7 @@ public:
         RawProjectPart rpp;
         rpp.setPreCompiledHeaders({pchFileNativePath()});
         rpp.setMacros({Macro{"projectFoo", "projectBar"}});
-        rpp.setQtVersion(Utils::QtVersion::Qt5);
+        rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         rpp.setHeaderPaths(headerPaths);
         rpp.setConfigFileName(projectConfigFile);
         ToolChainInfo tcInfo;

@@ -101,7 +101,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     m_effectiveCall->setEnabled(true);
 
     auto updateSummary = [this] {
-        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+        QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
         if (!qtVersion)
             return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
         const QString program = qtVersion->qmakeFilePath().fileName();
@@ -129,7 +129,7 @@ QmakeBuildSystem *QMakeStep::qmakeBuildSystem() const
 /// config arguemnts
 /// moreArguments
 /// user arguments
-QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) const
+QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
 {
     QTC_ASSERT(v, return QString());
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
@@ -183,7 +183,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
         }
     }
 
-    BaseQtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit);
 
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
     config.separateDebugInfo = qmakeBuildConfiguration()->separateDebugInfo();
@@ -200,7 +200,7 @@ bool QMakeStep::init()
 
     m_wasSuccess = true;
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
-    const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
+    const QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
 
     if (!qtVersion) {
         emit addOutput(tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
@@ -433,7 +433,7 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 
 QString QMakeStep::effectiveQMakeCall() const
 {
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
+    QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     FilePath qmake = qtVersion ? qtVersion->qmakeFilePath() : FilePath();
     if (qmake.isEmpty())
         qmake = FilePath::fromString(tr("<no Qt version>"));
@@ -458,7 +458,7 @@ QStringList QMakeStep::parserArguments()
 {
     // NOTE: extra parser args placed before the other args intentionally
     QStringList result = m_extraParserArgs;
-    BaseQtVersion *qt = QtKitAspect::qtVersion(kit());
+    QtVersion *qt = QtKitAspect::qtVersion(kit());
     QTC_ASSERT(qt, return QStringList());
     for (ProcessArgs::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
         if (ait.isSimple())
@@ -586,7 +586,7 @@ void QMakeStep::qtVersionChanged()
 void QMakeStep::qmakeBuildConfigChanged()
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
-    bool debug = bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
+    bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
     m_ignoreChange = true;
     m_buildType->setValue(debug? 0 : 1);
     m_ignoreChange = false;
@@ -630,7 +630,7 @@ void QMakeStep::abisChanged()
             m_selectedAbis << item->text();
     }
 
-    if (BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit())) {
+    if (QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit())) {
         if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
             const QString prefix = QString("%1=").arg(Android::Constants::ANDROID_ABIS);
             QStringList args = m_extraArgs;
@@ -676,11 +676,11 @@ void QMakeStep::buildConfigurationSelected()
     if (m_ignoreChange)
         return;
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
-    BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
+    QtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
     if (m_buildType->value() == 0) { // debug
-        buildConfiguration = buildConfiguration | BaseQtVersion::DebugBuild;
+        buildConfiguration = buildConfiguration | QtVersion::DebugBuild;
     } else {
-        buildConfiguration = buildConfiguration & ~BaseQtVersion::DebugBuild;
+        buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
     }
     m_ignoreChange = true;
     bc->setQMakeBuildConfiguration(buildConfiguration);
@@ -706,7 +706,7 @@ void QMakeStep::updateAbiWidgets()
     if (!abisLabel)
         return;
 
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+    QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
     if (!qtVersion)
         return;
 
@@ -778,12 +778,12 @@ QMakeStepFactory::QMakeStepFactory()
     setFlags(BuildStepInfo::UniqueStep);
 }
 
-QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &, const BaseQtVersion *)
+QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &, const QtVersion *)
 {
     return NoArch;
 }
 
-QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const Abi &targetAbi, const BaseQtVersion *version)
+QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const Abi &targetAbi, const QtVersion *version)
 {
     OsType os = NoOsType;
     const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";

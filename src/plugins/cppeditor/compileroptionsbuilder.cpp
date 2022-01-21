@@ -733,7 +733,7 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const Macro &macro) const
 
 QStringList CompilerOptionsBuilder::wrappedQtHeadersIncludePath() const
 {
-    if (m_projectPart.qtVersion == QtVersion::None)
+    if (m_projectPart.qtVersion == QtMajorVersion::None)
         return {};
     return {"wrappedQtHeaders", "wrappedQtHeaders/QtCore"};
 }

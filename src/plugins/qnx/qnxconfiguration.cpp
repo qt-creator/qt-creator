@@ -221,8 +221,8 @@ FilePath QnxConfiguration::sdpPath() const
 
 QnxQtVersion *QnxConfiguration::qnxQtVersion(const Target &target) const
 {
-    foreach (BaseQtVersion *version,
-             QtVersionManager::instance()->versions(Utils::equal(&BaseQtVersion::type,
+    foreach (QtVersion *version,
+             QtVersionManager::instance()->versions(Utils::equal(&QtVersion::type,
                                                                          QString::fromLatin1(Constants::QNX_QNX_QT)))) {
         auto qnxQt = dynamic_cast<QnxQtVersion *>(version);
         if (qnxQt && qnxQt->sdpPath() == sdpPath()) {

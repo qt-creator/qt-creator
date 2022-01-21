@@ -304,7 +304,7 @@ void JLSClient::updateProjectFiles()
         if (DeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
             return;
         if (ProjectNode *node = project()->findNodeForBuildKey(target->activeBuildKey())) {
-            QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+            QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
             if (!version)
                 return;
             const QString qtSrc = version->prefix().toString() + "/src/android/java/src";

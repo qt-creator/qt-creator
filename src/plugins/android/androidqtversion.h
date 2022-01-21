@@ -33,7 +33,7 @@
 namespace Android {
 namespace Internal {
 
-class AndroidQtVersion : public QtSupport::BaseQtVersion
+class AndroidQtVersion : public QtSupport::QtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidQtVersion)
 

@@ -74,7 +74,7 @@ Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 
 Utils::FilePath QScxmlcGenerator::command() const
 {
-    QtSupport::BaseQtVersion *version = nullptr;
+    QtSupport::QtVersion *version = nullptr;
     Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitAspect::qtVersion(target->kit());

@@ -60,8 +60,8 @@ public:
     static Utils::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);
     static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
-    static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
-    static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
+    static QtVersion *qtVersion(const ProjectExplorer::Kit *k);
+    static void setQtVersion(ProjectExplorer::Kit *k, const QtVersion *v);
 
     static void addHostBinariesToPath(const ProjectExplorer::Kit *k, Utils::Environment &env);
 

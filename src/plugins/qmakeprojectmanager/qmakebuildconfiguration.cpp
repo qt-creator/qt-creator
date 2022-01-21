@@ -128,13 +128,13 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
         QTC_ASSERT(qmakeStep, return);
 
         const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
-        BaseQtVersion *version = QtKitAspect::qtVersion(target->kit());
+        QtVersion *version = QtKitAspect::qtVersion(target->kit());
 
-        BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+        QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         if (info.buildType == BuildConfiguration::Debug)
-            config |= BaseQtVersion::DebugBuild;
+            config |= QtVersion::DebugBuild;
         else
-            config &= ~BaseQtVersion::DebugBuild;
+            config &= ~QtVersion::DebugBuild;
 
         QString additionalArguments = qmakeExtra.additionalArguments;
         if (!additionalArguments.isEmpty())
@@ -227,7 +227,7 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_qmakeBuildConfiguration = BaseQtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
+    m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
     m_lastKitState = LastKitState(kit());
     return true;
@@ -251,7 +251,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
     const QString proFileName = project()->projectFilePath().toString();
 
     // Check for Qt version:
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version) {
         buildDirectoryAspect()->setProblem(tr("This kit cannot build this project since it "
                                               "does not define a Qt version."));
@@ -379,12 +379,12 @@ FilePath QmakeBuildConfiguration::makefile() const
     return FilePath::fromString(m_buildSystem->rootProFile()->singleVariableValue(Variable::Makefile));
 }
 
-BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
+QtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
 {
     return m_qmakeBuildConfiguration;
 }
 
-void QmakeBuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBuildConfigs config)
+void QmakeBuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config)
 {
     if (m_qmakeBuildConfiguration == config)
         return;
@@ -457,18 +457,18 @@ bool QmakeBuildConfiguration::runSystemFunction() const
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
-    BaseQtVersion *version = QtKitAspect::qtVersion(kit());
-    BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =
-            version ? version->defaultBuildConfig() : BaseQtVersion::QmakeBuildConfigs(BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
-    BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
-    if ((defaultBuildConfiguration & BaseQtVersion::BuildAll) && !(userBuildConfiguration & BaseQtVersion::BuildAll))
+    QtVersion *version = QtKitAspect::qtVersion(kit());
+    QtVersion::QmakeBuildConfigs defaultBuildConfiguration =
+            version ? version->defaultBuildConfig() : QtVersion::QmakeBuildConfigs(QtVersion::DebugBuild | QtVersion::BuildAll);
+    QtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
+    if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
         result << QLatin1String("CONFIG-=debug_and_release");
 
-    if (!(defaultBuildConfiguration & BaseQtVersion::BuildAll) && (userBuildConfiguration & BaseQtVersion::BuildAll))
+    if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
         result << QLatin1String("CONFIG+=debug_and_release");
-    if ((defaultBuildConfiguration & BaseQtVersion::DebugBuild) && !(userBuildConfiguration & BaseQtVersion::DebugBuild))
+    if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(userBuildConfiguration & QtVersion::DebugBuild))
         result << QLatin1String("CONFIG+=release");
-    if (!(defaultBuildConfiguration & BaseQtVersion::DebugBuild) && (userBuildConfiguration & BaseQtVersion::DebugBuild))
+    if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (userBuildConfiguration & QtVersion::DebugBuild))
         result << QLatin1String("CONFIG+=debug");
     return result;
 }
@@ -523,7 +523,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileMissing;
     }
 
-    BaseQtVersion *version = QtKitAspect::qtVersion(kit());
+    QtVersion *version = QtKitAspect::qtVersion(kit());
     if (!version) {
         qCDebug(logs) << "**No qt version in kit";
         return MakefileForWrongProject;
@@ -546,7 +546,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     }
 
     // same qtversion
-    BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(version->defaultBuildConfig());
+    QtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(version->defaultBuildConfig());
     if (qmakeBuildConfiguration() != buildConfig) {
         qCDebug(logs) << "**Different qmake buildconfigurations buildconfiguration:"
                       << qmakeBuildConfiguration() << " Makefile:" << buildConfig;
@@ -632,7 +632,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
 
 QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
                                                          const FilePath &directory,
-                                                         const BaseQtVersion *version,
+                                                         const QtVersion *version,
                                                          QStringList *outArgs)
 {
     FilePath parsedSpec;
@@ -708,7 +708,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
                  BuildConfiguration::BuildType type)
 {
     const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
-    BaseQtVersion *version = QtKitAspect::qtVersion(k);
+    QtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
     QString suffix;
@@ -774,7 +774,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
     setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
         Tasks issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
@@ -790,7 +790,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
 
-        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(k);
+        QtVersion *qtVersion = QtKitAspect::qtVersion(k);
 
         if (forSetup && (!qtVersion || !qtVersion->isValid()))
             return result;
@@ -815,7 +815,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
 
 BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
-    if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
+    if (qmakeBuildConfiguration() & QtVersion::DebugBuild)
         return Debug;
     if (separateDebugInfo() == TriState::Enabled)
         return Profile;

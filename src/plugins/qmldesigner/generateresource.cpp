@@ -231,7 +231,7 @@ void GenerateResource::generateMenuEntry()
 
         temp.close();
 
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
+        QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
         FilePath rccBinary = qtVersion->rccFilePath();
 
@@ -383,7 +383,7 @@ void GenerateResource::generateMenuEntry()
 
         QTemporaryFile temp(projectPath.toString() + "/XXXXXXX.create.resource.qrc");
 
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
+        QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
         FilePath rccBinary = qtVersion->rccFilePath();
 

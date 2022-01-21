@@ -368,7 +368,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         if (pro->variableValue(Variable::Config).contains(QLatin1String("qt")))
             rpp.setQtVersion(kitInfo.projectPartQtVersion);
         else
-            rpp.setQtVersion(Utils::QtVersion::None);
+            rpp.setQtVersion(Utils::QtMajorVersion::None);
 
         // Header paths
         ProjectExplorer::HeaderPaths headerPaths;
@@ -685,7 +685,7 @@ void QmakeBuildSystem::asyncUpdate()
     watcher->setFuture(m_asyncUpdateFutureInterface->future());
 
     const Kit *const k = kit();
-    QtSupport::BaseQtVersion *const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
+    QtSupport::QtVersion *const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
     if (!qtVersion || !qtVersion->isValid()) {
         const QString errorMessage
             = k ? tr("Cannot parse project \"%1\": The currently selected kit \"%2\" does not "
@@ -738,7 +738,7 @@ void QmakeBuildSystem::buildFinished(bool success)
 Tasks QmakeProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-    const QtSupport::BaseQtVersion *const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
+    const QtSupport::QtVersion *const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
     if (!qtFromKit)
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
     else if (!qtFromKit->isValid())
@@ -750,12 +750,12 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     // example shipped via the installer.
     // Report a problem if and only if the project is considered to be part of *only* a Qt
     // that is not the one from the current kit.
-    const QList<BaseQtVersion *> qtsContainingThisProject
-            = QtVersionManager::versions([filePath = projectFilePath()](const BaseQtVersion *qt) {
+    const QList<QtVersion *> qtsContainingThisProject
+            = QtVersionManager::versions([filePath = projectFilePath()](const QtVersion *qt) {
         return qt->isValid() && qt->isQtSubProject(filePath);
     });
     if (!qtsContainingThisProject.isEmpty()
-            && !qtsContainingThisProject.contains(const_cast<BaseQtVersion *>(qtFromKit))) {
+            && !qtsContainingThisProject.contains(const_cast<QtVersion *>(qtFromKit))) {
         result.append(CompileTask(Task::Warning,
                                   tr("Project is part of Qt sources that do not match "
                                      "the Qt defined in the kit.")));
@@ -826,7 +826,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         else
             qmakeArgs = bc->configCommandLineArguments();
 
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(k);
+        QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(k);
         m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
 
         if (qtVersion && qtVersion->isValid()) {
@@ -1205,7 +1205,7 @@ void QmakeBuildSystem::updateBuildSystemData()
                 libraryPaths.append(FilePath::fromUserInput(dir));
             }
         }
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit());
+        QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit());
         if (qtVersion)
             libraryPaths.append(qtVersion->librarySearchPath());
 

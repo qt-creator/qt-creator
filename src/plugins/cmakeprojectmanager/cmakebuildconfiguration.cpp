@@ -1095,7 +1095,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             initialArgs.append("-DANDROID_STL:STRING=c++_shared");
             initialArgs.append("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}");
 
-            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
 
             if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
@@ -1111,7 +1111,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
         if (isIos(k)) {
-            QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt && qt->qtVersion().majorVersion >= 6) {
                 // TODO it would be better if we could set
                 // CMAKE_SYSTEM_NAME=iOS and CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=YES
@@ -1137,7 +1137,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k)) {
-            const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+            const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt && qt->qtVersion().majorVersion >= 6)
                 initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }

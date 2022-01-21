@@ -54,7 +54,7 @@ namespace Android {
 namespace Internal {
 
 AndroidQtVersion::AndroidQtVersion()
-    : QtSupport::BaseQtVersion()
+    : QtSupport::QtVersion()
     , m_guard(std::make_unique<QObject>())
 {
     QObject::connect(AndroidConfigurations::instance(),
@@ -65,7 +65,7 @@ AndroidQtVersion::AndroidQtVersion()
 
 bool AndroidQtVersion::isValid() const
 {
-    if (!BaseQtVersion::isValid())
+    if (!QtVersion::isValid())
         return false;
     if (qtAbis().isEmpty())
         return false;
@@ -74,7 +74,7 @@ bool AndroidQtVersion::isValid() const
 
 QString AndroidQtVersion::invalidReason() const
 {
-    QString tmp = BaseQtVersion::invalidReason();
+    QString tmp = QtVersion::invalidReason();
     if (tmp.isEmpty()) {
         if (AndroidConfigurations::currentConfig().ndkLocation(this).isEmpty())
             return tr("NDK is not configured in Devices > Android.");
@@ -136,7 +136,7 @@ Abis AndroidQtVersion::detectQtAbis() const
 
 void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
-    BaseQtVersion::addToEnvironment(k, env);
+    QtVersion::addToEnvironment(k, env);
 
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
@@ -209,12 +209,12 @@ void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
                 m_minNdk = tmp;
         }
     }
-    BaseQtVersion::parseMkSpec(evaluator);
+    QtVersion::parseMkSpec(evaluator);
 }
 
 QSet<Utils::Id> AndroidQtVersion::availableFeatures() const
 {
-    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtSupport::QtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);

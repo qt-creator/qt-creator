@@ -34,7 +34,7 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
     // for getUniqueId();
-    friend class BaseQtVersion;
+    friend class QtVersion;
     friend class QtVersionFactory;
     friend class Internal::QtOptionsPageWidget;
 
@@ -53,15 +53,15 @@ public:
     // Note: DO NOT STORE THESE POINTERS!
     //       The QtVersionManager may delete them at random times and you will
     //       need to get a new pointer by calling this function again!
-    static QList<BaseQtVersion *> versions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
-    static BaseQtVersion *version(int id);
-    static BaseQtVersion *version(const BaseQtVersion::Predicate &predicate);
+    static QList<QtVersion *> versions(const QtVersion::Predicate &predicate = QtVersion::Predicate());
+    static QtVersion *version(int id);
+    static QtVersion *version(const QtVersion::Predicate &predicate);
 
     // Sorting is potentially expensive since it might require qmake --query to run for each version!
-    static QList<BaseQtVersion *> sortVersions(const QList<BaseQtVersion *> &input);
+    static QList<QtVersion *> sortVersions(const QList<QtVersion *> &input);
 
-    static void addVersion(BaseQtVersion *version);
-    static void removeVersion(BaseQtVersion *version);
+    static void addVersion(QtVersion *version);
+    static void removeVersion(QtVersion *version);
 
     // Call latest in extensionsInitialized of plugin depending on QtSupport
     static void registerExampleSet(const QString &displayName,
@@ -69,21 +69,21 @@ public:
                                    const QString &examplesPath);
 
 signals:
-    // content of BaseQtVersion objects with qmake path might have changed
+    // content of QtVersion objects with qmake path might have changed
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);
     void qtVersionsLoaded();
 
 private:
     enum class DocumentationSetting { HighestOnly, All, None };
 
-    static void updateDocumentation(const QList<BaseQtVersion *> &added,
-                                    const QList<BaseQtVersion *> &removed,
-                                    const QList<BaseQtVersion *> &allNew);
+    static void updateDocumentation(const QList<QtVersion *> &added,
+                                    const QList<QtVersion *> &removed,
+                                    const QList<QtVersion *> &allNew);
     void updateFromInstaller(bool emitSignal = true);
     void triggerQtVersionRestore();
 
     // Used by QtOptionsPage
-    static void setNewQtVersions(const QList<BaseQtVersion *> &newVersions);
+    static void setNewQtVersions(const QList<QtVersion *> &newVersions);
     static void setDocumentationSetting(const DocumentationSetting &setting);
     static DocumentationSetting documentationSetting();
     // Used by QtVersion

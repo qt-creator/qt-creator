@@ -86,7 +86,7 @@ QString QnxQtVersion::description() const
 
 QSet<Id> QnxQtVersion::availableFeatures() const
 {
-    QSet<Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Id> features = QtSupport::QtVersion::availableFeatures();
     features.insert(QNX_QNX_FEATURE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
@@ -134,26 +134,26 @@ QString QnxQtVersion::cpuDir() const
 
 QVariantMap QnxQtVersion::toMap() const
 {
-    QVariantMap result = BaseQtVersion::toMap();
+    QVariantMap result = QtVersion::toMap();
     result.insert(SDP_PATH_KEY, sdpPath().toVariant());
     return result;
 }
 
 void QnxQtVersion::fromMap(const QVariantMap &map)
 {
-    BaseQtVersion::fromMap(map);
+    QtVersion::fromMap(map);
     setSdpPath(FilePath::fromVariant(map.value(SDP_PATH_KEY)));
 }
 
 Abis QnxQtVersion::detectQtAbis() const
 {
     ensureMkSpecParsed();
-    return QnxUtils::convertAbis(BaseQtVersion::detectQtAbis());
+    return QnxUtils::convertAbis(QtVersion::detectQtAbis());
 }
 
 void QnxQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 {
-    QtSupport::BaseQtVersion::addToEnvironment(k, env);
+    QtSupport::QtVersion::addToEnvironment(k, env);
     updateEnvironment();
     env.modify(m_qnxEnv);
     env.prependOrSetLibrarySearchPath(libraryPath());
@@ -174,7 +174,7 @@ QtSupport::QtConfigWidget *QnxQtVersion::createConfigurationWidget() const
 
 bool QnxQtVersion::isValid() const
 {
-    return QtSupport::BaseQtVersion::isValid() && !sdpPath().isEmpty();
+    return QtSupport::QtVersion::isValid() && !sdpPath().isEmpty();
 }
 
 QString QnxQtVersion::invalidReason() const
@@ -182,7 +182,7 @@ QString QnxQtVersion::invalidReason() const
     if (sdpPath().isEmpty())
         return QCoreApplication::translate("Qnx::Internal::QnxQtVersion",
                                            "No SDP path was set up.");
-    return QtSupport::BaseQtVersion::invalidReason();
+    return QtSupport::QtVersion::invalidReason();
 }
 
 FilePath QnxQtVersion::sdpPath() const

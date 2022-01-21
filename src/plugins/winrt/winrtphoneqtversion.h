@@ -30,7 +30,7 @@
 namespace WinRt {
 namespace Internal {
 
-class WinRtPhoneQtVersion : public QtSupport::BaseQtVersion
+class WinRtPhoneQtVersion : public QtSupport::QtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtQtVersion)
 public:

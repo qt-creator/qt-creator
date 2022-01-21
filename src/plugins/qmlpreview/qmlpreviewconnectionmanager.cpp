@@ -46,7 +46,7 @@ QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
 
 void QmlPreviewConnectionManager::setTarget(ProjectExplorer::Target *target)
 {
-    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_projectFileFinder, target);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, target);
     m_projectFileFinder.setAdditionalSearchDirectories(Utils::FilePaths());
     m_targetFileFinder.setTarget(target);
 }

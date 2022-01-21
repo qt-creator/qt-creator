@@ -125,7 +125,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(activeKit);
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(activeKit);
 
     projectInfo.tryQmlDump = false;
 
@@ -165,7 +165,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     }
 
     projectInfo.qmlDumpPath.clear();
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(activeKit);
+    const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(activeKit);
     if (version && projectInfo.tryQmlDump) {
         projectInfo.qmlDumpPath = version->qmlplugindumpFilePath();
         projectInfo.qmlDumpHasRelocatableFlag = version->hasQmlDumpWithRelocatableFlag();

@@ -184,7 +184,7 @@ static QString lldbServerArch2(const QString &androidAbi)
 
 static FilePath debugServer(bool useLldb, const Target *target)
 {
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
 
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
@@ -315,7 +315,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << ", After finish ADB cmds:" << m_afterFinishAdbCommands
                                  << ", Debug server path:" << m_debugServerPath;
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 

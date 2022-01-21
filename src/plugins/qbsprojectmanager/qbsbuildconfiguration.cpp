@@ -338,7 +338,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     setSupportedProjectType(Constants::PROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::MIME_TYPE);
     setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) -> Tasks {
-        const QtSupport::BaseQtVersion * const version = QtSupport::QtKitAspect::qtVersion(k);
+        const QtSupport::QtVersion * const version = QtSupport::QtKitAspect::qtVersion(k);
         return version ? version->reportIssues(projectPath, buildDir)
                        : Tasks();
     });

@@ -44,7 +44,7 @@ IosQtVersion::IosQtVersion() = default;
 
 bool IosQtVersion::isValid() const
 {
-    if (!BaseQtVersion::isValid())
+    if (!QtVersion::isValid())
         return false;
     if (qtAbis().isEmpty())
         return false;
@@ -53,7 +53,7 @@ bool IosQtVersion::isValid() const
 
 QString IosQtVersion::invalidReason() const
 {
-    QString tmp = BaseQtVersion::invalidReason();
+    QString tmp = QtVersion::invalidReason();
     if (tmp.isEmpty() && qtAbis().isEmpty())
         return tr("Failed to detect the ABIs used by the Qt version.");
     return tmp;
@@ -61,7 +61,7 @@ QString IosQtVersion::invalidReason() const
 
 Abis IosQtVersion::detectQtAbis() const
 {
-    Abis abis = BaseQtVersion::detectQtAbis();
+    Abis abis = QtVersion::detectQtAbis();
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),
@@ -80,7 +80,7 @@ QString IosQtVersion::description() const
 
 QSet<Utils::Id> IosQtVersion::availableFeatures() const
 {
-    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtSupport::QtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);

@@ -31,14 +31,14 @@
 
 namespace QtSupport {
 
-class BaseQtVersion;
+class QtVersion;
 
 class QTSUPPORT_EXPORT CppKitInfo : public ProjectExplorer::KitInfo
 {
 public:
     CppKitInfo(ProjectExplorer::Kit *kit);
 
-    BaseQtVersion *qtVersion = nullptr;
+    QtVersion *qtVersion = nullptr;
 };
 
 } // namespace QtSupport

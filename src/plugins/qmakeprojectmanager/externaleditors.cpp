@@ -61,14 +61,14 @@ static inline QString msgAppNotFound(const QString &id)
 }
 
 // -- Commands and helpers
-static QString linguistBinary(const QtSupport::BaseQtVersion *qtVersion)
+static QString linguistBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
         return qtVersion->linguistFilePath().toString();
     return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
-static QString designerBinary(const QtSupport::BaseQtVersion *qtVersion)
+static QString designerBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
         return qtVersion->designerFilePath().toString();
@@ -127,10 +127,10 @@ ExternalQtEditor *ExternalQtEditor::createDesignerEditor()
     }
 }
 
-static QString findFirstCommand(QVector<QtSupport::BaseQtVersion *> qtVersions,
+static QString findFirstCommand(QVector<QtSupport::QtVersion *> qtVersions,
                                 ExternalQtEditor::CommandForQtVersion command)
 {
-    foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
+    foreach (QtSupport::QtVersion *qt, qtVersions) {
         if (qt) {
             const QString binary = command(qt);
             if (!binary.isEmpty())
@@ -151,7 +151,7 @@ bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
     // - any other kit
     // As fallback check PATH
     data->workingDirectory.clear();
-    QVector<QtSupport::BaseQtVersion *> qtVersionsToCheck; // deduplicated after being filled
+    QVector<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
     if (const Project *project = SessionManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory();
         // active kit

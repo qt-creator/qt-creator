@@ -1054,7 +1054,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
 {
     QTC_ASSERT(k, return Tasks());
 
-    const QtSupport::BaseQtVersion *const version = QtSupport::QtKitAspect::qtVersion(k);
+    const QtSupport::QtVersion *const version = QtSupport::QtKitAspect::qtVersion(k);
     const ToolChain *const tcC = ToolChainKitAspect::cToolChain(k);
     const ToolChain *const tcCxx = ToolChainKitAspect::cxxToolChain(k);
     const CMakeConfig config = configuration(k);

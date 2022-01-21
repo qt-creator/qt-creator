@@ -161,7 +161,7 @@ void AndroidPackageInstallationStep::doRun()
     // NOTE: This is a workaround for QTCREATORBUG-24155
     // Needed for Qt 5.15.0 and Qt 5.14.x versions
     if (buildType() == BuildConfiguration::BuildType::Debug) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
         if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}
             && version->qtVersion() <= QtSupport::QtVersionNumber{5, 15, 0}) {
             const QString assetsDebugDir = nativeAndroidBuildPath().append(

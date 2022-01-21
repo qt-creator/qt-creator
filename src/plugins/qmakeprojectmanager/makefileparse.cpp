@@ -317,17 +317,17 @@ QString MakeFileParse::unparsedArguments() const
     return m_unparsedArguments;
 }
 
-BaseQtVersion::QmakeBuildConfigs MakeFileParse::effectiveBuildConfig(BaseQtVersion::QmakeBuildConfigs defaultBuildConfig) const
+QtVersion::QmakeBuildConfigs MakeFileParse::effectiveBuildConfig(QtVersion::QmakeBuildConfigs defaultBuildConfig) const
 {
-    BaseQtVersion::QmakeBuildConfigs buildConfig = defaultBuildConfig;
+    QtVersion::QmakeBuildConfigs buildConfig = defaultBuildConfig;
     if (m_qmakeBuildConfig.explicitDebug)
-        buildConfig = buildConfig | BaseQtVersion::DebugBuild;
+        buildConfig = buildConfig | QtVersion::DebugBuild;
     else if (m_qmakeBuildConfig.explicitRelease)
-        buildConfig = buildConfig & ~BaseQtVersion::DebugBuild;
+        buildConfig = buildConfig & ~QtVersion::DebugBuild;
     if (m_qmakeBuildConfig.explicitBuildAll)
-        buildConfig = buildConfig | BaseQtVersion::BuildAll;
+        buildConfig = buildConfig | QtVersion::BuildAll;
     else if (m_qmakeBuildConfig.explicitNoBuildAll)
-        buildConfig = buildConfig &~ BaseQtVersion::BuildAll;
+        buildConfig = buildConfig &~ QtVersion::BuildAll;
     return buildConfig;
 }
 

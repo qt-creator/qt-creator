@@ -140,7 +140,7 @@ Tricky parts:
   - `id` can be any unique string. In Qt Creator this is set as the autodetection
     source of the Qt version.
 
-  - `type` must be the string returned by `BaseQtVersion::type()`.
+  - `type` must be the string returned by `QtVersion::type()`.
 
     Currently these are (Qt Creator 4.11):
       * `Qt4ProjectManager.QtVersion.Android` for Android

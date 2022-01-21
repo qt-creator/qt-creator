@@ -56,7 +56,7 @@ class Target;
 namespace QtSupport {
 
 class QtConfigWidget;
-class BaseQtVersion;
+class QtVersion;
 
 class QTSUPPORT_EXPORT QtVersionNumber
 {
@@ -82,20 +82,20 @@ public:
 
 namespace Internal {
 class QtOptionsPageWidget;
-class BaseQtVersionPrivate;
+class QtVersionPrivate;
 }
 
-class QTSUPPORT_EXPORT BaseQtVersion
+class QTSUPPORT_EXPORT QtVersion
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport::BaseQtVersion)
+    Q_DECLARE_TR_FUNCTIONS(QtSupport::QtVersion)
 
 public:
-    using Predicate = std::function<bool(const BaseQtVersion *)>;
+    using Predicate = std::function<bool(const QtVersion *)>;
 
-    virtual ~BaseQtVersion();
+    virtual ~QtVersion();
 
     virtual void fromMap(const QVariantMap &map);
-    virtual bool equals(BaseQtVersion *other);
+    virtual bool equals(QtVersion *other);
 
     bool isAutodetected() const;
     QString detectionSource() const;
@@ -111,7 +111,7 @@ public:
 
     virtual QVariantMap toMap() const;
     virtual bool isValid() const;
-    static Predicate isValidPredicate(const Predicate &predicate = Predicate());
+    static Predicate isValidPredicate(const Predicate &predicate = {});
     virtual QString invalidReason() const;
     virtual QStringList warningReason() const;
 
@@ -229,7 +229,7 @@ public:
 
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
     static std::unique_ptr<Utils::MacroExpander>
-    createMacroExpander(const std::function<const BaseQtVersion *()> &qtVersion);
+    createMacroExpander(const std::function<const QtVersion *()> &qtVersion);
 
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
                                       const ProjectExplorer::Target *target);
@@ -239,8 +239,8 @@ public:
     virtual bool supportsMultipleQtAbis() const;
 
 protected:
-    BaseQtVersion();
-    BaseQtVersion(const BaseQtVersion &other) = delete;
+    QtVersion();
+    QtVersion(const QtVersion &other) = delete;
 
     virtual QSet<Utils::Id> availableFeatures() const;
     virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
@@ -261,15 +261,15 @@ private:
 
     friend class QtVersionFactory;
     friend class QtVersionManager;
-    friend class Internal::BaseQtVersionPrivate;
+    friend class Internal::QtVersionPrivate;
     friend class Internal::QtOptionsPageWidget;
 
     void setId(int id);
-    BaseQtVersion *clone() const;
+    QtVersion *clone() const;
 
-    Internal::BaseQtVersionPrivate *d = nullptr;
+    Internal::QtVersionPrivate *d = nullptr;
 };
 
 } // QtSupport
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::BaseQtVersion::QmakeBuildConfigs)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::QtVersion::QmakeBuildConfigs)

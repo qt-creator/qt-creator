@@ -190,7 +190,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         return FilePath::fromString(qmlViewer);
 
     Kit *kit = target()->kit();
-    BaseQtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit);
     if (!version) // No Qt version in Kit. Don't try to run QML runtime.
         return {};
 
@@ -261,7 +261,7 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
     m_qtversionAspect->setSettingsKey("QmlProjectManager.kit");
 
     Kit *kit = target()->kit();
-    BaseQtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit);
 
     if (version) {
         const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
@@ -288,7 +288,7 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
                 Kit *currentKit = target()->kit();
 
                 const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
-                    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+                    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
                     return (version && version->qtVersion().majorVersion == preferedQtVersion)
                            && DeviceTypeKitAspect::deviceTypeId(k)
                                   == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;

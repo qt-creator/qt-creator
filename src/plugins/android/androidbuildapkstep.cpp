@@ -177,7 +177,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
 QWidget *AndroidBuildApkWidget::createApplicationGroup()
 {
-    QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
     const int minApiSupported = AndroidManager::defaultMinimumSDK(qt);
     QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::sdkManager()->
                                                           filteredSdkPlatforms(minApiSupported));
@@ -322,7 +322,7 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
     verboseOutputCheckBox->setChecked(m_step->verboseOutput());
 
     auto vbox = new QVBoxLayout(group);
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(m_step->kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(m_step->kit());
     if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}) {
         auto buildAAB = new QCheckBox(tr("Build Android App Bundle (*.aab)"), group);
         buildAAB->setChecked(m_step->buildAAB());
@@ -526,7 +526,7 @@ bool AndroidBuildApkStep::init()
             reportWarningOrError(tr("Warning: Signing a debug or profile package."), Task::Warning);
     }
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version) {
         reportWarningOrError(tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
                              Task::Error);
@@ -751,7 +751,7 @@ void AndroidBuildApkStep::doRun()
         const auto androidAbis = AndroidManager::applicationAbis(target());
         const QString buildKey = target()->activeBuildKey();
 
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
         if (!version) {
             reportWarningOrError(tr("The Qt version for kit %1 is invalid.")
                                  .arg(kit()->displayName()), Task::Error);

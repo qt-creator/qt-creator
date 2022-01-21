@@ -96,7 +96,7 @@ public:
 
     inline void setEnvironment(const Utils::Environment &environment) { m_env = environment; }
 
-    inline void setQtVersion(Utils::QtVersion v) { m_qtVersion = v; }
+    inline void setQtVersion(Utils::QtMajorVersion v) { m_qtVersion = v; }
 
     bool matchesKit(const KitData &kit);
 
@@ -124,7 +124,7 @@ private:
     IntroDataType m_introType;
     MesonInfoParser::Result m_parserResult;
     QStringList m_targetsNames;
-    Utils::QtVersion m_qtVersion = Utils::QtVersion::Unknown;
+    Utils::QtMajorVersion m_qtVersion = Utils::QtMajorVersion::Unknown;
     std::unique_ptr<MesonProjectNode> m_rootNode; // <- project tree root node
     QString m_projectName;
     // maybe moving meson to build step could make this class simpler

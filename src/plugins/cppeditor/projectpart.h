@@ -92,7 +92,7 @@ public:
     const Utils::Language language = Utils::Language::Cxx;
     const Utils::LanguageVersion &languageVersion = m_macroReport.languageVersion;
     const Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
-    const Utils::QtVersion qtVersion = Utils::QtVersion::Unknown;
+    const Utils::QtMajorVersion qtVersion = Utils::QtMajorVersion::Unknown;
 
     // Files
     const ProjectFiles files;

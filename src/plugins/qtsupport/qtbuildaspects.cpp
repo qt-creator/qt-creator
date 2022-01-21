@@ -58,7 +58,7 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
     builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
-        const bool supported = m_kit && BaseQtVersion::isQmlDebuggingSupported(m_kit, &warningText);
+        const bool supported = m_kit && QtVersion::isQmlDebuggingSupported(m_kit, &warningText);
         if (!supported) {
             setValue(TriState::Default);
         } else if (value() == TriState::Enabled) {
@@ -93,7 +93,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
         const bool supported = m_kit
-                && BaseQtVersion::isQtQuickCompilerSupported(m_kit, &warningText);
+                && QtVersion::isQtQuickCompilerSupported(m_kit, &warningText);
         if (!supported)
             setValue(TriState::Default);
         if (value() == TriState::Enabled

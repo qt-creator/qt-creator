@@ -77,7 +77,7 @@ class QtVersionItem : public TreeItem
     Q_DECLARE_TR_FUNCTIONS(QtSupport::QtVersion)
 
 public:
-    explicit QtVersionItem(BaseQtVersion *version)
+    explicit QtVersionItem(QtVersion *version)
         : m_version(version)
     {}
 
@@ -86,7 +86,7 @@ public:
         delete m_version;
     }
 
-    void setVersion(BaseQtVersion *version)
+    void setVersion(QtVersion *version)
     {
         m_version = version;
         update();
@@ -97,7 +97,7 @@ public:
         return m_version ? m_version->uniqueId() : -1;
     }
 
-    BaseQtVersion *version() const
+    QtVersion *version() const
     {
         return m_version;
     }
@@ -161,7 +161,7 @@ public:
     }
 
 private:
-    BaseQtVersion *m_version = nullptr;
+    QtVersion *m_version = nullptr;
     QIcon m_icon;
     QString m_buildLog;
     bool m_changed = false;
@@ -186,7 +186,7 @@ private:
     void userChangedCurrentVersion();
     void updateWidgets();
     void setupLinkWithQtButton();
-    BaseQtVersion *currentVersion() const;
+    QtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
     void showDebuggingBuildLog(const QtVersionItem *item);
 
@@ -221,11 +221,11 @@ private:
         QString toolTip;
         QIcon icon;
     };
-    ValidityInfo validInformation(const BaseQtVersion *version);
-    QList<ProjectExplorer::ToolChain*> toolChains(const BaseQtVersion *version);
-    QByteArray defaultToolChainId(const BaseQtVersion *version);
+    ValidityInfo validInformation(const QtVersion *version);
+    QList<ProjectExplorer::ToolChain*> toolChains(const QtVersion *version);
+    QByteArray defaultToolChainId(const QtVersion *version);
 
-    bool isNameUnique(const BaseQtVersion *version);
+    bool isNameUnique(const QtVersion *version);
     void updateVersionItem(QtVersionItem *item);
 
     TreeModel<TreeItem, TreeItem, QtVersionItem> *m_model;
@@ -295,7 +295,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     if (selectedIndex >= 0)
         m_ui.documentationSetting->setCurrentIndex(selectedIndex);
 
-    QList<int> additions = transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
+    QList<int> additions = transform(QtVersionManager::versions(), &QtVersion::uniqueId);
 
     updateQtVersions(additions, QList<int>(), QList<int>());
 
@@ -329,12 +329,12 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_versionUi.nameEdit, "Qt:Name");
     chooser->addMacroExpanderProvider([this] {
-        BaseQtVersion *version = currentVersion();
+        QtVersion *version = currentVersion();
         return version ? version->macroExpander() : nullptr;
     });
 }
 
-BaseQtVersion *QtOptionsPageWidget::currentVersion() const
+QtVersion *QtOptionsPageWidget::currentVersion() const
 {
     QtVersionItem *item = currentItem();
     if (!item)
@@ -414,7 +414,7 @@ static QString formatAbiHtmlList(const Abis &abis)
     return result;
 }
 
-QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const BaseQtVersion *version)
+QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const QtVersion *version)
 {
     ValidityInfo info;
     info.icon = m_validVersionIcon;
@@ -477,7 +477,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     return info;
 }
 
-QList<ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
+QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
 {
     QList<ToolChain*> toolChains;
     if (!version)
@@ -496,7 +496,7 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
     return toolChains;
 }
 
-QByteArray QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
+QByteArray QtOptionsPageWidget::defaultToolChainId(const QtVersion *version)
 {
     QList<ToolChain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())
@@ -504,12 +504,12 @@ QByteArray QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
     return QByteArray();
 }
 
-bool QtOptionsPageWidget::isNameUnique(const BaseQtVersion *version)
+bool QtOptionsPageWidget::isNameUnique(const QtVersion *version)
 {
     const QString name = version->displayName().trimmed();
 
     return !m_model->findItemAtLevel<2>([name, version](QtVersionItem *item) {
-        BaseQtVersion *v = item->version();
+        QtVersion *v = item->version();
         return v != version && v->displayName().trimmed() == name;
     });
 }
@@ -551,7 +551,7 @@ void BuildLogDialog::setText(const QString &text)
 
 void QtOptionsPageWidget::showDebuggingBuildLog(const QtVersionItem *item)
 {
-    BaseQtVersion *version = item->version();
+    QtVersion *version = item->version();
     if (!version)
         return;
     BuildLogDialog *dialog = new BuildLogDialog(this->window());
@@ -583,7 +583,7 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
 
     // Add changed/added items:
     foreach (int a, toAdd) {
-        BaseQtVersion *version = QtVersionManager::version(a)->clone();
+        QtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
 
         // Insert in the right place:
@@ -639,7 +639,7 @@ void QtOptionsPageWidget::addQtDir()
     }
 
     QString error;
-    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
+    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
     if (version) {
         auto item = new QtVersionItem(version);
         item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
@@ -669,7 +669,7 @@ void QtOptionsPageWidget::removeQtDir()
 
 void QtOptionsPageWidget::editPath()
 {
-    BaseQtVersion *current = currentVersion();
+    QtVersion *current = currentVersion();
     FilePath qtVersion =
             FileUtils::getOpenFilePath(this,
                                        tr("Select a qmake Executable"),
@@ -679,7 +679,7 @@ void QtOptionsPageWidget::editPath()
                                        QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
         return;
-    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
+    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
     if (!version)
         return;
     // Same type? then replace!
@@ -730,7 +730,7 @@ void QtOptionsPageWidget::userChangedCurrentVersion()
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
     QtVersionItem *item = currentItem();
-    const BaseQtVersion *version = item ? item->version() : nullptr;
+    const QtVersion *version = item ? item->version() : nullptr;
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
         m_versionUi.errorLabel->setVisible(false);
@@ -764,7 +764,7 @@ void QtOptionsPageWidget::updateWidgets()
 {
     delete m_configurationWidget;
     m_configurationWidget = nullptr;
-    BaseQtVersion *version = currentVersion();
+    QtVersion *version = currentVersion();
     if (version) {
         m_versionUi.nameEdit->setText(version->unexpandedDisplayName());
         m_versionUi.qmakePath->setText(version->qmakeFilePath().toUserOutput());
@@ -883,7 +883,7 @@ void QtOptionsPageWidget::apply()
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_ui.documentationSetting->currentData().toInt()));
 
-    QList<BaseQtVersion *> versions;
+    QList<QtVersion *> versions;
     m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
         versions.append(item->version()->clone());

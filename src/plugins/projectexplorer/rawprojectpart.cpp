@@ -103,7 +103,7 @@ void RawProjectPart::setCallGroupId(const QString &id)
     callGroupId = id;
 }
 
-void RawProjectPart::setQtVersion(Utils::QtVersion qtVersion)
+void RawProjectPart::setQtVersion(Utils::QtMajorVersion qtVersion)
 {
     this->qtVersion = qtVersion;
 }

@@ -54,8 +54,8 @@ public:
 
     QString unparsedArguments() const;
 
-    QtSupport::BaseQtVersion::QmakeBuildConfigs
-        effectiveBuildConfig(QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfig) const;
+    QtSupport::QtVersion::QmakeBuildConfigs
+        effectiveBuildConfig(QtSupport::QtVersion::QmakeBuildConfigs defaultBuildConfig) const;
 
     static const QLoggingCategory &logging();
 

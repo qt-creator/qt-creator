@@ -429,7 +429,7 @@ bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
     QString scope;
     int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues;
     if (Target *target = m_buildSystem->target()) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (version && !version->supportsMultipleQtAbis()) {
             const QString arch = pro->singleVariableValue(Variable::AndroidAbi);
             scope = QString("contains(%1,%2)").arg(Android::Constants::ANDROID_TARGET_ARCH)

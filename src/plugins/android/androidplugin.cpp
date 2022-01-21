@@ -163,7 +163,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 void AndroidPlugin::kitsRestored()
 {
     const bool qtForAndroidInstalled
-        = !QtSupport::QtVersionManager::versions([](const QtSupport::BaseQtVersion *v) {
+        = !QtSupport::QtVersionManager::versions([](const QtSupport::QtVersion *v) {
                return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
            }).isEmpty();
 

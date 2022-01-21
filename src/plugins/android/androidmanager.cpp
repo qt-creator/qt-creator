@@ -160,7 +160,7 @@ int AndroidManager::minimumSDK(const Target *target)
 int AndroidManager::minimumSDK(const Kit *kit)
 {
     int minSdkVersion = -1;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
         FilePath stockManifestFilePath = FilePath::fromUserInput(
             version->prefix().toString() + "/src/android/templates/AndroidManifest.xml");
@@ -206,7 +206,7 @@ QString AndroidManager::archTriplet(const QString &abi)
 
 QJsonObject AndroidManager::deploymentSettings(const Target *target)
 {
-    QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!qt)
         return {};
 
@@ -253,7 +253,7 @@ FilePath AndroidManager::androidBuildDirectory(const Target *target)
 
 bool AndroidManager::isQt5CmakeProject(const ProjectExplorer::Target *target)
 {
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     const bool isQt5 = qt && qt->qtVersion() < QtSupport::QtVersionNumber{6, 0, 0};
     const Core::Context cmakeCtx = Core::Context(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     const bool isCmakeProject = (target->project()->projectContext() == cmakeCtx);
@@ -446,7 +446,7 @@ void AndroidManager::setDeviceApiLevel(Target *target, int level)
     target->setNamedSettings(ApiLevelKey, level);
 }
 
-int AndroidManager::defaultMinimumSDK(const QtSupport::BaseQtVersion *qtVersion)
+int AndroidManager::defaultMinimumSDK(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber{6, 0})
         return 23;
@@ -692,7 +692,7 @@ static bool mergeGradleProperties(const QString &path, GradleProperties properti
 
 bool AndroidManager::updateGradleProperties(Target *target, const QString &buildKey)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)
         return false;
 

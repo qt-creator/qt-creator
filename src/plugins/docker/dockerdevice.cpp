@@ -267,7 +267,7 @@ public:
     void setSearchPaths(const FilePaths &searchPaths) { m_searchPaths = searchPaths; }
 
 private:
-    QList<BaseQtVersion *> autoDetectQtVersions() const;
+    QList<QtVersion *> autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
     void autoDetectCMake();
     void autoDetectDebugger();
@@ -620,7 +620,7 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + tr("Removing Qt version entries..."));
-    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+    for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removed \"%1\"").arg(qtVersion->displayName()));
             QtVersionManager::removeVersion(qtVersion);
@@ -670,7 +670,7 @@ void KitDetectorPrivate::listAutoDetected() const
     };
 
     emit q->logOutput('\n' + tr("Qt versions:"));
-    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+    for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId)
             emit q->logOutput(qtVersion->displayName());
     };
@@ -704,9 +704,9 @@ void KitDetectorPrivate::listAutoDetected() const
     emit q->logOutput('\n' + tr("Listing of previously auto-detected kit items finished.") + "\n\n");
 }
 
-QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
+QList<QtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
 {
-    QList<BaseQtVersion *> qtVersions;
+    QList<QtVersion *> qtVersions;
 
     QString error;
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
@@ -716,7 +716,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
         const FilePath qmake = m_device->searchExecutable(candidate, m_searchPaths);
         if (qmake.isEmpty())
             continue;
-        BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
+        QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
         if (!qtVersion)
             continue;
         qtVersions.append(qtVersion);
@@ -794,7 +794,7 @@ void KitDetectorPrivate::autoDetect()
     emit q->logOutput(tr("Starting auto-detection. This will take a while..."));
 
     QList<ToolChain *> toolChains = autoDetectToolChains();
-    QList<BaseQtVersion *> qtVersions = autoDetectQtVersions();
+    QList<QtVersion *> qtVersions = autoDetectQtVersions();
 
     autoDetectCMake();
     autoDetectDebugger();

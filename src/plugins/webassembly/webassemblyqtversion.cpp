@@ -72,12 +72,12 @@ WebAssemblyQtVersionFactory::WebAssemblyQtVersionFactory()
 
 bool WebAssemblyQtVersion::isValid() const
 {
-    return BaseQtVersion::isValid() && qtVersion() >= minimumSupportedQtVersion();
+    return QtVersion::isValid() && qtVersion() >= minimumSupportedQtVersion();
 }
 
 QString WebAssemblyQtVersion::invalidReason() const
 {
-    const QString baseReason = BaseQtVersion::invalidReason();
+    const QString baseReason = QtVersion::invalidReason();
     if (!baseReason.isEmpty())
         return baseReason;
 
@@ -95,14 +95,14 @@ const QtVersionNumber &WebAssemblyQtVersion::minimumSupportedQtVersion()
 
 bool WebAssemblyQtVersion::isQtVersionInstalled()
 {
-    return anyOf(QtVersionManager::versions(), [](const BaseQtVersion *v) {
+    return anyOf(QtVersionManager::versions(), [](const QtVersion *v) {
         return v->type() == Constants::WEBASSEMBLY_QT_VERSION;
     });
 }
 
 bool WebAssemblyQtVersion::isUnsupportedQtVersionInstalled()
 {
-    return anyOf(QtVersionManager::versions(), [](const BaseQtVersion *v) {
+    return anyOf(QtVersionManager::versions(), [](const QtVersion *v) {
         return v->type() == Constants::WEBASSEMBLY_QT_VERSION
                 && v->qtVersion() < WebAssemblyQtVersion::minimumSupportedQtVersion();
     });

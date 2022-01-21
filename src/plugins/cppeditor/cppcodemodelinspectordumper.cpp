@@ -148,10 +148,10 @@ QString Utils::toString(::Utils::LanguageExtensions languageExtension)
     return result;
 }
 
-QString Utils::toString(::Utils::QtVersion qtVersion)
+QString Utils::toString(::Utils::QtMajorVersion qtVersion)
 {
 #define CASE_QTVERSION(x) \
-    case ::Utils::QtVersion::x: \
+    case ::Utils::QtMajorVersion::x: \
         return QLatin1String(#x)
     switch (qtVersion) {
         CASE_QTVERSION(Unknown);

@@ -39,7 +39,7 @@ struct KitData
     QString cmakePath;
     QString qmakePath;
     QString qtVersionStr;
-    Utils::QtVersion qtVersion;
+    Utils::QtMajorVersion qtVersion;
 };
 
 } // namespace Internal

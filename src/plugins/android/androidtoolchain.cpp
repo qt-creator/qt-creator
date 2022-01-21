@@ -181,12 +181,12 @@ static QList<FilePath> uniqueNdksForCurrentQtVersions()
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
 
     auto androidQtVersions = QtSupport::QtVersionManager::versions(
-        [](const QtSupport::BaseQtVersion *v) {
+        [](const QtSupport::QtVersion *v) {
             return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
         });
 
     QList<FilePath> uniqueNdks;
-    for (const QtSupport::BaseQtVersion *version : androidQtVersions) {
+    for (const QtSupport::QtVersion *version : androidQtVersions) {
         FilePath ndk = config.ndkLocation(version);
         if (!uniqueNdks.contains(ndk))
             uniqueNdks.append(ndk);

@@ -52,7 +52,7 @@ UicGenerator::UicGenerator(const Project *project, const Utils::FilePath &source
 
 Utils::FilePath UicGenerator::command() const
 {
-    QtSupport::BaseQtVersion *version = nullptr;
+    QtSupport::QtVersion *version = nullptr;
     Target *target;
     if ((target = project()->activeTarget()))
         version = QtSupport::QtKitAspect::qtVersion(target->kit());

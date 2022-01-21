@@ -2178,7 +2178,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 #ifndef QMLDESIGNER_TEST
                 auto target = ProjectExplorer::SessionManager::startupTarget();
                 if (target) {
-                    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(
+                    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(
                         target->kit());
                     if (currentQtVersion && currentQtVersion->isValid()) {
                         const bool qt6import = import.version().startsWith("6");

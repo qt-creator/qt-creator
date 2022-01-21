@@ -109,7 +109,7 @@ void ArchitecturesAspect::addToLayout(LayoutBuilder &builder)
 {
     MultiSelectionAspect::addToLayout(builder);
     const auto changeHandler = [this] {
-        const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_kit);
+        const QtVersion *qtVersion = QtKitAspect::qtVersion(m_kit);
         if (!qtVersion) {
             setVisibleDynamic(false);
             return;

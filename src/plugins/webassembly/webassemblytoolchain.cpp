@@ -133,7 +133,7 @@ void WebAssemblyToolChain::registerToolChains()
     for (Kit *kit : KitManager::kits()) {
         if (!kit->isAutoDetected())
             continue;
-        const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit);
+        const QtVersion *qtVersion = QtKitAspect::qtVersion(kit);
         if (!qtVersion || qtVersion->type() != Constants::WEBASSEMBLY_QT_VERSION)
             continue;
         kit->fix();

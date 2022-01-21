@@ -91,7 +91,7 @@ void ConsoleView::onScrollToBottom()
 
 void ConsoleView::populateFileFinder()
 {
-    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_finder, nullptr);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_finder, nullptr);
 }
 
 void ConsoleView::mousePressEvent(QMouseEvent *event)

@@ -44,7 +44,7 @@
 #include <QLoggingCategory>
 #include <QWizard>
 
-using QtSupport::BaseQtVersion;
+using QtSupport::QtVersion;
 using QtSupport::QtVersionManager;
 
 
@@ -212,15 +212,15 @@ QString WinRtDeviceFactory::findRunnerFilePath() const
 {
     qCDebug(winrtDeviceLog) << __FUNCTION__;
     const QString winRtRunnerExe = QStringLiteral("/winrtrunner.exe");
-    const QList<BaseQtVersion *> winrtVersions
+    const QList<QtVersion *> winrtVersions
             = QtVersionManager::sortVersions(
-                QtVersionManager::versions(BaseQtVersion::isValidPredicate([](const BaseQtVersion *v) {
+                QtVersionManager::versions(QtVersion::isValidPredicate([](const QtVersion *v) {
         return v->type() == QLatin1String(Constants::WINRT_WINRTQT)
                 || v->type() == QLatin1String(Constants::WINRT_WINPHONEQT);
     })));
     QString filePath;
-    BaseQtVersion *qt = nullptr;
-    for (BaseQtVersion *v : winrtVersions) {
+    QtVersion *qt = nullptr;
+    for (QtVersion *v : winrtVersions) {
         if (!qt || qt->qtVersion() < v->qtVersion()) {
             QFileInfo fi(v->hostBinPath().toString() + winRtRunnerExe);
             if (fi.isFile() && fi.isExecutable()) {

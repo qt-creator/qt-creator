@@ -119,7 +119,7 @@ ExampleSetModel::ExampleSetModel()
             &ExampleSetModel::helpManagerInitialized);
 }
 
-void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
+void ExampleSetModel::recreateModel(const QList<QtVersion *> &qtVersions)
 {
     beginResetModel();
     clear();
@@ -137,7 +137,7 @@ void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
         extraManifestDirs.insert(set.manifestPath);
     }
 
-    foreach (BaseQtVersion *version, qtVersions) {
+    foreach (QtVersion *version, qtVersions) {
         // sanitize away qt versions that have already been added through extra sets
         if (extraManifestDirs.contains(version->docsPath().toString())) {
             if (debugExamples()) {
@@ -156,7 +156,7 @@ void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
     endResetModel();
 }
 
-int ExampleSetModel::indexForQtVersion(BaseQtVersion *qtVersion) const
+int ExampleSetModel::indexForQtVersion(QtVersion *qtVersion) const
 {
     // return either the entry with the same QtId, or an extra example set with same path
 
@@ -525,12 +525,12 @@ QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) c
 
 void ExampleSetModel::updateQtVersionList()
 {
-    QList<BaseQtVersion *> versions = QtVersionManager::sortVersions(QtVersionManager::versions(
-        [](const BaseQtVersion *v) { return v->hasExamples() || v->hasDemos(); }));
+    QList<QtVersion *> versions = QtVersionManager::sortVersions(QtVersionManager::versions(
+        [](const QtVersion *v) { return v->hasExamples() || v->hasDemos(); }));
 
     // prioritize default qt version
     ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
-    BaseQtVersion *defaultVersion = QtKitAspect::qtVersion(defaultKit);
+    QtVersion *defaultVersion = QtKitAspect::qtVersion(defaultKit);
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
 
@@ -544,13 +544,13 @@ void ExampleSetModel::updateQtVersionList()
 
     if (currentType == ExampleSetModel::InvalidExampleSet) {
         // select examples corresponding to 'highest' Qt version
-        BaseQtVersion *highestQt = findHighestQtVersion(versions);
+        QtVersion *highestQt = findHighestQtVersion(versions);
         currentIndex = indexForQtVersion(highestQt);
     } else if (currentType == ExampleSetModel::QtExampleSet) {
         // try to select the previously selected Qt version, or
         // select examples corresponding to 'highest' Qt version
         int currentQtId = getQtId(currentIndex);
-        BaseQtVersion *newQtVersion = QtVersionManager::version(currentQtId);
+        QtVersion *newQtVersion = QtVersionManager::version(currentQtId);
         if (!newQtVersion)
             newQtVersion = findHighestQtVersion(versions);
         currentIndex = indexForQtVersion(newQtVersion);
@@ -559,10 +559,10 @@ void ExampleSetModel::updateQtVersionList()
     emit selectedExampleSetChanged(currentIndex);
 }
 
-BaseQtVersion *ExampleSetModel::findHighestQtVersion(const QList<BaseQtVersion *> &versions) const
+QtVersion *ExampleSetModel::findHighestQtVersion(const QList<QtVersion *> &versions) const
 {
-    BaseQtVersion *newVersion = nullptr;
-    for (BaseQtVersion *version : versions) {
+    QtVersion *newVersion = nullptr;
+    for (QtVersion *version : versions) {
         if (!newVersion) {
             newVersion = version;
         } else {
@@ -601,7 +601,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         demosPath = exampleSet.examplesPath;
     } else if (currentType == ExampleSetModel::QtExampleSet) {
         int qtId = getQtId(m_selectedExampleSetIndex);
-        foreach (BaseQtVersion *version, QtVersionManager::versions()) {
+        foreach (QtVersion *version, QtVersionManager::versions()) {
             if (version->uniqueId() == qtId) {
                 manifestScanPath = version->docsPath().toString();
                 examplesPath = version->examplesPath().toString();
@@ -660,7 +660,7 @@ void ExampleSetModel::selectExampleSet(int index)
         m_selectedExampleSetIndex = index;
         writeCurrentIdToSettings(m_selectedExampleSetIndex);
         if (getType(m_selectedExampleSetIndex) == ExampleSetModel::QtExampleSet) {
-            BaseQtVersion *selectedQtVersion = QtVersionManager::version(getQtId(m_selectedExampleSetIndex));
+            QtVersion *selectedQtVersion = QtVersionManager::version(getQtId(m_selectedExampleSetIndex));
             m_selectedQtTypes = selectedQtVersion->targetDeviceTypes();
         }
         emit selectedExampleSetChanged(m_selectedExampleSetIndex);

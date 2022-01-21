@@ -866,7 +866,7 @@ static RawProjectParts generateProjectParts(
         const QJsonObject &projectData,
         const std::shared_ptr<const ToolChain> &cToolChain,
         const std::shared_ptr<const ToolChain> &cxxToolChain,
-        QtVersion qtVersion
+        QtMajorVersion qtVersion
         )
 {
     RawProjectParts rpps;
@@ -889,9 +889,9 @@ static RawProjectParts generateProjectParts(
         };
         forAllArtifacts(prd, ArtifactType::All, pchFinder);
 
-        const Utils::QtVersion qtVersionForPart
+        const Utils::QtMajorVersion qtVersionForPart
             = prd.value("module-properties").toObject().value("Qt.core.version").isUndefined()
-                  ? Utils::QtVersion::None
+                  ? Utils::QtMajorVersion::None
                   : qtVersion;
 
         const QJsonArray groups = prd.value("groups").toArray();

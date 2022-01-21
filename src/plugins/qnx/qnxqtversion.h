@@ -35,7 +35,7 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxQtVersion : public QtSupport::BaseQtVersion
+class QnxQtVersion : public QtSupport::QtVersion
 {
 public:
     QnxQtVersion();

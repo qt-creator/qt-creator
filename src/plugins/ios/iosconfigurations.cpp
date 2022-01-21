@@ -183,7 +183,7 @@ static void printKits(const QSet<Kit *> &kits)
 }
 
 static void setupKit(Kit *kit, Utils::Id pDeviceType, const ToolChainPair& toolChains,
-                     const QVariant &debuggerId, const Utils::FilePath &sdkPath, BaseQtVersion *qtVersion)
+                     const QVariant &debuggerId, const Utils::FilePath &sdkPath, QtVersion *qtVersion)
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolChains.first)
@@ -251,7 +251,7 @@ void IosConfigurations::updateAutomaticKitList()
     // target -> tool chain
     const auto targetToolChainHash = findToolChains(platforms);
 
-    const auto qtVersions = Utils::toSet(QtVersionManager::versions([](const BaseQtVersion *v) {
+    const auto qtVersions = Utils::toSet(QtVersionManager::versions([](const QtVersion *v) {
         return v->isValid() && v->type() == Constants::IOSQT;
     }));
 
@@ -284,7 +284,7 @@ void IosConfigurations::updateAutomaticKitList()
                 continue;
             }
 
-            for (BaseQtVersion *qtVersion : qtVersions) {
+            for (QtVersion *qtVersion : qtVersions) {
                 qCDebug(kitSetupLog) << "  - Qt version:" << qtVersion->displayName();
                 Kit *kit = Utils::findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
                     // we do not compare the sdk (thus automatically upgrading it in place if a

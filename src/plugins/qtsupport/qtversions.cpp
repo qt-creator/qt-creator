@@ -45,7 +45,7 @@
 namespace QtSupport {
 namespace Internal {
 
-class DesktopQtVersion : public BaseQtVersion
+class DesktopQtVersion : public QtVersion
 {
 public:
     DesktopQtVersion() = default;
@@ -60,7 +60,7 @@ public:
 
 QStringList DesktopQtVersion::warningReason() const
 {
-    QStringList ret = BaseQtVersion::warningReason();
+    QStringList ret = QtVersion::warningReason();
     if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
         if (qmlRuntimeFilePath().isEmpty())
             ret << QCoreApplication::translate("QtVersion", "No QML utility installed.");
@@ -75,7 +75,7 @@ QString DesktopQtVersion::description() const
 
 QSet<Utils::Id> DesktopQtVersion::availableFeatures() const
 {
-    QSet<Utils::Id> features = BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtVersion::availableFeatures();
     features.insert(Constants::FEATURE_DESKTOP);
     features.insert(Constants::FEATURE_QMLPROJECT);
     return features;
@@ -104,7 +104,7 @@ DesktopQtVersionFactory::DesktopQtVersionFactory()
 
 const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
 
-class EmbeddedLinuxQtVersion : public BaseQtVersion
+class EmbeddedLinuxQtVersion : public QtVersion
 {
 public:
     EmbeddedLinuxQtVersion() = default;

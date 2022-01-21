@@ -33,7 +33,7 @@
 namespace Ios {
 namespace Internal {
 
-class IosQtVersion : public QtSupport::BaseQtVersion
+class IosQtVersion : public QtSupport::QtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosQtVersion)
 
