@@ -42,6 +42,7 @@
 
 #ifdef QT_GUI_LIB
 #include <QMessageBox>
+#include <QRegularExpression>
 #endif
 
 #ifdef Q_OS_WIN
@@ -493,6 +494,43 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
                                                              options);
     return transform(result, &FilePath::fromString);
 }
+
+// Used on 'ls' output on unix-like systems.
+void FileUtils::iterateLsOutput(const FilePath &base,
+                                const QStringList &entries,
+                                const FileFilter &filter,
+                                const std::function<bool (const FilePath &)> &callBack)
+{
+    QTC_CHECK(filter.iteratorFlags != QDirIterator::NoIteratorFlags); // FIXME: Not supported yet below.
+
+    const QList<QRegularExpression> nameRegexps =
+            transform(filter.nameFilters, [](const QString &filter) {
+        QRegularExpression re;
+        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+        QTC_CHECK(re.isValid());
+        return re;
+    });
+
+    const auto nameMatches = [&nameRegexps](const QString &fileName) {
+        for (const QRegularExpression &re : nameRegexps) {
+            const QRegularExpressionMatch match = re.match(fileName);
+            if (match.hasMatch())
+                return true;
+        }
+        return nameRegexps.isEmpty();
+    };
+
+    // FIXME: Handle filters. For now bark on unsupported options.
+    QTC_CHECK(filter.fileFilters == QDir::NoFilter);
+
+    for (const QString &entry : entries) {
+        if (!nameMatches(entry))
+            continue;
+        if (!callBack(base.pathAppended(entry)))
+            break;
+    }
+}
+
 #endif // QT_WIDGETS_LIB
 
 } // namespace Utils

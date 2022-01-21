@@ -144,6 +144,11 @@ public:
 
     static void setDeviceFileHooks(const DeviceFileHooks &hooks);
 
+    static void iterateLsOutput(const FilePath &base,
+                                const QStringList &entries,
+                                const FileFilter &filter,
+                                const std::function<bool(const FilePath &)> &callBack);
+
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
 
@@ -173,6 +178,7 @@ public:
                                       QString *selectedFilter = nullptr,
                                       QFileDialog::Options options = {});
 #endif
+
 };
 
 template<typename T>
