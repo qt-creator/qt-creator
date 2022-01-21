@@ -165,6 +165,7 @@ add_qtc_library(Utils
     temporarydirectory.cpp temporarydirectory.h
     temporaryfile.cpp temporaryfile.h
     terminalcommand.cpp terminalcommand.h
+    terminalprocess.cpp terminalprocess_p.h
     textfieldcheckbox.cpp textfieldcheckbox.h
     textfieldcombobox.cpp textfieldcombobox.h
     textfileformat.cpp textfileformat.h

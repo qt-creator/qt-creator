@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "consoleprocess.h"
+#include "terminalprocess_p.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -61,15 +61,16 @@
 #endif
 
 namespace Utils {
+namespace Internal {
 
-static QString modeOption(ConsoleProcess::Mode m)
+static QString modeOption(TerminalProcess::Mode m)
 {
     switch (m) {
-        case ConsoleProcess::Debug:
+        case TerminalProcess::Debug:
         return QLatin1String("debug");
-        case ConsoleProcess::Suspend:
+        case TerminalProcess::Suspend:
         return QLatin1String("suspend");
-        case ConsoleProcess::Run:
+        case TerminalProcess::Run:
         break;
     }
     return QLatin1String("run");
@@ -77,53 +78,51 @@ static QString modeOption(ConsoleProcess::Mode m)
 
 static QString msgCommChannelFailed(const QString &error)
 {
-    return ConsoleProcess::tr("Cannot set up communication channel: %1").arg(error);
+    return TerminalProcess::tr("Cannot set up communication channel: %1").arg(error);
 }
 
 static QString msgPromptToClose()
 {
     // Shown in a terminal which might have a different character set on Windows.
-    return ConsoleProcess::tr("Press <RETURN> to close this window...");
+    return TerminalProcess::tr("Press <RETURN> to close this window...");
 }
 
 static QString msgCannotCreateTempFile(const QString &why)
 {
-    return ConsoleProcess::tr("Cannot create temporary file: %1").arg(why);
+    return TerminalProcess::tr("Cannot create temporary file: %1").arg(why);
 }
 
 static QString msgCannotWriteTempFile()
 {
-    return ConsoleProcess::tr("Cannot write temporary file. Disk full?");
+    return TerminalProcess::tr("Cannot write temporary file. Disk full?");
 }
 
 static QString msgCannotCreateTempDir(const QString & dir, const QString &why)
 {
-    return ConsoleProcess::tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
+    return TerminalProcess::tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
 }
 
 static QString msgUnexpectedOutput(const QByteArray &what)
 {
-    return ConsoleProcess::tr("Unexpected output from helper program (%1).").arg(QString::fromLatin1(what));
+    return TerminalProcess::tr("Unexpected output from helper program (%1).").arg(QString::fromLatin1(what));
 }
 
 static QString msgCannotChangeToWorkDir(const FilePath &dir, const QString &why)
 {
-    return ConsoleProcess::tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
+    return TerminalProcess::tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
 }
 
 static QString msgCannotExecute(const QString & p, const QString &why)
 {
-    return ConsoleProcess::tr("Cannot execute \"%1\": %2").arg(p, why);
+    return TerminalProcess::tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
-// ConsoleProcessPrivate
-
-class ConsoleProcessPrivate
+class TerminalProcessPrivate
 {
 public:
-    ConsoleProcessPrivate() = default;
+    TerminalProcessPrivate() = default;
 
-    ConsoleProcess::Mode m_mode = ConsoleProcess::Run;
+    TerminalProcess::Mode m_mode = TerminalProcess::Run;
     FilePath m_workingDir;
     Environment m_environment;
     qint64 m_processId = 0;
@@ -154,30 +153,27 @@ public:
 #endif
 };
 
-
-// ConsoleProcess
-
-ConsoleProcess::ConsoleProcess(QObject *parent) :
-    QObject(parent), d(new ConsoleProcessPrivate)
+TerminalProcess::TerminalProcess(QObject *parent) :
+    QObject(parent), d(new TerminalProcessPrivate)
 {
     connect(&d->m_stubServer, &QLocalServer::newConnection,
-            this, &ConsoleProcess::stubConnectionAvailable);
+            this, &TerminalProcess::stubConnectionAvailable);
 
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
-ConsoleProcess::~ConsoleProcess()
+TerminalProcess::~TerminalProcess()
 {
     stopProcess();
     delete d;
 }
 
-void ConsoleProcess::setCommand(const CommandLine &command)
+void TerminalProcess::setCommand(const CommandLine &command)
 {
     d->m_commandLine = command;
 }
 
-const CommandLine &ConsoleProcess::commandLine() const
+const CommandLine &TerminalProcess::commandLine() const
 {
     return d->m_commandLine;
 }
@@ -239,7 +235,7 @@ static QString createWinCommandline(const QString &program, const QString &args)
     return programName;
 }
 
-bool ConsoleProcess::startTerminalEmulator(const QString &workingDir, const Environment &env)
+bool TerminalProcess::startTerminalEmulator(const QString &workingDir, const Environment &env)
 {
 #ifdef Q_OS_WIN
     STARTUPINFO si;
@@ -281,19 +277,19 @@ bool ConsoleProcess::startTerminalEmulator(const QString &workingDir, const Envi
 #endif
 }
 
-void ConsoleProcess::setAbortOnMetaChars(bool abort)
+void TerminalProcess::setAbortOnMetaChars(bool abort)
 {
     d->m_abortOnMetaChars = abort;
 }
 
-qint64 ConsoleProcess::applicationMainThreadID() const
+qint64 TerminalProcess::applicationMainThreadID() const
 {
     if (HostOsInfo::isWindowsHost())
         return d->m_appMainThreadId;
     return -1;
 }
 
-void ConsoleProcess::start()
+void TerminalProcess::start()
 {
     if (isRunning())
         return;
@@ -399,7 +395,7 @@ void ConsoleProcess::start()
 
     d->processFinishedNotifier = new QWinEventNotifier(d->m_pid->hProcess, this);
     connect(d->processFinishedNotifier, &QWinEventNotifier::activated,
-            this, &ConsoleProcess::stubExited);
+            this, &TerminalProcess::stubExited);
 
 #else
 
@@ -501,14 +497,14 @@ void ConsoleProcess::start()
         return;
     }
     d->m_stubConnectTimer = new QTimer(this);
-    connect(d->m_stubConnectTimer, &QTimer::timeout, this, &ConsoleProcess::stopProcess);
+    connect(d->m_stubConnectTimer, &QTimer::timeout, this, &TerminalProcess::stopProcess);
     d->m_stubConnectTimer->setSingleShot(true);
     d->m_stubConnectTimer->start(10000);
 
 #endif
 }
 
-void ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
+void TerminalProcess::cleanupAfterStartFailure(const QString &errorMessage)
 {
     stubServerShutdown();
     emitError(QProcess::FailedToStart, errorMessage);
@@ -516,7 +512,7 @@ void ConsoleProcess::cleanupAfterStartFailure(const QString &errorMessage)
     d->m_tempFile = nullptr;
 }
 
-void ConsoleProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
+void TerminalProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
 {
     d->m_processId = 0;
     d->m_exitCode = exitCode;
@@ -524,7 +520,7 @@ void ConsoleProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
     emit finished();
 }
 
-void Utils::ConsoleProcess::kickoffProcess()
+void TerminalProcess::kickoffProcess()
 {
 #ifdef Q_OS_WIN
     // Not used.
@@ -536,7 +532,7 @@ void Utils::ConsoleProcess::kickoffProcess()
 #endif
 }
 
-void ConsoleProcess::interruptProcess()
+void TerminalProcess::interruptProcess()
 {
 #ifdef Q_OS_WIN
     // Not used.
@@ -548,7 +544,7 @@ void ConsoleProcess::interruptProcess()
 #endif
 }
 
-void ConsoleProcess::killProcess()
+void TerminalProcess::killProcess()
 {
 #ifdef Q_OS_WIN
     if (d->m_hInferior != NULL) {
@@ -564,7 +560,7 @@ void ConsoleProcess::killProcess()
     d->m_processId = 0;
 }
 
-void ConsoleProcess::killStub()
+void TerminalProcess::killStub()
 {
 #ifdef Q_OS_WIN
     if (d->m_pid) {
@@ -581,7 +577,7 @@ void ConsoleProcess::killStub()
 #endif
 }
 
-void ConsoleProcess::stopProcess()
+void TerminalProcess::stopProcess()
 {
     killProcess();
     killStub();
@@ -594,7 +590,7 @@ void ConsoleProcess::stopProcess()
     }
 }
 
-bool ConsoleProcess::isRunning() const
+bool TerminalProcess::isRunning() const
 {
 #ifdef Q_OS_WIN
     return d->m_pid != nullptr;
@@ -604,7 +600,7 @@ bool ConsoleProcess::isRunning() const
 #endif
 }
 
-QString ConsoleProcess::stubServerListen()
+QString TerminalProcess::stubServerListen()
 {
 #ifdef Q_OS_WIN
     if (d->m_stubServer.listen(QString::fromLatin1("creator-%1-%2")
@@ -639,7 +635,7 @@ QString ConsoleProcess::stubServerListen()
 #endif
 }
 
-void ConsoleProcess::stubServerShutdown()
+void TerminalProcess::stubServerShutdown()
 {
 #ifdef Q_OS_WIN
     delete d->m_stubSocket;
@@ -660,7 +656,7 @@ void ConsoleProcess::stubServerShutdown()
 #endif
 }
 
-void ConsoleProcess::stubConnectionAvailable()
+void TerminalProcess::stubConnectionAvailable()
 {
     if (d->m_stubConnectTimer) {
         delete d->m_stubConnectTimer;
@@ -668,10 +664,10 @@ void ConsoleProcess::stubConnectionAvailable()
     }
 
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
-    connect(d->m_stubSocket, &QIODevice::readyRead, this, &ConsoleProcess::readStubOutput);
+    connect(d->m_stubSocket, &QIODevice::readyRead, this, &TerminalProcess::readStubOutput);
 
     if (HostOsInfo::isAnyUnixHost())
-        connect(d->m_stubSocket, &QLocalSocket::disconnected, this, &ConsoleProcess::stubExited);
+        connect(d->m_stubSocket, &QLocalSocket::disconnected, this, &TerminalProcess::stubExited);
 }
 
 static QString errorMsg(int code)
@@ -679,7 +675,7 @@ static QString errorMsg(int code)
     return QString::fromLocal8Bit(strerror(code));
 }
 
-void ConsoleProcess::readStubOutput()
+void TerminalProcess::readStubOutput()
 {
     while (d->m_stubSocket->canReadLine()) {
         QByteArray out = d->m_stubSocket->readLine();
@@ -748,7 +744,7 @@ void ConsoleProcess::readStubOutput()
     } // while
 }
 
-void ConsoleProcess::stubExited()
+void TerminalProcess::stubExited()
 {
     // The stub exit might get noticed before we read the pid for the kill on Windows
     // or the error status elsewhere.
@@ -771,7 +767,7 @@ void ConsoleProcess::stubExited()
 #endif
 }
 
-void ConsoleProcess::cleanupInferior()
+void TerminalProcess::cleanupInferior()
 {
 #ifdef Q_OS_WIN
     delete d->inferiorFinishedNotifier;
@@ -781,7 +777,7 @@ void ConsoleProcess::cleanupInferior()
 #endif
 }
 
-void ConsoleProcess::cleanupStub()
+void TerminalProcess::cleanupStub()
 {
 #ifdef Q_OS_WIN
     stubServerShutdown();
@@ -796,71 +792,72 @@ void ConsoleProcess::cleanupStub()
 #endif
 }
 
-void ConsoleProcess::setMode(Mode m)
+void TerminalProcess::setMode(Mode m)
 {
     d->m_mode = m;
 }
 
-ConsoleProcess::Mode ConsoleProcess::mode() const
+TerminalProcess::Mode TerminalProcess::mode() const
 {
     return d->m_mode;
 }
 
-qint64 ConsoleProcess::processId() const
+qint64 TerminalProcess::processId() const
 {
     return d->m_processId;
 }
 
-int ConsoleProcess::exitCode() const
+int TerminalProcess::exitCode() const
 {
     return d->m_exitCode;
 } // This will be the signal number if exitStatus == CrashExit
 
-QProcess::ExitStatus ConsoleProcess::exitStatus() const
+QProcess::ExitStatus TerminalProcess::exitStatus() const
 {
     return d->m_appStatus;
 }
 
-void ConsoleProcess::setWorkingDirectory(const FilePath &dir)
+void TerminalProcess::setWorkingDirectory(const FilePath &dir)
 {
     d->m_workingDir = dir;
 }
 
-FilePath ConsoleProcess::workingDirectory() const
+FilePath TerminalProcess::workingDirectory() const
 {
     return d->m_workingDir;
 }
 
-void ConsoleProcess::setEnvironment(const Environment &env)
+void TerminalProcess::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
 }
 
-const Utils::Environment &ConsoleProcess::environment() const
+const Environment &TerminalProcess::environment() const
 {
     return d->m_environment;
 }
 
-void Utils::ConsoleProcess::setRunAsRoot(bool on)
+void TerminalProcess::setRunAsRoot(bool on)
 {
     d->m_runAsRoot = on;
 }
 
-QProcess::ProcessError ConsoleProcess::error() const
+QProcess::ProcessError TerminalProcess::error() const
 {
     return d->m_error;
 }
 
-QString ConsoleProcess::errorString() const
+QString TerminalProcess::errorString() const
 {
     return d->m_errorString;
 }
 
-void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorString)
+void TerminalProcess::emitError(QProcess::ProcessError err, const QString &errorString)
 {
     d->m_error = err;
     d->m_errorString = errorString;
     emit errorOccurred(err);
 }
 
+} // Internal
 } // Utils
