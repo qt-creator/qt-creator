@@ -100,6 +100,7 @@ public:
     void setDisplayName(const QString &name);
 
     bool isAutoDetected() const;
+    bool isSdkProvided() const { return detection() == AutoDetectionFromSdk; }
     Detection detection() const;
     QString detectionSource() const;
 

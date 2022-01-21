@@ -222,7 +222,7 @@ public:
                 if (item->level() != 3)
                     return;
                 const auto tcItem = static_cast<ToolChainTreeItem *>(item);
-                if (tcItem->toolChain->detection() != ToolChain::AutoDetectionFromSdk)
+                if (!tcItem->toolChain->isSdkProvided())
                     itemsToRemove << tcItem;
             });
             for (ToolChainTreeItem * const tcItem : qAsConst(itemsToRemove))
@@ -403,12 +403,10 @@ void ToolChainOptionsWidget::redetectToolchains()
         if (item->level() != 3)
             return;
         const auto tcItem = static_cast<ToolChainTreeItem *>(item);
-        if (tcItem->toolChain->isAutoDetected()
-                && tcItem->toolChain->detection() != ToolChain::AutoDetectionFromSdk) {
+        if (tcItem->toolChain->isAutoDetected() && !tcItem->toolChain->isSdkProvided())
             itemsToRemove << tcItem;
-        } else {
+        else
             knownTcs << tcItem->toolChain;
-        }
     });
     Toolchains toAdd;
     QSet<ToolChain *> toDelete;
@@ -551,7 +549,7 @@ void ToolChainOptionsWidget::updateState()
     if (ToolChainTreeItem *item = currentTreeItem()) {
         ToolChain *tc = item->toolChain;
         canCopy = tc->isValid();
-        canDelete = tc->detection() != ToolChain::AutoDetectionFromSdk;
+        canDelete = !tc->isSdkProvided();
     }
 
     m_cloneButton->setEnabled(canCopy);
