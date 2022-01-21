@@ -535,10 +535,14 @@ Toolchains IarToolChainFactory::autoDetectToolchains(
 
 Toolchains IarToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id languageId) const
 {
+    if (ToolChainManager::isBadToolchain(candidate.compilerPath))
+        return {};
     const auto env = Environment::systemEnvironment();
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId, env);
-    if (macros.isEmpty())
+    if (macros.isEmpty()) {
+        ToolChainManager::addBadToolchain(candidate.compilerPath);
         return {};
+    }
     const Abi abi = guessAbi(macros);
 
     const auto tc = new IarToolChain;

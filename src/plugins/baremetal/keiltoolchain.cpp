@@ -681,13 +681,17 @@ Toolchains KeilToolChainFactory::autoDetectToolchains(
 
 Toolchains KeilToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
 {
+    if (ToolChainManager::isBadToolchain(candidate.compilerPath))
+        return {};
     const auto env = Environment::systemEnvironment();
 
     QStringList extraArgs;
     addDefaultCpuArgs(candidate.compilerPath, extraArgs);
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, extraArgs, env);
-    if (macros.isEmpty())
+    if (macros.isEmpty()) {
+        ToolChainManager::addBadToolchain(candidate.compilerPath);
         return {};
+    }
 
     const Abi abi = guessAbi(macros);
     const Abi::Architecture arch = abi.architecture();
