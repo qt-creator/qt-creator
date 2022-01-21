@@ -207,6 +207,9 @@ public:
 
     bool start(const SshConnectionParameters &parameters)
     {
+        // TODO: start here shared ssh connection if needed (take it from settings)
+        // connect to it
+        // wait for connected
         m_shell = new SshRemoteProcess("/bin/sh",
                   parameters.connectionOptions(SshSettings::sshFilePath()) << parameters.host(),
                   ProcessMode::Writer);

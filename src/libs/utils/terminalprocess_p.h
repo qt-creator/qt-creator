@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QProcess>
+#include "qtcprocess.h"
 
 namespace Utils {
 
@@ -38,17 +38,13 @@ namespace Internal {
 class TerminalProcess : public QObject
 {
     Q_OBJECT
-
 public:
-    enum Mode { Run, Debug, Suspend };
-
-    explicit TerminalProcess(QObject *parent = nullptr);
+    explicit TerminalProcess(QObject *parent, QtcProcess::ProcessImpl processImpl,
+                             QtcProcess::TerminalMode terminalMode);
     ~TerminalProcess() override;
 
     void setCommand(const CommandLine &command);
     const CommandLine &commandLine() const;
-
-    void setAbortOnMetaChars(bool abort); // used only in sshDeviceProcess
 
     void setWorkingDirectory(const FilePath &dir);
     FilePath workingDirectory() const;
@@ -56,7 +52,7 @@ public:
     void setEnvironment(const Environment &env);
     const Environment &environment() const;
 
-    void setRunAsRoot(bool on); // OK, however, unused currently in QtcProcess, non-windows only
+    void setRunAsRoot(bool on);
 
     QProcess::ProcessError error() const;
     QString errorString() const;
@@ -64,28 +60,25 @@ public:
     void start();
     void stopProcess();
 
-public:
-    void setMode(Mode m); // only debugger terminal
-    Mode mode() const; // no usages
-
     // OK, however, impl looks a bit different (!= NotRunning vs == Running).
     // Most probably changing it into (== Running) should be OK.
-    bool isRunning() const; // This reflects the state of the console+stub
+    bool isRunning() const;
+
+    QProcess::ProcessState state() const;
     qint64 processId() const;
-
-    void kickoffProcess(); // only debugger terminal, only non-windows
-    void interruptProcess(); // only debugger terminal, only non-windows
-
-    qint64 applicationMainThreadID() const; // only debugger terminal, only windows (-1 otherwise)
-
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
+
+    void setAbortOnMetaChars(bool abort); // used only in sshDeviceProcess
+    void kickoffProcess(); // only debugger terminal, only non-windows
+    void interruptProcess(); // only debugger terminal, only non-windows
+    qint64 applicationMainThreadID() const; // only debugger terminal, only windows (-1 otherwise)
 
     static bool startTerminalEmulator(const QString &workingDir, const Environment &env);
 
 signals:
     void started();
-    void finished();
+    void finished(int exitCode, QProcess::ExitStatus status);
     void errorOccurred(QProcess::ProcessError error);
 
 private:

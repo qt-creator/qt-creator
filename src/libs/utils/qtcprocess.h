@@ -65,9 +65,19 @@ public:
         ProcessLauncherImpl
     };
 
-    QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject *parent = nullptr);
+    enum TerminalMode {
+        TerminalOff,
+        TerminalRun,
+        TerminalDebug,
+        TerminalSuspend,
+        TerminalOn = TerminalRun // default mode for ON
+    };
+
+    QtcProcess(ProcessImpl processImpl, ProcessMode processMode, TerminalMode terminalMode,
+               QObject *parent = nullptr);
     QtcProcess(ProcessImpl processImpl, QObject *parent = nullptr);
     QtcProcess(ProcessMode processMode, QObject *parent = nullptr);
+    QtcProcess(TerminalMode terminalMode, QObject *parent = nullptr);
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
@@ -108,6 +118,8 @@ public:
     void setUseTerminal(bool on);
     bool useTerminal() const;
 
+    void setAbortOnMetaChars(bool abort);
+
     void start();
     void terminate();
     void interrupt();
@@ -128,7 +140,6 @@ public:
     void setTimeOutMessageBoxEnabled(bool);
     void setExitCodeInterpreter(const std::function<QtcProcess::Result(int)> &interpreter);
 
-    // FIXME: This is currently only used in run(), not in start()
     void setWriteData(const QByteArray &writeData);
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
