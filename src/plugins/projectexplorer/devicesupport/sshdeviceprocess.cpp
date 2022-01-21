@@ -200,7 +200,6 @@ void SshDeviceProcess::handleConnected()
         connect(&d->consoleProcess, &ConsoleProcess::finished,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         d->consoleProcess.setAbortOnMetaChars(false);
-        d->consoleProcess.setSettings(Core::ICore::settings());
         d->consoleProcess.setCommand(d->process->fullLocalCommandLine());
         d->consoleProcess.start();
     } else {

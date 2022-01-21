@@ -147,8 +147,6 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
     connect(&m_guiProcess, &QtcProcess::errorOccurred,
             q, &ApplicationLauncher::error);
 
-    m_consoleProcess.setSettings(Core::ICore::settings());
-
     connect(&m_consoleProcess, &ConsoleProcess::started,
             this, &ApplicationLauncherPrivate::handleProcessStarted);
     connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,

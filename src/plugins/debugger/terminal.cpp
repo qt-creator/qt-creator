@@ -209,13 +209,8 @@ void TerminalRunner::start()
 
     m_stubProc.setEnvironment(stub.environment);
     m_stubProc.setWorkingDirectory(stub.workingDirectory);
-
-    if (HostOsInfo::isWindowsHost()) {
-        m_stubProc.setMode(ConsoleProcess::Suspend);
-    } else {
-        m_stubProc.setMode(ConsoleProcess::Debug);
-        m_stubProc.setSettings(Core::ICore::settings());
-    }
+    m_stubProc.setMode(HostOsInfo::isWindowsHost() ? ConsoleProcess::Suspend
+                                                   : ConsoleProcess::Debug);
 
     // Error message for user is delivered via a signal.
     m_stubProc.setCommand(stub.command);

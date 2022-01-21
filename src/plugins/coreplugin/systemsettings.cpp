@@ -93,7 +93,7 @@ public:
             const QVector<TerminalCommand> availableTerminals = ConsoleProcess::availableTerminalEmulators();
             for (const TerminalCommand &term : availableTerminals)
                 m_ui.terminalComboBox->addItem(term.command, QVariant::fromValue(term));
-            updateTerminalUi(ConsoleProcess::terminalEmulator(ICore::settings()));
+            updateTerminalUi(ConsoleProcess::terminalEmulator());
             connect(m_ui.terminalComboBox,
                     QOverload<int>::of(&QComboBox::currentIndexChanged),
                     this,
@@ -265,8 +265,7 @@ void SystemSettingsWidget::apply()
     QtcSettings *settings = ICore::settings();
     EditorManager::setReloadSetting(IDocument::ReloadSetting(m_ui.reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
-        ConsoleProcess::setTerminalEmulator(settings,
-                                            {m_ui.terminalComboBox->lineEdit()->text(),
+        ConsoleProcess::setTerminalEmulator({m_ui.terminalComboBox->lineEdit()->text(),
                                              m_ui.terminalOpenArgs->text(),
                                              m_ui.terminalExecuteArgs->text()});
         if (!HostOsInfo::isMacHost()) {

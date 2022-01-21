@@ -99,15 +99,12 @@ public:
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
 
-    void setSettings(QSettings *);
-
+    static void setSettings(QSettings *settings);
     static TerminalCommand defaultTerminalEmulator();
     static QVector<TerminalCommand> availableTerminalEmulators();
-    static TerminalCommand terminalEmulator(const QSettings *settings);
-    static void setTerminalEmulator(QSettings *settings, const TerminalCommand &term);
-
-    static bool startTerminalEmulator(QSettings *settings, const QString &workingDir,
-                                      const Utils::Environment &env);
+    static TerminalCommand terminalEmulator();
+    static void setTerminalEmulator(const TerminalCommand &term);
+    static bool startTerminalEmulator(const QString &workingDir, const Utils::Environment &env);
 
 signals:
     void errorOccurred(QProcess::ProcessError error);

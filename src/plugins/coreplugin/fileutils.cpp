@@ -139,7 +139,7 @@ void FileUtils::openTerminal(const FilePath &path, const Environment &env)
     const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
                                                  fileInfo.absoluteFilePath() :
                                                  fileInfo.absolutePath());
-    ConsoleProcess::startTerminalEmulator(ICore::settings(), pwd, env);
+    ConsoleProcess::startTerminalEmulator(pwd, env);
 }
 
 QString FileUtils::msgFindInDirectory()

@@ -118,6 +118,8 @@ static QString msgCannotExecute(const QString & p, const QString &why)
     return ConsoleProcess::tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
+static QSettings *s_settings = nullptr;
+
 // TerminalCommand
 
 TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs, bool needsQuotes)
@@ -149,7 +151,6 @@ public:
     QString m_errorString;
     bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
-    QSettings *m_settings = nullptr;
 
     // Used on Unix only
     QtcProcess m_process;
@@ -197,7 +198,7 @@ const CommandLine &ConsoleProcess::commandLine() const
 
 void ConsoleProcess::setSettings(QSettings *settings)
 {
-    d->m_settings = settings;
+    s_settings = settings;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(const QVector<TerminalCommand>, knownTerminals, (
@@ -271,17 +272,17 @@ const char kTerminalCommandKey[] = "General/Terminal/Command";
 const char kTerminalOpenOptionsKey[] = "General/Terminal/OpenOptions";
 const char kTerminalExecuteOptionsKey[] = "General/Terminal/ExecuteOptions";
 
-TerminalCommand ConsoleProcess::terminalEmulator(const QSettings *settings)
+TerminalCommand ConsoleProcess::terminalEmulator()
 {
-    if (settings && HostOsInfo::isAnyUnixHost()) {
-        if (settings->value(kTerminalVersionKey).toString() == kTerminalVersion) {
-            if (settings->contains(kTerminalCommandKey))
-                return {settings->value(kTerminalCommandKey).toString(),
-                                    settings->value(kTerminalOpenOptionsKey).toString(),
-                                    settings->value(kTerminalExecuteOptionsKey).toString()};
+    if (s_settings && HostOsInfo::isAnyUnixHost()) {
+        if (s_settings->value(kTerminalVersionKey).toString() == kTerminalVersion) {
+            if (s_settings->contains(kTerminalCommandKey))
+                return {s_settings->value(kTerminalCommandKey).toString(),
+                                    s_settings->value(kTerminalOpenOptionsKey).toString(),
+                                    s_settings->value(kTerminalExecuteOptionsKey).toString()};
         } else {
             // TODO remove reading of old settings some time after 4.8
-            const QString value = settings->value("General/TerminalEmulator").toString().trimmed();
+            const QString value = s_settings->value("General/TerminalEmulator").toString().trimmed();
             if (!value.isEmpty()) {
                 // split off command and options
                 const QStringList splitCommand = ProcessArgs::splitArgs(value);
@@ -299,18 +300,18 @@ TerminalCommand ConsoleProcess::terminalEmulator(const QSettings *settings)
     return defaultTerminalEmulator();
 }
 
-void ConsoleProcess::setTerminalEmulator(QSettings *settings, const TerminalCommand &term)
+void ConsoleProcess::setTerminalEmulator(const TerminalCommand &term)
 {
-    if (HostOsInfo::isAnyUnixHost()) {
-        settings->setValue(kTerminalVersionKey, kTerminalVersion);
+    if (s_settings && HostOsInfo::isAnyUnixHost()) {
+        s_settings->setValue(kTerminalVersionKey, kTerminalVersion);
         if (term == defaultTerminalEmulator()) {
-            settings->remove(kTerminalCommandKey);
-            settings->remove(kTerminalOpenOptionsKey);
-            settings->remove(kTerminalExecuteOptionsKey);
+            s_settings->remove(kTerminalCommandKey);
+            s_settings->remove(kTerminalOpenOptionsKey);
+            s_settings->remove(kTerminalExecuteOptionsKey);
         } else {
-            settings->setValue(kTerminalCommandKey, term.command);
-            settings->setValue(kTerminalOpenOptionsKey, term.openArgs);
-            settings->setValue(kTerminalExecuteOptionsKey, term.executeArgs);
+            s_settings->setValue(kTerminalCommandKey, term.command);
+            s_settings->setValue(kTerminalOpenOptionsKey, term.openArgs);
+            s_settings->setValue(kTerminalExecuteOptionsKey, term.executeArgs);
         }
     }
 }
@@ -373,12 +374,9 @@ QString createWinCommandline(const QString &program, const QString &args)
 }
 
 
-bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir,
-                                           const Environment &env)
+bool ConsoleProcess::startTerminalEmulator(const QString &workingDir, const Environment &env)
 {
 #ifdef Q_OS_WIN
-    Q_UNUSED(settings)
-
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
@@ -407,7 +405,7 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &w
 
     return success;
 #else
-    const TerminalCommand term = terminalEmulator(settings);
+    const TerminalCommand term = terminalEmulator();
     QProcess process;
     process.setProgram(term.command);
     process.setArguments(ProcessArgs::splitArgs(term.openArgs));
@@ -569,7 +567,7 @@ void ConsoleProcess::start()
     }
 
     ProcessArgs::SplitError qerr;
-    const TerminalCommand terminal = terminalEmulator(d->m_settings);
+    const TerminalCommand terminal = terminalEmulator();
     const ProcessArgs terminalArgs = ProcessArgs::prepareArgs(terminal.executeArgs,
                                                               &qerr,
                                                               HostOsInfo::hostOs(),
