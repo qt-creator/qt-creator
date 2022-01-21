@@ -26,6 +26,7 @@
 
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qlabel.h>
+#include <QtWidgets/qmenu.h>
 #include <QtCore/qpointer.h>
 #include <coreplugin/icontext.h>
 
@@ -47,6 +48,8 @@ public:
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     void showCanvas(bool show);
+    QMenu *visibilityTogglesMenu() const;
+    void showVisibilityTogglesMenu(bool show, const QPoint &pos);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
@@ -61,6 +64,7 @@ private:
     QPointer<QLabel> m_onboardingLabel;
     QPointer<ToolBox> m_toolBox;
     Core::IContext *m_context = nullptr;
+    QPointer<QMenu> m_visibilityTogglesMenu;
 };
 
 } // namespace QmlDesigner

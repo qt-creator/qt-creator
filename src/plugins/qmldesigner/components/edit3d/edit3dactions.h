@@ -54,7 +54,8 @@ public:
     Edit3DAction(const QByteArray &menuId, View3DActionCommand::Type type,
                  const QString &description, const QKeySequence &key, bool checkable, bool checked,
                  const QIcon &iconOff, const QIcon &iconOn,
-                 SelectionContextOperation selectionAction = nullptr);
+                 SelectionContextOperation selectionAction = nullptr,
+                 const QString &toolTip = {});
 
     QByteArray category() const override;
 

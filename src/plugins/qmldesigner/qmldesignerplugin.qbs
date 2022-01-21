@@ -514,6 +514,8 @@ Project {
                 "edit3d/edit3dcanvas.h",
                 "edit3d/edit3dactions.cpp",
                 "edit3d/edit3dactions.h",
+                "edit3d/edit3dvisibilitytogglesmenu.cpp",
+                "edit3d/edit3dvisibilitytogglesmenu.h",
                 "edit3d/edit3d.qrc",
                 "formeditor/abstractcustomtool.cpp",
                 "formeditor/abstractcustomtool.h",

@@ -2116,6 +2116,15 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionCommand::ShowGrid:
         updatedState.insert("showGrid", command.isEnabled());
         break;
+    case View3DActionCommand::ShowSelectionBox:
+        updatedState.insert("showSelectionBox", command.isEnabled());
+        break;
+    case View3DActionCommand::ShowIconGizmo:
+        updatedState.insert("showIconGizmo", command.isEnabled());
+        break;
+    case View3DActionCommand::ShowCameraFrustum:
+        updatedState.insert("showCameraFrustum", command.isEnabled());
+        break;
 #ifdef QUICK3D_PARTICLES_MODULE
     case View3DActionCommand::ParticlesPlay:
         m_particleAnimationPlaying = command.isEnabled();

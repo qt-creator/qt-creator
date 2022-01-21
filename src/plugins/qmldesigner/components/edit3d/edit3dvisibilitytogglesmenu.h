@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,41 +22,23 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-import QtQuick 2.0
-import QtQuick3D 1.15
+#include <QMenu>
 
-IconGizmo {
-    id: cameraGizmo
+namespace QmlDesigner {
 
-    property Model frustumModel: null
-    property bool globalShowFrustum: false
+class Edit3DVisibilityTogglesMenu : public QMenu
+{
+    Q_OBJECT
 
-    iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
+public:
+    explicit Edit3DVisibilityTogglesMenu(QWidget *parent = nullptr);
 
-    function connectFrustum(frustum)
-    {
-        frustumModel = frustum;
+protected:
+    void mouseReleaseEvent(QMouseEvent *e) override;
 
-        frustum.selected = selected;
-        frustum.selected = Qt.binding(function() {return selected;});
+private:
+};
 
-        frustum.scene = scene;
-        frustum.scene = Qt.binding(function() {return scene;});
-
-        frustum.targetNode = targetNode;
-        frustum.targetNode = Qt.binding(function() {return targetNode;});
-
-        frustum.visible = (canBeVisible && globalShowFrustum)
-                          || (targetNode && selected && activeScene === scene);
-        frustum.visible = Qt.binding(function() {
-            return (canBeVisible && globalShowFrustum)
-                   || (targetNode && selected && activeScene === scene);
-        });
-    }
-
-    onActiveSceneChanged: {
-        if (frustumModel && activeScene == scene)
-            frustumModel.updateGeometry();
-    }
-}
+} // namespace QmlDesigner

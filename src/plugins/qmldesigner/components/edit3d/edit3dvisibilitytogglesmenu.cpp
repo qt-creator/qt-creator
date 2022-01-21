@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,40 +23,28 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick3D 1.15
+#include "edit3dvisibilitytogglesmenu.h"
 
-IconGizmo {
-    id: cameraGizmo
+namespace QmlDesigner {
 
-    property Model frustumModel: null
-    property bool globalShowFrustum: false
+Edit3DVisibilityTogglesMenu::Edit3DVisibilityTogglesMenu(QWidget *parent) :
+    QMenu(parent)
+{
+    setToolTipsVisible(true);
+}
 
-    iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
-
-    function connectFrustum(frustum)
-    {
-        frustumModel = frustum;
-
-        frustum.selected = selected;
-        frustum.selected = Qt.binding(function() {return selected;});
-
-        frustum.scene = scene;
-        frustum.scene = Qt.binding(function() {return scene;});
-
-        frustum.targetNode = targetNode;
-        frustum.targetNode = Qt.binding(function() {return targetNode;});
-
-        frustum.visible = (canBeVisible && globalShowFrustum)
-                          || (targetNode && selected && activeScene === scene);
-        frustum.visible = Qt.binding(function() {
-            return (canBeVisible && globalShowFrustum)
-                   || (targetNode && selected && activeScene === scene);
-        });
-    }
-
-    onActiveSceneChanged: {
-        if (frustumModel && activeScene == scene)
-            frustumModel.updateGeometry();
+void Edit3DVisibilityTogglesMenu::mouseReleaseEvent(QMouseEvent *e)
+{
+    QAction *action = activeAction();
+    if (action && action->isEnabled()) {
+        // Prevent the menu from closing on click on any item
+        action->setEnabled(false);
+        QMenu::mouseReleaseEvent(e);
+        action->setEnabled(true);
+        action->trigger();
+    } else {
+        QMenu::mouseReleaseEvent(e);
     }
 }
+
+} // namespace QmlDesigner
