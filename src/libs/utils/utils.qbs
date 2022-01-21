@@ -292,10 +292,10 @@ Project {
             "temporarydirectory.h",
             "temporaryfile.cpp",
             "temporaryfile.h",
-            "terminalcommand.cpp"
-            "terminalcommand.h"
-            "terminalprocess.cpp"
-            "terminalprocess_p.h"
+            "terminalcommand.cpp",
+            "terminalcommand.h",
+            "terminalprocess.cpp",
+            "terminalprocess_p.h",
             "textfieldcheckbox.cpp",
             "textfieldcheckbox.h",
             "textfieldcombobox.cpp",
