@@ -25,22 +25,20 @@
 
 #include "consoleprocess.h"
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/commandline.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/terminalcommand.h>
 #include <utils/winutils.h>
 
 #include <QAbstractEventDispatcher>
 #include <QCoreApplication>
 #include <QDir>
-#include <QFileInfo>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QRegularExpression>
-#include <QSettings>
 #include <QTemporaryFile>
 #include <QTextCodec>
 #include <QTimer>
@@ -118,18 +116,6 @@ static QString msgCannotExecute(const QString & p, const QString &why)
     return ConsoleProcess::tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
-static QSettings *s_settings = nullptr;
-
-// TerminalCommand
-
-TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs, bool needsQuotes)
-    : command(command)
-    , openArgs(openArgs)
-    , executeArgs(executeArgs)
-    , needsQuotes(needsQuotes)
-{
-}
-
 // ConsoleProcessPrivate
 
 class ConsoleProcessPrivate
@@ -196,126 +182,6 @@ const CommandLine &ConsoleProcess::commandLine() const
     return d->m_commandLine;
 }
 
-void ConsoleProcess::setSettings(QSettings *settings)
-{
-    s_settings = settings;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(const QVector<TerminalCommand>, knownTerminals, (
-{
-    {"x-terminal-emulator", "", "-e"},
-    {"xdg-terminal", "", "", true},
-    {"xterm", "", "-e"},
-    {"aterm", "", "-e"},
-    {"Eterm", "", "-e"},
-    {"rxvt", "", "-e"},
-    {"urxvt", "", "-e"},
-    {"xfce4-terminal", "", "-x"},
-    {"konsole", "--separate --workdir .", "-e"},
-    {"gnome-terminal", "", "--"}
-}));
-
-TerminalCommand ConsoleProcess::defaultTerminalEmulator()
-{
-    static TerminalCommand defaultTerm;
-
-    if (defaultTerm.command.isEmpty()) {
-
-        if (HostOsInfo::isMacHost()) {
-            const QString termCmd = QCoreApplication::applicationDirPath()
-                            + "/../Resources/scripts/openTerminal.py";
-            if (QFileInfo::exists(termCmd))
-                defaultTerm = {termCmd, "", ""};
-            else
-                defaultTerm = {"/usr/X11/bin/xterm", "", "-e"};
-
-        } else if (HostOsInfo::isAnyUnixHost()) {
-            defaultTerm = {"xterm", "", "-e"};
-            const Environment env = Environment::systemEnvironment();
-            for (const TerminalCommand &term : *knownTerminals) {
-                const QString result = env.searchInPath(term.command).toString();
-                if (!result.isEmpty()) {
-                    defaultTerm = {result, term.openArgs, term.executeArgs, term.needsQuotes};
-                    break;
-                }
-            }
-        }
-    }
-
-    return defaultTerm;
-}
-
-QVector<TerminalCommand> ConsoleProcess::availableTerminalEmulators()
-{
-    QVector<TerminalCommand> result;
-
-    if (HostOsInfo::isAnyUnixHost()) {
-        const Environment env = Environment::systemEnvironment();
-        for (const TerminalCommand &term : *knownTerminals) {
-            const QString command = env.searchInPath(term.command).toString();
-            if (!command.isEmpty())
-                result.push_back({command, term.openArgs, term.executeArgs});
-        }
-        // sort and put default terminal on top
-        const TerminalCommand defaultTerm = defaultTerminalEmulator();
-        result.removeAll(defaultTerm);
-        sort(result);
-        result.prepend(defaultTerm);
-    }
-
-    return result;
-}
-
-const char kTerminalVersion[] = "4.8";
-const char kTerminalVersionKey[] = "General/Terminal/SettingsVersion";
-const char kTerminalCommandKey[] = "General/Terminal/Command";
-const char kTerminalOpenOptionsKey[] = "General/Terminal/OpenOptions";
-const char kTerminalExecuteOptionsKey[] = "General/Terminal/ExecuteOptions";
-
-TerminalCommand ConsoleProcess::terminalEmulator()
-{
-    if (s_settings && HostOsInfo::isAnyUnixHost()) {
-        if (s_settings->value(kTerminalVersionKey).toString() == kTerminalVersion) {
-            if (s_settings->contains(kTerminalCommandKey))
-                return {s_settings->value(kTerminalCommandKey).toString(),
-                                    s_settings->value(kTerminalOpenOptionsKey).toString(),
-                                    s_settings->value(kTerminalExecuteOptionsKey).toString()};
-        } else {
-            // TODO remove reading of old settings some time after 4.8
-            const QString value = s_settings->value("General/TerminalEmulator").toString().trimmed();
-            if (!value.isEmpty()) {
-                // split off command and options
-                const QStringList splitCommand = ProcessArgs::splitArgs(value);
-                if (QTC_GUARD(!splitCommand.isEmpty())) {
-                    const QString command = splitCommand.first();
-                    const QStringList quotedArgs = Utils::transform(splitCommand.mid(1),
-                                                                    &ProcessArgs::quoteArgUnix);
-                    const QString options = quotedArgs.join(' ');
-                    return {command, "", options};
-                }
-            }
-        }
-    }
-
-    return defaultTerminalEmulator();
-}
-
-void ConsoleProcess::setTerminalEmulator(const TerminalCommand &term)
-{
-    if (s_settings && HostOsInfo::isAnyUnixHost()) {
-        s_settings->setValue(kTerminalVersionKey, kTerminalVersion);
-        if (term == defaultTerminalEmulator()) {
-            s_settings->remove(kTerminalCommandKey);
-            s_settings->remove(kTerminalOpenOptionsKey);
-            s_settings->remove(kTerminalExecuteOptionsKey);
-        } else {
-            s_settings->setValue(kTerminalCommandKey, term.command);
-            s_settings->setValue(kTerminalOpenOptionsKey, term.openArgs);
-            s_settings->setValue(kTerminalExecuteOptionsKey, term.executeArgs);
-        }
-    }
-}
-
 static QString quoteWinCommand(const QString &program)
 {
     const QChar doubleQuote = QLatin1Char('"');
@@ -373,7 +239,6 @@ QString createWinCommandline(const QString &program, const QString &args)
     return programName;
 }
 
-
 bool ConsoleProcess::startTerminalEmulator(const QString &workingDir, const Environment &env)
 {
 #ifdef Q_OS_WIN
@@ -405,7 +270,7 @@ bool ConsoleProcess::startTerminalEmulator(const QString &workingDir, const Envi
 
     return success;
 #else
-    const TerminalCommand term = terminalEmulator();
+    const TerminalCommand term = TerminalCommand::terminalEmulator();
     QProcess process;
     process.setProgram(term.command);
     process.setArguments(ProcessArgs::splitArgs(term.openArgs));
@@ -567,7 +432,7 @@ void ConsoleProcess::start()
     }
 
     ProcessArgs::SplitError qerr;
-    const TerminalCommand terminal = terminalEmulator();
+    const TerminalCommand terminal = TerminalCommand::terminalEmulator();
     const ProcessArgs terminalArgs = ProcessArgs::prepareArgs(terminal.executeArgs,
                                                               &qerr,
                                                               HostOsInfo::hostOs(),
@@ -996,22 +861,6 @@ void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorS
     d->m_error = err;
     d->m_errorString = errorString;
     emit errorOccurred(err);
-}
-
-bool TerminalCommand::operator==(const TerminalCommand &other) const
-{
-    return other.command == command && other.openArgs == openArgs
-           && other.executeArgs == executeArgs;
-}
-
-bool TerminalCommand::operator<(const TerminalCommand &other) const
-{
-    if (command == other.command) {
-        if (openArgs == other.openArgs)
-            return executeArgs < other.executeArgs;
-        return openArgs < other.openArgs;
-    }
-    return command < other.command;
 }
 
 } // Utils

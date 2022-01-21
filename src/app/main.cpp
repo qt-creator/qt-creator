@@ -33,7 +33,6 @@
 #include <qtsingleapplication.h>
 
 #include <utils/algorithm.h>
-#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -41,6 +40,7 @@
 #include <utils/qtcsettings.h>
 #include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
+#include <utils/terminalcommand.h>
 
 #include <QDebug>
 #include <QDir>
@@ -552,7 +552,7 @@ int main(int argc, char **argv)
                                  QSettings::SystemScope,
                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                                  QLatin1String(Core::Constants::IDE_CASED_ID));
-    Utils::ConsoleProcess::setSettings(settings);
+    Utils::TerminalCommand::setSettings(settings);
     loadFonts();
 
     if (Utils::HostOsInfo::isWindowsHost()

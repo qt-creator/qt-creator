@@ -292,6 +292,8 @@ Project {
             "temporarydirectory.h",
             "temporaryfile.cpp",
             "temporaryfile.h",
+            "terminalcommand.cpp"
+            "terminalcommand.h"
             "textfieldcheckbox.cpp",
             "textfieldcheckbox.h",
             "textfieldcombobox.cpp",

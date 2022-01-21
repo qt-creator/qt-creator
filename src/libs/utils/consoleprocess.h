@@ -28,32 +28,12 @@
 #include "utils_global.h"
 
 #include <QProcess>
-#include <QVector>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
 namespace Utils {
 
 class CommandLine;
 class Environment;
 class FilePath;
-
-class QTCREATOR_UTILS_EXPORT TerminalCommand
-{
-public:
-    TerminalCommand() = default;
-    TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs, bool needsQuotes = false);
-
-    bool operator==(const TerminalCommand &other) const;
-    bool operator<(const TerminalCommand &other) const;
-
-    QString command;
-    QString openArgs;
-    QString executeArgs;
-    bool needsQuotes = false;
-};
 
 class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject
 {
@@ -99,11 +79,6 @@ public:
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
 
-    static void setSettings(QSettings *settings);
-    static TerminalCommand defaultTerminalEmulator();
-    static QVector<TerminalCommand> availableTerminalEmulators();
-    static TerminalCommand terminalEmulator();
-    static void setTerminalEmulator(const TerminalCommand &term);
     static bool startTerminalEmulator(const QString &workingDir, const Utils::Environment &env);
 
 signals:
@@ -131,5 +106,3 @@ private:
 };
 
 } // Utils
-
-Q_DECLARE_METATYPE(Utils::TerminalCommand)
