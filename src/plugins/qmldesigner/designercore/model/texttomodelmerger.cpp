@@ -2253,18 +2253,6 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
         if (message.severity == Severity::Warning)
             warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
     }
-
-    for (const Import &import : m_rewriterView->model()->imports()) {
-        if (import.isLibraryImport() && import.url() == "QtQuick3D") {
-            const QString version = getHighestPossibleImport(import.url());
-            if (!import.version().isEmpty() && Import::majorFromVersion(version) > import.majorVersion()) {
-                errors->append(DocumentMessage(
-                    QObject::tr(
-                        "The selected version of the Qt Quick 3D module is not supported with the selected Qt version.")
-                        .arg(version)));
-            }
-        }
-    }
 }
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)
