@@ -26,7 +26,6 @@
 #pragma once
 
 #include <projectexplorer/gcctoolchain.h>
-#include <projectexplorer/gcctoolchainfactories.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 
 namespace ProjectExplorer { class AbiWidget; }

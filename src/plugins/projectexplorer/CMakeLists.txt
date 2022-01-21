@@ -84,7 +84,6 @@ add_qtc_plugin(ProjectExplorer
     filterkitaspectsdialog.cpp filterkitaspectsdialog.h
     gccparser.cpp gccparser.h
     gcctoolchain.cpp gcctoolchain.h
-    gcctoolchainfactories.h
     gnumakeparser.cpp gnumakeparser.h
     headerpath.h
     importwidget.cpp importwidget.h

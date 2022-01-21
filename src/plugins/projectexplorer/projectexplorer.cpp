@@ -39,7 +39,7 @@
 #include "desktoprunconfiguration.h"
 #include "environmentwidget.h"
 #include "extraabi.h"
-#include "gcctoolchainfactories.h"
+#include "gcctoolchain.h"
 #ifdef WITH_JOURNALD
 #include "journaldwatcher.h"
 #endif

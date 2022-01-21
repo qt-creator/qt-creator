@@ -27,7 +27,6 @@
 
 #include "abiwidget.h"
 #include "clangparser.h"
-#include "gcctoolchainfactories.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
 #include "projectmacro.h"
