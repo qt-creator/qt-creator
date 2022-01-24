@@ -353,6 +353,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.start();
     });
 
+    m_configModel->setMacroExpander(m_buildConfiguration->macroExpander());
+
     if (bc->buildSystem()->isParsing())
         m_showProgressTimer.start();
     else {
@@ -368,6 +370,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_configModel->setInitialParametersConfiguration(
             m_buildConfiguration->initialCMakeConfiguration());
         m_buildConfiguration->filterConfigArgumentsFromAdditionalCMakeArguments();
+        updateFromKit();
         m_configView->expandAll();
         m_configView->setEnabled(true);
         stretcher->stretch();
