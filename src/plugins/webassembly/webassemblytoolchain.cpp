@@ -111,6 +111,43 @@ const QVersionNumber &WebAssemblyToolChain::minimumSupportedEmSdkVersion()
     return number;
 }
 
+static Toolchains doAutoDetect(const ToolchainDetector &detector)
+{
+    const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
+    if (!WebAssemblyEmSdk::isValid(sdk))
+        return {};
+
+    if (detector.device) {
+        // Only detect toolchains from the emsdk installation device
+        const FilePath deviceRoot = detector.device->mapToGlobalPath({});
+        if (deviceRoot.host() != sdk.host())
+            return {};
+    }
+
+    Environment env = sdk.deviceEnvironment();
+    WebAssemblyEmSdk::addToEnvironment(sdk, env);
+
+    Toolchains result;
+    for (auto languageId : {ProjectExplorer::Constants::C_LANGUAGE_ID,
+                            ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
+        auto toolChain = new WebAssemblyToolChain;
+        toolChain->setLanguage(languageId);
+        toolChain->setDetection(ToolChain::AutoDetection);
+        const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
+        const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
+                + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
+        const FilePath scriptFile = sdk.withNewPath(script).searchInDirectories(env.path());
+        toolChain->setCompilerCommand(scriptFile);
+
+        const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")
+                .arg(toolChain->version(), QLatin1String(cLanguage ? "C" : "C++"));
+        toolChain->setDisplayName(displayName);
+        result.append(toolChain);
+    }
+
+    return result;
+}
+
 void WebAssemblyToolChain::registerToolChains()
 {
     // Remove old toolchains
@@ -121,12 +158,9 @@ void WebAssemblyToolChain::registerToolChains()
     };
 
     // Create new toolchains and register them
-    ToolChainFactory *factory =
-            findOrDefault(ToolChainFactory::allToolChainFactories(), [](ToolChainFactory *f){
-            return f->supportedToolChainType() == Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID;
-    });
-    QTC_ASSERT(factory, return);
-    for (auto toolChain : factory->autoDetect(ToolchainDetector({}, {})))
+    ToolchainDetector detector({}, {});
+    const Toolchains toolchains = doAutoDetect(detector);
+    for (auto toolChain : toolchains)
         ToolChainManager::registerToolChain(toolChain);
 
     // Let kits pick up the new toolchains
@@ -157,39 +191,7 @@ WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
 
 Toolchains WebAssemblyToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
-    if (!WebAssemblyEmSdk::isValid(sdk))
-        return {};
-
-    if (detector.device) {
-        // Only detect toolchains from the emsdk installation device
-        const FilePath deviceRoot = detector.device->mapToGlobalPath({});
-        if (deviceRoot.host() != sdk.host())
-            return {};
-    }
-
-    Environment env = sdk.deviceEnvironment();
-    WebAssemblyEmSdk::addToEnvironment(sdk, env);
-
-    Toolchains result;
-    for (auto languageId : {ProjectExplorer::Constants::C_LANGUAGE_ID,
-         ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
-        auto toolChain = new WebAssemblyToolChain;
-        toolChain->setLanguage(languageId);
-        toolChain->setDetection(ToolChain::AutoDetection);
-        const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
-        const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
-                + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
-        const FilePath scriptFile = sdk.withNewPath(script).searchInDirectories(env.path());
-        toolChain->setCompilerCommand(scriptFile);
-
-        const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")
-                .arg(toolChain->version(), QLatin1String(cLanguage ? "C" : "C++"));
-        toolChain->setDisplayName(displayName);
-        result.append(toolChain);
-    }
-
-    return result;
+    return doAutoDetect(detector);
 }
 
 } // namespace Internal

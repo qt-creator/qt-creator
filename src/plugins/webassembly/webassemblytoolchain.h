@@ -37,6 +37,8 @@ class WebAssemblyToolChain final : public ProjectExplorer::GccToolChain
     Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyToolChain)
 
 public:
+    WebAssemblyToolChain();
+
     void addToEnvironment(Utils::Environment &env) const override;
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
@@ -45,11 +47,6 @@ public:
     static const QVersionNumber &minimumSupportedEmSdkVersion();
     static void registerToolChains();
     static bool areToolChainsRegistered();
-
-private:
-    WebAssemblyToolChain();
-
-    friend class WebAssemblyToolChainFactory;
 };
 
 class WebAssemblyToolChainFactory : public ProjectExplorer::ToolChainFactory
