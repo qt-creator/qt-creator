@@ -472,7 +472,7 @@ DiffEditorPluginPrivate::DiffEditorPluginPrivate()
     //register actions
     ActionContainer *toolsContainer
             = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    toolsContainer->insertGroup(Core::Constants::G_TOOLS_OPTIONS, Constants::G_TOOLS_DIFF);
+    toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, Constants::G_TOOLS_DIFF);
     ActionContainer *diffContainer = ActionManager::createMenu("Diff");
     diffContainer->menu()->setTitle(tr("&Diff"));
     toolsContainer->addMenu(diffContainer, Constants::G_TOOLS_DIFF);

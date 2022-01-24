@@ -55,6 +55,7 @@ const char M_VIEW_VIEWS[]          = "QtCreator.Menu.View.Views";
 const char M_VIEW_PANES[]          = "QtCreator.Menu.View.Panes";
 const char M_TOOLS[]               = "QtCreator.Menu.Tools";
 const char M_TOOLS_EXTERNAL[]      = "QtCreator.Menu.Tools.External";
+const char M_TOOLS_DEBUG[]         = "QtCreator.Menu.Tools.Debug";
 const char M_WINDOW[]              = "QtCreator.Menu.Window";
 const char M_HELP[]                = "QtCreator.Menu.Help";
 
@@ -186,6 +187,7 @@ const char G_VIEW_VIEWS[]          = "QtCreator.Group.View.Views";
 const char G_VIEW_PANES[]          = "QtCreator.Group.View.Panes";
 
 // Tools menu groups
+const char G_TOOLS_DEBUG[]         = "QtCreator.Group.Tools.Debug";
 const char G_TOOLS_OPTIONS[]       = "QtCreator.Group.Tools.Options";
 
 // Window menu groups
