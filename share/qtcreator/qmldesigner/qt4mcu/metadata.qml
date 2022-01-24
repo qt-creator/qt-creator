@@ -27,29 +27,35 @@
 Metadata {
     id: metadataFile
 
-    defaultVersion: v19
+    defaultVersion: v20
 
     VersionData {
         id: v14
-        name: "QUL 1.4"
+        name: "Qt for MCUs 1.4"
         path: "qul-14.qml"
     }
 
     VersionData {
         id: v17
-        name: "QUL 1.7"
+        name: "Qt for MCUs 1.7"
         path: "qul-17.qml"
     }
 
     VersionData {
         id: v18
-        name: "QUL 1.8"
+        name: "Qt for MCUs 1.8"
         path: "qul-18.qml"
     }
 
     VersionData {
         id: v19
-        name: "QUL 1.9"
+        name: "Qt for MCUs 1.9"
         path: "qul-19.qml"
+    }
+
+    VersionData {
+        id: v20
+        name: "Qt for MCUs 2.0"
+        path: "qul-20.qml"
     }
 }

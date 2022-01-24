@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 VersionData {
-    name: "QUL 1.9"
+    name: "Qt for MCUs 1.9"
 
     bannedItems: ["QtQuick.AnimatedImage",
         "QtQuick.FocusScope",
@@ -34,6 +34,7 @@ VersionData {
         "QtQuick.Grid",
         "QtQuick.GridView",
         "QtQuick.PathView",
+        "QtQuick.Loader",
         "QtQuick.Controls",
         "QtQuick.Controls.BusyIndicator",
         "QtQuick.Controls.ButtonGroup",
@@ -63,7 +64,11 @@ VersionData {
         "QtQuick.Controls.TextArea",
         "QtQuick.Controls.TextField",
         "QtQuick.Controls.ToolSeparator",
-        "QtQuick.Controls.Tumbler"]
+        "QtQuick.Controls.Tumbler",
+        "QtQuick.Shapes.ConicalGradient",
+        "QtQuick.Shapes.LinearGradient",
+        "QtQuick.Shapes.RadialGradient",
+        "QtQuick.Shapes.ShapeGradient"]
 
     allowedImports: ["QtQuick",
         "QtQuick.Shapes",

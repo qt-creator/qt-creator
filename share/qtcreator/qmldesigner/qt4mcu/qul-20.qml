@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 VersionData {
-    name: "Qt for MCUs 1.7"
+    name: "Qt for MCUs 2.0"
 
     bannedItems: ["QtQuick.AnimatedImage",
         "QtQuick.FocusScope",
@@ -64,9 +64,14 @@ VersionData {
         "QtQuick.Controls.TextArea",
         "QtQuick.Controls.TextField",
         "QtQuick.Controls.ToolSeparator",
-        "QtQuick.Controls.Tumbler"]
+        "QtQuick.Controls.Tumbler",
+        "QtQuick.Shapes.ConicalGradient",
+        "QtQuick.Shapes.LinearGradient",
+        "QtQuick.Shapes.RadialGradient",
+        "QtQuick.Shapes.ShapeGradient"]
 
     allowedImports: ["QtQuick",
+        "QtQuick.Shapes",
         "QtQuick.Controls",
         "QtQuick.Timeline",
         "QtQuickUltralite.Extras",
@@ -135,7 +140,7 @@ VersionData {
 
     QtQuick.Row {
         bannedProperties: ["bottomPadding", "leftPadding", "rightPadding", "topPadding",
-            "effectiveLayoutDirection", "layoutDirection"]
+        "effectiveLayoutDirection", "layoutDirection"]
     }
 
     QtQuick.ListView {
@@ -165,5 +170,52 @@ VersionData {
 
     QtQuick.Controls.Slider {
         bannedProperties: ["live", "snapMode", "touchDragThreshold"]
+    }
+
+    //Path and Shapes related:
+
+    QtQuick.Path {
+        bannedProperties: ["scale", "pathElements"]
+    }
+
+    QtQuick.PathArc {
+        bannedProperties: ["relativeX", "relativeY"]
+    }
+
+    QtQuick.PathLine {
+        bannedProperties: ["relativeX", "relativeY"]
+    }
+
+    QtQuick.PathMove {
+        bannedProperties: ["relativeX", "relativeY"]
+    }
+
+    QtQuick.PathQuad {
+        bannedProperties: ["relativeX", "relativeY",
+            "relativeControlX", "relativeControlY"]
+    }
+
+    QtQuick.PathCubic {
+        bannedProperties: ["relativeX", "relativeY",
+            "relativeControl1X", "relativeControl1Y",
+            "relativeControl2X", "relativeControl2Y"]
+    }
+
+    QtQuick.PathElement {
+        //nothing
+    }
+
+    QtQuick.PathSvg {
+        //nothing
+    }
+
+    QtQuick.Shapes.Shape {
+        bannedProperties: ["asynchronous", "containsMode", "data",
+            "renderType", "status", "vendorExtensionsEnabled"]
+    }
+
+    QtQuick.Shapes.ShapePath {
+        bannedProperties: ["dashOffset", "dashPattern",
+            "fillGradient", "strokeStyle"]
     }
 }
