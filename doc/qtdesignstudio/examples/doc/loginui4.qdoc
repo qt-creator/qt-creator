@@ -46,13 +46,13 @@
     \l{Creating Timeline Animations}{timeline animations} that you bind
     to states.
 
-    These instructions build on:
+    The starting point for this tutorial is the completed
+    \l{Log In UI - States} project. You can download the project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui3}{here}.
 
-    \list
-        \li \l {Log In UI - Components}
-        \li \l {Log In UI - Positioning}
-        \li \l {Log In UI - States}
-    \endlist
+    Additionally, you can download the completed project of this tutorial from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui4}{here}.
+
 
     The \e {Learn More} sections provide additional information relevant to the
     task at hand.
@@ -94,7 +94,7 @@
         \li Select \inlineimage icons/navigator-arrowup.png
             to move \e username below \e tagLine in \uicontrol Navigator
             to preserve the \l{Arranging Components}{component hierarchy}.
-        \li Repeat for \e password and \e repeatPassword.
+        \li Repeat step 3 and 4 for \e password and \e repeatPassword.
         \li Select \e fields in \uicontrol Navigator and press \key Delete to
             delete it.
         \li Select \e username in \uicontrol Navigator to display its properties
@@ -196,8 +196,8 @@
             to save your changes.
     \endlist
 
-    When you move the playhead along the timeline, you can see how the login
-    button fades out while the repeat password field fades in.
+    When you move the playhead along the timeline, you can see how the create
+    account button fades out while the repeat password field fades in.
 
     You will now animate the top anchor margin of the repeat password field
     to make it appear to slide down from the password field.
@@ -219,7 +219,7 @@
             frame 0, and select the record button for the \e anchors.topMargin
             property of \e repeatPassword.
         \li In the field next to the property, set a negative value for the
-            top anchor margin, -40, to place \e repeatPassword on top of
+            top anchor margin, -100, to place \e repeatPassword on top of
             \e password.
         \li Move the playhead to frame 1000 and change the top anchor margin
             to 20, so that, combined with the change in the \uicontrol Opacity
@@ -312,7 +312,7 @@
     the following \e import statement to the UI files where it uses the
     components:
 
-    \quotefromfile loginui4/Screen01.ui.qml
+    \quotefromfile Loginui4/Content/Screen01.ui.qml
     \skipto QtQuick.Timeline
     \printuntil 1.0
 
