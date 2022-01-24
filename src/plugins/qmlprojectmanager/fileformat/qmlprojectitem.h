@@ -63,6 +63,9 @@ public:
     QStringList fileSelectors() const { return m_fileSelectors; }
     void setFileSelectors(const QStringList &selectors);
 
+    bool multilanguageSupport() const { return m_multilanguageSupport; }
+    void setMultilanguageSupport(const bool isEnabled);
+
     QStringList supportedLanguages() const { return m_supportedLanguages; }
     void setSupportedLanguages(const QStringList &languages);
 
@@ -94,6 +97,7 @@ protected:
     QString m_targetDirectory;
     QStringList m_importPaths;
     QStringList m_fileSelectors;
+    bool m_multilanguageSupport;
     QStringList m_supportedLanguages;
     QString m_primaryLanguage;
     QString m_mainFile;

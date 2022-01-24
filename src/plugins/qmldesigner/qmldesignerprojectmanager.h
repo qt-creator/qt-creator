@@ -62,7 +62,7 @@ private:
     void projectRemoved(::ProjectExplorer::Project *project);
 
 private:
-    std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
     std::unique_ptr<PreviewImageCacheData> m_imageCacheData;
+    std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
 };
 } // namespace QmlDesigner

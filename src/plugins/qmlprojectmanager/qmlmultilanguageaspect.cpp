@@ -75,8 +75,9 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
 {
     setVisible(isMultilanguagePresent());
     setSettingsKey(Constants::USE_MULTILANGUAGE_KEY);
-    setLabel(tr("Use MultiLanguage translation database."), BoolAspect::LabelPlacement::AtCheckBox);
-    setToolTip(tr("Enable loading application with special desktop SQLite translation database."));
+    setLabel(tr("Use MultiLanguage in Form Editor."), BoolAspect::LabelPlacement::AtCheckBox);
+    setToolTip(tr("By enabling this Form Editor can read translations\n"
+                  "from MultiLanguage plugin."));
 
     setDefaultValue(!databaseFilePath().isEmpty());
     QVariantMap getDefaultValues;

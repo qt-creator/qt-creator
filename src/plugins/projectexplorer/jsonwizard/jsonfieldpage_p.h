@@ -282,7 +282,7 @@ public:
     ~ListField() override;
 
     QStandardItemModel *model() { return m_itemModel; }
-    virtual void selectRow(int row);
+    virtual bool selectRow(int row);
 
 protected:
     bool parseData(const QVariant &data, QString *errorMessage) override;
@@ -351,7 +351,7 @@ private:
     }
 
 public:
-    void selectRow(int row) override;
+    bool selectRow(int row) override;
     int selectedRow() const;
 };
 

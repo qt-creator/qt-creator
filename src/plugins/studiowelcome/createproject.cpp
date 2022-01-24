@@ -68,6 +68,7 @@ void CreateProject::processFieldPage(ProjectExplorer::JsonFieldPage *page)
     auto widthField = dynamic_cast<ProjectExplorer::LineEditField *>(page->jsonField("CustomScreenWidth"));
     auto heightField = dynamic_cast<ProjectExplorer::LineEditField *>(page->jsonField("CustomScreenHeight"));
 
+    // TODO: use m_wizard to set these text items?
     if (widthField && heightField) {
         if (!m_customWidth.isEmpty() && !m_customHeight.isEmpty()) {
             widthField->setText(m_customWidth);
