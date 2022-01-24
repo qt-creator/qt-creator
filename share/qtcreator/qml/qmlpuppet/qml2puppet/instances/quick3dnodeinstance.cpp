@@ -42,6 +42,9 @@
 #include <private/qquick3dnode_p_p.h>
 #include <private/qquick3drepeater_p.h>
 #include <private/qquick3dloader_p.h>
+#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+#include <private/qquick3druntimeloader_p.h>
+#endif
 #endif
 
 namespace QmlDesigner {
@@ -63,11 +66,21 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
     QObject *obj = object();
     auto repObj = qobject_cast<QQuick3DRepeater *>(obj);
     auto loadObj = qobject_cast<QQuick3DLoader *>(obj);
+#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+    auto runLoadObj = qobject_cast<QQuick3DRuntimeLoader *>(obj);
+    if (repObj || loadObj || runLoadObj) {
+#else
     if (repObj || loadObj) {
+#endif
         if (auto infoServer = qobject_cast<Qt5InformationNodeInstanceServer *>(nodeInstanceServer())) {
             if (repObj) {
                 QObject::connect(repObj, &QQuick3DRepeater::objectAdded,
                                  infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+            } else if (runLoadObj) {
+                QObject::connect(runLoadObj, &QQuick3DRuntimeLoader::statusChanged,
+                                 infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+#endif
             } else {
                 QObject::connect(loadObj, &QQuick3DLoader::loaded,
                                  infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);

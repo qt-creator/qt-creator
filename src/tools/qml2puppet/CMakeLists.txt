@@ -178,6 +178,15 @@ extend_qtc_executable(qml2puppet
   DEFINES QUICK3D_PARTICLES_MODULE
 )
 
+# Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
+find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
+extend_qtc_executable(qml2puppet
+  CONDITION TARGET Qt5::Quick3DAssetUtils
+  FEATURE_INFO "Qt Quick 3D asset utils"
+  DEPENDS Qt5::Quick3DAssetUtilsPrivate
+  DEFINES QUICK3D_ASSET_UTILS_MODULE
+)
+
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
 

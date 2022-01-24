@@ -104,6 +104,9 @@
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include "../editor3d/qt5compat/qquick3darealight_p.h"
 #endif
+#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+#include <private/qquick3druntimeloader_p.h>
+#endif
 #endif
 
 #ifdef QUICK3D_PARTICLES_MODULE
@@ -2317,13 +2320,23 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
                     } else {
                         auto checkRepeater = qobject_cast<QQuick3DRepeater *>(checkNode);
                         auto checkLoader = qobject_cast<QQuick3DLoader *>(checkNode);
+#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+                        auto checkRunLoader = qobject_cast<QQuick3DRuntimeLoader *>(checkNode);
+                        if (checkRepeater || checkLoader || checkRunLoader) {
+#else
                         if (checkRepeater || checkLoader) {
+#endif
                             // Repeaters/loaders may not yet have created their children, so we set
                             // _pickTarget on them and connect the notifier.
                             if (checkNode->property("_pickTarget").isNull()) {
                                 if (checkRepeater) {
                                     QObject::connect(checkRepeater, &QQuick3DRepeater::objectAdded,
                                                      this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+                                } else if (checkRunLoader) {
+                                    QObject::connect(checkRunLoader, &QQuick3DRuntimeLoader::statusChanged,
+                                                     this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+#endif
                                 } else {
                                     QObject::connect(checkLoader, &QQuick3DLoader::loaded,
                                                      this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
