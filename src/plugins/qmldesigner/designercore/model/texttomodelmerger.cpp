@@ -1348,6 +1348,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 syncExpressionProperty(modelProperty, astValue, astType, differenceHandler);
             }
             modelPropertyNames.remove(astName.toUtf8());
+        } else if (auto source = AST::cast<AST::UiSourceElement *>(member)) {
+            // function et al
         } else {
             qWarning() << "Found an unknown QML value.";
         }
