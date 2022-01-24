@@ -59,6 +59,7 @@ QtcPlugin {
             "qmlprofilertraceview.cpp", "qmlprofilertraceview.h",
             "qmlprofilerviewmanager.cpp", "qmlprofilerviewmanager.h",
             "qmltypedevent.cpp", "qmltypedevent.h",
+            "quick3dmodel.cpp", "quick3dmodel.h",
             "scenegraphtimelinemodel.cpp", "scenegraphtimelinemodel.h",
         ]
     }
