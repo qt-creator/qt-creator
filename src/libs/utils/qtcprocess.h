@@ -126,11 +126,15 @@ public:
 
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
-    // Starts the command and waits for finish. User input processing depends
-    // on whether setProcessUserEventWhileRunning was called.
-    void runBlocking();
-    // This starts a nested event loop when running the command.
-    void setProcessUserEventWhileRunning(); // Avoid.
+
+    enum EventLoopMode {
+        NoEventLoop,
+        WithEventLoop // Avoid
+    };
+
+    // Starts the command and waits for finish.
+    // User input processing is enabled when WithEventLoop was passed.
+    void runBlocking(EventLoopMode eventLoopMode = NoEventLoop);
 
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */

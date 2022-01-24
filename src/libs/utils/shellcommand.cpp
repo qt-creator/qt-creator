@@ -416,8 +416,7 @@ void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDi
     if (d->m_codec)
         process.setCodec(d->m_codec);
 
-    process.setProcessUserEventWhileRunning();
-    process.runBlocking();
+    process.runBlocking(QtcProcess::WithEventLoop);
 }
 
 const QVariant &ShellCommand::cookie() const

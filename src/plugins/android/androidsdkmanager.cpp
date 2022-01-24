@@ -136,8 +136,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.setProcessUserEventWhileRunning();
-    proc.runBlocking();
+    proc.runBlocking(QtcProcess::WithEventLoop);
     if (output)
         *output = proc.allOutput();
     return proc.result() == QtcProcess::FinishedWithSuccess;
@@ -178,8 +177,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                          &proc, &QtcProcess::stopProcess);
     }
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.setProcessUserEventWhileRunning();
-    proc.runBlocking();
+    proc.runBlocking(QtcProcess::WithEventLoop);
     if (assertionFound) {
         output.success = false;
         output.stdOutput = proc.stdOut();

@@ -1270,8 +1270,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({m_settings.p4BinaryPath.filePath(), args});
-    process.setProcessUserEventWhileRunning();
-    process.runBlocking();
+    process.runBlocking(QtcProcess::WithEventLoop);
 
     PerforceResponse response;
     response.error = true;

@@ -591,8 +591,7 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand(cmd);
-    proc.setProcessUserEventWhileRunning();
-    proc.runBlocking();
+    proc.runBlocking(QtcProcess::WithEventLoop);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
@@ -609,8 +608,7 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    proc.setProcessUserEventWhileRunning();
-    proc.runBlocking();
+    proc.runBlocking(QtcProcess::WithEventLoop);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
@@ -624,8 +622,7 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    proc.setProcessUserEventWhileRunning();
-    proc.runBlocking();
+    proc.runBlocking(QtcProcess::WithEventLoop);
     return proc.result() == QtcProcess::FinishedWithSuccess;
 }
 
@@ -780,8 +777,7 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     cmdProc.setWriteData(writeData);
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
     cmdProc.setCommand(command);
-    cmdProc.setProcessUserEventWhileRunning();
-    cmdProc.runBlocking();
+    cmdProc.runBlocking(QtcProcess::WithEventLoop);
     cmdResult.m_stdOut = cmdProc.stdOut().trimmed();
     cmdResult.m_stdErr = cmdProc.stdErr().trimmed();
     cmdResult.m_success = cmdProc.result() == QtcProcess::FinishedWithSuccess;

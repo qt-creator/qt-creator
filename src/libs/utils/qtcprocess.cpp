@@ -705,7 +705,6 @@ public:
     StartFailure m_startFailure = NoFailure;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
-    bool m_processUserEvents = false;
 };
 
 void QtcProcessPrivate::clearForRun()
@@ -1445,11 +1444,6 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void QtcProcess::setProcessUserEventWhileRunning()
-{
-    d->m_processUserEvents = true;
-}
-
 void QtcProcess::setTimeoutS(int timeoutS)
 {
     if (timeoutS > 0)
@@ -1486,7 +1480,7 @@ static bool isGuiThread()
 }
 #endif
 
-void QtcProcess::runBlocking()
+void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
 {
     // FIXME: Implement properly
 
@@ -1497,10 +1491,10 @@ void QtcProcess::runBlocking()
     };
 
     qCDebug(processLog).noquote() << "Starting blocking:" << d->m_commandLine.toUserOutput()
-        << " process user events: " << d->m_processUserEvents;
+        << " process user events: " << (eventLoopMode == QtcProcess::WithEventLoop);
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
-    if (d->m_processUserEvents) {
+    if (eventLoopMode == QtcProcess::WithEventLoop) {
         QtcProcess::start();
 
         // On Windows, start failure is triggered immediately if the
