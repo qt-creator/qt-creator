@@ -36,8 +36,8 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
-#include <utils/consoleprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcprocess.h>
 
 using namespace Utils;
 
@@ -107,13 +107,13 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);
-    auto process = new ConsoleProcess(parent);
+    auto process = new QtcProcess(QtcProcess::TerminalOn, parent);
     const FilePath pythonCommand = detectPython(file);
     process->setCommand({pythonCommand, args});
     process->setWorkingDirectory(workingDir(file));
     const QString commandLine = process->commandLine().toUserOutput();
     QObject::connect(process,
-                     &ConsoleProcess::errorOccurred,
+                     &QtcProcess::errorOccurred,
                      process,
                      [process, commandLine] {
                          Core::MessageManager::writeDisrupting(
@@ -122,7 +122,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
                                  .arg(commandLine, process->errorString()));
                          process->deleteLater();
                      });
-    QObject::connect(process, &ConsoleProcess::finished, process, &QObject::deleteLater);
+    QObject::connect(process, &QtcProcess::finished, process, &QObject::deleteLater);
     process->start();
 }
 
