@@ -267,7 +267,7 @@ public:
     void setSearchPaths(const FilePaths &searchPaths) { m_searchPaths = searchPaths; }
 
 private:
-    QList<QtVersion *> autoDetectQtVersions() const;
+    QtVersions autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
     void autoDetectCMake();
     void autoDetectDebugger();
@@ -704,9 +704,9 @@ void KitDetectorPrivate::listAutoDetected() const
     emit q->logOutput('\n' + tr("Listing of previously auto-detected kit items finished.") + "\n\n");
 }
 
-QList<QtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
+QtVersions KitDetectorPrivate::autoDetectQtVersions() const
 {
-    QList<QtVersion *> qtVersions;
+    QtVersions qtVersions;
 
     QString error;
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
@@ -794,7 +794,7 @@ void KitDetectorPrivate::autoDetect()
     emit q->logOutput(tr("Starting auto-detection. This will take a while..."));
 
     QList<ToolChain *> toolChains = autoDetectToolChains();
-    QList<QtVersion *> qtVersions = autoDetectQtVersions();
+    QtVersions qtVersions = autoDetectQtVersions();
 
     autoDetectCMake();
     autoDetectDebugger();

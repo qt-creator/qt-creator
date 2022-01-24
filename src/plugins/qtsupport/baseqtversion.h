@@ -270,6 +270,8 @@ private:
     Internal::QtVersionPrivate *d = nullptr;
 };
 
+using QtVersions = QList<QtVersion *>;
+
 } // QtSupport
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::QtVersion::QmakeBuildConfigs)

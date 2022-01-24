@@ -750,7 +750,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     // example shipped via the installer.
     // Report a problem if and only if the project is considered to be part of *only* a Qt
     // that is not the one from the current kit.
-    const QList<QtVersion *> qtsContainingThisProject
+    const QtVersions qtsContainingThisProject
             = QtVersionManager::versions([filePath = projectFilePath()](const QtVersion *qt) {
         return qt->isValid() && qt->isQtSubProject(filePath);
     });

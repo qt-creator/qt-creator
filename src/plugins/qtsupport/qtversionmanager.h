@@ -53,12 +53,12 @@ public:
     // Note: DO NOT STORE THESE POINTERS!
     //       The QtVersionManager may delete them at random times and you will
     //       need to get a new pointer by calling this function again!
-    static QList<QtVersion *> versions(const QtVersion::Predicate &predicate = QtVersion::Predicate());
+    static QtVersions versions(const QtVersion::Predicate &predicate = {});
     static QtVersion *version(int id);
     static QtVersion *version(const QtVersion::Predicate &predicate);
 
     // Sorting is potentially expensive since it might require qmake --query to run for each version!
-    static QList<QtVersion *> sortVersions(const QList<QtVersion *> &input);
+    static QtVersions sortVersions(const QtVersions &input);
 
     static void addVersion(QtVersion *version);
     static void removeVersion(QtVersion *version);
@@ -76,14 +76,14 @@ signals:
 private:
     enum class DocumentationSetting { HighestOnly, All, None };
 
-    static void updateDocumentation(const QList<QtVersion *> &added,
-                                    const QList<QtVersion *> &removed,
-                                    const QList<QtVersion *> &allNew);
+    static void updateDocumentation(const QtVersions &added,
+                                    const QtVersions &removed,
+                                    const QtVersions &allNew);
     void updateFromInstaller(bool emitSignal = true);
     void triggerQtVersionRestore();
 
     // Used by QtOptionsPage
-    static void setNewQtVersions(const QList<QtVersion *> &newVersions);
+    static void setNewQtVersions(const QtVersions &newVersions);
     static void setDocumentationSetting(const DocumentationSetting &setting);
     static DocumentationSetting documentationSetting();
     // Used by QtVersion

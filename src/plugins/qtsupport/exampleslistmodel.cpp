@@ -119,7 +119,7 @@ ExampleSetModel::ExampleSetModel()
             &ExampleSetModel::helpManagerInitialized);
 }
 
-void ExampleSetModel::recreateModel(const QList<QtVersion *> &qtVersions)
+void ExampleSetModel::recreateModel(const QtVersions &qtVersions)
 {
     beginResetModel();
     clear();
@@ -525,7 +525,7 @@ QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) c
 
 void ExampleSetModel::updateQtVersionList()
 {
-    QList<QtVersion *> versions = QtVersionManager::sortVersions(QtVersionManager::versions(
+    QtVersions versions = QtVersionManager::sortVersions(QtVersionManager::versions(
         [](const QtVersion *v) { return v->hasExamples() || v->hasDemos(); }));
 
     // prioritize default qt version
@@ -559,7 +559,7 @@ void ExampleSetModel::updateQtVersionList()
     emit selectedExampleSetChanged(currentIndex);
 }
 
-QtVersion *ExampleSetModel::findHighestQtVersion(const QList<QtVersion *> &versions) const
+QtVersion *ExampleSetModel::findHighestQtVersion(const QtVersions &versions) const
 {
     QtVersion *newVersion = nullptr;
     for (QtVersion *version : versions) {

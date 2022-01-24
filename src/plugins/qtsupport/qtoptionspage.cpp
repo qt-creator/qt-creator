@@ -883,7 +883,7 @@ void QtOptionsPageWidget::apply()
     QtVersionManager::setDocumentationSetting(
         QtVersionManager::DocumentationSetting(m_ui.documentationSetting->currentData().toInt()));
 
-    QList<QtVersion *> versions;
+    QtVersions versions;
     m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
         versions.append(item->version()->clone());

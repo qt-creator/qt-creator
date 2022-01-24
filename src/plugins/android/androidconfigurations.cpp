@@ -1003,7 +1003,7 @@ QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath) const
 
 QStringList AndroidConfig::allEssentials() const
 {
-    QList<QtVersion *> installedVersions = QtVersionManager::versions(
+    QtVersions installedVersions = QtVersionManager::versions(
         [](const QtVersion *v) {
             return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
         });

@@ -153,7 +153,7 @@ void QtVersionManager::triggerQtVersionRestore()
                                      FileSystemWatcher::WatchModifiedDate);
     } // exists
 
-    const QList<QtVersion *> vs = versions();
+    const QtVersions vs = versions();
     updateDocumentation(vs, {}, vs);
 }
 
@@ -501,13 +501,13 @@ static QList<std::pair<Path, FileName>> documentationFiles(QtVersion *v)
     return files;
 }
 
-static QStringList documentationFiles(const QList<QtVersion *> &vs, bool highestOnly = false)
+static QStringList documentationFiles(const QtVersions &vs, bool highestOnly = false)
 {
     // if highestOnly is true, register each file only once per major Qt version, even if
     // multiple minor or patch releases of that major version are installed
     QHash<int, QSet<QString>> includedFileNames; // major Qt version -> names
     QSet<QString> filePaths;
-    const QList<QtVersion *> versions = highestOnly ? QtVersionManager::sortVersions(vs) : vs;
+    const QtVersions versions = highestOnly ? QtVersionManager::sortVersions(vs) : vs;
     for (QtVersion *v : versions) {
         const int majorVersion = v->qtVersion().majorVersion;
         QSet<QString> &majorVersionFileNames = includedFileNames[majorVersion];
@@ -521,9 +521,9 @@ static QStringList documentationFiles(const QList<QtVersion *> &vs, bool highest
     return filePaths.values();
 }
 
-void QtVersionManager::updateDocumentation(const QList<QtVersion *> &added,
-                                           const QList<QtVersion *> &removed,
-                                           const QList<QtVersion *> &allNew)
+void QtVersionManager::updateDocumentation(const QtVersions &added,
+                                           const QtVersions &removed,
+                                           const QtVersions &allNew)
 {
     const DocumentationSetting setting = documentationSetting();
     const QStringList docsOfAll = setting == DocumentationSetting::None
@@ -548,18 +548,18 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
-QList<QtVersion *> QtVersionManager::versions(const QtVersion::Predicate &predicate)
+QtVersions QtVersionManager::versions(const QtVersion::Predicate &predicate)
 {
-    QList<QtVersion *> versions;
+    QtVersions versions;
     QTC_ASSERT(isLoaded(), return versions);
     if (predicate)
         return Utils::filtered(m_versions.values(), predicate);
     return m_versions.values();
 }
 
-QList<QtVersion *> QtVersionManager::sortVersions(const QList<QtVersion *> &input)
+QtVersions QtVersionManager::sortVersions(const QtVersions &input)
 {
-    QList<QtVersion *> result = input;
+    QtVersions result = input;
     Utils::sort(result, qtVersionNumberCompare);
     return result;
 }
@@ -584,21 +584,21 @@ static bool equals(QtVersion *a, QtVersion *b)
     return a->equals(b);
 }
 
-void QtVersionManager::setNewQtVersions(const QList<QtVersion *> &newVersions)
+void QtVersionManager::setNewQtVersions(const QtVersions &newVersions)
 {
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
-    QList<QtVersion *> sortedNewVersions = newVersions;
+    QtVersions sortedNewVersions = newVersions;
     Utils::sort(sortedNewVersions, &QtVersion::uniqueId);
 
-    QList<QtVersion *> addedVersions;
-    QList<QtVersion *> removedVersions;
+    QtVersions addedVersions;
+    QtVersions removedVersions;
     QList<std::pair<QtVersion *, QtVersion *>> changedVersions;
     // So we trying to find the minimal set of changed versions,
     // iterate over both sorted list
 
     // newVersions and oldVersions iterator
-    QList<QtVersion *>::const_iterator nit, nend;
+    QtVersions::const_iterator nit, nend;
     VersionMap::const_iterator oit, oend;
     nit = sortedNewVersions.constBegin();
     nend = sortedNewVersions.constEnd();
@@ -633,9 +633,9 @@ void QtVersionManager::setNewQtVersions(const QList<QtVersion *> &newVersions)
     }
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty()) {
-        const QList<QtVersion *> changedOldVersions
+        const QtVersions changedOldVersions
             = Utils::transform(changedVersions, &std::pair<QtVersion *, QtVersion *>::first);
-        const QList<QtVersion *> changedNewVersions
+        const QtVersions changedNewVersions
             = Utils::transform(changedVersions,
                                &std::pair<QtVersion *, QtVersion *>::second);
         updateDocumentation(addedVersions + changedNewVersions,
@@ -666,7 +666,7 @@ void QtVersionManager::setDocumentationSetting(const QtVersionManager::Documenta
     Core::ICore::settings()->setValueWithDefault(DOCUMENTATION_SETTING_KEY, int(setting), 0);
     // force re-evaluating which documentation should be registered
     // by claiming that all are removed and re-added
-    const QList<QtVersion *> vs = versions();
+    const QtVersions vs = versions();
     updateDocumentation(vs, vs, vs);
 }
 

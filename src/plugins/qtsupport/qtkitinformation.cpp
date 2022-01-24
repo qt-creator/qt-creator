@@ -166,7 +166,7 @@ void QtKitAspect::setup(Kit *k)
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
 
-    const QList<QtVersion *> matches
+    const QtVersions matches
             = QtVersionManager::versions([&tcAbi, &deviceType](const QtVersion *qt) {
         return qt->targetDeviceTypes().contains(deviceType)
                 && Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
@@ -177,14 +177,13 @@ void QtKitAspect::setup(Kit *k)
 
     // An MSVC 2015 toolchain is compatible with an MSVC 2017 Qt, but we prefer an
     // MSVC 2015 Qt if we find one.
-    const QList<QtVersion *> exactMatches = Utils::filtered(matches,
-                                                                [&tcAbi](const QtVersion *qt) {
+    const QtVersions exactMatches = Utils::filtered(matches, [&tcAbi](const QtVersion *qt) {
         return qt->qtAbis().contains(tcAbi);
     });
-    const QList<QtVersion *> &candidates = !exactMatches.empty() ? exactMatches : matches;
+    const QtVersions &candidates = !exactMatches.empty() ? exactMatches : matches;
 
     QtVersion * const qtFromPath = QtVersionManager::version(
-                equal(&QtVersion::detectionSource, QString::fromLatin1("PATH")));
+                equal(&QtVersion::detectionSource, QString("PATH")));
     if (qtFromPath && candidates.contains(qtFromPath))
         k->setValue(id(), qtFromPath->uniqueId());
     else
@@ -193,10 +192,10 @@ void QtKitAspect::setup(Kit *k)
 
 Tasks QtKitAspect::validate(const Kit *k) const
 {
-    QTC_ASSERT(QtVersionManager::isLoaded(), return { });
+    QTC_ASSERT(QtVersionManager::isLoaded(), return {});
     QtVersion *version = qtVersion(k);
     if (!version)
-    return { };
+        return {};
 
     return version->validateKit(k);
 }
