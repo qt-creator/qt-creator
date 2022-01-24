@@ -1,0 +1,39 @@
+
+FROM ubuntu:20.04
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y gpg wget software-properties-common
+
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
+    | gpg --dearmor - \
+    | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+
+RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ focal main'
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git \
+    openssh-client \
+    sudo \
+    vim \
+    cmake \
+    qtbase5-dev \
+    qtdeclarative5-dev \
+    qtquickcontrols2-5-dev \
+    qtdeclarative5-dev-tools \
+    libqt5core5a \
+    libqt5widgets5 \
+    libqt5quick5 \
+    libqt5quickcontrols2-5 \
+    qt5-qmake \
+    clang \
+    lldb \
+    ninja-build \
+    nim \
+    linux-tools-common \
+    valgrind \
+ && apt-get clean
+
+# && rm -rf /var/lib/apt/lists/*
