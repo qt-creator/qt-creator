@@ -25,23 +25,23 @@ backgroundColorDisabled=ff444444
 
 [Colors]
 ;DS controls theme START
-DSpanelBackground=ff323232
+DSpanelBackground=ff2E2F30
 
 DSwelcomeScreenBackground=ff242424
-DSsubPanelBackground=ff040404
-DSthumbnailBackground=ff292929
-DSthumbnailLabelBackground=ff3D3D3D
+DSsubPanelBackground=ff1c1c1c
+DSthumbnailBackground=ff232323
+DSthumbnailLabelBackground=ff2b2a2a
 
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff707070
 
-DScontrolBackground=ff323232
-DScontrolBackgroundInteraction=ff595959
-DScontrolBackgroundDisabled=ff323232
-DScontrolBackgroundGlobalHover=ff474747
-DScontrolBackgroundHover=ff666666
+DScontrolBackground=ff2e2f30
+DScontrolBackgroundInteraction=ff3d3d3d
+DScontrolBackgroundDisabled=ff2e2f30
+DScontrolBackgroundGlobalHover=ff333333
+DScontrolBackgroundHover=ff333333
 
 DScontrolOutline=ff1f1f1f
 DScontrolOutlineInteraction=ff2aafd3
@@ -56,9 +56,9 @@ DSplaceholderTextColor=ffffffff
 DSplaceholderTextColorInteraction=ffababab
 
 DSiconColor=ffffffff
-DSiconColorHover=ff262626
+DSiconColorHover=ffffffff
 DSiconColorInteraction=ff707070
-DSiconColorDisabled=ff707070
+DSiconColorDisabled=ffC7C7C7
 DSiconColorSelected=ff2aafd3
 
 DSlinkIndicatorColor=ff808080
@@ -104,7 +104,7 @@ DSactionJIT=ff2db543
 DStableHeaderBackground=ffff0000
 DStableHeaderText=ff00ff00
 
-DSdockContainerBackground=ff323232
+DSdockContainerBackground=ff242424
 DSdockContainerSplitter=ff323232
 DSdockAreaBackground=ff262728
 
@@ -140,15 +140,15 @@ DStabFocusButtonPress=ff2aafd3
 
 DSnavigatorBranch=ff7c7b7b
 DSnavigatorBranchIndicator=ff7c7b7b
-DSnavigatorItemBackground=ff262626
-DSnavigatorItemBackgroundHover=ff666666
-DSnavigatorItemBackgroundSelected=ff1f1f1f
+DSnavigatorItemBackground=ff2E2F30
+DSnavigatorItemBackgroundHover=ff333333
+DSnavigatorItemBackgroundSelected=ff3D3D3D
 DSnavigatorText=ffffffff
-DSnavigatorTextHover=ff1f1f1f
+DSnavigatorTextHover=ffffffff
 DSnavigatorTextSelected=ff2aafd3
 DSnavigatorIcon=ffffffff
-DSnavigatorIconHover=ff1f1f1f
-DSnavigatorIconSelected=ff7c7b7b
+DSnavigatorIconHover=ffa1a1a1
+DSnavigatorIconSelected=ffffffff
 DSnavigatorAliasIconChecked=ffff0000
 DSnavigatorDropIndicatorBackground=ff2aafd3
 DSnavigatorDropIndicatorOutline=ff2aafd3
@@ -371,7 +371,7 @@ QmlDesigner_FormEditorForegroundColor=ffdadada
 
 ;background color for main form view, library, navigator, properties, connections
 ;QmlDesigner_BackgroundColorDarkAlternate=ff4c4e50
-QmlDesigner_BackgroundColorDarkAlternate=ff323232
+QmlDesigner_BackgroundColorDarkAlternate=ff2e2f30
 
 ;filter outlines, override W/H outlines, properties spinbox background, timeline separators.
 ;QmlDesigner_BackgroundColorDarker=ff262728
