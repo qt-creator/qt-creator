@@ -32,7 +32,7 @@ Rectangle {
 
     property T.Control myControl
 
-    property bool hover: spinBoxIndicatorMouseArea.containsMouse && spinBoxIndicator.enabled
+    property bool hover: spinBoxIndicatorMouseArea.containsMouse
     property bool pressed: spinBoxIndicatorMouseArea.containsPress
     property bool released: false
     property bool realEnabled: true
@@ -112,7 +112,6 @@ Rectangle {
         id: spinBoxIndicatorIcon
         text: StudioTheme.Constants.upDownSquare2
         color: StudioTheme.Values.themeTextColor
-        renderType: Text.NativeRendering
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
@@ -126,6 +125,15 @@ Rectangle {
         }
 
         states: [
+            State {
+                name: "default"
+                when: myControl.enabled && spinBoxIndicator.enabled && !myControl.edit
+                      && !spinBoxIndicator.hover && !myControl.hover && !myControl.drag
+                PropertyChanges {
+                    target: spinBoxIndicatorIcon
+                    color: StudioTheme.Values.themeTextColor
+                }
+            },
             State {
                 name: "globalHover"
                 when: myControl.enabled && spinBoxIndicator.enabled && !myControl.drag
@@ -150,12 +158,12 @@ Rectangle {
                       && spinBoxIndicator.pressed
                 PropertyChanges {
                     target: spinBoxIndicatorIcon
-                    color: "#323232" // TODO
+                    color: StudioTheme.Values.themeIconColor
                 }
             },
             State {
                 name: "edit"
-                when: myControl.edit
+                when: myControl.edit && spinBoxIndicator.enabled
                 PropertyChanges {
                     target: spinBoxIndicatorIcon
                     color: StudioTheme.Values.themeTextColor
@@ -201,7 +209,7 @@ Rectangle {
         },
         State {
             name: "hover"
-            when: myControl.enabled && !myControl.drag
+            when: myControl.enabled && !myControl.drag && spinBoxIndicator.enabled
                   && spinBoxIndicator.hover && myControl.hover && !spinBoxIndicator.pressed
             PropertyChanges {
                 target: spinBoxIndicatorIcon
@@ -227,7 +235,7 @@ Rectangle {
         },
         State {
             name: "edit"
-            when: myControl.edit
+            when: myControl.edit && myControl.enabled && spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicatorIcon
                 visible: true
@@ -239,7 +247,7 @@ Rectangle {
         },
         State {
             name: "drag"
-            when: myControl.drag
+            when: myControl.drag && myControl.enabled
             PropertyChanges {
                 target: spinBoxIndicatorIcon
                 visible: false
