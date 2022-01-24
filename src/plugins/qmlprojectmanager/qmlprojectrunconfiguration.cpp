@@ -120,16 +120,24 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
     m_multiLanguageAspect = addAspect<QmlMultiLanguageAspect>(target);
+    auto buildSystem = qobject_cast<const QmlBuildSystem *>(activeBuildSystem());
+    if (buildSystem)
+        m_multiLanguageAspect->setValue(buildSystem->multilanguageSupport());
 
     auto envAspect = addAspect<EnvironmentAspect>();
-    connect(m_multiLanguageAspect, &QmlMultiLanguageAspect::changed, envAspect, &EnvironmentAspect::environmentChanged);
+    connect(m_multiLanguageAspect,
+            &QmlMultiLanguageAspect::changed,
+            envAspect,
+            &EnvironmentAspect::environmentChanged);
 
     auto envModifier = [this](Environment env) {
-        if (auto bs = dynamic_cast<const QmlBuildSystem *>(activeBuildSystem()))
+        if (auto bs = qobject_cast<const QmlBuildSystem *>(activeBuildSystem()))
             env.modify(bs->environment());
 
-        if (m_multiLanguageAspect && m_multiLanguageAspect->value() && !m_multiLanguageAspect->databaseFilePath().isEmpty()) {
-            env.set("QT_MULTILANGUAGE_DATABASE", m_multiLanguageAspect->databaseFilePath().toString());
+        if (m_multiLanguageAspect && m_multiLanguageAspect->value()
+            && !m_multiLanguageAspect->databaseFilePath().isEmpty()) {
+            env.set("QT_MULTILANGUAGE_DATABASE",
+                    m_multiLanguageAspect->databaseFilePath().toString());
             env.set("QT_MULTILANGUAGE_LANGUAGE", m_multiLanguageAspect->currentLocale());
         } else {
             env.unset("QT_MULTILANGUAGE_DATABASE");

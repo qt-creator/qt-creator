@@ -77,6 +77,11 @@ void QmlProjectItem::setFileSelectors(const QStringList &selectors)
         m_fileSelectors = selectors;
 }
 
+void QmlProjectItem::setMultilanguageSupport(const bool isEnabled)
+{
+    m_multilanguageSupport = isEnabled;
+}
+
 void QmlProjectItem::setSupportedLanguages(const QStringList &languages)
 {
     if (m_supportedLanguages != languages)

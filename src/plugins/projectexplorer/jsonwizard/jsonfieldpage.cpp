@@ -1157,12 +1157,16 @@ QStandardItemModel *ListField::itemModel()
     return m_itemModel;
 }
 
-void ListField::selectRow(int row)
+bool ListField::selectRow(int row)
 {
-    auto index = itemModel()->index(row, 0);
+    QModelIndex index = itemModel()->index(row, 0);
+    if (!index.isValid())
+        return false;
+
     selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 
     this->updateIndex();
+    return true;
 }
 
 QItemSelectionModel *ListField::selectionModel() const
@@ -1271,12 +1275,15 @@ QVariant ComboBoxField::toSettings() const
     return {};
 }
 
-void ComboBoxField::selectRow(int row)
+bool ComboBoxField::selectRow(int row)
 {
-    ListField::selectRow(row);
+    if (!ListField::selectRow(row))
+        return false;
 
     auto w = qobject_cast<QComboBox *>(widget());
     w->setCurrentIndex(row);
+
+    return true;
 }
 
 int ComboBoxField::selectedRow() const

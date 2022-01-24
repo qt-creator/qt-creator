@@ -78,6 +78,7 @@ using namespace LanguageUtils;
 using namespace QmlJS;
 
 static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load", QtWarningMsg)
+static Q_LOGGING_CATEGORY(texttomodelMergerDebug, "qtc.texttomodelmerger.debug", QtDebugMsg)
 
 namespace {
 
@@ -574,7 +575,7 @@ public:
         if (parentObject)
             *parentObject = objectValue;
         if (!value) {
-            qWarning() << Q_FUNC_INFO << "Skipping invalid property name" << propertyName;
+            qCInfo(texttomodelMergerDebug) << Q_FUNC_INFO << "Skipping invalid property name" << propertyName;
             return false;
         }
 
@@ -655,9 +656,10 @@ public:
         const ObjectValue *containingObject = nullptr;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
-            qWarning() << Q_FUNC_INFO << "Unknown property" << propertyPrefix + QLatin1Char('.') + toString(propertyId)
-                       << "on line" << propertyId->identifierToken.startLine
-                       << "column" << propertyId->identifierToken.startColumn;
+            qCInfo(texttomodelMergerDebug) << Q_FUNC_INFO << "Unknown property"
+                                      << propertyPrefix + QLatin1Char('.') + toString(propertyId)
+                                      << "on line" << propertyId->identifierToken.startLine
+                                      << "column" << propertyId->identifierToken.startColumn;
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 

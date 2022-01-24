@@ -97,17 +97,20 @@ public:
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
-    ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager,
-                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
-    TimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
-    AsynchronousImageFactory factory{storage, timeStampProvider, collector};
 };
 
 class QmlDesignerProjectManagerProjectData
 {
 public:
+    QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage)
+        : factory{storage, timeStampProvider, collector}
+    {}
+    ImageCacheConnectionManager connectionManager;
+    ImageCacheCollector collector{connectionManager,
+                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
+    TimeStampProvider timeStampProvider;
+    AsynchronousImageFactory factory;
     ::ProjectExplorer::Target *activeTarget = nullptr;
 };
 
@@ -157,8 +160,8 @@ void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
         m_projectData->activeTarget);
 
     if (qmlBuildSystem) {
-        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
-        m_imageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
+        m_projectData->collector.setTarget(m_projectData->activeTarget);
+        m_projectData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
     }
 }
 
@@ -166,16 +169,14 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>();
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage);
     m_projectData->activeTarget = project->activeTarget();
 }
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
 {
-    if (m_projectData) {
-        m_imageCacheData->collector.setTarget(m_projectData->activeTarget);
+    if (m_projectData)
         m_projectData.reset();
-    }
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}

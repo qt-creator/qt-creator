@@ -170,17 +170,26 @@ void QdsNewDialog::onProjectCanBeCreatedChanged(bool value)
     emit fieldsValidChanged();
 }
 
+void QdsNewDialog::updateScreenSizes()
+{
+    int index = m_wizard.screenSizeIndex(m_currentPreset->screenSizeName);
+    if (index > -1) {
+        setScreenSizeIndex(index);
+    } else {
+        index = m_screenSizeModel->appendItem(m_currentPreset->screenSizeName);
+        setScreenSizeIndex(index);
+    }
+
+    m_screenSizeModel->reset();
+}
+
 void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandardItemModel *styleModel)
 {
     m_screenSizeModel->setBackendModel(screenSizeModel);
     m_styleModel->setBackendModel(styleModel);
 
     if (m_qmlDetailsLoaded) {
-        int index = m_wizard.screenSizeIndex(m_currentPreset->screenSizeName);
-        if (index > -1)
-            setScreenSizeIndex(index);
-
-        m_screenSizeModel->reset();
+        updateScreenSizes();
 
         emit haveVirtualKeyboardChanged();
         emit haveTargetQtVersionChanged();
@@ -288,11 +297,7 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
     emit projectLocationChanged(); // So that QML knows to update the field
 
     if (m_qmlDetailsLoaded) {
-        int index = m_wizard.screenSizeIndex(m_currentPreset->screenSizeName);
-        if (index > -1)
-            setScreenSizeIndex(index);
-
-        m_screenSizeModel->reset();
+        updateScreenSizes();
     }
 
     if (m_qmlStylesLoaded)
@@ -334,9 +339,9 @@ void QdsNewDialog::accept()
         .execute();
 
     PresetItem item = m_wizard.preset();
-    QString screenSize = m_wizard.screenSizeName(m_qmlScreenSizeIndex);
+    QString customSizeName = m_qmlCustomWidth + " x " + m_qmlCustomHeight;
 
-    m_recentsStore.add(item.categoryId, item.name, screenSize);
+    m_recentsStore.add(item.categoryId, item.name, customSizeName);
 
     m_dialog->close();
     m_dialog->deleteLater();
