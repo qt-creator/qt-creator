@@ -32,9 +32,9 @@
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocess.h>
-#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QString>
 #include <QTimer>
@@ -48,12 +48,12 @@ enum class Signal { Interrupt, Terminate, Kill };
 class SshDeviceProcess::SshDeviceProcessPrivate
 {
 public:
-    SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q) {}
+    SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q), consoleProcess(QtcProcess::TerminalOn) {}
 
     SshDeviceProcess * const q;
     QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcessPtr process;
-    ConsoleProcess consoleProcess;
+    QtcProcess consoleProcess;
     Runnable runnable;
     QString errorMessage;
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
@@ -193,11 +193,11 @@ void SshDeviceProcess::handleConnected()
         d->process->requestX11Forwarding(display);
     if (runInTerminal()) {
         d->process->setUseTerminal(true);
-        connect(&d->consoleProcess, &ConsoleProcess::errorOccurred,
+        connect(&d->consoleProcess, &QtcProcess::errorOccurred,
                 this, &DeviceProcess::error);
-        connect(&d->consoleProcess, &ConsoleProcess::started,
+        connect(&d->consoleProcess, &QtcProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
-        connect(&d->consoleProcess, &ConsoleProcess::finished,
+        connect(&d->consoleProcess, &QtcProcess::finished,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         d->consoleProcess.setAbortOnMetaChars(false);
         d->consoleProcess.setCommand(d->process->fullLocalCommandLine());
@@ -357,7 +357,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         killOperation->disconnect(q);
         killOperation.clear();
         if (q->runInTerminal())
-            QMetaObject::invokeMethod(&consoleProcess, &ConsoleProcess::stopProcess, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(&consoleProcess, &QtcProcess::stopProcess, Qt::QueuedConnection);
     }
     killTimer.stop();
     consoleProcess.disconnect();
