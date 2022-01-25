@@ -15,6 +15,7 @@ Project {
         "languageserverprotocol/languageserverprotocol.qbs",
         "languageutils/languageutils.qbs",
         "modelinglib/modelinglib.qbs",
+        "nanotrace/nanotrace.qbs",
         "qmleditorwidgets/qmleditorwidgets.qbs",
         "qmljs/qmljs.qbs",
         "qmldebug/qmldebug.qbs",

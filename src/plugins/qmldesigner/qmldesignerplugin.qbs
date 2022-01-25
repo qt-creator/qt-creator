@@ -15,6 +15,7 @@ Project {
         }
         Depends { name: "AdvancedDockingSystem" }
         Depends { name: "Core" }
+        Depends { name: "Nanotrace"; required: false }
         Depends { name: "QmlJS" }
         Depends { name: "QmlEditorWidgets" }
         Depends { name: "TextEditor" }
@@ -154,6 +155,8 @@ Project {
                 "commands/endpuppetcommand.h",
                 "commands/informationchangedcommand.cpp",
                 "commands/informationchangedcommand.h",
+                "commands/nanotracecommand.cpp",
+                "commands/nanotracecommand.h",
                 "commands/pixmapchangedcommand.cpp",
                 "commands/pixmapchangedcommand.h",
                 "commands/puppetalivecommand.cpp",

@@ -6,6 +6,7 @@ QtcTool {
     installDir: qbs.targetOS.contains("macos")
                 ? qtc.ide_libexec_path + "/qmldesigner" : qtc.ide_libexec_path
 
+    Depends { name: "Nanotrace"; required: false }
     Depends { name: "Utils" }
     Depends { name: "bundle" }
     Depends {
@@ -88,6 +89,8 @@ QtcTool {
             "commands/endpuppetcommand.h",
             "commands/informationchangedcommand.cpp",
             "commands/informationchangedcommand.h",
+            "commands/nanotracecommand.cpp",
+            "commands/nanotracecommand.h",
             "commands/pixmapchangedcommand.cpp",
             "commands/pixmapchangedcommand.h",
             "commands/puppetalivecommand.cpp",
