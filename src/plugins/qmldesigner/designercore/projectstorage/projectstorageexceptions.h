@@ -77,6 +77,12 @@ public:
     const char *what() const noexcept override { return "The module does not exist!"; }
 };
 
+class ModuleAlreadyExists : std::exception
+{
+public:
+    const char *what() const noexcept override { return "The module does not exist!"; }
+};
+
 class TypeNameDoesNotExists : std::exception
 {
 public:

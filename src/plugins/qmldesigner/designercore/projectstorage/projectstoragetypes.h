@@ -161,6 +161,12 @@ public:
                && first.sourceId == second.sourceId;
     }
 
+    friend bool operator<(const Import &first, const Import &second)
+    {
+        return std::tie(first.sourceId, first.moduleId, first.version)
+               < std::tie(second.sourceId, second.moduleId, second.version);
+    }
+
 public:
     Version version;
     ModuleId moduleId;
@@ -264,6 +270,12 @@ public:
     friend bool operator==(const ExportedType &first, const ExportedType &second)
     {
         return first.name == second.name;
+    }
+
+    friend bool operator<(const ExportedType &first, const ExportedType &second)
+    {
+        return std::tie(first.moduleId, first.name, first.version)
+               < std::tie(second.moduleId, second.name, second.version);
     }
 
 public:

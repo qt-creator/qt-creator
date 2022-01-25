@@ -194,11 +194,96 @@ void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
 
 void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) {}
 
+namespace {
+
+QtSupport::BaseQtVersion *getBaseQtVersion(::ProjectExplorer::Target *target)
+{
+    if (target)
+        return QtSupport::QtKitAspect::qtVersion(target->kit());
+
+    return {};
+}
+
+QtSupport::BaseQtVersion *getBaseQtVersion(::ProjectExplorer::Project *project)
+{
+    return getBaseQtVersion(project->activeTarget());
+}
+
+Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
+{
+    auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    if (qt)
+        return qt->qmlPath();
+
+    return {};
+}
+
+void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+{
+    ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
+
+    const Utils::FilePath pojectDirectoryPath = buildSystem->canonicalProjectDir();
+    const QStringList importPaths = buildSystem->importPaths();
+    const QDir pojectDirectory(pojectDirectoryPath.toString());
+
+    for (const QString &importPath : importPaths)
+        qmldirPaths.push_back(QDir::cleanPath(pojectDirectory.absoluteFilePath(importPath))
+                              + "/qmldir");
+}
+
+void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+{
+    const QString installDirectory = qmlPath(target).toString();
+
+    const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
+
+    for (const auto &entry : std::filesystem::recursive_directory_iterator{installDirectoryPath}) {
+        auto path = entry.path();
+        if (entry.path().filename() == "qmldir") {
+            qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
+        }
+    }
+}
+
+QStringList qmlDirs(::ProjectExplorer::Target *target)
+{
+    if (!target)
+        return {};
+
+    QStringList qmldirPaths;
+    qmldirPaths.reserve(100);
+
+    qtQmldirPaths(target, qmldirPaths);
+    projectQmldirPaths(target, qmldirPaths);
+
+    std::sort(qmldirPaths.begin(), qmldirPaths.end());
+    qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());
+
+    return qmldirPaths;
+}
+
+} // namespace
+
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
     m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_imageCacheData->storage,
                                                                            project);
     m_projectData->activeTarget = project->activeTarget();
+
+    QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
+        fileListChanged();
+    });
+
+    QObject::connect(project, &::ProjectExplorer::Project::activeTargetChanged, [&](auto *target) {
+        activeTargetChanged(target);
+    });
+
+    QObject::connect(project, &::ProjectExplorer::Project::aboutToRemoveTarget, [&](auto *target) {
+        aboutToRemoveTarget(target);
+    });
+
+    if (auto target = project->activeTarget(); target)
+        activeTargetChanged(target);
 }
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
@@ -210,5 +295,53 @@ void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project 
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
+
+void QmlDesignerProjectManager::fileListChanged()
+{
+    update();
+}
+
+void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *target)
+{
+    QObject::disconnect(m_projectData->activeTarget, nullptr, nullptr, nullptr);
+
+    m_projectData->activeTarget = target;
+
+    if (target) {
+        QObject::connect(target, &::ProjectExplorer::Target::kitChanged, [&]() { kitChanged(); });
+        QObject::connect(getQmlBuildSystem(target),
+                         &::QmlProjectManager::QmlBuildSystem::projectChanged,
+                         [&]() { projectChanged(); });
+    }
+
+    update();
+}
+
+void QmlDesignerProjectManager::aboutToRemoveTarget(ProjectExplorer::Target *target)
+{
+    QObject::disconnect(target, nullptr, nullptr, nullptr);
+    QObject::disconnect(getQmlBuildSystem(target), nullptr, nullptr, nullptr);
+}
+
+void QmlDesignerProjectManager::kitChanged()
+{
+    QStringList qmldirPaths;
+    qmldirPaths.reserve(100);
+
+    update();
+}
+
+void QmlDesignerProjectManager::projectChanged()
+{
+    update();
+}
+
+void QmlDesignerProjectManager::update()
+{
+    if (!m_projectData)
+        return;
+
+    m_projectData->projectStorageData.updater.update(qmlDirs(m_projectData->activeTarget));
+}
 
 } // namespace QmlDesigner

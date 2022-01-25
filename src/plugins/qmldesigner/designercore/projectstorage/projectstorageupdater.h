@@ -73,7 +73,7 @@ public:
         , m_qmlTypesParser{qmlTypesParser}
     {}
 
-    void update(QStringList qmlDirs);
+    void update(QStringList qmlDirs, QStringList qmlTypesPaths);
     void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths);
 
 private:
@@ -82,6 +82,15 @@ private:
         Changed,
         NotExists,
     };
+
+    void updateQmlTypes(const QStringList &qmlTypesPaths,
+                        Storage::SynchronizationPackage &package,
+                        SourceIds &notUpdatedFileStatusSourceIds,
+                        SourceIds &notUpdatedSourceIds);
+    void updateQmldirs(const QStringList &qmlDirs,
+                       Storage::SynchronizationPackage &package,
+                       SourceIds &notUpdatedFileStatusSourceIds,
+                       SourceIds &notUpdatedSourceIds);
 
     void parseTypeInfos(const QStringList &typeInfos,
                         SourceId qmldirSourceId,
@@ -94,11 +103,11 @@ private:
                         Storage::SynchronizationPackage &package,
                         SourceIds &notUpdatedFileStatusSourceIds,
                         SourceIds &notUpdatedSourceIds);
-    void parseTypeInfo(const Storage::ProjectData &projectData,
-                       const QString &qmltypesPath,
-                       Storage::SynchronizationPackage &package,
-                       SourceIds &notUpdatedFileStatusSourceIds,
-                       SourceIds &notUpdatedSourceIds);
+    FileState parseTypeInfo(const Storage::ProjectData &projectData,
+                            const QString &qmltypesPath,
+                            Storage::SynchronizationPackage &package,
+                            SourceIds &notUpdatedFileStatusSourceIds,
+                            SourceIds &notUpdatedSourceIds);
     void parseQmlComponents(ComponentReferences components,
                             SourceId qmldirSourceId,
                             SourceContextId directoryId,
