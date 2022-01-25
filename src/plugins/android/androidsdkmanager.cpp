@@ -40,6 +40,7 @@
 #include <QReadWriteLock>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QTextCodec>
 
 #ifdef WITH_TESTS
 #   include <QTest>

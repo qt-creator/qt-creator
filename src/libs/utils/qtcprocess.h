@@ -32,11 +32,11 @@
 #include "processutils.h"
 
 #include <QProcess>
-#include <QTextCodec>
 
 #include <functional>
 
 QT_FORWARD_DECLARE_CLASS(QDebug)
+QT_FORWARD_DECLARE_CLASS(QTextCodec)
 
 class tst_QtcProcess;
 

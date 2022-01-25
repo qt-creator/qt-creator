@@ -53,6 +53,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QTextCodec>
 #include <QVector>
 #include <QVersionNumber>
 
