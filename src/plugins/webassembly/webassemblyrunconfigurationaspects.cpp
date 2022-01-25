@@ -98,7 +98,7 @@ void WebBrowserSelectionAspect::addToLayout(LayoutBuilder &builder)
     for (const WebBrowserEntry &be : m_availableBrowsers)
         m_webBrowserComboBox->addItem(be.second, be.first);
     m_webBrowserComboBox->setCurrentIndex(m_webBrowserComboBox->findData(m_currentBrowser));
-    connect(m_webBrowserComboBox, &QComboBox::currentIndexChanged,
+    connect(m_webBrowserComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this]() {
                 m_currentBrowser = m_webBrowserComboBox->currentData().toString();
                 emit changed();
