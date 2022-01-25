@@ -30,7 +30,7 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <utils/consoleprocess.h>
+namespace Utils { class QtcProcess; }
 
 namespace Debugger {
 
@@ -88,7 +88,7 @@ private:
     void stubStarted();
     void stubError();
 
-    Utils::ConsoleProcess m_stubProc;
+    Utils::QtcProcess *m_stubProc = nullptr;
     std::function<ProjectExplorer::Runnable()> m_stubRunnable;
     qint64 m_applicationPid = 0;
     qint64 m_applicationMainThreadId = 0;

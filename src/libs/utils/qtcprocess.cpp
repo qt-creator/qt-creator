@@ -251,6 +251,10 @@ public:
     virtual bool waitForReadyRead(int msecs) = 0;
     virtual bool waitForFinished(int msecs) = 0;
 
+    virtual void kickoffProcess() { QTC_CHECK(false); }
+    virtual void interruptProcess() { QTC_CHECK(false); }
+    virtual qint64 applicationMainThreadID() const { QTC_CHECK(false); return -1; }
+
     void setLowPriority() { m_lowPriority = true; }
     bool isLowPriority() const { return m_lowPriority; }
     void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
@@ -350,6 +354,10 @@ public:
     bool waitForReadyRead(int msecs) override { QTC_CHECK(false); return false; }
     // intentionally no-op without an assert
     bool waitForFinished(int msecs) override  { return false; }
+
+    void kickoffProcess() override { m_terminal.kickoffProcess(); }
+    void interruptProcess() override { m_terminal.interruptProcess(); }
+    qint64 applicationMainThreadID() const override { return m_terminal.applicationMainThreadID(); }
 
 private:
     Internal::TerminalProcess m_terminal;
@@ -1149,6 +1157,21 @@ Environment QtcProcess::systemEnvironmentForBinary(const FilePath &filePath)
     }
 
     return Environment::systemEnvironment();
+}
+
+void QtcProcess::kickoffProcess()
+{
+    d->m_process->kickoffProcess();
+}
+
+void QtcProcess::interruptProcess()
+{
+    d->m_process->interruptProcess();
+}
+
+qint64 QtcProcess::applicationMainThreadID() const
+{
+    return d->m_process->applicationMainThreadID();
 }
 
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)

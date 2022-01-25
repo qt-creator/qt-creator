@@ -181,6 +181,10 @@ public:
 
     static Environment systemEnvironmentForBinary(const FilePath &filePath);
 
+    void kickoffProcess();
+    void interruptProcess();
+    qint64 applicationMainThreadID() const;
+
     // FIXME: Cut down the following bits inherited from QProcess and QIODevice.
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);

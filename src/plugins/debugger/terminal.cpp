@@ -25,12 +25,13 @@
 
 #include "terminal.h"
 
-#include <projectexplorer/runconfiguration.h>
-
 #include <coreplugin/icore.h>
 
-#include <utils/qtcassert.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QIODevice>
@@ -173,23 +174,18 @@ TerminalRunner::TerminalRunner(RunControl *runControl,
     : RunWorker(runControl), m_stubRunnable(stubRunnable)
 {
     setId("TerminalRunner");
-
-    connect(&m_stubProc, &ConsoleProcess::errorOccurred,
-            this, &TerminalRunner::stubError);
-    connect(&m_stubProc, &ConsoleProcess::started,
-            this, &TerminalRunner::stubStarted);
-    connect(&m_stubProc, &ConsoleProcess::finished,
-            this, &TerminalRunner::reportDone);
 }
 
 void TerminalRunner::kickoffProcess()
 {
-    m_stubProc.kickoffProcess();
+    if (m_stubProc)
+        m_stubProc->kickoffProcess();
 }
 
 void TerminalRunner::interruptProcess()
 {
-    m_stubProc.interruptProcess();
+    if (m_stubProc)
+        m_stubProc->interruptProcess();
 }
 
 void TerminalRunner::setRunAsRoot(bool on)
@@ -200,39 +196,53 @@ void TerminalRunner::setRunAsRoot(bool on)
 void TerminalRunner::start()
 {
     QTC_ASSERT(m_stubRunnable, reportFailure({}); return);
+    QTC_ASSERT(!m_stubProc, reportFailure({}); return);
     Runnable stub = m_stubRunnable();
 
-    if (m_runAsRoot) {
-        m_stubProc.setRunAsRoot(true);
+    const QtcProcess::TerminalMode terminalMode = HostOsInfo::isWindowsHost()
+            ? QtcProcess::TerminalSuspend : QtcProcess::TerminalDebug;
+    m_stubProc = new QtcProcess(terminalMode, this);
+    connect(m_stubProc, &QtcProcess::errorOccurred,
+            this, &TerminalRunner::stubError);
+    connect(m_stubProc, &QtcProcess::started,
+            this, &TerminalRunner::stubStarted);
+    connect(m_stubProc, &QtcProcess::finished,
+            this, &TerminalRunner::reportDone);
+
+    CommandLine commandLine = stub.command;
+    if (m_runAsRoot) { // TODO: fix me
+        m_stubProc->setRunAsRoot(true);
+//        CommandLine wrapped("sudo", {"-A"});
+//        wrapped.addCommandLineAsArgs(commandLine);
+//        commandLine = wrapped;
         RunControl::provideAskPassEntry(stub.environment);
     }
 
-    m_stubProc.setEnvironment(stub.environment);
-    m_stubProc.setWorkingDirectory(stub.workingDirectory);
-    m_stubProc.setMode(HostOsInfo::isWindowsHost() ? ConsoleProcess::Suspend
-                                                   : ConsoleProcess::Debug);
+    m_stubProc->setEnvironment(stub.environment);
+    m_stubProc->setWorkingDirectory(stub.workingDirectory);
 
     // Error message for user is delivered via a signal.
-    m_stubProc.setCommand(stub.command);
-    m_stubProc.start();
+    m_stubProc->setCommand(commandLine);
+    m_stubProc->start();
 }
 
 void TerminalRunner::stop()
 {
-    m_stubProc.stopProcess();
+    if (m_stubProc)
+        m_stubProc->stopProcess();
     reportStopped();
 }
 
 void TerminalRunner::stubStarted()
 {
-    m_applicationPid = m_stubProc.processId();
-    m_applicationMainThreadId = m_stubProc.applicationMainThreadID();
+    m_applicationPid = m_stubProc->processId();
+    m_applicationMainThreadId = m_stubProc->applicationMainThreadID();
     reportStarted();
 }
 
 void TerminalRunner::stubError()
 {
-    reportFailure(m_stubProc.errorString());
+    reportFailure(m_stubProc->errorString());
 }
 
 } // namespace Internal
