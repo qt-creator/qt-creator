@@ -35,6 +35,7 @@
 
 #include <sqlitedatabase.h>
 
+#include <algorithm>
 #include <functional>
 
 namespace QmlDesigner {
@@ -267,8 +268,7 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::ProjectData &projectDat
 
 void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView fileName,
                                               Utils::SmallStringView directory,
-                                              Utils::SmallStringView typeName,
-                                              Storage::Version version,
+                                              Storage::ExportedTypes exportedTypes,
                                               ModuleId moduleId,
                                               SourceId qmldirSourceId,
                                               SourceContextId directoryId,
@@ -304,7 +304,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView fileName,
     type.typeName = fileName;
     type.accessSemantics = Storage::TypeAccessSemantics::Reference;
     type.sourceId = sourceId;
-    type.exportedTypes.push_back(Storage::ExportedType{moduleId, typeName, version});
+    type.exportedTypes = std::move(exportedTypes);
 
     package.types.push_back(std::move(type));
 }
@@ -340,6 +340,57 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView fileName,
     package.types.push_back(std::move(type));
 }
 
+namespace {
+
+class ComponentReferencesRange
+{
+public:
+    using const_iterator = ComponentReferences::const_iterator;
+
+    ComponentReferencesRange(const_iterator begin, const_iterator end)
+        : m_begin{begin}
+        , m_end{end}
+    {}
+
+    std::size_t size() const { return static_cast<std::size_t>(std::distance(m_begin, m_end)); }
+
+    const_iterator begin() const { return m_begin; }
+    const_iterator end() const { return m_end; }
+
+private:
+    const_iterator m_begin;
+    const_iterator m_end;
+};
+
+template<typename Callback>
+void partitionForTheSameFileName(const ComponentReferences &components, Callback callback)
+{
+    auto current = components.begin();
+    const auto end = components.end();
+
+    while (current != end) {
+        auto nextType = std::partition_point(current, end, [&](const auto &component) {
+            return component.get().fileName == current->get().fileName;
+        });
+
+        callback(ComponentReferencesRange{current, nextType});
+
+        current = nextType;
+    }
+}
+
+Storage::ExportedTypes filterExportedTypes(ComponentReferencesRange components, ModuleId moduleId)
+{
+    return Utils::transform<Storage::ExportedTypes>(components, [&](ComponentReference component) {
+        return Storage::ExportedType{moduleId,
+                                     Utils::SmallString{component.get().typeName},
+                                     Storage::Version{component.get().majorVersion,
+                                                      component.get().minorVersion}};
+    });
+}
+
+} // namespace
+
 void ProjectStorageUpdater::parseQmlComponents(ComponentReferences components,
                                                SourceId qmldirSourceId,
                                                SourceContextId directoryId,
@@ -348,30 +399,31 @@ void ProjectStorageUpdater::parseQmlComponents(ComponentReferences components,
                                                SourceIds &notUpdatedFileStatusSourceIds)
 {
     std::sort(components.begin(), components.end(), [](auto &&first, auto &&second) {
-        return std::tie(first.get().typeName, first.get().majorVersion, first.get().minorVersion)
-               > std::tie(second.get().typeName, second.get().majorVersion, second.get().minorVersion);
+        return std::tie(first.get().fileName,
+                        first.get().typeName,
+                        first.get().majorVersion,
+                        first.get().minorVersion)
+               > std::tie(first.get().fileName,
+                          second.get().typeName,
+                          second.get().majorVersion,
+                          second.get().minorVersion);
     });
-
-    auto newEnd = std::unique(components.begin(), components.end(), [](auto &&first, auto &&second) {
-        return first.get().typeName == second.get().typeName
-               && first.get().majorVersion == second.get().majorVersion;
-    });
-
-    components.erase(newEnd, components.end());
 
     auto directory = m_pathCache.sourceContextPath(directoryId);
 
-    for (const QmlDirParser::Component &component : components) {
-        parseQmlComponent(Utils::SmallString{component.fileName},
+    auto callback = [&](ComponentReferencesRange componentsWithSameFileName) {
+        const auto &firstComponent = *componentsWithSameFileName.begin();
+        parseQmlComponent(Utils::SmallString{firstComponent.get().fileName},
                           directory,
-                          Utils::SmallString{component.typeName},
-                          Storage::Version{component.majorVersion, component.minorVersion},
+                          filterExportedTypes(componentsWithSameFileName, moduleId),
                           moduleId,
                           qmldirSourceId,
                           directoryId,
                           package,
                           notUpdatedFileStatusSourceIds);
-    }
+    };
+
+    partitionForTheSameFileName(components, callback);
 }
 
 void ProjectStorageUpdater::parseQmlComponents(const Storage::ProjectDatas &projectDatas,

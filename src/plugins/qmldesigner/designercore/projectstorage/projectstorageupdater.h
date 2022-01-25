@@ -52,7 +52,8 @@ class ProjectStorage;
 class QmlDocumentParserInterface;
 class QmlTypesParserInterface;
 
-using ComponentReferences = std::vector<std::reference_wrapper<const QmlDirParser::Component>>;
+using ComponentReference = std::reference_wrapper<const QmlDirParser::Component>;
+using ComponentReferences = std::vector<ComponentReference>;
 
 class ProjectStorageUpdater
 {
@@ -119,8 +120,7 @@ private:
                             SourceIds &notUpdatedFileStatusSourceIds);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
-                           Utils::SmallStringView typeName,
-                           Storage::Version version,
+                           Storage::ExportedTypes exportedTypes,
                            ModuleId moduleId,
                            SourceId qmldirSourceId,
                            SourceContextId directoryId,
