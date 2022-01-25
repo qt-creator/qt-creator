@@ -135,7 +135,8 @@ public:
     Utils::FilePath avdManagerToolPath() const;
 
     Utils::FilePath toolchainPath(const QtSupport::QtVersion *qtVersion) const;
-    static Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation);
+    static Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation,
+                                                Utils::OsType hostOs = Utils::HostOsInfo::hostOs());
     static Utils::FilePath clangPathFromNdk(const Utils::FilePath &ndkLocation);
 
     Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::QtVersion *qtVersion) const;

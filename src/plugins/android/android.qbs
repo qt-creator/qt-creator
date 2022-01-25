@@ -120,5 +120,13 @@ Project {
             "splashscreenwidget.cpp",
             "splashscreenwidget.h"
         ]
+
+        Group {
+            name: "Unit tests"
+            condition: qtc.testsEnabled
+            files: [
+                "android_tst.qrc",
+            ]
+        }
     }
 }

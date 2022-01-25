@@ -54,3 +54,9 @@ add_qtc_plugin(Android
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     splashscreenwidget.cpp splashscreenwidget.h
 )
+
+extend_qtc_plugin(Android
+  CONDITION WITH_TESTS
+  SOURCES
+    android_tst.qrc
+)
