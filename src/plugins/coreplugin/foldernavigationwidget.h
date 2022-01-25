@@ -130,6 +130,8 @@ public:
 
     void syncWithFilePath(const Utils::FilePath &filePath);
 
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 

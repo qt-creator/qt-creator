@@ -299,6 +299,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_listView->setDragEnabled(true);
     m_listView->setDragDropMode(QAbstractItemView::DragOnly);
+    m_listView->viewport()->installEventFilter(this);
     showOnlyFirstColumn(m_listView);
     setFocusProxy(m_listView);
 
@@ -519,6 +520,20 @@ void FolderNavigationWidget::syncWithFilePath(const Utils::FilePath &filePath)
     if (m_rootAutoSync)
         selectBestRootForFile(filePath);
     selectFile(filePath);
+}
+
+bool FolderNavigationWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_listView->viewport()) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            // select the current root when clicking outside any other item
+            auto me = static_cast<QMouseEvent *>(event);
+            const QModelIndex index = m_listView->indexAt(me->pos());
+            if (!index.isValid())
+                m_listView->setCurrentIndex(m_listView->rootIndex());
+        }
+    }
+    return false;
 }
 
 bool FolderNavigationWidget::autoSynchronization() const
