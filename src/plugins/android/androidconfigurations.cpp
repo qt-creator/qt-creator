@@ -514,7 +514,7 @@ FilePath AndroidConfig::avdManagerToolPath() const
     return FilePath();
 }
 
-FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation) const
+FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation)
 {
     const FilePath tcPath = ndkLocation / "toolchains/";
     FilePath toolchainPath;
@@ -553,7 +553,7 @@ FilePath AndroidConfig::toolchainPath(const QtVersion *qtVersion) const
     return toolchainPathFromNdk(ndkLocation(qtVersion));
 }
 
-FilePath AndroidConfig::clangPathFromNdk(const FilePath &ndkLocation) const
+FilePath AndroidConfig::clangPathFromNdk(const FilePath &ndkLocation)
 {
     const FilePath path = toolchainPathFromNdk(ndkLocation);
     if (path.isEmpty())
@@ -566,7 +566,7 @@ FilePath AndroidConfig::gdbPath(const Abi &abi, const QtVersion *qtVersion) cons
     return gdbPathFromNdk(abi, ndkLocation(qtVersion));
 }
 
-FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation) const
+FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation)
 {
     const FilePath path = ndkLocation.pathAppended(
         QString("prebuilt/%1/bin/gdb%2").arg(toolchainHostFromNdk(ndkLocation),
@@ -581,7 +581,7 @@ FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocati
                                                         QString(QTC_HOST_EXE_SUFFIX)));
 }
 
-FilePath AndroidConfig::lldbPathFromNdk(const FilePath &ndkLocation) const
+FilePath AndroidConfig::lldbPathFromNdk(const FilePath &ndkLocation)
 {
     const FilePath path = ndkLocation.pathAppended(
         QString("toolchains/llvm/prebuilt/%1/bin/lldb%2").arg(toolchainHostFromNdk(ndkLocation),
@@ -591,7 +591,7 @@ FilePath AndroidConfig::lldbPathFromNdk(const FilePath &ndkLocation) const
     return {};
 }
 
-FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation) const
+FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation)
 {
     return ndkLocation.pathAppended(
                 QString("prebuilt/%1/bin/make%2").arg(toolchainHostFromNdk(ndkLocation),
@@ -956,7 +956,7 @@ QVersionNumber AndroidConfig::ndkVersion(const QtVersion *qtVersion) const
     return ndkVersion(ndkLocation(qtVersion));
 }
 
-QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath) const
+QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath)
 {
     QVersionNumber version;
     if (!ndkPath.exists()) {
@@ -1086,7 +1086,7 @@ QString AndroidConfig::toolchainHost(const QtVersion *qtVersion) const
     return toolchainHostFromNdk(ndkLocation(qtVersion));
 }
 
-QString AndroidConfig::toolchainHostFromNdk(const FilePath &ndkPath) const
+QString AndroidConfig::toolchainHostFromNdk(const FilePath &ndkPath)
 {
     // detect toolchain host
     QString toolchainHost;
