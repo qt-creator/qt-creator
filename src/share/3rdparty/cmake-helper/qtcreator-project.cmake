@@ -56,6 +56,13 @@ if (CMAKE_VERSION GREATER_EQUAL "3.19")
 endif()
 
 #
+# QML Debugging
+#
+if (QT_ENABLE_QML_DEBUG)
+  add_compile_definitions($<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+endif()
+
+#
 # Package manager auto-setup
 #
 if (QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP)

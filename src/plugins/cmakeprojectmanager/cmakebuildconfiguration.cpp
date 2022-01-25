@@ -105,6 +105,7 @@ const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
 const char QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP[] = "QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP";
 const char QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER[] = "QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER";
+const char QT_ENABLE_QML_DEBUG[] = "QT_ENABLE_QML_DEBUG";
 
 const char CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM[] = "CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM";
 const char CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[]
@@ -135,7 +136,7 @@ private:
     void updateAdvancedCheckBox();
     void updateFromKit();
     void updateConfigurationStateIndex(int index);
-    CMakeConfig getQmlDebugCxxFlags();
+    CMakeConfig getQmlDebugConfigItem();
     CMakeConfig getSigningFlagsChanges();
     CMakeConfig getSettingsToCMakeConfigItems();
 
@@ -852,7 +853,7 @@ void CMakeBuildSettingsWidget::updateButtonState()
     const QList<ConfigModel::DataItem> changes = m_configModel->configurationForCMake();
 
     const CMakeConfig configChanges
-        = getQmlDebugCxxFlags() + getSigningFlagsChanges() + getSettingsToCMakeConfigItems()
+        = getQmlDebugConfigItem() + getSigningFlagsChanges() + getSettingsToCMakeConfigItems()
           + Utils::transform(changes, [](const ConfigModel::DataItem &i) {
                 CMakeConfigItem ni;
                 ni.key = i.key.toUtf8();
@@ -975,55 +976,55 @@ void CMakeBuildSettingsWidget::updateConfigurationStateIndex(int index)
     updateButtonState();
 }
 
-CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
+static CMakeConfig removeOldQmlConfigSettings(const CMakeConfig &configList)
 {
-    const TriState qmlDebuggingState = m_buildConfig->qmlDebugging();
-    if (qmlDebuggingState == TriState::Default) // don't touch anything
-        return {};
+    // Remove any Qt Creator 18 and lower settings
+    CMakeConfig changedConfig;
+
+    const QByteArrayList cxxFlagsPrev{
+        CMAKE_CXX_FLAGS,
+        CMAKE_CXX_FLAGS_DEBUG,
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO,
+        CMAKE_CXX_FLAGS_INIT};
+    const QByteArray qmlDebug(QT_QML_DEBUG_PARAM);
+
+    for (const CMakeConfigItem &item : configList) {
+        if (!cxxFlagsPrev.contains(item.key))
+            continue;
+
+        CMakeConfigItem it(item);
+        int index = it.value.indexOf(qmlDebug);
+        if (index != -1) {
+            it.value.remove(index, qmlDebug.length());
+            it.value = it.value.trimmed();
+            changedConfig.insert(it);
+        }
+    }
+    return changedConfig;
+}
+
+CMakeConfig CMakeBuildSettingsWidget::getQmlDebugConfigItem()
+{
     const bool enable = m_buildConfig->qmlDebugging() == TriState::Enabled;
 
     const CMakeConfig configList = m_buildConfig->cmakeBuildSystem()->configurationFromCMake();
-    const QByteArrayList cxxFlagsPrev{CMAKE_CXX_FLAGS,
-                                      CMAKE_CXX_FLAGS_DEBUG,
-                                      CMAKE_CXX_FLAGS_RELWITHDEBINFO,
-                                      CMAKE_CXX_FLAGS_INIT};
-    const QByteArrayList cxxFlags{CMAKE_CXX_FLAGS_INIT, CMAKE_CXX_FLAGS};
-    const QByteArray qmlDebug(QT_QML_DEBUG_PARAM);
-
     CMakeConfig changedConfig;
+    if (configList.isEmpty())
+        // we don't have any configuration --> initial configuration takes care of this itself
+        return {};
 
+    CMakeConfigItem
+        qmlDebugItem(QT_ENABLE_QML_DEBUG, CMakeConfigItem::BOOL, "", enable ? "ON" : "OFF");
+
+    const bool haveQtQmlDebug = CMakeBuildConfiguration::hasQmlDebugging(configList);
     if (enable) {
-        const FilePath cmakeCache = m_buildConfig->buildDirectory().pathAppended(
-            Constants::CMAKE_CACHE_TXT);
+        if (!haveQtQmlDebug)
+            changedConfig.insert(qmlDebugItem);
+    } else if (haveQtQmlDebug) {
+        qmlDebugItem.isUnset = true;
+        changedConfig.insert(qmlDebugItem);
 
-        // Only modify the CMAKE_CXX_FLAGS variable if the project was previously configured
-        // otherwise CMAKE_CXX_FLAGS_INIT will take care of setting the qmlDebug define
-        if (cmakeCache.exists()) {
-            for (const CMakeConfigItem &item : configList) {
-                if (!cxxFlags.contains(item.key))
-                    continue;
-
-                CMakeConfigItem it(item);
-                if (!it.value.contains(qmlDebug)) {
-                    it.value = it.value.append(' ').append(qmlDebug).trimmed();
-                    changedConfig.insert(it);
-                }
-            }
-        }
-    } else {
-        // Remove -DQT_QML_DEBUG from all configurations, potentially set by previous Qt Creator versions
-        for (const CMakeConfigItem &item : configList) {
-            if (!cxxFlagsPrev.contains(item.key))
-                continue;
-
-            CMakeConfigItem it(item);
-            int index = it.value.indexOf(qmlDebug);
-            if (index != -1) {
-                it.value.remove(index, qmlDebug.length());
-                it.value = it.value.trimmed();
-                changedConfig.insert(it);
-            }
-        }
+        changedConfig.insert(removeOldQmlConfigSettings(configList));
     }
     return changedConfig;
 }
@@ -1703,8 +1704,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                   : TriState::Default);
 
         if (qt && qt->isQmlDebuggingSupported())
-            cmd.addArg(
-                QLatin1String("-D") + CMAKE_CXX_FLAGS_INIT + ":STRING=%{" + QT_QML_DEBUG_FLAG + "}");
+            cmd.addArg(QLatin1String("-D%1:BOOL=ON").arg(QT_ENABLE_QML_DEBUG));
 
         // QT_QML_GENERATE_QMLLS_INI, if enabled via the settings checkbox:
         if (isGenerateQmllsSettingsEnabled()) {
@@ -1773,12 +1773,16 @@ bool CMakeBuildConfiguration::isIos(const Kit *k)
 
 bool CMakeBuildConfiguration::hasQmlDebugging(const CMakeConfig &config)
 {
-    // Determine QML debugging flags. This must match what we do in
-    // CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
-    // such that in doubt we leave the QML Debugging setting at "Leave at default"
+    // Qt Creator 18 and lower method of setting Qml debug flag
     const QString cxxFlagsInit = config.stringValueOf(CMAKE_CXX_FLAGS_INIT);
     const QString cxxFlags = config.stringValueOf(CMAKE_CXX_FLAGS);
-    return cxxFlagsInit.contains(QT_QML_DEBUG_PARAM) && cxxFlags.contains(QT_QML_DEBUG_PARAM);
+    const bool cxxFlagsQmlDebug = cxxFlagsInit.contains(QT_QML_DEBUG_PARAM)
+                                  && cxxFlags.contains(QT_QML_DEBUG_PARAM);
+
+    return config.contains(QT_ENABLE_QML_DEBUG)
+               ? CMakeConfigItem::toBool(config.stringValueOf(QT_ENABLE_QML_DEBUG))
+                     .value_or(cxxFlagsQmlDebug)
+               : cxxFlagsQmlDebug;
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
