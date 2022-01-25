@@ -34,10 +34,10 @@
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/commandline.h>
-#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/terminalcommand.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
 
@@ -50,6 +50,15 @@
 #include <QTextStream>
 #include <QTextCodec>
 #include <QWidget>
+
+#ifdef Q_OS_WIN
+
+#include <windows.h>
+#include <stdlib.h>
+#include <cstring>
+
+#endif
+
 
 using namespace Utils;
 
@@ -128,6 +137,59 @@ void FileUtils::showInFileSystemView(const FilePath &path)
         navWidget->syncWithFilePath(path);
 }
 
+static QString quoteWinCommand(const QString &program)
+{
+    const QChar doubleQuote = QLatin1Char('"');
+
+    // add the program as the first arg ... it works better
+    QString programName = program;
+    programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
+    if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
+            && programName.contains(QLatin1Char(' '))) {
+        programName.prepend(doubleQuote);
+        programName.append(doubleQuote);
+    }
+    return programName;
+}
+
+static void startTerminalEmulator(const QString &workingDir, const Environment &env)
+{
+#ifdef Q_OS_WIN
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+
+    PROCESS_INFORMATION pinfo;
+    ZeroMemory(&pinfo, sizeof(pinfo));
+
+    const QString cmdLine = quoteWinCommand(QString::fromLocal8Bit(qgetenv("COMSPEC")));
+    // cmdLine is assumed to be detached -
+    // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
+
+    const QString totalEnvironment = env.toStringList().join(QChar(QChar::Null)) + QChar(QChar::Null);
+    LPVOID envPtr = (env != Environment::systemEnvironment())
+            ? (WCHAR *)(totalEnvironment.utf16()) : nullptr;
+
+    const bool success = CreateProcessW(0, (WCHAR *)cmdLine.utf16(),
+                                  0, 0, FALSE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+                                  envPtr, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
+                                  &si, &pinfo);
+
+    if (success) {
+        CloseHandle(pinfo.hThread);
+        CloseHandle(pinfo.hProcess);
+    }
+#else
+    const TerminalCommand term = TerminalCommand::terminalEmulator();
+    QProcess process;
+    process.setProgram(term.command);
+    process.setArguments(ProcessArgs::splitArgs(term.openArgs));
+    process.setProcessEnvironment(env.toProcessEnvironment());
+    process.setWorkingDirectory(workingDir);
+    process.startDetached();
+#endif
+}
+
 void FileUtils::openTerminal(const FilePath &path)
 {
     openTerminal(path, Environment::systemEnvironment());
@@ -136,10 +198,10 @@ void FileUtils::openTerminal(const FilePath &path)
 void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
     const QFileInfo fileInfo = path.toFileInfo();
-    const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
-                                                 fileInfo.absoluteFilePath() :
-                                                 fileInfo.absolutePath());
-    ConsoleProcess::startTerminalEmulator(pwd, env);
+    const QString workingDir = QDir::toNativeSeparators(fileInfo.isDir() ?
+                                                        fileInfo.absoluteFilePath() :
+                                                        fileInfo.absolutePath());
+    startTerminalEmulator(workingDir, env);
 }
 
 QString FileUtils::msgFindInDirectory()

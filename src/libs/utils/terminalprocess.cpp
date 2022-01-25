@@ -243,48 +243,6 @@ static QString createWinCommandline(const QString &program, const QString &args)
     return programName;
 }
 
-bool TerminalProcess::startTerminalEmulator(const QString &workingDir, const Environment &env)
-{
-#ifdef Q_OS_WIN
-    STARTUPINFO si;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-
-    PROCESS_INFORMATION pinfo;
-    ZeroMemory(&pinfo, sizeof(pinfo));
-
-    QString cmdLine = createWinCommandline(
-                QString::fromLocal8Bit(qgetenv("COMSPEC")), QString());
-    // cmdLine is assumed to be detached -
-    // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
-
-    QString totalEnvironment = env.toStringList().join(QChar(QChar::Null)) + QChar(QChar::Null);
-    LPVOID envPtr = (env != Environment::systemEnvironment())
-            ? (WCHAR *)(totalEnvironment.utf16()) : nullptr;
-
-    bool success = CreateProcessW(0, (WCHAR *)cmdLine.utf16(),
-                                  0, 0, FALSE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-                                  envPtr, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
-                                  &si, &pinfo);
-
-    if (success) {
-        CloseHandle(pinfo.hThread);
-        CloseHandle(pinfo.hProcess);
-    }
-
-    return success;
-#else
-    const TerminalCommand term = TerminalCommand::terminalEmulator();
-    QProcess process;
-    process.setProgram(term.command);
-    process.setArguments(ProcessArgs::splitArgs(term.openArgs));
-    process.setProcessEnvironment(env.toProcessEnvironment());
-    process.setWorkingDirectory(workingDir);
-
-    return process.startDetached();
-#endif
-}
-
 void TerminalProcess::setAbortOnMetaChars(bool abort)
 {
     d->m_abortOnMetaChars = abort;

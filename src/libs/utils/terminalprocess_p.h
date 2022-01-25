@@ -74,8 +74,6 @@ public:
     void interruptProcess(); // only debugger terminal, only non-windows
     qint64 applicationMainThreadID() const; // only debugger terminal, only windows (-1 otherwise)
 
-    static bool startTerminalEmulator(const QString &workingDir, const Environment &env);
-
 signals:
     void started();
     void finished(int exitCode, QProcess::ExitStatus status);
