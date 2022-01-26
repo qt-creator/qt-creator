@@ -18,8 +18,9 @@ DSpanelBackground=ffeaeaea
 
 DSwelcomeScreenBackground=ffEAEAEA
 DSsubPanelBackground=ffEFEFEF
-DSthumbnailBackground=ffF2F2F2
-DSthumbnailLabelBackground=ffEBEBEB
+DSthumbnailBackground=ffE8E8E8
+DSthumbnailLabelBackground=ffDDDDDD
+
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning
@@ -28,8 +29,8 @@ DSdisabledColor=ff8e8e8e
 DScontrolBackground=ffeaeaea
 DScontrolBackgroundInteraction=ffc9c9c9
 DScontrolBackgroundDisabled=ffeaeaea
-DScontrolBackgroundGlobalHover=ffe5e5e5
-DScontrolBackgroundHover=ffd1d1d1
+DScontrolBackgroundGlobalHover=ffdedddd
+DScontrolBackgroundHover=ffdedddd
 
 DScontrolOutline=ffcecccc
 DScontrolOutlineInteraction=ff2aafd3
@@ -105,7 +106,7 @@ DStitleBarIcon=ff4f5052
 DStitleBarButtonHover=40ffffff
 DStitleBarButtonPress=60ffffff
 
-DStabContainerBackground=ff999999
+DStabContainerBackground=ffdadada
 DStabSplitter=ff595959
 
 DStabInactiveBackground=ff999999
@@ -128,15 +129,15 @@ DStabFocusButtonPress=ff2aafd3
 
 DSnavigatorBranch=ff7c7b7b
 DSnavigatorBranchIndicator=ff7c7b7b
-DSnavigatorItemBackground=ffd8d8d8
-DSnavigatorItemBackgroundHover=ffc2c2c2
+DSnavigatorItemBackground=ffeaeaea
+DSnavigatorItemBackgroundHover=ffdedddd
 DSnavigatorItemBackgroundSelected=ffffffff
 DSnavigatorText=ff262626
 DSnavigatorTextHover=ff1f1f1f
 DSnavigatorTextSelected=ff2aafd3
 DSnavigatorIcon=ff1f1f1f
-DSnavigatorIconHover=ff1f1f1f
-DSnavigatorIconSelected=ff7c7b7b
+DSnavigatorIconHover=ff7c7b7b
+DSnavigatorIconSelected=ff1f1f1f
 DSnavigatorAliasIconChecked=ffff0000
 DSnavigatorDropIndicatorBackground=ff2aafd3
 DSnavigatorDropIndicatorOutline=ff2aafd3
