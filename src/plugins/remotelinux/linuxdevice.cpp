@@ -800,7 +800,6 @@ LinuxDeviceFactory::LinuxDeviceFactory()
     setDisplayName(LinuxDevice::tr("Generic Linux Device"));
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
-    setCanCreate(true);
     setCreator([] {
         GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::dialogParent());
         if (wizard.exec() != QDialog::Accepted)

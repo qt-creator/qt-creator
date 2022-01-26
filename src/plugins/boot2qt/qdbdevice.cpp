@@ -287,7 +287,6 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
     setDisplayName(QdbDevice::tr("Boot2Qt Device"));
     setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
     setConstructionFunction(&QdbDevice::create);
-    setCanCreate(true);
     setCreator([] {
         QdbDeviceWizard wizard(Core::ICore::dialogParent());
         if (wizard.exec() != QDialog::Accepted)

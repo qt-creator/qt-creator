@@ -176,7 +176,6 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setConstructionFunction(&QnxDevice::create);
-    setCanCreate(true);
     setCreator([] {
         QnxDeviceWizard wizard;
         if (wizard.exec() != QDialog::Accepted)

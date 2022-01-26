@@ -59,7 +59,6 @@ WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
     setCombinedIcon(":/webassembly/images/webassemblydevicesmall.png",
                     ":/webassembly/images/webassemblydevice.png");
     setConstructionFunction(&WebAssemblyDevice::create);
-    setCanCreate(true);
     setCreator(&WebAssemblyDevice::create);
 }
 
