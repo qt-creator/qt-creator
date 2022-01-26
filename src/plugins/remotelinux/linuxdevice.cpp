@@ -201,7 +201,7 @@ public:
     {
         delete m_shell;
         m_shell = nullptr;
-        DEBUG("Failed to connect to " << parameters.host());
+        qCDebug(linuxDeviceLog) << "Failed to connect to" << parameters.host();
         return false;
     }
 
@@ -440,7 +440,7 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
     return filePath.scheme() == "ssh" && filePath.host() == userAtHost();
 }
 
-void LinuxDevice::runProcess(QtcProcess &process) const
+void LinuxDevice::runProcess(QtcProcess &) const
 {
     QTC_CHECK(false); // FIXME: Implement
 }

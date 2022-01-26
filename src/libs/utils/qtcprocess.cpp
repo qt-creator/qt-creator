@@ -227,8 +227,8 @@ public:
     virtual void setWorkingDirectory(const QString &dir) = 0;
     virtual void start(const QString &program, const QStringList &arguments,
                        const QByteArray &writeData) = 0;
-    virtual void customStart(const CommandLine &command, const FilePath &workingDirectory,
-                             const Environment &environment) { QTC_CHECK(false); }
+    virtual void customStart(const CommandLine &, const FilePath &workingDirectory,
+                             const Environment &) { Q_UNUSED(workingDirectory); QTC_CHECK(false); }
     virtual bool isCustomStart() const { return false; }
     virtual void terminate() = 0;
     virtual void kill() = 0;
@@ -316,9 +316,9 @@ public:
     QByteArray readAllStandardOutput() override { QTC_CHECK(false); return {}; }
     QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
 
-    void setProcessEnvironment(const QProcessEnvironment &environment) override { QTC_CHECK(false); }
-    void setWorkingDirectory(const QString &dir) override { QTC_CHECK(false); }
-    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
+    void setProcessEnvironment(const QProcessEnvironment &) override { QTC_CHECK(false); }
+    void setWorkingDirectory(const QString &) override { QTC_CHECK(false); }
+    void start(const QString &, const QStringList &, const QByteArray &) override
     { QTC_CHECK(false); }
     void customStart(const CommandLine &command, const FilePath &workingDirectory,
                      const Environment &environment) override
@@ -334,7 +334,7 @@ public:
     void terminate() override { m_terminal.stopProcess(); }
     void kill() override { m_terminal.stopProcess(); }
     void close() override { m_terminal.stopProcess(); }
-    qint64 write(const QByteArray &data) override { QTC_CHECK(false); return -1; }
+    qint64 write(const QByteArray &) override { QTC_CHECK(false); return -1; }
 
     void setStandardInputFile(const QString &fileName) override { Q_UNUSED(fileName) QTC_CHECK(false); }
     // intentionally no-op without an assert
@@ -347,13 +347,13 @@ public:
     int exitCode() const override { return m_terminal.exitCode(); }
     QProcess::ExitStatus exitStatus() const override { return m_terminal.exitStatus(); }
     QString errorString() const override { return m_terminal.errorString(); }
-    void setErrorString(const QString &str) override { QTC_CHECK(false); }
+    void setErrorString(const QString &) override { QTC_CHECK(false); }
 
     // intentionally no-op without an assert
-    bool waitForStarted(int msecs) override   { return false; }
-    bool waitForReadyRead(int msecs) override { QTC_CHECK(false); return false; }
+    bool waitForStarted(int) override   { return false; }
+    bool waitForReadyRead(int) override { QTC_CHECK(false); return false; }
     // intentionally no-op without an assert
-    bool waitForFinished(int msecs) override  { return false; }
+    bool waitForFinished(int) override  { return false; }
 
     void kickoffProcess() override { m_terminal.kickoffProcess(); }
     void interruptProcess() override { m_terminal.interruptProcess(); }

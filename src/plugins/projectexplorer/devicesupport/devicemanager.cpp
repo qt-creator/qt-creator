@@ -112,7 +112,7 @@ void DeviceManager::replaceInstance()
     const QList<Id> newIds =
         Utils::transform(DeviceManagerPrivate::clonedInstance->d->devices, &IDevice::id);
 
-    for (const IDevice::ConstPtr &dev : qAsConst(m_instance->d->devices)) {
+    for (const IDevice::Ptr &dev : qAsConst(m_instance->d->devices)) {
         if (!newIds.contains(dev->id()))
             dev->aboutToBeRemoved();
     }
@@ -144,7 +144,7 @@ DeviceManager *DeviceManager::cloneInstance()
 void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, bool deep)
 {
     if (deep) {
-        for (const IDevice::ConstPtr &device : qAsConst(source->d->devices))
+        for (const IDevice::Ptr &device : qAsConst(source->d->devices))
             target->d->devices << device->clone();
     } else {
         target->d->devices = source->d->devices;
@@ -265,7 +265,7 @@ QVariantMap DeviceManager::toMap() const
     }
     map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
     QVariantList deviceList;
-    for (const IDevice::ConstPtr &device : qAsConst(d->devices))
+    for (const IDevice::Ptr &device : qAsConst(d->devices))
         deviceList << device->toMap();
     map.insert(QLatin1String(DeviceListKey), deviceList);
     return map;
@@ -276,7 +276,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
     const IDevice::Ptr device = _device->clone();
 
     QStringList names;
-    for (const IDevice::ConstPtr &tmp : qAsConst(d->devices)) {
+    for (const IDevice::Ptr &tmp : qAsConst(d->devices)) {
         if (tmp->id() != device->id())
             names << tmp->displayName();
     }
@@ -366,7 +366,7 @@ bool DeviceManager::isLoaded() const
 IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
 {
     const QList<IDevice::Ptr> devices = instance()->d->deviceList();
-    for (const IDevice::ConstPtr &dev : devices) {
+    for (const IDevice::Ptr &dev : devices) {
         // TODO: ensure handlesFile is thread safe
         if (dev->handlesFile(path))
             return dev;

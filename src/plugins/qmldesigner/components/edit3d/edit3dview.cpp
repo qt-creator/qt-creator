@@ -92,6 +92,8 @@ Edit3DWidget *Edit3DView::edit3DWidget() const
 
 void Edit3DView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList)
 {
+    Q_UNUSED(selectedNodeList)
+    Q_UNUSED(lastSelectedNodeList)
     SelectionContext selectionContext(this);
     selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
     if (m_alignCamerasAction)
