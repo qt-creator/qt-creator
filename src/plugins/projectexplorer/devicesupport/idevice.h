@@ -159,7 +159,7 @@ public:
     Utils::Id id() const;
 
     virtual bool isCompatibleWith(const Kit *k) const;
-    virtual QVector<Task> validate() const;
+    virtual QList<Task> validate() const;
 
     QString displayType() const;
     Utils::OsType osType() const;

@@ -543,7 +543,7 @@ bool IDevice::isCompatibleWith(const Kit *k) const
     return DeviceTypeKitAspect::deviceTypeId(k) == type();
 }
 
-QVector<Task> IDevice::validate() const
+QList<Task> IDevice::validate() const
 {
     return {};
 }

@@ -62,7 +62,7 @@ public:
     static Ptr create(const DockerDeviceData &data) { return Ptr(new DockerDevice(data)); }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    QVector<ProjectExplorer::Task> validate() const override;
+    QList<ProjectExplorer::Task> validate() const override;
 
     bool canCreateProcess() const override { return true; }
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
