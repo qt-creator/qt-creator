@@ -596,6 +596,19 @@ void ItemLibraryWidget::addImportForItem(const QString &importUrl)
     m_model->changeImports({import}, {});
 }
 
+static QHash<QByteArray, QStringList> allImageFormats()
+{
+    const QList<QByteArray> mimeTypes = QImageReader::supportedMimeTypes();
+    auto transformer = [](const QByteArray& format) -> QString { return QString("*.") + format; };
+    QHash<QByteArray, QStringList> imageFormats;
+    for (const auto &mimeType : mimeTypes)
+        imageFormats.insert(mimeType, Utils::transform(QImageReader::imageFormatsForMimeType(mimeType), transformer));
+    imageFormats.insert("image/vnd.radiance", {"*.hdr"});
+    imageFormats.insert("image/ktx", {"*.ktx"});
+
+    return imageFormats;
+}
+
 void ItemLibraryWidget::addResources(const QStringList &files)
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -621,8 +634,19 @@ void ItemLibraryWidget::addResources(const QStringList &files)
 
         QStringList filters { tr("All Files (%1)").arg("*.*") };
         QString filterTemplate = "%1 (%2)";
-        for (const QString &key : qAsConst(sortedKeys))
-            filters.append(filterTemplate.arg(key, map.values(key).join(' ')));
+        for (const QString &key : qAsConst(sortedKeys)) {
+            const QStringList values = map.values(key);
+            if (values.contains("*.png")) { // Avoid long filter for images by splitting
+                const QHash<QByteArray, QStringList> imageFormats = allImageFormats();
+                QHash<QByteArray, QStringList>::const_iterator i = imageFormats.constBegin();
+                while (i != imageFormats.constEnd()) {
+                    filters.append(filterTemplate.arg(key + QString::fromLatin1(i.key()), i.value().join(' ')));
+                    ++i;
+                }
+            } else {
+                filters.append(filterTemplate.arg(key, values.join(' ')));
+            }
+        }
 
         static QString lastDir;
         const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
