@@ -100,8 +100,6 @@ class LinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     LinuxDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 } // namespace Internal

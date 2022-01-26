@@ -286,17 +286,14 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
 {
     setDisplayName(QdbDevice::tr("Boot2Qt Device"));
     setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
-    setCanCreate(true);
     setConstructionFunction(&QdbDevice::create);
-}
-
-IDevice::Ptr QdbLinuxDeviceFactory::create() const
-{
-    QdbDeviceWizard wizard(Core::ICore::dialogParent());
-
-    if (wizard.exec() != QDialog::Accepted)
-        return IDevice::Ptr();
-    return wizard.device();
+    setCanCreate(true);
+    setCreator([] {
+        QdbDeviceWizard wizard(Core::ICore::dialogParent());
+        if (wizard.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
+        return wizard.device();
+    });
 }
 
 } // namespace Internal

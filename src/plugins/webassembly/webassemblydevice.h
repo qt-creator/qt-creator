@@ -45,8 +45,6 @@ class WebAssemblyDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     WebAssemblyDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 } // namespace Internal

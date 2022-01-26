@@ -157,8 +157,6 @@ class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     DockerDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 } // Internal

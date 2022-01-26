@@ -1803,15 +1803,6 @@ QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 
 // Factory
 
-DockerDeviceFactory::DockerDeviceFactory()
-    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
-{
-    setDisplayName(DockerDevice::tr("Docker Device"));
-    setIcon(QIcon());
-    setCanCreate(true);
-    setConstructionFunction([] { return DockerDevice::create({}); });
-}
-
 class DockerImageItem final : public TreeItem, public DockerDeviceData
 {
 public:
@@ -1915,7 +1906,7 @@ public:
         m_process->start();
     }
 
-    DockerDevice::Ptr device() const
+    IDevice::Ptr device() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
@@ -1940,14 +1931,6 @@ public:
     QString m_selectedId;
 };
 
-IDevice::Ptr DockerDeviceFactory::create() const
-{
-    DockerDeviceSetupWizard wizard;
-    if (wizard.exec() != QDialog::Accepted)
-        return IDevice::Ptr();
-    return wizard.device();
-}
-
 void DockerDeviceWidget::updateDaemonStateTexts()
 {
     Utils::optional<bool> daemonState = DockerPlugin::isDaemonRunning();
@@ -1961,6 +1944,23 @@ void DockerDeviceWidget::updateDaemonStateTexts()
         m_daemonReset->setIcon(Icons::CRITICAL.icon());
         m_daemonState->setText(tr("Docker daemon not running."));
     }
+}
+
+// Factory
+
+DockerDeviceFactory::DockerDeviceFactory()
+    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
+{
+    setDisplayName(DockerDevice::tr("Docker Device"));
+    setIcon(QIcon());
+    setCanCreate(true);
+    setCreator([] {
+        DockerDeviceSetupWizard wizard;
+        if (wizard.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
+        return wizard.device();
+    });
+    setConstructionFunction([] { return DockerDevice::create({}); });
 }
 
 } // Internal

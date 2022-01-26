@@ -51,20 +51,18 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
 {
     setDisplayName("Generic Linux Device");
     setIcon(QIcon());
-    setCanCreate(true);
     setConstructionFunction(&LinuxDevice::create);
-}
-
-IDevice::Ptr TestLinuxDeviceFactory::create() const
-{
-    LinuxDevice::Ptr newDev = LinuxDevice::create();
-    qDebug() << "device : " << newDev->type();
-    newDev->setType("test");
-    QSsh::SshConnectionParameters sshParams = newDev->sshParameters();
-    sshParams.setHost(TEST_IP);
-    sshParams.setPort(22);
-    newDev->setSshParameters(sshParams);
-    return newDev;
+    setCanCreate(true);
+    setCreator([] {
+        LinuxDevice::Ptr newDev = LinuxDevice::create();
+        qDebug() << "device : " << newDev->type();
+        newDev->setType("test");
+        QSsh::SshConnectionParameters sshParams = newDev->sshParameters();
+        sshParams.setHost(TEST_IP);
+        sshParams.setPort(22);
+        newDev->setSshParameters(sshParams);
+        return newDev;
+    });
 }
 
 FilePath createFile(const QString &name)

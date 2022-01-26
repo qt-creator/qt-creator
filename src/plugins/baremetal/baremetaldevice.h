@@ -71,9 +71,7 @@ private:
 class BareMetalDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
-   explicit BareMetalDeviceFactory();
-
-   ProjectExplorer::IDevice::Ptr create() const final;
+    BareMetalDeviceFactory();
 };
 
 } //namespace Internal

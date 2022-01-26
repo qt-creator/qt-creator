@@ -88,7 +88,6 @@ class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     AndroidDeviceFactory();
-    ProjectExplorer::IDevice::Ptr create() const override;
 
 private:
     const AndroidConfig &m_androidConfig;
