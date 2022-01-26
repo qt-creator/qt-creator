@@ -236,7 +236,7 @@ QtObject {
     property string themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
     property string themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
     property string themeTextSelectedTextColor: Theme.color(Theme.DStextSelectedTextColor)
-    property string themeTextColorDisabledMCU: "black" // TODO
+    property string themeTextColorDisabledMCU: Theme.color(Theme.DStextColorDisabled)
 
     property string themePlaceholderTextColor: Theme.color(Theme.DSplaceholderTextColor)
     property string themePlaceholderTextColorInteraction: Theme.color(Theme.DSplaceholderTextColorInteraction)
