@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -176,7 +176,7 @@
 
     \list 1
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol C++ >
-            \uicontrol Clang > \uicontrol {Use clangd (EXPERIMENTAL)}.
+            \uicontrol Clangd > \uicontrol {Use clangd (EXPERIMENTAL)}.
             \image qtcreator-options-clangd.png "clangd options"
         \li In \uicontrol {Path to executable}, enter the path to clangd
             version 13, or later.

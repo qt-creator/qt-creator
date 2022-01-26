@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -47,11 +47,14 @@
     format file recursively from the directory that contains the source file
     up to the file system root.
 
-    To specify settings for automatic formatting and indentation:
+    To specify global settings for automatic formatting and indentation, you
+    must copy the built-in settings and edit the copy:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++}.
-            \image qtcreator-clang-format-options.png "C++ Clang Format options"
+       \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {C++} >
+            \uicontrol Edit > \uicontrol {Copy Built-in Code Style} >
+            \uicontrol {ClangFormat}.
+            \image qtcreator-code-style-clang-format.png "C++ Clang Format options"
         \li Select the \uicontrol {Format instead of indenting} check box to
             use the \key {Ctrl+I} keyboard shortcut to format code instead of
             indenting it.
@@ -72,10 +75,9 @@
 
     To override the \c {.clang-format} file for a project, select
     \uicontrol Projects > \uicontrol {Project Settings} >
-    \uicontrol {Code Style} >
+    \uicontrol {Code Style} > \uicontrol Edit >
+    \uicontrol {Copy Built-in Code Style} > \uicontrol {ClangFormat} >
     \uicontrol {Override Clang Format configuration file}.
-
-    \image qtcreator-code-style-clang-format.png
 
     You can create \c {.clang-format} files that contain the configuration
     options of a certain predefined style from the command line. For example,
