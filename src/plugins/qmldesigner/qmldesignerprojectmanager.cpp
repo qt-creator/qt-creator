@@ -117,7 +117,7 @@ public:
     ProjectStorageUpdater::PathCache pathCache{storage};
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};
-    QmlDocumentParser qmlDocumentParser{storage};
+    QmlDocumentParser qmlDocumentParser{storage, pathCache};
     QmlTypesParser qmlTypesParser{pathCache, storage};
     ProjectStorageUpdater updater{
         fileSystem, storage, fileStatusCache, pathCache, qmlDocumentParser, qmlTypesParser};

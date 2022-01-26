@@ -105,7 +105,7 @@ private:
                         SourceIds &notUpdatedFileStatusSourceIds,
                         SourceIds &notUpdatedSourceIds);
     FileState parseTypeInfo(const Storage::ProjectData &projectData,
-                            const QString &qmltypesPath,
+                            Utils::SmallStringView qmltypesPath,
                             Storage::SynchronizationPackage &package,
                             SourceIds &notUpdatedFileStatusSourceIds,
                             SourceIds &notUpdatedSourceIds);
@@ -123,7 +123,6 @@ private:
                            Storage::ExportedTypes exportedTypes,
                            ModuleId moduleId,
                            SourceId qmldirSourceId,
-                           SourceContextId directoryId,
                            Storage::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds);
     void parseQmlComponent(Utils::SmallStringView fileName,
