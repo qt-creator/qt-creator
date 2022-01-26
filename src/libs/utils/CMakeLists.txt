@@ -25,7 +25,6 @@ add_qtc_library(Utils
     commandline.cpp commandline.h
     completinglineedit.cpp completinglineedit.h
     completingtextedit.cpp completingtextedit.h
-    consoleprocess.cpp consoleprocess.h
     cpplanguage_details.h
     crumblepath.cpp crumblepath.h
     declarationmacros.h

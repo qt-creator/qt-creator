@@ -39,7 +39,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/hostosinfo.h>
