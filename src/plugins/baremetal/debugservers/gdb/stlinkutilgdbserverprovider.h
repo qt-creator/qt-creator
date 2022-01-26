@@ -42,7 +42,7 @@ namespace Internal {
 class StLinkUtilGdbServerProvider final : public GdbServerProvider
 {
 public:
-    enum TransportLayer { ScsiOverUsb = 1, RawUsb = 2 };
+    enum TransportLayer { ScsiOverUsb = 1, RawUsb = 2, UnspecifiedTransport };
 
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
