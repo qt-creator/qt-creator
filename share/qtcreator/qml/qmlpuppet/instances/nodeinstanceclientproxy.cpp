@@ -206,12 +206,12 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
                     {"name", cmd.name().toStdString()},
-                    {"counter", m_writeCommandCounter});
+                    {"counter", int64_t(m_writeCommandCounter)});
 
             } else {
                 NANOTRACE_INSTANT_ARGS("Update", "writeCommand",
                     {"name", command.typeName()},
-                    {"counter", m_writeCommandCounter});
+                    {"counter", int64_t(m_writeCommandCounter)});
             }
         }
 #endif
@@ -409,14 +409,14 @@ void NodeInstanceClientProxy::readDataStream()
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "readCommand",
                     {"name", cmd.name().toStdString()},
-                    {"counter", readCommandCounter});
+                    {"counter", int64_t(readCommandCounter)});
                 // Do not dispatch this command.
                 continue;
 
             } else {
                 NANOTRACE_INSTANT_ARGS("Update", "readCommand",
                     {"name", command.typeName()},
-                    {"counter", readCommandCounter});
+                    {"counter", int64_t(readCommandCounter)});
             }
         }
 #endif
