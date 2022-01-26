@@ -185,3 +185,16 @@ def qdump__boost__variant(d, value):
     dummy, val = value.split('%is{%s}' % (max(4, alignment), realType.name))
     d.putItem(val)
     d.putBetterType(value.type)
+
+
+def qdump__boost__container__devector(d, value):
+    inner_type = value.type[0]
+    buffer = value["m_"]["buffer"].pointer()
+    front_idx = value["m_"]["front_idx"].integer()
+    back_idx = value["m_"]["back_idx"].integer()
+    start = buffer + (front_idx * inner_type.size())
+    size = int(back_idx - front_idx)
+    if size > 0:
+        d.checkPointer(start)
+    d.putItemCount(size)
+    d.putPlotData(start, size, inner_type)
