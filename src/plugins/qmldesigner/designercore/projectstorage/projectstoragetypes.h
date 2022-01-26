@@ -171,7 +171,6 @@ public:
     Version version;
     ModuleId moduleId;
     SourceId sourceId;
-    Utils::SmallString aliasName;
 };
 
 using Imports = std::vector<Import>;

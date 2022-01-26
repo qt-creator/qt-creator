@@ -716,7 +716,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithMissingModule)
                                           {Storage::ExportedType{ModuleId{22}, "Object2"},
                                            Storage::ExportedType{pathToModuleId, "Obj2"}}});
 
-    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ModuleDoesNotExists);
+    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ExportedTypeCannotBeInserted);
 }
 
 TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesReverseOrder)

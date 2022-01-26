@@ -75,7 +75,6 @@ void addImports(Storage::Imports &imports,
             auto moduleId = storage.moduleId(directoryPath);
             imports.emplace_back(moduleId, Storage::Version{}, sourceId);
         } else if (qmlImport.uri.startsWith(u"file://")) {
-            auto x = convertUri(qmlImport.uri);
             auto moduleId = storage.moduleId(convertUri(qmlImport.uri));
             imports.emplace_back(moduleId, Storage::Version{}, sourceId);
         } else {
@@ -83,6 +82,12 @@ void addImports(Storage::Imports &imports,
             imports.emplace_back(moduleId, convertVersion(qmlImport.version), sourceId);
         }
     }
+
+    auto end = imports.end();
+    auto begin = std::prev(end, qmlImports.size());
+
+    std::sort(begin, end);
+    imports.erase(std::unique(begin, end), end);
 }
 
 void addPropertyDeclarations(Storage::Type &type, const QmlDom::QmlObject &rootObject)

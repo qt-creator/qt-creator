@@ -146,7 +146,10 @@ TEST_F(QmlDocumentParser, Prototype)
 TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
 {
     auto exampleModuleId = storage.moduleId("Example");
-    auto type = parser.parse("import Example as Example\n Example.Item{}", imports, qmlFileSourceId);
+    QString text = R"(import Example as Example
+                  
+                  Example.Item{})";
+    auto type = parser.parse(text, imports, qmlFileSourceId);
 
     ASSERT_THAT(type,
                 HasPrototype(Storage::QualifiedImportedType(
@@ -233,6 +236,32 @@ TEST_F(QmlDocumentParser, Enumeration)
                     AllOf(IsEnumeration("State"),
                           Field(&Storage::EnumerationDeclaration::enumeratorDeclarations,
                                 ElementsAre(IsEnumerator("On", 0), IsEnumerator("Off", 1))))));
+}
+
+TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
+{
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
+    ModuleId qmlModuleId = storage.moduleId("QML");
+    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+    auto type = parser.parse(R"(import QtQuick
+                                import "../foo"
+                                import QtQuick
+                                import "../foo"
+                                import "/path/foo"
+                                import "."
+ 
+                                Example{})",
+                             imports,
+                             qmlFileSourceId);
+
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
+                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 } // namespace

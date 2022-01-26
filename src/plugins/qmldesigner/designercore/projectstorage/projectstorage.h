@@ -1020,7 +1020,7 @@ private:
                                                                          &type.typeId);
                 }
             } catch (const Sqlite::ConstraintPreventsModification &) {
-                throw QmlDesigner::ModuleDoesNotExists{};
+                throw QmlDesigner::ExportedTypeCannotBeInserted{};
             }
         };
 
@@ -2094,7 +2094,6 @@ private:
                                                              Sqlite::Enforment::Deferred);
             auto &majorVersionColumn = table.addColumn("majorVersion");
             auto &minorVersionColumn = table.addColumn("minorVersion");
-            table.addColumn("kind");
 
             table.addUniqueIndex({sourceIdColumn, moduleIdColumn},
                                  "majorVersion IS NULL AND minorVersion IS NULL");
