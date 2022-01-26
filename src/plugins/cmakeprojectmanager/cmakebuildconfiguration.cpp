@@ -946,43 +946,45 @@ static bool isWindowsARM64(const Kit *k)
             && targetAbi.wordWidth() == 64;
 }
 
-static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buildType)
+static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildType)
 {
     // Generator:
-    QStringList initialArgs = CMakeGeneratorKitAspect::generatorArguments(k);
+    CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    QTC_ASSERT(tool, return {});
+
+    CommandLine cmd{tool->cmakeExecutable()};
+    cmd.addArgs(CMakeGeneratorKitAspect::generatorArguments(k));
 
     // CMAKE_BUILD_TYPE:
-    if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
-        initialArgs.append(QString::fromLatin1("-DCMAKE_BUILD_TYPE:STRING=%1").arg(buildType));
-    }
+    if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
+        cmd.addArg("-DCMAKE_BUILD_TYPE:STRING=" + buildType);
 
     Internal::CMakeSpecificSettings *settings
         = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
     // Package manager
-    if (!isDocker(k) && settings->packageManagerAutoSetup.value())
-        initialArgs.append(QString::fromLatin1("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH=%1")
-                           .arg("%{IDE:ResourcePath}/package-manager/auto-setup.cmake"));
+    if (!isDocker(k) && settings->packageManagerAutoSetup.value()) {
+        cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH="
+                   "%{IDE:ResourcePath}/package-manager/auto-setup.cmake");
+    }
 
     // Cross-compilation settings:
     if (!isIos(k)) { // iOS handles this differently
         const QString sysRoot = SysRootKitAspect::sysRoot(k).path();
         if (!sysRoot.isEmpty()) {
-            initialArgs.append(QString::fromLatin1("-DCMAKE_SYSROOT:PATH=%1").arg(sysRoot));
+            cmd.addArg("-DCMAKE_SYSROOT:PATH" + sysRoot);
             if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
                 const QString targetTriple = tc->originalTargetTriple();
-                initialArgs.append(
-                    QString::fromLatin1("-DCMAKE_C_COMPILER_TARGET:STRING=%1").arg(targetTriple));
-                initialArgs.append(
-                    QString::fromLatin1("-DCMAKE_CXX_COMPILER_TARGET:STRING=%1").arg(targetTriple));
+                cmd.addArg("-DCMAKE_C_COMPILER_TARGET:STRING=" + targetTriple);
+                cmd.addArg("-DCMAKE_CXX_COMPILER_TARGET:STRING=%1" + targetTriple);
             }
         }
     }
 
-    initialArgs += CMakeConfigurationKitAspect::toArgumentsList(k);
-    initialArgs += ProcessArgs::splitArgs(CMakeConfigurationKitAspect::additionalConfiguration(k));
+    cmd.addArgs(CMakeConfigurationKitAspect::toArgumentsList(k));
+    cmd.addArgs(CMakeConfigurationKitAspect::additionalConfiguration(k), CommandLine::Raw);
 
-    return initialArgs;
+    return cmd;
 }
 
 } // namespace Internal
@@ -1067,19 +1069,19 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *k = target->kit();
 
-        QStringList initialArgs = defaultInitialCMakeArguments(k, info.typeName);
+        CommandLine cmd = defaultInitialCMakeCommand(k, info.typeName);
         setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
         if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
             const auto &bs = buildSteps()->steps().constLast();
-            initialArgs.append("-DANDROID_NATIVE_API_LEVEL:STRING="
+            cmd.addArg("-DANDROID_NATIVE_API_LEVEL:STRING="
                    + bs->data(Android::Constants::AndroidNdkPlatform).toString());
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
-            initialArgs.append("-DANDROID_NDK:PATH=" + ndkLocation.path());
+            cmd.addArg("-DANDROID_NDK:PATH=" + ndkLocation.path());
 
-            initialArgs.append("-DCMAKE_TOOLCHAIN_FILE:PATH="
+            cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:PATH="
                    + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
 
             auto androidAbis = bs->data(Android::Constants::AndroidMkSpecAbis).toStringList();
@@ -1092,9 +1094,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             } else {
                 preferredAbi = androidAbis.first();
             }
-            initialArgs.append("-DANDROID_ABI:STRING=" + preferredAbi);
-            initialArgs.append("-DANDROID_STL:STRING=c++_shared");
-            initialArgs.append("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}");
+            cmd.addArg("-DANDROID_ABI:STRING=" + preferredAbi);
+            cmd.addArg("-DANDROID_STL:STRING=c++_shared");
+            cmd.addArg("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}");
 
             QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             auto sdkLocation = bs->data(Android::Constants::SdkLocation).value<FilePath>();
@@ -1102,11 +1104,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
                 // Don't build apk under ALL target because Qt Creator will handle it
                 if (qt->qtVersion() >= QtSupport::QtVersionNumber{6, 1, 0})
-                    initialArgs.append("-DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL:BOOL=ON");
-                initialArgs.append("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
-                initialArgs.append("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
+                    cmd.addArg("-DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL:BOOL=ON");
+                cmd.addArg("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
+                cmd.addArg("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
             } else {
-                initialArgs.append("-DANDROID_SDK:PATH=" + sdkLocation.path());
+                cmd.addArg("-DANDROID_SDK:PATH=" + sdkLocation.path());
             }
         }
 
@@ -1127,20 +1129,20 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
                                             ? QLatin1String("iphoneos")
                                             : QLatin1String("iphonesimulator");
-                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
-                initialArgs.append("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
-                initialArgs.append("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
-                initialArgs.append("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
-                initialArgs.append("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
+                cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
+                cmd.addArg("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
+                cmd.addArg("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
+                cmd.addArg("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
+                cmd.addArg("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
             }
         } else if (device && device->osType() == Utils::OsTypeMac) {
-            initialArgs.append("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
+            cmd.addArg("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
         }
 
         if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k)) {
             const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
             if (qt && qt->qtVersion().majorVersion >= 6)
-                initialArgs.append(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
+                cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }
 
         if (info.buildDirectory.isEmpty()) {
@@ -1155,7 +1157,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                         info.extraInfo.value<QVariantMap>().value(Constants::CMAKE_HOME_DIR)));
         }
 
-        setInitialCMakeArguments(initialArgs);
+        setInitialCMakeArguments(cmd.splitArguments());
         setCMakeBuildType(info.typeName);
     });
 
@@ -1200,12 +1202,10 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
         }
     }();
     if (initialCMakeArguments().isEmpty()) {
-        QStringList initialArgs = defaultInitialCMakeArguments(kit(), buildTypeName)
-                                  + Utils::transform(conf.toList(), [this](const CMakeConfigItem &i) {
-                                        return i.toArgument(macroExpander());
-                                    });
-
-        setInitialCMakeArguments(initialArgs);
+        CommandLine cmd = defaultInitialCMakeCommand(kit(), buildTypeName);
+        for (const CMakeConfigItem &item : conf)
+            cmd.addArg(item.toArgument(macroExpander()));
+        setInitialCMakeArguments(cmd.splitArguments());
     }
 
     return true;
