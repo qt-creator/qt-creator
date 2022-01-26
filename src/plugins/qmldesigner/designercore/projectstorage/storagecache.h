@@ -67,15 +67,8 @@ class StorageCache
 
         StorageCacheIndex(const char *) = delete;
 
-        constexpr explicit StorageCacheIndex(int id) noexcept
-            : id{id}
-        {}
-
-        constexpr explicit StorageCacheIndex(std::size_t id) noexcept
-            : id{static_cast<int>(id)}
-        {}
-
-        constexpr explicit StorageCacheIndex(std::ptrdiff_t id) noexcept
+        template<typename IntegerType>
+        constexpr explicit StorageCacheIndex(IntegerType id) noexcept
             : id{static_cast<int>(id)}
         {}
 

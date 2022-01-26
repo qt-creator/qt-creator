@@ -94,7 +94,7 @@ T.AbstractButton {
                     when: myButton.enabled && myButton.pressed
                     PropertyChanges {
                         target: buttonIcon
-                        color: StudioTheme.Values.themeIconColorInteraction
+                        color: StudioTheme.Values.themeIconColor
                     }
                 },
                 State {
@@ -152,7 +152,7 @@ T.AbstractButton {
             when: myButton.hover && myButton.pressed
             PropertyChanges {
                 target: buttonBackground
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                color: StudioTheme.Values.themeInteraction
                 border.color: StudioTheme.Values.themeInteraction
             }
             PropertyChanges {

@@ -161,6 +161,8 @@ public:
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
             "-c", "color.grep=always",
+            "-c", "color.grep.filename=",
+            "-c", "color.grep.lineNumber=",
             "grep", "-zn", "--no-full-name"
         };
         if (!(m_parameters.flags & FindCaseSensitively))
