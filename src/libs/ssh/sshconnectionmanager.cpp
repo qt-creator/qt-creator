@@ -151,6 +151,7 @@ private:
 
         disconnect(connection, nullptr, this, nullptr);
         connection->deleteLater();
+        m_connections.erase(it);
     }
 
     void removeInactiveConnections()
