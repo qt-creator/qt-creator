@@ -39,8 +39,8 @@
     translations from a JSON file.
 
     You need to download the starting project for this tutorial from
-    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/examples/
-    loginui2}{here} before you start.
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language%20tutorial/Loginui2}{here}
+    before you start.
 
     Download the project and open the \e loginui2.qmlproject file in \QDS
     to get started.
@@ -48,8 +48,7 @@
     This project consists of a login page with a couple of text elements.
 
     Additionally, you will use a JSON translation file in this tutorial.
-    Download it from \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/
-    master/tutorial%20projects/multi-language}{here}.
+    Download it from \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language}{here}.
 
     \section1 JSON Translation File
 
@@ -133,10 +132,11 @@
     First, you need to prepare your project for translation:
 
     \list 1
+      \li In \uicontrol{Projects}, double-click \e{Screen01.ui.qml} to open it.
       \li All text strings that you want to translate need to be of \c
       qsTrId type. In this project the text strings are of \c qsTr type so you
       need to change them. Open \uicontrol{Text Editor}, find all five
-      occurrences of \c QsTr and replace them with \c{QsTrId}. For example,
+      occurrences of \c qsTr and replace them with \c{qsTrId}. For example,
       replace:
       \code
         text: qsTr("Qt Account")
@@ -165,21 +165,14 @@
       \li Go to \uicontrol View > \uicontrol Views and select \uicontrol
       Translations to open the \uicontrol Translations view. You can
       drag it to a workspace to dock it.
-
-      When you open the \uicontrol Translations view for the first time, \QDS
-      prompts you to enable the multi-language database, select
-      \uicontrol{Yes}.
-      \image enable-multilanguage.png
       \li In \uicontrol Translations, select
       \inlineimage icons/select-languages.png
       .
-
-      When you enable the multi-language database, an SQLite database named
-      \e translations.db is created in the project folder root.
       \li Select the languages that you want to support in your project,
       in this case \uicontrol{English - American English} and
-      \uicontrol{Swedish}.
-      \li Set \uicontrol English as primary language and select \uicontrol{OK}.
+      \uicontrol{Swedish - Svenska}.
+      \li Set \uicontrol{English - American English} as primary language and
+      select \uicontrol{Ok}.
       \li Select \inlineimage icons/import-json-translations.png
       and open the \e ml_translations.json file. Now you can see all your
       imported translations in the \uicontrol Translations view.
