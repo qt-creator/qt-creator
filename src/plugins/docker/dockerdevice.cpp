@@ -1522,7 +1522,8 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
             continue;
         const FilePath fp = FilePath::fromString(entry);
 
-        if (!Utils::anyOf(criticalWildcards,
+        if (!criticalWildcards.isEmpty() &&
+                !Utils::anyOf(criticalWildcards,
                           [name = fp.fileName()](const QString &pattern) {
                           const QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(pattern));
                           if (regex.match(name).hasMatch())
