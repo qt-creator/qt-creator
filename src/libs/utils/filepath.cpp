@@ -734,8 +734,14 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
 
     // FIXME: Not all flags supported here.
 
-    if ((sort & QDir::SortByMask) == QDir::Name)
+    const QDir::SortFlags sortBy = (sort & QDir::SortByMask);
+    if (sortBy == QDir::Name) {
         Utils::sort(result);
+    } else if (sortBy == QDir::Time) {
+        Utils::sort(result, [](const FilePath &path1, const FilePath &path2) {
+            return path1.lastModified() < path2.lastModified();
+        });
+    }
 
     if (sort & QDir::Reversed)
         std::reverse(result.begin(), result.end());
