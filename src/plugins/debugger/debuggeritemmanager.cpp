@@ -1053,19 +1053,23 @@ void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource
                                                   QString *logMessage)
 {
     QStringList logMessages{tr("Removing debugger entries...")};
-    d->m_model->forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
+    QList<DebuggerTreeItem *> toBeRemoved;
+
+    d->m_model->forItemsAtLevel<2>([detectionSource, &toBeRemoved](DebuggerTreeItem *titem) {
         if (titem->m_item.detectionSource() == detectionSource) {
-            logMessages.append(tr("Removed \"%1\"").arg(titem->m_item.displayName()));
-            d->m_model->destroyItem(titem);
+            toBeRemoved.append(titem);
             return;
         }
         // FIXME: These items appeared in early docker development. Ok to remove for Creator 7.0.
         FilePath filePath = titem->m_item.command();
-        if (filePath.scheme() + ':' + filePath.host() == detectionSource) {
-            logMessages.append(tr("Removed \"%1\"").arg(titem->m_item.displayName()));
-            d->m_model->destroyItem(titem);
-        }
+        if (filePath.scheme() + ':' + filePath.host() == detectionSource)
+            toBeRemoved.append(titem);
     });
+    for (DebuggerTreeItem *current : toBeRemoved) {
+        logMessages.append(tr("Removed \"%1\"").arg(current->m_item.displayName()));
+        d->m_model->destroyItem(current);
+    }
+
     if (logMessage)
         *logMessage = logMessages.join('\n');
 }
