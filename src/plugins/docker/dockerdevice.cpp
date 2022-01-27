@@ -107,7 +107,7 @@ public:
     void start(const Runnable &runnable) override;
 
     void interrupt() override;
-    void terminate() override { m_process.terminate(); }
+    void terminate() override { process()->terminate(); }
     void kill() override;
 
     QProcess::ProcessState state() const override;
@@ -118,22 +118,18 @@ public:
     QByteArray readAllStandardOutput() override;
     QByteArray readAllStandardError() override;
 
-    qint64 write(const QByteArray &data) override { return m_process.write(data); }
-
-private:
-    QtcProcess m_process;
+    qint64 write(const QByteArray &data) override { return process()->write(data); }
 };
 
 DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
-                                           QObject *parent)
-    : DeviceProcess(device, parent)
-    , m_process(ProcessMode::Writer)
+                                          QObject *parent)
+    : DeviceProcess(device, ProcessMode::Writer, parent)
 {
 }
 
 void DockerDeviceProcess::start(const Runnable &runnable)
 {
-    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    QTC_ASSERT(process()->state() == QProcess::NotRunning, return);
     DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(device());
     QTC_ASSERT(dockerDevice, return);
 
@@ -146,65 +142,65 @@ void DockerDeviceProcess::start(const Runnable &runnable)
         MessageManager::writeDisrupting(QString::fromLocal8Bit(readAllStandardError()));
     });
 
-    disconnect(&m_process);
+    disconnect(process());
 
     CommandLine command = runnable.command;
     command.setExecutable(
         command.executable().withNewPath(dockerDevice->mapToDevicePath(command.executable())));
-    m_process.setCommand(command);
-    m_process.setEnvironment(runnable.environment);
-    m_process.setWorkingDirectory(runnable.workingDirectory);
-    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
-    connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
+    process()->setCommand(command);
+    process()->setEnvironment(runnable.environment);
+    process()->setWorkingDirectory(runnable.workingDirectory);
+    connect(process(), &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
+    connect(process(), &QtcProcess::finished, this, &DeviceProcess::finished);
+    connect(process(), &QtcProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
+    connect(process(), &QtcProcess::readyReadStandardError,
             this, &DeviceProcess::readyReadStandardError);
-    connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
+    connect(process(), &QtcProcess::started, this, &DeviceProcess::started);
 
     LOG("Running process:" << command.toUserOutput()
             << "in" << runnable.workingDirectory.toUserOutput());
-    dockerDevice->runProcess(m_process);
+    dockerDevice->runProcess(*process());
 }
 
 void DockerDeviceProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(m_process.processId());
+    device()->signalOperation()->interruptProcess(process()->processId());
 }
 
 void DockerDeviceProcess::kill()
 {
-    m_process.kill();
+    process()->kill();
 }
 
 QProcess::ProcessState DockerDeviceProcess::state() const
 {
-    return m_process.state();
+    return process()->state();
 }
 
 QProcess::ExitStatus DockerDeviceProcess::exitStatus() const
 {
-    return m_process.exitStatus();
+    return process()->exitStatus();
 }
 
 int DockerDeviceProcess::exitCode() const
 {
-    return m_process.exitCode();
+    return process()->exitCode();
 }
 
 QString DockerDeviceProcess::errorString() const
 {
-    return m_process.errorString();
+    return process()->errorString();
 }
 
 QByteArray DockerDeviceProcess::readAllStandardOutput()
 {
-    return m_process.readAllStandardOutput();
+    return process()->readAllStandardOutput();
 }
 
 QByteArray DockerDeviceProcess::readAllStandardError()
 {
-    return m_process.readAllStandardError();
+    return process()->readAllStandardError();
 }
 
 

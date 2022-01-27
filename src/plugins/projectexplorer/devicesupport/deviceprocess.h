@@ -27,8 +27,9 @@
 
 #include "../projectexplorer_export.h"
 
+#include <utils/qtcprocess.h>
+
 #include <QObject>
-#include <QProcess>
 #include <QSharedPointer>
 #include <QStringList>
 
@@ -68,10 +69,16 @@ signals:
     void readyReadStandardError();
 
 protected:
-    explicit DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
+    explicit DeviceProcess(const QSharedPointer<const IDevice> &device,
+                           const Utils::QtcProcess::Setup &setup,
+                           QObject *parent = nullptr);
+
     QSharedPointer<const IDevice> device() const;
+    Utils::QtcProcess *process() { return &m_process; }
+    const Utils::QtcProcess *process() const { return &m_process; }
 
 private:
+    Utils::QtcProcess m_process;
     const QSharedPointer<const IDevice> m_device;
     bool m_runInTerminal = false;
 };

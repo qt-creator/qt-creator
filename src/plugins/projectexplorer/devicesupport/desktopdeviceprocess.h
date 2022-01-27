@@ -53,9 +53,6 @@ public:
     QByteArray readAllStandardError() override;
 
     qint64 write(const QByteArray &data) override;
-
-private:
-    Utils::QtcProcess m_process;
 };
 
 } // namespace Internal

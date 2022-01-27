@@ -39,76 +39,75 @@ namespace Internal {
 
 DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &device,
                                            QObject *parent)
-    : DeviceProcess(device, parent)
-    , m_process(ProcessMode::Writer)
+    : DeviceProcess(device, ProcessMode::Writer, parent)
 {
-    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
-    connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
+    connect(process(), &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
+    connect(process(), &QtcProcess::finished, this, &DeviceProcess::finished);
+    connect(process(), &QtcProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
+    connect(process(), &QtcProcess::readyReadStandardError,
             this, &DeviceProcess::readyReadStandardError);
-    connect(&m_process, &QtcProcess::started, this, &DeviceProcess::started);
+    connect(process(), &QtcProcess::started, this, &DeviceProcess::started);
 }
 
 void DesktopDeviceProcess::start(const Runnable &runnable)
 {
-    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    QTC_ASSERT(process()->state() == QProcess::NotRunning, return);
     if (runnable.environment.size())
-        m_process.setEnvironment(runnable.environment);
-    m_process.setWorkingDirectory(runnable.workingDirectory);
-    m_process.setCommand(runnable.command);
-    m_process.start();
+        process()->setEnvironment(runnable.environment);
+    process()->setWorkingDirectory(runnable.workingDirectory);
+    process()->setCommand(runnable.command);
+    process()->start();
 }
 
 void DesktopDeviceProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(m_process.processId());
+    device()->signalOperation()->interruptProcess(process()->processId());
 }
 
 void DesktopDeviceProcess::terminate()
 {
-    m_process.terminate();
+    process()->terminate();
 }
 
 void DesktopDeviceProcess::kill()
 {
-    m_process.kill();
+    process()->kill();
 }
 
 QProcess::ProcessState DesktopDeviceProcess::state() const
 {
-    return m_process.state();
+    return process()->state();
 }
 
 QProcess::ExitStatus DesktopDeviceProcess::exitStatus() const
 {
-    return m_process.exitStatus();
+    return process()->exitStatus();
 }
 
 int DesktopDeviceProcess::exitCode() const
 {
-    return m_process.exitCode();
+    return process()->exitCode();
 }
 
 QString DesktopDeviceProcess::errorString() const
 {
-    return m_process.errorString();
+    return process()->errorString();
 }
 
 QByteArray DesktopDeviceProcess::readAllStandardOutput()
 {
-    return m_process.readAllStandardOutput();
+    return process()->readAllStandardOutput();
 }
 
 QByteArray DesktopDeviceProcess::readAllStandardError()
 {
-    return m_process.readAllStandardError();
+    return process()->readAllStandardError();
 }
 
 qint64 DesktopDeviceProcess::write(const QByteArray &data)
 {
-    return m_process.write(data);
+    return process()->write(data);
 }
 
 } // namespace Internal
