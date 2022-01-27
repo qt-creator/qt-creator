@@ -126,8 +126,8 @@ public:
     void setAbortOnMetaChars(bool abort);
 
     void start();
-    void terminate();
-    void interrupt();
+    virtual void terminate();
+    virtual void interrupt();
 
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
@@ -175,7 +175,7 @@ public:
 
     QByteArray rawStdOut() const;
 
-    int exitCode() const;
+    virtual int exitCode() const;
 
     QString exitMessage();
 
@@ -195,10 +195,10 @@ public:
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
 
     QProcess::ProcessError error() const;
-    QProcess::ProcessState state() const;
+    virtual QProcess::ProcessState state() const;
     bool isRunning() const; // Short for state() == QProcess::Running.
 
-    QString errorString() const;
+    virtual QString errorString() const;
     void setErrorString(const QString &str);
 
     qint64 processId() const;
@@ -207,14 +207,14 @@ public:
     bool waitForReadyRead(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
+    virtual QByteArray readAllStandardOutput();
+    virtual QByteArray readAllStandardError();
 
-    QProcess::ExitStatus exitStatus() const;
+    virtual QProcess::ExitStatus exitStatus() const;
 
-    void kill();
+    virtual void kill();
 
-    qint64 write(const QByteArray &input);
+    virtual qint64 write(const QByteArray &input);
     void close();
 
     void setStandardInputFile(const QString &inputFile);

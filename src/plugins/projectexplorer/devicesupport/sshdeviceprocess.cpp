@@ -192,15 +192,11 @@ void SshDeviceProcess::handleConnected()
     if (!display.isEmpty())
         d->remoteProcess->requestX11Forwarding(display);
     if (runInTerminal()) {
-        connect(process(), &QtcProcess::errorOccurred,
-                this, &DeviceProcess::errorOccurred);
-        connect(process(), &QtcProcess::started,
-                this, &SshDeviceProcess::handleProcessStarted);
-        connect(process(), &QtcProcess::finished,
-                this, [this] { handleProcessFinished(process()->errorString()); });
-        process()->setAbortOnMetaChars(false);
-        process()->setCommand(d->remoteProcess->fullLocalCommandLine(true));
-        process()->start();
+        connect(this, &QtcProcess::finished,
+                this, [this] { handleProcessFinished(errorString()); });
+        setAbortOnMetaChars(false);
+        setCommand(d->remoteProcess->fullLocalCommandLine(true));
+        QtcProcess::start();
     } else {
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
@@ -251,7 +247,7 @@ void SshDeviceProcess::handleProcessStarted()
 void SshDeviceProcess::handleProcessFinished(const QString &error)
 {
     d->errorMessage = error;
-    d->exitCode = runInTerminal() ? process()->exitCode() : d->remoteProcess->exitCode();
+    d->exitCode = runInTerminal() ? QtcProcess::exitCode() : d->remoteProcess->exitCode();
     if (d->killOperation && error.isEmpty())
         d->errorMessage = tr("The process was ended forcefully.");
     d->setState(SshDeviceProcessPrivate::Inactive);
@@ -356,10 +352,10 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         killOperation->disconnect(q);
         killOperation.clear();
         if (q->runInTerminal())
-            QMetaObject::invokeMethod(q->process(), &QtcProcess::stopProcess, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(q, &QtcProcess::stopProcess, Qt::QueuedConnection);
     }
     killTimer.stop();
-    q->process()->disconnect();
+    q->disconnect();
     if (remoteProcess)
         remoteProcess->disconnect(q);
     if (connection) {

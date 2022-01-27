@@ -105,20 +105,7 @@ public:
     ~DockerDeviceProcess() {}
 
     void start(const Runnable &runnable) override;
-
     void interrupt() override;
-    void terminate() override { process()->terminate(); }
-    void kill() override;
-
-    QProcess::ProcessState state() const override;
-    QProcess::ExitStatus exitStatus() const override;
-    int exitCode() const override;
-    QString errorString() const override;
-
-    QByteArray readAllStandardOutput() override;
-    QByteArray readAllStandardError() override;
-
-    qint64 write(const QByteArray &data) override { return process()->write(data); }
 };
 
 DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
@@ -129,7 +116,7 @@ DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &de
 
 void DockerDeviceProcess::start(const Runnable &runnable)
 {
-    QTC_ASSERT(process()->state() == QProcess::NotRunning, return);
+    QTC_ASSERT(state() == QProcess::NotRunning, return);
     DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(device());
     QTC_ASSERT(dockerDevice, return);
 
@@ -142,67 +129,22 @@ void DockerDeviceProcess::start(const Runnable &runnable)
         MessageManager::writeDisrupting(QString::fromLocal8Bit(readAllStandardError()));
     });
 
-    disconnect(process());
-
     CommandLine command = runnable.command;
     command.setExecutable(
         command.executable().withNewPath(dockerDevice->mapToDevicePath(command.executable())));
-    process()->setCommand(command);
-    process()->setEnvironment(runnable.environment);
-    process()->setWorkingDirectory(runnable.workingDirectory);
-    connect(process(), &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
-    connect(process(), &QtcProcess::finished, this, &DeviceProcess::finished);
-    connect(process(), &QtcProcess::readyReadStandardOutput,
-            this, &DeviceProcess::readyReadStandardOutput);
-    connect(process(), &QtcProcess::readyReadStandardError,
-            this, &DeviceProcess::readyReadStandardError);
-    connect(process(), &QtcProcess::started, this, &DeviceProcess::started);
+    setCommand(command);
+    setEnvironment(runnable.environment);
+    setWorkingDirectory(runnable.workingDirectory);
 
     LOG("Running process:" << command.toUserOutput()
             << "in" << runnable.workingDirectory.toUserOutput());
-    dockerDevice->runProcess(*process());
+    dockerDevice->runProcess(*this);
 }
 
 void DockerDeviceProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(process()->processId());
+    device()->signalOperation()->interruptProcess(processId());
 }
-
-void DockerDeviceProcess::kill()
-{
-    process()->kill();
-}
-
-QProcess::ProcessState DockerDeviceProcess::state() const
-{
-    return process()->state();
-}
-
-QProcess::ExitStatus DockerDeviceProcess::exitStatus() const
-{
-    return process()->exitStatus();
-}
-
-int DockerDeviceProcess::exitCode() const
-{
-    return process()->exitCode();
-}
-
-QString DockerDeviceProcess::errorString() const
-{
-    return process()->errorString();
-}
-
-QByteArray DockerDeviceProcess::readAllStandardOutput()
-{
-    return process()->readAllStandardOutput();
-}
-
-QByteArray DockerDeviceProcess::readAllStandardError()
-{
-    return process()->readAllStandardError();
-}
-
 
 class DockerPortsGatheringMethod : public PortsGatheringMethod
 {

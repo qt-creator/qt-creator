@@ -37,7 +37,7 @@ namespace ProjectExplorer {
 DeviceProcess::DeviceProcess(const IDevice::ConstPtr &device,
                              const QtcProcess::Setup &setup,
                              QObject *parent)
-    : QObject(parent), m_process(setup), m_device(device)
+    : QtcProcess(setup, parent), m_device(device)
 {
 }
 
