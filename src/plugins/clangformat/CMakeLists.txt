@@ -15,6 +15,10 @@ add_qtc_plugin(ClangFormat
     clangformatutils.cpp clangformatutils.h
 )
 
+if(MSVC AND TARGET ClangFormat)
+  target_compile_options(ClangFormat PUBLIC /wd4267 /wd4624)
+endif()
+
 extend_qtc_plugin(ClangFormat
   CONDITION UNIX AND NOT APPLE
   PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL"
