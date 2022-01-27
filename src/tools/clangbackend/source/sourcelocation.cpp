@@ -31,7 +31,7 @@
 
 #include <clangsupport/sourcelocationcontainer.h>
 
-#include <sqlite/utf8string.h>
+#include <clangsupport/utf8string.h>
 
 #include <utils/textutils.h>
 

@@ -431,10 +431,8 @@ IarToolChainFactory::IarToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                   const IDevice::Ptr &device)
+Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(device);
     Candidates candidates;
 
 #ifdef Q_OS_WIN
@@ -501,23 +499,21 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
 
 #endif // Q_OS_WIN
 
-    return autoDetectToolchains(candidates, alreadyKnown);
+    return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-QList<ProjectExplorer::ToolChain *> IarToolChainFactory::detectForImport(
-        const ProjectExplorer::ToolChainDescription &tcd)
+Toolchains IarToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     return { autoDetectToolchain({tcd.compilerPath, {}}, tcd.language) };
 }
 
-QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(
-        const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
+Toolchains IarToolChainFactory::autoDetectToolchains(
+        const Candidates &candidates, const Toolchains &alreadyKnown) const
 {
-    QList<ToolChain *> result;
+    Toolchains result;
 
     for (const Candidate &candidate : qAsConst(candidates)) {
-        const QList<ToolChain *> filtered = Utils::filtered(
-                    alreadyKnown, [candidate](ToolChain *tc) {
+        const Toolchains filtered = Utils::filtered(alreadyKnown, [candidate](ToolChain *tc) {
             return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID
                 && tc->compilerCommand() == candidate.compilerPath
                 && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID
@@ -537,13 +533,16 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(
     return result;
 }
 
-QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
-        const Candidate &candidate, Utils::Id languageId) const
+Toolchains IarToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id languageId) const
 {
+    if (ToolChainManager::isBadToolchain(candidate.compilerPath))
+        return {};
     const auto env = Environment::systemEnvironment();
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId, env);
-    if (macros.isEmpty())
+    if (macros.isEmpty()) {
+        ToolChainManager::addBadToolchain(candidate.compilerPath);
         return {};
+    }
     const Abi abi = guessAbi(macros);
 
     const auto tc = new IarToolChain;

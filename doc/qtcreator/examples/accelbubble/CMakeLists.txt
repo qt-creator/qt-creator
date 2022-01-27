@@ -11,17 +11,25 @@ qt_add_executable(appaccelbubble
     main.cpp
     MANUAL_FINALIZATION
 )
-set_target_properties(appaccelbubble PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
-)
-set_property(TARGET appaccelbubble APPEND PROPERTY
-    QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
-)
+
 qt_add_qml_module(appaccelbubble
     URI accelbubble
     VERSION 1.0
     QML_FILES main.qml
     RESOURCES Bluebubble.svg
+)
+
+set_target_properties(appaccelbubble PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+set_property(TARGET appaccelbubble APPEND PROPERTY
+    QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
 )
 
 target_compile_definitions(appaccelbubble

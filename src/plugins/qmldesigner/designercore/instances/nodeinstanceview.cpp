@@ -73,6 +73,8 @@
 #include "variantproperty.h"
 #include "view3dactioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
+#include "nanotracecommand.h"
+#include "nanotrace/nanotrace.h"
 
 #include <designersettings.h>
 #include <metainfo.h>
@@ -1777,6 +1779,18 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     }
 
     return modelNodePreviewImageDataToVariant(imageData);
+}
+
+void NodeInstanceView::startNanotrace()
+{
+    NANOTRACE_INIT("QmlDesigner", "MainThread", "nanotrace_qmldesigner.json");
+    m_connectionManager.writeCommand(QVariant::fromValue(StartNanotraceCommand(QDir::currentPath())));
+}
+
+void NodeInstanceView::endNanotrace()
+{
+    NANOTRACE_SHUTDOWN();
+    m_connectionManager.writeCommand(QVariant::fromValue(EndNanotraceCommand()) );
 }
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode)

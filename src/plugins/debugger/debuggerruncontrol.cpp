@@ -134,7 +134,7 @@ private:
             m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
         }
 
-        m_coreUnpackProcess.setWorkingDirectory(FilePath::fromString(TemporaryDirectory::masterDirectoryPath()));
+        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
         connect(&m_coreUnpackProcess, &QtcProcess::finished, this, &CoreUnpacker::reportStarted);
 
         const QString msg = DebuggerRunTool::tr("Unpacking core file to %1");
@@ -889,7 +889,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.debugger = DebuggerKitAspect::runnable(kit);
     m_runParameters.cppEngineType = DebuggerKitAspect::engineType(kit);
 
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
+    if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
 
     if (auto aspect = runControl->aspect<DebuggerRunConfigurationAspect>()) {
@@ -953,7 +953,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     }
 
     m_runParameters.dumperPath = Core::ICore::resourcePath("debugger/");
-    if (QtSupport::BaseQtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
+    if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         QtSupport::QtVersionNumber qtVersion = baseQtVersion->qtVersion();
         m_runParameters.fallbackQtVersion = 0x10000 * int(qtVersion.majorVersion)
                                             + 0x100 * int(qtVersion.minorVersion)

@@ -58,7 +58,7 @@ FilePath findFallbackDefinitionsLocation()
                 FilePath("/opt") / kateSyntaxPath
             };
             for (const FilePath &path : paths) {
-                if (path.exists() && !path.dirEntries({"*.xml"}).isEmpty())
+                if (path.exists() && !path.dirEntries({{"*.xml"}}).isEmpty())
                     return path;
             }
         }
@@ -76,7 +76,7 @@ FilePath findFallbackDefinitionsLocation()
                 const FilePath dir = FilePath::fromString(output);
                 for (auto &kateSyntaxPath : kateSyntaxPaths) {
                     const FilePath path = dir / kateSyntaxPath;
-                    if (path.exists() && !path.dirEntries({"*.xml"}).isEmpty())
+                    if (path.exists() && !path.dirEntries({{"*.xml"}}).isEmpty())
                         return path;
                 }
             }
@@ -84,7 +84,7 @@ FilePath findFallbackDefinitionsLocation()
     }
 
     const FilePath dir = Core::ICore::resourcePath("generic-highlighter");
-    if (dir.exists() && !dir.dirEntries({"*.xml"}).isEmpty())
+    if (dir.exists() && !dir.dirEntries({{"*.xml"}}).isEmpty())
         return dir;
 
     return {};

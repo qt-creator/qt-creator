@@ -27,7 +27,7 @@
 
 #include "clangsupport_global.h"
 
-#include <sqlite/utf8string.h>
+#include "utf8string.h"
 
 namespace ClangBackEnd {
 

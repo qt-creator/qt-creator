@@ -207,7 +207,7 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 
 void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
 {
-    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_projectFinder, target);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, target);
 }
 
 } // namespace Internal

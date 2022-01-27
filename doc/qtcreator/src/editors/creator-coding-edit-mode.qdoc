@@ -307,7 +307,7 @@
 
     To view information about the C++ code model in the
     \uicontrol {C++ Code Model Inspector} dialog and write it to a log file,
-    select \uicontrol Tools > \uicontrol {C++} >
+    select \uicontrol Tools > \uicontrol {Debug \QC } >
     \uicontrol {Inspect C++ Code Model} or press \key {Ctrl+Shift+F12}.
 
     \QC generates the code model inspection log file in a temporary folder.

@@ -50,6 +50,7 @@
 #include "informationchangedcommand.h"
 #include "inputeventcommand.h"
 #include "instancecontainer.h"
+#include "nanotracecommand.h"
 #include "pixmapchangedcommand.h"
 #include "propertyabstractcontainer.h"
 #include "propertybindingcontainer.h"
@@ -145,6 +146,9 @@ void NodeInstanceServerInterface::registerCommands()
     registerCommand<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
     registerCommand<CapturedDataCommand>("CapturedDataCommand");
     registerCommand<SceneCreatedCommand>("SceneCreatedCommand");
+    registerCommand<StartNanotraceCommand>("StartNanotraceCommand");
+    registerCommand<EndNanotraceCommand>("EndNanotraceCommand");
+    registerCommand<SyncNanotraceCommand>("SyncNanotraceCommand");
 }
 
 }

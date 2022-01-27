@@ -88,7 +88,7 @@ public:
 
     static int minimumSDK(const ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);
-    static int defaultMinimumSDK(const QtSupport::BaseQtVersion *qtVersion);
+    static int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
 
     static QStringList applicationAbis(const ProjectExplorer::Target *target);
     static QString archTriplet(const QString &abi);

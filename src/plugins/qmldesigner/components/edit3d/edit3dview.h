@@ -41,6 +41,7 @@ namespace QmlDesigner {
 
 class Edit3DWidget;
 class Edit3DAction;
+class Edit3DCameraAction;
 
 class QMLDESIGNERCORE_EXPORT Edit3DView : public AbstractView
 {
@@ -54,6 +55,7 @@ public:
 
     Edit3DWidget *edit3DWidget() const;
 
+    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList) override;
     void renderImage3DChanged(const QImage &img) override;
     void updateActiveScene3D(const QVariantMap &sceneState) override;
     void modelAttached(Model *model) override;
@@ -87,6 +89,8 @@ private:
     Edit3DAction *m_rotateToolAction = nullptr;
     Edit3DAction *m_scaleToolAction = nullptr;
     Edit3DAction *m_fitAction = nullptr;
+    Edit3DCameraAction *m_alignCamerasAction = nullptr;
+    Edit3DCameraAction *m_alignViewAction = nullptr;
     Edit3DAction *m_cameraModeAction = nullptr;
     Edit3DAction *m_orientationModeAction = nullptr;
     Edit3DAction *m_editLightAction = nullptr;

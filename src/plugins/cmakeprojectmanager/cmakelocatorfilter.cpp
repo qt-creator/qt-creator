@@ -185,7 +185,9 @@ void OpenCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
     const auto file = FilePath::fromVariant(extraData.value("file"));
 
     if (line >= 0)
-        Core::EditorManager::openEditorAt({file, line});
+        Core::EditorManager::openEditorAt({file, line},
+                                          {},
+                                          Core::EditorManager::AllowExternalEditor);
     else
-        Core::EditorManager::openEditor(file);
+        Core::EditorManager::openEditor(file, {}, Core::EditorManager::AllowExternalEditor);
 }

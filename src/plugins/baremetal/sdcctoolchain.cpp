@@ -306,10 +306,8 @@ SdccToolChainFactory::SdccToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                    const IDevice::Ptr &device)
+Toolchains SdccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(device)
     Candidates candidates;
 
     if (Utils::HostOsInfo::isWindowsHost()) {
@@ -362,17 +360,16 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
             candidates.push_back(candidate);
     }
 
-    return autoDetectToolchains(candidates, alreadyKnown);
+    return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(
-        const Candidates &candidates, const QList<ToolChain *> &alreadyKnown) const
+Toolchains SdccToolChainFactory::autoDetectToolchains(
+        const Candidates &candidates, const Toolchains &alreadyKnown) const
 {
-    QList<ToolChain *> result;
+    Toolchains result;
 
     for (const Candidate &candidate : qAsConst(candidates)) {
-        const QList<ToolChain *> filtered = Utils::filtered(
-                    alreadyKnown, [candidate](ToolChain *tc) {
+        const Toolchains filtered = Utils::filtered(alreadyKnown, [candidate](ToolChain *tc) {
             return tc->typeId() == Constants::SDCC_TOOLCHAIN_TYPEID
                 && tc->compilerCommand() == candidate.compilerPath
                 && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID);
@@ -390,8 +387,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(
     return result;
 }
 
-QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
-        const Candidate &candidate, Utils::Id language) const
+Toolchains SdccToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
 {
     const auto env = Environment::systemEnvironment();
 
@@ -401,7 +397,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
         {Abi::Stm8Architecture}
     };
 
-    QList<ToolChain *> tcs;
+    Toolchains tcs;
 
     // Probe each ABI from the table, because the SDCC compiler
     // can be compiled with or without the specified architecture.

@@ -30,7 +30,7 @@
 
 #include <clangsupport/tokeninfocontainer.h>
 
-#include <sqlite/utf8string.h>
+#include <clangsupport/utf8string.h>
 
 #include <clang-c/Index.h>
 

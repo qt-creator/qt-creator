@@ -267,7 +267,7 @@ public:
     void setSearchPaths(const FilePaths &searchPaths) { m_searchPaths = searchPaths; }
 
 private:
-    QList<BaseQtVersion *> autoDetectQtVersions() const;
+    QtVersions autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
     void autoDetectCMake();
     void autoDetectDebugger();
@@ -620,7 +620,7 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + tr("Removing Qt version entries..."));
-    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+    for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removed \"%1\"").arg(qtVersion->displayName()));
             QtVersionManager::removeVersion(qtVersion);
@@ -628,7 +628,7 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + tr("Removing toolchain entries..."));
-    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
+    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
         QString detectionSource = toolChain->detectionSource();
         if (toolChain->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removed \"%1\"").arg(toolChain->displayName()));
@@ -670,16 +670,15 @@ void KitDetectorPrivate::listAutoDetected() const
     };
 
     emit q->logOutput('\n' + tr("Qt versions:"));
-    for (BaseQtVersion *qtVersion : QtVersionManager::versions()) {
+    for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId)
             emit q->logOutput(qtVersion->displayName());
     };
 
     emit q->logOutput('\n' + tr("Toolchains:"));
-    for (ToolChain *toolChain : ToolChainManager::toolChains()) {
-        if (toolChain->detectionSource() == m_sharedId) {
+    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
+        if (toolChain->detectionSource() == m_sharedId)
             emit q->logOutput(toolChain->displayName());
-        }
     };
 
     if (QObject *cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
@@ -705,9 +704,9 @@ void KitDetectorPrivate::listAutoDetected() const
     emit q->logOutput('\n' + tr("Listing of previously auto-detected kit items finished.") + "\n\n");
 }
 
-QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
+QtVersions KitDetectorPrivate::autoDetectQtVersions() const
 {
-    QList<BaseQtVersion *> qtVersions;
+    QtVersions qtVersions;
 
     QString error;
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
@@ -717,7 +716,7 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
         const FilePath qmake = m_device->searchExecutable(candidate, m_searchPaths);
         if (qmake.isEmpty())
             continue;
-        BaseQtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
+        QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
         if (!qtVersion)
             continue;
         qtVersions.append(qtVersion);
@@ -729,17 +728,18 @@ QList<BaseQtVersion *> KitDetectorPrivate::autoDetectQtVersions() const
     return qtVersions;
 }
 
-QList<ToolChain *> KitDetectorPrivate::autoDetectToolChains()
+Toolchains KitDetectorPrivate::autoDetectToolChains()
 {
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
-    QList<ToolChain *> alreadyKnown = ToolChainManager::toolChains();
-    QList<ToolChain *> allNewToolChains;
+    Toolchains alreadyKnown = ToolChainManager::toolchains();
+    Toolchains allNewToolChains;
     QApplication::processEvents();
     emit q->logOutput('\n' + tr("Searching toolchains..."));
     for (ToolChainFactory *factory : factories) {
         emit q->logOutput(tr("Searching toolchains of type %1").arg(factory->displayName()));
-        const QList<ToolChain *> newToolChains = factory->autoDetect(alreadyKnown, m_device.constCast<IDevice>());
+        const ToolchainDetector detector(alreadyKnown, m_device);
+        const Toolchains newToolChains = factory->autoDetect(detector);
         for (ToolChain *toolChain : newToolChains) {
             emit q->logOutput(tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
             toolChain->setDetectionSource(m_sharedId);
@@ -794,7 +794,7 @@ void KitDetectorPrivate::autoDetect()
     emit q->logOutput(tr("Starting auto-detection. This will take a while..."));
 
     QList<ToolChain *> toolChains = autoDetectToolChains();
-    QList<BaseQtVersion *> qtVersions = autoDetectQtVersions();
+    QtVersions qtVersions = autoDetectQtVersions();
 
     autoDetectCMake();
     autoDetectDebugger();
@@ -806,10 +806,18 @@ void KitDetectorPrivate::autoDetect()
 
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
         DeviceKitAspect::setDevice(k, m_device);
-        for (ToolChain *tc : toolChains)
-            ToolChainKitAspect::setToolChain(k, tc);
-        if (!qtVersions.isEmpty())
-            QtSupport::QtKitAspect::setQtVersion(k, qtVersions.at(0));
+        QtVersion *qt = nullptr;
+        if (!qtVersions.isEmpty()) {
+            qt = qtVersions.at(0);
+            QtSupport::QtKitAspect::setQtVersion(k, qt);
+        }
+        Toolchains toolchainsToSet;
+        toolchainsToSet = ToolChainManager::toolchains([qt, this](const ToolChain *tc){
+             return tc->detectionSource() == m_sharedId
+                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
+        });
+        for (ToolChain *toolChain : toolchainsToSet)
+            ToolChainKitAspect::setToolChain(k, toolChain);
 
         k->setSticky(ToolChainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
@@ -1447,17 +1455,20 @@ bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permiss
 
 void DockerDevice::iterateWithFind(const FilePath &filePath,
                                    const std::function<bool(const Utils::FilePath &)> &callBack,
-                                   const QStringList &nameFilters,
-                                   QDir::Filters filters) const
+                                   const FileFilter &filter) const
 {
     QTC_ASSERT(callBack, return);
     QTC_CHECK(filePath.isAbsolutePath());
-    QStringList arguments{filePath.path(), "-maxdepth", "1"};
+    QStringList arguments{filePath.path()};
+
+    const QDir::Filters filters = filter.fileFilters;
     if (filters & QDir::NoSymLinks)
         arguments.prepend("-H");
     else
         arguments.prepend("-L");
 
+    if (!filter.iteratorFlags.testFlag(QDirIterator::Subdirectories))
+        arguments.append({"-maxdepth", "1"});
 
     QStringList filterOptions;
     if (filters & QDir::Dirs)
@@ -1484,13 +1495,17 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
 
     const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
                                                                : QString{"-iname"};
-    if (!nameFilters.isEmpty()) {
-        filterOptions << nameOption << nameFilters.first();
+    QStringList criticalWildcards;
+    if (!filter.nameFilters.isEmpty()) {
         const QRegularExpression oneChar("\\[.*?\\]");
-        for (int i = 1, len = nameFilters.size(); i < len; ++i) {
-            QString current = nameFilters.at(i);
+        for (int i = 0, len = filter.nameFilters.size(); i < len; ++i) {
+            if (i > 0)
+                filterOptions << "-o";
+            QString current = filter.nameFilters.at(i);
+            if (current.indexOf(oneChar) != -1)
+                criticalWildcards.append(current);
             current.replace(oneChar, "?"); // BAD! but still better than nothing
-            filterOptions << "-o" << nameOption << current;
+            filterOptions << nameOption << current;
         }
     }
     arguments << filterOptions;
@@ -1505,7 +1520,20 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
     for (const QString &entry : entries) {
         if (entry.startsWith("find: "))
             continue;
-        if (!callBack(FilePath::fromString(entry).onDevice(filePath)))
+        const FilePath fp = FilePath::fromString(entry);
+
+        if (!criticalWildcards.isEmpty() &&
+                !Utils::anyOf(criticalWildcards,
+                          [name = fp.fileName()](const QString &pattern) {
+                          const QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(pattern));
+                          if (regex.match(name).hasMatch())
+                              return true;
+                          return false;
+        })) {
+            continue;
+        }
+
+        if (!callBack(fp.onDevice(filePath)))
             break;
     }
 }
@@ -1513,15 +1541,17 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
 static void filterEntriesHelper(const FilePath &base,
                                 const std::function<bool(const FilePath &)> &callBack,
                                 const QStringList &entries,
-                                const QStringList &nameFilters,
-                                QDir::Filters filters)
+                                const FileFilter &filter)
 {
-    const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
-        QRegularExpression re;
-        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
-        QTC_CHECK(re.isValid());
-        return re;
-    });
+    QTC_CHECK(filter.iteratorFlags != QDirIterator::NoIteratorFlags); // FIXME: Not supported yet below.
+
+    const QList<QRegularExpression> nameRegexps =
+        transform(filter.nameFilters, [](const QString &filter) {
+            QRegularExpression re;
+            re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+            QTC_CHECK(re.isValid());
+            return re;
+        });
 
     const auto nameMatches = [&nameRegexps](const QString &fileName) {
         for (const QRegularExpression &re : nameRegexps) {
@@ -1533,7 +1563,7 @@ static void filterEntriesHelper(const FilePath &base,
     };
 
     // FIXME: Handle filters. For now bark on unsupported options.
-    QTC_CHECK(filters == QDir::NoFilter);
+    QTC_CHECK(filter.fileFilters == QDir::NoFilter);
 
     for (const QString &entry : entries) {
         if (!nameMatches(entry))
@@ -1545,8 +1575,7 @@ static void filterEntriesHelper(const FilePath &base,
 
 void DockerDevice::iterateDirectory(const FilePath &filePath,
                                     const std::function<bool(const FilePath &)> &callBack,
-                                    const QStringList &nameFilters,
-                                    QDir::Filters filters) const
+                                    const FileFilter &filter) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
     updateContainerAccess();
@@ -1555,12 +1584,12 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
         local.iterateDirectory([&callBack, this](const FilePath &entry) {
                                     return callBack(mapFromLocalAccess(entry));
                                },
-                               nameFilters, filters);
+                               filter);
         return;
     }
 
     if (d->m_useFind) {
-        iterateWithFind(filePath, callBack, nameFilters, filters);
+        iterateWithFind(filePath, callBack, filter);
         // d->m_useFind will be set to false if 'find' is not found. In this
         // case fall back to 'ls' below.
         if (d->m_useFind)
@@ -1570,7 +1599,7 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
     // if we do not have find - use ls as fallback
     const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
     const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
-    filterEntriesHelper(filePath, callBack, entries, nameFilters, filters);
+    filterEntriesHelper(filePath, callBack, entries, filter);
 }
 
 QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
@@ -1717,7 +1746,7 @@ bool DockerDevicePrivate::runInContainer(const CommandLine &cmd) const
 
     QtcProcess proc;
     proc.setCommand(dcmd);
-    proc.setWorkingDirectory(QDir::tempPath());
+    proc.setWorkingDirectory(FilePath::fromString(QDir::tempPath()));
     proc.start();
     proc.waitForFinished();
 
@@ -1774,15 +1803,6 @@ QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 }
 
 // Factory
-
-DockerDeviceFactory::DockerDeviceFactory()
-    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
-{
-    setDisplayName(DockerDevice::tr("Docker Device"));
-    setIcon(QIcon());
-    setCanCreate(true);
-    setConstructionFunction([] { return DockerDevice::create({}); });
-}
 
 class DockerImageItem final : public TreeItem, public DockerDeviceData
 {
@@ -1887,7 +1907,7 @@ public:
         m_process->start();
     }
 
-    DockerDevice::Ptr device() const
+    IDevice::Ptr device() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
@@ -1912,14 +1932,6 @@ public:
     QString m_selectedId;
 };
 
-IDevice::Ptr DockerDeviceFactory::create() const
-{
-    DockerDeviceSetupWizard wizard;
-    if (wizard.exec() != QDialog::Accepted)
-        return IDevice::Ptr();
-    return wizard.device();
-}
-
 void DockerDeviceWidget::updateDaemonStateTexts()
 {
     Utils::optional<bool> daemonState = DockerPlugin::isDaemonRunning();
@@ -1933,6 +1945,23 @@ void DockerDeviceWidget::updateDaemonStateTexts()
         m_daemonReset->setIcon(Icons::CRITICAL.icon());
         m_daemonState->setText(tr("Docker daemon not running."));
     }
+}
+
+// Factory
+
+DockerDeviceFactory::DockerDeviceFactory()
+    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
+{
+    setDisplayName(DockerDevice::tr("Docker Device"));
+    setIcon(QIcon());
+    setCanCreate(true);
+    setCreator([] {
+        DockerDeviceSetupWizard wizard;
+        if (wizard.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
+        return wizard.device();
+    });
+    setConstructionFunction([] { return DockerDevice::create({}); });
 }
 
 } // Internal

@@ -31,7 +31,7 @@
 namespace WebAssembly {
 namespace Internal {
 
-class WebAssemblyQtVersion : public QtSupport::BaseQtVersion
+class WebAssemblyQtVersion : public QtSupport::QtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyQtVersion)
 

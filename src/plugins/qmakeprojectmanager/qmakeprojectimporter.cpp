@@ -68,7 +68,7 @@ struct DirectoryData
     Utils::FilePath canonicalQmakeBinary;
     QtProjectImporter::QtVersionData qtVersionData;
     QString parsedSpec;
-    BaseQtVersion::QmakeBuildConfigs buildConfig;
+    QtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QMakeStepConfig config;
     QMakeStepConfig::OsType osType;
@@ -146,7 +146,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
         qCDebug(logs) << "  QMake:" << data->canonicalQmakeBinary;
 
         data->qtVersionData = QtProjectImporter::findOrCreateQtVersion(data->canonicalQmakeBinary);
-        BaseQtVersion *version = data->qtVersionData.qt;
+        QtVersion *version = data->qtVersionData.qt;
         bool isTemporaryVersion = data->qtVersionData.isTemporary;
 
         QTC_ASSERT(version, continue);
@@ -188,7 +188,7 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     auto *data = static_cast<DirectoryData *>(directoryData);
     const QLoggingCategory &logs = MakeFileParse::logging();
 
-    BaseQtVersion *kitVersion = QtKitAspect::qtVersion(k);
+    QtVersion *kitVersion = QtKitAspect::qtVersion(k);
     QString kitSpec = QmakeKitAspect::mkspec(k);
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
     if (kitSpec.isEmpty() && kitVersion)
@@ -218,7 +218,7 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoList(void *directoryData) 
 
     // create info:
     BuildInfo info;
-    if (data->buildConfig & BaseQtVersion::DebugBuild) {
+    if (data->buildConfig & QtVersion::DebugBuild) {
         info.buildType = BuildConfiguration::Debug;
         info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
     } else {
@@ -241,11 +241,11 @@ void QmakeProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
-static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, const QString &ms)
+static const Toolchains preferredToolChains(QtVersion *qtVersion, const QString &ms)
 {
     const QString spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
-    const QList<ToolChain *> toolchains = ToolChainManager::toolChains();
+    const Toolchains toolchains = ToolChainManager::toolchains();
     const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const ToolChain *tc) {
         return qtAbis.contains(tc->targetAbi()) && tc->suggestedMkspecList().contains(spec);
@@ -256,7 +256,7 @@ static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, co
     ToolChain * const cToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {
         return tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID && matcher(tc);
     });
-    QList<ToolChain *> chosenToolchains;
+    Toolchains chosenToolchains;
     for (ToolChain * const tc : {cxxToolchain, cToolchain}) {
         if (tc)
             chosenToolchains << tc;

@@ -31,7 +31,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/consoleprocess.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -53,7 +52,7 @@
     Encapsulates processes running in a console or as GUI processes,
     captures debug output of GUI processes on Windows (outputDebugString()).
 
-    \sa Utils::ConsoleProcess
+    \sa Utils::QtcProcess
 */
 
 using namespace Utils;
@@ -76,15 +75,14 @@ public:
 
     // Local
     void handleProcessStarted();
-    void localGuiProcessError();
-    void localConsoleProcessError(const QString &error);
+    void localProcessError(QProcess::ProcessError error);
     void readLocalStandardOutput();
     void readLocalStandardError();
     void cannotRetrieveLocalDebugOutput();
     void checkLocalDebugOutput(qint64 pid, const QString &message);
     void localProcessDone(int, QProcess::ExitStatus);
     qint64 applicationPID() const;
-    bool isRunning() const;
+    bool isLocalRunning() const;
 
     // Remote
     void doReportError(const QString &message,
@@ -102,9 +100,9 @@ public:
     bool m_runAsRoot = false;
 
     // Local
-    QtcProcess m_guiProcess;
-    ConsoleProcess m_consoleProcess;
+    QtcProcess *m_localProcess = nullptr;
     bool m_useTerminal = false;
+    QProcess::ProcessChannelMode m_processChannelMode;
     // Keep track whether we need to emit a finished signal
     bool m_processRunning = false;
 
@@ -125,40 +123,17 @@ public:
 
 } // Internal
 
-ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *parent)
-    : q(parent), m_outputCodec(QTextCodec::codecForLocale())
+static QProcess::ProcessChannelMode defaultProcessChannelMode()
 {
-    if (ProjectExplorerPlugin::appOutputSettings().mergeChannels) {
-        m_guiProcess.setProcessChannelMode(QProcess::MergedChannels);
-    } else {
-        m_guiProcess.setProcessChannelMode(QProcess::SeparateChannels);
-        connect(&m_guiProcess, &QtcProcess::readyReadStandardError,
-                this, &ApplicationLauncherPrivate::readLocalStandardError);
-    }
-    connect(&m_guiProcess, &QtcProcess::readyReadStandardOutput,
-            this, &ApplicationLauncherPrivate::readLocalStandardOutput);
-    connect(&m_guiProcess, &QtcProcess::errorOccurred,
-            this, &ApplicationLauncherPrivate::localGuiProcessError);
-    connect(&m_guiProcess, &QtcProcess::finished, this, [this] {
-        localProcessDone(m_guiProcess.exitCode(), m_guiProcess.exitStatus());
-    });
-    connect(&m_guiProcess, &QtcProcess::started,
-            this, &ApplicationLauncherPrivate::handleProcessStarted);
-    connect(&m_guiProcess, &QtcProcess::errorOccurred,
-            q, &ApplicationLauncher::error);
+    return ProjectExplorerPlugin::appOutputSettings().mergeChannels
+            ? QProcess::MergedChannels : QProcess::SeparateChannels;
+}
 
-    m_consoleProcess.setSettings(Core::ICore::settings());
-
-    connect(&m_consoleProcess, &ConsoleProcess::processStarted,
-            this, &ApplicationLauncherPrivate::handleProcessStarted);
-    connect(&m_consoleProcess, &ConsoleProcess::processError,
-            this, &ApplicationLauncherPrivate::localConsoleProcessError);
-    connect(&m_consoleProcess, &ConsoleProcess::processStopped, this, [this] {
-        localProcessDone(m_consoleProcess.exitCode(), m_consoleProcess.exitStatus());
-    });
-    connect(&m_consoleProcess, &ConsoleProcess::errorOccurred,
-            q, &ApplicationLauncher::error);
-
+ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *parent)
+    : q(parent)
+    , m_processChannelMode(defaultProcessChannelMode())
+    , m_outputCodec(QTextCodec::codecForLocale())
+{
 #ifdef Q_OS_WIN
     connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, &ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput);
@@ -169,13 +144,14 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
     d(std::make_unique<ApplicationLauncherPrivate>(this))
-{ }
+{
+}
 
 ApplicationLauncher::~ApplicationLauncher() = default;
 
 void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_guiProcess.setProcessChannelMode(mode);
+    d->m_processChannelMode = mode;
 }
 
 void ApplicationLauncher::setUseTerminal(bool on)
@@ -196,18 +172,11 @@ void ApplicationLauncher::stop()
 void ApplicationLauncherPrivate::stop()
 {
     if (m_isLocal) {
-        if (!isRunning())
+        if (!isLocalRunning())
             return;
-        if (m_useTerminal) {
-            m_consoleProcess.stop();
-            localProcessDone(0, QProcess::CrashExit);
-        } else {
-            m_guiProcess.terminate();
-            if (!m_guiProcess.waitForFinished(1000)) { // This is blocking, so be fast.
-                m_guiProcess.kill();
-                m_guiProcess.waitForFinished();
-            }
-        }
+        QTC_ASSERT(m_localProcess, return);
+        m_localProcess->stopProcess();
+        localProcessDone(0, QProcess::CrashExit);
     } else {
         if (m_stopRequested)
             return;
@@ -227,7 +196,7 @@ void ApplicationLauncherPrivate::stop()
 
 bool ApplicationLauncher::isRunning() const
 {
-    return d->isRunning();
+    return d->isLocalRunning();
 }
 
 bool ApplicationLauncher::isLocal() const
@@ -235,11 +204,11 @@ bool ApplicationLauncher::isLocal() const
     return d->m_isLocal;
 }
 
-bool ApplicationLauncherPrivate::isRunning() const
+bool ApplicationLauncherPrivate::isLocalRunning() const
 {
-    if (m_useTerminal)
-        return m_consoleProcess.isRunning();
-    return m_guiProcess.state() != QProcess::NotRunning;
+    if (!m_localProcess)
+        return false;
+    return m_localProcess->state() != QProcess::NotRunning;
 }
 
 ProcessHandle ApplicationLauncher::applicationPID() const
@@ -249,73 +218,71 @@ ProcessHandle ApplicationLauncher::applicationPID() const
 
 qint64 ApplicationLauncherPrivate::applicationPID() const
 {
-    if (!isRunning())
+    if (!isLocalRunning())
         return 0;
 
-    if (m_useTerminal)
-        return m_consoleProcess.applicationPID();
-
-    return m_guiProcess.processId();
+    return m_localProcess->processId();
 }
 
 QString ApplicationLauncher::errorString() const
 {
     if (d->m_isLocal)
-        return d->m_useTerminal ? d->m_consoleProcess.errorString() : d->m_guiProcess.errorString();
+        return d->m_localProcess ? d->m_localProcess->errorString() : QString();
     return d->m_remoteErrorString;
 }
 
 QProcess::ProcessError ApplicationLauncher::processError() const
 {
     if (d->m_isLocal)
-        return d->m_useTerminal ? d->m_consoleProcess.error() : d->m_guiProcess.error();
+        return d->m_localProcess ? d->m_localProcess->error() : QProcess::UnknownError;
     return d->m_remoteError;
 }
 
-void ApplicationLauncherPrivate::localGuiProcessError()
+void ApplicationLauncherPrivate::localProcessError(QProcess::ProcessError error)
 {
-    QString error;
-    QProcess::ExitStatus status = QProcess::NormalExit;
-    switch (m_guiProcess.error()) {
-    case QProcess::FailedToStart:
-        error = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
-        break;
-    case QProcess::Crashed:
-        status = QProcess::CrashExit;
-        break;
-    default:
-        error = ApplicationLauncher::tr("Some error has occurred while running the program.");
+    // TODO: why below handlings are different?
+    if (m_useTerminal) {
+        emit q->appendMessage(m_localProcess->errorString(), ErrorMessageFormat);
+        if (m_processRunning && m_localProcess->processId() == 0) {
+            m_processRunning = false;
+            emit q->processExited(-1, QProcess::NormalExit);
+        }
+    } else {
+        QString error;
+        QProcess::ExitStatus status = QProcess::NormalExit;
+        switch (m_localProcess->error()) {
+        case QProcess::FailedToStart:
+            error = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
+            break;
+        case QProcess::Crashed:
+            status = QProcess::CrashExit;
+            break;
+        default:
+            error = ApplicationLauncher::tr("Some error has occurred while running the program.");
+        }
+        if (!error.isEmpty())
+            emit q->appendMessage(error, ErrorMessageFormat);
+        if (m_processRunning && !isLocalRunning()) {
+            m_processRunning = false;
+            emit q->processExited(-1, status);
+        }
     }
-    if (!error.isEmpty())
-        emit q->appendMessage(error, ErrorMessageFormat);
-    if (m_processRunning && !isRunning()) {
-        m_processRunning = false;
-        emit q->processExited(-1, status);
-    }
-}
-
-void ApplicationLauncherPrivate::localConsoleProcessError(const QString &error)
-{
-    emit q->appendMessage(error, ErrorMessageFormat);
-    if (m_processRunning && m_consoleProcess.applicationPID() == 0) {
-        m_processRunning = false;
-        emit q->processExited(-1, QProcess::NormalExit);
-    }
+    emit q->error(error);
 }
 
 void ApplicationLauncherPrivate::readLocalStandardOutput()
 {
-    QByteArray data = m_guiProcess.readAllStandardOutput();
-    QString msg = m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_outputCodecState);
+    const QByteArray data = m_localProcess->readAllStandardOutput();
+    const QString msg = m_outputCodec->toUnicode(
+                data.constData(), data.length(), &m_outputCodecState);
     emit q->appendMessage(msg, StdOutFormat, false);
 }
 
 void ApplicationLauncherPrivate::readLocalStandardError()
 {
-    QByteArray data = m_guiProcess.readAllStandardError();
-    QString msg = m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_errorCodecState);
+    const QByteArray data = m_localProcess->readAllStandardError();
+    const QString msg = m_outputCodec->toUnicode(
+                data.constData(), data.length(), &m_errorCodecState);
     emit q->appendMessage(msg, StdErrFormat, false);
 }
 
@@ -367,17 +334,39 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
     m_isLocal = local;
 
     if (m_isLocal) {
+        QTC_ASSERT(!m_localProcess, return);
+        const QtcProcess::TerminalMode terminalMode = m_useTerminal
+                ? QtcProcess::TerminalOn : QtcProcess::TerminalOff;
+        m_localProcess = new QtcProcess(terminalMode, this);
+        m_localProcess->setProcessChannelMode(m_processChannelMode);
+
+        if (m_processChannelMode == QProcess::SeparateChannels) {
+            connect(m_localProcess, &QtcProcess::readyReadStandardError,
+                    this, &ApplicationLauncherPrivate::readLocalStandardError);
+        }
+        if (!m_useTerminal) {
+            connect(m_localProcess, &QtcProcess::readyReadStandardOutput,
+                    this, &ApplicationLauncherPrivate::readLocalStandardOutput);
+        }
+
+        connect(m_localProcess, &QtcProcess::started,
+                this, &ApplicationLauncherPrivate::handleProcessStarted);
+        connect(m_localProcess, &QtcProcess::finished, this, [this] {
+            localProcessDone(m_localProcess->exitCode(), m_localProcess->exitStatus());
+        });
+        connect(m_localProcess, &QtcProcess::errorOccurred,
+                this, &ApplicationLauncherPrivate::localProcessError);
+
+
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
         const FilePath fixedPath = runnable.workingDirectory.normalizedPathName();
-        m_guiProcess.setWorkingDirectory(fixedPath);
-        m_consoleProcess.setWorkingDirectory(fixedPath);
+        m_localProcess->setWorkingDirectory(fixedPath);
 
         Environment env = runnable.environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
-        m_guiProcess.setEnvironment(env);
-        m_consoleProcess.setEnvironment(env);
+        m_localProcess->setEnvironment(env);
 
         m_processRunning = true;
     #ifdef Q_OS_WIN
@@ -398,14 +387,10 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             wrapped.addCommandLineAsArgs(cmdLine);
             cmdLine = wrapped;
         }
-
-        if (m_useTerminal) {
-            m_consoleProcess.setCommand(cmdLine);
-            m_consoleProcess.start();
-        } else {
-            m_guiProcess.setCommand(cmdLine);
-            m_guiProcess.start();
-        }
+        // TODO: QtcProcess::setRunAsRoot() doens't work as expected currently
+        // m_localProcess->setRunAsRoot(m_runAsRoot);
+        m_localProcess->setCommand(cmdLine);
+        m_localProcess->start();
     } else {
         QTC_ASSERT(m_state == Inactive, return);
 

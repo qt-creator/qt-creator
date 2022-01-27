@@ -40,6 +40,8 @@ public:
                 ScaleTool,
                 RotateTool,
                 FitToView,
+                AlignCamerasToView,
+                AlignViewToCamera,
                 SelectionModeToggle,
                 CameraToggle,
                 OrientationToggle,

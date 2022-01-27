@@ -95,7 +95,8 @@ SnippetsCollection *SnippetsCollection::instance()
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection()
     : m_userSnippetsFile(Core::ICore::userResourcePath("snippets/snippets.xml")),
-      m_builtInSnippetsFiles(Core::ICore::resourcePath("snippets").dirEntries({"*.xml"}))
+      m_builtInSnippetsFiles(Core::ICore::resourcePath("snippets")
+        .dirEntries(FileFilter({"*.xml"})))
 {
 
     connect(Core::ICore::instance(), &Core::ICore::coreOpened,

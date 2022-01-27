@@ -38,6 +38,7 @@ const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurre
 const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
+const char OPEN_UIQML_FILES_IN_QDS[] = "QmlJSEditor.openUiQmlFilesInQDS";
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -47,7 +48,8 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     m_pinContextPane(false),
     m_autoFormatOnSave(false),
     m_autoFormatOnlyCurrentProject(false),
-    m_foldAuxData(false)
+    m_foldAuxData(false),
+    m_openUiQmlFilesInQDS(false)
 {}
 
 void QmlJsEditingSettings::set()
@@ -65,6 +67,7 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
     m_autoFormatOnlyCurrentProject
         = settings->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, QVariant(false)).toBool();
     m_foldAuxData = settings->value(FOLD_AUX_DATA, QVariant(true)).toBool();
+    m_openUiQmlFilesInQDS = settings->value(OPEN_UIQML_FILES_IN_QDS, QVariant(false)).toBool();
     settings->endGroup();
 }
 
@@ -76,16 +79,18 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
     settings->setValue(AUTO_FORMAT_ON_SAVE, m_autoFormatOnSave);
     settings->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);
     settings->setValue(FOLD_AUX_DATA, m_foldAuxData);
+    settings->setValue(OPEN_UIQML_FILES_IN_QDS, m_openUiQmlFilesInQDS);
     settings->endGroup();
 }
 
 bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
 {
-    return  m_enableContextPane == other.m_enableContextPane
-            && m_pinContextPane == other.m_pinContextPane
-            && m_autoFormatOnSave == other.m_autoFormatOnSave
-            && m_autoFormatOnlyCurrentProject == other.m_autoFormatOnlyCurrentProject
-            && m_foldAuxData == other.m_foldAuxData;
+    return m_enableContextPane == other.m_enableContextPane
+           && m_pinContextPane == other.m_pinContextPane
+           && m_autoFormatOnSave == other.m_autoFormatOnSave
+           && m_autoFormatOnlyCurrentProject == other.m_autoFormatOnlyCurrentProject
+           && m_foldAuxData == other.m_foldAuxData
+           && m_openUiQmlFilesInQDS == other.m_openUiQmlFilesInQDS;
 }
 
 bool QmlJsEditingSettings::enableContextPane() const
@@ -138,6 +143,16 @@ void QmlJsEditingSettings::setFoldAuxData(const bool foldAuxData)
     m_foldAuxData = foldAuxData;
 }
 
+void QmlJsEditingSettings::setOpenUiQmlFilesInQDS(const bool openUiQmlFilesInQDS)
+{
+    m_openUiQmlFilesInQDS = openUiQmlFilesInQDS;
+}
+
+bool QmlJsEditingSettings::openUiQmlFilesInQDS() const
+{
+    return m_openUiQmlFilesInQDS;
+}
+
 class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::QmlJsEditingSettingsPage)
@@ -153,6 +168,7 @@ public:
         m_ui.autoFormatOnSave->setChecked(s.autoFormatOnSave());
         m_ui.autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
         m_ui.foldAuxDataCheckBox->setChecked(s.foldAuxData());
+        m_ui.openUiQmlFilesInQDS->setChecked(s.openUiQmlFilesInQDS());
     }
 
     void apply() final
@@ -163,6 +179,7 @@ public:
         s.setAutoFormatOnSave(m_ui.autoFormatOnSave->isChecked());
         s.setAutoFormatOnlyCurrentProject(m_ui.autoFormatOnlyCurrentProject->isChecked());
         s.setFoldAuxData(m_ui.foldAuxDataCheckBox->isChecked());
+        s.setOpenUiQmlFilesInQDS(m_ui.openUiQmlFilesInQDS->isChecked());
         s.set();
     }
 

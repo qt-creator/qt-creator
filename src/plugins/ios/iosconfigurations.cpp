@@ -114,10 +114,10 @@ static bool isSimulatorDeviceId(const Utils::Id &id)
     return id == Constants::IOS_SIMULATOR_TYPE;
 }
 
-static QList<ClangToolChain *> clangToolChains(const QList<ToolChain *> &toolChains)
+static QList<ClangToolChain *> clangToolChains(const Toolchains &toolChains)
 {
     QList<ClangToolChain *> clangToolChains;
-    foreach (ToolChain *toolChain, toolChains)
+    for (ToolChain *toolChain : toolChains)
         if (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID)
             clangToolChains.append(static_cast<ClangToolChain *>(toolChain));
     return clangToolChains;
@@ -125,7 +125,7 @@ static QList<ClangToolChain *> clangToolChains(const QList<ToolChain *> &toolCha
 
 static QList<ClangToolChain *> autoDetectedIosToolChains()
 {
-    const QList<ClangToolChain *> toolChains = clangToolChains(ToolChainManager::toolChains());
+    const QList<ClangToolChain *> toolChains = clangToolChains(ToolChainManager::toolchains());
     return Utils::filtered(toolChains, [](ClangToolChain *toolChain) {
         return toolChain->isAutoDetected()
                && (toolChain->displayName().startsWith("iphone")
@@ -183,7 +183,7 @@ static void printKits(const QSet<Kit *> &kits)
 }
 
 static void setupKit(Kit *kit, Utils::Id pDeviceType, const ToolChainPair& toolChains,
-                     const QVariant &debuggerId, const Utils::FilePath &sdkPath, BaseQtVersion *qtVersion)
+                     const QVariant &debuggerId, const Utils::FilePath &sdkPath, QtVersion *qtVersion)
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolChains.first)
@@ -251,7 +251,7 @@ void IosConfigurations::updateAutomaticKitList()
     // target -> tool chain
     const auto targetToolChainHash = findToolChains(platforms);
 
-    const auto qtVersions = Utils::toSet(QtVersionManager::versions([](const BaseQtVersion *v) {
+    const auto qtVersions = Utils::toSet(QtVersionManager::versions([](const QtVersion *v) {
         return v->isValid() && v->type() == Constants::IOSQT;
     }));
 
@@ -284,7 +284,7 @@ void IosConfigurations::updateAutomaticKitList()
                 continue;
             }
 
-            for (BaseQtVersion *qtVersion : qtVersions) {
+            for (QtVersion *qtVersion : qtVersions) {
                 qCDebug(kitSetupLog) << "  - Qt version:" << qtVersion->displayName();
                 Kit *kit = Utils::findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
                     // we do not compare the sdk (thus automatically upgrading it in place if a
@@ -588,13 +588,11 @@ IosToolChainFactory::IosToolChainFactory()
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
 }
 
-QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &existingToolChains,
-                                                  const IDevice::Ptr &device)
+Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(device);
-    QList<ClangToolChain *> existingClangToolChains = clangToolChains(existingToolChains);
+    QList<ClangToolChain *> existingClangToolChains = clangToolChains(detector.alreadyKnown);
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
-    QList<ToolChain *> toolChains;
+    Toolchains toolChains;
     toolChains.reserve(platforms.size());
     for (const XcodePlatform &platform : platforms) {
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {

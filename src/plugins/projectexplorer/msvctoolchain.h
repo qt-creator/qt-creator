@@ -204,10 +204,9 @@ class MsvcToolChainFactory : public ToolChainFactory
 public:
     MsvcToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                  const IDevice::Ptr &device) override;
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
 
-    bool canCreate() const override;
+    bool canCreate() const final;
 
     static QString vcVarsBatFor(const QString &basePath,
                                 MsvcToolChain::Platform platform,
@@ -219,10 +218,9 @@ class ClangClToolChainFactory : public ToolChainFactory
 public:
     ClangClToolChainFactory();
 
-    QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                  const IDevice::Ptr &device) override;
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
 
-    bool canCreate() const override;
+    bool canCreate() const final;
 };
 
 // --------------------------------------------------------------------------

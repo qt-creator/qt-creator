@@ -110,7 +110,7 @@ Rectangle {
             when: checkIndicator.checked
             PropertyChanges {
                 target: checkIndicatorIcon
-                color: StudioTheme.Values.themeIconColorInteraction
+                color: StudioTheme.Values.themeIconColor
             }
             PropertyChanges {
                 target: checkIndicator
@@ -136,7 +136,7 @@ Rectangle {
                   && checkIndicator.pressed
             PropertyChanges {
                 target: checkIndicatorIcon
-                color: StudioTheme.Values.themeIconColorInteraction
+                color: StudioTheme.Values.themeIconColor
             }
             PropertyChanges {
                 target: checkIndicator

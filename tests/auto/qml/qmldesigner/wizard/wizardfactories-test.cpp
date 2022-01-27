@@ -238,7 +238,7 @@ TEST_F(QdsWizardFactories, doesNotFilterOutAGoodWizardFactory)
     ASSERT_THAT(presets, Not(IsEmpty()));
 }
 
-TEST_F(QdsWizardFactories, DISABLED_buildsPresetItemWithCorrectSizeName)
+TEST_F(QdsWizardFactories, buildsPresetItemWithCorrectSizeName)
 {
     WizardFactories wf = makeWizardFactoriesHandler(
                 {

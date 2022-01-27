@@ -45,6 +45,8 @@ public:
     static bool qdsInstallationExists();
 
 private:
+    static void openInQDSWithProject(const Utils::FilePath &filePath);
+
     bool initialize(const QStringList &arguments, QString *errorString) final;
 
     class QmlProjectPluginPrivate *d = nullptr;

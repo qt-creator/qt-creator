@@ -27,7 +27,7 @@
 
 #include <clangsupport/codecompletion.h>
 
-#include <sqlite/utf8string.h>
+#include <clangsupport/utf8string.h>
 
 #include <QString>
 

@@ -725,7 +725,7 @@ void AndroidManifestEditorWidget::updateSdkVersions()
     const int targetSdk = sdkPair.second;
     const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
     if (target) {
-        const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+        const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
         minSdk = AndroidManager::defaultMinimumSDK(qt);
     }
 

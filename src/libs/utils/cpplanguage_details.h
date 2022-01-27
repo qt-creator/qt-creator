@@ -91,7 +91,7 @@ enum class WarningFlags {
 
 Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
 
-enum class QtVersion { Unknown = -1, None, Qt4, Qt5, Qt6 };
+enum class QtMajorVersion { Unknown = -1, None, Qt4, Qt5, Qt6 };
 
 } // namespace Utils
 

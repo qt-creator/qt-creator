@@ -96,7 +96,7 @@ QHash<Utils::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPup
 
 QByteArray PuppetCreator::qtHash() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
     if (currentQtVersion) {
         return QCryptographicHash::hash(currentQtVersion->dataPath().toString().toUtf8(),
                                         QCryptographicHash::Sha1)
@@ -108,7 +108,7 @@ QByteArray PuppetCreator::qtHash() const
 
 QDateTime PuppetCreator::qtLastModified() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
     if (currentQtVersion)
         return currentQtVersion->libraryPath().lastModified();
 
@@ -371,7 +371,7 @@ static Utils::FilePath pathForBinPuppet(ProjectExplorer::Target *target)
     if (!target || !target->kit())
         return {};
 
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
 
     if (currentQtVersion)
         return currentQtVersion->binPath().pathAppended("qml2puppet").withExecutableSuffix();
@@ -482,7 +482,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (QTC_GUARD(m_target)) {
         if (!useOnlyFallbackPuppet() || m_availablePuppetType == BinPathPuppet) {
             m_target->kit()->addToBuildEnvironment(environment);
-            const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+            const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
             if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
                 // Update PATH to include QT_HOST_BINS
                 environment.prependOrSetPath(qt->hostBinPath());
@@ -607,7 +607,7 @@ QString PuppetCreator::buildCommand() const
 
 QString PuppetCreator::qmakeCommand() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
     if (currentQtVersion)
         return currentQtVersion->qmakeFilePath().toString();
 
@@ -694,7 +694,7 @@ static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersio
 
 bool PuppetCreator::qtIsSupported() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_target->kit());
 
     return currentQtVersion
             && currentQtVersion->isValid()

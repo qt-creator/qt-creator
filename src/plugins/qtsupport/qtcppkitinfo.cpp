@@ -35,11 +35,11 @@ CppKitInfo::CppKitInfo(ProjectExplorer::Kit *kit)
 {
     if (kit && (qtVersion = QtKitAspect::qtVersion(kit))) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0))
-            projectPartQtVersion = Utils::QtVersion::Qt4;
+            projectPartQtVersion = Utils::QtMajorVersion::Qt4;
         else if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(6, 0, 0))
-            projectPartQtVersion = Utils::QtVersion::Qt5;
+            projectPartQtVersion = Utils::QtMajorVersion::Qt5;
         else
-            projectPartQtVersion = Utils::QtVersion::Qt6;
+            projectPartQtVersion = Utils::QtMajorVersion::Qt6;
     }
 }
 

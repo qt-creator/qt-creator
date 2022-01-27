@@ -51,6 +51,18 @@ namespace Utils {
 class Environment;
 class EnvironmentChange;
 
+class QTCREATOR_UTILS_EXPORT FileFilter
+{
+public:
+    FileFilter(const QStringList &nameFilters,
+                   const QDir::Filters fileFilters = QDir::NoFilter,
+                   const QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags);
+
+    const QStringList nameFilters;
+    const QDir::Filters fileFilters = QDir::NoFilter;
+    const QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
+};
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
@@ -121,8 +133,7 @@ public:
     qint64 fileSize() const;
     qint64 bytesAvailable() const;
     bool createDir() const;
-    QList<FilePath> dirEntries(const QStringList &nameFilters,
-                               QDir::Filters filters = QDir::NoFilter,
+    QList<FilePath> dirEntries(const FileFilter &filter,
                                QDir::SortFlags sort = QDir::NoSort) const;
     QList<FilePath> dirEntries(QDir::Filters filters) const;
     QByteArray fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
@@ -159,9 +170,7 @@ public:
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     void iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
-                          const QStringList &nameFilters,
-                          QDir::Filters filters = QDir::NoFilter,
-                          QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags) const;
+                          const FileFilter &filter) const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.

@@ -25,6 +25,7 @@
 
 #include "pythonplugin.h"
 
+#include "pythonconstants.h"
 #include "pythoneditor.h"
 #include "pythonlanguageclient.h"
 #include "pythonproject.h"
@@ -71,6 +72,10 @@ public:
 PythonPlugin::PythonPlugin()
 {
     m_instance = this;
+
+    LanguageClient::LanguageClientSettings::registerClientType({Constants::PYLS_SETTINGS_ID,
+                                                                tr("Python Language Server"),
+                                                                []() { return new PyLSSettings; }});
 }
 
 PythonPlugin::~PythonPlugin()
@@ -102,7 +107,7 @@ void PythonPlugin::extensionsInitialized()
 {
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     QString imageFile = Utils::creatorTheme()->imageFile(Utils::Theme::IconOverlayPro,
-                                                         Constants::FILEOVERLAY_PY);
+                                                         ::Constants::FILEOVERLAY_PY);
     Core::FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);

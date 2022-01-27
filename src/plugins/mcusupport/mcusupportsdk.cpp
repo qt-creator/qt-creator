@@ -217,8 +217,7 @@ static McuPackage *createRGLPackage()
         if (rglPath.exists()) {
             defaultPath = rglPath;
             const FilePaths subDirs =
-                    defaultPath.dirEntries({QLatin1String("rgl_ghs_D1Mx_*")},
-                                                    QDir::Dirs | QDir::NoDotAndDotDot);
+                    defaultPath.dirEntries({{"rgl_ghs_D1Mx_*"}, QDir::Dirs | QDir::NoDotAndDotDot});
             if (subDirs.count() == 1)
                 defaultPath = subDirs.first();
         }
@@ -272,8 +271,7 @@ static McuPackage *createMcuXpressoIdePackage()
             defaultPath = programPath;
             // If default dir has exactly one sub dir that could be the IDE path, pre-select that.
             const FilePaths subDirs =
-                    defaultPath.dirEntries({QLatin1String("MCUXpressoIDE*")},
-                                                    QDir::Dirs | QDir::NoDotAndDotDot);
+                    defaultPath.dirEntries({{"MCUXpressoIDE*"}, QDir::Dirs | QDir::NoDotAndDotDot});
             if (subDirs.count() == 1)
                 defaultPath = subDirs.first();
         }
@@ -304,7 +302,8 @@ static McuPackage *createCypressProgrammerPackage()
         const FilePath candidate = findInProgramFiles("Cypress");
         if (candidate.exists()) {
             // "Cypress Auto Flash Utility 1.0"
-            const auto subDirs = candidate.dirEntries({"Cypress Auto Flash Utility*"}, QDir::Dirs, QDir::Unsorted);
+            const auto subDirs = candidate.dirEntries({{"Cypress Auto Flash Utility*"}, QDir::Dirs},
+                                                      QDir::Unsorted);
             if (!subDirs.empty())
                 defaultPath = subDirs.first();
         }
@@ -330,7 +329,8 @@ static McuPackage *createRenesasProgrammerPackage()
         const FilePath candidate = findInProgramFiles("Renesas Electronics/Programming Tools");
         if (candidate.exists()) {
             // "Renesas Flash Programmer V3.09"
-            const auto subDirs = candidate.dirEntries({"Renesas Flash Programmer*"}, QDir::Dirs, QDir::Unsorted);
+            const auto subDirs = candidate.dirEntries({{"Renesas Flash Programmer*"}, QDir::Dirs},
+                                                      QDir::Unsorted);
             if (!subDirs.empty())
                 defaultPath = subDirs.first();
         }

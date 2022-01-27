@@ -96,7 +96,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
                                          BoolAspect::LabelPlacement::AtCheckBox);
     m_uninstallPreviousPackage->setValue(false);
 
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
+    const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     const bool forced = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
     if (forced) {
         m_uninstallPreviousPackage->setValue(true);
@@ -110,7 +110,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
 
 bool AndroidDeployQtStep::init()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version) {
         reportWarningOrError(tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
                              Task::Error);
@@ -199,7 +199,7 @@ bool AndroidDeployQtStep::init()
         }
     }
 
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
+    const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     if (qt && qt->supportsMultipleQtAbis() && !selectedAbis.contains(info.cpuAbi.first())) {
         TaskHub::addTask(DeploymentTask(Task::Warning,
             tr("Android: The main ABI of the deployment device (%1) is not selected. The app "
@@ -527,8 +527,7 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
                    OutputFormat::NormalMessage);
 
     buildProc.setCommand(command);
-    buildProc.setProcessUserEventWhileRunning();
-    buildProc.runBlocking();
+    buildProc.runBlocking(QtcProcess::WithEventLoop);
     if (buildProc.result() != QtcProcess::FinishedWithSuccess)
         reportWarningOrError(buildProc.exitMessage(), Task::Error);
 }

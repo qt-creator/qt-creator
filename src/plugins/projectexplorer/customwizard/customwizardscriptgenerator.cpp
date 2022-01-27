@@ -78,7 +78,7 @@ QStringList fixGeneratorScript(const QString &configFile, QString binary)
 
 // Helper for running the optional generation script.
 static bool
-    runGenerationScriptHelper(const QString &workingDirectory,
+    runGenerationScriptHelper(const FilePath &workingDirectory,
                               const QStringList &script,
                               const QList<GeneratorScriptArgument> &argumentsIn,
                               bool dryRun,
@@ -112,11 +112,10 @@ static bool
     process.setTimeoutS(30);
     const Utils::CommandLine cmd(FilePath::fromString(binary), arguments);
     if (CustomWizard::verbose())
-        qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory),
+        qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory.toUserOutput()),
                qPrintable(cmd.toUserOutput()));
     process.setCommand(cmd);
-    process.setProcessUserEventWhileRunning();
-    process.runBlocking();
+    process.runBlocking(QtcProcess::WithEventLoop);
     if (process.result() != Utils::QtcProcess::FinishedWithSuccess) {
         *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.stdErr();
@@ -150,7 +149,7 @@ Core::GeneratedFiles
 {
     // Run in temporary directory as the target path may not exist yet.
     QString stdOut;
-    if (!runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryPath(),
+    if (!runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryFilePath(),
                                    script, arguments, true, fieldMap, &stdOut, errorMessage))
         return Core::GeneratedFiles();
     Core::GeneratedFiles files;
@@ -232,7 +231,7 @@ bool runCustomWizardGeneratorScript(const QString &targetPath,
                                     const QMap<QString, QString> &fieldMap,
                                     QString *errorMessage)
 {
-    return runGenerationScriptHelper(targetPath, script, arguments,
+    return runGenerationScriptHelper(FilePath::fromString(targetPath), script, arguments,
                                      false, fieldMap,
                                      nullptr, errorMessage);
 }

@@ -81,12 +81,12 @@ QVector<GeneratableFile> queuedFiles;
 
 void generateMenuEntry()
 {
-    Core::ActionContainer *buildMenu =
-            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
-    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateCmake", "Generate CMakeLists.txt Files"));
+    Core::ActionContainer *menu =
+            Core::ActionManager::actionContainer(Core::Constants::M_FILE);
+    auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateCmake", "Export to Qt Creator (CMake)"));
     QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
-    buildMenu->addAction(cmd, ProjectExplorer::Constants::G_BUILD_RUN);
+    menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
 
     action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
@@ -354,7 +354,7 @@ void generateModuleCmake(const FilePath &dir, const QString &uri)
     QString fileTemplate = GenerateCmake::readTemplate(MODULEFILE_TEMPLATE_PATH);
 
     QString singletonContent;
-    FilePaths qmldirFileList = dir.dirEntries(QStringList(FILENAME_QMLDIR), FILES_ONLY);
+    FilePaths qmldirFileList = dir.dirEntries({QStringList(FILENAME_QMLDIR), FILES_ONLY});
     if (!qmldirFileList.isEmpty()) {
         QStringList singletons = getSingletonsFromQmldirFile(qmldirFileList.first());
         for (QString &singleton : singletons) {
@@ -418,7 +418,7 @@ FilePaths getDirectoryQmls(const FilePath &dir)
 {
     const QStringList qmlFilesOnly("*.qml");
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    FilePaths allFiles = dir.dirEntries(qmlFilesOnly, FILES_ONLY);
+    FilePaths allFiles = dir.dirEntries({qmlFilesOnly, FILES_ONLY});
     FilePaths moduleFiles;
     for (FilePath &file : allFiles) {
         if (!isFileBlacklisted(file.fileName()) &&
@@ -436,7 +436,7 @@ QStringList getDirectoryTreeQmls(const FilePath &dir)
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QStringList qmlFileList;
 
-    FilePaths thisDirFiles = dir.dirEntries(qmlFilesOnly, FILES_ONLY);
+    FilePaths thisDirFiles = dir.dirEntries({qmlFilesOnly, FILES_ONLY});
     for (FilePath &file : thisDirFiles) {
         if (!isFileBlacklisted(file.fileName()) &&
             project->isKnownFile(file)) {

@@ -296,7 +296,7 @@ QStringList PerfDataReader::collectArguments(const QString &executableDirPath, c
     if (!executableDirPath.isEmpty())
         arguments << "--app" << executableDirPath;
 
-    if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
+    if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
         arguments << "--extra" << QString("%1%5%2%5%3%5%4")
                      .arg(QDir::toNativeSeparators(qt->libraryPath().toString()))
                      .arg(QDir::toNativeSeparators(qt->pluginPath().toString()))

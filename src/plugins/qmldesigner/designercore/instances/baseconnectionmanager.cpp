@@ -27,6 +27,8 @@
 #include "endpuppetcommand.h"
 #include "nodeinstanceserverproxy.h"
 #include "nodeinstanceview.h"
+#include "nanotracecommand.h"
+#include "nanotrace/nanotrace.h"
 
 #include <QLocalSocket>
 #include <QTimer>
@@ -125,6 +127,26 @@ void BaseConnectionManager::readDataStream(Connection &connection)
         QVariant command;
         in >> command;
         connection.blockSize = 0;
+
+#ifdef NANOTRACE_ENABLED
+        if (command.userType() != QMetaType::type("PuppetAliveCommand")) {
+            if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+                SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
+                NANOTRACE_INSTANT_ARGS("Sync", "readCommand",
+                    {"name", cmd.name().toStdString()},
+                    {"counter", int64_t(commandCounter)});
+
+                writeCommand(command);
+                // Do not dispatch this command.
+                continue;
+
+            } else {
+                NANOTRACE_INSTANT_ARGS("Update", "readCommand",
+                    {"name", command.typeName()},
+                    {"counter", int64_t(commandCounter)});
+            }
+        }
+#endif
 
         commandList.append(command);
     }

@@ -39,6 +39,7 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QStringList>
 #include <QVariantMap>
@@ -99,6 +100,7 @@ public:
     void setDisplayName(const QString &name);
 
     bool isAutoDetected() const;
+    bool isSdkProvided() const { return detection() == AutoDetectionFromSdk; }
     Detection detection() const;
     QString detectionSource() const;
 
@@ -124,6 +126,10 @@ public:
     virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;
     virtual QStringList includedFiles(const QStringList &flags, const QString &directory) const;
     virtual QString sysRoot() const;
+
+    QString explicitCodeModelTargetTriple() const;
+    QString effectiveCodeModelTargetTriple() const;
+    void setExplicitCodeModelTargetTriple(const QString &triple);
 
     class MacroInspectionReport
     {
@@ -212,6 +218,47 @@ private:
     friend class ToolChainFactory;
 };
 
+using Toolchains = QList<ToolChain *>;
+
+class PROJECTEXPLORER_EXPORT BadToolchain
+{
+public:
+    BadToolchain(const Utils::FilePath &filePath);
+    BadToolchain(const Utils::FilePath &filePath, const Utils::FilePath &symlinkTarget,
+                 const QDateTime &timestamp);
+
+    QVariantMap toMap() const;
+    static BadToolchain fromMap(const QVariantMap &map);
+
+    Utils::FilePath filePath;
+    Utils::FilePath symlinkTarget;
+    QDateTime timestamp;
+};
+
+class PROJECTEXPLORER_EXPORT BadToolchains
+{
+public:
+    BadToolchains(const QList<BadToolchain> &toolchains = {});
+    bool isBadToolchain(const Utils::FilePath &toolchain) const;
+
+    QVariant toVariant() const;
+    static BadToolchains fromVariant(const QVariant &v);
+
+    QList<BadToolchain> toolchains;
+};
+
+class PROJECTEXPLORER_EXPORT ToolchainDetector
+{
+public:
+    ToolchainDetector(const Toolchains &alreadyKnown, const IDevice::ConstPtr &device);
+
+    bool isBadToolchain(const Utils::FilePath &toolchain) const;
+    void addBadToolchain(const Utils::FilePath &toolchain) const;
+
+    const Toolchains alreadyKnown;
+    const IDevice::ConstPtr device;
+};
+
 class PROJECTEXPLORER_EXPORT ToolChainFactory
 {
     ToolChainFactory(const ToolChainFactory &) = delete;
@@ -226,12 +273,11 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Id supportedToolChainType() const;
 
-    virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                          const IDevice::Ptr &device);
-    virtual QList<ToolChain *> detectForImport(const ToolChainDescription &tcd);
+    virtual Toolchains autoDetect(const ToolchainDetector &detector) const;
+    virtual Toolchains detectForImport(const ToolChainDescription &tcd) const;
 
     virtual bool canCreate() const;
-    virtual ToolChain *create();
+    virtual ToolChain *create() const;
 
     ToolChain *restore(const QVariantMap &data);
 

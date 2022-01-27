@@ -391,6 +391,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     constexpr int nameY = TagsSeparatorY - 20;
 
     const QRect textRect = textArea.translated(0, nameY);
+    const QFont descriptionFont = sizedFont(11, option.widget);
 
     painter->save();
     painter->translate(rc.topLeft());
@@ -406,7 +407,6 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             m_previousIndex = index;
             m_blurredThumbnail = QPixmap();
             m_startTime.start();
-            m_currentArea = rc;
             m_currentWidget = qobject_cast<QAbstractItemView *>(
                 const_cast<QWidget *>(option.widget));
         }
@@ -416,7 +416,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         offset = animationCurve.valueForProgress(animationProgress) * shiftY;
         if (offset < shiftY)
             QTimer::singleShot(10, this, &ListItemDelegate::goon);
-    } else {
+    } else if (index == m_previousIndex) {
         m_previousIndex = QModelIndex();
     }
 
@@ -437,36 +437,40 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     } else {
         // The description text as fallback.
         painter->setPen(textColor);
-        painter->setFont(sizedFont(11, option.widget));
-        painter->drawText(thumbnailBgRect.adjusted(6, 10, -6, -10), item->description, wrapped);
+        painter->setFont(descriptionFont);
+        painter->drawText(textArea, item->description, wrapped);
     }
 
     // The description background
-    if (offset && !pm.isNull()) {
-        if (m_blurredThumbnail.isNull()) {
-            constexpr int blurRadius = 50;
-            QImage thumbnail(tileRect.size() + QSize(blurRadius, blurRadius) * 2,
-                             QImage::Format_ARGB32_Premultiplied);
-            thumbnail.fill(hoverColor);
-            QPainter thumbnailPainter(&thumbnail);
-            thumbnailPainter.translate(blurRadius, blurRadius);
-            thumbnailPainter.fillRect(thumbnailBgRect, backgroundSecondaryColor);
-            thumbnailPainter.drawPixmap(thumbnailPos, pm);
-            thumbnailPainter.setPen(foregroundPrimaryColor);
-            drawPixmapOverlay(item, &thumbnailPainter, option, thumbnailBgRect);
-            thumbnailPainter.end();
+    if (offset) {
+        QRect backgroundPortionRect = tileRect;
+        backgroundPortionRect.setTop(shiftY - offset);
+        if (!pm.isNull()) {
+            if (m_blurredThumbnail.isNull()) {
+                constexpr int blurRadius = 50;
+                QImage thumbnail(tileRect.size() + QSize(blurRadius, blurRadius) * 2,
+                                 QImage::Format_ARGB32_Premultiplied);
+                thumbnail.fill(hoverColor);
+                QPainter thumbnailPainter(&thumbnail);
+                thumbnailPainter.translate(blurRadius, blurRadius);
+                thumbnailPainter.fillRect(thumbnailBgRect, backgroundSecondaryColor);
+                thumbnailPainter.drawPixmap(thumbnailPos, pm);
+                thumbnailPainter.setPen(foregroundPrimaryColor);
+                drawPixmapOverlay(item, &thumbnailPainter, option, thumbnailBgRect);
+                thumbnailPainter.end();
 
-            m_blurredThumbnail = QPixmap(tileRect.size());
-            QPainter blurredThumbnailPainter(&m_blurredThumbnail);
-            blurredThumbnailPainter.translate(-blurRadius, -blurRadius);
-            qt_blurImage(&blurredThumbnailPainter, thumbnail, blurRadius, false, false);
-            blurredThumbnailPainter.setOpacity(0.825);
-            blurredThumbnailPainter.fillRect(tileRect, hoverColor);
+                m_blurredThumbnail = QPixmap(tileRect.size());
+                QPainter blurredThumbnailPainter(&m_blurredThumbnail);
+                blurredThumbnailPainter.translate(-blurRadius, -blurRadius);
+                qt_blurImage(&blurredThumbnailPainter, thumbnail, blurRadius, false, false);
+                blurredThumbnailPainter.setOpacity(0.825);
+                blurredThumbnailPainter.fillRect(tileRect, hoverColor);
+            }
+            const QPixmap thumbnailPortionPM = m_blurredThumbnail.copy(backgroundPortionRect);
+            painter->drawPixmap(backgroundPortionRect.topLeft(), thumbnailPortionPM);
+        } else {
+            painter->fillRect(backgroundPortionRect, hoverColor);
         }
-        QRect thumbnailPortionRect = tileRect;
-        thumbnailPortionRect.setTop(shiftY - offset);
-        const QPixmap thumbnailPortionPM = m_blurredThumbnail.copy(thumbnailPortionRect);
-        painter->drawPixmap(thumbnailPortionRect.topLeft(), thumbnailPortionPM);
     }
 
     // The description Text (unhovered or hovered)
@@ -488,7 +492,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         const int dd = ll + 5;
         const QRect descRect = shiftedTextRect.adjusted(0, dd, 0, dd);
         painter->setPen(textColor);
-        painter->setFont(sizedFont(11, option.widget));
+        painter->setFont(descriptionFont);
         painter->drawText(descRect, item->description, wrapped);
         painter->setOpacity(1);
     } else {
@@ -580,7 +584,7 @@ void ListItemDelegate::clickAction(const ListItem *) const
 void ListItemDelegate::goon()
 {
     if (m_currentWidget)
-        m_currentWidget->viewport()->update(m_currentArea);
+        m_currentWidget->update(m_previousIndex);
 }
 
 } // namespace Core

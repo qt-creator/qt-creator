@@ -49,7 +49,7 @@ struct Utils
     static QString toString(ProjectExplorer::HeaderPathType type);
     static QString toString(::Utils::LanguageVersion languageVersion);
     static QString toString(::Utils::LanguageExtensions languageExtension);
-    static QString toString(::Utils::QtVersion qtVersion);
+    static QString toString(::Utils::QtMajorVersion qtVersion);
     static QString toString(ProjectExplorer::BuildTargetType buildTargetType);
     static QString toString(const QVector<ProjectFile> &projectFiles);
     static QString toString(ProjectFile::Kind kind);

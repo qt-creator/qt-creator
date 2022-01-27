@@ -45,7 +45,7 @@ using namespace Utils;
 namespace ConanPackageManager {
 namespace Internal {
 
-class ConanPluginRunData
+class ConanPluginPrivate
 {
 public:
     ConanInstallStepFactory installStepFactory;
@@ -53,7 +53,7 @@ public:
 
 ConanPlugin::~ConanPlugin()
 {
-    delete m_runData;
+    delete d;
 }
 
 void ConanPlugin::extensionsInitialized()
@@ -64,7 +64,7 @@ bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    m_runData = new ConanPluginRunData;
+    d = new ConanPluginPrivate;
     conanSettings()->readSettings(ICore::settings());
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,

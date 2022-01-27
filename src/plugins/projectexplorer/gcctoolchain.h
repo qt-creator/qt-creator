@@ -287,4 +287,57 @@ private:
     friend class ToolChainFactory;
 };
 
+// --------------------------------------------------------------------------
+// Factories
+// --------------------------------------------------------------------------
+
+namespace Internal {
+class GccToolChainFactory : public ToolChainFactory
+{
+public:
+    GccToolChainFactory();
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const override;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const override;
+
+protected:
+    enum class DetectVariants { Yes, No };
+    using ToolchainChecker = std::function<bool(const ToolChain *)>;
+    Toolchains autoDetectToolchains(
+            const QString &compilerName, DetectVariants detectVariants, const Utils::Id language,
+            const Utils::Id requiredTypeId, const ToolchainDetector &detector,
+            const ToolchainChecker &checker = {}) const;
+    Toolchains autoDetectToolChain(
+            const ToolChainDescription &tcd,
+            const ToolchainChecker &checker = {}) const;
+};
+
+class ClangToolChainFactory : public GccToolChainFactory
+{
+public:
+    ClangToolChainFactory();
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+};
+
+class MingwToolChainFactory : public GccToolChainFactory
+{
+public:
+    MingwToolChainFactory();
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+};
+
+class LinuxIccToolChainFactory : public GccToolChainFactory
+{
+public:
+    LinuxIccToolChainFactory();
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+};
+
+} // namespace Internal
 } // namespace ProjectExplorer

@@ -35,11 +35,11 @@ const char CODEGEN_SETTINGS_PAGE_ID[] = "Class Generation";
 // QtVersions
 const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";
 
-// BaseQtVersion settings
+// QtVersion settings
 static const char QTVERSIONID[] = "Id";
 static const char QTVERSIONNAME[] = "Name";
 
-//Qt Features
+// Qt Features
 const char FEATURE_QT_PREFIX[] = "QtSupport.Wizards.FeatureQt";
 const char FEATURE_QWIDGETS[] = "QtSupport.Wizards.FeatureQWidgets";
 const char FEATURE_QT_QUICK_PREFIX[] = "QtSupport.Wizards.FeatureQtQuick";

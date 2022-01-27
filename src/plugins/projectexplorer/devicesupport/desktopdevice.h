@@ -75,8 +75,7 @@ public:
     Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
     void iterateDirectory(const Utils::FilePath &filePath,
                           const std::function<bool(const Utils::FilePath &)> &callBack,
-                          const QStringList &nameFilters,
-                          QDir::Filters filters) const override;
+                          const Utils::FileFilter &filter) const override;
     QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;

@@ -62,25 +62,24 @@ static const char TOOLCHAIN_FILENAME[] = "toolchains.xml";
 
 struct ToolChainOperations
 {
-    QList<ToolChain *> toDemote;
-    QList<ToolChain *> toRegister;
-    QList<ToolChain *> toDelete;
+    Toolchains toDemote;
+    Toolchains toRegister;
+    Toolchains toDelete;
 };
 
-static QList<ToolChain *> autoDetectToolChains(const QList<ToolChain *> alreadyKnownTcs,
-                                               const IDevice::Ptr &device)
+static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
 {
-    QList<ToolChain *> result;
+    Toolchains result;
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories())
-        result.append(f->autoDetect(alreadyKnownTcs, device));
+        result.append(f->autoDetect(detector));
 
     // Remove invalid toolchains that might have sneaked in.
     return Utils::filtered(result, [](const ToolChain *tc) { return tc->isValid(); });
 }
 
-static QList<ToolChain *> makeUniqueByEqual(const QList<ToolChain *> &a)
+static Toolchains makeUniqueByEqual(const Toolchains &a)
 {
-    QList<ToolChain *> result;
+    Toolchains result;
     foreach (ToolChain *tc, a) {
         if (!Utils::contains(result, [tc](ToolChain *rtc) { return *tc == *rtc; }))
             result.append(tc);
@@ -88,42 +87,42 @@ static QList<ToolChain *> makeUniqueByEqual(const QList<ToolChain *> &a)
     return result;
 }
 
-static QList<ToolChain *> makeUniqueByPointerEqual(const QList<ToolChain *> &a)
+static Toolchains makeUniqueByPointerEqual(const Toolchains &a)
 {
     return Utils::toList(Utils::toSet(a));
 }
 
-static QList<ToolChain *> subtractById(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+static Toolchains subtractById(const Toolchains &a, const Toolchains &b)
 {
     return Utils::filtered(a, [&b](ToolChain *atc) {
                                   return !Utils::anyOf(b, Utils::equal(&ToolChain::id, atc->id()));
                               });
 }
 
-static bool containsByEqual(const QList<ToolChain *> &a, const ToolChain *atc)
+static bool containsByEqual(const Toolchains &a, const ToolChain *atc)
 {
     return Utils::anyOf(a, [atc](ToolChain *btc) { return *atc == *btc; });
 }
 
-static QList<ToolChain *> subtractByEqual(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+static Toolchains subtractByEqual(const Toolchains &a, const Toolchains &b)
 {
     return Utils::filtered(a, [&b](ToolChain *atc) {
                                   return !Utils::anyOf(b, [atc](ToolChain *btc) { return *atc == *btc; });
                               });
 }
 
-static QList<ToolChain *> subtractByPointerEqual(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
+static Toolchains subtractByPointerEqual(const Toolchains &a, const Toolchains &b)
 {
     return Utils::filtered(a, [&b](ToolChain *atc) { return !b.contains(atc); });
 }
 
-static QList<ToolChain *> stabilizeOrder(const QList<ToolChain *> &toRegister,
-                                         const QList<ToolChain *> &userFileTcs)
+static Toolchains stabilizeOrder(const Toolchains &toRegister,
+                                         const Toolchains &userFileTcs)
 {
     // Keep the toolchains in their position in the user toolchain file to minimize diff!
-    QList<ToolChain *> result;
+    Toolchains result;
     result.reserve(toRegister.size());
-    QList<ToolChain *> toHandle = toRegister;
+    Toolchains toHandle = toRegister;
 
     for (int i = 0; i < userFileTcs.count(); ++i) {
         const QByteArray userId = userFileTcs.at(i)->id();
@@ -139,30 +138,30 @@ static QList<ToolChain *> stabilizeOrder(const QList<ToolChain *> &toRegister,
     return result;
 }
 
-static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemFileTcs,
-                                               const QList<ToolChain *> &userFileTcs,
-                                               const QList<ToolChain *> &autodetectedTcs)
+static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
+                                               const Toolchains &userFileTcs,
+                                               const Toolchains &autodetectedTcs)
 {
-    const QList<ToolChain *> uniqueUserFileTcs = makeUniqueByEqual(userFileTcs);
-    QList<ToolChain *> manualUserFileTcs;
-    QList<ToolChain *> autodetectedUserFileTcs;
+    const Toolchains uniqueUserFileTcs = makeUniqueByEqual(userFileTcs);
+    Toolchains manualUserFileTcs;
+    Toolchains autodetectedUserFileTcs;
     std::tie(autodetectedUserFileTcs, manualUserFileTcs)
             = Utils::partition(uniqueUserFileTcs, &ToolChain::isAutoDetected);
-    const QList<ToolChain *> autodetectedUserTcs = subtractById(autodetectedUserFileTcs, systemFileTcs);
+    const Toolchains autodetectedUserTcs = subtractById(autodetectedUserFileTcs, systemFileTcs);
 
     // Calculate a set of Tcs that were detected before (and saved to userFile) and that
     // got re-detected again. Take the userTcs (to keep Ids) over the same in autodetectedTcs.
-    QList<ToolChain *> redetectedUserTcs;
-    QList<ToolChain *> notRedetectedUserTcs;
+    Toolchains redetectedUserTcs;
+    Toolchains notRedetectedUserTcs;
     std::tie(redetectedUserTcs, notRedetectedUserTcs)
             = Utils::partition(autodetectedUserTcs,
                                [&autodetectedTcs](ToolChain *tc) { return containsByEqual(autodetectedTcs, tc); });
 
     // Remove redetected tcs from autodetectedTcs:
-    const QList<ToolChain *> newlyAutodetectedTcs
+    const Toolchains newlyAutodetectedTcs
             = subtractByEqual(autodetectedTcs, redetectedUserTcs);
 
-    const QList<ToolChain *> notRedetectedButValidUserTcs
+    const Toolchains notRedetectedButValidUserTcs
             = Utils::filtered(notRedetectedUserTcs, &ToolChain::isValid);
 
     ToolChainOperations result;
@@ -190,22 +189,23 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
 
-QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
+Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
 {
     // read all tool chains from SDK
-    const QList<ToolChain *> systemFileTcs = toolChains(
+    const Toolchains systemFileTcs = toolChains(
         restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME), parent));
     for (ToolChain * const systemTc : systemFileTcs)
         systemTc->setDetection(ToolChain::AutoDetectionFromSdk);
 
     // read all tool chains from user file.
-    const QList<ToolChain *> userFileTcs = toolChains(restoreSettings(parent));
+    const Toolchains userFileTcs = toolChains(restoreSettings(parent));
 
     // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
-    const QList<ToolChain *> autodetectedUserFileTcs
+    const Toolchains autodetectedUserFileTcs
             = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
     // FIXME: Use real device?
-    const QList<ToolChain *> autodetectedTcs = autoDetectToolChains(autodetectedUserFileTcs, {});
+    const Toolchains autodetectedTcs =
+        autoDetectToolChains(ToolchainDetector(autodetectedUserFileTcs, {}));
 
     // merge tool chains and register those that we need to keep:
     const ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);
@@ -219,7 +219,7 @@ QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent)
     return ops.toRegister;
 }
 
-void ToolChainSettingsAccessor::saveToolChains(const QList<ToolChain *> &toolchains, QWidget *parent)
+void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWidget *parent)
 {
     QVariantMap data;
 
@@ -240,9 +240,9 @@ void ToolChainSettingsAccessor::saveToolChains(const QList<ToolChain *> &toolcha
     saveSettings(data, parent);
 }
 
-QList<ToolChain *> ToolChainSettingsAccessor::toolChains(const QVariantMap &data) const
+Toolchains ToolChainSettingsAccessor::toolChains(const QVariantMap &data) const
 {
-    QList<ToolChain *> result;
+    Toolchains result;
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
     const int count = data.value(TOOLCHAIN_COUNT_KEY, 0).toInt();
@@ -290,8 +290,6 @@ QList<ToolChain *> ToolChainSettingsAccessor::toolChains(const QVariantMap &data
 #include <QTest>
 
 namespace ProjectExplorer {
-
-using TCList = QList<ToolChain *>;
 
 const char TestTokenKey[] = "TestTokenKey";
 const char TestToolChainType[] = "TestToolChainType";
@@ -375,11 +373,11 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
 
     TestToolChainFactory factory;
 
-    QTest::addColumn<TCList>("system");
-    QTest::addColumn<TCList>("user");
-    QTest::addColumn<TCList>("autodetect");
-    QTest::addColumn<TCList>("toDemote");
-    QTest::addColumn<TCList>("toRegister");
+    QTest::addColumn<Toolchains>("system");
+    QTest::addColumn<Toolchains>("user");
+    QTest::addColumn<Toolchains>("autodetect");
+    QTest::addColumn<Toolchains>("toDemote");
+    QTest::addColumn<Toolchains>("toRegister");
 
     TTC *system1 = nullptr;
     ToolChain *system1c = nullptr;
@@ -422,57 +420,57 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
     }
 
     QTest::newRow("no toolchains")
-            << (TCList()) << (TCList()) << (TCList())
-            << (TCList()) << (TCList());
+            << (Toolchains()) << (Toolchains()) << (Toolchains())
+            << (Toolchains()) << (Toolchains());
 
     QTest::newRow("System: system, no user")
-            << (TCList() << system1) << (TCList()) << (TCList())
-            << (TCList()) << (TCList() << system1);
+            << (Toolchains() << system1) << (Toolchains()) << (Toolchains())
+            << (Toolchains()) << (Toolchains() << system1);
     QTest::newRow("System: system, user")
-            << (TCList() << system1) << (TCList() << system1) << (TCList())
-            << (TCList()) << (TCList() << system1);
+            << (Toolchains() << system1) << (Toolchains() << system1) << (Toolchains())
+            << (Toolchains()) << (Toolchains() << system1);
     QTest::newRow("System: no system, user") // keep, the user tool chain as it is still found
-            << (TCList()) << (TCList() << system1) << (TCList())
-            << (TCList() << system1) << (TCList() << system1);
+            << (Toolchains()) << (Toolchains() << system1) << (Toolchains())
+            << (Toolchains() << system1) << (Toolchains() << system1);
     QTest::newRow("System: no system, invalid user")
-            << (TCList()) << (TCList() << system3i) << (TCList())
-            << (TCList()) << (TCList());
+            << (Toolchains()) << (Toolchains() << system3i) << (Toolchains())
+            << (Toolchains()) << (Toolchains());
 
     QTest::newRow("Auto: no auto, user")
-            << (TCList()) << (TCList() << auto1) << (TCList())
-            << (TCList() << auto1) << (TCList() << auto1);
+            << (Toolchains()) << (Toolchains() << auto1) << (Toolchains())
+            << (Toolchains() << auto1) << (Toolchains() << auto1);
     QTest::newRow("Auto: auto, no user")
-            << (TCList()) << (TCList()) << (TCList() << auto1)
-            << (TCList()) << (TCList() << auto1);
+            << (Toolchains()) << (Toolchains()) << (Toolchains() << auto1)
+            << (Toolchains()) << (Toolchains() << auto1);
     QTest::newRow("Auto: auto, user")
-            << (TCList()) << (TCList() << auto1) << (TCList() << auto1)
-            << (TCList()) << (TCList() << auto1);
+            << (Toolchains()) << (Toolchains() << auto1) << (Toolchains() << auto1)
+            << (Toolchains()) << (Toolchains() << auto1);
     QTest::newRow("Auto: auto-redetect, user")
-            << (TCList()) << (TCList() << auto1) << (TCList() << auto1_2)
-            << (TCList()) << (TCList() << auto1);
+            << (Toolchains()) << (Toolchains() << auto1) << (Toolchains() << auto1_2)
+            << (Toolchains()) << (Toolchains() << auto1);
     QTest::newRow("Auto: auto-redetect, duplicate users")
-            << (TCList()) << (TCList() << auto1 << auto1c) << (TCList() << auto1_2)
-            << (TCList()) << (TCList() << auto1);
+            << (Toolchains()) << (Toolchains() << auto1 << auto1c) << (Toolchains() << auto1_2)
+            << (Toolchains()) << (Toolchains() << auto1);
     QTest::newRow("Auto: (no) auto, invalid user")
-            << (TCList()) << (TCList() << auto3i) << (TCList())
-            << (TCList()) << (TCList());
+            << (Toolchains()) << (Toolchains() << auto3i) << (Toolchains())
+            << (Toolchains()) << (Toolchains());
 
     QTest::newRow("invalid user")
-            << (TCList()) << (TCList() << user3i) << (TCList())
-            << (TCList()) << (TCList{user3i});
+            << (Toolchains()) << (Toolchains() << user3i) << (Toolchains())
+            << (Toolchains()) << (Toolchains{user3i});
 
     QTest::newRow("one of everything")
-            << (TCList() << system1) << (TCList() << user1) << (TCList() << auto1)
-            << (TCList()) << (TCList() << system1 << user1 << auto1);
+            << (Toolchains() << system1) << (Toolchains() << user1) << (Toolchains() << auto1)
+            << (Toolchains()) << (Toolchains() << system1 << user1 << auto1);
 }
 
 void ProjectExplorerPlugin::testToolChainMerging()
 {
-    QFETCH(TCList, system);
-    QFETCH(TCList, user);
-    QFETCH(TCList, autodetect);
-    QFETCH(TCList, toRegister);
-    QFETCH(TCList, toDemote);
+    QFETCH(Toolchains, system);
+    QFETCH(Toolchains, user);
+    QFETCH(Toolchains, autodetect);
+    QFETCH(Toolchains, toRegister);
+    QFETCH(Toolchains, toDemote);
 
     Internal::ToolChainOperations ops = Internal::mergeToolChainLists(system, user, autodetect);
 

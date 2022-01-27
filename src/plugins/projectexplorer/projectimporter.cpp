@@ -411,7 +411,7 @@ ProjectImporter::ToolChainData
 ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
 {
     ToolChainData result;
-    result.tcs = ToolChainManager::toolChains([&tcd](const ToolChain *tc) {
+    result.tcs = ToolChainManager::toolchains([&tcd](const ToolChain *tc) {
         return tc->language() == tcd.language &&
                Utils::Environment::systemEnvironment().isSameExecutable(
                     tc->compilerCommand().toString(), tcd.compilerPath.toString());

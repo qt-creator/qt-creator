@@ -78,6 +78,7 @@ using namespace LanguageUtils;
 using namespace QmlJS;
 
 static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load", QtWarningMsg)
+static Q_LOGGING_CATEGORY(texttomodelMergerDebug, "qtc.texttomodelmerger.debug", QtDebugMsg)
 
 namespace {
 
@@ -574,7 +575,7 @@ public:
         if (parentObject)
             *parentObject = objectValue;
         if (!value) {
-            qWarning() << Q_FUNC_INFO << "Skipping invalid property name" << propertyName;
+            qCInfo(texttomodelMergerDebug) << Q_FUNC_INFO << "Skipping invalid property name" << propertyName;
             return false;
         }
 
@@ -655,9 +656,10 @@ public:
         const ObjectValue *containingObject = nullptr;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
-            qWarning() << Q_FUNC_INFO << "Unknown property" << propertyPrefix + QLatin1Char('.') + toString(propertyId)
-                       << "on line" << propertyId->identifierToken.startLine
-                       << "column" << propertyId->identifierToken.startColumn;
+            qCInfo(texttomodelMergerDebug) << Q_FUNC_INFO << "Unknown property"
+                                      << propertyPrefix + QLatin1Char('.') + toString(propertyId)
+                                      << "on line" << propertyId->identifierToken.startLine
+                                      << "column" << propertyId->identifierToken.startColumn;
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 
@@ -1346,6 +1348,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 syncExpressionProperty(modelProperty, astValue, astType, differenceHandler);
             }
             modelPropertyNames.remove(astName.toUtf8());
+        } else if (auto source = AST::cast<AST::UiSourceElement *>(member)) {
+            // function et al
         } else {
             qWarning() << "Found an unknown QML value.";
         }
@@ -2176,7 +2180,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 #ifndef QMLDESIGNER_TEST
                 auto target = ProjectExplorer::SessionManager::startupTarget();
                 if (target) {
-                    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(
+                    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(
                         target->kit());
                     if (currentQtVersion && currentQtVersion->isValid()) {
                         const bool qt6import = import.version().startsWith("6");
@@ -2250,18 +2254,6 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(QList<DocumentMessage> 
         }
         if (message.severity == Severity::Warning)
             warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
-    }
-
-    for (const Import &import : m_rewriterView->model()->imports()) {
-        if (import.isLibraryImport() && import.url() == "QtQuick3D") {
-            const QString version = getHighestPossibleImport(import.url());
-            if (!import.version().isEmpty() && Import::majorFromVersion(version) > import.majorVersion()) {
-                errors->append(DocumentMessage(
-                    QObject::tr(
-                        "The selected version of the Qt Quick 3D module is not supported with the selected Qt version.")
-                        .arg(version)));
-            }
-        }
     }
 }
 

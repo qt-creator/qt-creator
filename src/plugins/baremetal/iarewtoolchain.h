@@ -90,16 +90,15 @@ class IarToolChainFactory final : public ProjectExplorer::ToolChainFactory
 public:
     IarToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
-            const ProjectExplorer::IDevice::Ptr &device) final;
-    QList<ProjectExplorer::ToolChain *> detectForImport(
-            const ProjectExplorer::ToolChainDescription &tcd) final;
+    ProjectExplorer::Toolchains autoDetect(
+            const ProjectExplorer::ToolchainDetector &detector) const final;
+    ProjectExplorer::Toolchains detectForImport(
+            const ProjectExplorer::ToolChainDescription &tcd) const final;
 
 private:
-    QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) const;
-    QList<ProjectExplorer::ToolChain *> autoDetectToolchain(
+    ProjectExplorer::Toolchains autoDetectToolchains(const Candidates &candidates,
+            const ProjectExplorer::Toolchains &alreadyKnown) const;
+    ProjectExplorer::Toolchains autoDetectToolchain(
             const Candidate &candidate, Utils::Id languageId) const;
 };
 

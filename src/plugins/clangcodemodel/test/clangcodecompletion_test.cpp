@@ -255,7 +255,7 @@ CppEditor::ProjectPart::ConstPtr createProjectPart(const Utils::FilePath &projec
 
     ProjectExplorer::RawProjectPart rpp;
     rpp.setProjectFileLocation("myproject.project");
-    rpp.setQtVersion(Utils::QtVersion::None);
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
     rpp.setMacros(macros);
     const auto projectFiles = Utils::transform<ProjectFiles>(files, [](const QString &f) {
         return ProjectFile(f, ProjectFile::classify(f));

@@ -152,7 +152,7 @@ if (NOT TARGET Sqlite)
   add_subdirectory(../../../src/libs/sqlite ${CMAKE_CURRENT_BINARY_DIR}/sqlite)
 endif()
 extend_qtc_test_with_target_sources(Sqlite
-  DEFINES _HAVE_SQLITE_CONFIG_H
+  DEFINES SQLITE_CUSTOM_INCLUDE=config.h
 )
 
 if (APPLE)
@@ -464,21 +464,6 @@ extend_qtc_test(unittest
   DEFINES CPPEDITOR_STATIC_LIBRARY
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
-)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/clangformat
-  CONDITION HAVE_LIBCLANG
-  DEPENDS ${CLANG_TOOLING_LIBS}
-  SOURCES
-    clangformatconstants.h
-    clangformatbaseindenter.cpp clangformatbaseindenter.h
-)
-
-extend_qtc_test(unittest
-  CONDITION HAVE_LIBCLANG
-  SOURCES
-    clangformat-test.cpp
 )
 
 get_filename_component(

@@ -415,7 +415,7 @@ void ProcessExtraCompiler::runInThread(
 
     process.setEnvironment(env);
     if (!workDir.isEmpty())
-        process.setWorkingDirectory(workDir.toString());
+        process.setWorkingDirectory(workDir);
     process.setCommand({ cmd, args });
     process.setWriteData(sourceContents);
     process.start();

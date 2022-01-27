@@ -81,6 +81,11 @@ bool IDeviceFactory::canCreate() const
     return m_canCreate;
 }
 
+IDevice::Ptr IDeviceFactory::create() const
+{
+    return m_creator ? m_creator() : IDevice::Ptr();
+}
+
 IDevice::Ptr IDeviceFactory::construct() const
 {
     return m_constructor ? m_constructor() : IDevice::Ptr();
@@ -117,6 +122,11 @@ void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &larg
 void IDeviceFactory::setCanCreate(bool canCreate)
 {
     m_canCreate = canCreate;
+}
+
+void IDeviceFactory::setCreator(const std::function<IDevice::Ptr ()> &creator)
+{
+    m_creator = creator;
 }
 
 void IDeviceFactory::setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor)

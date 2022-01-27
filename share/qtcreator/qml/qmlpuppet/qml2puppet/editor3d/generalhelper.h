@@ -72,6 +72,9 @@ public:
                                              const QVariant &nodes, QQuick3DViewport *viewPort,
                                              float oldZoom, bool updateZoom = true,
                                              bool closeUp = false);
+    Q_INVOKABLE void alignCameras(QQuick3DCamera *camera, const QVariant &nodes);
+    Q_INVOKABLE QVector3D alignView(QQuick3DCamera *camera, const QVariant &nodes,
+                                    const QVector3D &lookAtPoint);
     Q_INVOKABLE bool fuzzyCompare(double a, double b);
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);

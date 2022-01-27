@@ -48,7 +48,7 @@ QSet<Utils::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
 
 QSet<Utils::Id> WinRtPhoneQtVersion::availableFeatures() const
 {
-    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtSupport::QtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(Utils::Id::versionedId(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1));

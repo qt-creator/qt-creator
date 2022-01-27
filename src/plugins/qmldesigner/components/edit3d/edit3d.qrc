@@ -44,5 +44,9 @@
         <file>images/particles_pause@2x.png</file>
         <file>images/particles_restart.png</file>
         <file>images/particles_restart@2x.png</file>
-        </qresource>
+        <file>images/align_camera_on.png</file>
+        <file>images/align_camera_on@2x.png</file>
+        <file>images/align_view_on.png</file>
+        <file>images/align_view_on@2x.png</file>
+    </qresource>
 </RCC>

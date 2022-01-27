@@ -172,7 +172,7 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
         break;
     }
 
-    if (part.qtVersion != Utils::QtVersion::None)
+    if (part.qtVersion != Utils::QtMajorVersion::None)
         result.push_back("--library=qt");
 
     return result;

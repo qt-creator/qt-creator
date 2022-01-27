@@ -31,7 +31,7 @@
 
 namespace QtSupport {
 
-class BaseQtVersion;
+class QtVersion;
 
 // Documentation inside.
 class QTSUPPORT_EXPORT QtProjectImporter : public ProjectExplorer::ProjectImporter
@@ -42,7 +42,7 @@ public:
     class QtVersionData
     {
     public:
-        BaseQtVersion *qt = nullptr;
+        QtVersion *qt = nullptr;
         bool isTemporary = true;
     };
 

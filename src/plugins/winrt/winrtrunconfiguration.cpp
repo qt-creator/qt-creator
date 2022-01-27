@@ -72,7 +72,7 @@ WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Utils::Id id)
     addAspect<ArgumentsAspect>();
     addAspect<UninstallAfterStopAspect>();
 
-    const QtSupport::BaseQtVersion *qt
+    const QtSupport::QtVersion *qt
             = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber(5, 12, 0)) {
         addAspect<LoopbackExemptClientAspect>();

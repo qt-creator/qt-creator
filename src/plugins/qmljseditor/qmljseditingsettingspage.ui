@@ -92,6 +92,13 @@
         </property>
        </widget>
       </item>
+      <item>
+      <widget class="QCheckBox" name="openUiQmlFilesInQDS">
+       <property name="text">
+        <string>Open .ui.qml files in Qt Design Studio</string>
+       </property>
+      </widget>
+     </item>
      </layout>
     </widget>
    </item>

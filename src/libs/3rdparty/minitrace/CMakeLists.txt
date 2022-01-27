@@ -1,9 +1,0 @@
-
-# Enable with BUILD_LIBRARY_MINITRACE=ON
-add_qtc_library(Minitrace
-  BUILD_DEFAULT OFF
-  DEFINES MINITRACE_LIBRARY
-  PUBLIC_DEFINES MTR_ENABLED
-  SOURCES private/minitrace.c
-)
-

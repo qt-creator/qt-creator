@@ -339,6 +339,8 @@ function(extend_with_qmldesigner_core target_name)
       commands/endpuppetcommand.h
       commands/informationchangedcommand.cpp
       commands/informationchangedcommand.h
+      commands/nanotracecommand.cpp
+      commands/nanotracecommand.h
       commands/inputeventcommand.cpp
       commands/inputeventcommand.h
       commands/pixmapchangedcommand.cpp

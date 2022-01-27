@@ -254,7 +254,7 @@ void CompilerOptionsBuilder::addWordWidth()
 
 void CompilerOptionsBuilder::addTargetTriple()
 {
-    const QString target = m_explicitTarget.isEmpty()
+    const QString target = m_explicitTarget.isEmpty() || m_projectPart.targetTripleIsAuthoritative
             ? m_projectPart.toolChainTargetTriple : m_explicitTarget;
 
     // Only "--target=" style is accepted in both g++ and cl driver modes.
@@ -733,7 +733,7 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const Macro &macro) const
 
 QStringList CompilerOptionsBuilder::wrappedQtHeadersIncludePath() const
 {
-    if (m_projectPart.qtVersion == QtVersion::None)
+    if (m_projectPart.qtVersion == QtMajorVersion::None)
         return {};
     return {"wrappedQtHeaders", "wrappedQtHeaders/QtCore"};
 }

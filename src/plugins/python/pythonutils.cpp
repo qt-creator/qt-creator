@@ -36,8 +36,8 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
-#include <utils/consoleprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcprocess.h>
 
 using namespace Utils;
 
@@ -95,7 +95,7 @@ static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
     return {"-c", QString("%1; print('Running \"%1\"')").arg(import)};
 }
 
-void openPythonRepl(const FilePath &file, ReplType type)
+void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
 {
     static const auto workingDir = [](const FilePath &file) {
         if (file.isEmpty()) {
@@ -107,22 +107,22 @@ void openPythonRepl(const FilePath &file, ReplType type)
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);
-    auto process = new ConsoleProcess;
+    auto process = new QtcProcess(QtcProcess::TerminalOn, parent);
     const FilePath pythonCommand = detectPython(file);
     process->setCommand({pythonCommand, args});
     process->setWorkingDirectory(workingDir(file));
-    const QString commandLine = process->command().toUserOutput();
+    const QString commandLine = process->commandLine().toUserOutput();
     QObject::connect(process,
-                     &ConsoleProcess::processError,
+                     &QtcProcess::errorOccurred,
                      process,
-                     [process, commandLine](const QString &errorString) {
+                     [process, commandLine] {
                          Core::MessageManager::writeDisrupting(
                              QCoreApplication::translate("Python",
                                                          "Failed to run Python (%1): \"%2\".")
-                                 .arg(commandLine, errorString));
+                                 .arg(commandLine, process->errorString()));
                          process->deleteLater();
                      });
-    QObject::connect(process, &ConsoleProcess::stubStopped, process, &QObject::deleteLater);
+    QObject::connect(process, &QtcProcess::finished, process, &QObject::deleteLater);
     process->start();
 }
 

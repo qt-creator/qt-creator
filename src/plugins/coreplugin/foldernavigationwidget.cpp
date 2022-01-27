@@ -616,7 +616,9 @@ void FolderNavigationWidget::openItem(const QModelIndex &index)
     if (m_fileSystemModel->isDir(index))
         return;
     const QString path = m_fileSystemModel->filePath(index);
-    Core::EditorManager::openEditor(FilePath::fromString(path));
+    Core::EditorManager::openEditor(FilePath::fromString(path),
+                                    {},
+                                    Core::EditorManager::AllowExternalEditor);
 }
 
 void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)

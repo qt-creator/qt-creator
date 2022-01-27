@@ -80,10 +80,10 @@ private:
     int getQtId(int index) const;
     int getExtraExampleSetIndex(int index) const;
 
-    BaseQtVersion *findHighestQtVersion(const QList<BaseQtVersion *> &versions) const;
+    QtVersion *findHighestQtVersion(const QtVersions &versions) const;
 
-    int indexForQtVersion(BaseQtVersion *qtVersion) const;
-    void recreateModel(const QList<BaseQtVersion *> &qtVersions);
+    int indexForQtVersion(QtVersion *qtVersion) const;
+    void recreateModel(const QtVersions &qtVersions);
     void updateQtVersionList();
 
     void qtVersionManagerLoaded();

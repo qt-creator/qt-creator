@@ -91,14 +91,13 @@ class KeilToolChainFactory final : public ProjectExplorer::ToolChainFactory
 public:
     KeilToolChainFactory();
 
-    QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
-            const ProjectExplorer::IDevice::Ptr &device) final;
+    ProjectExplorer::Toolchains autoDetect(
+            const ProjectExplorer::ToolchainDetector &detector) const final;
 
 private:
-    QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,
-                                                             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) const;
-    QList<ProjectExplorer::ToolChain *> autoDetectToolchain(
+    ProjectExplorer::Toolchains autoDetectToolchains(const Candidates &candidates,
+            const ProjectExplorer::Toolchains &alreadyKnown) const;
+    ProjectExplorer::Toolchains autoDetectToolchain(
             const Candidate &candidate, Utils::Id language) const;
 };
 

@@ -103,7 +103,7 @@ void RawProjectPart::setCallGroupId(const QString &id)
     callGroupId = id;
 }
 
-void RawProjectPart::setQtVersion(Utils::QtVersion qtVersion)
+void RawProjectPart::setQtVersion(Utils::QtMajorVersion qtVersion)
 {
     this->qtVersion = qtVersion;
 }
@@ -182,7 +182,8 @@ ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
         type = toolChain->typeId();
         isMsvc2015ToolChain = toolChain->targetAbi().osFlavor() == Abi::WindowsMsvc2015Flavor;
         wordWidth = toolChain->targetAbi().wordWidth();
-        targetTriple = toolChain->originalTargetTriple();
+        targetTriple = toolChain->effectiveCodeModelTargetTriple();
+        targetTripleIsAuthoritative = !toolChain->explicitCodeModelTargetTriple().isEmpty();
         extraCodeModelFlags = toolChain->extraCodeModelFlags();
         installDir = toolChain->installDir();
         compilerFilePath = toolChain->compilerCommand();

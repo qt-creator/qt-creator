@@ -57,7 +57,7 @@ QtProjectImporter::QtVersionData
 QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
     QtVersionData result;
-    result.qt = QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeFilePath, qmakePath));
+    result.qt = QtVersionManager::version(Utils::equal(&QtVersion::qmakeFilePath, qmakePath));
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();
@@ -93,7 +93,7 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
     });
 }
 
-static BaseQtVersion *versionFromVariant(const QVariant &v)
+static QtVersion *versionFromVariant(const QVariant &v)
 {
     bool ok;
     const int qtId = v.toInt(&ok);
@@ -106,7 +106,7 @@ void QtProjectImporter::cleanupTemporaryQt(Kit *k, const QVariantList &vl)
     if (vl.isEmpty())
         return; // No temporary Qt
     QTC_ASSERT(vl.count() == 1, return);
-    BaseQtVersion *version = versionFromVariant(vl.at(0));
+    QtVersion *version = versionFromVariant(vl.at(0));
     QTC_ASSERT(version, return);
     QtVersionManager::removeVersion(version);
     QtKitAspect::setQtVersion(k, nullptr); // Always mark Kit as not using this Qt
@@ -118,8 +118,8 @@ void QtProjectImporter::persistTemporaryQt(Kit *k, const QVariantList &vl)
         return; // No temporary Qt
     QTC_ASSERT(vl.count() == 1, return);
     const QVariant data = vl.at(0);
-    BaseQtVersion *tmpVersion = versionFromVariant(data);
-    BaseQtVersion *actualVersion = QtKitAspect::qtVersion(k);
+    QtVersion *tmpVersion = versionFromVariant(data);
+    QtVersion *actualVersion = QtKitAspect::qtVersion(k);
 
     // User changed Kit away from temporary Qt that was set up:
     if (tmpVersion && actualVersion != tmpVersion)
@@ -232,7 +232,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     // New temporary kit:
     return createTemporaryKit(findOrCreateQtVersion(dd->qmakePath),
                               [dd](Kit *k) {
-        BaseQtVersion *qt = QtKitAspect::qtVersion(k);
+        QtVersion *qt = QtKitAspect::qtVersion(k);
         QMap<Utils::Id, QVariant> toKeep;
         for (const Utils::Id &key : k->allKeys()) {
             if (key.toString().startsWith("PE.tmp."))
@@ -271,7 +271,7 @@ void TestQtProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
-static QStringList additionalFilesToCopy(const BaseQtVersion *qt)
+static QStringList additionalFilesToCopy(const QtVersion *qt)
 {
     // This is a hack and only works with local, "standard" installations of Qt
     const int major = qt->qtVersion().majorVersion;
@@ -297,7 +297,7 @@ static QStringList additionalFilesToCopy(const BaseQtVersion *qt)
     return {};
 }
 
-static Utils::FilePath setupQmake(const BaseQtVersion *qt, const QString &path)
+static Utils::FilePath setupQmake(const QtVersion *qt, const QString &path)
 {
     // This is a hack and only works with local, "standard" installations of Qt
     const FilePath qmake = qt->qmakeFilePath().canonicalPath();
@@ -402,7 +402,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     Kit *defaultKit = KitManager::defaultKit();
     QVERIFY(defaultKit);
 
-    BaseQtVersion *defaultQt = QtKitAspect::qtVersion(defaultKit);
+    QtVersion *defaultQt = QtKitAspect::qtVersion(defaultKit);
     QVERIFY(defaultQt);
 
     const Utils::TemporaryDirectory tempDir1("tmp1");
@@ -423,7 +423,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
                                            setupQmake(defaultQt, tempDir2.path().path())};
 
     for (int i = 1; i < qmakePaths.count(); ++i)
-        QVERIFY(!QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeFilePath, qmakePaths.at(i))));
+        QVERIFY(!QtVersionManager::version(Utils::equal(&QtVersion::qmakeFilePath, qmakePaths.at(i))));
 
     QList<DirectoryData *> testData;
 
@@ -492,7 +492,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             QCOMPARE(newQtId, defaultQt->uniqueId());
 
         // VALIDATE: Qt is known to QtVersionManager
-        BaseQtVersion *newQt = QtVersionManager::version(newQtId);
+        QtVersion *newQt = QtVersionManager::version(newQtId);
         QVERIFY(newQt);
 
         // VALIDATE: Qt has the expected qmakePath

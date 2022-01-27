@@ -9,7 +9,7 @@ Module {
     Depends { name: "cpp" }
 
     cpp.defines: {
-        var defines = ["_HAVE_SQLITE_CONFIG_H", "SQLITE_CORE"];
+        var defines = ["SQLITE_CUSTOM_INCLUDE=config.h", "SQLITE_CORE"];
         if (buildSharedLib)
             defines.push("BUILD_SQLITE_LIBRARY");
         else

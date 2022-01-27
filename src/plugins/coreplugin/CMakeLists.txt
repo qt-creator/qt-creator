@@ -220,6 +220,3 @@ qt_add_resources(Core
   FILES "${FONTS_BASE}/TitilliumWeb-Regular.ttf"
 )
 endif()
-
-# transitional qmake plugin build support
-qtc_add_public_header(coreplugin_dependencies.pri)

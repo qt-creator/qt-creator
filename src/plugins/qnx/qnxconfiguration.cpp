@@ -170,10 +170,10 @@ void QnxConfiguration::deactivate()
     if (!isActive())
         return;
 
-    QList<DebuggerItem> debuggersToRemove;
-    const QList<ToolChain *> toolChainsToRemove
-            = ToolChainManager::toolChains(Utils::equal(&ToolChain::compilerCommand, qccCompilerPath()));
+    const Toolchains toolChainsToRemove =
+        ToolChainManager::toolchains(Utils::equal(&ToolChain::compilerCommand, qccCompilerPath()));
 
+    QList<DebuggerItem> debuggersToRemove;
     foreach (DebuggerItem debuggerItem,
              DebuggerItemManager::debuggers()) {
         if (findTargetByDebuggerPath(debuggerItem.command()))
@@ -187,7 +187,7 @@ void QnxConfiguration::deactivate()
             KitManager::deregisterKit(kit);
     }
 
-    foreach (ToolChain *tc, toolChainsToRemove)
+    for (ToolChain *tc : toolChainsToRemove)
         ToolChainManager::deregisterToolChain(tc);
 
     foreach (DebuggerItem debuggerItem, debuggersToRemove)
@@ -221,8 +221,8 @@ FilePath QnxConfiguration::sdpPath() const
 
 QnxQtVersion *QnxConfiguration::qnxQtVersion(const Target &target) const
 {
-    foreach (BaseQtVersion *version,
-             QtVersionManager::instance()->versions(Utils::equal(&BaseQtVersion::type,
+    foreach (QtVersion *version,
+             QtVersionManager::instance()->versions(Utils::equal(&QtVersion::type,
                                                                          QString::fromLatin1(Constants::QNX_QNX_QT)))) {
         auto qnxQt = dynamic_cast<QnxQtVersion *>(version);
         if (qnxQt && qnxQt->sdpPath() == sdpPath()) {
@@ -444,9 +444,8 @@ void QnxConfiguration::updateTargets()
 void QnxConfiguration::assignDebuggersToTargets()
 {
     const FilePath hostUsrBinDir = m_qnxHost.pathAppended("usr/bin");
-    FilePaths debuggerNames = hostUsrBinDir.dirEntries(
-                QStringList(HostOsInfo::withExecutableSuffix("nto*-gdb")),
-                QDir::Files);
+    const FilePaths debuggerNames = hostUsrBinDir.dirEntries(
+                {{HostOsInfo::withExecutableSuffix("nto*-gdb")}, QDir::Files});
     Environment sysEnv = Environment::systemEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
     for (const FilePath &debuggerPath : debuggerNames) {

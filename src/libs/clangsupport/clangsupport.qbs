@@ -5,7 +5,6 @@ QtcLibrary {
     targetName: "Clangbackendipc"
 
     Depends { name: "Qt.network" }
-    Depends { name: "Sqlite" }
     Depends { name: "Utils" }
 
     cpp.defines: base.concat("CLANGSUPPORT_BUILD_LIB")
@@ -19,7 +18,6 @@ QtcLibrary {
     }
 
     Export {
-        Depends { name: "Sqlite" }
         Depends { name: "Utils" }
         Depends { name: "Qt.network" }
         cpp.includePaths: [

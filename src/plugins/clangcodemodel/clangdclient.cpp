@@ -613,6 +613,8 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty"});
+    if (settings.clangdVersion() >= QVersionNumber(14))
+        cmd.addArg("--use-dirty-headers");
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
     return interface;

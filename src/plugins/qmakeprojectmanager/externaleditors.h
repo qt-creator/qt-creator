@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 class QTcpSocket;
 QT_END_NAMESPACE
 
-namespace QtSupport { class BaseQtVersion; }
+namespace QtSupport { class QtVersion; }
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -54,7 +54,7 @@ class ExternalQtEditor : public Core::IExternalEditor
 
 public:
     // Member function pointer for a QtVersion function return a string (command)
-    using CommandForQtVersion = std::function<QString(const QtSupport::BaseQtVersion *)>;
+    using CommandForQtVersion = std::function<QString(const QtSupport::QtVersion *)>;
 
     static ExternalQtEditor *createLinguistEditor();
     static ExternalQtEditor *createDesignerEditor();

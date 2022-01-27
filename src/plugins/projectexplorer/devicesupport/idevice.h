@@ -33,7 +33,6 @@
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
-#include <QDir>
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
@@ -160,7 +159,7 @@ public:
     Utils::Id id() const;
 
     virtual bool isCompatibleWith(const Kit *k) const;
-    virtual QVector<Task> validate() const;
+    virtual QList<Task> validate() const;
 
     QString displayType() const;
     Utils::OsType osType() const;
@@ -257,12 +256,11 @@ public:
     virtual bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
     virtual Utils::FilePath searchExecutable(const QString &fileName,
-                                             const QList<Utils::FilePath> &dirs) const;
+                                             const Utils::FilePaths &dirs) const;
     virtual Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const;
     virtual void iterateDirectory(const Utils::FilePath &filePath,
                                   const std::function<bool(const Utils::FilePath &)> &callBack,
-                                  const QStringList &nameFilters,
-                                  QDir::Filters filters) const;
+                                  const Utils::FileFilter &filter) const;
     virtual QByteArray fileContents(const Utils::FilePath &filePath,
                                     qint64 limit,
                                     qint64 offset) const;

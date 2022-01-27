@@ -300,13 +300,13 @@ public:
                               const QByteArray &stdInput = {},
                               QTextCodec *outputCodec = nullptr) const;
 
-    PerforceResponse synchronousProcess(const QString &workingDir,
+    PerforceResponse synchronousProcess(const FilePath &workingDir,
                                         const QStringList &args,
                                         unsigned flags,
                                         const QByteArray &stdInput,
                                         QTextCodec *outputCodec) const;
 
-    PerforceResponse fullySynchronousProcess(const QString &workingDir,
+    PerforceResponse fullySynchronousProcess(const FilePath &workingDir,
                                              const QStringList &args,
                                              unsigned flags,
                                              const QByteArray &stdInput,
@@ -1238,7 +1238,7 @@ static inline QString msgExitCode(int ex)
 }
 
 // Run using a SynchronousProcess, emitting signals to the message window
-PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workingDir,
+PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &workingDir,
                                                            const QStringList &args,
                                                            unsigned flags,
                                                            const QByteArray &stdInput,
@@ -1270,8 +1270,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({m_settings.p4BinaryPath.filePath(), args});
-    process.setProcessUserEventWhileRunning();
-    process.runBlocking();
+    process.runBlocking(QtcProcess::WithEventLoop);
 
     PerforceResponse response;
     response.error = true;
@@ -1300,7 +1299,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const QString &workin
 }
 
 // Run using a QProcess, for short queries
-PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const QString &workingDir,
+PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &workingDir,
                                                                 const QStringList &args,
                                                                 unsigned flags,
                                                                 const QByteArray &stdInput,
@@ -1388,8 +1387,8 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     const PerforceResponse  response = (flags & RunFullySynchronous)  ?
-        fullySynchronousProcess(workingDir.toString(), actualArgs, flags, stdInput, outputCodec) :
-        synchronousProcess(workingDir.toString(), actualArgs, flags, stdInput, outputCodec);
+        fullySynchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec) :
+        synchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec);
 
     if (flags & ShowBusyCursor)
         QApplication::restoreOverrideCursor();

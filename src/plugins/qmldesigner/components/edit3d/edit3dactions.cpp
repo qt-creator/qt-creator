@@ -30,6 +30,9 @@
 #include <viewmanager.h>
 #include <nodeinstanceview.h>
 #include <qmldesignerplugin.h>
+#include <nodemetainfo.h>
+
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -92,6 +95,22 @@ bool Edit3DAction::isVisible(const SelectionContext &selectionContext) const
 bool Edit3DAction::isEnabled(const SelectionContext &selectionContext) const
 {
     return isVisible(selectionContext);
+}
+
+Edit3DCameraAction::Edit3DCameraAction(const QByteArray &menuId, View3DActionCommand::Type type,
+                                       const QString &description, const QKeySequence &key,
+                                       bool checkable, bool checked, const QIcon &iconOff,
+                                       const QIcon &iconOn,
+                                       SelectionContextOperation selectionAction)
+    : Edit3DAction(menuId, type, description, key, checkable, checked, iconOff, iconOn, selectionAction)
+{
+}
+
+bool Edit3DCameraAction::isEnabled(const SelectionContext &selectionContext) const
+{
+    return Utils::anyOf(selectionContext.selectedModelNodes(), [](const ModelNode &node) {
+        return node.isValid() && node.metaInfo().isSubclassOf("QQuick3D.Camera");
+    });
 }
 
 }

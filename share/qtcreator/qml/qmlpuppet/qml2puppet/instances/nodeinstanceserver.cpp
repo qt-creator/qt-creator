@@ -72,6 +72,8 @@
 #include <requestmodelnodepreviewimagecommand.h>
 #include <changelanguagecommand.h>
 
+#include "nanotrace/nanotrace.h"
+
 #include <designersupportdelegate.h>
 #include <QAbstractAnimation>
 #include <QDebug>
@@ -1313,6 +1315,8 @@ void NodeInstanceServer::removeInstanceRelationsip(qint32 instanceId)
 
 PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<ServerNodeInstance> &instanceList) const
 {
+    NANOTRACE_SCOPE("Update", "createPixmapChangedCommand");
+
     QVector<ImageContainer> imageVector;
 
     for (const ServerNodeInstance &instance : instanceList) {

@@ -50,6 +50,8 @@ static ProfileFeature qmlFeatureFromType(Message message, RangeType rangeType, i
         return ProfileMemory;
     case DebugMessage:
         return ProfileDebugMessages;
+    case Quick3DEvent:
+        return ProfileQuick3D;
     default:
         return featureFromRangeType(rangeType);
     }

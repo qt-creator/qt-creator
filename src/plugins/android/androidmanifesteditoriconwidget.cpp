@@ -256,7 +256,7 @@ static QImage scaleWithoutStretching(const QImage& original, const QSize& target
 
 static bool similarFilesExist(const FilePath &path)
 {
-    const FilePaths entries = path.parentDir().dirEntries({path.completeBaseName() + ".*"}, {});
+    const FilePaths entries = path.parentDir().dirEntries({{path.completeBaseName() + ".*"}});
     return !entries.empty();
 }
 

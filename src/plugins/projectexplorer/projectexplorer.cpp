@@ -39,7 +39,7 @@
 #include "desktoprunconfiguration.h"
 #include "environmentwidget.h"
 #include "extraabi.h"
-#include "gcctoolchainfactories.h"
+#include "gcctoolchain.h"
 #ifdef WITH_JOURNALD
 #include "journaldwatcher.h"
 #endif
@@ -694,7 +694,7 @@ static ProjectExplorerPluginPrivate *dd = nullptr;
 
 static FilePaths projectFilesInDirectory(const FilePath &path)
 {
-    return path.dirEntries(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files);
+    return path.dirEntries({ProjectExplorerPlugin::projectFileGlobs(), QDir::Files});
 }
 
 static FilePaths projectsInDirectory(const FilePath &filePath)
@@ -3643,7 +3643,9 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
                                   : tr("%1 in %2").arg(li.displayName).arg(li.path.toUserOutput());
         auto *action = new QAction(displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
-            Core::EditorManager::openEditorAt(Link(path, line));
+            Core::EditorManager::openEditorAt(Link(path, line),
+                                              {},
+                                              Core::EditorManager::AllowExternalEditor);
         });
 
         projectMenu->addAction(action);

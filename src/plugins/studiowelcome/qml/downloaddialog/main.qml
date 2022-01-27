@@ -30,17 +30,23 @@ import ExampleCheckout 1.0
 import QtQuick.Layouts 1.11
 
 import StudioFonts 1.0
+import StudioTheme 1.0
+
 
 Rectangle {
+
+    property color currentThemeBackground: Values.welcomeScreenBackground
+    property color themeTextColor: Values.themeTextColor
+
     id: root
     property alias url: downloader.url
     property string path: fileExtractor.targetPath
     width: 620
     height: 300
 
-    color: "#2d2e30"
+    color: root.currentThemeBackground
 
-    property color textColor: "#b9b9ba"
+    property color textColor: Values.themeTextColor
 
     signal canceled
     signal accepted
@@ -51,7 +57,7 @@ Rectangle {
     StackLayout {
         id: stackLayout
         anchors.fill: parent
-        currentIndex: root.tempFile.length === 0 ? 0 : 1
+        currentIndex: root.tempFile.length === 0 ? 1 : 1
 
         FileExtractor {
             id: fileExtractor
@@ -76,7 +82,7 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            DialogButton {
+            PushButton {
                 id: button
                 x: 532
                 y: 432
@@ -87,6 +93,7 @@ Rectangle {
                 anchors.rightMargin: 20
                 enabled: false
                 onClicked: stackLayout.currentIndex = 1
+
             }
 
             CoolProgressBar {
@@ -106,7 +113,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            DialogButton {
+            PushButton{
                 id: downloadbutton
                 y: 420
                 enabled: !button.enabled
@@ -119,6 +126,7 @@ Rectangle {
                     downloadbutton.enabled = false
                     downloader.start()
                 }
+
             }
 
             CircularIndicator {
@@ -138,7 +146,7 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            DialogButton {
+            PushButton {
                 id: nextPageDestination
                 x: 532
                 y: 432
@@ -152,6 +160,7 @@ Rectangle {
                     stackLayout.currentIndex = 2
                     fileExtractor.extract()
                 }
+
             }
 
             RowLayout {
@@ -171,7 +180,7 @@ Rectangle {
                     readOnly: true
                 }
 
-                DialogButton {
+                PushButton{
                     id: browse
                     text: qsTr("Browse")
                     onClicked: fileExtractor.browse()
@@ -189,7 +198,7 @@ Rectangle {
                 visible: !nextPageDestination.enabled
             }
 
-            DialogButton {
+            PushButton{
                 id: button5
                 x: 400
                 y: 420
@@ -199,6 +208,7 @@ Rectangle {
                 anchors.bottomMargin: 20
                 anchors.rightMargin: 20
                 onClicked: root.canceled()
+
             }
 
             DialogLabel {
@@ -215,8 +225,7 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-
-            DialogButton {
+            PushButton{
                 id: done
                 x: 532
                 y: 432
@@ -227,6 +236,7 @@ Rectangle {
                 anchors.rightMargin: 20
                 enabled: fileExtractor.finished
                 onClicked: root.accepted()
+
             }
 
 
@@ -241,8 +251,7 @@ Rectangle {
                 anchors.bottomMargin: 20
             }
 
-
-            DialogButton {
+            PushButton{
                 id: details
                 x: 8
                 text: qsTr("Details")
@@ -250,6 +259,7 @@ Rectangle {
                 anchors.topMargin: 66
                 anchors.horizontalCenter: parent.horizontalCenter
                 checkable: true
+
             }
 
 
@@ -291,7 +301,7 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            DialogButton {
+            PushButton{
                 id: finish
                 x: 532
                 y: 432
@@ -301,6 +311,7 @@ Rectangle {
                 anchors.bottomMargin: 20
                 anchors.rightMargin: 20
                 onClicked: root.canceled()
+
             }
 
             DialogLabel {

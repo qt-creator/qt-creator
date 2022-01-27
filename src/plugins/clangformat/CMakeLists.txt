@@ -19,3 +19,12 @@ extend_qtc_plugin(ClangFormat
   CONDITION UNIX AND NOT APPLE
   PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL"
 )
+
+extend_qtc_plugin(ClangFormat
+  CONDITION WITH_TESTS
+  SOURCES
+    tests/clangformat-test.cpp
+    tests/clangformat-test.h
+  DEFINES
+    TESTDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
+)

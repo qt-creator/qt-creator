@@ -126,14 +126,14 @@ void WebAssemblyToolChain::registerToolChains()
             return f->supportedToolChainType() == Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID;
     });
     QTC_ASSERT(factory, return);
-    for (auto toolChain : factory->autoDetect({}, {}))
+    for (auto toolChain : factory->autoDetect(ToolchainDetector({}, {})))
         ToolChainManager::registerToolChain(toolChain);
 
     // Let kits pick up the new toolchains
     for (Kit *kit : KitManager::kits()) {
         if (!kit->isAutoDetected())
             continue;
-        const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit);
+        const QtVersion *qtVersion = QtKitAspect::qtVersion(kit);
         if (!qtVersion || qtVersion->type() != Constants::WEBASSEMBLY_QT_VERSION)
             continue;
         kit->fix();
@@ -155,19 +155,15 @@ WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
-        const QList<ToolChain *> &alreadyKnown,
-        const IDevice::Ptr &device)
+Toolchains WebAssemblyToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(alreadyKnown)
-
     const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 
-    if (device) {
+    if (detector.device) {
         // Only detect toolchains from the emsdk installation device
-        const FilePath deviceRoot = device->mapToGlobalPath({});
+        const FilePath deviceRoot = detector.device->mapToGlobalPath({});
         if (deviceRoot.host() != sdk.host())
             return {};
     }
@@ -175,7 +171,7 @@ QList<ToolChain *> WebAssemblyToolChainFactory::autoDetect(
     Environment env = sdk.deviceEnvironment();
     WebAssemblyEmSdk::addToEnvironment(sdk, env);
 
-    QList<ToolChain *> result;
+    Toolchains result;
     for (auto languageId : {ProjectExplorer::Constants::C_LANGUAGE_ID,
          ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
         auto toolChain = new WebAssemblyToolChain;

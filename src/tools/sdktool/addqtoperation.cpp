@@ -43,7 +43,7 @@ using namespace Utils;
 const char PREFIX[] = "QtVersion.";
 const char VERSION[] = "Version";
 
-// BaseQtVersion:
+// QtVersion:
 const char ID[] = "Id";
 const char DISPLAYNAME[] = "Name";
 const char AUTODETECTED[] = "isAutodetected";

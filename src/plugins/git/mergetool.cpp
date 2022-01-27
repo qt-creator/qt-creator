@@ -59,7 +59,7 @@ bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files
     env.set("LANG", "C");
     env.set("LANGUAGE", "C");
     m_process = new QtcProcess(ProcessMode::Writer);
-    m_process->setWorkingDirectory(workingDirectory.toString());
+    m_process->setWorkingDirectory(workingDirectory);
     m_process->setEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     const Utils::FilePath binary = GitClient::instance()->vcsBinary();

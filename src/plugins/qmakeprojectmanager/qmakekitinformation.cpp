@@ -101,7 +101,7 @@ QmakeKitAspect::QmakeKitAspect()
 Tasks QmakeKitAspect::validate(const Kit *k) const
 {
     Tasks result;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
 
     const QString mkspec = QmakeKitAspect::mkspec(k);
     if (!version && !mkspec.isEmpty())
@@ -161,7 +161,7 @@ void QmakeKitAspect::setMkspec(Kit *k, const QString &mkspec, MkspecSource sourc
 
 QString QmakeKitAspect::defaultMkspec(const Kit *k)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version) // No version, so no qmake
         return {};
 

@@ -48,7 +48,6 @@ const char LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_ID[] = "Workspace Classes and S
 const char LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("LanguageClient", "Classes and Structs in Workspace");
 const char LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_ID[] = "Workspace Functions and Methods";
 const char LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("LanguageClient", "Functions and Methods in Workspace");
-const char G_TOOLS_LANGUAGECLIENT[] = "QtCreator.Group.Tools.LanguageClient";
 
 } // namespace Constants
 } // namespace LanguageClient

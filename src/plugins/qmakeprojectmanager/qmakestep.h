@@ -47,7 +47,7 @@ class Abi;
 class ArgumentsAspect;
 } // namespace ProjectExplorer
 
-namespace QtSupport { class BaseQtVersion; }
+namespace QtSupport { class QtVersion; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
@@ -73,8 +73,8 @@ public:
 
     // TODO remove, does nothing
     static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi,
-                                          const QtSupport::BaseQtVersion *version);
-    static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
+                                          const QtSupport::QtVersion *version);
+    static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::QtVersion *version);
 
     QStringList toArguments() const;
 
@@ -131,7 +131,7 @@ public:
     Q_DECLARE_FLAGS(ArgumentFlags, ArgumentFlag);
 
     // the complete argument line
-    QString allArguments(const QtSupport::BaseQtVersion *v,
+    QString allArguments(const QtSupport::QtVersion *v,
                          ArgumentFlags flags = ArgumentFlags()) const;
     QMakeStepConfig deducedArguments() const;
     // arguments passed to the pro file parser

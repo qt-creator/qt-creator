@@ -76,7 +76,7 @@ public:
     PropertyEditorView propertyEditorView;
     StatesEditorView statesEditorView;
 
-    QList<QPointer<AbstractView> > additionalViews;
+    std::vector<std::unique_ptr<AbstractView>> additionalViews;
     bool disableStandardViews = false;
 };
 
@@ -94,12 +94,7 @@ ViewManager::ViewManager()
     });
 }
 
-ViewManager::~ViewManager()
-{
-    for (const QPointer<AbstractView> &view : qAsConst(d->additionalViews))
-        delete view.data();
-
-}
+ViewManager::~ViewManager() = default;
 
 DesignDocument *ViewManager::currentDesignDocument() const
 {
@@ -169,25 +164,24 @@ void ViewManager::switchStateEditorViewToSavedState()
         d->statesEditorView.setCurrentState(d->savedState);
 }
 
-QList<QPointer<AbstractView> > ViewManager::views() const
+QList<AbstractView *> ViewManager::views() const
 {
-    auto list = d->additionalViews;
+    auto list = Utils::transform<QList<AbstractView *>>(d->additionalViews,
+                                                        [](auto &&view) { return view.get(); });
     list.append(standardViews());
     return list;
 }
 
-const QList<QPointer<AbstractView> > ViewManager::standardViews() const
+QList<AbstractView *> ViewManager::standardViews() const
 {
-    QList<QPointer<AbstractView>> list = {
-                    &d->edit3DView,
-                    &d->formEditorView,
-                    &d->textEditorView,
-                    &d->itemLibraryView,
-                    &d->navigatorView,
-                    &d->propertyEditorView,
-                    &d->statesEditorView,
-                    &d->designerActionManagerView
-                };
+    QList<AbstractView *> list = {&d->edit3DView,
+                                  &d->formEditorView,
+                                  &d->textEditorView,
+                                  &d->itemLibraryView,
+                                  &d->navigatorView,
+                                  &d->propertyEditorView,
+                                  &d->statesEditorView,
+                                  &d->designerActionManagerView};
 
     if (QmlDesignerPlugin::instance()->settings().value(
                 DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
@@ -201,14 +195,9 @@ void ViewManager::resetPropertyEditorView()
     d->propertyEditorView.resetView();
 }
 
-void ViewManager::registerFormEditorToolTakingOwnership(AbstractCustomTool *tool)
+void ViewManager::registerFormEditorTool(std::unique_ptr<AbstractCustomTool> &&tool)
 {
-    d->formEditorView.registerTool(tool);
-}
-
-void ViewManager::registerViewTakingOwnership(AbstractView *view)
-{
-    d->additionalViews.append(view);
+    d->formEditorView.registerTool(std::move(tool));
 }
 
 void ViewManager::detachViewsExceptRewriterAndComponetView()
@@ -228,14 +217,14 @@ void ViewManager::attachItemLibraryView()
 
 void ViewManager::attachAdditionalViews()
 {
-    foreach (const QPointer<AbstractView> &view, d->additionalViews)
-        currentModel()->attachView(view.data());
+    for (auto &view : d->additionalViews)
+        currentModel()->attachView(view.get());
 }
 
 void ViewManager::detachAdditionalViews()
 {
-    foreach (const QPointer<AbstractView> &view, d->additionalViews)
-        currentModel()->detachView(view.data());
+    for (auto &view : d->additionalViews)
+        currentModel()->detachView(view.get());
 }
 
 void ViewManager::detachStandardViews()
@@ -337,9 +326,9 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
 
-    foreach (const QPointer<AbstractView> &abstractView, d->additionalViews) {
-        if (abstractView && abstractView->hasWidget())
-            widgetInfoList.append(abstractView->widgetInfo());
+    for (auto &view : d->additionalViews) {
+        if (view->hasWidget())
+            widgetInfoList.append(view->widgetInfo());
     }
 
     Utils::sort(widgetInfoList, [](const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo) {
@@ -455,6 +444,11 @@ void ViewManager::enableStandardViews()
 AsynchronousImageCache &ViewManager::imageCache()
 {
     return d->itemLibraryView.imageCache();
+}
+
+void ViewManager::addView(std::unique_ptr<AbstractView> &&view)
+{
+    d->additionalViews.push_back(std::move(view));
 }
 
 } // namespace QmlDesigner

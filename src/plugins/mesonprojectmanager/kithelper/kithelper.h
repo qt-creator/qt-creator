@@ -84,21 +84,21 @@ inline KitData kitData(const ProjectExplorer::Kit *kit)
     data.cmakePath = cmakePath(kit);
     data.qmakePath = qmakePath(kit);
     data.qtVersionStr = qtVersion(kit);
-    data.qtVersion = Utils::QtVersion::None;
+    data.qtVersion = Utils::QtMajorVersion::None;
     auto version = Version::fromString(data.qtVersionStr);
     if (version.isValid) {
         switch (version.major) {
         case 4:
-            data.qtVersion = Utils::QtVersion::Qt4;
+            data.qtVersion = Utils::QtMajorVersion::Qt4;
             break;
         case 5:
-            data.qtVersion = Utils::QtVersion::Qt5;
+            data.qtVersion = Utils::QtMajorVersion::Qt5;
             break;
         case 6:
-            data.qtVersion = Utils::QtVersion::Qt6;
+            data.qtVersion = Utils::QtMajorVersion::Qt6;
             break;
         default:
-            data.qtVersion = Utils::QtVersion::Unknown;
+            data.qtVersion = Utils::QtMajorVersion::Unknown;
         }
     }
     return data;

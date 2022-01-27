@@ -180,7 +180,7 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
         if (provider->canHandle(k))
             data = provider->properties(k, data);
     }
-    if (const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k))
+    if (const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k))
         data.insert("moduleProviders.Qt.qmakeFilePaths", qt->qmakeFilePath().toString());
 
     if (QbsSettings::qbsVersion() < QVersionNumber({1, 20})) {

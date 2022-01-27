@@ -63,16 +63,12 @@ bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString
                                                 []() { return new StdIOSettings; }});
 
     //register actions
-    ActionContainer *toolsContainer
-        = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    toolsContainer->insertGroup(Core::Constants::G_TOOLS_OPTIONS, Constants::G_TOOLS_LANGUAGECLIENT);
-    ActionContainer *container = ActionManager::createMenu("Language Client");
-    container->menu()->setTitle(tr("&Language Client"));
-    toolsContainer->addMenu(container, Constants::G_TOOLS_LANGUAGECLIENT);
+    ActionContainer *toolsDebugContainer = ActionManager::actionContainer(
+        Core::Constants::M_TOOLS_DEBUG);
 
-    auto inspectAction = new QAction(tr("Inspect Language Clients"), this);
+    auto inspectAction = new QAction(tr("Inspect Language Clients..."), this);
     connect(inspectAction, &QAction::triggered, this, &LanguageClientManager::showInspector);
-    container->addAction(
+    toolsDebugContainer->addAction(
         ActionManager::registerAction(inspectAction, "LanguageClient.InspectLanguageClients"));
 
     return true;

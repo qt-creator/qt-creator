@@ -41,6 +41,7 @@ public:
 
     void setImage(const QImage &image);
     void setArea(const QRect &area);
+    void setEndPoint(const QPoint &point);
 
 signals:
     void cropAreaChanged(const QRect &area);
@@ -48,4 +49,5 @@ signals:
 private:
     QImage m_image;
     QRect m_area;
+    QPoint m_initialPoint;
 };

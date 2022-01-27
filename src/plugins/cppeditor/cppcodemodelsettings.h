@@ -147,6 +147,7 @@ public:
     Data data() const { return m_data; }
 
     static QVersionNumber clangdVersion(const Utils::FilePath &clangdFilePath);
+    QVersionNumber clangdVersion() const { return clangdVersion(clangdFilePath()); }
 
 #ifdef WITH_TESTS
     static void setUseClangd(bool use);

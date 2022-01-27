@@ -97,7 +97,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
     bundles.mergeBundleForLanguage(Dialect::QmlTypeInfo, defaultQmltypesBundle());
     bundles.mergeBundleForLanguage(Dialect::QmlProject, defaultQmlprojectBundle());
 
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qtVersion) {
         QmlBundle b2(defaultQt5QtQuick2Bundle());
         bundles.mergeBundleForLanguage(Dialect::Qml, b2);

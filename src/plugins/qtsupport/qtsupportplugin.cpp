@@ -132,7 +132,7 @@ void QtSupportPlugin::extensionsInitialized()
 {
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
-    static const auto currentQtVersion = []() -> const BaseQtVersion * {
+    static const auto currentQtVersion = []() -> const QtVersion * {
         ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
         if (!project || !project->activeTarget())
             return nullptr;
@@ -144,7 +144,7 @@ void QtSupportPlugin::extensionsInitialized()
         tr("Full path to the host bin directory of the Qt version in the active kit "
            "of the project containing the current document."),
         []() {
-            const BaseQtVersion * const qt = currentQtVersion();
+            const QtVersion * const qt = currentQtVersion();
             return qt ? qt->hostBinPath().toUserOutput() : QString();
         });
 
@@ -154,7 +154,7 @@ void QtSupportPlugin::extensionsInitialized()
            "of the project containing the current document.<br>You probably want %1 instead.")
             .arg(QString::fromLatin1(kCurrentHostBins)),
         []() {
-            const BaseQtVersion * const qt = currentQtVersion();
+            const QtVersion * const qt = currentQtVersion();
             return qt ? qt->binPath().toUserOutput() : QString();
         });
 
@@ -163,11 +163,11 @@ void QtSupportPlugin::extensionsInitialized()
         tr("Full path to the host libexec directory of the Qt version in the active kit "
            "of the project containing the current document."),
         []() {
-            const BaseQtVersion *const qt = currentQtVersion();
+            const QtVersion *const qt = currentQtVersion();
             return qt ? qt->hostLibexecPath().toUserOutput() : QString();
         });
 
-    static const auto activeQtVersion = []() -> const BaseQtVersion * {
+    static const auto activeQtVersion = []() -> const QtVersion * {
         ProjectExplorer::Project *project = SessionManager::startupProject();
         if (!project || !project->activeTarget())
             return nullptr;
@@ -179,7 +179,7 @@ void QtSupportPlugin::extensionsInitialized()
         tr("Full path to the host bin directory of the Qt version in the active kit "
            "of the active project."),
         []() {
-            const BaseQtVersion * const qt = activeQtVersion();
+            const QtVersion * const qt = activeQtVersion();
             return qt ? qt->hostBinPath().toUserOutput() : QString();
         });
 
@@ -189,7 +189,7 @@ void QtSupportPlugin::extensionsInitialized()
            "of the active project.<br>You probably want %1 instead.")
             .arg(QString::fromLatin1(kActiveHostBins)),
         []() {
-            const BaseQtVersion * const qt = activeQtVersion();
+            const QtVersion * const qt = activeQtVersion();
             return qt ? qt->binPath().toUserOutput() : QString();
         });
 
@@ -198,7 +198,7 @@ void QtSupportPlugin::extensionsInitialized()
         tr("Full path to the libexec bin directory of the Qt version in the active kit "
            "of the active project."),
         []() {
-            const BaseQtVersion *const qt = activeQtVersion();
+            const QtVersion *const qt = activeQtVersion();
             return qt ? qt->hostLibexecPath().toUserOutput() : QString();
         });
 

@@ -135,6 +135,14 @@ using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;
 
+static void checkEditorFlags(EditorManager::OpenEditorFlags flags)
+{
+    if (flags & EditorManager::OpenInOtherSplit) {
+        QTC_CHECK(!(flags & EditorManager::SwitchSplitIfAlreadyVisible));
+        QTC_CHECK(!(flags & EditorManager::AllowExternalEditor));
+    }
+}
+
 //===================EditorManager=====================
 
 /*!
@@ -812,13 +820,21 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
         return activateEditor(view, editor, flags);
     }
 
+    if (skipOpeningBigTextFile(filePath))
+        return nullptr;
+
     FilePath realFp = autoSaveName(filePath);
     if (!filePath.exists() || !realFp.exists() || filePath.lastModified() >= realFp.lastModified()) {
         realFp.removeFile();
         realFp = filePath;
     }
 
-    EditorFactoryList factories = EditorManagerPrivate::findFactories(Id(), filePath);
+    EditorTypeList factories = EditorType::preferredEditorTypes(filePath);
+    if (!(flags & EditorManager::AllowExternalEditor)) {
+        factories = Utils::filtered(factories, [](EditorType *type) {
+            return type->asEditorFactory() != nullptr;
+        });
+    }
     if (factories.isEmpty()) {
         Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
@@ -829,48 +845,56 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
         return nullptr;
     }
     if (editorId.isValid()) {
-        IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
-                                                       Utils::equal(&IEditorFactory::id, editorId));
+        EditorType *factory = EditorType::editorTypeForId(editorId);
         if (factory) {
+            QTC_CHECK(factory->asEditorFactory() || (flags & EditorManager::AllowExternalEditor));
             factories.removeOne(factory);
             factories.push_front(factory);
         }
     }
 
-    if (skipOpeningBigTextFile(filePath))
-        return nullptr;
-
     IEditor *editor = nullptr;
     auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
 
-    IEditorFactory *factory = factories.takeFirst();
+    EditorType *factory = factories.takeFirst();
     while (factory) {
-        editor = createEditor(factory, filePath);
-        if (!editor) {
-            factory = factories.takeFirst();
-            continue;
-        }
-
         QString errorString;
-        IDocument::OpenResult openResult = editor->document()->open(&errorString, filePath, realFp);
-        if (openResult == IDocument::OpenResult::Success)
-            break;
 
-        overrideCursor.reset();
-        delete editor;
-        editor = nullptr;
-
-        if (openResult == IDocument::OpenResult::ReadError) {
-            QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
-                               tr("Could not open \"%1\" for reading. "
-                                  "Either the file does not exist or you do not have "
-                                  "the permissions to open it.")
-                               .arg(realFp.toUserOutput()),
-                               QMessageBox::Ok, ICore::dialogParent());
-            msgbox.exec();
-            return nullptr;
+        if (factory->asEditorFactory()) {
+            editor = createEditor(factory->asEditorFactory(), filePath);
+            if (!editor) {
+                factory = factories.isEmpty() ? nullptr : factories.takeFirst();
+                continue;
+            }
+            IDocument::OpenResult openResult = editor->document()->open(&errorString,
+                                                                        filePath,
+                                                                        realFp);
+            if (openResult == IDocument::OpenResult::Success)
+                break;
+            overrideCursor.reset();
+            delete editor;
+            editor = nullptr;
+            if (openResult == IDocument::OpenResult::ReadError) {
+                QMessageBox msgbox(QMessageBox::Critical,
+                                   EditorManager::tr("File Error"),
+                                   tr("Could not open \"%1\" for reading. "
+                                      "Either the file does not exist or you do not have "
+                                      "the permissions to open it.")
+                                       .arg(realFp.toUserOutput()),
+                                   QMessageBox::Ok,
+                                   ICore::dialogParent());
+                msgbox.exec();
+                return nullptr;
+            }
+            // can happen e.g. when trying to open an completely empty .qrc file
+            QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
+        } else {
+            QTC_ASSERT(factory->asExternalEditor(),
+                       factory = factories.isEmpty() ? nullptr : factories.takeFirst();
+                       continue);
+            if (factory->asExternalEditor()->startEditor(filePath, &errorString))
+                break;
         }
-        QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
 
         if (errorString.isEmpty())
             errorString = tr("Could not open \"%1\": Unknown error.").arg(realFp.toUserOutput());
@@ -881,12 +905,12 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                            QMessageBox::Open | QMessageBox::Cancel,
                            ICore::dialogParent());
 
-        IEditorFactory *selectedFactory = nullptr;
+        EditorType *selectedFactory = nullptr;
         if (!factories.isEmpty()) {
             auto button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
             QTC_ASSERT(button, return nullptr);
             auto menu = new QMenu(button);
-            foreach (IEditorFactory *factory, factories) {
+            foreach (EditorType *factory, factories) {
                 QAction *action = menu->addAction(factory->displayName());
                 connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox]() {
                     selectedFactory = factory;
@@ -3020,8 +3044,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
 */
 void EditorManager::activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags)
 {
+    QTC_CHECK(!(flags & EditorManager::AllowExternalEditor));
+
     EditorManagerPrivate::activateEditorForEntry(EditorManagerPrivate::currentEditorView(),
-                                                 entry, flags);
+                                                 entry,
+                                                 flags);
 }
 
 /*!
@@ -3031,7 +3058,9 @@ void EditorManager::activateEditorForEntry(DocumentModel::Entry *entry, OpenEdit
 */
 void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 {
-    QTC_ASSERT(editor, return);
+    QTC_CHECK(!(flags & EditorManager::AllowExternalEditor));
+
+    QTC_ASSERT(editor, return );
     EditorView *view = EditorManagerPrivate::viewForEditor(editor);
     // an IEditor doesn't have to belong to a view, it might be kept in storage by the editor model
     if (!view)
@@ -3045,7 +3074,11 @@ void EditorManager::activateEditor(IEditor *editor, OpenEditorFlags flags)
 */
 IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEditorFlags flags)
 {
-    return EditorManagerPrivate::activateEditorForDocument(EditorManagerPrivate::currentEditorView(), document, flags);
+    QTC_CHECK(!(flags & EditorManager::AllowExternalEditor));
+
+    return EditorManagerPrivate::activateEditorForDocument(EditorManagerPrivate::currentEditorView(),
+                                                           document,
+                                                           flags);
 }
 
 /*!
@@ -3066,6 +3099,7 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
 IEditor *EditorManager::openEditor(const FilePath &filePath, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
+    checkEditorFlags(flags);
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
@@ -3097,6 +3131,7 @@ IEditor *EditorManager::openEditorAt(const Link &link,
                                      OpenEditorFlags flags,
                                      bool *newEditor)
 {
+    checkEditorFlags(flags);
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
@@ -3251,6 +3286,9 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
                                         const QString &uniqueId,
                                         OpenEditorFlags flags)
 {
+    QTC_CHECK(!(flags & EditorManager::AllowExternalEditor));
+    checkEditorFlags(flags);
+
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << uniqueId << contents;
 

@@ -183,6 +183,19 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         event.event.setRangeStage(RangeEnd);
         break;
     }
+    case Quick3DEvent: {
+
+        QVarLengthArray<qint64> params;
+        qint64 param;
+
+        while (!stream.atEnd()) {
+            stream >> param;
+            params.push_back(param);
+        }
+        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.event.setNumbers<QVarLengthArray<qint64>, qint64>(params);
+        break;
+    }
     default:
         event.event.setNumbers<char>({});
         event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);

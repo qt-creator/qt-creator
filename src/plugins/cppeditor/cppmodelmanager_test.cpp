@@ -112,7 +112,7 @@ public:
             projectFiles << projectDir.file(file);
 
         RawProjectPart rpp;
-        rpp.setQtVersion(Utils::QtVersion::Qt5);
+        rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         const ProjectFiles rppFiles = Utils::transform<ProjectFiles>(projectFiles,
                 [](const QString &file) { return ProjectFile(file, ProjectFile::classify(file)); });
         const auto project = modelManagerTestHelper->createProject(
@@ -190,7 +190,7 @@ void ModelManagerTest::testPathsAreClean()
     const auto project = helper.createProject(_("test_modelmanager_paths_are_clean"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     rpp.setMacros({ProjectExplorer::Macro("OH_BEHAVE", "-1")});
     rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false)),
                         HeaderPath::makeFramework(testDataDir.frameworksDir(false))});
@@ -220,7 +220,7 @@ void ModelManagerTest::testFrameworkHeaders()
     const auto project = helper.createProject(_("test_modelmanager_framework_headers"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     rpp.setMacros({{"OH_BEHAVE", "-1"}});
     rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false)),
                         HeaderPath::makeFramework(testDataDir.frameworksDir(false))});
@@ -268,7 +268,7 @@ void ModelManagerTest::testRefreshAlsoIncludesOfProjectFiles()
             = helper.createProject(_("test_modelmanager_refresh_also_includes_of_project_files"),
                                    Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     rpp.setMacros({{"OH_BEHAVE", "-1"}});
     rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false))});
     auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
@@ -325,7 +325,7 @@ void ModelManagerTest::testRefreshSeveralTimes()
     const auto project = helper.createProject(_("test_modelmanager_refresh_several_times"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     const ProjectFiles files = {
         ProjectFile(testHeader1, ProjectFile::CXXHeader),
         ProjectFile(testHeader2, ProjectFile::CXXHeader),
@@ -384,7 +384,7 @@ void ModelManagerTest::testRefreshTestForChanges()
     const auto project = helper.createProject(_("test_modelmanager_refresh_2"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
                                           {ProjectFile(testCpp, ProjectFile::CXXSource)});
     const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
@@ -419,7 +419,7 @@ void ModelManagerTest::testRefreshAddedAndPurgeRemoved()
     const auto project = helper.createProject(_("test_modelmanager_refresh_3"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
             {{testCpp, ProjectFile::CXXSource}, {testHeader1, ProjectFile::CXXHeader}});
     auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
@@ -474,7 +474,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
     const auto project = helper.createProject(_("test_modelmanager_refresh_timeStampModified"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     auto files = Utils::transform<ProjectFiles>(initialProjectFiles, [](const QString &f) {
         return ProjectFile(f, ProjectFile::CXXSource);
     });
@@ -750,7 +750,7 @@ void ModelManagerTest::testDefinesPerProject()
 
     RawProjectPart rpp1;
     rpp1.setProjectFileLocation("project1.projectfile");
-    rpp1.setQtVersion(Utils::QtVersion::None);
+    rpp1.setQtVersion(Utils::QtMajorVersion::None);
     rpp1.setMacros({{"SUB1"}});
     rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
@@ -758,7 +758,7 @@ void ModelManagerTest::testDefinesPerProject()
 
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("project1.projectfile");
-    rpp2.setQtVersion(Utils::QtVersion::None);
+    rpp2.setQtVersion(Utils::QtMajorVersion::None);
     rpp2.setMacros({{"SUB2"}});
     rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
@@ -813,7 +813,7 @@ void ModelManagerTest::testPrecompiledHeaders()
 
     RawProjectPart rpp1;
     rpp1.setProjectFileLocation("project1.projectfile");
-    rpp1.setQtVersion(Utils::QtVersion::None);
+    rpp1.setQtVersion(Utils::QtMajorVersion::None);
     rpp1.setPreCompiledHeaders({pch1File});
     rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
@@ -821,7 +821,7 @@ void ModelManagerTest::testPrecompiledHeaders()
 
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("project2.projectfile");
-    rpp2.setQtVersion(Utils::QtVersion::None);
+    rpp2.setQtVersion(Utils::QtMajorVersion::None);
     rpp2.setPreCompiledHeaders({pch2File});
     rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
@@ -893,13 +893,13 @@ void ModelManagerTest::testDefinesPerEditor()
                                               Utils::FilePath::fromString("blubb.pro"));
 
     RawProjectPart rpp1;
-    rpp1.setQtVersion(Utils::QtVersion::None);
+    rpp1.setQtVersion(Utils::QtMajorVersion::None);
     rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
             {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
     RawProjectPart rpp2;
-    rpp2.setQtVersion(Utils::QtVersion::None);
+    rpp2.setQtVersion(Utils::QtMajorVersion::None);
     rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
             {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
@@ -977,7 +977,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
             = helper.createProject(_("test_modelmanager_updateEditorsAfterProjectUpdate"),
                                    Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
-    rpp.setQtVersion(Utils::QtVersion::None);
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
             {{fileA, ProjectFile::CXXSource}, {fileB, ProjectFile::CXXSource}});
     const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});

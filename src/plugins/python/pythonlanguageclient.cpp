@@ -27,6 +27,7 @@
 
 #include "pythonconstants.h"
 #include "pythonplugin.h"
+#include "pythonsettings.h"
 #include "pythonutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -39,8 +40,11 @@
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
+#include <utils/variablechooser.h>
 
+#include <QComboBox>
 #include <QFutureWatcher>
+#include <QGridLayout>
 #include <QRegularExpression>
 #include <QTimer>
 
@@ -163,6 +167,129 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
         return {PythonLanguageServerState::CanNotBeInstalled, FilePath()};
 }
 
+class PyLSSettingsWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(PyLSSettingsWidget)
+public:
+    PyLSSettingsWidget(const PyLSSettings *settings, QWidget *parent)
+        : QWidget(parent)
+        , m_name(new QLineEdit(settings->m_name, this))
+        , m_interpreter(new QComboBox(this))
+    {
+        int row = 0;
+        auto *mainLayout = new QGridLayout;
+        mainLayout->addWidget(new QLabel(tr("Name:")), row, 0);
+        mainLayout->addWidget(m_name, row, 1);
+        auto chooser = new VariableChooser(this);
+        chooser->addSupportedWidget(m_name);
+
+        mainLayout->addWidget(new QLabel(tr("Python:")), ++row, 0);
+        QString settingsId = settings->interpreterId();
+        if (settingsId.isEmpty())
+            settingsId = PythonSettings::defaultInterpreter().id;
+        updateInterpreters(PythonSettings::interpreters(), settingsId);
+        mainLayout->addWidget(m_interpreter, row, 1);
+        setLayout(mainLayout);
+
+        connect(PythonSettings::instance(),
+                &PythonSettings::interpretersChanged,
+                this,
+                &PyLSSettingsWidget::updateInterpreters);
+    }
+
+    void updateInterpreters(const QList<Interpreter> &interpreters, const QString &defaultId)
+    {
+        QString currentId = interpreterId();
+        if (currentId.isEmpty())
+            currentId = defaultId;
+        m_interpreter->clear();
+        for (const Interpreter &interpreter : interpreters) {
+            if (!interpreter.command.exists())
+                continue;
+            const QString name = QString(interpreter.name + " (%1)")
+                                     .arg(interpreter.command.toUserOutput());
+            m_interpreter->addItem(name, interpreter.id);
+            if (!currentId.isEmpty() && currentId == interpreter.id)
+                m_interpreter->setCurrentIndex(m_interpreter->count() - 1);
+        }
+    }
+
+    QString name() const { return m_name->text(); }
+    QString interpreterId() const { return m_interpreter->currentData().toString(); }
+
+private:
+    QLineEdit *m_name = nullptr;
+    QComboBox *m_interpreter = nullptr;
+};
+
+PyLSSettings::PyLSSettings()
+{
+    m_settingsTypeId = Constants::PYLS_SETTINGS_ID;
+    m_name = "Python Language Server";
+    m_startBehavior = RequiresFile;
+    m_languageFilter.mimeTypes = QStringList(Constants::C_PY_MIMETYPE);
+    m_arguments = "-m pylsp";
+}
+
+bool PyLSSettings::isValid() const
+{
+    return !m_interpreterId.isEmpty() && StdIOSettings::isValid();
+}
+
+static const char interpreterKey[] = "interpreter";
+
+QVariantMap PyLSSettings::toMap() const
+{
+    QVariantMap map = StdIOSettings::toMap();
+    map.insert(interpreterKey, m_interpreterId);
+    return map;
+}
+
+void PyLSSettings::fromMap(const QVariantMap &map)
+{
+    StdIOSettings::fromMap(map);
+    setInterpreter(map[interpreterKey].toString());
+}
+
+bool PyLSSettings::applyFromSettingsWidget(QWidget *widget)
+{
+    bool changed = false;
+    auto pylswidget = static_cast<PyLSSettingsWidget *>(widget);
+
+    changed |= m_name != pylswidget->name();
+    m_name = pylswidget->name();
+
+    changed |= m_interpreterId != pylswidget->interpreterId();
+    setInterpreter(pylswidget->interpreterId());
+
+    return changed;
+}
+
+QWidget *PyLSSettings::createSettingsWidget(QWidget *parent) const
+{
+    return new PyLSSettingsWidget(this, parent);
+}
+
+BaseSettings *PyLSSettings::copy() const
+{
+    return new PyLSSettings(*this);
+}
+
+void PyLSSettings::setInterpreter(const QString &interpreterId)
+{
+    m_interpreterId = interpreterId;
+    if (m_interpreterId.isEmpty())
+        return;
+    Interpreter interpreter = Utils::findOrDefault(PythonSettings::interpreters(),
+                                                   Utils::equal(&Interpreter::id, interpreterId));
+    m_executable = interpreter.command;
+}
+
+Client *PyLSSettings::createClient(BaseClientInterface *interface) const
+{
+    return new Client(interface);
+}
+
 PyLSConfigureAssistant *PyLSConfigureAssistant::instance()
 {
     static auto *instance = new PyLSConfigureAssistant(PythonPlugin::instance());
@@ -180,12 +307,22 @@ const StdIOSettings *PyLSConfigureAssistant::languageServerForPython(const FileP
 
 static Client *registerLanguageServer(const FilePath &python)
 {
-    auto *settings = new StdIOSettings();
-    settings->m_executable = python;
-    settings->m_arguments = "-m pylsp";
+    Interpreter interpreter = Utils::findOrDefault(PythonSettings::interpreters(),
+                                                   Utils::equal(&Interpreter::command, python));
+    StdIOSettings *settings = nullptr;
+    if (!interpreter.id.isEmpty()) {
+        auto *pylsSettings = new PyLSSettings();
+        pylsSettings->setInterpreter(interpreter.id);
+        settings = pylsSettings;
+    } else {
+        // cannot find a matching interpreter in settings for the python path add a generic server
+        auto *settings = new StdIOSettings();
+        settings->m_executable = python;
+        settings->m_arguments = "-m pylsp";
+        settings->m_languageFilter.mimeTypes = QStringList(Constants::C_PY_MIMETYPE);
+    }
     settings->m_name = PyLSConfigureAssistant::tr("Python Language Server (%1)")
                            .arg(pythonName(python));
-    settings->m_languageFilter.mimeTypes = QStringList(Constants::C_PY_MIMETYPE);
     LanguageClientManager::registerClientSettings(settings);
     Client *client = LanguageClientManager::clientForSetting(settings).value(0);
     PyLSConfigureAssistant::updateEditorInfoBars(python, client);

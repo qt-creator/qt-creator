@@ -51,7 +51,7 @@ static void runProcess(QFutureInterface<void> &future,
 {
     const QString viewRoot = ClearCasePlugin::viewData().root;
     QtcProcess process;
-    process.setWorkingDirectory(viewRoot);
+    process.setWorkingDirectory(FilePath::fromString(viewRoot));
     process.setCommand({FilePath::fromString(settings.ccBinaryPath), args});
     process.start();
     if (!process.waitForStarted())

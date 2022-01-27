@@ -113,12 +113,12 @@ bool StdIOClientInterface::start()
     return true;
 }
 
-void StdIOClientInterface::setCommandLine(const Utils::CommandLine &cmd)
+void StdIOClientInterface::setCommandLine(const CommandLine &cmd)
 {
     m_process.setCommand(cmd);
 }
 
-void StdIOClientInterface::setWorkingDirectory(const QString &workingDirectory)
+void StdIOClientInterface::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_process.setWorkingDirectory(workingDirectory);
 }

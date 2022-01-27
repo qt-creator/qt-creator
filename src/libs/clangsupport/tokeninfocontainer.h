@@ -29,7 +29,7 @@
 
 #include "sourcerangecontainer.h"
 
-#include <sqlite/utf8string.h>
+#include "utf8string.h"
 
 #include <QDataStream>
 

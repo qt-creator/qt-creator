@@ -51,11 +51,11 @@ void writeBinariesSection(QIODevice *nativeFile, const KitData &kitData)
     addEntry(nativeFile, "c", kitData.cCompilerPath);
     addEntry(nativeFile, "cpp", kitData.cxxCompilerPath);
     addEntry(nativeFile, "qmake", kitData.qmakePath);
-    if (kitData.qtVersion == Utils::QtVersion::Qt4)
+    if (kitData.qtVersion == Utils::QtMajorVersion::Qt4)
         addEntry(nativeFile, QString{"qmake-qt4"}, kitData.qmakePath);
-    else if (kitData.qtVersion == Utils::QtVersion::Qt5)
+    else if (kitData.qtVersion == Utils::QtMajorVersion::Qt5)
         addEntry(nativeFile, QString{"qmake-qt5"}, kitData.qmakePath);
-    else if (kitData.qtVersion == Utils::QtVersion::Qt6)
+    else if (kitData.qtVersion == Utils::QtMajorVersion::Qt6)
         addEntry(nativeFile, QString{"qmake-qt6"}, kitData.qmakePath);
     addEntry(nativeFile, "cmake", kitData.cmakePath);
 }

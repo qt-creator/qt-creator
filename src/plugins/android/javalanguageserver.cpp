@@ -304,7 +304,7 @@ void JLSClient::updateProjectFiles()
         if (DeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
             return;
         if (ProjectNode *node = project()->findNodeForBuildKey(target->activeBuildKey())) {
-            QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+            QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
             if (!version)
                 return;
             const QString qtSrc = version->prefix().toString() + "/src/android/java/src";
@@ -322,7 +322,7 @@ void JLSClient::updateProjectFiles()
             const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
                                            .arg(targetSDK);
             FilePaths libs = {androidJar};
-            libs << packageSourceDir.pathAppended("libs").dirEntries({"*.jar"}, QDir::Files);
+            libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, QDir::Files});
             generateProjectFile(projectDir, qtSrc, project()->displayName());
             generateClassPathFile(projectDir, sourceDir, libs);
         }

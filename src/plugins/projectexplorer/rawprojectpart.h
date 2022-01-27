@@ -90,7 +90,7 @@ public:
     void setFlagsForCxx(const RawProjectPartFlags &flags);
 
     void setMacros(const Macros &macros);
-    void setQtVersion(Utils::QtVersion qtVersion);
+    void setQtVersion(Utils::QtMajorVersion qtVersion);
 
 public:
     QString displayName;
@@ -120,7 +120,7 @@ public:
 
     // Misc
     Macros projectMacros;
-    Utils::QtVersion qtVersion = Utils::QtVersion::Unknown;
+    Utils::QtMajorVersion qtVersion = Utils::QtMajorVersion::Unknown;
 };
 
 using RawProjectParts = QVector<RawProjectPart>;
@@ -136,7 +136,7 @@ public:
     ToolChain *cToolChain = nullptr;
     ToolChain *cxxToolChain = nullptr;
 
-    Utils::QtVersion projectPartQtVersion = Utils::QtVersion::None;
+    Utils::QtMajorVersion projectPartQtVersion = Utils::QtMajorVersion::None;
 
     QString sysRootPath;
 };
@@ -154,6 +154,7 @@ public:
 public:
     Utils::Id type;
     bool isMsvc2015ToolChain = false;
+    bool targetTripleIsAuthoritative = false;
     unsigned wordWidth = 0;
     QString targetTriple;
     Utils::FilePath compilerFilePath;

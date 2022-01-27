@@ -33,7 +33,6 @@
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggerprotocol.h>
 
-#include <utils/consoleprocess.h>
 #include <utils/qtcprocess.h>
 
 #include <QPointer>

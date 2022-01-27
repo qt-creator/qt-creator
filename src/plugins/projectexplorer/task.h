@@ -138,7 +138,7 @@ public:
     DeploymentTask(TaskType type, const QString &description);
 };
 
-using Tasks = QVector<Task>;
+using Tasks = QList<Task>;
 
 PROJECTEXPLORER_EXPORT QString toHtml(const Tasks &issues);
 PROJECTEXPLORER_EXPORT bool containsType(const Tasks &issues, Task::TaskType);

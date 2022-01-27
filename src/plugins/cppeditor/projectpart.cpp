@@ -153,6 +153,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
       toolchainType(tcInfo.type),
       isMsvc2015Toolchain(tcInfo.isMsvc2015ToolChain),
       toolChainTargetTriple(tcInfo.targetTriple),
+      targetTripleIsAuthoritative(tcInfo.targetTripleIsAuthoritative),
       toolChainWordWidth(tcInfo.wordWidth == 64 ? ProjectPart::WordWidth64Bit
                                                 : ProjectPart::WordWidth32Bit),
       toolChainInstallDir(tcInfo.installDir),
@@ -168,7 +169,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
 CPlusPlus::LanguageFeatures ProjectPart::deriveLanguageFeatures() const
 {
     const bool hasCxx = languageVersion >= Utils::LanguageVersion::CXX98;
-    const bool hasQt = hasCxx && qtVersion != Utils::QtVersion::None;
+    const bool hasQt = hasCxx && qtVersion != Utils::QtMajorVersion::None;
     CPlusPlus::LanguageFeatures features;
     features.cxx11Enabled = languageVersion >= Utils::LanguageVersion::CXX11;
     features.cxx14Enabled = languageVersion >= Utils::LanguageVersion::CXX14;

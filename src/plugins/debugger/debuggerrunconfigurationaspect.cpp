@@ -100,6 +100,7 @@ void DebuggerLanguageAspect::addToLayout(LayoutBuilder &builder)
     QTC_CHECK(!m_checkBox);
     m_checkBox = new QCheckBox(m_label);
     m_checkBox->setChecked(m_value);
+    m_checkBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     QTC_CHECK(m_clickCallBack);
     connect(m_checkBox, &QAbstractButton::clicked, this, m_clickCallBack, Qt::QueuedConnection);

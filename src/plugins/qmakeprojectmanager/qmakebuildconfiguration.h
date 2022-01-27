@@ -59,8 +59,8 @@ public:
     ProjectExplorer::FileNode *fileNodeBuild() const;
     void setFileNodeBuild(ProjectExplorer::FileNode *node);
 
-    QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
-    void setQMakeBuildConfiguration(QtSupport::BaseQtVersion::QmakeBuildConfigs config);
+    QtSupport::QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
+    void setQMakeBuildConfiguration(QtSupport::QtVersion::QmakeBuildConfigs config);
 
     /// suffix should be unique
     static Utils::FilePath shadowBuildDirectory(const Utils::FilePath &profilePath,
@@ -84,7 +84,7 @@ public:
     enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };
     MakefileState compareToImportFrom(const Utils::FilePath &makefile, QString *errorString = nullptr);
     static QString extractSpecFromArguments(
-            QString *arguments, const Utils::FilePath &directory, const QtSupport::BaseQtVersion *version,
+            QString *arguments, const Utils::FilePath &directory, const QtSupport::QtVersion *version,
             QStringList *outArgs = nullptr);
 
     QVariantMap toMap() const override;
@@ -146,7 +146,7 @@ private:
     };
     LastKitState m_lastKitState;
 
-    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
+    QtSupport::QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
     QmakeBuildSystem *m_buildSystem = nullptr;

@@ -67,6 +67,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilerviewmanager.cpp qmlprofilerviewmanager.h
   qmltypedevent.cpp qmltypedevent.h
   scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
+  quick3dmodel.cpp quick3dmodel.h
 )
 
 if(${Qt5_VERSION} VERSION_LESS "6.2.0")

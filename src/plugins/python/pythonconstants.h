@@ -41,6 +41,8 @@ const char PYTHON_OPEN_REPL[] = "Python.OpenRepl";
 const char PYTHON_OPEN_REPL_IMPORT[] = "Python.OpenReplImport";
 const char PYTHON_OPEN_REPL_IMPORT_TOPLEVEL[] = "Python.OpenReplImportToplevel";
 
+const char PYLS_SETTINGS_ID[] = "Python.PyLSSettingsID";
+
 /*******************************************************************************
  * MIME type
  ******************************************************************************/

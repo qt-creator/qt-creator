@@ -33,9 +33,10 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-void RemoveTaskHandler::handle(const Task &task)
+void RemoveTaskHandler::handle(const Tasks &tasks)
 {
-    TaskHub::removeTask(task);
+    for (const Task &task : tasks)
+        TaskHub::removeTask(task);
 }
 
 QAction *RemoveTaskHandler::createAction(QObject *parent) const

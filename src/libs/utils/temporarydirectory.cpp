@@ -66,6 +66,11 @@ QString TemporaryDirectory::masterDirectoryPath()
     return m_masterTemporaryDir->path();
 }
 
+FilePath TemporaryDirectory::masterDirectoryFilePath()
+{
+    return FilePath::fromString(TemporaryDirectory::masterDirectoryPath());
+}
+
 FilePath TemporaryDirectory::path() const
 {
     return FilePath::fromString(QTemporaryDir::path());

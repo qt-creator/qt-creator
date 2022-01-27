@@ -32,6 +32,9 @@ QT_FORWARD_DECLARE_CLASS(QComboBox)
 namespace WebAssembly {
 namespace Internal {
 
+using WebBrowserEntry = QPair<QString, QString>; // first: id, second: display name
+using WebBrowserEntries = QList<WebBrowserEntry>;
+
 class WebBrowserSelectionAspect : public Utils::BaseAspect
 {
     Q_OBJECT
@@ -49,7 +52,7 @@ public:
 private:
     QComboBox *m_webBrowserComboBox = nullptr;
     QString m_currentBrowser;
-    QStringList m_availableBrowsers;
+    const WebBrowserEntries m_availableBrowsers;
 };
 
 } // namespace Internal

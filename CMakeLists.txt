@@ -138,7 +138,14 @@ endif()
 
 add_subdirectory(doc)
 
-find_package(PythonInterp)
+# TODO: Remove when cmake_minimum_required greater than 3.12
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  find_package(Python3 COMPONENTS Interpreter)
+  set(PYTHONINTERP_FOUND ${Python3_Interpreter_FOUND})
+  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+else()
+  find_package(PythonInterp)
+endif()
 if (NOT PYTHONINTERP_FOUND)
   message("No python interpreter found, skipping \"Dependencies\" install component.")
 else()
@@ -167,25 +174,6 @@ else()
     EXCLUDE_FROM_ALL
   )
 endif()
-
-# install qmake support files
-install(
-  FILES
-    qtcreator.pri
-    qtcreatordata.pri
-    qtcreator_ide_branding.pri
-  DESTINATION ${IDE_HEADER_INSTALL_PATH}
-  COMPONENT Devel EXCLUDE_FROM_ALL
-)
-install(
-  FILES
-    src/qtcreatorlibrary.pri
-    src/qtcreatorplugin.pri
-    src/qtcreatortool.pri
-    src/rpath.pri
-  DESTINATION ${IDE_HEADER_INSTALL_PATH}/src
-  COMPONENT Devel EXCLUDE_FROM_ALL
-)
 
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT
   PACKAGES_FOUND PACKAGES_NOT_FOUND

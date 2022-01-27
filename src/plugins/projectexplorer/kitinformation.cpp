@@ -270,8 +270,8 @@ private:
     {
         m_ignoreChanges = true;
         foreach (Utils::Id l, m_languageComboboxMap.keys()) {
-            const QList<ToolChain *> ltcList
-                    = ToolChainManager::toolChains(Utils::equal(&ToolChain::language, l));
+            const Toolchains ltcList
+                    = ToolChainManager::toolchains(Utils::equal(&ToolChain::language, l));
 
             QComboBox *cb = m_languageComboboxMap.value(l);
             cb->clear();
@@ -346,7 +346,7 @@ static QMap<Utils::Id, QByteArray> defaultToolChainIds()
 {
     QMap<Utils::Id, QByteArray> toolChains;
     const Abi abi = Abi::hostAbi();
-    QList<ToolChain *> tcList = ToolChainManager::toolChains(Utils::equal(&ToolChain::targetAbi, abi));
+    const Toolchains tcList = ToolChainManager::toolchains(Utils::equal(&ToolChain::targetAbi, abi));
     foreach (Utils::Id l, ToolChainManager::allLanguages()) {
         ToolChain *tc = Utils::findOrDefault(tcList, Utils::equal(&ToolChain::language, l));
         toolChains.insert(l, tc ? tc->id() : QByteArray());
@@ -498,7 +498,7 @@ void ToolChainKitAspect::setup(Kit *k)
         // ID is not found: Might be an ABI string...
         lockToolchains = false;
         const QString abi = QString::fromUtf8(id);
-        QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
+        const Toolchains possibleTcs = ToolChainManager::toolchains(
             [abi, l](const ToolChain *t) {
                 return t->targetAbi().toString() == abi && t->language() == l;
             });
@@ -655,7 +655,7 @@ void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
     QTC_ASSERT(tc, return);
     QTC_ASSERT(k, return);
 
-    const QList<ToolChain *> allTcList = ToolChainManager::toolChains();
+    const Toolchains allTcList = ToolChainManager::toolchains();
     QTC_ASSERT(allTcList.contains(tc), return);
 
     QVariantMap result = k->value(ToolChainKitAspect::id()).toMap();

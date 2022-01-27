@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <utf8string.h>
+#include "utf8string.h"
 #include <utf8stringvector.h>
 
 #include <QVariant>

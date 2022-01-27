@@ -743,7 +743,7 @@ BaseClientInterface *StdIOSettings::createInterfaceWithProject(ProjectExplorer::
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(command());
     if (project)
-        interface->setWorkingDirectory(project->projectDirectory().toString());
+        interface->setWorkingDirectory(project->projectDirectory());
     return interface;
 }
 

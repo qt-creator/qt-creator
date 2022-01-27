@@ -92,7 +92,7 @@ public:
     const Utils::Language language = Utils::Language::Cxx;
     const Utils::LanguageVersion &languageVersion = m_macroReport.languageVersion;
     const Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
-    const Utils::QtVersion qtVersion = Utils::QtVersion::Unknown;
+    const Utils::QtMajorVersion qtVersion = Utils::QtMajorVersion::Unknown;
 
     // Files
     const ProjectFiles files;
@@ -114,6 +114,7 @@ public:
     const Utils::Id toolchainType;
     const bool isMsvc2015Toolchain = false;
     const QString toolChainTargetTriple;
+    const bool targetTripleIsAuthoritative;
     const ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     const Utils::FilePath toolChainInstallDir;
     const Utils::FilePath compilerFilePath;

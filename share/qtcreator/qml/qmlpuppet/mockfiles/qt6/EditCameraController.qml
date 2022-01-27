@@ -110,6 +110,37 @@ Item {
         storeCameraState(0);
     }
 
+    function alignCameras(targetNodes)
+    {
+        if (!camera)
+            return;
+
+        // targetNodes could be a list of nodes or a single node
+        var nodes = [];
+        if (targetNodes instanceof Node)
+            nodes.push(targetNodes);
+        else
+            nodes = targetNodes
+
+        _generalHelper.alignCameras(camera, nodes);
+    }
+
+    function alignView(targetNodes)
+    {
+        if (!camera)
+            return;
+
+        // targetNodes could be a list of nodes or a single node
+        var nodes = [];
+        if (targetNodes instanceof Node)
+            nodes.push(targetNodes);
+        else
+            nodes = targetNodes
+
+        _lookAtPoint = _generalHelper.alignView(camera, nodes, _lookAtPoint);
+        storeCameraState(0);
+    }
+
     function zoomRelative(distance)
     {
         if (!camera)
@@ -190,7 +221,7 @@ Item {
         }
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         var pressPoint = Qt.vector3d(view3d.width / 2, view3d.height / 2, 0);
         var currentPoint;
 

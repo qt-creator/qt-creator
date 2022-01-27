@@ -159,7 +159,6 @@ protected:
 private:
     mutable QPersistentModelIndex m_previousIndex;
     mutable QElapsedTimer m_startTime;
-    mutable QRect m_currentArea;
     mutable QPointer<QAbstractItemView> m_currentWidget;
     mutable QVector<QPair<QString, QRect>> m_currentTagRects;
     mutable QPixmap m_blurredThumbnail;

@@ -178,7 +178,7 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (bgData->cxxCompilerPath != cxxToolchain->compilerCommand())
             return false;
     }
-    const QtSupport::BaseQtVersion * const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
+    const QtSupport::QtVersion * const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
     if (!bgData->qtBinPath.isEmpty()) {
         if (!qtVersion)
             return false;

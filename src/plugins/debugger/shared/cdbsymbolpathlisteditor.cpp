@@ -153,7 +153,7 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, FilePath *cacheDirectory)
 {
     CacheDirectoryDialog dialog(parent);
-    dialog.setPath(FilePath::fromString(TemporaryDirectory::masterDirectoryPath()) + "/symbolcache");
+    dialog.setPath(TemporaryDirectory::masterDirectoryFilePath() + "/symbolcache");
     if (dialog.exec() != QDialog::Accepted)
         return false;
     *cacheDirectory = dialog.path();
@@ -179,7 +179,7 @@ void CdbSymbolPathListEditor::setupSymbolPaths()
     if (path.isEmpty() && indexOfSymbolCache != -1)
         path = FilePath::fromString(currentPaths.at(indexOfSymbolCache));
     if (path.isEmpty())
-        path = FilePath::fromString(TemporaryDirectory::masterDirectoryPath() + "/symbolcache");
+        path = TemporaryDirectory::masterDirectoryFilePath() + "/symbolcache";
 
     bool useSymbolServer = true;
     bool useSymbolCache = true;

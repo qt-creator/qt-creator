@@ -120,14 +120,14 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHostFromNdk(m_ndkLocation));
     const Utils::FilePath javaHome = config.openJDKLocation();
     if (javaHome.exists()) {
-        env.set(QLatin1String("JAVA_HOME"), javaHome.toString());
+        env.set(QLatin1String("JAVA_HOME"), javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
         const FilePath currentJavaFilePath = env.searchInPath("java");
         if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin);
     }
-    env.set(QLatin1String("ANDROID_HOME"), config.sdkLocation().toString());
-    env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toString());
+    env.set(QLatin1String("ANDROID_HOME"), config.sdkLocation().toUserOutput());
+    env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toUserOutput());
 }
 
 bool AndroidToolChain::fromMap(const QVariantMap &data)
@@ -181,12 +181,12 @@ static QList<FilePath> uniqueNdksForCurrentQtVersions()
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
 
     auto androidQtVersions = QtSupport::QtVersionManager::versions(
-        [](const QtSupport::BaseQtVersion *v) {
+        [](const QtSupport::QtVersion *v) {
             return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
         });
 
     QList<FilePath> uniqueNdks;
-    for (const QtSupport::BaseQtVersion *version : androidQtVersions) {
+    for (const QtSupport::QtVersion *version : androidQtVersions) {
         FilePath ndk = config.ndkLocation(version);
         if (!uniqueNdks.contains(ndk))
             uniqueNdks.append(ndk);

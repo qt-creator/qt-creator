@@ -122,7 +122,7 @@ void AndroidDebugSupport::start()
     setUseContinueInsteadOfRun(true);
     setAttachPid(m_runner->pid());
 
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!Utils::HostOsInfo::isWindowsHost()
         && (qtVersion
             && AndroidConfigurations::currentConfig().ndkVersion(qtVersion)

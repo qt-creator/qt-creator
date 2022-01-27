@@ -48,6 +48,7 @@
 #include <endpuppetcommand.h>
 #include <informationchangedcommand.h>
 #include <inputeventcommand.h>
+#include <nanotracecommand.h>
 #include <pixmapchangedcommand.h>
 #include <puppettocreatorcommand.h>
 #include <removeinstancescommand.h>
@@ -73,6 +74,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <nanotrace/nanotrace.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -111,6 +113,8 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
 {
+    NANOTRACE_SCOPE_ARGS("Update", "dispatchCommand", {"name", command.typeName()});
+
     static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
     static const int valuesModifiedCommandType = QMetaType::type("ValuesModifiedCommand");
@@ -122,6 +126,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
     static const int puppetToCreatorCommandType = QMetaType::type("PuppetToCreatorCommand");
+    static const int SyncNanotraceCommandType = QMetaType::type("SyncNanotraceCommand");
 
     qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
     if (command.userType() == informationChangedCommandType) {
@@ -146,6 +151,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->selectionChanged(command.value<ChangeSelectionCommand>());
     } else if (command.userType() == puppetToCreatorCommandType) {
         nodeInstanceClient()->handlePuppetToCreatorCommand(command.value<PuppetToCreatorCommand>());
+    } else if (command.userType() == SyncNanotraceCommandType) {
+        // ignore.
     } else {
         Q_ASSERT(false);
     }
@@ -184,6 +191,20 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
+#ifdef NANOTRACE_ENABLED
+    if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+        SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
+        NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
+            {"name", cmd.name().toStdString()},
+            {"counter", int64_t(m_connectionManager.writeCounter())});
+
+    } else {
+        NANOTRACE_INSTANT_ARGS("Update", "writeCommand",
+            {"name", command.typeName()},
+            {"counter", int64_t(m_connectionManager.writeCounter())});
+    }
+#endif
+
     m_connectionManager.writeCommand(command);
 }
 

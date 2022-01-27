@@ -37,14 +37,12 @@ add_qtc_library(Sqlite
     sqlstatementbuilder.cpp sqlstatementbuilder.h
     sqlstatementbuilderexception.h
     tableconstraints.h
-    utf8string.cpp utf8string.h
-    utf8stringvector.cpp utf8stringvector.h
     sqliteblob.h
     sqlitetimestamp.h
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
 )
 
-extend_qtc_library(Sqlite DEFINES _HAVE_SQLITE_CONFIG_H)
+extend_qtc_library(Sqlite DEFINES SQLITE_CUSTOM_INCLUDE=config.h)
 
 if (APPLE)
 extend_qtc_library(Sqlite DEFINES _BSD_SOURCE)

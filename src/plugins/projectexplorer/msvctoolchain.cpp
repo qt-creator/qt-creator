@@ -53,6 +53,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QTextCodec>
 #include <QVector>
 #include <QVersionNumber>
 
@@ -638,7 +639,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     }
     Utils::QtcProcess cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
+    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
     QStringList arguments;
     const Utils::FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {
@@ -1586,12 +1587,12 @@ static const MsvcToolChain *selectMsvcToolChain(const QString &displayedVarsBat,
     return toolChain;
 }
 
-static QList<ToolChain *> detectClangClToolChainInPath(const FilePath &clangClPath,
-                                                       const QList<ToolChain *> &alreadyKnown,
-                                                       const QString &displayedVarsBat,
-                                                       bool isDefault = false)
+static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
+                                               const Toolchains &alreadyKnown,
+                                               const QString &displayedVarsBat,
+                                               bool isDefault = false)
 {
-    QList<ToolChain *> res;
+    Toolchains res;
     const unsigned char wordWidth = Utils::is64BitWindowsBinary(clangClPath) ? 64 : 32;
     const MsvcToolChain *toolChain = selectMsvcToolChain(displayedVarsBat, clangClPath, wordWidth);
 
@@ -1647,9 +1648,7 @@ void ClangClToolChainConfigWidget::applyImpl()
     }
 
     const QString displayedVarsBat = m_varsBatDisplayCombo->currentText();
-    QList<ToolChain *> results = detectClangClToolChainInPath(clangClPath,
-                                                              {},
-                                                              displayedVarsBat);
+    Toolchains results = detectClangClToolChainInPath(clangClPath, {}, displayedVarsBat);
 
     if (results.isEmpty()) {
         clangClToolChain->resetVarsBat();
@@ -1768,7 +1767,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 
     QtcProcess cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
+    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
 
     QStringList arguments = cxxflags;
     arguments.append(gccPredefinedMacrosOptions(language()));
@@ -1831,14 +1830,15 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath,
     return result;
 }
 
-static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown, const QString &name,
-                                                const Abi &abi,
-                                                const QString &varsBat,
-                                                const QString &varsBatArg)
+static Toolchains findOrCreateToolchains(const ToolchainDetector &detector,
+                                         const QString &name,
+                                         const Abi &abi,
+                                         const QString &varsBat,
+                                         const QString &varsBatArg)
 {
-    QList<ToolChain *> res;
+    Toolchains res;
     for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
-        ToolChain *tc = Utils::findOrDefault(alreadyKnown, [&](ToolChain *tc) -> bool {
+        ToolChain *tc = Utils::findOrDefault(detector.alreadyKnown, [&](ToolChain *tc) -> bool {
             if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;
             if (tc->targetAbi() != abi)
@@ -1862,7 +1862,7 @@ static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alread
 }
 
 // Detect build tools introduced with MSVC2015
-static void detectCppBuildTools2015(QList<ToolChain *> *list)
+static void detectCppBuildTools2015(Toolchains *list)
 {
     struct Entry
     {
@@ -1901,15 +1901,14 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
     }
 }
 
-QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                    const IDevice::Ptr &device)
+Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (!device.isNull()) {
+    if (!detector.device.isNull()) {
         // FIXME currently no support for msvc toolchains on a device
         return {};
     }
 
-    QList<ToolChain *> results;
+    Toolchains results;
 
     // 1) Installed SDKs preferred over standalone Visual studio
     const QSettings
@@ -1940,15 +1939,15 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                 {MsvcToolChain::ia64, "ia64"},
             };
             for (const auto &platform : platforms) {
-                tmp.append(findOrCreateToolChain(alreadyKnown,
-                                                 generateDisplayName(name,
-                                                                     MsvcToolChain::WindowsSDK,
-                                                                     platform.first),
-                                                 findAbiOfMsvc(MsvcToolChain::WindowsSDK,
-                                                               platform.first,
-                                                               sdkKey),
-                                                 fi.absoluteFilePath(),
-                                                 "/" + platform.second));
+                tmp.append(findOrCreateToolchains(detector,
+                                                  generateDisplayName(name,
+                                                                      MsvcToolChain::WindowsSDK,
+                                                                      platform.first),
+                                                  findAbiOfMsvc(MsvcToolChain::WindowsSDK,
+                                                                platform.first,
+                                                                sdkKey),
+                                                  fi.absoluteFilePath(),
+                                                  "/" + platform.second));
             }
             // Make sure the default is front.
             if (folder == defaultSdkPath)
@@ -1981,11 +1980,11 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                 = QFileInfo(vcVarsBatFor(i.vcVarsPath, platform, i.version)).isFile();
             if (hostSupportsPlatform(platform) && toolchainInstalled) {
                 results.append(
-                    findOrCreateToolChain(alreadyKnown,
-                                          generateDisplayName(i.vsName, MsvcToolChain::VS, platform),
-                                          findAbiOfMsvc(MsvcToolChain::VS, platform, i.vsName),
-                                          i.vcVarsAll,
-                                          platformName(platform)));
+                    findOrCreateToolchains(detector,
+                                           generateDisplayName(i.vsName, MsvcToolChain::VS, platform),
+                                           findAbiOfMsvc(MsvcToolChain::VS, platform, i.vsName),
+                                           i.vcVarsAll,
+                                           platformName(platform)));
             }
         }
     }
@@ -2011,11 +2010,9 @@ bool ClangClToolChainFactory::canCreate() const
     return !g_availableMsvcToolchains.isEmpty();
 }
 
-QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                       const IDevice::Ptr &device)
+Toolchains ClangClToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    Q_UNUSED(alreadyKnown)
-    if (!device.isNull()) {
+    if (!detector.device.isNull()) {
         // FIXME currently no support for msvc toolchains on a device
         return {};
     }
@@ -2025,14 +2022,14 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     const char registryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\LLVM\\LLVM";
 #endif
 
-    QList<ToolChain *> results;
-    QList<ToolChain *> known = alreadyKnown;
+    Toolchains results;
+    Toolchains known = detector.alreadyKnown;
 
     FilePath qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!qtCreatorsClang.isEmpty()) {
         qtCreatorsClang = qtCreatorsClang.parentDir().pathAppended("clang-cl.exe");
         results.append(detectClangClToolChainInPath(qtCreatorsClang,
-                                                    alreadyKnown, "", true));
+                                                    detector.alreadyKnown, "", true));
         known.append(results);
     }
 

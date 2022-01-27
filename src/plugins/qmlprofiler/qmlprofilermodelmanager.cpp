@@ -56,7 +56,8 @@ static const char *ProfileFeatureNames[] = {
     QT_TRANSLATE_NOOP("MainView", "Binding"),
     QT_TRANSLATE_NOOP("MainView", "Handling Signal"),
     QT_TRANSLATE_NOOP("MainView", "Input Events"),
-    QT_TRANSLATE_NOOP("MainView", "Debug Messages")
+    QT_TRANSLATE_NOOP("MainView", "Debug Messages"),
+    QT_TRANSLATE_NOOP("MainView", "Quick3D")
 };
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);

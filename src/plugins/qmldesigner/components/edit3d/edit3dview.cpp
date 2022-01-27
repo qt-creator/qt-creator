@@ -90,6 +90,16 @@ Edit3DWidget *Edit3DView::edit3DWidget() const
     return m_edit3DWidget.data();
 }
 
+void Edit3DView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList)
+{
+    SelectionContext selectionContext(this);
+    selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
+    if (m_alignCamerasAction)
+        m_alignCamerasAction->currentContextChanged(selectionContext);
+    if (m_alignViewAction)
+        m_alignViewAction->currentContextChanged(selectionContext);
+}
+
 void Edit3DView::renderImage3DChanged(const QImage &img)
 {
     edit3DWidget()->canvas()->updateRenderImage(img);
@@ -256,6 +266,16 @@ void Edit3DView::createEdit3DActions()
                 QCoreApplication::translate("FitToViewAction", "Fit Selected Object to View"),
                 QKeySequence(Qt::Key_F), false, false, Icons::EDIT3D_FIT_SELECTED_OFF.icon(), {});
 
+    m_alignCamerasAction = new Edit3DCameraAction(
+                QmlDesigner::Constants::EDIT3D_ALIGN_CAMERAS, View3DActionCommand::AlignCamerasToView,
+                QCoreApplication::translate("AlignCamerasToViewAction", "Align Selected Cameras to View"),
+                QKeySequence(), false, false, Icons::EDIT3D_ALIGN_CAMERA_ON.icon(), {});
+
+    m_alignViewAction = new Edit3DCameraAction(
+                QmlDesigner::Constants::EDIT3D_ALIGN_VIEW, View3DActionCommand::AlignViewToCamera,
+                QCoreApplication::translate("AlignCamerasToViewAction", "Align View to Selected Camera"),
+                QKeySequence(), false, false, Icons::EDIT3D_ALIGN_VIEW_ON.icon(), {});
+
     m_cameraModeAction
             = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_CAMERA, View3DActionCommand::CameraToggle,
@@ -351,6 +371,9 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_orientationModeAction;
     m_leftActions << m_editLightAction;
     m_leftActions << m_showGridAction;
+    m_leftActions << nullptr;
+    m_leftActions << m_alignCamerasAction;
+    m_leftActions << m_alignViewAction;
 
     m_rightActions << m_particleViewModeAction;
     m_rightActions << m_particlesPlayAction;

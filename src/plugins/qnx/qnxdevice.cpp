@@ -172,22 +172,19 @@ DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
 
 // Factory
 
-QnxDeviceFactory::QnxDeviceFactory()
-    : ProjectExplorer::IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
+QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
 {
     setDisplayName(QnxDevice::tr("QNX Device"));
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
-    setCanCreate(true);
     setConstructionFunction(&QnxDevice::create);
-}
-
-ProjectExplorer::IDevice::Ptr QnxDeviceFactory::create() const
-{
-    QnxDeviceWizard wizard;
-    if (wizard.exec() != QDialog::Accepted)
-        return ProjectExplorer::IDevice::Ptr();
-    return wizard.device();
+    setCanCreate(true);
+    setCreator([] {
+        QnxDeviceWizard wizard;
+        if (wizard.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
+        return wizard.device();
+    });
 }
 
 } // namespace Internal

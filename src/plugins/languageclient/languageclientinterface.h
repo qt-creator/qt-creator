@@ -80,7 +80,7 @@ public:
 
     // These functions only have an effect if they are called before start
     void setCommandLine(const Utils::CommandLine &cmd);
-    void setWorkingDirectory(const QString &workingDirectory);
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
 
 protected:
     void sendData(const QByteArray &data) final;

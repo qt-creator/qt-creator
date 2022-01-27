@@ -64,6 +64,9 @@ public:
     bool foldAuxData() const;
     void setFoldAuxData(const bool foldAuxData);
 
+    bool openUiQmlFilesInQDS() const;
+    void setOpenUiQmlFilesInQDS(const bool foldAuxData);
+
     friend bool operator==(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
     { return s1.equals(s2); }
     friend bool operator!=(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
@@ -75,6 +78,7 @@ private:
     bool m_autoFormatOnSave;
     bool m_autoFormatOnlyCurrentProject;
     bool m_foldAuxData;
+    bool m_openUiQmlFilesInQDS;
 };
 
 namespace Internal {

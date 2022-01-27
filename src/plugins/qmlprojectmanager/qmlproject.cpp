@@ -340,6 +340,13 @@ QStringList QmlBuildSystem::customFileSelectors() const
     return {};
 }
 
+bool QmlBuildSystem::multilanguageSupport() const
+{
+    if (m_projectItem)
+        return m_projectItem->multilanguageSupport();
+    return false;
+}
+
 QStringList QmlBuildSystem::supportedLanguages() const
 {
     if (m_projectItem)
@@ -405,7 +412,7 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
 
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+    const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version)
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
 
@@ -464,7 +471,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
             auto setKitWithVersion = [&](int qtMajorVersion) {
                 const QList<Kit *> qtVersionkits
                     = Utils::filtered(kits, [qtMajorVersion](const Kit *k) {
-                          QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+                          QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
                           return (version && version->qtVersion().majorVersion == qtMajorVersion);
                       });
                 if (!qtVersionkits.isEmpty()) {

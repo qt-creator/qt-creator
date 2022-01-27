@@ -25,11 +25,9 @@
 
 #pragma once
 
-#include <qtsupport/screenshotcropper.h>
-
 #include <QMainWindow>
-
-using namespace QtSupport::Internal;
+#include <QMap>
+#include <QRect>
 
 namespace Ui { class ScreenShotCropperWindow; }
 

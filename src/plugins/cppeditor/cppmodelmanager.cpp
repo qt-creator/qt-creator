@@ -1564,7 +1564,7 @@ void CppModelManager::setupFallbackProjectPart()
     RawProjectPart rpp;
     rpp.setMacros(definedMacros());
     rpp.setHeaderPaths(headerPaths());
-    rpp.setQtVersion(Utils::QtVersion::Qt5);
+    rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
 
     // Do not activate ObjectiveCExtensions since this will lead to the
     // "objective-c++" language option for a project-less *.cpp file.

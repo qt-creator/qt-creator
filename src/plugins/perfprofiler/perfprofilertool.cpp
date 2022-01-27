@@ -563,7 +563,7 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
 static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 {
-    QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
     if (qt == nullptr)
         return Utils::FilePaths();
     Utils::FilePaths paths{qt->headerPath()};

@@ -33,7 +33,7 @@ namespace Utils { class FilePath; }
 
 namespace QtSupport {
 
-class BaseQtVersion;
+class QtVersion;
 
 class QTSUPPORT_EXPORT QtVersionFactory
 {
@@ -44,14 +44,14 @@ public:
     static const QList<QtVersionFactory *> allQtVersionFactories();
 
     bool canRestore(const QString &type);
-    BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+    QtVersion *restore(const QString &type, const QVariantMap &data);
 
     /// factories with higher priority are asked first to identify
     /// a qtversion, the priority of the desktop factory is 0 and
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
 
-    static BaseQtVersion *createQtVersionFromQMakePath(const Utils::FilePath &qmakePath,
+    static QtVersion *createQtVersionFromQMakePath(const Utils::FilePath &qmakePath,
                                                        bool isAutoDetected = false,
                                                        const QString &detectionSource = {},
                                                        QString *error = nullptr);
@@ -63,16 +63,16 @@ protected:
         bool isQnx = false; // eeks...
     };
 
-    void setQtVersionCreator(const std::function<BaseQtVersion *()> &creator);
+    void setQtVersionCreator(const std::function<QtVersion *()> &creator);
     void setRestrictionChecker(const std::function<bool(const SetupData &)> &checker);
     void setSupportedType(const QString &type);
     void setPriority(int priority);
 
 private:
-    friend class BaseQtVersion;
-    BaseQtVersion *create() const;
+    friend class QtVersion;
+    QtVersion *create() const;
 
-    std::function<BaseQtVersion *()> m_creator;
+    std::function<QtVersion *()> m_creator;
     std::function<bool(const SetupData &)> m_restrictionChecker;
     QString m_supportedType;
     int m_priority = 0;

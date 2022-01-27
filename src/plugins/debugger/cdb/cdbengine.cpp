@@ -62,7 +62,6 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/checkablemessagebox.h>
-#include <utils/consoleprocess.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -2255,8 +2254,8 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
     if (!match.hasMatch())
         return;
     const FilePath modulePath = FilePath::fromUserInput(module).parentDir();
-    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::version(
-        [modulePath](const QtSupport::BaseQtVersion *version) {
+    QtSupport::QtVersion *version = QtSupport::QtVersionManager::version(
+        [modulePath](const QtSupport::QtVersion *version) {
             return version->isAutodetected() && version->binPath() == modulePath;
         });
     if (!version)

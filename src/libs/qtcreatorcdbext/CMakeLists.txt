@@ -60,7 +60,16 @@ add_qtc_library(qtcreatorcdbext
 
 qtc_library_enabled(_library_enabled qtcreatorcdbext)
 if (_library_enabled)
-  find_package(PythonLibs 3.8)
+  # TODO: Remove when cmake_minimum_required greater than 3.12
+  if (CMAKE_VERSION VERSION_GREATER 3.12)
+    find_package(Python3 3.8 COMPONENTS Development)
+    set(PYTHONLIBS_FOUND ${Python3_Development_FOUND})
+    set(PYTHON_LIBRARIES ${Python3_LIBRARIES})
+    set(PYTHON_INCLUDE_DIR ${Python3_INCLUDE_DIRS})
+  else()
+    find_package(PythonLibs 3.8)
+  endif()
+
   if (NOT ${PYTHONLIBS_FOUND})
     message(WARNING "PythonLibs (at least version 3.8) not found. qtcreatorcdbext will be built without Python support.")
     return()

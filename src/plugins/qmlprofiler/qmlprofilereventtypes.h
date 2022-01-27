@@ -40,6 +40,7 @@ enum Message {
     SceneGraphFrame,
     MemoryAllocation,
     DebugMessage,
+    Quick3DEvent,
 
     MaximumMessage
 };
@@ -53,6 +54,21 @@ enum EventType {
     StartTrace,
 
     MaximumEventType
+};
+
+enum Quick3DEventType {
+    Quick3DRenderFrame,
+    Quick3DSynchronizeFrame,
+    Quick3DPrepareFrame,
+    Quick3DMeshLoad,
+    Quick3DCustomMeshLoad,
+    Quick3DTextureLoad,
+    Quick3DParticleUpdate,
+    Quick3DGenerateShader,
+    Quick3DLoadShader,
+    MaximumQuick3DFrameType,
+    NumQuick3DRenderThreadFrameTypes = Quick3DParticleUpdate,
+    NumQuick3DGUIThreadFrameTypes = MaximumQuick3DFrameType - NumQuick3DRenderThreadFrameTypes,
 };
 
 enum RangeType {
@@ -144,6 +160,7 @@ enum ProfileFeature {
     ProfileHandlingSignal,
     ProfileInputEvents,
     ProfileDebugMessages,
+    ProfileQuick3D,
 
     MaximumProfileFeature
 };

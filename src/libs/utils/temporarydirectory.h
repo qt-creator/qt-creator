@@ -41,6 +41,7 @@ public:
     static QTemporaryDir *masterTemporaryDirectory();
     static void setMasterTemporaryDirectory(const QString &pattern);
     static QString masterDirectoryPath();
+    static FilePath masterDirectoryFilePath();
 
     FilePath path() const;
     FilePath filePath(const QString &fileName) const;

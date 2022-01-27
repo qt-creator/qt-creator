@@ -73,7 +73,7 @@ bool AndroidPotentialKit::isEnabled() const
         }
     }
 
-    return QtSupport::QtVersionManager::version([](const QtSupport::BaseQtVersion *v) {
+    return QtSupport::QtVersionManager::version([](const QtSupport::QtVersion *v) {
         return v->isValid() && v->type() == QString::fromLatin1(Constants::ANDROID_QT_TYPE);
     });
 }

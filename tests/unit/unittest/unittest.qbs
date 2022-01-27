@@ -292,14 +292,6 @@ Project {
         }
 
         Group {
-            name: "ClangFormat tests"
-            condition: libclang.present
-                       && libclang.llvmFormattingLibs.length
-                       && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
-            files: "clangformat-test.cpp"
-        }
-
-        Group {
             name: "benchmark test"
             condition: benchmark.present
             files: "smallstring-benchmark.cpp"
@@ -483,19 +475,6 @@ Project {
                 "clangtoolsdiagnostic.h",
                 "clangtoolslogfilereader.cpp",
                 "clangtoolslogfilereader.h",
-            ]
-        }
-
-        Group {
-            name: "sources from ClangFormat"
-            prefix: "../../../src/plugins/clangformat/"
-            condition: libclang.present
-                       && libclang.llvmFormattingLibs.length
-                       && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
-            files: [
-                "clangformatbaseindenter.cpp",
-                "clangformatbaseindenter.h",
-                "clangformatconstants.h",
             ]
         }
 

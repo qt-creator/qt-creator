@@ -1615,9 +1615,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
                     }
                     return true;
                 },
-                {"*"},
-                QDir::NoFilter,
-                QDirIterator::Subdirectories);
+                {{"*"}, QDir::NoFilter, QDirIterator::Subdirectories});
         }
     }
 

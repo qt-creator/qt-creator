@@ -226,9 +226,11 @@ void DocumentLocatorFilter::accept(Core::LocatorFilterEntry selection,
     if (selection.internalData.canConvert<Utils::LineColumn>()) {
         auto lineColumn = qvariant_cast<Utils::LineColumn>(selection.internalData);
         const Utils::Link link(m_currentUri.toFilePath(), lineColumn.line + 1, lineColumn.column);
-        Core::EditorManager::openEditorAt(link);
+        Core::EditorManager::openEditorAt(link, {}, Core::EditorManager::AllowExternalEditor);
     } else if (selection.internalData.canConvert<Utils::Link>()) {
-        Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData));
+        Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData),
+                                          {},
+                                          Core::EditorManager::AllowExternalEditor);
     }
 }
 
@@ -329,7 +331,9 @@ void WorkspaceLocatorFilter::accept(Core::LocatorFilterEntry selection,
                                     int * /*selectionLength*/) const
 {
     if (selection.internalData.canConvert<Utils::Link>())
-        Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData));
+        Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData),
+                                          {},
+                                          Core::EditorManager::AllowExternalEditor);
 }
 
 void WorkspaceLocatorFilter::handleResponse(Client *client,

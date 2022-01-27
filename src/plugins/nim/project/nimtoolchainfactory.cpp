@@ -51,17 +51,18 @@ NimToolChainFactory::NimToolChainFactory()
     setUserCreatable(true);
 }
 
-QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown,
-                                                   const IDevice::Ptr &device)
+Toolchains NimToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    QList<ToolChain *> result;
+    Toolchains result;
 
-    IDevice::ConstPtr dev = device ? device : DeviceManager::defaultDesktopDevice();
+    IDevice::ConstPtr dev =
+        detector.device ? detector.device : DeviceManager::defaultDesktopDevice();
+
     const FilePath compilerPath = dev->searchExecutableInPath("nim");
     if (compilerPath.isEmpty())
         return result;
 
-    result = Utils::filtered(alreadyKnown, [compilerPath](ToolChain *tc) {
+    result = Utils::filtered(detector.alreadyKnown, [compilerPath](ToolChain *tc) {
         return tc->typeId() == Constants::C_NIMTOOLCHAIN_TYPEID
                 && tc->compilerCommand() == compilerPath;
     });
@@ -76,9 +77,9 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     return result;
 }
 
-QList<ToolChain *> NimToolChainFactory::detectForImport(const ToolChainDescription &tcd)
+Toolchains NimToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
-    QList<ToolChain *> result;
+    Toolchains result;
     if (tcd.language == Constants::C_NIMLANGUAGE_ID) {
         auto tc = new NimToolChain;
         tc->setDetection(ToolChain::ManualDetection); // FIXME: sure?

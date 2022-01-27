@@ -87,6 +87,12 @@ public:
         return {};
     }
 
+    int appendItem(const QString &text)
+    {
+        m_backendModel->appendRow(new QStandardItem{text});
+        return rowCount(QModelIndex{}) - 1;
+    }
+
     QHash<int, QByteArray> roleNames() const override
     {
         if (m_backendModel)

@@ -39,10 +39,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/consoleprocess.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/hostosinfo.h>
+#include <utils/terminalcommand.h>
 #include <utils/unixutils.h>
 
 #include <QCoreApplication>
@@ -90,10 +90,10 @@ public:
 
         m_ui.reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
-            const QVector<TerminalCommand> availableTerminals = ConsoleProcess::availableTerminalEmulators();
+            const QVector<TerminalCommand> availableTerminals = TerminalCommand::availableTerminalEmulators();
             for (const TerminalCommand &term : availableTerminals)
                 m_ui.terminalComboBox->addItem(term.command, QVariant::fromValue(term));
-            updateTerminalUi(ConsoleProcess::terminalEmulator(ICore::settings()));
+            updateTerminalUi(TerminalCommand::terminalEmulator());
             connect(m_ui.terminalComboBox,
                     QOverload<int>::of(&QComboBox::currentIndexChanged),
                     this,
@@ -265,8 +265,7 @@ void SystemSettingsWidget::apply()
     QtcSettings *settings = ICore::settings();
     EditorManager::setReloadSetting(IDocument::ReloadSetting(m_ui.reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
-        ConsoleProcess::setTerminalEmulator(settings,
-                                            {m_ui.terminalComboBox->lineEdit()->text(),
+        TerminalCommand::setTerminalEmulator({m_ui.terminalComboBox->lineEdit()->text(),
                                              m_ui.terminalOpenArgs->text(),
                                              m_ui.terminalExecuteArgs->text()});
         if (!HostOsInfo::isMacHost()) {

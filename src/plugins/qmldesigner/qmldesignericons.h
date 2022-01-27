@@ -91,6 +91,10 @@ const Utils::Icon EDIT3D_ORIENTATION_ON({
         {":/edit3d/images/global.png", Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_ORIENTATION_OFF({
         {":/edit3d/images/local.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_ALIGN_CAMERA_ON({
+        {":/edit3d/images/align_camera_on.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon EDIT3D_ALIGN_VIEW_ON({
+        {":/edit3d/images/align_view_on.png", Utils::Theme::IconsBaseColor}});
 
 } // Icons
 } // QmlDesigner

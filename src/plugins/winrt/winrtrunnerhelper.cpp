@@ -56,7 +56,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
 
     m_device = runWorker->device().dynamicCast<const WinRtDevice>();
 
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(runControl->kit());
+    const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(runControl->kit());
     if (!qt) {
         *errorMessage = tr("The current kit has no Qt version.");
         return;
@@ -69,7 +69,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         return;
     }
 
-    m_executableFilePath = runControl->targetFilePath().toString();
+    m_executableFilePath = runControl->targetFilePath();
 
     if (m_executableFilePath.isEmpty()) {
         *errorMessage = tr("Cannot determine the executable file path for \"%1\".")
@@ -79,8 +79,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
 
     // ### we should not need to append ".exe" here.
     if (!m_executableFilePath.endsWith(QLatin1String(".exe")))
-        m_executableFilePath += QStringLiteral(".exe");
-
+        m_executableFilePath = m_executableFilePath + QStringLiteral(".exe");
 
     bool loopbackExemptClient = false;
     bool loopbackExemptServer = false;
@@ -205,7 +204,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         cmdLine.addArgs({"--profile", "appxphone"});
 
     cmdLine.addArgs(m_loopbackArguments);
-    cmdLine.addArg(m_executableFilePath);
+    cmdLine.addArg(m_executableFilePath.toString());
     cmdLine.addArgs(m_arguments, CommandLine::Raw);
 
     appendMessage(cmdLine.toUserOutput(), NormalMessageFormat);
@@ -221,6 +220,6 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
     process->setUseCtrlCStub(true);
     process->setCommand(cmdLine);
     process->setEnvironment(m_worker->runControl()->buildEnvironment());
-    process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
+    process->setWorkingDirectory(m_executableFilePath.absolutePath());
     process->start();
 }

@@ -28,6 +28,7 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
@@ -112,7 +113,7 @@ public:
     void changeToCustomTool();
     void changeCurrentToolTo(AbstractFormEditorTool *customTool);
 
-    void registerTool(AbstractCustomTool *tool);
+    void registerTool(std::unique_ptr<AbstractCustomTool> &&tool);
 
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
 
@@ -153,7 +154,7 @@ private:
 
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;
-    QList<AbstractCustomTool*> m_customToolList;
+    std::vector<std::unique_ptr<AbstractCustomTool>> m_customTools;
     std::unique_ptr<MoveTool> m_moveTool;
     std::unique_ptr<SelectionTool> m_selectionTool;
     std::unique_ptr<RotationTool> m_rotationTool;

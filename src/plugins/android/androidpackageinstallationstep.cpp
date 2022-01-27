@@ -107,8 +107,12 @@ bool AndroidPackageInstallationStep::init()
     const QString innerQuoted = ProcessArgs::quoteArg(dirPath);
     const QString outerQuoted = ProcessArgs::quoteArg("INSTALL_ROOT=" + innerQuoted);
 
-    CommandLine cmd{tc->makeCommand(buildEnvironment())};
-    cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
+    const FilePath makeCommand = tc->makeCommand(buildEnvironment());
+    CommandLine cmd{makeCommand};
+    // Run install on both the target and the whole project as a workaround for QTCREATORBUG-26550.
+    cmd.addArgs(QString("%1 install && cd %2 && %3 %1 install")
+                .arg(outerQuoted).arg(ProcessArgs::quoteArg(buildDirectory().toUserOutput()))
+                .arg(ProcessArgs::quoteArg(makeCommand.toUserOutput())), CommandLine::Raw);
 
     processParameters()->setCommandLine(cmd);
     // This is useful when running an example target from a Qt module project.
@@ -161,7 +165,7 @@ void AndroidPackageInstallationStep::doRun()
     // NOTE: This is a workaround for QTCREATORBUG-24155
     // Needed for Qt 5.15.0 and Qt 5.14.x versions
     if (buildType() == BuildConfiguration::BuildType::Debug) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
         if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}
             && version->qtVersion() <= QtSupport::QtVersionNumber{5, 15, 0}) {
             const QString assetsDebugDir = nativeAndroidBuildPath().append(

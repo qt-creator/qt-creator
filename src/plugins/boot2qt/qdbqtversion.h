@@ -30,7 +30,7 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbQtVersion : public QtSupport::BaseQtVersion
+class QdbQtVersion : public QtSupport::QtVersion
 {
 public:
     QdbQtVersion() = default;

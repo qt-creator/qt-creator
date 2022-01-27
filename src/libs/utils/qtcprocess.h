@@ -32,11 +32,11 @@
 #include "processutils.h"
 
 #include <QProcess>
-#include <QTextCodec>
 
 #include <functional>
 
 QT_FORWARD_DECLARE_CLASS(QDebug)
+QT_FORWARD_DECLARE_CLASS(QTextCodec)
 
 class tst_QtcProcess;
 
@@ -65,9 +65,19 @@ public:
         ProcessLauncherImpl
     };
 
-    QtcProcess(ProcessImpl processImpl, ProcessMode processMode, QObject *parent = nullptr);
+    enum TerminalMode {
+        TerminalOff,
+        TerminalRun,
+        TerminalDebug,
+        TerminalSuspend,
+        TerminalOn = TerminalRun // default mode for ON
+    };
+
+    QtcProcess(ProcessImpl processImpl, ProcessMode processMode, TerminalMode terminalMode,
+               QObject *parent = nullptr);
     QtcProcess(ProcessImpl processImpl, QObject *parent = nullptr);
     QtcProcess(ProcessMode processMode, QObject *parent = nullptr);
+    QtcProcess(TerminalMode terminalMode, QObject *parent = nullptr);
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
@@ -99,7 +109,6 @@ public:
 
     FilePath workingDirectory() const;
     void setWorkingDirectory(const FilePath &dir);
-    void setWorkingDirectory(const QString &dir); // FIXME: Kept to ease downstream transition
 
     void setUseCtrlCStub(bool enabled);
     void setLowPriority();
@@ -109,17 +118,23 @@ public:
     void setUseTerminal(bool on);
     bool useTerminal() const;
 
+    void setAbortOnMetaChars(bool abort);
+
     void start();
     void terminate();
     void interrupt();
 
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
-    // Starts the command and waits for finish. User input processing depends
-    // on whether setProcessUserEventWhileRunning was called.
-    void runBlocking();
-    // This starts a nested event loop when running the command.
-    void setProcessUserEventWhileRunning(); // Avoid.
+
+    enum EventLoopMode {
+        NoEventLoop,
+        WithEventLoop // Avoid
+    };
+
+    // Starts the command and waits for finish.
+    // User input processing is enabled when WithEventLoop was passed.
+    void runBlocking(EventLoopMode eventLoopMode = NoEventLoop);
 
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
@@ -129,7 +144,6 @@ public:
     void setTimeOutMessageBoxEnabled(bool);
     void setExitCodeInterpreter(const std::function<QtcProcess::Result(int)> &interpreter);
 
-    // FIXME: This is currently only used in run(), not in start()
     void setWriteData(const QByteArray &writeData);
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
@@ -166,6 +180,10 @@ public:
     static QString locateBinary(const QString &path, const QString &binary);
 
     static Environment systemEnvironmentForBinary(const FilePath &filePath);
+
+    void kickoffProcess();
+    void interruptProcess();
+    qint64 applicationMainThreadID() const;
 
     // FIXME: Cut down the following bits inherited from QProcess and QIODevice.
 
