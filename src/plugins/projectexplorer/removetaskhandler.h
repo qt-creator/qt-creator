@@ -35,8 +35,9 @@ class RemoveTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    bool canHandle(const Task &) const override { return true; }
-    void handle(const Task &task) override;
+    RemoveTaskHandler() : ITaskHandler(true) {}
+
+    void handle(const Tasks &tasks) override;
     QAction *createAction(QObject *parent) const override;
 };
 

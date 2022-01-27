@@ -1455,17 +1455,20 @@ bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permiss
 
 void DockerDevice::iterateWithFind(const FilePath &filePath,
                                    const std::function<bool(const Utils::FilePath &)> &callBack,
-                                   const QStringList &nameFilters,
-                                   QDir::Filters filters) const
+                                   const FileFilter &filter) const
 {
     QTC_ASSERT(callBack, return);
     QTC_CHECK(filePath.isAbsolutePath());
-    QStringList arguments{filePath.path(), "-maxdepth", "1"};
+    QStringList arguments{filePath.path()};
+
+    const QDir::Filters filters = filter.fileFilters;
     if (filters & QDir::NoSymLinks)
         arguments.prepend("-H");
     else
         arguments.prepend("-L");
 
+    if (!filter.iteratorFlags.testFlag(QDirIterator::Subdirectories))
+        arguments.append({"-maxdepth", "1"});
 
     QStringList filterOptions;
     if (filters & QDir::Dirs)
@@ -1493,12 +1496,12 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
     const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
                                                                : QString{"-iname"};
     QStringList criticalWildcards;
-    if (!nameFilters.isEmpty()) {
+    if (!filter.nameFilters.isEmpty()) {
         const QRegularExpression oneChar("\\[.*?\\]");
-        for (int i = 0, len = nameFilters.size(); i < len; ++i) {
+        for (int i = 0, len = filter.nameFilters.size(); i < len; ++i) {
             if (i > 0)
                 filterOptions << "-o";
-            QString current = nameFilters.at(i);
+            QString current = filter.nameFilters.at(i);
             if (current.indexOf(oneChar) != -1)
                 criticalWildcards.append(current);
             current.replace(oneChar, "?"); // BAD! but still better than nothing
@@ -1519,7 +1522,8 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
             continue;
         const FilePath fp = FilePath::fromString(entry);
 
-        if (!Utils::anyOf(criticalWildcards,
+        if (!criticalWildcards.isEmpty() &&
+                !Utils::anyOf(criticalWildcards,
                           [name = fp.fileName()](const QString &pattern) {
                           const QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(pattern));
                           if (regex.match(name).hasMatch())
@@ -1537,15 +1541,17 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
 static void filterEntriesHelper(const FilePath &base,
                                 const std::function<bool(const FilePath &)> &callBack,
                                 const QStringList &entries,
-                                const QStringList &nameFilters,
-                                QDir::Filters filters)
+                                const FileFilter &filter)
 {
-    const QList<QRegularExpression> nameRegexps = transform(nameFilters, [](const QString &filter) {
-        QRegularExpression re;
-        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
-        QTC_CHECK(re.isValid());
-        return re;
-    });
+    QTC_CHECK(filter.iteratorFlags != QDirIterator::NoIteratorFlags); // FIXME: Not supported yet below.
+
+    const QList<QRegularExpression> nameRegexps =
+        transform(filter.nameFilters, [](const QString &filter) {
+            QRegularExpression re;
+            re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+            QTC_CHECK(re.isValid());
+            return re;
+        });
 
     const auto nameMatches = [&nameRegexps](const QString &fileName) {
         for (const QRegularExpression &re : nameRegexps) {
@@ -1557,7 +1563,7 @@ static void filterEntriesHelper(const FilePath &base,
     };
 
     // FIXME: Handle filters. For now bark on unsupported options.
-    QTC_CHECK(filters == QDir::NoFilter);
+    QTC_CHECK(filter.fileFilters == QDir::NoFilter);
 
     for (const QString &entry : entries) {
         if (!nameMatches(entry))
@@ -1569,12 +1575,8 @@ static void filterEntriesHelper(const FilePath &base,
 
 void DockerDevice::iterateDirectory(const FilePath &filePath,
                                     const std::function<bool(const FilePath &)> &callBack,
-                                    const QStringList &nameFilters,
-                                    QDir::Filters filters,
-                                    QDirIterator::IteratorFlags flags) const
+                                    const FileFilter &filter) const
 {
-    Q_UNUSED(flags) // FIXME: Use it.
-
     QTC_ASSERT(handlesFile(filePath), return);
     updateContainerAccess();
     if (hasLocalFileAccess()) {
@@ -1582,12 +1584,12 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
         local.iterateDirectory([&callBack, this](const FilePath &entry) {
                                     return callBack(mapFromLocalAccess(entry));
                                },
-                               nameFilters, filters);
+                               filter);
         return;
     }
 
     if (d->m_useFind) {
-        iterateWithFind(filePath, callBack, nameFilters, filters);
+        iterateWithFind(filePath, callBack, filter);
         // d->m_useFind will be set to false if 'find' is not found. In this
         // case fall back to 'ls' below.
         if (d->m_useFind)
@@ -1597,7 +1599,7 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
     // if we do not have find - use ls as fallback
     const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
     const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
-    filterEntriesHelper(filePath, callBack, entries, nameFilters, filters);
+    filterEntriesHelper(filePath, callBack, entries, filter);
 }
 
 QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
@@ -1802,15 +1804,6 @@ QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
 
 // Factory
 
-DockerDeviceFactory::DockerDeviceFactory()
-    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
-{
-    setDisplayName(DockerDevice::tr("Docker Device"));
-    setIcon(QIcon());
-    setCanCreate(true);
-    setConstructionFunction([] { return DockerDevice::create({}); });
-}
-
 class DockerImageItem final : public TreeItem, public DockerDeviceData
 {
 public:
@@ -1914,7 +1907,7 @@ public:
         m_process->start();
     }
 
-    DockerDevice::Ptr device() const
+    IDevice::Ptr device() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
@@ -1939,14 +1932,6 @@ public:
     QString m_selectedId;
 };
 
-IDevice::Ptr DockerDeviceFactory::create() const
-{
-    DockerDeviceSetupWizard wizard;
-    if (wizard.exec() != QDialog::Accepted)
-        return IDevice::Ptr();
-    return wizard.device();
-}
-
 void DockerDeviceWidget::updateDaemonStateTexts()
 {
     Utils::optional<bool> daemonState = DockerPlugin::isDaemonRunning();
@@ -1960,6 +1945,23 @@ void DockerDeviceWidget::updateDaemonStateTexts()
         m_daemonReset->setIcon(Icons::CRITICAL.icon());
         m_daemonState->setText(tr("Docker daemon not running."));
     }
+}
+
+// Factory
+
+DockerDeviceFactory::DockerDeviceFactory()
+    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
+{
+    setDisplayName(DockerDevice::tr("Docker Device"));
+    setIcon(QIcon());
+    setCanCreate(true);
+    setCreator([] {
+        DockerDeviceSetupWizard wizard;
+        if (wizard.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
+        return wizard.device();
+    });
+    setConstructionFunction([] { return DockerDevice::create({}); });
 }
 
 } // Internal

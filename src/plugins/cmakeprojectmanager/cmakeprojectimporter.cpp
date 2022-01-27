@@ -79,7 +79,7 @@ static QStringList scanDirectory(const FilePath &path, const QString &prefix)
     QStringList result;
     qCDebug(cmInputLog) << "Scanning for directories matching" << prefix << "in" << path;
 
-    foreach (const FilePath &entry, path.dirEntries({prefix + "*"}, QDir::Dirs | QDir::NoDotAndDotDot)) {
+    foreach (const FilePath &entry, path.dirEntries({{prefix + "*"}, QDir::Dirs | QDir::NoDotAndDotDot})) {
         QTC_ASSERT(entry.isDir(), continue);
         result.append(entry.toString());
     }

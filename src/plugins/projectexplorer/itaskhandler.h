@@ -26,6 +26,7 @@
 #pragma once
 
 #include "projectexplorer_export.h"
+#include "task.h"
 
 #include <utils/id.h>
 
@@ -37,21 +38,26 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Task;
 
 class PROJECTEXPLORER_EXPORT ITaskHandler : public QObject
 {
     Q_OBJECT
 
 public:
-    ITaskHandler();
+    explicit ITaskHandler(bool isMultiHandler = false);
     ~ITaskHandler() override;
 
     virtual bool isDefaultHandler() const { return false; }
-    virtual bool canHandle(const Task &) const = 0;
-    virtual void handle(const Task &) = 0;
+    virtual bool canHandle(const Task &) const { return m_isMultiHandler; }
+    virtual void handle(const Task &);       // Non-multi-handlers should implement this.
+    virtual void handle(const Tasks &tasks); // Multi-handlers should implement this.
     virtual Utils::Id actionManagerId() const { return Utils::Id(); }
     virtual QAction *createAction(QObject *parent) const = 0;
+
+    bool canHandle(const Tasks &tasks) const;
+
+private:
+    const bool m_isMultiHandler;
 };
 
 } // namespace ProjectExplorer

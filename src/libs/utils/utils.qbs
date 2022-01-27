@@ -68,8 +68,6 @@ Project {
             "completinglineedit.h",
             "completingtextedit.cpp",
             "completingtextedit.h",
-            "consoleprocess.cpp",
-            "consoleprocess.h",
             "cpplanguage_details.h",
             "crumblepath.cpp",
             "crumblepath.h",

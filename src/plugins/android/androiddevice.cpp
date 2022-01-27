@@ -663,34 +663,33 @@ AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
 }
 
 // Factory
+
 AndroidDeviceFactory::AndroidDeviceFactory()
-    : ProjectExplorer::IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
+    : IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
       m_androidConfig(AndroidConfigurations::currentConfig())
 {
     setDisplayName(AndroidDevice::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
+
     setConstructionFunction(&AndroidDevice::create);
     setCanCreate(m_androidConfig.sdkToolsOk());
-}
+    setCreator([this] {
+        AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
+        if (dialog.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
 
-IDevice::Ptr AndroidDeviceFactory::create() const
-{
-    AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
-    if (dialog.exec() != QDialog::Accepted)
-        return ProjectExplorer::IDevice::Ptr();
+        const IDevice::Ptr dev = dialog.device();
+        if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
+            qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
+                    qPrintable(androidDev->avdName()));
+        } else {
+            AndroidDeviceWidget::criticalDialog(
+                    AndroidDevice::tr("The device info returned from AvdDialog is invalid."));
+        }
 
-    const ProjectExplorer::IDevice::Ptr dev = dialog.device();
-    const AndroidDevice *androidDev = static_cast<AndroidDevice*>(dev.data());
-    if (androidDev) {
-        qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
-                qPrintable(androidDev->avdName()));
-    } else {
-        AndroidDeviceWidget::criticalDialog(
-                    QObject::tr("The device info returned from AvdDialog is invalid."));
-    }
-
-    return IDevice::Ptr(dev);
+        return IDevice::Ptr(dev);
+    });
 }
 
 } // namespace Internal

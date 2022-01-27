@@ -701,14 +701,19 @@ void MainWindow::registerDefaultActions()
     cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
     tmpaction->setEnabled(false);
 
+    // Debug Qt Creator menu
+    mtools->appendGroup(Constants::G_TOOLS_DEBUG);
+    ActionContainer *mtoolsdebug = ActionManager::createMenu(Constants::M_TOOLS_DEBUG);
+    mtoolsdebug->menu()->setTitle(tr("Debug %1").arg(Constants::IDE_DISPLAY_NAME));
+    mtools->addMenu(mtoolsdebug, Constants::G_TOOLS_DEBUG);
+
+    m_loggerAction = new QAction(tr("Show Logs..."), this);
+    cmd = ActionManager::registerAction(m_loggerAction, Constants::LOGGER);
+    mtoolsdebug->addAction(cmd);
+    connect(m_loggerAction, &QAction::triggered, this, [] { LoggingViewer::showLoggingView(); });
+
     // Options Action
     mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
-    mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
-
-    m_loggerAction = new QAction(tr("Logger..."), this);
-    cmd = ActionManager::registerAction(m_loggerAction, Constants::LOGGER);
-    mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
-    connect(m_loggerAction, &QAction::triggered, this, [] { LoggingViewer::showLoggingView(); });
     mtools->addSeparator(Constants::G_TOOLS_OPTIONS);
 
     m_optionsAction = new QAction(tr("&Options..."), this);

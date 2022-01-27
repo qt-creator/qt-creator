@@ -45,8 +45,6 @@ class McuSupportDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     McuSupportDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 } // namespace Internal

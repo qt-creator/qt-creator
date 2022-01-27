@@ -109,8 +109,7 @@ void registerFlashAction(QObject *parentForAction)
 
     Core::ActionContainer *toolsContainer =
         Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    toolsContainer->insertGroup(Core::Constants::G_TOOLS_OPTIONS,
-                                flashActionId);
+    toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, flashActionId);
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
 

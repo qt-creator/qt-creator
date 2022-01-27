@@ -25,6 +25,15 @@
 
 #pragma once
 
+#include <QtGlobal>
+
+#if defined(NANOTRACE_LIBRARY)
+#  define NANOTRACESHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define NANOTRACESHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+
 #include <string>
 #include <variant>
 #include <vector>
@@ -68,7 +77,7 @@ using Units = std::chrono::nanoseconds;
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point< Clock >;
 
-class Arg
+class NANOTRACESHARED_EXPORT Arg
 {
 public:
     using SupportedType = std::variant<int, int64_t, double, std::string>;
@@ -82,19 +91,19 @@ private:
     SupportedType m_value;
 };
 
-void init(const std::string &process, const std::string &thread, const std::string &path);
+NANOTRACESHARED_EXPORT void init(const std::string &process, const std::string &thread, const std::string &path);
 
-void shutdown();
+NANOTRACESHARED_EXPORT void shutdown();
 
-void flush();
+NANOTRACESHARED_EXPORT void flush();
 
-void addTracePoint(
+NANOTRACESHARED_EXPORT void addTracePoint(
     const std::string &name,
     const std::string &cat,
     char phase,
     std::initializer_list< Nanotrace::Arg > arguments);
 
-class ScopeTracer
+class NANOTRACESHARED_EXPORT ScopeTracer
 {
 public:
     ScopeTracer(

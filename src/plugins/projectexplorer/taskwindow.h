@@ -91,7 +91,6 @@ private:
     void openTask(const Task &task);
     void clearTasks(Utils::Id categoryId);
     void setCategoryVisibility(Utils::Id categoryId, bool visible);
-    void currentChanged(const QModelIndex &index);
     void saveSettings();
     void loadSettings();
 

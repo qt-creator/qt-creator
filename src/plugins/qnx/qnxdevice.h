@@ -70,8 +70,6 @@ class QnxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     QnxDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 } // namespace Internal

@@ -196,12 +196,12 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
         SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
         NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
             {"name", cmd.name().toStdString()},
-            {"counter", m_connectionManager.writeCounter()});
+            {"counter", int64_t(m_connectionManager.writeCounter())});
 
     } else {
         NANOTRACE_INSTANT_ARGS("Update", "writeCommand",
             {"name", command.typeName()},
-            {"counter", m_connectionManager.writeCounter()});
+            {"counter", int64_t(m_connectionManager.writeCounter())});
     }
 #endif
 

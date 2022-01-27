@@ -59,13 +59,9 @@ McuSupportDeviceFactory::McuSupportDeviceFactory()
     setDisplayName(McuSupportDevice::tr("MCU Device"));
     setCombinedIcon(":/mcusupport/images/mcusupportdevicesmall.png",
                     ":/mcusupport/images/mcusupportdevice.png");
-    setCanCreate(true);
     setConstructionFunction(&McuSupportDevice::create);
-}
-
-ProjectExplorer::IDevice::Ptr McuSupportDeviceFactory::create() const
-{
-    return McuSupportDevice::create();
+    setCanCreate(true);
+    setCreator(&McuSupportDevice::create);
 }
 
 } // namespace Internal

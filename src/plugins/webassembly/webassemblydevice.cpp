@@ -47,10 +47,9 @@ WebAssemblyDevice::WebAssemblyDevice()
     setOsType(OsTypeOther);
 }
 
-ProjectExplorer::IDevice::Ptr WebAssemblyDevice::create()
+IDevice::Ptr WebAssemblyDevice::create()
 {
-    auto device = new WebAssemblyDevice;
-    return ProjectExplorer::IDevice::Ptr(device);
+    return IDevice::Ptr(new WebAssemblyDevice);
 }
 
 WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
@@ -59,13 +58,9 @@ WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
     setDisplayName(WebAssemblyDevice::tr("WebAssembly Runtime"));
     setCombinedIcon(":/webassembly/images/webassemblydevicesmall.png",
                     ":/webassembly/images/webassemblydevice.png");
-    setCanCreate(true);
     setConstructionFunction(&WebAssemblyDevice::create);
-}
-
-ProjectExplorer::IDevice::Ptr WebAssemblyDeviceFactory::create() const
-{
-    return WebAssemblyDevice::create();
+    setCanCreate(true);
+    setCreator(&WebAssemblyDevice::create);
 }
 
 } // namespace Internal

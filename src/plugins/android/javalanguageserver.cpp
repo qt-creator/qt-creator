@@ -322,7 +322,7 @@ void JLSClient::updateProjectFiles()
             const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
                                            .arg(targetSDK);
             FilePaths libs = {androidJar};
-            libs << packageSourceDir.pathAppended("libs").dirEntries({"*.jar"}, QDir::Files);
+            libs << packageSourceDir.pathAppended("libs").dirEntries({{"*.jar"}, QDir::Files});
             generateProjectFile(projectDir, qtSrc, project()->displayName());
             generateClassPathFile(projectDir, sourceDir, libs);
         }

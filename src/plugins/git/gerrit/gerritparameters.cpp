@@ -70,7 +70,7 @@ static FilePath detectApp(const QString &defaultExe)
     if (!gitBinDir.endsWith("/usr/bin"))
         return {};
     path = gitBinDir.parentDir().parentDir();
-    const FilePaths entries = path.dirEntries({"mingw*"}, {});
+    const FilePaths entries = path.dirEntries({{"mingw*"}});
     if (entries.isEmpty())
         return {};
     path = entries.first() / "bin" / defaultApp;

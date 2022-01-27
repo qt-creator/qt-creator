@@ -65,9 +65,6 @@ class QdbLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     QdbLinuxDeviceFactory();
-
-private:
-    ProjectExplorer::IDevice::Ptr create() const final;
 };
 
 } // namespace Internal

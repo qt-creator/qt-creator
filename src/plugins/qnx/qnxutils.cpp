@@ -144,9 +144,9 @@ FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
 {
     FilePaths entries;
     if (sdpPath.osType() == OsTypeWindows)
-        entries = sdpPath.dirEntries({"*-env.bat"});
+        entries = sdpPath.dirEntries({{"*-env.bat"}});
     else
-        entries = sdpPath.dirEntries({"*-env.sh"});
+        entries = sdpPath.dirEntries({{"*-env.sh"}});
 
     if (!entries.isEmpty())
         return entries.first();

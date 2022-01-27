@@ -2,7 +2,6 @@ QtcLibrary {
     name: "Nanotrace"
 
     cpp.defines: base.concat("NANOTRACE_LIBRARY", "NANOTRACE_ENABLED")
-    cpp.visibility: "default"
 
     files: [
         "nanotrace.cpp",

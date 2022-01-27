@@ -37,8 +37,6 @@ class TestLinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
     TestLinuxDeviceFactory();
-
-    ProjectExplorer::IDevice::Ptr create() const override;
 };
 
 class FileSystemAccessTest : public QObject

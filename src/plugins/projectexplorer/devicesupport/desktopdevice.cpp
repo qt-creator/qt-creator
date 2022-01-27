@@ -177,13 +177,11 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
 }
 
 void DesktopDevice::iterateDirectory(const FilePath &filePath,
-                                     const std::function<bool(const Utils::FilePath &)> &callBack,
-                                     const QStringList &nameFilters,
-                                     QDir::Filters filters,
-                                     QDirIterator::IteratorFlags flags) const
+                                     const std::function<bool(const FilePath &)> &callBack,
+                                     const FileFilter &filter) const
 {
     QTC_CHECK(!filePath.needsDevice());
-    filePath.iterateDirectory(callBack, nameFilters, filters, flags);
+    filePath.iterateDirectory(callBack, filter);
 }
 
 qint64 DesktopDevice::fileSize(const FilePath &filePath) const

@@ -44,8 +44,7 @@ public:
     QIcon icon() const { return m_icon; }
     bool canCreate() const;
     IDevice::Ptr construct() const;
-
-    virtual IDevice::Ptr create() const { return IDevice::Ptr(); }
+    IDevice::Ptr create() const;
 
     virtual bool canRestore(const QVariantMap &) const { return true; }
 
@@ -61,8 +60,10 @@ protected:
     void setCombinedIcon(const Utils::FilePath &small, const Utils::FilePath &large);
     void setCanCreate(bool canCreate);
     void setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor);
+    void setCreator(const std::function<IDevice::Ptr()> &creator);
 
 private:
+    std::function<IDevice::Ptr()> m_creator;
     const Utils::Id m_deviceType;
     QString m_displayName;
     QIcon m_icon;

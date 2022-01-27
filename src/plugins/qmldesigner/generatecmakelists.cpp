@@ -354,7 +354,7 @@ void generateModuleCmake(const FilePath &dir, const QString &uri)
     QString fileTemplate = GenerateCmake::readTemplate(MODULEFILE_TEMPLATE_PATH);
 
     QString singletonContent;
-    FilePaths qmldirFileList = dir.dirEntries(QStringList(FILENAME_QMLDIR), FILES_ONLY);
+    FilePaths qmldirFileList = dir.dirEntries({QStringList(FILENAME_QMLDIR), FILES_ONLY});
     if (!qmldirFileList.isEmpty()) {
         QStringList singletons = getSingletonsFromQmldirFile(qmldirFileList.first());
         for (QString &singleton : singletons) {
@@ -418,7 +418,7 @@ FilePaths getDirectoryQmls(const FilePath &dir)
 {
     const QStringList qmlFilesOnly("*.qml");
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    FilePaths allFiles = dir.dirEntries(qmlFilesOnly, FILES_ONLY);
+    FilePaths allFiles = dir.dirEntries({qmlFilesOnly, FILES_ONLY});
     FilePaths moduleFiles;
     for (FilePath &file : allFiles) {
         if (!isFileBlacklisted(file.fileName()) &&
@@ -436,7 +436,7 @@ QStringList getDirectoryTreeQmls(const FilePath &dir)
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QStringList qmlFileList;
 
-    FilePaths thisDirFiles = dir.dirEntries(qmlFilesOnly, FILES_ONLY);
+    FilePaths thisDirFiles = dir.dirEntries({qmlFilesOnly, FILES_ONLY});
     for (FilePath &file : thisDirFiles) {
         if (!isFileBlacklisted(file.fileName()) &&
             project->isKnownFile(file)) {

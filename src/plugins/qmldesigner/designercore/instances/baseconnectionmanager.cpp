@@ -134,7 +134,7 @@ void BaseConnectionManager::readDataStream(Connection &connection)
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "readCommand",
                     {"name", cmd.name().toStdString()},
-                    {"counter", commandCounter});
+                    {"counter", int64_t(commandCounter)});
 
                 writeCommand(command);
                 // Do not dispatch this command.
@@ -143,7 +143,7 @@ void BaseConnectionManager::readDataStream(Connection &connection)
             } else {
                 NANOTRACE_INSTANT_ARGS("Update", "readCommand",
                     {"name", command.typeName()},
-                    {"counter", commandCounter});
+                    {"counter", int64_t(commandCounter)});
             }
         }
 #endif

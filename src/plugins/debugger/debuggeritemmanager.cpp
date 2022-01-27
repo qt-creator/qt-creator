@@ -780,7 +780,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
 
     const auto addSuspect = [&suspects](const FilePath &entry) { suspects.append(entry); return true; };
     for (const FilePath &path : paths)
-        path.iterateDirectory(addSuspect, filters, QDir::Files | QDir::Executable);
+        path.iterateDirectory(addSuspect, {filters, QDir::Files | QDir::Executable});
 
     QStringList logMessages{tr("Searching debuggers...")};
     for (const FilePath &command : qAsConst(suspects)) {

@@ -62,7 +62,6 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/checkablemessagebox.h>
-#include <utils/consoleprocess.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
