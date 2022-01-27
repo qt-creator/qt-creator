@@ -628,9 +628,9 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + tr("Removing toolchain entries..."));
-    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
-        QString detectionSource = toolChain->detectionSource();
-        if (toolChain->detectionSource() == m_sharedId) {
+    const Toolchains toolchains = ToolChainManager::toolchains();
+    for (ToolChain *toolChain : toolchains) {
+        if (toolChain && toolChain->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removed \"%1\"").arg(toolChain->displayName()));
             ToolChainManager::deregisterToolChain(toolChain);
         }
