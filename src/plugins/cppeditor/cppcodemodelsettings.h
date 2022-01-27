@@ -122,7 +122,7 @@ public:
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
         int workerThreadLimit = 0;
-        bool useClangd = false;
+        bool useClangd = true;
         bool enableIndexing = true;
         bool autoIncludeHeaders = false;
         int documentUpdateThreshold = 500;
