@@ -581,7 +581,8 @@ void StudioWelcomePlugin::extensionsInitialized()
     Core::ModeManager::activateMode(m_welcomeMode->id());
 
     // Enable QDS new project dialog
-    Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
+    if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())
+        Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
