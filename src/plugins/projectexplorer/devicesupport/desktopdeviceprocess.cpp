@@ -42,7 +42,7 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
     : DeviceProcess(device, parent)
     , m_process(ProcessMode::Writer)
 {
-    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
+    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
     connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);

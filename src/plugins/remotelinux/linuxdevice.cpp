@@ -324,7 +324,7 @@ LinuxDevice::LinuxDevice()
             }
             proc->deleteLater();
         });
-        QObject::connect(proc, &DeviceProcess::error, [proc] {
+        QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
             Core::MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });

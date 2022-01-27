@@ -60,7 +60,7 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     m_logProcess = new QnxDeviceProcess(device(), this);
     connect(m_logProcess, &DeviceProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
     connect(m_logProcess, &DeviceProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
-    connect(m_logProcess, &DeviceProcess::error, this, &Slog2InfoRunner::handleLogError);
+    connect(m_logProcess, &DeviceProcess::errorOccurred, this, &Slog2InfoRunner::handleLogError);
 }
 
 void Slog2InfoRunner::printMissingWarning()

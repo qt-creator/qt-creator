@@ -104,7 +104,7 @@ void QnxDevice::updateVersionNumber() const
     QEventLoop eventLoop;
     SshDeviceProcess versionNumberProcess(sharedFromThis());
     QObject::connect(&versionNumberProcess, &SshDeviceProcess::finished, &eventLoop, &QEventLoop::quit);
-    QObject::connect(&versionNumberProcess, &DeviceProcess::error, &eventLoop, &QEventLoop::quit);
+    QObject::connect(&versionNumberProcess, &DeviceProcess::errorOccurred, &eventLoop, &QEventLoop::quit);
 
     Runnable r;
     r.command = {"uname", {"-r"}};

@@ -54,7 +54,7 @@ void RemoteLinuxEnvironmentReader::start()
     }
     m_stop = false;
     m_deviceProcess = m_device->createProcess(this);
-    connect(m_deviceProcess, &DeviceProcess::error,
+    connect(m_deviceProcess, &DeviceProcess::errorOccurred,
             this, &RemoteLinuxEnvironmentReader::handleError);
     connect(m_deviceProcess, &DeviceProcess::finished,
             this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);

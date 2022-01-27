@@ -149,7 +149,7 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
     connect(m_process.get(), &ProjectExplorer::DeviceProcess::finished,
             this, &PerfConfigWidget::handleProcessFinished);
 
-    connect(m_process.get(), &ProjectExplorer::DeviceProcess::error,
+    connect(m_process.get(), &ProjectExplorer::DeviceProcess::errorOccurred,
             this, &PerfConfigWidget::handleProcessError);
 
     useTracePointsButton->setEnabled(true);

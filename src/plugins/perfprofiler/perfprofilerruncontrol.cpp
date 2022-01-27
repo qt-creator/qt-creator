@@ -133,7 +133,7 @@ public:
 
         connect(m_process, &DeviceProcess::started, this, &RunWorker::reportStarted);
         connect(m_process, &DeviceProcess::finished, this, &RunWorker::reportStopped);
-        connect(m_process, &DeviceProcess::error, [this](QProcess::ProcessError e) {
+        connect(m_process, &DeviceProcess::errorOccurred, [this](QProcess::ProcessError e) {
             // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
             // in that. FailedToStart is the only actual failure.
             if (e == QProcess::FailedToStart) {

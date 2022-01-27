@@ -194,7 +194,7 @@ void SshDeviceProcess::handleConnected()
     if (runInTerminal()) {
         d->process->setUseTerminal(true);
         connect(&d->consoleProcess, &QtcProcess::errorOccurred,
-                this, &DeviceProcess::error);
+                this, &DeviceProcess::errorOccurred);
         connect(&d->consoleProcess, &QtcProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
         connect(&d->consoleProcess, &QtcProcess::finished,
@@ -231,7 +231,7 @@ void SshDeviceProcess::handleDisconnected()
     switch (oldState) {
     case SshDeviceProcessPrivate::Connecting:
     case SshDeviceProcessPrivate::Connected:
-        emit error(QProcess::FailedToStart);
+        emit errorOccurred(QProcess::FailedToStart);
         break;
     case SshDeviceProcessPrivate::ProcessRunning:
         d->exitStatus = QProcess::CrashExit;
@@ -317,7 +317,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
     case SshDeviceProcessPrivate::Connecting:
         errorMessage = tr("Terminated by request.");
         setState(SshDeviceProcessPrivate::Inactive);
-        emit q->error(QProcess::FailedToStart);
+        emit q->errorOccurred(QProcess::FailedToStart);
         break;
     case SshDeviceProcessPrivate::Connected:
     case SshDeviceProcessPrivate::ProcessRunning:

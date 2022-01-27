@@ -154,7 +154,7 @@ void DockerDeviceProcess::start(const Runnable &runnable)
     m_process.setCommand(command);
     m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
-    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
+    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
     connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);
@@ -569,7 +569,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
             }
             proc->deleteLater();
         });
-        QObject::connect(proc, &DeviceProcess::error, [proc] {
+        QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
             MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });

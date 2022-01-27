@@ -113,7 +113,7 @@ void PerfTracePointDialog::runScript()
     connect(m_process.get(), &DeviceProcess::finished,
             this, &PerfTracePointDialog::handleProcessFinished);
 
-    connect(m_process.get(), &DeviceProcess::error,
+    connect(m_process.get(), &DeviceProcess::errorOccurred,
             this, &PerfTracePointDialog::handleProcessError);
 
     m_process->start(runnable);
