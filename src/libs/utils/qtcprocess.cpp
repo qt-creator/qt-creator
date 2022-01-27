@@ -748,9 +748,11 @@ static QtcProcess::ProcessImpl defaultProcessImpl()
     return QtcProcess::ProcessLauncherImpl;
 }
 
-QtcProcess::QtcProcess(ProcessImpl processImpl, ProcessMode processMode, TerminalMode terminalMode,
-                       QObject *parent)
-    : QObject(parent), d(new QtcProcessPrivate(this, processImpl, processMode, terminalMode))
+QtcProcess::QtcProcess(const Setup &setup, QObject *parent)
+    : QObject(parent),
+    d(new QtcProcessPrivate(this,
+            setup.processImpl == DefaultImpl ? defaultProcessImpl() : setup.processImpl,
+            setup.processMode, setup.terminalMode))
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
@@ -758,17 +760,9 @@ QtcProcess::QtcProcess(ProcessImpl processImpl, ProcessMode processMode, Termina
     Q_UNUSED(qProcessProcessErrorMeta)
 }
 
-QtcProcess::QtcProcess(ProcessImpl processImpl, QObject *parent)
-    : QtcProcess(processImpl, ProcessMode::Reader, TerminalMode::TerminalOff, parent) {}
-
-QtcProcess::QtcProcess(ProcessMode processMode, QObject *parent)
-    : QtcProcess(defaultProcessImpl(), processMode, TerminalMode::TerminalOff, parent) {}
-
-QtcProcess::QtcProcess(TerminalMode terminalMode, QObject *parent)
-    : QtcProcess(defaultProcessImpl(), ProcessMode::Reader, terminalMode, parent) {}
-
 QtcProcess::QtcProcess(QObject *parent)
-    : QtcProcess(defaultProcessImpl(), ProcessMode::Reader, TerminalMode::TerminalOff, parent) {}
+    : QtcProcess({}, parent)
+{}
 
 QtcProcess::~QtcProcess()
 {
