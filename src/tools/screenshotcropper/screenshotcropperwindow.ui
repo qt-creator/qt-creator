@@ -15,6 +15,13 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0">
+     <widget class="QDialogButtonBox" name="m_buttonBox">
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Close|QDialogButtonBox::Save</set>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
@@ -43,29 +50,39 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>398</width>
-          <height>435</height>
+          <width>386</width>
+          <height>438</height>
          </rect>
         </property>
         <layout class="QHBoxLayout">
          <property name="spacing">
           <number>0</number>
          </property>
-         <property name="margin">
+         <property name="margin" stdset="0">
           <number>0</number>
          </property>
          <item>
-          <widget class="CropImageView" name="m_cropImageView" native="true"/>
+          <widget class="CropImageView" name="m_cropImageView" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
       </widget>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QDialogButtonBox" name="m_buttonBox">
-      <property name="standardButtons">
-       <set>QDialogButtonBox::Close|QDialogButtonBox::Save</set>
+    <item row="0" column="1">
+     <widget class="QLabel" name="m_previewLabel">
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </item>
