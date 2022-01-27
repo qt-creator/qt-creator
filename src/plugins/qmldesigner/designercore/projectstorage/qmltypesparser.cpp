@@ -63,13 +63,21 @@ void appendImports(Storage::Imports &imports,
 void addImports(Storage::Imports &imports,
                 SourceId sourceId,
                 const QStringList &dependencies,
-                QmlTypesParser::ProjectStorage &storage)
+                QmlTypesParser::ProjectStorage &storage,
+                ModuleId cppModuleId)
 {
     for (const QString &dependency : dependencies)
         appendImports(imports, dependency, sourceId, storage);
 
-    imports.emplace_back(storage.moduleId("QML"), Storage::Version{}, sourceId);
-    imports.emplace_back(storage.moduleId("QtQml-cppnative"), Storage::Version{}, sourceId);
+    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+
+    if (ModuleId qmlCppModuleId = storage.moduleId("QML-cppnative"); cppModuleId != qmlCppModuleId)
+        imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
+
+    if (ModuleId qtQmlCppModuleId = storage.moduleId("QtQml-cppnative");
+        cppModuleId != qtQmlCppModuleId) {
+        imports.emplace_back(qtQmlCppModuleId, Storage::Version{}, sourceId);
+    }
 }
 
 Storage::TypeAccessSemantics createTypeAccessSemantics(QQmlJSScope::AccessSemantics accessSematics)
@@ -276,7 +284,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
     if (!isValid)
         throw CannotParseQmlTypesFile{};
 
-    addImports(imports, projectData.sourceId, dependencies, m_storage);
+    addImports(imports, projectData.sourceId, dependencies, m_storage, projectData.moduleId);
     addTypes(types, projectData, components, m_storage);
 }
 

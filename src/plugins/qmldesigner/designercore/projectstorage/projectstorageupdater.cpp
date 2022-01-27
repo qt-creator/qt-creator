@@ -107,7 +107,7 @@ void ProjectStorageUpdater::updateQmlTypes(const QStringList &qmlTypesPaths,
     if (qmlTypesPaths.empty())
         return;
 
-    ModuleId moduleId = m_projectStorage.moduleId("QML");
+    ModuleId moduleId = m_projectStorage.moduleId("QML-cppnative");
 
     for (const QString &qmlTypesPath : qmlTypesPaths) {
         SourceId sourceId = m_pathCache.sourceId(SourcePath{qmlTypesPath});
@@ -154,13 +154,16 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
             addSourceIds(package.updatedSourceIds, qmlProjectDatas);
             addSourceIds(package.updatedFileStatusSourceIds, qmlProjectDatas);
 
-            parseTypeInfos(parser.typeInfos(),
-                           qmlDirSourceId,
-                           directoryId,
-                           moduleId,
-                           package,
-                           notUpdatedFileStatusSourceIds,
-                           notUpdatedSourceIds);
+            if (!parser.typeInfos().isEmpty()) {
+                ModuleId cppModuleId = m_projectStorage.moduleId(moduleName + "-cppnative");
+                parseTypeInfos(parser.typeInfos(),
+                               qmlDirSourceId,
+                               directoryId,
+                               cppModuleId,
+                               package,
+                               notUpdatedFileStatusSourceIds,
+                               notUpdatedSourceIds);
+            }
             parseQmlComponents(createComponentReferences(parser.components()),
                                qmlDirSourceId,
                                directoryId,

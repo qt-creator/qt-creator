@@ -193,7 +193,7 @@ TEST_F(QmlTypesParser, Imports)
     ASSERT_THAT(
         imports,
         UnorderedElementsAre(
-            IsImport(storage.moduleId("QML"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QML-cppnative"), Storage::Version{}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQml-cppnative"), Storage::Version{}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQuick.Window-cppnative"), Storage::Version{}, qmltypesFileSourceId),
