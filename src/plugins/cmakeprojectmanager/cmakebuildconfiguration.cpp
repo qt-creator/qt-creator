@@ -365,7 +365,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     }
 
     connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, [this, stretcher] {
-        m_configModel->flush();
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configModel->setInitialParametersConfiguration(
             m_buildConfiguration->initialCMakeConfiguration());
@@ -1622,6 +1621,8 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
             arg.replace("-T", "-DCMAKE_GENERATOR_TOOLSET:STRING=");
     }
     m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalArguments);
+    for (CMakeConfigItem &ci : m_cmakeConfiguration)
+        ci.isInitial = true;
 
     // Display the unknown arguments in "Additional CMake parameters"
     const QString additionalArgumentsValue = ProcessArgs::joinArgs(additionalArguments);
@@ -1631,6 +1632,8 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
 void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &config)
 {
     m_cmakeConfiguration = config;
+    for (CMakeConfigItem &ci : m_cmakeConfiguration)
+        ci.isInitial = true;
 }
 
 void InitialCMakeArgumentsAspect::fromMap(const QVariantMap &map)
