@@ -1502,17 +1502,19 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
 
     const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
                                                                : QString{"-iname"};
-    QStringList criticalWildcards;
     if (!filter.nameFilters.isEmpty()) {
         const QRegularExpression oneChar("\\[.*?\\]");
-        for (int i = 0, len = filter.nameFilters.size(); i < len; ++i) {
-            if (i > 0)
+        bool addedFirst = false;
+        for (const QString &current : filter.nameFilters) {
+            if (current.indexOf(oneChar) != -1) {
+                LOG("Skipped" << current << "due to presence of [] wildcard");
+                continue;
+            }
+
+            if (addedFirst)
                 filterOptions << "-o";
-            QString current = filter.nameFilters.at(i);
-            if (current.indexOf(oneChar) != -1)
-                criticalWildcards.append(current);
-            current.replace(oneChar, "?"); // BAD! but still better than nothing
             filterOptions << nameOption << current;
+            addedFirst = true;
         }
     }
     arguments << filterOptions;
@@ -1528,17 +1530,6 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
         if (entry.startsWith("find: "))
             continue;
         const FilePath fp = FilePath::fromString(entry);
-
-        if (!criticalWildcards.isEmpty() &&
-                !Utils::anyOf(criticalWildcards,
-                          [name = fp.fileName()](const QString &pattern) {
-                          const QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(pattern));
-                          if (regex.match(name).hasMatch())
-                              return true;
-                          return false;
-        })) {
-            continue;
-        }
 
         if (!callBack(fp.onDevice(filePath)))
             break;
