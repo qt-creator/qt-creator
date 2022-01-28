@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -94,6 +94,11 @@
             tools to the \uicontrol Issues output pane. You can navigate to the
             corresponding source code by clicking the error message or by using
             keyboard shortcuts.
+
+        \li \l{Inspecting Internal Logs}
+
+            You can inspect internal log messages of \QC. They may be
+            helpful when developing \QC or investigating problems.
 
         \li \l{Managing Data Collection}
 
