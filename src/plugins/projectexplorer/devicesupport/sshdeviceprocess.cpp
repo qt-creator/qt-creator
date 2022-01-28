@@ -58,7 +58,6 @@ public:
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
     DeviceProcessSignalOperation::Ptr killOperation;
     QTimer killTimer;
-    int exitCode = -1;
     enum State { Inactive, Connecting, Connected, ProcessRunning } state = Inactive;
 
     void setState(State newState);
@@ -89,7 +88,6 @@ void SshDeviceProcess::start(const Runnable &runnable)
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
-    d->exitCode = -1;
     d->exitStatus = QProcess::NormalExit;
     d->runnable = runnable;
     QSsh::SshConnectionParameters params = device()->sshParameters();
@@ -145,13 +143,13 @@ QProcess::ProcessState SshDeviceProcess::state() const
 
 QProcess::ExitStatus SshDeviceProcess::exitStatus() const
 {
-    return d->exitStatus == QProcess::NormalExit && d->exitCode != 255
+    return d->exitStatus == QProcess::NormalExit && exitCode() != 255
             ? QProcess::NormalExit : QProcess::CrashExit;
 }
 
 int SshDeviceProcess::exitCode() const
 {
-    return d->exitCode;
+    return runInTerminal() ? QtcProcess::exitCode() : d->remoteProcess->exitCode();
 }
 
 QString SshDeviceProcess::errorString() const
@@ -241,7 +239,6 @@ void SshDeviceProcess::handleProcessStarted()
 void SshDeviceProcess::handleProcessFinished(const QString &error)
 {
     d->errorMessage = error;
-    d->exitCode = runInTerminal() ? QtcProcess::exitCode() : d->remoteProcess->exitCode();
     if (d->killOperation && error.isEmpty())
         d->errorMessage = tr("The process was ended forcefully.");
     d->setState(SshDeviceProcessPrivate::Inactive);
