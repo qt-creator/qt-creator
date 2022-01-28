@@ -83,7 +83,10 @@ public:
 
     Q_INVOKABLE void toggleExpandAll(bool expand);
     Q_INVOKABLE DirExpandState getAllExpandedState() const;
-    Q_INVOKABLE void removeFile(const QString &filePath);
+    Q_INVOKABLE void deleteFile(const QString &filePath);
+    Q_INVOKABLE void addNewFolder(const QString &folderPath);
+    Q_INVOKABLE void deleteFolder(const QString &folderPath);
+    Q_INVOKABLE QObject *rootDir() const;
 
 signals:
     void isEmptyChanged();

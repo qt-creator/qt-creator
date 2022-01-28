@@ -99,7 +99,7 @@ void ItemLibraryAssetsModel::toggleExpandAll(bool expand)
     endResetModel();
 }
 
-void ItemLibraryAssetsModel::removeFile(const QString &filePath)
+void ItemLibraryAssetsModel::deleteFile(const QString &filePath)
 {
     bool askBeforeDelete = DesignerSettings::getValue(
                 DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
@@ -132,6 +132,52 @@ void ItemLibraryAssetsModel::removeFile(const QString &filePath)
                                  tr("Could not delete \"%1\".").arg(filePath));
         }
     }
+}
+
+void ItemLibraryAssetsModel::addNewFolder(const QString &folderPath)
+{
+    QString iterPath = folderPath;
+    QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
+    QDir dir{folderPath};
+
+    while (dir.exists()) {
+        // if the folder name ends with a number, increment it
+        QRegularExpressionMatch match = rgx.match(iterPath);
+        if (match.hasMatch()) { // ends with a number
+            QString numStr = match.captured(0);
+            int num = match.captured(0).toInt();
+
+            // get number of padding zeros, ex: for "005" = 2
+            int nPaddingZeros = 0;
+            for (; nPaddingZeros < numStr.size() && numStr[nPaddingZeros] == '0'; ++nPaddingZeros);
+
+            ++num;
+
+            // if the incremented number's digits increased, decrease the padding zeros
+            if (std::fmod(std::log10(num), 1.0) == 0)
+                --nPaddingZeros;
+
+            iterPath = folderPath.mid(0, match.capturedStart())
+                         + QString('0').repeated(nPaddingZeros)
+                         + QString::number(num);
+        } else {
+            iterPath = folderPath + '1';
+        }
+
+        dir.setPath(iterPath);
+    }
+
+    dir.mkpath(iterPath);
+}
+
+void ItemLibraryAssetsModel::deleteFolder(const QString &folderPath)
+{
+    QDir{folderPath}.removeRecursively();
+}
+
+QObject *ItemLibraryAssetsModel::rootDir() const
+{
+    return m_assetsDir;
 }
 
 const QStringList &ItemLibraryAssetsModel::supportedImageSuffixes()
@@ -270,7 +316,7 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
             isEmpty &= parseDirRecursive(assetsDir, currDepth + 1);
         }
 
-        if (isEmpty)
+        if (!m_searchText.isEmpty() && isEmpty)
             currAssetsDir->setDirVisible(false);
 
         return isEmpty;
