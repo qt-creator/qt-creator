@@ -43,7 +43,7 @@ public:
     void requestX11Forwarding(const QString &displayName);
     void start();
 
-    Utils::CommandLine fullLocalCommandLine() const;
+    Utils::CommandLine fullLocalCommandLine(bool inTerminal = false) const;
 
 signals:
     void done(const QString &error);

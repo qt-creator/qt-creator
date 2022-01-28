@@ -260,9 +260,6 @@ public:
     void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
     bool isUnixTerminalDisabled() const { return m_unixTerminalDisabled; }
 
-    void setUseTerminal(bool on) { m_useTerminal = on; }
-    bool useTerminal() const { return m_useTerminal; }
-
     void setAbortOnMetaChars(bool abort) { m_abortOnMetaChars = abort; }
     bool isAbortOnMetaChars() const { return m_abortOnMetaChars; }
 
@@ -289,7 +286,6 @@ private:
     QString m_nativeArguments;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
-    bool m_useTerminal = false;
     bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
 };
@@ -906,16 +902,6 @@ void QtcProcess::setLowPriority()
 void QtcProcess::setDisableUnixTerminal()
 {
     d->m_process->setUnixTerminalDisabled();
-}
-
-void QtcProcess::setUseTerminal(bool on)
-{
-    d->m_process->setUseTerminal(on);
-}
-
-bool QtcProcess::useTerminal() const
-{
-    return d->m_process->useTerminal();
 }
 
 void QtcProcess::setAbortOnMetaChars(bool abort)

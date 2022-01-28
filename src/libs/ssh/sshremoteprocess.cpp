@@ -89,13 +89,13 @@ void SshRemoteProcess::requestX11Forwarding(const QString &displayName)
     m_displayName = displayName;
 }
 
-Utils::CommandLine SshRemoteProcess::fullLocalCommandLine() const
+Utils::CommandLine SshRemoteProcess::fullLocalCommandLine(bool inTerminal) const
 {
     Utils::CommandLine cmd{SshSettings::sshFilePath()};
 
     if (!m_displayName.isEmpty())
         cmd.addArg("-X");
-    if (useTerminal())
+    if (inTerminal)
         cmd.addArg("-tt");
 
     cmd.addArg("-q");

@@ -192,7 +192,6 @@ void SshDeviceProcess::handleConnected()
     if (!display.isEmpty())
         d->process->requestX11Forwarding(display);
     if (runInTerminal()) {
-        d->process->setUseTerminal(true);
         connect(&d->consoleProcess, &QtcProcess::errorOccurred,
                 this, &DeviceProcess::error);
         connect(&d->consoleProcess, &QtcProcess::started,
@@ -200,7 +199,7 @@ void SshDeviceProcess::handleConnected()
         connect(&d->consoleProcess, &QtcProcess::finished,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         d->consoleProcess.setAbortOnMetaChars(false);
-        d->consoleProcess.setCommand(d->process->fullLocalCommandLine());
+        d->consoleProcess.setCommand(d->process->fullLocalCommandLine(true));
         d->consoleProcess.start();
     } else {
         connect(d->process.get(), &QSsh::SshRemoteProcess::started,

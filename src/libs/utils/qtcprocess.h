@@ -115,9 +115,6 @@ public:
     void setDisableUnixTerminal();
     void setRunAsRoot(bool on);
 
-    void setUseTerminal(bool on);
-    bool useTerminal() const;
-
     void setAbortOnMetaChars(bool abort);
 
     void start();
