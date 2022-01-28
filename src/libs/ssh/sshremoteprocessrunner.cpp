@@ -185,7 +185,6 @@ void SshRemoteProcessRunner::setState(int newState)
     }
 }
 
-QString SshRemoteProcessRunner::command() const { return d->m_command; }
 QString SshRemoteProcessRunner::lastConnectionErrorString() const {
     return d->m_lastConnectionErrorString;
 }
