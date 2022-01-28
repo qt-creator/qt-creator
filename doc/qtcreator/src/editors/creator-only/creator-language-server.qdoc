@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,7 +32,8 @@
 
     For several programming languages, a \e {language server} is available
     that provides information about the code to IDEs as long as they support
-    communication via the language server protocol (LSP). This enables the
+    communication via the \l{Language Server Protocol}
+    {language server protocol (LSP)}. This enables the
     IDE to provide the following services:
 
     \list
@@ -145,6 +146,7 @@
             the Java language server \c .jar file.
     \endlist
 
+
     \section1 Supported Locator Filters
 
     The locator enables you to browse not only files, but any items defined by
@@ -157,6 +159,49 @@
             \li Locating class (\c {c}), enum, and function (\c {m})
                 definitions in your project
     \endlist
+
+    \section1 Inspecting Language Clients
+
+    \QC sends messages (\e Requests) to the language server and receives
+    responses that contain the requested information if the language server is
+    capable of handling the requests. To inspect the communication between \QC
+    and language servers and view server capabilities, select \uicontrol Tools
+    > \uicontrol {Debug \QC} > \uicontrol {Inspect Language Client}.
+
+    \image qtcreator-language-client-inspector-log.png "Language Client Inspector dialog"
+
+    The dialog shows a list of running language servers. The value of the
+    \uicontrol {Startup behavior} field in the language server options
+    determines when the server is started. The information displayed depends on
+    the language server.
+
+    \uicontrol Log displays additional information about the selected log entry.
+    You can see the \uicontrol {Content length} and \uicontrol {MIME type} of
+    a \uicontrol {Client Message} and \uicontrol {Server Message}, as well as
+    inspect the data sent between \QC and the language server.
+
+    To remove old entries, select \uicontrol Clear.
+
+    \section2 Capabilities
+
+    In \uicontrol Capabilities, you can check whether a language server is
+    capable of a specific task. You cannot modify the server capabilities
+    in this dialog.
+
+    You can view the \uicontrol Name, \uicontrol Value, and \uicontrol Type
+    of the capability.
+
+    \image qtcreator-language-client-inspector-capabilities.png "Language Client Inspector Capabilities tab"
+
+    For some language servers, \uicontrol {Dynamic Capabilities} lists the
+    \uicontrol Methods and \uicontrol Options available.
+
+    \section2 Memory Usage
+
+    For a clangd server, you can inspect the total amount of memory used by a
+    particular component in \uicontrol {Memory Usage}.
+
+    \image qtcreator-language-client-inspector-capabilities.png "Language Client Inspector Capabilities tab"
 
     \section1 Reporting Issues
 
