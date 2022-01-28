@@ -895,6 +895,30 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     if ((action = createForceAction(ConfigModel::DataItem::STRING, idx)))
         menu->addAction(action);
 
+    menu->addSeparator();
+
+    auto applyKitOrInitialValue = new QAction(isInitialConfiguration()
+                                                  ? tr("Apply Kit Value")
+                                                  : tr("Apply Initial Configuration Value"),
+                                              this);
+    menu->addAction(applyKitOrInitialValue);
+    connect(applyKitOrInitialValue, &QAction::triggered, this, [this] {
+        const QModelIndexList selectedIndexes = m_configView->selectionModel()->selectedIndexes();
+
+        const QModelIndexList validIndexes = Utils::filtered(selectedIndexes, [](const QModelIndex &index) {
+            return index.isValid() && index.flags().testFlag(Qt::ItemIsSelectable);
+        });
+
+        for (const QModelIndex &index : validIndexes) {
+            if (isInitialConfiguration())
+                m_configModel->applyKitValue(mapToSource(m_configView, index));
+            else
+                m_configModel->applyInitialValue(mapToSource(m_configView, index));
+        }
+    });
+
+    menu->addSeparator();
+
     auto copy = new QAction(tr("Copy"), this);
     menu->addAction(copy);
     connect(copy, &QAction::triggered, this, [this] {

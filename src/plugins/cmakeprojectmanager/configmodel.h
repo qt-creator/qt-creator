@@ -158,6 +158,9 @@ public:
 
     void toggleUnsetFlag(const QModelIndex &idx);
 
+    void applyKitValue(const  QModelIndex &idx);
+    void applyInitialValue(const  QModelIndex &idx);
+
     static DataItem dataItemFromIndex(const QModelIndex &idx);
 
     QList<DataItem> configurationForCMake() const;
@@ -166,6 +169,9 @@ public:
     void setMacroExpander(Utils::MacroExpander *newExpander);
 
 private:
+    enum class KitOrInitial { Kit, Initial };
+    void applyKitOrInitialValue(const QModelIndex &idx, KitOrInitial ki);
+
     class InternalDataItem : public DataItem
     {
     public:

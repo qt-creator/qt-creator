@@ -180,6 +180,42 @@ void ConfigModel::toggleUnsetFlag(const QModelIndex &idx)
     emit dataChanged(keyIdx, valueIdx);
 }
 
+void ConfigModel::applyKitValue(const QModelIndex &idx)
+{
+    applyKitOrInitialValue(idx, KitOrInitial::Kit);
+}
+
+void ConfigModel::applyInitialValue(const QModelIndex &idx)
+{
+    applyKitOrInitialValue(idx, KitOrInitial::Initial);
+}
+
+void ConfigModel::applyKitOrInitialValue(const QModelIndex &idx, KitOrInitial ki)
+{
+    Utils::TreeItem *item = itemForIndex(idx);
+    auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
+
+    QTC_ASSERT(cmti, return );
+
+    auto dataItem = cmti->dataItem;
+    const QString &kitOrInitialValue = ki == KitOrInitial::Kit ? dataItem->kitValue
+                                                               : dataItem->initialValue;
+
+    // Allow a different value when the user didn't change anything (don't mark the same value as new)
+    // But allow the same value (going back) when the user did a change
+    const bool canSetValue = (dataItem->value != kitOrInitialValue && !dataItem->isUserChanged)
+                             || dataItem->isUserChanged;
+
+    if (!kitOrInitialValue.isEmpty() && canSetValue) {
+        dataItem->newValue = kitOrInitialValue;
+        dataItem->isUserChanged = dataItem->value != kitOrInitialValue;
+
+        const QModelIndex valueIdx = idx.sibling(idx.row(), 1);
+        const QModelIndex keyIdx = idx.sibling(idx.row(), 0);
+        emit dataChanged(keyIdx, valueIdx);
+    }
+}
+
 ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
 {
     const QAbstractItemModel *m = idx.model();
