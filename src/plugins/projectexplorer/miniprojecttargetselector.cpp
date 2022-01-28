@@ -1538,7 +1538,7 @@ void MiniProjectTargetSelector::updateSummary()
                                    activeTarget->activeRunConfiguration()->expandedDisplayName()));
         } else if (startupProject->needsConfiguration()) {
             summary = tr("<style type=text/css>"
-                         "a:link {color: rgb(128, 128, 255, 240);}</style>"
+                         "a:link {color: rgb(128, 128, 255);}</style>"
                          "The project <b>%1</b> is not yet configured<br/><br/>"
                          "You can configure it in the <a href=\"projectmode\">Projects mode</a><br/>")
                     .arg(startupProject->displayName());
