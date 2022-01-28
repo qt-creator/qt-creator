@@ -526,10 +526,9 @@ QString ConfigModelTreeItem::toolTip() const
             tooltip << QCoreApplication::translate("CMakeProjectManager", "<p>Kit: <b>%1</b></p>")
                            .arg(dataItem->kitValue);
 
-        if (dataItem->value != dataItem->newValue)
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Initial Configuration: <b>%1</b></p>")
-                           .arg(dataItem->value);
+        tooltip << QCoreApplication::translate("CMakeProjectManager",
+                                               "<p>Initial Configuration: <b>%1</b></p>")
+                       .arg(dataItem->currentValue());
     } else {
         if (!dataItem->initialValue.isEmpty())
             tooltip << QCoreApplication::translate("CMakeProjectManager",
@@ -537,10 +536,9 @@ QString ConfigModelTreeItem::toolTip() const
                            .arg(dataItem->initialValue);
 
         if (dataItem->inCMakeCache) {
-            if (dataItem->value != dataItem->newValue)
-                tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                       "<p>Current Configuration: <b>%1</b></p>")
-                               .arg(dataItem->value);
+            tooltip << QCoreApplication::translate("CMakeProjectManager",
+                                                   "<p>Current Configuration: <b>%1</b></p>")
+                           .arg(dataItem->currentValue());
         } else {
             tooltip << QCoreApplication::translate("CMakeProjectManager",
                                                    "<p>Not in CMakeCache.txt</p>");
