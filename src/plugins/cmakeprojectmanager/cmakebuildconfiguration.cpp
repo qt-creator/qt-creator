@@ -480,11 +480,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         if (m_buildConfiguration->isEnabled())
             setError(QString());
     });
+    connect(this, &QObject::destroyed, this, [this](const QObject *obj) {
+        updateInitialCMakeArguments();
+    });
 
     updateSelection();
     updateConfigurationStateSelection();
 }
-
 
 void CMakeBuildSettingsWidget::batchEditConfiguration()
 {
