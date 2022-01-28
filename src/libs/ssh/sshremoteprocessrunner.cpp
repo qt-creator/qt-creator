@@ -49,7 +49,6 @@ public:
 
     SshRemoteProcessPtr m_process;
     SshConnection *m_connection;
-    bool m_runInTerminal;
     QString m_command;
     QString m_lastConnectionErrorString;
     QProcess::ExitStatus m_exitStatus;
@@ -80,14 +79,6 @@ void SshRemoteProcessRunner::run(const QString &command, const SshConnectionPara
 {
     QTC_ASSERT(d->m_state == Inactive, return);
 
-    d->m_runInTerminal = false;
-    runInternal(command, sshParams);
-}
-
-void SshRemoteProcessRunner::runInTerminal(const QString &command,
-                                           const SshConnectionParameters &sshParams)
-{
-    d->m_runInTerminal = true;
     runInternal(command, sshParams);
 }
 
@@ -128,7 +119,6 @@ void SshRemoteProcessRunner::handleConnected()
             this, &SshRemoteProcessRunner::handleStdout);
     connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardError,
             this, &SshRemoteProcessRunner::handleStderr);
-    d->m_process->setUseTerminal(d->m_runInTerminal);
     d->m_process->start();
 }
 

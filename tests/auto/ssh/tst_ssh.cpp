@@ -216,20 +216,14 @@ void tst_Ssh::pristineConnectionObject()
 void tst_Ssh::remoteProcess_data()
 {
     QTest::addColumn<QByteArray>("commandLine");
-    QTest::addColumn<bool>("useTerminal");
     QTest::addColumn<bool>("isBlocking");
     QTest::addColumn<bool>("successExpected");
     QTest::addColumn<bool>("stdoutExpected");
     QTest::addColumn<bool>("stderrExpected");
 
-    QTest::newRow("normal command")
-            << QByteArray("ls -a /tmp") << false << false << true << true << false;
-    QTest::newRow("failing command")
-            << QByteArray("top -n 1") << false << false << false << false << true;
-    QTest::newRow("blocking command")
-            << QByteArray("/bin/sleep 100") << false << true << false << false << false;
-    QTest::newRow("terminal command")
-            << QByteArray("top -n 1") << true << false << true << true << false;
+    QTest::newRow("normal cmd") << QByteArray("ls -a /tmp") << false << true << true << false;
+    QTest::newRow("failing cmd") << QByteArray("top -n 1") << false << false << false << true;
+    QTest::newRow("blocking cmd") << QByteArray("sleep 100") << true << false << false << false;
 }
 
 void tst_Ssh::remoteProcess()
@@ -238,7 +232,6 @@ void tst_Ssh::remoteProcess()
     CHECK_PARAMS(params);
 
     QFETCH(QByteArray, commandLine);
-    QFETCH(bool, useTerminal);
     QFETCH(bool, isBlocking);
     QFETCH(bool, successExpected);
     QFETCH(bool, stdoutExpected);
@@ -255,10 +248,7 @@ void tst_Ssh::remoteProcess()
             [&remoteStdout, &runner] { remoteStdout += runner.readAllStandardOutput(); });
     connect(&runner, &SshRemoteProcessRunner::readyReadStandardError,
             [&remoteStderr, &runner] { remoteStderr += runner.readAllStandardError(); });
-    if (useTerminal)
-        runner.runInTerminal(QString::fromUtf8(commandLine), params);
-    else
-        runner.run(QString::fromUtf8(commandLine), params);
+    runner.run(QString::fromUtf8(commandLine), params);
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.setSingleShot(true);
