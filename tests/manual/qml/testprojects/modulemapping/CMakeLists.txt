@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16)
 project(test_project)
 
 add_executable(test_exe test.cc test.qml)
