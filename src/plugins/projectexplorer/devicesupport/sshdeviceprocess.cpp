@@ -58,8 +58,6 @@ public:
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
     DeviceProcessSignalOperation::Ptr killOperation;
     QTimer killTimer;
-    QByteArray stdOut;
-    QByteArray stdErr;
     int exitCode = -1;
     enum State { Inactive, Connecting, Connected, ProcessRunning } state = Inactive;
 
@@ -163,16 +161,12 @@ QString SshDeviceProcess::errorString() const
 
 QByteArray SshDeviceProcess::readAllStandardOutput()
 {
-    const QByteArray data = d->stdOut;
-    d->stdOut.clear();
-    return data;
+    return d->remoteProcess.get() ? d->remoteProcess->readAllStandardOutput() : QByteArray();
 }
 
 QByteArray SshDeviceProcess::readAllStandardError()
 {
-    const QByteArray data = d->stdErr;
-    d->stdErr.clear();
-    return data;
+    return d->remoteProcess.get() ? d->remoteProcess->readAllStandardError() : QByteArray();
 }
 
 qint64 SshDeviceProcess::processId() const
@@ -203,9 +197,9 @@ void SshDeviceProcess::handleConnected()
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::done,
                 this, &SshDeviceProcess::handleProcessFinished);
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
-                this, &SshDeviceProcess::handleStdout);
+                this, &QtcProcess::readyReadStandardOutput);
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardError,
-                this, &SshDeviceProcess::handleStderr);
+                this, &QtcProcess::readyReadStandardError);
         d->remoteProcess->start();
     }
 }
@@ -252,24 +246,6 @@ void SshDeviceProcess::handleProcessFinished(const QString &error)
         d->errorMessage = tr("The process was ended forcefully.");
     d->setState(SshDeviceProcessPrivate::Inactive);
     emit finished();
-}
-
-void SshDeviceProcess::handleStdout()
-{
-    QByteArray output = d->remoteProcess->readAllStandardOutput();
-    if (output.isEmpty())
-        return;
-    d->stdOut += output;
-    emit readyReadStandardOutput();
-}
-
-void SshDeviceProcess::handleStderr()
-{
-    QByteArray output = d->remoteProcess->readAllStandardError();
-    if (output.isEmpty())
-        return;
-    d->stdErr += output;
-    emit readyReadStandardError();
 }
 
 void SshDeviceProcess::handleKillOperationFinished(const QString &errorMessage)

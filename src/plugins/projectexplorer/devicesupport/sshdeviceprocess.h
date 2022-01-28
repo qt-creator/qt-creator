@@ -61,8 +61,6 @@ private:
     void handleDisconnected();
     void handleProcessStarted();
     void handleProcessFinished(const QString &error);
-    void handleStdout();
-    void handleStderr();
     void handleKillOperationFinished(const QString &errorMessage);
     void handleKillOperationTimeout();
 
