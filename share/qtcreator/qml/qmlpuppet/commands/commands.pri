@@ -22,6 +22,7 @@ HEADERS += $$PWD/synchronizecommand.h \ \
     $$PWD/clearscenecommand.h \
     $$PWD/createinstancescommand.h \
     $$PWD/informationchangedcommand.h \
+    $$PWD/nanotracecommand.h \
     $$PWD/pixmapchangedcommand.h \
     $$PWD/removeinstancescommand.h \
     $$PWD/removepropertiescommand.h \
@@ -54,6 +55,7 @@ SOURCES += $$PWD/synchronizecommand.cpp \
     $$PWD/changestatecommand.cpp \
     $$PWD/changevaluescommand.cpp \
     $$PWD/informationchangedcommand.cpp \
+    $$PWD/nanotracecommand.cpp \
     $$PWD/removeinstancescommand.cpp \
     $$PWD/removepropertiescommand.cpp \
     $$PWD/reparentinstancescommand.cpp \

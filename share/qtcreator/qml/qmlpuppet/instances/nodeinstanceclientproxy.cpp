@@ -77,7 +77,16 @@
 #include "view3dactioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
 #include "nanotracecommand.h"
+
+// Nanotrace headers are not exported to build dir at all if the feature is disabled, so
+// runtime puppet build can't find them.
+#if NANOTRACE_ENABLED
 #include "nanotrace/nanotrace.h"
+#else
+#define NANOTRACE_INIT(process, thread, filepath)
+#define NANOTRACE_SHUTDOWN()
+#define NANOTRACE_SCOPE_ARGS(cat, name, ...)
+#endif
 
 namespace QmlDesigner {
 
