@@ -32522,28 +32522,28 @@ Please install an SDK of at least API version %1.</source>
         <translation type="vanished">&lt;span style=&quot; color:#00ff00;&quot;&gt;Пароль вдалий&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль сховища ключів закороткий&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>Пароль сховища ключів закороткий.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Паролі сховища ключів не співпадають&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>Паролі сховища ключів не співпадають.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль сертифіката закороткий&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Пароль сертифіката закороткий.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Паролі сертифіката не співпадають&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Паролі сертифіката не співпадають.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Відсутній псевдонім сертифіката&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>Відсутній псевдонім сертифіката.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неправильний код країни&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Неправильний код країни.</translation>
     </message>
     <message>
         <source>Keystore file name</source>

@@ -42,6 +42,9 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     ui(new Ui::AndroidCreateKeystoreCertificate)
 {
     ui->setupUi(this);
+    ui->infoLabel->setType(InfoLabel::Error);
+    ui->infoLabel->hide();
+
     connect(ui->keystorePassLineEdit, &QLineEdit::textChanged,
             this, &AndroidCreateKeystoreCertificate::checkKeystorePassword);
     connect(ui->keystoreRetypePassLineEdit, &QLineEdit::textChanged,
@@ -100,15 +103,17 @@ QString AndroidCreateKeystoreCertificate::certificatePassword()
 AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificate::checkKeystorePassword()
 {
     if (ui->keystorePassLineEdit->text().length() < 6) {
-        ui->infoLabel->setText(tr("<span style=\" color:#ff0000;\">Keystore password is too short</span>"));
+        ui->infoLabel->show();
+        ui->infoLabel->setText(tr("Keystore password is too short."));
         return Invalid;
     }
     if (ui->keystorePassLineEdit->text() != ui->keystoreRetypePassLineEdit->text()) {
-            ui->infoLabel->setText(tr("<span style=\" color:#ff0000;\">Keystore passwords do not match</span>"));
-            return NoMatch;
+        ui->infoLabel->show();
+        ui->infoLabel->setText(tr("Keystore passwords do not match."));
+        return NoMatch;
     }
 
-    ui->infoLabel->clear();
+    ui->infoLabel->hide();
     return Match;
 }
 
@@ -118,37 +123,41 @@ AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificat
         return Match;
 
     if (ui->certificatePassLineEdit->text().length() < 6) {
-        ui->infoLabel->setText(tr("<span style=\" color:#ff0000;\">Certificate password is too short</span>"));
+        ui->infoLabel->show();
+        ui->infoLabel->setText(tr("Certificate password is too short."));
         return Invalid;
     }
     if (ui->certificatePassLineEdit->text() != ui->certificateRetypePassLineEdit->text()) {
-        ui->infoLabel->setText(tr("<span style=\" color:#ff0000;\">Certificate passwords do not match</span>"));
+        ui->infoLabel->show();
+        ui->infoLabel->setText(tr("Certificate passwords do not match."));
         return NoMatch;
     }
 
-    ui->infoLabel->clear();
+    ui->infoLabel->hide();
     return Match;
 }
 
 bool AndroidCreateKeystoreCertificate::checkCertificateAlias()
 {
     if (ui->certificateAliasLineEdit->text().length() == 0) {
-        ui->infoLabel->setText(tr("<span style=\" color:#ff0000;\">Certificate alias is missing</span>"));
+        ui->infoLabel->show();
+        ui->infoLabel->setText(tr("Certificate alias is missing."));
         return false;
     }
 
-    ui->infoLabel->clear();
+    ui->infoLabel->hide();
     return true;
 }
 
 bool AndroidCreateKeystoreCertificate::checkCountryCode()
 {
     if (!ui->countryLineEdit->text().contains(QRegularExpression("[A-Z]{2}"))) {
-        ui->infoLabel->setText(tr("<span style=\" color:#ff0000;\">Invalid country code</span>"));
+        ui->infoLabel->show();
+        ui->infoLabel->setText(tr("Invalid country code."));
         return false;
     }
 
-    ui->infoLabel->clear();
+    ui->infoLabel->hide();
     return true;
 }
 

@@ -21525,28 +21525,28 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
 <context>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
+        <source>Keystore password is too short.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
+        <source>Keystore passwords do not match.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Hasło certyfikatu jest zbyt krótkie&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Hasło certyfikatu jest zbyt krótkie.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Hasła certyfikatu nie zgadzają się&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Hasła certyfikatu nie zgadzają się.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Brak aliasu certyfikatu&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>Brak aliasu certyfikatu.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Niepoprawny kod kraju&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Niepoprawny kod kraju.</translation>
     </message>
     <message>
         <source>Keystore Filename</source>
