@@ -79,7 +79,7 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 
     connect(d->process.data(), &DeviceProcess::finished,
             this, &DeviceUsedPortsGatherer::handleProcessFinished);
-    connect(d->process.data(), &DeviceProcess::error,
+    connect(d->process.data(), &DeviceProcess::errorOccurred,
             this, &DeviceUsedPortsGatherer::handleProcessError);
     connect(d->process.data(), &DeviceProcess::readyReadStandardOutput,
             this, &DeviceUsedPortsGatherer::handleRemoteStdOut);

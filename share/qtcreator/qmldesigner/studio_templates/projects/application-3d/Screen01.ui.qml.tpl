@@ -34,7 +34,7 @@ Rectangle {
             }
 
             PerspectiveCamera {
-                id: camera
+                id: sceneCamera
                 z: 350
             }
 

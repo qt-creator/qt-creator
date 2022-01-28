@@ -62,7 +62,8 @@ class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
 public:
     enum ProcessImpl {
         QProcessImpl,
-        ProcessLauncherImpl
+        ProcessLauncherImpl,
+        DefaultImpl,
     };
 
     enum TerminalMode {
@@ -73,12 +74,19 @@ public:
         TerminalOn = TerminalRun // default mode for ON
     };
 
-    QtcProcess(ProcessImpl processImpl, ProcessMode processMode, TerminalMode terminalMode,
-               QObject *parent = nullptr);
-    QtcProcess(ProcessImpl processImpl, QObject *parent = nullptr);
-    QtcProcess(ProcessMode processMode, QObject *parent = nullptr);
-    QtcProcess(TerminalMode terminalMode, QObject *parent = nullptr);
-    QtcProcess(QObject *parent = nullptr);
+    struct Setup {
+        Setup() {}
+        Setup(ProcessImpl processImpl) : processImpl(processImpl) {}
+        Setup(ProcessMode processMode) : processMode(processMode) {}
+        Setup(TerminalMode terminalMode) : terminalMode(terminalMode) {}
+
+        ProcessImpl processImpl = DefaultImpl;
+        ProcessMode processMode = ProcessMode::Reader;
+        TerminalMode terminalMode = TerminalOff;
+    };
+
+    QtcProcess(const Setup &setup = {}, QObject *parent = nullptr);
+    QtcProcess(QObject *parent);
     ~QtcProcess();
 
     ProcessMode processMode() const;

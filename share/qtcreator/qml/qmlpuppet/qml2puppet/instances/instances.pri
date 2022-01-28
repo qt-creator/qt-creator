@@ -13,6 +13,10 @@ versionAtLeast(QT_VERSION, 5.15.0) {
         QT *= quick3dparticles-private
         DEFINES *= QUICK3D_PARTICLES_MODULE
     }
+    qtHaveModule(quick3dassetutils) {
+        QT *= quick3dassetutils-private
+        DEFINES *= QUICK3D_ASSET_UTILS_MODULE
+    }
 }
 
 HEADERS += $$PWD/qt5nodeinstanceserver.h \

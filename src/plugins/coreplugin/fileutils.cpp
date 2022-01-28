@@ -137,21 +137,6 @@ void FileUtils::showInFileSystemView(const FilePath &path)
         navWidget->syncWithFilePath(path);
 }
 
-static QString quoteWinCommand(const QString &program)
-{
-    const QChar doubleQuote = QLatin1Char('"');
-
-    // add the program as the first arg ... it works better
-    QString programName = program;
-    programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
-    if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
-            && programName.contains(QLatin1Char(' '))) {
-        programName.prepend(doubleQuote);
-        programName.append(doubleQuote);
-    }
-    return programName;
-}
-
 static void startTerminalEmulator(const QString &workingDir, const Environment &env)
 {
 #ifdef Q_OS_WIN
@@ -162,6 +147,19 @@ static void startTerminalEmulator(const QString &workingDir, const Environment &
     PROCESS_INFORMATION pinfo;
     ZeroMemory(&pinfo, sizeof(pinfo));
 
+    static const auto quoteWinCommand = [](const QString &program) {
+        const QChar doubleQuote = QLatin1Char('"');
+
+        // add the program as the first arg ... it works better
+        QString programName = program;
+        programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
+        if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
+                && programName.contains(QLatin1Char(' '))) {
+            programName.prepend(doubleQuote);
+            programName.append(doubleQuote);
+        }
+        return programName;
+    };
     const QString cmdLine = quoteWinCommand(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     // cmdLine is assumed to be detached -
     // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083

@@ -154,7 +154,7 @@ void DockerDeviceProcess::start(const Runnable &runnable)
     m_process.setCommand(command);
     m_process.setEnvironment(runnable.environment);
     m_process.setWorkingDirectory(runnable.workingDirectory);
-    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::error);
+    connect(&m_process, &QtcProcess::errorOccurred, this, &DeviceProcess::errorOccurred);
     connect(&m_process, &QtcProcess::finished, this, &DeviceProcess::finished);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,
             this, &DeviceProcess::readyReadStandardOutput);
@@ -569,7 +569,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
             }
             proc->deleteLater();
         });
-        QObject::connect(proc, &DeviceProcess::error, [proc] {
+        QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
             MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
@@ -628,9 +628,9 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + tr("Removing toolchain entries..."));
-    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
-        QString detectionSource = toolChain->detectionSource();
-        if (toolChain->detectionSource() == m_sharedId) {
+    const Toolchains toolchains = ToolChainManager::toolchains();
+    for (ToolChain *toolChain : toolchains) {
+        if (toolChain && toolChain->detectionSource() == m_sharedId) {
             emit q->logOutput(tr("Removed \"%1\"").arg(toolChain->displayName()));
             ToolChainManager::deregisterToolChain(toolChain);
         }
@@ -709,20 +709,26 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
     QtVersions qtVersions;
 
     QString error;
+
+    const auto handleQmake = [this, &qtVersions, &error](const FilePath &qmake) {
+        if (QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error)) {
+            qtVersions.append(qtVersion);
+            QtVersionManager::addVersion(qtVersion);
+            emit q->logOutput(tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
+        }
+        return true;
+    };
+
+    emit q->logOutput(tr("Searching for qmake executables..."));
+
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
-    emit q->logOutput('\n' + tr("Searching Qt installations..."));
-    for (const QString &candidate : candidates) {
-        emit q->logOutput(tr("Searching for %1 executable...").arg(candidate));
-        const FilePath qmake = m_device->searchExecutable(candidate, m_searchPaths);
-        if (qmake.isEmpty())
-            continue;
-        QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(qmake, false, m_sharedId, &error);
-        if (!qtVersion)
-            continue;
-        qtVersions.append(qtVersion);
-        QtVersionManager::addVersion(qtVersion);
-        emit q->logOutput(tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
+    for (const FilePath &searchPath : m_searchPaths) {
+        searchPath.iterateDirectory(handleQmake, {candidates, QDir::Files | QDir::Executable,
+                                                  QDirIterator::Subdirectories});
     }
+
+    if (!error.isEmpty())
+        emit q->logOutput(tr("Error: %1.").arg(error));
     if (qtVersions.isEmpty())
         emit q->logOutput(tr("No Qt installation found."));
     return qtVersions;
@@ -793,19 +799,20 @@ void KitDetectorPrivate::autoDetect()
 
     emit q->logOutput(tr("Starting auto-detection. This will take a while..."));
 
-    QList<ToolChain *> toolChains = autoDetectToolChains();
-    QtVersions qtVersions = autoDetectQtVersions();
+    const Toolchains toolchains = autoDetectToolChains();
+    const QtVersions qtVersions = autoDetectQtVersions();
 
     autoDetectCMake();
     autoDetectDebugger();
 
-    const auto initializeKit = [this, toolChains, qtVersions](Kit *k) {
+    const auto initializeKit = [this, toolchains, qtVersions](Kit *k) {
         k->setAutoDetected(false);
         k->setAutoDetectionSource(m_sharedId);
         k->setUnexpandedDisplayName("%{Device:Name}");
 
         DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DOCKER_DEVICE_TYPE);
         DeviceKitAspect::setDevice(k, m_device);
+
         QtVersion *qt = nullptr;
         if (!qtVersions.isEmpty()) {
             qt = qtVersions.at(0);
@@ -1495,17 +1502,19 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
 
     const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
                                                                : QString{"-iname"};
-    QStringList criticalWildcards;
     if (!filter.nameFilters.isEmpty()) {
         const QRegularExpression oneChar("\\[.*?\\]");
-        for (int i = 0, len = filter.nameFilters.size(); i < len; ++i) {
-            if (i > 0)
+        bool addedFirst = false;
+        for (const QString &current : filter.nameFilters) {
+            if (current.indexOf(oneChar) != -1) {
+                LOG("Skipped" << current << "due to presence of [] wildcard");
+                continue;
+            }
+
+            if (addedFirst)
                 filterOptions << "-o";
-            QString current = filter.nameFilters.at(i);
-            if (current.indexOf(oneChar) != -1)
-                criticalWildcards.append(current);
-            current.replace(oneChar, "?"); // BAD! but still better than nothing
             filterOptions << nameOption << current;
+            addedFirst = true;
         }
     }
     arguments << filterOptions;
@@ -1521,17 +1530,6 @@ void DockerDevice::iterateWithFind(const FilePath &filePath,
         if (entry.startsWith("find: "))
             continue;
         const FilePath fp = FilePath::fromString(entry);
-
-        if (!criticalWildcards.isEmpty() &&
-                !Utils::anyOf(criticalWildcards,
-                          [name = fp.fileName()](const QString &pattern) {
-                          const QRegularExpression regex(QRegularExpression::wildcardToRegularExpression(pattern));
-                          if (regex.match(name).hasMatch())
-                              return true;
-                          return false;
-        })) {
-            continue;
-        }
 
         if (!callBack(fp.onDevice(filePath)))
             break;

@@ -2458,6 +2458,13 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
             }
             return cursor;
         }
+
+        // ~My|Class
+        if (const DestructorNameAST * const destrAst = (*it)->asDestructorName()) {
+            QTextCursor c = cursor;
+            c.setPosition(posForToken(destrAst->tilde_token));
+            return c;
+        }
     }
     return cursor;
 }

@@ -24,13 +24,13 @@
 ****************************************************************************/
 
 #include "androidsdkdownloader.h"
-#include "utils/filepath.h"
-#include "utils/qtcprocess.h"
+
+#include <utils/archive.h>
+#include <utils/filepath.h>
+
 #include <coreplugin/icore.h>
 
 #include <QCryptographicHash>
-#include <QDir>
-#include <QDirIterator>
 #include <QLoggingCategory>
 #include <QStandardPaths>
 
@@ -61,22 +61,7 @@ void AndroidSdkDownloader::sslErrors(const QList<QSslError> &sslErrors)
 }
 #endif
 
-static void setSdkFilesExecPermission( const FilePath &sdkExtractPath)
-{
-    const FilePath filePath = sdkExtractPath / "tools";
-
-    filePath.iterateDirectory(
-        [](const FilePath &filePath) {
-            if (!filePath.fileName().contains('.')) {
-                QFlags<QFileDevice::Permission> currentPermissions = filePath.permissions();
-                filePath.setPermissions(currentPermissions | QFileDevice::ExeOwner);
-            }
-            return true;
-        },
-        {{"*"}, QDir::Files, QDirIterator::Subdirectories});
-}
-
-void AndroidSdkDownloader::downloadAndExtractSdk(const FilePath &jdkPath, const FilePath &sdkExtractPath)
+void AndroidSdkDownloader::downloadAndExtractSdk(const FilePath &sdkExtractPath)
 {
     if (m_androidConfig.sdkToolsUrl().isEmpty()) {
         logError(tr("The SDK Tools download URL is empty."));
@@ -103,32 +88,14 @@ void AndroidSdkDownloader::downloadAndExtractSdk(const FilePath &jdkPath, const 
 
     connect(m_progressDialog, &QProgressDialog::canceled, this, &AndroidSdkDownloader::cancel);
 
-    connect(this, &AndroidSdkDownloader::sdkPackageWriteFinished, this, [this, jdkPath, sdkExtractPath]() {
-        if (extractSdk(jdkPath, sdkExtractPath)) {
-            setSdkFilesExecPermission(sdkExtractPath);
-            emit sdkExtracted();
+    connect(this, &AndroidSdkDownloader::sdkPackageWriteFinished, this, [this, sdkExtractPath]() {
+        if (Archive *archive = Archive::unarchive(m_sdkFilename, sdkExtractPath)) {
+            connect(archive, &Archive::finished, [this, sdkExtractPath](bool success){
+                if (success)
+                    emit sdkExtracted();
+            });
         }
     });
-}
-
-bool AndroidSdkDownloader::extractSdk(const FilePath &jdkPath, const FilePath &sdkExtractPath)
-{
-    QDir sdkDir = sdkExtractPath.toDir();
-    if (!sdkDir.exists()) {
-        if (!sdkDir.mkpath(".")) {
-            logError(QString(tr("Could not create the SDK folder %1."))
-                         .arg(sdkExtractPath.toUserOutput()));
-            return false;
-        }
-    }
-
-    QtcProcess jarExtractProc;
-    jarExtractProc.setWorkingDirectory(sdkExtractPath);
-    FilePath jarCmdPath(jdkPath / "/bin/jar");
-    jarExtractProc.setCommand({jarCmdPath, {"xf", m_sdkFilename.path()}});
-    jarExtractProc.runBlocking();
-
-    return jarExtractProc.exitCode() ? false : true;
 }
 
 bool AndroidSdkDownloader::verifyFileIntegrity()
@@ -170,7 +137,7 @@ void AndroidSdkDownloader::logError(const QString &error)
     emit sdkDownloaderError(error);
 }
 
-QString AndroidSdkDownloader::getSaveFilename(const QUrl &url)
+FilePath AndroidSdkDownloader::getSaveFilename(const QUrl &url)
 {
     QString path = url.path();
     QString basename = QFileInfo(path).fileName();
@@ -186,9 +153,8 @@ QString AndroidSdkDownloader::getSaveFilename(const QUrl &url)
         basename += QString::number(i);
     }
 
-    QString fullPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)
-                       + QDir::separator() + basename;
-    return fullPath;
+    return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation))
+            / basename;
 }
 
 bool AndroidSdkDownloader::saveToDisk(const FilePath &filename, QIODevice *data)
@@ -223,7 +189,7 @@ void AndroidSdkDownloader::downloadFinished(QNetworkReply *reply)
         if (isHttpRedirect(reply)) {
             cancelWithError(QString(tr("Download from %1 was redirected.")).arg(url.toString()));
         } else {
-            m_sdkFilename = FilePath::fromString(getSaveFilename(url));
+            m_sdkFilename = getSaveFilename(url);
             if (saveToDisk(m_sdkFilename, reply) && verifyFileIntegrity())
                 emit sdkPackageWriteFinished();
             else

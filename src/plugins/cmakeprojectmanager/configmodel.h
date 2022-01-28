@@ -162,6 +162,8 @@ public:
 
     QList<DataItem> configurationForCMake() const;
 
+    Utils::MacroExpander *macroExpander() const;
+    void setMacroExpander(Utils::MacroExpander *newExpander);
 
 private:
     class InternalDataItem : public DataItem
@@ -170,13 +172,13 @@ private:
         InternalDataItem(const DataItem &item);
         InternalDataItem(const InternalDataItem &item) = default;
 
-        QString toolTip() const;
         QString currentValue() const;
 
         bool isUserChanged = false;
         bool isUserNew = false;
         QString newValue;
         QString kitValue;
+        QString initialValue;
     };
 
     void generateTree();
@@ -184,6 +186,7 @@ private:
     void setConfiguration(const QList<InternalDataItem> &config);
     QList<InternalDataItem> m_configuration;
     KitConfiguration m_kitConfiguration;
+    Utils::MacroExpander *m_macroExpander = nullptr;
 
     friend class Internal::ConfigModelTreeItem;
 };

@@ -43,7 +43,7 @@ class AndroidSdkDownloader : public QObject
 
 public:
     AndroidSdkDownloader();
-    void downloadAndExtractSdk(const Utils::FilePath &jdkPath, const Utils::FilePath &sdkExtractPath);
+    void downloadAndExtractSdk(const Utils::FilePath &sdkExtractPath);
     static QString dialogTitle();
 
     void cancel();
@@ -54,11 +54,10 @@ signals:
     void sdkDownloaderError(const QString &error);
 
 private:
-    static QString getSaveFilename(const QUrl &url);
+    static Utils::FilePath getSaveFilename(const QUrl &url);
     bool saveToDisk(const Utils::FilePath &filename, QIODevice *data);
     static bool isHttpRedirect(QNetworkReply *m_reply);
 
-    bool extractSdk(const Utils::FilePath &jdkPath, const Utils::FilePath &sdkExtractPath);
     bool verifyFileIntegrity();
     void cancelWithError(const QString &error);
     void logError(const QString &error);

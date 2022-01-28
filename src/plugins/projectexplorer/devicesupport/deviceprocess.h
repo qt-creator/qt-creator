@@ -62,7 +62,7 @@ public:
 signals:
     void started();
     void finished();
-    void error(QProcess::ProcessError error);
+    void errorOccurred(QProcess::ProcessError error);
 
     void readyReadStandardOutput();
     void readyReadStandardError();

@@ -72,7 +72,7 @@ static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPEDITOR_INDEXER_FILE_SIZE_LIMIT); }
 
 static QString clangdSettingsKey() { return QLatin1String("ClangdSettings"); }
-static QString useClangdKey() { return QLatin1String("UseClangd"); }
+static QString useClangdKey() { return QLatin1String("UseClangdV7"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
 static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderInsertion"); }
@@ -485,7 +485,7 @@ QVariantMap ClangdSettings::Data::toMap() const
 
 void ClangdSettings::Data::fromMap(const QVariantMap &map)
 {
-    useClangd = map.value(useClangdKey(), false).toBool();
+    useClangd = map.value(useClangdKey(), true).toBool();
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
     enableIndexing = map.value(clangdIndexingKey(), true).toBool();
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();

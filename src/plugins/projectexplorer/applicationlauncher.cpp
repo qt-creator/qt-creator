@@ -424,7 +424,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
                 this, &ApplicationLauncherPrivate::handleRemoteStdout);
         connect(m_deviceProcess, &DeviceProcess::readyReadStandardError,
                 this, &ApplicationLauncherPrivate::handleRemoteStderr);
-        connect(m_deviceProcess, &DeviceProcess::error,
+        connect(m_deviceProcess, &DeviceProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::handleApplicationError);
         connect(m_deviceProcess, &DeviceProcess::finished,
                 this, &ApplicationLauncherPrivate::handleApplicationFinished);

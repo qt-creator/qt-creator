@@ -263,10 +263,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
             QSKIP("fuzzy matching is not supposed to work with clangd"); // TODO: Implement fallback as we do with libclang
         if (tag == "baseClassFunctionIntroducedByUsingDeclaration")
             QSKIP("clangd points to the using declaration");
-        if (tag == "classDestructor" || tag == "fromDestructorDefinitionSymbol"
-                || tag == "fromDestructorBody") {
-            QSKIP("clangd wants the cursor before the ~ character");
-        }
         if (curTestName == "testFollowClassOperatorInOp")
             QSKIP("clangd goes to operator name first");
     }
@@ -438,6 +434,10 @@ F2TestCase::F2TestCase(CppEditorAction action,
     } else {
         currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
                                            &expectedLine, &expectedColumn);
+        if (useClangd && (tag == "classDestructor" || tag == "fromDestructorDefinitionSymbol"
+                || tag == "fromDestructorBody")) {
+            --expectedColumn; // clangd goes before the ~, built-in code model after
+        }
     }
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
