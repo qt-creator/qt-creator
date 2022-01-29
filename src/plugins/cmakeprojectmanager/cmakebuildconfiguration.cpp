@@ -135,6 +135,7 @@ private:
     void batchEditConfiguration();
     void reconfigureWithInitialParameters(CMakeBuildConfiguration *bc);
     void updateInitialCMakeArguments();
+    void kitCMakeConfiguration();
 
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
@@ -155,6 +156,7 @@ private:
     InfoLabel *m_warningMessageLabel;
 
     QPushButton *m_batchEditButton = nullptr;
+    QPushButton *m_kitConfiguration = nullptr;
 };
 
 static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
@@ -219,6 +221,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_configurationStates, &QTabBar::currentChanged, this, [this](int index) {
         updateConfigurationStateIndex(index);
     });
+
+    m_kitConfiguration = new QPushButton(tr("Kit Configuration"));
+    m_kitConfiguration->setToolTip(tr("Edit the current kit's CMake configuration."));
+    m_kitConfiguration->setFixedWidth(m_kitConfiguration->sizeHint().width());
+    connect(m_kitConfiguration, &QPushButton::clicked, this, [this]() { kitCMakeConfiguration(); });
 
     m_filterEdit = new FancyLineEdit;
     m_filterEdit->setPlaceholderText(tr("Filter"));
@@ -333,7 +340,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         },
         m_warningMessageLabel,
         Space(10),
-        m_configurationStates,
+        Row{m_kitConfiguration, m_configurationStates},
         Group {
             cmakeConfiguration,
             Row {
@@ -601,6 +608,38 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
     // to "Current Configuration" as additional parameters
     m_buildConfiguration->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
         m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->value()));
+}
+
+void CMakeBuildSettingsWidget::kitCMakeConfiguration()
+{
+    m_buildConfiguration->kit()->blockNotification();
+
+    auto dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("Kit CMake Configuration"));
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setModal(true);
+    connect(dialog, &QDialog::finished, this, [=]{
+        m_buildConfiguration->kit()->unblockNotification();
+    });
+
+    CMakeKitAspect kitAspect;
+    CMakeGeneratorKitAspect generatorAspect;
+    CMakeConfigurationKitAspect configurationKitAspect;
+
+    auto layout = new QGridLayout(dialog);
+
+    kitAspect.createConfigWidget(m_buildConfiguration->kit())
+        ->addToLayoutWithLabel(layout->parentWidget());
+    generatorAspect.createConfigWidget(m_buildConfiguration->kit())
+        ->addToLayoutWithLabel(layout->parentWidget());
+    configurationKitAspect.createConfigWidget(m_buildConfiguration->kit())
+        ->addToLayoutWithLabel(layout->parentWidget());
+
+    layout->setColumnStretch(1, 1);
+
+    dialog->setMinimumWidth(400);
+    dialog->resize(800, 1);
+    dialog->show();
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
