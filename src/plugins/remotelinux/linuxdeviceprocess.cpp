@@ -49,11 +49,6 @@ LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplore
     });
 }
 
-void LinuxDeviceProcess::setRcFilesToSource(const QStringList &filePaths)
-{
-    m_rcFilesToSource = filePaths;
-}
-
 QByteArray LinuxDeviceProcess::readAllStandardOutput()
 {
     QByteArray output = SshDeviceProcess::readAllStandardOutput();
@@ -88,7 +83,8 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     CommandLine cmd;
 
-    for (const QString &filePath : rcFilesToSource()) {
+    const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
+    for (const QString &filePath : rcFilesToSource) {
         cmd.addArgs({"test", "-f", filePath});
         cmd.addArgs("&&", CommandLine::Raw);
         cmd.addArgs({".", filePath});
@@ -114,13 +110,6 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
     cmd.addArgs(runnable.command.arguments(), CommandLine::Raw);
 
     return cmd.arguments();
-}
-
-const QStringList LinuxDeviceProcess::rcFilesToSource() const
-{
-    if (!m_rcFilesToSource.isEmpty())
-        return m_rcFilesToSource;
-    return {"/etc/profile", "$HOME/.profile"};
 }
 
 } // namespace RemoteLinux
