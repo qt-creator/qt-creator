@@ -816,9 +816,18 @@ static bool substituteText(QString *text,
 
 static int findUnescaped(QChar c, const QString &line, int from)
 {
+    bool singleBackSlashBefore = false;
     for (int i = from; i < line.size(); ++i) {
-        if (line.at(i) == c && (i == 0 || line.at(i - 1) != '\\'))
+        const QChar currentChar = line.at(i);
+        if (currentChar == '\\') {
+           singleBackSlashBefore = !singleBackSlashBefore;
+           continue;
+        }
+
+        if (currentChar == c && !singleBackSlashBefore)
             return i;
+
+        singleBackSlashBefore = false;
     }
     return -1;
 }
