@@ -195,11 +195,9 @@ TEST_F(QmlTypesParser, Imports)
         UnorderedElementsAre(
             IsImport(storage.moduleId("QML"), Storage::Version{}, qmltypesFileSourceId),
             IsImport(storage.moduleId("QtQml-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{2, 15}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick.Window-cppnative"),
-                     Storage::Version{2, 1},
-                     qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{6}, qmltypesFileSourceId)));
+            IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtQuick.Window-cppnative"), Storage::Version{}, qmltypesFileSourceId),
+            IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{}, qmltypesFileSourceId)));
 }
 
 TEST_F(QmlTypesParser, Types)

@@ -57,31 +57,7 @@ void appendImports(Storage::Imports &imports,
     moduleName.append("-cppnative");
     ModuleId cppModuleId = storage.moduleId(moduleName);
 
-    auto majorVersionFound = std::find_if(spaceFound, dependency.end(), [](QChar c) {
-        return c.isDigit();
-    });
-    auto majorVersionEnd = std::find_if(majorVersionFound, dependency.end(), [](QChar c) {
-        return !c.isDigit();
-    });
-
-    Storage::Version version;
-
-    QStringView majorVersionString(majorVersionFound, majorVersionEnd);
-    if (!majorVersionString.isEmpty()) {
-        version.major.value = majorVersionString.toInt();
-
-        auto minorVersionFound = std::find_if(majorVersionEnd, dependency.end(), [](QChar c) {
-            return c.isDigit();
-        });
-        auto minorVersionEnd = std::find_if(minorVersionFound, dependency.end(), [](QChar c) {
-            return !c.isDigit();
-        });
-        QStringView minorVersionString(minorVersionFound, minorVersionEnd);
-        if (!minorVersionString.isEmpty())
-            version.minor.value = QStringView(minorVersionFound, minorVersionEnd).toInt();
-    }
-
-    imports.emplace_back(cppModuleId, version, sourceId);
+    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 }
 
 void addImports(Storage::Imports &imports,
