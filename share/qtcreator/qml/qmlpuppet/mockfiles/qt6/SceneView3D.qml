@@ -50,6 +50,13 @@ View3D {
         thresPerc = (grid_thresholds[thresIdx] - cameraZoomFactor) / (grid_thresholds[thresIdx] - grid_thresholds[thresIdx - 1]);
     }
 
+    environment: sceneEnv
+    SceneEnvironment {
+        id: sceneEnv
+        antialiasingMode: SceneEnvironment.MSAA
+        antialiasingQuality: SceneEnvironment.High
+    }
+
     Node {
         id: sceneHelpers
 
