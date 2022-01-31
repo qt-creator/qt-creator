@@ -373,9 +373,9 @@ void AndroidConfig::parseDependenciesJson()
     }
 }
 
-static QVector<int> availableNdkPlatformsLegacy(const FilePath &ndkLocation)
+static QList<int> availableNdkPlatformsLegacy(const FilePath &ndkLocation)
 {
-    QVector<int> availableNdkPlatforms;
+    QList<int> availableNdkPlatforms;
 
     ndkLocation
         .pathAppended("platforms")
@@ -392,7 +392,7 @@ static QVector<int> availableNdkPlatformsLegacy(const FilePath &ndkLocation)
     return availableNdkPlatforms;
 }
 
-static QVector<int> availableNdkPlatformsV21Plus(const FilePath &ndkLocation, const Abis &abis,
+static QList<int> availableNdkPlatformsV21Plus(const FilePath &ndkLocation, const Abis &abis,
                                                  OsType hostOs)
 {
     if (abis.isEmpty())
@@ -402,16 +402,16 @@ static QVector<int> availableNdkPlatformsV21Plus(const FilePath &ndkLocation, co
     const FilePath libPath =
             AndroidConfig::toolchainPathFromNdk(ndkLocation, hostOs) / "sysroot/usr/lib" / abi;
     const QList<FilePath> dirEntries = libPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
-    const QVector<int> availableNdkPlatforms =
+    const QList<int> availableNdkPlatforms =
             Utils::transform(dirEntries, [](const FilePath &path) {
                 return path.fileName().toInt(); });
     return availableNdkPlatforms;
 }
 
-static QVector<int> availableNdkPlatformsImpl(const FilePath &ndkLocation, const Abis &abis,
+static QList<int> availableNdkPlatformsImpl(const FilePath &ndkLocation, const Abis &abis,
                                               OsType hostOs)
 {
-    QVector<int> result = availableNdkPlatformsLegacy(ndkLocation);
+    QList<int> result = availableNdkPlatformsLegacy(ndkLocation);
 
     if (result.isEmpty())
         result = availableNdkPlatformsV21Plus(ndkLocation, abis, hostOs);
@@ -420,7 +420,7 @@ static QVector<int> availableNdkPlatformsImpl(const FilePath &ndkLocation, const
     return result;
 }
 
-QVector<int> AndroidConfig::availableNdkPlatforms(const QtVersion *qtVersion) const
+QList<int> AndroidConfig::availableNdkPlatforms(const QtVersion *qtVersion) const
 {
     return availableNdkPlatformsImpl(ndkLocation(qtVersion), qtVersion->qtAbis(),
                                      HostOsInfo::hostOs());
@@ -1685,17 +1685,17 @@ void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms_data()
     QTest::addColumn<FilePath>("ndkPath");
     QTest::addColumn<Abis>("abis");
     QTest::addColumn<OsType>("hostOs");
-    QTest::addColumn<QVector<int> >("expectedPlatforms");
+    QTest::addColumn<QList<int> >("expectedPlatforms");
 
     QTest::newRow("ndkLegacy")
                 << FilePath::fromUserInput(":/android/tst/ndk/19.2.5345600")
                 << Abis()
                 << OsTypeOther
-                << QVector<int>{28, 27, 26, 24, 23, 22, 21, 19, 18, 17, 16};
+                << QList<int>{28, 27, 26, 24, 23, 22, 21, 19, 18, 17, 16};
 
     const FilePath ndkV21Plus = FilePath::fromUserInput(":/android/tst/ndk/23.1.7779620");
-    const QVector<int> abis32Bit = {31, 30, 29, 28, 27, 26, 24, 23, 22, 21, 19, 18, 17, 16};
-    const QVector<int> abis64Bit = {31, 30, 29, 28, 27, 26, 24, 23, 22, 21};
+    const QList<int> abis32Bit = {31, 30, 29, 28, 27, 26, 24, 23, 22, 21, 19, 18, 17, 16};
+    const QList<int> abis64Bit = {31, 30, 29, 28, 27, 26, 24, 23, 22, 21};
     QTest::newRow("ndkV21Plus armeabi-v7a OsTypeWindows")
                 << ndkV21Plus
                 << Abis{AndroidManager::androidAbi2Abi(
@@ -1730,9 +1730,9 @@ void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms()
     QFETCH(FilePath, ndkPath);
     QFETCH(Abis, abis);
     QFETCH(OsType, hostOs);
-    QFETCH(QVector<int>, expectedPlatforms);
+    QFETCH(QList<int>, expectedPlatforms);
 
-    const QVector<int> foundPlatforms = availableNdkPlatformsImpl(ndkPath, abis, hostOs);
+    const QList<int> foundPlatforms = availableNdkPlatformsImpl(ndkPath, abis, hostOs);
     QCOMPARE(foundPlatforms, expectedPlatforms);
 }
 #endif // WITH_TESTS

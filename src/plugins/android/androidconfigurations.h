@@ -190,7 +190,7 @@ private:
 
     void parseDependenciesJson();
 
-    QVector<int> availableNdkPlatforms(const QtSupport::QtVersion *qtVersion) const;
+    QList<int> availableNdkPlatforms(const QtSupport::QtVersion *qtVersion) const;
 
     Utils::FilePath m_sdkLocation;
     QStringList m_sdkManagerToolArgs;
@@ -249,3 +249,6 @@ private:
 };
 
 } // namespace Android
+
+Q_DECLARE_METATYPE(ProjectExplorer::Abis)
+Q_DECLARE_METATYPE(Utils::OsType)
