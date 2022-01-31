@@ -2914,7 +2914,7 @@ bool TextEditorWidget::event(QEvent *e)
                            && (ke->key() < Qt::Key_Escape));
             d->m_maybeFakeTooltipEvent = false;
         }
-        break;
+        return true;
     }
     case QEvent::ApplicationPaletteChange: {
         // slight hack: ignore palette changes
