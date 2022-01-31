@@ -1661,13 +1661,6 @@ private:
     {
         struct Inspect
         {
-            auto operator()(const Storage::NativeType &nativeType)
-            {
-                return storage.fetchImportedTypeNameId(Storage::TypeNameKind::Native,
-                                                       &sourceId,
-                                                       nativeType.name);
-            }
-
             auto operator()(const Storage::ImportedType &importedType)
             {
                 return storage.fetchImportedTypeNameId(Storage::TypeNameKind::Exported,

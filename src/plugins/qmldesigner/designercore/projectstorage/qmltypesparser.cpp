@@ -135,7 +135,7 @@ Storage::PropertyDeclarations createProperties(const QHash<QString, QQmlJSMetaPr
 
     for (const QQmlJSMetaProperty &qmlProperty : qmlProperties) {
         propertyDeclarations.emplace_back(Utils::SmallString{qmlProperty.propertyName()},
-                                          Storage::NativeType{
+                                          Storage::ImportedType{
                                               Utils::SmallString{qmlProperty.typeName()}},
                                           createPropertyDeclarationTraits(qmlProperty));
     }
@@ -241,7 +241,7 @@ void addType(Storage::Types &types,
 {
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(component.ownMethods());
     types.emplace_back(Utils::SmallString{component.internalName()},
-                       Storage::NativeType{Utils::SmallString{component.baseTypeName()}},
+                       Storage::ImportedType{Utils::SmallString{component.baseTypeName()}},
                        createTypeAccessSemantics(component.accessSemantics()),
                        sourceId,
                        createExports(component.exports(), component, storage, cppModuleId),

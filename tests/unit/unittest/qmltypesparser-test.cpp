@@ -212,11 +212,11 @@ TEST_F(QmlTypesParser, Types)
 
     ASSERT_THAT(types,
                 UnorderedElementsAre(IsType("QObject",
-                                            Storage::NativeType{},
+                                            Storage::ImportedType{},
                                             Storage::TypeAccessSemantics::Reference,
                                             qmltypesFileSourceId),
                                      IsType("QQmlComponent",
-                                            Storage::NativeType{"QObject"},
+                                            Storage::ImportedType{"QObject"},
                                             Storage::TypeAccessSemantics::Reference,
                                             qmltypesFileSourceId)));
 }
@@ -260,16 +260,16 @@ TEST_F(QmlTypesParser, Properties)
                     &Storage::Type::propertyDeclarations,
                     UnorderedElementsAre(
                         IsPropertyDeclaration("objectName",
-                                              Storage::NativeType{"string"},
+                                              Storage::ImportedType{"string"},
                                               Storage::PropertyDeclarationTraits::None),
                         IsPropertyDeclaration("target",
-                                              Storage::NativeType{"QObject"},
+                                              Storage::ImportedType{"QObject"},
                                               Storage::PropertyDeclarationTraits::IsPointer),
                         IsPropertyDeclaration("progress",
-                                              Storage::NativeType{"double"},
+                                              Storage::ImportedType{"double"},
                                               Storage::PropertyDeclarationTraits::IsReadOnly),
                         IsPropertyDeclaration("targets",
-                                              Storage::NativeType{"QQuickItem"},
+                                              Storage::ImportedType{"QQuickItem"},
                                               Storage::PropertyDeclarationTraits::IsReadOnly
                                                   | Storage::PropertyDeclarationTraits::IsList
                                                   | Storage::PropertyDeclarationTraits::IsPointer)))));

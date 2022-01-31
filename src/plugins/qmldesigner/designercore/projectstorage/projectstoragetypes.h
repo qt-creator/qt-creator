@@ -45,7 +45,7 @@ enum class PropertyDeclarationTraits : unsigned int {
     IsList = 1 << 2
 };
 
-enum class TypeNameKind { Native = 0, Exported = 1, QualifiedExported = 2 };
+enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
 
 enum class FileType : char { QmlTypes, QmlDocument };
 
@@ -316,24 +316,7 @@ public:
     ExportedTypeNameId exportedTypeNameId;
 };
 
-class NativeType
-{
-public:
-    explicit NativeType() = default;
-    explicit NativeType(Utils::SmallStringView name)
-        : name{name}
-    {}
-
-    friend bool operator==(const NativeType &first, const NativeType &second)
-    {
-        return first.name == second.name;
-    }
-
-public:
-    Utils::SmallString name;
-};
-
-using ImportedTypeName = Utils::variant<NativeType, ImportedType, QualifiedImportedType>;
+using ImportedTypeName = Utils::variant<ImportedType, QualifiedImportedType>;
 
 class EnumeratorDeclaration
 {
@@ -698,7 +681,7 @@ public:
                   int accessSemantics,
                   int sourceId)
         : typeName{typeName}
-        , prototype{NativeType{prototype}}
+        , prototype{ImportedType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
 

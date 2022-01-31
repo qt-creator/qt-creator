@@ -239,13 +239,13 @@ protected:
     ModuleId exampleModuleId{storage.moduleId("Example")};
     ModuleId builtinModuleId{storage.moduleId("QML")};
     Storage::Type objectType{"QObject",
-                             Storage::NativeType{},
+                             Storage::ImportedType{},
                              Storage::TypeAccessSemantics::Reference,
                              qmltypesPathSourceId,
                              {Storage::ExportedType{exampleModuleId, "Object"},
                               Storage::ExportedType{exampleModuleId, "Obj"}}};
     Storage::Type itemType{"QItem",
-                           Storage::NativeType{},
+                           Storage::ImportedType{},
                            Storage::TypeAccessSemantics::Reference,
                            qmltypes2PathSourceId,
                            {Storage::ExportedType{exampleModuleId, "Item"}}};
@@ -583,7 +583,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeRemoved)
                             Field(&Storage::Type::exportedTypes,
                                   ElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0)))),
                       AllOf(IsStorageType("First.2.qml",
-                                          Storage::NativeType{},
+                                          Storage::ImportedType{},
                                           TypeAccessSemantics::Reference,
                                           qmlDocumentSourceId2,
                                           Storage::ChangeLevel::Minimal),
@@ -658,7 +658,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsDontUpdateIfUpToDate)
                             Field(&Storage::Type::exportedTypes,
                                   ElementsAre(IsExportedType(exampleModuleId, "FirstType", 2, 2)))),
                       AllOf(IsStorageType("Second.qml",
-                                          Storage::NativeType{},
+                                          Storage::ImportedType{},
                                           TypeAccessSemantics::Reference,
                                           qmlDocumentSourceId3,
                                           Storage::ChangeLevel::Minimal),

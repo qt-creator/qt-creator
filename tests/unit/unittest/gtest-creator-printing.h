@@ -248,10 +248,8 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
 namespace Storage {
 class Type;
 class ExportedType;
-class NativeType;
 class ImportedType;
 class QualifiedImportedType;
-using TypeName = Utils::variant<NativeType, ExportedType>;
 class Version;
 class VersionNumber;
 enum class TypeAccessSemantics : int;
@@ -275,7 +273,6 @@ std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
 std::ostream &operator<<(std::ostream &out, Version version);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
-std::ostream &operator<<(std::ostream &out, const NativeType &nativeType);
 std::ostream &operator<<(std::ostream &out, const ImportedType &importedType);
 std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importedType);
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration);
