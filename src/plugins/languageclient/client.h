@@ -192,6 +192,7 @@ public:
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
+    void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
 
     // logging
     enum class LogTarget { Console, Ui };

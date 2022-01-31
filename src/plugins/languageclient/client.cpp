@@ -1079,6 +1079,12 @@ void Client::setCompletionAssistProvider(LanguageClientCompletionAssistProvider 
     m_clientProviders.completionAssistProvider = provider;
 }
 
+void Client::setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider)
+{
+    delete m_clientProviders.quickFixAssistProvider;
+    m_clientProviders.quickFixAssistProvider = provider;
+}
+
 void Client::start()
 {
     LanguageClientManager::addClient(this);

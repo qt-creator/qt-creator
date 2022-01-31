@@ -29,6 +29,7 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprovider.h>
+#include <texteditor/quickfix.h>
 
 #include <cplusplus/LookupContext.h>
 
@@ -72,6 +73,8 @@ public:
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 };
+
+TextEditor::QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface);
 
 } // Internal
 } // CppEditor

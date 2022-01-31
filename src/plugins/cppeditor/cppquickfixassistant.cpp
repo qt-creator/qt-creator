@@ -53,14 +53,8 @@ class CppQuickFixAssistProcessor : public IAssistProcessor
 {
     IAssistProposal *perform(const AssistInterface *interface) override
     {
-        QSharedPointer<const AssistInterface> assistInterface(interface);
-        auto cppInterface = assistInterface.staticCast<const CppQuickFixInterface>();
-
-        QuickFixOperations quickFixes;
-        for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories())
-            factory->match(*cppInterface, quickFixes);
-
-        return GenericProposal::createProposal(interface, quickFixes);
+        QSharedPointer<const AssistInterface> dummy(interface); // FIXME: Surely this cannot be our way of doing memory management???
+        return GenericProposal::createProposal(interface, quickFixOperations(interface));
     }
 };
 
@@ -135,6 +129,16 @@ bool CppQuickFixInterface::isCursorOn(unsigned tokenIndex) const
 bool CppQuickFixInterface::isCursorOn(const AST *ast) const
 {
     return currentFile()->isCursorOn(ast);
+}
+
+QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface)
+{
+    const auto cppInterface = dynamic_cast<const CppQuickFixInterface *>(interface);
+    QTC_ASSERT(cppInterface, return {});
+    QuickFixOperations quickFixes;
+    for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories())
+        factory->match(*cppInterface, quickFixes);
+    return quickFixes;
 }
 
 } // namespace Internal

@@ -31,6 +31,7 @@
 #include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
+#include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/ASTVisitor.h>
@@ -76,6 +77,8 @@ const CPlusPlus::Macro CPPEDITOR_EXPORT *findCanonicalMacro(const QTextCursor &c
 
 bool CPPEDITOR_EXPORT isInCommentOrString(const TextEditor::AssistInterface *interface,
                                           CPlusPlus::LanguageFeatures features);
+TextEditor::QuickFixOperations CPPEDITOR_EXPORT
+quickFixOperations(const TextEditor::AssistInterface *interface);
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 

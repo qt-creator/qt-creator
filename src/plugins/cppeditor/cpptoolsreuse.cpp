@@ -31,6 +31,7 @@
 #include "cppeditorplugin.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
+#include "cppquickfixassistant.h"
 #include "cpprefactoringchanges.h"
 #include "projectinfo.h"
 
@@ -337,6 +338,11 @@ bool isInCommentOrString(const TextEditor::AssistInterface *interface,
         }
     }
     return true;
+}
+
+TextEditor::QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface)
+{
+    return Internal::quickFixOperations(interface);
 }
 
 CppCodeModelSettings *codeModelSettings()

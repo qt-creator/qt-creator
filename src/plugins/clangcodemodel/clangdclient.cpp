@@ -1257,6 +1257,54 @@ private:
     ClangdClient * const m_client;
 };
 
+class ClangdQuickFixProcessor : public LanguageClientQuickFixAssistProcessor
+{
+public:
+    ClangdQuickFixProcessor(LanguageClient::Client *client)
+        : LanguageClientQuickFixAssistProcessor(client)
+    {
+        // Fixes are already provided inline with the diagnostics.
+        setOnlyKinds({CodeActionKinds::Refactor});
+    }
+
+private:
+    IAssistProposal *perform(const AssistInterface *interface) override
+    {
+        m_interface = interface;
+
+        // Step 1: Collect clangd code actions asynchronously
+        LanguageClientQuickFixAssistProcessor::perform(interface);
+
+        // Step 2: Collect built-in quickfixes synchronously
+        m_builtinOps = CppEditor::quickFixOperations(interface);
+
+        return nullptr;
+    }
+
+    void handleProposalReady(const QuickFixOperations &ops) override
+    {
+        // Step 3: Merge the results upon callback from clangd.
+        for (const auto &op : ops)
+            op->setDescription("clangd: " + op->description());
+        setAsyncProposalAvailable(GenericProposal::createProposal(m_interface, ops + m_builtinOps));
+    }
+
+    QuickFixOperations m_builtinOps;
+    const AssistInterface *m_interface = nullptr;
+};
+
+class ClangdQuickFixProvider : public LanguageClientQuickFixProvider
+{
+public:
+    ClangdQuickFixProvider(ClangdClient *client) : LanguageClientQuickFixProvider(client) {};
+
+private:
+    IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override
+    {
+        return new ClangdQuickFixProcessor(client());
+    }
+};
+
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     : Client(clientInterface(project, jsonDbDir)), d(new Private(this, project))
 {
@@ -1268,6 +1316,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setActivateDocumentAutomatically(true);
     setLogTarget(LogTarget::Console);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
+    setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
     if (!project) {
         QJsonObject initOptions;
         const QStringList clangOptions = createClangOptions(

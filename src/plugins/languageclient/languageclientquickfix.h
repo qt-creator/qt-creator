@@ -28,11 +28,14 @@
 #include "languageclient_global.h"
 
 #include <texteditor/codeassist/iassistprovider.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/quickfix.h>
 
 #include <languageserverprotocol/languagefeatures.h>
 
 #include <QPointer>
+
+namespace TextEditor { class IAssistProposal; }
 
 namespace LanguageClient {
 
@@ -56,8 +59,34 @@ public:
     IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
+protected:
+    Client *client() const { return m_client; }
+
 private:
     Client *m_client = nullptr; // not owned
 };
+
+class LANGUAGECLIENT_EXPORT LanguageClientQuickFixAssistProcessor
+        : public TextEditor::IAssistProcessor
+{
+public:
+    explicit LanguageClientQuickFixAssistProcessor(Client *client) : m_client(client) {}
+    bool running() override { return m_currentRequest.has_value(); }
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    void cancel() override;
+
+protected:
+    void setOnlyKinds(const QList<LanguageServerProtocol::CodeActionKind> &only);
+
+private:
+    void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response);
+    virtual void handleProposalReady(const TextEditor::QuickFixOperations &ops);
+
+    QSharedPointer<const TextEditor::AssistInterface> m_assistInterface;
+    Client *m_client = nullptr; // not owned
+    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    QList<LanguageServerProtocol::CodeActionKind> m_onlyKinds;
+};
+
 
 } // namespace LanguageClient

@@ -162,6 +162,8 @@ CompletionAssistProvider *CppEditorDocument::functionHintAssistProvider() const
 
 TextEditor::IAssistProvider *CppEditorDocument::quickFixAssistProvider() const
 {
+    if (const auto baseProvider = TextDocument::quickFixAssistProvider())
+        return baseProvider;
     return CppEditorPlugin::instance()->quickFixProvider();
 }
 
