@@ -148,7 +148,7 @@ void DockerDeviceProcess::interrupt()
 
 class DockerPortsGatheringMethod : public PortsGatheringMethod
 {
-    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
+    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         // We might encounter the situation that protocol is given IPv6
         // but the consumer of the free port information decides to open
@@ -161,10 +161,8 @@ class DockerPortsGatheringMethod : public PortsGatheringMethod
         Q_UNUSED(protocol)
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-        Runnable runnable;
-        runnable.command.setExecutable("sed");
-        runnable.command.setArguments("-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*");
-        return runnable;
+        return {"sed", "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
+                CommandLine::Raw};
     }
 
     QList<Utils::Port> usedPorts(const QByteArray &output) const override

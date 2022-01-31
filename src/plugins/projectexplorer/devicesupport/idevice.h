@@ -63,7 +63,6 @@ class Connection;
 class DeviceProcess;
 class DeviceProcessList;
 class Kit;
-class Runnable;
 class Task;
 
 namespace Internal { class IDevicePrivate; }
@@ -116,7 +115,7 @@ public:
     using Ptr = QSharedPointer<const PortsGatheringMethod>;
 
     virtual ~PortsGatheringMethod() = default;
-    virtual Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
+    virtual Utils::CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
     virtual QList<Utils::Port> usedPorts(const QByteArray &commandOutput) const = 0;
 };
 

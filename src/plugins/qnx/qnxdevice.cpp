@@ -58,12 +58,10 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
 {
     // TODO: The command is probably needlessly complicated because the parsing method
     // used to be fixed. These two can now be matched to each other.
-    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
+    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         Q_UNUSED(protocol)
-        Runnable runnable;
-        runnable.command = {"netstat", {"-na"}};
-        return runnable;
+        return {"netstat", {"-na"}};
     }
 
     QList<Port> usedPorts(const QByteArray &output) const override

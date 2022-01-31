@@ -86,7 +86,8 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     connect(d->process.data(), &DeviceProcess::readyReadStandardError,
             this, &DeviceUsedPortsGatherer::handleRemoteStdErr);
 
-    const Runnable runnable = d->portsGatheringMethod->runnable(protocol);
+    Runnable runnable;
+    runnable.command = d->portsGatheringMethod->commandLine(protocol);
     d->process->start(runnable);
 }
 

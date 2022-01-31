@@ -125,7 +125,7 @@ DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
 
 class DesktopPortsGatheringMethod : public PortsGatheringMethod
 {
-    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
+    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         // We might encounter the situation that protocol is given IPv6
         // but the consumer of the free port information decides to open
@@ -137,12 +137,11 @@ class DesktopPortsGatheringMethod : public PortsGatheringMethod
 
         Q_UNUSED(protocol)
 
-        Runnable runnable;
         if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
-            runnable.command = CommandLine{"netstat", {"-a", "-n"}};
-        else if (HostOsInfo::isLinuxHost())
-            runnable.command = CommandLine{"/bin/sh", {"-c", "cat /proc/net/tcp*"}};
-        return runnable;
+            return {"netstat", {"-a", "-n"}};
+        if (HostOsInfo::isLinuxHost())
+            return {"/bin/sh", {"-c", "cat /proc/net/tcp*"}};
+        return {};
     }
 
     QList<Utils::Port> usedPorts(const QByteArray &output) const override
