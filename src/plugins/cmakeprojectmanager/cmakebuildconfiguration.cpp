@@ -765,12 +765,27 @@ void CMakeBuildSettingsWidget::updateFromKit()
     const Kit *k = m_buildConfiguration->kit();
     const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
 
+    // First the key value parameters
     ConfigModel::KitConfiguration configHash;
     for (const CMakeConfigItem &i : config)
-        configHash.insert(QString::fromUtf8(i.key),
-                          qMakePair(QString::fromUtf8(i.value), i.expandedValue(k)));
+        configHash.insert(QString::fromUtf8(i.key), i);
 
     m_configModel->setConfigurationFromKit(configHash);
+
+    // Then the additional parameters
+    const QStringList additionalKitCMake = ProcessArgs::splitArgs(
+        CMakeConfigurationKitAspect::additionalConfiguration(k));
+    const QStringList additionalInitialCMake = ProcessArgs::splitArgs(
+        m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->value());
+
+    QStringList mergedArgumentList;
+    std::set_union(additionalInitialCMake.begin(),
+                   additionalInitialCMake.end(),
+                   additionalKitCMake.begin(),
+                   additionalKitCMake.end(),
+                   std::back_inserter(mergedArgumentList));
+    m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setValue(
+        ProcessArgs::joinArgs(mergedArgumentList));
 }
 
 void CMakeBuildSettingsWidget::updateConfigurationStateIndex(int index)

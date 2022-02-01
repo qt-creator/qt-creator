@@ -146,7 +146,7 @@ public:
     void setInitialParametersConfiguration(const CMakeConfig &config);
     void setConfiguration(const QList<DataItem> &config);
 
-    using KitConfiguration = QHash<QString, QPair<QString,QString>>;
+    using KitConfiguration = QHash<QString, CMakeConfigItem>;
     void setConfigurationFromKit(const KitConfiguration &kitConfig);
 
     void flush();

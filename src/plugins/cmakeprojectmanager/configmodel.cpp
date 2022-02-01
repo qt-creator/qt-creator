@@ -96,9 +96,9 @@ void ConfigModel::appendConfiguration(const QString &key,
     internalItem.isUserNew = true;
 
     if (m_kitConfiguration.contains(key))
-        internalItem.kitValue = isInitial ? m_kitConfiguration.value(key).first
-                                          : m_kitConfiguration.value(key).second;
-
+        internalItem.kitValue = QString::fromUtf8(
+            isInitial ? m_kitConfiguration.value(key).value
+                      : m_macroExpander->expand(m_kitConfiguration.value(key).value));
     m_configuration.append(internalItem);
     setConfiguration(m_configuration);
 }
@@ -111,12 +111,38 @@ void ConfigModel::setConfiguration(const QList<DataItem> &config)
 void ConfigModel::setConfigurationFromKit(const KitConfiguration &kitConfig)
 {
     m_kitConfiguration = kitConfig;
+    QHash<QString, InternalDataItem> initialConfig;
 
+    // Update the kit values for initial configuration keys
     for (InternalDataItem &i : m_configuration) {
+        if (!i.isInitial)
+            continue;
         if (m_kitConfiguration.contains(i.key))
-            i.kitValue = i.isInitial ? m_kitConfiguration.value(i.key).first
-                                     : m_kitConfiguration.value(i.key).second;
+            i.kitValue = QString::fromUtf8(m_kitConfiguration.value(i.key).value);
+        initialConfig.insert(i.key, i);
     }
+
+    // Add new initial configuration kit keys
+    for (const auto &ki : kitConfig) {
+        if (!initialConfig.contains(QString::fromUtf8(ki.key))) {
+            InternalDataItem i((DataItem(ki)));
+            i.isUserNew = true;
+            i.isInitial = true;
+            i.newValue = i.value;
+            i.kitValue = i.value;
+            m_configuration.append(i);
+        }
+    }
+
+    // Remove kit values when the kit's keys are removed
+    for (const auto &i : initialConfig) {
+        if (!kitConfig.contains(i.key)) {
+            auto existing = std::find(m_configuration.begin(), m_configuration.end(), i);
+            if (existing != m_configuration.end())
+                existing->kitValue.clear();
+        }
+    }
+
     setConfiguration(m_configuration);
 }
 
