@@ -27,6 +27,7 @@
 
 #include <ssh/sftpfilesystemmodel.h>
 #include <ssh/sshconnection.h>
+#include <utils/launcherinterface.h>
 #include <utils/temporarydirectory.h>
 
 #include <QApplication>
@@ -35,6 +36,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                                + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
                                                            + "/qtc-ssh-shelltest-XXXXXX");
     SftpFsWindow w;
