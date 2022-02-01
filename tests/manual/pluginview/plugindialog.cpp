@@ -129,6 +129,8 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     ExtensionSystem::PluginManager manager;
+    manager.setSettings(new QtcSettings);
+
     manager.setPluginIID(QLatin1String("plugin"));
     setCreatorTheme(new Theme("default", &app));
     QObject::connect(&app, &QCoreApplication::aboutToQuit,
