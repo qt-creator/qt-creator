@@ -42,7 +42,6 @@ Shell::Shell(const SshConnectionParameters &parameters, QObject *parent)
       m_stdin(new QFile(this))
 {
     connect(m_connection, &SshConnection::connected, this, &Shell::handleConnected);
-    connect(m_connection, &SshConnection::dataAvailable, this, &Shell::handleShellMessage);
     connect(m_connection, &SshConnection::errorOccurred, this, &Shell::handleConnectionError);
 }
 
@@ -66,11 +65,6 @@ void Shell::handleConnectionError()
 {
     std::cerr << "SSH connection error: " << qPrintable(m_connection->errorString()) << std::endl;
     QCoreApplication::exit(EXIT_FAILURE);
-}
-
-void Shell::handleShellMessage(const QString &message)
-{
-    std::cout << qPrintable(message);
 }
 
 void Shell::handleConnected()

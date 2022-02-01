@@ -58,7 +58,8 @@ SshConnectionParameters ArgumentsCollector::collect(bool &success) const
             } else if (checkAndSetIntArg(pos, port, portGiven, "-p")
                        || checkAndSetIntArg(pos, parameters.timeout, timeoutGiven, "-t")) {
                 continue;
-            } else  if (checkAndSetStringArg(pos, parameters.privateKeyFile, "-k")) {
+            } else  if (checkAndSetStringArg(pos, str, "-k")) {
+                parameters.privateKeyFile = Utils::FilePath::fromString(str);
                 parameters.authenticationType
                         = SshConnectionParameters::AuthenticationTypeSpecificKey;
                 authTypeGiven = true;
