@@ -75,10 +75,10 @@ public:
               const QVector<McuPackage *> &packages,
               const McuToolChainPackage *toolChainPackage);
 
-    QVersionNumber qulVersion() const;
-    QVector<McuPackage *> packages() const;
+    const QVersionNumber &qulVersion() const;
+    const QVector<McuPackage *> &packages() const;
     const McuToolChainPackage *toolChainPackage() const;
-    Platform platform() const;
+    const Platform &platform() const;
     OS os() const;
     void setColorDepth(int colorDepth);
     int colorDepth() const;

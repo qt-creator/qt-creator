@@ -52,12 +52,15 @@ static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings:
 
 McuPackage::McuPackage(const QString &label, const FilePath &defaultPath,
                        const QString &detectionPath, const QString &settingsKey,
+                       const QString &envVarName, const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector)
     : m_label(label)
     , m_defaultPath(Sdk::packagePathFromSettings(settingsKey, QSettings::SystemScope, defaultPath))
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
+    , m_environmentVariableName(envVarName)
+    , m_downloadUrl(downloadUrl)
 {
     m_path = Sdk::packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
     m_automaticKitCreation = automaticKitCreationFromSettings(QSettings::UserScope);
@@ -144,17 +147,7 @@ bool McuPackage::validStatus() const
     return m_status == McuPackage::ValidPackage || m_status == McuPackage::ValidPackageMismatchedVersion;
 }
 
-void McuPackage::setDownloadUrl(const QString &url)
-{
-    m_downloadUrl = url;
-}
-
-void McuPackage::setEnvironmentVariableName(const QString &name)
-{
-    m_environmentVariableName = name;
-}
-
-QString McuPackage::environmentVariableName() const
+const QString &McuPackage::environmentVariableName() const
 {
     return m_environmentVariableName;
 }
@@ -295,9 +288,9 @@ McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const FilePath &defaultPath,
                                          const QString &detectionPath,
                                          const QString &settingsKey,
-                                         McuToolChainPackage::Type type,
+                                         McuToolChainPackage::Type type, const QString &envVarName,
                                          const McuPackageVersionDetector *versionDetector)
-    : McuPackage(label, defaultPath, detectionPath, settingsKey, versionDetector)
+    : McuPackage(label, defaultPath, detectionPath, settingsKey, envVarName, {}, versionDetector)
     , m_type(type)
 {
 }

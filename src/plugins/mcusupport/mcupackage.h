@@ -61,6 +61,7 @@ public:
 
     McuPackage(const QString &label, const Utils::FilePath &defaultPath,
                const QString &detectionPath, const QString &settingsKey,
+               const QString &envVarName = {}, const QString &downloadUrl = {},
                const McuPackageVersionDetector *versionDetector = nullptr);
     virtual ~McuPackage() = default;
 
@@ -74,8 +75,6 @@ public:
 
     Status status() const;
     bool validStatus() const;
-    void setDownloadUrl(const QString &url);
-    void setEnvironmentVariableName(const QString &name);
     void setAddToPath(bool addToPath);
     bool addToPath() const;
     void writeGeneralSettings() const;
@@ -88,7 +87,7 @@ public:
 
     QWidget *widget();
 
-    QString environmentVariableName() const;
+    const QString &environmentVariableName() const;
 
 signals:
     void changed();
@@ -112,8 +111,8 @@ private:
     QString m_relativePathModifier; // relative path to m_path to be returned by path()
     QString m_detectedVersion;
     QStringList m_versions;
-    QString m_downloadUrl;
-    QString m_environmentVariableName;
+    const QString m_environmentVariableName;
+    const QString m_downloadUrl;
     bool m_addToPath = false;
     bool m_automaticKitCreation = true;
 
@@ -139,6 +138,7 @@ public:
                         const QString &detectionPath,
                         const QString &settingsKey,
                         Type type,
+                        const QString &envVarName = {},
                         const McuPackageVersionDetector *versionDetector = nullptr
             );
 

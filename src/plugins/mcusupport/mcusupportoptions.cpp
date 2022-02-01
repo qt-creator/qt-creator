@@ -269,7 +269,7 @@ McuTarget::McuTarget(const QVersionNumber &qulVersion,
 {
 }
 
-QVector<McuPackage *> McuTarget::packages() const
+const QVector<McuPackage *> &McuTarget::packages() const
 {
     return m_packages;
 }
@@ -284,7 +284,7 @@ McuTarget::OS McuTarget::os() const
     return m_os;
 }
 
-McuTarget::Platform McuTarget::platform() const
+const McuTarget::Platform &McuTarget::platform() const
 {
     return m_platform;
 }
@@ -316,7 +316,7 @@ void McuTarget::printPackageProblems() const
     }
 }
 
-QVersionNumber McuTarget::qulVersion() const
+const QVersionNumber &McuTarget::qulVersion() const
 {
     return m_qulVersion;
 }
