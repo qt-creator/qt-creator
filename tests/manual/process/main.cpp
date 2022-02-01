@@ -25,6 +25,7 @@
 
 #include "mainwindow.h"
 
+#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
@@ -49,7 +50,7 @@ static int testSynchronous(const QString &cmd, const QStringList &args)
     std::fprintf(stdout, "testSynchronous %s %s\n", qPrintable(cmd),
                  qPrintable(args.join(QLatin1Char(' '))));
     Utils::QtcProcess p;
-    p.setCommand({cmd, args});
+    p.setCommand({Utils::FilePath::fromString(cmd), args});
     p.start();
     if (!p.waitForStarted())
         return -2;
