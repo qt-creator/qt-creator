@@ -64,6 +64,18 @@ QVariant ConfigModel::data(const QModelIndex &idx, int role) const
     return Utils::TreeModel<>::data(idx, role);
 }
 
+bool ConfigModel::setData(const QModelIndex &idx, const QVariant &data, int role)
+{
+    Utils::TreeItem *item = itemForIndex(idx);
+    bool res = item ? item->setData(idx.column(), data, role) : false;
+    if (res) {
+        const QModelIndex keyIdx = idx.sibling(idx.row(), 0);
+        const QModelIndex valueIdx = idx.sibling(idx.row(), 1);
+        emit dataChanged(keyIdx, valueIdx);
+    }
+    return res;
+}
+
 ConfigModel::~ConfigModel() = default;
 
 void ConfigModel::appendConfiguration(const QString &key,
@@ -439,59 +451,53 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
         return dataItem->isInitial ? "1" : "0";
     }
 
-    switch (column) {
-    case 0:
-        switch (role) {
-        case Qt::DisplayRole:
-            return dataItem->key.isEmpty() ? QCoreApplication::translate("CMakeProjectManager::ConfigModel", "<UNSET>") : dataItem->key;
-        case Qt::EditRole:
-            return dataItem->key;
-        case Qt::ToolTipRole:
-            return toolTip();
-        case Qt::FontRole: {
-            QFont font;
-            font.setBold(dataItem->isUserNew);
-            font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
-            return font;
-        }
-        default:
-            return QVariant();
-        }
-    case 1: {
-        const QString value = currentValue();
-        const auto boolValue = CMakeConfigItem::toBool(value);
-        const bool isTrue = boolValue.has_value() && boolValue.value();
+    auto fontRole = [this]() -> QFont {
+        QFont font;
+        font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);
+        font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
+        font.setItalic((dataItem->isInitial && !dataItem->kitValue.isEmpty())
+                       || (!dataItem->isInitial && !dataItem->initialValue.isEmpty()));
+        return font;
+    };
 
-        switch (role) {
-        case Qt::CheckStateRole:
-            return (dataItem->type == ConfigModel::DataItem::BOOLEAN)
-                    ? QVariant(isTrue ? Qt::Checked : Qt::Unchecked) : QVariant();
-        case Qt::DisplayRole:
-            return value;
-        case Qt::EditRole:
-            return (dataItem->type == ConfigModel::DataItem::BOOLEAN) ? QVariant(isTrue) : QVariant(value);
-        case Qt::FontRole: {
-            QFont font;
-            font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);
-            font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);
-            return font;
-        }
-        case Qt::ForegroundRole: {
-            bool mismatch = false;
-            if (dataItem->isInitial)
-                mismatch = !dataItem->kitValue.isEmpty() && dataItem->kitValue != value;
-            else
-                mismatch = !dataItem->initialValue.isEmpty() && dataItem->initialValue != value;
-            return Utils::creatorTheme()->color(mismatch ? Utils::Theme::TextColorHighlight
-                                                         : Utils::Theme::TextColorNormal);
-        }
-        case Qt::ToolTipRole: {
-            return toolTip();
-        }
-        default:
+    auto foregroundRole = [this](const QString &value) -> QColor {
+        bool mismatch = false;
+        if (dataItem->isInitial)
+            mismatch = !dataItem->kitValue.isEmpty() && dataItem->kitValue != value;
+        else
+            mismatch = !dataItem->initialValue.isEmpty() && dataItem->initialValue != value;
+        return Utils::creatorTheme()->color(mismatch ? Utils::Theme::TextColorHighlight
+                                                     : Utils::Theme::TextColorNormal);
+    };
+
+    const QString value = currentValue();
+    const auto boolValue = CMakeConfigItem::toBool(value);
+    const bool isTrue = boolValue.has_value() && boolValue.value();
+
+    switch (role) {
+    case Qt::CheckStateRole:
+        if (column == 0)
             return QVariant();
-        }
-    }
+        return (dataItem->type == ConfigModel::DataItem::BOOLEAN)
+                   ? QVariant(isTrue ? Qt::Checked : Qt::Unchecked)
+                   : QVariant();
+    case Qt::DisplayRole:
+        if (column == 0)
+            return dataItem->key.isEmpty()
+                       ? QCoreApplication::translate("CMakeProjectManager::ConfigModel", "<UNSET>")
+                       : dataItem->key;
+        return value;
+    case Qt::EditRole:
+        if (column == 0)
+            return dataItem->key;
+        return (dataItem->type == ConfigModel::DataItem::BOOLEAN) ? QVariant(isTrue)
+                                                                  : QVariant(value);
+    case Qt::FontRole:
+        return fontRole();
+    case Qt::ForegroundRole:
+        return foregroundRole(value);
+    case Qt::ToolTipRole:
+        return toolTip();
     default:
         return QVariant();
     }
