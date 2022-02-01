@@ -288,11 +288,15 @@ void ConfigModel::setBatchEditConfiguration(const CMakeConfig &config)
         auto existing = std::find(m_configuration.begin(), m_configuration.end(), di);
         if (existing != m_configuration.end()) {
             existing->isUnset = c.isUnset;
-            if (!c.isUnset) {
-                existing->isUserChanged = true;
+            const QString newValue = QString::fromUtf8(c.value);
+            // Allow a different value when the user didn't change anything (don't mark the same value as new)
+            // But allow the same value (going back) when the user did a change
+            const bool canSetValue = (existing->value != newValue && !existing->isUserChanged)
+                                     || existing->isUserChanged;
+            if (!c.isUnset && canSetValue) {
+                existing->isUserChanged = existing->value != newValue;
                 existing->setType(c.type);
-                existing->value = QString::fromUtf8(c.value);
-                existing->newValue = existing->value;
+                existing->newValue = newValue;
             }
         } else if (!c.isUnset) {
             InternalDataItem i(di);
