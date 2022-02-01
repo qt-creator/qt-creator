@@ -23,12 +23,14 @@
 **
 ****************************************************************************/
 
+#include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 #include "mcusupportversiondetection.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
@@ -881,6 +883,15 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
     std::sort(repo->mcuTargets.begin(), repo->mcuTargets.end(), [] (const McuTarget* lhs, const McuTarget* rhs) {
         return McuSupportOptions::kitName(lhs) < McuSupportOptions::kitName(rhs);
     });
+}
+
+FilePath packagePathFromSettings(const QString &settingsKey, QSettings::Scope scope, const FilePath &defaultPath)
+{
+    QSettings *settings = Core::ICore::settings(scope);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
+            QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
+    const QString path = settings->value(key, defaultPath.toString()).toString();
+    return FilePath::fromUserInput(path);
 }
 
 } // namespace Sdk

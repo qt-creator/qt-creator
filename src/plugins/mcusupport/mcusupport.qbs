@@ -15,6 +15,8 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "mcupackage.cpp",
+        "mcupackage.h",
         "mcusupport.qrc",
         "mcusupport_global.h",
         "mcusupportconstants.h",
