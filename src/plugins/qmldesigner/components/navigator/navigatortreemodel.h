@@ -129,9 +129,11 @@ private:
     ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);
     QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
     void addImport(const QString &importName);
+    QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, bool reverseOrder) const;
 
     QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
+    mutable QHash<ModelNode, QList<ModelNode> > m_rowCache;
     bool m_showOnlyVisibleItems = true;
     bool m_reverseItemOrder = false;
     DesignerActionManager *m_actionManager = nullptr;
