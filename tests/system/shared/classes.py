@@ -52,6 +52,8 @@ class Targets:
             availableTargets.remove(Targets.EMBEDDED_LINUX)
         elif platform.system() == 'Darwin':
             availableTargets.remove(Targets.DESKTOP_5_4_1_GCC)
+        if not qt4Available:
+            availableTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
         return availableTargets
 
     @staticmethod

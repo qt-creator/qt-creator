@@ -339,6 +339,8 @@ elif platform.system() == 'Darwin':
 else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
 
+qt4Available = os.path.exists(qt4Path)
+
 srcPath = os.getenv("SYSTEST_SRCPATH", os.path.expanduser(os.path.join("~", "squish-data")))
 
 # the following only doesn't work if the test ends in an exception
