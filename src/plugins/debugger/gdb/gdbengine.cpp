@@ -3852,12 +3852,9 @@ void GdbEngine::setupEngine()
 
     Environment gdbEnv = rp.debugger.environment;
     gdbEnv.setupEnglishOutput();
-    if (rp.runAsRoot) {
-        CommandLine wrapped("sudo", {"-A"});
-        wrapped.addCommandLineAsArgs(gdbCommand);
-        gdbCommand = wrapped;
+    if (rp.runAsRoot)
         RunControl::provideAskPassEntry(gdbEnv);
-    }
+    m_gdbProc.setRunAsRoot(rp.runAsRoot);
 
     showMessage("STARTING " + gdbCommand.toUserOutput());
 

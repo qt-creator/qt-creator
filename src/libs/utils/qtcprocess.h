@@ -122,6 +122,7 @@ public:
     void setLowPriority();
     void setDisableUnixTerminal();
     void setRunAsRoot(bool on);
+    bool isRunAsRoot() const;
 
     void setAbortOnMetaChars(bool abort);
 
