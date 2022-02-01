@@ -302,7 +302,7 @@ McuToolChainPackage::Type McuToolChainPackage::type() const
 
 bool McuToolChainPackage::isDesktopToolchain() const
 {
-    return m_type == TypeMSVC || m_type == TypeGCC;
+    return m_type == Type::MSVC || m_type == Type::GCC;
 }
 
 } // namespace Internal

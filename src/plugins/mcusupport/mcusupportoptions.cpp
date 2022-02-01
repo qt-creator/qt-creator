@@ -178,35 +178,42 @@ static ToolChain *iarToolChain(const FilePath &path, Id language)
 
 ToolChain *McuToolChainPackage::toolChain(Id language) const
 {
-    ToolChain *tc = nullptr;
-    if (m_type == TypeMSVC)
-        tc = msvcToolChain(language);
-    else if (m_type == TypeGCC)
-        tc = gccToolChain(language);
-    else if (m_type == TypeIAR) {
+    switch (m_type) {
+    case Type::MSVC:
+        return msvcToolChain(language);
+    case Type::GCC:
+        return gccToolChain(language);
+    case Type::IAR: {
         const FilePath compiler = path().pathAppended("/bin/iccarm").withExecutableSuffix();
-        tc = iarToolChain(compiler, language);
+        return iarToolChain(compiler, language);
     }
-    else {
+    case Type::ArmGcc:
+    case Type::KEIL:
+    case Type::GHS:
+    case Type::GHSArm:
+    case Type::Unsupported: {
         const QLatin1String compilerName(
-                    language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
-        const QString comp = QLatin1String(m_type == TypeArmGcc ? "/bin/arm-none-eabi-%1" : "/bar/foo-keil-%1")
-                    .arg(compilerName);
+            language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
+        const QString comp = QLatin1String(m_type == Type::ArmGcc ? "/bin/arm-none-eabi-%1"
+                                                                  : "/bar/foo-keil-%1")
+                                 .arg(compilerName);
         const FilePath compiler = path().pathAppended(comp).withExecutableSuffix();
 
-        tc = armGccToolChain(compiler, language);
+        return armGccToolChain(compiler, language);
     }
-    return tc;
+    default:
+        Q_UNREACHABLE();
+    }
 }
 
 QString McuToolChainPackage::toolChainName() const
 {
     switch (m_type) {
-    case TypeArmGcc: return QLatin1String("armgcc");
-    case TypeIAR: return QLatin1String("iar");
-    case TypeKEIL: return QLatin1String("keil");
-    case TypeGHS: return QLatin1String("ghs");
-    case TypeGHSArm: return QLatin1String("ghs-arm");
+    case Type::ArmGcc: return QLatin1String("armgcc");
+    case Type::IAR: return QLatin1String("iar");
+    case Type::KEIL: return QLatin1String("keil");
+    case Type::GHS: return QLatin1String("ghs");
+    case Type::GHSArm: return QLatin1String("ghs-arm");
     default: return QLatin1String("unsupported");
     }
 }
@@ -224,37 +231,38 @@ QVariant McuToolChainPackage::debuggerId() const
     DebuggerEngineType engineType;
 
     switch (m_type) {
-    case TypeArmGcc: {
+    case Type::ArmGcc: {
         sub = QString::fromLatin1("bin/arm-none-eabi-gdb-py");
         displayName = McuPackage::tr("Arm GDB at %1");
         engineType = Debugger::GdbEngineType;
-        break; }
-    case TypeIAR: {
+        break;
+    }
+    case Type::IAR: {
         sub = QString::fromLatin1("../common/bin/CSpyBat");
         displayName = QLatin1String("CSpy");
         engineType = Debugger::NoEngineType; // support for IAR missing
-        break; }
-    case TypeKEIL: {
+        break;
+    }
+    case Type::KEIL: {
         sub = QString::fromLatin1("UV4/UV4");
         displayName = QLatin1String("KEIL uVision Debugger");
         engineType = Debugger::UvscEngineType;
-        break; }
-    default: return QVariant();
+        break;
+    }
+    default:
+        return QVariant();
     }
 
     const FilePath command = path().pathAppended(sub).withExecutableSuffix();
-    const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command);
-    QVariant debuggerId;
-    if (!debugger) {
-        DebuggerItem newDebugger;
-        newDebugger.setCommand(command);
-        newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
-        newDebugger.setEngineType(engineType);
-        debuggerId = DebuggerItemManager::registerDebugger(newDebugger);
-    } else {
-        debuggerId = debugger->id();
+    if (const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command)) {
+        return debugger->id();
     }
-    return debuggerId;
+
+    DebuggerItem newDebugger;
+    newDebugger.setCommand(command);
+    newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
+    newDebugger.setEngineType(engineType);
+    return DebuggerItemManager::registerDebugger(newDebugger);
 }
 
 McuTarget::McuTarget(const QVersionNumber &qulVersion,
@@ -458,33 +466,60 @@ static void setKitProperties(const QString &kitName, Kit *k, const McuTarget *mc
 
 static void setKitToolchains(Kit *k, const McuToolChainPackage *tcPackage)
 {
-    // No Green Hills toolchain, because support for it is missing.
-    if (tcPackage->type() == McuToolChainPackage::TypeUnsupported
-        || tcPackage->type() == McuToolChainPackage::TypeGHS
-        || tcPackage->type() == McuToolChainPackage::TypeGHSArm)
+    switch (tcPackage->type()) {
+    case McuToolChainPackage::Type::Unsupported:
         return;
 
-    ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
-                                     ProjectExplorer::Constants::C_LANGUAGE_ID));
-    ToolChainKitAspect::setToolChain(k, tcPackage->toolChain(
-                                     ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    case McuToolChainPackage::Type::GHS:
+    case McuToolChainPackage::Type::GHSArm:
+        return; // No Green Hills toolchain, because support for it is missing.
+
+    case McuToolChainPackage::Type::IAR:
+    case McuToolChainPackage::Type::KEIL:
+    case McuToolChainPackage::Type::MSVC:
+    case McuToolChainPackage::Type::GCC:
+    case McuToolChainPackage::Type::ArmGcc:
+        ToolChainKitAspect::setToolChain(k,
+                                         tcPackage->toolChain(
+                                             ProjectExplorer::Constants::C_LANGUAGE_ID));
+        ToolChainKitAspect::setToolChain(k,
+                                         tcPackage->toolChain(
+                                             ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+        return;
+
+    default:
+        Q_UNREACHABLE();
+    }
 }
 
 static void setKitDebugger(Kit *k, const McuToolChainPackage *tcPackage)
 {
-    // Qt Creator seems to be smart enough to deduce the right Kit debugger from the ToolChain
-    // We rely on that at least in the Desktop case.
-    if (tcPackage->isDesktopToolchain()
-            // No Green Hills and IAR debugger, because support for it is missing.
-            || tcPackage->type() == McuToolChainPackage::TypeUnsupported
-            || tcPackage->type() == McuToolChainPackage::TypeGHS
-            || tcPackage->type() == McuToolChainPackage::TypeGHSArm
-            || tcPackage->type() == McuToolChainPackage::TypeIAR)
+    if (tcPackage->isDesktopToolchain()) {
+        // Qt Creator seems to be smart enough to deduce the right Kit debugger from the ToolChain
         return;
+    }
 
-    const QVariant debuggerId = tcPackage->debuggerId();
-    if (debuggerId.isValid())
-        Debugger::DebuggerKitAspect::setDebugger(k, debuggerId);
+    switch (tcPackage->type()) {
+    case McuToolChainPackage::Type::Unsupported:
+    case McuToolChainPackage::Type::GHS:
+    case McuToolChainPackage::Type::GHSArm:
+    case McuToolChainPackage::Type::IAR:
+        return; // No Green Hills and IAR debugger, because support for it is missing.
+
+    case McuToolChainPackage::Type::KEIL:
+    case McuToolChainPackage::Type::MSVC:
+    case McuToolChainPackage::Type::GCC:
+    case McuToolChainPackage::Type::ArmGcc: {
+        const QVariant debuggerId = tcPackage->debuggerId();
+        if (debuggerId.isValid()) {
+            Debugger::DebuggerKitAspect::setDebugger(k, debuggerId);
+        }
+        return;
+    }
+
+    default:
+        Q_UNREACHABLE();
+    }
 }
 
 static void setKitDevice(Kit *k, const McuTarget* mcuTarget)
@@ -596,8 +631,8 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const FilePat
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
     // CMake ToolChain file for ghs handles CMAKE_*_COMPILER autonomously
-    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeGHS &&
-            mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeGHSArm) {
+    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::Type::GHS &&
+            mcuTarget->toolChainPackage()->type() != McuToolChainPackage::Type::GHSArm) {
         config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
         config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
     }
@@ -638,7 +673,7 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const FilePat
 
     if (HostOsInfo::isWindowsHost()) {
         auto type = mcuTarget->toolChainPackage()->type();
-        if (type == McuToolChainPackage::TypeGHS || type == McuToolChainPackage::TypeGHSArm) {
+        if (type == McuToolChainPackage::Type::GHS || type == McuToolChainPackage::Type::GHSArm) {
             // See https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565802&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565802
             // and https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565803&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565803
             CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");

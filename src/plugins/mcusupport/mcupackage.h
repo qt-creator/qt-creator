@@ -122,15 +122,15 @@ private:
 class McuToolChainPackage : public McuPackage
 {
 public:
-    enum Type {
-        TypeArmGcc,
-        TypeIAR,
-        TypeKEIL,
-        TypeGHS,
-        TypeMSVC,
-        TypeGCC,
-        TypeGHSArm,
-        TypeUnsupported
+    enum class Type {
+        IAR,
+        KEIL,
+        MSVC,
+        GCC,
+        ArmGcc,
+        GHS,
+        GHSArm,
+        Unsupported
     };
 
     McuToolChainPackage(const QString &label,

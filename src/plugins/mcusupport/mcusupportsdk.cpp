@@ -74,17 +74,17 @@ McuPackage *createQtForMCUsPackage()
 
 static McuToolChainPackage *createMsvcToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeMSVC);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::MSVC);
 }
 
 static McuToolChainPackage *createGccToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeGCC);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::GCC);
 }
 
 static McuToolChainPackage *createUnsupportedToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeUnsupported);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::Unsupported);
 }
 
 static McuToolChainPackage *createArmGccPackage()
@@ -116,7 +116,7 @@ static McuToolChainPackage *createArmGccPackage()
                                    defaultPath,
                                    detectionPath,
                                    "GNUArmEmbeddedToolchain", // settingsKey
-                                   McuToolChainPackage::TypeArmGcc,
+                                   McuToolChainPackage::Type::ArmGcc,
                                    envVar,
                                    versionDetector);
 }
@@ -138,7 +138,7 @@ static McuToolChainPackage *createGhsToolchainPackage()
                                    Utils::HostOsInfo::withExecutableSuffix(
                                        "ccv850"),  // detectionPath
                                    "GHSToolchain", // settingsKey
-                                   McuToolChainPackage::TypeGHS,
+                                   McuToolChainPackage::Type::GHS,
                                    envVar,
                                    versionDetector);
 }
@@ -159,7 +159,7 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
                                    defaultPath,
                                    Utils::HostOsInfo::withExecutableSuffix("cxarm"), // detectionPath
                                    "GHSArmToolchain",                                // settingsKey
-                                   McuToolChainPackage::TypeGHSArm,
+                                   McuToolChainPackage::Type::GHSArm,
                                    envVar,
                                    versionDetector);
 }
@@ -193,7 +193,7 @@ static McuToolChainPackage *createIarToolChainPackage()
                                    defaultPath,
                                    detectionPath,
                                    "IARToolchain", // settings key
-                                   McuToolChainPackage::TypeIAR,
+                                   McuToolChainPackage::Type::IAR,
                                    envVar,
                                    versionDetector);
 }
@@ -555,7 +555,7 @@ protected:
             // Desktop toolchains don't need any additional settings
             if (tcPkg
                 && !tcPkg->isDesktopToolchain()
-                && tcPkg->type() != McuToolChainPackage::TypeUnsupported)
+                && tcPkg->type() != McuToolChainPackage::Type::Unsupported)
                 required3rdPartyPkgs.append(tcPkg);
 
             // Add setting specific to platform IDE
