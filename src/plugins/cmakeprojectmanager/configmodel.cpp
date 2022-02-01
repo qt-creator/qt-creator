@@ -298,6 +298,13 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &c
                 // merge old/new entry:
                 InternalDataItem item(*newIt);
                 item.newValue = (newIt->value != oldIt->newValue) ? oldIt->newValue : QString();
+
+                // Do not mark as user changed when we have a reset
+                if (oldIt->isUserChanged && !oldIt->newValue.isEmpty() &&
+                    !newIt->isUserChanged && newIt->newValue.isEmpty() &&
+                    oldIt->value == newIt->value)
+                    item.newValue.clear();
+
                 item.isUserChanged = !item.newValue.isEmpty() && (item.newValue != item.value);
                 result << item;
                 ++newIt;
