@@ -2,6 +2,7 @@ add_qtc_plugin(McuSupport
   DEPENDS Qt5::Core
   PLUGIN_DEPENDS Core BareMetal ProjectExplorer Debugger CMakeProjectManager QtSupport
   SOURCES
+    mcukitinformation.cpp mcukitinformation.h
     mcusupport.qrc
     mcusupport_global.h
     mcusupportconstants.h

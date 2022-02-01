@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "mcukitinformation.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
@@ -1065,100 +1066,5 @@ void McuSupportOptions::fixExistingKits()
     delete qtForMCUsPackage;
 }
 
-class McuDependenciesKitAspectWidget final : public KitAspectWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(McuSupport::McuDependenciesKitAspect)
-
-public:
-    McuDependenciesKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki)
-    {}
-
-    void makeReadOnly() override {}
-    void refresh() override {}
-    void addToLayout(Utils::LayoutBuilder &) override {}
-};
-
 } // Internal
-
-McuDependenciesKitAspect::McuDependenciesKitAspect()
-{
-    setObjectName(QLatin1String("McuDependenciesKitAspect"));
-    setId(McuDependenciesKitAspect::id());
-    setDisplayName(tr("MCU Dependencies"));
-    setDescription(tr("Paths to 3rd party dependencies"));
-    setPriority(28500);
-}
-
-Tasks McuDependenciesKitAspect::validate(const Kit *k) const
-{
-    Tasks result;
-    QTC_ASSERT(k, return result);
-
-    const QVariant checkFormat = k->value(McuDependenciesKitAspect::id());
-    if (!checkFormat.isNull() && !checkFormat.canConvert(QVariant::List))
-        return { BuildSystemTask(Task::Error, tr("The MCU dependencies setting value is invalid.")) };
-
-    const QVariant envStringList = k->value(EnvironmentKitAspect::id());
-    if (!envStringList.isNull() && !envStringList.canConvert(QVariant::List))
-         return { BuildSystemTask(Task::Error, tr("The environment setting value is invalid.")) };
-
-    const auto environment = Utils::NameValueDictionary(envStringList.toStringList());
-    for (const auto &dependency: dependencies(k)) {
-        if (!environment.hasKey(dependency.name)) {
-            result << BuildSystemTask(Task::Warning, tr("Environment variable %1 not defined.").arg(dependency.name));
-        } else {
-            const auto path = Utils::FilePath::fromUserInput(
-                        environment.value(dependency.name) + "/" + dependency.value);
-            if (!path.exists()) {
-                result << BuildSystemTask(Task::Warning, tr("%1 not found.").arg(path.toUserOutput()));
-            }
-        }
-    }
-
-    return result;
-}
-
-void McuDependenciesKitAspect::fix(Kit *k)
-{
-    QTC_ASSERT(k, return);
-
-    const QVariant variant = k->value(McuDependenciesKitAspect::id());
-    if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
-        qWarning("Kit \"%s\" has a wrong mcu dependencies value set.", qPrintable(k->displayName()));
-        setDependencies(k, Utils::NameValueItems());
-    }
-}
-
-KitAspectWidget *McuDependenciesKitAspect::createConfigWidget(Kit *k) const
-{
-    QTC_ASSERT(k, return nullptr);
-    return new Internal::McuDependenciesKitAspectWidget(k, this);
-}
-
-KitAspect::ItemList McuDependenciesKitAspect::toUserOutput(const Kit *k) const
-{
-    Q_UNUSED(k);
-    return {};
-}
-
-Utils::Id McuDependenciesKitAspect::id()
-{
-    return "PE.Profile.McuDependencies";
-}
-
-
-Utils::NameValueItems McuDependenciesKitAspect::dependencies(const Kit *k)
-{
-     if (k)
-         return Utils::NameValueItem::fromStringList(k->value(McuDependenciesKitAspect::id()).toStringList());
-     return Utils::NameValueItems();
-}
-
-void McuDependenciesKitAspect::setDependencies(Kit *k, const Utils::NameValueItems &dependencies)
-{
-    if (k)
-        k->setValue(McuDependenciesKitAspect::id(), Utils::NameValueItem::toStringList(dependencies));
-}
-
 } // McuSupport
