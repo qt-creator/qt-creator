@@ -113,6 +113,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
 
     watchForExternalChanges();
     watchForInternalChanges();
+    setupClangdConfigFile();
     cppModelManager()->setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
     cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
     cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());

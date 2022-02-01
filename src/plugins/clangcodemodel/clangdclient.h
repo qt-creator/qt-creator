@@ -42,6 +42,8 @@ namespace TextEditor { class BaseTextEditor; }
 namespace ClangCodeModel {
 namespace Internal {
 
+void setupClangdConfigFile();
+
 class ClangdClient : public LanguageClient::Client
 {
     Q_OBJECT
