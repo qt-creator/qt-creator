@@ -42,6 +42,7 @@
 #include <QMetaProperty>
 #include <QPainter>
 #include <QRawFont>
+#include <QRegularExpression>
 #include <QMessageBox>
 #include <QCheckBox>
 #include <utils/stylehelper.h>
