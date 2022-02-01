@@ -268,7 +268,6 @@ ProgressBarBackgroundColor=28000000
 SplitterColor=splitter
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
-TextColorHighlight=ffff0000
 TextColorHighlightBackground=ffef0b
 TextColorLink=ff007af4
 TextColorLinkVisited=ffa57aff

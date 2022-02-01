@@ -466,7 +466,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
             mismatch = !dataItem->kitValue.isEmpty() && dataItem->kitValue != value;
         else
             mismatch = !dataItem->initialValue.isEmpty() && dataItem->initialValue != value;
-        return Utils::creatorTheme()->color(mismatch ? Utils::Theme::TextColorHighlight
+        return Utils::creatorTheme()->color(mismatch ? Utils::Theme::TextColorError
                                                      : Utils::Theme::TextColorNormal);
     };
 

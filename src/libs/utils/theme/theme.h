@@ -109,7 +109,6 @@ public:
         SplitterColor,
         TextColorDisabled,
         TextColorError,
-        TextColorHighlight,
         TextColorHighlightBackground,
         TextColorLink,
         TextColorLinkVisited,
