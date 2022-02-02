@@ -729,7 +729,8 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
     if (dragVector.length() < 0.001f)
         return;
 
-    const float *dataPtr(sceneTransform().data());
+    const auto &transform = sceneTransform();
+    const float *dataPtr(transform.data());
     QVector3D xAxis = QVector3D(dataPtr[0], dataPtr[1], dataPtr[2]).normalized();
     QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
     QVector3D finalAxis = (dragVector.x() * yAxis + dragVector.y() * xAxis);
@@ -1029,7 +1030,8 @@ void MouseArea3D::setHovering(bool enable)
 
 QVector3D MouseArea3D::getNormal() const
 {
-    const float *dataPtr(sceneTransform().data());
+    const auto &transform = sceneTransform();
+    const float *dataPtr(transform.data());
     return QVector3D(dataPtr[8], dataPtr[9], dataPtr[10]).normalized();
 }
 

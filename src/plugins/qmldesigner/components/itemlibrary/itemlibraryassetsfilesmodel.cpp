@@ -34,6 +34,7 @@ ItemLibraryAssetsFilesModel::ItemLibraryAssetsFilesModel(QObject *parent)
     // add roles
     m_roleNames.insert(FileNameRole, "fileName");
     m_roleNames.insert(FilePathRole, "filePath");
+    m_roleNames.insert(FileDirRole, "fileDir");
 }
 
 QVariant ItemLibraryAssetsFilesModel::data(const QModelIndex &index, int role) const
@@ -48,6 +49,9 @@ QVariant ItemLibraryAssetsFilesModel::data(const QModelIndex &index, int role) c
 
     if (role == FilePathRole)
         return m_files[index.row()];
+
+    if (role == FileDirRole)
+        return QVariant::fromValue(parent());
 
     qWarning() << Q_FUNC_INFO << "Invalid role requested: " << QString::number(role);
     return {};

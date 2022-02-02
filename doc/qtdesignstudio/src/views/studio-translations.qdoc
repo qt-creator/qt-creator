@@ -63,12 +63,14 @@
         \li \l{Generating Qt Translation Source Files}
     \row
         \li \inlineimage icons/project-translation-test.png
-        \li Run project translation test.
-        \li \l{Running the Project Translation Test}
+        \li Run translation test for several documents and create a test report.
+        \li \l{Running Translation Test for Several Documents}
     \row
         \li \inlineimage icons/qml-translation-test.png
-        \li Run QML translation test to find missing and elided translations.
-        \li \l{Running the QML Translation Test}
+        \li Run translation test for the currently open document. This test
+        shows translation warnings in \uicontrol{From Editor} and creates a
+        test report.
+        \li \l{Running Translation Test for a Single Document}
     \row
         \li \inlineimage icons/export-translations.png
         \li Export all translations used in your project or all translations
@@ -93,8 +95,8 @@
                         "translation": "Password"
                     },
                     {
-                        "language": "sv",
-                        "translation": "Lösenord"
+                        "language": "fi",
+                        "translation": "Salasana"
                     }
                 ]
             }
@@ -120,8 +122,8 @@
               "translation": "Password"
           },
           {
-              "language": "sv",
-              "translation": "Lösenord"
+              "language": "fi",
+              "translation": "Salasana"
           }
       ]
       \endcode
@@ -139,14 +141,14 @@
     in the \uicontrol Translations view. The files are generated
     in \e{<project-folder>/i18n}.
 
-    \section1 Running the QML Translation Test
+    \section1 Running Translation Test for a Single Document
 
-    You can run the QML language test to find missing
-    and elided translations. Running the QML language test
-    is a quick way to check the translations in the application you have open in
-    \uicontrol{Form Editor} as it highlights errors in the UI.
+    You can run the translation test to find missing translations
+    and translations where the text exceeds the text element boundaries. Running
+    the test is a quick way to check the translations in the document you have
+    open in \uicontrol{Form Editor} as it highlights errors in the UI.
 
-    To run the QML translation test:
+    To run the test for the currently open document:
 
     \list 1
       \li In the \uicontrol Translations view, select
@@ -155,12 +157,11 @@
       \li Select the tests to run and the highlight color
       for each test:
         \list
-          \li \uicontrol{Show Translation Warnings} highlights missing
-          translations.
-          \li \uicontrol{Show Found Translations} highlights all translations
-          that are correct.
-          \li \uicontrol{Show Elide Warnings} highlights all translations where
-          the text is too long to fit in the text object and therefore is elided.
+          \li \uicontrol{Success} highlights translations without any warnings.
+          \li \uicontrol{Missing translation} highlights translations that are
+          missing for one or more languages.
+          \li \uicontrol{Exceeds boundaries} highlights translations where
+          the text is too long to fit in the text object.
         \endlist
         \image translation-tester.png
       \li Select \uicontrol{Run Tests}.
@@ -205,16 +206,21 @@
     The report shows the type of error as well as line and column of the
     affected text element in the \e{ui.qml} file.
 
-    \section1 Running the Project Translation Test
+    \section1 Running Translation Test for Several Documents
 
     You can run the project translation test on several \e{.ui.qml} files
     at the same time. \QDS runs the same tests as during the
-    \l{Running the QML Translation Test}{QML Translation Test} and generates the
-    same test reports but does not highlight errors in the UI.
+    \l{Running Translation Test for a Single Document}{Translation Test} and
+    generates the same test reports but does not highlight errors in the UI.
 
-    To run the project translation test, select
-    \inlineimage icons/project-translation-test.png
-    in the \uicontrol Translations view.
+    To run the translation test for several documents:
+    \list 1
+      \li Select
+      \inlineimage icons/project-translation-test.png
+      in the \uicontrol Translations view.
+      \li Select the files that you want to include in the test.
+      \li Select \uicontrol{Run Tests}.
+    \endlist
 
     \section1 Exporting Translations in Other Ways
 

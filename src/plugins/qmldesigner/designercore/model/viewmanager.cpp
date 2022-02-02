@@ -394,11 +394,6 @@ const DesignerActionManager &ViewManager::designerActionManager() const
     return d->designerActionManagerView.designerActionManager();
 }
 
-void ViewManager::toggleStatesViewExpanded()
-{
-    d->statesEditorView.toggleStatesViewExpanded();
-}
-
 void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const
 {
     d->textEditorView.qmlJSEditorContextHelp(callback);

@@ -1,8 +1,6 @@
-
-
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Design Studio.
@@ -49,79 +47,86 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-import QtQuick 2.15
-import QtQuick.Controls 2.12
 
-Button {
-    id: control
-    width: 500
-    height: 100
+import QtQuick
+import QtQuick.Controls
+import Loginui1
 
-    implicitWidth: Math.max(
-                       buttonBackground ? buttonBackground.implicitWidth : 0,
-                       textItem.implicitWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(
-                        buttonBackground ? buttonBackground.implicitHeight : 0,
-                        textItem.implicitHeight + topPadding + bottomPadding)
-    leftPadding: 4
-    rightPadding: 4
+Rectangle {
+    id: rectangle
+    width: Constants.width
+    height: Constants.height
 
-    text: "My Button"
-    hoverEnabled: false
+    color: Constants.backgroundColor
 
-    background: buttonBackground
-    Rectangle {
-        id: buttonBackground
-        color: "#00000000"
-        implicitWidth: 100
-        implicitHeight: 40
-        opacity: enabled ? 1 : 0.3
-        radius: 50
-        border.color: "#ffffff"
+    Image {
+        id: adventurePage
+        anchors.fill: parent
+        source: "images/adventurePage.jpg"
+        fillMode: Image.PreserveAspectFit
     }
 
-    contentItem: textItem
+    Image {
+        id: qt_logo_green_128x128px
+        anchors.top: parent.top
+        source: "images/qt_logo_green_128x128px.png"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 40
+        fillMode: Image.PreserveAspectFit
+    }
     Text {
-        id: textItem
-        text: control.text
-        font.pixelSize: 34
-
-        opacity: enabled ? 1.0 : 0.3
+        id: tagLine
         color: "#ffffff"
-        horizontalAlignment: Text.AlignLeft
-        verticalAlignment: Text.AlignVCenter
-        leftPadding: 50
+        text: qsTr("Are you ready to explore?")
+        anchors.top: qt_logo_green_128x128px.bottom
+        font.pixelSize: 50
+        anchors.topMargin: 40
+        anchors.horizontalCenter: parent.horizontalCenter
         font.family: "Titillium Web ExtraLight"
+        anchors.horizontalCenterOffset: 0
     }
 
-    states: [
-        State {
-            name: "normal"
-            when: !control.down
+    Column {
+        id: fields
+        anchors.top: tagLine.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 170
+        spacing: 20
 
-            PropertyChanges {
-                target: textItem
-                font.family: "Titillium Web ExtraLight"
-            }
-
-            PropertyChanges {
-                target: buttonBackground
-                color: "#28e7e7e7"
-            }
-        },
-        State {
-            name: "down"
-            when: control.down
-            PropertyChanges {
-                target: textItem
-                color: "#ffffff"
-            }
-
-            PropertyChanges {
-                target: buttonBackground
-                color: "#e7e7e7"
-                border.color: "#ffffff"
-            }
+        EntryField {
+            id: username
+            text: qsTr("Username or Email")
         }
-    ]
+
+        EntryField {
+            id: password
+            text: qsTr("Password")
+        }
+    }
+
+    Column {
+        id: buttons
+        y: 944
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottomMargin: 50
+        spacing: 20
+
+        PushButton {
+            id: login
+            text: qsTr("Continue")
+        }
+
+        PushButton {
+            id: creteAccount
+            text: qsTr("Create Account")
+        }
+    }
 }
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.66}D{i:1}D{i:2}D{i:3}D{i:5}D{i:6}D{i:4}D{i:8}D{i:9}D{i:7}
+}
+##^##*/
+

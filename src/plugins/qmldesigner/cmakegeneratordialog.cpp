@@ -28,6 +28,7 @@
 #include "generatecmakelistsconstants.h"
 
 #include <utils/utilsicons.h>
+#include <utils/detailswidget.h>
 
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -50,17 +51,14 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
 
     m_model = new CMakeGeneratorDialogTreeModel(rootDir, files, this);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    setLayout(layout);
+    QVBoxLayout *dialogLayout = new QVBoxLayout(this);
+    dialogLayout->setSizeConstraint(QLayout::SetFixedSize);
+    setLayout(dialogLayout);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
-
-    auto *okButton = buttons->button(QDialogButtonBox::Ok);
-    okButton->setDefault(true);
-
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(m_model, &CMakeGeneratorDialogTreeModel::checkedStateChanged, this, &CmakeGeneratorDialog::refreshNotificationText);
+    QWidget *advancedInnerWidget = new QWidget(this);
+    QVBoxLayout *advancedInnerLayout = new QVBoxLayout(advancedInnerWidget);
+    advancedInnerWidget->setLayout(advancedInnerLayout);
+    advancedInnerWidget->setMinimumHeight(640);
 
     QTreeView *tree = new QTreeView(this);
     tree->setModel(m_model);
@@ -72,9 +70,31 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
 
     refreshNotificationText();
 
-    layout->addWidget(tree, 2);
-    layout->addWidget(m_notifications, 1);
-    layout->addWidget(buttons);
+    advancedInnerLayout->addWidget(tree, 2);
+    advancedInnerLayout->addWidget(m_notifications, 1);
+
+    DetailsWidget *advancedWidget = new DetailsWidget(this);
+    advancedWidget->setMinimumWidth(600);
+    advancedWidget->setWidget(advancedInnerWidget);
+    advancedWidget->setSummaryText(QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                                               "Advanced Options"));
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+    auto *okButton = buttons->button(QDialogButtonBox::Ok);
+    okButton->setDefault(true);
+
+    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_model, &CMakeGeneratorDialogTreeModel::checkedStateChanged, this, &CmakeGeneratorDialog::refreshNotificationText);
+
+    QLabel *mainLabel = new QLabel(QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                                               "Start CMakeFiles.txt generation"),
+                                   this);
+    mainLabel->setMargin(50);
+
+    dialogLayout->addWidget(mainLabel);
+    dialogLayout->addWidget(advancedWidget);
+    dialogLayout->addWidget(buttons);
 }
 
 FilePaths CmakeGeneratorDialog::getFilePaths()

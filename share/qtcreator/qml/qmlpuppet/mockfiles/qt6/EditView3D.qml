@@ -872,6 +872,13 @@ Item {
                 camera: viewRoot.usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
                 importScene: overlayScene
                 z: 2
+
+                environment: sceneEnv
+                SceneEnvironment {
+                    id: sceneEnv
+                    antialiasingMode: SceneEnvironment.MSAA
+                    antialiasingQuality: SceneEnvironment.High
+                }
             }
 
             Overlay2D {

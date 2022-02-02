@@ -83,7 +83,6 @@ private:
     QAction m_copyAction;
     QAction m_pasteAction;
     QAction m_selectAllAction;
-    QAction m_collapseExpandStatesAction;
     QAction m_escapeAction;
 };
 

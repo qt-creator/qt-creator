@@ -1,8 +1,6 @@
-
-
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Design Studio.
@@ -49,9 +47,10 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
 import QtQuick
 import QtQuick.Controls
-import loginui3 1.0
+import Loginui1
 
 Rectangle {
     id: rectangle
@@ -70,7 +69,6 @@ Rectangle {
 
     Image {
         id: qt_logo_green_128x128px
-        x: 296
         anchors.top: parent.top
         source: "images/qt_logo_green_128x128px.png"
         anchors.horizontalCenter: parent.horizontalCenter
@@ -79,8 +77,6 @@ Rectangle {
     }
     Text {
         id: tagLine
-        width: 541
-        height: 78
         color: "#ffffff"
         text: qsTr("Are you ready to explore?")
         anchors.top: qt_logo_green_128x128px.bottom
@@ -88,11 +84,11 @@ Rectangle {
         anchors.topMargin: 40
         anchors.horizontalCenter: parent.horizontalCenter
         font.family: "Titillium Web ExtraLight"
+        anchors.horizontalCenterOffset: 0
     }
 
     Column {
         id: fields
-        x: 128
         anchors.top: tagLine.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 170
@@ -100,7 +96,7 @@ Rectangle {
 
         EntryField {
             id: username
-            text: "Username or Email"
+            text: qsTr("Username or Email")
         }
 
         EntryField {
@@ -110,17 +106,16 @@ Rectangle {
 
         EntryField {
             id: repeatPassword
-            text: "Repeat Password"
+            text: qsTr("Repeat Password")
         }
     }
 
     Column {
         id: buttons
-        x: 102
-        y: 966
+        y: 944
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 100
+        anchors.bottomMargin: 50
         spacing: 20
 
         PushButton {
@@ -160,7 +155,8 @@ Rectangle {
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:0.5}
+    D{i:0;formeditorZoom:0.5}D{i:1}D{i:2}D{i:3}D{i:5}D{i:6}D{i:7}D{i:4}D{i:9}D{i:11}D{i:10}
+D{i:8}
 }
 ##^##*/
 

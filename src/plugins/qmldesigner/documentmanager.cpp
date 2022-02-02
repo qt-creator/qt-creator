@@ -511,8 +511,14 @@ bool DocumentManager::belongsToQmakeProject()
 Utils::FilePath DocumentManager::currentResourcePath()
 {
     Utils::FilePath resourcePath = currentProjectDirPath();
+
     if (resourcePath.isEmpty())
         return currentFilePath().absolutePath();
+
+    FilePath contentFilePath = resourcePath.pathAppended("content");
+    if (contentFilePath.exists())
+        return contentFilePath;
+
     return resourcePath;
 }
 

@@ -142,6 +142,16 @@ void CameraGeometry::doUpdateGeometry()
     if (!QQuick3DObjectPrivate::get(m_camera)->spatialNode) {
         // Doing explicit viewport mapping forces cameraNode creation
         m_camera->mapToViewport({}, m_viewPortRect.width(), m_viewPortRect.height());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        if (!m_nodeCreationUpdateDone) {
+            // Post-node creation update is done only once to avoid infinite loop in case the node
+            // creation fails.
+            m_nodeCreationUpdateDone = true;
+            m_cameraUpdatePending = true;
+            update();
+            return;
+        }
+#endif
     }
 
     GeometryBase::doUpdateGeometry();

@@ -1,10 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of Qt Quick Designer Components.
 **
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -15,40 +16,36 @@
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
+** $QT_END_LICENSE$
+**
 ****************************************************************************/
 
-#pragma once
+import QtQuick
+import QtQuick.Studio.EventSimulator 1.0
+import QtQuick.Studio.EventSystem 1.0
 
-#include <QAbstractListModel>
+QtObject {
+    id: simulator
+    property bool active: true
 
-namespace QmlDesigner {
+    property Timer __timer: Timer {
+        id: timer
+        interval: 100
+        onTriggered: {
+            EventSimulator.show()
+        }
+    }
 
-class ItemLibraryAssetsFilesModel : public QAbstractListModel
-{
-    Q_OBJECT
-
-public:
-    ItemLibraryAssetsFilesModel(QObject *parent = nullptr);
-
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
-    void addFile(const QString &filePath);
-
-private:
-    enum Roles {FileNameRole = Qt::UserRole + 1,
-                FilePathRole,
-                FileDirRole};
-
-    QStringList m_files;
-    QHash<int, QByteArray> m_roleNames;
-};
-
-} // QmlDesigner
+    Component.onCompleted: {
+        EventSystem.init(Qt.resolvedUrl("EventListModel.qml"))
+        if (simulator.active)
+            timer.start()
+    }
+}

@@ -306,7 +306,7 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
         if isinstance(currentFound, dict):
             foundExp = False
             for currentExp in expectedCompilers:
-                if isinstance(currentExp, (str, unicode)):
+                if isString(currentExp):
                     continue
                 key = currentExp.keys()[0]
                 # special case for (fuzzy) regex comparison on Windows (internal LLVM)
@@ -353,7 +353,7 @@ def __compareDebuggers__(foundDebuggers, expectedDebuggers):
 
 def __lowerStrs__(iterable):
     for it in iterable:
-        if isinstance(it, (str, unicode)):
+        if isString(it):
             yield it.lower()
         else:
             yield it

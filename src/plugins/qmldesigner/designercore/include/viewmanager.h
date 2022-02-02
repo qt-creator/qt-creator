@@ -100,8 +100,6 @@ public:
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
 
-    void toggleStatesViewExpanded();
-
     void qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const;
     DesignDocument *currentDesignDocument() const;
 

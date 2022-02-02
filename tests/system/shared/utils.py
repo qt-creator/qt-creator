@@ -76,7 +76,7 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
 #                   or the object itself. If it is an object, it must exist already.
 # param expectedState is the expected enable state of the object
 def verifyEnabled(objectSpec, expectedState = True):
-    if isinstance(objectSpec, (str, unicode)):
+    if isString(objectSpec):
         waitFor("object.exists('" + str(objectSpec).replace("'", "\\'") + "')", 20000)
         foundObject = findObject(objectSpec)
     else:
@@ -154,7 +154,7 @@ def which(program):
 def cleanUpUserFiles(pathsToProFiles=None):
     if pathsToProFiles==None:
         return False
-    if isinstance(pathsToProFiles, (str, unicode)):
+    if isString(pathsToProFiles):
         filelist = glob.glob(pathsToProFiles+".user*")
     elif isinstance(pathsToProFiles, (list, tuple)):
         filelist = []
@@ -398,10 +398,10 @@ def enabledCheckBoxExists(text):
 
 # this function verifies if the text matches the given
 # regex inside expectedTexts
-# param text must be a single str/unicode
-# param expectedTexts can be str/unicode/list/tuple
+# param text must be a single str
+# param expectedTexts can be str/list/tuple
 def regexVerify(text, expectedTexts):
-    if isinstance(expectedTexts, (str,unicode)):
+    if isString(expectedTexts):
         expectedTexts = [expectedTexts]
     for curr in expectedTexts:
         pattern = re.compile(curr)
@@ -453,7 +453,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                 result.append({target:version})
                 if additionalFunction:
                     try:
-                        if isinstance(additionalFunction, (str, unicode)):
+                        if isString(additionalFunction):
                             currResult = globals()[additionalFunction](target, version, *argsForAdditionalFunc)
                         else:
                             currResult = additionalFunction(target, version, *argsForAdditionalFunc)
@@ -514,7 +514,7 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                              currentItem.replace(".", "\\.")])
             if additionalFunction:
                 try:
-                    if isinstance(additionalFunction, (str, unicode)):
+                    if isString(additionalFunction):
                         currResult = globals()[additionalFunction](item, kitName, *argsForAdditionalFunc)
                     else:
                         currResult = additionalFunction(item, kitName, *argsForAdditionalFunc)
@@ -674,3 +674,10 @@ def getHelpViewer():
 
 def getHelpTitle():
     return str(getHelpViewer().title())
+
+
+def isString(sth):
+    if sys.version_info.major > 2:
+        return isinstance(sth, str)
+    else:
+        return isinstance(sth, (str, unicode))

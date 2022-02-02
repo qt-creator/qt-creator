@@ -1,8 +1,6 @@
-
-
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Design Studio.
@@ -49,89 +47,88 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-import QtQuick
-import QtQuick.Controls
-import loginui2 1.0
 
-Rectangle {
-    id: rectangle
-    width: Constants.width
-    height: Constants.height
+import QtQuick 2.15
+import QtQuick.Controls 2.12
 
-    color: Constants.backgroundColor
+Button {
+    id: control
+    width: 500
+    height: 100
 
-    Image {
-        id: adventurePage
-        anchors.fill: parent
-        source: "images/adventurePage.jpg"
-        fillMode: Image.PreserveAspectFit
+    implicitWidth: Math.max(
+                       buttonBackground ? buttonBackground.implicitWidth : 0,
+                       textItem.implicitWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(
+                        buttonBackground ? buttonBackground.implicitHeight : 0,
+                        textItem.implicitHeight + topPadding + bottomPadding)
+    leftPadding: 4
+    rightPadding: 4
+
+    text: "My Button"
+    hoverEnabled: false
+    enabled: true
+
+    background: buttonBackground
+    Rectangle {
+        id: buttonBackground
+        color: "#00000000"
+        implicitWidth: 100
+        implicitHeight: 40
+        opacity: enabled ? 1 : 0.3
+        radius: 50
+        border.color: "#41cd52"
     }
 
-    Image {
-        id: qt_logo_green_128x128px
-        x: 296
-        anchors.top: parent.top
-        source: "images/qt_logo_green_128x128px.png"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 40
-        fillMode: Image.PreserveAspectFit
-    }
+    contentItem: textItem
     Text {
-        id: tagLine
-        width: 541
-        height: 78
-        color: "#ffffff"
-        text: qsTr("Are you ready to explore?")
-        anchors.top: qt_logo_green_128x128px.bottom
-        font.pixelSize: 50
-        anchors.topMargin: 40
-        anchors.horizontalCenter: parent.horizontalCenter
+        id: textItem
+        width: 500
+        height: 100
+        text: control.text
+        font.pixelSize: 34
+
+        opacity: enabled ? 1.0 : 0.3
+        color: "#41cd52"
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
         font.family: "Titillium Web ExtraLight"
     }
 
-    Column {
-        id: fields
-        x: 128
-        anchors.top: tagLine.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 170
-        spacing: 20
+    states: [
+        State {
+            name: "normal"
+            when: !control.down
 
-        EntryField {
-            id: username
-            text: "Username or Email"
+            PropertyChanges {
+                target: buttonBackground
+                color: "#00000000"
+                border.color: "#41cd52"
+            }
+
+            PropertyChanges {
+                target: textItem
+                color: "#41cd52"
+                font.pixelSize: 34
+                font.family: "Titillium Web ExtraLight"
+            }
+        },
+        State {
+            name: "down"
+            when: control.down
+            PropertyChanges {
+                target: textItem
+                color: "#41cd52"
+                border.color: "#41cd52"
+                font.pixelSize: 34
+                font.family: "Titillium Web ExtraLight"
+            }
+
+            PropertyChanges {
+                target: buttonBackground
+                color: "#41cd52"
+                border.color: "#41cd52"
+            }
         }
-
-        EntryField {
-            id: password
-            text: qsTr("Password")
-        }
-    }
-
-    Column {
-        id: buttons
-        x: 102
-        y: 966
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 100
-        spacing: 20
-
-        PushButton {
-            id: login
-            text: qsTr("Continue")
-        }
-
-        PushButton {
-            id: createAccount
-            text: qsTr("Create Account")
-        }
-    }
+    ]
 }
-
-/*##^##
-Designer {
-    D{i:0;formeditorZoom:0.5}D{i:1}D{i:2}D{i:4}
-}
-##^##*/
-

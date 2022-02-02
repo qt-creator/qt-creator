@@ -37,7 +37,7 @@ def placeCursorToLine(editor, line, isRegex=False):
         return waitForObject(editor)
 
     isDarwin = platform.system() == 'Darwin'
-    if not isinstance(editor, (str, unicode)):
+    if not isString(editor):
         editor = objectMap.realName(editor)
     oldPosition = 0
     jumpToFirstLine(getEditor())
@@ -120,7 +120,7 @@ def replaceEditorContent(editor, newcontent):
     type(editor, newcontent)
 
 def typeLines(editor, lines):
-    if isinstance(lines, (str, unicode)):
+    if isString(lines):
         lines = [lines]
     if isinstance(lines, (list, tuple)):
         for line in lines:
