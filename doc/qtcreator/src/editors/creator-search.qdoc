@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -37,7 +37,9 @@
         \li Press \key {Ctrl+F} or select \uicontrol Edit >
             \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
 
-        \li Enter the text you are looking for.
+        \li In \uicontrol Find, enter the text you are looking for.
+
+            \image qtcreator-find-incremental.png
 
             If the text is found, all occurrences are highlighted as you type.
 
@@ -46,10 +48,14 @@
             occurrence click \inlineimage icons/prev.png
             (\uicontrol {Find Previous}), or press \key {Shift+F3}.
 
+        \li To select all found occurrences in a file, select
+            \uicontrol {Select All}.
+
     \endlist
 
-    You can restrict the search in the \uicontrol Find field by selecting one
-    or several search criteria:
+    You can restrict the search in the \uicontrol Find field by selecting
+    \inlineimage icons/qtcreator-new-search-icon.png
+    . Select one or several search criteria:
 
     \list
 
@@ -113,6 +119,8 @@
     are highlighted on the editor scroll bar. To turn highlighting off, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
+
+    To search using more advanced options, select \uicontrol Advanced.
 
     \section1 Advanced Search
 
