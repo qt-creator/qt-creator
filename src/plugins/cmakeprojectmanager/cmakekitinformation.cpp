@@ -396,12 +396,18 @@ private:
         const QString platform = CMakeGeneratorKitAspect::platform(kit());
         const QString toolset = CMakeGeneratorKitAspect::toolset(kit());
 
-        const QString message = tr("%1 - %2, Platform: %3, Toolset: %4")
-                .arg(extraGenerator.isEmpty() ? tr("<none>") : extraGenerator)
-                .arg(generator.isEmpty() ? tr("<none>") : generator)
-                .arg(platform.isEmpty() ? tr("<none>") : platform)
-                .arg(toolset.isEmpty() ? tr("<none>") : toolset);
-        m_label->setText(message);
+        QStringList messageLabel;
+        if (!extraGenerator.isEmpty())
+            messageLabel << extraGenerator << " - ";
+
+        messageLabel << generator;
+
+        if (!platform.isEmpty())
+            messageLabel << ", " << tr("Platform") << ": " << platform;
+        if (!toolset.isEmpty())
+            messageLabel << ", " << tr("Toolset") << ": " << toolset;
+
+        m_label->setText(messageLabel.join(""));
     }
 
     void changeGenerator()
@@ -495,6 +501,8 @@ private:
                                          extraGeneratorCombo->currentData().toString(),
                                          platformEdit->isEnabled() ? platformEdit->text() : QString(),
                                          toolsetEdit->isEnabled() ? toolsetEdit->text() : QString());
+
+            refresh();
         }
     }
 
