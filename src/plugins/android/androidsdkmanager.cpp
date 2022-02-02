@@ -28,6 +28,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
+#include "avdmanageroutputparser.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -691,7 +692,7 @@ AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data
     SdkPlatform *platform = nullptr;
     GenericPackageData packageData;
     if (parseAbstractData(packageData, data, 2, "Platform")) {
-        const int apiLevel = AndroidConfig::platformNameToApiLevel(packageData.headerParts.at(1));
+        const int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
         if (apiLevel == -1) {
             qCDebug(sdkManagerLog) << "Platform: Cannot parse api level:"<< data;
             return nullptr;
@@ -711,7 +712,7 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
     QPair <SystemImage *, int> result(nullptr, -1);
     GenericPackageData packageData;
     if (parseAbstractData(packageData, data, 4, "System-image")) {
-        const int apiLevel = AndroidConfig::platformNameToApiLevel(packageData.headerParts.at(1));
+        const int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
         if (apiLevel == -1) {
             qCDebug(sdkManagerLog) << "System-image: Cannot parse api level:"<< data;
             return result;
