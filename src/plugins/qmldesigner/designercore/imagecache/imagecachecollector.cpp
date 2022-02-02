@@ -90,7 +90,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     model->setRewriterView(&rewriterView);
 
-    if (rewriterView.inErrorState() || !rewriterView.rootModelNode().metaInfo().isGraphicalItem()) {
+    if (rewriterView.inErrorState() || (!rewriterView.rootModelNode().metaInfo().isGraphicalItem()
+                                        && !rewriterView.rootModelNode().isSubclassOf("Quick3D.Node") )) {
         if (abortCallback)
             abortCallback(ImageCache::AbortReason::Failed);
         return;

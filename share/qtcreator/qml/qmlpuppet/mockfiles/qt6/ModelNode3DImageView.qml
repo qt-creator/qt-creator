@@ -41,8 +41,6 @@ Item {
     property var modelViewComponent
     property var nodeViewComponent
 
-    property bool ready: false
-
     function destroyView()
     {
         previewObject = null;
@@ -58,8 +56,6 @@ Item {
             createViewForModel(obj);
         else if (obj instanceof Node)
             createViewForNode(obj);
-
-        previewObject = obj;
     }
 
     function createViewForMaterial(material)
@@ -70,6 +66,8 @@ Item {
         // Always recreate the view to ensure material is up to date
         if (materialViewComponent.status === Component.Ready)
             view = materialViewComponent.createObject(viewRect, {"previewMaterial": material});
+
+        previewObject = material;
     }
 
     function createViewForModel(model)
@@ -80,6 +78,8 @@ Item {
         // Always recreate the view to ensure model is up to date
         if (modelViewComponent.status === Component.Ready)
             view = modelViewComponent.createObject(viewRect, {"sourceModel": model});
+
+        previewObject = model;
     }
 
     function createViewForNode(node)
@@ -90,16 +90,13 @@ Item {
         // Always recreate the view to ensure node is up to date
         if (nodeViewComponent.status === Component.Ready)
             view = nodeViewComponent.createObject(viewRect, {"importScene": node});
+
+        previewObject = node;
     }
 
-    function afterRender()
+    function fitToViewPort()
     {
-        if (previewObject instanceof Node) {
-            view.fitToViewPort();
-            ready = view.ready;
-        } else {
-            ready = true;
-        }
+        view.fitToViewPort();
     }
 
     Item {

@@ -103,6 +103,7 @@ public:
     virtual bool isQuickItem() const;
     virtual bool isQuickWindow() const;
     virtual bool isLayoutable() const;
+    virtual bool isRenderable() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 

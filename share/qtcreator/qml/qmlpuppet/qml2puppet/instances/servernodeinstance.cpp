@@ -154,7 +154,7 @@ void ServerNodeInstance::setNodeSource(const QString &source)
 
 bool ServerNodeInstance::holdsGraphical() const
 {
-    return m_nodeInstance->isQuickItem();
+    return m_nodeInstance->isRenderable();
 }
 
 bool ServerNodeInstance::isComponentWrap() const

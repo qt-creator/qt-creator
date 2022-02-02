@@ -571,6 +571,11 @@ bool QuickItemNodeInstance::isQuickItem() const
     return true;
 }
 
+bool QuickItemNodeInstance::isRenderable() const
+{
+    return quickItem() && (!s_unifiedRenderPath || isRootNodeInstance());
+}
+
 QList<ServerNodeInstance> QuickItemNodeInstance::stateInstances() const
 {
     QList<ServerNodeInstance> instanceList;

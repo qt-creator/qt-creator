@@ -133,4 +133,9 @@ void Qt5PreviewNodeInstanceServer::changePreviewImageSize(
     collectItemChangesAndSendChangeCommands();
 }
 
+bool Qt5PreviewNodeInstanceServer::isPreviewServer() const
+{
+    return true;
+}
+
 } // namespace QmlDesigner

@@ -47,12 +47,22 @@ public:
     void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
                     InstanceContainer::NodeFlags flags) override;
 
+    QImage renderImage() const override;
+    QImage renderPreviewImage(const QSize &previewImageSize) const override;
+
+    bool isRenderable() const override;
+    QRectF boundingRect() const override;
+
+    QList<ServerNodeInstance> stateInstances() const override;
+
 protected:
     explicit Quick3DNodeInstance(QObject *node);
 
 private:
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
     QQuick3DNode *quick3DNode() const;
+
+    QQuickItem *m_dummyRootView = nullptr;
 };
 
 } // namespace Internal

@@ -70,6 +70,7 @@ public:
 
     QImage grabWindow() override;
     QImage grabItem(QQuickItem *item) override;
+    bool renderWindow() override;
 
     static QQuickItem *parentEffectItem(QQuickItem *item);
 
@@ -97,7 +98,6 @@ protected:
 
     virtual bool initRhi(RenderViewData &viewData);
     virtual QImage grabRenderControl(RenderViewData &viewData);
-    virtual bool renderWindow();
 
 private:
     RenderViewData m_viewData;

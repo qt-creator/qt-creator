@@ -44,10 +44,10 @@ QImage renderImage(ServerNodeInstance rootNodeInstance)
 
     QSize previewImageSize = rootNodeInstance.boundingRect().size().toSize();
     if (previewImageSize.isEmpty())
-        previewImageSize = {300, 300};
+        previewImageSize = {150, 150};
 
-    if (previewImageSize.width() > 300 || previewImageSize.height() > 300)
-        previewImageSize.scale({300, 300}, Qt::KeepAspectRatio);
+    if (previewImageSize.width() > 150 || previewImageSize.height() > 150)
+        previewImageSize.scale({150, 150}, Qt::KeepAspectRatio);
 
     QImage previewImage = rootNodeInstance.renderPreviewImage(previewImageSize);
 
@@ -68,7 +68,8 @@ void Qt5CaptureImageNodeInstanceServer::collectItemChangesAndSendChangeCommands(
         inFunction = true;
 
         auto rooNodeInstance = rootNodeInstance();
-        rooNodeInstance.rootQuickItem()->setClip(true);
+        if (QQuickItem *qitem = rooNodeInstance.rootQuickItem())
+            qitem->setClip(true);
 
         DesignerSupport::polishItems(quickWindow());
 

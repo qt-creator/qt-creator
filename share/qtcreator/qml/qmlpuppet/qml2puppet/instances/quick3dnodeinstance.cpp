@@ -26,6 +26,8 @@
 #include "quick3dnodeinstance.h"
 #include "qt5nodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
+#include "quickitemnodeinstance.h"
+#include "../editor3d/generalhelper.h"
 
 #include <qmlprivategate.h>
 
@@ -37,6 +39,7 @@
 #include <cmath>
 
 #ifdef QUICK3D_MODULE
+#include <private/qquick3dobject_p.h>
 #include <private/qquick3dnode_p.h>
 #include <private/qquick3dmodel_p.h>
 #include <private/qquick3dnode_p_p.h>
@@ -45,7 +48,9 @@
 #if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
 #include <private/qquick3druntimeloader_p.h>
 #endif
+#include <private/qquickstategroup_p.h>
 #endif
+
 
 namespace QmlDesigner {
 namespace Internal {
@@ -57,6 +62,7 @@ Quick3DNodeInstance::Quick3DNodeInstance(QObject *node)
 
 Quick3DNodeInstance::~Quick3DNodeInstance()
 {
+    delete m_dummyRootView;
 }
 
 void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
@@ -87,8 +93,121 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
             }
         }
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // In case this is the scene root, we need to create a dummy View3D for the scene
+    // in preview puppets
+    if (instanceId() == 0 && nodeInstanceServer()->isPreviewServer()) {
+        auto helper = new QmlDesigner::Internal::GeneralHelper();
+        engine()->rootContext()->setContextProperty("_generalHelper", helper);
+
+        QQmlComponent component(engine());
+        component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode3DImageView.qml"));
+        m_dummyRootView = qobject_cast<QQuickItem *>(component.create());
+
+        QMetaObject::invokeMethod(
+                    m_dummyRootView, "createViewForNode",
+                    Q_ARG(QVariant, QVariant::fromValue(object())));
+
+        nodeInstanceServer()->setRootItem(m_dummyRootView);
+    }
+#endif
 #endif
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
+}
+
+QImage Quick3DNodeInstance::renderImage() const
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!isRootNodeInstance() || !m_dummyRootView)
+        return {};
+
+    QSize size(640, 480);
+    nodeInstanceServer()->quickWindow()->resize(size);
+    m_dummyRootView->setSize(size);
+
+    // Just render the window once to update spatial nodes
+    nodeInstanceServer()->renderWindow();
+
+    QMetaObject::invokeMethod(m_dummyRootView, "fitToViewPort", Qt::DirectConnection);
+
+    QRectF renderBoundingRect = m_dummyRootView->boundingRect();
+    QImage renderImage;
+
+    if (QuickItemNodeInstance::unifiedRenderPath()) {
+        renderImage = nodeInstanceServer()->grabWindow();
+        renderImage = renderImage.copy(renderBoundingRect.toRect());
+    } else {
+        renderImage = nodeInstanceServer()->grabItem(m_dummyRootView);
+    }
+
+    // When grabbing an offscreen window the device pixel ratio is 1
+    renderImage.setDevicePixelRatio(1);
+
+    return renderImage;
+#endif
+    return {};
+}
+
+QImage Quick3DNodeInstance::renderPreviewImage(const QSize &previewImageSize) const
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!isRootNodeInstance() || !m_dummyRootView)
+        return {};
+
+    nodeInstanceServer()->quickWindow()->resize(previewImageSize);
+    m_dummyRootView->setSize(previewImageSize);
+
+    // Just render the window once to update spatial nodes
+    nodeInstanceServer()->renderWindow();
+
+    QMetaObject::invokeMethod(m_dummyRootView, "fitToViewPort", Qt::DirectConnection);
+
+    QRectF previewItemBoundingRect = boundingRect();
+
+    if (previewItemBoundingRect.isValid()) {
+        const QSize size = previewImageSize;
+        if (m_dummyRootView->isVisible()) {
+            QImage image;
+            image = nodeInstanceServer()->grabWindow();
+            image = image.copy(previewItemBoundingRect.toRect());
+            image = image.scaledToWidth(size.width());
+            return image;
+        } else {
+            QImage transparentImage(size, QImage::Format_ARGB32_Premultiplied);
+            transparentImage.fill(Qt::transparent);
+            return transparentImage;
+        }
+    }
+#endif
+    return {};
+}
+
+bool Quick3DNodeInstance::isRenderable() const
+{
+    return m_dummyRootView;
+}
+
+QRectF Quick3DNodeInstance::boundingRect() const
+{
+    if (m_dummyRootView)
+        return m_dummyRootView->boundingRect();
+    return ObjectNodeInstance::boundingRect();
+}
+
+QList<ServerNodeInstance> Quick3DNodeInstance::stateInstances() const
+{
+    QList<ServerNodeInstance> instanceList;
+#ifdef QUICK3D_MODULE
+    if (auto obj3D = quick3DNode()) {
+        const QList<QQuickState *> stateList = QQuick3DObjectPrivate::get(obj3D)->_states()->states();
+        for (QQuickState *state : stateList) {
+            if (state && nodeInstanceServer()->hasInstanceForObject(state))
+                instanceList.append(nodeInstanceServer()->instanceForObject(state));
+        }
+    }
+#endif
+    return instanceList;
 }
 
 Qt5NodeInstanceServer *Quick3DNodeInstance::qt5NodeInstanceServer() const

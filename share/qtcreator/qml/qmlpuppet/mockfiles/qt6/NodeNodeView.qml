@@ -32,50 +32,17 @@ View3D {
     environment: sceneEnv
     camera: theCamera
 
-    property bool ready: false
-    property bool first: true
-    property real prevZoomFactor: -1
-
     function fitToViewPort()
     {
-        if (first) {
-            first = false;
-            selectionBox.targetNode = root.importScene;
-        } else {
-            cameraControl.focusObject(selectionBox.model, theCamera.eulerRotation, true, false);
-
-            if (cameraControl._zoomFactor < 0.1) {
-                root.importScene.scale = root.importScene.scale.times(10);
-            } else if (cameraControl._zoomFactor > 10) {
-                root.importScene.scale = root.importScene.scale.times(0.1);
-            } else {
-                // We need one more render after zoom factor change, so only set ready when zoom factor
-                // or scaling hasn't changed from the previous frame
-                ready = _generalHelper.fuzzyCompare(cameraControl._zoomFactor, prevZoomFactor);
-                prevZoomFactor = cameraControl._zoomFactor;
-                selectionBox.visible = false;
-            }
-        }
+        // The magic number is the distance from camera default pos to origin
+        _generalHelper.calculateNodeBoundsAndFocusCamera(theCamera, importScene, root,
+                                                         1040);
     }
 
     SceneEnvironment {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.High
-    }
-
-    SelectionBox {
-        id: selectionBox
-        view3D: root
-        geometryName: "NodeNodeViewSB"
-    }
-
-    EditCameraController {
-        id: cameraControl
-        camera: theCamera
-        anchors.fill: parent
-        view3d: root
-        ignoreToolState: true
     }
 
     DirectionalLight {

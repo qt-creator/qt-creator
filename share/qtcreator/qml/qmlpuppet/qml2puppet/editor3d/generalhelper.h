@@ -72,6 +72,9 @@ public:
                                              const QVariant &nodes, QQuick3DViewport *viewPort,
                                              float oldZoom, bool updateZoom = true,
                                              bool closeUp = false);
+    Q_INVOKABLE void calculateNodeBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
+                                                       QQuick3DViewport *viewPort,
+                                                       float defaultLookAtDistance);
     Q_INVOKABLE void alignCameras(QQuick3DCamera *camera, const QVariant &nodes);
     Q_INVOKABLE QVector3D alignView(QQuick3DCamera *camera, const QVariant &nodes,
                                     const QVector3D &lookAtPoint);
@@ -126,6 +129,8 @@ protected:
 private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
+    bool getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
+                   QVector3D &maxBounds, bool recursive = false);
 
     QTimer m_overlayUpdateTimer;
     QTimer m_toolStateUpdateTimer;

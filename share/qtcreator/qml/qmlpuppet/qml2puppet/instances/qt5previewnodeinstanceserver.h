@@ -39,6 +39,7 @@ public:
     void changeState(const ChangeStateCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) override;
+    bool isPreviewServer() const override;
 
     QImage renderPreviewImage();
 

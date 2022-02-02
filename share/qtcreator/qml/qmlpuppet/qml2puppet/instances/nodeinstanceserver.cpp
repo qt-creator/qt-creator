@@ -1588,6 +1588,11 @@ bool NodeInstanceServer::isInformationServer() const
     return false;
 }
 
+bool NodeInstanceServer::isPreviewServer() const
+{
+    return false;
+}
+
 static QString baseProperty(const QString &property)
 {
     int index = property.indexOf('.');

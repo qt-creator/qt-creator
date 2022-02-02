@@ -48,7 +48,8 @@ QString ItemLibraryItem::typeName() const
 
 QString ItemLibraryItem::itemLibraryIconPath() const
 {
-    if (m_itemLibraryEntry.customComponentSource().isEmpty()) {
+    if (m_itemLibraryEntry.customComponentSource().isEmpty()
+            || !m_itemLibraryEntry.libraryEntryIconPath().isEmpty()) {
         return QStringLiteral("image://qmldesigner_itemlibrary/")
                + m_itemLibraryEntry.libraryEntryIconPath();
     } else {
