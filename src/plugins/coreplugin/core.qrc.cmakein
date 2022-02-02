@@ -6,5 +6,7 @@
     <file alias="images/settingscategory_core@2x.png">${CMAKE_CURRENT_SOURCE_DIR}/images/settingscategory_core@2x.png</file>
     <file alias="images/settingscategory_design.png">${CMAKE_CURRENT_SOURCE_DIR}/images/settingscategory_design.png</file>
     <file alias="images/settingscategory_design@2x.png">${CMAKE_CURRENT_SOURCE_DIR}/images/settingscategory_design@2x.png</file>
+    <file alias="images/qtlogo.png">${CMAKE_CURRENT_SOURCE_DIR}/images/qtlogo.png</file>
+    <file alias="images/qtlogo@2x.png">${CMAKE_CURRENT_SOURCE_DIR}/images/qtlogo@2x.png</file>
     </qresource>
 </RCC>
