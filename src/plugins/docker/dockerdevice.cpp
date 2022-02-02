@@ -823,8 +823,8 @@ static QString getLocalIPv4Address()
 
 void DockerDevicePrivate::startContainer()
 {
-    const QString display = HostOsInfo::isWindowsHost() ? QString(getLocalIPv4Address() + ":0.0")
-                                                        : QString(":0");
+    const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
+                                                      : QString(getLocalIPv4Address() + ":0.0");
     CommandLine dockerCreate{"docker", {"create",
                                         "-i",
                                         "--rm",
