@@ -81,7 +81,10 @@ public:
         std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
 
         synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
-        synchronizeImports(package.imports, package.updatedSourceIds);
+        synchronizeImports(package.imports,
+                           package.updatedSourceIds,
+                           package.moduleDependencies,
+                           package.updatedModuleDependencySourceIds);
         synchronizeTypes(package.types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
@@ -682,11 +685,17 @@ private:
         Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
-    void synchronizeImports(Storage::Imports &imports, const SourceIds &updatedSourceIds)
+    void synchronizeImports(Storage::Imports &imports,
+                            const SourceIds &updatedSourceIds,
+                            Storage::Imports &moduleDependencies,
+                            const SourceIds &updatedModuleDependencySourceIds)
     {
         deleteDocumentImportsForDeletedDocuments(imports, updatedSourceIds);
 
-        synchronizeDocumentImports(imports, updatedSourceIds);
+        synchronizeDocumentImports(imports, updatedSourceIds, Storage::ImportKind::Import);
+        synchronizeDocumentImports(moduleDependencies,
+                                   updatedModuleDependencySourceIds,
+                                   Storage::ImportKind::ModuleDependency);
     }
 
     void deleteDocumentImportsForDeletedDocuments(Storage::Imports &imports,
@@ -1075,12 +1084,8 @@ private:
         if (!propertyTypeId)
             throw TypeNameDoesNotExists{};
 
-        auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<
-            PropertyDeclarationId>(&typeId,
-                                   value.name,
-                                   &propertyTypeId,
-                                   static_cast<int>(value.traits),
-                                   &propertyImportedTypeNameId);
+        auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
+            &typeId, value.name, &propertyTypeId, to_underlying(value.traits), &propertyImportedTypeNameId);
 
         auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
                                              .template value<PropertyDeclarationId>(&typeId,
@@ -1263,7 +1268,9 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
-    void synchronizeDocumentImports(Storage::Imports &imports, const SourceIds &updatedSourceIds)
+    void synchronizeDocumentImports(Storage::Imports &imports,
+                                    const SourceIds &updatedSourceIds,
+                                    Storage::ImportKind importKind)
     {
         std::sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
             return std::tie(first.sourceId, first.moduleId, first.version)
@@ -1271,7 +1278,7 @@ private:
         });
 
         auto range = selectDocumentImportForSourceIdStatement.template range<Storage::ImportView>(
-            toIntegers(updatedSourceIds));
+            toIntegers(updatedSourceIds), to_underlying(importKind));
 
         auto compareKey = [](const Storage::ImportView &view,
                              const Storage::Import &import) -> long long {
@@ -2085,6 +2092,7 @@ private:
                                                              Sqlite::ForeignKeyAction::NoAction,
                                                              Sqlite::ForeignKeyAction::Cascade,
                                                              Sqlite::Enforment::Deferred);
+            table.addColumn("kind");
             auto &majorVersionColumn = table.addColumn("majorVersion");
             auto &minorVersionColumn = table.addColumn("minorVersion");
 
@@ -2370,22 +2378,22 @@ public:
         "SELECT typeId FROM exportedTypeNames WHERE moduleId IN carray(?1, ?2, 'int32') AND "
         "name=?3",
         database};
-    mutable ReadStatement<5, 1> selectDocumentImportForSourceIdStatement{
+    mutable ReadStatement<5, 2> selectDocumentImportForSourceIdStatement{
         "SELECT importId, sourceId, moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
-        "FROM documentImports WHERE sourceId IN carray(?1) ORDER BY sourceId, moduleId, "
-        "majorVersion, minorVersion",
+        "FROM documentImports WHERE sourceId IN carray(?1) AND kind=?2 ORDER BY sourceId, "
+        "moduleId, majorVersion, minorVersion",
         database};
-    WriteStatement<2> insertDocumentImportWithoutVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId) "
-        "VALUES (?1, ?2)",
-        database};
-    WriteStatement<3> insertDocumentImportWithMajorVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, majorVersion) "
+    WriteStatement<3> insertDocumentImportWithoutVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, kind) "
         "VALUES (?1, ?2, ?3)",
         database};
-    WriteStatement<4> insertDocumentImportWithVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, majorVersion, minorVersion) "
+    WriteStatement<4> insertDocumentImportWithMajorVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, kind, majorVersion) "
         "VALUES (?1, ?2, ?3, ?4)",
+        database};
+    WriteStatement<5> insertDocumentImportWithVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, kind, majorVersion, minorVersion) "
+        "VALUES (?1, ?2, ?3, ?4, ?5)",
         database};
     WriteStatement<1> deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
                                                     database};

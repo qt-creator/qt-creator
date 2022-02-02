@@ -208,19 +208,21 @@ protected:
         SynchronizationPackage package;
 
         package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
-        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
         package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
-        package.imports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
         package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
-        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
+        package.updatedModuleDependencySourceIds.push_back(sourceId1);
+        package.updatedModuleDependencySourceIds.push_back(sourceId2);
 
         importsSourceId1.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
-        importsSourceId1.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
         importsSourceId1.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
-        importsSourceId1.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
+        moduleDependenciesSourceId1.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+        moduleDependenciesSourceId1.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId1);
 
         importsSourceId2.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
-        importsSourceId2.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
+        moduleDependenciesSourceId2.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId2);
 
         package.types.push_back(Storage::Type{
             "QQuickItem",
@@ -276,22 +278,24 @@ protected:
         auto package{createSimpleSynchronizationPackage()};
 
         package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
-        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
         package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-        package.imports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
+        package.moduleDependencies.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
+        package.updatedModuleDependencySourceIds.push_back(sourceId3);
 
         package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
-        package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
         package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
+        package.updatedModuleDependencySourceIds.push_back(sourceId4);
 
         importsSourceId3.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
-        importsSourceId3.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
         importsSourceId3.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
-        importsSourceId3.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
+        moduleDependenciesSourceId3.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
+        moduleDependenciesSourceId3.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
 
         importsSourceId4.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
-        importsSourceId4.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
         importsSourceId4.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        moduleDependenciesSourceId4.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
 
         package.types[1].propertyDeclarations.push_back(
             Storage::PropertyDeclaration{"objects",
@@ -446,6 +450,10 @@ protected:
     Storage::Imports importsSourceId2;
     Storage::Imports importsSourceId3;
     Storage::Imports importsSourceId4;
+    Storage::Imports moduleDependenciesSourceId1;
+    Storage::Imports moduleDependenciesSourceId2;
+    Storage::Imports moduleDependenciesSourceId3;
+    Storage::Imports moduleDependenciesSourceId4;
 };
 
 TEST_F(ProjectStorage, FetchSourceContextIdReturnsAlwaysTheSameIdForTheSamePath)
@@ -1962,8 +1970,11 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongTypeNam
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[1].typeName = Storage::ImportedType{"QQuickItemWrong"};
 
-    ASSERT_THROW(storage.synchronize(
-                     SynchronizationPackage{importsSourceId4, {package.types[2]}, {sourceId4}}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId4,
+                                                            {package.types[2]},
+                                                            {sourceId4},
+                                                            moduleDependenciesSourceId4,
+                                                            {sourceId4}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
 TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropertyName)
@@ -1971,8 +1982,11 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropert
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
 
-    ASSERT_THROW(storage.synchronize(
-                     SynchronizationPackage{package.imports, package.types, {sourceId4}}),
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{package.imports,
+                                                            package.types,
+                                                            {sourceId4},
+                                                            package.moduleDependencies,
+                                                            {sourceId4}}),
                  QmlDesigner::PropertyNameDoesNotExists);
 }
 
@@ -2659,7 +2673,9 @@ TEST_F(ProjectStorage, ThrowForPrototypeChainCycles)
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{package.imports,
                                                             package.types,
-                                                            {sourceId1, sourceId2, sourceId3}}),
+                                                            {sourceId1, sourceId2, sourceId3},
+                                                            package.moduleDependencies,
+                                                            package.updatedModuleDependencySourceIds}),
                  QmlDesigner::PrototypeChainCycle);
 }
 
@@ -2940,8 +2956,8 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
 TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
 {
     auto package{createSimpleSynchronizationPackage()};
-    package.imports[2].version = Storage::Version{2};
-    package.types[0].prototype = Storage::QualifiedImportedType{"Object", package.imports[2]};
+    package.imports[1].version = Storage::Version{2};
+    package.types[0].prototype = Storage::QualifiedImportedType{"Object", package.imports[1]};
     package.types[0].exportedTypes[0].version = Storage::Version{2};
     package.types.push_back(
         Storage::Type{"QQuickObject",

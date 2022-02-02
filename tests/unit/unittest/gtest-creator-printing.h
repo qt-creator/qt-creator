@@ -253,7 +253,7 @@ class QualifiedImportedType;
 class Version;
 class VersionNumber;
 enum class TypeAccessSemantics : int;
-enum class PropertyDeclarationTraits : unsigned int;
+enum class PropertyDeclarationTraits : int;
 class PropertyDeclaration;
 class FunctionDeclaration;
 class ParameterDeclaration;

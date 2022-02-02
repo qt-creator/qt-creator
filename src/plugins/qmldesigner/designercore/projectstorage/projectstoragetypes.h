@@ -38,7 +38,7 @@ namespace QmlDesigner::Storage {
 
 enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
 
-enum class PropertyDeclarationTraits : unsigned int {
+enum class PropertyDeclarationTraits : int {
     None = 0,
     IsReadOnly = 1 << 0,
     IsPointer = 1 << 1,
@@ -136,7 +136,7 @@ inline int operator<(IsQualified first, IsQualified second)
     return static_cast<int>(first) < static_cast<int>(second);
 }
 
-enum class ImportKind : char { Module, Directory, QmlTypesDependency };
+enum class ImportKind : char { Import, ModuleDependency };
 
 class Import
 {
@@ -768,6 +768,18 @@ public:
         , updatedSourceIds(std::move(updatedSourceIds))
     {}
 
+    SynchronizationPackage(Imports imports,
+                           Types types,
+                           SourceIds updatedSourceIds,
+                           Imports moduleDependencies,
+                           SourceIds updatedModuleDependencySourceIds)
+        : imports{std::move(imports)}
+        , types{std::move(types)}
+        , updatedSourceIds{std::move(updatedSourceIds)}
+        , moduleDependencies{std::move(moduleDependencies)}
+        , updatedModuleDependencySourceIds{std::move(updatedModuleDependencySourceIds)}
+    {}
+
     SynchronizationPackage(Types types)
         : types{std::move(types)}
     {}
@@ -794,6 +806,8 @@ public:
     FileStatuses fileStatuses;
     ProjectDatas projectDatas;
     SourceIds updatedProjectSourceIds;
+    Imports moduleDependencies;
+    SourceIds updatedModuleDependencySourceIds;
 };
 
 } // namespace QmlDesigner::Storage

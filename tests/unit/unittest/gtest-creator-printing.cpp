@@ -1064,12 +1064,10 @@ const char *isQualifiedToString(IsQualified isQualified)
 const char *importKindToText(ImportKind kind)
 {
     switch (kind) {
-    case ImportKind::Module:
-        return "Module";
-    case ImportKind::Directory:
-        return "Directory";
-    case ImportKind::QmlTypesDependency:
-        return "QmlTypesDependency";
+    case ImportKind::Import:
+        return "Import";
+    case ImportKind::ModuleDependency:
+        return "ModuleDependency";
     }
 
     return "";
