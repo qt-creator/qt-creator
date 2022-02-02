@@ -252,7 +252,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->sortByColumn(0, Qt::AscendingOrder);
     auto stretcher = new HeaderViewStretcher(m_configView->header(), 0);
     m_configView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    m_configView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setAlternatingRowColors(true);
     m_configView->setFrameShape(QFrame::NoFrame);
     m_configView->setItemDelegate(new ConfigModelItemDelegate(m_buildConfiguration->project()->projectDirectory(),
