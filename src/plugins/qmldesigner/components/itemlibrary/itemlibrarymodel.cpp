@@ -234,8 +234,11 @@ void ItemLibraryModel::showAllHiddenCategories()
 void ItemLibraryModel::setFlowMode(bool b)
 {
     m_flowMode = b;
-    bool changed;
-    updateVisibility(&changed);
+    bool changed = false;
+    if (updateVisibility(&changed); changed) {
+        beginResetModel();
+        endResetModel();
+    }
 }
 
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
@@ -308,7 +311,10 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
         m_searchText = lowerSearchText;
 
         bool changed = false;
-        updateVisibility(&changed);
+        if (updateVisibility(&changed); changed) {
+            beginResetModel();
+            endResetModel();
+        }
 
         selectImportFirstVisibleCategory();
     }
@@ -591,11 +597,6 @@ void ItemLibraryModel::updateVisibility(bool *changed)
         // expand import if it has an item matching search criteria
         if (!m_searchText.isEmpty() && hasVisibleItems && !import->importExpanded())
             import->setImportExpanded();
-    }
-
-    if (changed) {
-        beginResetModel();
-        endResetModel();
     }
 }
 
