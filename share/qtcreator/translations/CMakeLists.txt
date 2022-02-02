@@ -1,27 +1,19 @@
 set(languages cs da de fr hr ja pl ru sl uk zh_CN zh_TW)
 set(bad_languages hu) # Fix these before including them in languages!
 
-# TODO: Remove when cmake_minimum_required greater than 3.12
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  find_package(Python3 COMPONENTS Interpreter)
-  set(PYTHONINTERP_FOUND ${Python3_Interpreter_FOUND})
-  set(PYTHON_VERSION_STRING ${Python3_VERSION})
-  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-else()
-  find_package(PythonInterp)
-endif()
+find_package(Python3 COMPONENTS Interpreter)
 
 set(json_wizards_h "")
 set(custom_wizards_h "")
 set(externaltools_h "")
 set(snippets_h "")
 
-if (NOT PYTHONINTERP_FOUND OR NOT PYTHON_VERSION_STRING VERSION_GREATER_EQUAL "3.0.0")
-  message(WARNING "No python3 interpreter found, skipping extraction of data from XML and JSON files.\n *** Please pass -DPYTHON_EXECUTABLE=/path/to/python3 to cmake.")
+if (NOT Python3_Interpreter_FOUND)
+  message(WARNING "No python3 interpreter found, skipping extraction of data from XML and JSON files.\n *** Please pass -DPython3_EXECUTABLE=/path/to/python3 to cmake.")
 else()
   set(json_wizards_h "${CMAKE_CURRENT_BINARY_DIR}/jsonwizards_tr.h")
   add_custom_command(OUTPUT "${json_wizards_h}"
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python3_EXECUTABLE}"
       "${CMAKE_CURRENT_SOURCE_DIR}/extract-jsonwizards.py"
       "${PROJECT_SOURCE_DIR}/share/qtcreator/templates/wizards" "${json_wizards_h}"
     COMMENT Generate translation data from JSON wizards
@@ -29,7 +21,7 @@ else()
 
   set(custom_wizards_h "${CMAKE_CURRENT_BINARY_DIR}/customwizards_tr.h")
   add_custom_command(OUTPUT "${custom_wizards_h}"
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python3_EXECUTABLE}"
       "${CMAKE_CURRENT_SOURCE_DIR}/extract-customwizards.py"
       "${PROJECT_SOURCE_DIR}/share/qtcreator/templates/wizards" "${custom_wizards_h}"
     COMMENT Generate translation data from XML wizards
@@ -37,7 +29,7 @@ else()
 
   set(externaltools_h "${CMAKE_CURRENT_BINARY_DIR}/externaltools_tr.h")
   add_custom_command(OUTPUT "${externaltools_h}"
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python3_EXECUTABLE}"
       "${CMAKE_CURRENT_SOURCE_DIR}/extract-externaltools.py"
       "${PROJECT_SOURCE_DIR}/src/share/qtcreator/externaltools" "${externaltools_h}"
     COMMENT Generate translation data from external tools definitions
@@ -45,7 +37,7 @@ else()
 
   set(snippets_h "${CMAKE_CURRENT_BINARY_DIR}/snippets_tr.h")
   add_custom_command(OUTPUT "${snippets_h}"
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python3_EXECUTABLE}"
       "${CMAKE_CURRENT_SOURCE_DIR}/extract-snippets.py"
       "${PROJECT_SOURCE_DIR}/share/qtcreator/snippets" "${snippets_h}"
     COMMENT Generate translation data from snippets definitions

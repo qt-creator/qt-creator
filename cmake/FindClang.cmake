@@ -2,7 +2,7 @@ find_package(Clang CONFIG)
 
 # silence a lot of warnings from building against llvm
 if(MSVC AND TARGET libclang)
-    target_compile_options(libclang INTERFACE /wd4100 /wd4141 /wd4146 /wd4244 /wd4267 /wd4291)
+    target_compile_options(libclang INTERFACE /wd4267)
 endif()
 
 option(CLANGTOOLING_LINK_CLANG_DYLIB "Force linking of Clang tooling against clang-cpp" NO)

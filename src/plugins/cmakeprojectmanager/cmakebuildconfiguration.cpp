@@ -365,7 +365,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     }
 
     connect(bc->buildSystem(), &BuildSystem::parsingFinished, this, [this, stretcher] {
-        m_configModel->flush();
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
         m_configModel->setInitialParametersConfiguration(
             m_buildConfiguration->initialCMakeConfiguration());
@@ -481,11 +480,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         if (m_buildConfiguration->isEnabled())
             setError(QString());
     });
+    connect(this, &QObject::destroyed, this, [this](const QObject *obj) {
+        updateInitialCMakeArguments();
+    });
 
     updateSelection();
     updateConfigurationStateSelection();
 }
-
 
 void CMakeBuildSettingsWidget::batchEditConfiguration()
 {
@@ -893,6 +894,30 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
         menu->addAction(action);
     if ((action = createForceAction(ConfigModel::DataItem::STRING, idx)))
         menu->addAction(action);
+
+    menu->addSeparator();
+
+    auto applyKitOrInitialValue = new QAction(isInitialConfiguration()
+                                                  ? tr("Apply Kit Value")
+                                                  : tr("Apply Initial Configuration Value"),
+                                              this);
+    menu->addAction(applyKitOrInitialValue);
+    connect(applyKitOrInitialValue, &QAction::triggered, this, [this] {
+        const QModelIndexList selectedIndexes = m_configView->selectionModel()->selectedIndexes();
+
+        const QModelIndexList validIndexes = Utils::filtered(selectedIndexes, [](const QModelIndex &index) {
+            return index.isValid() && index.flags().testFlag(Qt::ItemIsSelectable);
+        });
+
+        for (const QModelIndex &index : validIndexes) {
+            if (isInitialConfiguration())
+                m_configModel->applyKitValue(mapToSource(m_configView, index));
+            else
+                m_configModel->applyInitialValue(mapToSource(m_configView, index));
+        }
+    });
+
+    menu->addSeparator();
 
     auto copy = new QAction(tr("Copy"), this);
     menu->addAction(copy);
@@ -1622,6 +1647,8 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
             arg.replace("-T", "-DCMAKE_GENERATOR_TOOLSET:STRING=");
     }
     m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalArguments);
+    for (CMakeConfigItem &ci : m_cmakeConfiguration)
+        ci.isInitial = true;
 
     // Display the unknown arguments in "Additional CMake parameters"
     const QString additionalArgumentsValue = ProcessArgs::joinArgs(additionalArguments);
@@ -1631,6 +1658,8 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
 void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &config)
 {
     m_cmakeConfiguration = config;
+    for (CMakeConfigItem &ci : m_cmakeConfiguration)
+        ci.isInitial = true;
 }
 
 void InitialCMakeArgumentsAspect::fromMap(const QVariantMap &map)

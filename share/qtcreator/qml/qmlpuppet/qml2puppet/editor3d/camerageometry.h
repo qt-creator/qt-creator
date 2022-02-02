@@ -67,6 +67,9 @@ private:
     QQuick3DCamera *m_camera = nullptr;
     QRectF m_viewPortRect;
     bool m_cameraUpdatePending = false;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    bool m_nodeCreationUpdateDone = false;
+#endif
 };
 
 }

@@ -28,6 +28,7 @@
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dwidget.h"
+#include "edit3dvisibilitytogglesmenu.h"
 #include "metainfo.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -75,27 +76,37 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
 
     // Iterate through view actions. A null action indicates a separator and a second null action
     // after separator indicates an exclusive group.
-    auto addActionsToToolBox = [this, &context](const QVector<Edit3DAction *> &actions, bool left) {
+    auto handleActions = [this, &context](const QVector<Edit3DAction *> &actions, QMenu *menu, bool left) {
         bool previousWasSeparator = true;
         QActionGroup *group = nullptr;
         for (auto action : actions) {
             if (action) {
+                QAction *a = action->action();
                 if (group)
-                    group->addAction(action->action());
-                addAction(action->action());
-                if (left)
-                    m_toolBox->addLeftSideAction(action->action());
-                else
-                    m_toolBox->addRightSideAction(action->action());
+                    group->addAction(a);
+                if (menu) {
+                    menu->addAction(a);
+                } else {
+                    addAction(a);
+                    if (left)
+                        m_toolBox->addLeftSideAction(a);
+                    else
+                        m_toolBox->addRightSideAction(a);
+                }
                 previousWasSeparator = false;
 
                 // Register action as creator command to make it configurable
                 Core::Command *command = Core::ActionManager::registerAction(
-                            action->action(), action->menuId().constData(), context);
-                command->setDefaultKeySequence(action->action()->shortcut());
-                command->augmentActionWithShortcutToolTip(action->action());
+                            a, action->menuId().constData(), context);
+                command->setDefaultKeySequence(a->shortcut());
+                // Menu actions will have custom tooltips
+                if (menu)
+                    a->setToolTip(command->stringWithAppendedShortcut(a->toolTip()));
+                else
+                    command->augmentActionWithShortcutToolTip(a);
+
                 // Clear action shortcut so it doesn't conflict with command's override action
-                action->action()->setShortcut({});
+                a->setShortcut({});
             } else {
                 if (previousWasSeparator) {
                     group = new QActionGroup(this);
@@ -104,18 +115,26 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
                     group = nullptr;
                     auto separator = new QAction(this);
                     separator->setSeparator(true);
-                    addAction(separator);
-                    if (left)
-                        m_toolBox->addLeftSideAction(separator);
-                    else
-                        m_toolBox->addRightSideAction(separator);
+                    if (menu) {
+                        menu->addAction(separator);
+                    } else {
+                        addAction(separator);
+                        if (left)
+                            m_toolBox->addLeftSideAction(separator);
+                        else
+                            m_toolBox->addRightSideAction(separator);
+                    }
                     previousWasSeparator = true;
                 }
             }
         }
     };
-    addActionsToToolBox(view->leftActions(), true);
-    addActionsToToolBox(view->rightActions(), false);
+
+    handleActions(view->leftActions(), nullptr, true);
+    handleActions(view->rightActions(), nullptr, false);
+
+    m_visibilityTogglesMenu = new Edit3DVisibilityTogglesMenu(this);
+    handleActions(view->visibilityToggleActions(), m_visibilityTogglesMenu, false);
 
     view->setSeeker(seeker);
     seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
@@ -160,6 +179,21 @@ void Edit3DWidget::showCanvas(bool show)
     }
     m_canvas->setVisible(show);
     m_onboardingLabel->setVisible(!show);
+}
+
+QMenu *Edit3DWidget::visibilityTogglesMenu() const
+{
+    return m_visibilityTogglesMenu.data();
+}
+
+void Edit3DWidget::showVisibilityTogglesMenu(bool show, const QPoint &pos)
+{
+    if (m_visibilityTogglesMenu.isNull())
+        return;
+    if (show)
+        m_visibilityTogglesMenu->popup(pos);
+    else
+        m_visibilityTogglesMenu->close();
 }
 
 void Edit3DWidget::linkActivated(const QString &link)

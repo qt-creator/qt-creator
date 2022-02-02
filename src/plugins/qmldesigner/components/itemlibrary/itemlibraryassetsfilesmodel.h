@@ -44,7 +44,8 @@ public:
 
 private:
     enum Roles {FileNameRole = Qt::UserRole + 1,
-                FilePathRole};
+                FilePathRole,
+                FileDirRole};
 
     QStringList m_files;
     QHash<int, QByteArray> m_roleNames;

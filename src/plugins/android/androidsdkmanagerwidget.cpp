@@ -137,7 +137,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     });
 
     connect(m_ui->applySelectionButton, &QPushButton::clicked,
-            this, &AndroidSdkManagerWidget::onApplyButton);
+            this, [this]() { onApplyButton(); });
     connect(m_ui->cancelButton, &QPushButton::clicked, this,
             &AndroidSdkManagerWidget::onCancel);
     connect(m_ui->optionsButton, &QPushButton::clicked,
@@ -204,7 +204,7 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
     delete m_ui;
 }
 
-void AndroidSdkManagerWidget::installEssentials()
+void AndroidSdkManagerWidget::installEssentials(const QString &extraMessage)
 {
     m_sdkModel->selectMissingEssentials();
     if (!m_sdkModel->missingEssentials().isEmpty()) {
@@ -215,16 +215,19 @@ void AndroidSdkManagerWidget::installEssentials()
                                  .arg(Core::Constants::IDE_DISPLAY_NAME)
                                  .arg(m_sdkModel->missingEssentials().join("\", \"")));
     }
-    onApplyButton();
+    onApplyButton(extraMessage);
 }
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
 {
     m_formatter->appendMessage(tr("Checking pending licenses...\n"), Utils::NormalMessageFormat);
+    m_formatter->appendMessage(tr("The installation of Android SDK packages may fail if the "
+                                  "respective licenses are not accepted.\n"),
+                               Utils::LogMessageFormat);
     addPackageFuture(m_sdkManager->checkPendingLicenses());
 }
 
-void AndroidSdkManagerWidget::onApplyButton()
+void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
 {
     QTC_ASSERT(m_currentView == PackageListing, return);
 
@@ -246,10 +249,11 @@ void AndroidSdkManagerWidget::onApplyButton()
             installPackages << str;
     }
 
+    QString message = tr("%n Android SDK packages shall be updated.", "", packagesToUpdate.count());
+    if (!extraMessage.isEmpty())
+        message.prepend(extraMessage + "\n\n");
     QMessageBox messageDlg(QMessageBox::Information, tr("Android SDK Changes"),
-                           tr("%n Android SDK packages shall be updated.",
-                              "", packagesToUpdate.count()),
-                           QMessageBox::Ok | QMessageBox::Cancel, this);
+                           message, QMessageBox::Ok | QMessageBox::Cancel, this);
 
     QString details;
     if (!uninstallPackages.isEmpty())
@@ -317,20 +321,8 @@ void AndroidSdkManagerWidget::onLicenseCheckResult(const AndroidSdkManager::Oper
         // No assertion was found. Looks like all license are accepted. Go Ahead.
         runPendingCommand();
     } else {
-        // Assertion was found. Provide user workflow to accept licenses.
-        QString warningMessage = tr("Review Android SDK package licenses that have not been "
-                                    "accepted?\nNote that the installation and use of "
-                                    "Android SDK packages may fail if respective licenses are not "
-                                    "accepted.");
-        int userSelection = QMessageBox::question(this, tr("Android SDK Licenses"), warningMessage,
-                                                  QMessageBox::Yes | QMessageBox::No);
-        if (userSelection == QMessageBox::Yes) {
-            // Run license workflow.
-            beginLicenseWorkflow();
-        } else {
-            // User decided to go ahead anyways.
-            runPendingCommand();
-        }
+        // Run license workflow.
+        beginLicenseWorkflow();
     }
 }
 

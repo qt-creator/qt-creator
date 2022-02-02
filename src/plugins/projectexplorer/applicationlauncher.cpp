@@ -100,7 +100,7 @@ public:
     bool m_runAsRoot = false;
 
     // Local
-    QtcProcess *m_localProcess = nullptr;
+    std::unique_ptr<QtcProcess> m_localProcess;
     bool m_useTerminal = false;
     QProcess::ProcessChannelMode m_processChannelMode;
     // Keep track whether we need to emit a finished signal
@@ -334,27 +334,26 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
     m_isLocal = local;
 
     if (m_isLocal) {
-        QTC_ASSERT(!m_localProcess, return);
         const QtcProcess::TerminalMode terminalMode = m_useTerminal
                 ? QtcProcess::TerminalOn : QtcProcess::TerminalOff;
-        m_localProcess = new QtcProcess(terminalMode, this);
+        m_localProcess.reset(new QtcProcess(terminalMode, this));
         m_localProcess->setProcessChannelMode(m_processChannelMode);
 
         if (m_processChannelMode == QProcess::SeparateChannels) {
-            connect(m_localProcess, &QtcProcess::readyReadStandardError,
+            connect(m_localProcess.get(), &QtcProcess::readyReadStandardError,
                     this, &ApplicationLauncherPrivate::readLocalStandardError);
         }
         if (!m_useTerminal) {
-            connect(m_localProcess, &QtcProcess::readyReadStandardOutput,
+            connect(m_localProcess.get(), &QtcProcess::readyReadStandardOutput,
                     this, &ApplicationLauncherPrivate::readLocalStandardOutput);
         }
 
-        connect(m_localProcess, &QtcProcess::started,
+        connect(m_localProcess.get(), &QtcProcess::started,
                 this, &ApplicationLauncherPrivate::handleProcessStarted);
-        connect(m_localProcess, &QtcProcess::finished, this, [this] {
+        connect(m_localProcess.get(), &QtcProcess::finished, this, [this] {
             localProcessDone(m_localProcess->exitCode(), m_localProcess->exitStatus());
         });
-        connect(m_localProcess, &QtcProcess::errorOccurred,
+        connect(m_localProcess.get(), &QtcProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::localProcessError);
 
 

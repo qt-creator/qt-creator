@@ -155,20 +155,6 @@ function(add_qtc_library name)
     return()
   endif()
 
-  # TODO copied from extend_qtc_target.
-  # Instead require CMake 3.11 and use extend_qtc_target for setting SOURCES.
-  # Requiring cmake 3.11 is necessary because before that add_library requires
-  # at least one source file.
-  if (_arg_SOURCES_PREFIX)
-    foreach(source IN LISTS _arg_SOURCES)
-      list(APPEND prefixed_sources "${_arg_SOURCES_PREFIX}/${source}")
-    endforeach()
-    if (NOT IS_ABSOLUTE ${_arg_SOURCES_PREFIX})
-      set(_arg_SOURCES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_SOURCES_PREFIX}")
-    endif()
-    set(_arg_SOURCES ${prefixed_sources})
-  endif()
-
   set(library_type SHARED)
   if (_arg_STATIC)
     set(library_type STATIC)
@@ -177,15 +163,8 @@ function(add_qtc_library name)
     set(library_type OBJECT)
   endif()
 
-  add_library(${name} ${library_type} ${_arg_SOURCES})
+  add_library(${name} ${library_type})
   add_library(QtCreator::${name} ALIAS ${name})
-
-  set_public_headers(${name} "${_arg_SOURCES}")
-
-  # TODO remove, see above
-  if (_arg_SOURCES_PREFIX)
-    target_include_directories(${name} PRIVATE $<BUILD_INTERFACE:${_arg_SOURCES_PREFIX}>)
-  endif()
 
   if (${name} MATCHES "^[^0-9-]+$")
     string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
@@ -201,6 +180,8 @@ function(add_qtc_library name)
   endif()
 
   extend_qtc_target(${name}
+    SOURCES_PREFIX ${_arg_SOURCES_PREFIX}
+    SOURCES ${_arg_SOURCES}
     INCLUDES ${_arg_INCLUDES}
     PUBLIC_INCLUDES ${_arg_PUBLIC_INCLUDES}
     DEFINES ${EXPORT_SYMBOL} ${default_defines_copy} ${_arg_DEFINES} ${TEST_DEFINES}

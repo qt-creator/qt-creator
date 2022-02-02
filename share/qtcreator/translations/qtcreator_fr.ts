@@ -60828,28 +60828,28 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <translation>&lt;span style=&quot; color:#00ff00;&quot;&gt;Mot de passe correct&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Le mot de passe du trousseau de clés est trop court&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>Le mot de passe du trousseau de clés est trop court.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Les mots de passe du trousseau de clés ne correspondent pas&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>Les mots de passe du trousseau de clés ne correspondent pas.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Le mot de passe du certificat est manquant&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Le mot de passe du certificat est manquant.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Les mots de passe du certificat ne correspondent pas&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Les mots de passe du certificat ne correspondent pas.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;L&apos;alias du certificat est manquant&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>L&apos;alias du certificat est manquant.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Le code de pays est invalide&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Le code de pays est invalide.</translation>
     </message>
     <message>
         <source>Keystore file name</source>

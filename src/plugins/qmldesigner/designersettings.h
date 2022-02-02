@@ -60,7 +60,6 @@ const char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
 const char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
 const char DEBUG_PUPPET[] = "DebugPuppet";
 const char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
-const char STATESEDITOR_EXPANDED[] = "StatesEditorExpanded";
 const char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems";
 const char NAVIGATOR_REVERSE_ITEM_ORDER[] = "NavigatorReverseItemOrder";
 const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles";        /* These settings are not exposed in ui. */

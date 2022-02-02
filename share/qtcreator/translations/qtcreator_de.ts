@@ -19510,28 +19510,28 @@ should a repository require SSH-authentication (see documentation on SSH and the
 <context>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Das Keystore-Passwort ist zu kurz&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>Das Keystore-Passwort ist zu kurz.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Die Keystore-Passwörter stimmen nicht überein&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>Die Keystore-Passwörter stimmen nicht überein.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Das Passwort des Zertifikats ist zu kurz&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Das Passwort des Zertifikats ist zu kurz.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Die Passwörter des Zertifikats stimmen nicht überein&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Die Passwörter des Zertifikats stimmen nicht überein.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Der Alias des Zertifikats fehlt&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>Der Alias des Zertifikats fehlt.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Ungültiger Ländercode&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Ungültiger Ländercode.</translation>
     </message>
     <message>
         <source>Keystore Filename</source>

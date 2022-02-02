@@ -544,14 +544,9 @@ void AndroidSettingsWidget::validateSdk()
                                                         AllEssentialsInstalledRow});
     m_androidConfig.setSdkFullyConfigured(sdkToolsOk && componentsOk);
     if (sdkToolsOk && !componentsOk) {
-        // Ask user to install essential SDK components. Works only for sdk tools version >= 26.0.0
-        QString message = tr("Android SDK installation is missing necessary packages. Do you "
-                             "want to install the missing packages?");
-        auto userInput = QMessageBox::information(this, tr("Missing Android SDK Packages"),
-                                                  message, QMessageBox::Yes | QMessageBox::No);
-        if (userInput == QMessageBox::Yes) {
-            m_sdkManagerWidget->installEssentials();
-        }
+        m_sdkManagerWidget->installEssentials(
+                    "Android SDK installation is missing necessary packages. "
+                    "Do you want to install the missing packages?");
     }
 
     updateNdkList();

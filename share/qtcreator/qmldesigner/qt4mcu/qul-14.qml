@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 VersionData {
-    name: "QUL 1.4"
+    name: "Qt for MCUs 1.4"
 
     bannedItems: ["QtQuick.AnimatedImage",
         "QtQuick.FocusScope",
@@ -34,6 +34,7 @@ VersionData {
         "QtQuick.Grid",
         "QtQuick.GridView",
         "QtQuick.PathView",
+        "QtQuick.Loader",
         "QtQuick.Controls",
         "QtQuick.Controls.BusyIndicator",
         "QtQuick.Controls.ButtonGroup",

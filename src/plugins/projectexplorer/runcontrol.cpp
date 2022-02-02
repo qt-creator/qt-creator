@@ -1123,7 +1123,8 @@ bool RunControlPrivate::isAllowedTransition(RunControlState from, RunControlStat
         return to == RunControlState::Stopped
             || to == RunControlState::Finishing;
     case RunControlState::Stopped:
-        return to == RunControlState::Finishing;
+        return to == RunControlState::Starting
+            || to == RunControlState::Finishing;
     case RunControlState::Finishing:
         return to == RunControlState::Finished;
     case RunControlState::Finished:

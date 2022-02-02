@@ -30,6 +30,7 @@ IconGizmo {
     id: cameraGizmo
 
     property Model frustumModel: null
+    property bool globalShowFrustum: false
 
     iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_camera.png"
 
@@ -46,8 +47,12 @@ IconGizmo {
         frustum.targetNode = targetNode;
         frustum.targetNode = Qt.binding(function() {return targetNode;});
 
-        frustum.visible = visible || (targetNode && selected && activeScene === scene);
-        frustum.visible = Qt.binding(function() {return visible || (targetNode && selected && activeScene === scene);});
+        frustum.visible = (canBeVisible && globalShowFrustum)
+                          || (targetNode && selected && activeScene === scene);
+        frustum.visible = Qt.binding(function() {
+            return (canBeVisible && globalShowFrustum)
+                   || (targetNode && selected && activeScene === scene);
+        });
     }
 
     onActiveSceneChanged: {

@@ -80,7 +80,7 @@ public:
                             QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget() override;
 
-    void installEssentials();
+    void installEssentials(const QString &extraMessage = {});
 
 signals:
     void updatingSdk();
@@ -88,7 +88,7 @@ signals:
     void licenseWorkflowStarted();
 
 private:
-    void onApplyButton();
+    void onApplyButton(const QString &extraMessage = {});
     void onUpdatePackages();
     void onCancel();
     void onOperationResult(int index);

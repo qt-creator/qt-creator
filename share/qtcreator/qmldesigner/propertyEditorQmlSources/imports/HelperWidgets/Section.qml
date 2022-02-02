@@ -173,7 +173,7 @@ Item {
         id: leftBorder
         visible: false
         width: 1
-        height: parent.height - 15
+        height: parent.height - bottomPadding
         color: header.color
     }
 

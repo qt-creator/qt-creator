@@ -95,8 +95,8 @@ def setRunInTerminal(wantedKit, runInTerminal=True):
     switchViewTo(ViewConstants.EDIT)
 
 def __getTargetFromToolTip__(toolTip):
-    if toolTip == None or not isinstance(toolTip, (str, unicode)):
-        test.warning("Parameter toolTip must be of type str or unicode and can't be None!")
+    if toolTip == None or not isString(toolTip):
+        test.warning("Parameter toolTip must be of type str and can't be None!")
         return None
     pattern = re.compile(".*<b>Kit:</b>(.*)<b>Deploy.*")
     target = pattern.match(toolTip)
@@ -108,7 +108,7 @@ def __getTargetFromToolTip__(toolTip):
 
 def getExecutableAndTargetFromToolTip(toolTip):
     target = __getTargetFromToolTip__(toolTip)
-    if toolTip == None or not isinstance(toolTip, (str, unicode)):
+    if toolTip == None or not isString(toolTip):
         return None, target
     pattern = re.compile('.*<b>Run:</b>(.*)</.*')
     exe = pattern.match(toolTip)

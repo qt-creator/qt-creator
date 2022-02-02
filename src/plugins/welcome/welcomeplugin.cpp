@@ -288,7 +288,7 @@ public:
             newVBox->setSpacing(buttonSpacing / 3);
             vbox->addItem(newVBox);
 
-            auto newLabel = new QLabel(tr("New to Qt?"), this);
+            auto newLabel = new QLabel(tr("New to Qt?"), mainWidget);
             newLabel->setFont(brandFont());
             newLabel->setAlignment(Qt::AlignHCenter);
             newVBox->addWidget(newLabel);
@@ -461,7 +461,7 @@ void WelcomeMode::addPage(IWelcomePage *page)
         if (m_pluginList.at(idx)->priority() >= pagePriority)
             break;
     }
-    auto pageButton = new WelcomePageButton(m_sideArea);
+    auto pageButton = new WelcomePageButton(m_sideArea->widget());
     auto pageId = page->id();
     pageButton->setText(page->title());
     pageButton->setActiveChecker([this, pageId] { return m_activePage == pageId; });

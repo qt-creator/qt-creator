@@ -2201,7 +2201,7 @@ namespace plugin {
         QLibrary lib(dir + "/libsimple_test_plugin.dylib");
     #endif
     #ifdef Q_OS_WIN
-        QLibrary lib(dir + "/debug/simple_test_plugin.dll");
+        QLibrary lib(dir + "/simple_test_plugin.dll");
     #endif
         BREAK_HERE;
         // CheckType dir QString.

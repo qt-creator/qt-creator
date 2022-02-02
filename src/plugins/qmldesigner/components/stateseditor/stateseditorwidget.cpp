@@ -133,13 +133,6 @@ QString StatesEditorWidget::qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/statesEditorQmlSources").toString();
 }
 
-void StatesEditorWidget::toggleStatesViewExpanded()
-{
-    QTC_ASSERT(rootObject(), return);
-    bool expanded = rootObject()->property("expanded").toBool();
-    rootObject()->setProperty("expanded", !expanded);
-}
-
 void StatesEditorWidget::showEvent(QShowEvent *event)
 {
     QQuickWidget::showEvent(event);
@@ -168,18 +161,6 @@ void StatesEditorWidget::reloadQmlSource()
     connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
     connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
     m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
-
-    if (!DesignerSettings::getValue(DesignerSettingsKey::STATESEDITOR_EXPANDED).toBool())
-        toggleStatesViewExpanded();
-
-    connect(rootObject(), SIGNAL(expandedChanged()), this, SLOT(handleExpandedChanged()));
 }
 
-void StatesEditorWidget::handleExpandedChanged()
-{
-    QTC_ASSERT(rootObject(), return);
-
-    bool expanded = rootObject()->property("expanded").toBool();
-    DesignerSettings::setValue(DesignerSettingsKey::STATESEDITOR_EXPANDED, expanded);
-}
-}
+} // QmlDesigner

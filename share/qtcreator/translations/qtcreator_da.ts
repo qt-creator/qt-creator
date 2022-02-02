@@ -268,28 +268,28 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
 <context>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore adgangskode er for kort&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>Keystore adgangskode er for kort.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore adgangskoder matcher ikke&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>Keystore adgangskoder matcher ikke.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certifikat adgangskode er for kort&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Certifikat adgangskode er for kort.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certifikat adgangskoder matcher ikke&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Certifikat adgangskoder matcher ikke.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certifikat-alias mangler&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>Certifikat-alias mangler.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Ugyldig sprogkode&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Ugyldig sprogkode.</translation>
     </message>
     <message>
         <source>Keystore Filename</source>

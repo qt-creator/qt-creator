@@ -30,10 +30,14 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
-DeviceProcess::DeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
-    : QObject(parent), m_device(device)
+DeviceProcess::DeviceProcess(const IDevice::ConstPtr &device,
+                             const QtcProcess::Setup &setup,
+                             QObject *parent)
+    : QtcProcess(setup, parent), m_device(device)
 {
 }
 

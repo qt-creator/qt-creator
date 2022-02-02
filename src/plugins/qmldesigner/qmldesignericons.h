@@ -61,10 +61,6 @@ const Utils::Icon EDIT3D_PARTICLE_PAUSE({
         {":/edit3d/images/particles_pause.png", Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_PARTICLE_RESTART({
         {":/edit3d/images/particles_restart.png", Utils::Theme::QmlDesigner_HighlightColor}});
-const Utils::Icon EDIT3D_GRID_ON({
-        {":/edit3d/images/grid_on.png", Utils::Theme::QmlDesigner_HighlightColor}});
-const Utils::Icon EDIT3D_GRID_OFF({
-        {":/edit3d/images/grid_off.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon EDIT3D_SELECTION_MODE_ON({
         {":/edit3d/images/select_group.png", Utils::Theme::QmlDesigner_HighlightColor}});
 const Utils::Icon EDIT3D_SELECTION_MODE_OFF({

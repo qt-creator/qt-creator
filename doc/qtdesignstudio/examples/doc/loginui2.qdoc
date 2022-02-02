@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \example loginui2
+    \example Loginui2
     \ingroup gstutorials
     \previouspage {Log In UI - Components}
     \nextpage {Log In UI - States}
@@ -45,7 +45,12 @@
     their proper places when you resize the UI on the desktop or on devices
     with different screen sizes, you will use anchors and positioners.
 
-    These instructions build on \l {Log In UI - Components}.
+    The starting point for this tutorial is the completed
+    \l{Log In UI - Components} project. You can download the project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui1}{here}.
+
+    Additionally, you can download the completed project of this tutorial from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}.
 
     The \e {Learn More} sections provide additional information about the
     task at hand.
@@ -79,6 +84,9 @@
             anchor button to anchor \e adventurePage to its
             parent in the \uicontrol Target field. This attaches the background
             image to the rectangle on all sides.
+            Note: Selecting the anchor button should automatically select the
+            four buttons on the left side of it. If it doesn't, refresh
+            \uicontrol{Form Editor}.
             \image loginui2-layout.png "Layout properties"
         \li Select \e qt_logo_green_128x128px in \l Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the

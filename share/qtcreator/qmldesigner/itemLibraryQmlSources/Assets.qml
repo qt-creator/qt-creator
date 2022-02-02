@@ -36,7 +36,9 @@ Item {
 
     property var selectedAssets: ({})
     property int allExpandedState: 0
-    property string delFilePath: ""
+    property string contextFilePath: ""
+    property var contextDir: undefined
+    property bool isDirContextMenu: false
 
     DropArea {
         id: dropArea
@@ -67,6 +69,19 @@ Item {
         }
     }
 
+    MouseArea { // right clicking the empty area of the view
+        anchors.fill: parent
+        acceptedButtons: Qt.RightButton
+        onClicked: {
+            if (!assetsModel.isEmpty) {
+                contextFilePath = ""
+                contextDir = assetsModel.rootDir()
+                isDirContextMenu = false
+                contextMenu.popup()
+            }
+        }
+    }
+
     // called from C++ to close context menu on focus out
     function handleViewFocusOut()
     {
@@ -75,9 +90,139 @@ Item {
         selectedAssetsChanged()
     }
 
+    Dialog {
+        id: newFolderDialog
+
+        title: qsTr("Create new folder")
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape
+        modal: true
+
+        contentItem: Column {
+            spacing: 2
+
+            Row {
+                Text {
+                    text: qsTr("Folder Name: ")
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: StudioTheme.Values.themeTextColor
+                }
+
+                StudioControls.TextField {
+                    id: folderName
+
+                    actionIndicator.visible: false
+                    translationIndicator.visible: false
+
+                    Keys.onEnterPressed: btnCreate.onClicked()
+                    Keys.onReturnPressed: btnCreate.onClicked()
+                }
+            }
+
+            Text {
+                text: qsTr("Folder Name cannot be empty.")
+                color: "#ff0000"
+                anchors.right: parent.right
+                visible: folderName.text === ""
+            }
+
+            Item { // spacer
+                width: 1
+                height: 20
+            }
+
+            Row {
+                anchors.right: parent.right
+
+                Button {
+                    id: btnCreate
+
+                    text: qsTr("Create")
+                    enabled: folderName.text !== ""
+                    onClicked: {
+                        assetsModel.addNewFolder(contextDir.dirPath + '/' + folderName.text)
+                        newFolderDialog.accept()
+                    }
+                }
+
+                Button {
+                    text: qsTr("Cancel")
+                    onClicked: newFolderDialog.reject()
+                }
+            }
+        }
+
+        onOpened: {
+            folderName.text = "New folder"
+            folderName.selectAll()
+            folderName.forceActiveFocus()
+        }
+    }
+
+    Dialog {
+        id: confirmDeleteFolderDialog
+
+        title: qsTr("Folder not empty")
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape
+        implicitWidth: 300
+        modal: true
+
+        contentItem: Column {
+            spacing: 20
+            width: parent.width
+
+            Text {
+                id: folderNotEmpty
+
+                text: qsTr("Folder '%1' is not empty. Are you sure you want to delete it?")
+                            .arg(contextDir ? contextDir.dirName : "")
+                color: StudioTheme.Values.themeTextColor
+                wrapMode: Text.WordWrap
+                width: confirmDeleteFolderDialog.width
+                leftPadding: 10
+                rightPadding: 10
+
+                Keys.onEnterPressed: btnDelete.onClicked()
+                Keys.onReturnPressed: btnDelete.onClicked()
+            }
+
+            Text {
+                text: qsTr("If the folder has assets in use, deleting it might cause the project to not work correctly.")
+                color: StudioTheme.Values.themeTextColor
+                wrapMode: Text.WordWrap
+                width: confirmDeleteFolderDialog.width
+                leftPadding: 10
+                rightPadding: 10
+            }
+
+            Row {
+                anchors.right: parent.right
+                Button {
+                    id: btnDelete
+
+                    text: qsTr("Delete")
+
+                    onClicked: {
+                        assetsModel.deleteFolder(contextDir.dirPath)
+                        confirmDeleteFolderDialog.accept()
+                    }
+                }
+
+                Button {
+                    text: qsTr("Cancel")
+                    onClicked: confirmDeleteFolderDialog.reject()
+                }
+            }
+        }
+
+        onOpened: folderNotEmpty.forceActiveFocus()
+    }
+
     ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
         id: assetsView
         anchors.fill: parent
+        interactive: assetsView.verticalScrollBarVisible
 
         Item {
             StudioControls.Menu {
@@ -86,7 +231,7 @@ Item {
                 StudioControls.MenuItem {
                     text: qsTr("Expand All")
                     enabled: allExpandedState !== 1
-                    visible: !delFilePath
+                    visible: isDirContextMenu
                     height: visible ? implicitHeight : 0
                     onTriggered: assetsModel.toggleExpandAll(true)
                 }
@@ -94,22 +239,51 @@ Item {
                 StudioControls.MenuItem {
                     text: qsTr("Collapse All")
                     enabled: allExpandedState !== 2
-                    visible: !delFilePath
+                    visible: isDirContextMenu
                     height: visible ? implicitHeight : 0
                     onTriggered: assetsModel.toggleExpandAll(false)
                 }
 
+                StudioControls.MenuSeparator {
+                    visible: isDirContextMenu
+                    height: visible ? StudioTheme.Values.border : 0
+                }
+
                 StudioControls.MenuItem {
                     text: qsTr("Delete File")
-                    visible: delFilePath
+                    visible: contextFilePath
                     height: visible ? implicitHeight : 0
-                    onTriggered: assetsModel.removeFile(delFilePath)
+                    onTriggered: assetsModel.deleteFile(contextFilePath)
+                }
+
+                StudioControls.MenuSeparator {
+                    visible: contextFilePath
+                    height: visible ? StudioTheme.Values.border : 0
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("New Folder")
+                    onTriggered: newFolderDialog.open()
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Delete Folder")
+                    visible: isDirContextMenu
+                    height: visible ? implicitHeight : 0
+                    onTriggered: {
+                        var dirEmpty = !(contextDir.dirsModel && contextDir.dirsModel.rowCount() > 0)
+                                    && !(contextDir.filesModel && contextDir.filesModel.rowCount() > 0);
+
+                        if (dirEmpty)
+                            assetsModel.deleteFolder(contextDir.dirPath)
+                        else
+                            confirmDeleteFolderDialog.open()
+                    }
                 }
             }
         }
 
         Column {
-            spacing: 2
             Repeater {
                 model: assetsModel // context property
                 delegate: dirSection
@@ -120,31 +294,35 @@ Item {
 
                 Section {
                     width: assetsView.width -
-                           (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
+                           (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0) - 5
                     caption: dirName
                     sectionHeight: 30
                     sectionFontSize: 15
-                    levelShift: 20
                     leftPadding: 0
+                    topPadding: dirDepth > 0 ? 5 : 0
+                    bottomPadding: 0
                     hideHeader: dirDepth === 0
-                    showLeftBorder: true
+                    showLeftBorder: dirDepth > 0
                     expanded: dirExpanded
-                    visible: dirVisible
+                    visible: !assetsModel.isEmpty && dirVisible
                     expandOnClick: false
                     useDefaulContextMenu: false
 
                     onToggleExpand: {
                         dirExpanded = !dirExpanded
                     }
+
                     onShowContextMenu: {
-                        delFilePath = ""
+                        contextFilePath = ""
+                        contextDir = model
+                        isDirContextMenu = true
                         allExpandedState = assetsModel.getAllExpandedState()
                         contextMenu.popup()
                     }
 
                     Column {
                         spacing: 5
-                        leftPadding: 15
+                        leftPadding: 5
 
                         Repeater {
                             model: dirsModel
@@ -154,6 +332,25 @@ Item {
                         Repeater {
                             model: filesModel
                             delegate: fileSection
+                        }
+
+                        Text {
+                            text: qsTr("Empty folder")
+                            color: StudioTheme.Values.themeTextColorDisabled
+                            font.pixelSize: 12
+                            visible: !(dirsModel && dirsModel.rowCount() > 0)
+                                  && !(filesModel && filesModel.rowCount() > 0)
+
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.RightButton
+                                onClicked: {
+                                    contextFilePath = ""
+                                    contextDir = model
+                                    isDirContextMenu = true
+                                    contextMenu.popup()
+                                }
+                            }
                         }
                     }
                 }
@@ -222,8 +419,11 @@ Item {
                                 if (currFileSelected)
                                     rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
                             } else {
-                                delFilePath = filePath
+                                contextFilePath = filePath
+                                contextDir = model.fileDir
+
                                 tooltipBackend.hideTooltip()
+                                isDirContextMenu = false
                                 contextMenu.popup()
                             }
                         }
@@ -263,7 +463,7 @@ Item {
     // Placeholder when the assets panel is empty
     Column {
         id: colNoAssets
-        visible: assetsModel.isEmpty
+        visible: assetsModel.isEmpty && !rootView.searchActive
 
         spacing: 20
         x: 20
@@ -306,5 +506,14 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
         }
+    }
+
+    Text {
+        text: qsTr("No match found.")
+        x: 20
+        y: 10
+        color: StudioTheme.Values.themeTextColor
+        font.pixelSize: 12
+        visible: assetsModel.isEmpty && rootView.searchActive
     }
 }

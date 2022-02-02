@@ -887,28 +887,28 @@ The files in the Android package source directory are copied to the build direct
 <context>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль связки ключей слишком короткий&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>Пароль связки ключей слишком короткий.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неверный пароль связки ключей&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>Неверный пароль связки ключей.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль сертификата слишком короткий&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Пароль сертификата слишком короткий.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неверный пароль сертификата&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Неверный пароль сертификата.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Отсутствует алиас сертификата&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>Отсутствует алиас сертификата.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неверный код страны&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Неверный код страны.</translation>
     </message>
     <message>
         <source>Keystore Filename</source>

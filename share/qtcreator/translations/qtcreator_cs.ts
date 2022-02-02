@@ -54911,28 +54911,28 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
         <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je OK&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo k úložišti klíče je příliš krátké&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>Heslo k úložišti klíče je příliš krátké.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Hesla k úložišti klíče neodpovídají&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>Hesla k úložišti klíče neodpovídají.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo k certifikátu je příliš krátké&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>Heslo k certifikátu je příliš krátké.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Hesla k certifikátům neodpovídají&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>Hesla k certifikátům neodpovídají.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Alias certifikátu chybí&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>Alias certifikátu chybí.</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Neplatné číslo země (mezinárodní předvolba)&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>Neplatné číslo země (mezinárodní předvolba).</translation>
     </message>
     <message>
         <source>Keystore file name</source>

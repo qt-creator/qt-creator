@@ -69,7 +69,6 @@ ShortCutManager::ShortCutManager()
     m_copyAction(tr("&Copy")),
     m_pasteAction(tr("&Paste")),
     m_selectAllAction(tr("Select &All")),
-    m_collapseExpandStatesAction(tr("Toggle States")),
     m_escapeAction(this)
 {
 
@@ -96,10 +95,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     connect(&m_pasteAction, &QAction::triggered, this, &ShortCutManager::paste);
 
     connect(&m_selectAllAction,&QAction::triggered, this, &ShortCutManager::selectAll);
-
-    connect(&m_collapseExpandStatesAction, &QAction::triggered, [] {
-        QmlDesignerPlugin::instance()->viewManager().toggleStatesViewExpanded();
-    });
 
     // Revert to saved
     Core::EditorManager *em = Core::EditorManager::instance();
@@ -187,13 +182,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     command->setDefaultKeySequence(QKeySequence::SelectAll);
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
-
-    Core::ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
-
-    command = Core::ActionManager::registerAction(&m_collapseExpandStatesAction,  Constants::TOGGLE_STATES_EDITOR, qmlDesignerMainContext);
-    command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+s"));
-    viewsMenu->addAction(command);
 
     /* Registering disabled action for Escape, because Qt Quick does not support shortcut overrides. */
     command = Core::ActionManager::registerAction(&m_escapeAction, Core::Constants::S_RETURNTOEDITOR, qmlDesignerMainContext);

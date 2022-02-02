@@ -87,7 +87,6 @@ def testRenameId():
         formerTxt = editor.plainText
         originalText = originalTexts.get(file).replace("mainView", "renamedView")
         test.compare(originalText,formerTxt, "Comparing %s" % file.replace("Core.","").replace("\\",""))
-    invokeMenuItem("File","Save All")
 
 def __invokeFindUsage__(filename, line, additionalKeyPresses, expectedCount):
     openDocument(focusDocumentPath % filename)

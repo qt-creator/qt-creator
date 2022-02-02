@@ -9625,28 +9625,28 @@ with a password, which you can enter below.</source>
 <context>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;キーストアパスワードが短すぎます&lt;/span&gt;</translation>
+        <source>Keystore password is too short.</source>
+        <translation>キーストアパスワードが短すぎます。</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;キーストアパスワードが一致しません&lt;/span&gt;</translation>
+        <source>Keystore passwords do not match.</source>
+        <translation>キーストアパスワードが一致しません。</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;証明書のパスワードが短すぎます&lt;/span&gt;</translation>
+        <source>Certificate password is too short.</source>
+        <translation>証明書のパスワードが短すぎます。</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;証明書のパスワードが一致しません&lt;/span&gt;</translation>
+        <source>Certificate passwords do not match.</source>
+        <translation>証明書のパスワードが一致しません。</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;証明書のエイリアスが見つかりません&lt;/span&gt;</translation>
+        <source>Certificate alias is missing.</source>
+        <translation>証明書のエイリアスが見つかりません。</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;無効な国コードです&lt;/span&gt;</translation>
+        <source>Invalid country code.</source>
+        <translation>無効な国コードです。</translation>
     </message>
     <message>
         <source>Keystore file name</source>

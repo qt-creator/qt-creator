@@ -219,7 +219,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     : d(new Private)
 {
     const ClangdSettings settings(settingsData);
-    d->useClangdCheckBox.setText(tr("Use clangd (EXPERIMENTAL)"));
+    d->useClangdCheckBox.setText(tr("Use clangd"));
     d->useClangdCheckBox.setChecked(settings.useClangd());
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());

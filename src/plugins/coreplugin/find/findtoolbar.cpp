@@ -224,12 +224,12 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
 
     m_selectAllAction = new QAction(tr("Select All"), this);
     cmd = ActionManager::registerAction(m_selectAllAction, Constants::FIND_SELECT_ALL);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Return")));
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
     connect(m_selectAllAction, &QAction::triggered, this, &FindToolBar::selectAll);
     m_localSelectAllAction = new QAction(m_selectAllAction->text(), this);
     cmd = ActionManager::registerAction(m_localSelectAllAction, Constants::FIND_SELECT_ALL, findcontext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
+    cmd->augmentActionWithShortcutToolTip(m_localSelectAllAction);
     connect(m_localSelectAllAction, &QAction::triggered, this, &FindToolBar::selectAll);
     m_ui.selectAllButton->setDefaultAction(m_localSelectAllAction);
 

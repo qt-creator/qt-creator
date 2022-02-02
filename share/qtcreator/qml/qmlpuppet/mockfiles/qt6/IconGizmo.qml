@@ -45,6 +45,8 @@ Item {
     property bool hasMouse: false
     property bool hidden: false
     property bool locked: false
+    property bool globalShow: true
+    property bool canBeVisible: activeScene === scene && !hidden && (targetNode ? targetNode.visible : false)
 
     property alias iconSource: iconImage.source
 
@@ -55,7 +57,7 @@ Item {
             hasMouse = false;
     }
 
-    visible: activeScene === scene && !hidden && (targetNode ? targetNode.visible : false)
+    visible: canBeVisible && globalShow
 
     Overlay2D {
         id: iconOverlay

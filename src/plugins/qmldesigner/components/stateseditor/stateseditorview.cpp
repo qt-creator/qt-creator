@@ -85,12 +85,6 @@ void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorV
     checkForStatesAvailability();
 }
 
-void StatesEditorView::toggleStatesViewExpanded()
-{
-    if (m_statesEditorWidget)
-        m_statesEditorWidget->toggleStatesViewExpanded();
-}
-
 void StatesEditorView::removeState(int nodeId)
 {
     try {
@@ -102,6 +96,22 @@ void StatesEditorView::removeState(int nodeId)
             if (modelState.isValid()) {
                 QStringList lockedTargets;
                 const auto propertyChanges = modelState.propertyChanges();
+
+                 // confirm removing not empty states
+                if (!propertyChanges.isEmpty()) {
+                    QMessageBox msgBox;
+                    msgBox.setTextFormat(Qt::RichText);
+                    msgBox.setIcon(QMessageBox::Question);
+                    msgBox.setWindowTitle(tr("Remove State"));
+                    msgBox.setText(tr("This state is not empty. Are you sure you want to remove it?"));
+                    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+                    msgBox.setDefaultButton(QMessageBox::Yes);
+
+                    if (msgBox.exec() == QMessageBox::Cancel)
+                        return;
+                }
+
+                // confirm removing states with locked targets
                 for (const QmlPropertyChanges &change : propertyChanges) {
                     const ModelNode target = change.target();
                     QTC_ASSERT(target.isValid(), continue);

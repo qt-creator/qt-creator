@@ -135,7 +135,8 @@ public:
     Utils::FilePath avdManagerToolPath() const;
 
     Utils::FilePath toolchainPath(const QtSupport::QtVersion *qtVersion) const;
-    static Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation);
+    static Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation,
+                                                Utils::OsType hostOs = Utils::HostOsInfo::hostOs());
     static Utils::FilePath clangPathFromNdk(const Utils::FilePath &ndkLocation);
 
     Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::QtVersion *qtVersion) const;
@@ -189,7 +190,7 @@ private:
 
     void parseDependenciesJson();
 
-    QVector<int> availableNdkPlatforms(const QtSupport::QtVersion *qtVersion) const;
+    QList<int> availableNdkPlatforms(const QtSupport::QtVersion *qtVersion) const;
 
     Utils::FilePath m_sdkLocation;
     QStringList m_sdkManagerToolArgs;
@@ -248,3 +249,6 @@ private:
 };
 
 } // namespace Android
+
+Q_DECLARE_METATYPE(ProjectExplorer::Abis)
+Q_DECLARE_METATYPE(Utils::OsType)

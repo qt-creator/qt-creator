@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -140,4 +140,8 @@
 /*!
     \externalpage https://cmake.org/cmake/help/latest/prop_sf/HEADER_FILE_ONLY.html
     \title CMake: HEADER_FILE_ONLY
+*/
+/*!
+    \externalpage https://microsoft.github.io/language-server-protocol/
+    \title Language Server Protocol
 */

@@ -241,7 +241,7 @@ int internalMain(QGuiApplication *application)
 #endif
 
 #if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
-    startCrashpad();
+    /* startCrashpad(); */
 #endif
 
     new QmlDesigner::Qt5NodeInstanceClientProxy(application);

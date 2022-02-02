@@ -46,12 +46,12 @@
     login page, you will use \e states to show and hide UI components as necessary
     when a user selects the \e {Create Account} button.
 
-    These instructions build on:
+    The starting point for this tutorial is the completed
+    \l{Log In UI - Positioning} project. You can download the project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}.
 
-    \list
-        \li \l {Log In UI - Components}
-        \li \l {Log In UI - Positioning}
-    \endlist
+    Additionally, you can download the completed project of this tutorial from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui3}{here}.
 
     The \e {Learn More} sections provide additional information relevant to the
     task at hand.

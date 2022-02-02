@@ -9,7 +9,7 @@
             "mac_sha256": "2c3822db1c916655223e5ee8ce0fbf6b73d0b99012045c9dc8eaa6a5736c0c55"
         },
         "sdk_essential_packages": {
-            "default": ["platform-tools", "platforms;android-30", "cmdline-tools;latest"],
+            "default": ["platform-tools", "platforms;android-31", "cmdline-tools;latest"],
             "linux": [],
             "mac": [],
             "windows": ["extras;google;usb_driver"]
@@ -18,7 +18,12 @@
     "specific_qt_versions": [
         {
             "versions": ["default"],
-            "sdk_essential_packages": ["build-tools;30.0.2", "ndk;21.3.6528147"],
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"],
+            "ndk_path": "ndk/22.1.7171670"
+        },
+        {
+            "versions": ["5.15.[0-8]", "5.14.[0-2]", "5.13.2"],
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;21.3.6528147"],
             "ndk_path": "ndk/21.3.6528147"
         },
         {

@@ -57,9 +57,30 @@
 namespace ImageViewer {
 namespace Constants {
     const qreal DEFAULT_SCALE_FACTOR = 1.2;
+    const qreal zoomLevels[] = { 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0 };
 }
 
 namespace Internal {
+
+static qreal nextLevel(qreal currentLevel)
+{
+    auto iter = std::find_if(std::begin(Constants::zoomLevels), std::end(Constants::zoomLevels), [&](qreal val) {
+        return val > currentLevel;
+    });
+    if (iter != std::end(Constants::zoomLevels))
+        return *iter;
+    return currentLevel;
+}
+
+static qreal previousLevel(qreal currentLevel)
+{
+    auto iter = std::find_if(std::rbegin(Constants::zoomLevels), std::rend(Constants::zoomLevels), [&](qreal val) {
+        return val < currentLevel;
+    });
+    if (iter != std::rend(Constants::zoomLevels))
+        return *iter;
+    return currentLevel;
+}
 
 ImageView::ImageView(ImageViewerFile *file)
     : m_file(file)
@@ -245,16 +266,7 @@ void ImageView::setViewOutline(bool enable)
 
 void ImageView::doScale(qreal factor)
 {
-    qreal currentScale = transform().m11();
-    qreal newScale = currentScale * factor;
-    qreal actualFactor = factor;
-    // cap to 0.001 - 1000
-    if (newScale > 1000)
-        actualFactor = 1000./currentScale;
-    else if (newScale < 0.001)
-        actualFactor = 0.001/currentScale;
-
-    scale(actualFactor, actualFactor);
+    scale(factor, factor);
     emitScaleFactor();
     if (auto pixmapItem = dynamic_cast<QGraphicsPixmapItem *>(m_imageItem))
         pixmapItem->setTransformationMode(
@@ -264,18 +276,26 @@ void ImageView::doScale(qreal factor)
 void ImageView::wheelEvent(QWheelEvent *event)
 {
     qreal factor = qPow(Constants::DEFAULT_SCALE_FACTOR, event->angleDelta().y() / 240.0);
-    doScale(factor);
+    qreal currentScale = transform().m11();
+    qreal newScale = currentScale * factor;
+    // cap to 0.001 - 1000
+    qreal actualFactor = qBound(0.001, factor, 1000.0);
+    doScale(actualFactor);
     event->accept();
 }
 
 void ImageView::zoomIn()
 {
-    doScale(Constants::DEFAULT_SCALE_FACTOR);
+    qreal nextZoomLevel = nextLevel(transform().m11());
+    resetTransform();
+    doScale(nextZoomLevel);
 }
 
 void ImageView::zoomOut()
 {
-    doScale(1. / Constants::DEFAULT_SCALE_FACTOR);
+    qreal previousZoomLevel = previousLevel(transform().m11());
+    resetTransform();
+    doScale(previousZoomLevel);
 }
 
 void ImageView::resetToOriginalSize()

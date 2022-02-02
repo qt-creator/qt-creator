@@ -1,0 +1,71 @@
+<RCC>
+    <qresource>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-16/arch-arm/usr/lib/libEGL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-17/arch-arm/usr/lib/libGLESv1_CM.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-18/arch-arm/usr/lib/libGLESv2.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-19/arch-arm/usr/lib/libGLESv3.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-21/arch-arm/usr/lib/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-22/arch-arm/usr/lib/libOpenSLES.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-23/arch-arm/usr/lib/libandroid.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-24/arch-arm/usr/lib/libc.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-26/arch-arm/usr/lib/libcamera2ndk.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-27/arch-arm/usr/lib/libdl.so">android.qrc</file>
+        <file alias="/android/tst/ndk/19.2.5345600/platforms/android-28/arch-arm/usr/lib/libjnigraphics.so">android.qrc</file>
+
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/16/crtbegin_so.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/17/crtend_android.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/18/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/19/libandroid.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/21/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/22/libc.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/23/libcompiler_rt-extras.a">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/24/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/26/libEGL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/27/libGLESv1_CM.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/28/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/29/crtend_android.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/30/libaaudio.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/31/libOpenSLES.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/libz.a">android.qrc</file>
+
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/21/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/22/libc.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/libcompiler_rt-extras.a">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/24/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/26/libEGL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/27/libGLESv1_CM.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/28/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/29/crtend_android.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/30/libaaudio.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/31/libOpenSLES.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libz.a">android.qrc</file>
+
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/16/crtbegin_so.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/17/crtend_android.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/18/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/19/libandroid.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/21/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/22/libc.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/23/libcompiler_rt-extras.a">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/24/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/26/libEGL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/27/libGLESv1_CM.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/28/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/29/crtend_android.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/30/libaaudio.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/31/libOpenSLES.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libz.a">android.qrc</file>
+
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/21/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/22/libc.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/23/libcompiler_rt-extras.a">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/24/crtbegin_dynamic.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/26/libEGL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/27/libGLESv1_CM.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/28/libOpenMAXAL.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/29/crtend_android.o">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/30/libaaudio.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/31/libOpenSLES.so">android.qrc</file>
+        <file alias="/android/tst/ndk/23.1.7779620/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/libz.a">android.qrc</file>
+    </qresource>
+</RCC>

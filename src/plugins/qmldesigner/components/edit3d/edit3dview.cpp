@@ -42,6 +42,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <QDebug>
+#include <QToolButton>
 
 namespace QmlDesigner {
 
@@ -113,14 +114,17 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
-    const QString sceneKey       = QStringLiteral("sceneInstanceId");
-    const QString selectKey      = QStringLiteral("selectionMode");
-    const QString transformKey   = QStringLiteral("transformMode");
-    const QString perspectiveKey = QStringLiteral("usePerspective");
-    const QString orientationKey = QStringLiteral("globalOrientation");
-    const QString editLightKey   = QStringLiteral("showEditLight");
-    const QString gridKey        = QStringLiteral("showGrid");
-    const QString particlesPlayKey    = QStringLiteral("particlePlay");
+    const QString sceneKey         = QStringLiteral("sceneInstanceId");
+    const QString selectKey        = QStringLiteral("selectionMode");
+    const QString transformKey     = QStringLiteral("transformMode");
+    const QString perspectiveKey   = QStringLiteral("usePerspective");
+    const QString orientationKey   = QStringLiteral("globalOrientation");
+    const QString editLightKey     = QStringLiteral("showEditLight");
+    const QString gridKey          = QStringLiteral("showGrid");
+    const QString selectionBoxKey  = QStringLiteral("showSelectionBox");
+    const QString iconGizmoKey     = QStringLiteral("showIconGizmo");
+    const QString cameraFrustumKey = QStringLiteral("showCameraFrustum");
+    const QString particlesPlayKey = QStringLiteral("particlePlay");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -164,6 +168,21 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showGridAction->action()->setChecked(sceneState[gridKey].toBool());
     else
         m_showGridAction->action()->setChecked(false);
+
+    if (sceneState.contains(selectionBoxKey))
+        m_showSelectionBoxAction->action()->setChecked(sceneState[selectionBoxKey].toBool());
+    else
+        m_showSelectionBoxAction->action()->setChecked(false);
+
+    if (sceneState.contains(iconGizmoKey))
+        m_showIconGizmoAction->action()->setChecked(sceneState[iconGizmoKey].toBool());
+    else
+        m_showIconGizmoAction->action()->setChecked(false);
+
+    if (sceneState.contains(cameraFrustumKey))
+        m_showCameraFrustumAction->action()->setChecked(sceneState[cameraFrustumKey].toBool());
+    else
+        m_showCameraFrustumAction->action()->setChecked(false);
 
     if (sceneState.contains(particlesPlayKey))
         m_particlesPlayAction->action()->setChecked(sceneState[particlesPlayKey].toBool());
@@ -301,9 +320,27 @@ void Edit3DView::createEdit3DActions()
 
     m_showGridAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_SHOW_GRID, View3DActionCommand::ShowGrid,
-                QCoreApplication::translate("ShowGridAction", "Toggle Grid Visibility"),
-                QKeySequence(Qt::Key_G), true, true, Icons::EDIT3D_GRID_OFF.icon(),
-                Icons::EDIT3D_GRID_ON.icon());
+                QCoreApplication::translate("ShowGridAction", "Show Grid"),
+                QKeySequence(Qt::Key_G), true, true, {}, {}, nullptr,
+                QCoreApplication::translate("ShowGridAction", "Toggle the visibility of the helper grid."));
+
+    m_showSelectionBoxAction = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX, View3DActionCommand::ShowSelectionBox,
+                QCoreApplication::translate("ShowSelectionBoxAction", "Show Selection Boxes"),
+                QKeySequence(Qt::Key_S), true, true, {}, {}, nullptr,
+                QCoreApplication::translate("ShowSelectionBoxAction", "Toggle the visibility of selection boxes."));
+
+    m_showIconGizmoAction = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_EDIT_SHOW_ICON_GIZMO, View3DActionCommand::ShowIconGizmo,
+                QCoreApplication::translate("ShowIconGizmoAction", "Show Icon Gizmos"),
+                QKeySequence(Qt::Key_I), true, true, {}, {}, nullptr,
+                QCoreApplication::translate("ShowIconGizmoAction", "Toggle the visibility of icon gizmos, such as light and camera icons."));
+
+    m_showCameraFrustumAction = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_EDIT_SHOW_CAMERA_FRUSTUM, View3DActionCommand::ShowCameraFrustum,
+                QCoreApplication::translate("ShowCameraFrustumAction", "Always Show Camera Frustums"),
+                QKeySequence(Qt::Key_C), true, false, {}, {}, nullptr,
+                QCoreApplication::translate("ShowCameraFrustumAction", "Toggle between always showing the camera frustum visualization and only showing it when the camera is selected."));
 
     SelectionContextOperation resetTrigger = [this](const SelectionContext &) {
         m_particlesPlayAction->action()->setEnabled(particlemode);
@@ -360,6 +397,29 @@ void Edit3DView::createEdit3DActions()
                 QKeySequence(Qt::Key_P), false, false, Utils::Icons::RESET_TOOLBAR.icon(), {},
                 resetTrigger);
 
+    SelectionContextOperation visibilityTogglesTrigger = [this](const SelectionContext &) {
+        if (!edit3DWidget()->visibilityTogglesMenu())
+            return;
+
+        QPoint pos;
+        const auto &actionWidgets = m_visibilityTogglesAction->action()->associatedWidgets();
+        for (auto actionWidget : actionWidgets) {
+            if (auto button = qobject_cast<QToolButton *>(actionWidget)) {
+                pos = button->mapToGlobal(QPoint(0, 0));
+                break;
+            }
+        }
+
+        edit3DWidget()->showVisibilityTogglesMenu(!edit3DWidget()->visibilityTogglesMenu()->isVisible(),
+                                                  pos);
+    };
+
+    m_visibilityTogglesAction = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_VISIBILITY_TOGGLES, View3DActionCommand::Empty,
+                QCoreApplication::translate("VisibilityTogglesAction", "Visibility Toggles"),
+                QKeySequence(), false, false, Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
+                {}, visibilityTogglesTrigger);
+
     m_leftActions << m_selectionModeAction;
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -372,16 +432,22 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_cameraModeAction;
     m_leftActions << m_orientationModeAction;
     m_leftActions << m_editLightAction;
-    m_leftActions << m_showGridAction;
     m_leftActions << nullptr;
     m_leftActions << m_alignCamerasAction;
     m_leftActions << m_alignViewAction;
+    m_leftActions << nullptr;
+    m_leftActions << m_visibilityTogglesAction;
 
     m_rightActions << m_particleViewModeAction;
     m_rightActions << m_particlesPlayAction;
     m_rightActions << m_particlesRestartAction;
     m_rightActions << nullptr;
     m_rightActions << m_resetAction;
+
+    m_visibilityToggleActions << m_showGridAction;
+    m_visibilityToggleActions << m_showSelectionBoxAction;
+    m_visibilityToggleActions << m_showIconGizmoAction;
+    m_visibilityToggleActions << m_showCameraFrustumAction;
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const
@@ -392,6 +458,11 @@ QVector<Edit3DAction *> Edit3DView::leftActions() const
 QVector<Edit3DAction *> Edit3DView::rightActions() const
 {
     return m_rightActions;
+}
+
+QVector<Edit3DAction *> Edit3DView::visibilityToggleActions() const
+{
+    return m_visibilityToggleActions;
 }
 
 void Edit3DView::addQuick3DImport()

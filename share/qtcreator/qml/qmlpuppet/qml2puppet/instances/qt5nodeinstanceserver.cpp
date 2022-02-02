@@ -38,7 +38,14 @@
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
 #include <clearscenecommand.h>
-#include <nanotrace/nanotrace.h>
+
+// Nanotrace headers are not exported to build dir at all if the feature is disabled, so
+// runtime puppet build can't find them.
+#if NANOTRACE_ENABLED
+#include "nanotrace/nanotrace.h"
+#else
+#define NANOTRACE_SCOPE(cat, name)
+#endif
 
 #include <QDebug>
 #include <QOpenGLContext>

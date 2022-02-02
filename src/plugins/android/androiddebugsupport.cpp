@@ -168,14 +168,15 @@ void AndroidDebugSupport::start()
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
-        // TODO find a way to use the new sysroot layout
-        // instead ~/android/ndk-bundle/platforms/android-29/arch-arm64
-        // use ~/android/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/sysroot
         if (qtVersion) {
-            Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
+            const FilePath ndkLocation =
+                    AndroidConfigurations::currentConfig().ndkLocation(qtVersion);
+            Utils::FilePath sysRoot = ndkLocation
                     / "platforms"
                     / QString("android-%1").arg(sdkVersion)
-                    / devicePreferredAbi;
+                    / devicePreferredAbi; // Legacy Ndk structure
+            if (!sysRoot.exists())
+                sysRoot = AndroidConfig::toolchainPathFromNdk(ndkLocation) / "sysroot";
             setSysRoot(sysRoot);
             qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
         }

@@ -48,20 +48,17 @@ enum class Signal { Interrupt, Terminate, Kill };
 class SshDeviceProcess::SshDeviceProcessPrivate
 {
 public:
-    SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q), consoleProcess(QtcProcess::TerminalOn) {}
+    SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q) {}
 
     SshDeviceProcess * const q;
+    bool ignoreFinished = true;
     QSsh::SshConnection *connection = nullptr;
-    QSsh::SshRemoteProcessPtr process;
-    QtcProcess consoleProcess;
+    QSsh::SshRemoteProcessPtr remoteProcess;
     Runnable runnable;
     QString errorMessage;
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
     DeviceProcessSignalOperation::Ptr killOperation;
     QTimer killTimer;
-    QByteArray stdOut;
-    QByteArray stdErr;
-    int exitCode = -1;
     enum State { Inactive, Connecting, Connected, ProcessRunning } state = Inactive;
 
     void setState(State newState);
@@ -74,8 +71,10 @@ public:
 };
 
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
-    : DeviceProcess(device, parent), d(std::make_unique<SshDeviceProcessPrivate>(this))
+    : DeviceProcess(device, QtcProcess::TerminalOn, parent),
+      d(std::make_unique<SshDeviceProcessPrivate>(this))
 {
+    connect(this, &QtcProcess::finished, this, &SshDeviceProcess::handleThisProcessFinished);
     connect(&d->killTimer, &QTimer::timeout, this, &SshDeviceProcess::handleKillOperationTimeout);
 }
 
@@ -91,7 +90,6 @@ void SshDeviceProcess::start(const Runnable &runnable)
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
-    d->exitCode = -1;
     d->exitStatus = QProcess::NormalExit;
     d->runnable = runnable;
     QSsh::SshConnectionParameters params = device()->sshParameters();
@@ -147,13 +145,13 @@ QProcess::ProcessState SshDeviceProcess::state() const
 
 QProcess::ExitStatus SshDeviceProcess::exitStatus() const
 {
-    return d->exitStatus == QProcess::NormalExit && d->exitCode != 255
+    return d->exitStatus == QProcess::NormalExit && exitCode() != 255
             ? QProcess::NormalExit : QProcess::CrashExit;
 }
 
 int SshDeviceProcess::exitCode() const
 {
-    return d->exitCode;
+    return runInTerminal() ? QtcProcess::exitCode() : d->remoteProcess->exitCode();
 }
 
 QString SshDeviceProcess::errorString() const
@@ -163,16 +161,12 @@ QString SshDeviceProcess::errorString() const
 
 QByteArray SshDeviceProcess::readAllStandardOutput()
 {
-    const QByteArray data = d->stdOut;
-    d->stdOut.clear();
-    return data;
+    return d->remoteProcess.get() ? d->remoteProcess->readAllStandardOutput() : QByteArray();
 }
 
 QByteArray SshDeviceProcess::readAllStandardError()
 {
-    const QByteArray data = d->stdErr;
-    d->stdErr.clear();
-    return data;
+    return d->remoteProcess.get() ? d->remoteProcess->readAllStandardError() : QByteArray();
 }
 
 qint64 SshDeviceProcess::processId() const
@@ -185,32 +179,27 @@ void SshDeviceProcess::handleConnected()
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connecting, return);
     d->setState(SshDeviceProcessPrivate::Connected);
 
-    d->process = runInTerminal() && d->runnable.command.isEmpty()
+    d->remoteProcess = runInTerminal() && d->runnable.command.isEmpty()
             ? d->connection->createRemoteShell()
             : d->connection->createRemoteProcess(fullCommandLine(d->runnable));
     const QString display = d->displayName();
     if (!display.isEmpty())
-        d->process->requestX11Forwarding(display);
+        d->remoteProcess->requestX11Forwarding(display);
     if (runInTerminal()) {
-        connect(&d->consoleProcess, &QtcProcess::errorOccurred,
-                this, &DeviceProcess::errorOccurred);
-        connect(&d->consoleProcess, &QtcProcess::started,
-                this, &SshDeviceProcess::handleProcessStarted);
-        connect(&d->consoleProcess, &QtcProcess::finished,
-                this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
-        d->consoleProcess.setAbortOnMetaChars(false);
-        d->consoleProcess.setCommand(d->process->fullLocalCommandLine(true));
-        d->consoleProcess.start();
+        d->ignoreFinished = false;
+        setAbortOnMetaChars(false);
+        setCommand(d->remoteProcess->fullLocalCommandLine(true));
+        QtcProcess::start();
     } else {
-        connect(d->process.get(), &QSsh::SshRemoteProcess::started,
+        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
-        connect(d->process.get(), &QSsh::SshRemoteProcess::done,
-                this, &SshDeviceProcess::handleProcessFinished);
-        connect(d->process.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
-                this, &SshDeviceProcess::handleStdout);
-        connect(d->process.get(), &QSsh::SshRemoteProcess::readyReadStandardError,
-                this, &SshDeviceProcess::handleStderr);
-        d->process->start();
+        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::done,
+                this, &SshDeviceProcess::handleRemoteProcessFinished);
+        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
+                this, &QtcProcess::readyReadStandardOutput);
+        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardError,
+                this, &QtcProcess::readyReadStandardError);
+        d->remoteProcess->start();
     }
 }
 
@@ -248,32 +237,29 @@ void SshDeviceProcess::handleProcessStarted()
     emit started();
 }
 
-void SshDeviceProcess::handleProcessFinished(const QString &error)
+void SshDeviceProcess::handleThisProcessFinished()
+{
+    if (d->ignoreFinished)
+        return;
+    // Hack: we rely on fact that this slot was called before any other external slot connected
+    // to finished() signal. That's why we don't emit finished() signal from inside
+    // handleProcessFinished() since this signal will reach all other external slots anyway.
+    handleProcessFinished(QtcProcess::errorString(), false);
+}
+
+void SshDeviceProcess::handleRemoteProcessFinished(const QString &error)
+{
+    handleProcessFinished(error, true);
+}
+
+void SshDeviceProcess::handleProcessFinished(const QString &error, bool emitFinished)
 {
     d->errorMessage = error;
-    d->exitCode = runInTerminal() ? d->consoleProcess.exitCode() : d->process->exitCode();
     if (d->killOperation && error.isEmpty())
         d->errorMessage = tr("The process was ended forcefully.");
     d->setState(SshDeviceProcessPrivate::Inactive);
-    emit finished();
-}
-
-void SshDeviceProcess::handleStdout()
-{
-    QByteArray output = d->process->readAllStandardOutput();
-    if (output.isEmpty())
-        return;
-    d->stdOut += output;
-    emit readyReadStandardOutput();
-}
-
-void SshDeviceProcess::handleStderr()
-{
-    QByteArray output = d->process->readAllStandardError();
-    if (output.isEmpty())
-        return;
-    d->stdErr += output;
-    emit readyReadStandardError();
+    if (emitFinished)
+        emit finished();
 }
 
 void SshDeviceProcess::handleKillOperationFinished(const QString &errorMessage)
@@ -356,12 +342,12 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         killOperation->disconnect(q);
         killOperation.clear();
         if (q->runInTerminal())
-            QMetaObject::invokeMethod(&consoleProcess, &QtcProcess::stopProcess, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(q, &QtcProcess::stopProcess, Qt::QueuedConnection);
     }
     killTimer.stop();
-    consoleProcess.disconnect();
-    if (process)
-        process->disconnect(q);
+    ignoreFinished = true;
+    if (remoteProcess)
+        remoteProcess->disconnect(q);
     if (connection) {
         connection->disconnect(q);
         QSsh::SshConnectionManager::releaseConnection(connection);
@@ -372,7 +358,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
 qint64 SshDeviceProcess::write(const QByteArray &data)
 {
     QTC_ASSERT(!runInTerminal(), return -1);
-    return d->process->write(data);
+    return d->remoteProcess->write(data);
 }
 
 } // namespace ProjectExplorer

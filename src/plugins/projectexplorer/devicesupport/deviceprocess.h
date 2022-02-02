@@ -27,8 +27,8 @@
 
 #include "../projectexplorer_export.h"
 
-#include <QObject>
-#include <QProcess>
+#include <utils/qtcprocess.h>
+
 #include <QSharedPointer>
 #include <QStringList>
 
@@ -37,38 +37,21 @@ namespace ProjectExplorer {
 class IDevice;
 class Runnable;
 
-class PROJECTEXPLORER_EXPORT DeviceProcess : public QObject
+class PROJECTEXPLORER_EXPORT DeviceProcess : public Utils::QtcProcess
 {
     Q_OBJECT
 public:
+    using Utils::QtcProcess::start;
     virtual void start(const Runnable &runnable) = 0;
-    virtual void interrupt() = 0;
-    virtual void terminate() = 0;
-    virtual void kill() = 0;
-
-    virtual QProcess::ProcessState state() const = 0;
-    virtual QProcess::ExitStatus exitStatus() const = 0;
-    virtual int exitCode() const = 0;
-    virtual QString errorString() const = 0;
-
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual QByteArray readAllStandardError() = 0;
-
-    virtual qint64 write(const QByteArray &data) = 0;
 
     void setRunInTerminal(bool term) { m_runInTerminal = term; }
     bool runInTerminal() const { return m_runInTerminal; }
 
-signals:
-    void started();
-    void finished();
-    void errorOccurred(QProcess::ProcessError error);
-
-    void readyReadStandardOutput();
-    void readyReadStandardError();
-
 protected:
-    explicit DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
+    explicit DeviceProcess(const QSharedPointer<const IDevice> &device,
+                           const Utils::QtcProcess::Setup &setup,
+                           QObject *parent = nullptr);
+
     QSharedPointer<const IDevice> device() const;
 
 private:

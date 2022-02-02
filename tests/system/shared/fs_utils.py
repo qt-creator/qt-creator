@@ -35,10 +35,10 @@ def changeFilePermissions(dirPath, readPerm, writePerm, excludeFileNames=None):
         permission |= stat.S_IWRITE
     if excludeFileNames == None:
         excludeFileNames = []
-    elif isinstance(excludeFileNames, (str, unicode)):
+    elif isString(excludeFileNames):
         excludeFileNames = [excludeFileNames]
     if not isinstance(excludeFileNames, (tuple, list)):
-        test.warning("File names to exclude must be of type str, unicode, list, tuple or None - "
+        test.warning("File names to exclude must be of type str, list, tuple or None - "
                      "ignoring parameter this time.")
         excludeFileNames = []
     if not os.path.isdir(dirPath):

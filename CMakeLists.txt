@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 ## Add paths to check for cmake modules:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -138,15 +138,8 @@ endif()
 
 add_subdirectory(doc)
 
-# TODO: Remove when cmake_minimum_required greater than 3.12
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  find_package(Python3 COMPONENTS Interpreter)
-  set(PYTHONINTERP_FOUND ${Python3_Interpreter_FOUND})
-  set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-else()
-  find_package(PythonInterp)
-endif()
-if (NOT PYTHONINTERP_FOUND)
+find_package(Python3 COMPONENTS Interpreter)
+if (NOT Python3_Interpreter_FOUND)
   message("No python interpreter found, skipping \"Dependencies\" install component.")
 else()
   get_target_property(_qmake_binary Qt5::qmake IMPORTED_LOCATION)
@@ -161,7 +154,7 @@ else()
   endif()
   install(CODE "
       execute_process(COMMAND
-        \"${PYTHON_EXECUTABLE}\"
+        \"${Python3_EXECUTABLE}\"
         \"${CMAKE_CURRENT_LIST_DIR}/scripts/deployqt.py\"
         ${_llvm_arg}
         ${_elfutils_arg}

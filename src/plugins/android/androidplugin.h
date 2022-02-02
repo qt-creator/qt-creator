@@ -48,6 +48,8 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 private slots:
    void testAndroidSdkManagerProgressParser_data();
    void testAndroidSdkManagerProgressParser();
+   void testAndroidConfigAvailableNdkPlatforms_data();
+   void testAndroidConfigAvailableNdkPlatforms();
 #endif // WITH_TESTS
 };
 

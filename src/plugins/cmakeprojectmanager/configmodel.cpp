@@ -180,6 +180,42 @@ void ConfigModel::toggleUnsetFlag(const QModelIndex &idx)
     emit dataChanged(keyIdx, valueIdx);
 }
 
+void ConfigModel::applyKitValue(const QModelIndex &idx)
+{
+    applyKitOrInitialValue(idx, KitOrInitial::Kit);
+}
+
+void ConfigModel::applyInitialValue(const QModelIndex &idx)
+{
+    applyKitOrInitialValue(idx, KitOrInitial::Initial);
+}
+
+void ConfigModel::applyKitOrInitialValue(const QModelIndex &idx, KitOrInitial ki)
+{
+    Utils::TreeItem *item = itemForIndex(idx);
+    auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
+
+    QTC_ASSERT(cmti, return );
+
+    auto dataItem = cmti->dataItem;
+    const QString &kitOrInitialValue = ki == KitOrInitial::Kit ? dataItem->kitValue
+                                                               : dataItem->initialValue;
+
+    // Allow a different value when the user didn't change anything (don't mark the same value as new)
+    // But allow the same value (going back) when the user did a change
+    const bool canSetValue = (dataItem->value != kitOrInitialValue && !dataItem->isUserChanged)
+                             || dataItem->isUserChanged;
+
+    if (!kitOrInitialValue.isEmpty() && canSetValue) {
+        dataItem->newValue = kitOrInitialValue;
+        dataItem->isUserChanged = dataItem->value != kitOrInitialValue;
+
+        const QModelIndex valueIdx = idx.sibling(idx.row(), 1);
+        const QModelIndex keyIdx = idx.sibling(idx.row(), 0);
+        emit dataChanged(keyIdx, valueIdx);
+    }
+}
+
 ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
 {
     const QAbstractItemModel *m = idx.model();
@@ -272,46 +308,68 @@ void ConfigModel::setInitialParametersConfiguration(const CMakeConfig &config)
 
 void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &config)
 {
-    QList<InternalDataItem> tmp = config;
-    auto newIt = tmp.constBegin();
-    auto newEndIt = tmp.constEnd();
-    auto oldIt = m_configuration.constBegin();
-    auto oldEndIt = m_configuration.constEnd();
+    auto mergeLists = [](const QList<InternalDataItem> &oldList,
+                         const QList<InternalDataItem> &newList) -> QList<InternalDataItem> {
+        auto newIt = newList.constBegin();
+        auto newEndIt = newList.constEnd();
+        auto oldIt = oldList.constBegin();
+        auto oldEndIt = oldList.constEnd();
 
-    QList<InternalDataItem> result;
-    while (newIt != newEndIt && oldIt != oldEndIt) {
-        if (oldIt->isUnset) {
-            ++oldIt;
-        } else if (newIt->isHidden || newIt->isUnset) {
-            ++newIt;
-        } else if (newIt->key < oldIt->key) {
-            // Add new entry:
-            result << *newIt;
-            ++newIt;
-        } else if (newIt->key > oldIt->key) {
-            // Keep old user settings, but skip other entries:
-            if (oldIt->isUserChanged || oldIt->isUserNew)
-                result << InternalDataItem(*oldIt);
-            ++oldIt;
-        } else {
-            // merge old/new entry:
-            InternalDataItem item(*newIt);
-            item.newValue = (newIt->value != oldIt->newValue) ? oldIt->newValue : QString();
-            item.isUserChanged = !item.newValue.isEmpty() && (item.newValue != item.value);
-            result << item;
-            ++newIt;
-            ++oldIt;
+        QList<InternalDataItem> result;
+        while (newIt != newEndIt && oldIt != oldEndIt) {
+            if (oldIt->isUnset) {
+                ++oldIt;
+            } else if (newIt->isHidden || newIt->isUnset) {
+                ++newIt;
+            } else if (newIt->key < oldIt->key) {
+                // Add new entry:
+                result << *newIt;
+                ++newIt;
+            } else if (newIt->key > oldIt->key) {
+                // Keep old user settings, but skip other entries:
+                if (oldIt->isUserChanged || oldIt->isUserNew)
+                    result << InternalDataItem(*oldIt);
+                ++oldIt;
+            } else {
+                // merge old/new entry:
+                InternalDataItem item(*newIt);
+                item.newValue = (newIt->value != oldIt->newValue) ? oldIt->newValue : QString();
+
+                // Do not mark as user changed when we have a reset
+                if (oldIt->isUserChanged && !oldIt->newValue.isEmpty() &&
+                    !newIt->isUserChanged && newIt->newValue.isEmpty() &&
+                    oldIt->value == newIt->value)
+                    item.newValue.clear();
+
+                item.isUserChanged = !item.newValue.isEmpty() && (item.newValue != item.value);
+                result << item;
+                ++newIt;
+                ++oldIt;
+            }
         }
-    }
 
-    // Add remaining new entries:
-    for (; newIt != newEndIt; ++newIt) {
-        if (newIt->isHidden)
-            continue;
-        result << InternalDataItem(*newIt);
-    }
+        // Add remaining new entries:
+        for (; newIt != newEndIt; ++newIt) {
+            if (newIt->isHidden)
+                continue;
+            result << InternalDataItem(*newIt);
+        }
 
-    m_configuration = result;
+        return result;
+    };
+
+    auto isInitial = [](const InternalDataItem &i) { return i.isInitial; };
+
+    QList<InternalDataItem> initialOld;
+    QList<InternalDataItem> currentOld;
+    std::tie(initialOld, currentOld) = Utils::partition(m_configuration, isInitial);
+
+    QList<InternalDataItem> initialNew;
+    QList<InternalDataItem> currentNew;
+    std::tie(initialNew, currentNew) = Utils::partition(config, isInitial);
+
+    m_configuration = mergeLists(initialOld, initialNew);
+    m_configuration.append(mergeLists(currentOld, currentNew));
 
     generateTree();
 }
@@ -511,10 +569,9 @@ QString ConfigModelTreeItem::toolTip() const
             tooltip << QCoreApplication::translate("CMakeProjectManager", "<p>Kit: <b>%1</b></p>")
                            .arg(dataItem->kitValue);
 
-        if (dataItem->value != dataItem->newValue)
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Initial Configuration: <b>%1</b></p>")
-                           .arg(dataItem->value);
+        tooltip << QCoreApplication::translate("CMakeProjectManager",
+                                               "<p>Initial Configuration: <b>%1</b></p>")
+                       .arg(dataItem->currentValue());
     } else {
         if (!dataItem->initialValue.isEmpty())
             tooltip << QCoreApplication::translate("CMakeProjectManager",
@@ -522,10 +579,9 @@ QString ConfigModelTreeItem::toolTip() const
                            .arg(dataItem->initialValue);
 
         if (dataItem->inCMakeCache) {
-            if (dataItem->value != dataItem->newValue)
-                tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                       "<p>Current Configuration: <b>%1</b></p>")
-                               .arg(dataItem->value);
+            tooltip << QCoreApplication::translate("CMakeProjectManager",
+                                                   "<p>Current Configuration: <b>%1</b></p>")
+                           .arg(dataItem->currentValue());
         } else {
             tooltip << QCoreApplication::translate("CMakeProjectManager",
                                                    "<p>Not in CMakeCache.txt</p>");

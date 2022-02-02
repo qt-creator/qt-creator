@@ -60,7 +60,7 @@ void Edit3DActionTemplate::actionTriggered(bool b)
 Edit3DAction::Edit3DAction(const QByteArray &menuId, View3DActionCommand::Type type,
                            const QString &description, const QKeySequence &key, bool checkable,
                            bool checked, const QIcon &iconOff, const QIcon &iconOn,
-                           SelectionContextOperation selectionAction)
+                           SelectionContextOperation selectionAction, const QString &toolTip)
     : AbstractAction(new Edit3DActionTemplate(description, selectionAction, type))
     , m_menuId(menuId)
 {
@@ -68,6 +68,11 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId, View3DActionCommand::Type t
     action()->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     action()->setCheckable(checkable);
     action()->setChecked(checked);
+
+    // Description will be used as tooltip by default if no explicit tooltip is provided
+    if (!toolTip.isEmpty())
+        action()->setToolTip(toolTip);
+
     if (checkable) {
         QIcon onOffIcon;
         const auto onAvail = iconOn.availableSizes(); // Assume both icons have same sizes available

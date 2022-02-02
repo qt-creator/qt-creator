@@ -40,18 +40,12 @@ public:
     explicit LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
                                 QObject *parent = nullptr);
 
-    // Files to source before executing the command (if they exist). Overrides the default.
-    void setRcFilesToSource(const QStringList &filePaths);
-
     QByteArray readAllStandardOutput() override;
 
 private:
     QString fullCommandLine(const ProjectExplorer::Runnable &) const override;
     qint64 processId() const override;
 
-    const QStringList rcFilesToSource() const;
-
-    QStringList m_rcFilesToSource;
     QByteArray m_output;
     qint64 m_processId = 0;
     bool m_pidParsed = false;

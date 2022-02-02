@@ -39,6 +39,9 @@ Item {
 
     property bool showEditLight: false
     property bool showGrid: true
+    property bool showSelectionBox: true
+    property bool showIconGizmo: true
+    property bool showCameraFrustum: false
     property bool usePerspective: true
     property bool globalOrientation: false
     property alias contentItem: contentItem
@@ -70,6 +73,9 @@ Item {
     onShowEditLightChanged:     _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
     onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
     onShowGridChanged:          _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
+    onShowSelectionBoxChanged:  _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
+    onShowIconGizmoChanged:     _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
+    onShowCameraFrustumChanged: _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
     onSelectionModeChanged:     _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
     onTransformModeChanged:     _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
 
@@ -220,6 +226,21 @@ Item {
         else if (resetToDefault)
             showGrid = true;
 
+        if ("showSelectionBox" in toolStates)
+            showSelectionBox = toolStates.showSelectionBox;
+        else if (resetToDefault)
+            showSelectionBox = true;
+
+        if ("showIconGizmo" in toolStates)
+            showIconGizmo = toolStates.showIconGizmo;
+        else if (resetToDefault)
+            showIconGizmo = true;
+
+        if ("showCameraFrustum" in toolStates)
+            showCameraFrustum = toolStates.showCameraFrustum;
+        else if (resetToDefault)
+            showCameraFrustum = false;
+
         if ("usePerspective" in toolStates)
             usePerspective = toolStates.usePerspective;
         else if (resetToDefault)
@@ -250,6 +271,9 @@ Item {
     {
         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
         _generalHelper.storeToolState(sceneId, "showGrid", showGrid)
+        _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
+        _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)
+        _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum)
         _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
         _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
@@ -273,6 +297,7 @@ Item {
                                                      "geometryName": geometryName});
                     selectionBoxes[selectionBoxes.length] = box;
                     box.view3D = Qt.binding(function() {return editView;});
+                    box.visible = Qt.binding(function() {return showSelectionBox;});
                 }
             }
         }
@@ -373,11 +398,13 @@ Item {
                                                      "selectedNodes": selectedNodes, "scene": scene,
                                                      "activeScene": activeScene,
                                                      "locked": _generalHelper.isLocked(obj),
-                                                     "hidden": _generalHelper.isHidden(obj)});
+                                                     "hidden": _generalHelper.isHidden(obj),
+                                                     "globalShow": showIconGizmo});
             lightIconGizmos[lightIconGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
+            gizmo.globalShow = Qt.binding(function() {return showIconGizmo;});
         }
     }
 
@@ -416,12 +443,15 @@ Item {
                         overlayView,
                         {"view3D": overlayView, "targetNode": obj,
                          "selectedNodes": selectedNodes, "scene": scene, "activeScene": activeScene,
-                         "locked": _generalHelper.isLocked(obj), "hidden": _generalHelper.isHidden(obj)});
+                         "locked": _generalHelper.isLocked(obj), "hidden": _generalHelper.isHidden(obj),
+                         "globalShow": showIconGizmo, "globalShowFrustum": showCameraFrustum});
 
             cameraGizmos[cameraGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
+            gizmo.globalShow = Qt.binding(function() {return showIconGizmo;});
+            gizmo.globalShowFrustum = Qt.binding(function() {return showCameraFrustum;});
             frustum.viewPortRect = Qt.binding(function() {return viewPortRect;});
             gizmo.connectFrustum(frustum);
         }

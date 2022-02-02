@@ -33,11 +33,8 @@ import StudioTheme 1.0 as StudioTheme
 Rectangle {
     id: myRoot
 
-    color: baseColor
-
     property bool isBaseState
     property bool isCurrentState
-    property color baseColor
     property string delegateStateName
     property string delegateStateImageSource
     property bool delegateHasWhenCondition
@@ -47,14 +44,14 @@ Rectangle {
     property int bottomAreaHeight
     property int stateMargin
     property int previewMargin
-    property int columnSpacing
 
     readonly property bool isDefaultState: isDefault
 
     property int closeButtonMargin: 6
     property int textFieldMargin: 4
 
-    signal delegateInteraction
+    property int scrollBarH: 0
+    property int listMargin: 0
 
     function autoComplete(text, pos, explicitComplete, filter) {
         var stringList = statesEditorModel.autoComplete(text, pos, explicitComplete)
@@ -65,14 +62,16 @@ Rectangle {
         return statesEditorModel.hasAnnotation(internalNodeId)
     }
 
+    color: isCurrentState ? StudioTheme.Values.themeInteraction
+                          : StudioTheme.Values.themeControlBackgroundInteraction
     MouseArea {
         id: mouseArea
         anchors.fill: parent
+
         onClicked: {
             focus = true
             root.currentStateInternalId = internalNodeId
             contextMenu.dismiss() // close potentially open context menu
-            myRoot.delegateInteraction()
         }
     }
 
@@ -89,7 +88,6 @@ Rectangle {
         visible: !isBaseState && isCurrentState
 
         onClicked: {
-            myRoot.delegateInteraction()
             if (isDefaultState)
                 statesEditorModel.resetDefaultState()
 
@@ -254,9 +252,8 @@ Rectangle {
 
         Rectangle { // separator
             width: column.width
-            height: myRoot.columnSpacing
+            height: 2
             color: StudioTheme.Values.themeStateSeparator
-            visible: expanded
         }
 
         Rectangle {
@@ -264,7 +261,6 @@ Rectangle {
             width: myRoot.width - 2 * myRoot.stateMargin
             height: myRoot.bottomAreaHeight
             color: StudioTheme.Values.themeStateBackground
-            visible: expanded
 
             Image {
                 anchors.fill: stateImageBackground
