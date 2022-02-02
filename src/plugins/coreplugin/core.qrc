@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/core">
-        <file alias="images/qtcreatorlogo-big.png">images/logo/128/QtProject-qtcreator.png</file>
-        <file alias="images/qtcreatorlogo-big@2x.png">images/logo/256/QtProject-qtcreator.png</file>
         <file>images/settingscategory_core.png</file>
         <file>images/settingscategory_core@2x.png</file>
         <file>images/settingscategory_design.png</file>

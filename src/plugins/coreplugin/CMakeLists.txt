@@ -1,7 +1,7 @@
 if (NOT IS_ABSOLUTE ${IDE_LOGO_PATH})
   set(IDE_LOGO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_LOGO_PATH}")
 endif()
-configure_file(core.qrc.cmakein core_cmake.qrc)
+configure_file(core_logo.qrc.cmakein core_logo_cmake.qrc)
 
 add_qtc_plugin(Core
   DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
@@ -15,7 +15,8 @@ add_qtc_plugin(Core
     actionmanager/commandsfile.cpp actionmanager/commandsfile.h
     basefilewizard.cpp basefilewizard.h
     basefilewizardfactory.cpp basefilewizardfactory.h
-    ${CMAKE_CURRENT_BINARY_DIR}/core_cmake.qrc
+    ${CMAKE_CURRENT_BINARY_DIR}/core_logo_cmake.qrc
+    core.qrc
     core_global.h
     coreconstants.h
     coreicons.cpp coreicons.h
