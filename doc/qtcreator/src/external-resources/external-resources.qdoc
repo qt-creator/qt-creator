@@ -114,6 +114,14 @@
     \title Qt Application Manager
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/manual/cmake.1.html
+    \title CMake: cmake(1)
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/manual/cmake-variables.7.html
+    \title CMake: cmake-variables(7)
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/command/install.html
     \title CMake: install command
 */

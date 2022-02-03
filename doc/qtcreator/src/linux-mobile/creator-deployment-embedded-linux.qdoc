@@ -57,7 +57,7 @@
 
     The process to add files to deploy depends on the build system you use.
 
-    \section2 CMake
+    \section2 CMake Builds
 
     When using CMake as the build system, use the \l{CMake: install command}
     {install} command in the CMakeLists.txt file to add the missing files.
@@ -75,7 +75,7 @@
     )
     \endcode
 
-    \section2 qmake
+    \section2 qmake Builds
 
     When using qmake, edit the \l{Variables#installs}{INSTALLS variable} in
     the project \c .pro file.
