@@ -690,7 +690,6 @@ private:
                             Storage::Imports &moduleDependencies,
                             const SourceIds &updatedModuleDependencySourceIds)
     {
-        deleteDocumentImportsForDeletedDocuments(imports, updatedSourceIds);
 
         synchronizeDocumentImports(imports, updatedSourceIds, Storage::ImportKind::Import);
         synchronizeDocumentImports(moduleDependencies,
@@ -698,26 +697,6 @@ private:
                                    Storage::ImportKind::ModuleDependency);
     }
 
-    void deleteDocumentImportsForDeletedDocuments(Storage::Imports &imports,
-                                                  const SourceIds &updatedSourceIds)
-    {
-        SourceIds importSourceIds = Utils::transform<SourceIds>(imports,
-                                                                [](const Storage::Import &import) {
-                                                                    return import.sourceId;
-                                                                });
-
-        std::sort(importSourceIds.begin(), importSourceIds.end());
-
-        SourceIds documentSourceIdsToBeDeleted;
-
-        std::set_difference(updatedSourceIds.begin(),
-                            updatedSourceIds.end(),
-                            importSourceIds.begin(),
-                            importSourceIds.end(),
-                            std::back_inserter(documentSourceIdsToBeDeleted));
-
-        deleteDocumentImportsWithSourceIdsStatement.write(toIntegers(documentSourceIdsToBeDeleted));
-    }
 
     ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const
     {
