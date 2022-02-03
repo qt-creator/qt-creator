@@ -207,6 +207,9 @@ public:
     using CustomInspectorTabs = QList<CustomInspectorTab>;
     virtual const CustomInspectorTabs createCustomInspectorTabs() { return {}; }
 
+    // Caller takes ownership
+    virtual TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const;
+
 signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);
     void capabilitiesChanged(const DynamicCapabilities &capabilities);

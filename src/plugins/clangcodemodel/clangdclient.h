@@ -105,6 +105,7 @@ private:
     QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
                                               TextEditor::TextDocument *doc) override;
     const CustomInspectorTabs createCustomInspectorTabs() override;
+    TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const override;
 
     class Private;
     class FollowSymbolData;

@@ -122,7 +122,7 @@ class TEXTEDITOR_EXPORT RefactoringChanges
 public:
     using Range = Utils::ChangeSet::Range;
 
-    RefactoringChanges();
+    explicit RefactoringChanges(RefactoringChangesData *data = nullptr);
     virtual ~RefactoringChanges();
 
     static RefactoringFilePtr file(TextEditorWidget *editor);
@@ -134,8 +134,6 @@ public:
     bool removeFile(const Utils::FilePath &filePath) const;
 
 protected:
-    explicit RefactoringChanges(RefactoringChangesData *data);
-
     static TextEditorWidget *openEditor(const Utils::FilePath &filePath,
                                         bool activate,
                                         int line,

@@ -421,7 +421,7 @@ void SymbolSupport::applyRename(const QList<Core::SearchResultItem> &checkedItem
     }
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)
-        applyTextEdits(it.key(), it.value());
+        applyTextEdits(m_client, it.key(), it.value());
 }
 
 Core::Search::TextRange SymbolSupport::convertRange(const Range &range)

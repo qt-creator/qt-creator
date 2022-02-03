@@ -48,12 +48,8 @@ using namespace Utils;
 
 namespace TextEditor {
 
-RefactoringChanges::RefactoringChanges()
-    : m_data(new RefactoringChangesData)
-{}
-
 RefactoringChanges::RefactoringChanges(RefactoringChangesData *data)
-    : m_data(data)
+    : m_data(data ? data : new RefactoringChangesData)
 {}
 
 RefactoringChanges::~RefactoringChanges() = default;

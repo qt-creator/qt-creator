@@ -1165,6 +1165,11 @@ void Client::log(const QString &message) const
     }
 }
 
+TextEditor::RefactoringChangesData *Client::createRefactoringChangesBackend() const
+{
+    return new TextEditor::RefactoringChangesData;
+}
+
 const ServerCapabilities &Client::capabilities() const
 {
     return m_serverCapabilities;

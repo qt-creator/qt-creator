@@ -51,6 +51,7 @@
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppfindreferences.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpprefactoringchanges.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppvirtualfunctionassistprovider.h>
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
@@ -1526,6 +1527,12 @@ QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &curso
 const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
 {
     return {std::make_pair(new MemoryUsageWidget(this), tr("Memory Usage"))};
+}
+
+RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
+{
+    return new CppEditor::CppRefactoringChangesData(
+                CppEditor::CppModelManager::instance()->snapshot());
 }
 
 QVersionNumber ClangdClient::versionNumber() const

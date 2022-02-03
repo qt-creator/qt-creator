@@ -27,6 +27,9 @@
 
 #include "cppeditor_global.h"
 
+#include "cppmodelmanager.h"
+#include "cppworkingcopy.h"
+
 #include <cplusplus/CppDocument.h>
 
 #include <texteditor/refactoringchanges.h>
@@ -77,6 +80,26 @@ protected:
     mutable CPlusPlus::Document::Ptr m_cppDocument;
 
     friend class CppRefactoringChanges; // for access to constructor
+};
+
+class CPPEDITOR_EXPORT CppRefactoringChangesData : public TextEditor::RefactoringChangesData
+{
+public:
+    explicit CppRefactoringChangesData(const CPlusPlus::Snapshot &snapshot);
+
+    void indentSelection(const QTextCursor &selection,
+                         const Utils::FilePath &filePath,
+                         const TextEditor::TextDocument *textDocument) const override;
+
+    void reindentSelection(const QTextCursor &selection,
+                           const Utils::FilePath &filePath,
+                           const TextEditor::TextDocument *textDocument) const override;
+
+    void fileChanged(const Utils::FilePath &filePath) override;
+
+    CPlusPlus::Snapshot m_snapshot;
+    CppModelManager *m_modelManager;
+    WorkingCopy m_workingCopy;
 };
 
 class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
