@@ -28,7 +28,7 @@
 #include "navigatorwidget.h"
 #include "choosefrompropertylistdialog.h"
 #include "qmldesignerplugin.h"
-#include "itemlibrarywidget.h"
+#include "assetslibrarywidget.h"
 
 #include <bindingproperty.h>
 #include <designersettings.h>
@@ -568,7 +568,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                 if (document && !document->inFileComponentModelActive()) {
                     QSet<QString> neededImports;
                     for (const QString &assetPath : assetsPaths) {
-                        QString assetType = ItemLibraryWidget::getAssetTypeAndData(assetPath).first;
+                        QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
                         if (assetType == "application/vnd.bauhaus.libraryresource.shader")
                             neededImports.insert("QtQuick3D");
                         else if (assetType == "application/vnd.bauhaus.libraryresource.sound")
@@ -584,7 +584,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
 
                 m_view->executeInTransaction("NavigatorTreeModel::dropMimeData", [&] {
                     for (const QString &assetPath : assetsPaths) {
-                        auto assetTypeAndData = ItemLibraryWidget::getAssetTypeAndData(assetPath);
+                        auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetPath);
                         QString assetType = assetTypeAndData.first;
                         QString assetData = QString::fromUtf8(assetTypeAndData.second);
                         if (assetType == "application/vnd.bauhaus.libraryresource.image")

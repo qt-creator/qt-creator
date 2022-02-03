@@ -32,28 +32,40 @@ import StudioTheme 1.0 as StudioTheme
 Column {
     id: root
 
-    Text {
-        id: header
-        text: qsTr("Select a Module to Add")
-        color: StudioTheme.Values.themeTextColor
-        font.pixelSize: 16
-        width: parent.width
-        height: 50
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
+    spacing: 5
+
+    signal back()
+
+    Row {
+        spacing: 5
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        Button {
+            anchors.verticalCenter: parent.verticalCenter
+            text: "<"
+            width: 25
+            height: 25
+            onClicked: back()
+        }
+
+        Text {
+            text: qsTr("Select a Module to Add")
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: 16
+        }
     }
 
     ScrollView { // ListView not used because of QTBUG-52941
         id: listView
         width: parent.width
-        height: parent.height - header.height
+        height: parent.height - y
         clip: true
 
         Column {
             spacing: 2
 
             Repeater {
-                model: addImportModel
+                model: addModuleModel
 
                 delegate: Rectangle {
                     id: itemBackground

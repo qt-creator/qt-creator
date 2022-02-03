@@ -29,10 +29,10 @@
 
 namespace QmlDesigner {
 
-class ItemLibraryAssetsDirsModel;
-class ItemLibraryAssetsFilesModel;
+class AssetsLibraryDirsModel;
+class AssetsLibraryFilesModel;
 
-class ItemLibraryAssetsDir : public QObject
+class AssetsLibraryDir : public QObject
 {
     Q_OBJECT
 
@@ -45,7 +45,7 @@ class ItemLibraryAssetsDir : public QObject
     Q_PROPERTY(QObject *dirsModel READ dirsModel NOTIFY dirsModelChanged)
 
 public:
-    ItemLibraryAssetsDir(const QString &path, int depth, bool expanded = true, QObject *parent = nullptr);
+    AssetsLibraryDir(const QString &path, int depth, bool expanded = true, QObject *parent = nullptr);
 
     QString dirName() const;
     QString dirPath() const;
@@ -59,9 +59,9 @@ public:
     QObject *filesModel() const;
     QObject *dirsModel() const;
 
-    QList<ItemLibraryAssetsDir *> childAssetsDirs() const;
+    QList<AssetsLibraryDir *> childAssetsDirs() const;
 
-    void addDir(ItemLibraryAssetsDir *assetsDir);
+    void addDir(AssetsLibraryDir *assetsDir);
     void addFile(const QString &filePath);
 
 signals:
@@ -78,8 +78,8 @@ private:
     int m_dirDepth = 0;
     bool m_dirExpanded = true;
     bool m_dirVisible = true;
-    ItemLibraryAssetsDirsModel *m_dirsModel = nullptr;
-    ItemLibraryAssetsFilesModel *m_filesModel = nullptr;
+    AssetsLibraryDirsModel *m_dirsModel = nullptr;
+    AssetsLibraryFilesModel *m_filesModel = nullptr;
 };
 
 } // namespace QmlDesigner

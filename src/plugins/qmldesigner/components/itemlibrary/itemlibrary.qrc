@@ -1,39 +1,9 @@
 <RCC>
     <qresource prefix="/ItemLibrary">
-        <file>images/item-default-icon.png</file>
         <file>images/item-invalid-icon.png</file>
+        <file>images/item-default-icon.png</file>
         <file>images/item-default-icon@2x.png</file>
         <file>images/item-3D_model-icon.png</file>
         <file>images/item-3D_model-icon@2x.png</file>
-        <file>images/asset_font_32.png</file>
-        <file>images/asset_font_48.png</file>
-        <file>images/asset_font_64.png</file>
-        <file>images/asset_font_96.png</file>
-        <file>images/asset_font_128.png</file>
-        <file>images/asset_font_192.png</file>
-        <file>images/asset_font_256.png</file>
-        <file>images/asset_font_384.png</file>
-        <file>images/asset_shader_32.png</file>
-        <file>images/asset_shader_48.png</file>
-        <file>images/asset_shader_64.png</file>
-        <file>images/asset_shader_96.png</file>
-        <file>images/asset_shader_128.png</file>
-        <file>images/asset_shader_192.png</file>
-        <file>images/asset_shader_256.png</file>
-        <file>images/asset_shader_384.png</file>
-        <file>images/asset_sound_32.png</file>
-        <file>images/asset_sound_48.png</file>
-        <file>images/asset_sound_64.png</file>
-        <file>images/asset_sound_96.png</file>
-        <file>images/asset_sound_128.png</file>
-        <file>images/asset_sound_192.png</file>
-        <file>images/asset_sound_256.png</file>
-        <file>images/asset_sound_384.png</file>
-        <file>images/x.png</file>
-        <file>images/x@2x.png</file>
-        <file>images/browse.png</file>
-        <file>images/browse@2x.png</file>
-        <file>images/item-video-icon.png</file>
-        <file>images/item-video-icon@2x.png</file>
     </qresource>
 </RCC>

@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-#include "itemlibraryassetsdir.h"
-#include "itemlibraryassetsdirsmodel.h"
-#include "itemlibraryassetsfilesmodel.h"
+#include "assetslibrarydir.h"
+#include "assetslibrarydirsmodel.h"
+#include "assetslibraryfilesmodel.h"
 
 namespace QmlDesigner {
 
-ItemLibraryAssetsDir::ItemLibraryAssetsDir(const QString &path, int depth, bool expanded, QObject *parent)
+AssetsLibraryDir::AssetsLibraryDir(const QString &path, int depth, bool expanded, QObject *parent)
     : QObject(parent)
     , m_dirPath(path)
     , m_dirDepth(depth)
@@ -38,13 +38,13 @@ ItemLibraryAssetsDir::ItemLibraryAssetsDir(const QString &path, int depth, bool 
 
 }
 
-QString ItemLibraryAssetsDir::dirName() const { return m_dirPath.split('/').last(); }
-QString ItemLibraryAssetsDir::dirPath() const { return m_dirPath; }
-int ItemLibraryAssetsDir::dirDepth() const { return m_dirDepth; }
-bool ItemLibraryAssetsDir::dirExpanded() const { return m_dirExpanded; }
-bool ItemLibraryAssetsDir::dirVisible() const { return m_dirVisible; }
+QString AssetsLibraryDir::dirName() const { return m_dirPath.split('/').last(); }
+QString AssetsLibraryDir::dirPath() const { return m_dirPath; }
+int AssetsLibraryDir::dirDepth() const { return m_dirDepth; }
+bool AssetsLibraryDir::dirExpanded() const { return m_dirExpanded; }
+bool AssetsLibraryDir::dirVisible() const { return m_dirVisible; }
 
-void ItemLibraryAssetsDir::setDirExpanded(bool expand)
+void AssetsLibraryDir::setDirExpanded(bool expand)
 {
     if (m_dirExpanded != expand) {
         m_dirExpanded = expand;
@@ -52,7 +52,7 @@ void ItemLibraryAssetsDir::setDirExpanded(bool expand)
     }
 }
 
-void ItemLibraryAssetsDir::setDirVisible(bool visible)
+void AssetsLibraryDir::setDirVisible(bool visible)
 {
     if (m_dirVisible != visible) {
         m_dirVisible = visible;
@@ -60,17 +60,17 @@ void ItemLibraryAssetsDir::setDirVisible(bool visible)
     }
 }
 
-QObject *ItemLibraryAssetsDir::filesModel() const
+QObject *AssetsLibraryDir::filesModel() const
 {
     return m_filesModel;
 }
 
-QObject *ItemLibraryAssetsDir::dirsModel() const
+QObject *AssetsLibraryDir::dirsModel() const
 {
     return m_dirsModel;
 }
 
-QList<ItemLibraryAssetsDir *> ItemLibraryAssetsDir::childAssetsDirs() const
+QList<AssetsLibraryDir *> AssetsLibraryDir::childAssetsDirs() const
 {
     if (m_dirsModel)
         return m_dirsModel->assetsDirs();
@@ -78,18 +78,18 @@ QList<ItemLibraryAssetsDir *> ItemLibraryAssetsDir::childAssetsDirs() const
     return {};
 }
 
-void ItemLibraryAssetsDir::addDir(ItemLibraryAssetsDir *assetsDir)
+void AssetsLibraryDir::addDir(AssetsLibraryDir *assetsDir)
 {
     if (!m_dirsModel)
-        m_dirsModel = new ItemLibraryAssetsDirsModel(this);
+        m_dirsModel = new AssetsLibraryDirsModel(this);
 
     m_dirsModel->addDir(assetsDir);
 }
 
-void ItemLibraryAssetsDir::addFile(const QString &filePath)
+void AssetsLibraryDir::addFile(const QString &filePath)
 {
     if (!m_filesModel)
-        m_filesModel = new ItemLibraryAssetsFilesModel(this);
+        m_filesModel = new AssetsLibraryFilesModel(this);
 
     m_filesModel->addFile(filePath);
 }

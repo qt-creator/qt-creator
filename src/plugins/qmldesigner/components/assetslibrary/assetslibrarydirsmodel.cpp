@@ -23,24 +23,24 @@
 **
 ****************************************************************************/
 
-#include "itemlibraryassetsdirsmodel.h"
-#include "itemlibraryassetsmodel.h"
+#include "assetslibrarydirsmodel.h"
+#include "assetslibrarymodel.h"
 
 #include <QDebug>
 #include <QMetaProperty>
 
 namespace QmlDesigner {
 
-ItemLibraryAssetsDirsModel::ItemLibraryAssetsDirsModel(QObject *parent)
+AssetsLibraryDirsModel::AssetsLibraryDirsModel(QObject *parent)
     : QAbstractListModel(parent)
 {
     // add roles
-    const QMetaObject meta = ItemLibraryAssetsDir::staticMetaObject;
+    const QMetaObject meta = AssetsLibraryDir::staticMetaObject;
     for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
         m_roleNames.insert(i, meta.property(i).name());
 }
 
-QVariant ItemLibraryAssetsDirsModel::data(const QModelIndex &index, int role) const
+QVariant AssetsLibraryDirsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
         qWarning() << Q_FUNC_INFO << "Invalid index requested: " << QString::number(index.row());
@@ -54,7 +54,7 @@ QVariant ItemLibraryAssetsDirsModel::data(const QModelIndex &index, int role) co
     return {};
 }
 
-bool ItemLibraryAssetsDirsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool AssetsLibraryDirsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     // currently only dirExpanded property is updatable
     if (index.isValid() && m_roleNames.contains(role)) {
@@ -62,7 +62,7 @@ bool ItemLibraryAssetsDirsModel::setData(const QModelIndex &index, const QVarian
         if (currValue != value) {
             m_dirs.at(index.row())->setProperty(m_roleNames.value(role), value);
             if (m_roleNames.value(role) == "dirExpanded")
-                ItemLibraryAssetsModel::saveExpandedState(value.toBool(), m_dirs.at(index.row())->dirPath());
+                AssetsLibraryModel::saveExpandedState(value.toBool(), m_dirs.at(index.row())->dirPath());
             emit dataChanged(index, index, {role});
             return true;
         }
@@ -70,24 +70,24 @@ bool ItemLibraryAssetsDirsModel::setData(const QModelIndex &index, const QVarian
     return false;
 }
 
-int ItemLibraryAssetsDirsModel::rowCount(const QModelIndex &parent) const
+int AssetsLibraryDirsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
     return m_dirs.size();
 }
 
-QHash<int, QByteArray> ItemLibraryAssetsDirsModel::roleNames() const
+QHash<int, QByteArray> AssetsLibraryDirsModel::roleNames() const
 {
     return m_roleNames;
 }
 
-void ItemLibraryAssetsDirsModel::addDir(ItemLibraryAssetsDir *assetsDir)
+void AssetsLibraryDirsModel::addDir(AssetsLibraryDir *assetsDir)
 {
     m_dirs.append(assetsDir);
 }
 
-const QList<ItemLibraryAssetsDir *> ItemLibraryAssetsDirsModel::assetsDirs() const
+const QList<AssetsLibraryDir *> AssetsLibraryDirsModel::assetsDirs() const
 {
     return m_dirs;
 }

@@ -22,56 +22,33 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#include "itemlibraryassetsfilesmodel.h"
 
-#include <QDebug>
+#pragma once
+
+#include <QAbstractListModel>
+#include "assetslibrarydir.h"
 
 namespace QmlDesigner {
 
-ItemLibraryAssetsFilesModel::ItemLibraryAssetsFilesModel(QObject *parent)
-    : QAbstractListModel(parent)
+class AssetsLibraryDirsModel : public QAbstractListModel
 {
-    // add roles
-    m_roleNames.insert(FileNameRole, "fileName");
-    m_roleNames.insert(FilePathRole, "filePath");
-    m_roleNames.insert(FileDirRole, "fileDir");
-}
+    Q_OBJECT
 
-QVariant ItemLibraryAssetsFilesModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid()) {
-        qWarning() << Q_FUNC_INFO << "Invalid index requested: " << QString::number(index.row());
-        return {};
-    }
+public:
+    AssetsLibraryDirsModel(QObject *parent = nullptr);
 
-    if (role == FileNameRole)
-        return m_files[index.row()].split('/').last();
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
-    if (role == FilePathRole)
-        return m_files[index.row()];
+    void addDir(AssetsLibraryDir *assetsDir);
 
-    if (role == FileDirRole)
-        return QVariant::fromValue(parent());
+    const QList<AssetsLibraryDir *> assetsDirs() const;
 
-    qWarning() << Q_FUNC_INFO << "Invalid role requested: " << QString::number(role);
-    return {};
-}
-
-int ItemLibraryAssetsFilesModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-
-    return m_files.size();
-}
-
-QHash<int, QByteArray> ItemLibraryAssetsFilesModel::roleNames() const
-{
-    return m_roleNames;
-}
-
-void ItemLibraryAssetsFilesModel::addFile(const QString &filePath)
-{
-    m_files.append(filePath);
-}
+private:
+    QList<AssetsLibraryDir *> m_dirs;
+    QHash<int, QByteArray> m_roleNames;
+};
 
 } // namespace QmlDesigner

@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "itemlibraryassetsmodel.h"
-#include "itemlibraryassetsdirsmodel.h"
-#include "itemlibraryassetsfilesmodel.h"
+#include "assetslibrarymodel.h"
+#include "assetslibrarydirsmodel.h"
+#include "assetslibraryfilesmodel.h"
 
 #include <synchronousimagecache.h>
 #include <theme.h>
@@ -50,17 +50,17 @@
 
 namespace QmlDesigner {
 
-void ItemLibraryAssetsModel::saveExpandedState(bool expanded, const QString &assetPath)
+void AssetsLibraryModel::saveExpandedState(bool expanded, const QString &assetPath)
 {
     m_expandedStateHash.insert(assetPath, expanded);
 }
 
-bool ItemLibraryAssetsModel::loadExpandedState(const QString &assetPath)
+bool AssetsLibraryModel::loadExpandedState(const QString &assetPath)
 {
     return m_expandedStateHash.value(assetPath, true);
 }
 
-ItemLibraryAssetsModel::DirExpandState ItemLibraryAssetsModel::getAllExpandedState() const
+AssetsLibraryModel::DirExpandState AssetsLibraryModel::getAllExpandedState() const
 {
     const auto keys = m_expandedStateHash.keys();
     bool allExpanded = true;
@@ -81,16 +81,16 @@ ItemLibraryAssetsModel::DirExpandState ItemLibraryAssetsModel::getAllExpandedSta
            : DirExpandState::SomeExpanded;
 }
 
-void ItemLibraryAssetsModel::toggleExpandAll(bool expand)
+void AssetsLibraryModel::toggleExpandAll(bool expand)
 {
-    std::function<void(ItemLibraryAssetsDir *)> expandDirRecursive;
-    expandDirRecursive = [&](ItemLibraryAssetsDir *currAssetsDir) {
+    std::function<void(AssetsLibraryDir *)> expandDirRecursive;
+    expandDirRecursive = [&](AssetsLibraryDir *currAssetsDir) {
         if (currAssetsDir->dirDepth() > 0) {
             currAssetsDir->setDirExpanded(expand);
             saveExpandedState(expand, currAssetsDir->dirPath());
         }
 
-        const QList<ItemLibraryAssetsDir *> childDirs = currAssetsDir->childAssetsDirs();
+        const QList<AssetsLibraryDir *> childDirs = currAssetsDir->childAssetsDirs();
         for (const auto childDir : childDirs)
             expandDirRecursive(childDir);
     };
@@ -100,7 +100,7 @@ void ItemLibraryAssetsModel::toggleExpandAll(bool expand)
     endResetModel();
 }
 
-void ItemLibraryAssetsModel::deleteFile(const QString &filePath)
+void AssetsLibraryModel::deleteFile(const QString &filePath)
 {
     bool askBeforeDelete = DesignerSettings::getValue(
                 DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
@@ -135,7 +135,7 @@ void ItemLibraryAssetsModel::deleteFile(const QString &filePath)
     }
 }
 
-bool ItemLibraryAssetsModel::renameFolder(const QString &folderPath, const QString &newName)
+bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &newName)
 {
     QDir dir{folderPath};
     QString oldName = dir.dirName();
@@ -147,7 +147,7 @@ bool ItemLibraryAssetsModel::renameFolder(const QString &folderPath, const QStri
     return dir.rename(oldName, newName);
 }
 
-void ItemLibraryAssetsModel::addNewFolder(const QString &folderPath)
+void AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     QString iterPath = folderPath;
     QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
@@ -183,17 +183,17 @@ void ItemLibraryAssetsModel::addNewFolder(const QString &folderPath)
     dir.mkpath(iterPath);
 }
 
-void ItemLibraryAssetsModel::deleteFolder(const QString &folderPath)
+void AssetsLibraryModel::deleteFolder(const QString &folderPath)
 {
     QDir{folderPath}.removeRecursively();
 }
 
-QObject *ItemLibraryAssetsModel::rootDir() const
+QObject *AssetsLibraryModel::rootDir() const
 {
     return m_assetsDir;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedImageSuffixes()
+const QStringList &AssetsLibraryModel::supportedImageSuffixes()
 {
     static QStringList retList;
     if (retList.isEmpty()) {
@@ -204,13 +204,13 @@ const QStringList &ItemLibraryAssetsModel::supportedImageSuffixes()
     return retList;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedFragmentShaderSuffixes()
+const QStringList &AssetsLibraryModel::supportedFragmentShaderSuffixes()
 {
     static const QStringList retList {"*.frag", "*.glsl", "*.glslf", "*.fsh"};
     return retList;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedShaderSuffixes()
+const QStringList &AssetsLibraryModel::supportedShaderSuffixes()
 {
     static const QStringList retList {"*.frag", "*.vert",
                                       "*.glsl", "*.glslv", "*.glslf",
@@ -218,32 +218,32 @@ const QStringList &ItemLibraryAssetsModel::supportedShaderSuffixes()
     return retList;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedFontSuffixes()
+const QStringList &AssetsLibraryModel::supportedFontSuffixes()
 {
     static const QStringList retList {"*.ttf", "*.otf"};
     return retList;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedAudioSuffixes()
+const QStringList &AssetsLibraryModel::supportedAudioSuffixes()
 {
     static const QStringList retList {"*.wav", "*.mp3"};
     return retList;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedVideoSuffixes()
+const QStringList &AssetsLibraryModel::supportedVideoSuffixes()
 {
     static const QStringList retList {"*.mp4"};
     return retList;
 }
 
-const QStringList &ItemLibraryAssetsModel::supportedTexture3DSuffixes()
+const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
 {
     // These are file types only supported by 3D textures
     static QStringList retList {"*.hdr", "*.ktx"};
     return retList;
 }
 
-ItemLibraryAssetsModel::ItemLibraryAssetsModel(SynchronousImageCache &fontImageCache,
+AssetsLibraryModel::AssetsLibraryModel(SynchronousImageCache &fontImageCache,
                                                Utils::FileSystemWatcher *fileSystemWatcher,
                                                QObject *parent)
     : QAbstractListModel(parent)
@@ -252,12 +252,12 @@ ItemLibraryAssetsModel::ItemLibraryAssetsModel(SynchronousImageCache &fontImageC
 {
     // add role names
     int role = 0;
-    const QMetaObject meta = ItemLibraryAssetsDir::staticMetaObject;
+    const QMetaObject meta = AssetsLibraryDir::staticMetaObject;
     for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
         m_roleNames.insert(role++, meta.property(i).name());
 }
 
-QVariant ItemLibraryAssetsModel::data(const QModelIndex &index, int role) const
+QVariant AssetsLibraryModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
         qWarning() << Q_FUNC_INFO << "Invalid index requested: " << QString::number(index.row());
@@ -271,32 +271,32 @@ QVariant ItemLibraryAssetsModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-int ItemLibraryAssetsModel::rowCount(const QModelIndex &parent) const
+int AssetsLibraryModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
     return 1;
 }
 
-QHash<int, QByteArray> ItemLibraryAssetsModel::roleNames() const
+QHash<int, QByteArray> AssetsLibraryModel::roleNames() const
 {
     return m_roleNames;
 }
 
 // called when a directory is changed to refresh the model for this directory
-void ItemLibraryAssetsModel::refresh()
+void AssetsLibraryModel::refresh()
 {
     setRootPath(m_assetsDir->dirPath());
 }
 
-void ItemLibraryAssetsModel::setRootPath(const QString &path)
+void AssetsLibraryModel::setRootPath(const QString &path)
 {
     static const QStringList ignoredTopLevelDirs {"imports", "asset_imports"};
 
     m_fileSystemWatcher->clear();
 
-    std::function<bool(ItemLibraryAssetsDir *, int)> parseDirRecursive;
-    parseDirRecursive = [this, &parseDirRecursive](ItemLibraryAssetsDir *currAssetsDir, int currDepth) {
+    std::function<bool(AssetsLibraryDir *, int)> parseDirRecursive;
+    parseDirRecursive = [this, &parseDirRecursive](AssetsLibraryDir *currAssetsDir, int currDepth) {
         m_fileSystemWatcher->addDirectory(currAssetsDir->dirPath(), Utils::FileSystemWatcher::WatchAllChanges);
 
         QDir dir(currAssetsDir->dirPath());
@@ -323,7 +323,8 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
             if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
                 continue;
 
-            ItemLibraryAssetsDir *assetsDir = new ItemLibraryAssetsDir(subDir.path(), currDepth, loadExpandedState(subDir.path()), currAssetsDir);
+            auto assetsDir = new AssetsLibraryDir(subDir.path(), currDepth,
+                                                  loadExpandedState(subDir.path()), currAssetsDir);
             currAssetsDir->addDir(assetsDir);
             saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
             isEmpty &= parseDirRecursive(assetsDir, currDepth + 1);
@@ -339,13 +340,13 @@ void ItemLibraryAssetsModel::setRootPath(const QString &path)
         delete m_assetsDir;
 
     beginResetModel();
-    m_assetsDir = new ItemLibraryAssetsDir(path, 0, true, this);
+    m_assetsDir = new AssetsLibraryDir(path, 0, true, this);
     bool noAssets = parseDirRecursive(m_assetsDir, 1);
     setIsEmpty(noAssets);
     endResetModel();
 }
 
-void ItemLibraryAssetsModel::setSearchText(const QString &searchText)
+void AssetsLibraryModel::setSearchText(const QString &searchText)
 {
     if (m_searchText != searchText) {
         m_searchText = searchText;
@@ -353,7 +354,7 @@ void ItemLibraryAssetsModel::setSearchText(const QString &searchText)
     }
 }
 
-const QSet<QString> &ItemLibraryAssetsModel::supportedSuffixes() const
+const QSet<QString> &AssetsLibraryModel::supportedSuffixes() const
 {
     static QSet<QString> allSuffixes;
     if (allSuffixes.isEmpty()) {
@@ -371,12 +372,12 @@ const QSet<QString> &ItemLibraryAssetsModel::supportedSuffixes() const
     return allSuffixes;
 }
 
-bool ItemLibraryAssetsModel::isEmpty() const
+bool AssetsLibraryModel::isEmpty() const
 {
     return m_isEmpty;
 };
 
-void ItemLibraryAssetsModel::setIsEmpty(bool empty)
+void AssetsLibraryModel::setIsEmpty(bool empty)
 {
     if (m_isEmpty != empty) {
         m_isEmpty = empty;
@@ -384,7 +385,7 @@ void ItemLibraryAssetsModel::setIsEmpty(bool empty)
     }
 };
 
-const QSet<QString> &ItemLibraryAssetsModel::previewableSuffixes() const
+const QSet<QString> &AssetsLibraryModel::previewableSuffixes() const
 {
     static QSet<QString> previewableSuffixes;
     if (previewableSuffixes.isEmpty()) {

@@ -27,7 +27,7 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
-#include "itemlibrarywidget.h"
+#include "assetslibrarywidget.h"
 #include <metainfo.h>
 #include <nodehints.h>
 #include <rewritingexception.h>
@@ -142,7 +142,7 @@ void DragTool::createQmlItemNodeFromFont(const QString &fontPath,
         QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform()
                 .inverted().map(scenePos);
 
-        const auto typeAndData = ItemLibraryWidget::getAssetTypeAndData(fontPath);
+        const auto typeAndData = AssetsLibraryWidget::getAssetTypeAndData(fontPath);
         QString fontFamily = QString::fromUtf8(typeAndData.second);
 
         m_dragNodes.append(QmlItemNode::createQmlItemNodeFromFont(view(), fontFamily,
@@ -328,7 +328,7 @@ void DragTool::createDragNodes(const QMimeData *mimeData, const QPointF &scenePo
                 const QStringList assetPaths = QString::fromUtf8(mimeData
                                     ->data("application/vnd.bauhaus.libraryresource")).split(",");
                 for (const QString &assetPath : assetPaths) {
-                    QString assetType = ItemLibraryWidget::getAssetTypeAndData(assetPath).first;
+                    QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
                     if (assetType == "application/vnd.bauhaus.libraryresource.image")
                         createQmlItemNodeFromImage(assetPath, targetContainerQmlItemNode, scenePosition);
                     else if (assetType == "application/vnd.bauhaus.libraryresource.font")

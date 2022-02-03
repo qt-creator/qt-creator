@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "itemlibraryassetsiconprovider.h"
-#include "itemlibraryassetsmodel.h"
+#include "assetslibraryiconprovider.h"
+#include "assetslibrarymodel.h"
 
 #include <hdrimage.h>
 #include <theme.h>
@@ -32,40 +32,47 @@
 
 namespace QmlDesigner {
 
-ItemLibraryAssetsIconProvider::ItemLibraryAssetsIconProvider(SynchronousImageCache &fontImageCache)
+AssetsLibraryIconProvider::AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache)
     : QQuickImageProvider(QQuickImageProvider::Pixmap)
     , m_fontImageCache(fontImageCache)
 {
 }
 
-QPixmap ItemLibraryAssetsIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+QPixmap AssetsLibraryIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
     QPixmap pixmap;
     const QString suffix = "*." + id.split('.').last().toLower();
-    if (id == "browse")
-        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/browse.png");
-    else if (ItemLibraryAssetsModel::supportedFontSuffixes().contains(suffix))
-        pixmap = generateFontIcons(id);
-    else if (ItemLibraryAssetsModel::supportedImageSuffixes().contains(suffix))
+    if (id == "browse") {
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/browse.png");
+    } else if (AssetsLibraryModel::supportedFontSuffixes().contains(suffix)) {
+        pixmap = generateFontIcons(id, requestedSize);
+    } else if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix)) {
         pixmap = Utils::StyleHelper::dpiSpecificImageFile(id);
-    else if (ItemLibraryAssetsModel::supportedTexture3DSuffixes().contains(suffix))
+    } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
         pixmap = HdrImage{id}.toPixmap();
-    else if (ItemLibraryAssetsModel::supportedShaderSuffixes().contains(suffix))
-        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_shader_48.png");
-    else if (ItemLibraryAssetsModel::supportedAudioSuffixes().contains(suffix))
-        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/asset_sound_48.png");
-    else if (ItemLibraryAssetsModel::supportedVideoSuffixes().contains(suffix))
-        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-video-icon.png");
+    } else {
+        QString type;
+        if (AssetsLibraryModel::supportedShaderSuffixes().contains(suffix))
+            type = "shader";
+        else if (AssetsLibraryModel::supportedAudioSuffixes().contains(suffix))
+            type = "sound";
+        else if (AssetsLibraryModel::supportedVideoSuffixes().contains(suffix))
+            type = "video";
+
+        QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);
+        QString path = pathTemplate.arg('_' + QString::number(requestedSize.width()));
+
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(QFileInfo::exists(path) ? path
+                                                                                  : pathTemplate.arg(""));
+    }
 
     if (size) {
         size->setWidth(pixmap.width());
         size->setHeight(pixmap.height());
     }
 
-    if (pixmap.isNull()) {
-        pixmap = QPixmap(Utils::StyleHelper::dpiSpecificImageFile(
-            QStringLiteral(":/ItemLibrary/images/item-default-icon.png")));
-    }
+    if (pixmap.isNull())
+        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/assets_default.png");
 
     if (requestedSize.isValid())
         return pixmap.scaled(requestedSize);
@@ -73,12 +80,13 @@ QPixmap ItemLibraryAssetsIconProvider::requestPixmap(const QString &id, QSize *s
     return pixmap;
 }
 
-QPixmap ItemLibraryAssetsIconProvider::generateFontIcons(const QString &filePath) const
+QPixmap AssetsLibraryIconProvider::generateFontIcons(const QString &filePath, const QSize &requestedSize) const
 {
-     return m_fontImageCache.icon(filePath, {},
+    QSize reqSize = requestedSize.isValid() ? requestedSize : QSize{48, 48};
+    return m_fontImageCache.icon(filePath, {},
            ImageCache::FontCollectorSizesAuxiliaryData{Utils::span{iconSizes},
                                                        Theme::getColor(Theme::DStextColor).name(),
-                                                       "Abc"}).pixmap({48, 48});
+                                                       "Abc"}).pixmap(reqSize);
 }
 
 } // namespace QmlDesigner

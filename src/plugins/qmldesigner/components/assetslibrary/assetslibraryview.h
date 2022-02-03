@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,43 @@
 
 #pragma once
 
-#include <synchronousimagecache.h>
+#include <abstractview.h>
 
-#include <QQuickImageProvider>
+#include <QPointer>
+
+#include <mutex>
 
 namespace QmlDesigner {
 
-class ItemLibraryAssetsIconProvider : public QQuickImageProvider
-{
-public:
-    ItemLibraryAssetsIconProvider(SynchronousImageCache &fontImageCache);
+class AssetsLibraryWidget;
+class ImageCacheData;
+class AsynchronousImageCache;
 
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
+class AssetsLibraryView : public AbstractView
+{
+    Q_OBJECT
+
+public:
+    AssetsLibraryView(QObject* parent = nullptr);
+    ~AssetsLibraryView() override;
+
+    bool hasWidget() const override;
+    WidgetInfo widgetInfo() override;
+
+    // AbstractView
+    void modelAttached(Model *model) override;
+    void modelAboutToBeDetached(Model *model) override;
+
+    void setResourcePath(const QString &resourcePath);
+
+    AsynchronousImageCache &imageCache();
 
 private:
-    QPixmap generateFontIcons(const QString &filePath) const;
+    ImageCacheData *imageCacheData();
 
-    SynchronousImageCache &m_fontImageCache;
-
-    // Generated icon sizes should contain all ItemLibraryResourceView needed icon sizes, and their
-    // x2 versions for HDPI sceens
-    std::vector<QSize> iconSizes = {{384, 384},
-                                    {192, 192}, // Large
-                                    {256, 256},
-                                    {128, 128}, // Drag
-                                    {96, 96},   // Medium
-                                    {48, 48},   // Small
-                                    {64, 64},
-                                    {32, 32}}; // List
+    std::once_flag imageCacheFlag;
+    std::unique_ptr<ImageCacheData> m_imageCacheData;
+    QPointer<AssetsLibraryWidget> m_widget;
 };
 
-} // namespace QmlDesigner
+}

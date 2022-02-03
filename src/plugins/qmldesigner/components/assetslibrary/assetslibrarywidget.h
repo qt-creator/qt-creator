@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,12 +25,8 @@
 
 #pragma once
 
-#include "itemlibraryinfo.h"
-#include "import.h"
-
-#include <utils/fancylineedit.h>
-#include <utils/dropsupport.h>
 #include <previewtooltip/previewtooltipbackend.h>
+#include "assetslibrarymodel.h"
 
 #include <QFrame>
 #include <QToolButton>
@@ -43,36 +39,32 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QStackedWidget;
 class QShortcut;
 QT_END_NAMESPACE
+
+namespace Utils { class FileSystemWatcher; }
 
 namespace QmlDesigner {
 
 class MetaInfo;
-class ItemLibraryEntry;
 class Model;
 
-class ItemLibraryModel;
-class ItemLibraryAddImportModel;
-class ItemLibraryResourceView;
+class AssetsLibraryIconProvider;
+class AssetsLibraryModel;
 class SynchronousImageCache;
 class AsynchronousImageCache;
 class ImageCacheCollector;
 
-class ItemLibraryWidget : public QFrame
+class AssetsLibraryWidget : public QFrame
 {
     Q_OBJECT
 
 public:
-    Q_PROPERTY(bool subCompEditMode READ subCompEditMode NOTIFY subCompEditModeChanged)
+    AssetsLibraryWidget(AsynchronousImageCache &imageCache,
+                        AsynchronousImageCache &asynchronousFontImageCache,
+                        SynchronousImageCache &synchronousFontImageCache);
+    ~AssetsLibraryWidget();
 
-    ItemLibraryWidget(AsynchronousImageCache &imageCache,
-                      AsynchronousImageCache &asynchronousFontImageCache,
-                      SynchronousImageCache &synchronousFontImageCache);
-    ~ItemLibraryWidget();
-
-    void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
     QList<QToolButton *> createToolBarWidgets();
 
     static QString qmlSourcesPath();
@@ -80,58 +72,48 @@ public:
 
     void delayedUpdateModel();
     void updateModel();
-    void updatePossibleImports(const QList<Import> &possibleImports);
-    void updateUsedImports(const QList<Import> &usedImports);
 
+    void setResourcePath(const QString &resourcePath);
     void setModel(Model *model);
-    void setFlowMode(bool b);
+    static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
 
-    inline static bool isHorizontalLayout = false;
-
-    bool subCompEditMode() const;
-
-    Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
-    Q_INVOKABLE void removeImport(const QString &importUrl);
-    Q_INVOKABLE void addImportForItem(const QString &importUrl);
+    Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
+    Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
-    Q_INVOKABLE void handleAddImport(int index);
+    Q_INVOKABLE void handleFilesDrop(const QStringList &filesPaths);
+    Q_INVOKABLE QSet<QString> supportedDropSuffixes();
 
 signals:
     void itemActivated(const QString &itemName);
-    void subCompEditModeChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
 
 private:
     void reloadQmlSource();
 
+    void addResources(const QStringList &files);
     void updateSearch();
-    void handlePriorityImportsChanged();
 
-    QTimer m_compressionTimer;
+    QTimer m_assetCompressionTimer;
     QSize m_itemIconSize;
 
     SynchronousImageCache &m_fontImageCache;
-    QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
-    QPointer<ItemLibraryModel> m_itemLibraryModel;
-    QPointer<ItemLibraryAddImportModel> m_addModuleModel;
+    AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;
+    Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
+    QPointer<AssetsLibraryModel> m_assetsModel;
 
-    QScopedPointer<QQuickWidget> m_itemsWidget;
-    std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
+    QScopedPointer<QQuickWidget> m_assetsWidget;
+    std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
-    QShortcut *m_qmlSourceUpdateShortcut;
+    QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     AsynchronousImageCache &m_imageCache;
     QPointer<Model> m_model;
-    QVariant m_itemToDrag;
+    QStringList m_assetsToDrag;
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
-    bool m_subCompEditMode = false;
-
-    inline static int HORIZONTAL_LAYOUT_WIDTH_LIMIT = 600;
 };
 
 } // namespace QmlDesigner

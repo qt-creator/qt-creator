@@ -251,11 +251,19 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryimport.cpp itemlibraryimport.h
     itemlibrarycategoriesmodel.cpp itemlibrarycategoriesmodel.h
     itemlibraryaddimportmodel.cpp itemlibraryaddimportmodel.h
-    itemlibraryassetsmodel.cpp itemlibraryassetsmodel.h
-    itemlibraryassetsiconprovider.cpp itemlibraryassetsiconprovider.h
-    itemlibraryassetsdir.cpp itemlibraryassetsdir.h
-    itemlibraryassetsdirsmodel.cpp itemlibraryassetsdirsmodel.h
-    itemlibraryassetsfilesmodel.cpp itemlibraryassetsfilesmodel.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/assetslibrary
+  SOURCES
+    assetslibrary.qrc
+    assetslibraryview.cpp assetslibraryview.h
+    assetslibrarywidget.cpp assetslibrarywidget.h
+    assetslibrarymodel.cpp assetslibrarymodel.h
+    assetslibraryiconprovider.cpp assetslibraryiconprovider.h
+    assetslibrarydir.cpp assetslibrarydir.h
+    assetslibrarydirsmodel.cpp assetslibrarydirsmodel.h
+    assetslibraryfilesmodel.cpp assetslibraryfilesmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

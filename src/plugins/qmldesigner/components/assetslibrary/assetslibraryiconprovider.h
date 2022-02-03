@@ -25,30 +25,29 @@
 
 #pragma once
 
-#include <QAbstractListModel>
+#include <synchronousimagecache.h>
+
+#include <QQuickImageProvider>
 
 namespace QmlDesigner {
 
-class ItemLibraryAssetsFilesModel : public QAbstractListModel
+class AssetsLibraryIconProvider : public QQuickImageProvider
 {
-    Q_OBJECT
-
 public:
-    ItemLibraryAssetsFilesModel(QObject *parent = nullptr);
+    AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache);
 
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
-    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
-    void addFile(const QString &filePath);
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
 
 private:
-    enum Roles {FileNameRole = Qt::UserRole + 1,
-                FilePathRole,
-                FileDirRole};
+    QPixmap generateFontIcons(const QString &filePath, const QSize &requestedSize) const;
 
-    QStringList m_files;
-    QHash<int, QByteArray> m_roleNames;
+    SynchronousImageCache &m_fontImageCache;
+
+    // Generated icon sizes should contain all ItemLibraryResourceView needed icon sizes, and their
+    // x2 versions for HDPI sceens
+    std::vector<QSize> iconSizes = {{128, 128}, // Drag
+                                    {96, 96},   // list @2x
+                                    {48, 48}};  // list
 };
 
-} // QmlDesigner
+} // namespace QmlDesigner

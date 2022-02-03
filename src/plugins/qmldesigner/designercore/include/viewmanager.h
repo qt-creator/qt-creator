@@ -64,7 +64,6 @@ public:
     void attachViewsExceptRewriterAndComponetView();
     void detachViewsExceptRewriterAndComponetView();
 
-    void setItemLibraryViewResourcePath(const QString &resourcePath);
     void setComponentNode(const ModelNode &componentNode);
     void setComponentViewToMaster();
     void setNodeInstanceViewTarget(ProjectExplorer::Target *target);
@@ -116,7 +115,6 @@ private: // functions
     void addView(std::unique_ptr<AbstractView> &&view);
 
     void attachNodeInstanceView();
-    void attachItemLibraryView();
     void attachAdditionalViews();
     void detachAdditionalViews();
     void detachStandardViews();

@@ -32,24 +32,22 @@
 #include <QIcon>
 #include <QPair>
 #include <QSet>
-#include <QTimer>
-
-#include "itemlibraryassetsdir.h"
 
 namespace Utils { class FileSystemWatcher; }
 
 namespace QmlDesigner {
 
 class SynchronousImageCache;
+class AssetsLibraryDir;
 
-class ItemLibraryAssetsModel : public QAbstractListModel
+class AssetsLibraryModel : public QAbstractListModel
 {
     Q_OBJECT
 
     Q_PROPERTY(bool isEmpty READ isEmpty WRITE setIsEmpty NOTIFY isEmptyChanged)
 
 public:
-    ItemLibraryAssetsModel(QmlDesigner::SynchronousImageCache &fontImageCache,
+    AssetsLibraryModel(QmlDesigner::SynchronousImageCache &fontImageCache,
                            Utils::FileSystemWatcher *fileSystemWatcher,
                            QObject *parent = nullptr);
 
@@ -103,7 +101,7 @@ private:
 
     QString m_searchText;
     Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
-    ItemLibraryAssetsDir *m_assetsDir = nullptr;
+    AssetsLibraryDir *m_assetsDir = nullptr;
     bool m_isEmpty = true;
 
     QHash<int, QByteArray> m_roleNames;

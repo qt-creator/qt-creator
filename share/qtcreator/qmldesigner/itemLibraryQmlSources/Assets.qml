@@ -40,6 +40,11 @@ Item {
     property var contextDir: undefined
     property bool isDirContextMenu: false
 
+    function clearSearchFilter()
+    {
+        searchBox.text = "";
+    }
+
     DropArea {
         id: dropArea
 
@@ -88,6 +93,70 @@ Item {
         contextMenu.close()
         selectedAssets = {}
         selectedAssetsChanged()
+    }
+
+    StudioControls.Menu {
+        id: contextMenu
+
+        StudioControls.MenuItem {
+            text: qsTr("Expand All")
+            enabled: allExpandedState !== 1
+            visible: isDirContextMenu
+            height: visible ? implicitHeight : 0
+            onTriggered: assetsModel.toggleExpandAll(true)
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Collapse All")
+            enabled: allExpandedState !== 2
+            visible: isDirContextMenu
+            height: visible ? implicitHeight : 0
+            onTriggered: assetsModel.toggleExpandAll(false)
+        }
+
+        StudioControls.MenuSeparator {
+            visible: isDirContextMenu
+            height: visible ? StudioTheme.Values.border : 0
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Delete File")
+            visible: contextFilePath
+            height: visible ? implicitHeight : 0
+            onTriggered: assetsModel.deleteFile(contextFilePath)
+        }
+
+        StudioControls.MenuSeparator {
+            visible: contextFilePath
+            height: visible ? StudioTheme.Values.border : 0
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Rename Folder")
+            visible: isDirContextMenu
+            height: visible ? implicitHeight : 0
+            onTriggered: renameFolderDialog.open()
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("New Folder")
+            onTriggered: newFolderDialog.open()
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Delete Folder")
+            visible: isDirContextMenu
+            height: visible ? implicitHeight : 0
+            onTriggered: {
+                var dirEmpty = !(contextDir.dirsModel && contextDir.dirsModel.rowCount() > 0)
+                            && !(contextDir.filesModel && contextDir.filesModel.rowCount() > 0);
+
+                if (dirEmpty)
+                    assetsModel.deleteFolder(contextDir.dirPath)
+                else
+                    confirmDeleteFolderDialog.open()
+            }
+        }
     }
 
     RegExpValidator {
@@ -317,245 +386,213 @@ Item {
         onOpened: folderNotEmpty.forceActiveFocus()
     }
 
-    ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
-        id: assetsView
+    Column {
         anchors.fill: parent
-        interactive: assetsView.verticalScrollBarVisible
+        anchors.topMargin: 5
+        spacing: 5
 
-        Item {
-            StudioControls.Menu {
-                id: contextMenu
+        Row {
+            width: parent.width
 
-                StudioControls.MenuItem {
-                    text: qsTr("Expand All")
-                    enabled: allExpandedState !== 1
-                    visible: isDirContextMenu
-                    height: visible ? implicitHeight : 0
-                    onTriggered: assetsModel.toggleExpandAll(true)
-                }
+            SearchBox {
+                id: searchBox
 
-                StudioControls.MenuItem {
-                    text: qsTr("Collapse All")
-                    enabled: allExpandedState !== 2
-                    visible: isDirContextMenu
-                    height: visible ? implicitHeight : 0
-                    onTriggered: assetsModel.toggleExpandAll(false)
-                }
+                width: parent.width - addAssetButton.width - 5
+            }
 
-                StudioControls.MenuSeparator {
-                    visible: isDirContextMenu
-                    height: visible ? StudioTheme.Values.border : 0
-                }
+            PlusButton {
+                id: addAssetButton
+                anchors.verticalCenter: parent.verticalCenter
+                tooltip: qsTr("Add a new asset to the project.")
 
-                StudioControls.MenuItem {
-                    text: qsTr("Delete File")
-                    visible: contextFilePath
-                    height: visible ? implicitHeight : 0
-                    onTriggered: assetsModel.deleteFile(contextFilePath)
-                }
-
-                StudioControls.MenuSeparator {
-                    visible: contextFilePath
-                    height: visible ? StudioTheme.Values.border : 0
-                }
-
-                StudioControls.MenuItem {
-                    text: qsTr("Rename Folder")
-                    visible: isDirContextMenu
-                    height: visible ? implicitHeight : 0
-                    onTriggered: renameFolderDialog.open()
-                }
-
-                StudioControls.MenuItem {
-                    text: qsTr("New Folder")
-                    onTriggered: newFolderDialog.open()
-                }
-
-                StudioControls.MenuItem {
-                    text: qsTr("Delete Folder")
-                    visible: isDirContextMenu
-                    height: visible ? implicitHeight : 0
-                    onTriggered: {
-                        var dirEmpty = !(contextDir.dirsModel && contextDir.dirsModel.rowCount() > 0)
-                                    && !(contextDir.filesModel && contextDir.filesModel.rowCount() > 0);
-
-                        if (dirEmpty)
-                            assetsModel.deleteFolder(contextDir.dirPath)
-                        else
-                            confirmDeleteFolderDialog.open()
-                    }
-                }
+                onClicked: rootView.handleAddAsset()
             }
         }
 
-        Column {
-            Repeater {
-                model: assetsModel // context property
-                delegate: dirSection
-            }
+        Text {
+            text: qsTr("No match found.")
+            leftPadding: 10
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: 12
+            visible: assetsModel.isEmpty && !searchBox.isEmpty()
+        }
 
-            Component {
-                id: dirSection
+        ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
+            id: assetsView
+            width: parent.width
+            height: parent.height - y
+            clip: true
+            interactive: assetsView.verticalScrollBarVisible
 
-                Section {
-                    width: assetsView.width -
-                           (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0) - 5
-                    caption: dirName
-                    sectionHeight: 30
-                    sectionFontSize: 15
-                    leftPadding: 0
-                    topPadding: dirDepth > 0 ? 5 : 0
-                    bottomPadding: 0
-                    hideHeader: dirDepth === 0
-                    showLeftBorder: dirDepth > 0
-                    expanded: dirExpanded
-                    visible: !assetsModel.isEmpty && dirVisible
-                    expandOnClick: false
-                    useDefaulContextMenu: false
+            Column {
+                Repeater {
+                    model: assetsModel // context property
+                    delegate: dirSection
+                }
 
-                    onToggleExpand: {
-                        dirExpanded = !dirExpanded
-                    }
+                Component {
+                    id: dirSection
 
-                    onShowContextMenu: {
-                        contextFilePath = ""
-                        contextDir = model
-                        isDirContextMenu = true
-                        allExpandedState = assetsModel.getAllExpandedState()
-                        contextMenu.popup()
-                    }
+                    Section {
+                        width: assetsView.width -
+                               (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0) - 5
+                        caption: dirName
+                        sectionHeight: 30
+                        sectionFontSize: 15
+                        leftPadding: 0
+                        topPadding: dirDepth > 0 ? 5 : 0
+                        bottomPadding: 0
+                        hideHeader: dirDepth === 0
+                        showLeftBorder: dirDepth > 0
+                        expanded: dirExpanded
+                        visible: !assetsModel.isEmpty && dirVisible
+                        expandOnClick: false
+                        useDefaulContextMenu: false
 
-                    Column {
-                        spacing: 5
-                        leftPadding: 5
-
-                        Repeater {
-                            model: dirsModel
-                            delegate: dirSection
+                        onToggleExpand: {
+                            dirExpanded = !dirExpanded
                         }
 
-                        Repeater {
-                            model: filesModel
-                            delegate: fileSection
+                        onShowContextMenu: {
+                            contextFilePath = ""
+                            contextDir = model
+                            isDirContextMenu = true
+                            allExpandedState = assetsModel.getAllExpandedState()
+                            contextMenu.popup()
                         }
 
-                        Text {
-                            text: qsTr("Empty folder")
-                            color: StudioTheme.Values.themeTextColorDisabled
-                            font.pixelSize: 12
-                            visible: !(dirsModel && dirsModel.rowCount() > 0)
-                                  && !(filesModel && filesModel.rowCount() > 0)
+                        Column {
+                            spacing: 5
+                            leftPadding: 5
 
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                onClicked: {
-                                    contextFilePath = ""
-                                    contextDir = model
-                                    isDirContextMenu = true
-                                    contextMenu.popup()
+                            Repeater {
+                                model: dirsModel
+                                delegate: dirSection
+                            }
+
+                            Repeater {
+                                model: filesModel
+                                delegate: fileSection
+                            }
+
+                            Text {
+                                text: qsTr("Empty folder")
+                                color: StudioTheme.Values.themeTextColorDisabled
+                                font.pixelSize: 12
+                                visible: !(dirsModel && dirsModel.rowCount() > 0)
+                                      && !(filesModel && filesModel.rowCount() > 0)
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    acceptedButtons: Qt.RightButton
+                                    onClicked: {
+                                        contextFilePath = ""
+                                        contextDir = model
+                                        isDirContextMenu = true
+                                        contextMenu.popup()
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Component {
-                id: fileSection
+                Component {
+                    id: fileSection
 
-                Rectangle {
-                    width: assetsView.width -
-                           (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
-                    height: img.height
-                    color: selectedAssets[filePath] ? StudioTheme.Values.themeInteraction
-                                                    : (mouseArea.containsMouse ? StudioTheme.Values.themeSectionHeadBackground
-                                                                               : "transparent")
+                    Rectangle {
+                        width: assetsView.width -
+                               (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
+                        height: img.height
+                        color: selectedAssets[filePath] ? StudioTheme.Values.themeInteraction
+                                                        : (mouseArea.containsMouse ? StudioTheme.Values.themeSectionHeadBackground
+                                                                                   : "transparent")
 
-                    Row {
-                        spacing: 5
+                        Row {
+                            spacing: 5
 
-                        Image {
-                            id: img
-                            asynchronous: true
-                            width: 48
-                            height: 48
-                            source: "image://qmldesigner_assets/" + filePath
+                            Image {
+                                id: img
+                                asynchronous: true
+                                width: 48
+                                height: 48
+                                source: "image://qmldesigner_assets/" + filePath
+                            }
+
+                            Text {
+                                text: fileName
+                                color: StudioTheme.Values.themeTextColor
+                                font.pixelSize: 14
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
                         }
 
-                        Text {
-                            text: fileName
-                            color: StudioTheme.Values.themeTextColor
-                            font.pixelSize: 14
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                    }
+                        readonly property string suffix: fileName.substr(-4)
+                        readonly property bool isFont: suffix === ".ttf" || suffix === ".otf"
+                        property bool currFileSelected: false
 
-                    readonly property string suffix: fileName.substr(-4)
-                    readonly property bool isFont: suffix === ".ttf" || suffix === ".otf"
-                    property bool currFileSelected: false
+                        MouseArea {
+                            id: mouseArea
 
-                    MouseArea {
-                        id: mouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            onExited: tooltipBackend.hideTooltip()
+                            onCanceled: tooltipBackend.hideTooltip()
+                            onPositionChanged: tooltipBackend.reposition()
+                            onPressed: (mouse)=> {
+                                forceActiveFocus()
+                                if (mouse.button === Qt.LeftButton) {
+                                    var ctrlDown = mouse.modifiers & Qt.ControlModifier
+                                    if (!selectedAssets[filePath] && !ctrlDown)
+                                        selectedAssets = {}
+                                    currFileSelected = ctrlDown ? !selectedAssets[filePath] : true
+                                    selectedAssets[filePath] = currFileSelected
+                                    selectedAssetsChanged()
 
-                        onExited: tooltipBackend.hideTooltip()
-                        onCanceled: tooltipBackend.hideTooltip()
-                        onPositionChanged: tooltipBackend.reposition()
-                        onPressed: (mouse)=> {
-                            forceActiveFocus()
-                            if (mouse.button === Qt.LeftButton) {
-                                var ctrlDown = mouse.modifiers & Qt.ControlModifier
-                                if (!selectedAssets[filePath] && !ctrlDown)
-                                    selectedAssets = {}
-                                currFileSelected = ctrlDown ? !selectedAssets[filePath] : true
-                                selectedAssets[filePath] = currFileSelected
-                                selectedAssetsChanged()
+                                    var selectedAssetsArr = []
+                                    for (var assetPath in selectedAssets) {
+                                        if (selectedAssets[assetPath])
+                                            selectedAssetsArr.push(assetPath)
+                                    }
 
-                                var selectedAssetsArr = []
-                                for (var assetPath in selectedAssets) {
-                                    if (selectedAssets[assetPath])
-                                        selectedAssetsArr.push(assetPath)
+                                    if (currFileSelected)
+                                        rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
+                                } else {
+                                    contextFilePath = filePath
+                                    contextDir = model.fileDir
+
+                                    tooltipBackend.hideTooltip()
+                                    isDirContextMenu = false
+                                    contextMenu.popup()
                                 }
-
-                                if (currFileSelected)
-                                    rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
-                            } else {
-                                contextFilePath = filePath
-                                contextDir = model.fileDir
-
-                                tooltipBackend.hideTooltip()
-                                isDirContextMenu = false
-                                contextMenu.popup()
                             }
-                        }
 
-                        onReleased: (mouse)=> {
-                            if (mouse.button === Qt.LeftButton) {
-                                if (!(mouse.modifiers & Qt.ControlModifier))
-                                    selectedAssets = {}
-                                selectedAssets[filePath] = currFileSelected
-                                selectedAssetsChanged()
+                            onReleased: (mouse)=> {
+                                if (mouse.button === Qt.LeftButton) {
+                                    if (!(mouse.modifiers & Qt.ControlModifier))
+                                        selectedAssets = {}
+                                    selectedAssets[filePath] = currFileSelected
+                                    selectedAssetsChanged()
+                                }
                             }
-                        }
 
-                        ToolTip {
-                            visible: !isFont && mouseArea.containsMouse && !contextMenu.visible
-                            text: filePath
-                            delay: 1000
-                        }
+                            ToolTip {
+                                visible: !isFont && mouseArea.containsMouse && !contextMenu.visible
+                                text: filePath
+                                delay: 1000
+                            }
 
-                        Timer {
-                            interval: 1000
-                            running: mouseArea.containsMouse
-                            onTriggered: {
-                                if (suffix === ".ttf" || suffix === ".otf") {
-                                    tooltipBackend.name = fileName
-                                    tooltipBackend.path = filePath
-                                    tooltipBackend.showTooltip()
+                            Timer {
+                                interval: 1000
+                                running: mouseArea.containsMouse
+                                onTriggered: {
+                                    if (suffix === ".ttf" || suffix === ".otf") {
+                                        tooltipBackend.name = fileName
+                                        tooltipBackend.path = filePath
+                                        tooltipBackend.showTooltip()
+                                    }
                                 }
                             }
                         }
@@ -568,7 +605,7 @@ Item {
     // Placeholder when the assets panel is empty
     Column {
         id: colNoAssets
-        visible: assetsModel.isEmpty && !rootView.searchActive
+        visible: assetsModel.isEmpty && searchBox.isEmpty()
 
         spacing: 20
         x: 20
@@ -611,14 +648,5 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
         }
-    }
-
-    Text {
-        text: qsTr("No match found.")
-        x: 20
-        y: 10
-        color: StudioTheme.Values.themeTextColor
-        font.pixelSize: 12
-        visible: assetsModel.isEmpty && rootView.searchActive
     }
 }

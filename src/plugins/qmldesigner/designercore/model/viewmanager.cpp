@@ -38,6 +38,7 @@
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
+#include <assetslibraryview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
@@ -71,6 +72,7 @@ public:
     Edit3DView edit3DView;
     FormEditorView formEditorView;
     TextEditorView textEditorView;
+    AssetsLibraryView assetsLibraryView;
     ItemLibraryView itemLibraryView;
     NavigatorView navigatorView;
     PropertyEditorView propertyEditorView;
@@ -177,6 +179,7 @@ QList<AbstractView *> ViewManager::standardViews() const
     QList<AbstractView *> list = {&d->edit3DView,
                                   &d->formEditorView,
                                   &d->textEditorView,
+                                  &d->assetsLibraryView,
                                   &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
@@ -208,11 +211,6 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     detachStandardViews();
 
     currentModel()->setNodeInstanceView(nullptr);
-}
-
-void ViewManager::attachItemLibraryView()
-{
-    currentModel()->attachView(&d->itemLibraryView);
 }
 
 void ViewManager::attachAdditionalViews()
@@ -292,11 +290,6 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     switchStateEditorViewToSavedState();
 }
 
-void ViewManager::setItemLibraryViewResourcePath(const QString &resourcePath)
-{
-    d->itemLibraryView.setResourcePath(resourcePath);
-}
-
 void ViewManager::setComponentNode(const ModelNode &componentNode)
 {
     d->componentView.setComponentNode(componentNode);
@@ -319,6 +312,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->edit3DView.widgetInfo());
     widgetInfoList.append(d->formEditorView.widgetInfo());
     widgetInfoList.append(d->textEditorView.widgetInfo());
+    widgetInfoList.append(d->assetsLibraryView.widgetInfo());
     widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());

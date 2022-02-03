@@ -105,10 +105,10 @@ WidgetInfo ItemLibraryView::widgetInfo()
 
     return createWidgetInfo(m_widget.data(),
                             new WidgetInfo::ToolBarWidgetDefaultFactory<ItemLibraryWidget>(m_widget.data()),
-                            QStringLiteral("Library"),
+                            "Components",
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Library"));
+                            tr("Components"));
 }
 
 void ItemLibraryView::modelAttached(Model *model)
@@ -122,7 +122,6 @@ void ItemLibraryView::modelAttached(Model *model)
         m_widget->updatePossibleImports(model->possibleImports());
     m_hasErrors = !rewriterView()->errors().isEmpty();
     m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
-    setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
@@ -181,16 +180,6 @@ void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImport
 void ItemLibraryView::usedImportsChanged(const QList<Import> &usedImports)
 {
     m_widget->updateUsedImports(usedImports);
-}
-
-void ItemLibraryView::setResourcePath(const QString &resourcePath)
-{
-    if (m_widget.isNull())
-        m_widget = new ItemLibraryWidget{m_imageCacheData->cache,
-                                         m_imageCacheData->asynchronousFontImageCache,
-                                         m_imageCacheData->synchronousFontImageCache};
-
-    m_widget->setResourcePath(resourcePath);
 }
 
 ImageCacheData *ItemLibraryView::imageCacheData()

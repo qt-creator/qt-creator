@@ -99,7 +99,7 @@ private:
     QList<QmlItemNode> m_dragNodes;
     bool m_blockMove;
     QPointF m_startPoint;
-    bool m_isAborted;
+    bool m_isAborted = false;
 };
 
 } // namespace QmlDesigner
