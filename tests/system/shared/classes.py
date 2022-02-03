@@ -48,12 +48,12 @@ class Targets:
     @staticmethod
     def availableTargetClasses():
         availableTargets = set(Targets.ALL_TARGETS)
-        if platform.system() in ('Windows', 'Microsoft'):
+        if not qt4Available:
+            availableTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
+        if not qt4Available or platform.system() in ('Windows', 'Microsoft'):
             availableTargets.remove(Targets.EMBEDDED_LINUX)
         elif platform.system() == 'Darwin':
             availableTargets.remove(Targets.DESKTOP_5_4_1_GCC)
-        if not qt4Available:
-            availableTargets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
         return availableTargets
 
     @staticmethod
