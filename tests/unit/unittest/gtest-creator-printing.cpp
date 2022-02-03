@@ -1073,6 +1073,18 @@ const char *importKindToText(ImportKind kind)
     return "";
 }
 
+const char *isAutoVersionToText(IsAutoVersion isAutoVersion)
+{
+    switch (isAutoVersion) {
+    case IsAutoVersion::No:
+        return "is not autoversion";
+    case IsAutoVersion::Yes:
+        return "is auto version";
+    }
+
+    return "";
+}
+
 const char *fileTypeToText(FileType fileType)
 {
     switch (fileType) {
@@ -1239,9 +1251,20 @@ std::ostream &operator<<(std::ostream &out, const ImportKind &importKind)
     return out << importKindToText(importKind);
 }
 
+std::ostream &operator<<(std::ostream &out, const IsAutoVersion &isAutoVersion)
+{
+    return out << isAutoVersionToText(isAutoVersion);
+}
+
 std::ostream &operator<<(std::ostream &out, const Import &import)
 {
     return out << "(" << import.moduleId << ", " << import.version << ", " << import.sourceId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
+{
+    return out << "(" << import.moduleId << ", " << import.exportedModuleId << ", "
+               << import.version << ", " << import.isAutoVersion << ")";
 }
 
 } // namespace Storage

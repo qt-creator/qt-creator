@@ -45,13 +45,6 @@
 
 namespace QmlDesigner {
 
-template<typename Enumeration>
-constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
-
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface
 {
@@ -93,7 +86,9 @@ public:
         synchronizeImports(package.imports,
                            package.updatedSourceIds,
                            package.moduleDependencies,
-                           package.updatedModuleDependencySourceIds);
+                           package.updatedModuleDependencySourceIds,
+                           package.moduleExportedImports,
+                           package.updatedModuleIds);
         synchronizeTypes(package.types,
                          updatedTypeIds,
                          insertedAliasPropertyDeclarations,
@@ -697,15 +692,70 @@ private:
     void synchronizeImports(Storage::Imports &imports,
                             const SourceIds &updatedSourceIds,
                             Storage::Imports &moduleDependencies,
-                            const SourceIds &updatedModuleDependencySourceIds)
+                            const SourceIds &updatedModuleDependencySourceIds,
+                            Storage::ModuleExportedImports &moduleExportedImports,
+                            const ModuleIds &updatedModuleIds)
     {
-
+        synchromizeModuleExportedImports(moduleExportedImports, updatedModuleIds);
         synchronizeDocumentImports(imports, updatedSourceIds, Storage::ImportKind::Import);
         synchronizeDocumentImports(moduleDependencies,
                                    updatedModuleDependencySourceIds,
                                    Storage::ImportKind::ModuleDependency);
     }
 
+    void synchromizeModuleExportedImports(Storage::ModuleExportedImports &moduleExportedImports,
+                                          const ModuleIds &updatedModuleIds)
+    {
+        std::sort(moduleExportedImports.begin(),
+                  moduleExportedImports.end(),
+                  [](auto &&first, auto &&second) {
+                      return std::tie(first.moduleId, first.exportedModuleId)
+                             < std::tie(second.moduleId, second.exportedModuleId);
+                  });
+
+        auto range = selectModuleExportedImportsForSourceIdStatement
+                         .template range<Storage::ModuleExportedImportView>(
+                             toIntegers(updatedModuleIds));
+
+        auto compareKey = [](const Storage::ModuleExportedImportView &view,
+                             const Storage::ModuleExportedImport &import) -> long long {
+            auto moduleIdDifference = &view.moduleId - &import.moduleId;
+            if (moduleIdDifference != 0)
+                return moduleIdDifference;
+
+            return &view.exportedModuleId - &import.exportedModuleId;
+        };
+
+        auto insert = [&](const Storage::ModuleExportedImport &import) {
+            if (import.version.minor) {
+                insertModuleExportedImportWithVersionStatement.write(&import.moduleId,
+                                                                     &import.exportedModuleId,
+                                                                     to_underlying(import.isAutoVersion),
+                                                                     import.version.major.value,
+                                                                     import.version.minor.value);
+            } else if (import.version.major) {
+                insertModuleExportedImportWithMajorVersionStatement.write(&import.moduleId,
+                                                                          &import.exportedModuleId,
+                                                                          to_underlying(
+                                                                              import.isAutoVersion),
+                                                                          import.version.major.value);
+            } else {
+                insertModuleExportedImportWithoutVersionStatement.write(&import.moduleId,
+                                                                        &import.exportedModuleId,
+                                                                        to_underlying(
+                                                                            import.isAutoVersion));
+            }
+        };
+
+        auto update = [](const Storage::ModuleExportedImportView &,
+                         const Storage::ModuleExportedImport &) { return Sqlite::UpdateChange::No; };
+
+        auto remove = [&](const Storage::ModuleExportedImportView &view) {
+            deleteModuleExportedImportStatement.write(&view.moduleExportedImportId);
+        };
+
+        Sqlite::insertUpdateDelete(range, moduleExportedImports, compareKey, insert, update, remove);
+    }
 
     ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const
     {
@@ -1256,6 +1306,31 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
+    void insertDocumentImport(const Storage::Import &import,
+                              Storage::ImportKind importKind,
+                              ModuleId sourceModuleId)
+    {
+        if (import.version.minor) {
+            insertDocumentImportWithVersionStatement.write(&import.sourceId,
+                                                           &import.moduleId,
+                                                           &sourceModuleId,
+                                                           to_underlying(importKind),
+                                                           import.version.major.value,
+                                                           import.version.minor.value);
+        } else if (import.version.major) {
+            insertDocumentImportWithMajorVersionStatement.write(&import.sourceId,
+                                                                &import.moduleId,
+                                                                &sourceModuleId,
+                                                                to_underlying(importKind),
+                                                                import.version.major.value);
+        } else {
+            insertDocumentImportWithoutVersionStatement.write(&import.sourceId,
+                                                              &import.moduleId,
+                                                              &sourceModuleId,
+                                                              to_underlying(importKind));
+        }
+    }
+
     void synchronizeDocumentImports(Storage::Imports &imports,
                                     const SourceIds &updatedSourceIds,
                                     Storage::ImportKind importKind)
@@ -1286,22 +1361,24 @@ private:
         };
 
         auto insert = [&](const Storage::Import &import) {
-            if (import.version.minor) {
-                insertDocumentImportWithVersionStatement.write(&import.sourceId,
-                                                               &import.moduleId,
-                                                               to_underlying(importKind),
-                                                               import.version.major.value,
-                                                               import.version.minor.value);
-            } else if (import.version.major) {
-                insertDocumentImportWithMajorVersionStatement.write(&import.sourceId,
-                                                                    &import.moduleId,
-                                                                    to_underlying(importKind),
-                                                                    import.version.major.value);
-            } else {
-                insertDocumentImportWithoutVersionStatement.write(&import.sourceId,
-                                                                  &import.moduleId,
-                                                                  to_underlying(importKind));
-            }
+            insertDocumentImport(import, importKind, import.moduleId);
+
+            auto callback = [&](int exportedModuleId, int majorVersion, int minorVersion) {
+                Storage::Import additionImport{ModuleId{exportedModuleId},
+                                               Storage::Version{majorVersion, minorVersion},
+                                               import.sourceId};
+
+                insertDocumentImport(additionImport,
+                                     Storage::ImportKind::ModuleExportedImport,
+                                     import.moduleId);
+
+                return Sqlite::CallbackControl::Continue;
+            };
+
+            selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
+                                                                         &import.moduleId,
+                                                                         import.version.major.value,
+                                                                         import.version.minor.value);
         };
 
         auto update = [](const Storage::ImportView &, const Storage::Import &) {
@@ -1870,6 +1947,7 @@ private:
                 createEnumerationsTable(database);
                 createFunctionsTable(database);
                 createSignalsTable(database);
+                createModuleExportedImportsTable(database, moduleIdColumn);
                 createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
                 createProjectDatasTable(database);
@@ -2072,6 +2150,30 @@ private:
             return std::move(modelIdColumn);
         }
 
+        void createModuleExportedImportsTable(Database &database,
+                                              const Sqlite::Column &foreignModuleIdColumn)
+        {
+            Sqlite::Table table;
+            table.setUseIfNotExists(true);
+            table.setName("moduleExportedImports");
+            table.addColumn("moduleExportedImportId",
+                            Sqlite::ColumnType::Integer,
+                            {Sqlite::PrimaryKey{}});
+            auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
+                                                             foreignModuleIdColumn,
+                                                             Sqlite::ForeignKeyAction::NoAction,
+                                                             Sqlite::ForeignKeyAction::Cascade,
+                                                             Sqlite::Enforment::Immediate);
+            auto &sourceIdColumn = table.addColumn("exportedModuleId");
+            table.addColumn("isAutoVersion");
+            table.addColumn("majorVersion");
+            table.addColumn("minorVersion");
+
+            table.addUniqueIndex({sourceIdColumn, moduleIdColumn});
+
+            table.initialize(database);
+        }
+
         void createDocumentImportsTable(Database &database, const Sqlite::Column &foreignModuleIdColumn)
         {
             Sqlite::Table table;
@@ -2083,16 +2185,25 @@ private:
                                                              foreignModuleIdColumn,
                                                              Sqlite::ForeignKeyAction::NoAction,
                                                              Sqlite::ForeignKeyAction::Cascade,
-                                                             Sqlite::Enforment::Deferred);
-            table.addColumn("kind");
+                                                             Sqlite::Enforment::Immediate);
+            auto &sourceModuleIdColumn = table.addForeignKeyColumn("sourceModuleId",
+                                                                   foreignModuleIdColumn,
+                                                                   Sqlite::ForeignKeyAction::NoAction,
+                                                                   Sqlite::ForeignKeyAction::Cascade,
+                                                                   Sqlite::Enforment::Immediate);
+            auto &kindColumn = table.addColumn("kind");
             auto &majorVersionColumn = table.addColumn("majorVersion");
             auto &minorVersionColumn = table.addColumn("minorVersion");
 
-            table.addUniqueIndex({sourceIdColumn, moduleIdColumn},
+            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, sourceModuleIdColumn},
                                  "majorVersion IS NULL AND minorVersion IS NULL");
-            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, majorVersionColumn},
+            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, sourceModuleIdColumn, majorVersionColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NULL");
-            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, majorVersionColumn, minorVersionColumn},
+            table.addUniqueIndex({sourceIdColumn,
+                                  moduleIdColumn,
+                                  sourceModuleIdColumn,
+                                  majorVersionColumn,
+                                  minorVersionColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
 
             table.initialize(database);
@@ -2375,17 +2486,17 @@ public:
         "FROM documentImports WHERE sourceId IN carray(?1) AND kind=?2 ORDER BY sourceId, "
         "moduleId, majorVersion, minorVersion",
         database};
-    WriteStatement<3> insertDocumentImportWithoutVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, kind) "
-        "VALUES (?1, ?2, ?3)",
-        database};
-    WriteStatement<4> insertDocumentImportWithMajorVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, kind, majorVersion) "
+    WriteStatement<4> insertDocumentImportWithoutVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind) "
         "VALUES (?1, ?2, ?3, ?4)",
         database};
-    WriteStatement<5> insertDocumentImportWithVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, kind, majorVersion, minorVersion) "
+    WriteStatement<5> insertDocumentImportWithMajorVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion) "
         "VALUES (?1, ?2, ?3, ?4, ?5)",
+        database};
+    WriteStatement<6> insertDocumentImportWithVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
+        "minorVersion) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
         database};
     WriteStatement<1> deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
                                                     database};
@@ -2548,8 +2659,8 @@ public:
         "importOrSourceId=sourceId JOIN exportedTypeNames AS etn USING(moduleId) WHERE "
         "itn.kind=1 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
         "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
-        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
-        "etn.minorVersion DESC NULLS FIRST LIMIT 1",
+        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY di.kind, etn.majorVersion DESC "
+        "NULLS FIRST, etn.minorVersion DESC NULLS FIRST LIMIT 1",
         database};
     WriteStatement<0> deleteAllSourcesStatement{"DELETE FROM sources", database};
     WriteStatement<0> deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
@@ -2589,8 +2700,41 @@ public:
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId=?1",
         database};
-    ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
+    mutable ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
         "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};
+    mutable ReadStatement<6, 1> selectModuleExportedImportsForSourceIdStatement{
+        "SELECT moduleExportedImportId, moduleId, exportedModuleId, ifnull(majorVersion, -1), "
+        "ifnull(minorVersion, -1), isAutoVersion FROM moduleExportedImports WHERE moduleId IN "
+        "carray(?1) ORDER BY moduleId, exportedModuleId",
+        database};
+    WriteStatement<3> insertModuleExportedImportWithoutVersionStatement{
+        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion) "
+        "VALUES (?1, ?2, ?3)",
+        database};
+    WriteStatement<4> insertModuleExportedImportWithMajorVersionStatement{
+        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion, "
+        "majorVersion) VALUES (?1, ?2, ?3, ?4)",
+        database};
+    WriteStatement<5> insertModuleExportedImportWithVersionStatement{
+        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion, "
+        "majorVersion, minorVersion) VALUES (?1, ?2, ?3, ?4, ?5)",
+        database};
+    WriteStatement<1> deleteModuleExportedImportStatement{
+        "DELETE FROM moduleExportedImports WHERE moduleExportedImportId=?1", database};
+    mutable ReadStatement<3, 3> selectModuleExportedImportsForModuleIdStatement{
+        "WITH RECURSIVE "
+        "  imports(moduleId, majorVersion, minorVersion) AS ( "
+        "      SELECT exportedModuleId, "
+        "             iif(isAutoVersion=1, ?2, majorVersion), "
+        "             iif(isAutoVersion=1, ?3, minorVersion)"
+        "        FROM moduleExportedImports WHERE moduleId=?1 "
+        "    UNION ALL "
+        "      SELECT exportedModuleId, "
+        "             iif(mei.isAutoVersion=1, i.majorVersion, mei.majorVersion), "
+        "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion)"
+        "        FROM moduleExportedImports AS mei JOIN imports AS i USING(moduleId)) "
+        "SELECT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM imports",
+        database};
 };
 
 } // namespace QmlDesigner

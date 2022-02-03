@@ -261,12 +261,14 @@ class SignalDeclaration;
 class EnumerationDeclaration;
 class EnumeratorDeclaration;
 enum class ImportKind : char;
+enum class IsAutoVersion : char;
 class Import;
 enum class IsQualified : int;
 class ProjectData;
 class SynchronizationPackage;
 enum class FileType : char;
 enum class ChangeLevel : char;
+class ModuleExportedImport;
 
 std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics);
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
@@ -289,6 +291,7 @@ std::ostream &operator<<(std::ostream &out, const ProjectData &data);
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package);
 std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
+std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import);
 
 } // namespace Storage
 

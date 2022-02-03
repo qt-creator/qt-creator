@@ -412,6 +412,57 @@ protected:
         return package;
     }
 
+    auto createModuleExportedImportSynchronizationPackage()
+    {
+        SynchronizationPackage package;
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{1}, sourceId1);
+        package.updatedModuleIds.push_back(qtQuickModuleId);
+        package.types.push_back(
+            Storage::Type{"QQuickItem",
+                          Storage::ImportedType{"Object"},
+                          TypeAccessSemantics::Reference,
+                          sourceId1,
+                          {Storage::ExportedType{qtQuickModuleId, "Item", Storage::Version{1, 0}}}});
+
+        package.updatedModuleIds.push_back(qmlModuleId);
+        package.moduleExportedImports.emplace_back(qtQuickModuleId,
+                                                   qmlModuleId,
+                                                   Storage::Version{},
+                                                   Storage::IsAutoVersion::Yes);
+        package.types.push_back(
+            Storage::Type{"QObject",
+                          Storage::ImportedType{},
+                          TypeAccessSemantics::Reference,
+                          sourceId2,
+                          {Storage::ExportedType{qmlModuleId, "Object", Storage::Version{1, 0}}}});
+
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{1}, sourceId3);
+        package.moduleExportedImports.emplace_back(qtQuick3DModuleId,
+                                                   qtQuickModuleId,
+                                                   Storage::Version{},
+                                                   Storage::IsAutoVersion::Yes);
+        package.updatedModuleIds.push_back(qtQuick3DModuleId);
+        package.types.push_back(
+            Storage::Type{"QQuickItem3d",
+                          Storage::ImportedType{"Item"},
+                          TypeAccessSemantics::Reference,
+                          sourceId3,
+                          {Storage::ExportedType{qtQuick3DModuleId, "Item3D", Storage::Version{1, 0}}}});
+
+        package.imports.emplace_back(qtQuick3DModuleId, Storage::Version{1}, sourceId4);
+        package.types.push_back(
+            Storage::Type{"MyItem",
+                          Storage::ImportedType{"Object"},
+                          TypeAccessSemantics::Reference,
+                          sourceId4,
+                          {Storage::ExportedType{myModuleModuleId, "MyItem", Storage::Version{1, 0}}}});
+
+        package.updatedSourceIds = {sourceId1, sourceId2, sourceId3, sourceId4};
+
+        return package;
+    }
+
     template<typename Range>
     static FileStatuses convert(const Range &range)
     {
@@ -446,6 +497,8 @@ protected:
     ModuleId qtQuickModuleId{storage.moduleId("QtQuick")};
     ModuleId qtQuickNativeModuleId{storage.moduleId("QtQuick-cppnative")};
     ModuleId pathToModuleId{storage.moduleId("/path/to")};
+    ModuleId qtQuick3DModuleId{storage.moduleId("QtQuick3D")};
+    ModuleId myModuleModuleId{storage.moduleId("MyModule")};
     Storage::Imports importsSourceId1;
     Storage::Imports importsSourceId2;
     Storage::Imports importsSourceId3;
@@ -3883,6 +3936,109 @@ TEST_F(ProjectStorage, ExcludeExportedTypes)
                   Field(&Storage::Type::exportedTypes,
                         UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item"),
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
+}
+
+TEST_F(ProjectStorage, ModuleExportedImport)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item")))),
+                    AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qmlModuleId, "Object")))),
+                    AllOf(IsStorageType(sourceId3,
+                                        "QQuickItem3d",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuick3DModuleId, "Item3D")))),
+                    AllOf(IsStorageType(sourceId4,
+                                        "MyItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
+}
+
+TEST_F(ProjectStorage, ModuleExportedImportWithDifferentVersions)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    package.imports.back().version.major.value = 2;
+    package.types[2].exportedTypes.front().version.major.value = 2;
+    package.moduleExportedImports.back().isAutoVersion = Storage::IsAutoVersion::No;
+    package.moduleExportedImports.back().version = Storage::Version{1};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item")))),
+                    AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qmlModuleId, "Object")))),
+                    AllOf(IsStorageType(sourceId3,
+                                        "QQuickItem3d",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuick3DModuleId, "Item3D")))),
+                    AllOf(IsStorageType(sourceId4,
+                                        "MyItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
+}
+
+TEST_F(ProjectStorage, ModuleExportedImportWithIndirectDifferentVersions)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    package.imports[1].version.major.value = 2;
+    package.imports.back().version.major.value = 2;
+    package.types[0].exportedTypes.front().version.major.value = 2;
+    package.types[2].exportedTypes.front().version.major.value = 2;
+    package.moduleExportedImports[0].isAutoVersion = Storage::IsAutoVersion::No;
+    package.moduleExportedImports[0].version = Storage::Version{1};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item")))),
+                    AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qmlModuleId, "Object")))),
+                    AllOf(IsStorageType(sourceId3,
+                                        "QQuickItem3d",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuick3DModuleId, "Item3D")))),
+                    AllOf(IsStorageType(sourceId4,
+                                        "MyItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
 } // namespace

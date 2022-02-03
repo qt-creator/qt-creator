@@ -34,6 +34,17 @@
 #include <tuple>
 #include <vector>
 
+namespace QmlDesigner {
+
+template<typename Enumeration>
+constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
+{
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
+}
+
+} // namespace QmlDesigner
+
 namespace QmlDesigner::Storage {
 
 enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
@@ -136,7 +147,7 @@ inline int operator<(IsQualified first, IsQualified second)
     return static_cast<int>(first) < static_cast<int>(second);
 }
 
-enum class ImportKind : char { Import, ModuleDependency };
+enum class ImportKind : char { Import, ModuleDependency, ModuleExportedImport };
 
 class Import
 {
@@ -198,6 +209,81 @@ public:
     SourceId sourceId;
     ModuleId moduleId;
     Version version;
+};
+
+enum class IsAutoVersion : char { No, Yes };
+
+constexpr bool operator<(IsAutoVersion first, IsAutoVersion second)
+{
+    return to_underlying(first) < to_underlying(second);
+}
+
+class ModuleExportedImport
+{
+public:
+    explicit ModuleExportedImport(ModuleId moduleId,
+                                  ModuleId exportedModuleId,
+                                  Version version,
+                                  IsAutoVersion isAutoVersion)
+        : version{version}
+        , moduleId{moduleId}
+        , exportedModuleId{exportedModuleId}
+        , isAutoVersion{isAutoVersion}
+    {}
+
+    friend bool operator==(const ModuleExportedImport &first, const ModuleExportedImport &second)
+    {
+        return first.moduleId == second.moduleId && first.version == second.version
+               && first.exportedModuleId == second.exportedModuleId
+               && first.isAutoVersion == second.isAutoVersion;
+    }
+
+    friend bool operator<(const ModuleExportedImport &first, const ModuleExportedImport &second)
+    {
+        return std::tie(first.moduleId, first.exportedModuleId, first.isAutoVersion, first.version)
+               < std::tie(second.moduleId, second.exportedModuleId, second.isAutoVersion, second.version);
+    }
+
+public:
+    Version version;
+    ModuleId moduleId;
+    ModuleId exportedModuleId;
+    IsAutoVersion isAutoVersion = IsAutoVersion::No;
+};
+
+using ModuleExportedImports = std::vector<ModuleExportedImport>;
+
+class ModuleExportedImportView
+{
+public:
+    explicit ModuleExportedImportView() = default;
+
+    explicit ModuleExportedImportView(long long moduleExportedImportId,
+                                      int moduleId,
+                                      int exportedModuleId,
+                                      int majorVersion,
+                                      int minorVersion,
+                                      int isAutoVersion)
+        : moduleExportedImportId{moduleExportedImportId}
+        , version{majorVersion, minorVersion}
+        , moduleId{moduleId}
+        , exportedModuleId{exportedModuleId}
+        , isAutoVersion{static_cast<IsAutoVersion>(isAutoVersion)}
+    {}
+
+    friend bool operator==(const ModuleExportedImportView &first,
+                           const ModuleExportedImportView &second)
+    {
+        return first.moduleId == second.moduleId && first.exportedModuleId == second.exportedModuleId
+               && first.version == second.version && first.isAutoVersion == second.isAutoVersion;
+    }
+
+public:
+    ModuleExportedImportId moduleExportedImportId;
+    Version version;
+    ModuleId moduleId;
+    ModuleId exportedModuleId;
+    IsAutoVersion isAutoVersion = IsAutoVersion::No;
 };
 
 class ImportedType
@@ -808,6 +894,8 @@ public:
     SourceIds updatedProjectSourceIds;
     Imports moduleDependencies;
     SourceIds updatedModuleDependencySourceIds;
+    ModuleExportedImports moduleExportedImports;
+    ModuleIds updatedModuleIds;
 };
 
 } // namespace QmlDesigner::Storage
