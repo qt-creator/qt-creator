@@ -9,15 +9,23 @@ Project {
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
-        directory: "."
+        directory: "content"
+    }
+
+    QmlFiles {
+        directory: "imports"
     }
 
     JavaScriptFiles {
-        directory: "."
+        directory: "content"
+    }
+
+     JavaScriptFiles {
+        directory: "imports"
     }
 
     ImageFiles {
-        directory: "."
+        directory: "content"
     }
 
     Files {
@@ -32,6 +40,18 @@ Project {
 
     Files {
         filter: "*.ttf;*.otf"
+    }
+
+    Files {
+        filter: "*.wav;*.mp3"
+    }
+
+    Files {
+        filter: "*.mp4"
+    }
+
+    Files {
+        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag"
     }
 
     Files {
@@ -61,13 +81,20 @@ Project {
 @endif
 
     /* List of plugin directories passed to QML runtime */
-    importPaths: [ ".", "imports", "asset_imports" ]
+    importPaths: [ "imports", "asset_imports" ]
 
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
+
+    qdsVersion: "3.0"
 
 @if %{IsQt6Project}
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
     widgetApp: true
 @endif
+
+    multilanguageSupport: true
+    supportedLanguages: ["en"]
+    primaryLanguage: "en"
+
 }

@@ -55,7 +55,7 @@
                         "items":
                             [
                             {
-                                "trKey": "2960 x 1440 (QHD)",
+                                "trKey": "2960 x 1440",
                                 "value":
                                 "({
                                     'ScreenWidth': '2960',
@@ -71,7 +71,7 @@
                                 })"
                             },
                             {
-                                "trKey": "1920 x 1080 (FullHD)",
+                                "trKey": "1920 x 1080",
                                 "value":
                                 "({
                                     'ScreenWidth': '1920',
@@ -95,7 +95,7 @@
                                 })"
                             },
                             {
-                                "trKey": "1280 x 720 (HD)",
+                                "trKey": "1280 x 720",
                                 "value":
                                 "({
                                     'ScreenWidth': '1280',
