@@ -49,7 +49,9 @@ class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
 class MarginSettings;
-}
+} // namespace TextEditor
+
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
@@ -118,6 +120,6 @@ private:
 // the file belongs to and return the project settings. If the file doesn't belong to any
 // project return the global settings.
 PROJECTEXPLORER_EXPORT TextEditor::TabSettings actualTabSettings(
-    const QString &fileName, const TextEditor::TextDocument *baseTextDocument);
+    const Utils::FilePath &file, const TextEditor::TextDocument *baseTextDocument);
 
 } // namespace ProjectExplorer

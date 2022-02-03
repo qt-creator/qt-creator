@@ -407,12 +407,12 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
         deconfigureEditor(editor);
 }
 
-TabSettings actualTabSettings(const QString &fileName,
+TabSettings actualTabSettings(const Utils::FilePath &file,
                               const TextDocument *baseTextdocument)
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();
-    if (Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(fileName)))
+    if (Project *project = SessionManager::projectForFile(file))
         return project->editorConfiguration()->codeStyle()->tabSettings();
     return TextEditorSettings::codeStyle()->tabSettings();
 }

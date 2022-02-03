@@ -246,8 +246,7 @@ void CppRefactoringChangesData::indentSelection(const QTextCursor &selection,
     if (textDocument) { // use the indenter from the textDocument if there is one, can be ClangFormat
         textDocument->indenter()->indent(selection, QChar::Null, textDocument->tabSettings());
     } else {
-        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath.toString(),
-                                                                     textDocument);
+        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath, textDocument);
         auto indenter = createIndenter(filePath, selection.document());
         indenter->indent(selection, QChar::Null, tabSettings);
     }
@@ -260,8 +259,7 @@ void CppRefactoringChangesData::reindentSelection(const QTextCursor &selection,
     if (textDocument) { // use the indenter from the textDocument if there is one, can be ClangFormat
         textDocument->indenter()->reindent(selection, textDocument->tabSettings());
     } else {
-        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath.toString(),
-                                                                     textDocument);
+        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath, textDocument);
         auto indenter = createIndenter(filePath, selection.document());
         indenter->reindent(selection, tabSettings);
     }

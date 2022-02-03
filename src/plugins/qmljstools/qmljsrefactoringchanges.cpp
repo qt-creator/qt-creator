@@ -57,7 +57,7 @@ public:
         const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
 
         const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(filePath.toString(), textDocument);
+            ProjectExplorer::actualTabSettings(filePath, textDocument);
         CreatorCodeFormatter codeFormatter(tabSettings);
         codeFormatter.updateStateUntil(block);
         do {
@@ -82,7 +82,7 @@ public:
                            const TextEditor::TextDocument *textDocument) const override
     {
         const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(filePath.toString(), textDocument);
+            ProjectExplorer::actualTabSettings(filePath, textDocument);
 
         QmlJSEditor::Internal::Indenter indenter(selection.document());
         indenter.reindent(selection, tabSettings);
