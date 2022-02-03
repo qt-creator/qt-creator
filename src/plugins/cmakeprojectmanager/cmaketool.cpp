@@ -27,6 +27,8 @@
 
 #include "cmaketoolmanager.h"
 
+#include <coreplugin/helpmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -378,6 +380,28 @@ FilePath CMakeTool::searchQchFile(const FilePath &executable)
     }
 
     return {};
+}
+
+QString CMakeTool::documentationUrl(bool online) const
+{
+    if (online)
+        return QString("https://cmake.org/cmake/help/v%1.%2")
+            .arg(version().major)
+            .arg(version().minor);
+
+    return QString("qthelp://org.cmake.%1.%2.%3/doc")
+        .arg(version().major)
+        .arg(version().minor)
+        .arg(version().patch);
+}
+
+void CMakeTool::openCMakeHelpUrl(const QString &linkUrl) const
+{
+    if (!isValid())
+        return;
+
+    const bool online = qchFilePath().isEmpty();
+    Core::HelpManager::showHelpUrl(linkUrl.arg(documentationUrl(online)));
 }
 
 void CMakeTool::readInformation() const

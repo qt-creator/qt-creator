@@ -492,6 +492,18 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateInitialCMakeArguments();
     });
 
+    auto handleOptionsLink = [this](const QString &link) {
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
+        if (tool)
+            tool->openCMakeHelpUrl("%1/manual/cmake.1.html#options");
+    };
+    connect(bc->aspect<InitialCMakeArgumentsAspect>(),
+            &Utils::BaseAspect::labelLinkActivated,
+            [=](const QString &link) { handleOptionsLink(link); });
+    connect(bc->aspect<AdditionalCMakeOptionsAspect>(),
+            &Utils::BaseAspect::labelLinkActivated,
+            [=](const QString &link) { handleOptionsLink(link); });
+
     updateSelection();
     updateConfigurationStateSelection();
 }
@@ -1717,7 +1729,7 @@ void InitialCMakeArgumentsAspect::toMap(QVariantMap &map) const
 InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
 {
     setSettingsKey("CMake.Initial.Parameters");
-    setLabelText(tr("Additional CMake options:"));
+    setLabelText(tr("Additional CMake <a href=\"options\">options</a>:"));
     setDisplayStyle(LineEditDisplay);
 }
 
@@ -1728,7 +1740,7 @@ InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
 AdditionalCMakeOptionsAspect::AdditionalCMakeOptionsAspect()
 {
     setSettingsKey("CMake.Additional.Options");
-    setLabelText(tr("Additional CMake options:"));
+    setLabelText(tr("Additional CMake <a href=\"options\">options</a>:"));
     setDisplayStyle(LineEditDisplay);
 }
 

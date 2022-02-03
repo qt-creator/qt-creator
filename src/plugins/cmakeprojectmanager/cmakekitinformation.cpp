@@ -942,7 +942,12 @@ private:
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
-        additionalLabel->setText(tr("Additional CMake options: "));
+        additionalLabel->setText(tr("Additional CMake <a href=\"options\">options</a>:"));
+        connect(additionalLabel, &QLabel::linkActivated, this, [this](const QString &link) {
+            const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
+            if (tool)
+                tool->openCMakeHelpUrl("%1/manual/cmake.1.html#options");
+        });
 
         auto additionalChooser = new VariableChooser(m_dialog);
         additionalChooser->addSupportedWidget(m_additionalEditor);

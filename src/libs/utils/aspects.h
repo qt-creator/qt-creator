@@ -142,6 +142,7 @@ public:
 
 signals:
     void changed();
+    void labelLinkActivated(const QString &link);
 
 protected:
     QLabel *label() const;
