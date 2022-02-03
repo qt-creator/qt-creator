@@ -925,15 +925,20 @@ private:
 
         QTC_ASSERT(!m_editor, return);
 
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
+
         m_dialog = new QDialog(m_summaryLabel->window());
         m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
         auto layout = new QVBoxLayout(m_dialog);
         m_editor = new QPlainTextEdit;
         auto editorLabel = new QLabel(m_dialog);
-        editorLabel->setText(tr("Enter one CMake variable per line.\n"
-                                "To set a variable, use -D<variable>:<type>=<value>.\n"
-                                "<type> can have one of the following values: FILEPATH, PATH, "
+        editorLabel->setText(tr("Enter one CMake <a href=\"variable\">variable</a> per line.<br/>"
+                                "To set a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
+                                "&lt;type&gt; can have one of the following values: FILEPATH, PATH, "
                                 "BOOL, INTERNAL, or STRING."));
+        connect(editorLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
+        });
         m_editor->setMinimumSize(800, 200);
 
         auto chooser = new VariableChooser(m_dialog);
@@ -943,10 +948,8 @@ private:
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
         additionalLabel->setText(tr("Additional CMake <a href=\"options\">options</a>:"));
-        connect(additionalLabel, &QLabel::linkActivated, this, [this](const QString &link) {
-            const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
-            if (tool)
-                tool->openCMakeHelpUrl("%1/manual/cmake.1.html#options");
+        connect(additionalLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
         });
 
         auto additionalChooser = new VariableChooser(m_dialog);

@@ -112,8 +112,8 @@ public:
     QString detectionSource() const { return m_detectionSource; }
     void setDetectionSource(const QString &source) { m_detectionSource = source; }
 
-    QString documentationUrl(bool online) const;
-    void openCMakeHelpUrl(const QString &linkUrl) const;
+    static QString documentationUrl(const Version &version, bool online);
+    static void openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl);
 
 private:
     void readInformation() const;

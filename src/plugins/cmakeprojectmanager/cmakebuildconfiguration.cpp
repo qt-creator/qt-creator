@@ -494,8 +494,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     auto handleOptionsLink = [this](const QString &link) {
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
-        if (tool)
-            tool->openCMakeHelpUrl("%1/manual/cmake.1.html#options");
+        CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
     };
     connect(bc->aspect<InitialCMakeArgumentsAspect>(),
             &Utils::BaseAspect::labelLinkActivated,
@@ -518,10 +517,14 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
     auto editor = new QPlainTextEdit(dialog);
 
     auto label = new QLabel(dialog);
-    label->setText(tr("Enter one CMake variable per line.\n"
-       "To set or change a variable, use -D<variable>:<type>=<value>.\n"
-       "<type> can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.\n"
-       "To unset a variable, use -U<variable>.\n"));
+    label->setText(tr("Enter one CMake <a href=\"variable\">variable</a> per line.<br/>"
+       "To set or change a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
+       "&lt;type&gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.<br/>"
+                      "To unset a variable, use -U&lt;variable&gt;.<br/>"));
+    connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
+        CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
+    });
     editor->setMinimumSize(800, 200);
 
     auto chooser = new Utils::VariableChooser(dialog);
