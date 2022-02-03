@@ -151,6 +151,8 @@ protected:
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    Utils::FilePaths getUiQmlFilesForFolder(const Utils::FilePath &folder);
+
     QMetaObject::Connection m_openFileConnection;
 };
 

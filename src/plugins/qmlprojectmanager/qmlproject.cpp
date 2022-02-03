@@ -95,6 +95,15 @@ static int preferedQtTarget(Target *target)
 
 const char openInQDSAppSetting[] = "OpenInQDSApp";
 
+Utils::FilePaths QmlProject::getUiQmlFilesForFolder(const Utils::FilePath &folder)
+{
+    const Utils::FilePaths uiFiles = files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == "ui.qml"
+                && node->filePath().parentDir() == folder;
+    });
+    return uiFiles;
+}
+
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
 {
@@ -124,27 +133,35 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
             QTimer::singleShot(0, this, lambda);
         }
     } else {
-        m_openFileConnection = connect(
-            this, &QmlProject::anyParsingFinished, this, [this](Target *target, bool success) {
-                if (m_openFileConnection)
-                    disconnect(m_openFileConnection);
+        m_openFileConnection
+            = connect(this,
+                      &QmlProject::anyParsingFinished,
+                      this,
+                      [this](Target *target, bool success) {
+                          if (m_openFileConnection)
+                              disconnect(m_openFileConnection);
 
-                if (target && success) {
-                    const Utils::FilePath &folder = projectDirectory();
-                    const Utils::FilePaths &uiFiles = files([&](const ProjectExplorer::Node *node) {
-                        return node->filePath().completeSuffix() == "ui.qml"
-                               && node->filePath().parentDir() == folder;
-                    });
-                    if (!uiFiles.isEmpty()) {
-                        Utils::FilePath currentFile;
-                        if (auto cd = Core::EditorManager::currentDocument())
-                            currentFile = cd->filePath();
+                          if (target && success) {
+                              const Utils::FilePath &folder = projectDirectory() + "/content";
 
-                        if (currentFile.isEmpty() || !isKnownFile(currentFile))
-                            Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
-                    }
-                }
-            });
+                              Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
+                                                                                + "/content");
+                              if (uiFiles.isEmpty())
+                                  uiFiles = getUiQmlFilesForFolder(projectDirectory());
+
+                              if (!uiFiles.isEmpty()) {
+                                  Utils::FilePath currentFile;
+                                  if (auto cd = Core::EditorManager::currentDocument())
+                                      currentFile = cd->filePath();
+
+                                  if (currentFile.isEmpty() || !isKnownFile(currentFile))
+                                      QTimer::singleShot(1000, [uiFiles]() {
+                                          Core::EditorManager::openEditor(uiFiles.first(),
+                                                                          Utils::Id());
+                                      });
+                              }
+                          }
+                      });
     }
 }
 
