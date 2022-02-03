@@ -1733,7 +1733,7 @@ QString DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) const
     LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
     if (QTC_GUARD(output.endsWith(markerWithNewLine)))
         output.chop(markerWithNewLine.size());
-    return QString::fromUtf8(output);
+    return QString::fromUtf8(output, output.size());
 }
 
 // Factory

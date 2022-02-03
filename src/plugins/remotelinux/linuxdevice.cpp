@@ -270,7 +270,7 @@ public:
         if (pos >= 0)
             output = output.left(pos);
         DEBUG("CHOPPED2 " << output);
-        return QString::fromUtf8(output);
+        return QString::fromUtf8(output, output.size());
     }
 
     bool isRunning() const { return m_shell; }

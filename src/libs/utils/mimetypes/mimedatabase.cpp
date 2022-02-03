@@ -738,6 +738,8 @@ MimeType Utils::mimeTypeForFile(const QFileInfo &fileInfo, MimeMatchMode mode)
 MimeType Utils::mimeTypeForFile(const FilePath &filePath, MimeMatchMode mode)
 {
     MimeDatabase mdb;
+    if (filePath.needsDevice())
+        return mdb.mimeTypeForUrl(filePath.toUrl());
     return mdb.mimeTypeForFile(filePath.toString(), MimeDatabase::MatchMode(mode));
 }
 
