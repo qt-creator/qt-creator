@@ -323,7 +323,6 @@ TransitionEditorWidget *TransitionEditorView::createWidget()
 WidgetInfo TransitionEditorView::widgetInfo()
 {
     return createWidgetInfo(createWidget(),
-                            nullptr,
                             "TransitionEditor",
                             WidgetInfo::BottomPane,
                             0,

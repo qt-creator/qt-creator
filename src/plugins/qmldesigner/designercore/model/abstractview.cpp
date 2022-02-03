@@ -129,7 +129,6 @@ void AbstractView::removeModel()
 }
 
 WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
-                                          WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory,
                                           const QString &uniqueId,
                                           WidgetInfo::PlacementHint placementHint,
                                           int placementPriority,
@@ -139,7 +138,6 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     WidgetInfo widgetInfo;
 
     widgetInfo.widget = widget;
-    widgetInfo.toolBarWidgetFactory = toolBarWidgetFactory;
     widgetInfo.uniqueId = uniqueId;
     widgetInfo.placementHint = placementHint;
     widgetInfo.placementPriority = placementPriority;

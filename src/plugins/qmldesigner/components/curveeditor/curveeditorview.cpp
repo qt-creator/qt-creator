@@ -70,7 +70,7 @@ bool CurveEditorView::hasWidget() const
 WidgetInfo CurveEditorView::widgetInfo()
 {
     return createWidgetInfo(
-        m_editor, nullptr, "CurveEditorId", WidgetInfo::BottomPane, 0, tr("CurveEditor"));
+        m_editor, "CurveEditorId", WidgetInfo::BottomPane, 0, tr("CurveEditor"));
 }
 
 void CurveEditorView::modelAttached(Model *model)

@@ -132,7 +132,6 @@ WidgetInfo NavigatorView::widgetInfo()
         setupWidget();
 
     return createWidgetInfo(m_widget.data(),
-                            new WidgetInfo::ToolBarWidgetDefaultFactory<NavigatorWidget>(m_widget.data()),
                             QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
                             0,

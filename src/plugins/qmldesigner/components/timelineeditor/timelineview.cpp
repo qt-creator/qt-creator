@@ -669,7 +669,6 @@ TimelineWidget *TimelineView::createWidget()
 WidgetInfo TimelineView::widgetInfo()
 {
     return createWidgetInfo(createWidget(),
-                            nullptr,
                             QStringLiteral("Timelines"),
                             WidgetInfo::BottomPane,
                             0,

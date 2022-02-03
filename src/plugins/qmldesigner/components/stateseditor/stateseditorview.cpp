@@ -77,7 +77,7 @@ WidgetInfo StatesEditorView::widgetInfo()
     if (!m_statesEditorWidget)
         m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
 
-    return createWidgetInfo(m_statesEditorWidget.data(), nullptr, QLatin1String("StatesEditor"), WidgetInfo::BottomPane, 0, tr("States"));
+    return createWidgetInfo(m_statesEditorWidget.data(), QLatin1String("StatesEditor"), WidgetInfo::BottomPane, 0, tr("States"));
 }
 
 void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)

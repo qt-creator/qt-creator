@@ -110,37 +110,6 @@ QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
     return qobject_cast<ItemLibraryWidget*>(widget())->createToolBarWidgets();
 }
 
-class DesignerSideBarItem : public Core::SideBarItem
-{
-public:
-    explicit DesignerSideBarItem(QWidget *widget, WidgetInfo::ToolBarWidgetFactoryInterface *createToolBarWidgets, const QString &id);
-    ~DesignerSideBarItem() override;
-
-    QList<QToolButton *> createToolBarWidgets() override;
-
-private:
-    WidgetInfo::ToolBarWidgetFactoryInterface *m_toolBarWidgetFactory;
-
-};
-
-DesignerSideBarItem::DesignerSideBarItem(QWidget *widget, WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory, const QString &id)
-    : Core::SideBarItem(widget, id) , m_toolBarWidgetFactory(toolBarWidgetFactory)
-{
-}
-
-DesignerSideBarItem::~DesignerSideBarItem()
-{
-    delete m_toolBarWidgetFactory;
-}
-
-QList<QToolButton *> DesignerSideBarItem::createToolBarWidgets()
-{
-    if (m_toolBarWidgetFactory)
-        return m_toolBarWidgetFactory->createToolBarWidgets();
-
-    return QList<QToolButton *>();
-}
-
 // ---------- DesignModeWidget
 DesignModeWidget::DesignModeWidget()
     : m_toolBar(new Core::EditorToolBar(this))

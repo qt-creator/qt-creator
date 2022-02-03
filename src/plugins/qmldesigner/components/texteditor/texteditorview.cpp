@@ -149,7 +149,7 @@ void TextEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstrac
 
 WidgetInfo TextEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_widget, nullptr, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"), DesignerWidgetFlags::IgnoreErrors);
+    return createWidgetInfo(m_widget, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"), DesignerWidgetFlags::IgnoreErrors);
 }
 
 void TextEditorView::contextHelp(const Core::IContext::HelpCallback &callback) const

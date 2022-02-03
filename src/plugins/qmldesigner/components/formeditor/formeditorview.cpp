@@ -361,7 +361,7 @@ WidgetInfo FormEditorView::widgetInfo()
     if (!m_formEditorWidget)
         createFormEditorWidget();
 
-    return createWidgetInfo(m_formEditorWidget.data(), nullptr, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"), DesignerWidgetFlags::IgnoreErrors);
+    return createWidgetInfo(m_formEditorWidget.data(), "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"), DesignerWidgetFlags::IgnoreErrors);
 }
 
 FormEditorWidget *FormEditorView::formEditorWidget()

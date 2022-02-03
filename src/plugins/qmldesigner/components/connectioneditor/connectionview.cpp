@@ -207,7 +207,6 @@ void ConnectionView::importsChanged(const QList<Import> & /*addedImports*/, cons
 WidgetInfo ConnectionView::widgetInfo()
 {
     return createWidgetInfo(m_connectionViewWidget.data(),
-                            new WidgetInfo::ToolBarWidgetDefaultFactory<ConnectionViewWidget>(connectionViewWidget()),
                             QLatin1String("ConnectionView"),
                             WidgetInfo::LeftPane,
                             0,

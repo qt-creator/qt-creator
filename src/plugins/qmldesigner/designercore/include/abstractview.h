@@ -70,30 +70,6 @@ enum DesignerWidgetFlags {
 class WidgetInfo {
 
 public:
-    class ToolBarWidgetFactoryInterface {
-    public:
-        ToolBarWidgetFactoryInterface() = default;
-
-        virtual QList<QToolButton*> createToolBarWidgets() = 0;
-
-        virtual ~ToolBarWidgetFactoryInterface() = default;
-    };
-
-    template <class T>
-    class ToolBarWidgetDefaultFactory : public ToolBarWidgetFactoryInterface {
-    public:
-        ToolBarWidgetDefaultFactory(T *t ) : m_t(t)
-        {}
-
-        QList<QToolButton*> createToolBarWidgets() override
-        {
-            return m_t->createToolBarWidgets();
-        }
-
-    private:
-        T * m_t;
-    };
-
     enum PlacementHint {
         NoPane,
         LeftPane,
@@ -108,7 +84,6 @@ public:
     QWidget *widget = nullptr;
     int placementPriority;
     PlacementHint placementHint;
-    ToolBarWidgetFactoryInterface *toolBarWidgetFactory = nullptr;
     DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError;
 };
 
@@ -311,7 +286,6 @@ protected:
     void setModel(Model * model);
     void removeModel();
     static WidgetInfo createWidgetInfo(QWidget *widget = nullptr,
-                                       WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory = nullptr,
                                        const QString &uniqueId = QString(),
                                        WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
                                        int placementPriority = 0,
