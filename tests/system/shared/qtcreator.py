@@ -39,6 +39,13 @@ try:
 except ImportError:
     import builtins as __builtin__      # Python 3
 
+
+# ensure global variables are defined before including shared scripts
+qt4Path = os.path.expanduser("~/Qt4.8.7")
+if platform.system() in ('Windows', 'Microsoft'):
+    qt4Path = "C:\\Qt\\Qt4.8.7"
+
+qt4Available = os.path.exists(qt4Path)
 srcPath = ''
 SettingsPath = []
 tmpSettingsDir = ''
@@ -329,17 +336,13 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
 
 # current dir is directory holding qtcreator.py
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
-qt4Path = os.path.expanduser("~/Qt4.8.7")
 
 if platform.system() in ('Windows', 'Microsoft'):
-    qt4Path = "C:\\Qt\\Qt4.8.7"
     origSettingsDir = os.path.join(origSettingsDir, "windows")
 elif platform.system() == 'Darwin':
     origSettingsDir = os.path.join(origSettingsDir, "mac")
 else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
-
-qt4Available = os.path.exists(qt4Path)
 
 srcPath = os.getenv("SYSTEST_SRCPATH", os.path.expanduser(os.path.join("~", "squish-data")))
 
