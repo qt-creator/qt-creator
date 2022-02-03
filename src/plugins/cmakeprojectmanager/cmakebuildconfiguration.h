@@ -164,12 +164,12 @@ public:
     void toMap(QVariantMap &map) const final;
 };
 
-class AdditionalCMakeArgumentsAspect final : public Utils::StringAspect
+class AdditionalCMakeOptionsAspect final : public Utils::StringAspect
 {
     Q_OBJECT
 
 public:
-    AdditionalCMakeArgumentsAspect();
+    AdditionalCMakeOptionsAspect();
 };
 
 class SourceDirectoryAspect final : public Utils::StringAspect

@@ -942,7 +942,7 @@ private:
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
-        additionalLabel->setText(tr("Additional CMake parameters: "));
+        additionalLabel->setText(tr("Additional CMake options: "));
 
         auto additionalChooser = new VariableChooser(m_dialog);
         additionalChooser->addSupportedWidget(m_additionalEditor);
@@ -984,16 +984,16 @@ private:
         QTC_ASSERT(m_editor, return);
         KitGuard guard(kit());
 
-        QStringList unknownArguments;
+        QStringList unknownOptions;
         const CMakeConfig config = CMakeConfig::fromArguments(m_editor->toPlainText().split('\n'),
-                                                              unknownArguments);
+                                                              unknownOptions);
         CMakeConfigurationKitAspect::setConfiguration(kit(), config);
 
         QString additionalConfiguration = m_additionalEditor->text();
-        if (!unknownArguments.isEmpty()) {
+        if (!unknownOptions.isEmpty()) {
             if (!additionalConfiguration.isEmpty())
                 additionalConfiguration += " ";
-            additionalConfiguration += ProcessArgs::joinArgs(unknownArguments);
+            additionalConfiguration += ProcessArgs::joinArgs(unknownOptions);
         }
         CMakeConfigurationKitAspect::setAdditionalConfiguration(kit(), additionalConfiguration);
     }

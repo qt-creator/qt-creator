@@ -345,7 +345,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             cmakeConfiguration,
             Row {
                 bc->aspect<InitialCMakeArgumentsAspect>(),
-                bc->aspect<AdditionalCMakeArgumentsAspect>()
+                bc->aspect<AdditionalCMakeOptionsAspect>()
             },
             m_reconfigureButton,
         }
@@ -533,9 +533,9 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
                                                return expander->expand(s);
                                            });
         const bool isInitial = isInitialConfiguration();
-        QStringList unknownArguments;
+        QStringList unknownOptions;
         CMakeConfig config = CMakeConfig::fromArguments(isInitial ? lines : expandedLines,
-                                                        unknownArguments);
+                                                        unknownOptions);
         for (auto &ci : config)
             ci.isInitial = isInitial;
 
@@ -698,10 +698,10 @@ void CMakeBuildSettingsWidget::updateButtonState()
     m_resetButton->setEnabled(m_configModel->hasChanges(isInitial) && !isParsing);
 
     m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setVisible(isInitialConfiguration());
-    m_buildConfiguration->aspect<AdditionalCMakeArgumentsAspect>()->setVisible(!isInitialConfiguration());
+    m_buildConfiguration->aspect<AdditionalCMakeOptionsAspect>()->setVisible(!isInitialConfiguration());
 
     m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setEnabled(!isParsing);
-    m_buildConfiguration->aspect<AdditionalCMakeArgumentsAspect>()->setEnabled(!isParsing);
+    m_buildConfiguration->aspect<AdditionalCMakeOptionsAspect>()->setEnabled(!isParsing);
 
     // Update label and text boldness of the reconfigure button
     QFont reconfigureButtonFont = m_reconfigureButton->font();
@@ -1092,7 +1092,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     auto initialCMakeArgumentsAspect = addAspect<InitialCMakeArgumentsAspect>();
     initialCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
 
-    auto additionalCMakeArgumentsAspect = addAspect<AdditionalCMakeArgumentsAspect>();
+    auto additionalCMakeArgumentsAspect = addAspect<AdditionalCMakeOptionsAspect>();
     additionalCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
 
     macroExpander()->registerVariable(DEVELOPMENT_TEAM_FLAG,
@@ -1392,7 +1392,7 @@ void CMakeBuildConfiguration::setInitialCMakeArguments(const QStringList &args)
 
 QStringList CMakeBuildConfiguration::additionalCMakeArguments() const
 {
-    return ProcessArgs::splitArgs(aspect<AdditionalCMakeArgumentsAspect>()->value());
+    return ProcessArgs::splitArgs(aspect<AdditionalCMakeOptionsAspect>()->value());
 }
 
 void CMakeBuildConfiguration::setAdditionalCMakeArguments(const QStringList &args)
@@ -1404,7 +1404,7 @@ void CMakeBuildConfiguration::setAdditionalCMakeArguments(const QStringList &arg
                                                                     [](const QString &s) {
                                                                         return !s.isEmpty();
                                                                     });
-    aspect<AdditionalCMakeArgumentsAspect>()->setValue(
+    aspect<AdditionalCMakeOptionsAspect>()->setValue(
         ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
 }
 
@@ -1413,13 +1413,13 @@ void CMakeBuildConfiguration::filterConfigArgumentsFromAdditionalCMakeArguments(
     // On iOS the %{Ios:DevelopmentTeam:Flag} evalues to something like
     // -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM:STRING=MAGICSTRING
     // which is already part of the CMake variables and should not be also
-    // in the addtional CMake parameters
+    // in the addtional CMake options
     const QStringList arguments = ProcessArgs::splitArgs(
-        aspect<AdditionalCMakeArgumentsAspect>()->value());
-    QStringList unknownArguments;
-    const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownArguments);
+        aspect<AdditionalCMakeOptionsAspect>()->value());
+    QStringList unknownOptions;
+    const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownOptions);
 
-    aspect<AdditionalCMakeArgumentsAspect>()->setValue(ProcessArgs::joinArgs(unknownArguments));
+    aspect<AdditionalCMakeOptionsAspect>()->setValue(ProcessArgs::joinArgs(unknownOptions));
 }
 
 void CMakeBuildConfiguration::setError(const QString &message)
@@ -1675,7 +1675,7 @@ const QStringList InitialCMakeArgumentsAspect::allValues() const
     return initialCMakeArguments;
 }
 
-void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringList &additionalArguments)
+void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringList &additionalOptions)
 {
     QStringList arguments = values.split('\n', Qt::SkipEmptyParts);
     for (QString &arg: arguments) {
@@ -1686,13 +1686,13 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
         if (arg.startsWith("-T"))
             arg.replace("-T", "-DCMAKE_GENERATOR_TOOLSET:STRING=");
     }
-    m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalArguments);
+    m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalOptions);
     for (CMakeConfigItem &ci : m_cmakeConfiguration)
         ci.isInitial = true;
 
-    // Display the unknown arguments in "Additional CMake parameters"
-    const QString additionalArgumentsValue = ProcessArgs::joinArgs(additionalArguments);
-    BaseAspect::setValueQuietly(additionalArgumentsValue);
+    // Display the unknown arguments in "Additional CMake Options"
+    const QString additionalOptionsValue = ProcessArgs::joinArgs(additionalOptions);
+    BaseAspect::setValueQuietly(additionalOptionsValue);
 }
 
 void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &config)
@@ -1717,18 +1717,18 @@ void InitialCMakeArgumentsAspect::toMap(QVariantMap &map) const
 InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
 {
     setSettingsKey("CMake.Initial.Parameters");
-    setLabelText(tr("Additional CMake parameters:"));
+    setLabelText(tr("Additional CMake options:"));
     setDisplayStyle(LineEditDisplay);
 }
 
 // ----------------------------------------------------------------------
-// - AdditionalCMakeParametersAspect:
+// - AdditionalCMakeOptionsAspect:
 // ----------------------------------------------------------------------
 
-AdditionalCMakeArgumentsAspect::AdditionalCMakeArgumentsAspect()
+AdditionalCMakeOptionsAspect::AdditionalCMakeOptionsAspect()
 {
-    setSettingsKey("CMake.Additional.Parameters");
-    setLabelText(tr("Additional CMake parameters:"));
+    setSettingsKey("CMake.Additional.Options");
+    setLabelText(tr("Additional CMake options:"));
     setDisplayStyle(LineEditDisplay);
 }
 
