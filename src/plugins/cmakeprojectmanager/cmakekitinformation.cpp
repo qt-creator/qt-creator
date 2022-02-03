@@ -352,6 +352,11 @@ public:
           m_label(createSubWidget<ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>())
     {
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit);
+        connect(this, &KitAspectWidget::labelLinkActivated, this, [=](const QString &link) {
+            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-generators.7.html");
+        });
+
         m_label->setToolTip(ki->description());
         m_changeButton->setText(tr("Change..."));
         refresh();
@@ -561,7 +566,7 @@ CMakeGeneratorKitAspect::CMakeGeneratorKitAspect()
 {
     setObjectName(QLatin1String("CMakeGeneratorKitAspect"));
     setId(GENERATOR_ID);
-    setDisplayName(tr("CMake generator"));
+    setDisplayName(tr("CMake <a href=\"generator\">generator</a>"));
     setDescription(tr("CMake generator defines how a project is built when using CMake.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(19000);

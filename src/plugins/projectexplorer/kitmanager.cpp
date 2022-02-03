@@ -755,6 +755,9 @@ void KitAspectWidget::addToLayoutWithLabel(QWidget *parent)
     QTC_ASSERT(parent, return);
     auto label = createSubWidget<QLabel>(m_kitInformation->displayName() + ':');
     label->setToolTip(m_kitInformation->description());
+    connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
+        emit labelLinkActivated(link);
+    });
 
     LayoutExtender builder(parent->layout());
     builder.finishRow();
