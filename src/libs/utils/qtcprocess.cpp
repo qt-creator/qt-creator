@@ -563,6 +563,7 @@ public:
         , q(parent)
         , m_process(newProcessInstance(parent, processImpl, processMode, terminalMode))
         , m_processMode(processMode)
+        , m_terminalMode(terminalMode)
     {
         connect(m_process, &ProcessInterface::started,
                 q, &QtcProcess::started);
@@ -604,12 +605,6 @@ public:
     void defaultStart(const CommandLine &commandLine, const FilePath &workingDirectory,
                       const Environment &environment)
     {
-        if (commandLine.executable().needsDevice()) {
-            QTC_ASSERT(s_deviceHooks.startProcessHook, return);
-            s_deviceHooks.startProcessHook(*q);
-            return;
-        }
-
         if (processLog().isDebugEnabled()) {
             static int n = 0;
             qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << commandLine.toUserOutput();
@@ -696,6 +691,7 @@ public:
     QtcProcess *q;
     ProcessInterface *m_process;
     const ProcessMode m_processMode;
+    const QtcProcess::TerminalMode m_terminalMode;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
@@ -788,6 +784,11 @@ ProcessMode QtcProcess::processMode() const
     return d->m_processMode;
 }
 
+QtcProcess::TerminalMode QtcProcess::terminalMode() const
+{
+    return d->m_terminalMode;
+}
+
 void QtcProcess::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
@@ -803,6 +804,11 @@ void QtcProcess::unsetEnvironment()
 const Environment &QtcProcess::environment() const
 {
     return d->m_environment;
+}
+
+bool QtcProcess::hasEnvironment() const
+{
+    return d->m_haveEnv;
 }
 
 void QtcProcess::setCommand(const CommandLine &cmdLine)
@@ -845,6 +851,11 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
+    if (d->m_commandLine.executable().needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.startProcessHook, return);
+        s_deviceHooks.startProcessHook(*this);
+        return;
+    }
     d->clearForRun();
     const CommandLine cmd = d->fullCommandLine();
     const Environment env = d->fullEnvironment();

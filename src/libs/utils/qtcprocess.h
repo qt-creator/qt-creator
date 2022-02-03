@@ -90,6 +90,7 @@ public:
     ~QtcProcess();
 
     ProcessMode processMode() const;
+    TerminalMode terminalMode() const;
 
     enum Result {
         // Finished successfully. Unless an ExitCodeInterpreter is set
@@ -111,6 +112,7 @@ public:
     void setEnvironment(const Environment &env);
     void unsetEnvironment();
     const Environment &environment() const;
+    bool hasEnvironment() const;
 
     void setCommand(const CommandLine &cmdLine);
     const CommandLine &commandLine() const;
