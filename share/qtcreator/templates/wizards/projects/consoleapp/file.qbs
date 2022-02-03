@@ -1,8 +1,6 @@
 import qbs
 
 QtApplication {
-    cpp.cxxLanguageVersion: "c++11"
-
     cpp.defines: [
         // You can make your code fail to compile if it uses deprecated APIs.
         // In order to do so, uncomment the following line.
@@ -10,6 +8,7 @@ QtApplication {
     ]
 
     consoleApplication: true
+    install: true
     files: [
         "%{CppFileName}",
 @if %{HasTranslation}
@@ -24,10 +23,4 @@ QtApplication {
         fileTags: "qt.core.resource_data"
     }
 @endif
-
-    Group {     // Properties for the produced executable
-        fileTagsFilter: "application"
-        qbs.install: true
-        qbs.installDir: "bin"
-    }
 }

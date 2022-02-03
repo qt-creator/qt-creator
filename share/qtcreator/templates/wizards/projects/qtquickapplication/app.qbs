@@ -7,6 +7,8 @@ CppApplication {
     Depends { name: "Qt.quick" }
 @endif
 
+    install: true
+
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
 @if !%{IsQt6}
@@ -43,9 +45,4 @@ CppApplication {
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
     }
 @endif
-    Group {     // Properties for the produced executable
-        fileTagsFilter: "application"
-        qbs.install: true
-        qbs.installDir: "bin"
-    }
 }
