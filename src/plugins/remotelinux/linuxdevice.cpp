@@ -246,7 +246,7 @@ public:
         return ok && result == 0;
     }
 
-    QString outputForRunInShell(const QString &cmd)
+    QByteArray outputForRunInShell(const QString &cmd)
     {
         QTC_ASSERT(m_shell, return {});
 
@@ -270,7 +270,7 @@ public:
         if (pos >= 0)
             output = output.left(pos);
         DEBUG("CHOPPED2 " << output);
-        return QString::fromUtf8(output, output.size());
+        return output;
     }
 
     bool isRunning() const { return m_shell; }
@@ -291,8 +291,8 @@ public:
                                      bool hasDisplay) const;
     bool setupShell();
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {});
-    QString outputForRunInShell(const QString &cmd);
-    QString outputForRunInShell(const CommandLine &cmd);
+    QByteArray outputForRunInShell(const QString &cmd);
+    QByteArray outputForRunInShell(const CommandLine &cmd);
 
     LinuxDevice *q = nullptr;
     QThread m_shellThread;
@@ -528,7 +528,7 @@ bool LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &da
     return ret;
 }
 
-QString LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
+QByteArray LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
 {
     QMutexLocker locker(&m_shellMutex);
     DEBUG(cmd);
@@ -537,14 +537,14 @@ QString LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
         QTC_ASSERT(ok, return {});
     }
 
-    QString ret;
+    QByteArray ret;
     QMetaObject::invokeMethod(m_handler, [this, &cmd] {
         return m_handler->outputForRunInShell(cmd);
     }, Qt::BlockingQueuedConnection, &ret);
     return ret;
 }
 
-QString LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
+QByteArray LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
 {
     return outputForRunInShell(cmd.toUserOutput());
 }
@@ -658,7 +658,7 @@ bool LinuxDevice::renameFile(const FilePath &filePath, const FilePath &target) c
 QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QString output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
     const qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
@@ -667,14 +667,15 @@ QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
 FilePath LinuxDevice::symLinkTarget(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QString output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
-    return output.isEmpty() ? FilePath() : filePath.withNewPath(output);
+    const QByteArray output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
+    const QString out = QString::fromUtf8(output.data(), output.size());
+    return output.isEmpty() ? FilePath() : filePath.withNewPath(out);
 }
 
 qint64 LinuxDevice::fileSize(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return -1);
-    const QString output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
     return output.toLongLong();
 }
 
@@ -684,7 +685,7 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
     CommandLine cmd("df", {"-k"});
     cmd.addArg(filePath.path());
     cmd.addArgs("|tail -n 1 |sed 's/  */ /g'|cut -d ' ' -f 4", CommandLine::Raw);
-    const QString output = d->outputForRunInShell(cmd.toUserOutput());
+    const QByteArray output = d->outputForRunInShell(cmd.toUserOutput());
     bool ok = false;
     const qint64 size = output.toLongLong(&ok);
     if (ok)
@@ -695,7 +696,7 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
 QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QString output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
     const uint bits = output.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
@@ -759,8 +760,9 @@ void LinuxDevice::iterateDirectory(const FilePath &filePath,
 {
     QTC_ASSERT(handlesFile(filePath), return);
     // if we do not have find - use ls as fallback
-    const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
-    const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
+    const QByteArray output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    const QString out = QString::fromUtf8(output.data(), output.size());
+    const QStringList entries = out.split('\n', Qt::SkipEmptyParts);
     filterEntriesHelper(filePath, callBack, entries, filter);
 }
 
@@ -774,9 +776,9 @@ QByteArray LinuxDevice::fileContents(const FilePath &filePath, qint64 limit, qin
     }
     CommandLine cmd(FilePath::fromString("dd"), args, CommandLine::Raw);
 
-    const QString output = d->outputForRunInShell(cmd);
-    DEBUG(output << output.toLatin1() << QByteArray::fromHex(output.toLatin1()));
-    return output.toLatin1();
+    const QByteArray output = d->outputForRunInShell(cmd);
+    DEBUG(output << output << QByteArray::fromHex(output));
+    return output;
 }
 
 bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
