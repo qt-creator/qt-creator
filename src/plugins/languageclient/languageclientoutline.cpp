@@ -216,17 +216,30 @@ void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex
     m_editor->editorWidget()->gotoLine(pos.line() + 1, pos.character(), true, true);
 }
 
+static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel &m_model,
+                                                const QTextCursor &cursor)
+{
+    const Position pos(cursor);
+    LanguageClientOutlineItem *result = nullptr;
+    m_model.forAllItems([&](LanguageClientOutlineItem *candidate){
+        if (!candidate->contains(pos))
+            return;
+        if (result && candidate->range().contains(result->range()))
+            return; // skip item if the range is equal or bigger than the previous found range
+        result = candidate;
+    });
+    return result;
+}
+
 void LanguageClientOutlineWidget::updateSelectionInTree(const QTextCursor &currentCursor)
 {
-    QItemSelection selection;
-    const Position pos(currentCursor);
-    m_model.forAllItems([&](const LanguageClientOutlineItem *item) {
-        if (item->contains(pos))
-            selection.select(m_model.indexForItem(item), m_model.indexForItem(item));
-    });
-    m_view.selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
-    if (!selection.isEmpty())
-        m_view.scrollTo(selection.indexes().first());
+    if (LanguageClientOutlineItem *item = itemForCursor(m_model, currentCursor)) {
+        const QModelIndex index = m_model.indexForItem(item);
+        m_view.selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+        m_view.scrollTo(index);
+    } else {
+        m_view.clearSelection();
+    }
 }
 
 void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
@@ -346,17 +359,8 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
 
 void OutlineComboBox::updateEntry()
 {
-    const Position pos(m_editorWidget->textCursor());
-    LanguageClientOutlineItem *itemForCursor = nullptr;
-    m_model.forAllItems([&](LanguageClientOutlineItem *candidate){
-        if (!candidate->contains(pos))
-            return;
-        if (itemForCursor && candidate->range().contains(itemForCursor->range()))
-            return; // skip item if the range is equal or bigger than the previous found range
-        itemForCursor = candidate;
-    });
-    if (itemForCursor)
-        setCurrentIndex(m_model.indexForItem(itemForCursor));
+    if (LanguageClientOutlineItem *item = itemForCursor(m_model, m_editorWidget->textCursor()))
+        setCurrentIndex(m_model.indexForItem(item));
 }
 
 void OutlineComboBox::activateEntry()
