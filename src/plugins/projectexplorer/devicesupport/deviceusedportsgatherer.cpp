@@ -74,8 +74,8 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     QTC_ASSERT(d->portsGatheringMethod, emit error("Not implemented"); return);
 
     const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
-    d->process.reset(d->device->createProcess(this));
 
+    d->process.reset(new QtcProcess);
     connect(d->process.get(), &QtcProcess::done,
             this, &DeviceUsedPortsGatherer::handleProcessDone);
     connect(d->process.get(), &QtcProcess::readyReadStandardOutput,
@@ -83,7 +83,10 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     connect(d->process.get(), &QtcProcess::readyReadStandardError,
             this, [this] { d->remoteStderr += d->process->readAllStandardError(); });
 
-    d->process->setCommand(d->portsGatheringMethod->commandLine(protocol));
+    CommandLine command = d->portsGatheringMethod->commandLine(protocol);
+    const FilePath executable = d->device->mapToGlobalPath(command.executable());
+    command.setExecutable(executable);
+    d->process->setCommand(command);
     d->process->start();
 }
 
@@ -116,7 +119,7 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
     const QList<Port> usedPorts = d->portsGatheringMethod->usedPorts(d->remoteStdout);
-    foreach (const Port port, usedPorts) {
+    for (const Port port : usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;
     }
