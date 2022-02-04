@@ -46,6 +46,7 @@ public:
 public:
     bool supportsEditor(Core::IEditor *editor) const override;
     TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
+    bool supportsSorting() const override { return true; }
 };
 
 } // namespace LanguageClient
