@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -107,14 +107,20 @@
     algorithm for calculating the differences, select \uicontrol Patience.
     To only show text changes, select \uicontrol {Ignore Whitespace}.
 
-    To filter log entries by the text in the commit message or by strings that
-    were added or removed, select \uicontrol Filter.
+    To filter log entries by the text in the commit message, by strings that
+    were added or removed, or by author, select \uicontrol Filter. Enter a
+    search sting in the \uicontrol {Filter by message},
+    \uicontrol {Filter by content}, or \uicontrol {Filter by author} field.
+    Select \uicontrol {Case Sensitive} to make filtering consider case.
 
     To follow only the first parent on merge commits, select
     \uicontrol {First Parent}.
 
     To toggle between textual and visual representation of the log, select
     \uicontrol Graph.
+
+    To toggle color coding of different parts of the log entries, select
+    \uicontrol Color.
 
     To show log also for previous names of the file, select \uicontrol Follow.
 
