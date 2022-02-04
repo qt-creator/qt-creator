@@ -940,6 +940,18 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     auto menu = new QMenu(this);
     connect(menu, &QMenu::triggered, menu, &QMenu::deleteLater);
 
+    auto help = new QAction(tr("Help"), this);
+    menu->addAction(help);
+    connect(help, &QAction::triggered, this, [=] {
+        const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
+
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
+        const QString linkUrl = "%1/variable/" + QString::fromUtf8(item.key) + ".html";
+        CMakeTool::openCMakeHelpUrl(tool, linkUrl);
+    });
+
+    menu->addSeparator();
+
     QAction *action = nullptr;
     if ((action = createForceAction(ConfigModel::DataItem::BOOLEAN, idx)))
         menu->addAction(action);
