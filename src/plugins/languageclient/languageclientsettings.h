@@ -169,6 +169,9 @@ public:
     static void addSettings(BaseSettings *settings);
     static void enableSettings(const QString &id);
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
+
+    static bool outlineComboBoxIsSorted();
+    static void setOutlineComboBoxSorted(bool sorted);
 };
 
 class LANGUAGECLIENT_EXPORT BaseSettingsWidget : public QWidget

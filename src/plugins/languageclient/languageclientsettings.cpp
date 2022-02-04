@@ -80,6 +80,7 @@ constexpr char argumentsKey[] = "arguments";
 constexpr char settingsGroupKey[] = "LanguageClient";
 constexpr char clientsKey[] = "clients";
 constexpr char typedClientsKey[] = "typedClients";
+constexpr char outlineSortedKey[] = "outlineSorted";
 constexpr char mimeType[] = "application/language.client.setting";
 
 namespace LanguageClient {
@@ -683,6 +684,23 @@ void LanguageClientSettings::toSettings(QSettings *settings,
     auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
     settings->setValue(clientsKey, transform(stdioSettings));
     settings->setValue(typedClientsKey, transform(typedSettings));
+    settings->endGroup();
+}
+
+bool LanguageClientSettings::outlineComboBoxIsSorted()
+{
+    auto settings = Core::ICore::settings();
+    settings->beginGroup(settingsGroupKey);
+    bool sorted = settings->value(outlineSortedKey).toBool();
+    settings->endGroup();
+    return sorted;
+}
+
+void LanguageClientSettings::setOutlineComboBoxSorted(bool sorted)
+{
+    auto settings = Core::ICore::settings();
+    settings->beginGroup(settingsGroupKey);
+    settings->setValue(outlineSortedKey, sorted);
     settings->endGroup();
 }
 
