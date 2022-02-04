@@ -18,31 +18,10 @@
 
 #include "studioplugin.h"
 
-#include <modelnodecontextmenu_helper.h>
-#include <componentcore_constants.h>
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
-#include <coreplugin/icore.h>
-
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
-
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <projectexplorer/runconfiguration.h>
-
-#include <QtPlugin>
-
 namespace QmlDesigner {
-
-using namespace ProjectExplorer;
 
 StudioPlugin::StudioPlugin()
 {
-    JsonWizardFactory::clearWizardPaths();
-    JsonWizardFactory::addWizardPath(Core::ICore::resourcePath("qmldesigner/studio_templates"));
 }
 
 QString StudioPlugin::pluginName() const

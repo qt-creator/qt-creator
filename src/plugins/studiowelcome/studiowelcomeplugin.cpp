@@ -41,8 +41,11 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+
+#include <qmlprojectmanager/qmlproject.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmldesigner/components/componentcore/theme.h>
@@ -580,9 +583,14 @@ void StudioWelcomePlugin::extensionsInitialized()
 {
     Core::ModeManager::activateMode(m_welcomeMode->id());
 
-    // Enable QDS new project dialog
-    if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())
+    // Enable QDS new project dialog and QDS wizards
+    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+        ProjectExplorer::JsonWizardFactory::clearWizardPaths();
+        ProjectExplorer::JsonWizardFactory::addWizardPath(
+            Core::ICore::resourcePath("qmldesigner/studio_templates"));
+
         Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
+    }
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
