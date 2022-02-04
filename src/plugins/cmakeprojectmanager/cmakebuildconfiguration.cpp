@@ -492,16 +492,22 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateInitialCMakeArguments();
     });
 
-    auto handleOptionsLink = [this](const QString &link) {
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
-        CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
-    };
     connect(bc->aspect<InitialCMakeArgumentsAspect>(),
             &Utils::BaseAspect::labelLinkActivated,
-            [=](const QString &link) { handleOptionsLink(link); });
+            this,
+            [this](const QString &link) {
+                const CMakeTool *tool = CMakeKitAspect::cmakeTool(
+                    m_buildConfiguration->target()->kit());
+                CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+            });
     connect(bc->aspect<AdditionalCMakeOptionsAspect>(),
             &Utils::BaseAspect::labelLinkActivated,
-            [=](const QString &link) { handleOptionsLink(link); });
+            this,
+            [this](const QString &link) {
+                const CMakeTool *tool = CMakeKitAspect::cmakeTool(
+                    m_buildConfiguration->target()->kit());
+                CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+            });
 
     updateSelection();
     updateConfigurationStateSelection();
