@@ -1544,8 +1544,18 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
         return;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
         const ClangdDiagnostic clangdDiagnostic(diagnostic);
-        for (const CodeAction &action : clangdDiagnostic.codeActions().value_or(QList<CodeAction>{}))
-            LanguageClient::updateCodeActionRefactoringMarker(this, action, uri);
+        const auto codeActions = clangdDiagnostic.codeActions();
+        if (codeActions && !codeActions->isEmpty()) {
+            for (const CodeAction &action : *codeActions)
+                LanguageClient::updateCodeActionRefactoringMarker(this, action, uri);
+        } else {
+            // We know that there's only one kind of diagnostic for which clangd has
+            // a quickfix tweak, so let's not be wasteful.
+            const Diagnostic::Code code = diagnostic.code().value_or(Diagnostic::Code());
+            const QString * const codeString = Utils::get_if<QString>(&code);
+            if (codeString && *codeString == "-Wswitch")
+                requestCodeActions(uri, diagnostic);
+        }
     }
 }
 

@@ -866,7 +866,19 @@ SymbolSupport &Client::symbolSupport()
     return m_symbolSupport;
 }
 
+void Client::requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
+                                const LanguageServerProtocol::Diagnostic &diagnostic)
+{
+    requestCodeActions(uri, diagnostic.range(), {diagnostic});
+}
+
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
+{
+    requestCodeActions(uri, {}, diagnostics);
+}
+
+void Client::requestCodeActions(const DocumentUri &uri, const Range &range,
+                                const QList<Diagnostic> &diagnostics)
 {
     const Utils::FilePath fileName = uri.toFilePath();
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(fileName);
@@ -878,10 +890,14 @@ void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> 
     context.setDiagnostics(diagnostics);
     codeActionParams.setContext(context);
     codeActionParams.setTextDocument(TextDocumentIdentifier(uri));
-    Position start(0, 0);
-    const QTextBlock &lastBlock = doc->document()->lastBlock();
-    Position end(lastBlock.blockNumber(), lastBlock.length() - 1);
-    codeActionParams.setRange(Range(start, end));
+    if (range.isEmpty()) {
+        Position start(0, 0);
+        const QTextBlock &lastBlock = doc->document()->lastBlock();
+        Position end(lastBlock.blockNumber(), lastBlock.length() - 1);
+        codeActionParams.setRange(Range(start, end));
+    } else {
+        codeActionParams.setRange(range);
+    }
     CodeActionRequest request(codeActionParams);
     request.setResponseCallback(
         [uri, self = QPointer<Client>(this)](const CodeActionRequest::Response &response) {
