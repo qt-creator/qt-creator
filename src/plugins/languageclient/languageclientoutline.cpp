@@ -39,6 +39,7 @@
 #include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QSortFilterProxyModel>
 
@@ -302,6 +303,7 @@ TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Cor
 
 class OutlineComboBox : public Utils::TreeViewComboBox
 {
+    Q_DECLARE_TR_FUNCTIONS(LanguageClient::OutlineComboBox)
 public:
     OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
 
@@ -310,8 +312,10 @@ private:
     void updateEntry();
     void activateEntry();
     void documentUpdated(TextEditor::TextDocument *document);
+    void setSorted(bool sorted);
 
     LanguageClientOutlineModel m_model;
+    QSortFilterProxyModel m_proxyModel;
     QPointer<Client> m_client;
     TextEditor::TextEditorWidget *m_editorWidget;
     const DocumentUri m_uri;
@@ -331,12 +335,21 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     , m_uri(DocumentUri::fromFilePath(editor->document()->filePath()))
 {
     m_model.setSymbolStringifier(client->symbolStringifier());
-    setModel(&m_model);
+    m_proxyModel.setSourceModel(&m_model);
+    const bool sorted = LanguageClientSettings::outlineComboBoxIsSorted();
+    m_proxyModel.sort(sorted ? 0 : -1);
+    setModel(&m_proxyModel);
     setMinimumContentsLength(13);
     QSizePolicy policy = sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     setSizePolicy(policy);
     setMaxVisibleItems(40);
+
+    setContextMenuPolicy(Qt::ActionsContextMenu);
+    auto sortAction = new QAction(tr("Sort Alphabetically"), this);
+    sortAction->setCheckable(true);
+    sortAction->setChecked(sorted);
+    addAction(sortAction);
 
     connect(client->documentSymbolCache(), &DocumentSymbolCache::gotSymbols,
             this, &OutlineComboBox::updateModel);
@@ -344,6 +357,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
             this, &OutlineComboBox::updateEntry);
     connect(this, QOverload<int>::of(&QComboBox::activated), this, &OutlineComboBox::activateEntry);
+    connect(sortAction, &QAction::toggled, this, &OutlineComboBox::setSorted);
 
     documentUpdated(editor->textDocument());
 }
@@ -367,12 +381,12 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
 void OutlineComboBox::updateEntry()
 {
     if (LanguageClientOutlineItem *item = itemForCursor(m_model, m_editorWidget->textCursor()))
-        setCurrentIndex(m_model.indexForItem(item));
+        setCurrentIndex(m_proxyModel.mapFromSource(m_model.indexForItem(item)));
 }
 
 void OutlineComboBox::activateEntry()
 {
-    const QModelIndex modelIndex = view()->currentIndex();
+    const QModelIndex modelIndex = m_proxyModel.mapToSource(view()->currentIndex());
     if (modelIndex.isValid()) {
         const Position &pos = m_model.itemForIndex(modelIndex)->pos();
         Core::EditorManager::cutForwardNavigationHistory();
@@ -387,6 +401,12 @@ void OutlineComboBox::documentUpdated(TextEditor::TextDocument *document)
 {
     if (document == m_editorWidget->textDocument())
         m_client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
+}
+
+void OutlineComboBox::setSorted(bool sorted)
+{
+    LanguageClientSettings::setOutlineComboBoxSorted(sorted);
+    m_proxyModel.sort(sorted ? 0 : -1);
 }
 
 } // namespace LanguageClient
