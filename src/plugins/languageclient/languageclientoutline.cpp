@@ -40,6 +40,7 @@
 #include <utils/utilsicons.h>
 
 #include <QBoxLayout>
+#include <QSortFilterProxyModel>
 
 using namespace LanguageServerProtocol;
 
@@ -128,6 +129,10 @@ public:
 public:
     QList<QAction *> filterMenuActions() const override;
     void setCursorSynchronization(bool syncWithCursor) override;
+    void setSorted(bool) override;
+    bool isSorted() const override;
+    void restoreSettings(const QVariantMap &map) override;
+    QVariantMap settings() const override;
 
 private:
     void handleResponse(const DocumentUri &uri, const DocumentSymbolsResult &response);
@@ -138,9 +143,11 @@ private:
     QPointer<Client> m_client;
     QPointer<TextEditor::BaseTextEditor> m_editor;
     LanguageClientOutlineModel m_model;
+    QSortFilterProxyModel m_proxyModel;
     Utils::TreeView m_view;
     DocumentUri m_uri;
     bool m_sync = false;
+    bool m_sorted = false;
 };
 
 LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
@@ -167,7 +174,8 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(&m_view));
     setLayout(layout);
     m_model.setSymbolStringifier(m_client->symbolStringifier());
-    m_view.setModel(&m_model);
+    m_proxyModel.setSourceModel(&m_model);
+    m_view.setModel(&m_proxyModel);
     m_view.setHeaderHidden(true);
     m_view.setExpandsOnDoubleClick(false);
     m_view.setFrameStyle(QFrame::NoFrame);
@@ -192,6 +200,27 @@ void LanguageClientOutlineWidget::setCursorSynchronization(bool syncWithCursor)
         updateSelectionInTree(m_editor->textCursor());
 }
 
+void LanguageClientOutlineWidget::setSorted(bool sorted)
+{
+    m_sorted = sorted;
+    m_proxyModel.sort(sorted ? 0 : -1);
+}
+
+bool LanguageClientOutlineWidget::isSorted() const
+{
+    return m_sorted;
+}
+
+void LanguageClientOutlineWidget::restoreSettings(const QVariantMap &map)
+{
+    setSorted(map.value(QString("LspOutline.Sort"), false).toBool());
+}
+
+QVariantMap LanguageClientOutlineWidget::settings() const
+{
+    return {{QString("LspOutline.Sort"), m_sorted}};
+}
+
 void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
                                                  const DocumentSymbolsResult &result)
 {
@@ -210,7 +239,7 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
 
 void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
-    LanguageClientOutlineItem *item = m_model.itemForIndex(proxyIndex);
+    LanguageClientOutlineItem *item = m_model.itemForIndex(m_proxyModel.mapToSource(proxyIndex));
     const Position &pos = item->pos();
     // line has to be 1 based, column 0 based!
     m_editor->editorWidget()->gotoLine(pos.line() + 1, pos.character(), true, true);
@@ -234,7 +263,7 @@ static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel
 void LanguageClientOutlineWidget::updateSelectionInTree(const QTextCursor &currentCursor)
 {
     if (LanguageClientOutlineItem *item = itemForCursor(m_model, currentCursor)) {
-        const QModelIndex index = m_model.indexForItem(item);
+        const QModelIndex index = m_proxyModel.mapFromSource(m_model.indexForItem(item));
         m_view.selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
         m_view.scrollTo(index);
     } else {
