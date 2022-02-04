@@ -37,6 +37,8 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <qmlprojectmanager/qmlproject.h>
+
 #include <utils/qtcassert.h>
 
 #include <QLineEdit>
@@ -252,7 +254,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.askBeforeDeletingAssetCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
 
-    const auto standaloneMode = settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool();
+    const bool standaloneMode = QmlProjectManager::QmlProject::isQtDesignStudio();
 #ifdef QT_DEBUG
     const auto showDebugSettings = true;
 #else
