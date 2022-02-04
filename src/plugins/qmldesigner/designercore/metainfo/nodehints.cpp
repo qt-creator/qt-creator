@@ -295,6 +295,16 @@ QPair<QString, QVariant> NodeHints::setParentProperty() const
     return qMakePair(list.first().trimmed(), parseValue(list.last().trimmed()));
 }
 
+QString NodeHints::bindParentToProperty() const
+{
+    const QString expression = m_hints.value("bindParentToProperty");
+
+    if (expression.isEmpty())
+        return {};
+
+    return Internal::evaluateExpression(expression, modelNode(), ModelNode()).toString();
+}
+
 QHash<QString, QString> NodeHints::hints() const
 {
     return m_hints;
