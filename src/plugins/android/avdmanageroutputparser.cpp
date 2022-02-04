@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "avdmanageroutputparser.h"
-#include "androidconfigurations.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
