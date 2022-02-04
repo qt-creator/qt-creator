@@ -37,6 +37,8 @@ DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff707070
 
+DSinteractionHover=ff74cbfc
+
 DScontrolBackground=ff2e2f30
 DScontrolBackgroundInteraction=ff3d3d3d
 DScontrolBackgroundDisabled=ff2e2f30

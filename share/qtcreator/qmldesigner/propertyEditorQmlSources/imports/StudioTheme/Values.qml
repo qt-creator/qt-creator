@@ -72,6 +72,8 @@ QtObject {
     property real radioButtonIndicatorWidth: 14
     property real radioButtonIndicatorHeight: 14
 
+    property real switchSpacing: values.checkBoxSpacing
+
     property real columnWidth: 225 + (175 * (values.scaleFactor * 2))
 
     property real marginTopBottom: 4
@@ -213,6 +215,8 @@ QtObject {
     property string themeError: Theme.color(Theme.DSerrorColor)
     property string themeWarning: Theme.color(Theme.DSwarningColor)
     property string themeDisabled: Theme.color(Theme.DSdisabledColor)
+
+    property string themeInteractionHover: Theme.color(Theme.DSinteractionHover)
 
     property string themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
 
