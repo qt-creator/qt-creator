@@ -29,11 +29,13 @@
 
 #include <utils/sizedarray.h>
 
+#include <QList>
+
 namespace TextEditor {
 using MixinTextStyles = Utils::SizedArray<TextStyle, 6>;
 
 struct TextStyles {
-    TextStyle mainStyle;
+    TextStyle mainStyle = C_TEXT;
     MixinTextStyles mixinStyles;
 
     static TextStyles mixinStyle(TextStyle main, const QList<TextStyle> &mixins)
