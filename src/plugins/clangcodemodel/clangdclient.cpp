@@ -1264,8 +1264,6 @@ public:
     ClangdQuickFixProcessor(LanguageClient::Client *client)
         : LanguageClientQuickFixAssistProcessor(client)
     {
-        // Fixes are already provided inline with the diagnostics.
-        setOnlyKinds({CodeActionKinds::Refactor});
     }
 
 private:

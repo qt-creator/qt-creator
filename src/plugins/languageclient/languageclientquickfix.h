@@ -85,8 +85,6 @@ private:
     QSharedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Client *m_client = nullptr; // not owned
     Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
-    QList<LanguageServerProtocol::CodeActionKind> m_onlyKinds;
 };
-
 
 } // namespace LanguageClient

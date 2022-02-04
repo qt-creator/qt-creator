@@ -92,8 +92,6 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
     auto uri = DocumentUri::fromFilePath(interface->filePath());
     params.setTextDocument(TextDocumentIdentifier(uri));
     CodeActionParams::CodeActionContext context;
-    if (!m_onlyKinds.isEmpty())
-        context.setOnly(m_onlyKinds);
     context.setDiagnostics(m_client->diagnosticsAt(uri, cursor));
     params.setContext(context);
 
@@ -114,11 +112,6 @@ void LanguageClientQuickFixAssistProcessor::cancel()
         m_client->removeAssistProcessor(this);
         m_currentRequest.reset();
     }
-}
-
-void LanguageClientQuickFixAssistProcessor::setOnlyKinds(const QList<CodeActionKind> &only)
-{
-    m_onlyKinds = only;
 }
 
 void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeActionRequest::Response &response)
