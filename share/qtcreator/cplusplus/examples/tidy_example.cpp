@@ -71,7 +71,7 @@ public:
     // misc-noexcept-move-constructor
     // misc-unconventional-assign-operator
     // misc-unused-parameters
-    Base operator=(Base &&param) {}
+    Base operator=(Base &&param) { return {}; }
     virtual int function()
     {
         // modernize-use-nullptr
@@ -116,7 +116,7 @@ void afterMove(Base &&base)
     Base moved(std::move(base));
 
     // misc-use-after-move
-    base.value;
+    (void) base.value;
 }
 
 // google-runtime-references
@@ -144,7 +144,7 @@ public:
         auto b = {0.5f, 0.5f, 0.5f, 0.5f};
 
         // misc-fold-init-type
-        std::accumulate(std::begin(b), std::end(b), 0);
+        (void) std::accumulate(std::begin(b), std::end(b), 0);
 
         // google-readability-casting, misc-incorrect-roundings
         auto c = (int)(getDouble() + 0.5);
@@ -197,6 +197,7 @@ public:
         std::system("echo ");
         // cert-err52-cpp
         setjmp(nullptr);
+        return 0;
     }
 
     // google-default-arguments
@@ -251,7 +252,7 @@ int main()
     // modernize-loop-convert
     for (int i = 0; i < 3; ++i) {
         // cppcoreguidelines-pro-bounds-constant-array-index
-        arr[i];
+        (void) arr[i];
     }
 
     std::vector<std::pair<int, int>> w;

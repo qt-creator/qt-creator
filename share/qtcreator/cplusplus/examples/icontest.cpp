@@ -27,12 +27,13 @@
 
 #define Macro
 
-class Class {
+class Class : public QObject {
     Q_OBJECT
+
 public:
-    Q_PROPERTY(bool property READ readProperty CONSTANT);
-    void publicFunction();
-    void static publicStaticFunction();
+    Q_PROPERTY(int property READ publicStaticFunction CONSTANT)
+    int publicFunction() { return 0; }
+    int static publicStaticFunction()  { return 0; }
     template<int> void publicTemplateFunction();
     template<int> void static publicStaticTemplateFunction();
 
@@ -43,8 +44,8 @@ signals:
     void signal();
 
 public slots:
-    void publicSlot();
-    template<int> void publicTemplateSlot();
+    void publicSlot() {}
+    // template<int> void publicTemplateSlot() {}
 
 protected:
     void protectedFunction();
@@ -56,8 +57,8 @@ protected:
     int static protectedStaticVariable;
 
 protected slots:
-    void protectedSlot();
-    template<int> void protectedTemplateSlot();
+    void protectedSlot() {}
+    // template<int> void protectedTemplateSlot() {}
 
 private:
     void privateFunction();
@@ -67,9 +68,10 @@ private:
     template<int> void static privateStaticTemplateFunction();
 
 private slots:
-    void privateSlot();
-    template<int> void privateTemplateSlot();
+    void privateSlot() {}
+    // template<int> void privateTemplateSlot() {}
 
+private:
     int privateVariable;
     int static privateStaticVariable;
 };
