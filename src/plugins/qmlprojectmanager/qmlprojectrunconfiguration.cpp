@@ -66,14 +66,6 @@ namespace Internal {
 
 // QmlProjectRunConfiguration
 
-static bool isQtDesignStudio()
-{
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
-
-    return settings->value(qdsStandaloneEntry, false).toBool();
-}
-
 class QmlProjectRunConfiguration final : public RunConfiguration
 {
     Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectRunConfiguration)
@@ -252,7 +244,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
 void QmlProjectRunConfiguration::createQtVersionAspect()
 {
-    if (!isQtDesignStudio())
+    if (!QmlProject::isQtDesignStudio())
         return;
 
     m_qtversionAspect = addAspect<SelectionAspect>();

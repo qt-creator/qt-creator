@@ -146,6 +146,8 @@ public:
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
+    static bool isQtDesignStudio();
+
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 

@@ -76,13 +76,6 @@ Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 
 namespace QmlProjectManager {
 
-static bool isQtDesignStudio()
-{
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from qml settings
-
-    return settings->value(qdsStandaloneEntry, false).toBool();
-}
 static int preferedQtTarget(Target *target)
 {
     if (target) {
@@ -114,7 +107,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
-    if (!isQtDesignStudio()) {
+    if (!QmlProject::isQtDesignStudio()) {
         if (QmlProjectPlugin::qdsInstallationExists()) {
             auto lambda = [fileName]() {
                 if (Core::ICore::infoBar()->canInfoBeAdded(openInQDSAppSetting)) {
@@ -484,7 +477,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
                 addTargetForKit(kits.first());
         }
 
-        if (isQtDesignStudio()) {
+        if (QmlProject::isQtDesignStudio()) {
             auto setKitWithVersion = [&](int qtMajorVersion) {
                 const QList<Kit *> qtVersionkits
                     = Utils::filtered(kits, [qtMajorVersion](const Kit *k) {
@@ -509,6 +502,14 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     }
 
     return RestoreResult::Ok;
+}
+
+bool QmlProject::isQtDesignStudio()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode";
+
+    return settings->value(qdsStandaloneEntry, false).toBool();
 }
 
 ProjectExplorer::DeploymentKnowledge QmlProject::deploymentKnowledge() const
