@@ -764,14 +764,14 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     auto menu = new QMenu;
 
-    addAction(menu, tr("Reload Register Listing"),
+    addAction(this, menu, tr("Reload Register Listing"),
               m_engine->hasCapability(RegisterCapability)
                 && (state == InferiorStopOk || state == InferiorUnrunnable),
               [this] { m_engine->reloadRegisters(); });
 
     menu->addSeparator();
 
-    addAction(menu, tr("Open Memory View at Value of Register %1 0x%2")
+    addAction(this, menu, tr("Open Memory View at Value of Register %1 0x%2")
               .arg(registerName).arg(address, 0, 16),
               tr("Open Memory View at Value of Register"),
               address,
@@ -784,7 +784,7 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
                     m_engine->openMemoryView(data);
               });
 
-    addAction(menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
+    addAction(this, menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
               tr("Open Memory Editor"),
               address && actionsEnabled && m_engine->hasCapability(ShowMemoryCapability),
               [this, registerName, address] {
@@ -796,12 +796,12 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
                     m_engine->openMemoryView(data);
               });
 
-    addAction(menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
+    addAction(this, menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
               tr("Open Disassembler"),
               address && m_engine->hasCapability(DisassemblerCapability),
               [this, address] { m_engine->openDisassemblerView(Location(address)); });
 
-    addAction(menu, tr("Open Disassembler..."),
+    addAction(this, menu, tr("Open Disassembler..."),
               m_engine->hasCapability(DisassemblerCapability),
               [this, address] {
                     AddressDialog dialog;
@@ -820,9 +820,10 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
               : HexadecimalFormat;
 
     auto addFormatAction =
-            [menu, currentFormat, registerItem](const QString &display, RegisterFormat format) {
-        addCheckableAction(menu, display, registerItem, currentFormat == format,
-                           [registerItem, format] {
+            [this, menu, currentFormat, registerItem](
+                const QString &display, RegisterFormat format) {
+            addCheckableAction(this, menu, display, registerItem, currentFormat == format,
+                               [registerItem, format] {
             registerItem->m_format = format;
             registerItem->update();
         });
@@ -834,6 +835,7 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     addFormatAction(tr("Binary"), BinaryFormat);
 
     menu->addAction(debuggerSettings()->settingsDialog.action());
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;
 }

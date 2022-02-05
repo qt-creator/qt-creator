@@ -799,6 +799,7 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     menu->addAction(debuggerSettings()->settingsDialog.action());
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;
 }
@@ -841,7 +842,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Hexadecimal action.
     const auto hexAct = addCheckableAction(
-                fmtMenu, tr("Hexadecimal"), on,
+                this, fmtMenu, tr("Hexadecimal"), on,
                 fmt == PeripheralRegisterFormat::Hexadecimal,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Hexadecimal;
@@ -851,7 +852,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Decimal action.
     const auto decAct = addCheckableAction(
-                fmtMenu, tr("Decimal"), on,
+                this, fmtMenu, tr("Decimal"), on,
                 fmt == PeripheralRegisterFormat::Decimal,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Decimal;
@@ -861,7 +862,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Octal action.
     const auto octAct = addCheckableAction(
-                fmtMenu, tr("Octal"), on,
+                this, fmtMenu, tr("Octal"), on,
                 fmt == PeripheralRegisterFormat::Octal,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Octal;
@@ -871,7 +872,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFormatMenu(
 
     // Binary action.
     const auto binAct = addCheckableAction(
-                fmtMenu, tr("Binary"), on,
+                this, fmtMenu, tr("Binary"), on,
                 fmt == PeripheralRegisterFormat::Binary,
                 [item] {
         item->m_reg.format = PeripheralRegisterFormat::Binary;
@@ -895,7 +896,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Hexadecimal action.
     const auto hexAct = addCheckableAction(
-                fmtMenu, tr("Hexadecimal"), on,
+                this, fmtMenu, tr("Hexadecimal"), on,
                 fmt == PeripheralRegisterFormat::Hexadecimal,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Hexadecimal;
@@ -905,7 +906,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Decimal action.
     const auto decAct = addCheckableAction(
-                fmtMenu, tr("Decimal"), on,
+                this, fmtMenu, tr("Decimal"), on,
                 fmt == PeripheralRegisterFormat::Decimal,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Decimal;
@@ -915,7 +916,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Octal action.
     const auto octAct = addCheckableAction(
-                fmtMenu, tr("Octal"), on,
+                this, fmtMenu, tr("Octal"), on,
                 fmt == PeripheralRegisterFormat::Octal,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Octal;
@@ -925,7 +926,7 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 
     // Binary action.
     const auto binAct = addCheckableAction(
-                fmtMenu, tr("Binary"), on,
+                this, fmtMenu, tr("Binary"), on,
                 fmt == PeripheralRegisterFormat::Binary,
                 [item] {
         item->m_fld.format = PeripheralRegisterFormat::Binary;
