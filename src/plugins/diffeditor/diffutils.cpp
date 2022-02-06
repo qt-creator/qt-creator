@@ -997,12 +997,15 @@ static QList<FileData> readDiffPatch(StringView patch, bool *ok, QFutureInterfac
 // The git diff patch format (CopyFile, RenameFile)
 // 0.  [some text lines to skip, e.g. show description]\n
 // 1.  diff --git a/[leftFileName] b/[rightFileName]\n
-// 2.  [dis]similarity index [0-100]%\n
+// 2a. old mode [oldFileModeNumber]\n
+//     new mode [newFileModeNumber]\n
+// 2b. <Nothing, only in case when no ChangeMode>
+// 3.  [dis]similarity index [0-100]%\n
 //     [copy / rename] from [leftFileName]\n
 //     [copy / rename] to [rightFileName]
-// 3a. <Nothing more, only when similarity index was 100%>
-// 3b. index [leftIndexSha]..[rightIndexSha] <optionally: octalNumber>
-// 4.  --- [leftFileNameOrDevNull]\n
+// 4a. <Nothing more, only when similarity index was 100%>
+// 4b. index [leftIndexSha]..[rightIndexSha] <optionally: octalNumber>
+// 5.  --- [leftFileNameOrDevNull]\n
 //     +++ [rightFileNameOrDevNull]\n
 //     <Chunks>
 
@@ -1164,10 +1167,21 @@ static bool detectFileData(StringView patch, FileData *fileData, StringView *rem
 
     } else {
         // copy / rename
-
+        StringView afterModeOrSimilarity;
         StringView afterSimilarity;
-        // (dis)similarity index [0-100]%
-        readLine(afterDiffGit, &afterSimilarity, &hasNewLine);
+        const StringView secondLine = readLine(afterDiffGit, &afterModeOrSimilarity, &hasNewLine);
+        if (secondLine.startsWith(QLatin1String("old mode "))) {
+            if (!hasNewLine)
+                return false;
+            readLine(afterModeOrSimilarity, &afterModeOrSimilarity, &hasNewLine); // new mode
+            if (!hasNewLine)
+                return false;
+            // (dis)similarity index [0-100]%
+            readLine(afterModeOrSimilarity, &afterSimilarity, &hasNewLine);
+        } else {
+            afterSimilarity = afterModeOrSimilarity;
+        }
+
         if (!hasNewLine)
             return false; // we need to have at least one more line
 

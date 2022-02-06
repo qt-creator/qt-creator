@@ -1342,6 +1342,26 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     QTest::newRow("Mode change") << patch << fileDataList9;
 
     //////////////
+    patch = R"(diff --git a/old.sh b/new.sh
+old mode 100644
+new mode 100755
+similarity index 100%
+rename from old.sh
+rename to new.sh
+)"
+            ;
+
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo("old.sh");
+    fileData1.rightFileInfo = DiffFileInfo("new.sh");
+    fileData1.fileOperation = FileData::RenameFile;
+
+    QList<FileData> fileDataList10;
+    fileDataList10 << fileData1;
+
+    QTest::newRow("Mode change + rename") << patch << fileDataList10;
+
+    //////////////
 
     // Subversion New
     patch = "Index: src/plugins/subversion/subversioneditor.cpp\n"
