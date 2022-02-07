@@ -43,6 +43,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <qmlprojectmanager/qmlproject.h>
@@ -59,18 +60,21 @@
 
 #include <QAbstractListModel>
 #include <QApplication>
+#include <QCheckBox>
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QGroupBox>
 #include <QPointer>
-#include <QShortcut>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickView>
 #include <QQuickWidget>
 #include <QSettings>
+#include <QShortcut>
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include <algorithm>
 #include <memory>
@@ -758,9 +762,107 @@ WelcomeMode::WelcomeMode()
                                 [](const QString &path) { return QFileInfo::exists(path); }));
 }
 
+static bool hideBuildMenuSetting()
+{
+    return Core::ICore::settings()
+        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_BUILD, false)
+        .toBool();
+}
+
+static bool hideDebugMenuSetting()
+{
+    return Core::ICore::settings()
+        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG, false)
+        .toBool();
+}
+
+static bool hideAnalyzeMenuSetting()
+{
+    return Core::ICore::settings()
+        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE, false)
+        .toBool();
+}
+
+void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
+{
+    QSettings *s = Core::ICore::settings();
+    if (s->value(key, false).toBool() != value) {
+        dirty = false;
+        s->setValue(key, value);
+    }
+}
+
 WelcomeMode::~WelcomeMode()
 {
     delete m_modeWidget;
+}
+
+StudioSettingsPage::StudioSettingsPage()
+    : m_buildCheckBox(new QCheckBox(tr("Build")))
+    , m_debugCheckBox(new QCheckBox(tr("Debug")))
+    , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
+{
+    const QString toolTip = tr(
+        "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
+        "generally not required in the context of Qt Design Studio.<b>Debug</b> and <b>Analyze</b>"
+        "are only required for debugging and profiling.");
+
+    QVBoxLayout *boxLayout = new QVBoxLayout(this);
+    setLayout(boxLayout);
+    auto groupBox = new QGroupBox(tr("Hide Menu"));
+    groupBox->setToolTip(toolTip);
+    boxLayout->addWidget(groupBox);
+    boxLayout->addSpacerItem(
+        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+    auto verticalLayout = new QVBoxLayout();
+    groupBox->setLayout(verticalLayout);
+
+    m_buildCheckBox->setToolTip(toolTip);
+    m_debugCheckBox->setToolTip(toolTip);
+    m_analyzeCheckBox->setToolTip(toolTip);
+
+    verticalLayout->addWidget(m_buildCheckBox);
+    verticalLayout->addWidget(m_debugCheckBox);
+    verticalLayout->addWidget(m_analyzeCheckBox);
+    verticalLayout->addSpacerItem(
+        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    m_buildCheckBox->setChecked(hideBuildMenuSetting());
+    m_debugCheckBox->setChecked(hideDebugMenuSetting());
+    m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
+}
+
+void StudioSettingsPage::apply()
+{
+    bool dirty = false;
+
+    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_BUILD,
+                          m_buildCheckBox->isChecked(),
+                          dirty);
+
+    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG,
+                          m_debugCheckBox->isChecked(),
+                          dirty);
+
+    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE,
+                          m_analyzeCheckBox->isChecked(),
+                          dirty);
+
+
+    if (dirty) {
+        const QString restartText = tr("The menu visibility change will take effect after restart.");
+        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
+        restartDialog.exec();
+    }
+}
+
+StudioWelcomeSettingsPage::StudioWelcomeSettingsPage()
+{
+    setId("Z.StudioWelcome.Settings");
+    setDisplayName(tr("Qt Design Studio Configuration"));
+    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+    setWidgetCreator([] { return new StudioSettingsPage; });
 }
 
 } // namespace Internal
