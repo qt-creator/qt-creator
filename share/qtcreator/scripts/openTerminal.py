@@ -42,9 +42,9 @@ def clean_environment_script():
                             'TERM_SESSION_ID'])
     return r'''
 function ignore() {
-  local keys="''' + env_to_keep + '''"
+  local keys=(''' + env_to_keep + ''')
   local v=$1
-  for e in $keys; do [[ "$e" == "$v" ]] && return 0; done
+  for e in "${keys[@]}"; do [[ "$e" == "$v" ]] && return 0; done
 }
 while read -r line; do
   key=$(echo $line | /usr/bin/cut -d '=' -f 1)
