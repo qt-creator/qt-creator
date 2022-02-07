@@ -377,7 +377,7 @@ void DesignModeWidget::setup()
         auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
         m_outputPaneDockWidget = new ADS::DockWidget(uniqueId);
         m_outputPaneDockWidget->setWidget(outputPanePlaceholder);
-        m_outputPaneDockWidget->setWindowTitle("Output Pane");
+        m_outputPaneDockWidget->setWindowTitle(tr("Output Pane"));
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
 
         // Set unique id as object name
@@ -497,7 +497,7 @@ void DesignModeWidget::aboutToShowWorkspaces()
         m_dockManager->openWorkspace(workspace);
     });
 
-    QAction *action = menu->addAction("Manage...");
+    QAction *action = menu->addAction(tr("Manage..."));
     connect(action, &QAction::triggered,
             m_dockManager, &ADS::DockManager::showWorkspaceMananger);
 
