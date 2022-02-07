@@ -453,6 +453,7 @@ void LanguageClientManager::showInspector()
         clientName = client->name();
     QWidget *inspectorWidget = instance()->m_inspector.createWidget(clientName);
     inspectorWidget->setAttribute(Qt::WA_DeleteOnClose);
+    Core::ICore::registerWindow(inspectorWidget, Core::Context("LanguageClient.Inspector"));
     inspectorWidget->show();
 }
 
