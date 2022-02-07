@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpmanager.h"
+#include "localhelpmanager.h"
 
 #include "helptr.h"
 
@@ -280,6 +281,11 @@ QByteArray HelpManager::fileData(const QUrl &url)
 void HelpManager::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
 {
     emit m_instance->helpRequested(url, location);
+}
+
+void HelpManager::addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler)
+{
+    LocalHelpManager::addOnlineHelpHandler(handler);
 }
 
 QStringList HelpManager::registeredNamespaces()

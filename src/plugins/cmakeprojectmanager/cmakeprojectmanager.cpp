@@ -18,6 +18,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 
@@ -41,6 +42,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/utilsicons.h>
 
+#include <QDesktopServices>
 #include <QMessageBox>
 
 using namespace Core;
@@ -54,6 +56,9 @@ class CMakeManager final : public QObject
 {
 public:
     CMakeManager();
+
+    static bool isCMakeUrl(const QUrl &url);
+    static void openCMakeUrl(const QUrl &url);
 
 private:
     void updateCmakeActions(Node *node);
@@ -79,6 +84,29 @@ private:
     QAction *m_cmakeDebuggerSeparator;
     bool m_canDebugCMake = false;
 };
+
+bool CMakeManager::isCMakeUrl(const QUrl &url)
+{
+    const QString address = url.toString();
+    return address.startsWith("qthelp://org.cmake.");
+}
+
+void CMakeManager::openCMakeUrl(const QUrl &url)
+{
+    QString urlPrefix = "https://cmake.org/cmake/help/";
+
+    QRegularExpression version("^.*\\.([0-9])\\.([0-9]+)\\.[0-9]+$");
+    auto match = version.match(url.authority());
+    if (match.hasMatch())
+        urlPrefix.append(QString("v%1.%2").arg(match.captured(1)).arg(match.captured(2)));
+    else
+        urlPrefix.append("latest");
+
+    const QString address = url.toString();
+    const QString doc("/doc");
+    QDesktopServices::openUrl(
+        QUrl(urlPrefix + address.mid(address.lastIndexOf(doc) + doc.length())));
+}
 
 CMakeManager::CMakeManager()
 {
@@ -456,6 +484,11 @@ void CMakeManager::buildFileContextMenu()
 void setupCMakeManager()
 {
     static CMakeManager theCMakeManager;
+}
+
+void setupOnlineHelpManager()
+{
+    Core::HelpManager::addOnlineHelpHandler({CMakeManager::isCMakeUrl, CMakeManager::openCMakeUrl});
 }
 
 } // CMakeProjectManager::Internal

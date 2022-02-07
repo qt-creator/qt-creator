@@ -6,5 +6,6 @@
 namespace CMakeProjectManager::Internal {
 
 void setupCMakeManager();
+void setupOnlineHelpManager();
 
 } // CMakeProjectManager::Internal

@@ -53,6 +53,8 @@ QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
 QMutex LocalHelpManager::m_bkmarkMutex;
 BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
 
+QList<Core::HelpManager::OnlineHelpHandler> LocalHelpManager::m_onlineHelpHandlerList;
+
 const char kHelpHomePageKey[] = "Help/HomePage";
 const char kFontFamilyKey[] = "Help/FallbackFontFamily";
 const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
@@ -96,6 +98,8 @@ LocalHelpManager::LocalHelpManager(QObject *parent)
 {
     m_instance = this;
     qRegisterMetaType<Help::Internal::LocalHelpManager::HelpData>("Help::Internal::LocalHelpManager::HelpData");
+
+    addOnlineHelpHandler({LocalHelpManager::isQtUrl, LocalHelpManager::openQtUrl});
 }
 
 LocalHelpManager::~LocalHelpManager()
@@ -508,43 +512,64 @@ QHelpFilterEngine *LocalHelpManager::filterEngine()
 
 bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
 {
+    return Utils::anyOf(
+        m_onlineHelpHandlerList, [url](const Core::HelpManager::OnlineHelpHandler &handler) {
+            return handler.handlesUrl(url);
+        });
+}
+
+bool LocalHelpManager::isQtUrl(const QUrl &url)
+{
     const QString address = url.toString();
     return address.startsWith("qthelp://org.qt-project.")
         || address.startsWith("qthelp://com.nokia.")
         || address.startsWith("qthelp://com.trolltech.");
 }
 
-bool LocalHelpManager::openOnlineHelp(const QUrl &url)
+void LocalHelpManager::openQtUrl(const QUrl &url)
 {
     static const QString unversionedLocalDomainName
         = QString("org.qt-project.%1").arg(Utils::appInfo().id);
 
-    if (canOpenOnlineHelp(url)) {
-        QString urlPrefix = "http://doc.qt.io/";
-        if (url.authority().startsWith(unversionedLocalDomainName)) {
-            urlPrefix.append(Utils::appInfo().id);
+    QString urlPrefix = "http://doc.qt.io/";
+    if (url.authority().startsWith(unversionedLocalDomainName)) {
+        urlPrefix.append(Utils::appInfo().id);
+    } else {
+        const auto host = url.host();
+        const auto dot = host.lastIndexOf('.');
+        if (dot < 0) {
+            urlPrefix.append("qt-5");
         } else {
-            const auto host = url.host();
-            const auto dot = host.lastIndexOf('.');
-            if (dot < 0) {
-                urlPrefix.append("qt-5");
+            const auto version = host.mid(dot + 1);
+            if (version.startsWith('6')) {
+                urlPrefix.append("qt-6");
             } else {
-                const auto version = host.mid(dot + 1);
-                if (version.startsWith('6')) {
-                    urlPrefix.append("qt-6");
-                } else {
-                    urlPrefix.append("qt-5");
-                }
+                urlPrefix.append("qt-5");
             }
         }
-        const QString address = url.toString();
-        QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')))));
-        return true;
     }
-    return false;
+    const QString address = url.toString();
+    QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')))));
+}
+
+bool LocalHelpManager::openOnlineHelp(const QUrl &url)
+{
+    return Utils::anyOf(
+        m_onlineHelpHandlerList, [url](const Core::HelpManager::OnlineHelpHandler &handler) {
+            if (handler.handlesUrl(url)) {
+                handler.openUrl(url);
+                return true;
+            }
+            return false;
+        });
 }
 
 QMultiMap<QString, QUrl> LocalHelpManager::linksForKeyword(const QString &keyword)
 {
     return HelpManager::linksForKeyword(&LocalHelpManager::helpEngine(), keyword, std::nullopt);
+}
+
+void LocalHelpManager::addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler)
+{
+    LocalHelpManager::m_onlineHelpHandlerList.push_back(handler);
 }

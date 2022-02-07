@@ -101,8 +101,12 @@ public:
 
     static bool canOpenOnlineHelp(const QUrl &url);
     static bool openOnlineHelp(const QUrl &url);
+    static bool isQtUrl(const QUrl &url);
+    static void openQtUrl(const QUrl &url);
 
     static QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword);
+
+    static void addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler);
 
 signals:
     void fallbackFontChanged(const QFont &font);
@@ -121,6 +125,8 @@ private:
 
     static QMutex m_bkmarkMutex;
     static BookmarkManager *m_bookmarkManager;
+
+    static QList<Core::HelpManager::OnlineHelpHandler> m_onlineHelpHandlerList;
 };
 
 }   // Internal
