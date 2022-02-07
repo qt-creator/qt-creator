@@ -60,6 +60,7 @@ private:
                         const LanguageServerProtocol::DocumentSymbolsRequest::Response &response);
 
     QMap<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::DocumentSymbolsResult> m_cache;
+    QMap<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_runningRequests;
     Client *m_client = nullptr;
     QTimer m_compressionTimer;
     QSet<LanguageServerProtocol::DocumentUri> m_compressedUris;

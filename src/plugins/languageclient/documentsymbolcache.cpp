@@ -40,7 +40,13 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
 {
     auto connectDocument = [this](Core::IDocument *document) {
         connect(document, &Core::IDocument::contentsChanged, this, [document, this]() {
+            const auto uri = DocumentUri::fromFilePath(document->filePath());
             m_cache.remove(DocumentUri::fromFilePath(document->filePath()));
+            auto requestIdIt = m_runningRequests.find(uri);
+            if (requestIdIt != m_runningRequests.end()) {
+                m_client->cancelRequest(requestIdIt.value());
+                m_runningRequests.erase(requestIdIt);
+            }
         });
     };
 
@@ -99,6 +105,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
             if (self)
                 self->handleResponse(uri, response);
         });
+        m_runningRequests[uri] = request.id();
         m_client->sendContent(request);
     }
     m_compressedUris.clear();
@@ -107,6 +114,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
 void DocumentSymbolCache::handleResponse(const DocumentUri &uri,
                                          const DocumentSymbolsRequest::Response &response)
 {
+    m_runningRequests.remove(uri);
     if (Utils::optional<DocumentSymbolsRequest::Response::Error> error = response.error()) {
         if (m_client)
             m_client->log(error.value());
