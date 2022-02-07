@@ -654,6 +654,10 @@ void ClangdTestTooltips::test()
     timer.stop();
 
     QEXPECT_FAIL("TypeName_ResolveTemplateTypeAlias", "typedef already resolved in AST", Abort);
+    if (client()->versionNumber() >= QVersionNumber(14)) {
+        QEXPECT_FAIL("TypeNameIntroducedByUsingDeclarationQualified",
+                     "https://github.com/clangd/clangd/issues/989", Abort);
+    }
     QCOMPARE(int(helpItem.category()), expectedCategory);
     QEXPECT_FAIL("TemplateClassQualified", "Additional look-up needed?", Abort);
     QCOMPARE(helpItem.helpIds(), expectedIds);

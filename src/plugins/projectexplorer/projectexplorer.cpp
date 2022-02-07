@@ -2512,12 +2512,13 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
     }
     dd->updateActions();
 
-    bool switchToProjectsMode = Utils::anyOf(openedPro, &Project::needsConfiguration);
-
+    const bool switchToProjectsMode = Utils::anyOf(openedPro, &Project::needsConfiguration);
+    const bool switchToEditMode = Utils::allOf(openedPro,
+                                               [](Project *p) { return p->isEditModePreferred(); });
     if (!openedPro.isEmpty()) {
         if (switchToProjectsMode)
             ModeManager::activateMode(Constants::MODE_SESSION);
-        else
+        else if (switchToEditMode)
             ModeManager::activateMode(Core::Constants::MODE_EDIT);
         ModeManager::setFocusToCurrentMode();
     }

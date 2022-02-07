@@ -52,7 +52,6 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     setDisplayName("Generic Linux Device");
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
-    setCanCreate(true);
     setCreator([] {
         LinuxDevice::Ptr newDev = LinuxDevice::create();
         qDebug() << "device : " << newDev->type();

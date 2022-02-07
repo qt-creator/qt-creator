@@ -3029,6 +3029,50 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("undo | s/\\(b...E\\)/\\U\\1/g", "aBC DEfGh");
     COMMAND("undo | s/\\(C..E\\)/\\l\\1/g",  "abc dEfGh");
     COMMAND("undo | s/\\(b...E\\)/\\L\\1/g", "abc defGh");
+
+    // replace 1 backslash with 1 forward slash (separator: /)
+    data.setText(R"(abc\def)");
+    COMMAND(R"(s/\\/\/)", X "abc/def");
+
+    // replace 1 backslash with X  normal on line (separator: /)
+    data.setText(R"(abc\def\ghi)");
+    COMMAND(R"(s/\\/X/g)", X "abcXdefXghi");
+
+    // replace 1 backslash with 1 forward slash on line (separator: /)
+    data.setText(R"(abc\def\ghi)");
+    COMMAND(R"(s/\\/\//g)", X "abc/def/ghi");
+
+    // replace 1 backslash with 1 forward slash
+    data.setText(R"(abc\def)");
+    COMMAND(R"(s#\\#/)", X "abc/def");
+
+    // replace 1 backslash with 1 forward slash on line
+    data.setText(R"(abc\def\ghi)");
+    COMMAND(R"(s#\\#/#g)", X "abc/def/ghi");
+
+    // replace 2 backslash with 2 forward slash
+    data.setText(R"(abc\\def)");
+    COMMAND(R"(s#\\\\#//)", X "abc//def");
+
+    // replace 2 backslash with 2 forward slash on line
+    data.setText(R"(abc\\def\\ghi)");
+    COMMAND(R"(s#\\\\#//#g)", X "abc//def//ghi");
+
+    // replace 1 backslash with 1 forward slash last char
+    data.setText(R"(abc\)");
+    COMMAND(R"(s#\\#/)", X "abc/");
+
+    // replace 1 backslash with 1 forward slash first char
+    data.setText(R"(\abc)");
+    COMMAND(R"(s#\\#/)", X "/abc");
+
+    // replace 1 # with 2 #  on line
+    data.setText(R"(abc#def#ghi)");
+    COMMAND(R"(s#\##\#\##g)", X "abc##def##ghi");
+
+    // replace 2 # with 4 # on line
+    data.setText(R"(abc##def##ghi)");
+    COMMAND(R"(s#\#\##\#\#\#\##g)", X "abc####def####ghi");
 }
 
 void FakeVimPlugin::test_vim_ex_commandbuffer_paste()

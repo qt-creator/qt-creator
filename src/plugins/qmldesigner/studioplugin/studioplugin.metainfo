@@ -1,4 +1,18 @@
 MetaInfo {
+    Type {
+        name: "QtStudio3D.Studio3D"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Studio 3D"
+            category: "Qt 3D Studio"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "2.0"
+            requiredImport: "QtStudio3D"
+
+            QmlSource { source: ":/studioplugin/data/qt3ditem.qml" }
+        }
+    }
 
     Imports {
         blacklistImports: [
@@ -15,7 +29,18 @@ MetaInfo {
         "QtTest",
         "QtWebEngine",
         "QtWebSockets",
-        "QtQuick.Dialogs."
+        "QtQuick.Dialogs.",
+        "QtSensors",
+        "QtRemoveObjects",
+        "QtQuick.tooling",
+        "QtWebView",
+        "QtCore",
+        "QtQuick.Controls.Basic",
+        "QtQuick.Controls.Fusion",
+        "QtQuick.Controls.Imagine",
+        "QtQuick.Controls.Universal",
+        "QtQuick.Controls.Material",
+        "QtQuick.Controls.NativeStyle"
         ]
 
     showTagsForImports: [

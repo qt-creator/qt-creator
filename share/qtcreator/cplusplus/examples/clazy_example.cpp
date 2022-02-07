@@ -113,9 +113,6 @@ TestObject::TestObject()
     for (auto obj : list) {
     }
 
-    // -Wclazy-qdatetime-utc
-    QDateTime::currentDateTime().toTime_t();
-
     // -Wclazy-qfileinfo-exists
     // -Wclazy-qstring-allocations
     QFileInfo("filename").exists();
@@ -134,8 +131,5 @@ TestObject::TestObject()
     str.mid(5).toInt(&ok);
 
     // -Wclazy-qstring-arg
-    QString("%1 %2").arg("1").arg("2");
+    (void) QString("%1 %2").arg("1").arg("2");
 }
-
-// Note: A fatal error like an unresolved include will make clazy stop emitting any diagnostics.
-// #include "clazy_example.moc"

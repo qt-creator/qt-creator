@@ -35,6 +35,8 @@ DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff8e8e8e
 
+DSinteractionHover=ff74cbfc
+
 DScontrolBackground=ffeaeaea
 DScontrolBackgroundInteraction=ffc9c9c9
 DScontrolBackgroundDisabled=ffeaeaea
@@ -263,7 +265,6 @@ ProgressBarBackgroundColor=28000000
 SplitterColor=splitter
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
-TextColorHighlight=ffff0000
 TextColorHighlightBackground=ffef0b
 TextColorLink=ff007af4
 TextColorLinkVisited=ffa57aff

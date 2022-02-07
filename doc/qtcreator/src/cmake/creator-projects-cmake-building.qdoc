@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,17 +31,31 @@
     \title CMake Build Configuration
 
     Configuring medium-sized to large CMake projects in \QC can be a
-    challenge due to the number of options that you need to pass to
+    challenge due to the number of variables that you need to pass to
     CMake to configure the project correctly. To make this easier,
     \QC creates an initial configuration for you based on the kit
-    settings and displays it in the \uicontrol {Initial CMake parameters}
-    field and in a table that lists the parameter names and values.
+    settings and displays it in \uicontrol {Initial Configuration} in
+    the \l{Specifying Build Settings}{Build Settings} of the project.
 
     \image qtcreator-cmake-build-settings-initial.png "CMake build settings"
 
-    Parameter names are listed in the \uicontrol Key column. Names with a
-    common prefix (up to the first underscore character) are grouped under
-    the prefix.
+    You can view and edit the actual values of the variables that are passed
+    to CMake. Variable names are listed in the \uicontrol Key column and their
+    current values in the \uicontrol Value column. For more information
+    about the available variables, see \l{CMake: cmake-variables(7)}.
+    For more information about Qt-specific variables, see
+    \l{CMake Variable Reference}.
+
+    You can specify additional CMake options, such as \c {--find-debug},
+    \c {--preset}, \c {--trace-expand}, or \c {--warn-uninitialized}, in
+    \uicontrol {Additional CMake options}. For more information about
+    the available options, see \l{CMake: cmake(1)}.
+
+    After successfully running CMake, you can view and modify the current
+    configuration in \uicontrol {Current Configuration}.
+
+    Select \uicontrol {Kit Configuration} to edit the CMake settings for the
+    build and run kit selected for the project.
 
     \section1 Multi-Config Support
 
@@ -59,35 +73,36 @@
 
     When developing with Qt 6 for iOS, only the Xcode generator is supported.
 
-    \section1 Modifying Initial Parameters
+    \section1 Modifying Variable Values
 
-    In the \uicontrol Value column, you can view and edit the actual values
-    of the parameters that are passed to CMake.
+    You can view and edit the actual values of the variables that
+    are passed to CMake in \uicontrol {Initial Configuration} or
+    \uicontrol {Current Configuration}.
 
-    \image qtcreator-cmake-build-settings.png "CMake parameters"
+    \image qtcreator-cmake-build-settings.png "CMake variables"
 
-    To view all parameters, select the \uicontrol Advanced check box.
+    To view all variables, select the \uicontrol Advanced check box.
 
-    To add parameters, select \uicontrol Add, and then select the type of
-    the parameter that you are adding: \uicontrol Boolean, \uicontrol String,
+    To add variables, select \uicontrol Add, and then select the type of
+    the variable that you are adding: \uicontrol Boolean, \uicontrol String,
     \uicontrol Directory, or \uicontrol File.
 
-    To change the type of the selected parameter, right-click the
-    parameter name in the \uicontrol Key column, and then select
+    To change the type of the selected variable, right-click the
+    variable name in the \uicontrol Key column, and then select
     \uicontrol {Force to bool}, \uicontrol {Force to file},
     \uicontrol {Force to directory}, or \uicontrol {Force to string}
     in the context menu.
 
-    To copy the name or value of the selected parameter to the clipboard,
+    To copy the name or value of the selected variable to the clipboard,
     select \uicontrol Copy in the context menu.
 
-    To modify the value of a parameter, double-click it, or select it,
+    To modify the value of a variable, double-click it, or select it,
     and then select \uicontrol Edit.
 
-    You can apply actions to multiple parameters at a time. To clear
+    You can apply actions to multiple variables at a time. To clear
     the selection, select \uicontrol {Clear Selection}.
 
-    To remove the selected parameters, select \uicontrol Unset. To undo
+    To remove the selected variables, select \uicontrol Unset. To undo
     the removal, select \uicontrol Set.
 
     To reset all the changes that you made, select \uicontrol Reset.
@@ -95,23 +110,27 @@
     To modify the environment variable values for the CMake build environment,
     select \uicontrol {Batch Edit}. For more information, see \l{Batch Editing}.
 
-    To save the changes, select \uicontrol {Apply Configuration Changes}.
-    Keep in mind that a configuration change might trigger a follow-up
-    configuration change.
+    To build using the current configuration, select \uicontrol {Run CMake}.
+    While building, the button text changes to \uicontrol {Stop CMake}. Select
+    the button to cancel the current build.
 
-    The parameter values that you change are passed via \c -D<option>=<value>
+    The variable values that you change are passed via \c -D<option>=<value>
     to CMake, which stores the options in the CMakeCache.txt file. This means
-    that if you remove the build directory, all the custom parameters that are
-    not part of the initial CMake parameters are also removed.
+    that if you remove the build directory, all the custom variables that are
+    not part of the initial CMake configuration are also removed.
 
-    To reconfigure a project using the modified parameters,
+    To reconfigure a project using the modified variable values,
     select \uicontrol Build > \uicontrol {Clear CMake Configuration}, which
     removes the CMakeCache.txt file. This enables you to do a full rebuild.
 
-    \section1 Re-configuring with Initial Parameters
+    \section1 Re-configuring with Initial Variables
 
-    To reset CMake parameters to the initial ones, select
-    \uicontrol {Re-configure with Initial Parameters}.
+    To reset CMake variables to the initial ones, select
+    \uicontrol {Re-configure with Initial Variables} in
+    \uicontrol {Initial Configuration}. \QC deletes the current CMake
+    configuration and runs CMake. The initial configuration values are
+    stored in the CMakeLists.txt.user file, so deleting a build directory
+    does not delete the initial configuration.
 
     To be asked before \QC resets the changes, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Build & Run} > \uicontrol CMake >
@@ -167,14 +186,16 @@
         \li Install Ninja.
         \li Add the path to the Ninja executable to the value of the PATH system
             variable.
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits, and
-            then select the build and run kit for the project.
+        \li In \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build
+            > \uicontrol {Build Settings}, select \uicontrol {Kit Configuration}.
+            \image qtcreator-cmake-kit-configuration.png "Kit CMake Configuration dialog"
         \li Select \uicontrol Change next to the \uicontrol {CMake generator}
             field to open the \uicontrol {CMake Generator} dialog.
-            \image qtcreator-build-steps-cmake-ninja.png
-        \li In the \uicontrol Generator field, select \uicontrol Ninja.
-        \li Select \uicontrol OK to return to the \uicontrol Kits tab.
-        \li Select \uicontrol OK or \uicontrol Apply to save your changes.
+            \image qtcreator-cmake-generator.png "CMake Generator dialog"
+        \li In \uicontrol Generator, select \uicontrol Ninja.
+        \li Select \uicontrol OK to save your changes and close the dialog.
+        \li Close the \uicontrol {Kit CMake Configuration} dialog to return to
+            \uicontrol {Build Settings}.
     \endlist
 
     \note To make sure that old build artifacts don't get in the way

@@ -263,9 +263,6 @@ public:
     void setAbortOnMetaChars(bool abort) { m_abortOnMetaChars = abort; }
     bool isAbortOnMetaChars() const { return m_abortOnMetaChars; }
 
-    void setRunAsRoot(bool on) { m_runAsRoot = on; }
-    bool runAsRoot() const { return m_runAsRoot; }
-
     void setBelowNormalPriority() { m_belowNormalPriority = true; }
     bool isBelowNormalPriority() const { return m_belowNormalPriority; }
     void setNativeArguments(const QString &arguments) { m_nativeArguments = arguments; }
@@ -287,7 +284,6 @@ private:
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
     bool m_abortOnMetaChars = true;
-    bool m_runAsRoot = false;
 };
 
 class TerminalImpl : public ProcessInterface
@@ -319,7 +315,6 @@ public:
     void customStart(const CommandLine &command, const FilePath &workingDirectory,
                      const Environment &environment) override
     {
-        m_terminal.setRunAsRoot(runAsRoot());
         m_terminal.setAbortOnMetaChars(isAbortOnMetaChars());
         m_terminal.setCommand(command);
         m_terminal.setWorkingDirectory(workingDirectory);
@@ -568,6 +563,7 @@ public:
         , q(parent)
         , m_process(newProcessInstance(parent, processImpl, processMode, terminalMode))
         , m_processMode(processMode)
+        , m_terminalMode(terminalMode)
     {
         connect(m_process, &ProcessInterface::started,
                 q, &QtcProcess::started);
@@ -606,45 +602,29 @@ public:
         return filePath.searchInPath();
     }
 
-    void defaultStart()
+    void defaultStart(const CommandLine &commandLine, const FilePath &workingDirectory,
+                      const Environment &environment)
     {
-        clearForRun();
-
-        if (m_commandLine.executable().needsDevice()) {
-            QTC_ASSERT(s_deviceHooks.startProcessHook, return);
-            s_deviceHooks.startProcessHook(*q);
-            return;
-        }
-
         if (processLog().isDebugEnabled()) {
             static int n = 0;
-            qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << m_commandLine.toUserOutput();
+            qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << commandLine.toUserOutput();
         }
 
-        Environment env;
-        if (m_haveEnv) {
-            if (m_environment.size() == 0)
-                qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-                         qPrintable(m_commandLine.executable().toString()));
-            env = m_environment;
-        } else {
-            env = Environment::systemEnvironment();
-        }
-        m_process->setProcessEnvironment(env.toProcessEnvironment());
-        m_process->setWorkingDirectory(m_workingDirectory.path());
+        m_process->setProcessEnvironment(environment.toProcessEnvironment());
+        m_process->setWorkingDirectory(workingDirectory.path());
 
-        QString command;
+        QString commandString;
         ProcessArgs arguments;
-        const bool success = ProcessArgs::prepareCommand(m_commandLine, &command, &arguments, &env,
-                                                         &m_workingDirectory);
+        const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &arguments,
+                                                         &environment, &workingDirectory);
 
-        if (m_commandLine.executable().osType() == OsTypeWindows) {
+        if (commandLine.executable().osType() == OsTypeWindows) {
             QString args;
             if (m_useCtrlCStub) {
                 if (m_process->isLowPriority())
                     ProcessArgs::addArg(&args, "-nice");
-                ProcessArgs::addArg(&args, QDir::toNativeSeparators(command));
-                command = QCoreApplication::applicationDirPath()
+                ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
+                commandString = QCoreApplication::applicationDirPath()
                         + QLatin1String("/qtcreator_ctrlc_stub.exe");
             } else if (m_process->isLowPriority()) {
                 m_process->setBelowNormalPriority();
@@ -655,7 +635,7 @@ public:
 #endif
             // Note: Arguments set with setNativeArgs will be appended to the ones
             // passed with start() below.
-            start(command, QStringList(), m_writeData);
+            start(commandString, QStringList(), workingDirectory, m_writeData);
         } else {
             if (!success) {
                 q->setErrorString(tr("Error in command line."));
@@ -664,13 +644,14 @@ public:
                 emit q->errorOccurred(QProcess::UnknownError);
                 return;
             }
-            start(command, arguments.toUnixArgs(), m_writeData);
+            start(commandString, arguments.toUnixArgs(), workingDirectory, m_writeData);
         }
     }
 
-    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
+    void start(const QString &program, const QStringList &arguments,
+               const FilePath &workingDirectory, const QByteArray &writeData)
     {
-        const FilePath programFilePath = resolve(m_workingDirectory, FilePath::fromString(program));
+        const FilePath programFilePath = resolve(workingDirectory, FilePath::fromString(program));
         if (programFilePath.exists() && programFilePath.isExecutableFile()) {
             s_start.measureAndRun(&ProcessInterface::start, m_process, program, arguments, writeData);
         } else {
@@ -680,13 +661,42 @@ public:
         }
     }
 
+    CommandLine fullCommandLine() const
+    {
+        if (!m_runAsRoot || HostOsInfo::isWindowsHost())
+            return m_commandLine;
+        CommandLine rootCommand("sudo", {"-A"});
+        rootCommand.addCommandLineAsArgs(m_commandLine);
+        return rootCommand;
+    }
+
+    Environment fullEnvironment() const
+    {
+        Environment env;
+        if (m_haveEnv) {
+            if (m_environment.size() == 0)
+                qWarning("QtcProcess::start: Empty environment set when running '%s'.",
+                         qPrintable(m_commandLine.executable().toString()));
+            env = m_environment;
+        } else {
+            env = Environment::systemEnvironment();
+        }
+
+// TODO: needs SshSettings
+//        if (m_runAsRoot)
+//            RunControl::provideAskPassEntry(env);
+        return env;
+    }
+
     QtcProcess *q;
     ProcessInterface *m_process;
     const ProcessMode m_processMode;
+    const QtcProcess::TerminalMode m_terminalMode;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
     QByteArray m_writeData;
+    bool m_runAsRoot = false;
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;
 
@@ -774,6 +784,11 @@ ProcessMode QtcProcess::processMode() const
     return d->m_processMode;
 }
 
+QtcProcess::TerminalMode QtcProcess::terminalMode() const
+{
+    return d->m_terminalMode;
+}
+
 void QtcProcess::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
@@ -791,12 +806,17 @@ const Environment &QtcProcess::environment() const
     return d->m_environment;
 }
 
+bool QtcProcess::hasEnvironment() const
+{
+    return d->m_haveEnv;
+}
+
 void QtcProcess::setCommand(const CommandLine &cmdLine)
 {
     if (d->m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
         QTC_CHECK(d->m_workingDirectory.host() == cmdLine.executable().host());
     }
-    d->m_commandLine  = cmdLine;
+    d->m_commandLine = cmdLine;
 }
 
 const CommandLine &QtcProcess::commandLine() const
@@ -831,10 +851,18 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
+    if (d->m_commandLine.executable().needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.startProcessHook, return);
+        s_deviceHooks.startProcessHook(*this);
+        return;
+    }
+    d->clearForRun();
+    const CommandLine cmd = d->fullCommandLine();
+    const Environment env = d->fullEnvironment();
     if (d->m_process->isCustomStart())
-        d->m_process->customStart(d->m_commandLine, d->m_workingDirectory, d->m_environment);
+        d->m_process->customStart(cmd, d->m_workingDirectory, env);
     else
-        d->defaultStart();
+        d->defaultStart(cmd, d->m_workingDirectory, env);
 }
 
 #ifdef Q_OS_WIN
@@ -905,7 +933,12 @@ void QtcProcess::setAbortOnMetaChars(bool abort)
 
 void QtcProcess::setRunAsRoot(bool on)
 {
-    d->m_process->setRunAsRoot(on);
+    d->m_runAsRoot = on;
+}
+
+bool QtcProcess::isRunAsRoot() const
+{
+    return d->m_runAsRoot;
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)

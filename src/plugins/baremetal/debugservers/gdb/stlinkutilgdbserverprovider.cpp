@@ -96,7 +96,8 @@ CommandLine StLinkUtilGdbServerProvider::command() const
     if (!m_resetBoard)
         cmd.addArg("--no-reset");
 
-    cmd.addArg("--stlink_version=" + QString::number(m_transport));
+    if (m_transport != UnspecifiedTransport)
+        cmd.addArg("--stlink_version=" + QString::number(m_transport));
     cmd.addArg("--listen_port=" + QString::number(channel().port()));
     cmd.addArg("--verbose=" + QString::number(m_verboseLevel));
 
@@ -301,6 +302,9 @@ void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
     m_transportLayerComboBox->insertItem(
                 m_transportLayerComboBox->count(), tr("ST-LINK/V2"),
                 StLinkUtilGdbServerProvider::RawUsb);
+    m_transportLayerComboBox->insertItem(
+                m_transportLayerComboBox->count(), tr("Keep unspecified"),
+                StLinkUtilGdbServerProvider::UnspecifiedTransport);
 }
 
 void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()

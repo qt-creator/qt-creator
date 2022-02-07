@@ -135,6 +135,18 @@ void ItemLibraryAssetsModel::deleteFile(const QString &filePath)
     }
 }
 
+bool ItemLibraryAssetsModel::renameFolder(const QString &folderPath, const QString &newName)
+{
+    QDir dir{folderPath};
+    QString oldName = dir.dirName();
+
+    if (oldName == newName)
+        return true;
+
+    dir.cdUp();
+    return dir.rename(oldName, newName);
+}
+
 void ItemLibraryAssetsModel::addNewFolder(const QString &folderPath)
 {
     QString iterPath = folderPath;

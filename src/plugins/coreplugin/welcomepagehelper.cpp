@@ -81,7 +81,8 @@ QWidget *panelBar(QWidget *parent)
     auto frame = new QWidget(parent);
     frame->setAutoFillBackground(true);
     frame->setMinimumWidth(WelcomePageHelpers::HSpacing);
-    QPalette pal = frame->palette();
+    QPalette pal;
+    pal.setBrush(QPalette::Window, {});
     pal.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundPrimaryColor));
     frame->setPalette(pal);
     return frame;

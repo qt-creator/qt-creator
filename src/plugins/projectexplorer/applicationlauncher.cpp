@@ -381,13 +381,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             cmdLine = disclaim;
         }
 
-        if (m_runAsRoot) {
-            CommandLine wrapped("sudo", {"-A"});
-            wrapped.addCommandLineAsArgs(cmdLine);
-            cmdLine = wrapped;
-        }
-        // TODO: QtcProcess::setRunAsRoot() doens't work as expected currently
-        // m_localProcess->setRunAsRoot(m_runAsRoot);
+        m_localProcess->setRunAsRoot(m_runAsRoot);
         m_localProcess->setCommand(cmdLine);
         m_localProcess->start();
     } else {

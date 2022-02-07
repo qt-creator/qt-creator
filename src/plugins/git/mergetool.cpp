@@ -211,7 +211,10 @@ void MergeTool::readData()
     VcsOutputWindow::append(newData);
     QString data = m_unfinishedLine + newData;
     m_unfinishedLine.clear();
-    while (const int index = data.indexOf('\n') != -1) {
+    for (;;) {
+        const int index = data.indexOf('\n');
+        if (index == -1)
+            break;
         const QString line = data.left(index + 1);
         readLine(line);
         data = data.mid(index + 1);

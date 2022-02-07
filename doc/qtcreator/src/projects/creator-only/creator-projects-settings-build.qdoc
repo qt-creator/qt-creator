@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,9 +57,11 @@
 
     \section1 Managing Build Configurations
 
+    Specify build settings in \uicontrol Projects > \uicontrol {Build & Run}
+    > \uicontrol Build > \uicontrol {Build Settings}.
+
     \image qtcreator-build-configurations.png "Build Settings"
 
-    You specify build settings in the \uicontrol Projects mode.
     To add a new build configuration, click \uicontrol Add and select the type of
     configuration you would like to add. The options you have depend on the
     build system that you selected for the project. You can add as many build

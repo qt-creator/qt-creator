@@ -181,6 +181,15 @@ def diffContext(ctx, old, new):
 
     return report
 
+
+def stringify(obj):
+    stringTypes = (str, unicode) if sys.version_info.major == 2 else (str)
+    if isinstance(obj, stringTypes):
+        return obj
+    if isinstance(obj, bytes):
+        tmp = obj.decode('cp1252') if platform.system() in ('Microsoft','Windows') else obj.decode()
+        return tmp
+
 # --- The main program
 
 oldGenerator = Generator()
@@ -203,21 +212,21 @@ newContextSet = set(newTree.keys())
 for c in sorted(oldContextSet.difference(newContextSet)):
     report = diffContext(c, oldTree[c], {})
     if report:
-        print(report.encode('utf-8'))
+        print(stringify(report.encode('utf-8')))
     else:
         unchangedContexts += 1
 
 for c in sorted(newContextSet.difference(oldContextSet)):
     report = diffContext(c, {}, newTree[c])
     if report:
-        print(report.encode('utf-8'))
+        print(stringify(report.encode('utf-8')))
     else:
         unchangedContexts += 1
 
 for c in sorted(newContextSet.intersection(oldContextSet)):
     report = diffContext(c, oldTree[c], newTree[c])
     if report:
-        print(report.encode('utf-8'))
+        print(stringify(report.encode('utf-8')))
     else:
         unchangedContexts += 1
 

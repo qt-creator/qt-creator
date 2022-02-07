@@ -72,7 +72,7 @@ struct TempStuff
 {
     TempStuff() : buildTemp(QLatin1String("qt_tst_codesize"))
     {
-        buildPath = QDir::currentPath() + QLatin1Char('/')  + buildTemp.path();
+        buildPath = buildTemp.path();
         buildTemp.setAutoRemove(false);
         QVERIFY(!buildPath.isEmpty());
     }
@@ -214,9 +214,8 @@ void tst_CodeSize::codesize()
 
     QProcess qmake;
     qmake.setWorkingDirectory(t->buildPath);
-    QString cmd = QString::fromLatin1(m_qmakeBinary + " -r doit.pro");
-    qDebug() << "Starting qmake: " << cmd;
-    qmake.start(cmd);
+    qDebug() << "Starting qmake: " << QString::fromLatin1(m_qmakeBinary + " -r doit.pro");
+    qmake.start(QString::fromLatin1(m_qmakeBinary), {"-r", "doit.pro"});
 //    QVERIFY(qmake.waitForFinished());
     qmake.waitForFinished();
     QByteArray output = qmake.readAllStandardOutput();
@@ -255,20 +254,24 @@ void tst_CodeSize::codesize()
              << "\nExtra CXX Flags: " << c.extraCxxFlags.data();
 #ifdef Q_OS_WIN
 #    ifdef Q_CC_MSVC
-        QByteArray finalCommand = suite.cmd + ' ' + "release\\" + c.file + ".obj";
+        QString arguments = "release\\" + c.file + ".obj";
 #    else
-        QByteArray finalCommand = suite.cmd + ' ' + "release\\" + c.file + ".o";
+        QString arguments = "release\\" + c.file + ".o";
 #    endif
 #else
-        QByteArray finalCommand = suite.cmd + ' ' + c.file + ".o";
+        QString arguments = QString(c.file + ".o");
 #endif
+        const int index = suite.cmd.indexOf(' ');
+        QString command = suite.cmd.left(index);
+        arguments = QString::fromLatin1(suite.cmd.mid(index + 1)) + arguments;
         QProcess final;
         final.setWorkingDirectory(t->buildPath);
         final.setProcessEnvironment(m_env);
-        cout << "\nCommand:         " << finalCommand.data()
+        cout << "\nCommand:         " << suite.cmd.data() << arguments.data()
              << "\n\n--------------------- OUTPUT " << suiteCount << '.' << i << ' '
              << " ---------------------------------\n\n";
-        final.start(finalCommand);
+
+        final.start(command, arguments.split(' '));
         QVERIFY(final.waitForFinished());
         QByteArray stdOut = final.readAllStandardOutput();
         QByteArray stdErr = final.readAllStandardError();

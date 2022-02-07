@@ -66,6 +66,9 @@ IWelcomePage::~IWelcomePage()
 QPalette WelcomePageFrame::buttonPalette(bool isActive, bool isCursorInside, bool forText)
 {
     QPalette pal;
+    pal.setBrush(QPalette::Window, {});
+    pal.setBrush(QPalette::WindowText, {});
+
     Theme *theme = Utils::creatorTheme();
     if (isActive) {
         if (forText) {

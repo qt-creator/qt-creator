@@ -251,7 +251,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
     const QString curTestName = QLatin1String(QTest::currentTestFunction());
     const QString tag = QLatin1String(QTest::currentDataTag());
-    const bool useClangd = ClangdSettings::instance().useClangd();
+    const bool useClangd = m_testKit;
     if (useClangd) {
         if (curTestName == "testFollowSymbolQObjectConnect"
                 || curTestName == "testFollowSymbolQObjectOldStyleConnect") {
@@ -442,7 +442,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
 
-    if (!ClangdSettings::instance().useClangd()) {
+    if (!useClangd) {
         QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
         QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
     }

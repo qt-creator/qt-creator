@@ -28,7 +28,7 @@
     \if defined(qtdesignstudio)
     \previouspage creator-quick-ui-forms.html
     \else
-    \previouspage creator-task-lists.html
+    \previouspage creator-logging-viewer.html
     \endif
     \nextpage collecting-usage-statistics.html
 

@@ -352,6 +352,11 @@ public:
           m_label(createSubWidget<ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>())
     {
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit);
+        connect(this, &KitAspectWidget::labelLinkActivated, this, [=](const QString &link) {
+            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-generators.7.html");
+        });
+
         m_label->setToolTip(ki->description());
         m_changeButton->setText(tr("Change..."));
         refresh();
@@ -391,12 +396,18 @@ private:
         const QString platform = CMakeGeneratorKitAspect::platform(kit());
         const QString toolset = CMakeGeneratorKitAspect::toolset(kit());
 
-        const QString message = tr("%1 - %2, Platform: %3, Toolset: %4")
-                .arg(extraGenerator.isEmpty() ? tr("<none>") : extraGenerator)
-                .arg(generator.isEmpty() ? tr("<none>") : generator)
-                .arg(platform.isEmpty() ? tr("<none>") : platform)
-                .arg(toolset.isEmpty() ? tr("<none>") : toolset);
-        m_label->setText(message);
+        QStringList messageLabel;
+        if (!extraGenerator.isEmpty())
+            messageLabel << extraGenerator << " - ";
+
+        messageLabel << generator;
+
+        if (!platform.isEmpty())
+            messageLabel << ", " << tr("Platform") << ": " << platform;
+        if (!toolset.isEmpty())
+            messageLabel << ", " << tr("Toolset") << ": " << toolset;
+
+        m_label->setText(messageLabel.join(""));
     }
 
     void changeGenerator()
@@ -490,6 +501,8 @@ private:
                                          extraGeneratorCombo->currentData().toString(),
                                          platformEdit->isEnabled() ? platformEdit->text() : QString(),
                                          toolsetEdit->isEnabled() ? toolsetEdit->text() : QString());
+
+            refresh();
         }
     }
 
@@ -561,7 +574,7 @@ CMakeGeneratorKitAspect::CMakeGeneratorKitAspect()
 {
     setObjectName(QLatin1String("CMakeGeneratorKitAspect"));
     setId(GENERATOR_ID);
-    setDisplayName(tr("CMake generator"));
+    setDisplayName(tr("CMake <a href=\"generator\">generator</a>"));
     setDescription(tr("CMake generator defines how a project is built when using CMake.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(19000);
@@ -925,15 +938,20 @@ private:
 
         QTC_ASSERT(!m_editor, return);
 
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
+
         m_dialog = new QDialog(m_summaryLabel->window());
         m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
         auto layout = new QVBoxLayout(m_dialog);
         m_editor = new QPlainTextEdit;
         auto editorLabel = new QLabel(m_dialog);
-        editorLabel->setText(tr("Enter one CMake variable per line.\n"
-                                "To set a variable, use -D<variable>:<type>=<value>.\n"
-                                "<type> can have one of the following values: FILEPATH, PATH, "
+        editorLabel->setText(tr("Enter one CMake <a href=\"variable\">variable</a> per line.<br/>"
+                                "To set a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
+                                "&lt;type&gt; can have one of the following values: FILEPATH, PATH, "
                                 "BOOL, INTERNAL, or STRING."));
+        connect(editorLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
+        });
         m_editor->setMinimumSize(800, 200);
 
         auto chooser = new VariableChooser(m_dialog);
@@ -942,7 +960,10 @@ private:
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
-        additionalLabel->setText(tr("Additional CMake parameters: "));
+        additionalLabel->setText(tr("Additional CMake <a href=\"options\">options</a>:"));
+        connect(additionalLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+        });
 
         auto additionalChooser = new VariableChooser(m_dialog);
         additionalChooser->addSupportedWidget(m_additionalEditor);
@@ -984,16 +1005,16 @@ private:
         QTC_ASSERT(m_editor, return);
         KitGuard guard(kit());
 
-        QStringList unknownArguments;
+        QStringList unknownOptions;
         const CMakeConfig config = CMakeConfig::fromArguments(m_editor->toPlainText().split('\n'),
-                                                              unknownArguments);
+                                                              unknownOptions);
         CMakeConfigurationKitAspect::setConfiguration(kit(), config);
 
         QString additionalConfiguration = m_additionalEditor->text();
-        if (!unknownArguments.isEmpty()) {
+        if (!unknownOptions.isEmpty()) {
             if (!additionalConfiguration.isEmpty())
                 additionalConfiguration += " ";
-            additionalConfiguration += ProcessArgs::joinArgs(unknownArguments);
+            additionalConfiguration += ProcessArgs::joinArgs(unknownOptions);
         }
         CMakeConfigurationKitAspect::setAdditionalConfiguration(kit(), additionalConfiguration);
     }

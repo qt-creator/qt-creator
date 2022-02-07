@@ -113,6 +113,16 @@
     git ls-files "*.cpp" "*.h" > MyProject.files
     \endcode
 
+    \section2 Precompiled Headers
+
+    To use precompiled headers in a generic project, add the \c pch tag after
+    a file path in the \c .files file, separated by the pipe character (|).
+    For example:
+
+    \badcode
+    src/pch.h|pch
+    \endcode
+
     \section1 Specifying Include Paths and Framework Paths
 
     The include paths are specified in the \tt{.includes} file, one include

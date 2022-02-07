@@ -76,6 +76,18 @@ protected:
     }
 };
 
+struct SetInContext
+{
+    SetInContext(bool &block) : m_block(block)
+    {
+        m_origValue = m_block;
+        m_block = true;
+    }
+    ~SetInContext() { m_block = m_origValue; }
+    bool &m_block;
+    bool m_origValue;
+};
+
 BranchView::BranchView()
     : m_includeOldEntriesAction(new QAction(tr("Include Old Entries"), this))
     , m_includeTagsAction(new QAction(tr("Include Tags"), this))
@@ -148,7 +160,7 @@ void BranchView::refreshIfSame(const FilePath &repository)
 
 void BranchView::refresh(const FilePath &repository, bool force)
 {
-    if (m_repository == repository && !force)
+    if (m_blockRefresh || (m_repository == repository && !force))
         return;
 
     m_repository = repository;
@@ -261,8 +273,10 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         contextMenu.addSeparator();
         contextMenu.addAction(tr("&Diff"), this, [this] {
             const QString fullName = m_model->fullName(selectedIndex(), true);
-            if (!fullName.isEmpty())
+            if (!fullName.isEmpty()) {
+                SetInContext block(m_blockRefresh);
                 GitClient::instance()->diffBranch(m_repository, fullName);
+            }
         });
         contextMenu.addAction(tr("&Log"), this, [this] { log(selectedIndex()); });
         contextMenu.addAction(tr("Reflo&g"), this, [this] { reflog(selectedIndex()); });
@@ -582,15 +596,19 @@ bool BranchView::cherryPick()
 void BranchView::log(const QModelIndex &idx)
 {
     const QString branchName = m_model->fullName(idx, true);
-    if (!branchName.isEmpty())
-        GitClient::instance()->log(m_repository, QString(), false, {branchName});
+    if (branchName.isEmpty())
+        return;
+    SetInContext block(m_blockRefresh);
+    GitClient::instance()->log(m_repository, QString(), false, {branchName});
 }
 
 void BranchView::reflog(const QModelIndex &idx)
 {
     const QString branchName = m_model->fullName(idx, true);
-    if (!branchName.isEmpty())
-        GitClient::instance()->reflog(m_repository, branchName);
+    if (branchName.isEmpty())
+        return;
+    SetInContext block(m_blockRefresh);
+    GitClient::instance()->reflog(m_repository, branchName);
 }
 
 void BranchView::push()

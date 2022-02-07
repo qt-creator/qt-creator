@@ -301,7 +301,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             for (const auto &property : itemLibraryEntry.properties()) {
                 if (property.type() == "binding") {
                     propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
-                } else if (property.type() == "enum")  {
+                } else if (property.type() == "enum") {
                     propertyEnumList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else if (property.value().toString() == QString::fromLatin1(imagePlaceHolder)) {
                     propertyPairList.append({property.name(), imagePlaceHolderPath(view->model()) });
@@ -359,6 +359,15 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         const QVariant value = hints.setParentProperty().second;
 
         parent.variantProperty(property).setValue(value);
+    }
+
+    if (!hints.bindParentToProperty().isEmpty() && parentProperty.isValid()) {
+        const PropertyName property = hints.bindParentToProperty().toUtf8();
+        ModelNode parent = parentProperty.parentModelNode();
+
+        const NodeMetaInfo metaInfo = newQmlObjectNode.modelNode().metaInfo();
+        if (metaInfo.hasProperty(property))
+            newQmlObjectNode.setBindingProperty(property, parent.validId());
     }
 
     return newQmlObjectNode;

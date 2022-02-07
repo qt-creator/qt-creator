@@ -215,7 +215,11 @@ void BaseAspect::setupLabel()
     if (d->m_labelText.isEmpty() && d->m_labelPixmap.isNull())
         return;
     d->m_label = new QLabel(d->m_labelText);
-    d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    d->m_label->setTextInteractionFlags(d->m_label->textInteractionFlags()
+                                        | Qt::TextSelectableByMouse);
+    connect(d->m_label, &QLabel::linkActivated, this, [this](const QString &link) {
+        emit labelLinkActivated(link);
+    });
     if (!d->m_labelPixmap.isNull())
         d->m_label->setPixmap(d->m_labelPixmap);
     registerSubWidget(d->m_label);

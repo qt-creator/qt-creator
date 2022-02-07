@@ -133,6 +133,7 @@ public:
     ~ConfigModel() override;
 
     QVariant data(const QModelIndex &idx, int role) const final;
+    bool setData(const QModelIndex &idx, const QVariant &data, int role) final;
 
     void appendConfiguration(const QString &key,
                              const QString &value = QString(),
@@ -145,7 +146,7 @@ public:
     void setInitialParametersConfiguration(const CMakeConfig &config);
     void setConfiguration(const QList<DataItem> &config);
 
-    using KitConfiguration = QHash<QString, QPair<QString,QString>>;
+    using KitConfiguration = QHash<QString, CMakeConfigItem>;
     void setConfigurationFromKit(const KitConfiguration &kitConfig);
 
     void flush();

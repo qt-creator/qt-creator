@@ -52,8 +52,6 @@ public:
     void setEnvironment(const Environment &env);
     const Environment &environment() const;
 
-    void setRunAsRoot(bool on);
-
     QProcess::ProcessError error() const;
     QString errorString() const;
 

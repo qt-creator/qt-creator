@@ -673,23 +673,24 @@ AndroidDeviceFactory::AndroidDeviceFactory()
                     ":/android/images/androiddevice.png");
 
     setConstructionFunction(&AndroidDevice::create);
-    setCanCreate(m_androidConfig.sdkToolsOk());
-    setCreator([this] {
-        AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
-        if (dialog.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
+    if (m_androidConfig.sdkToolsOk()) {
+        setCreator([this] {
+            AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
+            if (dialog.exec() != QDialog::Accepted)
+                return IDevice::Ptr();
 
-        const IDevice::Ptr dev = dialog.device();
-        if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
-            qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
-                    qPrintable(androidDev->avdName()));
-        } else {
-            AndroidDeviceWidget::criticalDialog(
-                    AndroidDevice::tr("The device info returned from AvdDialog is invalid."));
-        }
+            const IDevice::Ptr dev = dialog.device();
+            if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
+                qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
+                        qPrintable(androidDev->avdName()));
+            } else {
+                AndroidDeviceWidget::criticalDialog(
+                        AndroidDevice::tr("The device info returned from AvdDialog is invalid."));
+            }
 
-        return IDevice::Ptr(dev);
-    });
+            return IDevice::Ptr(dev);
+        });
+    }
 }
 
 } // namespace Internal

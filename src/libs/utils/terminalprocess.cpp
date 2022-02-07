@@ -142,7 +142,6 @@ public:
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QString m_errorString;
     bool m_abortOnMetaChars = true;
-    bool m_runAsRoot = false;
 
     // Used on Unix only
     QtcProcess m_process;
@@ -431,8 +430,6 @@ void TerminalProcess::start()
             + QLatin1String("/" RELATIVE_LIBEXEC_PATH "/qtcreator_process_stub");
 
     QStringList allArgs = terminalArgs.toUnixArgs();
-    if (d->m_runAsRoot)
-        allArgs << "sudo" << "-A";
 
     allArgs << stubPath
             << modeOption(d->m_terminalMode)
@@ -795,11 +792,6 @@ void TerminalProcess::setEnvironment(const Environment &env)
 const Environment &TerminalProcess::environment() const
 {
     return d->m_environment;
-}
-
-void TerminalProcess::setRunAsRoot(bool on)
-{
-    d->m_runAsRoot = on;
 }
 
 QProcess::ProcessError TerminalProcess::error() const

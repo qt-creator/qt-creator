@@ -79,7 +79,6 @@ public:
 
     void kickoffProcess();
     void interruptProcess();
-    void setRunAsRoot(bool on);
 
 private:
     void start() final;
@@ -92,7 +91,6 @@ private:
     std::function<ProjectExplorer::Runnable()> m_stubRunnable;
     qint64 m_applicationPid = 0;
     qint64 m_applicationMainThreadId = 0;
-    bool m_runAsRoot = false;
 };
 
 } // namespace Internal

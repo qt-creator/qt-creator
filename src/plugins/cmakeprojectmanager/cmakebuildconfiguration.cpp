@@ -135,6 +135,7 @@ private:
     void batchEditConfiguration();
     void reconfigureWithInitialParameters(CMakeBuildConfiguration *bc);
     void updateInitialCMakeArguments();
+    void kitCMakeConfiguration();
 
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
@@ -155,6 +156,7 @@ private:
     InfoLabel *m_warningMessageLabel;
 
     QPushButton *m_batchEditButton = nullptr;
+    QPushButton *m_kitConfiguration = nullptr;
 };
 
 static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
@@ -220,6 +222,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateConfigurationStateIndex(index);
     });
 
+    m_kitConfiguration = new QPushButton(tr("Kit Configuration"));
+    m_kitConfiguration->setToolTip(tr("Edit the current kit's CMake configuration."));
+    m_kitConfiguration->setFixedWidth(m_kitConfiguration->sizeHint().width());
+    connect(m_kitConfiguration, &QPushButton::clicked, this, [this]() { kitCMakeConfiguration(); });
+
     m_filterEdit = new FancyLineEdit;
     m_filterEdit->setPlaceholderText(tr("Filter"));
     m_filterEdit->setFiltering(true);
@@ -253,6 +260,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto stretcher = new HeaderViewStretcher(m_configView->header(), 0);
     m_configView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    m_configView->setAlternatingRowColors(true);
     m_configView->setFrameShape(QFrame::NoFrame);
     m_configView->setItemDelegate(new ConfigModelItemDelegate(m_buildConfiguration->project()->projectDirectory(),
                                                               m_configView));
@@ -332,12 +340,12 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         },
         m_warningMessageLabel,
         Space(10),
-        m_configurationStates,
+        Row{m_kitConfiguration, m_configurationStates},
         Group {
             cmakeConfiguration,
             Row {
                 bc->aspect<InitialCMakeArgumentsAspect>(),
-                bc->aspect<AdditionalCMakeArgumentsAspect>()
+                bc->aspect<AdditionalCMakeOptionsAspect>()
             },
             m_reconfigureButton,
         }
@@ -484,6 +492,23 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateInitialCMakeArguments();
     });
 
+    connect(bc->aspect<InitialCMakeArgumentsAspect>(),
+            &Utils::BaseAspect::labelLinkActivated,
+            this,
+            [this](const QString &link) {
+                const CMakeTool *tool = CMakeKitAspect::cmakeTool(
+                    m_buildConfiguration->target()->kit());
+                CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+            });
+    connect(bc->aspect<AdditionalCMakeOptionsAspect>(),
+            &Utils::BaseAspect::labelLinkActivated,
+            this,
+            [this](const QString &link) {
+                const CMakeTool *tool = CMakeKitAspect::cmakeTool(
+                    m_buildConfiguration->target()->kit());
+                CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+            });
+
     updateSelection();
     updateConfigurationStateSelection();
 }
@@ -498,10 +523,14 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
     auto editor = new QPlainTextEdit(dialog);
 
     auto label = new QLabel(dialog);
-    label->setText(tr("Enter one CMake variable per line.\n"
-       "To set or change a variable, use -D<variable>:<type>=<value>.\n"
-       "<type> can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.\n"
-       "To unset a variable, use -U<variable>.\n"));
+    label->setText(tr("Enter one CMake <a href=\"variable\">variable</a> per line.<br/>"
+       "To set or change a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
+       "&lt;type&gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.<br/>"
+                      "To unset a variable, use -U&lt;variable&gt;.<br/>"));
+    connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
+        CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
+    });
     editor->setMinimumSize(800, 200);
 
     auto chooser = new Utils::VariableChooser(dialog);
@@ -525,9 +554,9 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
                                                return expander->expand(s);
                                            });
         const bool isInitial = isInitialConfiguration();
-        QStringList unknownArguments;
+        QStringList unknownOptions;
         CMakeConfig config = CMakeConfig::fromArguments(isInitial ? lines : expandedLines,
-                                                        unknownArguments);
+                                                        unknownOptions);
         for (auto &ci : config)
             ci.isInitial = isInitial;
 
@@ -602,6 +631,38 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
         m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->value()));
 }
 
+void CMakeBuildSettingsWidget::kitCMakeConfiguration()
+{
+    m_buildConfiguration->kit()->blockNotification();
+
+    auto dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("Kit CMake Configuration"));
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setModal(true);
+    connect(dialog, &QDialog::finished, this, [=]{
+        m_buildConfiguration->kit()->unblockNotification();
+    });
+
+    CMakeKitAspect kitAspect;
+    CMakeGeneratorKitAspect generatorAspect;
+    CMakeConfigurationKitAspect configurationKitAspect;
+
+    auto layout = new QGridLayout(dialog);
+
+    kitAspect.createConfigWidget(m_buildConfiguration->kit())
+        ->addToLayoutWithLabel(layout->parentWidget());
+    generatorAspect.createConfigWidget(m_buildConfiguration->kit())
+        ->addToLayoutWithLabel(layout->parentWidget());
+    configurationKitAspect.createConfigWidget(m_buildConfiguration->kit())
+        ->addToLayoutWithLabel(layout->parentWidget());
+
+    layout->setColumnStretch(1, 1);
+
+    dialog->setMinimumWidth(400);
+    dialog->resize(800, 1);
+    dialog->show();
+}
+
 void CMakeBuildSettingsWidget::setError(const QString &message)
 {
     m_buildConfiguration->buildDirectoryAspect()->setProblem(message);
@@ -658,10 +719,10 @@ void CMakeBuildSettingsWidget::updateButtonState()
     m_resetButton->setEnabled(m_configModel->hasChanges(isInitial) && !isParsing);
 
     m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setVisible(isInitialConfiguration());
-    m_buildConfiguration->aspect<AdditionalCMakeArgumentsAspect>()->setVisible(!isInitialConfiguration());
+    m_buildConfiguration->aspect<AdditionalCMakeOptionsAspect>()->setVisible(!isInitialConfiguration());
 
     m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setEnabled(!isParsing);
-    m_buildConfiguration->aspect<AdditionalCMakeArgumentsAspect>()->setEnabled(!isParsing);
+    m_buildConfiguration->aspect<AdditionalCMakeOptionsAspect>()->setEnabled(!isParsing);
 
     // Update label and text boldness of the reconfigure button
     QFont reconfigureButtonFont = m_reconfigureButton->font();
@@ -704,12 +765,27 @@ void CMakeBuildSettingsWidget::updateFromKit()
     const Kit *k = m_buildConfiguration->kit();
     const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
 
+    // First the key value parameters
     ConfigModel::KitConfiguration configHash;
     for (const CMakeConfigItem &i : config)
-        configHash.insert(QString::fromUtf8(i.key),
-                          qMakePair(QString::fromUtf8(i.value), i.expandedValue(k)));
+        configHash.insert(QString::fromUtf8(i.key), i);
 
     m_configModel->setConfigurationFromKit(configHash);
+
+    // Then the additional parameters
+    const QStringList additionalKitCMake = ProcessArgs::splitArgs(
+        CMakeConfigurationKitAspect::additionalConfiguration(k));
+    const QStringList additionalInitialCMake = ProcessArgs::splitArgs(
+        m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->value());
+
+    QStringList mergedArgumentList;
+    std::set_union(additionalInitialCMake.begin(),
+                   additionalInitialCMake.end(),
+                   additionalKitCMake.begin(),
+                   additionalKitCMake.end(),
+                   std::back_inserter(mergedArgumentList));
+    m_buildConfiguration->aspect<InitialCMakeArgumentsAspect>()->setValue(
+        ProcessArgs::joinArgs(mergedArgumentList));
 }
 
 void CMakeBuildSettingsWidget::updateConfigurationStateIndex(int index)
@@ -885,6 +961,18 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     auto menu = new QMenu(this);
     connect(menu, &QMenu::triggered, menu, &QMenu::deleteLater);
 
+    auto help = new QAction(tr("Help"), this);
+    menu->addAction(help);
+    connect(help, &QAction::triggered, this, [=] {
+        const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
+
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
+        const QString linkUrl = "%1/variable/" + QString::fromUtf8(item.key) + ".html";
+        CMakeTool::openCMakeHelpUrl(tool, linkUrl);
+    });
+
+    menu->addSeparator();
+
     QAction *action = nullptr;
     if ((action = createForceAction(ConfigModel::DataItem::BOOLEAN, idx)))
         menu->addAction(action);
@@ -1052,7 +1140,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     auto initialCMakeArgumentsAspect = addAspect<InitialCMakeArgumentsAspect>();
     initialCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
 
-    auto additionalCMakeArgumentsAspect = addAspect<AdditionalCMakeArgumentsAspect>();
+    auto additionalCMakeArgumentsAspect = addAspect<AdditionalCMakeOptionsAspect>();
     additionalCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
 
     macroExpander()->registerVariable(DEVELOPMENT_TEAM_FLAG,
@@ -1352,7 +1440,7 @@ void CMakeBuildConfiguration::setInitialCMakeArguments(const QStringList &args)
 
 QStringList CMakeBuildConfiguration::additionalCMakeArguments() const
 {
-    return ProcessArgs::splitArgs(aspect<AdditionalCMakeArgumentsAspect>()->value());
+    return ProcessArgs::splitArgs(aspect<AdditionalCMakeOptionsAspect>()->value());
 }
 
 void CMakeBuildConfiguration::setAdditionalCMakeArguments(const QStringList &args)
@@ -1364,7 +1452,7 @@ void CMakeBuildConfiguration::setAdditionalCMakeArguments(const QStringList &arg
                                                                     [](const QString &s) {
                                                                         return !s.isEmpty();
                                                                     });
-    aspect<AdditionalCMakeArgumentsAspect>()->setValue(
+    aspect<AdditionalCMakeOptionsAspect>()->setValue(
         ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
 }
 
@@ -1373,13 +1461,13 @@ void CMakeBuildConfiguration::filterConfigArgumentsFromAdditionalCMakeArguments(
     // On iOS the %{Ios:DevelopmentTeam:Flag} evalues to something like
     // -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM:STRING=MAGICSTRING
     // which is already part of the CMake variables and should not be also
-    // in the addtional CMake parameters
+    // in the addtional CMake options
     const QStringList arguments = ProcessArgs::splitArgs(
-        aspect<AdditionalCMakeArgumentsAspect>()->value());
-    QStringList unknownArguments;
-    const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownArguments);
+        aspect<AdditionalCMakeOptionsAspect>()->value());
+    QStringList unknownOptions;
+    const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownOptions);
 
-    aspect<AdditionalCMakeArgumentsAspect>()->setValue(ProcessArgs::joinArgs(unknownArguments));
+    aspect<AdditionalCMakeOptionsAspect>()->setValue(ProcessArgs::joinArgs(unknownOptions));
 }
 
 void CMakeBuildConfiguration::setError(const QString &message)
@@ -1635,7 +1723,7 @@ const QStringList InitialCMakeArgumentsAspect::allValues() const
     return initialCMakeArguments;
 }
 
-void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringList &additionalArguments)
+void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringList &additionalOptions)
 {
     QStringList arguments = values.split('\n', Qt::SkipEmptyParts);
     for (QString &arg: arguments) {
@@ -1646,13 +1734,13 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
         if (arg.startsWith("-T"))
             arg.replace("-T", "-DCMAKE_GENERATOR_TOOLSET:STRING=");
     }
-    m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalArguments);
+    m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalOptions);
     for (CMakeConfigItem &ci : m_cmakeConfiguration)
         ci.isInitial = true;
 
-    // Display the unknown arguments in "Additional CMake parameters"
-    const QString additionalArgumentsValue = ProcessArgs::joinArgs(additionalArguments);
-    BaseAspect::setValueQuietly(additionalArgumentsValue);
+    // Display the unknown arguments in "Additional CMake Options"
+    const QString additionalOptionsValue = ProcessArgs::joinArgs(additionalOptions);
+    BaseAspect::setValueQuietly(additionalOptionsValue);
 }
 
 void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &config)
@@ -1677,18 +1765,18 @@ void InitialCMakeArgumentsAspect::toMap(QVariantMap &map) const
 InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
 {
     setSettingsKey("CMake.Initial.Parameters");
-    setLabelText(tr("Additional CMake parameters:"));
+    setLabelText(tr("Additional CMake <a href=\"options\">options</a>:"));
     setDisplayStyle(LineEditDisplay);
 }
 
 // ----------------------------------------------------------------------
-// - AdditionalCMakeParametersAspect:
+// - AdditionalCMakeOptionsAspect:
 // ----------------------------------------------------------------------
 
-AdditionalCMakeArgumentsAspect::AdditionalCMakeArgumentsAspect()
+AdditionalCMakeOptionsAspect::AdditionalCMakeOptionsAspect()
 {
-    setSettingsKey("CMake.Additional.Parameters");
-    setLabelText(tr("Additional CMake parameters:"));
+    setSettingsKey("CMake.Additional.Options");
+    setLabelText(tr("Additional CMake <a href=\"options\">options</a>:"));
     setDisplayStyle(LineEditDisplay);
 }
 

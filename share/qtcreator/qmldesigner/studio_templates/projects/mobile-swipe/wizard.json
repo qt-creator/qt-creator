@@ -53,7 +53,7 @@
                         "items":
                             [
                             {
-                                "trKey": "1080 x 1920 (FullHD)",
+                                "trKey": "1080 x 1920",
                                 "value":
                                 "({
                                     'ScreenWidth': '1080',
@@ -77,7 +77,7 @@
                                 })"
                             },
                             {
-                                "trKey": "720 x 1280 (HD)",
+                                "trKey": "720 x 1280",
                                 "value":
                                 "({
                                     'ScreenWidth': '720',

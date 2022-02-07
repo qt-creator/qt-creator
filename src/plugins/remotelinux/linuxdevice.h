@@ -82,7 +82,7 @@ public:
     QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
-    void runProcess(Utils::QtcProcess &) const override;
+    void runProcess(Utils::QtcProcess &process) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
     qint64 bytesAvailable(const Utils::FilePath &filePath) const override;
     QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;

@@ -60,7 +60,6 @@ McuSupportDeviceFactory::McuSupportDeviceFactory()
     setCombinedIcon(":/mcusupport/images/mcusupportdevicesmall.png",
                     ":/mcusupport/images/mcusupportdevice.png");
     setConstructionFunction(&McuSupportDevice::create);
-    setCanCreate(true);
     setCreator(&McuSupportDevice::create);
 }
 

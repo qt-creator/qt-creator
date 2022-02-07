@@ -90,6 +90,103 @@ Item {
         selectedAssetsChanged()
     }
 
+    RegExpValidator {
+        id: folderNameValidator
+        regExp: /^(\w[^*/><?\\|:]*)$/
+    }
+
+    Dialog {
+        id: renameFolderDialog
+
+        title: qsTr("Rename folder")
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape
+        implicitWidth: 280
+        modal: true
+
+        property bool renameError: false
+
+        contentItem: Column {
+            spacing: 2
+
+            StudioControls.TextField {
+                id: folderRename
+
+                actionIndicator.visible: false
+                translationIndicator.visible: false
+                width: renameFolderDialog.width - 12
+                validator: folderNameValidator
+
+                onEditChanged: renameFolderDialog.renameError = false
+                Keys.onEnterPressed: btnRename.onClicked()
+                Keys.onReturnPressed: btnRename.onClicked()
+            }
+
+            Text {
+                text: qsTr("Folder Name cannot be empty.")
+                color: "#ff0000"
+                visible: folderRename.text === "" && !renameFolderDialog.renameError
+            }
+
+            Text {
+                text: qsTr("Could not rename directory. Make sure no folder with the same name exists.")
+                wrapMode: Text.WordWrap
+                width: renameFolderDialog.width
+                color: "#ff0000"
+                visible: renameFolderDialog.renameError
+            }
+
+            Item { // spacer
+                width: 1
+                height: 10
+            }
+
+            Text {
+                text: qsTr("If the folder has assets in use, renaming it might cause the project to not work correctly.")
+                color: StudioTheme.Values.themeTextColor
+                wrapMode: Text.WordWrap
+                width: renameFolderDialog.width
+                leftPadding: 10
+                rightPadding: 10
+            }
+
+            Item { // spacer
+                width: 1
+                height: 20
+            }
+
+            Row {
+                anchors.right: parent.right
+
+                Button {
+                    id: btnRename
+
+                    text: qsTr("Rename")
+                    enabled: folderRename.text !== ""
+                    onClicked: {
+                        var success = assetsModel.renameFolder(contextDir.dirPath, folderRename.text)
+                        if (success)
+                            renameFolderDialog.accept()
+
+                        renameFolderDialog.renameError = !success
+                    }
+                }
+
+                Button {
+                    text: qsTr("Cancel")
+                    onClicked: renameFolderDialog.reject()
+                }
+            }
+        }
+
+        onOpened: {
+            folderRename.text = contextDir.dirName
+            folderRename.selectAll()
+            folderRename.forceActiveFocus()
+            renameFolderDialog.renameError = false
+        }
+    }
+
     Dialog {
         id: newFolderDialog
 
@@ -113,6 +210,7 @@ Item {
 
                     actionIndicator.visible: false
                     translationIndicator.visible: false
+                    validator: folderNameValidator
 
                     Keys.onEnterPressed: btnCreate.onClicked()
                     Keys.onReturnPressed: btnCreate.onClicked()
@@ -259,6 +357,13 @@ Item {
                 StudioControls.MenuSeparator {
                     visible: contextFilePath
                     height: visible ? StudioTheme.Values.border : 0
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Rename Folder")
+                    visible: isDirContextMenu
+                    height: visible ? implicitHeight : 0
+                    onTriggered: renameFolderDialog.open()
                 }
 
                 StudioControls.MenuItem {

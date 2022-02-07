@@ -1,12 +1,10 @@
 <RCC>
     <qresource prefix="/core">
-        <file alias="images/qtcreatorlogo-big.png">images/logo/128/QtProject-qtcreator.png</file>
-        <file alias="images/qtcreatorlogo-big@2x.png">images/logo/256/QtProject-qtcreator.png</file>
         <file>images/settingscategory_core.png</file>
         <file>images/settingscategory_core@2x.png</file>
         <file>images/settingscategory_design.png</file>
         <file>images/settingscategory_design@2x.png</file>
-        <file alias="images/qtlogo.png">images/logo/16/Qt_logo_green.png</file>
-        <file alias="images/qtlogo@2x.png">images/logo/32/Qt_logo_green.png</file>
+        <file>images/qtlogo.png</file>
+        <file>images/qtlogo@2x.png</file>
     </qresource>
 </RCC>

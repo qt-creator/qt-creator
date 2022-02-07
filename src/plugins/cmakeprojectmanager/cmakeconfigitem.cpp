@@ -310,7 +310,7 @@ static CMakeConfigItem unsetItemFromString(const QString &input)
     return item;
 }
 
-CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unknownArguments)
+CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unknownOptions)
 {
     CMakeConfig result;
     bool inSet = false;
@@ -343,7 +343,7 @@ CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unk
             continue;
         }
 
-        unknownArguments.append(i);
+        unknownOptions.append(i);
     }
     return result;
 }

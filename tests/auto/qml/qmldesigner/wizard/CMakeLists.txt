@@ -9,11 +9,11 @@ add_qtc_test(tst_qml_wizard
   DEFINES
     QT_CREATOR
     QMLDESIGNER_TEST
-  INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins"
-           "${StudioWelcomeDir}"
     IDE_PLUGIN_PATH="${PROJECT_BINARY_DIR}/${IDE_PLUGIN_PATH}"
     IDE_DATA_PATH="${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}"
     TESTSRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
+  INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins"
+           "${StudioWelcomeDir}"
   SOURCES
     wizardfactories-test.cpp
     stylemodel-test.cpp

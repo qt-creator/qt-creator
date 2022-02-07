@@ -32,6 +32,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 
@@ -957,8 +958,10 @@ void DebuggerItemManagerPrivate::restoreDebuggers()
     readDebuggers(userSettingsFileName(), false);
 
     // Auto detect current.
+    IDevice::ConstPtr desktop = DeviceManager::defaultDesktopDevice();
+    QTC_ASSERT(desktop, return);
+    autoDetectGdbOrLldbDebuggers(desktop->systemEnvironment().path(), {});
     autoDetectCdbDebuggers();
-    autoDetectGdbOrLldbDebuggers({}, {});
     autoDetectUvscDebuggers();
 }
 

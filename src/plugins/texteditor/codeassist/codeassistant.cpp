@@ -441,6 +441,7 @@ void CodeAssistantPrivate::invalidateCurrentRequestData()
     m_asyncProcessor = nullptr;
     m_requestRunner = nullptr;
     m_requestProvider = nullptr;
+    m_receivedContentWhileWaiting = false;
 }
 
 CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()

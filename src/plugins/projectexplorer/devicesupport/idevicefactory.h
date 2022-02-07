@@ -58,7 +58,6 @@ protected:
     void setDisplayName(const QString &displayName);
     void setIcon(const QIcon &icon);
     void setCombinedIcon(const Utils::FilePath &small, const Utils::FilePath &large);
-    void setCanCreate(bool canCreate);
     void setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor);
     void setCreator(const std::function<IDevice::Ptr()> &creator);
 
@@ -67,7 +66,6 @@ private:
     const Utils::Id m_deviceType;
     QString m_displayName;
     QIcon m_icon;
-    bool m_canCreate = false;
     std::function<IDevice::Ptr()> m_constructor;
 };
 

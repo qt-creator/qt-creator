@@ -304,24 +304,28 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
 
 void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
 {
-    const QStringList visibleProperties = NodeHints::fromModelNode(property.parentModelNode()).visibleNonDefaultProperties();
+    const QSet<ModelNode> set = QSet<ModelNode>(list.constBegin(), list.constEnd());
     for (const ModelNode &node : property.parentModelNode().directSubModelNodes()) {
-        if (!list.contains(node) && visibleProperties.contains(QString::fromUtf8(node.parentProperty().name())))
-            list.append(node);
+        if (!set.contains(node)) {
+            const QStringList visibleProperties = NodeHints::fromModelNode(property.parentModelNode()).visibleNonDefaultProperties();
+            if (visibleProperties.contains(QString::fromUtf8(node.parentProperty().name())))
+                list.append(node);
+        }
     }
 }
 
-QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, bool reverseOrder)
+QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &property, bool filter, bool reverseOrder) const
 {
+    auto it = m_rowCache.find(property.parentModelNode());
+
+    if (it != m_rowCache.end())
+        return it.value();
+
     QList<ModelNode> list;
 
     if (filter) {
         list.append(Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
-            const char auxProp[] = "showInNavigator@Internal";
-            if (arg.hasAuxiliaryData(auxProp))
-                return arg.auxiliaryData(auxProp).toBool();
             const bool value = QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
-            arg.setAuxiliaryDataWithoutLock(auxProp, value);
             return value;
         }));
     } else {
@@ -333,6 +337,7 @@ QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, boo
     if (reverseOrder)
         std::reverse(list.begin(), list.end());
 
+    m_rowCache.insert(property.parentModelNode(), list);
     return list;
 }
 
@@ -1137,6 +1142,7 @@ QList<QPersistentModelIndex> NavigatorTreeModel::nodesToPersistentIndex(const QL
 
 void NavigatorTreeModel::notifyModelNodesRemoved(const QList<ModelNode> &modelNodes)
 {
+    m_rowCache.clear();
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
     emit layoutAboutToBeChanged(indexes);
     emit layoutChanged(indexes);
@@ -1144,6 +1150,7 @@ void NavigatorTreeModel::notifyModelNodesRemoved(const QList<ModelNode> &modelNo
 
 void NavigatorTreeModel::notifyModelNodesInserted(const QList<ModelNode> &modelNodes)
 {
+    m_rowCache.clear();
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
     emit layoutAboutToBeChanged(indexes);
     emit layoutChanged(indexes);
@@ -1151,6 +1158,7 @@ void NavigatorTreeModel::notifyModelNodesInserted(const QList<ModelNode> &modelN
 
 void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNodes)
 {
+    m_rowCache.clear();
     QList<QPersistentModelIndex> indexes = nodesToPersistentIndex(collectParents(modelNodes));
     emit layoutAboutToBeChanged(indexes);
     emit layoutChanged(indexes);
@@ -1164,18 +1172,21 @@ void NavigatorTreeModel::notifyIconsChanged()
 void NavigatorTreeModel::setFilter(bool showOnlyVisibleItems)
 {
     m_showOnlyVisibleItems = showOnlyVisibleItems;
+    m_rowCache.clear();
     resetModel();
 }
 
 void NavigatorTreeModel::setOrder(bool reverseItemOrder)
 {
     m_reverseItemOrder = reverseItemOrder;
+    m_rowCache.clear();
     resetModel();
 }
 
 void NavigatorTreeModel::resetModel()
 {
     beginResetModel();
+    m_rowCache.clear();
     m_nodeIndexHash.clear();
     endResetModel();
 }

@@ -25,15 +25,6 @@ find_package(Qt5
   REQUIRED
 )
 
-if (MSVC)
-  # find out if Qt is static and set /MT if so
-  get_target_property(_input_type Qt5::Core TYPE)
-  if (${_input_type} STREQUAL "STATIC_LIBRARY")
-    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-    string(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-  endif()
-endif()
-
 if (APPLE)
   find_library(FWFoundation Foundation)
 endif()
@@ -73,6 +64,14 @@ add_qtc_executable(sdktool
     rmtoolchainoperation.cpp rmtoolchainoperation.h
     settings.cpp settings.h
 )
+
+if (MSVC AND TARGET sdktool)
+  # find out if Qt is static and set /MT if so
+  get_target_property(_input_type Qt5::Core TYPE)
+  if (${_input_type} STREQUAL "STATIC_LIBRARY")
+    set_property(TARGET sdktool PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
+endif()
 
 extend_qtc_executable(sdktool
   SOURCES_PREFIX "${UtilsSourcesDir}"

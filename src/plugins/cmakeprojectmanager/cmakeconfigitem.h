@@ -91,7 +91,7 @@ public:
 
     const QList<CMakeConfigItem> &toList() const { return *this; }
 
-    static CMakeConfig fromArguments(const QStringList &list, QStringList &unknownArguments);
+    static CMakeConfig fromArguments(const QStringList &list, QStringList &unknownOptions);
     static CMakeConfig fromFile(const Utils::FilePath &input, QString *errorMessage);
 
     QByteArray valueOf(const QByteArray &key) const;

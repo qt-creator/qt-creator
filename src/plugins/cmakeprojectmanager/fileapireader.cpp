@@ -325,10 +325,10 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
     QTC_CHECK(buildDir.ensureWritableDir());
 
     QByteArray contents;
-    QStringList unknownArguments;
+    QStringList unknownOptions;
     contents.append("# This file is managed by Qt Creator, do not edit!\n\n");
     contents.append(
-        transform(CMakeConfig::fromArguments(configurationArguments, unknownArguments).toList(),
+        transform(CMakeConfig::fromArguments(configurationArguments, unknownOptions).toList(),
                   [](const CMakeConfigItem &item) { return item.toCMakeSetLine(nullptr); })
             .join('\n')
             .toUtf8());

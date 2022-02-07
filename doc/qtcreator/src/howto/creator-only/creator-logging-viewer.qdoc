@@ -1,0 +1,97 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-logging-viewer.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-quick-ui-forms.html
+    \else
+    \previouspage creator-task-lists.html
+    \endif
+    \nextpage creator-telemetry.html
+
+    \title Inspecting Internal Logs
+
+    You can inspect internal log messages of \QC at runtime without having to
+    restart it or configure the logging rules. Log messages are helpful when
+    you develop \QC, need to investigate some problem you are facing, or want
+    to take a look behind the scenes.
+
+    To open the log viewer and start collecting log information, select
+    \uicontrol Tools > \uicontrol {Debug \QC} > \uicontrol {Show Logs}.
+
+    \image qtcreator-logging-category-viewer.png
+
+    The viewer displays log messages from the selected logging categories.
+    If you have logging rules defined, they might be listed on startup.
+    Otherwise, the list of categories is extended while you are using \QC.
+
+    \note Messages are not cached, so the viewer displays only messages that
+    are recorded after you enabled a category.
+
+    \section1 Viewing Logs
+
+    To enable logging categories, select them in \uicontrol Category.
+    \uicontrol Type specifies the minimum level of messages to display from
+    the respective category. To change the minimum level, double-click the
+    type and select another value.
+
+    If you enable more than one category, you can specify different colors for
+    the messages in each category. Double-click the value of \uicontrol Color to
+    pick colors for the categories.
+
+    To store information about the currently enabled categories, select
+    \uicontrol {Save Enabled as Preset} in the context-menu. To load the
+    saved information, select \uicontrol {Update from Preset}.
+
+    To save the content of the displayed messages, select
+    \inlineimage icons/savefile.png
+    (\uicontrol {Save Log}). To copy all or selected messages, select
+    \uicontrol {Copy All} or \uicontrol {Copy Selected Logs} in the
+    context menu.
+
+    To clean the content of displayed messages select
+    \inlineimage icons/clean_pane_small.png
+    (\uicontrol Clear).
+
+    To temporarily stop logging, select \inlineimage icons/stop_small.png
+    (\uicontrol {Stop Logging}). To continue logging, select
+    \inlineimage icons/run_small.png
+    (\uicontrol {Start Logging}).
+
+    By default, logging categories and messages coming directly from Qt are
+    disabled. To display them, select \inlineimage icons/qtlogo-16.png
+    (\uicontrol {Toggle logging of Qt internal loggings.})
+
+    New messages automatically scroll the message display to the bottom.
+    To stop automatic scrolling, toggle \inlineimage icons/arrowdown.png
+    (\uicontrol {Auto Scroll}).
+
+    By default, messages are listed with a timestamp, without message
+    type. To hide and show this information, toggle
+    \inlineimage icons/stopwatch.png
+    (\uicontrol Timestamps) and \inlineimage icons/message.png
+    (\uicontrol {Message Types}).
+*/

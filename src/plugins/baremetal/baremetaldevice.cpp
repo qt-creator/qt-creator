@@ -126,7 +126,6 @@ BareMetalDeviceFactory::BareMetalDeviceFactory()
     setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
                     ":/baremetal/images/baremetaldevice.png");
     setConstructionFunction(&BareMetalDevice::create);
-    setCanCreate(true);
     setCreator([] {
         BareMetalDeviceConfigurationWizard wizard;
         if (wizard.exec() != QDialog::Accepted)

@@ -70,7 +70,7 @@
                                 })"
                             },
                             {
-                                "trKey": "720 x 1280 (HD)",
+                                "trKey": "720 x 1280",
                                 "value":
                                 "({
                                     'ScreenWidth': '720',
@@ -78,7 +78,7 @@
                                 })"
                             },
                             {
-                                "trKey": "1280 x 720 (HD)",
+                                "trKey": "1280 x 720",
                                 "value":
                                 "({
                                     'ScreenWidth': '1280',

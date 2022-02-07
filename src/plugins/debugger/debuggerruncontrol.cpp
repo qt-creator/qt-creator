@@ -316,7 +316,6 @@ void DebuggerRunTool::setUseTerminal(bool on)
     if (on && !d->terminalRunner && !useCdbConsole) {
         d->terminalRunner =
             new TerminalRunner(runControl(), [this] { return m_runParameters.inferior; });
-        d->terminalRunner->setRunAsRoot(m_runParameters.runAsRoot);
         addStartDependency(d->terminalRunner);
     }
     if (!on && d->terminalRunner) {
@@ -327,8 +326,6 @@ void DebuggerRunTool::setUseTerminal(bool on)
 void DebuggerRunTool::setRunAsRoot(bool on)
 {
     m_runParameters.runAsRoot = on;
-    if (d->terminalRunner)
-        d->terminalRunner->setRunAsRoot(on);
 }
 
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)

@@ -27,6 +27,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
+#include <utils/qtcassert.h>
 
 using namespace Utils;
 
@@ -78,7 +79,7 @@ namespace ProjectExplorer {
 
 bool IDeviceFactory::canCreate() const
 {
-    return m_canCreate;
+    return bool(m_creator);
 }
 
 IDevice::Ptr IDeviceFactory::create() const
@@ -119,13 +120,9 @@ void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &larg
                                  Icon({{large, Theme::IconsBaseColor}})});
 }
 
-void IDeviceFactory::setCanCreate(bool canCreate)
-{
-    m_canCreate = canCreate;
-}
-
 void IDeviceFactory::setCreator(const std::function<IDevice::Ptr ()> &creator)
 {
+    QTC_ASSERT(creator, return);
     m_creator = creator;
 }
 

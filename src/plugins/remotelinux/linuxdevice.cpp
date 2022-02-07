@@ -146,7 +146,7 @@ private:
 
 class LinuxPortsGatheringMethod : public PortsGatheringMethod
 {
-    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
+    CommandLine commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         // We might encounter the situation that protocol is given IPv6
         // but the consumer of the free port information decides to open
@@ -159,10 +159,8 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
         Q_UNUSED(protocol)
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-        Runnable runnable;
-        runnable.command.setExecutable("sed");
-        runnable.command.setArguments("-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*");
-        return runnable;
+        return {"sed", "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
+                CommandLine::Raw};
     }
 
     QList<Utils::Port> usedPorts(const QByteArray &output) const override
@@ -248,7 +246,7 @@ public:
         return ok && result == 0;
     }
 
-    QString outputForRunInShell(const QString &cmd)
+    QByteArray outputForRunInShell(const QString &cmd)
     {
         QTC_ASSERT(m_shell, return {});
 
@@ -272,7 +270,7 @@ public:
         if (pos >= 0)
             output = output.left(pos);
         DEBUG("CHOPPED2 " << output);
-        return QString::fromUtf8(output);
+        return output;
     }
 
     bool isRunning() const { return m_shell; }
@@ -288,10 +286,13 @@ public:
     explicit LinuxDevicePrivate(LinuxDevice *parent);
     ~LinuxDevicePrivate();
 
+    CommandLine fullLocalCommandLine(const CommandLine &remoteCommand,
+                                     QtcProcess::TerminalMode terminalMode,
+                                     bool hasDisplay) const;
     bool setupShell();
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {});
-    QString outputForRunInShell(const QString &cmd);
-    QString outputForRunInShell(const CommandLine &cmd);
+    QByteArray outputForRunInShell(const QString &cmd);
+    QByteArray outputForRunInShell(const CommandLine &cmd);
 
     LinuxDevice *q = nullptr;
     QThread m_shellThread;
@@ -416,9 +417,7 @@ DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
 
 QString LinuxDevice::userAtHost() const
 {
-    if (sshParameters().userName().isEmpty())
-        return sshParameters().host();
-    return sshParameters().userName() + '@' + sshParameters().host();
+    return sshParameters().userAtHost();
 }
 
 FilePath LinuxDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
@@ -440,9 +439,53 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
     return filePath.scheme() == "ssh" && filePath.host() == userAtHost();
 }
 
-void LinuxDevice::runProcess(QtcProcess &) const
+CommandLine LinuxDevicePrivate::fullLocalCommandLine(const CommandLine &remoteCommand,
+                                                     QtcProcess::TerminalMode terminalMode,
+                                                     bool hasDisplay) const
 {
-    QTC_CHECK(false); // FIXME: Implement
+    Utils::CommandLine cmd{SshSettings::sshFilePath()};
+    const SshConnectionParameters parameters = q->sshParameters();
+
+    if (hasDisplay)
+        cmd.addArg("-X");
+    if (terminalMode != QtcProcess::TerminalOff)
+        cmd.addArg("-tt");
+
+    cmd.addArg("-q");
+    // TODO: currently this drops shared connection (-o ControlPath=socketFilePath)
+    cmd.addArgs(parameters.connectionOptions(SshSettings::sshFilePath()) << parameters.host());
+
+    CommandLine remoteWithLocalPath = remoteCommand;
+    FilePath executable = remoteWithLocalPath.executable();
+    executable.setScheme({});
+    executable.setHost({});
+    remoteWithLocalPath.setExecutable(executable);
+    cmd.addArg(remoteWithLocalPath.toUserOutput());
+    return cmd;
+}
+
+void LinuxDevice::runProcess(QtcProcess &process) const
+{
+    QTC_ASSERT(!process.isRunning(), return);
+
+    Utils::Environment env = process.hasEnvironment() ? process.environment()
+                                                      : Utils::Environment::systemEnvironment();
+    const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
+    if (SshSettings::askpassFilePath().exists()) {
+        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
+
+        // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
+        if (!env.hasKey("DISPLAY"))
+            env.set("DISPLAY", ":0");
+    }
+    process.setEnvironment(env);
+
+    // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
+    process.setDisableUnixTerminal();
+
+    process.setCommand(d->fullLocalCommandLine(process.commandLine(), process.terminalMode(),
+                                               hasDisplay));
+    process.start();
 }
 
 LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
@@ -485,7 +528,7 @@ bool LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &da
     return ret;
 }
 
-QString LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
+QByteArray LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
 {
     QMutexLocker locker(&m_shellMutex);
     DEBUG(cmd);
@@ -494,14 +537,14 @@ QString LinuxDevicePrivate::outputForRunInShell(const QString &cmd)
         QTC_ASSERT(ok, return {});
     }
 
-    QString ret;
+    QByteArray ret;
     QMetaObject::invokeMethod(m_handler, [this, &cmd] {
         return m_handler->outputForRunInShell(cmd);
     }, Qt::BlockingQueuedConnection, &ret);
     return ret;
 }
 
-QString LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
+QByteArray LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
 {
     return outputForRunInShell(cmd.toUserOutput());
 }
@@ -615,7 +658,7 @@ bool LinuxDevice::renameFile(const FilePath &filePath, const FilePath &target) c
 QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QString output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
     const qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
@@ -624,14 +667,15 @@ QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
 FilePath LinuxDevice::symLinkTarget(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QString output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
-    return output.isEmpty() ? FilePath() : filePath.withNewPath(output);
+    const QByteArray output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
+    const QString out = QString::fromUtf8(output.data(), output.size());
+    return output.isEmpty() ? FilePath() : filePath.withNewPath(out);
 }
 
 qint64 LinuxDevice::fileSize(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return -1);
-    const QString output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
     return output.toLongLong();
 }
 
@@ -641,7 +685,7 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
     CommandLine cmd("df", {"-k"});
     cmd.addArg(filePath.path());
     cmd.addArgs("|tail -n 1 |sed 's/  */ /g'|cut -d ' ' -f 4", CommandLine::Raw);
-    const QString output = d->outputForRunInShell(cmd.toUserOutput());
+    const QByteArray output = d->outputForRunInShell(cmd.toUserOutput());
     bool ok = false;
     const qint64 size = output.toLongLong(&ok);
     if (ok)
@@ -652,7 +696,7 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
 QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QString output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
+    const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
     const uint bits = output.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
@@ -716,8 +760,9 @@ void LinuxDevice::iterateDirectory(const FilePath &filePath,
 {
     QTC_ASSERT(handlesFile(filePath), return);
     // if we do not have find - use ls as fallback
-    const QString output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
-    const QStringList entries = output.split('\n', Qt::SkipEmptyParts);
+    const QByteArray output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    const QString out = QString::fromUtf8(output.data(), output.size());
+    const QStringList entries = out.split('\n', Qt::SkipEmptyParts);
     filterEntriesHelper(filePath, callBack, entries, filter);
 }
 
@@ -731,9 +776,9 @@ QByteArray LinuxDevice::fileContents(const FilePath &filePath, qint64 limit, qin
     }
     CommandLine cmd(FilePath::fromString("dd"), args, CommandLine::Raw);
 
-    const QString output = d->outputForRunInShell(cmd);
-    DEBUG(output << output.toLatin1() << QByteArray::fromHex(output.toLatin1()));
-    return output.toLatin1();
+    const QByteArray output = d->outputForRunInShell(cmd);
+    DEBUG(output << output << QByteArray::fromHex(output));
+    return output;
 }
 
 bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
@@ -755,7 +800,6 @@ LinuxDeviceFactory::LinuxDeviceFactory()
     setDisplayName(LinuxDevice::tr("Generic Linux Device"));
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
-    setCanCreate(true);
     setCreator([] {
         GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::dialogParent());
         if (wizard.exec() != QDialog::Accepted)

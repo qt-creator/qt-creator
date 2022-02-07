@@ -61,6 +61,7 @@ public:
     QString host() const { return url.host(); }
     quint16 port() const { return url.port(); }
     QString userName() const { return url.userName(); }
+    QString userAtHost() const { return userName().isEmpty() ? host() : userName() + '@' + host(); }
     void setHost(const QString &host) { url.setHost(host); }
     void setPort(int port) { url.setPort(port); }
     void setUserName(const QString &name) { url.setUserName(name); }

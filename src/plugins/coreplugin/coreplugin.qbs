@@ -37,6 +37,7 @@ Project {
                 "basefilewizardfactory.h",
                 "core.qrc",
                 "core_global.h",
+                "core_logo.qrc",
                 "coreconstants.h",
                 "coreicons.cpp",
                 "coreicons.h",

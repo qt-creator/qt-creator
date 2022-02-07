@@ -188,11 +188,6 @@ void TerminalRunner::interruptProcess()
         m_stubProc->interruptProcess();
 }
 
-void TerminalRunner::setRunAsRoot(bool on)
-{
-    m_runAsRoot = on;
-}
-
 void TerminalRunner::start()
 {
     QTC_ASSERT(m_stubRunnable, reportFailure({}); return);
@@ -209,20 +204,11 @@ void TerminalRunner::start()
     connect(m_stubProc, &QtcProcess::finished,
             this, &TerminalRunner::reportDone);
 
-    CommandLine commandLine = stub.command;
-    if (m_runAsRoot) { // TODO: fix me
-        m_stubProc->setRunAsRoot(true);
-//        CommandLine wrapped("sudo", {"-A"});
-//        wrapped.addCommandLineAsArgs(commandLine);
-//        commandLine = wrapped;
-        RunControl::provideAskPassEntry(stub.environment);
-    }
-
     m_stubProc->setEnvironment(stub.environment);
     m_stubProc->setWorkingDirectory(stub.workingDirectory);
 
     // Error message for user is delivered via a signal.
-    m_stubProc->setCommand(commandLine);
+    m_stubProc->setCommand(stub.command);
     m_stubProc->start();
 }
 

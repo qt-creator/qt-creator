@@ -1078,6 +1078,11 @@ bool Project::isModified() const
     return !modifiedDocuments().isEmpty();
 }
 
+bool Project::isEditModePreferred() const
+{
+    return true;
+}
+
 #if defined(WITH_TESTS)
 
 static FilePath constructTestPath(const char *basePath)

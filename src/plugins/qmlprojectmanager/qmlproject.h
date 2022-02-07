@@ -146,11 +146,17 @@ public:
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
+    static bool isQtDesignStudio();
+
+    bool isEditModePreferred() const override;
+
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    Utils::FilePaths getUiQmlFilesForFolder(const Utils::FilePath &folder);
+
     QMetaObject::Connection m_openFileConnection;
 };
 

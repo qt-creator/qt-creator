@@ -415,7 +415,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     QVector<QAction *> actions;
     QAction *action = new QAction();
     action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
-    action->setToolTip(tr("Clang Code Model Marks", "Copy to Clipboard"));
+    action->setToolTip(tr("Copy to Clipboard", "Clang Code Model Marks"));
     QObject::connect(action, &QAction::triggered, [diag = m_diagnostic]() {
         const QString text = ClangDiagnosticWidget::createText({diag},
                                                                ClangDiagnosticWidget::InfoBar);
