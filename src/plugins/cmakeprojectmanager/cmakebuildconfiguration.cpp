@@ -1633,12 +1633,12 @@ BuildSystem *CMakeBuildConfiguration::buildSystem() const
 
 void CMakeBuildConfiguration::setSourceDirectory(const FilePath &path)
 {
-    aspect<SourceDirectoryAspect>()->setValue(path.toString());
+    aspect<SourceDirectoryAspect>()->setFilePath(path);
 }
 
 FilePath CMakeBuildConfiguration::sourceDirectory() const
 {
-    return FilePath::fromString(aspect<SourceDirectoryAspect>()->value());
+    return aspect<SourceDirectoryAspect>()->filePath();
 }
 
 QString CMakeBuildConfiguration::cmakeBuildType() const
