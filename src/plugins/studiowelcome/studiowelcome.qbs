@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "QmlDesigner" }
+    Depends { name: "QmlProjectManager" }
     Depends { name: "app_version_header" }
 
     cpp.defines: 'STUDIO_QML_PATH="' + FileInfo.joinPaths(sourceDirectory, "qml") + '"'
