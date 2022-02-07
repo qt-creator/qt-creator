@@ -33,7 +33,10 @@
 #include "rewritertransaction.h"
 #include "rewritingexception.h"
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <utils/algorithm.h>
+#include <utils/runextensions.h>
 
 #include <QApplication>
 #include <QDir>
@@ -568,7 +571,7 @@ bool ItemLibraryAssetImporter::startImportProcess(const ParseData &pd)
         QProcessUniquePointer process = puppetCreator.createPuppetProcess(
             "custom",
             {},
-            std::function<void()>(),
+            [&] {},
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 importProcessFinished(exitCode, exitStatus);
             },
@@ -598,7 +601,7 @@ bool ItemLibraryAssetImporter::startIconProcess(int size, const QString &iconFil
         QProcessUniquePointer process = puppetCreator.createPuppetProcess(
             "custom",
             {},
-            std::function<void()>(),
+            [&] {},
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 iconProcessFinished(exitCode, exitStatus);
             },
@@ -653,6 +656,16 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             addInfo(progressTitle);
             notifyProgress(0, progressTitle);
 
+            auto modelManager = QmlJS::ModelManagerInterface::instance();
+            QFuture<void> result;
+            if (modelManager) {
+                QmlJS::PathsAndLanguages pathToScan;
+                pathToScan.maybeInsert(Utils::FilePath::fromString(m_importPath));
+                result = Utils::runAsync(&QmlJS::ModelManagerInterface::importScan,
+                                         modelManager->workingCopy(), pathToScan,
+                                         modelManager, true, true, true);
+            }
+
             // First we have to wait a while to ensure qmljs detects new files and updates its
             // internal model. Then we make a non-change to the document to trigger qmljs snapshot
             // update. There is an inbuilt delay before rewriter change actually updates the data
@@ -661,24 +674,37 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             QTimer *timer = new QTimer(parent());
             static int counter;
             counter = 0;
-            timer->callOnTimeout([this, timer, progressTitle, model]() {
+            timer->callOnTimeout([this, timer, progressTitle, model, result]() {
                 if (!isCancelled()) {
-                    notifyProgress(++counter * 5, progressTitle);
-                    if (counter < 10) {
-                        // Do not proceed while application isn't active as the filesystem
-                        // watcher qmljs uses won't trigger unless application is active
-                        if (QApplication::applicationState() != Qt::ApplicationActive)
-                            --counter;
-                    } else if (counter == 10) {
+                    notifyProgress(++counter, progressTitle);
+                    if (counter < 50) {
+                        if (result.isCanceled() || result.isFinished())
+                            counter = 49; // skip to next step
+                    } else if (counter == 50) {
                         model->rewriterView()->textModifier()->replace(0, 0, {});
-                    } else if (counter == 19) {
+                    } else if (counter < 100) {
                         try {
+                            const QList<Import> posImports = model->possibleImports();
                             const QList<Import> currentImports = model->imports();
                             QList<Import> newImportsToAdd;
+
                             for (auto &imp : qAsConst(m_requiredImports)) {
+                                const bool isPos = Utils::contains(posImports, [imp](const Import &posImp) {
+                                    return posImp.url() == imp.url();
+                                });
+                                const bool isCur = Utils::contains(currentImports, [imp](const Import &curImp) {
+                                    return curImp.url() == imp.url();
+                                });
+                                if (!(isPos || isCur))
+                                    return;
+                                // Check again with 'contains' to ensure we insert latest version
                                 if (!currentImports.contains(imp))
                                     newImportsToAdd.append(imp);
                             }
+                            if (counter == 99)
+                                addError(tr("Failed to insert import statement into qml document."));
+                            else
+                                counter = 99;
                             if (!newImportsToAdd.isEmpty()) {
                                 RewriterTransaction transaction
                                         = model->rewriterView()->beginRewriterTransaction(
@@ -689,8 +715,9 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                             }
                         } catch (const RewritingException &e) {
                             addError(tr("Failed to update imports: %1").arg(e.description()));
+                            counter = 99;
                         }
-                    } else if (counter >= 20) {
+                    } else if (counter >= 100) {
                         if (!m_overwrittenImports.isEmpty())
                             model->rewriterView()->emitCustomNotification("asset_import_update");
                         timer->stop();
@@ -700,7 +727,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                     timer->stop();
                 }
             });
-            timer->start(100);
+            timer->start(50);
         } else {
             notifyFinished();
         }
