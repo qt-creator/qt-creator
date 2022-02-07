@@ -33,6 +33,7 @@
 #include <QCheckBox>
 
 namespace CMakeProjectManager {
+namespace Internal {
 
 ConfigModelItemDelegate::ConfigModelItemDelegate(const Utils::FilePath &base, QObject* parent)
     : QStyledItemDelegate(parent)
@@ -131,8 +132,8 @@ void ConfigModelItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *
     QStyledItemDelegate::setModelData(editor, model, index);
 }
 
-QSize CMakeProjectManager::ConfigModelItemDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                                             const QModelIndex &index) const
+QSize ConfigModelItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                        const QModelIndex &index) const
 {
     static int height = -1;
     if (height < 0) {
@@ -154,5 +155,6 @@ QSize CMakeProjectManager::ConfigModelItemDelegate::sizeHint(const QStyleOptionV
     return QSize(100, height);
 }
 
+} // namespace Internal
 } // namespace CMakeProjectManager
 

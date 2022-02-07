@@ -121,8 +121,8 @@ private:
     void updateAdvancedCheckBox();
     void updateFromKit();
     void updateConfigurationStateIndex(int index);
-    CMakeProjectManager::CMakeConfig getQmlDebugCxxFlags();
-    CMakeProjectManager::CMakeConfig getSigningFlagsChanges();
+    CMakeConfig getQmlDebugCxxFlags();
+    CMakeConfig getSigningFlagsChanges();
 
     void updateSelection();
     void updateConfigurationStateSelection();
@@ -695,19 +695,19 @@ void CMakeBuildSettingsWidget::updateButtonState()
                 ni.inCMakeCache = i.inCMakeCache;
                 ni.values = i.values;
                 switch (i.type) {
-                case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
+                case ConfigModel::DataItem::BOOLEAN:
                     ni.type = CMakeConfigItem::BOOL;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::FILE:
+                case ConfigModel::DataItem::FILE:
                     ni.type = CMakeConfigItem::FILEPATH;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::DIRECTORY:
+                case ConfigModel::DataItem::DIRECTORY:
                     ni.type = CMakeConfigItem::PATH;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::STRING:
+                case ConfigModel::DataItem::STRING:
                     ni.type = CMakeConfigItem::STRING;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
+                case ConfigModel::DataItem::UNKNOWN:
                 default:
                     ni.type = CMakeConfigItem::UNINITIALIZED;
                     break;

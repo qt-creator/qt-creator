@@ -32,6 +32,7 @@
 #include <QStyledItemDelegate>
 
 namespace CMakeProjectManager {
+namespace Internal {
 
 class ConfigModelItemDelegate : public QStyledItemDelegate
 {
@@ -51,4 +52,5 @@ private:
     Utils::FilePath m_base;
 };
 
+} // namespace Internal
 } // namespace CMakeProjectManager
