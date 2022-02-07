@@ -456,6 +456,11 @@ Tasks QmlProject::projectIssues(const Kit *k) const
     return result;
 }
 
+bool QmlProject::isEditModePreferred() const
+{
+    return !isQtDesignStudio();
+}
+
 Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);

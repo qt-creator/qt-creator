@@ -183,6 +183,8 @@ public:
     QList<Core::IDocument *> modifiedDocuments() const;
     bool isModified() const;
 
+    virtual bool isEditModePreferred() const;
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 

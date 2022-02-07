@@ -148,6 +148,8 @@ public:
 
     static bool isQtDesignStudio();
 
+    bool isEditModePreferred() const override;
+
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
