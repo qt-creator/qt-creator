@@ -102,7 +102,7 @@ const char DEVELOPMENT_TEAM_FLAG[] = "Ios:DevelopmentTeam:Flag";
 const char PROVISIONING_PROFILE_FLAG[] = "Ios:ProvisioningProfile:Flag";
 const char CMAKE_OSX_ARCHITECTURES_FLAG[] = "CMAKE_OSX_ARCHITECTURES:DefaultFlag";
 const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[] =
-        "-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
+        "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
 
 namespace Internal {
 
@@ -1087,7 +1087,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
 
     // Package manager
     if (!isDocker(k) && settings->packageManagerAutoSetup.value()) {
-        cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH="
+        cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
                    "%{IDE:ResourcePath}/package-manager/auto-setup.cmake");
     }
 
@@ -1204,7 +1204,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
             cmd.addArg("-DANDROID_NDK:PATH=" + ndkLocation.path());
 
-            cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:PATH="
+            cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:FILEPATH="
                    + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
 
             auto androidAbis = bs->data(Android::Constants::AndroidMkSpecAbis).toStringList();

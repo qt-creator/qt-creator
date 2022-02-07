@@ -50,6 +50,7 @@ public:
     enum Type { FILEPATH, PATH, BOOL, STRING, INTERNAL, STATIC, UNINITIALIZED };
     CMakeConfigItem();
     CMakeConfigItem(const QByteArray &k, Type t, const QByteArray &d, const QByteArray &v, const QStringList &s = {});
+    CMakeConfigItem(const QByteArray &k, Type t, const QByteArray &v);
     CMakeConfigItem(const QByteArray &k, const QByteArray &v);
 
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);

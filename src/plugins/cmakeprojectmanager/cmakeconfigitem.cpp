@@ -51,6 +51,10 @@ CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,
     key(k), type(t), value(v), documentation(d), values(s)
 { }
 
+CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t, const QByteArray &v) :
+    key(k), type(t), value(v)
+{ }
+
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, const QByteArray &v) :
     key(k), value(v)
 { }
