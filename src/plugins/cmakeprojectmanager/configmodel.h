@@ -85,6 +85,22 @@ public:
             }
         }
 
+        QString typeDisplay() const {
+            switch (type) {
+                case DataItem::BOOLEAN:
+                    return "BOOL";
+                case DataItem::FILE:
+                    return "FILEPATH";
+                case DataItem::DIRECTORY:
+                    return "PATH";
+                case DataItem::STRING:
+                    return "STRING";
+                case DataItem::UNKNOWN:
+                    break;
+            }
+            return "UNINITIALIZED";
+        }
+
         CMakeConfigItem toCMakeConfigItem() const {
             CMakeConfigItem cmi;
             cmi.key = key.toUtf8();

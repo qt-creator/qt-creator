@@ -623,6 +623,9 @@ QString ConfigModelTreeItem::toolTip() const
                                                    "<p>Not in CMakeCache.txt</p>");
         }
     }
+    tooltip << QCoreApplication::translate("CMakeProjectManager",
+                                           "<p>Type: <b>%1</b></p>")
+                   .arg(dataItem->typeDisplay());
     return tooltip.join("");
 }
 
