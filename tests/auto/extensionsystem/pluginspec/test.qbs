@@ -10,7 +10,7 @@ QtcAutotest {
         cpp.defines: outer.concat([
             'PLUGIN_DIR="' + destinationDirectory + '"',
             'PLUGINSPEC_DIR="' + sourceDirectory + '"',
-            'DLL_INFIX=""'
+            'DLL_INFIX="' + (qbs.buildVariant === "debug" ? "d" : "") + '"'
         ])
     }
 
