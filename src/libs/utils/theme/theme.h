@@ -310,6 +310,7 @@ public:
         DSerrorColor,
         DSwarningColor,
         DSdisabledColor,
+        DSinteractionHover,
         DScontrolBackground,
         DScontrolBackgroundInteraction,
         DScontrolBackgroundDisabled,
