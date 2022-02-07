@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -128,8 +128,8 @@
     \section2 Specifying Settings for Packages
 
     To specify settings for the \c androiddeployqt tool, select
-    \uicontrol Projects > \uicontrol Build > \uicontrol {Build Android APK} >
-    \uicontrol Details.
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Android APK} > \uicontrol Details.
 
     \image qtcreator-android-build-apk-step.png "Build Android APK step"
 
@@ -166,9 +166,9 @@
     distribution to the Google Play store, create an AAB by selecting
     the \uicontrol {Build Android App Bundle (*.aab)} check box.
 
-    When building with CMake, you can view the selected ABIs in the
-    \uicontrol {Initial CMake parameters} field in the \uicontrol CMake section.
-    You can set additional ABIs as values of the ANDROID_ABI key:
+    When building with CMake, you can view the selected ABIs in
+    \uicontrol {Initial Configuration} in the \uicontrol CMake section.
+    You can set additional ABIs as values of the \c ANDROID_ABI key:
 
     \image qtcreator-android-cmake-settings.png "CMake settings for building AABs"
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -113,8 +113,11 @@
             The locked items were installed by the SDK Manager,
             and can only be modified from the \uicontrol {SDK Manager} tab.
             For more information, see \l{Managing Android NDK Packages}.
-        \li In the \uicontrol {Android OpenSSL} group, set the path to the
-            prebuilt OpenSSL libraries.
+        \li Select the \uicontrol {Automatically create kits for Android tool chains}
+            check box to allow \QC to create the kits for you. \QC displays a
+            warning if it cannot find a suitable Qt version.
+        \li Optionally, in the \uicontrol {Android OpenSSL Settings} group, set
+            the path to the prebuilt OpenSSL libraries.
 
             For Qt applications that require OpenSSL support, \QC allows to
             quickly add the \l {Android OpenSSL support} to your project.
@@ -122,9 +125,6 @@
         \li Select \uicontrol {Download OpenSSL} to download the OpenSSL
             repository to the selected path. If the automatic download fails,
             the download web page opens for manual download.
-        \li Select the \uicontrol {Automatically create kits for Android tool chains}
-            check box to allow \QC to create the kits for you. \QC displays a
-            warning if it cannot find a suitable Qt version.
     \endlist
 
     \section2 Manual Setup
@@ -185,6 +185,9 @@
     To manually download NDKs, select \inlineimage icons/online.png
     .
 
+    To use the selected NDK version for all Qt versions by default, select
+    \uicontrol {Make Default}.
+
     To add custom NDK paths manually to the global list of NDKs, select
     \uicontrol Add. This creates custom tool chains and debuggers associated
     to that NDK. However, you have to manually create a kit that uses the
@@ -206,8 +209,12 @@
 
     \image qtcreator-android-sdk-manager.png "Android SDK Manager"
 
-    To filter the packages, select \uicontrol Available, \uicontrol Installed,
-    or \uicontrol All in \uicontrol {Show Packages}.
+    You can show packages for the release channel you select in
+    \uicontrol {Show Packages} > \uicontrol Channel. Common channel IDs include
+    \uicontrol Stable, \uicontrol Beta, \uicontrol Dev, and \uicontrol Canary.
+    To show and update also obsolete packages, select
+    \uicontrol {Include obsolete}. To filter packages, select
+    \uicontrol Available, \uicontrol Installed, or \uicontrol All.
 
     To update the installed Android SDK packages, select
     \uicontrol {Update Installed}. Select the packages to update, and then
@@ -217,6 +224,8 @@
     \uicontrol {Advanced Options} and enter arguments in the
     \uicontrol {SDK Manager arguments} field. The available arguments are listed
     and described in \uicontrol {Available arguments}.
+
+    \image qtcreator-android-sdk-manager-arguments.png "Android SDK Manager Arguments dialog"
 
     \section1 Managing Android Virtual Devices (AVD)
 
