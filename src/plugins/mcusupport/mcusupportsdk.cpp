@@ -512,9 +512,13 @@ protected:
 
                 const auto platform = McuTarget::Platform{ desc.platform.id, desc.platform.name, desc.platform.vendor };
                 auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
-                                               platform, os, required3rdPartyPkgs, tcPkg);
-                if (desc.platform.colorDepths.count() > 1)
-                    mcuTarget->setColorDepth(colorDepth);
+                                               platform,
+                                               os,
+                                               required3rdPartyPkgs,
+                                               tcPkg,
+                                               desc.platform.colorDepths.count() > 1
+                                                   ? colorDepth
+                                                   : McuTarget::UnspecifiedColorDepth);
                 mcuTargets.append(mcuTarget);
             }
         }
@@ -586,10 +590,13 @@ protected:
                 required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOS.envVar));
             }
 
-            const auto platform = McuTarget::Platform{ desc.platform.id, desc.platform.name, desc.platform.vendor };
+            const McuTarget::Platform platform({ desc.platform.id, desc.platform.name, desc.platform.vendor });
             auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
-                                           platform, os, required3rdPartyPkgs, tcPkg);
-            mcuTarget->setColorDepth(colorDepth);
+                                           platform,
+                                           os,
+                                           required3rdPartyPkgs,
+                                           tcPkg,
+                                           colorDepth);
             mcuTargets.append(mcuTarget);
         }
         return mcuTargets;

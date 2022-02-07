@@ -267,14 +267,17 @@ QVariant McuToolChainPackage::debuggerId() const
 }
 
 McuTarget::McuTarget(const QVersionNumber &qulVersion,
-                     const Platform &platform, OS os,
+                     const Platform &platform,
+                     OS os,
                      const QVector<McuPackage *> &packages,
-                     const McuToolChainPackage *toolChainPackage)
+                     const McuToolChainPackage *toolChainPackage,
+                     int colorDepth)
     : m_qulVersion(qulVersion)
     , m_platform(platform)
     , m_os(os)
     , m_packages(packages)
     , m_toolChainPackage(toolChainPackage)
+    , m_colorDepth(colorDepth)
 {
 }
 
@@ -333,11 +336,6 @@ const QVersionNumber &McuTarget::qulVersion() const
 int McuTarget::colorDepth() const
 {
     return m_colorDepth;
-}
-
-void McuTarget::setColorDepth(int colorDepth)
-{
-    m_colorDepth = colorDepth;
 }
 
 void McuSdkRepository::deletePackagesAndTargets()
@@ -665,7 +663,7 @@ static void setKitCMakeOptions(Kit *k, const McuTarget* mcuTarget, const FilePat
     if (mcuTarget->qulVersion() <= QVersionNumber{1,3} // OS variable was removed in Qul 1.4
         && mcuTarget->os() == McuTarget::OS::FreeRTOS)
         config.append(CMakeConfigItem("OS", "FreeRTOS"));
-    if (mcuTarget->colorDepth() >= 0)
+    if (mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
                                       QString::number(mcuTarget->colorDepth()).toLatin1()));
     if (kitNeedsQtVersion())
@@ -700,7 +698,7 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
     const QString compilerName = tcPkg && !tcPkg->isDesktopToolchain()
             ? QString::fromLatin1(" (%1)").arg(tcPkg->toolChainName().toUpper())
             : "";
-    const QString colorDepth = mcuTarget->colorDepth() > 0
+    const QString colorDepth = mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
     const QString targetName = mcuTarget->platform().displayName.isEmpty()

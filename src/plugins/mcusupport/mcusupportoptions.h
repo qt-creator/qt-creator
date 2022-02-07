@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2021
+**  The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -69,16 +70,20 @@ public:
         QString vendor;
     };
 
-    McuTarget(const QVersionNumber &qulVersion, const Platform &platform, OS os,
+    enum { UnspecifiedColorDepth = -1 };
+
+    McuTarget(const QVersionNumber &qulVersion,
+              const Platform &platform,
+              OS os,
               const QVector<McuPackage *> &packages,
-              const McuToolChainPackage *toolChainPackage);
+              const McuToolChainPackage *toolChainPackage,
+              int colorDepth = UnspecifiedColorDepth);
 
     const QVersionNumber &qulVersion() const;
     const QVector<McuPackage *> &packages() const;
     const McuToolChainPackage *toolChainPackage() const;
     const Platform &platform() const;
     OS os() const;
-    void setColorDepth(int colorDepth);
     int colorDepth() const;
     bool isValid() const;
     void printPackageProblems() const;
@@ -86,10 +91,10 @@ public:
 private:
     const QVersionNumber m_qulVersion;
     const Platform m_platform;
-    const OS m_os = OS::BareMetal;
+    const OS m_os;
     const QVector<McuPackage*> m_packages;
     const McuToolChainPackage *m_toolChainPackage;
-    int m_colorDepth = -1;
+    const int m_colorDepth;
 };
 
 class McuSdkRepository
