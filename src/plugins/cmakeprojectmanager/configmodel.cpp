@@ -30,7 +30,6 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-#include <QCoreApplication>
 #include <QFont>
 #include <QSortFilterProxyModel>
 
@@ -602,7 +601,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
     case Qt::DisplayRole:
         if (column == 0)
             return dataItem->key.isEmpty()
-                       ? QCoreApplication::translate("CMakeProjectManager::ConfigModel", "<UNSET>")
+                       ? ConfigModel::tr("<UNSET>")
                        : dataItem->key;
         return value;
     case Qt::EditRole:
@@ -688,33 +687,28 @@ QString ConfigModelTreeItem::toolTip() const
     if (!dataItem->description.isEmpty())
         tooltip << dataItem->description;
 
+    const QString pattern = "<p><b>%1</b> %2</p>";
     if (dataItem->isInitial) {
         if (!dataItem->kitValue.isEmpty())
-            tooltip << QCoreApplication::translate("CMakeProjectManager", "<p>Kit: <b>%1</b></p>")
-                           .arg(dataItem->kitValue);
+            tooltip << pattern.arg(ConfigModel::tr("Kit:")).arg(dataItem->kitValue);
 
-        tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                               "<p>Initial Configuration: <b>%1</b></p>")
-                       .arg(dataItem->currentValue());
+        tooltip << pattern.arg(ConfigModel::tr("Initial Configuration:")).arg(dataItem->currentValue());
     } else {
-        if (!dataItem->initialValue.isEmpty())
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Initial Configuration: <b>%1</b></p>")
-                           .arg(dataItem->initialValue);
+        if (!dataItem->initialValue.isEmpty()) {
+            tooltip << pattern.arg(ConfigModel::tr("Initial Configuration:"))
+                          .arg(dataItem->initialValue);
+        }
 
         if (dataItem->inCMakeCache) {
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Current Configuration: <b>%1</b></p>")
-                           .arg(dataItem->currentValue());
+            tooltip << pattern.arg(ConfigModel::tr("Current Configuration:"))
+                          .arg(dataItem->currentValue());
         } else {
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Not in CMakeCache.txt</p>");
+            tooltip << pattern.arg(ConfigModel::tr("Not in CMakeCache.txt")).arg(QString());
         }
     }
-    tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                           "<p>Type: <b>%1</b></p>")
-                   .arg(dataItem->typeDisplay());
-    return tooltip.join("");
+    tooltip << pattern.arg(ConfigModel::tr("Type:")).arg(dataItem->typeDisplay());
+
+    return tooltip.join(QString());
 }
 
 QString ConfigModelTreeItem::currentValue() const
