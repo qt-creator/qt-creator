@@ -1295,7 +1295,17 @@ static bool isIntegerValue(const Value *value)
     if (value->asNumberValue() || value->asIntValue())
         return true;
     if (auto obj = value->asObjectValue())
-        return obj->className() == "Number";
+        return obj->className() == "Number" || obj->className() == "int";
+
+    return false;
+}
+
+static bool isStringValue(const Value *value)
+{
+    if (value->asStringValue())
+        return true;
+    if (auto obj = value->asObjectValue())
+        return obj->className() == "QString" || obj->className() == "string";
 
     return false;
 }
@@ -1310,6 +1320,8 @@ static bool strictCompareConstant(const Value *lhs, const Value *rhs)
     if (lhs->asFunctionValue() || rhs->asFunctionValue()) // function evaluation not implemented
         return false;
     if (isIntegerValue(lhs) && isIntegerValue(rhs))
+        return false;
+    if (isStringValue(lhs) && isStringValue(rhs))
         return false;
     if (lhs->asBooleanValue() && !rhs->asBooleanValue())
         return true;
