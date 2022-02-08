@@ -6,7 +6,6 @@
     "trDescription": "Creates a UI file (.ui.qml) with a Swipe View as the root component.",
     "trDisplayName": "Swipe View",
     "trDisplayCategory": "Qt Quick Controls",
-    "featuresRequired": [ "QtStudio" ],
     "icon": "custom_swipe_view.png",
     "platformIndependent": true,
 

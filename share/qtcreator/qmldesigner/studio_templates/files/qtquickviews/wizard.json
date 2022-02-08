@@ -7,7 +7,6 @@
     "trDisplayName": "Qt Quick Views",
     "trDisplayCategory": "Qt Quick Files",
     "icon": "data_gridmodel.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

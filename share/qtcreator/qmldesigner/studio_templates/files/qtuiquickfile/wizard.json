@@ -7,7 +7,6 @@
     "trDisplayName": "Qt Quick UI File",
     "trDisplayCategory": "Qt Quick Files",
     "icon": "file_ui.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":
