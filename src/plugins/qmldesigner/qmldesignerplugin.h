@@ -87,6 +87,7 @@ public:
 
     static void emitUsageStatistics(const QString &identifier);
     static void emitUsageStatisticsContextAction(const QString &identifier);
+    static void emitUsageStatisticsHelpRequested(const QString &identifier);
     static void emitUsageStatisticsTime(const QString &identifier, int elapsed);
 
     static AsynchronousImageCache &imageCache();

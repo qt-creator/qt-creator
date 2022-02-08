@@ -633,7 +633,15 @@ void AbstractView::enableWidget()
 void AbstractView::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
 #ifndef QMLDESIGNER_TEST
+
+    const QString id = const_cast<AbstractView *>(this)->widgetInfo().uniqueId;
+
+    QString nodeId;
+    if (!selectedModelNodes().isEmpty())
+        nodeId = selectedModelNodes().first().simplifiedTypeName();
+    QmlDesignerPlugin::instance()->emitUsageStatisticsHelpRequested(id + " " + nodeId);
     QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
+
 #else
     callback(QString());
 #endif
