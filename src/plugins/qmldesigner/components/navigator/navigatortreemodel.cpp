@@ -343,8 +343,7 @@ QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &proper
     return list;
 }
 
-QModelIndex NavigatorTreeModel::index(int row, int column,
-                                      const QModelIndex &parent) const
+QModelIndex NavigatorTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!m_view->model())
         return {};
@@ -391,21 +390,20 @@ QModelIndex NavigatorTreeModel::parent(const QModelIndex &index) const
 
     int row = 0;
 
-    if (!parentModelNode.isRootNode() && parentModelNode.parentProperty().isNodeListProperty())
+    if (!parentModelNode.isRootNode() && parentModelNode.parentProperty().isNodeListProperty()) {
         row = filteredList(parentModelNode.parentProperty().toNodeListProperty(),
                            m_showOnlyVisibleItems,
                            m_reverseItemOrder).indexOf(parentModelNode);
+    }
 
     return createIndexFromModelNode(row, 0, parentModelNode);
 }
 
 int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
 {
-    if (!m_view->isAttached())
+    if (!m_view->isAttached() || parent.column() > 0)
         return 0;
 
-    if (parent.column() > 0)
-        return 0;
     const ModelNode modelNode = modelNodeForIndex(parent);
 
     if (!modelNode.isValid())
@@ -413,10 +411,11 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
 
     int rows = 0;
 
-    if (modelNode.defaultNodeListProperty().isValid())
+    if (modelNode.defaultNodeListProperty().isValid()) {
         rows = filteredList(modelNode.defaultNodeListProperty(),
                             m_showOnlyVisibleItems,
                             m_reverseItemOrder).count();
+    }
 
     return rows;
 }
@@ -456,8 +455,8 @@ void NavigatorTreeModel::setView(NavigatorView *view)
 QStringList NavigatorTreeModel::mimeTypes() const
 {
     const static QStringList types({"application/vnd.modelnode.list",
-                       "application/vnd.bauhaus.itemlibraryinfo",
-                       "application/vnd.bauhaus.libraryresource"});
+                                    "application/vnd.bauhaus.itemlibraryinfo",
+                                    "application/vnd.bauhaus.libraryresource"});
 
     return types;
 }
@@ -790,8 +789,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryImageDrop(const QString &imagePat
     ModelNode newModelNode;
 
     if (!dropAsImage3dTexture(targetNode, targetProperty, imagePathRelative, newModelNode)) {
-        if (targetNode.isSubclassOf("QtQuick.Image")
-                || targetNode.isSubclassOf("QtQuick.BorderImage")) {
+        if (targetNode.isSubclassOf("QtQuick.Image") || targetNode.isSubclassOf("QtQuick.BorderImage")) {
             // if dropping an image on an existing image, set the source
             targetNode.variantProperty("source").setValue(imagePathRelative);
         } else {
@@ -966,28 +964,27 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
                                               const QString &imagePath,
                                               ModelNode &newNode)
 {
-    if (targetNode.isSubclassOf("QtQuick3D.Material")) {
-        // if dropping an image on a default material, create a texture instead of image
-        ChooseFromPropertyListDialog *dialog = nullptr;
-        if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")
-                || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
-            // Show texture property selection dialog
-            dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode, "QtQuick3D.Texture",
-                                                                  Core::ICore::dialogParent());
-            if (dialog)
-                dialog->exec();
-        }
-        if (!dialog || dialog->result() == QDialog::Accepted) {
+    if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")
+        || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+        // if dropping an image on a material, create a texture instead of image
+        // Show texture property selection dialog
+        auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode, "QtQuick3D.Texture",
+                                                                   Core::ICore::dialogParent());
+        if (!dialog)
+            return false;
+
+        dialog->exec();
+
+        if (dialog->result() == QDialog::Accepted) {
             m_view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {
                 newNode = createTextureNode(targetProp, imagePath);
-                if (newNode.isValid() && dialog) {
-                    // Automatically set the texture to selected property
+                if (newNode.isValid()) // Automatically set the texture to selected property
                     targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newNode.validId());
-                }
             });
         }
+
         delete dialog;
-        return newNode.isValid();
+        return true;
     } else if (targetNode.isSubclassOf("QtQuick3D.TextureInput")) {
         // If dropping an image on a TextureInput, create a texture on the same level as
         // TextureInput, as the TextureInput doesn't support Texture children (QTBUG-86219)
