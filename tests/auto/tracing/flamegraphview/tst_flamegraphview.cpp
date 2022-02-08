@@ -27,6 +27,7 @@
 
 #include <tracing/flamegraph.h>
 #include <tracing/timelinetheme.h>
+#include <utils/hostosinfo.h>
 #include <utils/theme/theme_p.h>
 
 #include <QObject>
@@ -55,6 +56,8 @@ class tst_FlameGraphView : public QObject
 public:
     tst_FlameGraphView() { Utils::setCreatorTheme(&theme); }
 
+    static void initMain();
+
 private slots:
     void initTestCase();
     void testZoom();
@@ -66,6 +69,15 @@ private:
     QQuickWidget widget;
     DummyTheme theme;
 };
+
+void tst_FlameGraphView::initMain()
+{
+    if (Utils::HostOsInfo::isWindowsHost()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+        qputenv("QSG_RHI_BACKEND", "opengl");
+#endif // Qt >= 6.2
+    }
+}
 
 void tst_FlameGraphView::initTestCase()
 {
