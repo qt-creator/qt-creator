@@ -795,9 +795,15 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &editValue)
 {
     if (!expression.isEmpty()) {
-        QVariant value = (editValue.type() == QVariant::String)
-                ? QVariant('"' + editValue.toString().replace('"', "\\\"") + '"')
-                : editValue;
+        QTC_CHECK(editValue.type() == QVariant::String);
+        QVariant value;
+        QString val = editValue.toString();
+        if (item->type == "boolean")
+            value = val != "false" && val != "0";
+        else if (item->type == "number")
+            value = val.toDouble();
+        else
+            value = QString('"' + val.replace('"', "\\\"") + '"');
 
         if (item->isInspect()) {
             d->inspectorAgent.assignValue(item, expression, value);
