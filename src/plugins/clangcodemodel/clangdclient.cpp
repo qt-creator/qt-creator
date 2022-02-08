@@ -1142,6 +1142,7 @@ public:
     std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
 
     QHash<TextDocument *, QPair<QList<ExpandedSemanticToken>, int>> previousTokens;
+    QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
 
     // The ranges of symbols referring to virtual functions, with document version,
     // as extracted by the highlighting procedure.
@@ -1468,6 +1469,7 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
     d->astCache.remove(doc);
     d->previousTokens.remove(doc);
     d->virtualRanges.remove(doc);
+    d->parserConfigs.remove(doc->filePath());
 }
 
 QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &cursor,
@@ -1623,6 +1625,39 @@ void ClangdClient::handleUiHeaderChange(const QString &fileName)
             break; // No sane project includes the same UI header twice.
         }
     }
+}
+
+void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
+        const CppEditor::BaseEditorDocumentParser::Configuration &config)
+{
+    if (config.preferredProjectPartId.isEmpty())
+        return;
+
+    CppEditor::BaseEditorDocumentParser::Configuration &cachedConfig = d->parserConfigs[filePath];
+    if (cachedConfig == config)
+        return;
+    cachedConfig = config;
+
+    // TODO: Also handle editorDefines (and usePrecompiledHeaders?)
+    const auto projectPart = CppEditor::CppModelManager::instance()
+            ->projectPartForId(config.preferredProjectPartId);
+    if (!projectPart)
+        return;
+    const CppEditor::ClangDiagnosticConfig projectWarnings = warningsConfigForProject(project());
+    const QStringList projectOptions = optionsForProject(project());
+    QJsonObject cdbChanges;
+    QStringList args = createClangOptions(*projectPart, filePath.toString(), projectWarnings,
+                                          projectOptions);
+    args.prepend("clang");
+    args.append(filePath.toString());
+    QJsonObject value;
+    value.insert("workingDirectory", filePath.parentDir().toString());
+    value.insert("compilationCommand", QJsonArray::fromStringList(args));
+    cdbChanges.insert(filePath.toUserOutput(), value);
+    const QJsonObject settings({qMakePair(QString("compilationDatabaseChanges"), cdbChanges)});
+    DidChangeConfigurationParams configChangeParams;
+    configChangeParams.setSettings(settings);
+    sendContent(DidChangeConfigurationNotification(configChangeParams));
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)

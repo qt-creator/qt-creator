@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/refactoringengineinterface.h>
 #include <languageclient/client.h>
@@ -87,6 +88,9 @@ public:
                                                  const QString &name, const QString &detail);
 
     static void handleUiHeaderChange(const QString &fileName);
+
+    void updateParserConfig(const Utils::FilePath &filePath,
+                            const CppEditor::BaseEditorDocumentParser::Configuration &config);
 
 signals:
     void indexingFinished();

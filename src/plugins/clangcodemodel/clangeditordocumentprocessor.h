@@ -91,6 +91,7 @@ public:
     void editorDocumentTimerRestarted() override;
 
     void setParserConfig(const CppEditor::BaseEditorDocumentParser::Configuration &config) override;
+    CppEditor::BaseEditorDocumentParser::Configuration parserConfig() const;
 
     QFuture<CppEditor::CursorInfo> cursorInfo(const CppEditor::CursorInfoParams &params) override;
     QFuture<CppEditor::CursorInfo> requestLocalReferences(const QTextCursor &cursor) override;
@@ -115,6 +116,8 @@ public:
 
 signals:
     void tokenInfosUpdated();
+    void parserConfigChanged(const Utils::FilePath &filePath,
+                             const CppEditor::BaseEditorDocumentParser::Configuration &config);
 
 private:
     void onParserFinished();

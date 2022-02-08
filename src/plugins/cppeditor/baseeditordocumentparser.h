@@ -50,6 +50,13 @@ public:
         bool usePrecompiledHeaders = false;
         QByteArray editorDefines;
         QString preferredProjectPartId;
+
+        bool operator==(const Configuration &other)
+        {
+            return usePrecompiledHeaders == other.usePrecompiledHeaders
+                    && editorDefines == other.editorDefines
+                    && preferredProjectPartId == other.preferredProjectPartId;
+        }
     };
 
     struct UpdateParams {
