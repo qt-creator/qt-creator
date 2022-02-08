@@ -109,6 +109,8 @@ bool OutputCollector::listen()
 
 void OutputCollector::shutdown()
 {
+    // Make sure any last data is read first.
+    bytesAvailable();
 #ifdef Q_OS_WIN
     delete m_server; // Deletes socket as well (QObject parent)
     m_server = nullptr;
