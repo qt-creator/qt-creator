@@ -159,7 +159,6 @@ void LanguageClientManager::clientFinished(Client *client)
                 = managerInstance->m_clientForDocument.keys(client);
             if (client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
-                client->disconnect(managerInstance);
                 client->log(
                     tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
