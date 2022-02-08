@@ -1041,12 +1041,9 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     int offset = nodeOffset(modelNode);
 
-    bool instant = m_instantQmlTextUpdate;
-    m_instantQmlTextUpdate = true;
 
     textModifier()->moveToComponent(offset);
 
-    m_instantQmlTextUpdate = instant;
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)
