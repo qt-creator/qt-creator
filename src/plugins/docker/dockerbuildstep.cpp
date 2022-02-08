@@ -94,9 +94,19 @@ private:
     {
         MacroExpander *expander = target()->kit()->macroExpander();
         expander->registerVariable("BuildDevice:DockerImage",
-                                   "Build Host Docker Image ID", [=]() -> QString {
+                                   "Build Host Docker Image ID", [this] {
             const DockerDevice *dockerDevice = dockerBuildDevice();
             return dockerDevice ? dockerDevice->data().imageId : QString();
+        }, true);
+        expander->registerVariable("BuildDevice:DockerRepo",
+                                   "Build Host Docker Repo", [this] {
+            const DockerDevice *dockerDevice = dockerBuildDevice();
+            return dockerDevice ? dockerDevice->data().repo : QString();
+        }, true);
+        expander->registerVariable("BuildDevice:DockerTag",
+                                   "Build Host Docker Tag", [this] {
+            const DockerDevice *dockerDevice = dockerBuildDevice();
+            return dockerDevice ? dockerDevice->data().tag : QString();
         }, true);
         return expander;
     }
