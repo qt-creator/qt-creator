@@ -1,7 +1,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,7 +31,7 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-creating.html
+    \previouspage creator-file-creating.html
     \page creator-project-opening.html
     \nextpage creator-project-qmake-libraries.html
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -79,7 +79,11 @@
         \li Set a project as the active project.
         \li Execute the \uicontrol Build menu commands.
         \li Create new files. For more information, see
+            \if defined(qtdesignstudio)
             \l{Adding Files to Projects}.
+            \else
+            \l{Creating Files}.
+            \endif
         \li Rename or remove existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
             and offers to rename them as well.

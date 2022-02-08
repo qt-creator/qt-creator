@@ -58,6 +58,7 @@
         \list
             \li \l{Creating Projects}
             \list
+                \li \l{Creating Files}
                 \li \l{Opening Projects}
                 \li \l{Adding Libraries to Projects}
                 \li \l{Adding New Custom Wizards}
