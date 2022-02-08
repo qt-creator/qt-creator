@@ -26,6 +26,7 @@
 #include "connectionmanagerinterface.h"
 
 #include <QLocalSocket>
+#include <QLocalServer>
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -45,6 +46,7 @@ void ConnectionManagerInterface::Connection::clear()
 {
     qmlPuppetProcess.reset();
     socket.reset();
+    localServer.reset();
     blockSize = 0;
     lastReadCommandCounter = 0;
     timer.reset();
