@@ -639,6 +639,7 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     dialog->setWindowTitle(tr("Kit CMake Configuration"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setModal(true);
+    dialog->setSizeGripEnabled(true);
     connect(dialog, &QDialog::finished, this, [=]{
         m_buildConfiguration->kit()->unblockNotification();
     });
@@ -657,6 +658,12 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
         ->addToLayoutWithLabel(layout->parentWidget());
 
     layout->setColumnStretch(1, 1);
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttons, &QDialogButtonBox::clicked, dialog, &QDialog::close);
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Maximum, QSizePolicy::MinimumExpanding),
+                    4, 0);
+    layout->addWidget(buttons, 5, 0, 1, -1);
 
     dialog->setMinimumWidth(400);
     dialog->resize(800, 1);
