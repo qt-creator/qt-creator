@@ -10,7 +10,7 @@ include($$QTC_DOCS_DIR/config/qt-defines.qdocconf)
 
 sources.fileextensions  = "*.qdoc"
 
-depends += qt-creator
+depends += qtcreator
 
 qhp.projects                = fossil
 qhp.fossil.file             = fossil.qhp
