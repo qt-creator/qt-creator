@@ -41,10 +41,7 @@ public:
                          QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                          process,
                          &QProcess::deleteLater);
-
-        process->terminate();
-
-        process->deleteLater();
+        process->kill();
     }
 };
 

@@ -53,17 +53,18 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
 {
     BaseConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target, view);
 
-    m_localServer = std::make_unique<QLocalServer>();
-    QString socketToken(QUuid::createUuid().toString());
-    m_localServer->listen(socketToken);
-    m_localServer->setMaxPendingConnections(3);
-
     PuppetCreator puppetCreator(target, view->model());
     puppetCreator.setQrcMappingString(qrcMappingString);
 
     puppetCreator.createQml2PuppetExecutableIfMissing();
 
     for (Connection &connection : m_connections) {
+
+        QString socketToken(QUuid::createUuid().toString());
+        connection.localServer = std::make_unique<QLocalServer>();
+        connection.localServer->listen(socketToken);
+        connection.localServer->setMaxPendingConnections(1);
+
         connection.qmlPuppetProcess = puppetCreator.createPuppetProcess(
             connection.mode,
             socketToken,
@@ -71,10 +72,11 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 processFinished(exitCode, exitStatus, connection.name);
             });
+    }
 
-        const int second = 1000;
+    const int second = 1000;
+    for (Connection &connection : m_connections) {
         int waitConstant = 8 * second;
-
         if (!connection.qmlPuppetProcess->waitForStarted(waitConstant)) {
             closeSocketsAndKillProcesses();
             showCannotConnectToPuppetWarningAndSwitchToEditMode();
@@ -84,11 +86,11 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
         waitConstant /= 2;
 
         bool connectedToPuppet = true;
-        if (!m_localServer->hasPendingConnections())
-            connectedToPuppet = m_localServer->waitForNewConnection(waitConstant);
+        if (!connection.localServer->hasPendingConnections())
+            connectedToPuppet = connection.localServer->waitForNewConnection(waitConstant);
 
         if (connectedToPuppet) {
-            connection.socket.reset(m_localServer->nextPendingConnection());
+            connection.socket.reset(connection.localServer->nextPendingConnection());
             QObject::connect(connection.socket.get(), &QIODevice::readyRead, this, [&] {
                 readDataStream(connection);
             });
@@ -97,9 +99,8 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
             showCannotConnectToPuppetWarningAndSwitchToEditMode();
             return;
         }
+        connection.localServer->close();
     }
-
-    m_localServer->close();
 }
 
 void ConnectionManager::shutDown()
@@ -107,11 +108,6 @@ void ConnectionManager::shutDown()
     BaseConnectionManager::shutDown();
 
     closeSocketsAndKillProcesses();
-
-    m_localServer.reset();
-
-    for (Connection &connection : m_connections)
-        connection.clear();
 }
 
 void ConnectionManager::writeCommand(const QVariant &command)
@@ -148,11 +144,6 @@ void ConnectionManager::closeSocketsAndKillProcesses()
             disconnect(connection.qmlPuppetProcess.get());
             connection.socket->waitForBytesWritten(1000);
             connection.socket->abort();
-        }
-
-        if (connection.qmlPuppetProcess) {
-            QTimer::singleShot(3000, connection.qmlPuppetProcess.get(), &QProcess::terminate);
-            QTimer::singleShot(6000, connection.qmlPuppetProcess.get(), &QProcess::kill);
         }
 
         connection.clear();

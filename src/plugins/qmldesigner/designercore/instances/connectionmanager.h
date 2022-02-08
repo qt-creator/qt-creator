@@ -70,8 +70,6 @@ private:
     void closeSocketsAndKillProcesses();
 
 private:
-    std::unique_ptr<QLocalServer> m_localServer;
-
     std::vector<Connection> m_connections;
     quint32 m_writeCommandCounter = 0;
 };

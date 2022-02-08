@@ -30,6 +30,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLocalSocket;
+class QLocalServer;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -59,6 +60,7 @@ public:
         QString mode;
         QProcessUniquePointer qmlPuppetProcess;
         std::unique_ptr<QLocalSocket> socket;
+        std::unique_ptr<QLocalServer> localServer;
         quint32 blockSize = 0;
         quint32 lastReadCommandCounter = 0;
         std::unique_ptr<QTimer> timer;
