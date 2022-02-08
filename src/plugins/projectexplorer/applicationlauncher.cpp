@@ -458,9 +458,6 @@ void ApplicationLauncherPrivate::handleApplicationFinished()
         if (exitCode != 0) {
             doReportError(ApplicationLauncher::tr("Application finished with exit code %1.")
                           .arg(exitCode), QProcess::UnknownError);
-        } else {
-            emit q->appendMessage(ApplicationLauncher::tr("Application finished with exit code 0."),
-                                  Utils::NormalMessageFormat);
         }
     }
     setFinished();

@@ -1196,6 +1196,7 @@ void SimpleTargetRunner::start()
 
 void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstPtr &device)
 {
+    m_stopForced = false;
     m_stopReported = false;
     m_launcher.disconnect(this);
     m_launcher.setUseTerminal(m_useTerminal);
@@ -1205,44 +1206,40 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
+    connect(&m_launcher, &ApplicationLauncher::processExited,
+        this, [this, runnable](int exitCode, QProcess::ExitStatus status) {
+        if (m_stopReported)
+            return;
+        const QString msg = (status == QProcess::CrashExit)
+                ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(exitCode);
+        const QString displayName = runnable.command.executable().toUserOutput();
+        appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
+        m_stopReported = true;
+        reportStopped();
+    });
+
+    connect(&m_launcher, &ApplicationLauncher::error,
+        this, [this, runnable](QProcess::ProcessError error) {
+        if (m_stopReported)
+            return;
+        if (error == QProcess::Timedout)
+            return; // No actual change on the process side.
+        const QString msg = m_stopForced ? tr("The process was ended forcefully.")
+                    : userMessageForProcessError(error, runnable.command.executable());
+        appendMessage(msg, Utils::NormalMessageFormat);
+        m_stopReported = true;
+        reportStopped();
+    });
+
+    connect(&m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
+
     if (isDesktop) {
-
-        connect(&m_launcher, &ApplicationLauncher::appendMessage,
-                this, &SimpleTargetRunner::appendMessage);
-
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, [this] {
             // Console processes only know their pid after being started
             ProcessHandle pid = m_launcher.applicationPID();
             runControl()->setApplicationProcessHandle(pid);
             pid.activate();
             reportStarted();
-        });
-
-        connect(&m_launcher, &ApplicationLauncher::processExited,
-            this, [this, runnable](int exitCode, QProcess::ExitStatus status) {
-            if (m_stopReported)
-                return;
-            const QString msg = (status == QProcess::CrashExit)
-                    ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(exitCode);
-            const QString displayName = runnable.command.executable().toUserOutput();
-            appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
-            m_stopReported = true;
-            reportStopped();
-        });
-
-        connect(&m_launcher, &ApplicationLauncher::error,
-            this, [this, runnable](QProcess::ProcessError error) {
-            if (error == QProcess::Timedout)
-                return; // No actual change on the process side.
-            if (error != QProcess::Crashed) {
-                const QString msg = userMessageForProcessError(
-                            error, runnable.command.executable());
-                appendMessage(msg, Utils::NormalMessageFormat);
-            }
-            if (!m_stopReported) {
-                m_stopReported = true;
-                reportStopped();
-            }
         });
 
         if (runnable.command.isEmpty()) {
@@ -1252,27 +1249,14 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
         }
 
     } else {
-
-        connect(&m_launcher, &ApplicationLauncher::error, this, [this] {
-            reportFailure(m_launcher.errorString());
-        });
-
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, &RunWorker::reportStarted);
-
-        connect(&m_launcher, &ApplicationLauncher::processExited,
-                this, [this] {
-                    m_launcher.disconnect(this);
-                    reportStopped();
-                });
-
-        connect(&m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
-
         m_launcher.start(runnable, device);
     }
 }
 
 void SimpleTargetRunner::stop()
 {
+    m_stopForced = true;
     m_launcher.stop();
 }
 
@@ -1559,7 +1543,7 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
                 "permissions to invoke the program.").arg(program.toUserOutput());
             break;
         case QProcess::Crashed:
-            msg = tr("The process was ended forcefully.");
+            msg = tr("The process crashed.");
             break;
         case QProcess::Timedout:
             // "The last waitFor...() function timed out. "
