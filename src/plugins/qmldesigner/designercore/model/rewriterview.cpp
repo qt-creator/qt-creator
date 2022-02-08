@@ -88,7 +88,7 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
     m_amendTimer.setSingleShot(true);
-    m_amendTimer.setInterval(400);
+    m_amendTimer.setInterval(800);
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
