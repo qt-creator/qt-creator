@@ -1,13 +1,11 @@
 Limitations:
 
-- Only Linux development hosts supported, as the docker container
-  contents is accessed via the local file system.
-
-- It currently unconditionally mounts /data and /opt,
-  source code has to live in either.
-
-- Kit items are auto-detected, but Kits themselves need to be
-  fixed up manually.
+- Linux, Mac, Windows hosts are supported in principle,
+  Linux is recommended.
+- Only Kit items in selected directories are auto-detected.
+- Kits themselves need to be fixed up manually.
+- Shared mounts are restricted to locations on the host system
+  that can end up on the same absolute location in the container
 
 
 What works:
@@ -39,6 +37,11 @@ For testing:
   Note that the Build container alone is sufficient also to run applications,
   but using the Run container gives a more restricted setup closer to a
   real world scenario.
+
+- MAKE SURE there's something sensible in "Paths to Mount".
+  These paths are shared between your host system and the docker device.
+  These should contain at the very least your sources, otherwise a build
+  in the container can't access it.
 
 - Try to auto-detect kit items by pressing "Auto Detect Kit Items" for
   the Build container (only Build, not Run)
