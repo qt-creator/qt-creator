@@ -60,9 +60,7 @@ private:
     void handleConnectionError();
     void handleDisconnected();
     void handleProcessStarted();
-    void handleThisProcessFinished();
-    void handleRemoteProcessFinished(const QString &error);
-    void handleProcessFinished(const QString &error, bool emitFinished);
+    void handleProcessFinished(const QString &error);
     void handleKillOperationFinished(const QString &errorMessage);
     void handleKillOperationTimeout();
 

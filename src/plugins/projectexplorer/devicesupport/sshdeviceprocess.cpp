@@ -51,7 +51,7 @@ public:
     SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q) {}
 
     SshDeviceProcess * const q;
-    bool ignoreFinished = true;
+    bool ignoreSelfSignals = true;
     QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcessPtr remoteProcess;
     Runnable runnable;
@@ -74,7 +74,17 @@ SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *par
     : DeviceProcess(device, QtcProcess::TerminalOn, parent),
       d(std::make_unique<SshDeviceProcessPrivate>(this))
 {
-    connect(this, &QtcProcess::finished, this, &SshDeviceProcess::handleThisProcessFinished);
+    // Hack: we rely on fact that below slots were called before any other external slots connected
+    // to this instance signals. That's why we don't re-emit them from inside our handlers since
+    // these signal will reach all other external slots anyway after our handlers are done.
+    connect(this, &QtcProcess::started, this, [this] {
+        if (!d->ignoreSelfSignals)
+            handleProcessStarted();
+    });
+    connect(this, &QtcProcess::finished, this, [this] {
+        if (!d->ignoreSelfSignals)
+            handleProcessFinished(QtcProcess::errorString());
+    });
     connect(&d->killTimer, &QTimer::timeout, this, &SshDeviceProcess::handleKillOperationTimeout);
 }
 
@@ -185,8 +195,8 @@ void SshDeviceProcess::handleConnected()
     const QString display = d->displayName();
     if (!display.isEmpty())
         d->remoteProcess->requestX11Forwarding(display);
+    d->ignoreSelfSignals = !runInTerminal();
     if (runInTerminal()) {
-        d->ignoreFinished = false;
         setAbortOnMetaChars(false);
         setCommand(d->remoteProcess->fullLocalCommandLine(true));
         QtcProcess::start();
@@ -194,7 +204,7 @@ void SshDeviceProcess::handleConnected()
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::done,
-                this, &SshDeviceProcess::handleRemoteProcessFinished);
+                this, &SshDeviceProcess::handleProcessFinished);
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
                 this, &QtcProcess::readyReadStandardOutput);
         connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardError,
@@ -234,31 +244,17 @@ void SshDeviceProcess::handleProcessStarted()
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connected, return);
 
     d->setState(SshDeviceProcessPrivate::ProcessRunning);
-    emit started();
+    if (d->ignoreSelfSignals)
+        emit started();
 }
 
-void SshDeviceProcess::handleThisProcessFinished()
-{
-    if (d->ignoreFinished)
-        return;
-    // Hack: we rely on fact that this slot was called before any other external slot connected
-    // to finished() signal. That's why we don't emit finished() signal from inside
-    // handleProcessFinished() since this signal will reach all other external slots anyway.
-    handleProcessFinished(QtcProcess::errorString(), false);
-}
-
-void SshDeviceProcess::handleRemoteProcessFinished(const QString &error)
-{
-    handleProcessFinished(error, true);
-}
-
-void SshDeviceProcess::handleProcessFinished(const QString &error, bool emitFinished)
+void SshDeviceProcess::handleProcessFinished(const QString &error)
 {
     d->errorMessage = error;
     if (d->killOperation && error.isEmpty())
         d->errorMessage = tr("The process was ended forcefully.");
     d->setState(SshDeviceProcessPrivate::Inactive);
-    if (emitFinished)
+    if (d->ignoreSelfSignals)
         emit finished();
 }
 
@@ -345,7 +341,6 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
             QMetaObject::invokeMethod(q, &QtcProcess::stopProcess, Qt::QueuedConnection);
     }
     killTimer.stop();
-    ignoreFinished = true;
     if (remoteProcess)
         remoteProcess->disconnect(q);
     if (connection) {
