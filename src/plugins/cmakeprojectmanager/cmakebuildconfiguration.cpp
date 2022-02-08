@@ -770,7 +770,9 @@ void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 void CMakeBuildSettingsWidget::updateFromKit()
 {
     const Kit *k = m_buildConfiguration->kit();
-    const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+    CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+
+    config.append(CMakeGeneratorKitAspect::generatorCMakeConfig(k));
 
     // First the key value parameters
     ConfigModel::KitConfiguration configHash;

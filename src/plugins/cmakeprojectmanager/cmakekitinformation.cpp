@@ -660,6 +660,29 @@ QStringList CMakeGeneratorKitAspect::generatorArguments(const Kit *k)
     return result;
 }
 
+CMakeConfig CMakeGeneratorKitAspect::generatorCMakeConfig(const ProjectExplorer::Kit *k)
+{
+    CMakeConfig config;
+
+    GeneratorInfo info = generatorInfo(k);
+    if (info.generator.isEmpty())
+        return config;
+
+    if (info.extraGenerator.isEmpty())
+        config << CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8());
+    else
+        config << CMakeConfigItem("CMAKE_GENERATOR",
+                                  (info.extraGenerator + " - " + info.generator).toUtf8());
+
+    if (!info.platform.isEmpty())
+        config << CMakeConfigItem("CMAKE_GENERATOR_PLATFORM", info.platform.toUtf8());
+
+    if (!info.toolset.isEmpty())
+        config << CMakeConfigItem("CMAKE_GENERATOR_TOOLSET", info.toolset.toUtf8());
+
+    return config;
+}
+
 bool CMakeGeneratorKitAspect::isMultiConfigGenerator(const Kit *k)
 {
     const QString generator = CMakeGeneratorKitAspect::generator(k);
