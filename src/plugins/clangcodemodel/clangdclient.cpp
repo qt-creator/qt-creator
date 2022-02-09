@@ -2532,7 +2532,7 @@ private:
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
 // and not even in a consistent manner. We don't want this, so we have to clean up here.
 // But note that we require this behavior, as otherwise we would not be able to grey out
-// e.g. empty lines after an #fdef, due to the lack of symbols.
+// e.g. empty lines after an #ifdef, due to the lack of symbols.
 static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const QTextDocument *doc,
                                              const QString &docContent)
 {
@@ -2558,8 +2558,13 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
                 && !content.startsWith(QLatin1String("#elif"))
                 && !content.startsWith(QLatin1String("#else"))
                 && !content.startsWith(QLatin1String("#endif"))) {
-            ++it;
-            continue;
+            static const QStringList ppSuffixes{"if", "ifdef", "elif", "else", "endif"};
+            const QList<QStringView> contentList = content.split(' ', Qt::SkipEmptyParts);
+            if (contentList.size() < 2 || contentList.first() != QLatin1String("#")
+                    || !ppSuffixes.contains(contentList.at(1))) {
+                ++it;
+                continue;
+            }
         }
 
         if (!wasIfdefedOut) {
