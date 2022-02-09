@@ -87,6 +87,8 @@
 #include <sys/types.h>
 #endif
 
+//#define ALLOW_LOCAL_ACCESS 1
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -249,6 +251,7 @@ class DockerDevicePrivate : public QObject
 public:
     DockerDevicePrivate(DockerDevice *parent) : q(parent)
     {
+#ifdef ALLOW_LOCAL_ACCESS
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
             Q_UNUSED(path)
             LOG("Container watcher change, file: " << path);
@@ -257,6 +260,7 @@ public:
             Q_UNUSED(path)
             LOG("Container watcher change, directory: " << path);
         });
+#endif
     }
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
@@ -279,8 +283,11 @@ public:
     QPointer<QtcProcess> m_shell;
     mutable QMutex m_shellMutex;
     QString m_container;
+
+#ifdef ALLOW_LOCAL_ACCESS
     QString m_mergedDir;
     QFileSystemWatcher m_mergedDirWatcher;
+#endif
 
     Environment m_cachedEnviroment;
 
@@ -333,6 +340,7 @@ public:
             data.useLocalUidGid = on;
         });
 
+#ifdef ALLOW_LOCAL_ACCESS
         // This tries to find the directory in the host file system that corresponds to the
         // docker container root file system, which is a merge of the layers from the
         // container image and the volumes mapped using -v on container startup.
@@ -348,6 +356,7 @@ public:
             data.useFilePathMapping = on;
             dockerDevice->updateContainerAccess();
         });
+#endif
 
         m_pathsListEdit = new PathListEditor;
         m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
@@ -420,7 +429,9 @@ public:
             repoLabel, m_repoLineEdit, Break(),
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
+#ifdef ALLOW_LOCAL_ACCESS
             m_usePathMapping, Break(),
+#endif
             Column {
                 new QLabel(tr("Paths to mount:")),
                 m_pathsListEdit,
@@ -459,7 +470,9 @@ private:
     QToolButton *m_daemonReset;
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
+#ifdef ALLOW_LOCAL_ACCESS
     QCheckBox *m_usePathMapping;
+#endif
     Utils::PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
@@ -791,7 +804,9 @@ void DockerDevicePrivate::stopCurrentContainer()
         if (m_shell->state() == QProcess::NotRunning) {
             LOG("Clean exit via shell");
             m_container.clear();
+#ifdef ALLOW_LOCAL_ACCESS
             m_mergedDir.clear();
+#endif
             delete m_shell;
             m_shell = nullptr;
             return;
@@ -802,7 +817,9 @@ void DockerDevicePrivate::stopCurrentContainer()
     proc.setCommand({"docker", {"container", "stop", m_container}});
 
     m_container.clear();
+#ifdef ALLOW_LOCAL_ACCESS
     m_mergedDir.clear();
+#endif
 
     proc.runBlocking();
 }
@@ -917,6 +934,7 @@ void DockerDevicePrivate::updateContainerAccess()
 
 void DockerDevicePrivate::updateFileSystemAccess()
 {
+#ifdef ALLOW_LOCAL_ACCESS
     if (!m_data.useFilePathMapping) {
         // Direct access was used previously, but is not wanted anymore.
         if (!m_mergedDir.isEmpty()) {
@@ -958,14 +976,19 @@ void DockerDevicePrivate::updateFileSystemAccess()
     }
 
     m_mergedDirWatcher.addPath(m_mergedDir);
+#endif
 }
 
 bool DockerDevice::hasLocalFileAccess() const
 {
+#ifdef ALLOW_LOCAL_ACCESS
     static const bool denyLocalAccess = qEnvironmentVariableIsSet("QTC_DOCKER_DENY_LOCAL_ACCESS");
     if (denyLocalAccess)
         return false;
     return !d->m_mergedDir.isEmpty();
+#else
+    return false;
+#endif
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
@@ -976,6 +999,7 @@ void DockerDevice::setMounts(const QStringList &mounts) const
 
 FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
 {
+#ifdef ALLOW_LOCAL_ACCESS
     QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
     QString path = filePath.path();
     for (const QString &mount : qAsConst(d->m_data.mounts)) {
@@ -985,6 +1009,10 @@ FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
     if (path.startsWith('/'))
         return FilePath::fromString(d->m_mergedDir + path);
     return FilePath::fromString(d->m_mergedDir + '/' + path);
+#else
+    QTC_CHECK(false);
+    return {};
+#endif
 }
 
 FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
@@ -995,9 +1023,14 @@ FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
 
 FilePath DockerDevice::mapFromLocalAccess(const QString &filePath) const
 {
+#ifdef ALLOW_LOCAL_FILE_ACCESS
     QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
     QTC_ASSERT(filePath.startsWith(d->m_mergedDir), return FilePath::fromString(filePath));
     return mapToGlobalPath(FilePath::fromString(filePath.mid(d->m_mergedDir.size())));
+#else
+    QTC_CHECK(false);
+    return {};
+#endif
 }
 
 const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
