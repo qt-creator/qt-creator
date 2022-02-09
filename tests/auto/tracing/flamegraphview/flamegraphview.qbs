@@ -4,6 +4,7 @@ import "../tracingautotest.qbs" as TracingAutotest
 TracingAutotest {
     name: "FlameGraphView autotest"
 
+    Depends { name: "Utils" }
     Depends { name: "Qt.quickwidgets" }
 
     Group {
