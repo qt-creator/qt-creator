@@ -116,7 +116,10 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
 
-    m_handler = new ShowOutputTaskHandler(this);
+    m_handler = new ShowOutputTaskHandler(this,
+        tr("Show Compile &Output"),
+        tr("Show the output that generated this issue in the compile output window"),
+        tr("O"));
     ExtensionSystem::PluginManager::addObject(m_handler);
     setupContext(C_COMPILE_OUTPUT, m_outputWindow);
     loadSettings();

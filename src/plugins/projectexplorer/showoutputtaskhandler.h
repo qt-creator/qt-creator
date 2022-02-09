@@ -37,7 +37,8 @@ class ShowOutputTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    explicit ShowOutputTaskHandler(Core::IOutputPane *window);
+    explicit ShowOutputTaskHandler(Core::IOutputPane *window, const QString &text,
+                                   const QString &tooltip, const QString &shortcut);
 
     bool canHandle(const Task &) const override;
     void handle(const Task &task) override;
@@ -45,6 +46,9 @@ public:
 
 private:
     Core::IOutputPane * const m_window;
+    const QString m_text;
+    const QString m_tooltip;
+    const QString m_shortcut;
 };
 
 } // namespace Internal
