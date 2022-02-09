@@ -87,7 +87,7 @@ QtcLibrary {
 
     Properties {
         condition: pythonDllProbe.found
-        cpp.defines: ["WITH_PYTHON=1"]
+        cpp.defines: ["WITH_PYTHON=1", "PY_SSIZE_T_CLEAN"]
     }
     cpp.includePaths: {
         if (pythonDllProbe.found)

@@ -90,7 +90,7 @@ if (_library_enabled)
   extend_qtc_library(qtcreatorcdbext
     DEPENDS "${Python3_LIBRARIES}"
     INCLUDES "${Python3_INCLUDE_DIRS}"
-    DEFINES WITH_PYTHON=1
+    DEFINES WITH_PYTHON=1 PY_SSIZE_T_CLEAN
     SOURCES
       pycdbextmodule.cpp pycdbextmodule.h
       pyfield.cpp pyfield.h
