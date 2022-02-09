@@ -29,6 +29,7 @@ add_qtc_library(KSyntaxHighlighting SHARED
     src/lib/foldingregion.cpp src/lib/foldingregion.h
     src/lib/format.cpp src/lib/format.h src/lib/format_p.h
     src/lib/htmlhighlighter.cpp src/lib/htmlhighlighter.h
+    src/lib/highlightingdata.cpp src/lib/highlightingdata_p.hpp
     src/lib/keywordlist.cpp src/lib/keywordlist_p.h
     src/lib/matchresult_p.h
     src/lib/repository.cpp src/lib/repository.h src/lib/repository_p.h

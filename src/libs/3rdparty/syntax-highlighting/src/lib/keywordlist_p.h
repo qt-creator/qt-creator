@@ -44,6 +44,11 @@ public:
         return m_keywords;
     }
 
+    Qt::CaseSensitivity caseSensitivity() const
+    {
+        return m_caseSensitive;
+    }
+
     void setKeywordList(const QStringList &keywords)
     {
         m_keywords = keywords;
@@ -53,7 +58,10 @@ public:
     }
 
     /** Checks if @p str is a keyword in this list. */
-    bool contains(QStringView str) const { return contains(str, m_caseSensitive); }
+    bool contains(QStringView str) const
+    {
+        return contains(str, m_caseSensitive);
+    }
 
     /** Checks if @p str is a keyword in this list, overriding the global case-sensitivity setting. */
     bool contains(QStringView str, Qt::CaseSensitivity caseSensitive) const;

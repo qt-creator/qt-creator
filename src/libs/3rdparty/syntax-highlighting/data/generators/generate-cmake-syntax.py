@@ -57,7 +57,7 @@ def try_transform_placeholder_string_to_regex(name):
     if 'ARGV' in m:
         return 'ARGV[0-9]+'
 
-    return '&id_re;'.join(m) if 1 < len(m) else name
+    return '&var_ref_re;'.join(m) if 1 < len(m) else name
 
 
 def try_placeholders_to_regex(names):
@@ -109,6 +109,26 @@ def transform_command(cmd):
 
     cmd['nested_parentheses'] = cmd['nested-parentheses?'] if 'nested-parentheses?' in cmd else False
 
+    if 'first-arg-is-target?' in cmd:
+        cmd['first_arg_is_target'] = cmd['first-arg-is-target?']
+        can_be_nulary = False
+
+    if 'first-args-are-targets?' in cmd:
+        cmd['first_args_are_targets'] = cmd['first-args-are-targets?']
+        can_be_nulary = False
+
+    if 'has-target-name-after-kw' in cmd:
+        cmd['has_target_name_after_kw'] = cmd['has-target-name-after-kw']
+        can_be_nulary = False
+
+    if 'has-target-names-after-kw' in cmd:
+        cmd['has_target_names_after_kw'] = cmd['has-target-names-after-kw']
+        can_be_nulary = False
+
+    if 'second-arg-is-target?' in cmd:
+        cmd['second_arg_is_target'] = cmd['second-arg-is-target?']
+        can_be_nulary = False
+
     if 'nulary?' in cmd and cmd['nulary?'] and not can_be_nulary:
         raise RuntimeError('Command `{}` w/ args declared nulary!?'.format(cmd['name']))
 
@@ -124,8 +144,7 @@ def transform_command(cmd):
 #BEGIN Jinja filters
 
 def cmd_is_nulary(cmd):
-    assert not ('named-args' in cmd or 'special-args' in cmd or 'property-args' in cmd)
-    return 'nulary?' in cmd and cmd['nulary?']
+    return cmd.setdefault('nulary?', False)
 
 #END Jinja filters
 
@@ -134,7 +153,7 @@ def cmd_is_nulary(cmd):
 @click.argument('input_yaml', type=click.File('r'))
 @click.argument('template', type=click.File('r'), default='./cmake.xml.tpl')
 def cli(input_yaml, template):
-    data = yaml.load(input_yaml)
+    data = yaml.load(input_yaml, Loader=yaml.BaseLoader)
 
     # Partition `variables` and `environment-variables` lists into "pure" (key)words and regexes to match
     for var_key in _VAR_KIND_LIST:
@@ -164,8 +183,16 @@ def cli(input_yaml, template):
     data['commands'] = list(
         map(
             transform_command
-          , data['scripting-commands'] + data['project-commands'] + data['ctest-commands'])
+          , data['scripting-commands'] + data['project-commands'] + data['ctest-commands']
+          )
       )
+    data['standard_module_commands'] = list(
+        map(
+            transform_command
+          , data['standard-module-commands']
+          )
+      )
+    del data['standard-module-commands']
 
     # Fix node names to be accessible from Jinja template
     data['generator_expressions'] = data['generator-expressions']

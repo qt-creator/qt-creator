@@ -59,7 +59,7 @@ public:
     /**
      * Destructor.
      */
-    ~DefinitionDownloader();
+    ~DefinitionDownloader() override;
 
     /**
      * Starts the update procedure.

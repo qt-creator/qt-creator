@@ -7,6 +7,7 @@ target_sources(KF5SyntaxHighlighting PRIVATE
     context.cpp
     contextswitch.cpp
     definitiondownloader.cpp
+    highlightingdata.cpp
     foldingregion.cpp
     format.cpp
     htmlhighlighter.cpp
@@ -46,13 +47,13 @@ set_target_properties(KF5SyntaxHighlighting PROPERTIES
     SOVERSION ${SyntaxHighlighting_SOVERSION}
     EXPORT_NAME SyntaxHighlighting
 )
-target_include_directories(KF5SyntaxHighlighting INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}/KSyntaxHighlighting;${KDE_INSTALL_INCLUDEDIR_KF5}>")
+target_include_directories(KF5SyntaxHighlighting INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting;${KDE_INSTALL_INCLUDEDIR_KF}>")
 target_include_directories(KF5SyntaxHighlighting PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR};>")
 target_link_libraries(KF5SyntaxHighlighting
     PUBLIC
-        Qt5::Gui
+        Qt${QT_MAJOR_VERSION}::Gui
     PRIVATE
-        Qt5::Network
+        Qt${QT_MAJOR_VERSION}::Network
 )
 
 ecm_generate_headers(SyntaxHighlighting_HEADERS
@@ -74,7 +75,7 @@ install(TARGETS KF5SyntaxHighlighting EXPORT KF5SyntaxHighlightingTargets ${KDE_
 install(FILES
     ${SyntaxHighlighting_HEADERS}
     ${CMAKE_CURRENT_BINARY_DIR}/ksyntaxhighlighting_export.h
-    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KSyntaxHighlighting)
+    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting)
 
 if(BUILD_QCH)
     ecm_add_qch(
@@ -104,6 +105,6 @@ ecm_generate_pri_file(
     KF5SyntaxHighlighting
     DEPS "gui"
     FILENAME_VAR PRI_FILENAME
-    INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF5}/KSyntaxHighlighting
+    INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF}/KSyntaxHighlighting
 )
 install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})

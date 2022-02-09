@@ -17,7 +17,7 @@
 #include <QColor>
 #include <QFile>
 #include <QFileInfo>
-#include <QMap>
+#include <QHash>
 #include <QTextStream>
 
 #include <cmath>
@@ -539,7 +539,7 @@ double calculate_CIEDE2000(const CieLab &color1, const CieLab &color2)
 }
 
 struct AnsiBuffer {
-    using ColorCache = QMap<QRgb, int>;
+    using ColorCache = QHash<QRgb, int>;
 
     void append(char c)
     {
@@ -683,7 +683,8 @@ struct GraphLine {
     int labelLineLength = 0;
     int nextLabelOffset = 0;
 
-    template<class String> void pushLabel(int offset, String const &s, int charCounter)
+    template<class String>
+    void pushLabel(int offset, String const &s, int charCounter)
     {
         Q_ASSERT(offset >= labelLineLength);
         const int n = offset - labelLineLength;
@@ -693,7 +694,8 @@ struct GraphLine {
         nextLabelOffset = labelLineLength;
     }
 
-    template<class String> void pushGraph(int offset, String const &s, int charCounter)
+    template<class String>
+    void pushGraph(int offset, String const &s, int charCounter)
     {
         Q_ASSERT(offset >= graphLineLength);
         const int n = offset - graphLineLength;
@@ -754,8 +756,15 @@ public:
     void setDefinition(const KSyntaxHighlighting::Definition &def) override
     {
         AbstractHighlighter::setDefinition(def);
-        m_defData = DefinitionData::get(def);
         m_contextCapture.setDefinition(def);
+
+        const auto &definitions = def.includedDefinitions();
+        for (const auto &definition : definitions) {
+            const auto *defData = DefinitionData::get(definition);
+            for (const auto &context : defData->contexts) {
+                m_defDataBycontexts.insert(&context, defData);
+            }
+        }
     }
 
     void highlightData(QTextStream &in,
@@ -928,8 +937,8 @@ private:
             }
 
             const auto context = stateData->topContext();
-            const auto defData = DefinitionData::get(context->definition());
-            const auto contextName = (defData != m_defData) ? QString(QLatin1Char('<') % defData->name % QLatin1Char('>')) : QString();
+            const auto defDataIt = m_defDataBycontexts.find(context);
+            const auto contextName = (defDataIt != m_defDataBycontexts.end()) ? QString(QLatin1Char('<') % (*defDataIt)->name % QLatin1Char('>')) : QString();
             return QString(label % contextName % QLatin1Char('[') % context->name() % QLatin1Char(']'));
         }
 
@@ -1128,12 +1137,13 @@ private:
     std::vector<HighlightFragment> m_highlightedFragments;
     std::vector<GraphLine> m_formatGraph;
     ContextCaptureHighlighter m_contextCapture;
-    DefinitionData *m_defData;
 
     int m_regionDepth = 0;
     std::vector<Region> m_regions;
     std::vector<GraphLine> m_regionGraph;
     std::vector<QStringView> m_regionStyles;
+
+    QHash<const Context *, const DefinitionData *> m_defDataBycontexts;
 };
 } // anonymous namespace
 

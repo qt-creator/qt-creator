@@ -8,13 +8,15 @@
 #ifndef KSYNTAXHIGHLIGHTING_DEFINITION_P_H
 #define KSYNTAXHIGHLIGHTING_DEFINITION_P_H
 
-#include "definition.h"
 #include "definitionref_p.h"
+#include "highlightingdata_p.hpp"
 #include "worddelimiters_p.h"
 
 #include <QHash>
 #include <QString>
 #include <QVector>
+
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 class QCborMap;
@@ -55,23 +57,31 @@ public:
     void loadSpellchecking(QXmlStreamReader &reader);
     bool checkKateVersion(QStringView verStr);
 
+    void resolveContexts();
+
     void resolveIncludeKeywords();
 
     KeywordList *keywordList(const QString &name);
 
-    Context *initialContext() const;
-    Context *contextByName(const QString &name) const;
+    Context *initialContext();
+    Context *contextByName(const QString &name);
 
     Format formatByName(const QString &name) const;
 
     quint16 foldingRegionId(const QString &foldName);
 
+    void addImmediateIncludedDefinition(const Definition &def);
+
     DefinitionRef q;
 
     Repository *repo = nullptr;
     QHash<QString, KeywordList> keywordLists;
-    QVector<Context *> contexts;
+    std::vector<Context> contexts;
     QHash<QString, Format> formats;
+    // data loaded from xml file and emptied after loading contexts
+    QVector<HighlightingContextData> contextDatas;
+    // Definition referenced by IncludeRules and ContextSwitch
+    QVector<DefinitionRef> immediateIncludedDefinitions;
     WordDelimiters wordDelimiters;
     WordDelimiters wordWrapDelimiters;
     bool keywordIsLoaded = false;

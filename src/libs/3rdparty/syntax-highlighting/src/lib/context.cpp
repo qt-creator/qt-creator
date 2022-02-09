@@ -18,177 +18,111 @@
 
 using namespace KSyntaxHighlighting;
 
-Definition Context::definition() const
+Context::Context(const DefinitionData &def, const HighlightingContextData &data)
+    : m_name(data.name)
+    , m_attributeFormat(data.attribute.isEmpty() ? Format() : def.formatByName(data.attribute))
+    , m_indentationBasedFolding(!data.noIndentationBasedFolding && def.indentationBasedFolding)
 {
-    return m_def.definition();
-}
-
-void Context::setDefinition(const DefinitionRef &def)
-{
-    m_def = def;
+    if (!data.attribute.isEmpty() && !m_attributeFormat.isValid()) {
+        qCWarning(Log) << "Context: Unknown format" << data.attribute << "in context" << m_name << "of definition" << def.name;
+    }
 }
 
 bool Context::indentationBasedFoldingEnabled() const
 {
-    if (m_noIndentationBasedFolding) {
-        return false;
-    }
-
-    return m_def.definition().indentationBasedFoldingEnabled();
+    return m_indentationBasedFolding;
 }
 
-void Context::load(QXmlStreamReader &reader)
+void Context::resolveContexts(DefinitionData &def, const HighlightingContextData &data)
 {
-    Q_ASSERT(reader.name() == QLatin1String("context"));
-    Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
-
-    m_name = reader.attributes().value(QLatin1String("name")).toString();
-    m_attribute = reader.attributes().value(QLatin1String("attribute")).toString();
-    m_lineEndContext.parse(reader.attributes().value(QLatin1String("lineEndContext")));
-    m_lineEmptyContext.parse(reader.attributes().value(QLatin1String("lineEmptyContext")));
-    m_fallthroughContext.parse(reader.attributes().value(QLatin1String("fallthroughContext")));
+    m_lineEndContext.resolve(def, data.lineEndContext);
+    m_lineEmptyContext.resolve(def, data.lineEmptyContext);
+    m_fallthroughContext.resolve(def, data.fallthroughContext);
     m_fallthrough = !m_fallthroughContext.isStay();
-    m_noIndentationBasedFolding = Xml::attrToBool(reader.attributes().value(QLatin1String("noIndentationBasedFolding")));
 
-    reader.readNext();
-    while (!reader.atEnd()) {
-        switch (reader.tokenType()) {
-        case QXmlStreamReader::StartElement: {
-            auto rule = Rule::create(reader.name());
-            if (rule) {
-                rule->setDefinition(m_def.definition());
-                if (rule->load(reader)) {
-                    m_rules.push_back(std::move(rule));
-                }
-            } else {
-                reader.skipCurrentElement();
-            }
-            reader.readNext();
-            break;
-        }
-        case QXmlStreamReader::EndElement:
-            return;
-        default:
-            reader.readNext();
-            break;
+    m_rules.reserve(data.rules.size());
+    for (const auto &ruleData : data.rules) {
+        m_rules.push_back(Rule::create(def, ruleData, m_name));
+        if (!m_rules.back()) {
+            m_rules.pop_back();
         }
     }
 }
 
-void Context::resolveContexts()
+void Context::resolveIncludes(DefinitionData &def)
 {
-    const auto def = m_def.definition();
-    m_lineEndContext.resolve(def);
-    m_lineEmptyContext.resolve(def);
-    m_fallthroughContext.resolve(def);
-    for (const auto &rule : m_rules) {
-        rule->resolveContext();
-    }
-}
-
-Context::ResolveState Context::resolveState()
-{
-    if (m_resolveState == Unknown) {
-        for (const auto &rule : m_rules) {
-            auto inc = std::dynamic_pointer_cast<IncludeRules>(rule);
-            if (inc) {
-                m_resolveState = Unresolved;
-                return m_resolveState;
-            }
-        }
-        m_resolveState = Resolved;
-    }
-    return m_resolveState;
-}
-
-void Context::resolveIncludes()
-{
-    if (resolveState() == Resolved) {
+    if (m_resolveState == Resolved) {
         return;
     }
-    if (resolveState() == Resolving) {
+    if (m_resolveState == Resolving) {
         qCWarning(Log) << "Cyclic dependency!";
         return;
     }
 
-    Q_ASSERT(resolveState() == Unresolved);
+    Q_ASSERT(m_resolveState == Unresolved);
     m_resolveState = Resolving; // cycle guard
 
     for (auto it = m_rules.begin(); it != m_rules.end();) {
-        auto inc = std::dynamic_pointer_cast<IncludeRules>(*it);
-        if (!inc) {
+        const IncludeRules *includeRules = it->get()->castToIncludeRules();
+        if (!includeRules) {
             ++it;
             continue;
         }
+
         Context *context = nullptr;
-        auto myDefData = DefinitionData::get(m_def.definition());
-        if (inc->definitionName().isEmpty()) { // local include
-            context = myDefData->contextByName(inc->contextName());
+        DefinitionData *defData = &def;
+
+        const auto &contextName = includeRules->contextName();
+        const int idx = contextName.indexOf(QLatin1String("##"));
+
+        if (idx == -1) { // local include
+            context = def.contextByName(contextName);
         } else {
-            auto def = myDefData->repo->definitionForName(inc->definitionName());
-            if (!def.isValid()) {
-                qCWarning(Log) << "Unable to resolve external include rule for definition" << inc->definitionName() << "in" << m_def.definition().name();
+            auto definitionName = contextName.mid(idx + 2);
+            auto includedDef = def.repo->definitionForName(definitionName);
+            if (!includedDef.isValid()) {
+                qCWarning(Log) << "Unable to resolve external include rule for definition" << definitionName << "in" << def.name;
                 ++it;
                 continue;
             }
-            auto defData = DefinitionData::get(def);
+            defData = DefinitionData::get(includedDef);
+            def.addImmediateIncludedDefinition(includedDef);
             defData->load();
-            if (inc->contextName().isEmpty()) {
+            if (idx == 0) {
                 context = defData->initialContext();
             } else {
-                context = defData->contextByName(inc->contextName());
+                context = defData->contextByName(contextName.left(idx));
             }
         }
+
         if (!context) {
-            qCWarning(Log) << "Unable to resolve include rule for definition" << inc->contextName() << "##" << inc->definitionName() << "in"
-                           << m_def.definition().name();
+            qCWarning(Log) << "Unable to resolve include rule for definition" << contextName << "in" << def.name;
             ++it;
             continue;
         }
-        context->resolveIncludes();
+
+        if (context == this) {
+            qCWarning(Log) << "Unable to resolve self include rule for definition" << contextName << "in" << def.name;
+            ++it;
+            continue;
+        }
+
+        if (context->m_resolveState != Resolved) {
+            context->resolveIncludes(*defData);
+        }
 
         /**
          * handle included attribute
          * transitive closure: we might include attributes included from somewhere else
          */
-        if (inc->includeAttribute()) {
-            m_attribute = context->m_attribute;
-            m_attributeContext = context->m_attributeContext ? context->m_attributeContext : context;
+        if (includeRules->includeAttribute()) {
+            m_attributeFormat = context->m_attributeFormat;
         }
 
         it = m_rules.erase(it);
-        for (const auto &rule : context->rules()) {
-            it = m_rules.insert(it, rule);
-            ++it;
-        }
+        it = m_rules.insert(it, context->rules().begin(), context->rules().end());
+        it += context->rules().size();
     }
 
     m_resolveState = Resolved;
-}
-
-void Context::resolveAttributeFormat()
-{
-    /**
-     * try to get our format from the definition we stem from
-     * we need to handle included attributes via m_attributeContext
-     */
-    if (!m_attribute.isEmpty()) {
-        const auto def = m_attributeContext ? m_attributeContext->m_def.definition() : m_def.definition();
-        m_attributeFormat = DefinitionData::get(def)->formatByName(m_attribute);
-        if (!m_attributeFormat.isValid()) {
-            if (m_attributeContext) {
-                qCWarning(Log) << "Context: Unknown format" << m_attribute << "in context" << m_name << "of definition" << m_def.definition().name()
-                               << "from included context" << m_attributeContext->m_name << "of definition" << def.name();
-            } else {
-                qCWarning(Log) << "Context: Unknown format" << m_attribute << "in context" << m_name << "of definition" << m_def.definition().name();
-            }
-        }
-    }
-
-    /**
-     * lookup formats for our rules
-     */
-    for (const auto &rule : m_rules) {
-        rule->resolveAttributeFormat(this);
-    }
 }

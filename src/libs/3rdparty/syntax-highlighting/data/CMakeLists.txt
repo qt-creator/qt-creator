@@ -64,7 +64,7 @@ if (QRC_SYNTAX)
 
     # generate the qrc file manually, to make dependencies on generated files work...
     add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp"
-        COMMAND ${Qt5Core_RCC_EXECUTABLE} --name syntax_data -o "${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" "${CMAKE_CURRENT_BINARY_DIR}/syntax-data.qrc"
+        COMMAND Qt${QT_MAJOR_VERSION}::rcc --name syntax_data -o "${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" "${CMAKE_CURRENT_BINARY_DIR}/syntax-data.qrc"
         DEPENDS ${defs} ${CMAKE_CURRENT_BINARY_DIR}/index.katesyntax
     )
     set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/qrc_syntax-data.cpp" PROPERTIES SKIP_AUTOMOC ON)
@@ -79,5 +79,5 @@ endif()
 # this needs some more recent CMake than generally required
 set_property(TARGET SyntaxHighlightingData PROPERTY POSITION_INDEPENDENT_CODE 1)
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.13.0")
-    target_link_libraries(SyntaxHighlightingData PRIVATE Qt5::Core)
+    target_link_libraries(SyntaxHighlightingData PRIVATE Qt${QT_MAJOR_VERSION}::Core)
 endif()

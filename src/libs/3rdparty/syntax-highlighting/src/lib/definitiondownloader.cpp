@@ -172,8 +172,7 @@ void DefinitionDownloader::start()
     const QString url = QLatin1String("https://www.kate-editor.org/syntax/update-") + QString::number(SyntaxHighlighting_VERSION_MAJOR) + QLatin1Char('.')
         + QString::number(SyntaxHighlighting_VERSION_MINOR) + QLatin1String(".xml");
     auto req = QNetworkRequest(QUrl(url));
-    req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                     QNetworkRequest::NoLessSafeRedirectPolicy);
+    req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto reply = d->nam->get(req);
     QObject::connect(reply, &QNetworkReply::finished, this, [=]() {
         d->definitionListDownloadFinished(reply);
