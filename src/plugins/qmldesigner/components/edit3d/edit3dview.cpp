@@ -110,6 +110,10 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
     // Notify puppet to resize if received image wasn't correct size
     if (img.size() != canvasSize())
         edit3DViewResized(canvasSize());
+    if (edit3DWidget()->canvas()->busyIndicator()->isVisible()) {
+        edit3DWidget()->canvas()->setOpacity(1.0);
+        edit3DWidget()->canvas()->busyIndicator()->hide();
+    }
 }
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
@@ -195,13 +199,19 @@ void Edit3DView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     checkImports();
+    auto cachedImage = m_canvasCache.take(model);
+    if (cachedImage) {
+        edit3DWidget()->canvas()->updateRenderImage(*cachedImage);
+        edit3DWidget()->canvas()->setOpacity(0.5);
+    }
+
+    edit3DWidget()->canvas()->busyIndicator()->show();
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
-    Q_UNUSED(model)
-
     // Hide the canvas when model is detached (i.e. changing documents)
+    m_canvasCache.insert(model, edit3DWidget()->canvas()->renderImage());
     edit3DWidget()->showCanvas(false);
 
     AbstractView::modelAboutToBeDetached(model);

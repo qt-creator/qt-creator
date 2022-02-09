@@ -27,6 +27,8 @@
 #include "view3dactioncommand.h"
 #include "seekerslider.h"
 
+#include <modelcache.h>
+
 #include <abstractview.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qimage.h>
@@ -107,6 +109,7 @@ private:
     Edit3DAction *m_visibilityTogglesAction = nullptr;
     SeekerSlider *m_seeker = nullptr;
     int particlemode;
+    ModelCache<QImage> m_canvasCache;
 };
 
 } // namespace QmlDesigner
