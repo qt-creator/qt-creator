@@ -1074,6 +1074,7 @@ class MemoryUsageWidget : public QWidget
     Q_DECLARE_TR_FUNCTIONS(MemoryUsageWidget)
 public:
     MemoryUsageWidget(ClangdClient *client);
+    ~MemoryUsageWidget();
 
 private:
     void setupUi();
@@ -1082,6 +1083,7 @@ private:
     ClangdClient * const m_client;
     MemoryTreeModel * const m_model;
     Utils::TreeView m_view;
+    Utils::optional<MessageId> m_currentRequest;
 };
 
 class ClangdClient::Private
@@ -3959,6 +3961,12 @@ MemoryUsageWidget::MemoryUsageWidget(ClangdClient *client)
     getMemoryTree();
 }
 
+MemoryUsageWidget::~MemoryUsageWidget()
+{
+    if (m_currentRequest.has_value())
+        m_client->cancelRequest(m_currentRequest.value());
+}
+
 void MemoryUsageWidget::setupUi()
 {
     const auto layout = new QVBoxLayout(this);
@@ -3978,11 +3986,13 @@ void MemoryUsageWidget::getMemoryTree()
 {
     Request<MemoryTree, std::nullptr_t, JsonObject> request("$/memoryUsage", {});
     request.setResponseCallback([this](decltype(request)::Response response) {
+        m_currentRequest.reset();
         qCDebug(clangdLog) << "received memory usage response";
         if (const auto result = response.result())
             m_model->update(*result);
     });
     qCDebug(clangdLog) << "sending memory usage request";
+    m_currentRequest = request.id();
     m_client->sendContent(request, ClangdClient::SendDocUpdates::Ignore);
 }
 
