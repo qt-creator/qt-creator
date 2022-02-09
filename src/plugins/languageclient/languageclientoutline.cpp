@@ -170,6 +170,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     m_view.setModel(&m_model);
     m_view.setHeaderHidden(true);
     m_view.setExpandsOnDoubleClick(false);
+    m_view.setFrameStyle(QFrame::NoFrame);
     connect(&m_view, &QAbstractItemView::activated,
             this, &LanguageClientOutlineWidget::onItemActivated);
     connect(m_editor->editorWidget(), &TextEditor::TextEditorWidget::cursorPositionChanged,
