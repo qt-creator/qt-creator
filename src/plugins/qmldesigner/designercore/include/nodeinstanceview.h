@@ -27,6 +27,7 @@
 
 #include "qmldesignercorelib_global.h"
 #include "abstractview.h"
+#include "modelcache.h"
 
 #include <modelnode.h>
 #include <nodeinstance.h>
@@ -232,11 +233,29 @@ private: // functions
                                     PropertyChangeFlags flags);
 
 private:
+    struct NodeInstanceCacheData
+    {
+        NodeInstanceCacheData(const QHash<ModelNode, NodeInstance> &i,
+                              const QHash<ModelNode, QImage> &p)
+            : instances(i)
+            , previewImages(p)
+        {}
+
+        NodeInstanceCacheData() = default;
+
+        QHash<ModelNode, NodeInstance> instances;
+        QHash<ModelNode, QImage> previewImages;
+    };
+
+    QList<NodeInstance> loadInstancesFromCache(const QList<ModelNode> &nodeList,
+                                               const NodeInstanceCacheData &cache);
+
     QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
 
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
+    ModelCache<NodeInstanceCacheData> m_nodeInstanceCache;
     QHash<ModelNode, QImage> m_statePreviewImage;
     ConnectionManagerInterface &m_connectionManager;
     std::unique_ptr<NodeInstanceServerProxy> m_nodeInstanceServer;
