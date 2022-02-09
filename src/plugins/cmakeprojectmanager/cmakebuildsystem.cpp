@@ -805,17 +805,6 @@ void CMakeBuildSystem::wireUpConnections()
     // At this point the entire project will be fully configured, so let's connect everything and
     // trigger an initial parser run
 
-    // Kit changed:
-    connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
-        if (k != kit())
-            return; // not for us...
-        // FIXME: This is no longer correct: QtC now needs to update the initial parameters
-        // FIXME: and then ask to reconfigure.
-        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to kit being updated";
-        setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                     CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
-    });
-
     // Became active/inactive:
     connect(target(), &Target::activeBuildConfigurationChanged, this, [this]() {
         // Build configuration has changed:
