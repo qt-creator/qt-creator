@@ -126,8 +126,9 @@ def common_cmake_arguments(args):
                   '-G', 'Ninja']
 
     if args.python3:
-        cmake_args += ['-DPYTHON_EXECUTABLE=' + args.python3]
         cmake_args += ['-DPython3_EXECUTABLE=' + args.python3]
+    if args.python_path:
+        cmake_args += ['-DPython3_ROOT_DIR=' + args.python_path]
 
     if args.module_paths:
         module_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.module_paths]
@@ -140,11 +141,6 @@ def common_cmake_arguments(args):
         if not os.environ.get('CC') and not os.environ.get('CXX'):
             cmake_args += ['-DCMAKE_C_COMPILER=cl',
                            '-DCMAKE_CXX_COMPILER=cl']
-        if args.python_path:
-            python_library = glob.glob(os.path.join(args.python_path, 'libs', 'python??.lib'))
-            if python_library:
-                cmake_args += ['-DPYTHON_LIBRARY=' + python_library[0],
-                               '-DPYTHON_INCLUDE_DIR=' + os.path.join(args.python_path, 'include')]
 
     pch_option = 'ON' if args.with_pch else 'OFF'
     cmake_args += ['-DBUILD_WITH_PCH=' + pch_option]
