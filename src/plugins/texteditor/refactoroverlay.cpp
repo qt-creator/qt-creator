@@ -87,7 +87,10 @@ void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painte
     const QSize proposedIconSize =
         QSize(m_editor->fontMetrics().horizontalAdvance(QLatin1Char(' ')) + 3,
               cursorRect.height()) * devicePixelRatio;
-    const QSize actualIconSize = icon.actualSize(proposedIconSize) / devicePixelRatio;
+    QSize actualIconSize = icon.actualSize(proposedIconSize);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    actualIconSize /= devicePixelRatio;
+#endif // Qt < 6.0
 
     const int y = cursorRect.top() + ((cursorRect.height() - actualIconSize.height()) / 2);
     const int x = cursorRect.right();
