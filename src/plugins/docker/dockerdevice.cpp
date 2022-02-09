@@ -530,32 +530,29 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
     setAllowEmptyCommand(true);
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
-        DeviceProcess * const proc = createProcess(nullptr);
-        QObject::connect(proc, &DeviceProcess::finished, [proc] {
-            if (!proc->errorString().isEmpty()) {
-                MessageManager::writeDisrupting(
-                    tr("Error running remote shell: %1").arg(proc->errorString()));
-            }
-            proc->deleteLater();
-        });
+        Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
+        updateContainerAccess();
+        if (d->m_container.isEmpty()) {
+            MessageManager::writeDisrupting(tr("Error starting remote shell. No container"));
+            return;
+        }
+
+        QtcProcess *proc = new QtcProcess(QtcProcess::TerminalOn);
+        QObject::connect(proc, &QtcProcess::finished, proc, &QObject::deleteLater);
+
         QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
             MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
 
-        Runnable runnable;
-        runnable.command = {"/bin/sh", {}};
-        runnable.device = sharedFromThis();
-        runnable.environment = env;
-        runnable.workingDirectory = workingDir;
-        runnable.extraData[Constants::DOCKER_RUN_FLAGS] = QStringList({"--interactive", "--tty"});
-
-        proc->setRunInTerminal(true);
-        proc->start(runnable);
+        const QString wd = workingDir.isEmpty() ? "/" : workingDir.path();
+        proc->setCommand({"docker", {"exec", "-it", "-w", wd, d->m_container, "/bin/sh"}});
+        proc->setEnvironment(Environment::systemEnvironment()); // The host system env. Intentional.
+        proc->start();
     });
 
     if (HostOsInfo::isAnyUnixHost()) {
-        addDeviceAction({tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+        addDeviceAction({tr("Open Shell in Container"), [this](const IDevice::Ptr &device, QWidget *) {
             device->openTerminal(Environment(), FilePath());
         }});
     }
