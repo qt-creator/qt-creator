@@ -23,7 +23,10 @@ What works:
 
 For testing:
 
-- build docker containers from this directory (tests/manual/docker) by
+- Optional: Set QT_LOGGING_RULES=qtc.docker.device=true
+  This will show a large part of the communication with the docker CLI client.
+
+- Build docker containers from this directory (tests/manual/docker) by
   running ./build.sh. This builds a docker image containing a Desktop Qt
   build setup (including compiler etc) and second docker image container
   containing a run environment without the build tools, but e.g. with gdb
