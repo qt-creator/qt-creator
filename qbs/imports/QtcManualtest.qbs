@@ -17,5 +17,7 @@ QtcProduct {
         return defines;
     }
 
+    destinationDirectory: project.buildDirectory + '/'
+                          + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
     install: false
 }
