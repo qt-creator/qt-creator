@@ -160,12 +160,31 @@ TEST_F(QmlDocumentParser, QualifiedPrototype)
 
 TEST_F(QmlDocumentParser, Properties)
 {
-    auto type = parser.parse("Example{\n property int foo\n}", imports, qmlFileSourceId);
+    auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
                                                            Storage::ImportedType{"int"},
                                                            Storage::PropertyDeclarationTraits::None)));
+}
+
+TEST_F(QmlDocumentParser, QualifiedProperties)
+{
+    auto exampleModuleId = storage.moduleId("Example");
+
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{ property Example.Foo foo})",
+                             imports,
+                             qmlFileSourceId);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration(
+                    "foo",
+                    Storage::QualifiedImportedType("Foo",
+                                                   Storage::Import{exampleModuleId,
+                                                                   Storage::Version{2, 1},
+                                                                   qmlFileSourceId}),
+                    Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, Imports)
@@ -174,6 +193,7 @@ TEST_F(QmlDocumentParser, Imports)
     ModuleId qmlModuleId = storage.moduleId("QML");
     ModuleId qtQmlModuleId = storage.moduleId("QtQml");
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
     auto type = parser.parse(R"(import QtQuick
                                 import "../foo"
                                 Example{})",
@@ -246,6 +266,7 @@ TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
     ModuleId qmlModuleId = storage.moduleId("QML");
     ModuleId qtQmlModuleId = storage.moduleId("QtQml");
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+
     auto type = parser.parse(R"(import QtQuick
                                 import "../foo"
                                 import QtQuick
