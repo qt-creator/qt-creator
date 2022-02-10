@@ -58,7 +58,7 @@ QStringList RecentPresetsStore::addRecentToExisting(const RecentPreset &preset,
     Utils::erase_one(recents, preset);
     Utils::prepend(recents, preset);
 
-    if (recents.size() > m_max)
+    if (int(recents.size()) > m_max)
         recents.pop_back();
 
     return encodeRecentPresets(recents);

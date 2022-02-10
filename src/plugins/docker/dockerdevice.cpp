@@ -1026,6 +1026,7 @@ FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
     return FilePath::fromString(d->m_mergedDir + '/' + path);
 #else
     QTC_CHECK(false);
+    Q_UNUSED(filePath)
     return {};
 #endif
 }
@@ -1043,6 +1044,7 @@ FilePath DockerDevice::mapFromLocalAccess(const QString &filePath) const
     QTC_ASSERT(filePath.startsWith(d->m_mergedDir), return FilePath::fromString(filePath));
     return mapToGlobalPath(FilePath::fromString(filePath.mid(d->m_mergedDir.size())));
 #else
+    Q_UNUSED(filePath)
     QTC_CHECK(false);
     return {};
 #endif

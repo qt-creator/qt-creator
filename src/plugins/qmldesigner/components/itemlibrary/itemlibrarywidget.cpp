@@ -161,6 +161,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache,
     , m_itemsWidget(new QQuickWidget(this))
     , m_imageCache{imageCache}
 {
+    Q_UNUSED(asynchronousFontImageCache)
+
     m_compressionTimer.setInterval(200);
     m_compressionTimer.setSingleShot(true);
     ItemLibraryModel::registerQmlTypes();
