@@ -486,11 +486,31 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QStringEncoder encoder{QStringEncoder::Utf8};
 
-        size_type oldSize = size();
-        size_type newSize = oldSize + static_cast<size_type>(encoder.requiredSpace(string.size()));
+        constexpr size_type temporaryArraySize = Size * 6;
 
-        reserve(optimalCapacity(newSize));
-        auto newEnd = encoder.appendToBuffer(data() + size(), string);
+        size_type oldSize = size();
+        size_type maximumRequiredSize = static_cast<size_type>(encoder.requiredSpace(oldSize));
+        char *newEnd = nullptr;
+
+        if (maximumRequiredSize > temporaryArraySize) {
+            size_type newSize = oldSize + maximumRequiredSize;
+
+            reserve(optimalCapacity(newSize));
+            newEnd = encoder.appendToBuffer(data() + oldSize, string);
+        } else {
+            char temporaryArray[temporaryArraySize];
+
+            auto newTemporaryArrayEnd = encoder.appendToBuffer(temporaryArray, string);
+
+            auto newAppendedStringSize = newTemporaryArrayEnd - temporaryArray;
+            size_type newSize = oldSize + newAppendedStringSize;
+
+            reserve(optimalCapacity(newSize));
+
+            std::memcpy(data() + oldSize, temporaryArray, newAppendedStringSize);
+
+            newEnd = data() + newSize;
+        }
         *newEnd = 0;
         setSize(newEnd - data());
 #else
