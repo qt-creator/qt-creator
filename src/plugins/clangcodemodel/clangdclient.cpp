@@ -3230,7 +3230,8 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     QTextCursor cursor = manipulator.textCursorAt(rangeStart);
     cursor.movePosition(QTextCursor::EndOfWord);
     const QString textAfterCursor = manipulator.textAt(currentPos, cursor.position() - currentPos);
-    if (textToBeInserted != textAfterCursor
+    if (currentPos < cursor.position()
+            && textToBeInserted != textAfterCursor
             && textToBeInserted.indexOf(textAfterCursor, currentPos - rangeStart) >= 0) {
         currentPos = cursor.position();
     }
