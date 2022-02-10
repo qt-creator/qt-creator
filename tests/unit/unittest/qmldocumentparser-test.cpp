@@ -143,17 +143,19 @@ TEST_F(QmlDocumentParser, Prototype)
     ASSERT_THAT(type, HasPrototype(Storage::ImportedType("Example")));
 }
 
-TEST_F(QmlDocumentParser, DISABLED_QualifiedPrototype)
+TEST_F(QmlDocumentParser, QualifiedPrototype)
 {
     auto exampleModuleId = storage.moduleId("Example");
-    QString text = R"(import Example as Example
-                  
-                  Example.Item{})";
+    QString text = R"(import Example 2.1 as Example
+                      Example.Item{})";
+
     auto type = parser.parse(text, imports, qmlFileSourceId);
 
     ASSERT_THAT(type,
-                HasPrototype(Storage::QualifiedImportedType(
-                    "Item", Storage::Import{exampleModuleId, Storage::Version{}, qmlFileSourceId})));
+                HasPrototype(Storage::QualifiedImportedType("Item",
+                                                            Storage::Import{exampleModuleId,
+                                                                            Storage::Version{2, 1},
+                                                                            qmlFileSourceId})));
 }
 
 TEST_F(QmlDocumentParser, Properties)

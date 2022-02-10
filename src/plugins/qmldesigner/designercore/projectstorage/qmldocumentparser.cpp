@@ -41,6 +41,8 @@ namespace QmlDom = QQmlJS::Dom;
 
 namespace {
 
+using QualifiedImports = std::map<QString, Storage::Import>;
+
 int convertVersionNumber(qint32 versionNumber)
 {
     return versionNumber < 0 ? -1 : versionNumber;
@@ -64,30 +66,79 @@ Utils::PathString convertUri(const QString &uri)
     return Utils::PathString{x.generic_string()};
 }
 
+Storage::Import createImport(const QmlDom::Import &qmlImport,
+                             SourceId sourceId,
+                             Utils::SmallStringView directoryPath,
+                             QmlDocumentParser::ProjectStorage &storage)
+{
+    if (qmlImport.uri == u"file://.") {
+        auto moduleId = storage.moduleId(directoryPath);
+        return Storage::Import(moduleId, Storage::Version{}, sourceId);
+    }
+
+    if (qmlImport.uri.startsWith(u"file://")) {
+        auto moduleId = storage.moduleId(convertUri(qmlImport.uri));
+        return Storage::Import(moduleId, Storage::Version{}, sourceId);
+    }
+
+    auto moduleId = storage.moduleId(Utils::SmallString{qmlImport.uri});
+    return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+}
+
+QualifiedImports filterQualifiedImports(const QList<QmlDom::Import> &qmlImports,
+                                        SourceId sourceId,
+                                        Utils::SmallStringView directoryPath,
+                                        QmlDocumentParser::ProjectStorage &storage)
+{
+    QualifiedImports qualifiedImports;
+
+    for (const QmlDom::Import &qmlImport : qmlImports) {
+        if (!qmlImport.importId.isEmpty())
+            qualifiedImports.try_emplace(qmlImport.importId,
+                                         createImport(qmlImport, sourceId, directoryPath, storage));
+    }
+
+    return qualifiedImports;
+}
+
 void addImports(Storage::Imports &imports,
                 const QList<QmlDom::Import> &qmlImports,
                 SourceId sourceId,
                 Utils::SmallStringView directoryPath,
                 QmlDocumentParser::ProjectStorage &storage)
 {
-    for (const QmlDom::Import &qmlImport : qmlImports) {
-        if (qmlImport.uri == u"file://.") {
-            auto moduleId = storage.moduleId(directoryPath);
-            imports.emplace_back(moduleId, Storage::Version{}, sourceId);
-        } else if (qmlImport.uri.startsWith(u"file://")) {
-            auto moduleId = storage.moduleId(convertUri(qmlImport.uri));
-            imports.emplace_back(moduleId, Storage::Version{}, sourceId);
-        } else {
-            auto moduleId = storage.moduleId(Utils::SmallString{qmlImport.uri});
-            imports.emplace_back(moduleId, convertVersion(qmlImport.version), sourceId);
-        }
-    }
+    for (const QmlDom::Import &qmlImport : qmlImports)
+        imports.push_back(createImport(qmlImport, sourceId, directoryPath, storage));
 
     auto end = imports.end();
     auto begin = std::prev(end, qmlImports.size());
 
     std::sort(begin, end);
     imports.erase(std::unique(begin, end), end);
+}
+
+Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
+                                                 const QList<QmlDom::Import> &qmlImports,
+                                                 SourceId sourceId,
+                                                 Utils::SmallStringView directoryPath,
+                                                 QmlDocumentParser::ProjectStorage &storage)
+{
+    if (!rawtypeName.contains('.')) {
+        return Storage::ImportedType{Utils::SmallString{rawtypeName}};
+    }
+
+    auto qualifiedImports = filterQualifiedImports(qmlImports, sourceId, directoryPath, storage);
+
+    auto foundDot = std::find(rawtypeName.begin(), rawtypeName.end(), '.');
+
+    QStringView alias(rawtypeName.begin(), foundDot);
+
+    auto foundImport = qualifiedImports.find(alias.toString());
+
+    QStringView typeName(std::next(foundDot), rawtypeName.end());
+
+    return Storage::QualifiedImportedType{Utils::SmallString{typeName.toString()},
+                                          foundImport->second};
 }
 
 void addPropertyDeclarations(Storage::Type &type, const QmlDom::QmlObject &rootObject)
@@ -188,9 +239,14 @@ Storage::Type QmlDocumentParser::parse(const QString &sourceContent,
 
     const QmlDom::QmlObject &qmlObject = objects.front();
 
-    type.prototype = Storage::ImportedType{Utils::SmallString{qmlObject.name()}};
-
+    const auto qmlImports = qmlFile->imports();
     auto directoryPath{m_pathCache.sourceContextPath(m_pathCache.sourceContextId(sourceId))};
+
+    type.prototype = createImportedTypeName(qmlObject.name(),
+                                            qmlImports,
+                                            sourceId,
+                                            directoryPath,
+                                            m_storage);
 
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
 
