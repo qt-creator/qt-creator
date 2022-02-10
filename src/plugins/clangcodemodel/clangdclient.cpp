@@ -2576,7 +2576,8 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
         }
 
         if (wasIfdefedOut && (it + 1 == results.end()
-                || (it + 1)->textStyles.mainStyle != C_DISABLED_CODE)) {
+                || (it + 1)->textStyles.mainStyle != C_DISABLED_CODE
+                || (it + 1)->line != it->line + 1)) {
             // The #else or #endif that ends disabled code should not be disabled.
             const QTextBlock block = doc->findBlockByNumber(it->line - 1);
             ifdefedOutRanges << BlockRange(rangeStartPos, block.position());

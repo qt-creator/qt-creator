@@ -27,6 +27,7 @@
 
 #include <cppeditor/cpptoolstestcase.h>
 #include <coreplugin/find/searchresultitem.h>
+#include <texteditor/blockrange.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/semantichighlighter.h>
 #include <utils/fileutils.h>
@@ -141,9 +142,11 @@ private slots:
     void initTestCase() override;
     void test_data();
     void test();
+    void testIfdefedOutBlocks();
 
 private:
     TextEditor::HighlightingResults m_results;
+    QList<TextEditor::BlockRange> m_ifdefedOutBlocks;
 };
 
 class ClangdTestCompletion : public ClangdTest

@@ -172,6 +172,10 @@ signals:
     void fontSettingsChanged();
     void markRemoved(TextMark *mark);
 
+#ifdef WITH_TESTS
+    void ifdefedOutBlocksChanged(const QList<BlockRange> &blocks);
+#endif
+
 protected:
     virtual void applyFontSettings();
 
