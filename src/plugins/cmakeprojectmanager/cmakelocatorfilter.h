@@ -54,7 +54,7 @@ class BuildCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 public:
     BuildCMakeTargetLocatorFilter();
 
-    void accept(Core::LocatorFilterEntry selection,
+    void accept(const Core::LocatorFilterEntry &selection,
                 QString *newText,
                 int *selectionStart,
                 int *selectionLength) const final;
@@ -67,7 +67,7 @@ class OpenCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 public:
     OpenCMakeTargetLocatorFilter();
 
-    void accept(Core::LocatorFilterEntry selection,
+    void accept(const Core::LocatorFilterEntry &selection,
                 QString *newText,
                 int *selectionStart,
                 int *selectionLength) const final;

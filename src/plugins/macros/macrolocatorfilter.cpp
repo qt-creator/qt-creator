@@ -85,7 +85,7 @@ QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<
     return betterEntries;
 }
 
-void MacroLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void MacroLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                                 QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

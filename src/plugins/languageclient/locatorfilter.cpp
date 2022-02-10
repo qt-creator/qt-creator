@@ -218,7 +218,7 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
     return {};
 }
 
-void DocumentLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void DocumentLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                                    QString * /*newText*/,
                                    int * /*selectionStart*/,
                                    int * /*selectionLength*/) const
@@ -325,7 +325,7 @@ QList<Core::LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
         .toList();
 }
 
-void WorkspaceLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void WorkspaceLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                                     QString * /*newText*/,
                                     int * /*selectionStart*/,
                                     int * /*selectionLength*/) const

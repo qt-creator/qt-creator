@@ -90,7 +90,7 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorF
     return value;
 }
 
-void LineNumberFilter::accept(LocatorFilterEntry selection,
+void LineNumberFilter::accept(const LocatorFilterEntry &selection,
                               QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

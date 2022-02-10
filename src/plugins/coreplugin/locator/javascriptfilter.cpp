@@ -89,7 +89,7 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
     return entries;
 }
 
-void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newText,
+void JavaScriptFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                               int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

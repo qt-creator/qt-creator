@@ -120,7 +120,7 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
     QMetaObject::invokeMethod(this, &OpenDocumentsFilter::refreshInternally, Qt::QueuedConnection);
 }
 
-void OpenDocumentsFilter::accept(LocatorFilterEntry selection,
+void OpenDocumentsFilter::accept(const LocatorFilterEntry &selection,
                                  QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

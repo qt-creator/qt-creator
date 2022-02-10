@@ -49,7 +49,7 @@ QList<LocatorFilterEntry> ExternalToolsFilter::matchesFor(QFutureInterface<Locat
     return m_results;
 }
 
-void ExternalToolsFilter::accept(LocatorFilterEntry selection,
+void ExternalToolsFilter::accept(const LocatorFilterEntry &selection,
                                  QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

@@ -198,7 +198,7 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     return matches;
 }
 
-void ClangGlobalSymbolFilter::accept(Core::LocatorFilterEntry selection, QString *newText,
+void ClangGlobalSymbolFilter::accept(const Core::LocatorFilterEntry &selection, QString *newText,
                                      int *selectionStart, int *selectionLength) const
 {
     if (qvariant_cast<CppEditor::IndexItem::Ptr>(selection.internalData))
@@ -318,7 +318,7 @@ QList<Core::LocatorFilterEntry> ClangdCurrentDocumentFilter::matchesFor(
     return d->activeFilter->matchesFor(future, entry);
 }
 
-void ClangdCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection, QString *newText,
+void ClangdCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection, QString *newText,
                                          int *selectionStart, int *selectionLength) const
 {
     QTC_ASSERT(d->activeFilter, return);

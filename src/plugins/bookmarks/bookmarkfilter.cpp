@@ -124,7 +124,7 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
     return m_results;
 }
 
-void BookmarkFilter::accept(LocatorFilterEntry selection, QString *newText,
+void BookmarkFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                             int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

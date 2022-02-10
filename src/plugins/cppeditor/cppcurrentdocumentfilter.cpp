@@ -117,7 +117,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     return betterEntries;
 }
 
-void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
+void CppCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection,
                                       QString *newText, int *selectionStart,
                                       int *selectionLength) const
 {
