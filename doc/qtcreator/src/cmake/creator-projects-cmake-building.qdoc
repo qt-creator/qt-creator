@@ -41,15 +41,16 @@
 
     You can view and edit the actual values of the variables that are passed
     to CMake. Variable names are listed in the \uicontrol Key column and their
-    current values in the \uicontrol Value column. For more information
-    about the available variables, see \l{CMake: cmake-variables(7)}.
-    For more information about Qt-specific variables, see
-    \l{CMake Variable Reference}.
+    current values in the \uicontrol Value column. For more information about
+    the available variables, select \uicontrol Help in the context menu or see
+    \l{CMake: cmake-variables(7)}. For more information about Qt-specific
+    variables, see \l{CMake Variable Reference}.
 
     You can specify additional CMake options, such as \c {--find-debug},
     \c {--preset}, \c {--trace-expand}, or \c {--warn-uninitialized}, in
     \uicontrol {Additional CMake options}. For more information about
-    the available options, see \l{CMake: cmake(1)}.
+    the available options, click the link in the field name or see
+    \l{CMake: cmake(1)}.
 
     After successfully running CMake, you can view and modify the current
     configuration in \uicontrol {Current Configuration}.
@@ -97,7 +98,10 @@
     select \uicontrol Copy in the context menu.
 
     To modify the value of a variable, double-click it, or select it,
-    and then select \uicontrol Edit.
+    and then select \uicontrol Edit. If the initial, current, and kit
+    configuration get out of sync, select \uicontrol {Apply Kit Value} or
+    \uicontrol {Apply Initial Configuration Value} in the context menu in
+    \uicontrol {Initial Configuration} or \uicontrol {Current Configuration}.
 
     You can apply actions to multiple variables at a time. To clear
     the selection, select \uicontrol {Clear Selection}.
@@ -194,8 +198,9 @@
             \image qtcreator-cmake-generator.png "CMake Generator dialog"
         \li In \uicontrol Generator, select \uicontrol Ninja.
         \li Select \uicontrol OK to save your changes and close the dialog.
-        \li Close the \uicontrol {Kit CMake Configuration} dialog to return to
-            \uicontrol {Build Settings}.
+        \li Select \uicontrol Close to close the
+            \uicontrol {Kit CMake Configuration} dialog
+            and return to \uicontrol {Build Settings}.
     \endlist
 
     \note To make sure that old build artifacts don't get in the way
