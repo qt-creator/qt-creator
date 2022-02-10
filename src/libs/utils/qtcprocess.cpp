@@ -215,6 +215,10 @@ public:
 class ProcessSetupData
 {
 public:
+    QtcProcess::ProcessImpl m_processImpl = QtcProcess::DefaultImpl;
+    ProcessMode m_processMode = ProcessMode::Reader;
+    QtcProcess::TerminalMode m_terminalMode = QtcProcess::TerminalOff;
+
     QString m_nativeArguments;
     QString m_standardInputFile;
     QString m_initialErrorString;
@@ -532,17 +536,6 @@ static QtcProcess::ProcessImpl defaultProcessImpl()
     return QtcProcess::ProcessLauncherImpl;
 }
 
-static ProcessInterface *newProcessInstance(QObject *parent, const QtcProcess::Setup &setup)
-{
-    if (setup.terminalMode != QtcProcess::TerminalOff)
-        return new TerminalImpl(parent, setup.processImpl, setup.terminalMode);
-    const QtcProcess::ProcessImpl impl = setup.processImpl == QtcProcess::DefaultImpl
-                                       ? defaultProcessImpl() : setup.processImpl;
-    if (impl == QtcProcess::QProcessImpl)
-        return new QProcessImpl(parent, setup.processMode);
-    return new ProcessLauncherImpl(parent, setup.processMode);
-}
-
 class QtcProcessPrivate : public QObject
 {
 public:
@@ -552,19 +545,34 @@ public:
         OtherFailure
     };
 
-    explicit QtcProcessPrivate(QtcProcess *parent, const QtcProcess::Setup &processSetup)
+    explicit QtcProcessPrivate(QtcProcess *parent)
         : QObject(parent)
         , q(parent)
-        , m_processSetup(processSetup)
     {}
+
+    void setupNewProcessInstance()
+    {
+        const QtcProcess::ProcessImpl impl =
+                m_setup.m_processImpl == QtcProcess::DefaultImpl
+                    ? defaultProcessImpl()
+                    : m_setup.m_processImpl;
+
+        if (m_setup.m_terminalMode != QtcProcess::TerminalOff)
+            m_process = new TerminalImpl(parent(), impl, m_setup.m_terminalMode);
+        else if (impl == QtcProcess::QProcessImpl)
+            m_process = new QProcessImpl(parent(), m_setup.m_processMode);
+        else
+            m_process = new ProcessLauncherImpl(parent(), m_setup.m_processMode);
+
+        m_process->m_setup = &m_setup;
+    }
 
     void ensureProcessInstanceExists()
     {
         if (m_process)
             return;
 
-        m_process = newProcessInstance(parent(), m_processSetup);
-        m_process->m_setup = &m_setup;
+        setupNewProcessInstance();
 
         connect(m_process, &ProcessInterface::started,
                 q, &QtcProcess::started);
@@ -691,7 +699,6 @@ public:
 
     QtcProcess *q;
     ProcessInterface *m_process = nullptr;
-    const QtcProcess::Setup m_processSetup;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
@@ -752,9 +759,9 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
     \sa Utils::ProcessArgs
 */
 
-QtcProcess::QtcProcess(const Setup &setup, QObject *parent)
+QtcProcess::QtcProcess(QObject *parent)
     : QObject(parent),
-    d(new QtcProcessPrivate(this, setup))
+    d(new QtcProcessPrivate(this))
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
@@ -762,23 +769,34 @@ QtcProcess::QtcProcess(const Setup &setup, QObject *parent)
     Q_UNUSED(qProcessProcessErrorMeta)
 }
 
-QtcProcess::QtcProcess(QObject *parent)
-    : QtcProcess({}, parent)
-{}
-
 QtcProcess::~QtcProcess()
 {
     delete d;
 }
 
+void QtcProcess::setProcessImpl(ProcessImpl processImpl)
+{
+    d->m_setup.m_processImpl = processImpl;
+}
+
 ProcessMode QtcProcess::processMode() const
 {
-    return d->m_processSetup.processMode;
+    return d->m_setup.m_processMode;
+}
+
+void QtcProcess::setTerminalMode(TerminalMode mode)
+{
+    d->m_setup.m_terminalMode = mode;
 }
 
 QtcProcess::TerminalMode QtcProcess::terminalMode() const
 {
-    return d->m_processSetup.terminalMode;
+    return d->m_setup.m_terminalMode;
+}
+
+void QtcProcess::setProcessMode(ProcessMode processMode)
+{
+    d->m_setup.m_processMode = processMode;
 }
 
 void QtcProcess::setEnvironment(const Environment &env)

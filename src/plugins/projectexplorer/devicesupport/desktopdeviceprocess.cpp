@@ -39,8 +39,9 @@ namespace Internal {
 
 DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &device,
                                            QObject *parent)
-    : DeviceProcess(device, ProcessMode::Writer, parent)
+    : DeviceProcess(device, parent)
 {
+    setProcessMode(ProcessMode::Writer);
 }
 
 void DesktopDeviceProcess::start(const Runnable &runnable)

@@ -145,8 +145,9 @@ const char tracepointCapturePropertyName[] = "GDB.TracepointCapture";
 ///////////////////////////////////////////////////////////////////////
 
 GdbEngine::GdbEngine()
-    : m_gdbProc(ProcessMode::Writer)
 {
+    m_gdbProc.setProcessMode(ProcessMode::Writer);
+
     setObjectName("GdbEngine");
     setDebuggerName("GDB");
 

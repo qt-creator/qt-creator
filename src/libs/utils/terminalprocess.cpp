@@ -126,8 +126,10 @@ public:
     TerminalProcessPrivate(QObject *parent, QtcProcess::ProcessImpl processImpl,
                            QtcProcess::TerminalMode terminalMode)
         : m_terminalMode(terminalMode)
-        , m_process(processImpl, parent)
-    {}
+        , m_process(parent)
+    {
+        m_process.setProcessImpl(processImpl);
+    }
 
     const QtcProcess::TerminalMode m_terminalMode;
     FilePath m_workingDir;

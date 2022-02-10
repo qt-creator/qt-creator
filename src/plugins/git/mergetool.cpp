@@ -58,7 +58,8 @@ bool MergeTool::start(const FilePath &workingDirectory, const QStringList &files
     Environment env = Environment::systemEnvironment();
     env.set("LANG", "C");
     env.set("LANGUAGE", "C");
-    m_process = new QtcProcess(ProcessMode::Writer);
+    m_process = new QtcProcess;
+    m_process->setProcessMode(ProcessMode::Writer);
     m_process->setWorkingDirectory(workingDirectory);
     m_process->setEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);

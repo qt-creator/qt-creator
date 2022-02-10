@@ -63,8 +63,10 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-PdbEngine::PdbEngine() : m_proc(ProcessMode::Writer)
+PdbEngine::PdbEngine()
 {
+    m_proc.setProcessMode(ProcessMode::Writer);
+
     setObjectName("PdbEngine");
     setDebuggerName("PDB");
 }

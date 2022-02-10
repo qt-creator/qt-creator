@@ -112,8 +112,9 @@ public:
 
 DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
                                           QObject *parent)
-    : DeviceProcess(device, ProcessMode::Writer, parent)
+    : DeviceProcess(device, parent)
 {
+    setProcessMode(ProcessMode::Writer);
 }
 
 void DockerDeviceProcess::start(const Runnable &runnable)
@@ -537,7 +538,9 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
             return;
         }
 
-        QtcProcess *proc = new QtcProcess(QtcProcess::TerminalOn);
+        QtcProcess *proc = new QtcProcess;
+        proc->setTerminalMode(QtcProcess::TerminalOn);
+
         QObject::connect(proc, &QtcProcess::finished, proc, &QObject::deleteLater);
 
         QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
@@ -897,7 +900,8 @@ void DockerDevicePrivate::startContainer()
 
     CommandLine dockerRun{"docker", {"container" , "start", "-i", "-a", m_container}};
     LOG("RUNNING: " << dockerRun.toUserOutput());
-    QPointer<QtcProcess> shell = new QtcProcess(ProcessMode::Writer);
+    QPointer<QtcProcess> shell = new QtcProcess;
+    shell->setProcessMode(ProcessMode::Writer);
     connect(shell, &QtcProcess::finished, this, [this, shell] {
         LOG("\nSHELL FINISHED\n");
         QTC_ASSERT(shell, return);

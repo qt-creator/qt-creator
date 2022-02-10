@@ -82,8 +82,9 @@ static int &currentToken()
 ///////////////////////////////////////////////////////////////////////
 
 LldbEngine::LldbEngine()
-    : m_lldbProc(ProcessMode::Writer)
 {
+    m_lldbProc.setProcessMode(ProcessMode::Writer);
+
     setObjectName("LldbEngine");
     setDebuggerName("LLDB");
 

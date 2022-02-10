@@ -182,9 +182,10 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 CdbEngine::CdbEngine() :
     m_tokenPrefix("<token>"),
-    m_process(ProcessMode::Writer),
     m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
+    m_process.setProcessMode(ProcessMode::Writer);
+
     setObjectName("CdbEngine");
     setDebuggerName("CDB");
 

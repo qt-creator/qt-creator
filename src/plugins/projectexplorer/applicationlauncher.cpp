@@ -334,9 +334,9 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
     m_isLocal = local;
 
     if (m_isLocal) {
-        const QtcProcess::TerminalMode terminalMode = m_useTerminal
-                ? QtcProcess::TerminalOn : QtcProcess::TerminalOff;
-        m_localProcess.reset(new QtcProcess(terminalMode, this));
+        m_localProcess.reset(new QtcProcess(this));
+        m_localProcess->setTerminalMode(
+            m_useTerminal ? QtcProcess::TerminalOn : QtcProcess::TerminalOff);
         m_localProcess->setProcessChannelMode(m_processChannelMode);
 
         if (m_processChannelMode == QProcess::SeparateChannels) {
@@ -410,7 +410,8 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
         m_remoteExitStatus = QProcess::NormalExit;
 
         m_deviceProcess = device->createProcess(this);
-        m_deviceProcess->setRunInTerminal(m_useTerminal);
+        m_deviceProcess->setTerminalMode(m_useTerminal ? QtcProcess::TerminalOn
+                                                       : QtcProcess::TerminalOff);
         connect(m_deviceProcess, &DeviceProcess::started,
                 q, &ApplicationLauncher::processStarted);
         connect(m_deviceProcess, &DeviceProcess::readyReadStandardOutput,

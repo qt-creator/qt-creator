@@ -88,8 +88,9 @@ void BaseClientInterface::parseData(const QByteArray &data)
 }
 
 StdIOClientInterface::StdIOClientInterface()
-    : m_process(ProcessMode::Writer)
 {
+    m_process.setProcessMode(ProcessMode::Writer);
+
     connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &StdIOClientInterface::readError);
     connect(&m_process, &QtcProcess::readyReadStandardOutput,

@@ -169,8 +169,11 @@ void QbsSession::initialize()
 {
     Environment env = Environment::systemEnvironment();
     env.set("QT_FORCE_STDERR_LOGGING", "1");
+
     d->packetReader = new PacketReader(this);
-    d->qbsProcess = new QtcProcess(ProcessMode::Writer, this);
+
+    d->qbsProcess = new QtcProcess(this);
+    d->qbsProcess->setProcessMode(ProcessMode::Writer);
     d->qbsProcess->setEnvironment(env);
     connect(d->qbsProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
         d->packetReader->handleData(d->qbsProcess->readAllStandardOutput());

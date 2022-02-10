@@ -60,6 +60,9 @@ class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
     Q_OBJECT
 
 public:
+    QtcProcess(QObject *parent = nullptr);
+    ~QtcProcess();
+
     enum ProcessImpl {
         QProcessImpl,
         ProcessLauncherImpl,
@@ -73,24 +76,6 @@ public:
         TerminalSuspend,
         TerminalOn = TerminalRun // default mode for ON
     };
-
-    struct Setup {
-        Setup() {}
-        Setup(ProcessImpl processImpl) : processImpl(processImpl) {}
-        Setup(ProcessMode processMode) : processMode(processMode) {}
-        Setup(TerminalMode terminalMode) : terminalMode(terminalMode) {}
-
-        ProcessImpl processImpl = DefaultImpl;
-        ProcessMode processMode = ProcessMode::Reader;
-        TerminalMode terminalMode = TerminalOff;
-    };
-
-    QtcProcess(const Setup &setup = {}, QObject *parent = nullptr);
-    QtcProcess(QObject *parent);
-    ~QtcProcess();
-
-    ProcessMode processMode() const;
-    TerminalMode terminalMode() const;
 
     enum Result {
         // Finished successfully. Unless an ExitCodeInterpreter is set
@@ -108,6 +93,15 @@ public:
         // Hang, no output after time out
         Hang
     };
+
+    void setProcessImpl(ProcessImpl processImpl);
+
+    void setTerminalMode(TerminalMode mode);
+    bool usesTerminal() const { return terminalMode() != TerminalOff; }
+    TerminalMode terminalMode() const;
+
+    void setProcessMode(ProcessMode processMode);
+    ProcessMode processMode() const;
 
     void setEnvironment(const Environment &env);
     void unsetEnvironment();

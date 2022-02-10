@@ -44,19 +44,14 @@ public:
     using Utils::QtcProcess::start;
     virtual void start(const Runnable &runnable) = 0;
 
-    void setRunInTerminal(bool term) { m_runInTerminal = term; }
-    bool runInTerminal() const { return m_runInTerminal; }
-
 protected:
     explicit DeviceProcess(const QSharedPointer<const IDevice> &device,
-                           const Utils::QtcProcess::Setup &setup,
                            QObject *parent = nullptr);
 
     QSharedPointer<const IDevice> device() const;
 
 private:
     const QSharedPointer<const IDevice> m_device;
-    bool m_runInTerminal = false;
 };
 
 } // namespace ProjectExplorer

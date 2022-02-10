@@ -194,9 +194,10 @@ void TerminalRunner::start()
     QTC_ASSERT(!m_stubProc, reportFailure({}); return);
     Runnable stub = m_stubRunnable();
 
-    const QtcProcess::TerminalMode terminalMode = HostOsInfo::isWindowsHost()
-            ? QtcProcess::TerminalSuspend : QtcProcess::TerminalDebug;
-    m_stubProc = new QtcProcess(terminalMode, this);
+    m_stubProc = new QtcProcess(this);
+    m_stubProc->setTerminalMode(HostOsInfo::isWindowsHost()
+            ? QtcProcess::TerminalSuspend : QtcProcess::TerminalDebug);
+
     connect(m_stubProc, &QtcProcess::errorOccurred,
             this, &TerminalRunner::stubError);
     connect(m_stubProc, &QtcProcess::started,

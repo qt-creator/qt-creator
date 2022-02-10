@@ -118,7 +118,8 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     const FilePath avdManagerTool = config.avdManagerToolPath();
     qCDebug(avdManagerLog)
             << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
-    QtcProcess proc(ProcessMode::Writer);
+    QtcProcess proc;
+    proc.setProcessMode(ProcessMode::Writer);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setCommand({avdManagerTool, arguments});
     proc.start();

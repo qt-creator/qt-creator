@@ -339,7 +339,7 @@ LinuxDevice::LinuxDevice()
         if (env.size() > 0)
             runnable.command.setExecutable("/bin/sh");
 
-        proc->setRunInTerminal(true);
+        proc->setTerminalMode(QtcProcess::TerminalOn);
         proc->start(runnable);
     });
 
