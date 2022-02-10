@@ -28,6 +28,7 @@ import QtCreator.Tracing 1.0
 import QtQml 2.2
 import QtQuick 2.9
 import QtQuick.Controls 2.3
+import QtQuick.Controls.Material 2.3
 
 ScrollView {
     id: root
@@ -315,6 +316,7 @@ ScrollView {
 
         ComboBox {
             id: modesMenu
+            width: 260 // TODO: Use implicitContentWidthPolicy (Qt6-only)
             x: flickable.width - width
             y: flickable.contentY
             model: root.modes.map(function(role) { return root.trRoleNames[role] });
