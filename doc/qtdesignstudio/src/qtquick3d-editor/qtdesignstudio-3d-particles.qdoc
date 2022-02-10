@@ -92,22 +92,9 @@
         \li Drag-and-drop an instance of the \uicontrol {Particle System}
             component from \uicontrol Library to a scene component instance
             in \l Navigator.
-        \li Drag-and-drop an instance of the \uicontrol Texture component
-            from \uicontrol Library > \uicontrol Components >
-            \uicontrol {Qt Quick 3D} to the sprite particle instance
-            in \uicontrol Navigator.
         \li Drag-and-drop the sprite image from \uicontrol Library >
-            \uicontrol Assets to the texture instance in \uicontrol Navigator.
-        \li Select the sprite particle instance in \uicontrol Navigator to
-            display its properties in \l Properties.
-        \li In \uicontrol Sprite, select the texture instance.
-        \li Select the emitter instance in \uicontrol Navigator to
-            display its properties in \uicontrol Properties.
-        \li In \uicontrol Particle, select the particle instance to emit.
-        \li Select the vector 3D instance in \uicontrol Navigator to
-            display its properties in \uicontrol Properties.
-        \li In \uicontrol Direction, set the emitted particle velocity
-            towards the target vector.
+            \uicontrol Assets to the sprite particle instance
+            in \uicontrol Navigator.
     \endlist
 
     Add instances of other components according to your use case. The following
@@ -121,6 +108,9 @@
     In this section, we explore using particle system components and modifying
     their property values, such as particle source images and their color, life
     span, and fading effects, to simulate fire.
+
+    You can download the completed project from
+    \l {https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/FireParticles}{here}.
 
     We will need the following \l{Assets}{assets}:
 
@@ -199,11 +189,15 @@
     \uicontrol {Particle end scale} to \e 5.00 for the flame
     particles and to \e 6.00 for the smoke particles.
 
-    We can now modify the appearance of the particles by setting their color in
+    We can now modify the appearance of the particles by selecting the
+    \e spriteParticle in \uicontrol Navigator and then setting their color in
     \uicontrol Properties > \uicontrol Particle. We select transparent yellow,
     orange, and transparent gray in \uicontrol Color and set values for
     \uicontrol {Color variation} to use slightly different colors for the
     individual particles.
+
+    We can also try changing the \uicontrol{Blend Mode} for the particle to get
+    a more realistic fire effect.
 
     \image studio-3d-particles-fire-properties-particle.png "Particle properties"
 
@@ -219,6 +213,11 @@
     \uicontrol Billboard for all the particle component instances.
 
     \image studio-3d-particles-fire-properties-sprite-particle.png "Sprite Particle properties"
+
+    In \uicontrol{Particle Rotation}, we also need to set \uicontrol Rotation
+    and \uicontrol{Velocity Variation} for all emitters to 0.
+
+    \image studio-3d-particles-fire-properties-rotation.png "Emitter rotation properties"
 
     Finally, we will specify the direction in which the particles move by
     modifying the property values of the \uicontrol {Vector Direction} component
