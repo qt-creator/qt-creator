@@ -49,6 +49,11 @@ namespace QmlDesigner::Storage {
 
 enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
 
+constexpr TypeAccessSemantics operator|(TypeAccessSemantics first, TypeAccessSemantics second)
+{
+    return static_cast<TypeAccessSemantics>(static_cast<int>(first) | static_cast<int>(second));
+}
+
 enum class PropertyDeclarationTraits : int {
     None = 0,
     IsReadOnly = 1 << 0,
