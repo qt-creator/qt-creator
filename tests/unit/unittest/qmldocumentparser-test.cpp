@@ -187,6 +187,38 @@ TEST_F(QmlDocumentParser, QualifiedProperties)
                     Storage::PropertyDeclarationTraits::None)));
 }
 
+TEST_F(QmlDocumentParser, EnumerationInProperties)
+{
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{ property Enumeration.Foo foo})",
+                             imports,
+                             qmlFileSourceId);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration("foo",
+                                                           Storage::ImportedType("Enumeration.Foo"),
+                                                           Storage::PropertyDeclarationTraits::None)));
+}
+
+TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
+{
+    auto exampleModuleId = storage.moduleId("Example");
+
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{ property Example.Enumeration.Foo foo})",
+                             imports,
+                             qmlFileSourceId);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration(
+                    "foo",
+                    Storage::QualifiedImportedType("Enumeration.Foo",
+                                                   Storage::Import{exampleModuleId,
+                                                                   Storage::Version{2, 1},
+                                                                   qmlFileSourceId}),
+                    Storage::PropertyDeclarationTraits::None)));
+}
+
 TEST_F(QmlDocumentParser, Imports)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");

@@ -120,15 +120,16 @@ void addImports(Storage::Imports &imports,
 Storage::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
                                                  const QualifiedImports &qualifiedImports)
 {
-    if (!rawtypeName.contains('.')) {
+    if (!rawtypeName.contains('.'))
         return Storage::ImportedType{Utils::SmallString{rawtypeName}};
-    }
 
     auto foundDot = std::find(rawtypeName.begin(), rawtypeName.end(), '.');
 
     QStringView alias(rawtypeName.begin(), foundDot);
 
     auto foundImport = qualifiedImports.find(alias.toString());
+    if (foundImport == qualifiedImports.end())
+        return Storage::ImportedType{Utils::SmallString{rawtypeName}};
 
     QStringView typeName(std::next(foundDot), rawtypeName.end());
 
