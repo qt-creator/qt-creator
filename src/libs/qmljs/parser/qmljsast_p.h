@@ -43,9 +43,11 @@
 
 #include <QtCore/qversionnumber.h>
 
-QT_QML_BEGIN_NAMESPACE
-
+QT_BEGIN_NAMESPACE
 class QString;
+QT_END_NAMESPACE
+
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 class Parser;
