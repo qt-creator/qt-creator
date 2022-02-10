@@ -2575,7 +2575,8 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
     int rangeStartPos = -1;
     for (auto it = results.begin(); it != results.end();) {
         const bool wasIfdefedOut = rangeStartPos != -1;
-        if (it->textStyles.mainStyle != C_DISABLED_CODE) {
+        const bool isIfDefedOut = it->textStyles.mainStyle == C_DISABLED_CODE;
+        if (!isIfDefedOut) {
             if (wasIfdefedOut) {
                 const QTextBlock block = doc->findBlockByNumber(it->line - 1);
                 ifdefedOutRanges << BlockRange(rangeStartPos, block.position());
@@ -2587,19 +2588,28 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 
         if (!wasIfdefedOut)
             rangeStartPos = doc->findBlockByNumber(it->line - 1).position();
-        const int pos = Utils::Text::positionInText(doc, it->line, it->column);
-        const QStringView content = subViewLen(docContent, pos, it->length).trimmed();
-        if (!content.startsWith(QLatin1String("#if"))
-                && !content.startsWith(QLatin1String("#elif"))
-                && !content.startsWith(QLatin1String("#else"))
-                && !content.startsWith(QLatin1String("#endif"))) {
-            static const QStringList ppSuffixes{"if", "ifdef", "elif", "else", "endif"};
-            const QList<QStringView> contentList = content.split(' ', Qt::SkipEmptyParts);
-            if (contentList.size() < 2 || contentList.first() != QLatin1String("#")
-                    || !ppSuffixes.contains(contentList.at(1))) {
-                ++it;
-                continue;
-            }
+
+        // Does the current line contain a potential "ifdefed-out switcher"?
+        // If not, no state change is possible and we continue with the next line.
+        const auto isPreprocessorControlStatement = [&] {
+            const int pos = Utils::Text::positionInText(doc, it->line, it->column);
+            const QStringView content = subViewLen(docContent, pos, it->length).trimmed();
+            if (content.isEmpty() || content.first() != '#')
+                return false;
+            int offset = 1;
+            while (offset < content.size() && content.at(offset).isSpace())
+                ++offset;
+            if (offset == content.size())
+                return false;
+            const QStringView ppDirective = content.mid(offset);
+            return ppDirective.startsWith(QLatin1String("if"))
+                    || ppDirective.startsWith(QLatin1String("elif"))
+                    || ppDirective.startsWith(QLatin1String("else"))
+                    || ppDirective.startsWith(QLatin1String("endif"));
+        };
+        if (!isPreprocessorControlStatement()) {
+            ++it;
+            continue;
         }
 
         if (!wasIfdefedOut) {
@@ -2625,6 +2635,12 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 
     if (rangeStartPos != -1)
         ifdefedOutRanges << BlockRange(rangeStartPos, doc->characterCount());
+
+    qCDebug(clangdLogHighlight) << "found" << ifdefedOutRanges.size() << "ifdefed-out ranges";
+    if (clangdLogHighlight().isDebugEnabled()) {
+        for (const BlockRange &r : qAsConst(ifdefedOutRanges))
+            qCDebug(clangdLogHighlight) << r.first() << r.last();
+    }
 
     return ifdefedOutRanges;
 }
@@ -2785,13 +2801,13 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
 
     auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, toResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
-    QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
-        if (textDocument && textDocument->document()->revision() == docRevision)
-            textDocument->setIfdefedOutBlocks(ifdefedOutBlocks);
-    }, Qt::QueuedConnection);
     ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
     if (!future.isCanceled()) {
         qCDebug(clangdLog) << "reporting" << results.size() << "highlighting results";
+        QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
+            if (textDocument && textDocument->document()->revision() == docRevision)
+                textDocument->setIfdefedOutBlocks(ifdefedOutBlocks);
+        }, Qt::QueuedConnection);
         QList<Range> virtualRanges;
         for (const HighlightingResult &r : results) {
             if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)
@@ -2806,8 +2822,7 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 client->setVirtualRanges(filePath, virtualRanges, docRevision);
             }
         }, Qt::QueuedConnection);
-        future.reportResults(QVector<HighlightingResult>(results.cbegin(),
-                                                                     results.cend()));
+        future.reportResults(QVector<HighlightingResult>(results.cbegin(), results.cend()));
     }
     future.reportFinished();
 }
