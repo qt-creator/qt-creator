@@ -551,11 +551,9 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
         proc->start();
     });
 
-    if (HostOsInfo::isAnyUnixHost()) {
-        addDeviceAction({tr("Open Shell in Container"), [this](const IDevice::Ptr &device, QWidget *) {
-            device->openTerminal(Environment(), FilePath());
-        }});
-    }
+    addDeviceAction({tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+                         device->openTerminal(device->systemEnvironment(), FilePath());
+    }});
 }
 
 DockerDevice::~DockerDevice()
