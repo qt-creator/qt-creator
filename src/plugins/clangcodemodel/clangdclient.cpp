@@ -2683,10 +2683,22 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             // where the user sees that it's being written.
             if (it->kind() == "CXXOperatorCall") {
                 const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+
+                // Child 1 is the call itself, Child 2 is the named entity on which the call happens
+                // (a lambda or a class instance), after that follow the actual call arguments.
                 if (children.size() < 2)
                     return false;
-                if (!children.last().range().contains(range))
+
+                // The call itself is never modifiable.
+                if (children.first().range() == range)
                     return false;
+
+                // The callable is never displayed as an output parameter.
+                // TODO: A good argument can be made to display objects on which a non-const
+                //       operator or function is called as output parameters.
+                if (children.at(1).range() == range)
+                    return false;
+
                 QList<AstNode> firstChildTree{children.first()};
                 while (!firstChildTree.isEmpty()) {
                     const AstNode n = firstChildTree.takeFirst();
