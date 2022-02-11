@@ -638,9 +638,7 @@ public:
                         + QLatin1String("/qtcreator_ctrlc_stub.exe");
             }
             ProcessArgs::addArgs(&args, arguments.toWindowsArgs());
-#ifdef Q_OS_WIN
-            m_process->setNativeArguments(args);
-#endif
+            m_setup.m_nativeArguments = args;
             // Note: Arguments set with setNativeArgs will be appended to the ones
             // passed with start() below.
             start(commandString, QStringList(), workingDirectory, m_writeData);
