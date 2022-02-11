@@ -29,23 +29,25 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
-class McuSupportPlugin : public ExtensionSystem::IPlugin
+class McuSupportPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "McuSupport.json")
 
 public:
-    McuSupportPlugin();
-    ~McuSupportPlugin() override;
+    ~McuSupportPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final;
+
     static void askUserAboutMcuSupportKitsSetup();
     static void askUserAboutMcuSupportKitsUpgrade();
-};
 
-} // namespace Internal
-} // namespace McuSupport
+private:
+    QVector<QObject *> createTestObjects() const final;
+
+}; // class McuSupportPlugin
+
+} // namespace McuSupport::Internal

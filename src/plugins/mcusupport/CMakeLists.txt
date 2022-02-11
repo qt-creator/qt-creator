@@ -7,7 +7,7 @@ add_qtc_plugin(McuSupport
     mcusupport_global.h
     mcusupportconstants.h
     mcusupportdevice.cpp mcusupportdevice.h
-    mcusupportoptions.cpp mcusupportoptions.h
+    mcusupportoptions.cpp mcusupportoptions.h mcuabstractpackage.h
     mcusupportoptionspage.cpp mcusupportoptionspage.h
     mcupackage.cpp mcupackage.h
     mcusupportplugin.cpp mcusupportplugin.h
@@ -16,3 +16,5 @@ add_qtc_plugin(McuSupport
     mcusupportversiondetection.cpp mcusupportversiondetection.h
     mcusupportcmakemapper.cpp mcusupportcmakemapper.h
 )
+
+add_subdirectory(test)

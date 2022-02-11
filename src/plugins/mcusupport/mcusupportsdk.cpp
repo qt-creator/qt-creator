@@ -34,8 +34,8 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -336,39 +336,7 @@ static McuPackage *createRenesasProgrammerPackage()
     return result;
 }
 
-struct McuTargetDescription
-{
-    enum class TargetType {
-        MCU,
-        Desktop
-    };
-
-    QString qulVersion;
-    QString compatVersion;
-    struct {
-        QString id;
-        QString name;
-        QString vendor;
-        QVector<int> colorDepths;
-        TargetType type;
-    } platform;
-    struct {
-        QString id;
-        QStringList versions;
-    } toolchain;
-    struct {
-        QString name;
-        QString defaultPath;
-        QString envVar;
-        QStringList versions;
-    } boardSdk;
-    struct {
-        QString envVar;
-        QString boardSdkSubDir;
-    } freeRTOS;
-};
-
-static McuPackageVersionDetector* generatePackageVersionDetector(QString envVar)
+static McuPackageVersionDetector *generatePackageVersionDetector(QString envVar)
 {
     if (envVar.startsWith("EVK"))
         return new McuPackageXmlVersionDetector("*_manifest_*.xml", "ksdk", "version", ".*");
@@ -461,9 +429,9 @@ struct McuTargetFactory
         return createTargetsImpl(description);
     }
 
-    QVector<McuPackage *> getMcuPackages() const
+    QVector<McuAbstractPackage *> getMcuPackages() const
     {
-        QVector<McuPackage *> packages;
+        QVector<McuAbstractPackage *> packages;
         for (auto *package : qAsConst(boardSdkPkgs))
             packages.append(package);
         for (auto *package : qAsConst(freeRTOSPkgs))
@@ -481,7 +449,7 @@ protected:
             tcPkg = createUnsupportedToolChainPackage();
         for (auto os : {McuTarget::OS::BareMetal, McuTarget::OS::FreeRTOS}) {
             for (int colorDepth : desc.platform.colorDepths) {
-                QVector<McuPackage*> required3rdPartyPkgs = { tcPkg };
+                QVector<McuAbstractPackage*> required3rdPartyPkgs = { tcPkg };
                 if (vendorPkgs.contains(desc.platform.vendor))
                    required3rdPartyPkgs.push_back(vendorPkgs.value(desc.platform.vendor));
 
@@ -555,7 +523,7 @@ protected:
         } else
             tcPkg = createUnsupportedToolChainPackage();
         for (int colorDepth : desc.platform.colorDepths) {
-            QVector<McuPackage*> required3rdPartyPkgs;
+            QVector<McuAbstractPackage*> required3rdPartyPkgs;
             // Desktop toolchains don't need any additional settings
             if (tcPkg
                 && !tcPkg->isDesktopToolchain()
@@ -608,10 +576,10 @@ private:
 
     QHash<QString, McuPackage *> boardSdkPkgs;
     QHash<QString, McuPackage *> freeRTOSPkgs;
-};
+}; // struct McuTargetFactory
 
-static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
-                                                    QVector<McuPackage *> *packages)
+QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
+                                             QVector<McuAbstractPackage *> *packages)
 {
     const QHash<QString, McuToolChainPackage *> tcPkgs = {
         {{"armgcc"}, createArmGccPackage()},
@@ -639,7 +607,7 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
         mcuTargets.append(newTargets);
     }
 
-    packages->append(Utils::transform<QVector<McuPackage *> >(
+    packages->append(Utils::transform<QVector<McuAbstractPackage *> >(
                          tcPkgs.values(), [&](McuToolChainPackage *tcPkg) { return tcPkg; }));
     for (auto *package : vendorPkgs)
         packages->append(package);
@@ -732,7 +700,7 @@ static McuTargetDescription parseDescriptionJsonV2x(const QString &qulVersion, c
     return description;
 }
 
-static McuTargetDescription parseDescriptionJson(const QByteArray &data)
+McuTargetDescription parseDescriptionJson(const QByteArray &data)
 {
     const QJsonDocument document = QJsonDocument::fromJson(data);
     const QJsonObject target = document.object();

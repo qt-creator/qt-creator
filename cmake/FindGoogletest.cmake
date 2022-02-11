@@ -101,6 +101,8 @@ if(Googletest_FOUND AND NOT TARGET Googletest)
       GTEST_HAS_DEATH_TEST
    )
   set_target_properties(Googletest PROPERTIES AUTOMOC OFF AUTOUIC OFF)
+  set_property(TARGET Googletest PROPERTY POSITION_INDEPENDENT_CODE ON)
+  target_compile_definitions(Googletest PUBLIC GOOGLE_TEST_IS_FOUND)
 
   target_link_libraries(Googletest Threads::Threads)
 endif()

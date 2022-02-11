@@ -25,12 +25,10 @@
 
 #pragma once
 
+#include "utils/filepath.h"
+
 #include <QSettings>
 #include <QVector>
-
-namespace Utils {
-class FilePath;
-}
 
 namespace McuSupport {
 namespace Internal {
@@ -38,14 +36,53 @@ namespace Internal {
 #define MAX_COMPATIBILITY_VERSION 1
 
 class McuSdkRepository;
+class McuAbstractPackage;
 class McuPackage;
+class McuTarget;
+
 namespace Sdk {
+
+struct McuTargetDescription
+{
+    enum class TargetType { MCU, Desktop };
+
+    QString qulVersion;
+    QString compatVersion;
+    struct
+    {
+        QString id;
+        QString name;
+        QString vendor;
+        QVector<int> colorDepths;
+        TargetType type;
+    } platform;
+    struct
+    {
+        QString id;
+        QStringList versions;
+    } toolchain;
+    struct
+    {
+        QString name;
+        QString defaultPath;
+        QString envVar;
+        QStringList versions;
+    } boardSdk;
+    struct
+    {
+        QString envVar;
+        QString boardSdkSubDir;
+    } freeRTOS;
+};
 
 McuPackage *createQtForMCUsPackage();
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
 void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
+
+McuTargetDescription parseDescriptionJson(const QByteArray &);
+QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &, QVector<McuAbstractPackage *> *);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 
