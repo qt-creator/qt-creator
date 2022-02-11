@@ -254,9 +254,9 @@ void tst_CodeSize::codesize()
              << "\nExtra CXX Flags: " << c.extraCxxFlags.data();
 #ifdef Q_OS_WIN
 #    ifdef Q_CC_MSVC
-        QString arguments = "release\\" + c.file + ".obj";
+        QString arguments = QString("release\\" + c.file + ".obj");
 #    else
-        QString arguments = "release\\" + c.file + ".o";
+        QString arguments = QString("release\\" + c.file + ".o");
 #    endif
 #else
         QString arguments = QString(c.file + ".o");
