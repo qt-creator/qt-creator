@@ -78,6 +78,8 @@ class FileExtractor : public QObject
     Q_PROPERTY(QString sourceFile READ sourceFile WRITE setSourceFile)
     Q_PROPERTY(bool finished READ finished NOTIFY finishedChanged)
     Q_PROPERTY(bool targetFolderExists READ targetFolderExists NOTIFY targetFolderExistsChanged)
+    Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
+    Q_PROPERTY(QDateTime birthTime READ birthTime NOTIFY birthTimeChanged)
 
 public:
     explicit FileExtractor(QObject *parent = nullptr);
@@ -94,6 +96,8 @@ public:
     QString size() const;
     QString count() const;
     bool targetFolderExists() const;
+    int progress() const;
+    QDateTime birthTime() const;
 
     QString sourceFile() const;
     QString archiveName() const;
@@ -108,6 +112,8 @@ signals:
     void currentFileChanged();
     void sizeChanged();
     void targetFolderExistsChanged();
+    void progressChanged();
+    void birthTimeChanged();
 
 private:
     Utils::FilePath m_targetPath;
@@ -119,6 +125,8 @@ private:
     QString m_size;
     QString m_count;
     QString m_archiveName;
+    int m_progress = 0;
+    QDateTime m_birthTime;
 };
 
 class FileDownloader : public QObject
@@ -131,7 +139,9 @@ class FileDownloader : public QObject
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString completeBaseName READ completeBaseName NOTIFY nameChanged)
     Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
-    Q_PROPERTY(QString tempFile READ tempFile NOTIFY finishedChanged)
+    Q_PROPERTY(QString tempFile READ tempFile NOTIFY tempFileChanged)
+    Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
+    Q_PROPERTY(bool available READ available NOTIFY availableChanged)
 
 public:
     explicit FileDownloader(QObject *parent = nullptr);
@@ -147,6 +157,8 @@ public:
     QString completeBaseName() const;
     int progress() const;
     QString tempFile() const;
+    QDateTime lastModified() const;
+    bool available() const;
 
     Q_INVOKABLE void start();
 
@@ -155,12 +167,19 @@ signals:
     void errorChanged();
     void nameChanged();
     void progressChanged();
+    void tempFileChanged();
     void downloadFailed();
+    void lastModifiedChanged();
+    void availableChanged();
 
 private:
+    void probeUrl();
+
     QUrl m_url;
     bool m_finished = false;
     bool m_error = false;
     int m_progress = 0;
     QFile m_tempFile;
+    QDateTime m_lastModified;
+    bool m_available;
 };
