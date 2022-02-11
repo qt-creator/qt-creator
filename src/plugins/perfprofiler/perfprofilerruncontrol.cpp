@@ -147,15 +147,13 @@ public:
 
         Runnable perfRunnable = runnable();
 
-        QStringList arguments;
-        arguments << "record";
-        arguments += m_perfRecordArguments;
-        arguments << "-o" << "-" << "--" << perfRunnable.command.executable().toString()
-                  << ProcessArgs::splitArgs(perfRunnable.command.arguments(), OsTypeLinux);
+        CommandLine cmd({"perf", {"record"}});
+        cmd.addArgs(m_perfRecordArguments);
+        cmd.addArgs({"-o", "-", "--"});
+        cmd.addCommandLineAsArgs(perfRunnable.command, CommandLine::Raw);
 
-        perfRunnable.command.setExecutable("perf");
-        perfRunnable.command.setArguments(ProcessArgs::joinArgs(arguments, OsTypeLinux));
-        m_process->start(perfRunnable);
+        m_process->setCommand(cmd);
+        m_process->start();
     }
 
     void stop() override

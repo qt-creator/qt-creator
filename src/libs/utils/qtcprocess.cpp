@@ -635,6 +635,7 @@ public:
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;
     ProcessSetupData m_setup;
+    QVariantHash m_extraData;
 
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
@@ -908,6 +909,26 @@ QString QtcProcess::toStandaloneCommandLine() const
     parts.append(d->m_commandLine.executable().path());
     parts.append(d->m_commandLine.splitArguments());
     return parts.join(" ");
+}
+
+void QtcProcess::setExtraData(const QString &key, const QVariant &value)
+{
+    d->m_extraData.insert(key, value);
+}
+
+QVariant QtcProcess::extraData(const QString &key) const
+{
+    return d->m_extraData.value(key);
+}
+
+void QtcProcess::setExtraData(const QVariantHash &extraData)
+{
+    d->m_extraData = extraData;
+}
+
+QVariantHash QtcProcess::extraData() const
+{
+    return d->m_extraData;
 }
 
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)

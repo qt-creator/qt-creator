@@ -145,6 +145,7 @@ public:
     void addArgs(const QStringList &inArgs);
 
     void addCommandLineAsArgs(const CommandLine &cmd);
+    void addCommandLineAsArgs(const CommandLine &cmd, RawType);
 
     void addArgs(const QString &inArgs, RawType);
 

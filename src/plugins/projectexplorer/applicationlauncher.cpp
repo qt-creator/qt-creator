@@ -422,7 +422,11 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
                 this, &ApplicationLauncherPrivate::handleApplicationError);
         connect(m_deviceProcess, &DeviceProcess::finished,
                 this, &ApplicationLauncherPrivate::handleApplicationFinished);
-        m_deviceProcess->start(runnable);
+        m_deviceProcess->setCommand(runnable.command);
+        m_deviceProcess->setWorkingDirectory(runnable.workingDirectory);
+        m_deviceProcess->setEnvironment(runnable.environment);
+        m_deviceProcess->setExtraData(runnable.extraData);
+        m_deviceProcess->start();
     }
 }
 

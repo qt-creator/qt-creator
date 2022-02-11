@@ -1478,6 +1478,12 @@ void CommandLine::addCommandLineAsArgs(const CommandLine &cmd)
     addArgs(cmd.splitArguments());
 }
 
+void CommandLine::addCommandLineAsArgs(const CommandLine &cmd, RawType)
+{
+    addArg(cmd.executable().path());
+    addArgs(cmd.arguments(), Raw);
+}
+
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     ProcessArgs::addArgs(&m_arguments, inArgs);

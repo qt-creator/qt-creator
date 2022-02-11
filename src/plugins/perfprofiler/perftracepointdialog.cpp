@@ -100,12 +100,11 @@ void PerfTracePointDialog::runScript()
 
     m_process.reset(m_device->createProcess(this));
 
-    Runnable runnable;
     const QString elevate = m_ui->privilegesChooser->currentText();
     if (elevate != QLatin1String("n.a."))
-        runnable.command = {FilePath::fromString(elevate), {"sh"}};
+        m_process->setCommand({FilePath::fromString(elevate), {"sh"}});
     else
-        runnable.command = {"sh", {}};
+        m_process->setCommand({"sh", {}});
 
     connect(m_process.get(), &DeviceProcess::started,
             this, &PerfTracePointDialog::feedScriptToProcess);
@@ -116,7 +115,7 @@ void PerfTracePointDialog::runScript()
     connect(m_process.get(), &DeviceProcess::errorOccurred,
             this, &PerfTracePointDialog::handleProcessError);
 
-    m_process->start(runnable);
+    m_process->start();
 }
 
 void PerfTracePointDialog::feedScriptToProcess()

@@ -71,7 +71,7 @@ public:
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
     IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
-    QHash<Utils::Id, QVariant> extraData;
+    QVariantHash extraData;
 
     // FIXME: Not necessarily a display name
     QString displayName() const;

@@ -54,7 +54,8 @@ public:
     bool ignoreSelfSignals = true;
     QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcessPtr remoteProcess;
-    Runnable runnable;
+    QString processName;
+    QString displayName;
     QString errorMessage;
     QProcess::ExitStatus exitStatus = QProcess::NormalExit;
     DeviceProcessSignalOperation::Ptr killOperation;
@@ -63,11 +64,6 @@ public:
 
     void setState(State newState);
     void doSignal(Signal signal);
-
-    QString displayName() const
-    {
-        return runnable.extraData.value("Ssh.X11ForwardToDisplay").toString();
-    }
 };
 
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
@@ -95,17 +91,19 @@ SshDeviceProcess::~SshDeviceProcess()
     d->setState(SshDeviceProcessPrivate::Inactive);
 }
 
-void SshDeviceProcess::start(const Runnable &runnable)
+void SshDeviceProcess::start()
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
-    QTC_ASSERT(usesTerminal() || !runnable.command.isEmpty(), return);
+    QTC_ASSERT(usesTerminal() || !commandLine().isEmpty(), return);
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
     d->exitStatus = QProcess::NormalExit;
-    d->runnable = runnable;
+    d->processName = commandLine().executable().toString();
+    d->displayName = extraData("Ssh.X11ForwardToDisplay").toString();
+
     QSsh::SshConnectionParameters params = device()->sshParameters();
-    params.x11DisplayName = d->displayName();
+    params.x11DisplayName = d->displayName;
     d->connection = QSsh::SshConnectionManager::acquireConnection(params);
     connect(d->connection, &QSsh::SshConnection::errorOccurred,
             this, &SshDeviceProcess::handleConnectionError);
@@ -191,10 +189,10 @@ void SshDeviceProcess::handleConnected()
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connecting, return);
     d->setState(SshDeviceProcessPrivate::Connected);
 
-    d->remoteProcess = usesTerminal() && d->runnable.command.isEmpty()
+    d->remoteProcess = usesTerminal() && d->processName.isEmpty()
             ? d->connection->createRemoteShell()
-            : d->connection->createRemoteProcess(fullCommandLine(d->runnable));
-    const QString display = d->displayName();
+            : d->connection->createRemoteProcess(fullCommandLine());
+    const QString display = d->displayName;
     if (!display.isEmpty())
         d->remoteProcess->requestX11Forwarding(display);
     d->ignoreSelfSignals = !usesTerminal();
@@ -280,18 +278,14 @@ void SshDeviceProcess::handleKillOperationTimeout()
     emit finished();
 }
 
-QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
+QString SshDeviceProcess::fullCommandLine() const
 {
-    QString cmdLine = runnable.command.executable().toString();
-    // FIXME: That quotes wrongly.
-    if (!runnable.command.arguments().isEmpty())
-        cmdLine.append(QLatin1Char(' ')).append(runnable.command.arguments());
-    return cmdLine;
+    return commandLine().toUserOutput();
 }
 
 void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
 {
-    if (runnable.command.isEmpty())
+    if (processName.isEmpty())
         return;
     switch (state) {
     case SshDeviceProcessPrivate::Inactive:
@@ -310,7 +304,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
             if (processId != 0)
                 signalOperation->interruptProcess(processId);
             else
-                signalOperation->interruptProcess(runnable.command.executable().toString());
+                signalOperation->interruptProcess(processName);
         } else {
             if (killOperation) // We are already in the process of killing the app.
                 return;
@@ -321,7 +315,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
             if (processId != 0)
                 signalOperation->killProcess(processId);
             else
-                signalOperation->killProcess(runnable.command.executable().toString());
+                signalOperation->killProcess(processName);
         }
         break;
     }

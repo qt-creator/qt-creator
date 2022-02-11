@@ -58,9 +58,8 @@ void RemoteLinuxEnvironmentReader::start()
             this, &RemoteLinuxEnvironmentReader::handleError);
     connect(m_deviceProcess, &DeviceProcess::finished,
             this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
-    Runnable runnable;
-    runnable.command.setExecutable("env");
-    m_deviceProcess->start(runnable);
+    m_deviceProcess->setCommand({"env", {}});
+    m_deviceProcess->start();
 }
 
 void RemoteLinuxEnvironmentReader::stop()

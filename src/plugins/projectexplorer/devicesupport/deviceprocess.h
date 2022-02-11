@@ -30,19 +30,14 @@
 #include <utils/qtcprocess.h>
 
 #include <QSharedPointer>
-#include <QStringList>
 
 namespace ProjectExplorer {
 
 class IDevice;
-class Runnable;
 
 class PROJECTEXPLORER_EXPORT DeviceProcess : public Utils::QtcProcess
 {
     Q_OBJECT
-public:
-    using Utils::QtcProcess::start;
-    virtual void start(const Runnable &runnable) = 0;
 
 protected:
     explicit DeviceProcess(const QSharedPointer<const IDevice> &device,

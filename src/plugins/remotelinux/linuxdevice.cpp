@@ -329,18 +329,16 @@ LinuxDevice::LinuxDevice()
             Core::MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
-        Runnable runnable;
-        runnable.device = sharedFromThis();
-        runnable.environment = env;
-        runnable.workingDirectory = workingDir;
 
         // It seems we cannot pass an environment to OpenSSH dynamically
         // without specifying an executable.
         if (env.size() > 0)
-            runnable.command.setExecutable("/bin/sh");
+            proc->setCommand({"/bin/sh", {}});
 
         proc->setTerminalMode(QtcProcess::TerminalOn);
-        proc->start(runnable);
+        proc->setEnvironment(env);
+        proc->setWorkingDirectory(workingDir);
+        proc->start();
     });
 
     if (Utils::HostOsInfo::isAnyUnixHost()) {

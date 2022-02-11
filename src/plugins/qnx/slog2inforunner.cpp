@@ -70,9 +70,8 @@ void Slog2InfoRunner::printMissingWarning()
 
 void Slog2InfoRunner::start()
 {
-    Runnable r;
-    r.command = {"slog2info", {}};
-    m_testProcess->start(r);
+    m_testProcess->setCommand({"slog2info", {}});
+    m_testProcess->start();
     reportStarted();
 }
 
@@ -108,9 +107,8 @@ void Slog2InfoRunner::handleTestProcessCompleted()
 
 void Slog2InfoRunner::readLaunchTime()
 {
-    Runnable r;
-    r.command = CommandLine("date", "+\"%d %H:%M:%S\"", CommandLine::Raw);
-    m_launchDateTimeProcess->start(r);
+    m_launchDateTimeProcess->setCommand({"date", "+\"%d %H:%M:%S\"", CommandLine::Raw});
+    m_launchDateTimeProcess->start();
 }
 
 void Slog2InfoRunner::launchSlog2Info()
@@ -124,9 +122,8 @@ void Slog2InfoRunner::launchSlog2Info()
     m_launchDateTime = QDateTime::fromString(QString::fromLatin1(m_launchDateTimeProcess->readAllStandardOutput()).trimmed(),
                                              QString::fromLatin1("dd HH:mm:ss"));
 
-    Runnable r;
-    r.command = {"slog2info", {"-w"}};
-    m_logProcess->start(r);
+    m_logProcess->setCommand({"slog2info", {"-w"}});
+    m_logProcess->start();
 }
 
 void Slog2InfoRunner::readLogStandardOutput()

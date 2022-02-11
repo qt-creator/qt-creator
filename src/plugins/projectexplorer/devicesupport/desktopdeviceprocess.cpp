@@ -44,16 +44,6 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
     setProcessMode(ProcessMode::Writer);
 }
 
-void DesktopDeviceProcess::start(const Runnable &runnable)
-{
-    QTC_ASSERT(state() == QProcess::NotRunning, return);
-    if (runnable.environment.size())
-        setEnvironment(runnable.environment);
-    setWorkingDirectory(runnable.workingDirectory);
-    setCommand(runnable.command);
-    QtcProcess::start();
-}
-
 void DesktopDeviceProcess::interrupt()
 {
     device()->signalOperation()->interruptProcess(processId());

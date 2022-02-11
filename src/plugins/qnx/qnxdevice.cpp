@@ -104,9 +104,8 @@ void QnxDevice::updateVersionNumber() const
     QObject::connect(&versionNumberProcess, &SshDeviceProcess::finished, &eventLoop, &QEventLoop::quit);
     QObject::connect(&versionNumberProcess, &DeviceProcess::errorOccurred, &eventLoop, &QEventLoop::quit);
 
-    Runnable r;
-    r.command = {"uname", {"-r"}};
-    versionNumberProcess.start(r);
+    versionNumberProcess.setCommand({"uname", {"-r"}});
+    versionNumberProcess.start();
 
     bool isGuiThread = QThread::currentThread() == QCoreApplication::instance()->thread();
     if (isGuiThread)

@@ -43,7 +43,7 @@ public:
     QByteArray readAllStandardOutput() override;
 
 private:
-    QString fullCommandLine(const ProjectExplorer::Runnable &) const override;
+    QString fullCommandLine() const override;
     qint64 processId() const override;
 
     QByteArray m_output;

@@ -31,8 +31,6 @@
 
 namespace ProjectExplorer {
 
-class Runnable;
-
 class PROJECTEXPLORER_EXPORT SshDeviceProcess : public DeviceProcess
 {
     Q_OBJECT
@@ -40,7 +38,7 @@ public:
     explicit SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
     ~SshDeviceProcess() override;
 
-    void start(const Runnable &runnable) override;
+    void start() override;
     void interrupt() override;
     void terminate() override;
     void kill() override;
@@ -64,7 +62,7 @@ private:
     void handleKillOperationFinished(const QString &errorMessage);
     void handleKillOperationTimeout();
 
-    virtual QString fullCommandLine(const Runnable &runnable) const;
+    virtual QString fullCommandLine() const;
     virtual qint64 processId() const;
 
     class SshDeviceProcessPrivate;

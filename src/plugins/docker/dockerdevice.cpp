@@ -106,7 +106,7 @@ public:
     DockerDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
     ~DockerDeviceProcess() {}
 
-    void start(const Runnable &runnable) override;
+    void start() override;
     void interrupt() override;
 };
 
@@ -117,13 +117,13 @@ DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &de
     setProcessMode(ProcessMode::Writer);
 }
 
-void DockerDeviceProcess::start(const Runnable &runnable)
+void DockerDeviceProcess::start()
 {
     QTC_ASSERT(state() == QProcess::NotRunning, return);
     DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(device());
     QTC_ASSERT(dockerDevice, return);
 
-    const QStringList dockerRunFlags = runnable.extraData[Constants::DOCKER_RUN_FLAGS].toStringList();
+    const QStringList dockerRunFlags = extraData(Constants::DOCKER_RUN_FLAGS).toStringList();
 
     connect(this, &DeviceProcess::readyReadStandardOutput, this, [this] {
         MessageManager::writeSilently(QString::fromLocal8Bit(readAllStandardError()));
@@ -132,15 +132,12 @@ void DockerDeviceProcess::start(const Runnable &runnable)
         MessageManager::writeDisrupting(QString::fromLocal8Bit(readAllStandardError()));
     });
 
-    CommandLine command = runnable.command;
+    CommandLine command = commandLine();
     command.setExecutable(
         command.executable().withNewPath(dockerDevice->mapToDevicePath(command.executable())));
     setCommand(command);
-    setEnvironment(runnable.environment);
-    setWorkingDirectory(runnable.workingDirectory);
 
-    LOG("Running process:" << command.toUserOutput()
-            << "in" << runnable.workingDirectory.toUserOutput());
+    LOG("Running process:" << command.toUserOutput() << "in" << workingDirectory().toUserOutput());
     dockerDevice->runProcess(*this);
 }
 

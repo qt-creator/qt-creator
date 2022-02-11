@@ -173,9 +173,8 @@ void PerfConfigWidget::readTracePoints()
     messageBox.setText(tr("Replace events with trace points read from the device?"));
     messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (messageBox.exec() == QMessageBox::Yes) {
-        ProjectExplorer::Runnable runnable;
-        runnable.command = {"perf", {"probe", "-l"}};
-        m_process->start(runnable);
+        m_process->setCommand({"perf", {"probe", "-l"}});
+        m_process->start();
         useTracePointsButton->setEnabled(false);
     }
 }

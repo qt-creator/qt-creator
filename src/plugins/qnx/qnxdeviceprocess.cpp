@@ -44,21 +44,22 @@ QnxDeviceProcess::QnxDeviceProcess(const QSharedPointer<const IDevice> &device, 
     m_pidFile = QString::fromLatin1("/var/run/qtc.%1.pid").arg(++pidFileCounter);
 }
 
-QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
+QString QnxDeviceProcess::fullCommandLine() const
 {
-    QStringList args = ProcessArgs::splitArgs(runnable.command.arguments());
-    args.prepend(runnable.command.executable().toString());
+    const CommandLine command = commandLine();
+    QStringList args = ProcessArgs::splitArgs(command.arguments());
+    args.prepend(command.executable().toString());
     QString cmd = ProcessArgs::createUnixArgs(args).toString();
 
     QString fullCommandLine =
         "test -f /etc/profile && . /etc/profile ; "
         "test -f $HOME/profile && . $HOME/profile ; ";
 
-    if (!runnable.workingDirectory.isEmpty())
+    if (!workingDirectory().isEmpty())
         fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(
-            ProcessArgs::quoteArg(runnable.workingDirectory.toString()));
+            ProcessArgs::quoteArg(workingDirectory().toString()));
 
-    const Environment env = runnable.environment;
+    const Environment env = environment();
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
         fullCommandLine += QString::fromLatin1("%1='%2' ")
                 .arg(env.key(it)).arg(env.expandedValueForKey(env.key(it)));
@@ -72,11 +73,10 @@ QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 void QnxDeviceProcess::doSignal(int sig)
 {
     auto signaler = new SshDeviceProcess(device(), this);
-    Runnable r;
     const QString args = QString("-%2 `cat %1`").arg(m_pidFile).arg(sig);
-    r.command = CommandLine(FilePath::fromString("kill"), args, CommandLine::Raw);
+    signaler->setCommand({"kill", args, CommandLine::Raw});
     connect(signaler, &SshDeviceProcess::finished, signaler, &QObject::deleteLater);
-    signaler->start(r);
+    signaler->start();
 }
 
 } // namespace Internal

@@ -126,7 +126,7 @@ public:
 
     void setAbortOnMetaChars(bool abort);
 
-    void start();
+    virtual void start();
     virtual void terminate();
     virtual void interrupt();
 
@@ -221,6 +221,12 @@ public:
     void setStandardInputFile(const QString &inputFile);
 
     QString toStandaloneCommandLine() const;
+
+    void setExtraData(const QString &key, const QVariant &value);
+    QVariant extraData(const QString &key) const;
+
+    void setExtraData(const QVariantHash &extraData);
+    QVariantHash extraData() const;
 
 signals:
     void started();

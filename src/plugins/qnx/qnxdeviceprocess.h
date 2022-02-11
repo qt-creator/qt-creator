@@ -40,7 +40,7 @@ public:
     void interrupt() override { doSignal(2); }
     void terminate() override { doSignal(15); }
     void kill() override { doSignal(9); }
-    QString fullCommandLine(const ProjectExplorer::Runnable &runnable) const override;
+    QString fullCommandLine() const override;
 
 private:
     void doSignal(int sig);
