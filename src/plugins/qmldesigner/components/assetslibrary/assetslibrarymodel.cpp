@@ -341,8 +341,14 @@ void AssetsLibraryModel::setRootPath(const QString &path)
 
     beginResetModel();
     m_assetsDir = new AssetsLibraryDir(path, 0, true, this);
-    bool noAssets = parseDirRecursive(m_assetsDir, 1);
-    setIsEmpty(noAssets);
+    bool isEmpty = parseDirRecursive(m_assetsDir, 1);
+    setIsEmpty(isEmpty);
+
+    bool noAssets = m_searchText.isEmpty() && isEmpty;
+    // noAssets: the model has no asset files (project has no assets added)
+    // isEmpty: the model has no asset files (assets could exist but are filtered out)
+
+    m_assetsDir->setDirVisible(!noAssets); // if there are no assets, hide all empty asset folders
     endResetModel();
 }
 

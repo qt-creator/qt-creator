@@ -59,6 +59,8 @@ public:
     void setRootPath(const QString &path);
     void setSearchText(const QString &searchText);
 
+    bool isEmpty() const;
+
     static const QStringList &supportedImageSuffixes();
     static const QStringList &supportedFragmentShaderSuffixes();
     static const QStringList &supportedShaderSuffixes();
@@ -93,7 +95,6 @@ signals:
 private:
     const QSet<QString> &supportedSuffixes() const;
 
-    bool isEmpty() const;
     void setIsEmpty(bool empty);
 
     SynchronousImageCache &m_fontImageCache;
