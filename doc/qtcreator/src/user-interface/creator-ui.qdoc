@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -508,10 +508,10 @@
 
     \image qtcreator-issues.png "Issues output pane"
 
-    Right-clicking on a line brings up a context menu with actions that you can
-    apply to the contents of the line. You can remove a line, copy its contents
-    to the clipboard, or search the Internet for a solution using the contents
-    of the line as search criteria. In addition, you can show a version control
+    Select one or several lines to apply context-menu actions to their contents.
+    You can remove the selected lines or copy their contents to the clipboard.
+    For single lines, you can search the Internet for a solution using the
+    contents of the line as search criteria or open a version control
     annotation view of the line that causes the error message.
 
     To navigate to the corresponding source code, click an issue or

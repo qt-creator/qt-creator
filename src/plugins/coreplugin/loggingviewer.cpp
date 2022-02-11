@@ -737,6 +737,7 @@ void LoggingViewer::showLoggingView()
         // explicitly disable manager again
         widget->deleteLater();
     });
+    ICore::registerWindow(widget, Context("Qtc.LogViewer"));
     widget->show();
 }
 

@@ -1615,9 +1615,9 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     auto menu = new QMenu;
 
-    addAction(menu, tr("Add Breakpoint..."), true, &BreakpointManager::executeAddBreakpointDialog);
+    addAction(this, menu, tr("Add Breakpoint..."), true, &BreakpointManager::executeAddBreakpointDialog);
 
-    addAction(menu, tr("Delete Selected Breakpoints"),
+    addAction(this, menu, tr("Delete Selected Breakpoints"),
               !selectedBreakpoints.isEmpty(),
               [selectedBreakpoints] {
                 for (Breakpoint bp : selectedBreakpoints) {
@@ -1629,7 +1629,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
                 }
              });
 
-    addAction(menu, tr("Edit Selected Breakpoints..."),
+    addAction(this, menu, tr("Edit Selected Breakpoints..."),
               !selectedBreakpoints.isEmpty(),
               [this, selectedBreakpoints, ev] { editBreakpoints(selectedBreakpoints, ev.view()); });
 
@@ -1645,7 +1645,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     //                     bp.setThreadSpec(threadId);
     //           });
 
-    addAction(menu,
+    addAction(this, menu,
               selectedBreakpoints.size() > 1
                   ? breakpointsEnabled ? tr("Disable Selected Breakpoints") : tr("Enable Selected Breakpoints")
                   : breakpointsEnabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
@@ -1659,7 +1659,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
               }
     );
 
-    addAction(menu,
+    addAction(this, menu,
               selectedLocations.size() > 1
                   ? locationsEnabled ? tr("Disable Selected Locations") : tr("Enable Selected Locations")
                   : locationsEnabled ? tr("Disable Location") : tr("Enable Location"),
@@ -1672,7 +1672,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    addAction(menu, tr("Delete All Breakpoints"),
+    addAction(this, menu, tr("Delete All Breakpoints"),
               rowCount() > 0,
               &BreakpointManager::executeDeleteAllBreakpointsDialog);
 
@@ -1687,7 +1687,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
                     breakpointsInFile.append(findBreakpointByIndex(index));
         }
     }
-    addAction(menu, tr("Delete Breakpoints of \"%1\"").arg(file),
+    addAction(this, menu, tr("Delete Breakpoints of \"%1\"").arg(file),
               tr("Delete Breakpoints of File"),
               breakpointsInFile.size() > 1,
               [breakpointsInFile] {
@@ -1700,6 +1700,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     menu->addAction(debuggerSettings()->useToolTipsInBreakpointsView.action());
     menu->addAction(debuggerSettings()->settingsDialog.action());
 
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
 
     return true;
@@ -2640,20 +2641,20 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
 
     auto menu = new QMenu;
 
-    addAction(menu, tr("Add Breakpoint..."), true, &BreakpointManager::executeAddBreakpointDialog);
+    addAction(this, menu, tr("Add Breakpoint..."), true, &BreakpointManager::executeAddBreakpointDialog);
 
-    addAction(menu, tr("Delete Selected Breakpoints"),
+    addAction(this, menu, tr("Delete Selected Breakpoints"),
               !selectedBreakpoints.isEmpty(),
               [selectedBreakpoints] {
                 for (GlobalBreakpoint gbp : selectedBreakpoints)
                     gbp->deleteBreakpoint();
              });
 
-    addAction(menu, tr("Edit Selected Breakpoints..."),
+    addAction(this, menu, tr("Edit Selected Breakpoints..."),
               !selectedBreakpoints.isEmpty(),
               [this, selectedBreakpoints, ev] { editBreakpoints(selectedBreakpoints, ev.view()); });
 
-    addAction(menu,
+    addAction(this, menu,
               selectedBreakpoints.size() > 1
                   ? breakpointsEnabled ? tr("Disable Selected Breakpoints") : tr("Enable Selected Breakpoints")
                   : breakpointsEnabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
@@ -2666,7 +2667,7 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    addAction(menu, tr("Delete All Breakpoints"),
+    addAction(this, menu, tr("Delete All Breakpoints"),
               rowCount() > 0,
               &BreakpointManager::executeDeleteAllBreakpointsDialog);
 
@@ -2682,7 +2683,7 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
             });
         }
     }
-    addAction(menu, tr("Delete Breakpoints of \"%1\"").arg(file.toUserOutput()),
+    addAction(this, menu, tr("Delete Breakpoints of \"%1\"").arg(file.toUserOutput()),
               tr("Delete Breakpoints of File"),
               breakpointsInFile.size() > 1,
               [breakpointsInFile] {
@@ -2695,6 +2696,7 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
     menu->addAction(debuggerSettings()->useToolTipsInBreakpointsView.action());
     menu->addAction(debuggerSettings()->settingsDialog.action());
 
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
 
     return true;

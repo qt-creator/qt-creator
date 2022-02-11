@@ -39,7 +39,7 @@
         <!ENTITY arithmetic_as_subshell "\(((?:[^`'&quot;()$]++|\$\{[^`'&quot;(){}$]+\}|\$(?=[^{`'&quot;()])|`[^`]*+`|\((?1)(?:[)]|(?=['&quot;])))++)(?:[)](?=$|[^)])|[&quot;'])">
 ]>
 
-<language name="Bash" version="30" kateversion="5.79" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="34" kateversion="5.79" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.exlib;*.exheres-0;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -133,6 +133,9 @@
       <!-- /bin -->
       <item>arch</item>
       <item>awk</item>
+      <item>b2sum</item>
+      <item>base32</item>
+      <item>base64</item>
       <item>bash</item>
       <item>bunzip2</item>
       <item>bzcat</item>
@@ -147,11 +150,15 @@
       <item>bzmore</item>
       <item>cat</item>
       <item>chattr</item>
+      <item>chcon</item>
       <item>chgrp</item>
       <item>chmod</item>
       <item>chown</item>
       <item>chvt</item>
+      <item>cksum</item>
       <item>cp</item>
+      <item>crontab</item>
+      <item>csplit</item>
       <item>date</item>
       <item>dd</item>
       <item>deallocvt</item>
@@ -165,9 +172,11 @@
       <item>dumpkeys</item>
       <item>ed</item>
       <item>egrep</item>
+      <item>expand</item>
       <item>false</item>
       <item>fgconsole</item>
       <item>fgrep</item>
+      <item>fold</item>
       <item>fuser</item>
       <item>gawk</item>
       <item>getkeycodes</item>
@@ -178,7 +187,9 @@
       <item>gunzip</item>
       <item>gzexe</item>
       <item>gzip</item>
+      <item>hostid</item>
       <item>hostname</item>
+      <item>iconv</item>
       <item>igawk</item>
       <item>install</item>
       <item>kbd_mode</item>
@@ -206,6 +217,7 @@
       <item>lzmainfo</item>
       <item>lzmore</item>
       <item>mapscrn</item>
+      <item>md5sum</item>
       <item>mesg</item>
       <item>mkdir</item>
       <item>mkfifo</item>
@@ -217,20 +229,29 @@
       <item>nano</item>
       <item>netstat</item>
       <item>nisdomainname</item>
+      <item>nproc</item>
       <item>nroff</item>
+      <item>numfmt</item>
       <item>openvt</item>
+      <item>paste</item>
+      <item>pathchk</item>
       <item>pgawk</item>
       <item>pidof</item>
       <item>ping</item>
+      <item>pinky</item>
+      <item>printenv</item>
       <item>ps</item>
       <item>pstree</item>
+      <item>ptx</item>
       <item>rbash</item>
       <item>readlink</item>
+      <item>realpath</item>
       <item>red</item>
       <item>resizecons</item>
       <item>rm</item>
       <item>rmdir</item>
       <item>run-parts</item>
+      <item>runcon</item>
       <item>sash</item>
       <item>sed</item>
       <item>setfont</item>
@@ -239,22 +260,33 @@
       <item>setmetamode</item>
       <item>setserial</item>
       <item>sh</item>
+      <item>sha1sum</item>
+      <item>sha224sum</item>
+      <item>sha256sum</item>
+      <item>sha384sum</item>
+      <item>sha512sum</item>
       <item>showkey</item>
       <item>shred</item>
+      <item>shuf</item>
       <item>sleep</item>
       <item>ssed</item>
       <item>stat</item>
+      <item>stdbuf</item>
       <item>stty</item>
       <item>su</item>
       <item>sync</item>
       <item>tar</item>
       <item>tempfile</item>
+      <item>timeout</item>
       <item>touch</item>
+      <item>tput</item>
       <item>troff</item>
       <item>true</item>
       <item>truncate</item>
+      <item>tty</item>
       <item>umount</item>
       <item>uname</item>
+      <item>unexpand</item>
       <item>unicode_start</item>
       <item>unicode_stop</item>
       <item>unlink</item>
@@ -263,6 +295,7 @@
       <item>utmpdump</item>
       <item>uuidgen</item>
       <item>vdir</item>
+      <item>vi</item>
       <item>wall</item>
       <item>wc</item>
       <item>xz</item>
@@ -336,6 +369,7 @@
       <item>gc</item>
       <item>gcc</item>
       <item>clang</item>
+      <item>clang++</item>
       <item>valgrind</item>
       <item>xdg-open</item>
       <item>cmake</item>
@@ -464,6 +498,19 @@
 
     <contexts>
       <context attribute="Normal Text" lineEndContext="#stay" name="Start" fallthroughContext="Command">
+          <IncludeRules context="BashOneLine"/>
+      </context>
+
+      <!-- used by other syntaxes -->
+      <context attribute="Normal Text" lineEndContext="#pop" name="FindOneLineBackq" fallthroughContext="#pop">
+        <DetectChar attribute="Backquote" context="OneLineBackq" char="`"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="OneLineBackq" fallthroughContext="Command">
+        <DetectChar attribute="Backquote" context="#pop" char="`"/>
+        <IncludeRules context="Start"/>
+      </context>
+
+      <context attribute="Normal Text" lineEndContext="#pop" name="BashOneLine" fallthroughContext="Command">
         <DetectSpaces attribute="Normal Text" context="#stay"/>
         <DetectChar attribute="Comment" context="Comment" char="#"/>
         <!-- start expression in double parentheses -->
@@ -1104,6 +1151,7 @@
       <!-- VarBracePrefix called as soon as ${! is encoutered -->
       <context attribute="Variable" lineEndContext="#pop" name="VarBracePrefix">
         <DetectIdentifier attribute="Variable" context="#pop!VarBracePrefixSuffix"/>
+        <Int attribute="Variable" context="#pop!VarBracePrefixSuffix"/>
       </context>
       <context attribute="Variable" lineEndContext="#pop" name="VarBracePrefixSuffix" fallthroughContext="#pop!VarError">
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>

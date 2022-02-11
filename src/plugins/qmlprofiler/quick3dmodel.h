@@ -36,10 +36,11 @@ class Quick3DModel : public QmlProfilerTimelineModel
 
 public:
     struct Item {
-        Item(int typeId, int data) :
-            typeId(typeId), data(data) {}
-        int typeId;
-        int data;
+        Item(int additionalType, quint64 data, bool unload = false) :
+            additionalType(additionalType), data(data), unload(unload) {}
+        int additionalType = 0;
+        quint64 data = 0;
+        bool unload = false;
     };
 
     enum MessageType
@@ -53,16 +54,21 @@ public:
         GenerateShader,
         LoadShader,
         ParticleUpdate,
+
+        // additional types
+        MeshMemoryConsumption,
+        TextureMemoryConsumption
     };
 
     Quick3DModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
-    int typeId(int index) const override;
     QRgb color(int index) const override;
     QVariantList labels() const override;
     QVariantMap details(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
+    qint64 rowMaxValue(int rowNumber) const override;
+    float relativeHeight(int index) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
@@ -70,8 +76,15 @@ public:
 
 private:
     static QString messageType(uint i);
+    static QString unloadMessageType(uint i);
 
-    int m_maximumMsgType;
+    int m_maximumMsgType = 0;
+    qint64 m_prevTexStartTime = -1;
+    qint64 m_prevMeshStartTime = -1;
+    quint64 m_prevMeshData = 0;
+    quint64 m_prevTexData = 0;
+    quint64 m_maxMeshSize = 0;
+    quint64 m_maxTextureSize = 0;
     QVector<Item> m_data;
 };
 

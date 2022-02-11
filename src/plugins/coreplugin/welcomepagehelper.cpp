@@ -525,11 +525,14 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     painter->setPen(themeColor(Theme::Welcome_LinkColor));
     m_currentTagRects.clear();
+    int emptyTagRowsLeft = 2;
     int xx = 0;
     int yy = 0;
     for (const QString &tag : item->tags) {
         const int ww = fm.horizontalAdvance(tag) + tagsHorSpacing;
         if (xx + ww > textArea.width() - tagsLabelRect.width()) {
+            if (--emptyTagRowsLeft == 0)
+                break;
             yy += fm.lineSpacing();
             xx = 0;
         }

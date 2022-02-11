@@ -102,6 +102,10 @@
     \title Android Application Fundamentals
 */
 /*!
+    \externalpage https://doc.qt.io/qt/qtquicktest-index.html#executing-c-before-qml-tests
+    \title Executing C++ Before QML Tests
+*/
+/*!
     \externalpage https://doc.qt.io/qt/qtqml-cppintegration-overview.html
     \title Overview - QML and C++ Integration
 */

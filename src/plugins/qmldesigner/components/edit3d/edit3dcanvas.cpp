@@ -30,21 +30,43 @@
 #include "nodehints.h"
 #include "qmlvisualnode.h"
 
+#include <utils/qtcassert.h>
+
+#include <coreplugin/icore.h>
+
 #include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
 
-#include <QtCore/qmimedata.h>
+#include <QFileInfo>
 #include <QPainter>
+#include <QQuickWidget>
+#include <QtCore/qmimedata.h>
 
 namespace QmlDesigner {
 
+static QQuickWidget *createBusyIndicator(QWidget *p)
+{
+    auto widget = new QQuickWidget(p);
+
+    const QString source = Core::ICore::resourcePath("qmldesigner/misc/BusyIndicator.qml").toString();
+    QTC_ASSERT(QFileInfo::exists(source), return widget);
+    widget->setSource(QUrl::fromLocalFile(source));
+    widget->setFixedSize(64, 64);
+    widget->setAttribute(Qt::WA_AlwaysStackOnTop);
+    widget->setClearColor(Qt::transparent);
+    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    return widget;
+}
+
 Edit3DCanvas::Edit3DCanvas(Edit3DWidget *parent)
-    : QWidget(parent),
-    m_parent(parent)
+    : QWidget(parent)
+    , m_parent(parent)
+    , m_busyIndicator(createBusyIndicator(this))
 {
     setMouseTracking(true);
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
+    m_busyIndicator->show();
 }
 
 void Edit3DCanvas::updateRenderImage(const QImage &img)
@@ -56,6 +78,21 @@ void Edit3DCanvas::updateRenderImage(const QImage &img)
 void Edit3DCanvas::updateActiveScene(qint32 activeScene)
 {
     m_activeScene = activeScene;
+}
+
+QImage QmlDesigner::Edit3DCanvas::renderImage() const
+{
+    return m_image;
+}
+
+void Edit3DCanvas::setOpacity(qreal opacity)
+{
+    m_opacity = opacity;
+}
+
+QWidget *Edit3DCanvas::busyIndicator() const
+{
+    return m_busyIndicator;
 }
 
 void Edit3DCanvas::mousePressEvent(QMouseEvent *e)
@@ -108,11 +145,17 @@ void Edit3DCanvas::paintEvent(QPaintEvent *e)
 
     QPainter painter(this);
 
+    if (m_opacity < 1.0) {
+        painter.fillRect(rect(), Qt::black);
+        painter.setOpacity(m_opacity);
+    }
+
     painter.drawImage(rect(), m_image, QRect(0, 0, m_image.width(), m_image.height()));
 }
 
 void Edit3DCanvas::resizeEvent(QResizeEvent *e)
 {
+    positionBusyInidicator();
     m_parent->view()->edit3DViewResized(e->size());
 }
 
@@ -159,6 +202,11 @@ void Edit3DCanvas::focusInEvent(QFocusEvent *focusEvent)
 {
     m_usageTimer.restart();
     QWidget::focusInEvent(focusEvent);
+}
+
+void Edit3DCanvas::positionBusyInidicator()
+{
+    m_busyIndicator->move(width() / 2 - 32, height() / 2 - 32);
 }
 
 }

@@ -87,6 +87,8 @@
 #include <sys/types.h>
 #endif
 
+//#define ALLOW_LOCAL_ACCESS 1
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -249,6 +251,7 @@ class DockerDevicePrivate : public QObject
 public:
     DockerDevicePrivate(DockerDevice *parent) : q(parent)
     {
+#ifdef ALLOW_LOCAL_ACCESS
         connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
             Q_UNUSED(path)
             LOG("Container watcher change, file: " << path);
@@ -257,6 +260,7 @@ public:
             Q_UNUSED(path)
             LOG("Container watcher change, directory: " << path);
         });
+#endif
     }
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
@@ -279,8 +283,11 @@ public:
     QPointer<QtcProcess> m_shell;
     mutable QMutex m_shellMutex;
     QString m_container;
+
+#ifdef ALLOW_LOCAL_ACCESS
     QString m_mergedDir;
     QFileSystemWatcher m_mergedDirWatcher;
+#endif
 
     Environment m_cachedEnviroment;
 
@@ -300,15 +307,20 @@ public:
 
         DockerDeviceData &data = dockerDevice->data();
 
-        auto idLabel = new QLabel(tr("Image ID:"));
-        m_idLineEdit = new QLineEdit;
-        m_idLineEdit->setText(data.imageId);
-        m_idLineEdit->setEnabled(false);
-
         auto repoLabel = new QLabel(tr("Repository:"));
         m_repoLineEdit = new QLineEdit;
         m_repoLineEdit->setText(data.repo);
         m_repoLineEdit->setEnabled(false);
+
+        auto tagLabel = new QLabel(tr("Tag:"));
+        m_tagLineEdit = new QLineEdit;
+        m_tagLineEdit->setText(data.tag);
+        m_tagLineEdit->setEnabled(false);
+
+        auto idLabel = new QLabel(tr("Image ID:"));
+        m_idLineEdit = new QLineEdit;
+        m_idLineEdit->setText(data.imageId);
+        m_idLineEdit->setEnabled(false);
 
         auto daemonStateLabel = new QLabel(tr("Daemon state:"));
         m_daemonReset = new QToolButton;
@@ -333,6 +345,7 @@ public:
             data.useLocalUidGid = on;
         });
 
+#ifdef ALLOW_LOCAL_ACCESS
         // This tries to find the directory in the host file system that corresponds to the
         // docker container root file system, which is a merge of the layers from the
         // container image and the volumes mapped using -v on container startup.
@@ -348,6 +361,7 @@ public:
             data.useFilePathMapping = on;
             dockerDevice->updateContainerAccess();
         });
+#endif
 
         m_pathsListEdit = new PathListEditor;
         m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
@@ -390,11 +404,11 @@ public:
         };
 
         connect(autoDetectButton, &QPushButton::clicked, this,
-                [this, logView, id = data.id(), dockerDevice, searchPaths] {
+                [this, logView, data, dockerDevice, searchPaths] {
             logView->clear();
             dockerDevice->updateContainerAccess();
 
-            m_kitItemDetector.autoDetect(id, searchPaths());
+            m_kitItemDetector.autoDetect(data.autodetectId(), searchPaths());
 
             if (DockerPlugin::isDaemonRunning().value_or(false) == false)
                 logView->append(tr("Docker daemon appears to be not running."));
@@ -403,24 +417,27 @@ public:
             updateDaemonStateTexts();
         });
 
-        connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, id = data.id()] {
+        connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, data] {
             logView->clear();
-            m_kitItemDetector.undoAutoDetect(id);
+            m_kitItemDetector.undoAutoDetect(data.autodetectId());
         });
 
-        connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, id = data.id()] {
+        connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, data] {
             logView->clear();
-            m_kitItemDetector.listAutoDetected(id);
+            m_kitItemDetector.listAutoDetected(data.autodetectId());
         });
 
         using namespace Layouting;
 
         Form {
-            idLabel, m_idLineEdit, Break(),
             repoLabel, m_repoLineEdit, Break(),
+            tagLabel, m_tagLineEdit, Break(),
+            idLabel, m_idLineEdit, Break(),
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
+#ifdef ALLOW_LOCAL_ACCESS
             m_usePathMapping, Break(),
+#endif
             Column {
                 new QLabel(tr("Paths to mount:")),
                 m_pathsListEdit,
@@ -454,12 +471,15 @@ public:
     void updateDaemonStateTexts();
 
 private:
-    QLineEdit *m_idLineEdit;
     QLineEdit *m_repoLineEdit;
+    QLineEdit *m_tagLineEdit;
+    QLineEdit *m_idLineEdit;
     QToolButton *m_daemonReset;
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
+#ifdef ALLOW_LOCAL_ACCESS
     QCheckBox *m_usePathMapping;
+#endif
     Utils::PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
@@ -483,6 +503,19 @@ Tasks DockerDevice::validate() const
 }
 
 
+// DockerDeviceData
+
+QString DockerDeviceData::dockerId() const
+{
+    if (repo == "<none>")
+        return imageId;
+
+    if (tag == "<none>")
+        return repo;
+
+    return repo + ':' + tag;
+}
+
 // DockerDevice
 
 DockerDevice::DockerDevice(const DockerDeviceData &data)
@@ -493,39 +526,34 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
     setDisplayType(tr("Docker"));
     setOsType(OsTypeOtherUnix);
     setDefaultDisplayName(tr("Docker Image"));;
-    setDisplayName(tr("Docker Image \"%1\" (%2)").arg(data.repo).arg(data.imageId));
+    setDisplayName(tr("Docker Image \"%1\" (%2)").arg(data.dockerId()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
-        DeviceProcess * const proc = createProcess(nullptr);
-        QObject::connect(proc, &DeviceProcess::finished, [proc] {
-            if (!proc->errorString().isEmpty()) {
-                MessageManager::writeDisrupting(
-                    tr("Error running remote shell: %1").arg(proc->errorString()));
-            }
-            proc->deleteLater();
-        });
+        Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
+        updateContainerAccess();
+        if (d->m_container.isEmpty()) {
+            MessageManager::writeDisrupting(tr("Error starting remote shell. No container"));
+            return;
+        }
+
+        QtcProcess *proc = new QtcProcess(QtcProcess::TerminalOn);
+        QObject::connect(proc, &QtcProcess::finished, proc, &QObject::deleteLater);
+
         QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
             MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
 
-        Runnable runnable;
-        runnable.command = {"/bin/sh", {}};
-        runnable.device = sharedFromThis();
-        runnable.environment = env;
-        runnable.workingDirectory = workingDir;
-        runnable.extraData[Constants::DOCKER_RUN_FLAGS] = QStringList({"--interactive", "--tty"});
-
-        proc->setRunInTerminal(true);
-        proc->start(runnable);
+        const QString wd = workingDir.isEmpty() ? "/" : workingDir.path();
+        proc->setCommand({"docker", {"exec", "-it", "-w", wd, d->m_container, "/bin/sh"}});
+        proc->setEnvironment(Environment::systemEnvironment()); // The host system env. Intentional.
+        proc->start();
     });
 
-    if (HostOsInfo::isAnyUnixHost()) {
-        addDeviceAction({tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
-            device->openTerminal(Environment(), FilePath());
-        }});
-    }
+    addDeviceAction({tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+                         device->openTerminal(device->systemEnvironment(), FilePath());
+    }});
 }
 
 DockerDevice::~DockerDevice()
@@ -791,7 +819,9 @@ void DockerDevicePrivate::stopCurrentContainer()
         if (m_shell->state() == QProcess::NotRunning) {
             LOG("Clean exit via shell");
             m_container.clear();
+#ifdef ALLOW_LOCAL_ACCESS
             m_mergedDir.clear();
+#endif
             delete m_shell;
             m_shell = nullptr;
             return;
@@ -802,7 +832,9 @@ void DockerDevicePrivate::stopCurrentContainer()
     proc.setCommand({"docker", {"container", "stop", m_container}});
 
     m_container.clear();
+#ifdef ALLOW_LOCAL_ACCESS
     m_mergedDir.clear();
+#endif
 
     proc.runBlocking();
 }
@@ -848,7 +880,7 @@ void DockerDevicePrivate::startContainer()
     dockerCreate.addArgs({"-v", q->debugDumperPath().toUserOutput() + ':' + dumperPath.path()});
     q->setDebugDumperPath(dumperPath);
 
-    dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.imageId});
+    dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.dockerId()});
 
     LOG("RUNNING: " << dockerCreate.toUserOutput());
     QtcProcess createProcess;
@@ -917,6 +949,7 @@ void DockerDevicePrivate::updateContainerAccess()
 
 void DockerDevicePrivate::updateFileSystemAccess()
 {
+#ifdef ALLOW_LOCAL_ACCESS
     if (!m_data.useFilePathMapping) {
         // Direct access was used previously, but is not wanted anymore.
         if (!m_mergedDir.isEmpty()) {
@@ -958,14 +991,19 @@ void DockerDevicePrivate::updateFileSystemAccess()
     }
 
     m_mergedDirWatcher.addPath(m_mergedDir);
+#endif
 }
 
 bool DockerDevice::hasLocalFileAccess() const
 {
+#ifdef ALLOW_LOCAL_ACCESS
     static const bool denyLocalAccess = qEnvironmentVariableIsSet("QTC_DOCKER_DENY_LOCAL_ACCESS");
     if (denyLocalAccess)
         return false;
     return !d->m_mergedDir.isEmpty();
+#else
+    return false;
+#endif
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
@@ -976,6 +1014,7 @@ void DockerDevice::setMounts(const QStringList &mounts) const
 
 FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
 {
+#ifdef ALLOW_LOCAL_ACCESS
     QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
     QString path = filePath.path();
     for (const QString &mount : qAsConst(d->m_data.mounts)) {
@@ -985,6 +1024,10 @@ FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
     if (path.startsWith('/'))
         return FilePath::fromString(d->m_mergedDir + path);
     return FilePath::fromString(d->m_mergedDir + '/' + path);
+#else
+    QTC_CHECK(false);
+    return {};
+#endif
 }
 
 FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
@@ -995,9 +1038,14 @@ FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
 
 FilePath DockerDevice::mapFromLocalAccess(const QString &filePath) const
 {
+#ifdef ALLOW_LOCAL_FILE_ACCESS
     QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
     QTC_ASSERT(filePath.startsWith(d->m_mergedDir), return FilePath::fromString(filePath));
     return mapToGlobalPath(FilePath::fromString(filePath.mid(d->m_mergedDir.size())));
+#else
+    QTC_CHECK(false);
+    return {};
+#endif
 }
 
 const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
@@ -1011,9 +1059,9 @@ const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 void DockerDevice::fromMap(const QVariantMap &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
-    d->m_data.imageId = map.value(DockerDeviceDataImageIdKey).toString();
     d->m_data.repo = map.value(DockerDeviceDataRepoKey).toString();
     d->m_data.tag = map.value(DockerDeviceDataTagKey).toString();
+    d->m_data.imageId = map.value(DockerDeviceDataImageIdKey).toString();
     d->m_data.size = map.value(DockerDeviceDataSizeKey).toString();
     d->m_data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser,
                                          HostOsInfo::isLinuxHost()).toBool();
@@ -1025,9 +1073,9 @@ void DockerDevice::fromMap(const QVariantMap &map)
 QVariantMap DockerDevice::toMap() const
 {
     QVariantMap map = ProjectExplorer::IDevice::toMap();
-    map.insert(DockerDeviceDataImageIdKey, d->m_data.imageId);
     map.insert(DockerDeviceDataRepoKey, d->m_data.repo);
     map.insert(DockerDeviceDataTagKey, d->m_data.tag);
+    map.insert(DockerDeviceDataImageIdKey, d->m_data.imageId);
     map.insert(DockerDeviceDataSizeKey, d->m_data.size);
     map.insert(DockerDeviceUseOutsideUser, d->m_data.useLocalUidGid);
     map.insert(DockerDeviceUseFilePathMapping, d->m_data.useFilePathMapping);
@@ -1079,7 +1127,7 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
     }
     FilePath result;
     result.setScheme("docker");
-    result.setHost(d->m_data.imageId);
+    result.setHost(d->m_data.dockerId());
     result.setPath(pathOnDevice.path());
     return result;
 }
@@ -1099,7 +1147,7 @@ QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
-    return filePath.scheme() == "docker" && filePath.host() == d->m_data.imageId;
+    return filePath.scheme() == "docker" && filePath.host() == d->m_data.dockerId();
 }
 
 bool DockerDevice::isExecutableFile(const FilePath &filePath) const
@@ -1649,7 +1697,7 @@ Environment DockerDevice::systemEnvironment() const
 void DockerDevice::aboutToBeRemoved() const
 {
     KitDetector detector(sharedFromThis());
-    detector.undoAutoDetect(d->m_data.id());
+    detector.undoAutoDetect(d->m_data.autodetectId());
 }
 
 void DockerDevicePrivate::fetchSystemEnviroment()
@@ -1752,15 +1800,15 @@ public:
         switch (column) {
         case 0:
             if (role == Qt::DisplayRole)
-                return imageId;
+                return repo;
             break;
         case 1:
             if (role == Qt::DisplayRole)
-                return repo;
+                return tag;
             break;
         case 2:
             if (role == Qt::DisplayRole)
-                return tag;
+                return imageId;
             break;
         case 3:
             if (role == Qt::DisplayRole)
@@ -1781,7 +1829,7 @@ public:
         setWindowTitle(DockerDevice::tr("Docker Image Selection"));
         resize(800, 600);
 
-        m_model.setHeader({"Image", "Repository", "Tag", "Size"});
+        m_model.setHeader({"Repository", "Tag", "Image", "Size"});
 
         m_view = new TreeView;
         m_view->setModel(&m_model);
@@ -1853,7 +1901,7 @@ public:
         QTC_ASSERT(item, return {});
 
         auto device = DockerDevice::create(*item);
-        device->setupId(IDevice::ManuallyAdded, Id::fromString(item->id()));
+        device->setupId(IDevice::ManuallyAdded, Id::fromString(item->autodetectId()));
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
 

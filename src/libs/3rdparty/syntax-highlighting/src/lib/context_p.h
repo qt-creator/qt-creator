@@ -8,9 +8,8 @@
 #define KSYNTAXHIGHLIGHTING_CONTEXT_P_H
 
 #include "contextswitch_p.h"
-#include "definition.h"
-#include "definitionref_p.h"
 #include "format.h"
+#include "highlightingdata_p.hpp"
 #include "rule_p.h"
 
 #include <QString>
@@ -23,14 +22,18 @@ QT_END_NAMESPACE
 
 namespace KSyntaxHighlighting
 {
+class DefinitionData;
+
 class Context
 {
 public:
-    Context() = default;
-    ~Context() = default;
+    Q_DISABLE_COPY(Context)
 
-    Definition definition() const;
-    void setDefinition(const DefinitionRef &def);
+    Context(Context &&) = default;
+    Context &operator=(Context &&) = default;
+
+    Context(const DefinitionData &def, const HighlightingContextData &data);
+    ~Context() = default;
 
     const QString &name() const
     {
@@ -73,44 +76,28 @@ public:
      */
     bool indentationBasedFoldingEnabled() const;
 
-    void load(QXmlStreamReader &reader);
-    void resolveContexts();
-    void resolveIncludes();
-    void resolveAttributeFormat();
+    void resolveContexts(DefinitionData &def, const HighlightingContextData &data);
+    void resolveIncludes(DefinitionData &def);
 
 private:
-    Q_DISABLE_COPY(Context)
+    enum ResolveState : quint8 { Unresolved, Resolving, Resolved };
 
-    enum ResolveState { Unknown, Unresolved, Resolving, Resolved };
-    ResolveState resolveState();
+    std::vector<Rule::Ptr> m_rules;
 
-    DefinitionRef m_def;
     QString m_name;
-
-    /**
-     * attribute name, to lookup our format
-     */
-    QString m_attribute;
-
-    /**
-     * context to use for lookup, if != this context
-     */
-    const Context *m_attributeContext = nullptr;
-
-    /**
-     * resolved format for our attribute, done in resolveAttributeFormat
-     */
-    Format m_attributeFormat;
 
     ContextSwitch m_lineEndContext;
     ContextSwitch m_lineEmptyContext;
     ContextSwitch m_fallthroughContext;
 
-    std::vector<Rule::Ptr> m_rules;
+    /**
+     * resolved format for our attribute, done in constructor and resolveIncludes
+     */
+    Format m_attributeFormat;
 
-    ResolveState m_resolveState = Unknown;
+    ResolveState m_resolveState = Unresolved;
     bool m_fallthrough = false;
-    bool m_noIndentationBasedFolding = false;
+    bool m_indentationBasedFolding;
 };
 }
 

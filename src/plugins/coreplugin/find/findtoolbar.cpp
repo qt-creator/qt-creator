@@ -437,6 +437,8 @@ void FindToolBar::updateToolBar()
     m_ui.findPreviousButton->setVisible(showAllControls);
     m_ui.findNextButton->setEnabled(enabled);
     m_ui.findNextButton->setVisible(showAllControls);
+    m_ui.selectAllButton->setVisible(style == ControlStyle::Text
+                                     && m_currentDocumentFind->supportsSelectAll());
     m_ui.horizontalSpacer->changeSize((showAllControls ? FINDBUTTON_SPACER_WIDTH : 0), 0,
                                       QSizePolicy::Expanding, QSizePolicy::Ignored);
     m_ui.findButtonLayout->invalidate(); // apply spacer change
@@ -768,10 +770,25 @@ FindToolBar::ControlStyle FindToolBar::controlStyle(bool replaceIsVisible)
 {
     const Qt::ToolButtonStyle currentFindButtonStyle = m_ui.findNextButton->toolButtonStyle();
     const int fullWidth = width();
+
+    if (replaceIsVisible) {
+        // Since the replace buttons do not collapse to icons, they have precedence, here.
+        const int replaceFixedWidth = m_ui.replaceLabel->sizeHint().width()
+                + m_ui.replaceButton->sizeHint().width()
+                + m_ui.replaceNextButton->sizeHint().width()
+                + m_ui.replaceAllButton->sizeHint().width()
+                + m_ui.advancedButton->sizeHint().width();
+        return fullWidth - replaceFixedWidth >= MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT ?
+                    ControlStyle::Text : ControlStyle::Hidden;
+    }
+
     const auto findWidth = [this] {
+        const int selectAllWidth = m_currentDocumentFind->supportsSelectAll() ?
+                    m_ui.selectAllButton->sizeHint().width() : 0;
         return m_ui.findLabel->sizeHint().width() + m_ui.findNextButton->sizeHint().width()
-               + m_ui.findPreviousButton->sizeHint().width() + FINDBUTTON_SPACER_WIDTH
-               + m_ui.close->sizeHint().width();
+                + m_ui.findPreviousButton->sizeHint().width()
+                + selectAllWidth + FINDBUTTON_SPACER_WIDTH
+                + m_ui.close->sizeHint().width();
     };
     setFindButtonStyle(Qt::ToolButtonTextOnly);
     const int findWithTextWidth = findWidth();
@@ -782,15 +799,8 @@ FindToolBar::ControlStyle FindToolBar::controlStyle(bool replaceIsVisible)
         return ControlStyle::Hidden;
     if (fullWidth - findWithTextWidth < MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT)
         return ControlStyle::Icon;
-    if (!replaceIsVisible)
-        return ControlStyle::Text;
-    const int replaceFixedWidth = m_ui.replaceLabel->sizeHint().width()
-            + m_ui.replaceButton->sizeHint().width()
-            + m_ui.replaceNextButton->sizeHint().width()
-            + m_ui.replaceAllButton->sizeHint().width()
-            + m_ui.advancedButton->sizeHint().width();
-    return fullWidth - replaceFixedWidth >= MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT ? ControlStyle::Text
-                                                                             : ControlStyle::Hidden;
+
+    return ControlStyle::Text;
 }
 
 void FindToolBar::setFindButtonStyle(Qt::ToolButtonStyle style)

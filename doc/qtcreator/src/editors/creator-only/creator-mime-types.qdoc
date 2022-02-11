@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -78,7 +78,8 @@
         \li In \uicontrol Handler, double-click the editor name to display a
             context-menu where you can select another editor to open the file
             in by default. The menu is available only if alternative suitable
-            editors are available.
+            editors are available. Select \uicontrol {System Editor} to use
+            the system's default editor for files of this type by default.
 
         \li In \uicontrol Patterns, add the filename extension for the type of files
             that you want to identify as having this MIME type.

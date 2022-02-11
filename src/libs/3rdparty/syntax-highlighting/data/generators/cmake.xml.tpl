@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd"
 [
-  <!ENTITY id_re "[_A-Za-z][\-_0-9A-Za-z]*">
+  <!-- NOTE See https://cmake.org/cmake/help/latest/manual/cmake-language.7.html#variable-references -->
+  <!ENTITY var_ref_re "[/\.\+\-_0-9A-Za-z]+">
+  <!-- NOTE See `cmGeneratorExpression::IsValidTargetName` -->
+  <!ENTITY tgt_name_re "[A-Za-z0-9_\.\+\-]+">
 ]>
 <!--
     This file is part of KDE's kate project.
@@ -38,7 +41,9 @@
         <item><!--{command.name}--></item>
     <!--[- endfor ]-->
     </list>
-    <!--[ for command in commands -]-->
+
+    <!--[- macro render_command_arg_lists(commands) ]-->
+    <!--[- for command in commands -]-->
       <!--[- if command.named_args and command.named_args.kw ]-->
     <list name="<!--{command.name}-->_nargs">
         <!--[- for arg in command.named_args.kw ]-->
@@ -54,6 +59,9 @@
     </list>
       <!--[- endif ]-->
     <!--[- endfor ]-->
+    <!--[- endmacro ]-->
+    <!--{- render_command_arg_lists(commands) }-->
+    <!--{- render_command_arg_lists(standard_module_commands) }-->
 
     <list name="variables">
     <!--[- for var in variables.kw ]-->
@@ -87,6 +95,24 @@
       <!--[- endfor ]-->
     </list>
 
+    <list name="standard-modules">
+      <!--[- for module in modules.utility ]-->
+      <item><!--{ module }--></item>
+      <!--[- endfor ]-->
+    </list>
+
+    <list name="standard-finder-modules">
+      <!--[- for module in modules.finder ]-->
+      <item><!--{ module | replace('Find', '') }--></item>
+      <!--[- endfor ]-->
+    </list>
+
+    <list name="deprecated-modules">
+      <!--[- for module in modules.deprecated ]-->
+      <item><!--{ module }--></item>
+      <!--[- endfor ]-->
+    </list>
+
     <contexts>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
@@ -94,24 +120,67 @@
         <!--[ for command in commands -]-->
         <WordDetect String="<!--{command.name}-->" insensitive="true" attribute="Command" context="<!--{command.name}-->_ctx"<!--[ if command.start_region ]--> beginRegion="<!--{command.start_region}-->"<!--[ endif -]--> <!--[- if command.end_region ]--> endRegion="<!--{command.end_region}-->"<!--[ endif ]--> />
         <!--[ endfor -]-->
+        <!--[ for command in standard_module_commands -]-->
+        <WordDetect String="<!--{command.name}-->" insensitive="true" attribute="CMake Provided Function/Macro" context="<!--{command.name}-->_ctx" />
+        <!--[ endfor -]-->
         <DetectChar attribute="Comment" context="Match Comments and Docs" char="#" lookAhead="true" />
         <DetectIdentifier attribute="User Function/Macro" context="User Function" />
-        <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&id_re;@" lookAhead="true" />
-        <!-- Include keywords matching for language autocompleter work -->
-        <keyword attribute="Command" context="#stay" String="commands" />
+        <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&var_ref_re;@" lookAhead="true" />
+        <RegExpr attribute="Error" context="#stay" String=".*" />
       </context>
-
+      <!--[- macro render_command_parsers(commands) ]-->
       <!--[ for command in commands -]-->
       <context attribute="Normal Text" lineEndContext="#stay" name="<!--{command.name}-->_ctx">
-        <DetectChar attribute="Normal Text" context="<!--{command.name}-->_ctx_op" char="(" />
+        <DetectChar attribute="Normal Text" context="<!--{command.name}-->_ctx_op<!--{'_tgt_first' if command.first_arg_is_target else '_tgts_first' if command.first_args_are_targets else ''}-->" char="(" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" />
       </context>
+        <!--[- if command.first_arg_is_target ]-->
+      <context attribute="Normal Text" lineEndContext="#stay" name="<!--{command.name}-->_ctx_op_tgt_first">
+        <RegExpr attribute="Aliased Targets" context="<!--{command.name}-->_ctx_op" String="&tgt_name_re;::&tgt_name_re;(?:\:\:&tgt_name_re;)*" />
+        <RegExpr attribute="Targets" context="<!--{command.name}-->_ctx_op" String="&tgt_name_re;" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" lookAhead="true" />
+        <IncludeRules context="User Function Args" />
+        <DetectSpaces />
+        <RegExpr attribute="Error" context="#stay" String=".*" />
+      </context>
+        <!--[- endif ]-->
+        <!--[- if command.first_args_are_targets ]-->
+      <context attribute="Normal Text" lineEndContext="#stay" name="<!--{command.name}-->_ctx_op_tgts_first">
+        <!--[- if command.named_args and command.named_args.kw ]-->
+          <!-- NOTE Handle the only case in CMake nowadays:
+              1. `set_target_properties` have a named keyword (`PROPERTIES`) after targets list
+          -->
+        <keyword context="<!--{command.name}-->_ctx_op" String="<!--{command.name}-->_nargs" lookAhead="true" />
+          <!--[- endif ]-->
+        <IncludeRules context="Detect Aliased Targets" />
+        <RegExpr attribute="Targets" context="#stay" String="&tgt_name_re;" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" lookAhead="true" />
+        <IncludeRules context="User Function Args" />
+        <DetectSpaces />
+        <RegExpr attribute="Error" context="#stay" String=".*" />
+      </context>
+        <!--[- endif ]-->
+        <!--[- if not command.first_args_are_targets or (command.named_args and command.named_args.kw) ]-->
       <context attribute="Normal Text" lineEndContext="#stay" name="<!--{command.name}-->_ctx_op">
         <!--[- if command.nested_parentheses ]-->
         <DetectChar attribute="Normal Text" context="<!--{command.name}-->_ctx_op_nested" char="(" />
         <!--[- endif ]-->
-        <IncludeRules context="EndCmdPop2" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" lookAhead="true" />
         <!--[- if command.named_args and command.named_args.kw ]-->
+          <!--[- if command.has_target_name_after_kw ]-->
+        <WordDetect String="<!--{command.has_target_name_after_kw}-->" attribute="Named Args" context="Target Name" />
+          <!--[- endif ]-->
+          <!--[- if command.has_target_names_after_kw ]-->
+        <WordDetect String="<!--{command.has_target_names_after_kw}-->" attribute="Named Args" context="<!--{command.name}-->_tgts" />
+          <!--[- endif ]-->
         <keyword attribute="Named Args" context="#stay" String="<!--{command.name}-->_nargs" />
+        <!--[- endif ]-->
+        <!--[- if command.name == 'include' ]-->
+        <keyword attribute="Standard Module" context="#stay" String="standard-modules" />
+        <keyword attribute="Deprecated Module" context="#stay" String="deprecated-modules" />
+        <!--[- endif ]-->
+        <!--[- if command.name == 'find_package' ]-->
+        <keyword attribute="Standard Module" context="#stay" String="standard-finder-modules" />
         <!--[- endif ]-->
         <!--[- if command.special_args and command.special_args.kw ]-->
         <keyword attribute="Special Args" context="#stay" String="<!--{command.name}-->_sargs" />
@@ -132,9 +201,21 @@
           <!--[- endif ]-->
         <!--[- endif ]-->
       </context>
+        <!--[- endif ]-->
+        <!--[- if command.has_target_names_after_kw ]-->
+      <context attribute="Normal Text" lineEndContext="#stay" name="<!--{command.name}-->_tgts">
+        <DetectChar attribute="Normal Text" context="#pop" char=")" lookAhead="true" />
+        <keyword attribute="Named Args" context="#pop" String="<!--{command.name}-->_nargs" />
+        <RegExpr attribute="Aliased Targets" context="#stay" String="&tgt_name_re;::&tgt_name_re;(?:\:\:&tgt_name_re;)*" />
+        <RegExpr attribute="Targets" context="#stay" String="&tgt_name_re;" />
+        <IncludeRules context="User Function Args" />
+        <DetectSpaces />
+        <RegExpr attribute="Error" context="#stay" String=".*" />
+      </context>
+        <!--[- endif ]-->
         <!--[- if command.nested_parentheses ]-->
       <context attribute="Normal Text" lineEndContext="#stay" name="<!--{command.name}-->_ctx_op_nested">
-        <IncludeRules context="EndCmdPop" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" />
         <!--[- if command.named_args and command.named_args.kw ]-->
         <keyword attribute="Named Args" context="#stay" String="<!--{command.name}-->_nargs" />
         <!--[- endif ]-->
@@ -153,33 +234,27 @@
       </context>
         <!--[- endif ]-->
       <!--[ endfor -]-->
-
+      <!--[- endmacro -]-->
+      <!--{- render_command_parsers(commands) -}-->
+      <!--{- render_command_parsers(standard_module_commands) -}-->
       <!--[ for kind in properties.kinds if properties[kind].re -]-->
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More <!--{ kind|replace('_', '-') }-->">
         <RegExpr attribute="Property" context="#stay" String="<!--{properties[kind].re}-->" />
       </context><!--{ '\n' }-->
       <!--[ endfor -]-->
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="EndCmdPop">
+      <context attribute="User Function/Macro" lineEndContext="#stay" name="User Function">
+        <DetectChar attribute="Normal Text" context="User Function Opened" char="(" />
         <DetectChar attribute="Normal Text" context="#pop" char=")" />
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="EndCmdPop2">
-        <DetectChar attribute="Normal Text" context="#pop#pop" char=")" />
-      </context>
-
-      <context attribute="User Function/Macro" lineEndContext="#stay" name="User Function">
-        <DetectChar attribute="Normal Text" context="User Function Opened" char="(" />
-        <IncludeRules context="EndCmdPop2" />
-      </context>
-
       <context attribute="Normal Text" lineEndContext="#stay" name="User Function Opened">
-        <IncludeRules context="EndCmdPop2" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" lookAhead="true" />
         <IncludeRules context="User Function Args" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Builtin Variables">
-        <RegExpr attribute="Internal Name" context="#stay" String="\b_&id_re;\b" />
+        <RegExpr attribute="Internal Name" context="#stay" String="\b_&var_ref_re;\b" />
         <keyword attribute="CMake Internal Variable" context="#stay" String="deprecated-or-internal-variables" insensitive="false" />
         <keyword attribute="Builtin Variable" context="#stay" String="variables" insensitive="false" />
         <IncludeRules context="Detect More Builtin Variables" />
@@ -198,7 +273,7 @@
         <RegExpr attribute="Cache Variable Substitution" context="#stay" String="\$CACHE\{\s*[\w-]+\s*\}" />
         <RegExpr attribute="Environment Variable Substitution" context="EnvVarSubst" String="\$?ENV\{" />
         <Detect2Chars attribute="Variable Substitution" context="VarSubst" char="$" char1="{" />
-        <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&id_re;@" lookAhead="true" />
+        <RegExpr attribute="@Variable Substitution" context="@VarSubst" String="@&var_ref_re;@" lookAhead="true" />
       </context>
 
       <context attribute="Environment Variable Substitution" lineEndContext="#pop" name="EnvVarSubst">
@@ -227,6 +302,15 @@
         <IncludeRules context="Detect Builtin Variables" />
         <DetectIdentifier />
         <DetectChar attribute="@Variable Substitution" context="#pop#pop" char="@" />
+      </context>
+
+      <context attribute="Normal Text" lineEndContext="#stay" name="Target Name">
+        <RegExpr attribute="Aliased Targets" context="#pop" String="&tgt_name_re;::&tgt_name_re;(?:\:\:&tgt_name_re;)*" />
+        <RegExpr attribute="Targets" context="#pop" String="&tgt_name_re;" />
+        <DetectChar attribute="Normal Text" context="#pop" char=")" lookAhead="true" />
+        <IncludeRules context="User Function Args" />
+        <DetectSpaces />
+        <RegExpr attribute="Error" context="#stay" String=".*" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="User Function Args">
@@ -261,12 +345,12 @@
         <WordDetect attribute="False Special Arg" context="#stay" String="N" insensitive="true" />
         <WordDetect attribute="False Special Arg" context="#stay" String="IGNORE" insensitive="true" />
         <WordDetect attribute="False Special Arg" context="#stay" String="0" />
-        <RegExpr attribute="False Special Arg" context="#stay" String="\b(?:&id_re;-)?NOTFOUND\b" />
-        <RegExpr attribute="Special Args" context="#stay" String="\bCMP[0-9][0-9][0-9]\b" />
+        <RegExpr attribute="False Special Arg" context="#stay" String="\b(?:&var_ref_re;-)?NOTFOUND\b" />
+        <RegExpr attribute="Special Args" context="#stay" String="\bCMP[0-9][0-9][0-9][0-9]\b" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Aliased Targets">
-        <RegExpr attribute="Aliased Targets" context="#stay" String="\b&id_re;::&id_re;(?:\:\:&id_re;)*\b" />
+        <RegExpr attribute="Aliased Targets" context="#stay" String="&tgt_name_re;::&tgt_name_re;(?:\:\:&tgt_name_re;)*" />
       </context>
 
       <context attribute="Comment" lineEndContext="#pop" name="Match Comments">
@@ -330,9 +414,12 @@
 
     <itemDatas>
       <itemData name="Normal Text" defStyleNum="dsNormal" spellChecking="false" />
+      <itemData name="Comment" defStyleNum="dsComment" spellChecking="true" />
       <itemData name="Command" defStyleNum="dsKeyword" spellChecking="false" />
+      <itemData name="CMake Provided Function/Macro" defStyleNum="dsFunction" bold="true" spellChecking="false" />
       <itemData name="User Function/Macro"  defStyleNum="dsFunction" spellChecking="false" />
       <itemData name="Property" defStyleNum="dsOthers" spellChecking="false" />
+      <itemData name="Targets" defStyleNum="dsBaseN" spellChecking="false" />
       <itemData name="Aliased Targets" defStyleNum="dsBaseN" spellChecking="false" />
       <itemData name="Named Args" defStyleNum="dsOthers" spellChecking="false" />
       <itemData name="Special Args" defStyleNum="dsOthers" spellChecking="false" />
@@ -351,8 +438,10 @@
       <itemData name="Standard Environment Variable" defStyleNum="dsFloat" spellChecking="false" />
       <itemData name="Generator Expression Keyword" defStyleNum="dsKeyword" color="#b84040" selColor="#b84040" spellChecking="false" />
       <itemData name="Generator Expression" defStyleNum="dsOthers" color="#b86050" selColor="#b86050" spellChecking="false" />
-      <itemData name="Comment" defStyleNum="dsComment" spellChecking="true" />
+      <itemData name="Standard Module" defStyleNum="dsImport" spellChecking="false" />
+      <itemData name="Deprecated Module" defStyleNum="dsImport" spellChecking="false" />
       <itemData name="Region Marker" defStyleNum="dsRegionMarker" spellChecking="false" />
+      <itemData name="Error" defStyleNum="dsError" spellChecking="false" />
     </itemDatas>
 
   </highlighting>
@@ -360,7 +449,7 @@
   <general>
     <comments>
       <comment name="singleLine" start="#" position="afterwhitespace" />
-      <comment name="multiLine" start="#[[" end="]]" region="BracketedComment"/>
+      <comment name="multiLine" start="#[[" end="]]" region="BracketedComment" />
     </comments>
     <keywords casesensitive="1" weakDeliminator="." />
   </general>

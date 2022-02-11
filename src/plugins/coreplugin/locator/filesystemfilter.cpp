@@ -169,7 +169,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
 
 const char kAlwaysCreate[] = "Locator/FileSystemFilter/AlwaysCreate";
 
-void FileSystemFilter::accept(LocatorFilterEntry selection,
+void FileSystemFilter::accept(const LocatorFilterEntry &selection,
                               QString *newText,
                               int *selectionStart,
                               int *selectionLength) const

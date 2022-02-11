@@ -45,7 +45,7 @@ public:
     OpenDocumentsFilter();
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(LocatorFilterEntry selection,
+    void accept(const LocatorFilterEntry &selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
 

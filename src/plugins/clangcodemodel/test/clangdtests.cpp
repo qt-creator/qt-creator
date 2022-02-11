@@ -675,6 +675,8 @@ void ClangdTestHighlighting::initTestCase()
 {
     ClangdTest::initTestCase();
 
+    connect(document("highlighting.cpp"), &TextDocument::ifdefedOutBlocksChanged, this,
+            [this](const QList<BlockRange> &ranges) { m_ifdefedOutBlocks = ranges; });
     QTimer timer;
     timer.setSingleShot(true);
     QEventLoop loop;
@@ -1378,6 +1380,17 @@ void ClangdTestHighlighting::test()
 
     QCOMPARE(actualStyles, expectedStyles);
     QCOMPARE(result.kind, expectedKind);
+}
+
+void ClangdTestHighlighting::testIfdefedOutBlocks()
+{
+    QCOMPARE(m_ifdefedOutBlocks.size(), 3);
+    QCOMPARE(m_ifdefedOutBlocks.at(0).first(), 12033);
+    QCOMPARE(m_ifdefedOutBlocks.at(0).last(), 12050);
+    QCOMPARE(m_ifdefedOutBlocks.at(1).first(), 13351);
+    QCOMPARE(m_ifdefedOutBlocks.at(1).last(), 13364);
+    QCOMPARE(m_ifdefedOutBlocks.at(2).first(), 13390);
+    QCOMPARE(m_ifdefedOutBlocks.at(2).last(), 13402);
 }
 
 

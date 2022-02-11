@@ -9,25 +9,24 @@
 #define KSYNTAXHIGHLIGHTING_RULE_P_H
 
 #include "contextswitch_p.h"
-#include "definition.h"
 #include "definitionref_p.h"
 #include "foldingregion.h"
 #include "format.h"
+#include "highlightingdata_p.hpp"
 #include "keywordlist_p.h"
 #include "matchresult_p.h"
+#include "worddelimiters_p.h"
 
 #include <QRegularExpression>
 #include <QString>
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QXmlStreamReader;
-QT_END_NAMESPACE
-
 namespace KSyntaxHighlighting
 {
 class WordDelimiters;
+class DefinitionData;
+class IncludeRules;
 
 class Rule
 {
@@ -36,9 +35,6 @@ public:
     virtual ~Rule();
 
     typedef std::shared_ptr<Rule> Ptr;
-
-    Definition definition() const;
-    void setDefinition(const Definition &def);
 
     const Format &attributeFormat() const
     {
@@ -80,42 +76,40 @@ public:
         return m_endRegion;
     }
 
-    bool load(QXmlStreamReader &reader);
-    void resolveContext();
-    void resolveAttributeFormat(Context *lookupContext);
+    const IncludeRules *castToIncludeRules() const;
+
+    bool isLineContinue() const
+    {
+        return m_type == Type::LineContinue;
+    }
+
     virtual void resolvePostProcessing()
     {
     }
 
     virtual MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const = 0;
 
-    static Rule::Ptr create(QStringView name);
-
-protected:
-    virtual bool doLoad(QXmlStreamReader &reader);
-
-    bool isWordDelimiter(QChar c) const;
-
-    void loadAdditionalWordDelimiters(QXmlStreamReader &reader);
+    static Rule::Ptr create(DefinitionData &def, const HighlightingContextData::Rule &ruleData, QStringView lookupContextName);
 
 private:
     Q_DISABLE_COPY(Rule)
 
-    DefinitionRef m_def;
-    QString m_attribute;
+    bool resolveCommon(DefinitionData &def, const HighlightingContextData::Rule &ruleData, QStringView lookupContextName);
+
+    enum class Type : quint8 {
+        OtherRule,
+        LineContinue,
+        IncludeRules,
+    };
+
     Format m_attributeFormat;
     ContextSwitch m_context;
     int m_column = -1;
     FoldingRegion m_beginRegion;
     FoldingRegion m_endRegion;
+    Type m_type;
     bool m_firstNonSpace = false;
     bool m_lookAhead = false;
-
-    // cache for DefinitionData::wordDelimiters, is accessed VERY often
-    WordDelimiters *m_wordDelimiters = nullptr;
-
-    QString m_additionalDeliminator;
-    QString m_weakDeliminator;
 
 protected:
     bool m_dynamic = false;
@@ -123,8 +117,10 @@ protected:
 
 class AnyChar final : public Rule
 {
+public:
+    AnyChar(const HighlightingContextData::Rule::AnyChar &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
@@ -133,20 +129,24 @@ private:
 
 class DetectChar final : public Rule
 {
+public:
+    DetectChar(const HighlightingContextData::Rule::DetectChar &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QChar m_char;
     int m_captureIndex = 0;
 };
 
-class Detect2Char final : public Rule
+class Detect2Chars final : public Rule
 {
+public:
+    Detect2Chars(const HighlightingContextData::Rule::Detect2Chars &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QChar m_char1;
@@ -167,33 +167,49 @@ protected:
 
 class Float final : public Rule
 {
+public:
+    Float(DefinitionData &def, const HighlightingContextData::Rule::Float &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+
+private:
+    WordDelimiters m_wordDelimiters;
 };
 
 class IncludeRules final : public Rule
 {
 public:
-    QString contextName() const;
-    QString definitionName() const;
-    bool includeAttribute() const;
+    IncludeRules(const HighlightingContextData::Rule::IncludeRules &data);
+
+    const QString &contextName() const
+    {
+        return m_contextName;
+    }
+
+    bool includeAttribute() const
+    {
+        return m_includeAttribute;
+    }
 
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QString m_contextName;
-    QString m_defName;
     bool m_includeAttribute;
 };
 
 class Int final : public Rule
 {
+public:
+    Int(DefinitionData &def, const HighlightingContextData::Rule::Int &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+
+private:
+    WordDelimiters m_wordDelimiters;
 };
 
 class HlCChar final : public Rule
@@ -204,16 +220,26 @@ protected:
 
 class HlCHex final : public Rule
 {
+public:
+    HlCHex(DefinitionData &def, const HighlightingContextData::Rule::HlCHex &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+
+private:
+    WordDelimiters m_wordDelimiters;
 };
 
 class HlCOct final : public Rule
 {
+public:
+    HlCOct(DefinitionData &def, const HighlightingContextData::Rule::HlCOct &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+
+private:
+    WordDelimiters m_wordDelimiters;
 };
 
 class HlCStringChar final : public Rule
@@ -224,20 +250,26 @@ protected:
 
 class KeywordListRule final : public Rule
 {
+public:
+    KeywordListRule(const KeywordList &keywordList, DefinitionData &def, const HighlightingContextData::Rule::Keyword &data);
+
+    static Rule::Ptr create(DefinitionData &def, const HighlightingContextData::Rule::Keyword &data, QStringView lookupContextName);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
-    KeywordList *m_keywordList;
-    bool m_hasCaseSensitivityOverride;
-    Qt::CaseSensitivity m_caseSensitivityOverride;
+    WordDelimiters m_wordDelimiters;
+    const KeywordList &m_keywordList;
+    Qt::CaseSensitivity m_caseSensitivity;
 };
 
 class LineContinue final : public Rule
 {
+public:
+    LineContinue(const HighlightingContextData::Rule::LineContinue &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
@@ -246,8 +278,10 @@ private:
 
 class RangeDetect final : public Rule
 {
+public:
+    RangeDetect(const HighlightingContextData::Rule::RangeDetect &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
     MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
@@ -257,10 +291,12 @@ private:
 
 class RegExpr final : public Rule
 {
+public:
+    RegExpr(const HighlightingContextData::Rule::RegExpr &data);
+
 protected:
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
     void resolvePostProcessing() override;
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
 
 private:
     QRegularExpression m_regexp;
@@ -269,9 +305,24 @@ private:
 
 class StringDetect final : public Rule
 {
+public:
+    StringDetect(const HighlightingContextData::Rule::StringDetect &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
+
+private:
+    QString m_string;
+    Qt::CaseSensitivity m_caseSensitivity;
+};
+
+class DynamicStringDetect final : public Rule
+{
+public:
+    DynamicStringDetect(const HighlightingContextData::Rule::StringDetect &data);
+
+protected:
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
     QString m_string;
@@ -280,11 +331,14 @@ private:
 
 class WordDetect final : public Rule
 {
+public:
+    WordDetect(DefinitionData &def, const HighlightingContextData::Rule::WordDetect &data);
+
 protected:
-    bool doLoad(QXmlStreamReader &reader) override;
-    MatchResult doMatch(QStringView text, int offset, const QStringList &captures) const override;
+    MatchResult doMatch(QStringView text, int offset, const QStringList &) const override;
 
 private:
+    WordDelimiters m_wordDelimiters;
     QString m_word;
     Qt::CaseSensitivity m_caseSensitivity;
 };

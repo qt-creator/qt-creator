@@ -595,7 +595,7 @@ bool ILocatorFilter::isOldSetting(const QByteArray &state)
 */
 
 /*!
-    \fn void Core::ILocatorFilter::accept(Core::LocatorFilterEntry selection, QString *newText, int *selectionStart, int *selectionLength) const
+    \fn void Core::ILocatorFilter::accept(Core::const LocatorFilterEntry &selection, QString *newText, int *selectionStart, int *selectionLength) const
 
     Called with the entry specified by \a selection when the user activates it
     in the result list.

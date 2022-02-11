@@ -218,7 +218,15 @@ bool ClangModelManagerSupport::supportsLocalUses(const TextEditor::TextDocument 
 CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
-    return new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);
+    const auto processor = new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);
+    const auto handleConfigChange = [this](const Utils::FilePath &fp,
+            const BaseEditorDocumentParser::Configuration &config) {
+        if (const auto client = clientForFile(fp))
+            client->updateParserConfig(fp, config);
+    };
+    connect(processor, &ClangEditorDocumentProcessor::parserConfigChanged,
+            this, handleConfigChange);
+    return processor;
 }
 
 void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
@@ -234,6 +242,8 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
     if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString())) {
         processor->semanticRehighlight();
         processor->generateTaskHubIssues();
+        if (const auto client = clientForFile(filePath))
+            client->updateParserConfig(filePath, processor->parserConfig());
     }
 }
 
@@ -343,15 +353,37 @@ void ClangModelManagerSupport::updateLanguageClient(
             if (!newProjectInfo || *newProjectInfo != *projectInfo)
                 return;
 
+            const auto updateParserConfig = [client] {
+                if (const auto editor = TextEditor::BaseTextEditor::currentTextEditor()) {
+                    if (!client->documentOpen(editor->textDocument()))
+                        return;
+                    const Utils::FilePath filePath = editor->textDocument()->filePath();
+                    if (const auto processor = ClangEditorDocumentProcessor::get(
+                                filePath.toString())) {
+                        const CppEditor::BaseEditorDocumentParser::Configuration config
+                                = processor->parserConfig();
+                        client->updateParserConfig(filePath, config);
+                    }
+                }
+            };
+
             // Acquaint the client with all open C++ documents for this project.
             bool hasDocuments = false;
             for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
-                if (!project->isKnownFile(editor->textDocument()->filePath()))
+                const Utils::FilePath filePath = editor->textDocument()->filePath();
+                if (!project->isKnownFile(filePath))
                     continue;
                 LanguageClientManager::openDocumentWithClient(editor->textDocument(), client);
-                ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
+                ClangEditorDocumentProcessor::clearTextMarks(filePath);
                 hasDocuments = true;
             }
+
+            if (client->state() == Client::Initialized)
+                updateParserConfig();
+            else
+                connect(client, &Client::initialized, client, updateParserConfig);
+            connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated,
+                    client, updateParserConfig);
 
             if (hasDocuments)
                 return;

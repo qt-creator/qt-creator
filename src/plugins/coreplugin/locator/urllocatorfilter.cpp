@@ -162,7 +162,7 @@ QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
     return entries;
 }
 
-void UrlLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void UrlLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                               QString *newText,
                               int *selectionStart,
                               int *selectionLength) const

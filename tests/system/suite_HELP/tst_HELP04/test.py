@@ -69,7 +69,8 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    addHelpDocumentation([os.path.join(qt4Path, "doc", "qch", "qt.qch")])
+    if qt4Available:
+        addHelpDocumentation([os.path.join(qt4Path, "doc", "qch", "qt.qch")])
     # switch to help mode
     switchViewTo(ViewConstants.HELP)
     # verify that search widget is accessible

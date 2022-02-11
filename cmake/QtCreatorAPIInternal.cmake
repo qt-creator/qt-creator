@@ -80,7 +80,7 @@ else ()
   set(_IDE_LIBRARY_ARCHIVE_PATH "${_IDE_LIBRARY_PATH}")
 
   set(_IDE_HEADER_INSTALL_PATH "include/qtcreator")
-  set(_IDE_CMAKE_INSTALL_PATH "lib/cmake")
+  set(_IDE_CMAKE_INSTALL_PATH "${_IDE_LIBRARY_BASE_PATH}/cmake")
 endif ()
 
 file(RELATIVE_PATH _PLUGIN_TO_LIB "/${_IDE_PLUGIN_PATH}" "/${_IDE_LIBRARY_PATH}")

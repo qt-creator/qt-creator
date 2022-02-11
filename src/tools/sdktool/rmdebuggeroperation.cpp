@@ -95,16 +95,15 @@ bool RmDebuggerOperation::test() const
 {
 
     QVariantMap map =
-            AddDebuggerOperation::addDebugger(AddDebuggerOperation::initializeDebuggers(),
-                                              QLatin1String("id1"), QLatin1String("Name1"),
-                                              2, QLatin1String("/tmp/debugger1"),
-                                              QStringList() << QLatin1String("test11") << QLatin1String("test12"),
-                                              KeyValuePairList());
-    map =
-            AddDebuggerOperation::addDebugger(map, QLatin1String("id2"), QLatin1String("Name2"),
-                                              2, QLatin1String("/tmp/debugger2"),
-                                              QStringList() << QLatin1String("test21") << QLatin1String("test22"),
-                                              KeyValuePairList());
+            AddDebuggerData{QLatin1String("id1"), QLatin1String("Name1"),
+                2, QLatin1String("/tmp/debugger1"),
+                {"test11", "test12"}, {}}
+            .addDebugger(AddDebuggerOperation::initializeDebuggers());
+
+    map = AddDebuggerData{QLatin1String("id2"), QLatin1String("Name2"),
+                2, QLatin1String("/tmp/debugger2"),
+                {"test21", "test22"}, {}}
+            .addDebugger(map);
 
     QVariantMap result = rmDebugger(map, QLatin1String("id2"));
     if (result.count() != 3
@@ -178,6 +177,6 @@ QVariantMap RmDebuggerOperation::rmDebugger(const QVariantMap &map, const QStrin
                              debuggerList.at(i));
     }
 
-    return AddKeysOperation::addKeys(result, data);
+    return AddKeysData{data}.addKeys(result);
 }
 

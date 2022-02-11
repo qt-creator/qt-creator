@@ -1,4 +1,4 @@
-version: 34
+version: 37
 
 global-properties:
     - ALLOW_DUPLICATE_CUSTOM_TARGETS
@@ -415,6 +415,7 @@ test-properties:
     - DEPENDS
     - DISABLED
     - ENVIRONMENT
+    - ENVIRONMENT_MODIFICATION                              # Since 3.22
     - FAIL_REGULAR_EXPRESSION
     - FIXTURES_CLEANUP
     - FIXTURES_REQUIRED
@@ -790,6 +791,7 @@ variables:
     - CMAKE_PROJECT_INCLUDE                                 # Since 3.15
     - CMAKE_PROJECT_INCLUDE_BEFORE                          # Since 3.15
     - CMAKE_PROJECT_<PROJECT-NAME>_INCLUDE
+    - CMAKE_REQUIRE_FIND_PACKAGE_<PackageName>              # Since 3.22
     - CMAKE_SKIP_INSTALL_ALL_DEPENDENCY
     - CMAKE_STAGING_PREFIX
     - CMAKE_SUBLIME_TEXT_2_ENV_SETTINGS
@@ -967,6 +969,7 @@ variables:
     - CMAKE_<LANG>_LINKER_LAUNCHER                          # Sine 3.21
     - CMAKE_<LANG>_LINK_LIBRARY_FILE_FLAG                   # Sine 3.16
     - CMAKE_<LANG>_LINK_LIBRARY_FLAG                        # Sine 3.16
+    - CMAKE_<LANG>_LINK_WHAT_YOU_USE_FLAG                   # Since 3.22
     - CMAKE_<LANG>_VISIBILITY_PRESET
     - CMAKE_LIBRARY_OUTPUT_DIRECTORY
     - CMAKE_LIBRARY_OUTPUT_DIRECTORY_<CONFIG>
@@ -977,6 +980,7 @@ variables:
     - CMAKE_LINK_LIBRARY_FILE_FLAG
     - CMAKE_LINK_LIBRARY_FLAG
     - CMAKE_LINK_WHAT_YOU_USE
+    - CMAKE_LINK_WHAT_YOU_USE_CHECK                         # Since 3.22
     - CMAKE_MACOSX_BUNDLE
     - CMAKE_MACOSX_RPATH
     - CMAKE_MAP_IMPORTED_CONFIG_<CONFIG>
@@ -1055,6 +1059,10 @@ variables:
     - CMAKE_Fortran_MODDIR_DEFAULT
     - CMAKE_Fortran_MODDIR_FLAG
     - CMAKE_Fortran_MODOUT_FLAG
+    - CMAKE_HIP_ARCHITECTURES                               # Since 3.21
+    - CMAKE_HIP_EXTENSIONS                                  # Since 3.21
+    - CMAKE_HIP_STANDARD                                    # Since 3.21
+    - CMAKE_HIP_STANDARD_REQUIRED                           # Since 3.21
     - CMAKE_ISPC_HEADER_DIRECTORY                           # Since 3.19
     - CMAKE_ISPC_HEADER_SUFFIX                              # Since 3.19.2
     - CMAKE_ISPC_INSTRUCTION_SETS                           # Since 3.19
@@ -1075,6 +1083,8 @@ variables:
     - CMAKE_<LANG>_CREATE_SHARED_LIBRARY
     - CMAKE_<LANG>_CREATE_SHARED_MODULE
     - CMAKE_<LANG>_CREATE_STATIC_LIBRARY
+    - CMAKE_<LANG>_EXTENSIONS
+    - CMAKE_<LANG>_EXTENSIONS_DEFAULT                       # Since 3.22
     - CMAKE_<LANG>_FLAGS
     - CMAKE_<LANG>_FLAGS_DEBUG
     - CMAKE_<LANG>_FLAGS_DEBUG_INIT
@@ -1269,7 +1279,14 @@ variables:
     - CMAKE_GET_RUNTIME_DEPENDENCIES_PLATFORM
     - CMAKE_GET_RUNTIME_DEPENDENCIES_TOOL
     - CMAKE_GET_RUNTIME_DEPENDENCIES_COMMAND
+    # Fallback Interface Variables for `cmake_host_system_information`
+    # Since CMake 3.22
+    - CMAKE_GET_OS_RELEASE_FALLBACK_SCRIPTS
+    - CMAKE_GET_OS_RELEASE_FALLBACK_RESULT_<varname>
+    - CMAKE_GET_OS_RELEASE_FALLBACK_RESULT
     # Well known CMake's official module's variables
+    # - BundleUtilities
+    - BU_CHMOD_BUNDLE_ITEMS
     # - CheckCompilerFlag
     # - CheckCCompilerFlag
     # - CheckSourceCompiles
@@ -1289,6 +1306,13 @@ variables:
     # - CheckIncludeFile
     # - CheckIncludeFiles
     # - CheckLibraryExists
+    # - CheckPIESupported
+    - CMAKE_C_LINK_PIE_SUPPORTED
+    - CMAKE_CXX_LINK_PIE_SUPPORTED
+    - CMAKE_Fortran_LINK_PIE_SUPPORTED
+    - CMAKE_C_LINK_NO_PIE_SUPPORTED
+    - CMAKE_CXX_LINK_NO_PIE_SUPPORTED
+    - CMAKE_Fortran_LINK_NO_PIE_SUPPORTED
     # - CheckPrototypeDefinition
     # - CheckStructHasMember
     # - CheckSymbolExists
@@ -1498,6 +1522,7 @@ variables:
     - CPACK_NSIS_BRANDING_TEXT                              # Since 3.20
     - CPACK_NSIS_BRANDING_TEXT_TRIM_POSITION                # Since 3.20
     - CPACK_NSIS_EXECUTABLE                                 # Since 3.21
+    - CPACK_NSIS_IGNORE_LICENSE_PAGE                        # Since 3.22
     # - CPackNuGet (since 3.12)
     - CPACK_NUGET_COMPONENT_INSTALL
     - CPACK_NUGET_PACKAGE_NAME
@@ -1655,6 +1680,7 @@ variables:
     - CPACK_RPM_SOURCE_PKG_BUILD_PARAMS
     - CPACK_RPM_SOURCE_PKG_PACKAGING_INSTALL_PREFIX
     - CPACK_RPM_BUILDREQUIRES
+    - CPACK_RPM_REQUIRES_EXCLUDE_FROM                       # Since 3.22
     # - CPack
     - CPACK_PACKAGE_NAME
     - CPACK_PACKAGE_VENDOR
@@ -1746,18 +1772,552 @@ variables:
     - ExternalData_CUSTOM_LOCATION
     - ExternalData_CUSTOM_FILE
     - ExternalData_CUSTOM_ERROR
+    # - FetchContent
+    - FETCHCONTENT_QUIET
+    - FETCHCONTENT_FULLY_DISCONNECTED
+    - FETCHCONTENT_UPDATES_DISCONNECTED
+    - FETCHCONTENT_SOURCE_DIR_<ucName>
+    - FETCHCONTENT_UPDATES_DISCONNECTED_<ucName>
     # - FindXXX module "standard" variables
     - <package>_INCLUDE_DIRS
     - <package>_LIBRARIES
     - <package>_LIBRARY_DIRS
     - <package>_VERSION_STRING
+    # NOTE For the other stanfard finders below variables matched
+    # the regular expressions above gonna be omitted.
+    # - FindALSA
+    - ALSA_LIBRARY
+    # - FindArmadillo
+    - ALSA_LIBRARY
+    # - FindASPELL
+    - ASPELL_EXECUTABLE
+    - ASPELL_DEFINITIONS
+    # - FindAVIFile
+    - AVIFILE_DEFINITIONS
+    # - FindBacktrace
+    - Backtrace_HEADER
+    - Backtrace_LIBRARY
+    # - FindBISON
+    - BISON_EXECUTABLE
+    - BISON_<Name>_DEFINED
+    - BISON_<Name>_INPUT
+    - BISON_<Name>_OUTPUT_SOURCE
+    - BISON_<Name>_OUTPUT_HEADER
+    - BISON_<Name>_OUTPUTS
+    - BISON_<Name>_COMPILE_FLAGS
+    # - FindBLAS
+    - BLA_STATIC
+    - BLA_VENDOR
+    - BLA_F95
+    - BLA_PREFER_PKGCONFIG
+    - BLAS_LINKER_FLAGS
+    - BLA_SIZEOF_INTEGER                                    # Since 3.22
+    # - FindBoost
+    - Boost_<COMPONENT>_LIBRARY
+    - Boost_VERSION_MACRO
+    - Boost_VERSION_COUNT
+    - Boost_INCLUDE_DIR
+    - Boost_LIBRARY_DIR_DEBUG
+    - Boost_LIBRARY_DIR_RELEASE
+    - Boost_<COMPONENT>_LIBRARY_DEBUG
+    - Boost_<COMPONENT>_LIBRARY_RELEASE
+    - BOOSTROOT
+    - BOOST_INCLUDEDIR
+    - BOOST_LIBRARYDIR
+    - Boost_NO_SYSTEM_PATHS
+    - Boost_ADDITIONAL_VERSIONS
+    - Boost_USE_DEBUG_LIBS
+    - Boost_USE_RELEASE_LIBS
+    - Boost_USE_MULTITHREADED
+    - Boost_USE_STATIC_LIBS
+    - Boost_USE_DEBUG_RUNTIME
+    - Boost_USE_DEBUG_PYTHON
+    - Boost_USE_STLPORT
+    - Boost_USE_STLPORT_DEPRECATED_NATIVE_IOSTREAMS
+    - Boost_COMPILER
+    - Boost_LIB_PREFIX
+    - Boost_ARCHITECTURE
+    - Boost_THREADAPI
+    - Boost_NAMESPACE
+    - Boost_DEBUG
+    - Boost_REALPATH
+    - Boost_NO_WARN_NEW_VERSIONS
+    # - FindBullet
+    # - FindBZip2
+    - BZIP2_NEED_PREFIX
+    - BZIP2_INCLUDE_DIR
+    # - FindCABLE
+    - CABLE
+    - CABLE_TCL_LIBRARY
+    - CABLE_INCLUDE_DIR
+    # - FindCoin3D
+    # - FindCUDAToolkit
+    - CUDAToolkit_NVCC_EXECUTABLE
+    # - FindCups
+    - CUPS_INCLUDE_DIR
+    # - FindCURL
+    - CURL_NO_CURL_CMAKE
+    # - FindCurses
+    - CURSES_CFLAGS
+    - CURSES_HAVE_CURSES_H
+    - CURSES_HAVE_NCURSES_H
+    - CURSES_HAVE_NCURSES_NCURSES_H
+    - CURSES_HAVE_NCURSES_CURSES_H
+    - CURSES_NEED_NCURSES
+    - CURSES_NEED_WIDE
+    # - CURSES_LIBRARY deprecated
+    # - FindCVS
+    - CVS_EXECUTABLE
+    # - FindCxxTest
+    - CXXTEST_USE_PYTHON
+    - CXXTEST_TESTGEN_ARGS
+    - CXXTEST_PERL_TESTGEN_EXECUTABLE
+    - CXXTEST_PYTHON_TESTGEN_EXECUTABLE
+    - CXXTEST_TESTGEN_EXECUTABLE
+    - CXXTEST_TESTGEN_INTERPRETER
+    # - FindCygwin
+    # - FindDart
+    # - FindDCMTK
+    # - FindDevIL
     # - FindDoxygen
     - DOXYGEN_<TAG>
+    # - FindEnvModules
+    - EnvModules_COMMAND
+    # - FindEXPAT
+    # - FindFLEX
+    - FLEX_EXECUTABLE
+    # - FindFLTK
+    - FLTK_SKIP_OPENGL
+    - FLTK_SKIP_FORMS
+    - FLTK_SKIP_IMAGES
+    - FLTK_SKIP_FLUID
+    - FLTK_FLUID_EXECUTABLE
+    - FLTK_WRAP_UI
+    - FLTK_BASE_LIBRARY_RELEASE
+    - FLTK_BASE_LIBRARY_DEBUG
+    - FLTK_GL_LIBRARY_RELEASE
+    - FLTK_GL_LIBRARY_DEBUG
+    - FLTK_FORMS_LIBRARY_RELEASE
+    - FLTK_FORMS_LIBRARY_DEBUG
+    - FLTK_IMAGES_LIBRARY_RELEASE
+    - FLTK_IMAGES_LIBRARY_DEBUG
+    # - FindFLTK2
+    - FLTK2_FLUID_EXECUTABLE
+    - FLTK2_WRAP_UI
+    - FLTK2_BASE_LIBRARY
+    - FLTK2_GL_LIBRARY
+    - FLTK2_IMAGES_LIBRARY
+    # - FindFontconfig
+    - Fontconfig_COMPILE_OPTIONS
+    # - FindFreetype
+    - FREETYPE_INCLUDE_DIR_ft2build
+    - FREETYPE_INCLUDE_DIR_freetype2
+    # - FindGCCXML
+    - GCCXML
+    # - FindGDAL
+    - GDAL_LIBRARY
+    - FindGDAL_SKIP_GDAL_CONFIG
+    - GDAL_ADDITIONAL_LIBRARY_VERSIONS
+    # - FindGettext
+    - GETTEXT_MSGMERGE_EXECUTABLE
+    - GETTEXT_MSGFMT_EXECUTABLE
+    # - FindGIF
+    - GIF_LIBRARY
+    # - FindGit
+    - GIT_EXECUTABLE
+    # - FindGLEW
+    - GLEW_USE_STATIC_LIBS
+    - GLEW_VERBOSE
+    # - FindGLUT
+    - GLUT_glut_LIBRARY
+    - GLUT_Xmu_LIBRARY
+    - GLUT_Xi_LIBRARY
+    # - FindGnuplot
+    - GNUPLOT_EXECUTABLE
+    # - FindGnuTLS
+    - GNUTLS_DEFINITIONS
+    # - FindGSL
+    - GSL_CBLAS_LIBRARY
+    - GSL_CBLAS_LIBRARY_DEBUG
+    - GSL_CONFIG_EXECUTABLE
+    - GSL_LIBRARY
+    - GSL_LIBRARY_DEBUG
+    # - FindGTest
+    - GTEST_MSVC_SEARCH
+    # - FindGTK
+    # - FindGTK2
+    - GTK2_TARGETS
+    - GTK2_DEFINITIONS
+    - GTK2_USE_IMPORTED_TARGETS
+    - GTK2_DEBUG
+    - GTK2_ADDITIONAL_SUFFIXES
+    # - FindHDF5
+    - HDF5_DEFINITIONS
+    - HDF5_C_DEFINITIONS
+    - HDF5_CXX_DEFINITIONS
+    - HDF5_Fortran_DEFINITIONS
+    - HDF5_IS_PARALLEL
+    - HDF5_C_COMPILER_EXECUTABLE
+    - HDF5_CXX_COMPILER_EXECUTABLE
+    - HDF5_Fortran_COMPILER_EXECUTABLE
+    - HDF5_C_COMPILER_EXECUTABLE_NO_INTERROGATE
+    - HDF5_CXX_COMPILER_EXECUTABLE_NO_INTERROGATE
+    - HDF5_Fortran_COMPILER_EXECUTABLE_NO_INTERROGATE
+    - HDF5_DIFF_EXECUTABLE
+    - HDF5_PREFER_PARALLEL
+    - HDF5_FIND_DEBUG
+    - HDF5_NO_FIND_PACKAGE_CONFIG_FILE
+    # - FindHg
+    - HG_EXECUTABLE
+    #- <var-prefix>_WC_CHANGESET
+    #- <var-prefix>_WC_REVISION
+    # - FindHSPELL
+    # - FindHTMLHelp
+    - HTML_HELP_COMPILER
+    - HTML_HELP_LIBRARY
+    # - FindIce
+    # - FindIconv
+    - Iconv_IS_BUILT_IN
+    - Iconv_LIBRARY
+    # - FindIcotool
+    - ICOTOOL_EXECUTABLE
+    # - FindICU
+    - ICU_MAKEFILE_INC
+    - ICU_PKGDATA_INC
+    - ICU_<P>_EXECUTABLE
+    - ICU_<C>_LIBRARY
+    - ICU_DEBUG
+    # - FindImageMagick
+    # - FindIntl
+    - Intl_LIBRARY
+    - Intl_IS_BUILT_IN
+    # - FindITK
+    # - FindJasper
+    - JASPER_LIBRARY_RELEASE
+    - JASPER_LIBARRY_DEBUG
+    # - FindJava
+    - Java_JAVA_EXECUTABLE
+    - Java_JAVAC_EXECUTABLE
+    - Java_JAVAH_EXECUTABLE
+    - Java_JAVADOC_EXECUTABLE
+    - Java_IDLJ_EXECUTABLE
+    - Java_JAR_EXECUTABLE
+    - Java_JARSIGNER_EXECUTABLE
+    # - FindJNI
+    - JAVA_AWT_LIBRARY
+    - JAVA_JVM_LIBRARY
+    - JAVA_INCLUDE_PATH
+    - JAVA_INCLUDE_PATH2
+    - JAVA_AWT_INCLUDE_PATH
+    # - FindJPEG
+    - JPEG_LIBRARY_RELEASE
+    - JPEG_LIBRARY_DEBUG
+    - JPEG_LIBRARY
+    # - FindKDE3
+    # - FindKDE4
+    # - FindLAPACK
+    - LAPACK_LINKER_FLAGS
+    # - FindLATEX
+    - LATEX_COMPILER
+    - PDFLATEX_COMPILER
+    - XELATEX_COMPILER
+    - LUALATEX_COMPILER
+    - BIBTEX_COMPILER
+    - BIBER_COMPILER
+    - MAKEINDEX_COMPILER
+    - XINDY_COMPILER
+    - DVIPS_CONVERTER
+    - DVIPDF_CONVERTER
+    - PS2PDF_CONVERTER
+    - PDFTOPS_CONVERTER
+    - LATEX2HTML_CONVERTER
+    - HTLATEX_COMPILER
+    # - FindLibArchive
+    # - FindLibinput
+    - Libinput_COMPILE_OPTIONS
+    # - FindLibLZMA
+    - LIBLZMA_HAS_AUTO_DECODER
+    - LIBLZMA_HAS_EASY_ENCODER
+    - LIBLZMA_HAS_LZMA_PRESET
+    # - FindLibXml2
+    - LIBXML2_DEFINITIONS
+    - LIBXML2_XMLLINT_EXECUTABLE
+    - LIBXML2_LIBRARY
+    # - FindLibXslt
+    - LIBXSLT_DEFINITIONS
+    - LIBXSLT_XSLTPROC_EXECUTABLE
+    # - FindLTTngUST
+    - LTTNGUST_HAS_TRACEF
+    - LTTNGUST_HAS_TRACELOG
+    # - FindLua
+    # - FindLua50
+    # - FindLua51
+    # - FindMatlab
+    - MATLAB_FIND_DEBUG
+    - MATLAB_ADDITIONAL_VERSIONS
+    - Matlab_MAIN_PROGRAM
+    - Matlab_MEX_LIBRARY
+    - Matlab_MX_LIBRARY
+    - Matlab_ENG_LIBRARY
+    - Matlab_MAT_LIBRARY
+    - Matlab_ENGINE_LIBRARY
+    - Matlab_DATAARRAY_LIBRARY
+    - Matlab_MEX_COMPILER
+    - Matlab_MCC_COMPILER
+    - Matlab_MEX_EXTENSION
+    # - FindMFC
+    # - FindMotif
+    # - FindMPEG
+    - MPEG_mpeg2_LIBRARY
+    - MPEG_vo_LIBRARY
+    # - FindMPEG2
+    - MPEG2_mpeg2_LIBRARY
+    - MPEG2_vo_LIBRARY
+    # - FindMPI
+    - MPI_<lang>_COMPILER
+    - MPI_<lang>_COMPILE_OPTIONS
+    - MPI_<lang>_COMPILE_DEFINITIONS
+    - MPI_Fortran_HAVE_F77_HEADER
+    - MPI_Fortran_HAVE_F90_MODULE
+    - MPI_Fortran_HAVE_F08_MODULE
+    - MPIEXEC_EXECUTABLE
+    - MPIEXEC_NUMPROC_FLAG
+    - MPIEXEC_MAX_NUMPROCS
+    - MPIEXEC_PREFLAGS
+    - MPIEXEC_POSTFLAGS
+    - MPIEXEC_EXECUTABLE
+    - MPI_HOME
+    - MPI_COMPILER_FLAGS
+    - MPI_EXECUTABLE_SUFFIX
+    - MPI_GUESS_LIBRARY_NAME
+    - MPI_ASSUME_NO_BUILTIN_MPI
+    - MPI_SKIP_COMPILER_WRAPPER
+    - MPI_SKIP_GUESSING
+    - MPI_CXX_SKIP_MPICXX
+    - MPI_<lang>_ADDITIONAL_INCLUDE_VARS
+    - MPI_<lib_name>_LIBRARY
+    - MPI_<lang>_LIB_NAMES
+    - MPI_DETERMINE_Fortran_CAPABILITIES
+    - MPI_SUBARRAYS_SUPPORTED
+    - MPI_ASYNC_PROTECTS_NONBLOCKING
+    - MPI_Fortran_F77_HEADER_SUBARRAYS
+    - MPI_Fortran_F77_HEADER_ASYNCPROT
+    - MPI_Fortran_F90_MODULE_SUBARRAYS
+    - MPI_Fortran_F90_MODULE_ASYNCPROT
+    - MPI_Fortran_F08_MODULE_SUBARRAYS
+    - MPI_Fortran_F08_MODULE_ASYNCPROT
+    # - FindMsys
+    # - FindODBC
+    - ODBC_CONFIG
+    - ODBC_LIBRARY
+    # - FindOpenACC
+    - OpenACC_<lang>_FLAGS
+    - OpenACC_<lang>_OPTIONS
+    - OpenACC_<lang>_SPEC_DATE
+    - OpenACC_ACCEL_TARGET
+    # - FindOpenAL
+    - OPENAL_LIBRARY
+    # - FindOpenCL
+    - OpenCL_LIBRARY
+    # - FindOpenGL
+    - OPENGL_egl_LIBRARY
+    - OPENGL_glu_LIBRARY
+    - OPENGL_glx_LIBRARY
+    - OPENGL_opengl_LIBRARY
+    - OPENGL_gl_LIBRARY
+    - OpenGL_GL_PREFERENCE
+    # - FindOpenMP
+    - OpenMP_<lang>_FLAGS
+    - OpenMP_<lang>_LIB_NAMES
+    - OpenMP_<libname>_LIBRARY
+    - OpenMP_Fortran_HAVE_OMPLIB_HEADER
+    - OpenMP_Fortran_HAVE_OMPLIB_MODULE
+    - OpenMP_<lang>_SPEC_DATE
+    # - FindOpenSceneGraph
+    # - FindOpenSSL
+    - OPENSSL_CRYPTO_LIBRARY
+    - OPENSSL_SSL_LIBRARY
+    - OPENSSL_APPLINK_SOURCE
+    - OPENSSL_USE_STATIC_LIBS
+    - OPENSSL_MSVC_STATIC_RT
+    # - FindOpenThreads
+    # - Findosg
+    # - Findosg_functions
+    # - FindosgAnimation
+    # - FindosgDB
+    # - FindosgFX
+    # - FindosgGA
+    # - FindosgIntrospection
+    # - FindosgManipulator
+    # - FindosgParticle
+    # - FindosgPresentation
+    # - FindosgProducer
+    # - FindosgQt
+    # - FindosgShadow
+    # - FindosgSim
+    # - FindosgTerrain
+    # - FindosgText
+    # - FindosgUtil
+    # - FindosgViewer
+    # - FindosgVolume
+    # - FindosgWidget
+    # - FindPatch
+    - Patch_EXECUTABLE
+    # - FindPerl
+    - PERL_EXECUTABLE
+    # - FindPerlLibs
+    - PERL_SITESEARCH
+    - PERL_SITEARCH
+    - PERL_SITELIB
+    - PERL_VENDORARCH
+    - PERL_VENDORLIB
+    - PERL_ARCHLIB
+    - PERL_PRIVLIB
+    - PERL_UPDATE_ARCHLIB
+    - PERL_UPDATE_PRIVLIB
+    - PERL_EXTRA_C_FLAGS
+    # - FindPHP4
+    - PHP4_INCLUDE_PATH
+    - PHP4_EXECUTABLE
+    # - FindPhysFS
+    - PHYSFS_LIBRARY
+    # - FindPike
+    - PIKE_INCLUDE_PATH
+    - PIKE_EXECUTABLE
     # - FindPkgConfig
     - PKG_CONFIG_EXECUTABLE
     - PKG_CONFIG_VERSION_STRING
     - PKG_CONFIG_USE_CMAKE_PREFIX_PATH
     - <prefix>_MODULE_NAME                                  # Since 3.16
+    # - FindPNG
+    - PNG_DEFINITIONS
+    - PNG_LIBRARY
+    # - FindPostgreSQL
+    # - FindProducer
+    # - FindProtobuf
+    - Protobuf_SRC_ROOT_FOLDER
+    - Protobuf_IMPORT_DIRS
+    - Protobuf_DEBUG
+    - Protobuf_USE_STATIC_LIBS
+    - Protobuf_LIBRARY
+    - Protobuf_PROTOC_LIBRARY
+    - Protobuf_PROTOC_EXECUTABLE
+    - Protobuf_LIBRARY_DEBUG
+    - Protobuf_PROTOC_LIBRARY_DEBUG
+    - Protobuf_LITE_LIBRARY
+    - Protobuf_LITE_LIBRARY_DEBUG
+    # - FindPython
+    - Python_EXECUTABLE
+    - Python_INTERPRETER_ID
+    - Python_STDLIB
+    - Python_STDARCH
+    - Python_SITELIB
+    - Python_SITEARCH
+    - Python_SOABI
+    - Python_COMPILER
+    - Python_COMPILER_ID
+    - Python_DOTNET_LAUNCHER
+    - Python_LINK_OPTIONS
+    - Python_USE_STATIC_LIBS
+    - Python_FIND_ABI
+    - Python_FIND_STRATEGY
+    - Python_FIND_REGISTRY
+    - Python_FIND_FRAMEWORK
+    - Python_FIND_VIRTUALENV
+    - Python_FIND_IMPLEMENTATIONS
+    - Python_FIND_UNVERSIONED_NAMES
+    - Python_ARTIFACTS_INTERACTIVE
+    # - FindPython2
+    - Python2_EXECUTABLE
+    - Python2_INTERPRETER_ID
+    - Python2_STDLIB
+    - Python2_STDARCH
+    - Python2_SITELIB
+    - Python2_SITEARCH
+    - Python2_SOABI
+    - Python2_COMPILER
+    - Python2_COMPILER_ID
+    - Python2_DOTNET_LAUNCHER
+    - Python2_LINK_OPTIONS
+    - Python2_USE_STATIC_LIBS
+    - Python2_FIND_ABI
+    - Python2_FIND_STRATEGY
+    - Python2_FIND_REGISTRY
+    - Python2_FIND_FRAMEWORK
+    - Python2_FIND_VIRTUALENV
+    - Python2_FIND_IMPLEMENTATIONS
+    - Python2_FIND_UNVERSIONED_NAMES
+    - Python2_ARTIFACTS_INTERACTIVE
+    # - FindPython3
+    - Python3_EXECUTABLE
+    - Python3_INTERPRETER_ID
+    - Python3_STDLIB
+    - Python3_STDARCH
+    - Python3_SITELIB
+    - Python3_SITEARCH
+    - Python3_SOABI
+    - Python3_COMPILER
+    - Python3_COMPILER_ID
+    - Python3_DOTNET_LAUNCHER
+    - Python3_LINK_OPTIONS
+    - Python3_USE_STATIC_LIBS
+    - Python3_FIND_ABI
+    - Python3_FIND_STRATEGY
+    - Python3_FIND_REGISTRY
+    - Python3_FIND_FRAMEWORK
+    - Python3_FIND_VIRTUALENV
+    - Python3_FIND_IMPLEMENTATIONS
+    - Python3_FIND_UNVERSIONED_NAMES
+    - Python3_ARTIFACTS_INTERACTIVE
+    # - FindQt3
+    # - FindQt4
+    # - FindQuickTime
+    # - FindRTI
+    - RTI_DEFINITIONS
+    # - FindRuby
+    - Ruby_EXECUTABLE
+    - Ruby_FIND_VIRTUALENV
+    # - FindSDL
+    - SDL_LIBRARY
+    - SDL_BUILDING_LIBRARY
+    # - FindSDL_image
+    - SDLIMAGE_LIBRARY
+    # - FindSDL_mixer
+    - SDLMIXER_LIBRARY
+    # - FindSDL_net
+    - SDLNET_LIBRARY
+    # - FindSDL_sound
+    - SDL_SOUND_LIBRARY
+    # - FindSDL_ttf
+    - SDLTTF_LIBRARY
+    # - FindSelfPackers
+    # - FindSquish
+    - SQUISH_SERVER_EXECUTABLE
+    - SQUISH_CLIENT_EXECUTABLE
+    # - FindSQLite3
+    # - FindSubversion
+    - Subversion_SVN_EXECUTABLE
+    - Subversion_VERSION_SVN
+    # <var-prefix>_WC_URL
+    # <var-prefix>_WC_ROOT
+    # <var-prefix>_WC_REVISION
+    # <var-prefix>_WC_LAST_CHANGED_AUTHOR
+    # <var-prefix>_WC_LAST_CHANGED_DATE
+    # <var-prefix>_WC_LAST_CHANGED_REV
+    # <var-prefix>_WC_INFO
+    # - FindSWIG
+    - SWIG_EXECUTABLE
+    # - FindTCL
+    - TCL_INCLUDE_PATH
+    - TCL_TCLSH
+    - TK_LIBRARY
+    - TK_INCLUDE_PATH
+    - TK_WISH
+    # - FindTclsh
+    # - FindTclStub
+    - TCL_STUB_LIBRARY
+    - TK_STUB_LIBRARY
+    - TTK_STUB_LIBRARY
     # - FindThreads
     - CMAKE_THREAD_LIBS_INIT
     - CMAKE_USE_SPROC_INIT
@@ -1766,6 +2326,62 @@ variables:
     - CMAKE_HP_PTHREADS_INIT
     - CMAKE_THREAD_PREFER_PTHREAD
     - THREADS_PREFER_PTHREAD_FLAG
+    # - FindTIFF
+    - TIFF_LIBRARY_RELEASE
+    - TIFF_LIBRARY_DEBUG
+    - TIFFXX_LIBRARY_RELEASE
+    - TIFFXX_LIBRARY_DEBUG
+    # - FindUnixCommands
+    # - FindVTK
+    # - FindVulkan
+    - Vulkan_LIBRARY
+    - Vulkan_GLSLC_EXECUTABLE
+    - Vulkan_GLSLANG_VALIDATOR_EXECUTABLE
+    # - FindWget
+    - WGET_EXECUTABLE
+    # - FindWish
+    # - FindwxWidgets
+    - wxWidgets_CONFIGURATION
+    - wxWidgets_EXCLUDE_COMMON_LIBRARIES
+    - wxWidgets_USE_DEBUG
+    - wxWidgets_USE_UNICODE
+    - wxWidgets_USE_UNIVERSAL
+    - wxWidgets_USE_STATIC
+    - wxWidgets_DEFINITIONS
+    - wxWidgets_DEFINITIONS_DEBUG
+    - wxWidgets_CXX_FLAGS
+    - wxWidgets_USE_FILE
+    # - FindX11
+    # - FindXalanC
+    - XalanC_LIBRARY
+    # - FindXCTest
+    - XCTest_EXECUTABLE
+    # - FindXercesC
+    - XercesC_LIBRARY
+    # - FindXMLRPC
+    # - FindZLIB
+    # - FortranCInterface
+    # The following vars gonna match by regex
+    # - FortranCInterface_GLOBAL_FOUND
+    # - FortranCInterface_MODULE_FOUND
+    - FortranCInterface_GLOBAL_PREFIX
+    - FortranCInterface_GLOBAL_SUFFIX
+    - FortranCInterface_GLOBAL_CASE
+    - FortranCInterface_GLOBAL__PREFIX
+    - FortranCInterface_GLOBAL__SUFFIX
+    - FortranCInterface_GLOBAL__CASE
+    - FortranCInterface_MODULE_PREFIX
+    - FortranCInterface_MODULE_MIDDLE
+    - FortranCInterface_MODULE_SUFFIX
+    - FortranCInterface_MODULE_CASE
+    - FortranCInterface_MODULE__PREFIX
+    - FortranCInterface_MODULE__MIDDLE
+    - FortranCInterface_MODULE__SUFFIX
+    - FortranCInterface_MODULE__CASE
+    - FortranCInterface_VERIFIED_C
+    - FortranCInterface_VERIFIED_CXX
+    - FortranCInterface_GLOBAL_SYMBOLS
+    - FortranCInterface_MODULE_SYMBOLS
     # - GNUInstallDirs
     - CMAKE_INSTALL_BINDIR
     - CMAKE_INSTALL_FULL_BINDIR
@@ -1799,6 +2415,8 @@ variables:
     - CMAKE_INSTALL_FULL_MANDIR
     - CMAKE_INSTALL_DOCDIR
     - CMAKE_INSTALL_FULL_DOCDIR
+    # - GoogleTest
+    - CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE
     # - InstallRequiredSystemLibraries
     - CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS
     - CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP
@@ -1866,12 +2484,15 @@ environment-variables:
     # Environment Variables that Control the Build
     - CMAKE_APPLE_SILICON_PROCESSOR                         # Since 3.19.2
     - CMAKE_BUILD_PARALLEL_LEVEL
+    - CMAKE_BUILD_TYPE                                      # Since 3.22
+    - CMAKE_CONFIGURATION_TYPES                             # Since 3.22
     - CMAKE_CONFIG_TYPE
     - CMAKE_EXPORT_COMPILE_COMMANDS                         # Since 3.17
     - CMAKE_GENERATOR
     - CMAKE_GENERATOR_INSTANCE
     - CMAKE_GENERATOR_PLATFORM
     - CMAKE_GENERATOR_TOOLSET
+    - CMAKE_INSTALL_MODE                                    # Since 3.22
     - CMAKE_<LANG>_COMPILER_LAUNCHER                        # Since 3.17
     - CMAKE_MSVCIDE_RUN_PATH
     - CMAKE_NO_VERBOSE
@@ -1951,6 +2572,9 @@ scripting-commands:
           , OS_RELEASE
           , OS_VERSION
           , OS_PLATFORM
+          # Since 3.22
+          , DISTRIB_INFO
+          , DISTRIB_<name>
           ]
     -
         name: cmake_language
@@ -2075,6 +2699,7 @@ scripting-commands:
           , IN_LIST
           , DEFINED
           ]
+        has-target-name-after-kw: TARGET
         nested-parentheses?: true
     -
         name: else
@@ -2460,6 +3085,7 @@ scripting-commands:
     -
         name: if
         named-args: *if
+        has-target-name-after-kw: TARGET
         nested-parentheses?: true
         start-region: if
     -
@@ -2671,6 +3297,7 @@ scripting-commands:
     -
         name: while
         named-args: *if
+        has-target-name-after-kw: TARGET
         nested-parentheses?: true
         start-region: while
 
@@ -2703,6 +3330,7 @@ project-commands:
           , POST_BUILD
           ]
         nested-parentheses?: true
+        has-target-name-after-kw: TARGET
     -
         name: add_custom_target
         named-args: [
@@ -2721,17 +3349,22 @@ project-commands:
           , COMMAND_EXPAND_LISTS
           , SOURCES
           ]
+        first-arg-is-target?: true
         nested-parentheses?: true
     -
         name: add_definitions
     -
         name: add_dependencies
+        first-args-are-targets?: true
     -
         name: add_executable
         named-args: [WIN32, MACOSX_BUNDLE, EXCLUDE_FROM_ALL, IMPORTED, GLOBAL, ALIAS]
+        first-arg-is-target?: true
     -
         name: add_library
         named-args: [STATIC, SHARED, MODULE, OBJECT, EXCLUDE_FROM_ALL, IMPORTED, UNKNOWN, GLOBAL, ALIAS, INTERFACE]
+        first-arg-is-target?: true
+        has-target-name-after-kw: ALIAS
     -
         name: add_link_options
     -
@@ -2750,6 +3383,7 @@ project-commands:
           , PARALLEL_LEVEL                                  # Since 3.21
           , TARGET
           ]
+        has-target-name-after-kw: TARGET
     -
         name: create_test_sourcelist
         named-args: [EXTRA_INCLUDE, FUNCTION]
@@ -2760,7 +3394,7 @@ project-commands:
     -
         name: enable_language
         named-args: [OPTIONAL]
-        special-args: [
+        special-args: &langs [
             ASM
           , ASM-ATT
           , ASM_NASM
@@ -2783,6 +3417,7 @@ project-commands:
     -
         name: export
         named-args: [EXPORT, NAMESPACE, FILE, TARGETS, APPEND, EXPORT_LINK_INTERFACE_LIBRARIES, ANDROID_MK]
+        has-target-names-after-kw: TARGETS
     -
         name: fltk_wrap_ui
     -
@@ -2795,6 +3430,7 @@ project-commands:
         property-args: &get_source_file_property [source-properties]
     -
         name: get_target_property
+        second-arg-is-target?: true
         property-args: &get_target_property [target-properties]
     -
         name: get_test_property
@@ -2882,6 +3518,7 @@ project-commands:
           , SETUID
           , SETGID
           ]
+        has-target-names-after-kw: TARGETS
     -
         name: link_directories
         named-args: [AFTER, BEFORE]
@@ -2936,6 +3573,7 @@ project-commands:
         name: set_target_properties
         named-args: [PROPERTIES]
         property-args: *get_target_property
+        first-args-are-targets?: true                       # NOTE Multiple target args
     -
         name: set_tests_properties
         named-args: [PROPERTIES]
@@ -2946,6 +3584,7 @@ project-commands:
     -
         name: target_compile_definitions
         named-args: &target_compile_definitions [INTERFACE, PUBLIC, PRIVATE]
+        first-arg-is-target?: true
     -
         name: target_compile_features
         named-args: *target_compile_definitions
@@ -3032,9 +3671,11 @@ project-commands:
           , cuda_std_20
           , cuda_std_23                                     # Since 3.21
           ]
+        first-arg-is-target?: true
     -
         name: target_compile_options
         named-args: &target_compile_options [BEFORE, INTERFACE, PUBLIC, PRIVATE]
+        first-arg-is-target?: true
     -
         name: target_include_directories
         named-args: [
@@ -3045,23 +3686,29 @@ project-commands:
           , PUBLIC
           , PRIVATE
           ]
+        first-arg-is-target?: true
     -
         # Since 3.13
         name: target_link_directories
         named-args: *target_compile_options
+        first-arg-is-target?: true
     -
         name: target_link_libraries
         named-args: *target_compile_definitions
+        first-arg-is-target?: true
     -
         name: target_link_options
         named-args: *target_compile_definitions
+        first-arg-is-target?: true
     -
         # Since 3.16
         name: target_precompile_headers
         named-args: [INTERFACE, PUBLIC, PRIVATE, REUSE_FROM]
+        first-arg-is-target?: true
     -
         name: target_sources
         named-args: *target_compile_definitions
+        first-arg-is-target?: true
     -
         name: try_compile
         named-args: [
@@ -3191,3 +3838,1174 @@ ctest-commands:
     -
         name: ctest_upload
         named-args: [FILES, CAPTURE_CMAKE_ERROR, QUIET]
+
+modules:
+    # The modules listed here are part of the CMake distribution:
+    # https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html
+    utility:
+        - AndroidTestUtilities
+        - BundleUtilities
+        - CheckCCompilerFlag
+        - CheckCompilerFlag
+        - CheckCSourceCompiles
+        - CheckCSourceRuns
+        - CheckCXXCompilerFlag
+        - CheckCXXSourceCompiles
+        - CheckCXXSourceRuns
+        - CheckCXXSymbolExists
+        - CheckFortranCompilerFlag
+        - CheckFortranFunctionExists
+        - CheckFortranSourceCompiles
+        - CheckFortranSourceRuns
+        - CheckFunctionExists
+        - CheckIncludeFileCXX
+        - CheckIncludeFile
+        - CheckIncludeFiles
+        - CheckIPOSupported
+        - CheckLanguage
+        - CheckLibraryExists
+        - CheckLinkerFlag
+        - CheckOBJCCompilerFlag
+        - CheckOBJCSourceCompiles
+        - CheckOBJCSourceRuns
+        - CheckOBJCXXCompilerFlag
+        - CheckOBJCXXSourceCompiles
+        - CheckOBJCXXSourceRuns
+        - CheckPIESupported
+        - CheckPrototypeDefinition
+        - CheckSourceCompiles
+        - CheckSourceRuns
+        - CheckStructHasMember
+        - CheckSymbolExists
+        - CheckTypeSize
+        - CheckVariableExists
+        - CMakeAddFortranSubdirectory
+        - CMakeBackwardCompatibilityCXX
+        - CMakeDependentOption
+        - CMakeFindDependencyMacro
+        - CMakeFindFrameworks
+        # NOTE The commented modules below are not for `include()`
+        # - CMakeFindPackageMode
+        # - CMakeGraphVizOptions
+        - CMakePackageConfigHelpers
+        - CMakePrintHelpers
+        - CMakePrintSystemInformation
+        - CMakePushCheckState
+        # NOTE The commented module below is not for `include()`
+        # - CMakeVerifyManifest
+        - CPack
+        - CPackComponent
+        - CPackIFW
+        - CPackIFWConfigureFile
+        - CSharpUtilities
+        - CTest
+        - CTestCoverageCollectGCOV
+        - CTestScriptMode
+        - CTestUseLaunchers
+        - Dart
+        - DeployQt4
+        - ExternalData
+        - ExternalProject
+        - FeatureSummary
+        - FetchContent
+        - FindPackageHandleStandardArgs
+        - FindPackageMessage
+        - FortranCInterface
+        - GenerateExportHeader
+        - GNUInstallDirs
+        - GoogleTest
+        - InstallRequiredSystemLibraries
+        - ProcessorCount
+        - SelectLibraryConfigurations
+        # NOTE The commented module below is not for `include()`
+        # - SquishTestScript
+        - TestForANSIForScope
+        - TestForANSIStreamHeaders
+        - TestForSSTREAM
+        - TestForSTDNamespace
+        - UseEcos
+        - UseJava
+        - UseSWIG
+        - UsewxWidgets
+
+    finder:
+        - FindALSA
+        - FindArmadillo
+        - FindASPELL
+        - FindAVIFile
+        - FindBacktrace
+        - FindBISON
+        - FindBLAS
+        - FindBoost
+        - FindBullet
+        - FindBZip2
+        - FindCABLE
+        - FindCoin3D
+        - FindCUDAToolkit
+        - FindCups
+        - FindCURL
+        - FindCurses
+        - FindCVS
+        - FindCxxTest
+        - FindCygwin
+        - FindDart
+        - FindDCMTK
+        - FindDevIL
+        - FindDoxygen
+        - FindEnvModules
+        - FindEXPAT
+        - FindFLEX
+        - FindFLTK
+        - FindFLTK2
+        - FindFontconfig
+        - FindFreetype
+        - FindGCCXML
+        - FindGDAL
+        - FindGettext
+        - FindGIF
+        - FindGit
+        - FindGLEW
+        - FindGLUT
+        - FindGnuplot
+        - FindGnuTLS
+        - FindGSL
+        - FindGTest
+        - FindGTK
+        - FindGTK2
+        - FindHDF5
+        - FindHg
+        - FindHSPELL
+        - FindHTMLHelp
+        - FindIce
+        - FindIconv
+        - FindIcotool
+        - FindICU
+        - FindImageMagick
+        - FindIntl
+        - FindITK
+        - FindJasper
+        - FindJava
+        - FindJNI
+        - FindJPEG
+        - FindKDE3
+        - FindKDE4
+        - FindLAPACK
+        - FindLATEX
+        - FindLibArchive
+        - FindLibinput
+        - FindLibLZMA
+        - FindLibXml2
+        - FindLibXslt
+        - FindLTTngUST
+        - FindLua
+        - FindLua50
+        - FindLua51
+        - FindMatlab
+        - FindMFC
+        - FindMotif
+        - FindMPEG
+        - FindMPEG2
+        - FindMPI
+        - FindMsys
+        - FindODBC
+        - FindOpenACC
+        - FindOpenAL
+        - FindOpenCL
+        - FindOpenGL
+        - FindOpenMP
+        - FindOpenSceneGraph
+        - FindOpenSSL
+        - FindOpenThreads
+        - Findosg
+        - Findosg_functions
+        - FindosgAnimation
+        - FindosgDB
+        - FindosgFX
+        - FindosgGA
+        - FindosgIntrospection
+        - FindosgManipulator
+        - FindosgParticle
+        - FindosgPresentation
+        - FindosgProducer
+        - FindosgQt
+        - FindosgShadow
+        - FindosgSim
+        - FindosgTerrain
+        - FindosgText
+        - FindosgUtil
+        - FindosgViewer
+        - FindosgVolume
+        - FindosgWidget
+        - FindPatch
+        - FindPerl
+        - FindPerlLibs
+        - FindPHP4
+        - FindPhysFS
+        - FindPike
+        - FindPkgConfig
+        - FindPNG
+        - FindPostgreSQL
+        - FindProducer
+        - FindProtobuf
+        - FindPython
+        - FindPython2
+        - FindPython3
+        - FindQt3
+        - FindQt4
+        - FindQuickTime
+        - FindRTI
+        - FindRuby
+        - FindSDL
+        - FindSDL_image
+        - FindSDL_mixer
+        - FindSDL_net
+        - FindSDL_sound
+        - FindSDL_ttf
+        - FindSelfPackers
+        - FindSquish
+        - FindSQLite3
+        - FindSubversion
+        - FindSWIG
+        - FindTCL
+        - FindTclsh
+        - FindTclStub
+        - FindThreads
+        - FindTIFF
+        - FindUnixCommands
+        - FindVTK
+        - FindVulkan
+        - FindWget
+        - FindWish
+        - FindwxWidgets
+        - FindX11
+        - FindXalanC
+        - FindXCTest
+        - FindXercesC
+        - FindXMLRPC
+        - FindZLIB
+
+    deprecated:
+        # Deprecated Utility Modules
+        - AddFileDependencies
+        - CMakeDetermineVSServicePack
+        - CMakeExpandImportedTargets
+        - CMakeForceCompiler
+        - CMakeParseArguments
+        - Documentation
+        - MacroAddFileDependencies
+        - TestCXXAcceptsFlag
+        - UseJavaClassFilelist
+        - UseJavaSymlinks
+        - UsePkgConfig
+        - Use_wxWindows
+        - WriteBasicConfigVersionFile
+        - WriteCompilerDetectionHeader
+        # Deprecated Find Modules
+        - FindCUDA
+        - FindPythonInterp
+        - FindPythonLibs
+        - FindQt
+        - FindwxWindows
+        # Legacy CPack Modules
+        - CPackArchive
+        - CPackBundle
+        - CPackCygwin
+        - CPackDeb
+        - CPackDMG
+        - CPackFreeBSD
+        - CPackNSIS
+        - CPackNuGet
+        - CPackPackageMaker
+        - CPackProductBuild
+        - CPackRPM
+        - CPackWIX
+        # ATTENTION The following modules still in the list of the standard modules
+        # however, the docs claims that they have been deprecated
+        - GetPrerequisites
+        - TestBigEndian
+
+standard-module-commands:
+    # AndroidTestUtilities
+    -
+        name: android_add_test_data
+        named-args:
+            - FILES
+            - FILES_DEST
+            - LIBS
+            - LIBS_DEST
+            - DEVICE_OBJECT_STORE
+            - DEVICE_TEST_DIR
+            - NO_LINK_REGEX
+    # BundleUtilities
+    - name: fixup_bundle
+    - name: copy_and_fixup_bundle
+    - name: verify_app
+    - name: get_bundle_main_executable
+    - name: get_dotapp_dir
+    - name: get_bundle_and_executable
+    - name: get_bundle_all_executables
+    - name: get_item_key
+    - name: get_item_rpaths
+    - name: clear_bundle_keys
+    - name: set_bundle_key_values
+    - name: get_bundle_keys
+    - name: copy_resolved_item_into_bundle
+    - name: copy_resolved_framework_into_bundle
+    - name: fixup_bundle_item
+    - name: verify_bundle_prerequisites
+    - name: verify_bundle_symlinks
+    # CheckCCompilerFlag
+    - name: check_c_compiler_flag
+    # CheckCompilerFlag
+    - name: check_compiler_flag
+    # CheckCSourceCompiles
+    -
+        name: check_c_source_compiles
+        named-args: &ccsc [FAIL_REGEX]
+    # CheckCSourceRuns
+    - name: check_c_source_runs
+    # CheckCXXCompilerFlag
+    - name: check_cxx_compiler_flag
+    # CheckCXXSourceCompiles
+    -
+        name: check_cxx_source_compiles
+        named-args: *ccsc
+    # CheckCXXSourceRuns
+    - name: check_cxx_source_runs
+    # CheckCXXSymbolExists
+    - name: check_cxx_symbol_exists
+    # CheckFortranCompilerFlag
+    - name: check_fortran_compiler_flag
+    # CheckFortranFunctionExists
+    - name: check_fortran_function_exists
+    # CheckFortranSourceCompiles
+    -
+        name: check_fortran_source_compiles
+        named-args: &frse [FAIL_REGEX, SRC_EXT]
+    # CheckFortranSourceRuns
+    -
+        name: check_fortran_source_runs
+        named-args: &se [SRC_EXT]
+    # CheckFunctionExists
+    - name: check_function_exists
+    # CheckIncludeFileCXX
+    - name: check_include_file_cxx
+    # CheckIncludeFile
+    - name: check_include_file
+    # CheckIncludeFiles
+    -
+        name: check_include_files
+        named-args: &l [LANGUAGE]
+        special-args: &ccxx [C, CXX]
+    # CheckIPOSupported
+    -
+        name: check_ipo_supported
+        named-args: [RESULT, OUTPUT, LANGUAGES]
+        special-args: &ccxxf [C, CXX, Fortran]
+    # CheckLanguage
+    -
+        name: check_language
+        special-args: *langs
+    # CheckLibraryExists
+    - name: check_library_exists
+    # CheckLinkerFlag
+    - name: check_linker_flag
+    # CheckOBJCCompilerFlag
+    - name: check_objc_compiler_flag
+    # CheckOBJCSourceCompiles
+    -
+        name: check_objc_source_compiles
+        named-args: *ccsc
+    # CheckOBJCSourceRuns
+    - name: check_objc_source_runs
+    # CheckOBJCXXCompilerFlag
+    - name: check_objcxx_compiler_flag
+    # CheckOBJCXXSourceCompiles
+    -
+        name: check_objcxx_source_compiles
+        named-args: *ccsc
+    # CheckOBJCXXSourceRuns
+    - name: check_objcxx_source_runs
+    # CheckPIESupported
+    -
+        name: check_pie_supported
+        named-args: [OUTPUT_VARIABLE, LANGUAGES]
+        special-args: *ccxxf
+    # CheckPrototypeDefinition
+    - name: check_prototype_definition
+    # CheckSourceCompiles
+    -
+        name: check_source_compiles
+        named-args: *frse
+    # CheckSourceRuns
+    -
+        name: check_source_runs
+        named-args: *se
+    # CheckStructHasMember
+    -
+        name: check_struct_has_member
+        named-args: *l
+        special-args: *ccxx
+    # CheckSymbolExists
+    - name: check_symbol_exists
+    # CheckTypeSize
+    -
+        name: check_type_size
+        named-args: [BUILTIN_TYPES_ONLY, LANGUAGE]
+        special-args: *ccxx
+    # CheckVariableExists
+    - name: check_variable_exists
+    # CMakeAddFortranSubdirectory
+    -
+        name: cmake_add_fortran_subdirectory
+        named-args:
+            - PROJECT
+            - ARCHIVE_DIR
+            - RUNTIME_DIR
+            - LIBRARIES
+            - LINK_LIBRARIES
+            - LINK_LIBS
+            - CMAKE_COMMAND_LINE
+            - NO_EXTERNAL_INSTALL
+    # CMakeBackwardCompatibilityCXX
+    # CMakeDependentOption
+    - name: cmake_dependent_option
+    # CMakeFindDependencyMacro
+    - name: find_dependency
+    # CMakeFindFrameworks
+    # CMakeFindPackageMode
+    # CMakeGraphVizOptions
+    # CMakePackageConfigHelpers
+    -
+        name: configure_package_config_file
+        named-args:
+            - INSTALL_DESTINATION
+            - PATH_VARS
+            - NO_SET_AND_CHECK_MACRO
+            - NO_CHECK_REQUIRED_COMPONENTS_MACRO
+            - INSTALL_PREFIX
+    -
+        name: write_basic_package_version_file
+        named-args:
+            - VERSION
+            - COMPATIBILITY
+            - ARCH_INDEPENDENT
+        special-args: [AnyNewerVersion, SameMajorVersion, SameMinorVersion, ExactVersion]
+    # CMakePrintHelpers
+    -
+        name: cmake_print_properties
+        named-args:
+            - TARGETS
+            - SOURCES
+            - DIRECTORIES
+            - TESTS
+            - CACHE_ENTRIES
+            - PROPERTIES
+        has-target-names-after-kw: TARGETS
+    # CMakePrintSystemInformation
+    # CMakePushCheckState
+    -
+        name: cmake_push_check_state
+        named-args: [RESET]
+    - name: cmake_pop_check_state
+    - name: cmake_reset_check_state
+    # CMakeVerifyManifest
+    # CPack
+    # CPackComponent
+    -
+        name: cpack_add_component
+        named-args:
+            - DISPLAY_NAME
+            - DESCRIPTION
+            - HIDDEN
+            - REQUIRED
+            - DISABLED
+            - GROUP
+            - DEPENDS
+            - INSTALL_TYPES
+            - DOWNLOADED
+            - ARCHIVE_FILE
+            - PLIST
+    -
+        name: cpack_add_component_group
+        named-args:
+            - DISPLAY_NAME
+            - DESCRIPTION
+            - PARENT_GROUP
+            - EXPANDED
+            - BOLD_TITLE
+    -
+        name: cpack_add_install_type
+        named-args: [DISPLAY_NAME]
+    -
+        name: cpack_configure_downloads
+        named-args:
+            - UPLOAD_DIRECTORY
+            - ALL
+            - ADD_REMOVE
+            - NO_ADD_REMOVE
+    # CPackIFW
+    -
+        name: cpack_ifw_configure_component
+        named-args:
+            - COMMON
+            - ESSENTIAL
+            - VIRTUAL
+            - FORCED_INSTALLATION
+            - REQUIRES_ADMIN_RIGHTS]
+            - NAME
+            - DISPLAY_NAME
+            - DESCRIPTION
+            - UPDATE_TEXT
+            - VERSION
+            - RELEASE_DATE
+            - SCRIPT
+            - PRIORITY
+            - SORTING_PRIORITY
+            - DEPENDS
+            - DEPENDENCIES
+            - AUTO_DEPEND_ON
+            - LICENSES
+            - DEFAULT
+            - USER_INTERFACES
+            - TRANSLATIONS
+            - REPLACES
+            - CHECKABLE
+    -
+        name: cpack_ifw_configure_component_group
+        named-args:
+            - VIRTUAL
+            - FORCED_INSTALLATION
+            - REQUIRES_ADMIN_RIGHTS
+            - NAME
+            - DISPLAY_NAME
+            - DESCRIPTION
+            - UPDATE_TEXT
+            - VERSION
+            - RELEASE_DATE
+            - SCRIPT
+            - PRIORITY
+            - SORTING_PRIORITY
+            - DEPENDS
+            - DEPENDENCIES
+            - AUTO_DEPEND_ON
+            - LICENSES
+            - DEFAULT
+            - USER_INTERFACES
+            - TRANSLATIONS
+            - REPLACES
+            - CHECKABLE
+    -
+        name: cpack_ifw_add_repository
+        named-args:
+            - DISABLED
+            - URL
+            - USERNAME
+            - PASSWORD
+            - DISPLAY_NAME
+    -
+        name: cpack_ifw_update_repository
+        named-args:
+            - ADD
+            - REMOVE
+            - URL
+            - REPLACE
+            - OLD_URL
+            - NEW_URL
+            - USERNAME
+            - PASSWORD
+            - DISPLAY_NAME
+    - name: cpack_ifw_add_package_resources
+    # CPackIFWConfigureFile
+    - name: cpack_ifw_configure_file
+    # CSharpUtilities
+    - name: csharp_set_windows_forms_properties
+    - name: csharp_set_designer_cs_properties
+    - name: csharp_set_xaml_cs_properties
+    - name: csharp_get_filename_keys
+    - name: csharp_get_filename_key_base
+    - name: csharp_get_dependentupon_name
+    # CTest
+    # CTestCoverageCollectGCOV
+    -
+        name: ctest_coverage_collect_gcov
+        named-args:
+            - TARBALL
+            - TARBALL_COMPRESSION
+            - SOURCE
+            - BUILD
+            - GCOV_COMMAND
+            - GCOV_OPTIONS
+            - GLOB
+            - DELETE
+            - QUIET
+    # CTestScriptMode
+    # CTestUseLaunchers
+    # Dart
+    # DeployQt4
+    - name: write_qt4_conf
+    - name: resolve_qt4_paths
+    - name: fixup_qt4_executable
+    - name: install_qt4_plugin_path
+    - name: install_qt4_plugin
+    - name: install_qt4_executable
+    # ExternalData
+    - name: ExternalData_Expand_Arguments
+    - name: ExternalData_Add_Test
+    -
+        name: ExternalData_Add_Target
+        named-args: [SHOW_PROGRESS]
+    # ExternalProject
+    -
+        name: ExternalProject_Add
+        named-args:
+            - PREFIX
+            - TMP_DIR
+            - STAMP_DIR
+            - LOG_DIR
+            - DOWNLOAD_DIR
+            - SOURCE_DIR
+            - BINARY_DIR
+            - INSTALL_DIR
+            - DOWNLOAD_COMMAND
+            - URL
+            - URL_HASH
+            - URL_MD5
+            - DOWNLOAD_NAME
+            - DOWNLOAD_NO_EXTRACT
+            - DOWNLOAD_NO_PROGRESS
+            - TIMEOUT
+            - INACTIVITY_TIMEOUT
+            - HTTP_USERNAME
+            - HTTP_PASSWORD
+            - HTTP_HEADER
+            - TLS_VERIFY
+            - TLS_CAINFO
+            - NETRC
+            - NETRC_FILE
+            - GIT_REPOSITORY
+            - GIT_TAG
+            - GIT_REMOTE_NAME
+            - GIT_SUBMODULES
+            - GIT_SUBMODULES_RECURSE
+            - GIT_SHALLOW
+            - GIT_PROGRESS
+            - GIT_CONFIG
+            - GIT_REMOTE_UPDATE_STRATEGY
+            - SVN_REPOSITORY
+            - SVN_REVISION
+            - SVN_USERNAME
+            - SVN_PASSWORD
+            - SVN_TRUST_CERT
+            - HG_REPOSITORY
+            - HG_TAG
+            - CVS_REPOSITORY
+            - CVS_MODULE
+            - CVS_TAG
+            - UPDATE_COMMAND
+            - UPDATE_DISCONNECTED
+            - PATCH_COMMAND
+            - CONFIGURE_COMMAND
+            - CMAKE_COMMAND
+            - CMAKE_GENERATOR
+            - CMAKE_GENERATOR_PLATFORM
+            - CMAKE_GENERATOR_TOOLSET
+            - CMAKE_GENERATOR_INSTANCE
+            - CMAKE_ARGS
+            - CMAKE_CACHE_ARGS
+            - CMAKE_CACHE_DEFAULT_ARGS
+            - SOURCE_SUBDIR
+            - CONFIGURE_HANDLED_BY_BUILD
+            - BUILD_COMMAND
+            - BUILD_IN_SOURCE
+            - BUILD_ALWAYS
+            - BUILD_BYPRODUCTS
+            - INSTALL_COMMAND
+            - TEST_COMMAND
+            - TEST_BEFORE_INSTALL
+            - TEST_AFTER_INSTALL
+            - TEST_EXCLUDE_FROM_MAIN
+            - LOG_DOWNLOAD
+            - LOG_UPDATE
+            - LOG_PATCH
+            - LOG_CONFIGURE
+            - LOG_BUILD
+            - LOG_INSTALL
+            - LOG_TEST
+            - LOG_MERGED_STDOUTERR
+            - LOG_OUTPUT_ON_FAILURE
+            - USES_TERMINAL_DOWNLOAD
+            - USES_TERMINAL_UPDATE
+            - USES_TERMINAL_CONFIGURE
+            - USES_TERMINAL_BUILD
+            - USES_TERMINAL_INSTALL
+            - USES_TERMINAL_TEST
+            - DEPENDS
+            - EXCLUDE_FROM_ALL
+            - STEP_TARGETS
+            - INDEPENDENT_STEP_TARGETS
+            - LIST_SEPARATOR
+            - COMMAND
+        special-args: [IGNORED, OPTIONAL, REQUIRED, CHECKOUT, REBASE, REBASE_CHECKOUT]
+        property-args: *get_target_property
+    - name: ExternalProject_Get_Property
+    -
+        name: ExternalProject_Add_Step
+        named-args:
+            - COMMAND
+            - COMMENT
+            - DEPENDEES
+            - DEPENDERS
+            - DEPENDS
+            - INDEPENDENT
+            - BYPRODUCTS
+            - ALWAYS
+            - EXCLUDE_FROM_MAIN
+            - WORKING_DIRECTORY
+            - LOG
+            - USES_TERMINAL
+    -
+        name: ExternalProject_Add_StepTargets
+        named-args:
+            - NO_DEPENDS
+    - name: ExternalProject_Add_StepDependencies
+    # FeatureSummary
+    -
+        name: feature_summary
+        named-args:
+            - FILENAME
+            - APPEND
+            - VAR
+            - INCLUDE_QUIET_PACKAGES
+            - FATAL_ON_MISSING_REQUIRED_PACKAGES
+            - DESCRIPTION
+            - DEFAULT_DESCRIPTION
+            - QUIET_ON_EMPTY
+            - WHAT
+            - ALL
+            - PACKAGES_FOUND
+            - PACKAGES_NOT_FOUND
+            - ENABLED_FEATURES
+            - DISABLED_FEATURES
+    -
+        name: set_package_properties
+        named-args:
+            - PROPERTIES
+            - URL
+            - DESCRIPTION
+            - TYPE
+            - RUNTIME
+            - OPTIONAL
+            - RECOMMENDED
+            - REQUIRED
+            - PURPOSE
+    - name: add_feature_info
+    - name: set_package_info
+    - name: set_feature_info
+    - name: print_enabled_features
+    - name: print_disabled_features
+    # FetchContent
+    -
+        name: FetchContent_Declare
+        named-args:
+            - DOWNLOAD_COMMAND
+            - URL
+            - URL_HASH
+            - URL_MD5
+            - DOWNLOAD_NAME
+            - DOWNLOAD_NO_EXTRACT
+            - DOWNLOAD_NO_PROGRESS
+            - TIMEOUT
+            - INACTIVITY_TIMEOUT
+            - HTTP_USERNAME
+            - HTTP_PASSWORD
+            - HTTP_HEADER
+            - TLS_VERIFY
+            - TLS_CAINFO
+            - NETRC
+            - NETRC_FILE
+            - GIT_REPOSITORY
+            - GIT_TAG
+            - GIT_REMOTE_NAME
+            - GIT_SUBMODULES
+            - GIT_SUBMODULES_RECURSE
+            - GIT_SHALLOW
+            - GIT_PROGRESS
+            - GIT_CONFIG
+            - GIT_REMOTE_UPDATE_STRATEGY
+            - SVN_REPOSITORY
+            - SVN_REVISION
+            - SVN_USERNAME
+            - SVN_PASSWORD
+            - SVN_TRUST_CERT
+            - HG_REPOSITORY
+            - HG_TAG
+            - CVS_REPOSITORY
+            - CVS_MODULE
+            - CVS_TAG
+            - UPDATE_COMMAND
+            - UPDATE_DISCONNECTED
+            - PATCH_COMMAND
+            - SOURCE_SUBDIR
+    -
+        name: FetchContent_Populate
+        named-args:
+            - QUIET
+            - SUBBUILD_DIR
+            - SOURCE_DIR
+            - BINARY_DIR
+            - DOWNLOAD_COMMAND
+            - URL
+            - URL_HASH
+            - URL_MD5
+            - DOWNLOAD_NAME
+            - DOWNLOAD_NO_EXTRACT
+            - DOWNLOAD_NO_PROGRESS
+            - TIMEOUT
+            - INACTIVITY_TIMEOUT
+            - HTTP_USERNAME
+            - HTTP_PASSWORD
+            - HTTP_HEADER
+            - TLS_VERIFY
+            - TLS_CAINFO
+            - NETRC
+            - NETRC_FILE
+            - GIT_REPOSITORY
+            - GIT_TAG
+            - GIT_REMOTE_NAME
+            - GIT_SUBMODULES
+            - GIT_SUBMODULES_RECURSE
+            - GIT_SHALLOW
+            - GIT_PROGRESS
+            - GIT_CONFIG
+            - GIT_REMOTE_UPDATE_STRATEGY
+            - SVN_REPOSITORY
+            - SVN_REVISION
+            - SVN_USERNAME
+            - SVN_PASSWORD
+            - SVN_TRUST_CERT
+            - HG_REPOSITORY
+            - HG_TAG
+            - CVS_REPOSITORY
+            - CVS_MODULE
+            - CVS_TAG
+            - UPDATE_COMMAND
+            - UPDATE_DISCONNECTED
+            - PATCH_COMMAND
+            - SOURCE_SUBDIR
+    -
+        name: FetchContent_GetProperties
+        named-args:
+            - SOURCE_DIR
+            - BINARY_DIR
+            - POPULATED
+    - name: FetchContent_MakeAvailable
+    # FindPackageHandleStandardArgs
+    -
+        name: find_package_handle_standard_args
+        named-args:
+            - DEFAULT_MSG
+            - FOUND_VAR
+            - REQUIRED_VARS
+            - VERSION_VAR
+            - HANDLE_VERSION_RANGE
+            - HANDLE_COMPONENTS
+            - CONFIG_MODE
+            - NAME_MISMATCHED
+            - REASON_FAILURE_MESSAGE
+            - FAIL_MESSAGE
+    -
+        name: find_package_check_version
+        named-args:
+            - HANDLE_VERSION_RANGE
+            - RESULT_MESSAGE_VARIABLE
+    # FindPackageMessage
+    - name: find_package_message
+    # FortranCInterface
+    -
+        name: FortranCInterface_HEADER
+        named-args:
+            - MACRO_NAMESPACE
+            - SYMBOL_NAMESPACE
+            - SYMBOLS
+    -
+        name: FortranCInterface_VERIFY
+        named-args: [CXX, QUIET]
+    # GenerateExportHeader
+    -
+        name: generate_export_header
+        named-args:
+            - BASE_NAME
+            - EXPORT_MACRO_NAME
+            - EXPORT_FILE_NAME
+            - DEPRECATED_MACRO_NAME
+            - NO_EXPORT_MACRO_NAME
+            - INCLUDE_GUARD_NAME
+            - STATIC_DEFINE
+            - NO_DEPRECATED_MACRO_NAME
+            - DEFINE_NO_DEPRECATED
+            - PREFIX_NAME
+            - CUSTOM_CONTENT_FROM_VARIABLE
+        first-arg-is-target?: true
+    # GetPrerequisites (NOTE The module has functions but has been deprecated)
+    # GNUInstallDirs
+    - name: GNUInstallDirs_get_absolute_install_dir
+    # GoogleTest
+    -
+        name: gtest_add_tests
+        named-args:
+            - TARGET
+            - SOURCES
+            - EXTRA_ARGS
+            - WORKING_DIRECTORY
+            - TEST_PREFIX
+            - TEST_SUFFIX
+            - SKIP_DEPENDENCY
+            - TEST_LIST
+        has-target-name-after-kw: TARGET
+    -
+        name: gtest_discover_tests                          # Since 3.10
+        named-args:
+            - EXTRA_ARGS
+            - WORKING_DIRECTORY
+            - TEST_PREFIX
+            - TEST_SUFFIX
+            - TEST_FILTER                                   # Since 3.22
+            - NO_PRETTY_TYPES
+            - NO_PRETTY_VALUES
+            - PROPERTIES
+            - TEST_LIST
+            - DISCOVERY_TIMEOUT
+            - XML_OUTPUT_DIR
+            - DISCOVERY_MODE
+        special-args: [POST_BUILD, PRE_TEST]
+        first-arg-is-target?: true
+    # InstallRequiredSystemLibraries
+    # ProcessorCount
+    - name: processorcount
+    # SelectLibraryConfigurations
+    - name: select_library_configurations
+    # SquishTestScript
+    # TestBigEndian
+    - name: test_big_endian
+    # TestForANSIForScope
+    # TestForANSIStreamHeaders
+    # TestForSSTREAM
+    # TestForSTDNamespace
+    # UseEcos
+    - name: ecos_add_include_directories
+    - name: ecos_add_executable
+    - name: ecos_add_target_lib
+    - name: ecos_adjust_directory
+    - name: ecos_use_arm_elf_tools
+    - name: ecos_use_i386_elf_tools
+    - name: ecos_use_ppc_eabi_tools
+    # UseJava
+    -
+        name: add_jar
+        named-args:
+            - SOURCES
+            - RESOURCES
+            - NAMESPACE
+            - INCLUDE_JARS
+            - ENTRY_POINT
+            - VERSION
+            - MANIFEST
+            - OUTPUT_NAME
+            - OUTPUT_DIR
+            - GENERATE_NATIVE_HEADERS
+            - DESTINATION
+            - INSTALL
+            - BUILD
+        first-arg-is-target?: true
+    -
+        name: install_jar
+        named-args: &dc [DESTINATION, COMPONENT]
+        first-arg-is-target?: true
+    -
+        name: install_jni_symlink
+        named-args: *dc
+        first-arg-is-target?: true
+    -
+        name: create_javah
+        named-args:
+            - TARGET
+            - GENERATED_FILES
+            - CLASSES
+            - CLASSPATH
+            - DEPENDS
+            - OUTPUT_NAME
+            - OUTPUT_DIR
+        has-target-name-after-kw: TARGET
+    -
+        name: install_jar_exports
+        named-args:
+            - TARGETS
+            - NAMESPACE
+            - FILE
+            - DESTINATION
+            - COMPONENT
+        has-target-names-after-kw: TARGETS
+    -
+        name: export_jars
+        named-args:
+            - TARGETS
+            - NAMESPACE
+            - FILE
+        has-target-names-after-kw: TARGETS
+    -
+        name: find_jar
+        named-args:
+            - NAMES
+            - PATHS
+            - ENV
+            - VERSIONS
+            - DOC
+    -
+        name: create_javadoc
+        named-args:
+            - PACKAGES
+            - FILES
+            - SOURCEPATH
+            - CLASSPATH
+            - INSTALLPATH
+            - DOCTITLE
+            - WINDOWTITLE
+            - AUTHOR
+            - USE
+            - VERSION
+    # UseSWIG
+    -
+        name: swig_add_library
+        named-args:
+            - TYPE
+            - SHARED
+            - MODULE
+            - STATIC
+            - USE_BUILD_SHARED_LIBS
+            - LANGUAGE
+            - NO_PROXY
+            - OUTPUT_DIR
+            - OUTFILE_DIR
+            - SOURCES
+    - name: swig_link_libraries
+    # UsewxWidgets
+    # NOTE Some standard finder modules also provide commands
+    # FindSquish
+    -
+        name: squish_add_test
+        named-args:
+            - AUT
+            - SUITE
+            - TEST
+            - SETTINGSGROUP
+            - PRE_COMMAND
+            - POST_COMMAND
+    # FindBISON
+    -
+        name: bison_target
+        named-args:
+            - COMPILE_FLAGS
+            - DEFINES_FILE
+            - VERBOSE
+            - REPORT_FILE
+    # FindCxxTest
+    - name: cxxtest_add_test
+    # FindDoxygen
+    -
+        name: doxygen_add_docs
+        named-args: [ALL, USE_STAMP_FILE, WORKING_DIRECTORY, COMMENT]
+    # FindEnvModules
+    -
+        name: env_module
+        named-args: [COMMAND, OUTPUT_VARIABLE, RESULT_VARIABLE]
+    -
+        name: env_module_swap
+        named-args: [OUTPUT_VARIABLE, RESULT_VARIABLE]
+    - name: env_module_list
+    - name: env_module_avail
+    # FindFLEX
+    -
+        name: flex_target
+        named-args:
+            - COMPILE_FLAGS
+            - DEFINES_FILE
+    - name: add_flex_bison_dependency
+    # FindGettext
+    -
+        name: gettext_create_translations
+        named-args: [ALL]
+    -
+        name: gettext_process_pot_file
+        named-args: [ALL, INSTALL_DESTINATION, LANGUAGES]
+    -
+        name: gettext_process_po_files
+        named-args: [ALL, INSTALL_DESTINATION, PO_FILES]
+    # FindHg
+    - name: hg_wc_info
+    # FindMatlab
+    - name: matlab_get_version_from_release_name
+    - name: matlab_get_release_name_from_version
+    - name: matlab_extract_all_installed_versions_from_registry
+    - name: matlab_get_all_valid_matlab_roots_from_registry
+    - name: matlab_get_mex_suffix
+    - name: matlab_get_version_from_matlab_run
+    -
+        name: matlab_add_unit_test
+        named-args:
+            - NAME
+            - UNITTEST_FILE
+            - CUSTOM_TEST_COMMAND
+            - UNITTEST_PRECOMMAND
+            - TIMEOUT
+            - ADDITIONAL_PATH
+            - MATLAB_ADDITIONAL_STARTUP_OPTIONS
+            - TEST_ARGS
+            - NO_UNITTEST_FRAMEWORK
+    -
+        name: matlab_add_mex
+        named-args:
+            - NAME
+            - EXECUTABLE
+            - MODULE
+            - SHARED
+            - SRC
+            - OUTPUT_NAME
+            - DOCUMENTATION
+            - LINK_TO
+            - EXCLUDE_FROM_ALL
+        special-args: [R2017b, R2018a]
+    # FindPkgConfig
+    -
+        name: pkg_check_modules
+        named-args: &pkgcm
+            - REQUIRED
+            - QUIET
+            - NO_CMAKE_PATH
+            - NO_CMAKE_ENVIRONMENT_PATH
+            - IMPORTED_TARGET
+            - GLOBAL
+    -
+        name: pkg_search_module
+        named-args: *pkgcm
+    -
+        name: pkg_get_variable
+    # FindProtobuf
+    -
+        name: protobuf_generate_cpp
+        named-args: [DESCRIPTORS, EXPORT_MACRO]
+    -
+        name: protobuf_generate_python
+    # FindPython
+    -
+        name: Python_add_library
+        named-args: [STATIC, SHARED, MODULE, WITH_SOABI]
+    # FindSubversion
+    -
+        name: Subversion_WC_INFO
+        named-args: [IGNORE_SVN_FAILURE]
+    -
+        name: Subversion_WC_LOG
+    # FindXCTest
+    - name: xctest_add_bundle
+    - name: xctest_add_test

@@ -14,6 +14,7 @@
 #include "context_p.h"
 #include "format.h"
 #include "format_p.h"
+#include "highlightingdata_p.hpp"
 #include "ksyntaxhighlighting_logging.h"
 #include "ksyntaxhighlighting_version.h"
 #include "repository.h"
@@ -39,10 +40,7 @@ DefinitionData::DefinitionData()
 {
 }
 
-DefinitionData::~DefinitionData()
-{
-    qDeleteAll(contexts);
-}
+DefinitionData::~DefinitionData() = default;
 
 DefinitionData *DefinitionData::get(const Definition &def)
 {
@@ -237,45 +235,23 @@ QVector<Definition> Definition::includedDefinitions() const
     d->load();
 
     // init worklist and result used as guard with this definition
-    QVector<Definition> queue{*this};
+    QVector<const DefinitionData *> queue{d.get()};
     QVector<Definition> definitions{*this};
-    while (!queue.isEmpty()) {
-        // Iterate all context rules to find associated Definitions. This will
-        // automatically catch other Definitions referenced with IncludeRuldes or ContextSwitch.
-        const auto definition = queue.takeLast();
-        for (const auto &context : std::as_const(definition.d->contexts)) {
-            // handle context switch attributes of this context itself
-            for (const auto switchContext :
-                 {context->lineEndContext().context(), context->lineEmptyContext().context(), context->fallthroughContext().context()}) {
-                if (switchContext) {
-                    if (!definitions.contains(switchContext->definition())) {
-                        queue.push_back(switchContext->definition());
-                        definitions.push_back(switchContext->definition());
-                    }
-                }
-            }
-
-            // handle the embedded rules
-            for (const auto &rule : context->rules()) {
-                // handle include rules like inclusion
-                if (!definitions.contains(rule->definition())) {
-                    queue.push_back(rule->definition());
-                    definitions.push_back(rule->definition());
-                }
-
-                // handle context switch context inclusion
-                if (auto switchContext = rule->context().context()) {
-                    if (!definitions.contains(switchContext->definition())) {
-                        queue.push_back(switchContext->definition());
-                        definitions.push_back(switchContext->definition());
-                    }
-                }
+    while (!queue.empty()) {
+        const auto *def = queue.back();
+        queue.pop_back();
+        for (const auto &defRef : def->immediateIncludedDefinitions) {
+            const auto definition = defRef.definition();
+            if (!definitions.contains(definition)) {
+                definitions.push_back(definition);
+                queue.push_back(definition.d.get());
             }
         }
     }
 
     // remove the 1st entry, since it is this Definition
-    definitions.pop_front();
+    definitions.front() = std::move(definitions.back());
+    definitions.pop_back();
 
     return definitions;
 }
@@ -304,17 +280,17 @@ QVector<QPair<QChar, QString>> Definition::characterEncodings() const
     return d->characterEncodings;
 }
 
-Context *DefinitionData::initialContext() const
+Context *DefinitionData::initialContext()
 {
-    Q_ASSERT(!contexts.isEmpty());
-    return contexts.first();
+    Q_ASSERT(!contexts.empty());
+    return &contexts.front();
 }
 
-Context *DefinitionData::contextByName(const QString &wantedName) const
+Context *DefinitionData::contextByName(const QString &wantedName)
 {
-    for (const auto context : contexts) {
-        if (context->name() == wantedName) {
-            return context;
+    for (auto &context : contexts) {
+        if (context.name() == wantedName) {
+            return &context;
         }
     }
     return nullptr;
@@ -338,7 +314,7 @@ Format DefinitionData::formatByName(const QString &wantedName) const
 
 bool DefinitionData::isLoaded() const
 {
-    return !contexts.isEmpty();
+    return !contexts.empty();
 }
 
 bool DefinitionData::load(OnlyKeywords onlyKeywords)
@@ -383,17 +359,7 @@ bool DefinitionData::load(OnlyKeywords onlyKeywords)
         it->setCaseSensitivity(caseSensitive);
     }
 
-    for (const auto context : std::as_const(contexts)) {
-        context->resolveContexts();
-        context->resolveIncludes();
-        context->resolveAttributeFormat();
-    }
-
-    for (const auto context : std::as_const(contexts)) {
-        for (const auto &rule : context->rules()) {
-            rule->resolvePostProcessing();
-        }
-    }
+    resolveContexts();
 
     return true;
 }
@@ -402,9 +368,21 @@ void DefinitionData::clear()
 {
     // keep only name and repo, so we can re-lookup to make references persist over repo reloads
     keywordLists.clear();
-    qDeleteAll(contexts);
     contexts.clear();
     formats.clear();
+    contextDatas.clear();
+    immediateIncludedDefinitions.clear();
+    wordDelimiters = WordDelimiters();
+    wordWrapDelimiters = wordDelimiters;
+    keywordIsLoaded = false;
+    hasFoldingRegions = false;
+    indentationBasedFolding = false;
+    foldingIgnoreList.clear();
+    singleLineCommentMarker.clear();
+    singleLineCommentPosition = CommentPosition::StartOfLine;
+    multiLineCommentStartMarker.clear();
+    multiLineCommentEndMarker.clear();
+    characterEncodings.clear();
 
     fileName.clear();
     section.clear();
@@ -414,8 +392,6 @@ void DefinitionData::clear()
     license.clear();
     mimetypes.clear();
     extensions.clear();
-    wordDelimiters = WordDelimiters();
-    wordWrapDelimiters = wordDelimiters;
     caseSensitive = Qt::CaseSensitive;
     version = 0.0f;
     priority = 0;
@@ -563,14 +539,14 @@ void DefinitionData::loadContexts(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("contexts"));
     Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
 
+    contextDatas.reserve(32);
+
     while (!reader.atEnd()) {
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             if (reader.name() == QLatin1String("context")) {
-                auto context = new Context;
-                context->setDefinition(q);
-                context->load(reader);
-                contexts.push_back(context);
+                contextDatas.push_back(HighlightingContextData());
+                contextDatas.back().load(name, reader);
             }
             reader.readNext();
             break;
@@ -579,6 +555,50 @@ void DefinitionData::loadContexts(QXmlStreamReader &reader)
         default:
             reader.readNext();
             break;
+        }
+    }
+}
+
+void DefinitionData::resolveContexts()
+{
+    contexts.reserve(contextDatas.size());
+
+    /**
+     * Transform all HighlightingContextData to Context.
+     * This is necessary so that Context::resolveContexts() can find the referenced contexts.
+     */
+    for (const auto &contextData : std::as_const(contextDatas)) {
+        contexts.emplace_back(*this, contextData);
+    }
+
+    /**
+     * Resolves contexts and rules.
+     */
+    auto ctxIt = contexts.begin();
+    for (const auto &contextData : std::as_const(contextDatas)) {
+        ctxIt->resolveContexts(*this, contextData);
+        ++ctxIt;
+    }
+
+    /**
+     * To free the memory, constDatas is emptied because it is no longer used.
+     */
+    contextDatas.clear();
+    contextDatas.shrink_to_fit();
+
+    /**
+     * Resolved includeRules.
+     */
+    for (auto &context : contexts) {
+        context.resolveIncludes(*this);
+    }
+
+    /**
+     * Post-processing on rules.
+     */
+    for (const auto &context : contexts) {
+        for (auto &rule : context.rules()) {
+            rule->resolvePostProcessing();
         }
     }
 }
@@ -635,8 +655,7 @@ void DefinitionData::loadGeneral(QXmlStreamReader &reader)
                 wordDelimiters.remove(reader.attributes().value(QLatin1String("weakDeliminator")));
 
                 // adapt WordWrapDelimiters
-                auto wordWrapDeliminatorAttr = reader.attributes().value(
-                    QLatin1String("wordWrapDeliminator"));
+                auto wordWrapDeliminatorAttr = reader.attributes().value(QLatin1String("wordWrapDeliminator"));
                 if (wordWrapDeliminatorAttr.isEmpty()) {
                     wordWrapDelimiters = wordDelimiters;
                 } else {
@@ -803,18 +822,37 @@ quint16 DefinitionData::foldingRegionId(const QString &foldName)
     return RepositoryPrivate::get(repo)->foldingRegionId(name, foldName);
 }
 
-DefinitionRef::DefinitionRef()
+void DefinitionData::addImmediateIncludedDefinition(const Definition &def)
 {
+    if (get(def) != this) {
+        DefinitionRef defRef(def);
+        if (!immediateIncludedDefinitions.contains(defRef)) {
+            immediateIncludedDefinitions.push_back(std::move(defRef));
+        }
+    }
 }
+
+DefinitionRef::DefinitionRef() = default;
 
 DefinitionRef::DefinitionRef(const Definition &def)
     : d(def.d)
 {
 }
 
+DefinitionRef::DefinitionRef(Definition &&def)
+    : d(std::move(def.d))
+{
+}
+
 DefinitionRef &DefinitionRef::operator=(const Definition &def)
 {
     d = def.d;
+    return *this;
+}
+
+DefinitionRef &DefinitionRef::operator=(Definition &&def)
+{
+    d = std::move(def.d);
     return *this;
 }
 
@@ -828,9 +866,5 @@ Definition DefinitionRef::definition() const
 
 bool DefinitionRef::operator==(const DefinitionRef &other) const
 {
-    if (d.expired() != other.d.expired()) {
-        return false;
-    }
-
-    return d.expired() || d.lock().get() == other.d.lock().get();
+    return !d.owner_before(other.d) && !other.d.owner_before(d);
 }

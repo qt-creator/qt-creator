@@ -44,6 +44,7 @@
 #include <bindingeditor/bindingeditor.h>
 
 #include <coreplugin/coreconstants.h>
+#include <qmlprojectmanager/qmlproject.h>
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
@@ -97,7 +98,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     auto settings = QmlDesignerPlugin::instance()->settings();
 
-    if (!settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool())
+    if (!QmlProjectManager::QmlProject::isQtDesignStudio())
         ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
 
     ui->tabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);

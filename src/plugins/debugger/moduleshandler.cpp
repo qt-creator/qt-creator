@@ -179,51 +179,52 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 
     auto menu = new QMenu;
 
-    addAction(menu, tr("Update Module List"),
+    addAction(this, menu, tr("Update Module List"),
               enabled && canReload,
               [this] { engine->reloadModules(); });
 
-    addAction(menu, tr("Show Source Files for Module \"%1\"").arg(moduleName),
+    addAction(this, menu, tr("Show Source Files for Module \"%1\"").arg(moduleName),
               tr("Show Source Files for Module"),
               moduleNameValid && enabled && canReload,
               [this, modulePath] { engine->loadSymbols(modulePath); });
 
     // FIXME: Dependencies only available on Windows, when "depends" is installed.
-    addAction(menu, tr("Show Dependencies of \"%1\"").arg(moduleName),
+    addAction(this, menu, tr("Show Dependencies of \"%1\"").arg(moduleName),
               tr("Show Dependencies"),
               moduleNameValid && !moduleName.isEmpty() && HostOsInfo::isWindowsHost(),
               [modulePath] { QtcProcess::startDetached({{"depends"}, {modulePath}}); });
 
-    addAction(menu, tr("Load Symbols for All Modules"),
+    addAction(this, menu, tr("Load Symbols for All Modules"),
               enabled && canLoadSymbols,
               [this] { engine->loadAllSymbols(); });
 
-    addAction(menu, tr("Examine All Modules"),
+    addAction(this, menu, tr("Examine All Modules"),
               enabled && canLoadSymbols,
               [this] { engine->examineModules(); });
 
-    addAction(menu, tr("Load Symbols for Module \"%1\"").arg(moduleName),
+    addAction(this, menu, tr("Load Symbols for Module \"%1\"").arg(moduleName),
               tr("Load Symbols for Module"),
               moduleNameValid && canLoadSymbols,
               [this, modulePath] { engine->loadSymbols(modulePath); });
 
-    addAction(menu, tr("Edit File \"%1\"").arg(moduleName),
+    addAction(this, menu, tr("Edit File \"%1\"").arg(moduleName),
               tr("Edit File"),
               moduleNameValid,
               [this, modulePath] { engine->gotoLocation(FilePath::fromString(modulePath)); });
 
-    addAction(menu, tr("Show Symbols in File \"%1\"").arg(moduleName),
+    addAction(this, menu, tr("Show Symbols in File \"%1\"").arg(moduleName),
               tr("Show Symbols"),
               canShowSymbols && moduleNameValid,
               [this, modulePath] { engine->requestModuleSymbols(modulePath); });
 
-    addAction(menu, tr("Show Sections in File \"%1\"").arg(moduleName),
+    addAction(this, menu, tr("Show Sections in File \"%1\"").arg(moduleName),
               tr("Show Sections"),
               canShowSymbols && moduleNameValid,
               [this, modulePath] { engine->requestModuleSections(modulePath); });
 
     menu->addAction(debuggerSettings()->settingsDialog.action());
 
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;
 }

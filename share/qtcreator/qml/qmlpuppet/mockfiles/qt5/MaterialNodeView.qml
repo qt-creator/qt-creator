@@ -32,6 +32,11 @@ View3D {
 
     property Material previewMaterial
 
+    function fitToViewPort()
+    {
+        // No need to zoom this view, this is here just to avoid runtime warnings
+    }
+
     SceneEnvironment {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA

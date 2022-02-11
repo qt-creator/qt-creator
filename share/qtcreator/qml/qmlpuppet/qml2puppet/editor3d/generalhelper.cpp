@@ -55,6 +55,11 @@ const QString _globalStateId = QStringLiteral("@GTS"); // global tool state
 const QString _lastSceneIdKey = QStringLiteral("lastSceneId");
 const QString _rootSizeKey = QStringLiteral("rootSize");
 
+static const float floatMin = std::numeric_limits<float>::lowest();
+static const float floatMax = std::numeric_limits<float>::max();
+static const QVector3D maxVec = QVector3D(floatMax, floatMax, floatMax);
+static const QVector3D minVec = QVector3D(floatMin, floatMin, floatMin);
+
 GeneralHelper::GeneralHelper()
     : QObject()
 {
@@ -267,6 +272,37 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                                         newZoomFactor, false);
 
     return QVector4D(lookAt, cameraZoomFactor);
+}
+
+// This function can be used to synchronously focus camera on a node, which doesn't have to be
+// a selection box for bound calculations to work. This is used to focus the view for
+// various preview image generations, where doing things asynchronously is not good
+// and recalculating bounds for every frame is not a problem.
+void GeneralHelper::calculateNodeBoundsAndFocusCamera(
+        QQuick3DCamera *camera, QQuick3DNode *node, QQuick3DViewport *viewPort,
+        float defaultLookAtDistance)
+{
+    QVector3D minBounds;
+    QVector3D maxBounds;
+
+    getBounds(viewPort, node, minBounds, maxBounds);
+
+    QVector3D extents = maxBounds - minBounds;
+    QVector3D lookAt = minBounds + (extents / 2.f);
+    float maxExtent = qMax(extents.x(), qMax(extents.y(), extents.z()));
+
+    // Reset camera position to default zoom
+    QMatrix4x4 m = camera->sceneTransform();
+    const float *dataPtr(m.data());
+    QVector3D newLookVector(dataPtr[8], dataPtr[9], dataPtr[10]);
+    newLookVector.normalize();
+    newLookVector *= defaultLookAtDistance;
+
+    camera->setPosition(lookAt + newLookVector);
+
+    float newZoomFactor = maxExtent / 725.f; // Divisor taken from focusNodesToCamera function
+
+    zoomCamera(viewPort, camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 }
 
 // Aligns any cameras found in nodes list to a camera.
@@ -725,6 +761,129 @@ QVector3D GeneralHelper::pivotScenePosition(QQuick3DNode *node) const
     const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
 
     return mat44::getPosition(sceneTransform);
+}
+
+// Calculate bounds for given node, including all child nodes.
+// Returns true if the tree contains at least one Model node.
+bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
+                              QVector3D &maxBounds, bool recursive)
+{
+    if (!node) {
+        const float halfExtent = 100.f;
+        minBounds = {-halfExtent, -halfExtent, -halfExtent};
+        maxBounds = {halfExtent, halfExtent, halfExtent};
+        return false;
+    }
+
+    QMatrix4x4 localTransform;
+    auto nodePriv = QQuick3DObjectPrivate::get(node);
+    auto renderNode = static_cast<QSSGRenderNode *>(nodePriv->spatialNode);
+
+    if (recursive && renderNode) {
+        if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
+            renderNode->calculateLocalTransform();
+        localTransform = renderNode->localTransform;
+    }
+
+    QVector3D localMinBounds = maxVec;
+    QVector3D localMaxBounds = minVec;
+
+    // Find bounds for children
+    QVector<QVector3D> minBoundsVec;
+    QVector<QVector3D> maxBoundsVec;
+    const auto children = node->childItems();
+    bool hasModel = false;
+    for (const auto child : children) {
+        if (auto childNode = qobject_cast<QQuick3DNode *>(child)) {
+            QVector3D newMinBounds = minBounds;
+            QVector3D newMaxBounds = maxBounds;
+            hasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds, true);
+            // Ignore any subtrees that do not have Model in them as we don't need those
+            // for visual bounds calculations
+            if (hasModel) {
+                minBoundsVec << newMinBounds;
+                maxBoundsVec << newMaxBounds;
+            }
+        }
+    }
+
+    auto combineMinBounds = [](QVector3D &target, const QVector3D &source) {
+        target.setX(qMin(source.x(), target.x()));
+        target.setY(qMin(source.y(), target.y()));
+        target.setZ(qMin(source.z(), target.z()));
+    };
+    auto combineMaxBounds = [](QVector3D &target, const QVector3D &source) {
+        target.setX(qMax(source.x(), target.x()));
+        target.setY(qMax(source.y(), target.y()));
+        target.setZ(qMax(source.z(), target.z()));
+    };
+    auto transformCorner = [&](const QMatrix4x4 &m, QVector3D &minTarget, QVector3D &maxTarget,
+            const QVector3D &corner) {
+        QVector3D mappedCorner = m.map(corner);
+        combineMinBounds(minTarget, mappedCorner);
+        combineMaxBounds(maxTarget, mappedCorner);
+    };
+    auto transformCorners = [&](const QMatrix4x4 &m, QVector3D &minTarget, QVector3D &maxTarget,
+            const QVector3D &minCorner, const QVector3D &maxCorner) {
+        transformCorner(m, minTarget, maxTarget, minCorner);
+        transformCorner(m, minTarget, maxTarget, maxCorner);
+        transformCorner(m, minTarget, maxTarget, QVector3D(minCorner.x(), minCorner.y(), maxCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(minCorner.x(), maxCorner.y(), minCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(maxCorner.x(), minCorner.y(), minCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(minCorner.x(), maxCorner.y(), maxCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(maxCorner.x(), maxCorner.y(), minCorner.z()));
+        transformCorner(m, minTarget, maxTarget, QVector3D(maxCorner.x(), minCorner.y(), maxCorner.z()));
+    };
+
+    // Combine all child bounds
+    for (const auto &newBounds : qAsConst(minBoundsVec))
+        combineMinBounds(localMinBounds, newBounds);
+    for (const auto &newBounds : qAsConst(maxBoundsVec))
+        combineMaxBounds(localMaxBounds, newBounds);
+
+    if (qobject_cast<QQuick3DModel *>(node)) {
+        if (auto renderModel = static_cast<QSSGRenderModel *>(renderNode)) {
+            QWindow *window = static_cast<QWindow *>(view3D->window());
+            if (window) {
+                QSSGRef<QSSGRenderContextInterface> context;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
+#else
+                context = QQuick3DObjectPrivate::get(node)->sceneManager->rci;
+#endif
+                if (!context.isNull()) {
+                    auto bufferManager = context->bufferManager();
+#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
+                    QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
+#else
+                    QSSGBounds3 bounds = bufferManager->getModelBounds(renderModel);
+#endif
+                    QVector3D center = bounds.center();
+                    QVector3D extents = bounds.extents();
+                    QVector3D localMin = center - extents;
+                    QVector3D localMax = center + extents;
+
+                    combineMinBounds(localMinBounds, localMin);
+                    combineMaxBounds(localMaxBounds, localMax);
+
+                    hasModel = true;
+                }
+            }
+        }
+    } else {
+        combineMinBounds(localMinBounds, {});
+        combineMaxBounds(localMaxBounds, {});
+    }
+
+    if (localMaxBounds == minVec) {
+        localMinBounds = {};
+        localMaxBounds = {};
+    }
+
+    // Transform local space bounding box to parent space
+    transformCorners(localTransform, minBounds, maxBounds, localMinBounds, localMaxBounds);
+
+    return hasModel;
 }
 
 }

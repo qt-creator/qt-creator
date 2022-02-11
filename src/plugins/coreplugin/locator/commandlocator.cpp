@@ -112,7 +112,7 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     return betterEntries;
 }
 
-void CommandLocator::accept(LocatorFilterEntry entry,
+void CommandLocator::accept(const LocatorFilterEntry &entry,
                             QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

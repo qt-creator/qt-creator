@@ -32,8 +32,9 @@
 #include <QString>
 
 namespace CMakeProjectManager {
+namespace Internal {
 
-namespace Internal {  class ConfigModelTreeItem; }
+class ConfigModelTreeItem;
 
 class ConfigModel : public Utils::TreeModel<>
 {
@@ -46,74 +47,18 @@ public:
     };
 
     struct DataItem {
-        bool operator == (const DataItem& other) const {
+        bool operator==(const DataItem &other) const {
             return key == other.key && isInitial == other.isInitial;
         }
 
         DataItem() {}
-        DataItem(const CMakeConfigItem &cmi) {
-            key = QString::fromUtf8(cmi.key);
-            value = QString::fromUtf8(cmi.value);
-            description = QString::fromUtf8(cmi.documentation);
-            values = cmi.values;
-            inCMakeCache = cmi.inCMakeCache;
+        DataItem(const CMakeConfigItem &cmi);
 
-            isAdvanced = cmi.isAdvanced;
-            isInitial = cmi.isInitial;
-            isHidden = cmi.type == CMakeConfigItem::INTERNAL || cmi.type == CMakeConfigItem::STATIC;
+        void setType(CMakeConfigItem::Type cmt);
 
-            setType(cmi.type);
-        }
+        QString typeDisplay() const;
 
-        void setType(CMakeConfigItem::Type cmt) {
-            switch (cmt) {
-            case CMakeConfigItem::FILEPATH:
-                type = FILE;
-                break;
-            case CMakeConfigItem::PATH:
-                type = DIRECTORY;
-                break;
-            case CMakeConfigItem::BOOL:
-                type = BOOLEAN;
-                break;
-            case CMakeConfigItem::STRING:
-                type = STRING;
-                break;
-            default:
-                type = UNKNOWN;
-                break;
-            }
-        }
-
-        CMakeConfigItem toCMakeConfigItem() const {
-            CMakeConfigItem cmi;
-            cmi.key = key.toUtf8();
-            cmi.value = value.toUtf8();
-            switch (type) {
-                case DataItem::BOOLEAN:
-                    cmi.type = CMakeConfigItem::BOOL;
-                    break;
-                case DataItem::FILE:
-                    cmi.type = CMakeConfigItem::FILEPATH;
-                    break;
-                case DataItem::DIRECTORY:
-                    cmi.type = CMakeConfigItem::PATH;
-                    break;
-                case DataItem::STRING:
-                    cmi.type = CMakeConfigItem::STRING;
-                    break;
-                case DataItem::UNKNOWN:
-                    cmi.type = CMakeConfigItem::UNINITIALIZED;
-                    break;
-            }
-            cmi.isUnset = isUnset;
-            cmi.isAdvanced = isAdvanced;
-            cmi.isInitial = isInitial;
-            cmi.values = values;
-            cmi.documentation = description.toUtf8();
-
-            return cmi;
-        }
+        CMakeConfigItem toCMakeConfigItem() const;
 
         enum Type { BOOLEAN, FILE, DIRECTORY, STRING, UNKNOWN};
 
@@ -197,8 +142,6 @@ private:
 
     friend class Internal::ConfigModelTreeItem;
 };
-
-namespace Internal {
 
 class ConfigModelTreeItem  : public Utils::TreeItem
 {

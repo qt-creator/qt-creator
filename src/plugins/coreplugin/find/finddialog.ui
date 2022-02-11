@@ -57,7 +57,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="searchLabel">
      <property name="text">
-      <string>Sear&amp;ch for:</string>
+      <string>Search f&amp;or:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -132,7 +132,7 @@
       <item>
        <widget class="QCheckBox" name="matchCase">
         <property name="text">
-         <string>Case &amp;sensitive</string>
+         <string>&amp;Case sensitive</string>
         </property>
        </widget>
       </item>

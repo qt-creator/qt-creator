@@ -29,6 +29,7 @@
 #include "projectexplorer.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
+#include "session.h"
 #include "target.h"
 
 #include <coreplugin/messagemanager.h>
@@ -77,7 +78,13 @@ BuildSystem::BuildSystem(Target *target)
     // Timer:
     d->m_delayedParsingTimer.setSingleShot(true);
 
-    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this, &BuildSystem::triggerParsing);
+    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this,
+            [this] {
+        if (SessionManager::hasProject(project()))
+            triggerParsing();
+        else
+            requestDelayedParse();
+    });
 }
 
 BuildSystem::~BuildSystem()

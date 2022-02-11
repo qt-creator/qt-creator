@@ -1095,6 +1095,7 @@ class MemoryUsageWidget : public QWidget
     Q_DECLARE_TR_FUNCTIONS(MemoryUsageWidget)
 public:
     MemoryUsageWidget(ClangdClient *client);
+    ~MemoryUsageWidget();
 
 private:
     void setupUi();
@@ -1103,6 +1104,7 @@ private:
     ClangdClient * const m_client;
     MemoryTreeModel * const m_model;
     Utils::TreeView m_view;
+    Utils::optional<MessageId> m_currentRequest;
 };
 
 class ClangdClient::Private
@@ -1161,6 +1163,7 @@ public:
     std::unordered_map<TextDocument *, CppEditor::SemanticHighlighter *> highlighters;
 
     QHash<TextDocument *, QPair<QList<ExpandedSemanticToken>, int>> previousTokens;
+    QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
 
     // The ranges of symbols referring to virtual functions, with document version,
     // as extracted by the highlighting procedure.
@@ -1534,6 +1537,7 @@ void ClangdClient::handleDocumentClosed(TextDocument *doc)
     d->astCache.remove(doc);
     d->previousTokens.remove(doc);
     d->virtualRanges.remove(doc);
+    d->parserConfigs.remove(doc->filePath());
 }
 
 QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &cursor,
@@ -1695,6 +1699,39 @@ void ClangdClient::handleUiHeaderChange(const QString &fileName)
             break; // No sane project includes the same UI header twice.
         }
     }
+}
+
+void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
+        const CppEditor::BaseEditorDocumentParser::Configuration &config)
+{
+    if (config.preferredProjectPartId.isEmpty())
+        return;
+
+    CppEditor::BaseEditorDocumentParser::Configuration &cachedConfig = d->parserConfigs[filePath];
+    if (cachedConfig == config)
+        return;
+    cachedConfig = config;
+
+    // TODO: Also handle editorDefines (and usePrecompiledHeaders?)
+    const auto projectPart = CppEditor::CppModelManager::instance()
+            ->projectPartForId(config.preferredProjectPartId);
+    if (!projectPart)
+        return;
+    const CppEditor::ClangDiagnosticConfig projectWarnings = warningsConfigForProject(project());
+    const QStringList projectOptions = optionsForProject(project());
+    QJsonObject cdbChanges;
+    QStringList args = createClangOptions(*projectPart, filePath.toString(), projectWarnings,
+                                          projectOptions);
+    args.prepend("clang");
+    args.append(filePath.toString());
+    QJsonObject value;
+    value.insert("workingDirectory", filePath.parentDir().toString());
+    value.insert("compilationCommand", QJsonArray::fromStringList(args));
+    cdbChanges.insert(filePath.toUserOutput(), value);
+    const QJsonObject settings({qMakePair(QString("compilationDatabaseChanges"), cdbChanges)});
+    DidChangeConfigurationParams configChangeParams;
+    configChangeParams.setSettings(settings);
+    sendContent(DidChangeConfigurationNotification(configChangeParams));
 }
 
 void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Location> &locations)
@@ -2604,7 +2641,7 @@ private:
 // clangd reports also the #ifs, #elses and #endifs around the disabled code as disabled,
 // and not even in a consistent manner. We don't want this, so we have to clean up here.
 // But note that we require this behavior, as otherwise we would not be able to grey out
-// e.g. empty lines after an #fdef, due to the lack of symbols.
+// e.g. empty lines after an #ifdef, due to the lack of symbols.
 static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const QTextDocument *doc,
                                              const QString &docContent)
 {
@@ -2630,8 +2667,13 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
                 && !content.startsWith(QLatin1String("#elif"))
                 && !content.startsWith(QLatin1String("#else"))
                 && !content.startsWith(QLatin1String("#endif"))) {
-            ++it;
-            continue;
+            static const QStringList ppSuffixes{"if", "ifdef", "elif", "else", "endif"};
+            const QList<QStringView> contentList = content.split(' ', Qt::SkipEmptyParts);
+            if (contentList.size() < 2 || contentList.first() != QLatin1String("#")
+                    || !ppSuffixes.contains(contentList.at(1))) {
+                ++it;
+                continue;
+            }
         }
 
         if (!wasIfdefedOut) {
@@ -2643,7 +2685,8 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
         }
 
         if (wasIfdefedOut && (it + 1 == results.end()
-                || (it + 1)->textStyles.mainStyle != C_DISABLED_CODE)) {
+                || (it + 1)->textStyles.mainStyle != C_DISABLED_CODE
+                || (it + 1)->line != it->line + 1)) {
             // The #else or #endif that ends disabled code should not be disabled.
             const QTextBlock block = doc->findBlockByNumber(it->line - 1);
             ifdefedOutRanges << BlockRange(rangeStartPos, block.position());
@@ -3261,7 +3304,8 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
     QTextCursor cursor = manipulator.textCursorAt(rangeStart);
     cursor.movePosition(QTextCursor::EndOfWord);
     const QString textAfterCursor = manipulator.textAt(currentPos, cursor.position() - currentPos);
-    if (textToBeInserted != textAfterCursor
+    if (currentPos < cursor.position()
+            && textToBeInserted != textAfterCursor
             && textToBeInserted.indexOf(textAfterCursor, currentPos - rangeStart) >= 0) {
         currentPos = cursor.position();
     }
@@ -4033,6 +4077,12 @@ MemoryUsageWidget::MemoryUsageWidget(ClangdClient *client)
     getMemoryTree();
 }
 
+MemoryUsageWidget::~MemoryUsageWidget()
+{
+    if (m_currentRequest.has_value())
+        m_client->cancelRequest(m_currentRequest.value());
+}
+
 void MemoryUsageWidget::setupUi()
 {
     const auto layout = new QVBoxLayout(this);
@@ -4052,11 +4102,13 @@ void MemoryUsageWidget::getMemoryTree()
 {
     Request<MemoryTree, std::nullptr_t, JsonObject> request("$/memoryUsage", {});
     request.setResponseCallback([this](decltype(request)::Response response) {
+        m_currentRequest.reset();
         qCDebug(clangdLog) << "received memory usage response";
         if (const auto result = response.result())
             m_model->update(*result);
     });
     qCDebug(clangdLog) << "sending memory usage request";
+    m_currentRequest = request.id();
     m_client->sendContent(request, ClangdClient::SendDocUpdates::Ignore);
 }
 

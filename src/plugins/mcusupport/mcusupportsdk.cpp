@@ -23,12 +23,14 @@
 **
 ****************************************************************************/
 
+#include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 #include "mcusupportversiondetection.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
@@ -63,28 +65,26 @@ static FilePath findInProgramFiles(const QString &folder)
 
 McuPackage *createQtForMCUsPackage()
 {
-    auto result = new McuPackage(
-                McuPackage::tr("Qt for MCUs SDK"),
-                FileUtils::homePath(),
-                FilePath("bin/qmltocpp").withExecutableSuffix().toString(),
-                Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
-    result->setEnvironmentVariableName("Qul_DIR");
-    return result;
+    return new McuPackage(McuPackage::tr("Qt for MCUs SDK"),
+                          FileUtils::homePath(),                                      // defaultPath
+                          FilePath("bin/qmltocpp").withExecutableSuffix().toString(), // detectionPath
+                          Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,            // settingsKey
+                          QStringLiteral("Qul_DIR"));                                 // envVarName
 }
 
 static McuToolChainPackage *createMsvcToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeMSVC);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::MSVC);
 }
 
 static McuToolChainPackage *createGccToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeGCC);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::GCC);
 }
 
 static McuToolChainPackage *createUnsupportedToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeUnsupported);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::Unsupported);
 }
 
 static McuToolChainPackage *createArmGccPackage()
@@ -112,15 +112,13 @@ static McuToolChainPackage *createArmGccPackage()
                 "\\b(\\d+\\.\\d+\\.\\d+)\\b"
             );
 
-    auto result = new McuToolChainPackage(
-                McuPackage::tr("GNU Arm Embedded Toolchain"),
-                defaultPath,
-                detectionPath,
-                "GNUArmEmbeddedToolchain",
-                McuToolChainPackage::TypeArmGcc,
-                versionDetector);
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuToolChainPackage(McuPackage::tr("GNU Arm Embedded Toolchain"),
+                                   defaultPath,
+                                   detectionPath,
+                                   "GNUArmEmbeddedToolchain", // settingsKey
+                                   McuToolChainPackage::Type::ArmGcc,
+                                   envVar,
+                                   versionDetector);
 }
 
 static McuToolChainPackage *createGhsToolchainPackage()
@@ -135,15 +133,14 @@ static McuToolChainPackage *createGhsToolchainPackage()
                 "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
             );
 
-    auto result = new McuToolChainPackage(
-                "Green Hills Compiler",
-                defaultPath,
-                Utils::HostOsInfo::withExecutableSuffix("ccv850"),
-                "GHSToolchain",
-                McuToolChainPackage::TypeGHS,
-                versionDetector);
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuToolChainPackage("Green Hills Compiler",
+                                   defaultPath,
+                                   Utils::HostOsInfo::withExecutableSuffix(
+                                       "ccv850"),  // detectionPath
+                                   "GHSToolchain", // settingsKey
+                                   McuToolChainPackage::Type::GHS,
+                                   envVar,
+                                   versionDetector);
 }
 
 static McuToolChainPackage *createGhsArmToolchainPackage()
@@ -158,15 +155,13 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
                 "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
             );
 
-    auto result = new McuToolChainPackage(
-                "Green Hills Compiler for ARM",
-                defaultPath,
-                Utils::HostOsInfo::withExecutableSuffix("cxarm"),
-                "GHSArmToolchain",
-                McuToolChainPackage::TypeGHSArm,
-                versionDetector);
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuToolChainPackage("Green Hills Compiler for ARM",
+                                   defaultPath,
+                                   Utils::HostOsInfo::withExecutableSuffix("cxarm"), // detectionPath
+                                   "GHSArmToolchain",                                // settingsKey
+                                   McuToolChainPackage::Type::GHSArm,
+                                   envVar,
+                                   versionDetector);
 }
 
 static McuToolChainPackage *createIarToolChainPackage()
@@ -194,15 +189,13 @@ static McuToolChainPackage *createIarToolChainPackage()
                 "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
                 );
 
-    auto result = new McuToolChainPackage(
-                "IAR ARM Compiler",
-                defaultPath,
-                detectionPath,
-                "IARToolchain",
-                McuToolChainPackage::TypeIAR,
-                versionDetector);
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuToolChainPackage("IAR ARM Compiler",
+                                   defaultPath,
+                                   detectionPath,
+                                   "IARToolchain", // settings key
+                                   McuToolChainPackage::Type::IAR,
+                                   envVar,
+                                   versionDetector);
 }
 
 static McuPackage *createRGLPackage()
@@ -223,13 +216,11 @@ static McuPackage *createRGLPackage()
         }
     }
 
-    auto result = new McuPackage(
-                "Renesas Graphics Library",
-                defaultPath,
-                {},
-                "RGL");
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuPackage("Renesas Graphics Library",
+                          defaultPath,
+                          {}, // detection path
+                          "RGL",
+                          envVar);
 }
 
 static McuPackage *createStm32CubeProgrammerPackage()
@@ -245,15 +236,16 @@ static McuPackage *createStm32CubeProgrammerPackage()
         if (programPath.exists())
             defaultPath = programPath;
     }
-    auto result = new McuPackage(
-                McuPackage::tr("STM32CubeProgrammer"),
-                defaultPath,
-                QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
-                                                                 : "/bin/STM32_Programmer.sh"),
-                "Stm32CubeProgrammer");
+    auto result
+        = new McuPackage(McuPackage::tr("STM32CubeProgrammer"),
+                         defaultPath,
+                         QLatin1String(Utils::HostOsInfo::isWindowsHost()
+                                           ? "/bin/STM32_Programmer_CLI.exe"
+                                           : "/bin/STM32_Programmer.sh"), // detection path
+                         "Stm32CubeProgrammer",
+                         {},                                                            // env var
+                         "https://www.st.com/en/development-tools/stm32cubeprog.html"); // download url
     result->setRelativePathModifier("/bin");
-    result->setDownloadUrl(
-                "https://www.st.com/en/development-tools/stm32cubeprog.html");
     result->setAddToPath(true);
     return result;
 }
@@ -281,14 +273,13 @@ static McuPackage *createMcuXpressoIdePackage()
             defaultPath = programPath;
     }
 
-    auto result = new McuPackage(
-                "MCUXpresso IDE",
-                defaultPath,
-                Utils::HostOsInfo::withExecutableSuffix("ide/binaries/crt_emu_cm_redlink"),
-                "MCUXpressoIDE");
-    result->setDownloadUrl("https://www.nxp.com/mcuxpresso/ide");
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuPackage("MCUXpresso IDE",
+                          defaultPath,
+                          Utils::HostOsInfo::withExecutableSuffix(
+                              "ide/binaries/crt_emu_cm_redlink"), // detection path
+                          "MCUXpressoIDE",                        // settings key
+                          envVar,
+                          "https://www.nxp.com/mcuxpresso/ide"); // download url
 }
 
 static McuPackage *createCypressProgrammerPackage()
@@ -313,8 +304,8 @@ static McuPackage *createCypressProgrammerPackage()
                 "Cypress Auto Flash Utility",
                 defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("/bin/openocd"),
-                "CypressAutoFlashUtil");
-    result->setEnvironmentVariableName(envVar);
+                "CypressAutoFlashUtil",
+                envVar);
     return result;
 }
 
@@ -340,8 +331,8 @@ static McuPackage *createRenesasProgrammerPackage()
                 "Renesas Flash Programmer",
                 defaultPath,
                 Utils::HostOsInfo::withExecutableSuffix("rfp-cli"),
-                "RenesasFlashProgrammer");
-    result->setEnvironmentVariableName(envVar);
+                "RenesasFlashProgrammer",
+                envVar);
     return result;
 }
 
@@ -420,14 +411,13 @@ static McuPackage *createBoardSdkPackage(const McuTargetDescription& desc)
 
     const auto versionDetector = generatePackageVersionDetector(desc.boardSdk.envVar);
 
-    auto result = new McuPackage(
-                sdkName,
-                defaultPath,
-                {},
-                desc.boardSdk.envVar,
-                versionDetector);
-    result->setEnvironmentVariableName(desc.boardSdk.envVar);
-    return result;
+    return new McuPackage(sdkName,
+                          defaultPath,
+                          {},                   // detection path
+                          desc.boardSdk.envVar, // settings key
+                          desc.boardSdk.envVar, // env var
+                          {},                   // download URL
+                          versionDetector);
 }
 
 static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar, const FilePath &boardSdkDir,
@@ -441,14 +431,12 @@ static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar, const Fil
     else if (!boardSdkDir.isEmpty() && !freeRTOSBoardSdkSubDir.isEmpty())
         defaultPath = boardSdkDir / freeRTOSBoardSdkSubDir;
 
-    auto result = new McuPackage(
-                QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
-                defaultPath,
-                {},
-                QString::fromLatin1("FreeRTOSSourcePackage_%1").arg(envVarPrefix));
-    result->setDownloadUrl("https://freertos.org");
-    result->setEnvironmentVariableName(envVar);
-    return result;
+    return new McuPackage(QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
+                          defaultPath,
+                          {},
+                          QString::fromLatin1("FreeRTOSSourcePackage_%1").arg(envVarPrefix),
+                          envVar,
+                          "https://freertos.org");
 }
 
 struct McuTargetFactory
@@ -524,9 +512,13 @@ protected:
 
                 const auto platform = McuTarget::Platform{ desc.platform.id, desc.platform.name, desc.platform.vendor };
                 auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
-                                               platform, os, required3rdPartyPkgs, tcPkg);
-                if (desc.platform.colorDepths.count() > 1)
-                    mcuTarget->setColorDepth(colorDepth);
+                                               platform,
+                                               os,
+                                               required3rdPartyPkgs,
+                                               tcPkg,
+                                               desc.platform.colorDepths.count() > 1
+                                                   ? colorDepth
+                                                   : McuTarget::UnspecifiedColorDepth);
                 mcuTargets.append(mcuTarget);
             }
         }
@@ -567,7 +559,7 @@ protected:
             // Desktop toolchains don't need any additional settings
             if (tcPkg
                 && !tcPkg->isDesktopToolchain()
-                && tcPkg->type() != McuToolChainPackage::TypeUnsupported)
+                && tcPkg->type() != McuToolChainPackage::Type::Unsupported)
                 required3rdPartyPkgs.append(tcPkg);
 
             // Add setting specific to platform IDE
@@ -598,10 +590,13 @@ protected:
                 required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOS.envVar));
             }
 
-            const auto platform = McuTarget::Platform{ desc.platform.id, desc.platform.name, desc.platform.vendor };
+            const McuTarget::Platform platform({ desc.platform.id, desc.platform.name, desc.platform.vendor });
             auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
-                                           platform, os, required3rdPartyPkgs, tcPkg);
-            mcuTarget->setColorDepth(colorDepth);
+                                           platform,
+                                           os,
+                                           required3rdPartyPkgs,
+                                           tcPkg,
+                                           colorDepth);
             mcuTargets.append(mcuTarget);
         }
         return mcuTargets;
@@ -881,6 +876,15 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
     std::sort(repo->mcuTargets.begin(), repo->mcuTargets.end(), [] (const McuTarget* lhs, const McuTarget* rhs) {
         return McuSupportOptions::kitName(lhs) < McuSupportOptions::kitName(rhs);
     });
+}
+
+FilePath packagePathFromSettings(const QString &settingsKey, QSettings::Scope scope, const FilePath &defaultPath)
+{
+    QSettings *settings = Core::ICore::settings(scope);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
+            QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
+    const QString path = settings->value(key, defaultPath.toString()).toString();
+    return FilePath::fromUserInput(path);
 }
 
 } // namespace Sdk

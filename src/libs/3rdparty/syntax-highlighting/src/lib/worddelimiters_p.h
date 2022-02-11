@@ -9,6 +9,8 @@
 
 #include <QString>
 
+#include <bitset>
+
 namespace KSyntaxHighlighting
 {
 /**
@@ -44,7 +46,7 @@ private:
      * An array which represents ascii characters for very fast lookup.
      * The character is used as an index and the value @c true indicates a word delimiter.
      */
-    bool asciiDelimiters[128];
+    std::bitset<128> asciiDelimiters;
 
     /**
      * Contains characters that are not ascii and is empty for most syntax definition.

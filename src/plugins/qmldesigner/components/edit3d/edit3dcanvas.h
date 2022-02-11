@@ -45,8 +45,10 @@ public:
 
     void updateRenderImage(const QImage &img);
     void updateActiveScene(qint32 activeScene);
-
     qint32 activeScene() const { return m_activeScene; }
+    QImage renderImage() const;
+    void setOpacity(qreal opacity);
+    QWidget *busyIndicator() const;
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -64,11 +66,15 @@ protected:
     void focusInEvent(QFocusEvent *focusEvent) override;
 
 private:
+    void positionBusyInidicator();
+
     QPointer<Edit3DWidget> m_parent;
     QImage m_image;
     qint32 m_activeScene = -1;
     ItemLibraryEntry m_itemLibraryEntry;
     QElapsedTimer m_usageTimer;
+    qreal m_opacity = 1.0;
+    QWidget *m_busyIndicator = nullptr;
 };
 
 } // namespace QmlDesigner

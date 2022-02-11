@@ -137,8 +137,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
          * see https://phabricator.kde.org/D18509
          */
         int endlessLoopingCounter = 0;
-        while (!stateData->topContext()->lineEmptyContext().isStay()
-               || (stateData->topContext()->lineEmptyContext().isStay() && !stateData->topContext()->lineEndContext().isStay())) {
+        while (!stateData->topContext()->lineEmptyContext().isStay() || !stateData->topContext()->lineEndContext().isStay()) {
             /**
              * line empty context switches
              */
@@ -153,8 +152,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
                  * line end context switches only when lineEmptyContext is #stay. This avoids
                  * skipping empty lines after a line continuation character (see bug 405903)
                  */
-            } else if (!stateData->topContext()->lineEndContext().isStay()
-                       && !d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList())) {
+            } else if (!d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList())) {
                 break;
             }
 
@@ -305,7 +303,7 @@ State AbstractHighlighter::highlightLine(QStringView text, const State &state)
 
             d->switchContext(stateData, rule->context(), newResult.captures());
             newFormat = rule->attributeFormat().isValid() ? &rule->attributeFormat() : &stateData->topContext()->attributeFormat();
-            if (newOffset == text.size() && std::dynamic_pointer_cast<LineContinue>(rule)) {
+            if (newOffset == text.size() && rule->isLineContinue()) {
                 lineContinuation = true;
             }
             break;

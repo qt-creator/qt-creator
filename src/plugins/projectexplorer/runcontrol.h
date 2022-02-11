@@ -308,6 +308,7 @@ private:
     bool m_stopReported = false;
     bool m_useTerminal = false;
     bool m_runAsRoot = false;
+    bool m_stopForced = false;
 };
 
 class PROJECTEXPLORER_EXPORT OutputFormatterFactory

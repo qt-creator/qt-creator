@@ -532,6 +532,10 @@ void TextDocument::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
 
     if (needUpdate)
         documentLayout->requestUpdate();
+
+#ifdef WITH_TESTS
+    emit ifdefedOutBlocksChanged(blocks);
+#endif
 }
 
 const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const

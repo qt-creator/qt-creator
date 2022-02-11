@@ -68,7 +68,7 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(LocatorFilterEntry selection,
+    void accept(const LocatorFilterEntry &selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     static void openEditorAt(const LocatorFilterEntry &selection);
 

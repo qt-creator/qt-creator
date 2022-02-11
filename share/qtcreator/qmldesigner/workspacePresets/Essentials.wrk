@@ -3,8 +3,9 @@
     <container floating="false">
         <splitter orientation="Horizontal" count="3">
             <splitter orientation="Vertical" count="3">
-                <area tabs="2" current="Library">
-                    <widget name="Library" closed="false"/>
+                <area tabs="3" current="Components">
+                    <widget name="Components" closed="false"/>
+                    <widget name="Assets" closed="false"/>
                     <widget name="DebugView" closed="false"/>
                 </area>
                 <area tabs="3" current="Projects">

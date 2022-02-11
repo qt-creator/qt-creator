@@ -29,7 +29,9 @@
 #include <QMap>
 #include <QRect>
 
+QT_BEGIN_NAMESPACE
 namespace Ui { class ScreenShotCropperWindow; }
+QT_END_NAMESPACE
 
 class ScreenShotCropperWindow : public QMainWindow
 {

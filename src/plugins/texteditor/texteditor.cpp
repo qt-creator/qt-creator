@@ -5897,7 +5897,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     QTC_ASSERT(!q->multiTextCursor().hasSelection(), return);
     MultiTextCursor cursor = m_cursors;
     cursor.beginEditBlock();
-    for (QTextCursor c : cursor) {
+    for (QTextCursor &c : cursor) {
         const int pos = c.position();
         if (!pos)
             continue;

@@ -27,38 +27,34 @@
 
 #include "operation.h"
 
-#include <QString>
-
-class AddQtOperation : public Operation
+class AddQtData
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
-
-    bool setArguments(const QStringList &args);
-
-    int execute() const;
-
-#ifdef WITH_TESTS
-    bool test() const;
-#endif
-
-    static QVariantMap addQt(const QVariantMap &map,
-                             const QString &id, const QString &displayName, const QString &type,
-                             const QString &qmake, const KeyValuePairList &extra,
-                             const QStringList &abis);
+    QVariantMap addQt(const QVariantMap &map) const;
 
     static QVariantMap initializeQtVersions();
 
     static bool exists(const QString &id);
     static bool exists(const QVariantMap &map, const QString &id);
 
-private:
     QString m_id; // actually this is the autodetectionSource
     QString m_displayName;
     QString m_type;
     QString m_qmake;
     QStringList m_abis;
     KeyValuePairList m_extra;
+};
+
+class AddQtOperation : public Operation, public AddQtData
+{
+private:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+    bool setArguments(const QStringList &args) final;
+    int execute() const final;
+
+#ifdef WITH_TESTS
+    bool test() const final;
+#endif
 };

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,7 +32,7 @@
 /*!
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-project-opening.html
+    \nextpage creator-file-creating.html
 
     \title Creating Projects
 
@@ -239,206 +239,7 @@
 
     \include creator-python-project.qdocinc python project wizards
 
-    \section1 Adding Files to Projects
-
-    You can use wizards also to add individual files to your projects.
-    The following table lists the wizard templates for creating files.
-
-    \table
-        \header
-            \li Category
-            \li Wizard Template
-            \li Purpose
-        \row
-            \li {1,3} C/C++
-            \li C++ Class
-            \li C++ header and source file for a new class that you can add to
-                a C++ project.
-        \row
-            \li C/C++ Source File
-            \li  C++ source file that you can add to a C++ project.
-        \row
-            \li C/C++ Header File
-            \li C++ header file that you can add to a C++ project.
-        \row
-            \li {1,3} Modeling
-            \li State Chart
-            \li State Chart XML (SCXML) file that contains boilerplate
-                code for state machines. You can use the classes in the
-                \l {Qt SCXML} module to embed state machines created from
-                the files in Qt applications.
-        \row
-            \li Model
-            \li Universal Modeling Language (UML) style model with a structured
-                diagram. However, the model editor uses a variant of UML and
-                provides only a subset of properties for specifying the
-                appearance of model elements. For more information, see
-                \l {Modeling}.
-        \row
-            \li Scratch Model
-            \li Scratch model using a temporary file.
-        \row
-            \li {1,7} Qt
-            \li Qt Item Model
-            \li Source and header files that you can use to create classes
-                derived from QAbstractItemModel, QAbstractTableModel, or
-                QAbstractListModel.
-        \row
-            \li \QD Form Class
-            \li \QD form and a matching class for implementing a UI based
-                on Qt widgets.
-        \row
-            \li \QD Form
-            \li \QD form for Qt widget based projects. This is useful
-                if you already have an existing class for the UI logic.
-        \row
-            \li Qt Resource File
-            \li Resource file for storing binary files in the application
-                executable.
-        \row
-            \li QML File (Qt Quick 2)
-            \li QML file that imports Qt Quick 2.0 for use in Qt Quick projects.
-        \row
-            \li Qt Quick UI File
-            \li \l{UI Files}{UI file} (\e .ui.qml) and the corresponding
-                implementation file (\e .qml) for use in Qt Quick projects.
-        \row
-            \li JS File
-            \li JavaScript file that you can use to write the application logic
-                in Qt Quick projects.
-        \row
-            \li {1,4} GLSL
-            \li Fragment Shader (OpenGL/ES 2.0)
-            \li Fragment shader that generates the final pixel colors for
-                triangles, points, and lines rendered with OpenGL. You can use
-                it in both Qt Quick projects and Qt widget based projects.
-        \row
-            \li Vertex Shader (OpenGL/ES 2.0)
-            \li Vertex shader that transforms the positions, normals, and
-                texture coordinates of triangles, points, and lines rendered
-                with OpenGL. You can use it in both Qt Quick projects and Qt
-                widget based projects.
-        \row
-            \li Fragment Shader (Desktop OpenGL)
-            \li Fragment shader for use in both Qt Quick projects and Qt
-                widget based projects.
-        \row
-            \li Vertex Shader (Desktop OpenGL)
-            \li Vertex shader for use in both Qt Quick projects and Qt
-                widget based projects.
-       \row
-            \li {1,2} General
-            \li Empty File
-            \li Empty file that you can save with any filename extensio.
-        \row
-            \li Scratch Buffer
-            \li Scratch buffer that uses temporary files. You can
-                create this type of files for temporarily storing information
-                that you do not intend to save
-        \row
-            \li Java
-            \li Java File
-            \li Java class files that you can use to create Java classes.
-        \row
-            \li {1,2} Python
-            \li Python Class
-            \li Python class file.
-        \row
-            \li Python File
-            \li Python script file using UTF-8 encoding.
-        \row
-            \li {1,2} Nim (experimental)
-            \li Nim Script File
-            \li Empty Nim script file using UTF-8 encoding.
-        \row
-            \li Nim File
-            \li Empty Nim source file using UTF-8 encoding.
-    \endtable
-
-    \section2 Creating C++ Classes
-
-    The \uicontrol {C++ Class Wizard} allows you to create a C++ header and source
-    file for a new class that you can add to a C++ project. Specify the class
-    name, base class, and header and source files for the class.
-
-    The wizard supports namespaces. To use a namespace, enter a qualified
-    class name in the \uicontrol {Class name} field. For example:
-    \c MyNamespace::MySubNamespace::MyClass. The wizard suggests
-    existing namespaces and class names as you type.
-
-    \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
-
-    The names of the header and source file are based on the class name. To
-    change the default suffix of a file, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {C++} > \uicontrol {File Naming}.
-
-    \image qtcreator-options-cpp-files.png "File Naming tab in Options"
-
-    In the \uicontrol {License template} field, you can use
-    \l{Using Variables in Wizards}{predefined wizard variables} to specify the
-    path and filename of the license to use in the source and header files.
-
-    You can create your own project and class wizards. For more information,
-    see \l{Adding New Custom Wizards}.
-
-    \section2 Creating Resource Files
-
-    \QC supports the \l{The Qt Resource System}{Qt Resource System}, which is a
-    platform-independent mechanism for storing files in the application's
-    executable.
-
-    \image qtcreator-add-resource-wizard.png "New File dialog"
-
-    The wizard creates a resource collection file (.qrc) that you can manage in
-    the resource editor.
-
-    \image qtcreator-add-resource.png "Editing resource files"
-
-    Select \uicontrol {Add Files} to locate and add individual
-    files.
-
-    To list the folders and files in ascending alphabetic order in the source
-    tree, select \uicontrol {Sort Alphabetically} in the context menu.
-
-    By default, resources are accessible in the application under the same file
-    name as they have in the source tree, with a \c{:/} prefix, or by a URL with
-    a \c qrc scheme. To specify a path prefix for all files in the \c .qrc file,
-    select \uicontrol {Add Prefix} and enter the prefix in the \uicontrol Prefix
-    field.
-
-    Some resources need to change based on the user's locale, such as
-    translation files or icons. You can specify a locale in the
-    \uicontrol Language field.
-
-    Select \uicontrol Remove to remove the selected file from the resource
-    collection. In the \uicontrol {Remove File} dialog, select the
-    \uicontrol {Delete file permanently} check box to remove the file from
-    the file system. To remove files that cannot be found in the file system,
-    select \uicontrol {Remove Missing Files}.
-
-    The above functions are also available in the context menu in the
-    \uicontrol Projects view.
-
-    \section2 Creating OpenGL Fragment and Vertex Shaders
-
-    Qt provides support for integration with OpenGL implementations on all
-    platforms, which allows you to display hardware accelerated 3D graphics
-    alongside a more conventional user interface. For more information, see
-    \l{Qt GUI}.
-
-    You can use the QOpenGLShader class to compile OpenGL shaders written in the
-    OpenGL Shading Language (GLSL) and in the OpenGL/ES Shading Language
-    (GLSL/ES). QOpenGLShader and QOpenGLShaderProgram shelter you from the
-    details of
-    compiling and linking vertex and fragment shaders.
-
-    You can use \QC code editor to write fragment and vertex shaders
-    in GLSL or GLSL/ES. The code editor provides syntax highlighting and code
-    completion for the files.
-
-    \image qtcreator-new-opengl-file.png "New OpenGL file wizard"
-
-    \section2 Displaying Additional File Types in Projects View
+    \section1 Displaying Additional File Types in Projects View
 
     \QC displays all files that are declared to be part of the project by the
     project files in the \l Projects view. The files are sorted into categories
@@ -448,7 +249,7 @@
     Alternatively, you can see all the files in a project in the
     \l {File System} view.
 
-    \section3 CMake Projects
+    \section2 CMake Projects
 
     When using CMake, you can specify additional files to display in the
     \uicontrol Projects view by either adding them as sources or installing
@@ -470,7 +271,7 @@
     Alternatively, to install the files, use the \l {CMake: install command}
     {install} command with the \c FILES or \c DIRECTORY property.
 
-    \section3 qmake Projects
+    \section2 qmake Projects
 
     When using qmake, add filenames as values of the \c {DISTFILES} variable
     in the .pro file. You can also use wildcards.
@@ -550,6 +351,7 @@
     \section1 Related Topics
 
     \list
+        \li  \l{Creating Files}
         \li  \l{Opening Projects}
         \li  \l{Adding Libraries to Projects}
         \li  \l{Adding New Custom Wizards}

@@ -172,7 +172,10 @@ AppOutputPane::AppOutputPane() :
     m_attachButton(new QToolButton),
     m_settingsButton(new QToolButton),
     m_formatterWidget(new QWidget),
-    m_handler(new ShowOutputTaskHandler(this))
+    m_handler(new ShowOutputTaskHandler(this,
+        tr("Show &App Output"),
+        tr("Show the output that generated this issue in the application output window"),
+        tr("A")))
 {
     ExtensionSystem::PluginManager::addObject(m_handler);
 

@@ -94,6 +94,7 @@ public:
     bool isResizable() const override;
     bool isMovable() const override;
     bool isQuickItem() const override;
+    bool isRenderable() const override;
 
     QList<ServerNodeInstance> stateInstances() const override;
 

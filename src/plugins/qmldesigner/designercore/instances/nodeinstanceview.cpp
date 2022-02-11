@@ -265,6 +265,9 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 {
     m_connectionManager.setCrashCallback({});
 
+    m_nodeInstanceCache.insert(model,
+                               NodeInstanceCacheData(m_nodeInstanceHash, m_statePreviewImage));
+
     removeAllInstanceNodeRelationships();
     if (m_nodeInstanceServer) {
         m_nodeInstanceServer->clearScene(createClearSceneCommand());
@@ -935,10 +938,16 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     QList<ModelNode> nodeList = allModelNodes();
     QList<NodeInstance> instanceList;
 
-    for (const ModelNode &node : std::as_const(nodeList)) {
-        NodeInstance instance = loadNode(node);
-        if (!isSkippedNode(node))
-            instanceList.append(instance);
+    Utils::optional oldNodeInstanceHash = m_nodeInstanceCache.take(model());
+    if (oldNodeInstanceHash
+        && oldNodeInstanceHash->instances.value(rootModelNode()).isValid()) {
+        instanceList = loadInstancesFromCache(nodeList, oldNodeInstanceHash.value());
+    } else {
+        for (const ModelNode &node : std::as_const(nodeList)) {
+            NodeInstance instance = loadNode(node);
+            if (!isSkippedNode(node))
+                instanceList.append(instance);
+        }
     }
 
     nodeList = filterNodesForSkipItems(nodeList);
@@ -1942,4 +1951,32 @@ void NodeInstanceView::maybeResetOnPropertyChange(const PropertyName &name, cons
         resetPuppet();
 }
 
+QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNode> &nodeList,
+                                                             const NodeInstanceCacheData &cache)
+{
+    QList<NodeInstance> instanceList;
+
+    auto previews = cache.previewImages;
+    auto iterator = previews.begin();
+    while (iterator != previews.end()) {
+        if (iterator.key().isValid())
+            m_statePreviewImage.insert(iterator.key(), iterator.value());
+        iterator++;
+    }
+
+    for (const ModelNode &node : std::as_const(nodeList)) {
+        NodeInstance instance = cache.instances.value(node);
+        if (instance.isValid())
+            insertInstanceRelationships(instance);
+        else
+            instance = loadNode(node);
+
+        if (node.isRootNode())
+            m_rootNodeInstance = instance;
+        if (!isSkippedNode(node))
+            instanceList.append(instanceForModelNode(node));
+    }
+
+    return instanceList;
 }
+} // namespace QmlDesigner

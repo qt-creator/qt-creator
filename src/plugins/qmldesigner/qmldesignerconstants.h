@@ -97,6 +97,7 @@ const char EVENT_PROPERTY_ADDED[] = "Property Added";
 const char EVENT_ANNOTATION_ADDED[] = "Annotation Added";
 const char EVENT_RESOURCE_IMPORTED[] = "Resource Imported ";
 const char EVENT_ACTION_EXECUTED[] = "Action Executed ";
+const char EVENT_HELP_REQUESTED[] = "Help Requested ";
 const char EVENT_IMPORT_ADDED[] = "Import Added ";
 const char EVENT_BINDINGEDITOR_OPENED[] = "Binding Editor Opened";
 const char EVENT_RICHTEXT_OPENED[] = "Richtext Editor Opened";

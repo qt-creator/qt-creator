@@ -42,8 +42,8 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qlitehtml/src/CMakeLists.txt)
     #qtc_enable_separate_debug_info(qlitehtml "${IDE_LIBRARY_PATH}")
     qtc_output_binary_dir(_output_binary_dir)
     set_target_properties(qlitehtml PROPERTIES
-      BUILD_RPATH "${_LIB_RPATH}"
-      INSTALL_RPATH "${_LIB_RPATH}"
+      BUILD_RPATH "${_LIB_RPATH};${CMAKE_BUILD_RPATH}"
+      INSTALL_RPATH "${_LIB_RPATH};${CMAKE_INSTALL_RPATH}"
       RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_BIN_PATH}"
       LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
       ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_ARCHIVE_PATH}"

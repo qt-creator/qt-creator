@@ -81,12 +81,19 @@ Item {
     property var currentCategory: null
     property var currentImport: null
     property bool isHorizontalView: false
+    property bool isAddModuleView: false
 
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
         moduleContextMenu.close()
         itemContextMenu.close()
+    }
+
+    // Called also from C++
+    function switchToComponentsView()
+    {
+        isAddModuleView = false
     }
 
     onWidthChanged: {
@@ -188,9 +195,38 @@ Item {
         }
     }
 
-    Loader {
-        anchors.fill: parent
-        sourceComponent: itemsView.isHorizontalView ? horizontalView : verticalView
+    Column {
+        id: col
+        width: parent.width
+        height: parent.height
+        y: 5
+        spacing: 5
+
+        Row {
+            width: parent.width
+
+            SearchBox {
+                id: searchBox
+
+                width: parent.width - addAssetButton.width - 5
+            }
+
+            PlusButton {
+                id: addAssetButton
+                tooltip: qsTr("Add a module.")
+
+                onClicked: isAddModuleView = true
+            }
+        }
+
+        Loader {
+            id: loader
+
+            width: col.width
+            height: col.height - y - 5
+            sourceComponent: isAddModuleView ? addModuleView
+                                             : itemsView.isHorizontalView ? horizontalView : verticalView
+        }
     }
 
     Component {
@@ -198,8 +234,9 @@ Item {
 
         ScrollView {
             id: verticalScrollView
-            width: itemsView.width
-            height: itemsView.height
+            anchors.fill: parent
+            clip: true
+
             onContentHeightChanged: {
                 var maxPosition = Math.max(contentHeight - verticalScrollView.height, 0)
                 if (contentY > maxPosition)
@@ -312,7 +349,9 @@ Item {
             ScrollView {
                 id: horizontalScrollView
                 width: 270
-                height: itemsView.height
+                height: parent.height
+                clip: true
+
                 onContentHeightChanged: {
                     var maxPosition = Math.max(contentHeight - horizontalScrollView.height, 0)
                     if (contentY > maxPosition)
@@ -450,6 +489,14 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    Component {
+        id: addModuleView
+
+        AddModuleView {
+            onBack: isAddModuleView = false
         }
     }
 }

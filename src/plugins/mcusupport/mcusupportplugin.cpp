@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "mcukitinformation.h"
 #include "mcusupportplugin.h"
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"

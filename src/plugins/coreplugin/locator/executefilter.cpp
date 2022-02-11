@@ -80,7 +80,7 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
     return value;
 }
 
-void ExecuteFilter::accept(LocatorFilterEntry selection,
+void ExecuteFilter::accept(const LocatorFilterEntry &selection,
                            QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

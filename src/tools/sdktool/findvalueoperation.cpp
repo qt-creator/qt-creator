@@ -53,7 +53,7 @@ bool FindValueOperation::setArguments(const QStringList &args)
             continue;
         }
 
-        QVariant v = Operation::valueFromString(current);
+        QVariant v = valueFromString(current);
         if (!v.isValid()) {
             std::cerr << "Value for key '" << qPrintable(current) << "' is not valid." << std::endl << std::endl;
             return false;

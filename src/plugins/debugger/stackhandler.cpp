@@ -457,24 +457,24 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addAction(debuggerSettings()->expandStack.action());
 
-    addAction(menu, tr("Copy Contents to Clipboard"), true, [ev] {
+    addAction(this, menu, tr("Copy Contents to Clipboard"), true, [ev] {
         copyTextToClipboard(selectedText(ev.view(), true));
     });
 
-    addAction(menu, tr("Copy Selection to Clipboard"), true, [ev] {
+    addAction(this, menu, tr("Copy Selection to Clipboard"), true, [ev] {
         copyTextToClipboard(selectedText(ev.view(), false));
     });
 
-    addAction(menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
+    addAction(this, menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
         menu->addAction(debuggerSettings()->createFullBacktrace.action());
 
     if (m_engine->hasCapability(AdditionalQmlStackCapability))
-        addAction(menu, tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
+        addAction(this, menu, tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
 
     if (m_engine->hasCapability(ShowMemoryCapability))
-        addAction(menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
+        addAction(this, menu, tr("Open Memory Editor at 0x%1").arg(address, 0, 16),
                   tr("Open Memory Editor"),
                   address,
                   [this, row, frame, address] {
@@ -488,12 +488,12 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
                    });
 
     if (m_engine->hasCapability(DisassemblerCapability)) {
-        addAction(menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
+        addAction(this, menu, tr("Open Disassembler at 0x%1").arg(address, 0, 16),
                   tr("Open Disassembler"),
                   address,
                   [this, frame] { m_engine->openDisassemblerView(frame); });
 
-        addAction(menu, tr("Open Disassembler at Address..."), true,
+        addAction(this, menu, tr("Open Disassembler at Address..."), true,
                   [this, address] {
                         AddressDialog dialog;
                         if (address)
@@ -502,7 +502,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
                             m_engine->openDisassemblerView(Location(dialog.address()));
                    });
 
-        addAction(menu, tr("Disassemble Function..."), true,
+        addAction(this, menu, tr("Disassemble Function..."), true,
                   [this] {
                         const StackFrame frame = inputFunctionForDisassembly();
                         if (!frame.function.isEmpty())
@@ -511,13 +511,14 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     if (m_engine->hasCapability(ShowModuleSymbolsCapability)) {
-        addAction(menu, tr("Try to Load Unknown Symbols"), true,
+        addAction(this, menu, tr("Try to Load Unknown Symbols"), true,
                   [this] { m_engine->loadSymbolsForStack(); });
     }
 
     menu->addSeparator();
     menu->addAction(debuggerSettings()->useToolTipsInStackView.action());
     menu->addAction(debuggerSettings()->settingsDialog.action());
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;
 }

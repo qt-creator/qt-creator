@@ -135,7 +135,7 @@ QList<Core::LocatorFilterEntry> ClangCurrentDocumentFilter::matchesFor(
     return goodEntries;
 }
 
-void ClangCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
+void ClangCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection,
             QString *, int *, int *) const
 {
     if (!m_currentEditor)

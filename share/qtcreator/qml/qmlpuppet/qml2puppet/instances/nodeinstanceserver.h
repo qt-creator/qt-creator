@@ -229,8 +229,10 @@ public:
 
     virtual QImage grabWindow() = 0;
     virtual QImage grabItem(QQuickItem *item) = 0;
+    virtual bool renderWindow() = 0;
 
     virtual bool isInformationServer() const;
+    virtual bool isPreviewServer() const;
     void addAnimation(QQuickAbstractAnimation *animation);
     QVector<QQuickAbstractAnimation *> animations() const;
     QVariant animationDefaultValue(int index) const;

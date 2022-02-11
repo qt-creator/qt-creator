@@ -53,6 +53,8 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <qmlprojectmanager/qmlproject.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
@@ -224,7 +226,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
     d = new QmlDesignerPluginPrivate;
-    if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
+    if (QmlProjectManager::QmlProject::isQtDesignStudio())
         GenerateResource::generateMenuEntry();
 
     GenerateCmake::generateMenuEntry();
@@ -308,7 +310,7 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::PathTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TransitionTool>());
 
-    if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
+    if (QmlProjectManager::QmlProject::isQtDesignStudio())
         emitUsageStatistics("StandaloneMode");
 
     return true;
@@ -613,6 +615,11 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
 {
     emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
+}
+
+void QmlDesignerPlugin::emitUsageStatisticsHelpRequested(const QString &identifier)
+{
+    emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + identifier);
 }
 
 AsynchronousImageCache &QmlDesignerPlugin::imageCache()

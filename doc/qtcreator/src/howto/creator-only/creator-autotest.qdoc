@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -95,7 +95,9 @@
                     \uicontrol {Qt Test} or \uicontrol {Qt Quick Test}.
 
                 \li For a Qt test, select the \uicontrol {GUI Application} check
-                     box to create a Qt application.
+                    box to create a Qt application.
+
+                    \image qtcreator-autotests-project-qt-test.png "Autotest project wizard - Qt Test"
 
                 \li In the \uicontrol {Test case name} field, enter a name for
                     the test case.
@@ -103,6 +105,14 @@
                 \li For a Qt test, select the \uicontrol {Requires \QApplication}
                     check box to add the include statement for QApplication to
                     the main.cpp file of the project.
+
+                \li For a Qt Quick test, select the
+                    \uicontrol {Generate setup code} check box to execute C++
+                    code before any of the QML tests are run. The testing
+                    framework will call slots and invokable functions, as
+                    described in \l{Executing C++ Before QML Tests}.
+
+                    \image qtcreator-autotests-project-qtquick-test.png "Autotest project wizard - Qt Quick Test"
 
                 \li Select the \uicontrol {Generate initialization and cleanup
                     code} checkbox to add functions to your test that are

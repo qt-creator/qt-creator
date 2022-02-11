@@ -88,7 +88,7 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
     m_amendTimer.setSingleShot(true);
-    m_amendTimer.setInterval(400);
+    m_amendTimer.setInterval(800);
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
@@ -861,11 +861,17 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
 
     ModelNode lastNode = root;
 
+    int i = 0;
     for (const myPair &pair : data) {
         ModelNode node = pair.first;
+        i++;
+        if (i >= data.size()) {
+            lastNode = node;
+            break;
+        }
 
-        const int nodeTextLength = nodeLength(node);
         const int nodeTextOffset = nodeOffset(node);
+        const int nodeTextLength = m_textModifier->text().indexOf("}", nodeTextOffset) - nodeTextOffset - 1;
 
         if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
             lastNode = node;
@@ -1035,12 +1041,9 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     int offset = nodeOffset(modelNode);
 
-    bool instant = m_instantQmlTextUpdate;
-    m_instantQmlTextUpdate = true;
 
     textModifier()->moveToComponent(offset);
 
-    m_instantQmlTextUpdate = instant;
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)

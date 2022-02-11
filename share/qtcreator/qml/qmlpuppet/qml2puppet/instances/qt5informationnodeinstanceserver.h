@@ -140,8 +140,6 @@ private:
     void renderModelNodeImageView();
     void doRenderModelNodeImageView();
     void doRenderModelNode3DImageView();
-    void modelNode3DImageViewSendImageToCreator();
-    void modelNode3DImageViewRenderStep();
     void doRenderModelNode2DImageView();
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
     void handleInputEvents();
@@ -190,26 +188,6 @@ private:
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
     QSet<QObject *> m_dynamicObjectConstructors;
-
-    struct ModelNode3DImageViewAsyncData {
-        QTimer timer;
-        QImage renderImage;
-        int count = 0;
-        bool createdFromComponent = false;
-        QObject *instanceObj = nullptr;
-
-        void cleanup()
-        {
-            timer.stop();
-            count = 0;
-            renderImage = {};
-            if (createdFromComponent)
-                delete instanceObj;
-            instanceObj = nullptr;
-            createdFromComponent = false;
-        }
-    };
-    ModelNode3DImageViewAsyncData m_modelNode3DImageViewAsyncData;
 };
 
 } // namespace QmlDesigner

@@ -428,25 +428,33 @@ static QIcon interruptIcon(bool toolBarStyle)
     return toolBarStyle ? iconToolBar : icon;
 }
 
-QAction *addAction(QMenu *menu, const QString &display, bool on,
+QAction *addAction(const QObject *parent, QMenu *menu, const QString &display, bool on,
                    const std::function<void()> &onTriggered)
 {
     QAction *act = menu->addAction(display);
     act->setEnabled(on);
-    QObject::connect(act, &QAction::triggered, onTriggered);
+    // Always queue the connection to prevent the following sequence of events if the menu cleans
+    // itself up on dismissal:
+    // 1. The menu is dismissed when selecting a menu item.
+    // 2. The deletion gets queued via deleteLater().
+    // 2. The onTriggered action gets invoked and opens a dialog box.
+    // 3. The dialog box triggers the events to be processed.
+    // 4. The menu is deleted when processing the events, while still in the event function to
+    //    handle the dismissal.
+    QObject::connect(act, &QAction::triggered, parent, onTriggered, Qt::QueuedConnection);
     return act;
 };
 
-QAction *addAction(QMenu *menu, const QString &d1, const QString &d2, bool on,
+QAction *addAction(const QObject *parent, QMenu *menu, const QString &d1, const QString &d2, bool on,
                    const std::function<void()> &onTriggered)
 {
-    return on ? addAction(menu, d1, true, onTriggered) : addAction(menu, d2, false);
+    return on ? addAction(parent, menu, d1, true, onTriggered) : addAction(parent, menu, d2, false);
 };
 
-QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool checked,
-                            const std::function<void()> &onTriggered)
+QAction *addCheckableAction(const QObject *parent, QMenu *menu, const QString &display, bool on,
+                            bool checked, const std::function<void()> &onTriggered)
 {
-    QAction *act = addAction(menu, display, on, onTriggered);
+    QAction *act = addAction(parent, menu, display, on, onTriggered);
     act->setCheckable(true);
     act->setChecked(checked);
     return act;
@@ -1186,8 +1194,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::updateBreakMenuItem);
 
     // Application interaction
-    connect(debuggerSettings()->settingsDialog.action(), &QAction::triggered,
-            [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
+    // Use a queued connection so the dialog isn't triggered in the same event.
+    connect(debuggerSettings()->settingsDialog.action(), &QAction::triggered, this,
+            [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
 
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);

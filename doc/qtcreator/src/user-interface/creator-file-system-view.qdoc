@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -83,7 +83,11 @@
             line endings, indentation, owner, size, last read and modified
             dates, and permissions.
         \li Create new files. For more information, see
+            \if defined(qtdesignstudio)
             \l{Adding Files to Projects}.
+            \else
+            \l{Creating Files}.
+            \endif
         \li Rename or remove existing files.
         \li Create new folders.
         \li Compare the selected file with the currently open file in the diff

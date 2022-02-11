@@ -218,7 +218,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 /*!
     \reimp
 */
-void BaseFileFilter::accept(LocatorFilterEntry selection,
+void BaseFileFilter::accept(const LocatorFilterEntry &selection,
                             QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

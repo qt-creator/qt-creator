@@ -911,6 +911,8 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
     VcsCommand *command = d->client->asyncUpstreamStatus(
                 d->workingDirectory, node->fullRef(), node->tracking);
     QObject::connect(command, &VcsCommand::stdOutText, node, [this, node](const QString &text) {
+        if (text.isEmpty())
+            return;
         const QStringList split = text.trimmed().split('\t');
         QTC_ASSERT(split.size() == 2, return);
 

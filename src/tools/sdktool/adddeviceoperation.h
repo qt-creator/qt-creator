@@ -35,60 +35,48 @@ extern const char DEVICE_LIST_ID[];
 
 extern const char DEVICE_ID_ID[];
 
-class AddDeviceOperation : public Operation
+class AddDeviceData
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
-
-    bool setArguments(const QStringList &args);
-
-    int execute() const;
-
-#ifdef WITH_TESTS
-    bool test() const;
-#endif
-
-    static QVariantMap addDevice(const QVariantMap &map,
-                                 const QString &id, const QString &displayName, int type,
-                                 int auth, const QString &hwPlatform, const QString &swPlatform,
-                                 const QString &debugServer, const QString &freePorts,
-                                 const QString &host, const QString &keyFile,
-                                 int origin, const QString &osType, const QString &passwd,
-                                 int sshPort, int timeout, const QString &uname, int version,
-                                 const KeyValuePairList &extra);
+    QVariantMap addDevice(const QVariantMap &map) const;
 
     static QVariantMap initializeDevices();
 
     static bool exists(const QString &id);
     static bool exists(const QVariantMap &map, const QString &id);
 
-private:
-    static KeyValuePairList createDevice(const QString &id, const QString &displayName, int type,
-                                         int auth, const QString &hwPlatform, const QString &swPlatform,
-                                         const QString &debugServer, const QString &freePorts,
-                                         const QString &host, const QString &keyFile,
-                                         int origin, const QString &osType, const QString &passwd,
-                                         int sshPort, int timeout, const QString &uname, int version,
-                                         const KeyValuePairList &extra);
-
+    QString m_id;
+    QString m_displayName;
+    int m_type = -1;
     int m_authentication = -1;
     QString m_b2q_platformHardware;
     QString m_b2q_platformSoftware;
     QString m_debugServer;
     QString m_freePortsSpec;
     QString m_host;
-    QString m_id;
     QString m_keyFile;
-    QString m_displayName;
     int m_origin = 1;
     QString m_osType;
     QString m_password;
     int m_sshPort = 0;
     int m_timeout = 5;
-    int m_type = -1;
     QString m_uname;
     int m_version = 0;
     KeyValuePairList m_extra;
+};
+
+class AddDeviceOperation : public Operation, public AddDeviceData
+{
+public:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+
+    bool setArguments(const QStringList &args) final;
+
+    int execute() const final;
+
+#ifdef WITH_TESTS
+    bool test() const final;
+#endif
 };

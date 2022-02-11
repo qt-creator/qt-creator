@@ -121,7 +121,7 @@ BuildCMakeTargetLocatorFilter::BuildCMakeTargetLocatorFilter()
     setPriority(High);
 }
 
-void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void BuildCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                                            QString *newText,
                                            int *selectionStart,
                                            int *selectionLength) const
@@ -171,7 +171,7 @@ OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
     setPriority(Medium);
 }
 
-void OpenCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void OpenCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                                           QString *newText,
                                           int *selectionStart,
                                           int *selectionLength) const

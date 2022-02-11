@@ -1187,8 +1187,8 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
             bool existingTcMatches = false;
             const FilePath existingCommand = existingTc->compilerCommand();
             if ((requiredTypeId == Constants::CLANG_TOOLCHAIN_TYPEID
-                 && language == Constants::CXX_LANGUAGE_ID
-                 && !existingCommand.fileName().contains("clang++"))
+                 && ((language == Constants::CXX_LANGUAGE_ID && !existingCommand.fileName().contains("clang++"))
+                     || (language == Constants::C_LANGUAGE_ID && !existingCommand.baseName().endsWith("clang"))))
                     || compilerPath.toString().contains("icecc")
                     || compilerPath.toString().contains("ccache")) {
                 existingTcMatches = existingCommand == compilerPath;

@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportoptions.h"

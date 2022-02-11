@@ -5,6 +5,7 @@ Squish tests inside this folder have several prerequisites to get them running.
 First - and most important - you have to own a valid Squish license. At least Squish 6.0 is required.
 
 Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be available:
+[ this is optional and if Qt4 is not available some Qt5 will be tried to use instead ]
  1. Download the source code from:
     * Windows: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
     * Other: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz

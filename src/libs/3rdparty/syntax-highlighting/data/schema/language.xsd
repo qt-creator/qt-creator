@@ -130,8 +130,8 @@
       extensions:  A file glob or pattern to decide for which documents to use this syntax description
       style:       The style that this highlighter provides. It is used through required-syntax-style by the indenters. [optional]
       mimetype:    A list of mimetypes to decide for which documents to use this syntax description [optional]
-      version:     Version number of this syntax description [optional]
-      kateversion: Kate version required for using this file [optional]
+      version:     Version number of this syntax description
+      kateversion: Kate version required for using this file
       casesensitive: Whether text is matched case sensitive. [boolean, optional, default=true] FIXME: This is not implemented yet
       priority:    Priority of this language, if more than one are usable for the file [optional]
       author:      Name of author of this hl file [optional]

@@ -1715,6 +1715,7 @@ void GitPluginPrivate::branchList()
 void GitPluginPrivate::manageRemotes()
 {
     showNonModalDialog(currentState().topLevel(), m_remoteDialog);
+    ICore::registerWindow(m_remoteDialog, Context("Git.Remotes"));
 }
 
 void GitPluginPrivate::initRepository()
@@ -1725,6 +1726,7 @@ void GitPluginPrivate::initRepository()
 void GitPluginPrivate::stashList()
 {
     showNonModalDialog(currentState().topLevel(), m_stashDialog);
+    ICore::registerWindow(m_stashDialog, Context("Git.Stashes"));
 }
 
 void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)

@@ -33,6 +33,7 @@
 #include <texteditor/tabsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
 
@@ -46,7 +47,7 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-static clang::format::FormatStyle qtcStyle()
+clang::format::FormatStyle qtcStyle()
 {
     clang::format::FormatStyle style = getLLVMStyle();
     style.Language = FormatStyle::LK_Cpp;
@@ -355,18 +356,38 @@ clang::format::FormatStyle styleForFile(Utils::FilePath fileName)
     return styleForFile(fileName, true);
 }
 
+void addQtcStatementMacros(clang::format::FormatStyle &style)
+{
+    static const std::vector<std::string> macros = {"Q_OBJECT",
+                                                    "QT_BEGIN_NAMESPACE",
+                                                    "QT_END_NAMESPACE"};
+    for (const std::string &macro : macros) {
+        if (std::find(style.StatementMacros.begin(), style.StatementMacros.end(), macro)
+            == style.StatementMacros.end())
+            style.StatementMacros.emplace_back(macro);
+    }
+}
+
 static std::string readFile(const QString &path)
 {
+    const std::string defaultStyle = clang::format::configurationAsText(qtcStyle());
+
     QFile file(path);
-    if (!file.open(QFile::ReadOnly)) {
-        clang::format::FormatStyle defaultStyle = qtcStyle();
-        return clang::format::configurationAsText(defaultStyle);
-    }
+    if (!file.open(QFile::ReadOnly))
+        return defaultStyle;
 
     const QByteArray content = file.readAll();
     file.close();
 
-    return content.toStdString();
+    clang::format::FormatStyle style;
+    style.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = clang::format::parseConfiguration(content.toStdString(), &style);
+
+    QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return defaultStyle);
+
+    addQtcStatementMacros(style);
+
+    return clang::format::configurationAsText(style);
 }
 
 std::string currentProjectConfigText()

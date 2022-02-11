@@ -328,6 +328,12 @@ void ClangEditorDocumentProcessor::setParserConfig(
 {
     m_parser->setConfiguration(config);
     m_builtinProcessor.parser()->setConfiguration(config);
+    emit parserConfigChanged(Utils::FilePath::fromString(filePath()), config);
+}
+
+CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor::parserConfig() const
+{
+    return m_parser->configuration();
 }
 
 static bool isCursorOnIdentifier(const QTextCursor &textCursor)

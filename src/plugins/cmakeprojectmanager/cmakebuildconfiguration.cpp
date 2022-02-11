@@ -102,7 +102,7 @@ const char DEVELOPMENT_TEAM_FLAG[] = "Ios:DevelopmentTeam:Flag";
 const char PROVISIONING_PROFILE_FLAG[] = "Ios:ProvisioningProfile:Flag";
 const char CMAKE_OSX_ARCHITECTURES_FLAG[] = "CMAKE_OSX_ARCHITECTURES:DefaultFlag";
 const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[] =
-        "-DCMAKE_TOOLCHAIN_FILE:PATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
+        "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
 
 namespace Internal {
 
@@ -121,8 +121,8 @@ private:
     void updateAdvancedCheckBox();
     void updateFromKit();
     void updateConfigurationStateIndex(int index);
-    CMakeProjectManager::CMakeConfig getQmlDebugCxxFlags();
-    CMakeProjectManager::CMakeConfig getSigningFlagsChanges();
+    CMakeConfig getQmlDebugCxxFlags();
+    CMakeConfig getSigningFlagsChanges();
 
     void updateSelection();
     void updateConfigurationStateSelection();
@@ -639,6 +639,7 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     dialog->setWindowTitle(tr("Kit CMake Configuration"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setModal(true);
+    dialog->setSizeGripEnabled(true);
     connect(dialog, &QDialog::finished, this, [=]{
         m_buildConfiguration->kit()->unblockNotification();
     });
@@ -657,6 +658,12 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
         ->addToLayoutWithLabel(layout->parentWidget());
 
     layout->setColumnStretch(1, 1);
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttons, &QDialogButtonBox::clicked, dialog, &QDialog::close);
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Maximum, QSizePolicy::MinimumExpanding),
+                    4, 0);
+    layout->addWidget(buttons, 5, 0, 1, -1);
 
     dialog->setMinimumWidth(400);
     dialog->resize(800, 1);
@@ -695,19 +702,19 @@ void CMakeBuildSettingsWidget::updateButtonState()
                 ni.inCMakeCache = i.inCMakeCache;
                 ni.values = i.values;
                 switch (i.type) {
-                case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
+                case ConfigModel::DataItem::BOOLEAN:
                     ni.type = CMakeConfigItem::BOOL;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::FILE:
+                case ConfigModel::DataItem::FILE:
                     ni.type = CMakeConfigItem::FILEPATH;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::DIRECTORY:
+                case ConfigModel::DataItem::DIRECTORY:
                     ni.type = CMakeConfigItem::PATH;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::STRING:
+                case ConfigModel::DataItem::STRING:
                     ni.type = CMakeConfigItem::STRING;
                     break;
-                case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
+                case ConfigModel::DataItem::UNKNOWN:
                 default:
                     ni.type = CMakeConfigItem::UNINITIALIZED;
                     break;
@@ -763,7 +770,9 @@ void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 void CMakeBuildSettingsWidget::updateFromKit()
 {
     const Kit *k = m_buildConfiguration->kit();
-    const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+    CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
+
+    config.append(CMakeGeneratorKitAspect::generatorCMakeConfig(k));
 
     // First the key value parameters
     ConfigModel::KitConfiguration configHash;
@@ -1056,10 +1065,11 @@ static bool isDocker(const Kit *k)
 static bool isWindowsARM64(const Kit *k)
 {
     ToolChain *toolchain = ToolChainKitAspect::cxxToolChain(k);
-    QTC_ASSERT(toolchain, return false);
+    if (!toolchain)
+        return false;
     const Abi targetAbi = toolchain->targetAbi();
     return targetAbi.os() == Abi::WindowsOS && targetAbi.architecture() == Abi::ArmArchitecture
-            && targetAbi.wordWidth() == 64;
+           && targetAbi.wordWidth() == 64;
 }
 
 static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildType)
@@ -1080,7 +1090,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
 
     // Package manager
     if (!isDocker(k) && settings->packageManagerAutoSetup.value()) {
-        cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:PATH="
+        cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
                    "%{IDE:ResourcePath}/package-manager/auto-setup.cmake");
     }
 
@@ -1197,7 +1207,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
             cmd.addArg("-DANDROID_NDK:PATH=" + ndkLocation.path());
 
-            cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:PATH="
+            cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:FILEPATH="
                    + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
 
             auto androidAbis = bs->data(Android::Constants::AndroidMkSpecAbis).toStringList();
@@ -1633,12 +1643,12 @@ BuildSystem *CMakeBuildConfiguration::buildSystem() const
 
 void CMakeBuildConfiguration::setSourceDirectory(const FilePath &path)
 {
-    aspect<SourceDirectoryAspect>()->setValue(path.toString());
+    aspect<SourceDirectoryAspect>()->setFilePath(path);
 }
 
 FilePath CMakeBuildConfiguration::sourceDirectory() const
 {
-    return FilePath::fromString(aspect<SourceDirectoryAspect>()->value());
+    return aspect<SourceDirectoryAspect>()->filePath();
 }
 
 QString CMakeBuildConfiguration::cmakeBuildType() const

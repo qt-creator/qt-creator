@@ -27,25 +27,26 @@
 
 #include "operation.h"
 
-#include <QString>
-
-class RmCMakeOperation : public Operation
+class RmCMakeData
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
+    QVariantMap rmCMake(const QVariantMap &map) const;
 
-    bool setArguments(const QStringList &args);
+    QString m_id;
+};
 
-    int execute() const;
+class RmCMakeOperation : public Operation, public RmCMakeData
+{
+public:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+
+    bool setArguments(const QStringList &args) final;
+
+    int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const;
+    bool test() const final;
 #endif
-
-    static QVariantMap rmCMake(const QVariantMap &map, const QString &id);
-
-private:
-    QString m_id;
 };

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \example loginui1
+    \example Loginui1
     \ingroup gstutorials
     \nextpage {Log In UI - Positioning}
 
@@ -231,7 +231,7 @@
     adds the following \e import statements to the UI files (.ui.qml) that it
     creates:
 
-    \quotefromfile Loginui1/Content/Screen01.ui.qml
+    \quotefromfile Loginui1/content/Screen01.ui.qml
     \skipto import
     \printuntil Controls
 
@@ -334,7 +334,7 @@
     To be able to use the functionality of the Button control, the wizard template
     adds the following \e import statements to the \e EntryField.ui.qml file:
 
-    \quotefromfile Loginui1/Content/EntryField.ui.qml
+    \quotefromfile Loginui1/content/EntryField.ui.qml
     \skipto import
     \printuntil Controls
 

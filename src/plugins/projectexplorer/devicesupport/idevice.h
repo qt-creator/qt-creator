@@ -59,7 +59,6 @@ class QtcProcess;
 
 namespace ProjectExplorer {
 
-class Connection;
 class DeviceProcess;
 class DeviceProcessList;
 class Kit;

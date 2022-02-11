@@ -869,3 +869,14 @@ void constMemberAsFunctionArg()
         const Foo &constMember;
     };
 }
+
+# if 0
+#define FOO
+
+#endif
+
+// comment
+
+#if 0
+#define BAR
+# endif

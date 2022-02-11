@@ -180,6 +180,11 @@ bool ObjectNodeInstance::isLayoutable() const
     return false;
 }
 
+bool ObjectNodeInstance::isRenderable() const
+{
+    return false;
+}
+
 bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
 {
     return false;

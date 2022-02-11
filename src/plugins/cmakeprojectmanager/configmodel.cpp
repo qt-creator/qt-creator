@@ -30,16 +30,106 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-#include <QCoreApplication>
 #include <QFont>
 #include <QSortFilterProxyModel>
 
 namespace CMakeProjectManager {
+namespace Internal {
+
+// DataItem
+
+ConfigModel::DataItem::DataItem(const CMakeConfigItem &cmi)
+{
+    key = QString::fromUtf8(cmi.key);
+    value = QString::fromUtf8(cmi.value);
+    description = QString::fromUtf8(cmi.documentation);
+    values = cmi.values;
+    inCMakeCache = cmi.inCMakeCache;
+
+    isAdvanced = cmi.isAdvanced;
+    isInitial = cmi.isInitial;
+    isHidden = cmi.type == CMakeConfigItem::INTERNAL || cmi.type == CMakeConfigItem::STATIC;
+
+    setType(cmi.type);
+}
+
+void ConfigModel::DataItem::setType(CMakeConfigItem::Type cmt)
+{
+    switch (cmt) {
+    case CMakeConfigItem::FILEPATH:
+        type = FILE;
+        break;
+    case CMakeConfigItem::PATH:
+        type = DIRECTORY;
+        break;
+    case CMakeConfigItem::BOOL:
+        type = BOOLEAN;
+        break;
+    case CMakeConfigItem::STRING:
+        type = STRING;
+        break;
+    default:
+        type = UNKNOWN;
+        break;
+    }
+}
+
+QString ConfigModel::DataItem::typeDisplay() const
+{
+    switch (type) {
+    case DataItem::BOOLEAN:
+        return "BOOL";
+    case DataItem::FILE:
+        return "FILEPATH";
+    case DataItem::DIRECTORY:
+        return "PATH";
+    case DataItem::STRING:
+        return "STRING";
+    case DataItem::UNKNOWN:
+        break;
+    }
+    return "UNINITIALIZED";
+}
+
+CMakeConfigItem ConfigModel::DataItem::toCMakeConfigItem() const
+{
+    CMakeConfigItem cmi;
+    cmi.key = key.toUtf8();
+    cmi.value = value.toUtf8();
+    switch (type) {
+    case DataItem::BOOLEAN:
+        cmi.type = CMakeConfigItem::BOOL;
+        break;
+    case DataItem::FILE:
+        cmi.type = CMakeConfigItem::FILEPATH;
+        break;
+    case DataItem::DIRECTORY:
+        cmi.type = CMakeConfigItem::PATH;
+        break;
+    case DataItem::STRING:
+        cmi.type = CMakeConfigItem::STRING;
+        break;
+    case DataItem::UNKNOWN:
+        cmi.type = CMakeConfigItem::UNINITIALIZED;
+        break;
+    }
+    cmi.isUnset = isUnset;
+    cmi.isAdvanced = isAdvanced;
+    cmi.isInitial = isInitial;
+    cmi.values = values;
+    cmi.documentation = description.toUtf8();
+
+    return cmi;
+}
+
+// ConfigModel
 
 ConfigModel::ConfigModel(QObject *parent) : Utils::TreeModel<>(parent)
 {
     setHeader({tr("Key"), tr("Value")});
 }
+
+ConfigModel::~ConfigModel() = default;
 
 QVariant ConfigModel::data(const QModelIndex &idx, int role) const
 {
@@ -75,8 +165,6 @@ bool ConfigModel::setData(const QModelIndex &idx, const QVariant &data, int role
     }
     return res;
 }
-
-ConfigModel::~ConfigModel() = default;
 
 void ConfigModel::appendConfiguration(const QString &key,
                                       const QString &value,
@@ -454,7 +542,6 @@ QString ConfigModel::InternalDataItem::currentValue() const
     return isUserChanged ? newValue : value;
 }
 
-namespace Internal {
 
 ConfigModelTreeItem::~ConfigModelTreeItem() = default;
 
@@ -514,7 +601,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
     case Qt::DisplayRole:
         if (column == 0)
             return dataItem->key.isEmpty()
-                       ? QCoreApplication::translate("CMakeProjectManager::ConfigModel", "<UNSET>")
+                       ? ConfigModel::tr("<UNSET>")
                        : dataItem->key;
         return value;
     case Qt::EditRole:
@@ -600,30 +687,28 @@ QString ConfigModelTreeItem::toolTip() const
     if (!dataItem->description.isEmpty())
         tooltip << dataItem->description;
 
+    const QString pattern = "<p><b>%1</b> %2</p>";
     if (dataItem->isInitial) {
         if (!dataItem->kitValue.isEmpty())
-            tooltip << QCoreApplication::translate("CMakeProjectManager", "<p>Kit: <b>%1</b></p>")
-                           .arg(dataItem->kitValue);
+            tooltip << pattern.arg(ConfigModel::tr("Kit:")).arg(dataItem->kitValue);
 
-        tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                               "<p>Initial Configuration: <b>%1</b></p>")
-                       .arg(dataItem->currentValue());
+        tooltip << pattern.arg(ConfigModel::tr("Initial Configuration:")).arg(dataItem->currentValue());
     } else {
-        if (!dataItem->initialValue.isEmpty())
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Initial Configuration: <b>%1</b></p>")
-                           .arg(dataItem->initialValue);
+        if (!dataItem->initialValue.isEmpty()) {
+            tooltip << pattern.arg(ConfigModel::tr("Initial Configuration:"))
+                          .arg(dataItem->initialValue);
+        }
 
         if (dataItem->inCMakeCache) {
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Current Configuration: <b>%1</b></p>")
-                           .arg(dataItem->currentValue());
+            tooltip << pattern.arg(ConfigModel::tr("Current Configuration:"))
+                          .arg(dataItem->currentValue());
         } else {
-            tooltip << QCoreApplication::translate("CMakeProjectManager",
-                                                   "<p>Not in CMakeCache.txt</p>");
+            tooltip << pattern.arg(ConfigModel::tr("Not in CMakeCache.txt")).arg(QString());
         }
     }
-    return tooltip.join("");
+    tooltip << pattern.arg(ConfigModel::tr("Type:")).arg(dataItem->typeDisplay());
+
+    return tooltip.join(QString());
 }
 
 QString ConfigModelTreeItem::currentValue() const

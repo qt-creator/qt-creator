@@ -1720,24 +1720,24 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     auto menu = new QMenu;
 
-    addAction(menu, tr("Add New Expression Evaluator..."),
+    addAction(this, menu, tr("Add New Expression Evaluator..."),
               canHandleWatches && canInsertWatches,
               [this] { inputNewExpression(); });
 
-    addAction(menu, addWatchActionText(exp),
+    addAction(this, menu, addWatchActionText(exp),
               // Suppress for top-level watchers.
               canHandleWatches && !exp.isEmpty() && item && !(item->level() == 2 && item->isWatcher()),
               [this, exp, name] { m_handler->watchExpression(exp, name); });
 
-    addAction(menu, removeWatchActionText(exp),
+    addAction(this, menu, removeWatchActionText(exp),
               canRemoveWatches && !exp.isEmpty() && item && item->isWatcher(),
               [this, item] { removeWatchItem(item); });
 
-    addAction(menu, tr("Remove All Expression Evaluators"),
+    addAction(this, menu, tr("Remove All Expression Evaluators"),
               canRemoveWatches && !WatchHandler::watchedExpressions().isEmpty(),
               [this] { clearWatches(); });
 
-    addAction(menu, tr("Select Widget to Add into Expression Evaluator"),
+    addAction(this, menu, tr("Select Widget to Add into Expression Evaluator"),
               state == InferiorRunOk && m_engine->hasCapability(WatchWidgetsCapability),
               [this] { grabWidget(); });
 
@@ -1757,7 +1757,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addMenu(createBreakpointMenu(item, menu));
     menu->addSeparator();
 
-    addAction(menu, tr("Expand All Children"), item, [this, name = item ? item->iname : QString()] {
+    addAction(this, menu, tr("Expand All Children"), item, [this, name = item ? item->iname : QString()] {
         m_expandedINames.insert(name);
         if (auto item = findItem(name)) {
             item->forFirstLevelChildren(
@@ -1766,7 +1766,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
         }
     });
 
-    addAction(menu, tr("Collapse All Children"), item, [this, name = item ? item->iname : QString()] {
+    addAction(this, menu, tr("Collapse All Children"), item, [this, name = item ? item->iname : QString()] {
         if (auto item = findItem(name)) {
             item->forFirstLevelChildren(
                 [this](WatchItem *child) { m_expandedINames.remove(child->iname); });
@@ -1774,15 +1774,15 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
         }
     });
 
-    addAction(menu, tr("Close Editor Tooltips"),
+    addAction(this, menu, tr("Close Editor Tooltips"),
               m_engine->toolTipManager()->hasToolTips(),
               [this] { m_engine->toolTipManager()->closeAllToolTips(); });
 
-    addAction(menu, tr("Copy View Contents to Clipboard"),
+    addAction(this, menu, tr("Copy View Contents to Clipboard"),
               true,
               [this] { copyToClipboard(editorContents()); });
 
-    addAction(menu,
+    addAction(this, menu,
               tr("Copy Current Value to Clipboard"),
               item,
               [this, name = item ? item->iname : QString()] {
@@ -1794,7 +1794,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     //              selectionModel()->hasSelection(),
     //              [this] { copyToClipboard(editorContents(selectionModel()->selectedRows())); });
 
-    addAction(menu, tr("Open View Contents in Editor"),
+    addAction(this, menu, tr("Open View Contents in Editor"),
               m_engine->debuggerActionsEnabled(),
               [this] { Internal::openTextEditor(tr("Locals & Expressions"), editorContents()); });
 
@@ -1827,7 +1827,7 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
     const bool canSetWatchpoint = m_engine->hasCapability(WatchpointByAddressCapability);
     const bool createPointerActions = item->origaddr && item->origaddr != item->address;
 
-    act = addAction(menu, tr("Add Data Breakpoint at Object's Address (0x%1)").arg(item->address, 0, 16),
+    act = addAction(this, menu, tr("Add Data Breakpoint at Object's Address (0x%1)").arg(item->address, 0, 16),
                      tr("Add Data Breakpoint"),
                      canSetWatchpoint && item->address,
                      [bh, item] { bh->setWatchpointAtAddress(item->address, item->size); });
@@ -1836,7 +1836,7 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
     act->setChecked(bh->findWatchpoint(bp));
     act->setToolTip(tr("Stop the program when the data at the address is modified."));
 
-    act = addAction(menu, tr("Add Data Breakpoint at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
+    act = addAction(this, menu, tr("Add Data Breakpoint at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
                      tr("Add Data Breakpoint at Pointer's Address"),
                      canSetWatchpoint && item->address && createPointerActions,
                      // FIXME: an approximation. This should be target's sizeof(void)
@@ -1847,7 +1847,7 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
         act->setChecked(bh->findWatchpoint(bp));
     }
 
-    act = addAction(menu, tr("Add Data Breakpoint at Expression \"%1\"").arg(item->name),
+    act = addAction(this, menu, tr("Add Data Breakpoint at Expression \"%1\"").arg(item->name),
                      tr("Add Data Breakpoint at Expression"),
                      m_engine->hasCapability(WatchpointByExpressionCapability) && !item->name.isEmpty(),
                      [bh, item] { bh->setWatchpointAtExpression(item->name); });
@@ -1869,37 +1869,37 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
 
     QPoint pos = QPoint(100, 100); // ev->globalPos
 
-    addAction(menu, tr("Open Memory View at Object's Address (0x%1)").arg(item->address, 0, 16),
+    addAction(this, menu, tr("Open Memory View at Object's Address (0x%1)").arg(item->address, 0, 16),
                tr("Open Memory View at Object's Address"),
                item->address,
                [this, item, pos] { addVariableMemoryView(true, item, false, pos); });
 
-    addAction(menu, tr("Open Memory View at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
+    addAction(this, menu, tr("Open Memory View at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
                tr("Open Memory View at Pointer's Address"),
                createPointerActions,
                [this, item, pos] { addVariableMemoryView(true, item, true, pos); });
 
-    addAction(menu, tr("Open Memory View Showing Stack Layout"),
+    addAction(this, menu, tr("Open Memory View Showing Stack Layout"),
               true,
               [this, pos] { addStackLayoutMemoryView(true, pos); });
 
     menu->addSeparator();
 
-    addAction(menu, tr("Open Memory Editor at Object's Address (0x%1)").arg(item->address, 0, 16),
+    addAction(this, menu, tr("Open Memory Editor at Object's Address (0x%1)").arg(item->address, 0, 16),
                tr("Open Memory Editor at Object's Address"),
                item->address,
                [this, item, pos] { addVariableMemoryView(false, item, false, pos); });
 
-    addAction(menu, tr("Open Memory Editor at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
+    addAction(this, menu, tr("Open Memory Editor at Pointer's Address (0x%1)").arg(item->origaddr, 0, 16),
                tr("Open Memory Editor at Pointer's Address"),
                createPointerActions,
                [this, item, pos] { addVariableMemoryView(false, item, true, pos); });
 
-    addAction(menu, tr("Open Memory Editor Showing Stack Layout"),
+    addAction(this, menu, tr("Open Memory Editor Showing Stack Layout"),
               true,
               [this, pos] { addStackLayoutMemoryView(false, pos); });
 
-    addAction(menu, tr("Open Memory Editor..."),
+    addAction(this, menu, tr("Open Memory Editor..."),
               true,
               [this, item] {
                     AddressDialog dialog;
@@ -1918,7 +1918,7 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
 void WatchModel::addCharsPrintableMenu(QMenu *menu)
 {
     auto addBaseChangeAction = [this, menu](const QString &text, int base) {
-        addCheckableAction(menu, text, true, theUnprintableBase == base, [this, base] {
+        addCheckableAction(this, menu, text, true, theUnprintableBase == base, [this, base] {
             theUnprintableBase = base;
             emit layoutChanged(); // FIXME
         });
@@ -1954,13 +1954,13 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
     const QString spacer = "     ";
     menu->addSeparator();
 
-    addAction(menu, tr("Change Display for Object Named \"%1\":").arg(iname), false);
+    addAction(this, menu, tr("Change Display for Object Named \"%1\":").arg(iname), false);
 
     QString msg = (individualFormat == AutomaticFormat && typeFormat != AutomaticFormat)
         ? tr("Use Format for Type (Currently %1)").arg(nameForFormat(typeFormat))
         : QString(tr("Use Display Format Based on Type") + ' ');
 
-    addCheckableAction(menu, spacer + msg, true, individualFormat == AutomaticFormat,
+    addCheckableAction(this, menu, spacer + msg, true, individualFormat == AutomaticFormat,
                        [this, iname] {
                                 // FIXME: Extend to multi-selection.
                                 //const QModelIndexList active = activeRows();
@@ -1971,23 +1971,23 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
                        });
 
     for (int format : alternativeFormats) {
-        addCheckableAction(menu, spacer + nameForFormat(format), true, format == individualFormat,
+        addCheckableAction(this, menu, spacer + nameForFormat(format), true, format == individualFormat,
                            [this, format, iname] {
                                 setIndividualFormat(iname, format);
                                 m_engine->updateLocals();
                            });
     }
 
-    addAction(menu, tr("Reset All Individual Formats"), true, [this]() {
+    addAction(this, menu, tr("Reset All Individual Formats"), true, [this]() {
         theIndividualFormats.clear();
         saveFormats();
         m_engine->updateLocals();
     });
 
     menu->addSeparator();
-    addAction(menu, tr("Change Display for Type \"%1\":").arg(item->type), false);
+    addAction(this, menu, tr("Change Display for Type \"%1\":").arg(item->type), false);
 
-    addCheckableAction(menu, spacer + tr("Automatic"), true, typeFormat == AutomaticFormat,
+    addCheckableAction(this, menu, spacer + tr("Automatic"), true, typeFormat == AutomaticFormat,
                        [this, item] {
                            //const QModelIndexList active = activeRows();
                            //for (const QModelIndex &idx : active)
@@ -1997,14 +1997,14 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
                        });
 
     for (int format : alternativeFormats) {
-        addCheckableAction(menu, spacer + nameForFormat(format), true, format == typeFormat,
+        addCheckableAction(this, menu, spacer + nameForFormat(format), true, format == typeFormat,
                            [this, format, item] {
                                setTypeFormat(item->type, format);
                                m_engine->updateLocals();
                            });
     }
 
-    addAction(menu, tr("Reset All Formats for Types"), true, [this]() {
+    addAction(this, menu, tr("Reset All Formats for Types"), true, [this]() {
         theTypeFormats.clear();
         saveFormats();
         m_engine->updateLocals();
@@ -2046,9 +2046,9 @@ QMenu *WatchModel::createFormatMenuForManySelected(const WatchItemSet &items, QW
     const QString spacer = "     ";
     menu->addSeparator();
 
-    addAction(menu, tr("Change Display for Objects"), false);
+    addAction(this, menu, tr("Change Display for Objects"), false);
     QString msg = QString(tr("Use Display Format Based on Type"));
-    addCheckableAction(menu, spacer + msg, true, false,
+    addCheckableAction(this, menu, spacer + msg, true, false,
                        [this, items] {
                             setItemsFormat(items, AutomaticFormat);
                             m_engine->updateLocals();
@@ -2061,7 +2061,7 @@ QMenu *WatchModel::createFormatMenuForManySelected(const WatchItemSet &items, QW
         if (formatName.isEmpty())
             continue;
 
-        addCheckableAction(menu, spacer + formatName,
+        addCheckableAction(this, menu, spacer + formatName,
                            it.value() == countOfSelectItems,
                            false,
                            [this, format, items] {

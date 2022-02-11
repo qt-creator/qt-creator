@@ -72,6 +72,26 @@
     \QC requires CMake's \l{https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
     {file-based API}, and therefore you'll need CMake version 3.14, or later.
 
+    For systems with older versions of CMake, only workarounds are available:
+    \list
+
+        \li For CMake version 3.5 or later it is possible to generate a
+            \l{https://cmake.org/cmake/help/latest/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html}{compilation database}
+            and open that in \QC, as described in \l{Using Compilation Databases}.
+
+        \li Create an ad-hoc project file for a qmake build using
+            \c{qmake -project} and \l{Opening Projects}{open} that in \QC.
+            Be aware that this is typically
+            not compilable without further manual changes.
+
+        \li Manually create an ad-hoc project file for a
+            \l{Setting Up a Generic Project}{generic project} and
+            open that in \QC. Be aware this is typically
+            not compilable without further manual changes.
+
+    \endlist
+
+
     To view and specify settings for CMake:
 
     \list 1

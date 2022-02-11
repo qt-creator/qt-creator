@@ -199,6 +199,7 @@ private slots:
 
     void reparentingNodeLikeDragAndDrop();
     void testRewriterForGradientMagic();
+    void testStatesVersionFailing();
 
     //
     // old tests

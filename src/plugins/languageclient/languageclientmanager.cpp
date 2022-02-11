@@ -159,7 +159,6 @@ void LanguageClientManager::clientFinished(Client *client)
                 = managerInstance->m_clientForDocument.keys(client);
             if (client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
-                client->disconnect(managerInstance);
                 client->log(
                     tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
@@ -453,6 +452,7 @@ void LanguageClientManager::showInspector()
         clientName = client->name();
     QWidget *inspectorWidget = instance()->m_inspector.createWidget(clientName);
     inspectorWidget->setAttribute(Qt::WA_DeleteOnClose);
+    Core::ICore::registerWindow(inspectorWidget, Core::Context("LanguageClient.Inspector"));
     inspectorWidget->show();
 }
 

@@ -50,6 +50,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+#include <qmlprojectmanager/qmlproject.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -1471,8 +1472,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection,
                           &singleSelection));
 
-    const bool standaloneMode
-        = Core::ICore::settings()->value(DesignerSettingsKey::STANDALONE_MODE).toBool();
+    const bool standaloneMode = QmlProjectManager::QmlProject::isQtDesignStudio();
 
     if (!standaloneMode) {
         addDesignerAction(new ModelNodeContextMenuAction(goToImplementationCommandId,

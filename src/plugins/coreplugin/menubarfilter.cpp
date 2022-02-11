@@ -79,7 +79,7 @@ QList<LocatorFilterEntry> MenuBarFilter::matchesFor(QFutureInterface<LocatorFilt
     return std::move(m_entries);
 }
 
-void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
+void MenuBarFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                            int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

@@ -158,8 +158,7 @@ int AddToolChainOperation::execute() const
     if (map.isEmpty())
         map = initializeToolChains();
 
-    QVariantMap result = addToolChain(map, m_id, m_languageId, m_displayName, m_path,
-                                      m_targetAbi, m_supportedAbis, m_extra);
+    QVariantMap result = addToolChain(map);
     if (result.isEmpty() || map == result)
         return 2;
 
@@ -172,8 +171,8 @@ bool AddToolChainOperation::test() const
     QVariantMap map = initializeToolChains();
 
     // Add toolchain:
-    map = addToolChain(map, "testId", "langId", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
-                       KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
+    map = AddToolChainData{"testId", "langId", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
+                        {{"ExtraKey", QVariant("ExtraValue")}}}.addToolChain(map);
     if (map.value(COUNT).toInt() != 1
             || !map.contains(QString::fromLatin1(PREFIX) + '0'))
         return false;
@@ -190,15 +189,15 @@ bool AddToolChainOperation::test() const
         return false;
 
     // Ignore same Id:
-    QVariantMap unchanged = addToolChain(map, "testId", "langId", "name2", "/tmp/test2", "test-abi2",
+    QVariantMap unchanged = AddToolChainData{"testId", "langId", "name2", "/tmp/test2", "test-abi2",
                                          "test-abi2,test-abi3",
-                                         KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue2")));
+                                         {{"ExtraKey", QVariant("ExtraValue2")}}}.addToolChain(map);
     if (!unchanged.isEmpty())
         return false;
 
     // add 2nd tool chain:
-    map = addToolChain(map, "{some-tc-id}", "langId2", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
-                       KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
+    map = AddToolChainData{"{some-tc-id}", "langId2", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
+                        {{"ExtraKey", QVariant("ExtraValue")}}}.addToolChain(map);
     if (map.value(COUNT).toInt() != 2
             || !map.contains(QString::fromLatin1(PREFIX) + '0')
             || !map.contains(QString::fromLatin1(PREFIX) + '1'))
@@ -230,15 +229,11 @@ bool AddToolChainOperation::test() const
 }
 #endif
 
-QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QString &id,
-                                                const QString &lang, const QString &displayName,
-                                                const QString &path, const QString &abi,
-                                                const QString &supportedAbis,
-                                                const KeyValuePairList &extra)
+QVariantMap AddToolChainData::addToolChain(const QVariantMap &map) const
 {
     // Sanity check: Does the Id already exist?
-    if (exists(map, id)) {
-        std::cerr << "Error: Id " << qPrintable(id) << " already defined for tool chains." << std::endl;
+    if (exists(map, m_id)) {
+        std::cerr << "Error: Id " << qPrintable(m_id) << " already defined for tool chains." << std::endl;
         return QVariantMap();
     }
 
@@ -255,44 +250,44 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair({tc, ID}, QVariant(id));
+    data << KeyValuePair({tc, ID}, QVariant(m_id));
 
     // Language compatibility hack for old Qt components that use the language spec from 4.2.
     // Some Qt 5.15 components were actually still using this.
     QString newLang; // QtC 4.3 and later
-    lang.toInt(&ok);
-    if (lang == "2" || lang == "Cxx") {
+    m_languageId.toInt(&ok);
+    if (m_languageId == "2" || m_languageId == "Cxx") {
         newLang = "Cxx";
-    } else if (lang == "1" || lang == "C") {
+    } else if (m_languageId == "1" || m_languageId == "C") {
         newLang = "C";
     } else if (ok) {
         std::cerr << "Error: Language ID must be 1 for C, 2 for Cxx "
                   << "or a string like \"C\", \"Cxx\", \"Nim\" (was \""
-                  << qPrintable(lang) << "\")" << std::endl;
+                  << qPrintable(m_languageId) << "\")" << std::endl;
         return {};
     } else if (!ok) {
-        newLang = lang;
+        newLang = m_languageId;
     }
     data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
-    data << KeyValuePair({tc, DISPLAYNAME}, QVariant(displayName));
+    data << KeyValuePair({tc, DISPLAYNAME}, QVariant(m_displayName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
-    data << KeyValuePair({tc, PATH}, Utils::FilePath::fromUserInput(path).toVariant());
-    data << KeyValuePair({tc, TARGET_ABI}, QVariant(abi));
+    data << KeyValuePair({tc, PATH}, Utils::FilePath::fromUserInput(m_path).toVariant());
+    data << KeyValuePair({tc, TARGET_ABI}, QVariant(m_targetAbi));
     QVariantList abis;
-    QStringList abiStrings = supportedAbis.split(',');
+    QStringList abiStrings = m_supportedAbis.split(',');
     foreach (const QString &s, abiStrings)
         abis << QVariant(s);
     data << KeyValuePair({tc, SUPPORTED_ABIS}, QVariant(abis));
     KeyValuePairList tcExtraList;
-    foreach (const KeyValuePair &pair, extra)
+    foreach (const KeyValuePair &pair, m_extra)
         tcExtraList << KeyValuePair(QStringList({tc}) << pair.key, pair.value);
     data.append(tcExtraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
 
-    return AddKeysOperation::addKeys(result, data);
+    return AddKeysData{data}.addKeys(result);
 }
 
-QVariantMap AddToolChainOperation::initializeToolChains()
+QVariantMap AddToolChainData::initializeToolChains()
 {
     QVariantMap map;
     map.insert(COUNT, 0);
@@ -300,7 +295,7 @@ QVariantMap AddToolChainOperation::initializeToolChains()
     return map;
 }
 
-bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
+bool AddToolChainData::exists(const QVariantMap &map, const QString &id)
 {
     QStringList valueKeys = FindValueOperation::findValue(map, id);
     // support old settings using QByteArray for id's
@@ -314,7 +309,7 @@ bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
     return false;
 }
 
-bool AddToolChainOperation::exists(const QString &id)
+bool AddToolChainData::exists(const QString &id)
 {
     QVariantMap map = Operation::load("ToolChains");
     return exists(map, id);

@@ -9,7 +9,6 @@
 using namespace KSyntaxHighlighting;
 
 #include <QChar>
-#include <QStringView>
 
 namespace
 {

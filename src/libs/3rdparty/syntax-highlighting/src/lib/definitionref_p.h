@@ -7,6 +7,8 @@
 #ifndef KSYNTAXHIGHLIGHTING_DEFINITIONREF_P_H
 #define KSYNTAXHIGHLIGHTING_DEFINITIONREF_P_H
 
+#include "definition.h"
+
 #include <memory>
 
 namespace KSyntaxHighlighting
@@ -29,7 +31,9 @@ class DefinitionRef
 public:
     DefinitionRef();
     explicit DefinitionRef(const Definition &def);
+    explicit DefinitionRef(Definition &&def);
     DefinitionRef &operator=(const Definition &def);
+    DefinitionRef &operator=(Definition &&def);
 
     Definition definition() const;
 

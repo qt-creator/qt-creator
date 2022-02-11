@@ -197,7 +197,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
 
 #endif
 
-void HelpIndexFilter::accept(LocatorFilterEntry selection,
+void HelpIndexFilter::accept(const LocatorFilterEntry &selection,
                              QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

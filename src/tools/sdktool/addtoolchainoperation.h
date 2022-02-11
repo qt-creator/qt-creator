@@ -27,34 +27,16 @@
 
 #include "operation.h"
 
-#include <QString>
-
-class AddToolChainOperation : public Operation
+class AddToolChainData
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
-
-    bool setArguments(const QStringList &args);
-
-    int execute() const;
-
-#ifdef WITH_TESTS
-    bool test() const;
-#endif
-
-    static QVariantMap addToolChain(const QVariantMap &map,
-                                    const QString &id, const QString &lang,
-                                    const QString &displayName, const QString &path,
-                                    const QString &abi, const QString &supportedAbis,
-                                    const KeyValuePairList &extra);
+    QVariantMap addToolChain(const QVariantMap &map) const;
 
     static QVariantMap initializeToolChains();
+
     static bool exists(const QString &id);
     static bool exists(const QVariantMap &map, const QString &id);
 
-private:
     QString m_id;
     QString m_languageId;
     QString m_displayName;
@@ -62,4 +44,20 @@ private:
     QString m_targetAbi;
     QString m_supportedAbis;
     KeyValuePairList m_extra;
+};
+
+class AddToolChainOperation : public Operation, public AddToolChainData
+{
+public:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+
+    bool setArguments(const QStringList &args) final;
+
+    int execute() const final;
+
+#ifdef WITH_TESTS
+    bool test() const final;
+#endif
 };

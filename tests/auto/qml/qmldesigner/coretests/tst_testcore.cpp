@@ -1234,6 +1234,115 @@ void tst_TestCore::testRewriterForGradientMagic()
     transaction.commit();
 }
 
+void tst_TestCore::testStatesVersionFailing()
+{
+    char qmlString[] = "import QtQuick\n"
+                       "Rectangle {\n"
+                       "id: root;\n"
+                       "Rectangle {\n"
+                       "id: rect1;\n"
+                       "}\n"
+                       "Rectangle {\n"
+                       "id: rect2;\n"
+                       "}\n"
+                       "states: [\n"
+                       "State {\n"
+                       "name: \"state1\"\n"
+                       "PropertyChanges {\n"
+                       "target: rect1\n"
+                       "}\n"
+                       "}\n"
+                       "]\n"
+                       "}\n";
+
+    Exception::setShouldAssert(true);
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(QLatin1String(qmlString));
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+
+    model->attachView(testRewriterView.data());
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
+
+    QCOMPARE(QmlItemNode(rootModelNode).states().allStates().count(), 1);
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().count(), 1);
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().first(), QString("state1"));
+
+    QmlModelState state = QmlItemNode(rootModelNode).states().state("state1");
+    ModelNode stateNode = QmlItemNode(rootModelNode).states().state("state1").modelNode();
+    QVERIFY(stateNode.isValid());
+
+    NodeMetaInfo stateInfo = stateNode.metaInfo();
+
+    QVERIFY(stateInfo.isValid());
+    QmlModelState newState = state.duplicate("state2");
+
+    QCOMPARE(QmlItemNode(rootModelNode).states().allStates().count(), 2);
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().count(), 2);
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().last(), QString("state2"));
+
+    QCOMPARE(QmlItemNode(rootModelNode).states().state("state2"), newState);
+
+    QCOMPARE(stateInfo.majorVersion(), newState.modelNode().majorVersion());
+    QCOMPARE(stateInfo.minorVersion(), newState.modelNode().minorVersion());
+
+    ModelNode rect1Node = view->modelNodeForId("rect1");
+    QVERIFY(rect1Node.isValid());
+    QmlObjectNode rect1(rect1Node);
+    QmlPropertyChanges changes = newState.propertyChanges(rect1Node);
+    QVERIFY(changes.isValid());
+
+    NodeMetaInfo changeInfo = changes.modelNode().metaInfo();
+    QVERIFY(changeInfo.isValid());
+
+    QVERIFY(!changes.modelNode().hasProperty("x"));
+
+    view->setCurrentState(newState);
+
+    QVERIFY(view->currentState() == newState);
+
+    QString oldText = textEdit.toPlainText();
+
+    rect1.setVariantProperty("x", 100);
+    QVERIFY(changes.modelNode().hasProperty("x"));
+    QVERIFY(oldText != textEdit.toPlainText());
+
+    ModelNode rect2Node = view->modelNodeForId("rect2");
+    QVERIFY(rect2Node.isValid());
+    QmlObjectNode rect2(rect2Node);
+    QVERIFY(!newState.hasPropertyChanges(rect2Node));
+    QmlPropertyChanges changes2 = newState.propertyChanges(rect2Node);
+
+    QVERIFY(changes2.isValid());
+
+    QVERIFY(view->currentState() == newState);
+
+    oldText = textEdit.toPlainText();
+
+    rect2.setVariantProperty("x", 100);
+    changes2 = newState.propertyChanges(rect2Node);
+    QVERIFY(changes2.isValid());
+    QVERIFY(changes2.modelNode().hasProperty("x"));
+    QVERIFY(oldText != textEdit.toPlainText());
+
+    QCOMPARE(changeInfo.majorVersion(), changes2.modelNode().majorVersion());
+    QCOMPARE(changeInfo.minorVersion(), changes2.modelNode().minorVersion());
+}
+
 void tst_TestCore::loadSubItems()
 {
     QFile file(QString(TESTSRCDIR) + "/../data/fx/topitem.qml");

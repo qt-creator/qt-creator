@@ -149,11 +149,9 @@
 
     \section1 Configuring clangd
 
-    You can use the experimental clangd support instead of libclang to receive
-    exact and complete results for services such as finding references,
-    following symbols under cursor, and using the locator, even for complex
-    constructs that the built-in code model cannot handle correctly. These
-    improvements are based on clangd's \e index. When you \l{Opening Projects}
+    The clangd \e index provides exact and complete results for services such
+    as finding references, following symbols under cursor, and using the
+    locator, even for complex constructs. When you \l{Opening Projects}
     {open a project}, clangd scans the source files to generate the index. For
     large projects, this can take a while, but the index is persistent and
     re-scanning is incremental, so nothing is lost by closing and re-starting
@@ -171,8 +169,7 @@
     {Outline} view is backed by clangd's document symbol support, which
     makes the results more reliable than before.
 
-    To use clangd for the current project instead of the built-in code model or
-    Clang:
+    To specify settings for clangd:
 
     \list 1
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol C++ >

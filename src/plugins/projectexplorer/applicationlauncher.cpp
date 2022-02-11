@@ -451,18 +451,8 @@ void ApplicationLauncherPrivate::handleApplicationFinished()
 {
     QTC_ASSERT(m_state == Run, return);
 
-    if (m_deviceProcess->exitStatus() == QProcess::CrashExit) {
+    if (m_deviceProcess->exitStatus() == QProcess::CrashExit)
         doReportError(m_deviceProcess->errorString(), QProcess::Crashed);
-    } else {
-        const int exitCode = m_deviceProcess->exitCode();
-        if (exitCode != 0) {
-            doReportError(ApplicationLauncher::tr("Application finished with exit code %1.")
-                          .arg(exitCode), QProcess::UnknownError);
-        } else {
-            emit q->appendMessage(ApplicationLauncher::tr("Application finished with exit code 0."),
-                                  Utils::NormalMessageFormat);
-        }
-    }
     setFinished();
 }
 

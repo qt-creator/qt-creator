@@ -59,8 +59,6 @@ public:
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
-    void setResourcePath(const QString &resourcePath);
-
     AsynchronousImageCache &imageCache();
 
 protected:

@@ -27,7 +27,7 @@
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditorscene.h"
-#include "itemlibrarywidget.h"
+#include "assetslibrarywidget.h"
 
 #include <modelnodecontextmenu.h>
 
@@ -240,7 +240,7 @@ void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemLis
         const QStringList assetPaths = QString::fromUtf8(event->mimeData()
                                 ->data("application/vnd.bauhaus.libraryresource")).split(",");
         for (const QString &assetPath : assetPaths) {
-            QString assetType = ItemLibraryWidget::getAssetTypeAndData(assetPath).first;
+            QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
             if (assetType == "application/vnd.bauhaus.libraryresource.image"
                 || assetType == "application/vnd.bauhaus.libraryresource.font") {
                 hasValidAssets = true;

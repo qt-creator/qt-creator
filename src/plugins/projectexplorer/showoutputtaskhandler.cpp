@@ -30,15 +30,19 @@
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/outputwindow.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 
 namespace ProjectExplorer {
 namespace Internal {
 
-ShowOutputTaskHandler::ShowOutputTaskHandler(Core::IOutputPane *window) : m_window(window)
+ShowOutputTaskHandler::ShowOutputTaskHandler(Core::IOutputPane *window, const QString &text,
+                                             const QString &tooltip, const QString &shortcut)
+    : m_window(window), m_text(text), m_tooltip(tooltip), m_shortcut(shortcut)
 {
-    Q_ASSERT(m_window);
+    QTC_CHECK(m_window);
+    QTC_CHECK(!m_text.isEmpty());
 }
 
 bool ShowOutputTaskHandler::canHandle(const Task &task) const
@@ -64,9 +68,11 @@ void ShowOutputTaskHandler::handle(const Task &task)
 
 QAction *ShowOutputTaskHandler::createAction(QObject *parent) const
 {
-    QAction *outputAction = new QAction(tr("Show &Output"), parent);
-    outputAction->setToolTip(tr("Show output generating this issue."));
-    outputAction->setShortcut(QKeySequence(tr("O")));
+    QAction * const outputAction = new QAction(m_text, parent);
+    if (!m_tooltip.isEmpty())
+        outputAction->setToolTip(m_tooltip);
+    if (!m_shortcut.isEmpty())
+        outputAction->setShortcut(QKeySequence(m_shortcut));
     outputAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return outputAction;
 }

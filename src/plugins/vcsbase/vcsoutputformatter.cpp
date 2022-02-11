@@ -28,6 +28,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QClipboard>
 #include <QDesktopServices>
 #include <QMenu>
 #include <QPlainTextEdit>
@@ -88,6 +90,8 @@ void VcsOutputLineParser::fillLinkContextMenu(
                     tr("&Open \"%1\"").arg(href),
                     [href] { QDesktopServices::openUrl(QUrl(href)); });
         menu->setDefaultAction(action);
+        menu->addAction(tr("&Copy to clipboard: \"%1\"").arg(href),
+                    [href] { QApplication::clipboard()->setText(href); });
         return;
     }
     if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(workingDirectory))

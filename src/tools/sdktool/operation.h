@@ -30,21 +30,25 @@
 #include <QStringList>
 #include <QVariant>
 
+class KeyValuePair
+{
+public:
+    KeyValuePair(const QString &k, const QString &v);
+    KeyValuePair(const QString &k, const QVariant &v);
+    KeyValuePair(const QStringList &k, const QString &v);
+    KeyValuePair(const QStringList &k, const QVariant &v);
+
+    QStringList key;
+    QVariant value;
+};
+
+using KeyValuePairList = QList<KeyValuePair>;
+
+QVariant valueFromString(const QString &v);
+
 class Operation
 {
 public:
-    class KeyValuePair {
-    public:
-        KeyValuePair(const QString &k, const QString &v);
-        KeyValuePair(const QString &k, const QVariant &v);
-        KeyValuePair(const QStringList &k, const QString &v);
-        KeyValuePair(const QStringList &k, const QVariant &v);
-
-        QStringList key;
-        QVariant value;
-    };
-    typedef QList<KeyValuePair> KeyValuePairList;
-
     virtual ~Operation() { }
 
     virtual QString name() const = 0;
@@ -61,6 +65,4 @@ public:
 
     static QVariantMap load(const QString &file);
     bool save(const QVariantMap &map, const QString &file) const;
-
-    static QVariant valueFromString(const QString &v);
 };

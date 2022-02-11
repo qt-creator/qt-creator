@@ -32,16 +32,16 @@
 class RmToolChainOperation : public Operation
 {
 public:
-    QString name() const;
-    QString helpText() const;
-    QString argumentsHelpText() const;
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
 
-    bool setArguments(const QStringList &args);
+    bool setArguments(const QStringList &args) final;
 
-    int execute() const;
+    int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const;
+    bool test() const final;
 #endif
 
     static QVariantMap rmToolChain(const QVariantMap &map, const QString &id);

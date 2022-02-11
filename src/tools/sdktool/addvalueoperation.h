@@ -28,25 +28,30 @@
 
 #include "operation.h"
 
-class AddValueOperation : public Operation
+class AddValueData
 {
 public:
-    QString name() const override;
-    QString helpText() const override;
-    QString argumentsHelpText() const override;
+    bool appendListToMap(QVariantMap &map) const;
 
-    bool setArguments(const QStringList &args) override;
+    QString m_key;
+    QVariantList m_values;
+};
 
-    int execute() const override;
+class AddValueOperation : public Operation, public AddValueData
+{
+public:
+    QString name() const final;
+    QString helpText() const final;
+    QString argumentsHelpText() const final;
+
+    bool setArguments(const QStringList &args) final;
+
+    int execute() const final;
 
 #ifdef WITH_TESTS
-    bool test() const override;
+    bool test() const final;
 #endif
-
-    static bool appendListToMap(QVariantMap &map, const QString &key, const QVariantList &values);
 
 private:
     QString m_file;
-    QString m_key;
-    QVariantList m_values;
 };

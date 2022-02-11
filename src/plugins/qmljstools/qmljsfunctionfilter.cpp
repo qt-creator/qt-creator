@@ -95,7 +95,7 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
     return std::accumulate(std::begin(entries), std::end(entries), QList<Core::LocatorFilterEntry>());
 }
 
-void FunctionFilter::accept(Core::LocatorFilterEntry selection,
+void FunctionFilter::accept(const Core::LocatorFilterEntry &selection,
                             QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)

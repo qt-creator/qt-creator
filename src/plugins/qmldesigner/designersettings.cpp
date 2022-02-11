@@ -74,7 +74,6 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO, false);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, false);
-    restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, true);
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_RECENT, QStringList());
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_FAVORITE, QStringList());

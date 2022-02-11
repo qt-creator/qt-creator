@@ -348,6 +348,7 @@ void GerritPlugin::openView()
         }
         GerritDialog *gd = new GerritDialog(m_parameters, m_server, currentRepository(), ICore::dialogParent());
         gd->setModal(false);
+        ICore::registerWindow(gd, Context("Git.Gerrit"));
         connect(gd, &GerritDialog::fetchDisplay, this,
                 [this](const QSharedPointer<GerritChange> &change) { fetch(change, FetchDisplay); });
         connect(gd, &GerritDialog::fetchCherryPick, this,
