@@ -211,6 +211,10 @@ QtObject {
 
     property string themePanelBackground: Theme.color(Theme.DSpanelBackground)
 
+    property string themeGreenLight: Theme.color(Theme.DSgreenLight)
+    property string themeAmberLight: Theme.color(Theme.DSamberLight)
+    property string themeRedLight: Theme.color(Theme.DSredLight)
+
     property string themeInteraction: Theme.color(Theme.DSinteraction)
     property string themeError: Theme.color(Theme.DSerrorColor)
     property string themeWarning: Theme.color(Theme.DSwarningColor)
