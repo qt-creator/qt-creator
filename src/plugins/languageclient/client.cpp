@@ -105,6 +105,10 @@ Client::Client(BaseClientInterface *clientInterface)
     connect(clientInterface, &BaseClientInterface::messageReceived, this, &Client::handleMessage);
     connect(clientInterface, &BaseClientInterface::error, this, &Client::setError);
     connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::documentClosed,
+            this,
+            &Client::documentClosed);
 
     m_tokenSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
     m_tokenSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
@@ -625,6 +629,12 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
             widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
         }
     }
+}
+
+void Client::documentClosed(Core::IDocument *document)
+{
+    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
+        closeDocument(textDocument);
 }
 
 bool Client::documentOpen(const TextEditor::TextDocument *document) const
