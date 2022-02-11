@@ -32,6 +32,7 @@
 
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
+#include <documentmanager.h>
 #include <itemlibraryimageprovider.h>
 #include <itemlibraryinfo.h>
 #include <itemlibrarymodel.h>
@@ -267,6 +268,11 @@ void ItemLibraryWidget::handleAddImport(int index)
 
     QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "switchToComponentsView");
     updateSearch();
+}
+
+void ItemLibraryWidget::goIntoComponent(const QString &source)
+{
+    DocumentManager::goIntoComponent(source);
 }
 
 void ItemLibraryWidget::delayedUpdateModel()

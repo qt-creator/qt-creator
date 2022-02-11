@@ -32,6 +32,11 @@ MouseArea {
 
     signal showContextMenu()
 
+    function hide()
+    {
+        tooltipBackend.hideTooltip()
+    }
+
     onExited: tooltipBackend.hideTooltip()
     onCanceled: tooltipBackend.hideTooltip()
     onPositionChanged: tooltipBackend.reposition()

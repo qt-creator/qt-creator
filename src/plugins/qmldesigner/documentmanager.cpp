@@ -108,12 +108,17 @@ static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QV
     }
 }
 
-static void openFileComponent(const ModelNode &modelNode)
+static void openFileComponentForFile(const QString &fileName)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
-    Core::EditorManager::openEditor(FilePath::fromString(modelNode.metaInfo().componentFileName()),
+    Core::EditorManager::openEditor(FilePath::fromString(fileName),
                                     Utils::Id(),
                                     Core::EditorManager::DoNotMakeVisible);
+}
+
+static void openFileComponent(const ModelNode &modelNode)
+{
+    openFileComponentForFile(modelNode.metaInfo().componentFileName());
 }
 
 static void openFileComponentForDelegate(const ModelNode &modelNode)
@@ -303,6 +308,11 @@ bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
     }
 
     return false;
+}
+
+void DocumentManager::goIntoComponent(const QString &fileName)
+{
+    openFileComponentForFile(fileName);
 }
 
 bool DocumentManager::createFile(const QString &filePath, const QString &contents)
