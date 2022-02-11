@@ -1,0 +1,44 @@
+MetaInfo {
+    Type {
+        name: "MyPlugin2.MyComponent"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "My Component"
+            category: "My Test Plugin 2"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "MyPlugin2"
+
+            Property {
+                name: "text"
+                type: "binding"
+                value: "qsTr(\"This is text\")"
+            }
+        }
+    }
+
+    Type {
+        name: "MyPlugin2.MyComponent2"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "My Component 2"
+            category: "My Test Plugin 2"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "MyPlugin2"
+
+            Property {
+                name: "text"
+                type: "binding"
+                value: "qsTr(\"This is text\")"
+            }
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+            Property { name: "color"; type: "QColor"; value: "red"; }
+        }
+    }
+
+}

@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick
-import MyPlugin 1.0
+import QtQuick 2.3
+import MyPlugin2 1.0
 
 Rectangle {
+
     width: 640
     height: 480
 
@@ -35,9 +36,3 @@ Rectangle {
 
     }
 }
-
-/*##^##
-Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
-##^##*/

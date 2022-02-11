@@ -23,21 +23,21 @@
 **
 ****************************************************************************/
 
-import QtQuick
-import MyPlugin 1.0
+import QtQuick 2.0
 
-Rectangle {
-    width: 640
-    height: 480
+Item {
+    property alias text: textItem.text
+    property alias color: rect.color
+    property alias radius: rect.radius
 
-    MyComponent {
-        text: qsTr("Some Text")
+    Rectangle {
+        id: rect
+        anchors.fill: parent
+        color: "green"
 
+        Text {
+            id: textItem
+            anchors.centerIn: parent
+        }
     }
 }
-
-/*##^##
-Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
-##^##*/
