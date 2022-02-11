@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \example loginui4
+    \example Loginui4
     \ingroup gstutorials
 
     \title Log In UI - Timeline
@@ -312,7 +312,7 @@
     the following \e import statement to the UI files where it uses the
     components:
 
-    \quotefromfile Loginui4/Content/Screen01.ui.qml
+    \quotefromfile Loginui4/content/Screen01.ui.qml
     \skipto QtQuick.Timeline
     \printuntil 1.0
 

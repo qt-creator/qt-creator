@@ -69,7 +69,10 @@ def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     __chooseTargets__([]) # uncheck all
-    __chooseTargets__([Targets.DESKTOP_4_8_7_DEFAULT], additionalFunc=additionalFunction)
+    targetToChoose = Targets.DESKTOP_4_8_7_DEFAULT # FIXME make the intended target a parameter
+    if not qt4Available:
+        targetToChoose = Targets.DESKTOP_5_14_1_DEFAULT
+    __chooseTargets__([targetToChoose], additionalFunc=additionalFunction)
     clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
@@ -524,7 +527,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         result = set()
         if 'Desktop' in supports:
             if (version == None or version < "5.0") and not templateName.startswith("Qt Quick 2"):
-                result.add(Targets.DESKTOP_4_8_7_DEFAULT)
+                if qt4Available:
+                    result.add(Targets.DESKTOP_4_8_7_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.add(Targets.EMBEDDED_LINUX)
             result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]))
