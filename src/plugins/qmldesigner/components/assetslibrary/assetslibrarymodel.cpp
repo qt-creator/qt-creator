@@ -144,6 +144,9 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
         return true;
 
     dir.cdUp();
+
+    saveExpandedState(loadExpandedState(folderPath), dir.absoluteFilePath(newName));
+
     return dir.rename(oldName, newName);
 }
 
