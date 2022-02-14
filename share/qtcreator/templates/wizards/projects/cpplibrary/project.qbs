@@ -11,7 +11,7 @@ DynamicLibrary {
     Depends { name: "Qt.%{QtModule}" }
 @endif
 
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++17"
     cpp.defines: [
 @if %{IsShared}
         "%{LibraryDefine}",
