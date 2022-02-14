@@ -791,7 +791,7 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
     std::sort(repo->mcuTargets.begin(),
               repo->mcuTargets.end(),
               [](const McuTarget *lhs, const McuTarget *rhs) {
-                  return McuSupportOptions::kitName(lhs) < McuSupportOptions::kitName(rhs);
+                  return McuKitManager::kitName(lhs) < McuKitManager::kitName(rhs);
               });
 }
 

@@ -93,9 +93,9 @@ void McuSupportPlugin::extensionsInitialized()
     ProjectExplorer::DeviceManager::instance()->addDevice(McuSupportDevice::create());
 
     connect(KitManager::instance(), &KitManager::kitsLoaded, []() {
-        McuSupportOptions::removeOutdatedKits();
-        McuSupportOptions::createAutomaticKits();
-        McuSupportOptions::fixExistingKits();
+        McuKitManager::removeOutdatedKits();
+        McuKitManager::createAutomaticKits();
+        McuKitManager::fixExistingKits();
         McuSupportPlugin::askUserAboutMcuSupportKitsSetup();
     });
 }
@@ -106,7 +106,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
 
     if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
         || McuSupportOptions::qulDirFromSettings().isEmpty()
-        || !McuSupportOptions::existingKits(nullptr).isEmpty())
+        || !McuKitManager::existingKits(nullptr).isEmpty())
         return;
 
     Utils::InfoBarEntry info(setupMcuSupportKits,
@@ -130,18 +130,19 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
     Utils::InfoBarEntry info(upgradeMcuSupportKits,
                              tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    static McuKitManager::UpgradeOption selectedOption = McuKitManager::UpgradeOption::Keep;
 
-    static McuSupportOptions::UpgradeOption selectedOption;
-    const QStringList options = {tr("Create new kits"), tr("Replace existing kits")};
-    selectedOption = McuSupportOptions::UpgradeOption::Keep;
+    const QStringList options = { tr("Create new kits"), tr("Replace existing kits") };
     info.setComboInfo(options, [options](const QString &selected) {
-        selectedOption = options.indexOf(selected) == 0 ? McuSupportOptions::UpgradeOption::Keep
-                                                        : McuSupportOptions::UpgradeOption::Replace;
+        selectedOption = options.indexOf(selected) == 0 ? McuKitManager::UpgradeOption::Keep
+                                                        : McuKitManager::UpgradeOption::Replace;
     });
 
     info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits] {
         ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
-        QTimer::singleShot(0, []() { McuSupportOptions::upgradeKits(selectedOption); });
+        QTimer::singleShot(0, []() {
+            McuKitManager::upgradeKitsByCreatingNewPackage(selectedOption);
+        });
     });
 
     ICore::infoBar()->addInfo(info);

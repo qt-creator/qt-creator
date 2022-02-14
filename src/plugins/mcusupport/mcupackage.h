@@ -86,10 +86,6 @@ public:
 
     const QString &environmentVariableName() const override;
 
-signals:
-    void changed();
-    void statusChanged();
-
 private:
     void updatePath();
     void updateStatusUi();

@@ -65,7 +65,7 @@ void McuSupportTest::test_addNewKit()
 
     QSignalSpy kitAddedSpy(&kitManager, &KitManager::kitAdded);
 
-    auto *newKit{McuSupportOptions::newKit(&mcuTarget, &freeRtosPackage)};
+    auto *newKit{McuKitManager::newKit(&mcuTarget, &freeRtosPackage)};
     QVERIFY(newKit != nullptr);
 
     QCOMPARE(kitAddedSpy.count(), 1);
