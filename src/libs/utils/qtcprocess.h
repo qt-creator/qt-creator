@@ -275,8 +275,8 @@ public:
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
 
-    virtual void setProcessEnvironment(const QProcessEnvironment &environment) = 0;
-    virtual void setWorkingDirectory(const QString &dir) = 0;
+    virtual void setEnvironment(const Environment &environment) = 0;
+    virtual void setWorkingDirectory(const FilePath &dir) = 0;
     virtual void start(const QString &program, const QStringList &arguments,
                        const QByteArray &writeData) = 0;
     virtual void customStart(const CommandLine &, const FilePath &,

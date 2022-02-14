@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "environment.h"
+#include "filepath.h"
 #include "launcherpackets.h"
 #include "processutils.h"
 
@@ -111,8 +113,8 @@ public:
     QStringList arguments() const;
     void setStandardInputFile(const QString &fileName);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-    void setProcessEnvironment(const QProcessEnvironment &environment);
-    void setWorkingDirectory(const QString &dir);
+    void setEnvironment(const Environment &environment);
+    void setWorkingDirectory(const FilePath &dir);
     QProcess::ExitStatus exitStatus() const;
 
     void setBelowNormalPriority();
@@ -175,8 +177,8 @@ private:
 
     QString m_command;
     QStringList m_arguments;
-    QProcessEnvironment m_environment;
-    QString m_workingDirectory;
+    Environment m_environment;
+    FilePath m_workingDirectory;
     QByteArray m_writeData;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     QString m_standardInputFile;

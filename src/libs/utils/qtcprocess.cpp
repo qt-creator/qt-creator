@@ -233,8 +233,8 @@ public:
     QByteArray readAllStandardOutput() override { QTC_CHECK(false); return {}; }
     QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
 
-    void setProcessEnvironment(const QProcessEnvironment &) override { QTC_CHECK(false); }
-    void setWorkingDirectory(const QString &) override { QTC_CHECK(false); }
+    void setEnvironment(const Environment &) override { QTC_CHECK(false); }
+    void setWorkingDirectory(const FilePath &) override { QTC_CHECK(false); }
     void start(const QString &, const QStringList &, const QByteArray &) override
     { QTC_CHECK(false); }
     void customStart(const CommandLine &command, const FilePath &workingDirectory,
@@ -301,10 +301,10 @@ public:
     QByteArray readAllStandardOutput() override { return m_process->readAllStandardOutput(); }
     QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
 
-    void setProcessEnvironment(const QProcessEnvironment &environment) override
-    { m_process->setProcessEnvironment(environment); }
-    void setWorkingDirectory(const QString &dir) override
-    { m_process->setWorkingDirectory(dir); }
+    void setEnvironment(const Environment &environment) override
+    { m_process->setProcessEnvironment(environment.toProcessEnvironment()); }
+    void setWorkingDirectory(const FilePath &dir) override
+    { m_process->setWorkingDirectory(dir.path()); }
 
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
@@ -402,9 +402,9 @@ public:
     QByteArray readAllStandardOutput() override { return m_handle->readAllStandardOutput(); }
     QByteArray readAllStandardError() override { return m_handle->readAllStandardError(); }
 
-    void setProcessEnvironment(const QProcessEnvironment &environment) override
-    { m_handle->setProcessEnvironment(environment); }
-    void setWorkingDirectory(const QString &dir) override { m_handle->setWorkingDirectory(dir); }
+    void setEnvironment(const Environment &environment) override
+    { m_handle->setEnvironment(environment); }
+    void setWorkingDirectory(const FilePath &dir) override { m_handle->setWorkingDirectory(dir); }
 
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
@@ -551,8 +551,8 @@ public:
             qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << commandLine.toUserOutput();
         }
 
-        m_process->setProcessEnvironment(environment.toProcessEnvironment());
-        m_process->setWorkingDirectory(workingDirectory.path());
+        m_process->setEnvironment(environment);
+        m_process->setWorkingDirectory(workingDirectory);
 
         QString commandString;
         ProcessArgs arguments;

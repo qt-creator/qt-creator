@@ -376,7 +376,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
     p->command = m_command;
     p->arguments = m_arguments;
     p->env = m_environment.toStringList();
-    p->workingDir = m_workingDirectory;
+    p->workingDir = m_workingDirectory.path();
     p->processMode = m_processMode;
     p->writeData = m_writeData;
     p->channelMode = m_channelMode;
@@ -456,13 +456,13 @@ void CallerHandle::setProcessChannelMode(QProcess::ProcessChannelMode mode)
     m_channelMode = mode;
 }
 
-void CallerHandle::setProcessEnvironment(const QProcessEnvironment &environment)
+void CallerHandle::setEnvironment(const Environment &environment)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_environment = environment;
 }
 
-void CallerHandle::setWorkingDirectory(const QString &dir)
+void CallerHandle::setWorkingDirectory(const FilePath &dir)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_workingDirectory = dir;
