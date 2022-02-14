@@ -41,7 +41,7 @@ namespace OsSpecificAspects {
 inline QString withExecutableSuffix(OsType osType, const QString &executable)
 {
     QString finalName = executable;
-    if (osType == OsTypeWindows)
+    if (osType == OsTypeWindows && !finalName.endsWith(QTC_WIN_EXE_SUFFIX))
         finalName += QLatin1String(QTC_WIN_EXE_SUFFIX);
     return finalName;
 }
