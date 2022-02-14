@@ -31,9 +31,9 @@ def openQbsProject(projectPath):
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton('Open')
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Open Project...')
         if not all((wsButtonFrame, wsButtonLabel)):
-            test.fatal("Could not find 'Open' button on Welcome Page.")
+            test.fatal("Could not find 'Open Project...' button on Welcome Page.")
             return []
         mouseClick(wsButtonLabel)
     else:
@@ -83,10 +83,10 @@ def openCmakeProject(projectPath, buildDir):
 def __createProjectOrFileSelectType__(category, template, fromWelcome = False, isProject=True):
     if fromWelcome:
         if not isProject:
-            test.fatal("'New' on Welcome screen only handles projects nowadays.")
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton("New")
+            test.fatal("'Create Project...' on Welcome screen only handles projects nowadays.")
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton("Create Project...")
         if not all((wsButtonFrame, wsButtonLabel)):
-            test.fatal("Could not find 'New' button on Welcome Page")
+            test.fatal("Could not find 'Create Project...' button on Welcome Page")
             return []
         mouseClick(wsButtonLabel)
     elif isProject:
