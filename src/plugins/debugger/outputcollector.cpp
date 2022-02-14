@@ -156,7 +156,8 @@ void OutputCollector::newConnectionAvailable()
 void OutputCollector::bytesAvailable()
 {
 #ifdef Q_OS_WIN
-    emit byteDelivery(m_socket->readAll());
+    if (m_socket)
+        emit byteDelivery(m_socket->readAll());
 #else
     size_t nbytes = 0;
     if (::ioctl(m_serverFd, FIONREAD, (char *) &nbytes) < 0)
