@@ -287,7 +287,6 @@ public:
     virtual void close() = 0;
     virtual qint64 write(const QByteArray &data) = 0;
 
-    virtual QString program() const = 0;
     virtual QProcess::ProcessError error() const = 0;
     virtual QProcess::ProcessState state() const = 0;
     virtual qint64 processId() const = 0;

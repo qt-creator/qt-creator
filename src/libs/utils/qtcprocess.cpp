@@ -252,7 +252,6 @@ public:
     void close() override { m_terminal.stopProcess(); }
     qint64 write(const QByteArray &) override { QTC_CHECK(false); return -1; }
 
-    QString program() const override { QTC_CHECK(false); return {}; }
     QProcess::ProcessError error() const override { return m_terminal.error(); }
     QProcess::ProcessState state() const override { return m_terminal.state(); }
     qint64 processId() const override { return m_terminal.processId(); }
@@ -334,8 +333,6 @@ public:
     qint64 write(const QByteArray &data) override
     { return m_process->write(data); }
 
-    QString program() const override
-    { return m_process->program(); }
     QProcess::ProcessError error() const override
     { return m_process->error(); }
     QProcess::ProcessState state() const override
@@ -426,7 +423,6 @@ public:
     void close() override { cancel(); } // TODO: see above
     qint64 write(const QByteArray &data) override { return m_handle->write(data); }
 
-    QString program() const override { return m_handle->program(); }
     QProcess::ProcessError error() const override { return m_handle->error(); }
     QProcess::ProcessState state() const override { return m_handle->state(); }
     qint64 processId() const override { return m_handle->processId(); }
@@ -1013,7 +1009,7 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
         }
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
-        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_process->program());
+        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_commandLine.executable().path());
     } while (hasData && !finished);
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
