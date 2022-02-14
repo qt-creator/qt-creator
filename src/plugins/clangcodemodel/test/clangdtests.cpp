@@ -179,7 +179,6 @@ ClangdTestFindReferences::ClangdTestFindReferences()
 {
     setProjectFileName("find-usages.pro");
     setSourceFileNames({"defs.h", "main.cpp"});
-    setMinimumVersion(13);
 }
 
 void ClangdTestFindReferences::initTestCase()
@@ -322,7 +321,6 @@ ClangdTestFollowSymbol::ClangdTestFollowSymbol()
 {
     setProjectFileName("follow-symbol.pro");
     setSourceFileNames({"main.cpp", "header.h"});
-    setMinimumVersion(12);
 }
 
 void ClangdTestFollowSymbol::test_data()
@@ -409,7 +407,6 @@ ClangdTestLocalReferences::ClangdTestLocalReferences()
 {
     setProjectFileName("local-references.pro");
     setSourceFileNames({"references.cpp"});
-    setMinimumVersion(13);
 }
 
 // We currently only support local variables, but if and when clangd implements
@@ -525,7 +522,6 @@ ClangdTestTooltips::ClangdTestTooltips()
 {
     setProjectFileName("tooltips.pro");
     setSourceFileNames({"tooltips.cpp"});
-    setMinimumVersion(13);
 }
 
 void ClangdTestTooltips::test_data()
@@ -668,7 +664,6 @@ ClangdTestHighlighting::ClangdTestHighlighting()
 {
     setProjectFileName("highlighting.pro");
     setSourceFileNames({"highlighting.cpp"});
-    setMinimumVersion(13);
 }
 
 void ClangdTestHighlighting::initTestCase()

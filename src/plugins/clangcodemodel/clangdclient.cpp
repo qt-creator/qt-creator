@@ -1708,8 +1708,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     }
 
     qCDebug(clangdLog) << "document count is" << refData->fileData.size();
-    if (refData->replacementData || q->versionNumber() < QVersionNumber(13)
-            || !refData->categorize) {
+    if (refData->replacementData || !refData->categorize) {
         qCDebug(clangdLog) << "skipping AST retrieval";
         reportAllSearchResultsAndFinish(*refData);
         return;
@@ -1878,11 +1877,6 @@ void ClangdClient::followSymbol(TextDocument *document,
             d->handleGotoDefinitionResult();
     };
     symbolSupport().findLinkAt(document, adjustedCursor, std::move(gotoDefCallback), true);
-
-    if (versionNumber() < QVersionNumber(12)) {
-        d->followSymbolData->cursorNode.emplace(AstNode());
-        return;
-    }
 
     const auto astHandler = [this, id = d->followSymbolData->id]
             (const AstNode &ast, const MessageId &) {
