@@ -28,6 +28,10 @@ DSsubPanelBackground=ff1c1c1c
 DSthumbnailBackground=ff232323
 DSthumbnailLabelBackground=ff2b2a2a
 
+DSgreenLight=ff5cdc68
+DSamberLight=ffffbf00
+DSredLight=ffff0401
+
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning

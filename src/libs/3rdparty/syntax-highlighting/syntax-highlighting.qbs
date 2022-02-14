@@ -62,6 +62,8 @@ Project {
                 "format.cpp",
                 "format.h",
                 "format_p.h",
+                "highlightingdata.cpp",
+                "highlightingdata_p.hpp",
                 "htmlhighlighter.cpp",
                 "htmlhighlighter.h",
                 "keywordlist.cpp",

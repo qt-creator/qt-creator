@@ -179,6 +179,8 @@ QImage Quick3DNodeInstance::renderPreviewImage(const QSize &previewImageSize) co
             return transparentImage;
         }
     }
+#else
+    Q_UNUSED(previewImageSize)
 #endif
     return {};
 }

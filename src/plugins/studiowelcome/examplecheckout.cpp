@@ -41,6 +41,8 @@
 #include <QQuickItem>
 #include <QQuickWidget>
 
+#include <algorithm>
+
 using namespace Utils;
 
 ExampleCheckout::ExampleCheckout(QObject *) {}
@@ -137,11 +139,11 @@ FileDownloader::~FileDownloader()
 void FileDownloader::start()
 {
     m_tempFile.setFileName(QDir::tempPath() + "/" + name() + ".XXXXXX" + ".zip");
-
     m_tempFile.open(QIODevice::WriteOnly);
 
     auto request = QNetworkRequest(m_url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::UserVerifiedRedirectPolicy);
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
 
     QNetworkReply::connect(reply, &QNetworkReply::readyRead, [this, reply]() {
@@ -159,20 +161,20 @@ void FileDownloader::start()
                                emit progressChanged();
                            });
 
+    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &url) {
+        emit reply->redirectAllowed();
+    });
+
     QNetworkReply::connect(reply, &QNetworkReply::finished, [this, reply]() {
         if (reply->error()) {
             m_tempFile.remove();
-            if (m_url != reply->url()) {
-                m_url = reply->url();
-                start();
-            } else {
-                qDebug() << Q_FUNC_INFO << m_url << reply->errorString();
-                emit downloadFailed();
-            }
+            qDebug() << Q_FUNC_INFO << m_url << reply->errorString();
+            emit downloadFailed();
         } else {
             m_tempFile.flush();
             m_tempFile.close();
             m_finished = true;
+            emit tempFileChanged();
             emit finishedChanged();
         }
     });
@@ -181,8 +183,9 @@ void FileDownloader::start()
 void FileDownloader::setUrl(const QUrl &url)
 {
     m_url = url;
-
     emit nameChanged();
+
+    probeUrl();
 }
 
 QUrl FileDownloader::url() const
@@ -222,16 +225,71 @@ QString FileDownloader::tempFile() const
     return QFileInfo(m_tempFile).canonicalFilePath();
 }
 
+QDateTime FileDownloader::lastModified() const
+{
+    return m_lastModified;
+}
+
+bool FileDownloader::available() const
+{
+    return m_available;
+}
+
+void FileDownloader::probeUrl()
+{
+    auto request = QNetworkRequest(m_url);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::UserVerifiedRedirectPolicy);
+    QNetworkReply *reply = Utils::NetworkAccessManager::instance()->head(request);
+
+    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &url) {
+        emit reply->redirectAllowed();
+    });
+
+    QNetworkReply::connect(reply, &QNetworkReply::finished, [this, reply]() {
+        if (reply->error())
+            return;
+
+        m_lastModified = reply->header(QNetworkRequest::LastModifiedHeader).toDateTime();
+        emit lastModifiedChanged();
+
+        m_available = true;
+        emit availableChanged();
+    });
+
+    QNetworkReply::connect(reply,
+                           &QNetworkReply::errorOccurred,
+                           [this, reply](QNetworkReply::NetworkError code) {
+                               // QNetworkReply::HostNotFoundError
+                               // QNetworkReply::ContentNotFoundError
+                               m_available = false;
+                               emit availableChanged();
+                           });
+}
+
+
 FileExtractor::FileExtractor(QObject *parent)
     : QObject(parent)
 {
-    if (Core::DocumentManager::instance())
-        m_targetPath = Core::DocumentManager::projectsDirectory();
+    m_targetPath = Utils::FilePath::fromString(
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+
+    if (!m_targetPath.isEmpty())
+        m_targetPath = m_targetPath.pathAppended("QtDesignStudio");
     else
         m_targetPath = "/temp/";
 
-    m_timer.setInterval(500);
+    m_timer.setInterval(100);
     m_timer.setSingleShot(false);
+
+    QObject::connect(this, &FileExtractor::targetFolderExistsChanged, [this]() {
+        if (targetFolderExists()) {
+            m_birthTime = QFileInfo(m_targetPath.toString() + "/" + m_archiveName).birthTime();
+        } else
+            m_birthTime = QDateTime();
+
+        emit birthTimeChanged();
+    });
 }
 
 FileExtractor::~FileExtractor() {}
@@ -297,8 +355,17 @@ QString FileExtractor::count() const
 
 bool FileExtractor::targetFolderExists() const
 {
-    const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
-    return QFileInfo(targetFolder).exists();
+    return QFileInfo::exists(m_targetPath.toString() + "/" + m_archiveName);
+}
+
+int FileExtractor::progress() const
+{
+    return m_progress;
+}
+
+QDateTime FileExtractor::birthTime() const
+{
+    return m_birthTime;
 }
 
 QString FileExtractor::archiveName() const
@@ -320,8 +387,9 @@ void FileExtractor::extract()
     m_timer.start();
     const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
     qint64 bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
+    qint64 compressedSize = QFileInfo(m_sourceFile.toString()).size();
 
-    QTimer::connect(&m_timer, &QTimer::timeout, [this, bytesBefore, targetFolder]() {
+    QTimer::connect(&m_timer, &QTimer::timeout, [this, bytesBefore, targetFolder, compressedSize]() {
         static QHash<QString, int> hash;
         QDirIterator it(targetFolder, {"*.*"}, QDir::Files, QDirIterator::Subdirectories);
 
@@ -336,9 +404,15 @@ void FileExtractor::extract()
             count++;
         }
 
-        m_size = QString::number(bytesBefore
-                                 - QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable());
+        qint64 currentSize = bytesBefore
+                             - QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
 
+        // We can not get the uncompressed size of the archive yet, that is why we use an
+        // approximation. We assume a 50% compression rate.
+        m_progress = std::min(100ll, currentSize * 100 / compressedSize * 2);
+        emit progressChanged();
+
+        m_size = QString::number(currentSize);
         m_count = QString::number(count);
         emit sizeChanged();
     });
@@ -351,6 +425,11 @@ void FileExtractor::extract()
     QObject::connect(archive, &Utils::Archive::finished, [this](bool ret) {
         m_finished = ret;
         m_timer.stop();
+
+        m_progress = 100;
+        emit progressChanged();
+
+        emit targetFolderExistsChanged();
         emit finishedChanged();
         QTC_ASSERT(ret, ;);
     });

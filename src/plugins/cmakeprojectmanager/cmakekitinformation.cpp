@@ -353,7 +353,7 @@ public:
           m_changeButton(createSubWidget<QPushButton>())
     {
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit);
-        connect(this, &KitAspectWidget::labelLinkActivated, this, [=](const QString &link) {
+        connect(this, &KitAspectWidget::labelLinkActivated, this, [=](const QString &) {
             CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-generators.7.html");
         });
 
@@ -972,7 +972,7 @@ private:
                                 "To set a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
                                 "&lt;type&gt; can have one of the following values: FILEPATH, PATH, "
                                 "BOOL, INTERNAL, or STRING."));
-        connect(editorLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+        connect(editorLabel, &QLabel::linkActivated, this, [=](const QString &) {
             CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
         });
         m_editor->setMinimumSize(800, 200);
@@ -984,7 +984,7 @@ private:
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
         additionalLabel->setText(tr("Additional CMake <a href=\"options\">options</a>:"));
-        connect(additionalLabel, &QLabel::linkActivated, this, [=](const QString &link) {
+        connect(additionalLabel, &QLabel::linkActivated, this, [=](const QString &) {
             CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
         });
 
