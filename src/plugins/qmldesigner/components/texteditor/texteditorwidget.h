@@ -26,11 +26,15 @@
 
 #include <texteditor/texteditor.h>
 
-#include <QWidget>
 #include <QTimer>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include <memory>
 
+namespace Core {
+class FindToolBarPlaceHolder;
+}
 namespace QmlDesigner {
 
 class TextEditorView;
@@ -72,7 +76,9 @@ private:
     std::unique_ptr<TextEditor::BaseTextEditor> m_textEditor;
     QPointer<TextEditorView> m_textEditorView;
     QTimer m_updateSelectionTimer;
-    TextEditorStatusBar *m_statusBar;
+    TextEditorStatusBar *m_statusBar = nullptr;
+    Core::FindToolBarPlaceHolder *m_findToolBar = nullptr;
+    QVBoxLayout *m_layout = nullptr;
     bool m_blockCursorSelectionSynchronisation = false;
     bool m_blockRoundTrip = false;
 };

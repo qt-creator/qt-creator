@@ -81,7 +81,7 @@ TextEditorView::TextEditorView(QObject *parent)
     Core::Command *command = Core::ActionManager::registerAction(completionAction, TextEditor::Constants::COMPLETE_THIS, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
 
-    connect(completionAction, &QAction::triggered, [this]() {
+    connect(completionAction, &QAction::triggered, this, [this] {
         if (m_widget->textEditor())
             m_widget->textEditor()->editorWidget()->invokeAssist(TextEditor::Completion);
     });
@@ -99,16 +99,12 @@ void TextEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(
                 QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
 
+    // Set the context of the text editor, but we add another special context to override shortcuts.
     Core::Context context = textEditor->context();
     context.prepend(TEXTEDITOR_CONTEXT_ID);
-
-    /*
-     *  Set the context of the text editor, but we add another special context to override shortcuts.
-     */
-
     m_textEditorContext->setContext(context);
 
     m_widget->setTextEditor(textEditor);
@@ -272,10 +268,9 @@ void TextEditorView::reformatFile()
     auto document =
             qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(Core::EditorManager::currentDocument());
 
-    /* Reformat document if we have a .ui.qml file */
-    if (document
-            && document->filePath().toString().endsWith(".ui.qml")
-            &&  DesignerSettings::getValue(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
+    // Reformat document if we have a .ui.qml file
+    if (document && document->filePath().toString().endsWith(".ui.qml")
+                 && DesignerSettings::getValue(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool()) {
 
         QmlJS::Document::Ptr currentDocument(document->semanticInfo().document);
         QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
@@ -315,4 +310,3 @@ void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Proper
 }
 
 } // namespace QmlDesigner
-
