@@ -99,28 +99,34 @@ Storage::Version createVersion(QTypeRevision qmlVersion)
 Storage::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
                                      Utils::SmallStringView interanalName,
                                      QmlTypesParser::ProjectStorage &storage,
-                                     ModuleId cppModuleId,
-                                     Utils::SmallStringView typeNameAppendix = {})
+                                     ModuleId cppModuleId)
 {
     Storage::ExportedTypes exportedTypes;
     exportedTypes.reserve(Utils::usize(qmlExports));
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
         Utils::SmallString exportedTypeName{qmlExport.type()};
-        if (!typeNameAppendix.empty()) {
-            exportedTypeName += ".";
-            exportedTypeName += typeNameAppendix;
-        }
         exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()}),
                                    std::move(exportedTypeName),
                                    createVersion(qmlExport.version()));
     }
 
     Utils::SmallString cppExportedTypeName{interanalName};
-    if (!typeNameAppendix.empty()) {
-        cppExportedTypeName += "::";
-        cppExportedTypeName += typeNameAppendix;
-    }
+    exportedTypes.emplace_back(cppModuleId, cppExportedTypeName);
+
+    return exportedTypes;
+}
+
+Storage::ExportedTypes createCppEnumerationExports(Utils::SmallStringView interanalName,
+                                                   ModuleId cppModuleId,
+                                                   Utils::SmallStringView enumeration)
+{
+    Storage::ExportedTypes exportedTypes;
+    exportedTypes.reserve(1);
+
+    Utils::SmallString cppExportedTypeName{interanalName};
+    cppExportedTypeName += "::";
+    cppExportedTypeName += enumeration;
 
     exportedTypes.emplace_back(cppModuleId, cppExportedTypeName);
 
@@ -283,12 +289,14 @@ EnumerationTypes addEnumerationTypes(Storage::Types &types,
     for (const QQmlJSMetaEnum &qmlEnumeration : qmlEnumerations) {
         Utils::SmallString enumerationName{qmlEnumeration.name()};
         auto fullTypeName = Utils::SmallString::join({typeName, "::", enumerationName});
-        auto &type = types.emplace_back(
-            fullTypeName,
-            Storage::ImportedType{Utils::SmallString{}},
-            Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
-            sourceId,
-            createExports(qmlExports, typeName, storage, cppModuleId, enumerationName));
+        auto &type = types.emplace_back(fullTypeName,
+                                        Storage::ImportedType{Utils::SmallString{}},
+                                        Storage::TypeAccessSemantics::Value
+                                            | Storage::TypeAccessSemantics::IsEnum,
+                                        sourceId,
+                                        createCppEnumerationExports(typeName,
+                                                                    cppModuleId,
+                                                                    enumerationName));
         enumerationTypes.emplace_back(enumerationName, std::move(fullTypeName));
     }
 
