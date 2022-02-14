@@ -118,29 +118,29 @@ void MesonProcess::handleProcessError(QProcess::ProcessError error)
     QString message;
     QString commandStr = m_currentCommand.toUserOutput();
     switch (error) {
-    case QProcess::ProcessError::FailedToStart:
+    case QProcess::FailedToStart:
         message = tr("The process failed to start.")
                   + tr("Either the "
                        "invoked program \"%1\" is missing, or you may have insufficient "
                        "permissions to invoke the program.")
                         .arg(m_currentCommand.executable().toUserOutput());
         break;
-    case QProcess::ProcessError::Crashed:
+    case QProcess::Crashed:
         message = tr("The process was ended forcefully.");
         break;
-    case QProcess::ProcessError::Timedout:
+    case QProcess::Timedout:
         message = tr("Process timed out.");
         break;
-    case QProcess::ProcessError::WriteError:
+    case QProcess::WriteError:
         message = tr("An error occurred when attempting to write "
                      "to the process. For example, the process may not be running, "
                      "or it may have closed its input channel.");
         break;
-    case QProcess::ProcessError::ReadError:
+    case QProcess::ReadError:
         message = tr("An error occurred when attempting to read from "
                      "the process. For example, the process may not be running.");
         break;
-    case QProcess::ProcessError::UnknownError:
+    case QProcess::UnknownError:
         message = tr("An unknown error in the process occurred.");
         break;
     }

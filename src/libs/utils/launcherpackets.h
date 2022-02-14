@@ -217,8 +217,8 @@ public:
     QString errorString;
     QByteArray stdOut;
     QByteArray stdErr;
-    QProcess::ExitStatus exitStatus = QProcess::ExitStatus::NormalExit;
-    QProcess::ProcessError error = QProcess::ProcessError::UnknownError;
+    QProcess::ExitStatus exitStatus = QProcess::NormalExit;
+    QProcess::ProcessError error = QProcess::UnknownError;
     int exitCode = 0;
 
 private:

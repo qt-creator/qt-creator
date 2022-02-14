@@ -1243,7 +1243,7 @@ QProcess::ExitStatus QtcProcess::exitStatus() const
 {
     if (d->m_process)
         return d->m_process->exitStatus();
-    return QProcess::ExitStatus::NormalExit;
+    return QProcess::NormalExit;
 }
 
 void QtcProcess::kill()

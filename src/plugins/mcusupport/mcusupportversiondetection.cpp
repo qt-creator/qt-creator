@@ -74,7 +74,7 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
     if (!binaryProcess.waitForStarted())
         return QString();
     binaryProcess.waitForFinished(execTimeout);
-    if (binaryProcess.exitCode() == QProcess::ExitStatus::NormalExit) {
+    if (binaryProcess.exitStatus() == QProcess::NormalExit) {
         const QString processOutput = QString::fromUtf8(
                     binaryProcess.readAllStandardOutput().append(
                         binaryProcess.readAllStandardError()));
