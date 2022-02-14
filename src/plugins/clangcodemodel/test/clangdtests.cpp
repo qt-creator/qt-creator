@@ -2010,9 +2010,10 @@ void ClangdTestExternalChanges::test()
     header.close();
     ClangdClient * const oldClient = client();
     QVERIFY(oldClient);
-    QVERIFY(!waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
-                                    &ClangModelManagerSupport::createdClient, timeOutInMs()));
+    waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
+                           &ClangModelManagerSupport::createdClient, timeOutInMs());
     QCOMPARE(client(), oldClient);
+    QCOMPARE(client(), ClangModelManagerSupport::instance()->clientForProject(project()));
     const TextDocument * const curDoc = document("main.cpp");
     QVERIFY(curDoc);
     QVERIFY(curDoc->marks().isEmpty());
