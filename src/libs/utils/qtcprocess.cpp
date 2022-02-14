@@ -32,7 +32,6 @@
 #include "launcherpackets.h"
 #include "launchersocket.h"
 #include "processreaper.h"
-#include "qtcassert.h"
 #include "stringutils.h"
 #include "terminalprocess_p.h"
 
@@ -210,75 +209,6 @@ public:
 
     bool emitSingleLines = true;
     bool keepRawData = true;
-};
-
-class ProcessSetupData
-{
-public:
-    QtcProcess::ProcessImpl m_processImpl = QtcProcess::DefaultImpl;
-    ProcessMode m_processMode = ProcessMode::Reader;
-    QtcProcess::TerminalMode m_terminalMode = QtcProcess::TerminalOff;
-
-    QString m_nativeArguments;
-    QString m_standardInputFile;
-    QString m_initialErrorString;
-    bool m_belowNormalPriority = false;
-    bool m_lowPriority = false;
-    bool m_unixTerminalDisabled = false;
-    bool m_abortOnMetaChars = true;
-    QProcess::ProcessChannelMode m_procesChannelMode = QProcess::SeparateChannels;
-};
-
-class ProcessInterface : public QObject
-{
-    Q_OBJECT
-
-public:
-    ProcessInterface(QObject *parent, ProcessMode processMode)
-        : QObject(parent)
-        , m_processMode(processMode) {}
-
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual QByteArray readAllStandardError() = 0;
-
-    virtual void setProcessEnvironment(const QProcessEnvironment &environment) = 0;
-    virtual void setWorkingDirectory(const QString &dir) = 0;
-    virtual void start(const QString &program, const QStringList &arguments,
-                       const QByteArray &writeData) = 0;
-    virtual void customStart(const CommandLine &, const FilePath &workingDirectory,
-                             const Environment &) { Q_UNUSED(workingDirectory); QTC_CHECK(false); }
-    virtual bool isCustomStart() const { return false; }
-    virtual void terminate() = 0;
-    virtual void kill() = 0;
-    virtual void close() = 0;
-    virtual qint64 write(const QByteArray &data) = 0;
-
-    virtual QString program() const = 0;
-    virtual QProcess::ProcessError error() const = 0;
-    virtual QProcess::ProcessState state() const = 0;
-    virtual qint64 processId() const = 0;
-    virtual int exitCode() const = 0;
-    virtual QProcess::ExitStatus exitStatus() const = 0;
-    virtual QString errorString() const = 0;
-    virtual void setErrorString(const QString &str) = 0;
-
-    virtual bool waitForStarted(int msecs) = 0;
-    virtual bool waitForReadyRead(int msecs) = 0;
-    virtual bool waitForFinished(int msecs) = 0;
-
-    virtual void kickoffProcess() { QTC_CHECK(false); }
-    virtual void interruptProcess() { QTC_CHECK(false); }
-    virtual qint64 applicationMainThreadID() const { QTC_CHECK(false); return -1; }
-
-    const ProcessMode m_processMode;
-    ProcessSetupData *m_setup = nullptr;
-
-signals:
-    void started();
-    void finished(int exitCode, QProcess::ExitStatus status);
-    void errorOccurred(QProcess::ProcessError error);
-    void readyReadStandardOutput();
-    void readyReadStandardError();
 };
 
 class TerminalImpl : public ProcessInterface
@@ -550,40 +480,42 @@ public:
         , q(parent)
     {}
 
-    void setupNewProcessInstance()
+    ProcessInterface *createProcessInterface()
     {
-        const QtcProcess::ProcessImpl impl =
-                m_setup.m_processImpl == QtcProcess::DefaultImpl
-                    ? defaultProcessImpl()
-                    : m_setup.m_processImpl;
+        const QtcProcess::ProcessImpl impl = m_setup.m_processImpl == QtcProcess::DefaultImpl
+                    ? defaultProcessImpl() : m_setup.m_processImpl;
 
         if (m_setup.m_terminalMode != QtcProcess::TerminalOff)
-            m_process = new TerminalImpl(parent(), impl, m_setup.m_terminalMode);
+            return new TerminalImpl(parent(), impl, m_setup.m_terminalMode);
         else if (impl == QtcProcess::QProcessImpl)
-            m_process = new QProcessImpl(parent(), m_setup.m_processMode);
-        else
-            m_process = new ProcessLauncherImpl(parent(), m_setup.m_processMode);
-
-        m_process->m_setup = &m_setup;
+            return new QProcessImpl(parent(), m_setup.m_processMode);
+        return new ProcessLauncherImpl(parent(), m_setup.m_processMode);
     }
 
-    void ensureProcessInstanceExists()
+    void setProcessInterface(ProcessInterface *process)
+    {
+        m_process.reset(process);
+        m_process->m_setup = &m_setup;
+        m_process->setParent(this);
+
+        connect(m_process.get(), &ProcessInterface::started,
+                q, &QtcProcess::started);
+        connect(m_process.get(), &ProcessInterface::finished,
+                this, &QtcProcessPrivate::slotFinished);
+        connect(m_process.get(), &ProcessInterface::errorOccurred,
+                this, [this](QProcess::ProcessError error) { handleError(error, OtherFailure); });
+        connect(m_process.get(), &ProcessInterface::readyReadStandardOutput,
+                this, &QtcProcessPrivate::handleReadyReadStandardOutput);
+        connect(m_process.get(), &ProcessInterface::readyReadStandardError,
+                this, &QtcProcessPrivate::handleReadyReadStandardError);
+    }
+
+    void ensureProcessInterfaceExists()
     {
         if (m_process)
             return;
 
-        setupNewProcessInstance();
-
-        connect(m_process, &ProcessInterface::started,
-                q, &QtcProcess::started);
-        connect(m_process, &ProcessInterface::finished,
-                this, &QtcProcessPrivate::slotFinished);
-        connect(m_process, &ProcessInterface::errorOccurred,
-                this, [this](QProcess::ProcessError error) { handleError(error, OtherFailure); });
-        connect(m_process, &ProcessInterface::readyReadStandardOutput,
-                this, &QtcProcessPrivate::handleReadyReadStandardOutput);
-        connect(m_process, &ProcessInterface::readyReadStandardError,
-                this, &QtcProcessPrivate::handleReadyReadStandardError);
+        setProcessInterface(createProcessInterface());
     }
 
     void handleReadyReadStandardOutput()
@@ -619,7 +551,6 @@ public:
             qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << commandLine.toUserOutput();
         }
 
-        ensureProcessInstanceExists();
         m_process->setProcessEnvironment(environment.toProcessEnvironment());
         m_process->setWorkingDirectory(workingDirectory.path());
 
@@ -657,7 +588,6 @@ public:
     void start(const QString &program, const QStringList &arguments,
                const FilePath &workingDirectory, const QByteArray &writeData)
     {
-        ensureProcessInstanceExists();
         const FilePath programFilePath = resolve(workingDirectory, FilePath::fromString(program));
         if (programFilePath.exists() && programFilePath.isExecutableFile()) {
             s_start.measureAndRun(&ProcessInterface::start, m_process, program, arguments, writeData);
@@ -696,7 +626,7 @@ public:
     }
 
     QtcProcess *q;
-    ProcessInterface *m_process = nullptr;
+    std::unique_ptr<ProcessInterface> m_process;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
@@ -770,6 +700,11 @@ QtcProcess::QtcProcess(QObject *parent)
 QtcProcess::~QtcProcess()
 {
     delete d;
+}
+
+void QtcProcess::setProcessInterface(ProcessInterface *interface)
+{
+    d->setProcessInterface(interface);
 }
 
 void QtcProcess::setProcessImpl(ProcessImpl processImpl)
@@ -859,12 +794,12 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
-    d->ensureProcessInstanceExists();
     if (d->m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
         s_deviceHooks.startProcessHook(*this);
         return;
     }
+    d->ensureProcessInterfaceExists();
     d->clearForRun();
     const CommandLine cmd = d->fullCommandLine();
     const Environment env = d->fullEnvironment();
