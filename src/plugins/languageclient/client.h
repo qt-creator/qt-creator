@@ -221,6 +221,7 @@ protected:
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
 
 private:
+    void sendMessage(const LanguageServerProtocol::BaseMessage &message);
     void handleResponse(const LanguageServerProtocol::MessageId &id, const QByteArray &content,
                         QTextCodec *codec);
     void handleMethod(const QString &method, const LanguageServerProtocol::MessageId &id,

@@ -307,13 +307,11 @@ void Client::initialize()
     initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
         initializeCallback(initResponse);
     });
-    // directly send data otherwise the state check would fail;
     if (Utils::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
         m_responseHandlers[responseHandler->id] = responseHandler->callback;
 
-    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage,
-                                          name(),
-                                          initRequest.toBaseMessage());
+    // directly send message otherwise the state check of sendContent would fail
+    sendMessage(initRequest.toBaseMessage());
     m_clientInterface->sendMessage(initRequest.toBaseMessage());
     m_state = InitializeRequested;
 }
@@ -426,9 +424,7 @@ void Client::sendContent(const IContent &content, SendDocUpdates sendUpdates)
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::writeFlashing(error);
-    const BaseMessage message = content.toBaseMessage();
-    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage, name(), message);
-    m_clientInterface->sendMessage(message);
+    sendMessage(content.toBaseMessage());
 }
 
 void Client::cancelRequest(const MessageId &id)
@@ -1450,6 +1446,12 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     }
 }
 
+void Client::sendMessage(const BaseMessage &message)
+{
+    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage, name(), message);
+    m_clientInterface->sendMessage(message);
+}
+
 bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
 {
     return Utils::contains(m_documentsToUpdate, [fileName](const auto &elem) {
@@ -1560,8 +1562,8 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
         qDebug() << error;
         return;
     }
-    // directly send data otherwise the state check would fail;
-    m_clientInterface->sendMessage(ExitNotification().toBaseMessage());
+    // directly send message otherwise the state check of sendContent would fail
+    sendMessage(ExitNotification().toBaseMessage());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     m_state = Shutdown;
 }
