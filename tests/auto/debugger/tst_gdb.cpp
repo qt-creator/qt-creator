@@ -114,6 +114,10 @@ void tst_gdb::version_data()
         << "GNU gdb (GDB) 7.3 qnx (rev. 613)"
         << 70300 << 613 << false << true;
 
+    QTest::newRow("QNX71")
+        << "GNU gdb (GDB) 8.2.1 [qnx710 r1469] (STABLE)"
+        << 80201 << 710 << false << true;
+
     QTest::newRow("rubenvb")
         << "GNU gdb (rubenvb-4.7.2-release) 7.5.50.20120920-cvs"
         << 70550 << 20120920 << false << false;
