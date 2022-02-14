@@ -488,14 +488,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         if (m_buildConfiguration->isEnabled())
             setError(QString());
     });
-    connect(this, &QObject::destroyed, this, [this](const QObject *obj) {
+    connect(this, &QObject::destroyed, this, [this] {
         updateInitialCMakeArguments();
     });
 
     connect(bc->aspect<InitialCMakeArgumentsAspect>(),
             &Utils::BaseAspect::labelLinkActivated,
             this,
-            [this](const QString &link) {
+            [this](const QString &) {
                 const CMakeTool *tool = CMakeKitAspect::cmakeTool(
                     m_buildConfiguration->target()->kit());
                 CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
@@ -503,7 +503,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(bc->aspect<AdditionalCMakeOptionsAspect>(),
             &Utils::BaseAspect::labelLinkActivated,
             this,
-            [this](const QString &link) {
+            [this](const QString &) {
                 const CMakeTool *tool = CMakeKitAspect::cmakeTool(
                     m_buildConfiguration->target()->kit());
                 CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
@@ -527,7 +527,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
        "To set or change a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
        "&lt;type&gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.<br/>"
                       "To unset a variable, use -U&lt;variable&gt;.<br/>"));
-    connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
+    connect(label, &QLabel::linkActivated, this, [this](const QString &) {
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfiguration->target()->kit());
         CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
     });

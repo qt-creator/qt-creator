@@ -70,7 +70,7 @@ static void showOutputPane(Flag flags)
         m_messageOutputWindow->flash();
         break;
     case Core::Flag::Disrupt:
-        m_messageOutputWindow->popup(IOutputPane::ModeSwitch);
+        m_messageOutputWindow->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
         break;
     }
 }

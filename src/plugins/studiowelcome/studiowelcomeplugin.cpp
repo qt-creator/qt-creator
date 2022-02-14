@@ -232,6 +232,28 @@ public:
         QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/index.html"));
     }
 
+    Q_INVOKABLE void openExample(const QString &examplePath,
+                                 const QString &exampleName,
+                                 const QString &formFile,
+                                 const QString &explicitQmlproject)
+    {
+        const QString exampleFolder = examplePath + "/" + exampleName + "/";
+
+        QString projectFile = exampleFolder + exampleName + ".qmlproject";
+
+        if (!explicitQmlproject.isEmpty())
+            projectFile = exampleFolder + explicitQmlproject;
+
+        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+
+        const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/" + formFile;
+
+        // This timer should be replaced with a signal send from project loading
+        QTimer::singleShot(1000, [qmlFile](){
+            Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
+        });
+    }
+
     Q_INVOKABLE void openExample(const QString &example,
                                  const QString &formFile,
                                  const QString &url,
@@ -272,6 +294,7 @@ public:
 
         Core::EditorManager::openEditor(qmlFile);
     }
+
 public slots:
     void resetProjects();
 
@@ -465,7 +488,7 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return data.first;
     case PrettyFilePathRole:
-        return Utils::withTildeHomePath(data.first);
+        return Utils::withTildeHomePath(QFileInfo(data.first).dir().absolutePath());
     case PreviewUrl:
         return QVariant(QStringLiteral("image://project_preview/") + appQmlFile(data.first));
     case TagData:

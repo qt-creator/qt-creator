@@ -7,7 +7,7 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.2.1
+  QT_VERSION: 6.2.3
   CLANG_VERSION: 130
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
@@ -31,12 +31,12 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             is_msvc: true
           }
-        - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-            os: windows-latest,
-            cc: "gcc", cxx: "g++",
-            is_msvc: false
-          }
+#        - {
+#            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
+#            os: windows-latest,
+#            cc: "gcc", cxx: "g++",
+#            is_msvc: false
+#          }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux",
             os: ubuntu-latest,
@@ -123,22 +123,22 @@ jobs:
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
             set(qt_package_arch_suffix "win64_mingw81")
             set(qt_dir_prefix "${qt_version}/mingw81_64")
-            set(qt_package_suffix "-Windows-Windows_10-Mingw-Windows-Windows_10-X86_64")
+            set(qt_package_suffix "-Windows-Windows_10_21H2-Mingw-Windows-Windows_10_21H2-X86_64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
             set(qt_package_arch_suffix "win64_msvc2019_64")
             set(qt_dir_prefix "${qt_version}/msvc2019_64")
-            set(qt_package_suffix "-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64")
+            set(qt_package_suffix "-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
           set(qt_package_arch_suffix "gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
-          set(qt_package_suffix "-Linux-RHEL_8_2-GCC-Linux-RHEL_8_2-X86_64")
+          set(qt_package_suffix "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(qt_package_arch_suffix "clang_64")
           set(qt_dir_prefix "${qt_version}/macos")
-          set(qt_package_suffix "-MacOS-MacOS_11_00-Clang-MacOS-MacOS_11_00-X86_64-ARM64")
+          set(qt_package_suffix "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64")
         endif()
 
         set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}")
@@ -673,10 +673,10 @@ jobs:
             name: "Windows Latest MSVC", artifact: "Windows-MSVC",
             os: ubuntu-latest
           }
-        - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-            os: ubuntu-latest
-          }
+#        - {
+#            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
+#            os: ubuntu-latest
+#          }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux",
             os: ubuntu-latest

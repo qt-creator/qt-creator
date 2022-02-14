@@ -6,16 +6,15 @@ Limitations:
 - Kits themselves need to be fixed up manually.
 - Shared mounts are restricted to locations on the host system
   that can end up on the same absolute location in the container
-
+- Windows host: Mounted drives cannot be used as shared mounts
 
 What works:
 
 - Qmake in path is found
 - CMake in path is found
-- Toolchain autodection finds gcc
-- Gdb in path is found
+- Toolchain autodection finds gcc and clang
+- Gdb and lldb in path are found
 
-- Building in the container with qmake works
 - Building in the container with cmake works
 
 - Running locally or in a compatible docker container works
@@ -30,7 +29,7 @@ For testing:
   running ./build.sh. This builds a docker image containing a Desktop Qt
   build setup (including compiler etc) and second docker image container
   containing a run environment without the build tools, but e.g. with gdb
-  for debugger testing
+  for debugger testing and a third containing clang and lldb
 
     - or -
 

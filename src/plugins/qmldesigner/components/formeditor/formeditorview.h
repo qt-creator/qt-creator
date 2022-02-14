@@ -147,7 +147,7 @@ private:
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);
     void removeNodeFromScene(const QmlItemNode &qmlItemNode);
     void createFormEditorWidget();
-    void temporaryBlockView(int duration = 1000);
+    void temporaryBlockView(int duration = 100);
     void resetNodeInstanceView();
     void addOrRemoveFormEditorItem(const ModelNode &node);
     void checkRootModelNode();

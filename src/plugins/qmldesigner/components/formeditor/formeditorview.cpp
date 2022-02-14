@@ -484,7 +484,7 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
 
 void FormEditorView::currentStateChanged(const ModelNode & /*node*/)
 {
-    temporaryBlockView(100);
+    temporaryBlockView();
 }
 
 AbstractFormEditorTool *FormEditorView::currentTool() const

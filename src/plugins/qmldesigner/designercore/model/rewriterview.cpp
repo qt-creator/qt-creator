@@ -865,7 +865,7 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
     for (const myPair &pair : data) {
         ModelNode node = pair.first;
         i++;
-        if (i >= data.size()) {
+        if (i >= int(data.size())) {
             lastNode = node;
             break;
         }

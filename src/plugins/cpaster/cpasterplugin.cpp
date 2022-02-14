@@ -329,7 +329,7 @@ void CodePasterPluginPrivate::finishPost(const QString &link)
     if (m_settings.displayOutput.value())
         MessageManager::writeDisrupting(link);
     else
-        MessageManager::writeSilently(link);
+        MessageManager::writeFlashing(link);
 }
 
 // Extract the characters that can be used for a file name from a title
