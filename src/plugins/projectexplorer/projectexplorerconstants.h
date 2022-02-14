@@ -235,6 +235,9 @@ const char ADD_FILES_DIALOG_FILTER_HISTORY_KEY[] = "ProjectExplorer.AddFilesFilt
 const char PROJECT_ROOT_PATH_KEY[] = "ProjectExplorer.Project.RootPath";
 const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
 const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
+const char SETTINGS_MENU_HIDE_BUILD[] = "Menu/HideBuild";
+const char SETTINGS_MENU_HIDE_DEBUG[] = "Menu/HideDebug";
+const char SETTINGS_MENU_HIDE_ANALYZE[] = "Menu/HideAnalyze";
 
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();
