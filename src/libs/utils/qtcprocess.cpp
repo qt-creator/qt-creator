@@ -234,15 +234,13 @@ public:
     QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
 
     void setEnvironment(const Environment &) override { QTC_CHECK(false); }
-    void setWorkingDirectory(const FilePath &) override { QTC_CHECK(false); }
     void start(const QString &, const QStringList &, const QByteArray &) override
     { QTC_CHECK(false); }
-    void customStart(const CommandLine &command, const FilePath &workingDirectory,
-                     const Environment &environment) override
+    void customStart(const CommandLine &command, const Environment &environment) override
     {
         m_terminal.setAbortOnMetaChars(m_setup->m_abortOnMetaChars);
         m_terminal.setCommand(command);
-        m_terminal.setWorkingDirectory(workingDirectory);
+        m_terminal.setWorkingDirectory(m_setup->m_workingDirectory);
         m_terminal.setEnvironment(environment);
         m_terminal.start();
     }
@@ -302,8 +300,6 @@ public:
 
     void setEnvironment(const Environment &environment) override
     { m_process->setProcessEnvironment(environment.toProcessEnvironment()); }
-    void setWorkingDirectory(const FilePath &dir) override
-    { m_process->setWorkingDirectory(dir.path()); }
 
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
@@ -313,6 +309,7 @@ public:
         if (m_setup->m_belowNormalPriority)
             handler->setBelowNormalPriority();
         handler->setNativeArguments(m_setup->m_nativeArguments);
+        m_process->setWorkingDirectory(m_setup->m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup->m_standardInputFile);
         m_process->setProcessChannelMode(m_setup->m_procesChannelMode);
         m_process->setErrorString(m_setup->m_initialErrorString);
@@ -402,10 +399,10 @@ public:
 
     void setEnvironment(const Environment &environment) override
     { m_handle->setEnvironment(environment); }
-    void setWorkingDirectory(const FilePath &dir) override { m_handle->setWorkingDirectory(dir); }
 
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
+        m_handle->setWorkingDirectory(m_setup->m_workingDirectory);
         m_handle->setStandardInputFile(m_setup->m_standardInputFile);
         m_handle->setProcessChannelMode(m_setup->m_procesChannelMode);
         m_handle->setErrorString(m_setup->m_initialErrorString);
@@ -541,8 +538,7 @@ public:
         return filePath.searchInPath();
     }
 
-    void defaultStart(const CommandLine &commandLine, const FilePath &workingDirectory,
-                      const Environment &environment)
+    void defaultStart(const CommandLine &commandLine, const Environment &environment)
     {
         if (processLog().isDebugEnabled()) {
             static int n = 0;
@@ -550,12 +546,11 @@ public:
         }
 
         m_process->setEnvironment(environment);
-        m_process->setWorkingDirectory(workingDirectory);
 
         QString commandString;
         ProcessArgs arguments;
         const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &arguments,
-                                                         &environment, &workingDirectory);
+                                                         &environment, &m_setup.m_workingDirectory);
 
         if (commandLine.executable().osType() == OsTypeWindows) {
             QString args;
@@ -570,7 +565,7 @@ public:
             m_setup.m_nativeArguments = args;
             // Note: Arguments set with setNativeArgs will be appended to the ones
             // passed with start() below.
-            start(commandString, QStringList(), workingDirectory, m_setup.m_writeData);
+            start(commandString, QStringList(), m_setup.m_writeData);
         } else {
             if (!success) {
                 q->setErrorString(tr("Error in command line."));
@@ -579,14 +574,13 @@ public:
                 emit q->errorOccurred(QProcess::UnknownError);
                 return;
             }
-            start(commandString, arguments.toUnixArgs(), workingDirectory, m_setup.m_writeData);
+            start(commandString, arguments.toUnixArgs(), m_setup.m_writeData);
         }
     }
 
-    void start(const QString &program, const QStringList &arguments,
-               const FilePath &workingDirectory, const QByteArray &writeData)
+    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
     {
-        const FilePath programFilePath = resolve(workingDirectory, FilePath::fromString(program));
+        const FilePath programFilePath = resolve(m_setup.m_workingDirectory, FilePath::fromString(program));
         if (programFilePath.exists() && programFilePath.isExecutableFile()) {
             s_start.measureAndRun(&ProcessInterface::start, m_process, program, arguments, writeData);
         } else {
@@ -795,9 +789,9 @@ void QtcProcess::start()
     const CommandLine cmd = d->fullCommandLine();
     const Environment env = d->fullEnvironment();
     if (d->m_process->isCustomStart())
-        d->m_process->customStart(cmd, d->m_setup.m_workingDirectory, env);
+        d->m_process->customStart(cmd, env);
     else
-        d->defaultStart(cmd, d->m_setup.m_workingDirectory, env);
+        d->defaultStart(cmd, env);
 }
 
 #ifdef Q_OS_WIN
