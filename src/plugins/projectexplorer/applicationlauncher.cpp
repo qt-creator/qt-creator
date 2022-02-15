@@ -80,7 +80,6 @@ public:
     void readLocalStandardError();
     void cannotRetrieveLocalDebugOutput();
     void checkLocalDebugOutput(qint64 pid, const QString &message);
-    void localProcessDone(int, QProcess::ExitStatus);
     qint64 applicationPID() const;
     bool isRunning() const;
 
@@ -180,17 +179,18 @@ void ApplicationLauncher::stop()
 
 void ApplicationLauncherPrivate::stop()
 {
+    m_exitStatus = QProcess::CrashExit;
     if (m_isLocal) {
         if (!isRunning())
             return;
         QTC_ASSERT(m_process, return);
+        m_listeningPid = 0;
         m_process->stopProcess();
-        localProcessDone(0, QProcess::CrashExit);
+        QTimer::singleShot(100, this, [this] { emit q->finished(); });
     } else {
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        m_exitStatus = QProcess::CrashExit;
         emit q->appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
                               Utils::NormalMessageFormat);
         switch (m_state) {
@@ -310,16 +310,6 @@ void ApplicationLauncherPrivate::checkLocalDebugOutput(qint64 pid, const QString
         emit q->appendMessage(message, DebugFormat);
 }
 
-void ApplicationLauncherPrivate::localProcessDone(int exitCode, QProcess::ExitStatus status)
-{
-    QTimer::singleShot(100, this, [this, exitCode, status]() {
-        m_listeningPid = 0;
-        m_exitCode = exitCode;
-        m_exitStatus = status;
-        emit q->finished();
-    });
-}
-
 QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
 {
     return tr("Cannot retrieve debugging output.") + QLatin1Char('\n');
@@ -374,7 +364,10 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
         connect(m_process.get(), &QtcProcess::started,
                 this, &ApplicationLauncherPrivate::handleProcessStarted);
         connect(m_process.get(), &QtcProcess::finished, this, [this] {
-            localProcessDone(m_process->exitCode(), m_process->exitStatus());
+            m_exitCode = m_process->exitCode();
+            m_exitStatus = m_process->exitStatus();
+            m_listeningPid = 0;
+            QTimer::singleShot(100, this, [this] { emit q->finished(); });
         });
         connect(m_process.get(), &QtcProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::localProcessError);
