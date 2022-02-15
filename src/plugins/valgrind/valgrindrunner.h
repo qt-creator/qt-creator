@@ -72,7 +72,7 @@ signals:
 private:
     bool startServers();
     void processError(QProcess::ProcessError);
-    void processFinished(int, QProcess::ExitStatus);
+    void processFinished();
 
     void xmlSocketConnected();
     void logSocketConnected();

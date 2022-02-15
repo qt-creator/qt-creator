@@ -28,8 +28,6 @@
 #include <remotelinux/abstractremotelinuxdeployservice.h>
 #include <utils/outputformat.h>
 
-#include <QProcess>
-
 namespace Qdb {
 namespace Internal {
 
@@ -43,7 +41,7 @@ public:
     ~QdbStopApplicationService();
 
 private:
-    void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleProcessFinished();
     void handleAppendMessage(const QString &message, Utils::OutputFormat format);
 
     bool isDeploymentNecessary() const final { return true; }

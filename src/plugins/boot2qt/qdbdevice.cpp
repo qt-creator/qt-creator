@@ -83,7 +83,7 @@ public:
                 &DeviceApplicationObserver::handleAppendMessage);
         connect(&m_appRunner, &ApplicationLauncher::error, this,
                 [this] { m_error = m_appRunner.errorString(); });
-        connect(&m_appRunner, &ApplicationLauncher::processExited, this,
+        connect(&m_appRunner, &ApplicationLauncher::finished, this,
                 &DeviceApplicationObserver::handleFinished);
 
         QTC_ASSERT(device, return);
@@ -106,13 +106,15 @@ private:
             m_stderr += data;
     }
 
-    void handleFinished(int exitCode, QProcess::ExitStatus exitStatus)
+    void handleFinished()
     {
-        Q_UNUSED(exitCode)
         // FIXME: Needed in a post-adb world?
         // adb does not forward exit codes and all stderr goes to stdout.
-        const bool failure = exitStatus == QProcess::CrashExit || m_stdout.contains("fail")
-                || m_stdout.contains("error") || m_stdout.contains("not found");
+        const bool failure = m_appRunner.exitStatus() == QProcess::CrashExit
+                || m_stdout.contains("fail")
+                || m_stdout.contains("error")
+                || m_stdout.contains("not found");
+
         if (failure) {
             QString errorString;
             if (!m_error.isEmpty()) {

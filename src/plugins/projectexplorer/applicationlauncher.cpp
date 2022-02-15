@@ -116,11 +116,13 @@ public:
     // Remote
     QString m_remoteErrorString;
     QProcess::ProcessError m_remoteError = QProcess::UnknownError;
-    QProcess::ExitStatus m_remoteExitStatus = QProcess::CrashExit;
     State m_state = Inactive;
     bool m_stopRequested = false;
 
     Runnable m_runnable;
+
+    int m_exitCode = 0;
+    QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
 };
 
 } // Internal
@@ -188,7 +190,7 @@ void ApplicationLauncherPrivate::stop()
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        m_remoteExitStatus = QProcess::CrashExit;
+        m_exitStatus = QProcess::CrashExit;
         emit q->appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
                               Utils::NormalMessageFormat);
         switch (m_state) {
@@ -252,17 +254,17 @@ void ApplicationLauncherPrivate::localProcessError(QProcess::ProcessError error)
         emit q->appendMessage(m_process->errorString(), ErrorMessageFormat);
         if (m_processRunning && m_process->processId() == 0) {
             m_processRunning = false;
-            emit q->processExited(-1, QProcess::NormalExit);
+            m_exitCode = -1;
+            emit q->finished();
         }
     } else {
         QString error;
-        QProcess::ExitStatus status = QProcess::NormalExit;
         switch (m_process->error()) {
         case QProcess::FailedToStart:
             error = ApplicationLauncher::tr("Failed to start program. Path or permissions wrong?");
             break;
         case QProcess::Crashed:
-            status = QProcess::CrashExit;
+            m_exitStatus = QProcess::CrashExit;
             break;
         default:
             error = ApplicationLauncher::tr("Some error has occurred while running the program.");
@@ -271,7 +273,8 @@ void ApplicationLauncherPrivate::localProcessError(QProcess::ProcessError error)
             emit q->appendMessage(error, ErrorMessageFormat);
         if (m_processRunning && !isRunning()) {
             m_processRunning = false;
-            emit q->processExited(-1, status);
+            m_exitCode = -1;
+            emit q->finished();
         }
     }
     emit q->error(error);
@@ -311,7 +314,9 @@ void ApplicationLauncherPrivate::localProcessDone(int exitCode, QProcess::ExitSt
 {
     QTimer::singleShot(100, this, [this, exitCode, status]() {
         m_listeningPid = 0;
-        emit q->processExited(exitCode, status);
+        m_exitCode = exitCode;
+        m_exitStatus = status;
+        emit q->finished();
     });
 }
 
@@ -339,6 +344,9 @@ void ApplicationLauncher::start(const IDevice::ConstPtr &device)
 void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool local)
 {
     m_isLocal = local;
+
+    m_exitCode = 0;
+    m_exitStatus = QProcess::NormalExit;
 
     if (m_isLocal) {
         m_process.reset(new QtcProcess(this));
@@ -411,7 +419,6 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
         }
 
         m_stopRequested = false;
-        m_remoteExitStatus = QProcess::NormalExit;
 
         m_process.reset(device->createProcess(this));
         connect(m_process.get(), &QtcProcess::started,
@@ -448,12 +455,10 @@ void ApplicationLauncherPrivate::setFinished()
     if (m_state == Inactive)
         return;
 
-    int exitCode = 0;
-    if (m_process)
-        exitCode = m_process->exitCode();
+    m_exitCode = m_process ? m_exitCode = m_process->exitCode() : 0;
 
     m_state = Inactive;
-    emit q->processExited(exitCode, m_remoteExitStatus);
+    emit q->finished();
 }
 
 void ApplicationLauncherPrivate::handleApplicationFinished()
@@ -483,7 +488,7 @@ void ApplicationLauncherPrivate::doReportError(const QString &message, QProcess:
 {
     m_remoteErrorString = message;
     m_remoteError = error;
-    m_remoteExitStatus = QProcess::CrashExit;
+    m_exitStatus = QProcess::CrashExit;
     emit q->error(error);
 }
 

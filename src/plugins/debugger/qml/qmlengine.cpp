@@ -269,7 +269,7 @@ QmlEngine::QmlEngine()
     connect(stackHandler(), &StackHandler::currentIndexChanged,
             this, &QmlEngine::updateCurrentContext);
 
-    connect(&d->applicationLauncher, &ApplicationLauncher::processExited,
+    connect(&d->applicationLauncher, &ApplicationLauncher::finished,
             this, &QmlEngine::disconnected);
     connect(&d->applicationLauncher, &ApplicationLauncher::appendMessage,
             this, &QmlEngine::appMessage);
@@ -515,7 +515,7 @@ void QmlEngine::startApplicationLauncher()
 void QmlEngine::stopApplicationLauncher()
 {
     if (d->applicationLauncher.isRunning()) {
-        disconnect(&d->applicationLauncher, &ApplicationLauncher::processExited,
+        disconnect(&d->applicationLauncher, &ApplicationLauncher::finished,
                    this, &QmlEngine::disconnected);
         d->applicationLauncher.stop();
     }

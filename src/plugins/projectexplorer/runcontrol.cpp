@@ -1202,16 +1202,14 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
     m_launcher.setUseTerminal(m_useTerminal);
     m_launcher.setRunAsRoot(m_runAsRoot);
 
-    const bool isDesktop = device.isNull() || device.dynamicCast<const DesktopDevice>();
     const QString msg = RunControl::tr("Starting %1...").arg(runnable.command.toUserOutput());
     appendMessage(msg, Utils::NormalMessageFormat);
 
-    connect(&m_launcher, &ApplicationLauncher::processExited,
-        this, [this, runnable](int exitCode, QProcess::ExitStatus status) {
+    connect(&m_launcher, &ApplicationLauncher::finished, this, [this, runnable]() {
         if (m_stopReported)
             return;
-        const QString msg = (status == QProcess::CrashExit)
-                ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(exitCode);
+        const QString msg = (m_launcher.exitStatus() == QProcess::CrashExit)
+                ? tr("%1 crashed.") : tr("%2 exited with code %1").arg(m_launcher.exitCode());
         const QString displayName = runnable.command.executable().toUserOutput();
         appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
         m_stopReported = true;
@@ -1233,6 +1231,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
 
     connect(&m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
 
+    const bool isDesktop = device.isNull() || device.dynamicCast<const DesktopDevice>();
     if (isDesktop) {
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, [this] {
             // Console processes only know their pid after being started

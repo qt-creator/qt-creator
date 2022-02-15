@@ -76,7 +76,7 @@ private:
     void sftpJobFinished(QSsh::SftpJobId job, const QString &error);
     void cleanupTempFile();
 
-    void controllerProcessFinished(int, QProcess::ExitStatus);
+    void controllerProcessFinished();
     void controllerProcessError(QProcess::ProcessError);
 
     ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;

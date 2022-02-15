@@ -114,7 +114,7 @@ bool ValgrindRunner::Private::run()
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
 
-    connect(&m_valgrindProcess, &ApplicationLauncher::processExited,
+    connect(&m_valgrindProcess, &ApplicationLauncher::finished,
             q, &ValgrindRunner::processFinished);
     connect(&m_valgrindProcess, &ApplicationLauncher::processStarted,
             this, &ValgrindRunner::Private::processStarted);
@@ -295,7 +295,7 @@ void ValgrindRunner::processError(QProcess::ProcessError e)
     emit finished();
 }
 
-void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
+void ValgrindRunner::processFinished()
 {
     emit extraProcessFinished();
 
@@ -307,7 +307,7 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
     // make sure we don't wait for the connection anymore
     emit finished();
 
-    if (ret != 0 || status == QProcess::CrashExit)
+    if (d->m_valgrindProcess.exitCode() != 0 || d->m_valgrindProcess.exitStatus() == QProcess::CrashExit)
         emit processErrorReceived(errorString(), d->m_valgrindProcess.processError());
 }
 
