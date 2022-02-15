@@ -43,8 +43,6 @@ class tst_QtcProcess;
 
 namespace Utils {
 
-class CommandLine;
-class Environment;
 class ProcessInterface;
 class QtcProcess;
 
@@ -252,6 +250,15 @@ public:
     QtcProcess::ProcessImpl m_processImpl = QtcProcess::DefaultImpl;
     ProcessMode m_processMode = ProcessMode::Reader;
     QtcProcess::TerminalMode m_terminalMode = QtcProcess::TerminalOff;
+
+    CommandLine m_commandLine;
+    FilePath m_workingDirectory;
+    Environment m_environment;
+    QByteArray m_writeData;
+    bool m_runAsRoot = false;
+    bool m_haveEnv = false;
+    bool m_useCtrlCStub = false;
+    QVariantHash m_extraData;
 
     QString m_nativeArguments;
     QString m_standardInputFile;

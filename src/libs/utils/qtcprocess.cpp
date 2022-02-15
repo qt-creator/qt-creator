@@ -316,6 +316,7 @@ public:
         m_process->setStandardInputFile(m_setup->m_standardInputFile);
         m_process->setProcessChannelMode(m_setup->m_procesChannelMode);
         m_process->setErrorString(m_setup->m_initialErrorString);
+        m_setup->m_initialErrorString.clear();
         if (m_setup->m_lowPriority)
             m_process->setLowPriority();
         if (m_setup->m_unixTerminalDisabled)
@@ -408,6 +409,7 @@ public:
         m_handle->setStandardInputFile(m_setup->m_standardInputFile);
         m_handle->setProcessChannelMode(m_setup->m_procesChannelMode);
         m_handle->setErrorString(m_setup->m_initialErrorString);
+        m_setup->m_initialErrorString.clear();
         if (m_setup->m_belowNormalPriority)
             m_handle->setBelowNormalPriority();
         m_handle->setNativeArguments(m_setup->m_nativeArguments);
@@ -557,7 +559,7 @@ public:
 
         if (commandLine.executable().osType() == OsTypeWindows) {
             QString args;
-            if (m_useCtrlCStub) {
+            if (m_setup.m_useCtrlCStub) {
                 if (m_setup.m_lowPriority)
                     ProcessArgs::addArg(&args, "-nice");
                 ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
@@ -568,7 +570,7 @@ public:
             m_setup.m_nativeArguments = args;
             // Note: Arguments set with setNativeArgs will be appended to the ones
             // passed with start() below.
-            start(commandString, QStringList(), workingDirectory, m_writeData);
+            start(commandString, QStringList(), workingDirectory, m_setup.m_writeData);
         } else {
             if (!success) {
                 q->setErrorString(tr("Error in command line."));
@@ -577,7 +579,7 @@ public:
                 emit q->errorOccurred(QProcess::UnknownError);
                 return;
             }
-            start(commandString, arguments.toUnixArgs(), workingDirectory, m_writeData);
+            start(commandString, arguments.toUnixArgs(), workingDirectory, m_setup.m_writeData);
         }
     }
 
@@ -596,21 +598,21 @@ public:
 
     CommandLine fullCommandLine() const
     {
-        if (!m_runAsRoot || HostOsInfo::isWindowsHost())
-            return m_commandLine;
+        if (!m_setup.m_runAsRoot || HostOsInfo::isWindowsHost())
+            return m_setup.m_commandLine;
         CommandLine rootCommand("sudo", {"-A"});
-        rootCommand.addCommandLineAsArgs(m_commandLine);
+        rootCommand.addCommandLineAsArgs(m_setup.m_commandLine);
         return rootCommand;
     }
 
     Environment fullEnvironment() const
     {
         Environment env;
-        if (m_haveEnv) {
-            if (m_environment.size() == 0)
+        if (m_setup.m_haveEnv) {
+            if (m_setup.m_environment.size() == 0)
                 qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-                         qPrintable(m_commandLine.executable().toString()));
-            env = m_environment;
+                         qPrintable(m_setup.m_commandLine.executable().toString()));
+            env = m_setup.m_environment;
         } else {
             env = Environment::systemEnvironment();
         }
@@ -623,15 +625,7 @@ public:
 
     QtcProcess *q;
     std::unique_ptr<ProcessInterface> m_process;
-    CommandLine m_commandLine;
-    FilePath m_workingDirectory;
-    Environment m_environment;
-    QByteArray m_writeData;
-    bool m_runAsRoot = false;
-    bool m_haveEnv = false;
-    bool m_useCtrlCStub = false;
     ProcessSetupData m_setup;
-    QVariantHash m_extraData;
 
     void slotTimeout();
     void slotFinished(int exitCode, QProcess::ExitStatus e);
@@ -731,50 +725,50 @@ void QtcProcess::setProcessMode(ProcessMode processMode)
 
 void QtcProcess::setEnvironment(const Environment &env)
 {
-    d->m_environment = env;
-    d->m_haveEnv = true;
+    d->m_setup.m_environment = env;
+    d->m_setup.m_haveEnv = true;
 }
 
 void QtcProcess::unsetEnvironment()
 {
-    d->m_environment = Environment();
-    d->m_haveEnv = false;
+    d->m_setup.m_environment = Environment();
+    d->m_setup.m_haveEnv = false;
 }
 
 const Environment &QtcProcess::environment() const
 {
-    return d->m_environment;
+    return d->m_setup.m_environment;
 }
 
 bool QtcProcess::hasEnvironment() const
 {
-    return d->m_haveEnv;
+    return d->m_setup.m_haveEnv;
 }
 
 void QtcProcess::setCommand(const CommandLine &cmdLine)
 {
-    if (d->m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
-        QTC_CHECK(d->m_workingDirectory.host() == cmdLine.executable().host());
+    if (d->m_setup.m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
+        QTC_CHECK(d->m_setup.m_workingDirectory.host() == cmdLine.executable().host());
     }
-    d->m_commandLine = cmdLine;
+    d->m_setup.m_commandLine = cmdLine;
 }
 
 const CommandLine &QtcProcess::commandLine() const
 {
-    return d->m_commandLine;
+    return d->m_setup.m_commandLine;
 }
 
 FilePath QtcProcess::workingDirectory() const
 {
-    return d->m_workingDirectory;
+    return d->m_setup.m_workingDirectory;
 }
 
 void QtcProcess::setWorkingDirectory(const FilePath &dir)
 {
-    if (dir.needsDevice() && d->m_commandLine.executable().needsDevice()) {
-        QTC_CHECK(dir.host() == d->m_commandLine.executable().host());
+    if (dir.needsDevice() && d->m_setup.m_commandLine.executable().needsDevice()) {
+        QTC_CHECK(dir.host() == d->m_setup.m_commandLine.executable().host());
     }
-    d->m_workingDirectory = dir;
+    d->m_setup.m_workingDirectory = dir;
 }
 
 void QtcProcess::setUseCtrlCStub(bool enabled)
@@ -783,7 +777,7 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
     // Qt Creator otherwise, because they share the same Windows console.
     // See QTCREATORBUG-11995 for details.
 #ifndef QT_DEBUG
-    d->m_useCtrlCStub = enabled;
+    d->m_setup.m_useCtrlCStub = enabled;
 #else
     Q_UNUSED(enabled)
 #endif
@@ -791,7 +785,7 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
-    if (d->m_commandLine.executable().needsDevice()) {
+    if (d->m_setup.m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
         s_deviceHooks.startProcessHook(*this);
         return;
@@ -801,9 +795,9 @@ void QtcProcess::start()
     const CommandLine cmd = d->fullCommandLine();
     const Environment env = d->fullEnvironment();
     if (d->m_process->isCustomStart())
-        d->m_process->customStart(cmd, d->m_workingDirectory, env);
+        d->m_process->customStart(cmd, d->m_setup.m_workingDirectory, env);
     else
-        d->defaultStart(cmd, d->m_workingDirectory, env);
+        d->defaultStart(cmd, d->m_setup.m_workingDirectory, env);
 }
 
 #ifdef Q_OS_WIN
@@ -834,7 +828,7 @@ BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARA
 void QtcProcess::terminate()
 {
 #ifdef Q_OS_WIN
-    if (d->m_useCtrlCStub)
+    if (d->m_setup.m_useCtrlCStub)
         EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, processId());
     else
 #endif
@@ -845,7 +839,7 @@ void QtcProcess::terminate()
 void QtcProcess::interrupt()
 {
 #ifdef Q_OS_WIN
-    QTC_ASSERT(d->m_useCtrlCStub, return);
+    QTC_ASSERT(d->m_setup.m_useCtrlCStub, return);
     EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
 #endif
 }
@@ -875,12 +869,12 @@ void QtcProcess::setAbortOnMetaChars(bool abort)
 
 void QtcProcess::setRunAsRoot(bool on)
 {
-    d->m_runAsRoot = on;
+    d->m_setup.m_runAsRoot = on;
 }
 
 bool QtcProcess::isRunAsRoot() const
 {
-    return d->m_runAsRoot;
+    return d->m_setup.m_runAsRoot;
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)
@@ -892,39 +886,39 @@ QString QtcProcess::toStandaloneCommandLine() const
 {
     QStringList parts;
     parts.append("/usr/bin/env");
-    if (!d->m_workingDirectory.isEmpty()) {
+    if (!d->m_setup.m_workingDirectory.isEmpty()) {
         parts.append("-C");
-        d->m_workingDirectory.path();
+        d->m_setup.m_workingDirectory.path();
     }
     parts.append("-i");
-    if (d->m_environment.size() > 0) {
-        const QStringList envVars = d->m_environment.toStringList();
+    if (d->m_setup.m_environment.size() > 0) {
+        const QStringList envVars = d->m_setup.m_environment.toStringList();
         std::transform(envVars.cbegin(), envVars.cend(),
                        std::back_inserter(parts), ProcessArgs::quoteArgUnix);
     }
-    parts.append(d->m_commandLine.executable().path());
-    parts.append(d->m_commandLine.splitArguments());
+    parts.append(d->m_setup.m_commandLine.executable().path());
+    parts.append(d->m_setup.m_commandLine.splitArguments());
     return parts.join(" ");
 }
 
 void QtcProcess::setExtraData(const QString &key, const QVariant &value)
 {
-    d->m_extraData.insert(key, value);
+    d->m_setup.m_extraData.insert(key, value);
 }
 
 QVariant QtcProcess::extraData(const QString &key) const
 {
-    return d->m_extraData.value(key);
+    return d->m_setup.m_extraData.value(key);
 }
 
 void QtcProcess::setExtraData(const QVariantHash &extraData)
 {
-    d->m_extraData = extraData;
+    d->m_setup.m_extraData = extraData;
 }
 
 QVariantHash QtcProcess::extraData() const
 {
-    return d->m_extraData;
+    return d->m_setup.m_extraData;
 }
 
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
@@ -1009,7 +1003,7 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
         }
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
-        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_commandLine.executable().path());
+        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_setup.m_commandLine.executable().path());
     } while (hasData && !finished);
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
@@ -1493,7 +1487,7 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
-    d->m_writeData = writeData;
+    d->m_setup.m_writeData = writeData;
 }
 
 #ifdef QT_GUI_LIB
@@ -1507,13 +1501,13 @@ void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
 {
     // FIXME: Implement properly
 
-    if (d->m_commandLine.executable().needsDevice()) {
+    if (d->m_setup.m_commandLine.executable().needsDevice()) {
         QtcProcess::start();
         waitForFinished();
         return;
     };
 
-    qCDebug(processLog).noquote() << "Starting blocking:" << d->m_commandLine.toUserOutput()
+    qCDebug(processLog).noquote() << "Starting blocking:" << d->m_setup.m_commandLine.toUserOutput()
         << " process user events: " << (eventLoopMode == QtcProcess::WithEventLoop);
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
@@ -1600,7 +1594,7 @@ void QtcProcessPrivate::slotTimeout()
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         m_waitingForUser = true;
         const bool terminate = !m_timeOutMessageBoxEnabled
-            || askToKill(m_commandLine.executable().toString());
+            || askToKill(m_setup.m_commandLine.executable().toString());
         m_waitingForUser = false;
         if (terminate) {
             q->stopProcess();
