@@ -1308,7 +1308,8 @@ private:
 
     void insertDocumentImport(const Storage::Import &import,
                               Storage::ImportKind importKind,
-                              ModuleId sourceModuleId)
+                              ModuleId sourceModuleId,
+                              ModuleExportedImportId moduleExportedImportId)
     {
         if (import.version.minor) {
             insertDocumentImportWithVersionStatement.write(&import.sourceId,
@@ -1316,18 +1317,21 @@ private:
                                                            &sourceModuleId,
                                                            to_underlying(importKind),
                                                            import.version.major.value,
-                                                           import.version.minor.value);
+                                                           import.version.minor.value,
+                                                           &moduleExportedImportId);
         } else if (import.version.major) {
             insertDocumentImportWithMajorVersionStatement.write(&import.sourceId,
                                                                 &import.moduleId,
                                                                 &sourceModuleId,
                                                                 to_underlying(importKind),
-                                                                import.version.major.value);
+                                                                import.version.major.value,
+                                                                &moduleExportedImportId);
         } else {
             insertDocumentImportWithoutVersionStatement.write(&import.sourceId,
                                                               &import.moduleId,
                                                               &sourceModuleId,
-                                                              to_underlying(importKind));
+                                                              to_underlying(importKind),
+                                                              &moduleExportedImportId);
         }
     }
 
@@ -1361,16 +1365,19 @@ private:
         };
 
         auto insert = [&](const Storage::Import &import) {
-            insertDocumentImport(import, importKind, import.moduleId);
-
-            auto callback = [&](int exportedModuleId, int majorVersion, int minorVersion) {
+                insertDocumentImport(import, importKind, import.moduleId, ModuleExportedImportId{});
+            auto callback = [&](int exportedModuleId,
+                                int majorVersion,
+                                int minorVersion,
+                                long long moduleExportedImportId) {
                 Storage::Import additionImport{ModuleId{exportedModuleId},
                                                Storage::Version{majorVersion, minorVersion},
                                                import.sourceId};
 
-                insertDocumentImport(additionImport,
-                                     Storage::ImportKind::ModuleExportedImport,
-                                     import.moduleId);
+                    insertDocumentImport(additionImport,
+                                         Storage::ImportKind::ModuleExportedImport,
+                                         import.moduleId,
+                                         ModuleExportedImportId{moduleExportedImportId});
 
                 return Sqlite::CallbackControl::Continue;
             };
@@ -2194,16 +2201,25 @@ private:
             auto &kindColumn = table.addColumn("kind");
             auto &majorVersionColumn = table.addColumn("majorVersion");
             auto &minorVersionColumn = table.addColumn("minorVersion");
+            auto &moduleExportedModuleIdColumn = table.addColumn("moduleExportedModuleId");
 
-            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, sourceModuleIdColumn},
+            table.addUniqueIndex({sourceIdColumn,
+                                  moduleIdColumn,
+                                  sourceModuleIdColumn,
+                                  moduleExportedModuleIdColumn},
                                  "majorVersion IS NULL AND minorVersion IS NULL");
-            table.addUniqueIndex({sourceIdColumn, moduleIdColumn, sourceModuleIdColumn, majorVersionColumn},
+            table.addUniqueIndex({sourceIdColumn,
+                                  moduleIdColumn,
+                                  sourceModuleIdColumn,
+                                  majorVersionColumn,
+                                  moduleExportedModuleIdColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NULL");
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
                                   sourceModuleIdColumn,
                                   majorVersionColumn,
-                                  minorVersionColumn},
+                                  minorVersionColumn,
+                                  moduleExportedModuleIdColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
 
             table.initialize(database);
@@ -2486,17 +2502,17 @@ public:
         "FROM documentImports WHERE sourceId IN carray(?1) AND kind=?2 ORDER BY sourceId, "
         "moduleId, majorVersion, minorVersion",
         database};
-    WriteStatement<4> insertDocumentImportWithoutVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind) "
-        "VALUES (?1, ?2, ?3, ?4)",
+    WriteStatement<5> insertDocumentImportWithoutVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, "
+        "moduleExportedModuleId) VALUES (?1, ?2, ?3, ?4, ?5)",
         database};
-    WriteStatement<5> insertDocumentImportWithMajorVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion) "
-        "VALUES (?1, ?2, ?3, ?4, ?5)",
-        database};
-    WriteStatement<6> insertDocumentImportWithVersionStatement{
+    WriteStatement<6> insertDocumentImportWithMajorVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
-        "minorVersion) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        "moduleExportedModuleId) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        database};
+    WriteStatement<7> insertDocumentImportWithVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
+        "minorVersion, moduleExportedModuleId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
         database};
     WriteStatement<1> deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
                                                     database};
@@ -2721,19 +2737,23 @@ public:
         database};
     WriteStatement<1> deleteModuleExportedImportStatement{
         "DELETE FROM moduleExportedImports WHERE moduleExportedImportId=?1", database};
-    mutable ReadStatement<3, 3> selectModuleExportedImportsForModuleIdStatement{
+    mutable ReadStatement<4, 3> selectModuleExportedImportsForModuleIdStatement{
         "WITH RECURSIVE "
-        "  imports(moduleId, majorVersion, minorVersion) AS ( "
+        "  imports(moduleId, majorVersion, minorVersion, moduleExportedImportId) AS ( "
         "      SELECT exportedModuleId, "
         "             iif(isAutoVersion=1, ?2, majorVersion), "
-        "             iif(isAutoVersion=1, ?3, minorVersion)"
+        "             iif(isAutoVersion=1, ?3, minorVersion), "
+        "             moduleExportedImportId "
         "        FROM moduleExportedImports WHERE moduleId=?1 "
         "    UNION ALL "
         "      SELECT exportedModuleId, "
         "             iif(mei.isAutoVersion=1, i.majorVersion, mei.majorVersion), "
-        "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion)"
+        "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion), "
+        "             mei.moduleExportedImportId "
         "        FROM moduleExportedImports AS mei JOIN imports AS i USING(moduleId)) "
-        "SELECT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM imports",
+        "SELECT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1), "
+        "       moduleExportedImportId "
+        "FROM imports",
         database};
 };
 
