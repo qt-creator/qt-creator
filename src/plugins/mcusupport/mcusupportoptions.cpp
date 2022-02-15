@@ -401,7 +401,7 @@ void McuSupportOptions::registerExamples()
 
 const QVersionNumber &McuSupportOptions::minimalQulVersion()
 {
-    static const QVersionNumber v({1, 3});
+    static const QVersionNumber v({2, 0});
     return v;
 }
 
@@ -420,7 +420,7 @@ void McuSupportOptions::setQulDir(const FilePath &dir)
 FilePath McuSupportOptions::qulDirFromSettings()
 {
     return Sdk::packagePathFromSettings(Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
-                                        QSettings::UserScope);
+                                        QSettings::UserScope, {});
 }
 
 static void setKitProperties(const QString &kitName,
@@ -567,14 +567,6 @@ void McuSupportOptions::setKitEnvironment(Kit *k,
         processPackage(package);
     processPackage(qtForMCUsSdkPackage);
 
-    // Clang not needed in version 1.7+
-    if (mcuTarget->qulVersion() < QVersionNumber{1, 7}) {
-        const QString path = QLatin1String(HostOsInfo::isWindowsHost() ? "Path" : "PATH");
-        pathAdditions.append("${" + path + "}");
-        pathAdditions.append(Core::ICore::libexecPath("clang/bin").toUserOutput());
-        changes.append({path, pathAdditions.join(HostOsInfo::pathListSeparator())});
-    }
-
     if (kitNeedsQtVersion())
         changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
 
@@ -671,9 +663,6 @@ static void setKitCMakeOptions(Kit *k, const McuTarget *mcuTarget, const FilePat
 
     config.append(CMakeConfigItem("QUL_PLATFORM", mcuTarget->platform().name.toUtf8()));
 
-    if (mcuTarget->qulVersion() <= QVersionNumber{1, 3} // OS variable was removed in Qul 1.4
-        && mcuTarget->os() == McuTarget::OS::FreeRTOS)
-        config.append(CMakeConfigItem("OS", "FreeRTOS"));
     if (mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
                                       QString::number(mcuTarget->colorDepth()).toLatin1()));
@@ -700,12 +689,6 @@ static void setKitQtVersionOptions(Kit *k)
 
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
 {
-    QString os;
-    if (mcuTarget->qulVersion() <= QVersionNumber{1, 3}
-        && mcuTarget->os() == McuTarget::OS::FreeRTOS)
-        // Starting from Qul 1.4 each OS is a separate platform
-        os = QLatin1String(" FreeRTOS");
-
     const McuToolChainPackage *tcPkg = mcuTarget->toolChainPackage();
     const QString compilerName = tcPkg && !tcPkg->isDesktopToolchain()
                                      ? QString::fromLatin1(" (%1)").arg(
@@ -717,11 +700,10 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
     const QString targetName = mcuTarget->platform().displayName.isEmpty()
                                    ? mcuTarget->platform().name
                                    : mcuTarget->platform().displayName;
-    return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5%6")
+    return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5")
         .arg(QString::number(mcuTarget->qulVersion().majorVersion()),
              QString::number(mcuTarget->qulVersion().minorVersion()),
              targetName,
-             os,
              colorDepth,
              compilerName);
 }

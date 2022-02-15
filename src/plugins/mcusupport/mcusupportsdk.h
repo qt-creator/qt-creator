@@ -57,8 +57,8 @@ QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 
 Utils::FilePath packagePathFromSettings(const QString &settingsKey,
-                                        QSettings::Scope scope = QSettings::UserScope,
-                                        const Utils::FilePath &defaultPath = {});
+                                        QSettings::Scope scope,
+                                        const Utils::FilePath &defaultPath);
 } // namespace Sdk
 } // namespace Internal
 } // namespace McuSupport

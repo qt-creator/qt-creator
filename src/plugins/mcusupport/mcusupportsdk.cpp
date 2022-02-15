@@ -527,10 +527,9 @@ protected:
 
         QVector<McuTarget *> mcuTargets;
         McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchain.id);
-        if (tcPkg) {
-            if (QVersionNumber::fromString(desc.qulVersion) >= QVersionNumber({1, 8}))
-                tcPkg->setVersions(desc.toolchain.versions);
-        } else
+        if (tcPkg)
+            tcPkg->setVersions(desc.toolchain.versions);
+        else
             tcPkg = createUnsupportedToolChainPackage();
         for (int colorDepth : desc.platform.colorDepths) {
             QVector<McuAbstractPackage *> required3rdPartyPkgs;
@@ -551,8 +550,7 @@ protected:
                     boardSdkPkgs.insert(desc.boardSdk.envVar, boardSdkPkg);
                 }
                 auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdk.envVar);
-                if (QVersionNumber::fromString(desc.qulVersion) >= QVersionNumber({1, 8}))
-                    boardSdkPkg->setVersions(desc.boardSdk.versions);
+                boardSdkPkg->setVersions(desc.boardSdk.versions);
                 boardSdkDefaultPath = boardSdkPkg->defaultPath();
                 required3rdPartyPkgs.append(boardSdkPkg);
             }
@@ -641,9 +639,12 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
     return kitsDir.entryInfoList();
 }
 
-static McuTargetDescription parseDescriptionJsonCommon(const QString &qulVersion,
-                                                       const QJsonObject &target)
+McuTargetDescription parseDescriptionJson(const QByteArray &data)
 {
+    const QJsonDocument document = QJsonDocument::fromJson(data);
+    const QJsonObject target = document.object();
+    const QString qulVersion = target.value("qulVersion").toString();
+    const QJsonObject platform = target.value("platform").toObject();
     const QString compatVersion = target.value("compatVersion").toString();
     const QJsonObject toolchain = target.value("toolchain").toObject();
     const QJsonObject boardSdk = target.value("boardSdk").toObject();
@@ -660,105 +661,70 @@ static McuTargetDescription parseDescriptionJsonCommon(const QString &qulVersion
                                                                         return version.toString();
                                                                     });
 
-    return {qulVersion,
-            compatVersion,
-            {},
-            {
-                toolchain.value("id").toString(),
-                toolchainVersionsList,
-            },
-            {
-                boardSdk.value("name").toString(),
-                boardSdk.value("defaultPath").toString(),
-                boardSdk.value("envVar").toString(),
-                boardSdkVersionsList,
-            },
-            {
-                freeRTOS.value("envVar").toString(),
-                freeRTOS.value("boardSdkSubDir").toString(),
-            }};
-}
-
-static McuTargetDescription parseDescriptionJsonV1x(const QString &qulVersion,
-                                                    const QJsonObject &target)
-{
-    auto description = parseDescriptionJsonCommon(qulVersion, target);
-
-    const QVariantList colorDepths = target.value("colorDepths").toArray().toVariantList();
-    const auto colorDepthsVector = Utils::transform<QVector<int>>(colorDepths,
-                                                                  [&](const QVariant &colorDepth) {
-                                                                      return colorDepth.toInt();
-                                                                  });
-
-    description.platform = {target.value("platform").toString(),
-                            target.value("platformName").toString(),
-                            target.value("platformVendor").toString(),
-                            colorDepthsVector,
-                            description.boardSdk.envVar.isEmpty()
-                                ? McuTargetDescription::TargetType::Desktop
-                                : McuTargetDescription::TargetType::MCU};
-    return description;
-}
-
-static McuTargetDescription parseDescriptionJsonV2x(const QString &qulVersion,
-                                                    const QJsonObject &target)
-{
-    const QJsonObject platform = target.value("platform").toObject();
-
     const QVariantList colorDepths = platform.value("colorDepths").toArray().toVariantList();
     const auto colorDepthsVector = Utils::transform<QVector<int>>(colorDepths,
                                                                   [&](const QVariant &colorDepth) {
                                                                       return colorDepth.toInt();
                                                                   });
     const QString platformName = platform.value("platformName").toString();
-    McuTargetDescription description = parseDescriptionJsonCommon(qulVersion, target);
-    description.platform = {
-        platform.value("id").toString(),
-        platformName,
-        platform.value("vendor").toString(),
-        colorDepthsVector,
-        platformName == "Desktop" ? McuTargetDescription::TargetType::Desktop
-                                  : McuTargetDescription::TargetType::MCU,
+
+    return {
+        qulVersion,
+        compatVersion,
+        {
+            platform.value("id").toString(),
+            platformName,
+            platform.value("vendor").toString(),
+            colorDepthsVector,
+            platformName == "Desktop" ? McuTargetDescription::TargetType::Desktop : McuTargetDescription::TargetType::MCU,
+        },
+        {
+            toolchain.value("id").toString(),
+            toolchainVersionsList,
+        },
+        {
+            boardSdk.value("name").toString(),
+            boardSdk.value("defaultPath").toString(),
+            boardSdk.value("envVar").toString(),
+            boardSdkVersionsList,
+        },
+        {
+            freeRTOS.value("envVar").toString(),
+            freeRTOS.value("boardSdkSubDir").toString(),
+        }
     };
-
-    return description;
-}
-
-McuTargetDescription parseDescriptionJson(const QByteArray &data)
-{
-    const QJsonDocument document = QJsonDocument::fromJson(data);
-    const QJsonObject target = document.object();
-
-    const QString qulVersion = target.value("qulVersion").toString();
-
-    switch (QVersionNumber::fromString(qulVersion).majorVersion()) {
-    case 1:
-        return parseDescriptionJsonV1x(qulVersion, target);
-    case 2:
-        return parseDescriptionJsonV2x(qulVersion, target);
-    default:
-        return {qulVersion};
-    }
 }
 
 // https://doc.qt.io/qtcreator/creator-developing-mcu.html#supported-qt-for-mcus-sdks
-const QHash<QString, QString> oldSdkQtcRequiredVersion = {
-    {{"1.0"}, {"4.11.x"}},
-    {{"1.1"}, {"4.12.0 or 4.12.1"}},
-    {{"1.2"}, {"4.12.2 or 4.12.3"}},
-};
+static const QString legacySupportVersionFor(const QString &sdkVersion)
+{
+    static const QHash<QString, QString> oldSdkQtcRequiredVersion = {
+        {{"1.0"}, {"4.11.x"}},
+        {{"1.1"}, {"4.12.0 or 4.12.1"}},
+        {{"1.2"}, {"4.12.2 or 4.12.3"}}
+    };
+    if (oldSdkQtcRequiredVersion.contains(sdkVersion))
+        return oldSdkQtcRequiredVersion.value(sdkVersion);
+
+    if (QVersionNumber::fromString(sdkVersion).majorVersion() == 1)
+        return "4.12.4 up to 6.0";
+
+    return QString();
+}
+
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
 {
     const McuPackagePathVersionDetector versionDetector("(?<=\\bQtMCUs.)(\\d+\\.\\d+)");
     const QString sdkDetectedVersion = versionDetector.parseVersion(qulDir.toString());
+    const QString legacyVersion = legacySupportVersionFor(sdkDetectedVersion);
 
-    if (oldSdkQtcRequiredVersion.contains(sdkDetectedVersion)) {
+    if (!legacyVersion.isEmpty()) {
         message = McuTarget::tr("Qt for MCUs SDK version %1 detected, "
                                 "only supported by Qt Creator version %2. "
                                 "This version of Qt Creator requires Qt for MCUs %3 or greater.")
                       .arg(sdkDetectedVersion,
-                           oldSdkQtcRequiredVersion.value(sdkDetectedVersion),
+                           legacyVersion,
                            McuSupportOptions::minimalQulVersion().toString());
         return true;
     }
@@ -787,10 +753,11 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
             continue;
         }
         if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion()) {
+            const QString legacyVersion = legacySupportVersionFor(desc.qulVersion);
             const QString qtcSupportText
-                = oldSdkQtcRequiredVersion.contains(desc.qulVersion)
+                = !legacyVersion.isEmpty()
                       ? McuTarget::tr("Detected version \"%1\", only supported by Qt Creator %2.")
-                            .arg(desc.qulVersion, oldSdkQtcRequiredVersion.value(desc.qulVersion))
+                            .arg(desc.qulVersion, legacyVersion)
                       : McuTarget::tr("Unsupported version \"%1\".").arg(desc.qulVersion);
             printMessage(McuTarget::tr("Skipped %1. %2 Qt for MCUs version >= %3 required.")
                              .arg(QDir::toNativeSeparators(pth.fileNameWithPathComponents(1)),
@@ -814,61 +781,6 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
             if (checkDeprecatedSdkError(dir, deprecationMessage)) {
                 printMessage(deprecationMessage, true);
                 return;
-            }
-        }
-    }
-
-    // Workaround for missing JSON file for Desktop target.
-    // Desktop JSON file is shipped starting from Qul 1.5.
-    // This whole section could be removed when minimalQulVersion will reach 1.5 or above
-    {
-        const bool hasDesktopDescription
-            = contains(descriptions, [](const McuTargetDescription &desc) {
-                  return desc.platform.type == McuTargetDescription::TargetType::Desktop;
-              });
-
-        if (!hasDesktopDescription) {
-            QVector<FilePath> desktopLibs;
-            if (HostOsInfo::isWindowsHost()) {
-                desktopLibs << dir / "lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib"; // older versions of QUL (<1.5?)
-                desktopLibs
-                    << dir / "lib/QulQuickUltralitePlatform_QT_32bpp_Windows_msvc_Release.lib"; // newer versions of QUL
-            } else {
-                desktopLibs << dir / "lib/libQulQuickUltralite_QT_32bpp_Linux_Debug.a"; // older versions of QUL (<1.5?)
-                desktopLibs << dir / "lib/libQulQuickUltralitePlatform_QT_32bpp_Linux_gnu_Debug.a"; // newer versions of QUL
-            }
-
-            if (anyOf(desktopLibs, [](const FilePath &desktopLib) { return desktopLib.exists(); })) {
-                McuTargetDescription desktopDescription;
-                desktopDescription.qulVersion
-                    = descriptions.empty() ? McuSupportOptions::minimalQulVersion().toString()
-                                           : descriptions.first().qulVersion;
-                desktopDescription.platform.id = "Qt";
-                desktopDescription.platform.name = "Desktop";
-                desktopDescription.platform.vendor = "Qt";
-                desktopDescription.platform.colorDepths = {32};
-                desktopDescription.toolchain.id = HostOsInfo::isWindowsHost() ? QString("msvc")
-                                                                              : QString("gcc");
-                desktopDescription.platform.type = McuTargetDescription::TargetType::Desktop;
-                descriptions.prepend(desktopDescription);
-            } else {
-                // show error only on 1.x SDKs, but skip on 2.x
-                const FilePath desktopLibV2
-                    = HostOsInfo::isWindowsHost()
-                          ? dir / "lib/QulPlatform_qt_32bpp_Windows_msvc_Release.lib"
-                          : dir / "lib/libQulPlatform_qt_32bpp_Linux_gnu_Release.a";
-                if (dir.exists() && !desktopLibV2.exists())
-                    printMessage(
-                        McuTarget::tr(
-                            "Skipped creating fallback desktop kit: Could not find any of %1.")
-                            .arg(transform(desktopLibs,
-                                           [](const auto &path) {
-                                               return QDir::toNativeSeparators(
-                                                   path.fileNameWithPathComponents(1));
-                                           })
-                                     .toList()
-                                     .join(" or ")),
-                        false);
             }
         }
     }
