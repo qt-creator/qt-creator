@@ -25,12 +25,10 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QSettings>
 #include <QVector>
-
-namespace Utils {
-class FilePath;
-}
 
 namespace McuSupport {
 namespace Internal {
