@@ -370,7 +370,6 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
     QMutexLocker locker(&m_mutex);
     m_command = program;
     m_arguments = arguments;
-    m_writeData = writeData;
     m_processState = QProcess::Starting;
     StartProcessPacket *p = new StartProcessPacket(m_token);
     p->command = m_command;
@@ -378,7 +377,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments, c
     p->env = m_environment.toStringList();
     p->workingDir = m_workingDirectory.path();
     p->processMode = m_processMode;
-    p->writeData = m_writeData;
+    p->writeData = writeData;
     p->channelMode = m_channelMode;
     p->standardInputFile = m_standardInputFile;
     p->belowNormalPriority = m_belowNormalPriority;

@@ -179,7 +179,6 @@ private:
     QStringList m_arguments;
     Environment m_environment;
     FilePath m_workingDirectory;
-    QByteArray m_writeData;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     QString m_standardInputFile;
 

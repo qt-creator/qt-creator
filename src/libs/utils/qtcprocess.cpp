@@ -234,7 +234,7 @@ public:
     QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
 
     void setEnvironment(const Environment &) override { QTC_CHECK(false); }
-    void start(const QString &, const QStringList &, const QByteArray &) override
+    void start(const QString &, const QStringList &) override
     { QTC_CHECK(false); }
     void customStart(const CommandLine &command, const Environment &environment) override
     {
@@ -301,11 +301,11 @@ public:
     void setEnvironment(const Environment &environment) override
     { m_process->setProcessEnvironment(environment.toProcessEnvironment()); }
 
-    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
+    void start(const QString &program, const QStringList &arguments) override
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
         handler->setProcessMode(m_processMode);
-        handler->setWriteData(writeData);
+        handler->setWriteData(m_setup.m_writeData);
         if (m_setup.m_belowNormalPriority)
             handler->setBelowNormalPriority();
         handler->setNativeArguments(m_setup.m_nativeArguments);
@@ -399,7 +399,7 @@ public:
     void setEnvironment(const Environment &environment) override
     { m_handle->setEnvironment(environment); }
 
-    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
+    void start(const QString &program, const QStringList &arguments) override
     {
         m_handle->setWorkingDirectory(m_setup.m_workingDirectory);
         m_handle->setStandardInputFile(m_setup.m_standardInputFile);
@@ -412,7 +412,7 @@ public:
             m_handle->setLowPriority();
         if (m_setup.m_unixTerminalDisabled)
             m_handle->setUnixTerminalDisabled();
-        m_handle->start(program, arguments, writeData);
+        m_handle->start(program, arguments, m_setup.m_writeData);
     }
 
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
@@ -564,7 +564,7 @@ public:
             m_setup.m_nativeArguments = args;
             // Note: Arguments set with setNativeArgs will be appended to the ones
             // passed with start() below.
-            start(commandString, QStringList(), m_setup.m_writeData);
+            start(commandString, QStringList());
         } else {
             if (!success) {
                 q->setErrorString(tr("Error in command line."));
@@ -573,15 +573,15 @@ public:
                 emit q->errorOccurred(QProcess::UnknownError);
                 return;
             }
-            start(commandString, arguments.toUnixArgs(), m_setup.m_writeData);
+            start(commandString, arguments.toUnixArgs());
         }
     }
 
-    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData)
+    void start(const QString &program, const QStringList &arguments)
     {
         const FilePath programFilePath = resolve(m_setup.m_workingDirectory, FilePath::fromString(program));
         if (programFilePath.exists() && programFilePath.isExecutableFile()) {
-            s_start.measureAndRun(&ProcessInterface::start, m_process, program, arguments, writeData);
+            s_start.measureAndRun(&ProcessInterface::start, m_process, program, arguments);
         } else {
             m_process->setErrorString(QLatin1String(
                        "The program \"%1\" does not exist or is not executable.").arg(program));
