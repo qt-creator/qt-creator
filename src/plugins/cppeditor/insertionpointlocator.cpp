@@ -177,6 +177,8 @@ QList<AccessRange> collectAccessRanges(const CPlusPlus::TranslationUnit *tu,
 
         if (AccessDeclarationAST *xsDecl = decl->asAccessDeclaration()) {
             const unsigned token = xsDecl->access_specifier_token;
+            if (tu->tokenAt(token).generated())
+                continue;
             InsertionPointLocator::AccessSpec newXsSpec = initialXs;
             bool isSlot = xsDecl->slots_token && tu->tokenKind(xsDecl->slots_token) == T_Q_SLOTS;
 
