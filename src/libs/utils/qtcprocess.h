@@ -282,7 +282,6 @@ public:
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
 
-    virtual void setEnvironment(const Environment &environment) = 0;
     virtual void start(const QString &program, const QStringList &arguments) = 0;
     virtual void customStart() { QTC_CHECK(false); }
     virtual bool isCustomStart() const { return false; }

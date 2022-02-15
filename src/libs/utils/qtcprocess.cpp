@@ -233,7 +233,6 @@ public:
     QByteArray readAllStandardOutput() override { QTC_CHECK(false); return {}; }
     QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
 
-    void setEnvironment(const Environment &) override { QTC_CHECK(false); }
     void start(const QString &, const QStringList &) override
     { QTC_CHECK(false); }
     void customStart() override
@@ -298,9 +297,6 @@ public:
     QByteArray readAllStandardOutput() override { return m_process->readAllStandardOutput(); }
     QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
 
-    void setEnvironment(const Environment &environment) override
-    { m_process->setProcessEnvironment(environment.toProcessEnvironment()); }
-
     void start(const QString &program, const QStringList &arguments) override
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
@@ -309,6 +305,7 @@ public:
         if (m_setup.m_belowNormalPriority)
             handler->setBelowNormalPriority();
         handler->setNativeArguments(m_setup.m_nativeArguments);
+        m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
         m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup.m_standardInputFile);
         m_process->setProcessChannelMode(m_setup.m_procesChannelMode);
@@ -396,11 +393,9 @@ public:
     QByteArray readAllStandardOutput() override { return m_handle->readAllStandardOutput(); }
     QByteArray readAllStandardError() override { return m_handle->readAllStandardError(); }
 
-    void setEnvironment(const Environment &environment) override
-    { m_handle->setEnvironment(environment); }
-
     void start(const QString &program, const QStringList &arguments) override
     {
+        m_handle->setEnvironment(m_setup.m_environment);
         m_handle->setWorkingDirectory(m_setup.m_workingDirectory);
         m_handle->setStandardInputFile(m_setup.m_standardInputFile);
         m_handle->setProcessChannelMode(m_setup.m_procesChannelMode);
@@ -537,31 +532,31 @@ public:
         return filePath.searchInPath();
     }
 
-    void defaultStart(const CommandLine &commandLine, const Environment &environment)
+    void defaultStart()
     {
+        const CommandLine &commandLine = m_process->m_setup.m_commandLine;
         if (processLog().isDebugEnabled()) {
-            static int n = 0;
+            static std::atomic_int n = 0;
             qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << commandLine.toUserOutput();
         }
-
-        m_process->setEnvironment(environment);
 
         QString commandString;
         ProcessArgs arguments;
         const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &arguments,
-                                                         &environment, &m_setup.m_workingDirectory);
+                                                         &m_process->m_setup.m_environment,
+                                                         &m_process->m_setup.m_workingDirectory);
 
         if (commandLine.executable().osType() == OsTypeWindows) {
             QString args;
-            if (m_setup.m_useCtrlCStub) {
-                if (m_setup.m_lowPriority)
+            if (m_process->m_setup.m_useCtrlCStub) {
+                if (m_process->m_setup.m_lowPriority)
                     ProcessArgs::addArg(&args, "-nice");
                 ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
                 commandString = QCoreApplication::applicationDirPath()
                         + QLatin1String("/qtcreator_ctrlc_stub.exe");
             }
             ProcessArgs::addArgs(&args, arguments.toWindowsArgs());
-            m_setup.m_nativeArguments = args;
+            m_process->m_setup.m_nativeArguments = args;
             // Note: Arguments set with setNativeArgs will be appended to the ones
             // passed with start() below.
             start(commandString, QStringList());
@@ -787,12 +782,10 @@ void QtcProcess::start()
     d->clearForRun();
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->m_process->m_setup.m_environment = d->fullEnvironment();
-    const CommandLine cmd = d->fullCommandLine();
-    const Environment env = d->fullEnvironment();
     if (d->m_process->isCustomStart())
         d->m_process->customStart();
     else
-        d->defaultStart(cmd, env);
+        d->defaultStart();
 }
 
 #ifdef Q_OS_WIN
