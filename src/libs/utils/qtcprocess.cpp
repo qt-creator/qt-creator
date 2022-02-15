@@ -238,9 +238,9 @@ public:
     { QTC_CHECK(false); }
     void customStart(const CommandLine &command, const Environment &environment) override
     {
-        m_terminal.setAbortOnMetaChars(m_setup->m_abortOnMetaChars);
+        m_terminal.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
         m_terminal.setCommand(command);
-        m_terminal.setWorkingDirectory(m_setup->m_workingDirectory);
+        m_terminal.setWorkingDirectory(m_setup.m_workingDirectory);
         m_terminal.setEnvironment(environment);
         m_terminal.start();
     }
@@ -306,17 +306,16 @@ public:
         ProcessStartHandler *handler = m_process->processStartHandler();
         handler->setProcessMode(m_processMode);
         handler->setWriteData(writeData);
-        if (m_setup->m_belowNormalPriority)
+        if (m_setup.m_belowNormalPriority)
             handler->setBelowNormalPriority();
-        handler->setNativeArguments(m_setup->m_nativeArguments);
-        m_process->setWorkingDirectory(m_setup->m_workingDirectory.path());
-        m_process->setStandardInputFile(m_setup->m_standardInputFile);
-        m_process->setProcessChannelMode(m_setup->m_procesChannelMode);
-        m_process->setErrorString(m_setup->m_initialErrorString);
-        m_setup->m_initialErrorString.clear();
-        if (m_setup->m_lowPriority)
+        handler->setNativeArguments(m_setup.m_nativeArguments);
+        m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
+        m_process->setStandardInputFile(m_setup.m_standardInputFile);
+        m_process->setProcessChannelMode(m_setup.m_procesChannelMode);
+        m_process->setErrorString(m_setup.m_initialErrorString);
+        if (m_setup.m_lowPriority)
             m_process->setLowPriority();
-        if (m_setup->m_unixTerminalDisabled)
+        if (m_setup.m_unixTerminalDisabled)
             m_process->setUnixTerminalDisabled();
         m_process->start(program, arguments, handler->openMode());
         handler->handleProcessStart();
@@ -402,17 +401,16 @@ public:
 
     void start(const QString &program, const QStringList &arguments, const QByteArray &writeData) override
     {
-        m_handle->setWorkingDirectory(m_setup->m_workingDirectory);
-        m_handle->setStandardInputFile(m_setup->m_standardInputFile);
-        m_handle->setProcessChannelMode(m_setup->m_procesChannelMode);
-        m_handle->setErrorString(m_setup->m_initialErrorString);
-        m_setup->m_initialErrorString.clear();
-        if (m_setup->m_belowNormalPriority)
+        m_handle->setWorkingDirectory(m_setup.m_workingDirectory);
+        m_handle->setStandardInputFile(m_setup.m_standardInputFile);
+        m_handle->setProcessChannelMode(m_setup.m_procesChannelMode);
+        m_handle->setErrorString(m_setup.m_initialErrorString);
+        if (m_setup.m_belowNormalPriority)
             m_handle->setBelowNormalPriority();
-        m_handle->setNativeArguments(m_setup->m_nativeArguments);
-        if (m_setup->m_lowPriority)
+        m_handle->setNativeArguments(m_setup.m_nativeArguments);
+        if (m_setup.m_lowPriority)
             m_handle->setLowPriority();
-        if (m_setup->m_unixTerminalDisabled)
+        if (m_setup.m_unixTerminalDisabled)
             m_handle->setUnixTerminalDisabled();
         m_handle->start(program, arguments, writeData);
     }
@@ -490,7 +488,8 @@ public:
     void setProcessInterface(ProcessInterface *process)
     {
         m_process.reset(process);
-        m_process->m_setup = &m_setup;
+        m_process->m_setup = m_setup;
+        m_setup.m_initialErrorString.clear();
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,

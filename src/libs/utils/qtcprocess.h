@@ -309,7 +309,7 @@ public:
     virtual qint64 applicationMainThreadID() const { QTC_CHECK(false); return -1; }
 
     const ProcessMode m_processMode;
-    ProcessSetupData *m_setup = nullptr;
+    ProcessSetupData m_setup;
 
 signals:
     void started();
