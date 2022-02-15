@@ -138,7 +138,7 @@ void DockerDeviceProcess::start()
     setCommand(command);
 
     LOG("Running process:" << command.toUserOutput() << "in" << workingDirectory().toUserOutput());
-    dockerDevice->runProcess(*this);
+    QtcProcess::start();
 }
 
 void DockerDeviceProcess::interrupt()
