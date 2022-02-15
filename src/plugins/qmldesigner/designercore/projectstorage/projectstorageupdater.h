@@ -94,6 +94,8 @@ private:
                        SourceIds &notUpdatedSourceIds);
 
     void parseTypeInfos(const QStringList &typeInfos,
+                        const QList<QmlDirParser::Import> &qmldirDependencies,
+                        const QList<QmlDirParser::Import> &qmldirImports,
                         SourceId qmldirSourceId,
                         SourceContextId directoryId,
                         ModuleId moduleId,

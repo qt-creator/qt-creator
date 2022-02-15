@@ -47,6 +47,7 @@ using QmlDesigner::Storage::TypeAccessSemantics;
 namespace Storage = QmlDesigner::Storage;
 using QmlDesigner::IdPaths;
 using QmlDesigner::Storage::FileType;
+using QmlDesigner::Storage::Import;
 using QmlDesigner::Storage::ProjectData;
 using QmlDesigner::Storage::SynchronizationPackage;
 using QmlDesigner::Storage::Version;
@@ -130,7 +131,9 @@ MATCHER(PackageIsEmpty, std::string(negation ? "isn't empty" : "is empty"))
 
     return package.imports.empty() && package.types.empty() && package.fileStatuses.empty()
            && package.updatedSourceIds.empty() && package.projectDatas.empty()
-           && package.updatedFileStatusSourceIds.empty() && package.updatedProjectSourceIds.empty();
+           && package.updatedFileStatusSourceIds.empty() && package.updatedProjectSourceIds.empty()
+           && package.moduleDependencies.empty() && package.updatedModuleDependencySourceIds.empty()
+           && package.moduleExportedImports.empty() && package.updatedModuleIds.empty();
 }
 
 class ProjectStorageUpdater : public testing::Test
@@ -1040,6 +1043,48 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsWithRelativeFilePath)
                                                                    qmlDocumentSourceId,
                                                                    exampleModuleId,
                                                                    FileType::QmlDocument))))));
+
+    updater.update(qmlDirs, {});
+}
+
+TEST_F(ProjectStorageUpdater, SynchronizeQmldirDependencies)
+{
+    QString qmldir{R"(module Example
+                      depends  Qml
+                      depends  QML
+                      typeinfo example.qmltypes
+                      typeinfo types/example2.qmltypes
+                      )"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::moduleDependencies,
+                  UnorderedElementsAre(
+                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
+                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
+                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId},
+                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId})),
+            Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
+                  UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
+
+    updater.update(qmlDirs, {});
+}
+
+TEST_F(ProjectStorageUpdater, SynchronizeQmldirWithNoDependencies)
+{
+    QString qmldir{R"(module Example
+                      typeinfo example.qmltypes
+                      typeinfo types/example2.qmltypes
+                      )"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field(&SynchronizationPackage::moduleDependencies, IsEmpty()),
+                          Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
+                                UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
     updater.update(qmlDirs, {});
 }

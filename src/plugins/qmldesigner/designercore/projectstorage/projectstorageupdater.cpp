@@ -79,6 +79,18 @@ void addSourceIds(SourceIds &sourceIds, const Storage::ProjectDatas &projectData
         sourceIds.push_back(projectData.sourceId);
 }
 
+void addDependencies(Storage::Imports &dependencies,
+                     SourceId sourceId,
+                     const QList<QmlDirParser::Import> &qmldirDependencies,
+                     ProjectStorageInterface &projectStorage)
+{
+    for (const QmlDirParser::Import &qmldirDependency : qmldirDependencies) {
+        ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module}
+                                                    + "-cppnative");
+        dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
+    }
+}
+
 } // namespace
 
 void ProjectStorageUpdater::update(QStringList qmlDirs, QStringList qmlTypesPaths)
@@ -157,6 +169,8 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
             if (!parser.typeInfos().isEmpty()) {
                 ModuleId cppModuleId = m_projectStorage.moduleId(moduleName + "-cppnative");
                 parseTypeInfos(parser.typeInfos(),
+                               parser.dependencies(),
+                               parser.imports(),
                                qmlDirSourceId,
                                directoryId,
                                cppModuleId,
@@ -195,6 +209,8 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
 void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) {}
 
 void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
+                                           const QList<QmlDirParser::Import> &qmldirDependencies,
+                                           const QList<QmlDirParser::Import> &qmldirImports,
                                            SourceId qmldirSourceId,
                                            SourceContextId directoryId,
                                            ModuleId moduleId,
@@ -208,6 +224,10 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
         Utils::PathString qmltypesPath = Utils::PathString::join(
             {directory, "/", Utils::SmallString{typeInfo}});
         SourceId sourceId = m_pathCache.sourceId(SourcePathView{qmltypesPath});
+
+        addDependencies(package.moduleDependencies, sourceId, qmldirDependencies, m_projectStorage);
+        addDependencies(package.moduleDependencies, sourceId, qmldirImports, m_projectStorage);
+        package.updatedModuleDependencySourceIds.push_back(sourceId);
 
         auto projectData = package.projectDatas.emplace_back(qmldirSourceId,
                                                              sourceId,
