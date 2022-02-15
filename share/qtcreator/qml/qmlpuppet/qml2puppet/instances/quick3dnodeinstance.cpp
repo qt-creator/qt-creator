@@ -55,6 +55,8 @@
 namespace QmlDesigner {
 namespace Internal {
 
+const QRectF preview3dBoundingRect(0, 0, 640, 480);
+
 Quick3DNodeInstance::Quick3DNodeInstance(QObject *node)
    : ObjectNodeInstance(node)
 {
@@ -97,7 +99,7 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     // In case this is the scene root, we need to create a dummy View3D for the scene
     // in preview puppets
-    if (instanceId() == 0 && nodeInstanceServer()->isPreviewServer()) {
+    if (instanceId() == 0 && (!nodeInstanceServer()->isInformationServer())) {
         auto helper = new QmlDesigner::Internal::GeneralHelper();
         engine()->rootContext()->setContextProperty("_generalHelper", helper);
 
@@ -111,8 +113,8 @@ void Quick3DNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNo
 
         nodeInstanceServer()->setRootItem(m_dummyRootView);
     }
-#endif
-#endif
+#endif // QT_VERSION
+#endif // QUICK3D_MODULE
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
 }
 
@@ -122,7 +124,7 @@ QImage Quick3DNodeInstance::renderImage() const
     if (!isRootNodeInstance() || !m_dummyRootView)
         return {};
 
-    QSize size(640, 480);
+    QSize size = preview3dBoundingRect.size().toSize();
     nodeInstanceServer()->quickWindow()->resize(size);
     m_dummyRootView->setSize(size);
 
@@ -190,11 +192,35 @@ bool Quick3DNodeInstance::isRenderable() const
     return m_dummyRootView;
 }
 
+bool Quick3DNodeInstance::hasContent() const
+{
+    return true;
+}
+
 QRectF Quick3DNodeInstance::boundingRect() const
 {
+    //The information server has no m_dummyRootView therefore we use the hardcoded value
+    if (nodeInstanceServer()->isInformationServer())
+        return preview3dBoundingRect;
+
     if (m_dummyRootView)
         return m_dummyRootView->boundingRect();
     return ObjectNodeInstance::boundingRect();
+}
+
+QRectF Quick3DNodeInstance::contentItemBoundingBox() const
+{
+    return boundingRect();
+}
+
+QPointF Quick3DNodeInstance::position() const
+{
+    return QPointF(0, 0);
+}
+
+QSizeF Quick3DNodeInstance::size() const
+{
+    return boundingRect().size();
 }
 
 QList<ServerNodeInstance> Quick3DNodeInstance::stateInstances() const
@@ -210,6 +236,11 @@ QList<ServerNodeInstance> Quick3DNodeInstance::stateInstances() const
     }
 #endif
     return instanceList;
+}
+
+QQuickItem *Quick3DNodeInstance::contentItem() const
+{
+    return m_dummyRootView;
 }
 
 Qt5NodeInstanceServer *Quick3DNodeInstance::qt5NodeInstanceServer() const

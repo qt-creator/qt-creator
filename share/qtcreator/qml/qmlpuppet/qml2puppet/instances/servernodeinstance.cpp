@@ -162,6 +162,11 @@ bool ServerNodeInstance::isComponentWrap() const
     return m_nodeInstance->isComponentWrap();
 }
 
+QQuickItem *ServerNodeInstance::contentItem() const
+{
+    return m_nodeInstance->contentItem();
+}
+
 void ServerNodeInstance::updateDirtyNodeRecursive()
 {
     m_nodeInstance->updateAllDirtyNodesRecursive();

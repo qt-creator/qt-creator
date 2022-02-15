@@ -51,9 +51,15 @@ public:
     QImage renderPreviewImage(const QSize &previewImageSize) const override;
 
     bool isRenderable() const override;
+    bool hasContent() const override;
     QRectF boundingRect() const override;
+    QRectF contentItemBoundingBox() const override;
+    QPointF position() const override;
+    QSizeF size() const override;
 
     QList<ServerNodeInstance> stateInstances() const override;
+
+    QQuickItem *contentItem() const override;
 
 protected:
     explicit Quick3DNodeInstance(QObject *node);

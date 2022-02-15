@@ -188,6 +188,8 @@ public:
 
     bool isComponentWrap() const;
 
+    QQuickItem *contentItem() const;
+
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

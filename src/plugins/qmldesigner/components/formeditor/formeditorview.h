@@ -151,6 +151,7 @@ private:
     void resetNodeInstanceView();
     void addOrRemoveFormEditorItem(const ModelNode &node);
     void checkRootModelNode();
+    void setupFormEditor3DView();
 
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;

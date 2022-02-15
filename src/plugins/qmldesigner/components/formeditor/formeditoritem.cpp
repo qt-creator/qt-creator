@@ -2226,4 +2226,39 @@ void FormEditorFlowWildcardItem::paint(QPainter *painter, const QStyleOptionGrap
     FormEditorFlowDecisionItem::paint(painter, option, widget);
 }
 
+void FormEditor3dPreview::updateGeometry()
+{
+    prepareGeometryChange();
+
+    m_selectionBoundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
+    m_boundingRect = qmlItemNode().instanceBoundingRect();
+    m_paintedBoundingRect = m_boundingRect;
+    setTransform(QTransform());
+
+}
+
+QPointF FormEditor3dPreview::instancePosition() const
+{
+    return QPointF(0, 0);
+}
+
+void FormEditor3dPreview::paint(QPainter *painter,
+                                const QStyleOptionGraphicsItem *option,
+                                QWidget *widget)
+{
+    if (!painter->isActive())
+        return;
+
+    painter->save();
+
+    bool showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull();
+
+    if (showPlaceHolder)
+        paintPlaceHolderForInvisbleItem(painter);
+    else
+        painter->drawPixmap(m_boundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+
+    painter->restore();
+}
+
 } //QmlDesigner

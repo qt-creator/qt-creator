@@ -398,6 +398,8 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
 
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
 
+    const bool rootIs3dNode = rootNodeInstance().isSubclassOf("QQuick3DNode");
+
     const bool renderEffects = qEnvironmentVariableIsSet("QMLPUPPET_RENDER_EFFECTS");
 
     if (renderEffects) {
@@ -426,6 +428,9 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
     QRectF renderBoundingRect;
     if (instance.isValid())
         renderBoundingRect = instance.boundingRect();
+
+    else if (rootIs3dNode)
+        renderBoundingRect = item->boundingRect();
     else
         renderBoundingRect = ServerNodeInstance::effectAdjustedBoundingRect(item);
 

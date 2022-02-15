@@ -58,7 +58,8 @@ public:
         FlowAction,
         FlowTransition,
         FlowDecision,
-        FlowWildcard
+        FlowWildcard,
+        Preview3d
     };
 
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);
