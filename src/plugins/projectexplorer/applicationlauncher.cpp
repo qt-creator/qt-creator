@@ -355,7 +355,7 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
             m_exitCode = m_process->exitCode();
             m_exitStatus = m_process->exitStatus();
             m_listeningPid = 0;
-            QTimer::singleShot(100, this, [this] { emit q->finished(); });
+            emit q->finished();
         });
         connect(m_process.get(), &QtcProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::localProcessError);
