@@ -1307,7 +1307,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
-    setProgressTitleForToken(indexingToken(), tr("Parsing C/C++ Files (clangd)"));
+    if (project) {
+        setProgressTitleForToken(indexingToken(),
+                                 tr("Indexing %1 with clangd").arg(project->displayName()));
+    }
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
 
