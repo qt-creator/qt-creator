@@ -37,7 +37,7 @@ class McuAbstractPackage : public QObject
 {
     Q_OBJECT
 public:
-    enum Status {
+    enum class Status {
         EmptyPath,
         InvalidPath,
         ValidPathInvalidPackage,
@@ -67,6 +67,7 @@ public:
     virtual void setAutomaticKitCreationEnabled(const bool enabled) = 0;
 
     virtual QWidget *widget() = 0;
+
 signals:
     void changed();
     void statusChanged();

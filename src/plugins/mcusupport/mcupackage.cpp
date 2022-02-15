@@ -38,8 +38,7 @@
 
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)
 {
@@ -144,7 +143,7 @@ McuPackage::Status McuPackage::status() const
 
 bool McuPackage::validStatus() const
 {
-    return m_status == McuPackage::ValidPackage || m_status == McuPackage::ValidPackageMismatchedVersion;
+    return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion;
 }
 
 const QString &McuPackage::environmentVariableName() const
@@ -219,9 +218,9 @@ void McuPackage::updateStatus()
 
     m_status = validPath ?
                 ( validPackage ?
-                      (validVersion ? ValidPackage : ValidPackageMismatchedVersion)
-                    : ValidPathInvalidPackage )
-              : m_path.isEmpty() ? EmptyPath : InvalidPath;
+                      (validVersion ? Status::ValidPackage : Status::ValidPackageMismatchedVersion)
+                    : Status::ValidPathInvalidPackage )
+              : m_path.isEmpty() ? Status::EmptyPath : Status::InvalidPath;
 
     emit statusChanged();
 }
@@ -229,8 +228,8 @@ void McuPackage::updateStatus()
 void McuPackage::updateStatusUi()
 {
     switch (m_status) {
-    case ValidPackage: m_infoLabel->setType(InfoLabel::Ok); break;
-    case ValidPackageMismatchedVersion: m_infoLabel->setType(InfoLabel::Warning); break;
+    case Status::ValidPackage: m_infoLabel->setType(InfoLabel::Ok); break;
+    case Status::ValidPackageMismatchedVersion: m_infoLabel->setType(InfoLabel::Warning); break;
     default: m_infoLabel->setType(InfoLabel::NotOk); break;
     }
     m_infoLabel->setText(statusText());
@@ -250,7 +249,7 @@ QString McuPackage::statusText() const
 
     QString response;
     switch (m_status) {
-    case ValidPackage:
+    case Status::ValidPackage:
         response = m_detectionPath.isEmpty()
                 ? ( m_detectedVersion.isEmpty()
                     ? tr("Path %1 exists.").arg(displayPackagePath)
@@ -259,7 +258,7 @@ QString McuPackage::statusText() const
                 : tr("Path %1 is valid, %2 was found.")
                   .arg(displayPackagePath, displayDetectedPath);
         break;
-    case ValidPackageMismatchedVersion: {
+    case Status::ValidPackageMismatchedVersion: {
         const QString versionWarning = m_versions.size() == 1 ?
                     tr("but only version %1 is supported").arg(m_versions.first()) :
                     tr("but only versions %1 are supported").arg(displayVersions);
@@ -267,14 +266,14 @@ QString McuPackage::statusText() const
                 .arg(displayPackagePath, displayDetectedPath, versionWarning);
         break;
     }
-    case ValidPathInvalidPackage:
+    case Status::ValidPathInvalidPackage:
         response = tr("Path %1 exists, but does not contain %2.")
                 .arg(displayPackagePath, displayRequiredPath);
         break;
-    case InvalidPath:
+    case Status::InvalidPath:
         response = tr("Path %1 does not exist.").arg(displayPackagePath);
         break;
-    case EmptyPath:
+    case Status::EmptyPath:
         response = m_detectionPath.isEmpty()
                 ? tr("Path is empty.")
                 : tr("Path is empty, %1 not found.")
@@ -305,5 +304,4 @@ bool McuToolChainPackage::isDesktopToolchain() const
     return m_type == Type::MSVC || m_type == Type::GCC;
 }
 
-} // namespace Internal
-} // namespace McuSupport
+}  // namespace McuSupport::Internal

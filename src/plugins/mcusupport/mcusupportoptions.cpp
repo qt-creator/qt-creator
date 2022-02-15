@@ -305,7 +305,7 @@ void McuTarget::printPackageProblems() const
                              package->label(),
                              package->statusText()),
                          true);
-        if (package->status() == McuAbstractPackage::ValidPackageMismatchedVersion)
+        if (package->status() == McuAbstractPackage::Status::ValidPackageMismatchedVersion)
             printMessage(tr("Warning creating kit for target %1, package %2: %3").arg(
                              McuSupportOptions::kitName(this),
                              package->label(),
@@ -860,7 +860,7 @@ void McuSupportOptions::createAutomaticKits()
         qtForMCUsPackage->updateStatus();
         if (!qtForMCUsPackage->validStatus()) {
             switch (qtForMCUsPackage->status()) {
-                case McuAbstractPackage::ValidPathInvalidPackage: {
+                case McuAbstractPackage::Status::ValidPathInvalidPackage: {
                     const QString displayPath = FilePath::fromString(qtForMCUsPackage->detectionPath())
                         .toUserOutput();
                     printMessage(tr("Path %1 exists, but does not contain %2.")
@@ -868,13 +868,13 @@ void McuSupportOptions::createAutomaticKits()
                                  true);
                     break;
                 }
-                case McuAbstractPackage::InvalidPath: {
+                case McuAbstractPackage::Status::InvalidPath: {
                     printMessage(tr("Path %1 does not exist. Add the path in Tools > Options > Devices > MCU.")
                         .arg(qtForMCUsPackage->path().toUserOutput()),
                                  true);
                     break;
                 }
-                case McuAbstractPackage::EmptyPath: {
+                case McuAbstractPackage::Status::EmptyPath: {
                     printMessage(tr("Missing %1. Add the path in Tools > Options > Devices > MCU.")
                         .arg(qtForMCUsPackage->detectionPath()),
                                  true);
