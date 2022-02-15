@@ -236,12 +236,12 @@ public:
     void setEnvironment(const Environment &) override { QTC_CHECK(false); }
     void start(const QString &, const QStringList &) override
     { QTC_CHECK(false); }
-    void customStart(const CommandLine &command, const Environment &environment) override
+    void customStart() override
     {
         m_terminal.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
-        m_terminal.setCommand(command);
+        m_terminal.setCommand(m_setup.m_commandLine);
         m_terminal.setWorkingDirectory(m_setup.m_workingDirectory);
-        m_terminal.setEnvironment(environment);
+        m_terminal.setEnvironment(m_setup.m_environment);
         m_terminal.start();
     }
     bool isCustomStart() const override { return true; }
@@ -785,10 +785,12 @@ void QtcProcess::start()
     }
     d->ensureProcessInterfaceExists();
     d->clearForRun();
+    d->m_process->m_setup.m_commandLine = d->fullCommandLine();
+    d->m_process->m_setup.m_environment = d->fullEnvironment();
     const CommandLine cmd = d->fullCommandLine();
     const Environment env = d->fullEnvironment();
     if (d->m_process->isCustomStart())
-        d->m_process->customStart(cmd, env);
+        d->m_process->customStart();
     else
         d->defaultStart(cmd, env);
 }
