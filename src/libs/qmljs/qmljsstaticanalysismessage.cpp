@@ -71,7 +71,7 @@ static inline QString msgInvalidConstructor(const char *what)
 StaticAnalysisMessages::StaticAnalysisMessages()
 {
     // When changing a message or severity, update the documentation, currently
-    // in creator-editors.qdoc, accordingly.
+    // in creator-code-syntax.qdoc, accordingly.
     newMsg(ErrInvalidEnumValue, Error,
            tr("Invalid value for enum."));
     newMsg(ErrEnumValueMustBeStringOrNumber, Error,
@@ -211,36 +211,36 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrInvalidArrayValueLength, Error,
            tr("%1 elements expected in array value."), 1);
     newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
-            tr("Imperative code is not supported in the Qt Quick Designer."));
+            tr("Imperative code is not supported in Qt Design Studio."));
     newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
-            tr("This type (%1) is not supported in the Qt Quick Designer."), 1);
+            tr("This type (%1) is not supported in Qt Design Studio."), 1);
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
-            tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
+            tr("Reference to parent item cannot be resolved correctly by Qt Design Studio."));
     newMsg(WarnUndefinedValueForVisualDesigner, Warning,
             tr("This visual property binding cannot be evaluated in the local context "
-               "and might not show up in Qt Quick Designer as expected."));
+               "and might not show up in Qt Design Studio as expected."));
     newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Warning,
-            tr("Qt Quick Designer only supports states in the root item."));
+            tr("Qt Design Studio only supports states in the root item."));
     newMsg(ErrInvalidIdeInVisualDesigner, Error,
-           tr("This id might be ambiguous and is not supported in the Qt Quick Designer."));
+           tr("This id might be ambiguous and is not supported in Qt Design Studio."));
     newMsg(ErrUnsupportedRootTypeInVisualDesigner, Error,
-           tr("This type (%1) is not supported as a root element by Qt Quick Designer."), 1);
+           tr("This type (%1) is not supported as a root element by Qt Design Studio."), 1);
     newMsg(ErrUnsupportedRootTypeInQmlUi, Error,
-           tr("This type (%1) is not supported as a root element of a Qt Quick UI form."), 1);
+           tr("This type (%1) is not supported as a root element of a UI file (.ui.qml)."), 1);
     newMsg(ErrUnsupportedTypeInQmlUi, Error,
-            tr("This type (%1) is not supported in a Qt Quick UI form."), 1);
+            tr("This type (%1) is not supported in a UI file (.ui.qml)."), 1);
     newMsg(ErrFunctionsNotSupportedInQmlUi, Error,
-            tr("Functions are not supported in a Qt Quick UI form."));
+            tr("Functions are not supported in a UI file (.ui.qml)."));
     newMsg(ErrBlocksNotSupportedInQmlUi, Error,
-            tr("JavaScript blocks are not supported in a Qt Quick UI form."));
+            tr("JavaScript blocks are not supported in a UI file (.ui.qml)."));
     newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
-            tr("Behavior type is not supported in a Qt Quick UI form."));
+            tr("Behavior type is not supported in a UI file (.ui.qml)."));
     newMsg(ErrStatesOnlyInRootItemInQmlUi, Error,
-            tr("States are only supported in the root item in a Qt Quick UI form."));
+            tr("States are only supported in the root item in a UI file (.ui.qml)."));
     newMsg(ErrReferenceToParentItemNotSupportedInQmlUi, Error,
-            tr("Referencing the parent of the root item is not supported in a Qt Quick UI form."));
+            tr("Referencing the parent of the root item is not supported in a UI file (.ui.qml)."));
     newMsg(ErrDoNotMixTranslationFunctionsInQmlUi, Error,
-           tr("Do not mix translation functions in a Qt Quick UI form."));
+           tr("Do not mix translation functions in a UI file (.ui.qml)."));
     newMsg(StateCannotHaveChildItem, Error,
             tr("A State cannot have a child item (%1)."), 1);
     newMsg(WarnDuplicateImport, Warning,
@@ -250,7 +250,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrTypeIsInstantiatedRecursively, Error,
             tr("Type cannot be instantiated recursively (%1)."), 1);
     newMsg(WarnLogicalValueDoesNotDependOnValues, Warning,
-           tr("Logical value does not depend on actual values"));
+           tr("Logical value does not depend on actual values."));
     newMsg(ErrToManyComponentChildren, Error,
            tr("Components are only allowed to have a single child element."));
     newMsg(WarnComponentRequiresChildren, Warning,
