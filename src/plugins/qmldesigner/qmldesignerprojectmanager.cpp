@@ -196,7 +196,7 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 namespace {
 
-QtSupport::BaseQtVersion *getBaseQtVersion(::ProjectExplorer::Target *target)
+QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Target *target)
 {
     if (target)
         return QtSupport::QtKitAspect::qtVersion(target->kit());
@@ -204,9 +204,9 @@ QtSupport::BaseQtVersion *getBaseQtVersion(::ProjectExplorer::Target *target)
     return {};
 }
 
-QtSupport::BaseQtVersion *getBaseQtVersion(::ProjectExplorer::Project *project)
+QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Project *project)
 {
-    return getBaseQtVersion(project->activeTarget());
+    return getQtVersion(project->activeTarget());
 }
 
 Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
@@ -258,6 +258,22 @@ QStringList qmlDirs(::ProjectExplorer::Target *target)
 
     std::sort(qmldirPaths.begin(), qmldirPaths.end());
     qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());
+
+    return qmldirPaths;
+}
+
+QStringList qmlTypes(::ProjectExplorer::Target *target)
+{
+    if (!target)
+        return {};
+
+    QStringList qmldirPaths;
+    qmldirPaths.reserve(2);
+
+    const QString installDirectory = qmlPath(target).toString();
+
+    qmldirPaths.append(installDirectory + "/builtins.qmltypes");
+    qmldirPaths.append(installDirectory + "/jsroot.qmltypes");
 
     return qmldirPaths;
 }
