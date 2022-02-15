@@ -31,15 +31,15 @@ namespace {
 static const QHash<QString, QString> &envVarToCMakeVarMapping()
 {
     static const QHash<QString, QString> mapping = {
-        {"EVK_MIMXRT1060_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"EVK_MIMXRT1064_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"EVK_MIMXRT595_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"EVK_MIMXRT1170_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"EVKB_IMXRT1050_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"STM32Cube_FW_F7_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"STM32Cube_FW_F4_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"STM32Cube_FW_L4_SDK_PATH","QUL_BOARD_SDK_DIR"},
-        {"STM32Cube_FW_H7_SDK_PATH","QUL_BOARD_SDK_DIR"},
+        {"EVK_MIMXRT1060_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"EVK_MIMXRT1064_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"EVK_MIMXRT595_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"EVK_MIMXRT1170_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"EVKB_IMXRT1050_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"STM32Cube_FW_F7_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"STM32Cube_FW_F4_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"STM32Cube_FW_L4_SDK_PATH", "QUL_BOARD_SDK_DIR"},
+        {"STM32Cube_FW_H7_SDK_PATH", "QUL_BOARD_SDK_DIR"},
         {"RGL_DIR", "QUL_BOARD_SDK_DIR"},
         {"TVII_GRAPHICS_DRIVER_DIR", "QUL_BOARD_SDK_DIR"},
         {"EK_RA6M3G_FSP_PATH", "QUL_BOARD_SDK_DIR"},
@@ -47,12 +47,12 @@ static const QHash<QString, QString> &envVarToCMakeVarMapping()
         {"IAR_ARM_COMPILER_DIR", "QUL_TARGET_TOOLCHAIN_DIR"},
         {"GHS_COMPILER_DIR", "QUL_TARGET_TOOLCHAIN_DIR"},
         {"GHS_ARM_COMPILER_DIR", "QUL_TARGET_TOOLCHAIN_DIR"},
-        {"EVK_MIMXRT1170_FREERTOS_PATH","FREERTOS_DIR"},
-        {"IMXRT1050_FREERTOS_DIR","FREERTOS_DIR"},
-        {"IMXRT1064_FREERTOS_DIR","FREERTOS_DIR"},
-        {"IMXRT595_FREERTOS_DIR","FREERTOS_DIR"},
+        {"EVK_MIMXRT1170_FREERTOS_PATH", "FREERTOS_DIR"},
+        {"IMXRT1050_FREERTOS_DIR", "FREERTOS_DIR"},
+        {"IMXRT1064_FREERTOS_DIR", "FREERTOS_DIR"},
+        {"IMXRT595_FREERTOS_DIR", "FREERTOS_DIR"},
         {"STM32F7_FREERTOS_DIR", "FREERTOS_DIR"},
-        {"eFlashLoad_PATH","eFlashLoad_PATH"},
+        {"eFlashLoad_PATH", "eFlashLoad_PATH"},
         {"RenesasFlashProgrammer_PATH", "RENESAS_FLASH_PROGRAMMER_PATH"},
         {"MCUXpressoIDE_PATH", "MCUXPRESSO_IDE_PATH"},
         {"JLINK_PATH", "JLINK_PATH"},
@@ -67,9 +67,11 @@ QList<CMakeProjectManager::CMakeConfigItem> McuSupport::Internal::mapEnvVarsToQu
     const Utils::EnvironmentItems &envVars)
 {
     const auto &mapping = envVarToCMakeVarMapping();
-    auto cmakeVars = Utils::transform(envVars, [mapping](const Utils::EnvironmentItem &envVar) {
-        return CMakeProjectManager::CMakeConfigItem(mapping.value(envVar.name, "").toUtf8(), envVar.value.toUtf8());
-    }).toList();
+    auto cmakeVars
+        = Utils::transform(envVars, [mapping](const Utils::EnvironmentItem &envVar) {
+              return CMakeProjectManager::CMakeConfigItem(mapping.value(envVar.name, "").toUtf8(),
+                                                          envVar.value.toUtf8());
+          }).toList();
 
     return Utils::filtered(cmakeVars, [](const CMakeProjectManager::CMakeConfigItem &item) {
         return !item.key.isEmpty();

@@ -46,5 +46,5 @@ const char SETTINGS_KEY_PACKAGE_PREFIX[] = "Package_";
 const char SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK[] = "QtForMCUsSdk"; // Key known by SDK installer
 const char SETTINGS_KEY_AUTOMATIC_KIT_CREATION[] = "AutomaticKitCreation";
 
-} // namespace McuSupport
 } // namespace Constants
+} // namespace McuSupport

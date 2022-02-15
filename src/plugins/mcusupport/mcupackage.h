@@ -59,9 +59,12 @@ public:
         ValidPackage
     };
 
-    McuPackage(const QString &label, const Utils::FilePath &defaultPath,
-               const QString &detectionPath, const QString &settingsKey,
-               const QString &envVarName = {}, const QString &downloadUrl = {},
+    McuPackage(const QString &label,
+               const Utils::FilePath &defaultPath,
+               const QString &detectionPath,
+               const QString &settingsKey,
+               const QString &envVarName = {},
+               const QString &downloadUrl = {},
                const McuPackageVersionDetector *versionDetector = nullptr);
     virtual ~McuPackage() = default;
 
@@ -122,16 +125,7 @@ private:
 class McuToolChainPackage : public McuPackage
 {
 public:
-    enum class Type {
-        IAR,
-        KEIL,
-        MSVC,
-        GCC,
-        ArmGcc,
-        GHS,
-        GHSArm,
-        Unsupported
-    };
+    enum class Type { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, Unsupported };
 
     McuToolChainPackage(const QString &label,
                         const Utils::FilePath &defaultPath,
@@ -139,8 +133,7 @@ public:
                         const QString &settingsKey,
                         Type type,
                         const QString &envVarName = {},
-                        const McuPackageVersionDetector *versionDetector = nullptr
-            );
+                        const McuPackageVersionDetector *versionDetector = nullptr);
 
     Type type() const;
     bool isDesktopToolchain() const;

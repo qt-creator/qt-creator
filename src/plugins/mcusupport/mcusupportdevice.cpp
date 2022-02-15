@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
+#include "mcusupportconstants.h"
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/runcontrol.h>

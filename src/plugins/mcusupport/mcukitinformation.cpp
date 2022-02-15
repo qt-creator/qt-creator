@@ -64,21 +64,24 @@ Tasks McuDependenciesKitAspect::validate(const Kit *k) const
 
     const QVariant checkFormat = k->value(McuDependenciesKitAspect::id());
     if (!checkFormat.isNull() && !checkFormat.canConvert(QVariant::List))
-        return { BuildSystemTask(Task::Error, tr("The MCU dependencies setting value is invalid.")) };
+        return {BuildSystemTask(Task::Error, tr("The MCU dependencies setting value is invalid."))};
 
     const QVariant envStringList = k->value(EnvironmentKitAspect::id());
     if (!envStringList.isNull() && !envStringList.canConvert(QVariant::List))
-         return { BuildSystemTask(Task::Error, tr("The environment setting value is invalid.")) };
+        return {BuildSystemTask(Task::Error, tr("The environment setting value is invalid."))};
 
     const auto environment = Utils::NameValueDictionary(envStringList.toStringList());
-    for (const auto &dependency: dependencies(k)) {
+    for (const auto &dependency : dependencies(k)) {
         if (!environment.hasKey(dependency.name)) {
-            result << BuildSystemTask(Task::Warning, tr("Environment variable %1 not defined.").arg(dependency.name));
+            result << BuildSystemTask(Task::Warning,
+                                      tr("Environment variable %1 not defined.")
+                                          .arg(dependency.name));
         } else {
-            const auto path = Utils::FilePath::fromUserInput(
-                        environment.value(dependency.name) + "/" + dependency.value);
+            const auto path = Utils::FilePath::fromUserInput(environment.value(dependency.name)
+                                                             + "/" + dependency.value);
             if (!path.exists()) {
-                result << BuildSystemTask(Task::Warning, tr("%1 not found.").arg(path.toUserOutput()));
+                result << BuildSystemTask(Task::Warning,
+                                          tr("%1 not found.").arg(path.toUserOutput()));
             }
         }
     }
@@ -88,7 +91,7 @@ Tasks McuDependenciesKitAspect::validate(const Kit *k) const
 
 void McuDependenciesKitAspect::fix(Kit *k)
 {
-    QTC_ASSERT(k, return);
+    QTC_ASSERT(k, return );
 
     const QVariant variant = k->value(McuDependenciesKitAspect::id());
     if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
@@ -115,18 +118,19 @@ Utils::Id McuDependenciesKitAspect::id()
     return "PE.Profile.McuDependencies";
 }
 
-
 Utils::NameValueItems McuDependenciesKitAspect::dependencies(const Kit *k)
 {
-     if (k)
-         return Utils::NameValueItem::fromStringList(k->value(McuDependenciesKitAspect::id()).toStringList());
-     return Utils::NameValueItems();
+    if (k)
+        return Utils::NameValueItem::fromStringList(
+            k->value(McuDependenciesKitAspect::id()).toStringList());
+    return Utils::NameValueItems();
 }
 
 void McuDependenciesKitAspect::setDependencies(Kit *k, const Utils::NameValueItems &dependencies)
 {
     if (k)
-        k->setValue(McuDependenciesKitAspect::id(), Utils::NameValueItem::toStringList(dependencies));
+        k->setValue(McuDependenciesKitAspect::id(),
+                    Utils::NameValueItem::toStringList(dependencies));
 }
 
 } // namespace Internal

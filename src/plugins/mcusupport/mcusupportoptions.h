@@ -38,12 +38,12 @@ namespace Utils {
 class FilePath;
 class PathChooser;
 class InfoLabel;
-}
+} // namespace Utils
 
 namespace ProjectExplorer {
 class Kit;
 class ToolChain;
-}
+} // namespace ProjectExplorer
 
 namespace McuSupport {
 namespace Internal {
@@ -58,13 +58,10 @@ class McuTarget : public QObject
     Q_OBJECT
 
 public:
-    enum class OS {
-        Desktop,
-        BareMetal,
-        FreeRTOS
-    };
+    enum class OS { Desktop, BareMetal, FreeRTOS };
 
-    struct Platform {
+    struct Platform
+    {
         QString name;
         QString displayName;
         QString vendor;
@@ -92,7 +89,7 @@ private:
     const QVersionNumber m_qulVersion;
     const Platform m_platform;
     const OS m_os;
-    const QVector<McuPackage*> m_packages;
+    const QVector<McuPackage *> m_packages;
     const McuToolChainPackage *m_toolChainPackage;
     const int m_colorDepth;
 };
@@ -100,8 +97,8 @@ private:
 class McuSdkRepository
 {
 public:
-    QVector<McuPackage*> packages;
-    QVector<McuTarget*> mcuTargets;
+    QVector<McuPackage *> packages;
+    QVector<McuTarget *> mcuTargets;
 
     void deletePackagesAndTargets();
 };
@@ -111,11 +108,7 @@ class McuSupportOptions : public QObject
     Q_OBJECT
 
 public:
-    enum UpgradeOption {
-        Ignore,
-        Keep,
-        Replace
-    };
+    enum UpgradeOption { Ignore, Keep, Replace };
 
     McuSupportOptions(QObject *parent = nullptr);
     ~McuSupportOptions() override;
@@ -126,11 +119,13 @@ public:
     void setQulDir(const Utils::FilePath &dir);
     static Utils::FilePath qulDirFromSettings();
 
-    static QString kitName(const McuTarget* mcuTarget);
+    static QString kitName(const McuTarget *mcuTarget);
 
     static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget);
-    static QList<ProjectExplorer::Kit *> matchingKits(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage);
-    static QList<ProjectExplorer::Kit *> upgradeableKits(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage);
+    static QList<ProjectExplorer::Kit *> matchingKits(const McuTarget *mcuTarget,
+                                                      const McuPackage *qtForMCUsSdkPackage);
+    static QList<ProjectExplorer::Kit *> upgradeableKits(const McuTarget *mcuTarget,
+                                                         const McuPackage *qtForMCUsSdkPackage);
     static QList<ProjectExplorer::Kit *> kitsWithMismatchedDependencies(const McuTarget *mcuTarget);
     static QList<ProjectExplorer::Kit *> outdatedKits();
     static void removeOutdatedKits();
@@ -138,7 +133,9 @@ public:
     static void createAutomaticKits();
     static UpgradeOption askForKitUpgrades();
     static void upgradeKits(UpgradeOption upgradeOption);
-    static void upgradeKitInPlace(ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk);
+    static void upgradeKitInPlace(ProjectExplorer::Kit *kit,
+                                  const McuTarget *mcuTarget,
+                                  const McuPackage *qtForMCUsSdk);
     static void fixKitsDependencies();
     void checkUpgradeableKits();
     static void fixExistingKits();
@@ -149,7 +146,10 @@ public:
     static const QVersionNumber &minimalQulVersion();
 
     static QVersionNumber kitQulVersion(const ProjectExplorer::Kit *kit);
-    static bool kitUpToDate(const ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdkPackage);
+    static bool kitUpToDate(const ProjectExplorer::Kit *kit,
+                            const McuTarget *mcuTarget,
+                            const McuPackage *qtForMCUsSdkPackage);
+
 private:
     void deletePackagesAndTargets();
 
