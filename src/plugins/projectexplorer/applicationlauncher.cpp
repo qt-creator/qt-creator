@@ -70,7 +70,7 @@ public:
     explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
     ~ApplicationLauncherPrivate() override { setFinished(); }
 
-    void start(const Runnable &runnable, const IDevice::ConstPtr &device, bool local);
+    void start(const IDevice::ConstPtr &device, bool local);
     void stop();
 
     // Local
@@ -119,6 +119,8 @@ public:
     QProcess::ExitStatus m_remoteExitStatus = QProcess::CrashExit;
     State m_state = Inactive;
     bool m_stopRequested = false;
+
+    Runnable m_runnable;
 };
 
 } // Internal
@@ -162,6 +164,11 @@ void ApplicationLauncher::setUseTerminal(bool on)
 void ApplicationLauncher::setRunAsRoot(bool on)
 {
     d->m_runAsRoot = on;
+}
+
+void ApplicationLauncher::setRunnable(const Runnable &runnable)
+{
+    d->m_runnable = runnable;
 }
 
 void ApplicationLauncher::stop()
@@ -319,17 +326,17 @@ void ApplicationLauncherPrivate::handleProcessStarted()
     emit q->processStarted();
 }
 
-void ApplicationLauncher::start(const Runnable &runnable)
+void ApplicationLauncher::start()
 {
-    d->start(runnable, IDevice::ConstPtr(), true);
+    d->start(IDevice::ConstPtr(), true);
 }
 
-void ApplicationLauncher::start(const Runnable &runnable, const IDevice::ConstPtr &device)
+void ApplicationLauncher::start(const IDevice::ConstPtr &device)
 {
-    d->start(runnable, device, false);
+    d->start(device, false);
 }
 
-void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::ConstPtr &device, bool local)
+void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool local)
 {
     m_isLocal = local;
 
@@ -358,10 +365,10 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
 
 
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-        const FilePath fixedPath = runnable.workingDirectory.normalizedPathName();
+        const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
         m_localProcess->setWorkingDirectory(fixedPath);
 
-        Environment env = runnable.environment;
+        Environment env = m_runnable.environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
@@ -373,7 +380,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             WinDebugInterface::instance()->start(); // Try to start listener again...
     #endif
 
-        CommandLine cmdLine = runnable.command;
+        CommandLine cmdLine = m_runnable.command;
 
         if (HostOsInfo::isMacHost()) {
             CommandLine disclaim(Core::ICore::libexecPath("disclaim"));
@@ -400,7 +407,7 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             return;
         }
 
-        if (!device->isEmptyCommandAllowed() && runnable.command.isEmpty()) {
+        if (!device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
             doReportError(ApplicationLauncher::tr("Cannot run: No command given."));
             setFinished();
             return;
@@ -422,10 +429,10 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
                 this, &ApplicationLauncherPrivate::handleApplicationError);
         connect(m_deviceProcess, &DeviceProcess::finished,
                 this, &ApplicationLauncherPrivate::handleApplicationFinished);
-        m_deviceProcess->setCommand(runnable.command);
-        m_deviceProcess->setWorkingDirectory(runnable.workingDirectory);
-        m_deviceProcess->setEnvironment(runnable.environment);
-        m_deviceProcess->setExtraData(runnable.extraData);
+        m_deviceProcess->setCommand(m_runnable.command);
+        m_deviceProcess->setWorkingDirectory(m_runnable.workingDirectory);
+        m_deviceProcess->setEnvironment(m_runnable.environment);
+        m_deviceProcess->setExtraData(m_runnable.extraData);
         m_deviceProcess->start();
     }
 }

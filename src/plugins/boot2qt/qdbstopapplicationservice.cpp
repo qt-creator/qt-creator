@@ -100,8 +100,8 @@ void QdbStopApplicationService::doDeploy()
     runnable.command = {Constants::AppcontrollerFilepath, {"--stop"}};
     runnable.workingDirectory = "/usr/bin";
 
-    d->applicationLauncher.start(runnable,
-                                 ProjectExplorer::DeviceKitAspect::device(target()->kit()));
+    d->applicationLauncher.setRunnable(runnable);
+    d->applicationLauncher.start(ProjectExplorer::DeviceKitAspect::device(target()->kit()));
 }
 
 void QdbStopApplicationService::stopDeployment()

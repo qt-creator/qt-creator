@@ -118,7 +118,8 @@ public:
         r.command.setArguments(args);
         r.command.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
 
-        m_launcher.start(r, device());
+        m_launcher.setRunnable(r);
+        m_launcher.start(device());
     }
 
     void stop() override { m_launcher.stop(); }

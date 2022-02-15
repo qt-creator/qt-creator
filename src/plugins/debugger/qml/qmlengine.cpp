@@ -507,7 +507,8 @@ void QmlEngine::startApplicationLauncher()
         const Runnable runnable = runParameters().inferior;
         showMessage(tr("Starting %1").arg(runnable.command.toUserOutput()),
                     NormalMessageFormat);
-        d->applicationLauncher.start(runnable);
+        d->applicationLauncher.setRunnable(runnable);
+        d->applicationLauncher.start();
     }
 }
 

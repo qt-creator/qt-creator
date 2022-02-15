@@ -67,7 +67,9 @@ public:
         ProjectExplorer::Runnable r;
         r.command = {Constants::AppcontrollerFilepath, {"--stop"}};
 
-        (new ApplicationLauncher(this))->start(r, device());
+        auto launcher = new ApplicationLauncher(this);
+        launcher->setRunnable(r);
+        launcher->start(device());
     }
 };
 
@@ -89,7 +91,8 @@ public:
 
         Runnable r;
         r.command = command;
-        m_appRunner.start(r, device);
+        m_appRunner.setRunnable(r);
+        m_appRunner.start(device);
         showMessage(QdbDevice::tr("Starting command \"%1\" on device \"%2\".")
                     .arg(command.toUserOutput(), m_deviceName));
     }

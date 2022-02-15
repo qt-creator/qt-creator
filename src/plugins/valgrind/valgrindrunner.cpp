@@ -138,12 +138,15 @@ bool ValgrindRunner::Private::run()
     valgrind.device = m_device;
 
     if (m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        m_valgrindProcess.start(valgrind);
+        m_valgrindProcess.setRunnable(valgrind);
+        m_valgrindProcess.start();
     } else if (m_device->type() == "DockerDeviceType") {
         valgrind.device = {};
-        m_valgrindProcess.start(valgrind);
+        m_valgrindProcess.setRunnable(valgrind);
+        m_valgrindProcess.start();
     } else {
-        m_valgrindProcess.start(valgrind, m_device);
+        m_valgrindProcess.setRunnable(valgrind);
+        m_valgrindProcess.start(m_device);
     }
 
     return true;
@@ -193,7 +196,8 @@ void ValgrindRunner::Private::remoteProcessStarted()
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(&m_findPID, &ApplicationLauncher::appendMessage,
             this, &ValgrindRunner::Private::findPidOutputReceived);
-    m_findPID.start(findPid, m_device);
+    m_findPID.setRunnable(findPid);
+    m_findPID.start(m_device);
 }
 
 void ValgrindRunner::Private::findPidOutputReceived(const QString &out, Utils::OutputFormat format)
