@@ -24,6 +24,12 @@ add_qtc_executable(qtcreator
   QTC_RUNNABLE
 )
 
+extend_qtc_executable(qtcreator
+  CONDITION APPLE
+  SOURCES
+    main_mac.mm
+)
+
 if (NOT TARGET qtcreator)
   return()
 endif()
