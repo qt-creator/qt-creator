@@ -2784,7 +2784,6 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             styles.mainStyle = C_FIELD;
         } else if (token.type == "enum") {
             styles.mainStyle = C_TYPE;
-            styles.mixinStyles.push_back(C_ENUMERATION);
         } else if (token.type == "enumMember") {
             styles.mainStyle = C_ENUMERATION;
         } else if (token.type == "parameter") {

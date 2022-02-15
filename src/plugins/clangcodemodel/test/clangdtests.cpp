@@ -739,11 +739,11 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("static member function call") << 114 << 15 << 114 << 27
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("enum declaration") << 118 << 6 << 118 << 17
-        << QList<int>{C_TYPE, C_ENUMERATION, C_DECLARATION} << 0;
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("enumerator declaration") << 120 << 5 << 120 << 15
         << QList<int>{C_ENUMERATION, C_DECLARATION} << 0;
     QTest::newRow("enum in variable declaration") << 125 << 5 << 125 << 16
-        << QList<int>{C_TYPE, C_ENUMERATION} << 0;
+        << QList<int>{C_TYPE} << 0;
     QTest::newRow("enum variable declaration") << 125 << 17 << 125 << 28
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("enum variable reference") << 127 << 5 << 127 << 16 << QList<int>{C_LOCAL} << 0;
@@ -961,7 +961,7 @@ void ClangdTestHighlighting::test_data()
         << 310 << 29 << 310 << 38
         << QList<int>{C_FIELD} << 0;
     QTest::newRow("enum declaration with underlying type") << 316 << 6 << 316 << 21
-        << QList<int>{C_TYPE, C_ENUMERATION, C_DECLARATION} << 0;
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("type in static_cast") << 328 << 23 << 328 << 33
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("opening angle bracket in static_cast") << 328 << 16 << 328 << 17
