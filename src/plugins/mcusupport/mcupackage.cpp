@@ -43,15 +43,18 @@ namespace McuSupport::Internal {
 static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)
 {
     QSettings *settings = Core::ICore::settings(scope);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
-            QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
     bool automaticKitCreation = settings->value(key, true).toBool();
     return automaticKitCreation;
 }
 
-McuPackage::McuPackage(const QString &label, const FilePath &defaultPath,
-                       const QString &detectionPath, const QString &settingsKey,
-                       const QString &envVarName, const QString &downloadUrl,
+McuPackage::McuPackage(const QString &label,
+                       const FilePath &defaultPath,
+                       const QString &detectionPath,
+                       const QString &settingsKey,
+                       const QString &envVarName,
+                       const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector)
     : m_label(label)
     , m_defaultPath(Sdk::packagePathFromSettings(settingsKey, QSettings::SystemScope, defaultPath))
@@ -97,8 +100,7 @@ QWidget *McuPackage::widget()
 
     m_widget = new QWidget;
     m_fileChooser = new PathChooser;
-    m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right,
-                                             Icons::RESET.icon());
+    m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
     connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, [&] {
         m_fileChooser->setFilePath(m_defaultPath);
@@ -123,9 +125,7 @@ QWidget *McuPackage::widget()
 
     m_fileChooser->setFilePath(m_path);
 
-    QObject::connect(this, &McuPackage::statusChanged, this, [this] {
-        updateStatusUi();
-    });
+    QObject::connect(this, &McuPackage::statusChanged, this, [this] { updateStatusUi(); });
 
     QObject::connect(m_fileChooser, &PathChooser::pathChanged, this, [this] {
         updatePath();
@@ -163,17 +163,19 @@ bool McuPackage::addToPath() const
 
 void McuPackage::writeGeneralSettings() const
 {
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
-            QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
     QSettings *settings = Core::ICore::settings();
     settings->setValue(key, m_automaticKitCreation);
 }
 
 bool McuPackage::writeToSettings() const
 {
-    const FilePath savedPath = Sdk::packagePathFromSettings(m_settingsKey, QSettings::UserScope, m_defaultPath);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
-            QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
+    const FilePath savedPath = Sdk::packagePathFromSettings(m_settingsKey,
+                                                            QSettings::UserScope,
+                                                            m_defaultPath);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
     Core::ICore::settings()->setValueWithDefault(key, m_path.toString(), m_defaultPath.toString());
 
     return savedPath != m_path;
@@ -201,9 +203,9 @@ void McuPackage::setAutomaticKitCreationEnabled(const bool enabled)
 
 void McuPackage::updatePath()
 {
-   m_path = m_fileChooser->rawFilePath();
-   m_fileChooser->lineEdit()->button(FancyLineEdit::Right)->setEnabled(m_path != m_defaultPath);
-   updateStatus();
+    m_path = m_fileChooser->rawFilePath();
+    m_fileChooser->lineEdit()->button(FancyLineEdit::Right)->setEnabled(m_path != m_defaultPath);
+    updateStatus();
 }
 
 void McuPackage::updateStatus()
@@ -212,15 +214,16 @@ void McuPackage::updateStatus()
     const FilePath detectionPath = basePath() / m_detectionPath;
     const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
     m_detectedVersion = validPath && validPackage && m_versionDetector
-            ? m_versionDetector->parseVersion(basePath().toString()) : QString();
-    const bool validVersion = m_detectedVersion.isEmpty() ||
-            m_versions.isEmpty() || m_versions.contains(m_detectedVersion);
+                            ? m_versionDetector->parseVersion(basePath().toString())
+                            : QString();
+    const bool validVersion = m_detectedVersion.isEmpty() || m_versions.isEmpty()
+                              || m_versions.contains(m_detectedVersion);
 
-    m_status = validPath ?
-                ( validPackage ?
-                      (validVersion ? Status::ValidPackage : Status::ValidPackageMismatchedVersion)
-                    : Status::ValidPathInvalidPackage )
-              : m_path.isEmpty() ? Status::EmptyPath : Status::InvalidPath;
+    m_status = validPath          ? (validPackage ? (validVersion ? Status::ValidPackage
+                                                                  : Status::ValidPackageMismatchedVersion)
+                                                  : Status::ValidPathInvalidPackage)
+               : m_path.isEmpty() ? Status::EmptyPath
+                                  : Status::InvalidPath;
 
     emit statusChanged();
 }
@@ -228,9 +231,15 @@ void McuPackage::updateStatus()
 void McuPackage::updateStatusUi()
 {
     switch (m_status) {
-    case Status::ValidPackage: m_infoLabel->setType(InfoLabel::Ok); break;
-    case Status::ValidPackageMismatchedVersion: m_infoLabel->setType(InfoLabel::Warning); break;
-    default: m_infoLabel->setType(InfoLabel::NotOk); break;
+    case Status::ValidPackage:
+        m_infoLabel->setType(InfoLabel::Ok);
+        break;
+    case Status::ValidPackageMismatchedVersion:
+        m_infoLabel->setType(InfoLabel::Warning);
+        break;
+    default:
+        m_infoLabel->setType(InfoLabel::NotOk);
+        break;
     }
     m_infoLabel->setText(statusText());
 }
@@ -240,44 +249,45 @@ QString McuPackage::statusText() const
     const QString displayPackagePath = m_path.toUserOutput();
     const QString displayVersions = m_versions.join(" or ");
     const QString outDetectionPath = FilePath::fromString(m_detectionPath).toUserOutput();
-    const QString displayRequiredPath = m_versions.empty() ?
-                outDetectionPath :
-                QString("%1 %2").arg(outDetectionPath, displayVersions);
-    const QString displayDetectedPath = m_versions.empty() ?
-                outDetectionPath :
-                QString("%1 %2").arg(outDetectionPath, m_detectedVersion);
+    const QString displayRequiredPath = m_versions.empty() ? outDetectionPath
+                                                           : QString("%1 %2").arg(outDetectionPath,
+                                                                                  displayVersions);
+    const QString displayDetectedPath = m_versions.empty()
+                                            ? outDetectionPath
+                                            : QString("%1 %2").arg(outDetectionPath,
+                                                                   m_detectedVersion);
 
     QString response;
     switch (m_status) {
     case Status::ValidPackage:
         response = m_detectionPath.isEmpty()
-                ? ( m_detectedVersion.isEmpty()
-                    ? tr("Path %1 exists.").arg(displayPackagePath)
-                    : tr("Path %1 exists. Version %2 was found.")
-                      .arg(displayPackagePath, m_detectedVersion) )
-                : tr("Path %1 is valid, %2 was found.")
-                  .arg(displayPackagePath, displayDetectedPath);
+                       ? (m_detectedVersion.isEmpty()
+                              ? tr("Path %1 exists.").arg(displayPackagePath)
+                              : tr("Path %1 exists. Version %2 was found.")
+                                    .arg(displayPackagePath, m_detectedVersion))
+                       : tr("Path %1 is valid, %2 was found.")
+                             .arg(displayPackagePath, displayDetectedPath);
         break;
     case Status::ValidPackageMismatchedVersion: {
-        const QString versionWarning = m_versions.size() == 1 ?
-                    tr("but only version %1 is supported").arg(m_versions.first()) :
-                    tr("but only versions %1 are supported").arg(displayVersions);
+        const QString versionWarning
+            = m_versions.size() == 1
+                  ? tr("but only version %1 is supported").arg(m_versions.first())
+                  : tr("but only versions %1 are supported").arg(displayVersions);
         response = tr("Path %1 is valid, %2 was found, %3.")
-                .arg(displayPackagePath, displayDetectedPath, versionWarning);
+                       .arg(displayPackagePath, displayDetectedPath, versionWarning);
         break;
     }
     case Status::ValidPathInvalidPackage:
         response = tr("Path %1 exists, but does not contain %2.")
-                .arg(displayPackagePath, displayRequiredPath);
+                       .arg(displayPackagePath, displayRequiredPath);
         break;
     case Status::InvalidPath:
         response = tr("Path %1 does not exist.").arg(displayPackagePath);
         break;
     case Status::EmptyPath:
         response = m_detectionPath.isEmpty()
-                ? tr("Path is empty.")
-                : tr("Path is empty, %1 not found.")
-                    .arg(displayRequiredPath);
+                       ? tr("Path is empty.")
+                       : tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
     }
     return response;
@@ -287,12 +297,12 @@ McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const FilePath &defaultPath,
                                          const QString &detectionPath,
                                          const QString &settingsKey,
-                                         McuToolChainPackage::Type type, const QString &envVarName,
+                                         McuToolChainPackage::Type type,
+                                         const QString &envVarName,
                                          const McuPackageVersionDetector *versionDetector)
     : McuPackage(label, defaultPath, detectionPath, settingsKey, envVarName, {}, versionDetector)
     , m_type(type)
-{
-}
+{}
 
 McuToolChainPackage::Type McuToolChainPackage::type() const
 {
@@ -304,4 +314,4 @@ bool McuToolChainPackage::isDesktopToolchain() const
     return m_type == Type::MSVC || m_type == Type::GCC;
 }
 
-}  // namespace McuSupport::Internal
+} // namespace McuSupport::Internal

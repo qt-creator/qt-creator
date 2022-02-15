@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
+#include "mcusupportoptionspage.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
-#include "mcusupportoptionspage.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 
@@ -42,9 +42,9 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
-#include <QHBoxLayout>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -71,8 +71,8 @@ private:
 
     QString m_armGccPath;
     McuSupportOptions m_options;
-    QMap <McuPackage*, QWidget*> m_packageWidgets;
-    QMap <McuTarget*, QWidget*> m_mcuTargetPacketWidgets;
+    QMap<McuPackage *, QWidget *> m_packageWidgets;
+    QMap<McuTarget *, QWidget *> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
     QGroupBox *m_qtForMCUsSdkGroupBox = nullptr;
     QGroupBox *m_packagesGroupBox = nullptr;
@@ -110,17 +110,21 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
     }
 
     {
-        m_mcuTargetsGroupBox = new QGroupBox(tr("Targets supported by the %1")
-                                             .arg(m_qtForMCUsSdkGroupBox->title()));
+        m_mcuTargetsGroupBox = new QGroupBox(
+            tr("Targets supported by the %1").arg(m_qtForMCUsSdkGroupBox->title()));
         m_mcuTargetsGroupBox->setFlat(true);
         mainLayout->addWidget(m_mcuTargetsGroupBox);
         m_mcuTargetsComboBox = new QComboBox;
         auto layout = new QVBoxLayout(m_mcuTargetsGroupBox);
         layout->addWidget(m_mcuTargetsComboBox);
-        connect(m_mcuTargetsComboBox, &QComboBox::currentTextChanged,
-                this, &McuSupportOptionsWidget::showMcuTargetPackages);
-        connect(m_options.qtForMCUsSdkPackage, &McuAbstractPackage::changed,
-                this, &McuSupportOptionsWidget::populateMcuTargetsComboBox);
+        connect(m_mcuTargetsComboBox,
+                &QComboBox::currentTextChanged,
+                this,
+                &McuSupportOptionsWidget::showMcuTargetPackages);
+        connect(m_options.qtForMCUsSdkPackage,
+                &McuAbstractPackage::changed,
+                this,
+                &McuSupportOptionsWidget::populateMcuTargetsComboBox);
     }
 
     {
@@ -137,9 +141,11 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
     }
 
     {
-        m_kitAutomaticCreationCheckBox = new QCheckBox(tr("Automatically create kits for all available targets on start"));
-        connect(m_kitAutomaticCreationCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
-            m_options.qtForMCUsSdkPackage->setAutomaticKitCreationEnabled(state == Qt::CheckState::Checked);
+        m_kitAutomaticCreationCheckBox = new QCheckBox(
+            tr("Automatically create kits for all available targets on start"));
+        connect(m_kitAutomaticCreationCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
+            m_options.qtForMCUsSdkPackage->setAutomaticKitCreationEnabled(
+                state == Qt::CheckState::Checked);
         });
         mainLayout->addWidget(m_kitAutomaticCreationCheckBox);
     }
@@ -161,7 +167,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         m_kitUpdatePushButton = new QPushButton(tr("Update Kit"));
         m_kitUpdatePushButton->setSizePolicy(m_kitCreationPushButton->sizePolicy());
         connect(m_kitUpdatePushButton, &QPushButton::clicked, this, [this] {
-            for (auto kit: McuSupportOptions::upgradeableKits(currentMcuTarget(), m_options.qtForMCUsSdkPackage))
+            for (auto kit : McuSupportOptions::upgradeableKits(currentMcuTarget(),
+                                                               m_options.qtForMCUsSdkPackage))
                 m_options.upgradeKitInPlace(kit, currentMcuTarget(), m_options.qtForMCUsSdkPackage);
             updateStatus();
         });
@@ -185,8 +192,7 @@ void McuSupportOptionsWidget::updateStatus()
     // Page elements
     {
         m_qtForMCUsSdkGroupBox->setVisible(cMakeAvailable);
-        const bool valid = cMakeAvailable &&
-                m_options.qtForMCUsSdkPackage->validStatus();
+        const bool valid = cMakeAvailable && m_options.qtForMCUsSdkPackage->validStatus();
         const bool ready = valid && mcuTarget;
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());
@@ -200,7 +206,7 @@ void McuSupportOptionsWidget::updateStatus()
                 m_mcuTargetsInfoLabel->setText(deprecationMessage);
             else
                 m_mcuTargetsInfoLabel->setText(tr("No valid kit descriptions found at %1.")
-                                               .arg(Sdk::kitsPath(sdkPath).toUserOutput()));
+                                                   .arg(Sdk::kitsPath(sdkPath).toUserOutput()));
         }
     }
 
@@ -210,25 +216,25 @@ void McuSupportOptionsWidget::updateStatus()
         m_kitCreationPushButton->setVisible(mcuTargetValid);
         m_kitUpdatePushButton->setVisible(mcuTargetValid);
         if (mcuTargetValid) {
-            const bool hasMatchingKits = !McuSupportOptions::matchingKits(
-                        mcuTarget, m_options.qtForMCUsSdkPackage).isEmpty();
-            const bool hasUpgradeableKits = !hasMatchingKits &&
-                    !McuSupportOptions::upgradeableKits(
-                        mcuTarget, m_options.qtForMCUsSdkPackage).isEmpty();
+            const bool hasMatchingKits
+                = !McuSupportOptions::matchingKits(mcuTarget, m_options.qtForMCUsSdkPackage)
+                       .isEmpty();
+            const bool hasUpgradeableKits
+                = !hasMatchingKits
+                  && !McuSupportOptions::upgradeableKits(mcuTarget, m_options.qtForMCUsSdkPackage)
+                          .isEmpty();
 
             m_kitCreationPushButton->setEnabled(!hasMatchingKits);
             m_kitUpdatePushButton->setEnabled(hasUpgradeableKits);
 
-            m_kitCreationInfoLabel->setType(!hasMatchingKits
-                                            ? Utils::InfoLabel::Information
-                                            : Utils::InfoLabel::Ok);
+            m_kitCreationInfoLabel->setType(!hasMatchingKits ? Utils::InfoLabel::Information
+                                                             : Utils::InfoLabel::Ok);
 
             m_kitCreationInfoLabel->setText(
-                        hasMatchingKits ?
-                            tr("A kit for the selected target and SDK version already exists.")
-                          : hasUpgradeableKits ?
-                                tr("Kits for a different SDK version exist.")
-                              : tr("A kit for the selected target can be created."));
+                hasMatchingKits
+                    ? tr("A kit for the selected target and SDK version already exists.")
+                : hasUpgradeableKits ? tr("Kits for a different SDK version exist.")
+                                     : tr("A kit for the selected target can be created."));
         } else {
             m_kitCreationInfoLabel->setType(Utils::InfoLabel::NotOk);
             m_kitCreationInfoLabel->setText("Provide the package paths in order to create a kit "
@@ -237,7 +243,8 @@ void McuSupportOptionsWidget::updateStatus()
     }
 
     // Automatic Kit creation
-    m_kitAutomaticCreationCheckBox->setChecked(m_options.qtForMCUsSdkPackage->automaticKitCreationEnabled());
+    m_kitAutomaticCreationCheckBox->setChecked(
+        m_options.qtForMCUsSdkPackage->automaticKitCreationEnabled());
 
     // Status label in the bottom
     {
@@ -277,8 +284,8 @@ McuTarget *McuSupportOptionsWidget::currentMcuTarget() const
 {
     const int mcuTargetIndex = m_mcuTargetsComboBox->currentIndex();
     return (mcuTargetIndex == -1 || m_options.sdkRepository.mcuTargets.isEmpty())
-            ? nullptr
-            : m_options.sdkRepository.mcuTargets.at(mcuTargetIndex);
+               ? nullptr
+               : m_options.sdkRepository.mcuTargets.at(mcuTargetIndex);
 }
 
 void McuSupportOptionsWidget::showEvent(QShowEvent *event)
@@ -307,9 +314,8 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
     m_options.populatePackagesAndTargets();
     m_mcuTargetsComboBox->clear();
     m_mcuTargetsComboBox->addItems(
-                Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets, [](McuTarget *t) {
-                    return McuSupportOptions::kitName(t);
-                }));
+        Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets,
+                                      [](McuTarget *t) { return McuSupportOptions::kitName(t); }));
     updateStatus();
 }
 
@@ -321,5 +327,5 @@ McuSupportOptionsPage::McuSupportOptionsPage()
     setWidgetCreator([] { return new McuSupportOptionsWidget; });
 }
 
-} // Internal
-} // McuSupport
+} // namespace Internal
+} // namespace McuSupport

@@ -27,8 +27,8 @@
 
 #include "mcuabstractpackage.h"
 
-#include <utils/filepath.h>
 #include <gmock/gmock.h>
+#include <utils/filepath.h>
 
 namespace McuSupport::Internal {
 
@@ -47,7 +47,7 @@ public:
     MOCK_METHOD(bool, validStatus, (), (const));
     MOCK_METHOD(void, setDownloadUrl, (const QString &) );
     MOCK_METHOD(void, setEnvironmentVariableName, (const QString &) );
-    MOCK_METHOD(const QString&, environmentVariableName, (), (const));
+    MOCK_METHOD(const QString &, environmentVariableName, (), (const));
     MOCK_METHOD(void, setAddToPath, (bool) );
     MOCK_METHOD(bool, addToPath, (), (const));
     MOCK_METHOD(void, writeGeneralSettings, (), (const));

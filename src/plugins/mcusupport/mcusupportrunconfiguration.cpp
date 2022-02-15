@@ -46,16 +46,18 @@ namespace Internal {
 
 static FilePath cmakeFilePath(const Target *target)
 {
-    const CMakeProjectManager::CMakeTool *tool =
-            CMakeProjectManager::CMakeKitAspect::cmakeTool(target->kit());
+    const CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeKitAspect::cmakeTool(
+        target->kit());
     return tool->filePath();
 }
 
 static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *target)
 {
     // Use buildKey if provided, fallback to projectName
-    const QString targetName = QLatin1String("flash_%1").arg(
-                !rc->buildKey().isEmpty() ? rc->buildKey() : target->project()->displayName());
+    const QString targetName = QLatin1String("flash_%1")
+                                   .arg(!rc->buildKey().isEmpty()
+                                            ? rc->buildKey()
+                                            : target->project()->displayName());
 
     return {"--build", ".", "--target", targetName};
 }

@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
+#include "unittest.h"
 #include "mcutargetdescription.h"
 #include "nxp_1064_json.h"
-#include "unittest.h"
 #include "utils/filepath.h"
 #include <cmakeprojectmanager/cmakeconfigitem.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>

@@ -47,6 +47,7 @@ public:
                                         const QStringList &detectionArgs,
                                         const QString &detectionRegExp);
     QString parseVersion(const QString &packagePath) const final;
+
 private:
     const QString m_detectionPath;
     const QStringList m_detectionArgs;
@@ -62,6 +63,7 @@ public:
                                  const QString &versionAttribute,
                                  const QString &versionRegExp);
     QString parseVersion(const QString &packagePath) const final;
+
 private:
     const QString m_filePattern;
     const QString m_versionElement;
@@ -73,8 +75,11 @@ private:
 class McuPackageDirectoryVersionDetector : public McuPackageVersionDetector
 {
 public:
-    McuPackageDirectoryVersionDetector(const QString &filePattern, const QString &versionRegExp, const bool isFile);
+    McuPackageDirectoryVersionDetector(const QString &filePattern,
+                                       const QString &versionRegExp,
+                                       const bool isFile);
     QString parseVersion(const QString &packagePath) const final;
+
 private:
     const QString m_filePattern;
     const QString m_versionRegExp;
@@ -87,9 +92,10 @@ class McuPackagePathVersionDetector : public McuPackageVersionDetector
 public:
     McuPackagePathVersionDetector(const QString &versionRegExp);
     QString parseVersion(const QString &packagePath) const final;
+
 private:
     const QString m_versionRegExp;
 };
 
-} // Internal
-} // McuSupport
+} // namespace Internal
+} // namespace McuSupport
