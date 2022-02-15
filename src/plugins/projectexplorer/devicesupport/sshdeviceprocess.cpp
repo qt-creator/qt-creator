@@ -70,8 +70,6 @@ SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *par
     : DeviceProcess(device, parent),
       d(std::make_unique<SshDeviceProcessPrivate>(this))
 {
-    setTerminalMode(QtcProcess::TerminalOn);
-
     // Hack: we rely on fact that below slots were called before any other external slots connected
     // to this instance signals. That's why we don't re-emit them from inside our handlers since
     // these signal will reach all other external slots anyway after our handlers are done.
