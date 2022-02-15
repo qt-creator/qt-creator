@@ -3565,9 +3565,11 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     if (node.kind().endsWith("Literal")) {
         HighlightingResult result;
         result.useTextSyles = true;
-        const bool isStringLike = node.kind().startsWith("String")
-                || node.kind().startsWith("Character");
-        result.textStyles.mainStyle = isStringLike ? C_STRING : C_NUMBER;
+        const bool isKeyword = node.kind() == "CXXBoolLiteral"
+                || node.kind() == "CXXNullPtrLiteral";
+        const bool isStringLike = !isKeyword && (node.kind().startsWith("String")
+                || node.kind().startsWith("Character"));
+        result.textStyles.mainStyle = isKeyword ? C_KEYWORD : isStringLike ? C_STRING : C_NUMBER;
         setResultPosFromRange(result, node.range());
         insertResult(result);
         return;

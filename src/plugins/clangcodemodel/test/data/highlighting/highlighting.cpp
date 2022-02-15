@@ -914,3 +914,10 @@ void constructorMemberInitialization()
         int m_m2;
     };
 }
+
+void keywords()
+{
+    bool b1 = true;
+    bool b2 = false;
+    void *p = nullptr;
+}

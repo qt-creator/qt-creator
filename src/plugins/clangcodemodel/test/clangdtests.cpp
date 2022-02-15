@@ -1292,6 +1292,9 @@ void ClangdTestHighlighting::test_data()
                                       << QList<int>{C_FIELD} << 0;
     QTest::newRow("member initialization: member (built-in type)") << 911 << 23 << 911 << 27
                                       << QList<int>{C_FIELD} << 0;
+    QTest::newRow("keywords: true") << 920 << 15 << 920 << 19 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("keywords: false") << 921 << 15 << 921 << 20 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("keywords: nullptr") << 922 << 15 << 922 << 22 << QList<int>{C_KEYWORD} << 0;
 }
 
 void ClangdTestHighlighting::test()
