@@ -1288,6 +1288,10 @@ void ClangdTestHighlighting::test_data()
                                       << QList<int>{C_LOCAL} << 0;
     QTest::newRow("const operator()") << 903 << 5 << 903 << 7
                                       << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("member initialization: member (user-defined type)") << 911 << 14 << 911 << 18
+                                      << QList<int>{C_FIELD} << 0;
+    QTest::newRow("member initialization: member (built-in type)") << 911 << 23 << 911 << 27
+                                      << QList<int>{C_FIELD} << 0;
 }
 
 void ClangdTestHighlighting::test()

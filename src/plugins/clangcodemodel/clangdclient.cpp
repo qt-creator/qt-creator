@@ -2667,6 +2667,11 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         const QList<AstNode> path = getAstPath(ast, range);
         if (path.size() < 2)
             return false;
+        if (token.type == "property"
+                && (path.rbegin()->kind() == "MemberInitializer"
+                    || path.rbegin()->kind() == "CXXConstruct")) {
+            return false;
+        }
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
                     || it->kind() == "MemberInitializer") {
