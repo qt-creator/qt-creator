@@ -325,6 +325,16 @@ QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
     return tr("Cannot retrieve debugging output.") + QLatin1Char('\n');
 }
 
+int ApplicationLauncher::exitCode() const
+{
+    return d->m_exitCode;
+}
+
+QProcess::ExitStatus ApplicationLauncher::exitStatus() const
+{
+    return d->m_exitStatus;
+}
+
 void ApplicationLauncherPrivate::handleProcessStarted()
 {
     m_listeningPid = applicationPID();
