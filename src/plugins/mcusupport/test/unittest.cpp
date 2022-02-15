@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "mcutargetdescription.h"
 #include "nxp_1064_json.h"
 #include "unittest.h"
 #include "utils/filepath.h"

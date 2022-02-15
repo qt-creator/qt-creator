@@ -15,6 +15,7 @@ add_qtc_plugin(McuSupport
     mcusupportrunconfiguration.cpp mcusupportrunconfiguration.h
     mcusupportversiondetection.cpp mcusupportversiondetection.h
     mcusupportcmakemapper.cpp mcusupportcmakemapper.h
+    mcutargetdescription.h
 )
 
 add_subdirectory(test)

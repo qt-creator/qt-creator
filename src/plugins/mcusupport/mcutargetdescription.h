@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,39 +25,43 @@
 
 #pragma once
 
-#include "utils/filepath.h"
-
-#include <QSettings>
+#include <QString>
+#include <QStringList>
 #include <QVector>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal::Sdk {
 
-constexpr int MAX_COMPATIBILITY_VERSION {1};
+struct McuTargetDescription
+{
+    enum class TargetType { MCU, Desktop };
 
-class McuSdkRepository;
-class McuAbstractPackage;
-class McuPackage;
-class McuTarget;
+    QString qulVersion;
+    QString compatVersion;
+    struct
+    {
+        QString id;
+        QString name;
+        QString vendor;
+        QVector<int> colorDepths;
+        TargetType type;
+    } platform;
+    struct
+    {
+        QString id;
+        QStringList versions;
+    } toolchain;
+    struct
+    {
+        QString name;
+        QString defaultPath;
+        QString envVar;
+        QStringList versions;
+    } boardSdk;
+    struct
+    {
+        QString envVar;
+        QString boardSdkSubDir;
+    } freeRTOS;
+};
 
-namespace Sdk {
-
-struct McuTargetDescription;
-
-McuPackage *createQtForMCUsPackage();
-
-bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
-
-void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
-
-McuTargetDescription parseDescriptionJson(const QByteArray &);
-QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &, QVector<McuAbstractPackage *> *);
-
-Utils::FilePath kitsPath(const Utils::FilePath &dir);
-
-Utils::FilePath packagePathFromSettings(const QString &settingsKey,
-                                        QSettings::Scope scope = QSettings::UserScope,
-                                        const Utils::FilePath &defaultPath = {});
-} // namespace Sdk
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal::Sdk

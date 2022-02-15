@@ -28,6 +28,7 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 #include "mcusupportversiondetection.h"
+#include "mcutargetdescription.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
@@ -335,7 +336,6 @@ static McuPackage *createRenesasProgrammerPackage()
                 envVar);
     return result;
 }
-
 static McuPackageVersionDetector *generatePackageVersionDetector(QString envVar)
 {
     if (envVar.startsWith("EVK"))
