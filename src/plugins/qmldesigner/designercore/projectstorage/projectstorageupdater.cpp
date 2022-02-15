@@ -79,6 +79,18 @@ void addSourceIds(SourceIds &sourceIds, const Storage::ProjectDatas &projectData
         sourceIds.push_back(projectData.sourceId);
 }
 
+Storage::Version convertVersion(LanguageUtils::ComponentVersion version)
+{
+    return Storage::Version{version.majorVersion(), version.minorVersion()};
+}
+
+Storage::IsAutoVersion convertToIsAutoVersion(QmlDirParser::Import::Flags flags)
+{
+    if (flags & QmlDirParser::Import::Flag::Auto)
+        return Storage::IsAutoVersion::Yes;
+    return Storage::IsAutoVersion::No;
+}
+
 void addDependencies(Storage::Imports &dependencies,
                      SourceId sourceId,
                      const QList<QmlDirParser::Import> &qmldirDependencies,
@@ -88,6 +100,30 @@ void addDependencies(Storage::Imports &dependencies,
         ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module}
                                                     + "-cppnative");
         dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
+    }
+}
+
+void addModuleExportedImports(Storage::ModuleExportedImports &imports,
+                              ModuleId moduleId,
+                              const QList<QmlDirParser::Import> &qmldirImports,
+                              ProjectStorageInterface &projectStorage)
+{
+    for (const QmlDirParser::Import &qmldirImport : qmldirImports) {
+        if (qmldirImport.flags & QmlDirParser::Import::Flag::Optional)
+            continue;
+
+        ModuleId exportedModuleId = projectStorage.moduleId(Utils::PathString{qmldirImport.module});
+        imports.emplace_back(moduleId,
+                             exportedModuleId,
+                             convertVersion(qmldirImport.version),
+                             convertToIsAutoVersion(qmldirImport.flags));
+
+        ModuleId exportedCppModuleId = projectStorage.moduleId(
+            Utils::PathString{qmldirImport.module} + "-cppnative");
+        imports.emplace_back(moduleId,
+                             exportedCppModuleId,
+                             Storage::Version{},
+                             Storage::IsAutoVersion::No);
     }
 }
 
@@ -161,6 +197,12 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
 
             Utils::PathString moduleName{parser.typeNamespace()};
             ModuleId moduleId = m_projectStorage.moduleId(moduleName);
+
+            addModuleExportedImports(package.moduleExportedImports,
+                                     moduleId,
+                                     parser.imports(),
+                                     m_projectStorage);
+            package.updatedModuleIds.push_back(moduleId);
 
             const auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(qmlDirSourceId);
             addSourceIds(package.updatedSourceIds, qmlProjectDatas);
