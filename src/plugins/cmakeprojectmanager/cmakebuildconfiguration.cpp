@@ -339,16 +339,18 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             qmlDebugAspect
         },
         m_warningMessageLabel,
-        Space(10),
-        Row{m_kitConfiguration, m_configurationStates},
-        Group {
-            cmakeConfiguration,
-            Row {
-                bc->aspect<InitialCMakeArgumentsAspect>(),
-                bc->aspect<AdditionalCMakeOptionsAspect>()
-            },
-            m_reconfigureButton,
-        }
+        m_kitConfiguration,
+        Column {
+            m_configurationStates,
+            Group {
+                cmakeConfiguration,
+                Row {
+                    bc->aspect<InitialCMakeArgumentsAspect>(),
+                    bc->aspect<AdditionalCMakeOptionsAspect>()
+                },
+                m_reconfigureButton,
+            }
+        }.setSpacing(0)
     }.attachTo(details, false);
 
     updateAdvancedCheckBox();

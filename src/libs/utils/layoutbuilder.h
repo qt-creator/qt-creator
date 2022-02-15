@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "optional.h"
+
 #include <QList>
 #include <QString>
 #include <QVariant>
@@ -97,6 +99,8 @@ public:
 
     ~LayoutBuilder();
 
+    LayoutBuilder &setSpacing(int spacing);
+
     LayoutBuilder &addItem(const LayoutItem &item);
     LayoutBuilder &addItems(const LayoutItems &items);
 
@@ -148,10 +152,12 @@ public:
 protected:
     explicit LayoutBuilder(); // Adds to existing layout.
 
+    QLayout *createLayout() const;
     void doLayout(QWidget *parent);
 
     LayoutItems m_items;
     LayoutType m_layoutType;
+    Utils::optional<int> m_spacing;
     bool m_withMargins = false;
 };
 

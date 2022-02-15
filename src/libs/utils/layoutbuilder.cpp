@@ -106,29 +106,36 @@ LayoutBuilder::LayoutItem::LayoutItem(const QString &text)
     : text(text)
 {}
 
-static QLayout *createLayoutFromType(LayoutBuilder::LayoutType layoutType)
+QLayout *LayoutBuilder::createLayout() const
 {
-    switch (layoutType) {
+    QLayout *layout = nullptr;
+    switch (m_layoutType) {
     case LayoutBuilder::FormLayout: {
         auto formLayout = new QFormLayout;
         formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        return formLayout;
+        layout = formLayout;
+        break;
     }
     case LayoutBuilder::GridLayout: {
         auto gridLayout = new QGridLayout;
-        return gridLayout;
+        layout = gridLayout;
+        break;
     }
     case LayoutBuilder::HBoxLayout: {
         auto hboxLayout = new QHBoxLayout;
-        return hboxLayout;
+        layout = hboxLayout;
+        break;
     }
     case LayoutBuilder::VBoxLayout: {
         auto vboxLayout = new QVBoxLayout;
-        return vboxLayout;
+        layout = vboxLayout;
+        break;
     }
     }
-    QTC_CHECK(false);
-    return nullptr;
+    QTC_ASSERT(layout, return nullptr);
+    if (m_spacing)
+        layout->setSpacing(*m_spacing);
+    return layout;
 }
 
 static void setMargins(bool on, QLayout *layout)
@@ -246,7 +253,7 @@ static void doLayoutHelper(QLayout *layout,
  */
 LayoutBuilder::LayoutItem::LayoutItem(const LayoutBuilder &builder)
 {
-    layout = createLayoutFromType(builder.m_layoutType);
+    layout = builder.createLayout();
     doLayoutHelper(layout, builder.m_items);
     setMargins(builder.m_withMargins, layout);
 }
@@ -285,6 +292,12 @@ LayoutBuilder::LayoutBuilder(LayoutType layoutType, const LayoutItems &items)
     m_items.reserve(items.size() * 2);
     for (const LayoutItem &item : items)
         addItem(item);
+}
+
+LayoutBuilder &LayoutBuilder::setSpacing(int spacing)
+{
+    m_spacing = spacing;
+    return *this;
 }
 
 LayoutBuilder::LayoutBuilder() = default;
@@ -343,7 +356,7 @@ LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
 
 void LayoutBuilder::doLayout(QWidget *parent)
 {
-    QLayout *layout = createLayoutFromType(m_layoutType);
+    QLayout *layout = createLayout();
     parent->setLayout(layout);
 
     doLayoutHelper(layout, m_items);
