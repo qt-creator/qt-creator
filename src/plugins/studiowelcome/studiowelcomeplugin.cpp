@@ -224,9 +224,15 @@ public:
 
     Q_INVOKABLE void openProjectAt(int row)
     {
+        if (m_blockOpenRecent)
+            return;
+
+        m_blockOpenRecent = true;
         const QString projectFile = data(index(row, 0), ProjectModel::FilePathRole).toString();
         if (QFileInfo::exists(projectFile))
             ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+
+        resetProjects();
     }
 
     Q_INVOKABLE int get(int) { return -1; }
@@ -311,6 +317,7 @@ private:
 
     bool m_communityVersion = true;
     bool m_enterpriseVersion = false;
+    bool m_blockOpenRecent = false;
 };
 
 void ProjectModel::setupVersion()
@@ -520,8 +527,11 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
 
 void ProjectModel::resetProjects()
 {
-    beginResetModel();
-    endResetModel();
+    QTimer::singleShot(2000, this, [this]() {
+        beginResetModel();
+        endResetModel();
+        m_blockOpenRecent = false;
+    });
 }
 
 class WelcomeMode : public Core::IMode
