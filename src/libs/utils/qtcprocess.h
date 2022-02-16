@@ -282,9 +282,7 @@ public:
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
 
-    virtual void start(const QString &program, const QStringList &arguments) = 0;
-    virtual void customStart() { QTC_CHECK(false); }
-    virtual bool isCustomStart() const { return false; }
+    virtual void start() { defaultStart(); }
     virtual void terminate() = 0;
     virtual void kill() = 0;
     virtual void close() = 0;
@@ -315,6 +313,15 @@ signals:
     void errorOccurred(QProcess::ProcessError error);
     void readyReadStandardOutput();
     void readyReadStandardError();
+
+protected:
+    void defaultStart();
+
+private:
+    virtual void doDefaultStart(const QString &program, const QStringList &arguments)
+    { Q_UNUSED(program) Q_UNUSED(arguments) QTC_CHECK(false); }
+    bool dissolveCommand(QString *program, QStringList *arguments);
+    bool ensureProgramExists(const QString &program);
 };
 
 
