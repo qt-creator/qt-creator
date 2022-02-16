@@ -121,8 +121,8 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
 
         const auto pasteStdOutCB = new QCheckBox(tr("Parse standard output during build"), this);
-        pasteStdOutCB->setToolTip(tr("Check this to make output parsers look for diagnostics "
-                                     "on stdout rather than stderr"));
+        pasteStdOutCB->setToolTip(tr("Makes output parsers look for diagnostics "
+                                     "on stdout rather than stderr."));
         pasteStdOutCB->setChecked(bc->parseStdOut());
         layout->addWidget(pasteStdOutCB);
 
