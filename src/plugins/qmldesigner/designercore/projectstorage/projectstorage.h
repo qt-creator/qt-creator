@@ -2205,17 +2205,20 @@ private:
 
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
+                                  kindColumn,
                                   sourceModuleIdColumn,
                                   moduleExportedModuleIdColumn},
                                  "majorVersion IS NULL AND minorVersion IS NULL");
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
+                                  kindColumn,
                                   sourceModuleIdColumn,
                                   majorVersionColumn,
                                   moduleExportedModuleIdColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NULL");
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
+                                  kindColumn,
                                   sourceModuleIdColumn,
                                   majorVersionColumn,
                                   minorVersionColumn,

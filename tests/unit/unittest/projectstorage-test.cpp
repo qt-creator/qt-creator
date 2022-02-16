@@ -4096,4 +4096,34 @@ TEST_F(ProjectStorage, ModuleExportedImportPreventCollisionIfModuleIsIndirectlyR
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
+TEST_F(ProjectStorage, DistinguishBetweenImportKinds)
+{
+    ModuleId qml1ModuleId{storage.moduleId("Qml1")};
+    ModuleId qml11ModuleId{storage.moduleId("Qml11")};
+    auto package{createSimpleSynchronizationPackage()};
+    package.moduleDependencies.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+    package.moduleDependencies.emplace_back(qml1ModuleId, Storage::Version{1}, sourceId1);
+    package.imports.emplace_back(qml1ModuleId, Storage::Version{}, sourceId1);
+    package.moduleDependencies.emplace_back(qml11ModuleId, Storage::Version{1, 1}, sourceId1);
+    package.imports.emplace_back(qml11ModuleId, Storage::Version{1, 1}, sourceId1);
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(
+        storage.fetchTypes(),
+        UnorderedElementsAre(
+            AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qmlModuleId, "Object"),
+                                             IsExportedType(qmlModuleId, "Obj"),
+                                             IsExportedType(qmlNativeModuleId, "QObject")))),
+            AllOf(IsStorageType(sourceId1,
+                                "QQuickItem",
+                                fetchTypeId(sourceId2, "QObject"),
+                                TypeAccessSemantics::Reference),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item"),
+                                             IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
+}
+
 } // namespace
