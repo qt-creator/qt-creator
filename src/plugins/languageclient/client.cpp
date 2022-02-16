@@ -312,7 +312,6 @@ void Client::initialize()
 
     // directly send message otherwise the state check of sendContent would fail
     sendMessage(initRequest.toBaseMessage());
-    m_clientInterface->sendMessage(initRequest.toBaseMessage());
     m_state = InitializeRequested;
 }
 
