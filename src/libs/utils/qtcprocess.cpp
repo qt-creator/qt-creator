@@ -601,6 +601,8 @@ bool ProcessInterface::dissolveCommand(QString *program, QStringList *arguments)
             ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
             commandString = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
+        } else if (m_setup.m_lowPriority) {
+            m_setup.m_belowNormalPriority = true;
         }
         ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
         m_setup.m_nativeArguments = args;
