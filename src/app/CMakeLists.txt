@@ -26,6 +26,7 @@ add_qtc_executable(qtcreator
 
 extend_qtc_executable(qtcreator
   CONDITION APPLE
+  DEPENDS ${FWFoundation}
   SOURCES
     main_mac.mm
 )
