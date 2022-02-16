@@ -65,7 +65,7 @@
         <item>
          <widget class="QPushButton" name="makeDefaultNdkButton">
           <property name="toolTip">
-           <string>Force a specific NDK installation to be used by all Android kits.&lt;br/&gt;Note that the forced NDK might not be compatible with all Qt registered versions.</string>
+           <string>Force a specific NDK installation to be used by all Android kits.&lt;br/&gt;Note that the forced NDK might not be compatible with all registered Qt versions.</string>
           </property>
          </widget>
         </item>

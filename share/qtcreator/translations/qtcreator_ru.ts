@@ -1758,12 +1758,12 @@ Cancelling pending operations...
 <context>
     <name>Android::Internal::AndroidServiceWidget::AndroidServiceModel</name>
     <message>
-        <source>The name of the class implementing the service</source>
-        <translation>Имя класса, реализующего сервис</translation>
+        <source>The name of the class implementing the service.</source>
+        <translation>Имя класса, реализующего сервис.</translation>
     </message>
     <message>
-        <source>Checked if the service is run in an external process</source>
-        <translation>Отмечено, если сервис работает во внешнем процессе</translation>
+        <source>Checked if the service is run in an external process.</source>
+        <translation>Отмечено, если сервис работает во внешнем процессе.</translation>
     </message>
     <message>
         <source>The name of the external process.
@@ -1772,52 +1772,52 @@ Prefix with : if the process is private, use a lowercase name if the process is 
 Если имя начинается с двоеточия, то процесс приватный, если написано в нижнем регистре, то процесс глобальный.</translation>
     </message>
     <message>
-        <source>Checked if the service is in a separate dynamic library</source>
-        <translation>Отмечено, если сервис в отдельной динамической библиотеке</translation>
+        <source>Checked if the service is in a separate dynamic library.</source>
+        <translation>Отмечено, если сервис в отдельной динамической библиотеке.</translation>
     </message>
     <message>
-        <source>The name of the separate dynamic library</source>
-        <translation>Имя отдельной динамической библиотеки</translation>
+        <source>The name of the separate dynamic library.</source>
+        <translation>Имя отдельной динамической библиотеки.</translation>
     </message>
     <message>
-        <source>The arguments for telling the app to run the service instead of the main activity</source>
-        <translation>Параметры запуска сервиса вместо основной функциональности приложения</translation>
+        <source>The arguments for telling the app to run the service instead of the main activity.</source>
+        <translation>Параметры запуска сервиса вместо основной функциональности приложения.</translation>
     </message>
     <message>
-        <source>Service class name</source>
-        <translation>Имя класса сервиса</translation>
+        <source>Service class name.</source>
+        <translation>Имя класса сервиса.</translation>
     </message>
     <message>
-        <source>Run in external process</source>
-        <translation>Работа во внешнем процессе</translation>
+        <source>Run in external process.</source>
+        <translation>Работа во внешнем процессе.</translation>
     </message>
     <message>
-        <source>Process name</source>
-        <translation>Имя процесса</translation>
+        <source>Process name.</source>
+        <translation>Имя процесса.</translation>
     </message>
     <message>
-        <source>Run in external library</source>
-        <translation>Работа во внешней библиотеке</translation>
+        <source>Run in external library.</source>
+        <translation>Работа во внешней библиотеке.</translation>
     </message>
     <message>
-        <source>Library name</source>
-        <translation>Имя библиотеки</translation>
+        <source>Library name.</source>
+        <translation>Имя библиотеки.</translation>
     </message>
     <message>
-        <source>Service arguments</source>
-        <translation>Параметры сервиса</translation>
+        <source>Service arguments.</source>
+        <translation>Параметры сервиса.</translation>
     </message>
     <message>
-        <source>The class name must be set</source>
-        <translation>Должно быть задано имя класса</translation>
+        <source>The class name must be set.</source>
+        <translation>Должно быть задано имя класса.</translation>
     </message>
     <message>
-        <source>The process name must be set for a service run in an external process</source>
-        <translation>Имя процесса должно быть задано для сервиса, работающего во внешнем процессе</translation>
+        <source>The process name must be set for a service run in an external process.</source>
+        <translation>Имя процесса должно быть задано для сервиса, работающего во внешнем процессе.</translation>
     </message>
     <message>
-        <source>The library name must be set for a service run in an external library</source>
-        <translation>Имя библиотеки должно быть задано для сервиса, работающего во внешней библиотеке</translation>
+        <source>The library name must be set for a service run in an external library.</source>
+        <translation>Имя библиотеки должно быть задано для сервиса, работающего во внешней библиотеке.</translation>
     </message>
     <message>
         <source>The service arguments must be set for a service not run in an external library</source>
