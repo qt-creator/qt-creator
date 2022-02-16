@@ -25,78 +25,64 @@
 
 #pragma once
 
-#include <utils/environmentfwd.h>
-#include "mcusupport_global.h"
-#include "mcukitmanager.h"
-
 #include <QObject>
-#include <QVector>
 #include <QVersionNumber>
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
+namespace ProjectExplorer {
+class ToolChain;
+}
 
 namespace Utils {
-class FilePath;
 class PathChooser;
 class InfoLabel;
 } // namespace Utils
-
-namespace ProjectExplorer {
-class Kit;
-class ToolChain;
-} // namespace ProjectExplorer
 
 namespace McuSupport {
 namespace Internal {
 
 class McuAbstractPackage;
 class McuToolChainPackage;
-class McuTarget;
 
-class McuSdkRepository
-{
-public:
-    QVector<McuAbstractPackage *> packages;
-    QVector<McuTarget *> mcuTargets;
-
-    void deletePackagesAndTargets();
-};
-
-class McuSupportOptions : public QObject
+class McuTarget : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit McuSupportOptions(QObject *parent = nullptr);
-    ~McuSupportOptions() override;
+    enum class OS { Desktop, BareMetal, FreeRTOS };
 
-    McuAbstractPackage *qtForMCUsSdkPackage = nullptr;
-    McuSdkRepository sdkRepository;
+    struct Platform
+    {
+        QString name;
+        QString displayName;
+        QString vendor;
+    };
 
-    void setQulDir(const Utils::FilePath &dir);
-    static void setKitEnvironment(ProjectExplorer::Kit *,
-                                  const McuTarget *,
-                                  const McuAbstractPackage *);
-    static void updateKitEnvironment(ProjectExplorer::Kit *, const McuTarget *);
-    static void remapQul2xCmakeVars(ProjectExplorer::Kit *, const Utils::EnvironmentItems &);
-    static Utils::FilePath qulDirFromSettings();
-    static McuKitManager::UpgradeOption askForKitUpgrades();
+    enum { UnspecifiedColorDepth = -1 };
 
-    static void registerQchFiles();
-    static void registerExamples();
+    McuTarget(const QVersionNumber &qulVersion,
+              const Platform &platform,
+              OS os,
+              const QVector<McuAbstractPackage *> &packages,
+              const McuToolChainPackage *toolChainPackage,
+              int colorDepth = UnspecifiedColorDepth);
 
-    static const QVersionNumber &minimalQulVersion();
+    const QVersionNumber &qulVersion() const;
+    const QVector<McuAbstractPackage *> &packages() const;
+    const McuToolChainPackage *toolChainPackage() const;
+    const Platform &platform() const;
+    OS os() const;
+    int colorDepth() const;
+    bool isValid() const;
+    void printPackageProblems() const;
 
-    void checkUpgradeableKits();
-    void populatePackagesAndTargets();
-
-    static bool kitsNeedQtVersion();
 private:
-    void deletePackagesAndTargets();
-
-signals:
-    void packagesChanged();
-};
+    const QVersionNumber m_qulVersion;
+    const Platform m_platform;
+    const OS m_os;
+    const QVector<McuAbstractPackage *> m_packages;
+    const McuToolChainPackage *m_toolChainPackage;
+    const int m_colorDepth;
+}; // class McuTarget
 
 
 } // namespace Internal

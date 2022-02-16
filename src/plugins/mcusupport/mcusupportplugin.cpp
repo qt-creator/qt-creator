@@ -28,6 +28,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
 #include "mcusupportoptions.h"
+#include "mcukitmanager.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
 
@@ -38,6 +39,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
@@ -52,6 +54,16 @@ using namespace ProjectExplorer;
 
 namespace McuSupport {
 namespace Internal {
+
+void printMessage(const QString &message, bool important)
+{
+    const QString displayMessage = QCoreApplication::translate("QtForMCUs", "Qt for MCUs: %1")
+                                       .arg(message);
+    if (important)
+        Core::MessageManager::writeFlashing(displayMessage);
+    else
+        Core::MessageManager::writeSilently(displayMessage);
+}
 
 class McuSupportPluginPrivate
 {

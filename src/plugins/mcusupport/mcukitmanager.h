@@ -27,23 +27,14 @@
 
 #include <utils/environmentfwd.h>
 #include "mcusupport_global.h"
-#include "mcukitmanager.h"
 
+#include <QCoreApplication>
 #include <QObject>
 #include <QVector>
 #include <QVersionNumber>
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
-
-namespace Utils {
-class FilePath;
-class PathChooser;
-class InfoLabel;
-} // namespace Utils
-
 namespace ProjectExplorer {
 class Kit;
-class ToolChain;
 } // namespace ProjectExplorer
 
 namespace McuSupport {
@@ -53,51 +44,43 @@ class McuAbstractPackage;
 class McuToolChainPackage;
 class McuTarget;
 
-class McuSdkRepository
+namespace McuKitManager
 {
-public:
-    QVector<McuAbstractPackage *> packages;
-    QVector<McuTarget *> mcuTargets;
+    enum class UpgradeOption {
+        Ignore,
+        Keep,
+        Replace
+    };
 
-    void deletePackagesAndTargets();
-};
+    // Creating kits:
+    ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuAbstractPackage *qtForMCUsSdk);
+    void createAutomaticKits();
 
-class McuSupportOptions : public QObject
-{
-    Q_OBJECT
+    // Querying the kits:
+    QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget);
+    QList<ProjectExplorer::Kit *> matchingKits(const McuTarget *mcuTarget,
+                                                      const McuAbstractPackage *qtForMCUsSdkPackage);
+    QList<ProjectExplorer::Kit *> upgradeableKits(
+        const McuTarget *mcuTarget, const McuAbstractPackage *qtForMCUsSdkPackage);
+    QList<ProjectExplorer::Kit *> kitsWithMismatchedDependencies(const McuTarget *mcuTarget);
 
-public:
-    explicit McuSupportOptions(QObject *parent = nullptr);
-    ~McuSupportOptions() override;
+    // Upgrading kits:
+    void upgradeKitsByCreatingNewPackage(UpgradeOption upgradeOption);
+    void upgradeKitInPlace(ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuAbstractPackage *qtForMCUsSdk);
 
-    McuAbstractPackage *qtForMCUsSdkPackage = nullptr;
-    McuSdkRepository sdkRepository;
+    // Fixing kits:
+    void fixKitsDependencies();
+    void fixExistingKits();
 
-    void setQulDir(const Utils::FilePath &dir);
-    static void setKitEnvironment(ProjectExplorer::Kit *,
-                                  const McuTarget *,
-                                  const McuAbstractPackage *);
-    static void updateKitEnvironment(ProjectExplorer::Kit *, const McuTarget *);
-    static void remapQul2xCmakeVars(ProjectExplorer::Kit *, const Utils::EnvironmentItems &);
-    static Utils::FilePath qulDirFromSettings();
-    static McuKitManager::UpgradeOption askForKitUpgrades();
+    // Outdated kits:
+    QList<ProjectExplorer::Kit *> outdatedKits();
+    void removeOutdatedKits();
 
-    static void registerQchFiles();
-    static void registerExamples();
+    // Querying kits:
+    QString kitName(const McuTarget* mcuTarget);
+    QVersionNumber kitQulVersion(const ProjectExplorer::Kit *kit);
+    bool kitIsUpToDate(const ProjectExplorer::Kit *kit, const McuTarget *mcuTarget, const McuAbstractPackage *qtForMCUsSdkPackage);
 
-    static const QVersionNumber &minimalQulVersion();
-
-    void checkUpgradeableKits();
-    void populatePackagesAndTargets();
-
-    static bool kitsNeedQtVersion();
-private:
-    void deletePackagesAndTargets();
-
-signals:
-    void packagesChanged();
-};
-
-
+} // namespace McuKitManager
 } // namespace Internal
 } // namespace McuSupport

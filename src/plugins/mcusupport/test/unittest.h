@@ -26,6 +26,7 @@
 #pragma once
 
 #include "mcupackage.h"
+#include "mcutarget.h"
 #include "mcusupportoptions.h"
 #include "mcusupportplugin.h"
 #include "mcusupportsdk.h"

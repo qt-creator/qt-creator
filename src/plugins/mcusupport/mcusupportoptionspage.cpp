@@ -25,9 +25,11 @@
 
 #include "mcusupportoptionspage.h"
 #include "mcupackage.h"
+#include "mcutarget.h"
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
+#include "mcukitmanager.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>

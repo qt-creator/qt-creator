@@ -31,6 +31,8 @@
 
 namespace McuSupport::Internal {
 
+void printMessage(const QString &message, bool important);
+
 class McuSupportPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT

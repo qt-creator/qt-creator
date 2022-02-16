@@ -25,10 +25,13 @@
 
 #include "mcusupportsdk.h"
 #include "mcupackage.h"
+#include "mcutarget.h"
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
+#include "mcukitmanager.h"
 #include "mcusupportversiondetection.h"
 #include "mcutargetdescription.h"
+#include "mcusupportplugin.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>

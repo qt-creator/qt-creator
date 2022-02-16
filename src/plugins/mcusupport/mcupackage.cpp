@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,6 +25,7 @@
 
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
+#include "mcusupportversiondetection.h"
 #include "mcusupportsdk.h"
 
 #include <coreplugin/icore.h>
@@ -313,5 +314,6 @@ bool McuToolChainPackage::isDesktopToolchain() const
 {
     return m_type == Type::MSVC || m_type == Type::GCC;
 }
+
 
 } // namespace McuSupport::Internal

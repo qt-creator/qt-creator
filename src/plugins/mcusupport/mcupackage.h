@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,10 +26,8 @@
 #pragma once
 
 #include "mcuabstractpackage.h"
-#include "mcusupportversiondetection.h"
 
 #include <utils/filepath.h>
-#include <utils/id.h>
 
 #include <QObject>
 
@@ -42,10 +40,13 @@ class ToolChain;
 namespace Utils {
 class PathChooser;
 class InfoLabel;
+class Id;
 } // namespace Utils
 
 namespace McuSupport {
 namespace Internal {
+
+class McuPackageVersionDetector;
 
 class McuPackage : public McuAbstractPackage
 {
