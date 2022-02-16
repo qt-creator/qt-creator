@@ -932,7 +932,7 @@ void LauncherSocket::handleSocketDisconnected()
 {
     QTC_ASSERT(isCalledFromLaunchersThread(), return);
     handleError(QCoreApplication::translate("Utils::LauncherSocket",
-                "Launcher socket closed unexpectedly"));
+                "Launcher socket closed unexpectedly."));
 }
 
 void LauncherSocket::handleError(const QString &error)

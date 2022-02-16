@@ -986,12 +986,12 @@ static bool askToKill(const QString &command)
 #ifdef QT_GUI_LIB
     if (QThread::currentThread() != QCoreApplication::instance()->thread())
         return true;
-    const QString title = QtcProcess::tr("Process not Responding");
+    const QString title = QtcProcess::tr("Process Not Responding");
     QString msg = command.isEmpty() ?
                 QtcProcess::tr("The process is not responding.") :
                 QtcProcess::tr("The process \"%1\" is not responding.").arg(command);
     msg += ' ';
-    msg += QtcProcess::tr("Would you like to terminate it?");
+    msg += QtcProcess::tr("Terminate the process?");
     // Restore the cursor that is set to wait while running.
     const bool hasOverrideCursor = QApplication::overrideCursor() != nullptr;
     if (hasOverrideCursor)
