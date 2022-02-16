@@ -31,6 +31,8 @@
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 
+#include <private/qqmldata_p.h>
+
 #include <QDialog>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -247,6 +249,17 @@ void FileDownloader::probeUrl()
     });
 
     QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        QQmlData *data = QQmlData::get(this, false);
+        if (!data) {
+            qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
+            return;
+        }
+
+        if (QQmlData::wasDeleted(this)) {
+            qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
+            return;
+        }
+
         if (reply->error())
             return;
 
@@ -261,8 +274,17 @@ void FileDownloader::probeUrl()
                            &QNetworkReply::errorOccurred,
                            this,
                            [this, reply](QNetworkReply::NetworkError code) {
-                               // QNetworkReply::HostNotFoundError
-                               // QNetworkReply::ContentNotFoundError
+                               QQmlData *data = QQmlData::get(this, false);
+                               if (!data) {
+                                   qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
+                                   return;
+                               }
+
+                               if (QQmlData::wasDeleted(this)) {
+                                   qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
+                                   return;
+                               }
+
                                m_available = false;
                                emit availableChanged();
                            });
