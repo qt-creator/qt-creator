@@ -64,6 +64,18 @@ QList<QmlDirParser::Import> filterMultipleEntries(QList<QmlDirParser::Import> im
     return imports;
 }
 
+QList<QmlDirParser::Import> joinImports(const QList<QmlDirParser::Import> &firstImports,
+                                        const QList<QmlDirParser::Import> &secondImports)
+{
+    QList<QmlDirParser::Import> imports;
+    imports.reserve(firstImports.size() + secondImports.size());
+    imports.append(firstImports);
+    imports.append(secondImports);
+    imports = filterMultipleEntries(std::move(imports));
+
+    return imports;
+}
+
 ComponentReferences createComponentReferences(const QMultiHash<QString, QmlDirParser::Component> &components)
 {
     ComponentReferences componentReferences;
@@ -291,8 +303,10 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
             {directory, "/", Utils::SmallString{typeInfo}});
         SourceId sourceId = m_pathCache.sourceId(SourcePathView{qmltypesPath});
 
-        addDependencies(package.moduleDependencies, sourceId, qmldirDependencies, m_projectStorage);
-        addDependencies(package.moduleDependencies, sourceId, qmldirImports, m_projectStorage);
+        addDependencies(package.moduleDependencies,
+                        sourceId,
+                        joinImports(qmldirDependencies, qmldirImports),
+                        m_projectStorage);
         package.updatedModuleDependencySourceIds.push_back(sourceId);
 
         auto projectData = package.projectDatas.emplace_back(qmldirSourceId,

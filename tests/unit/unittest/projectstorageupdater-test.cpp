@@ -1102,6 +1102,32 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirDependenciesWithDoubleEntries)
     updater.update(qmlDirs, {});
 }
 
+TEST_F(ProjectStorageUpdater, SynchronizeQmldirDependenciesWithCollidingImports)
+{
+    QString qmldir{R"(module Example
+                      depends  Qml
+                      depends  QML
+                      import Qml
+                      typeinfo example.qmltypes
+                      typeinfo types/example2.qmltypes
+                      )"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir")))).WillByDefault(Return(qmldir));
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::moduleDependencies,
+                  UnorderedElementsAre(
+                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
+                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
+                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId},
+                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId})),
+            Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
+                  UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
+
+    updater.update(qmlDirs, {});
+}
+
 TEST_F(ProjectStorageUpdater, SynchronizeQmldirWithNoDependencies)
 {
     QString qmldir{R"(module Example
