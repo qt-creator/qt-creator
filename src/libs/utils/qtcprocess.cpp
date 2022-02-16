@@ -480,14 +480,6 @@ public:
                 this, &QtcProcessPrivate::handleReadyReadStandardError);
     }
 
-    void ensureProcessInterfaceExists()
-    {
-        if (m_process)
-            return;
-
-        setProcessInterface(createProcessInterface());
-    }
-
     void handleReadyReadStandardOutput()
     {
         m_stdOut.append(m_process->readAllStandardOutput());
@@ -767,12 +759,14 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
+    QTC_ASSERT(state() == QProcess::NotRunning, return);
+
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
         s_deviceHooks.startProcessHook(*this);
         return;
     }
-    d->ensureProcessInterfaceExists();
+    setProcessInterface(d->createProcessInterface());
     d->clearForRun();
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->m_process->m_setup.m_environment = d->fullEnvironment();
