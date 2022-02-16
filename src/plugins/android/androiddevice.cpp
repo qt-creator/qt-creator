@@ -639,7 +639,8 @@ void AndroidDeviceManager::HandleAvdsListChange()
             // of the device has changed, remove it and register it again with the new name.
             // Also account for the case of an AVD registered through old QC which might have
             // invalid data by checking the sdcard size value.
-            if (dev->displayName() != displayName || androidDev->sdcardSize() == tr("Unknown")) {
+            if (dev->displayName() != displayName
+                || androidDev->sdcardSize() == AndroidDevice::tr("Unknown")) {
                 devMgr->removeDevice(dev->id());
             } else {
                 // Find the state of the AVD retrieved from the AVD watcher

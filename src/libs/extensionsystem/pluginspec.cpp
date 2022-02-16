@@ -723,8 +723,10 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     }
 
     value = pluginMetaData.value(QLatin1String(PLUGIN_METADATA));
-    if (!value.isObject())
-        return reportError(tr("Plugin meta data not found"));
+    if (!value.isObject()) {
+        return reportError(
+            ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Plugin meta data not found"));
+    }
     metaData = value.toObject();
 
     value = metaData.value(QLatin1String(PLUGIN_NAME));
@@ -806,9 +808,11 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     const QString platformSpec = value.toString().trimmed();
     if (!platformSpec.isEmpty()) {
         platformSpecification.setPattern(platformSpec);
-        if (!platformSpecification.isValid())
-            return reportError(tr("Invalid platform specification \"%1\": %2")
-                               .arg(platformSpec, platformSpecification.errorString()));
+        if (!platformSpecification.isValid()) {
+            return reportError(::ExtensionSystem::Internal::PluginSpecPrivate::tr(
+                                   "Invalid platform specification \"%1\": %2")
+                                   .arg(platformSpec, platformSpecification.errorString()));
+        }
     }
 
     value = metaData.value(QLatin1String(DEPENDENCIES));
@@ -822,22 +826,36 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
             QJsonObject dependencyObject = v.toObject();
             PluginDependency dep;
             value = dependencyObject.value(QLatin1String(DEPENDENCY_NAME));
-            if (value.isUndefined())
-                return reportError(tr("Dependency: %1").arg(msgValueMissing(DEPENDENCY_NAME)));
-            if (!value.isString())
-                return reportError(tr("Dependency: %1").arg(msgValueIsNotAString(DEPENDENCY_NAME)));
+            if (value.isUndefined()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                        .arg(msgValueMissing(DEPENDENCY_NAME)));
+            }
+            if (!value.isString()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                        .arg(msgValueIsNotAString(DEPENDENCY_NAME)));
+            }
             dep.name = value.toString();
             value = dependencyObject.value(QLatin1String(DEPENDENCY_VERSION));
-            if (!value.isUndefined() && !value.isString())
-                return reportError(tr("Dependency: %1").arg(msgValueIsNotAString(DEPENDENCY_VERSION)));
+            if (!value.isUndefined() && !value.isString()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                        .arg(msgValueIsNotAString(DEPENDENCY_VERSION)));
+            }
             dep.version = value.toString();
-            if (!isValidVersion(dep.version))
-                return reportError(tr("Dependency: %1").arg(msgInvalidFormat(DEPENDENCY_VERSION,
-                                                                             dep.version)));
+            if (!isValidVersion(dep.version)) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                        .arg(msgInvalidFormat(DEPENDENCY_VERSION, dep.version)));
+            }
             dep.type = PluginDependency::Required;
             value = dependencyObject.value(QLatin1String(DEPENDENCY_TYPE));
-            if (!value.isUndefined() && !value.isString())
-                return reportError(tr("Dependency: %1").arg(msgValueIsNotAString(DEPENDENCY_TYPE)));
+            if (!value.isUndefined() && !value.isString()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                        .arg(msgValueIsNotAString(DEPENDENCY_TYPE)));
+            }
             if (!value.isUndefined()) {
                 const QString typeValue = value.toString();
                 if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_HARD)) {
@@ -847,11 +865,13 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
                 } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_TEST)) {
                     dep.type = PluginDependency::Test;
                 } else {
-                    return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\").")
-                                       .arg(QLatin1String(DEPENDENCY_TYPE),
-                                            QLatin1String(DEPENDENCY_TYPE_HARD),
-                                            QLatin1String(DEPENDENCY_TYPE_SOFT),
-                                            typeValue));
+                    return reportError(
+                        ::ExtensionSystem::Internal::PluginSpecPrivate::tr(
+                            "Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\").")
+                            .arg(QLatin1String(DEPENDENCY_TYPE),
+                                 QLatin1String(DEPENDENCY_TYPE_HARD),
+                                 QLatin1String(DEPENDENCY_TYPE_SOFT),
+                                 typeValue));
                 }
             }
             dependencies.append(dep);
@@ -869,20 +889,35 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
             QJsonObject argumentObject = v.toObject();
             PluginArgumentDescription arg;
             value = argumentObject.value(QLatin1String(ARGUMENT_NAME));
-            if (value.isUndefined())
-                return reportError(tr("Argument: %1").arg(msgValueMissing(ARGUMENT_NAME)));
-            if (!value.isString())
-                return reportError(tr("Argument: %1").arg(msgValueIsNotAString(ARGUMENT_NAME)));
+            if (value.isUndefined()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                        .arg(msgValueMissing(ARGUMENT_NAME)));
+            }
+            if (!value.isString()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                        .arg(msgValueIsNotAString(ARGUMENT_NAME)));
+            }
             arg.name = value.toString();
-            if (arg.name.isEmpty())
-                return reportError(tr("Argument: \"%1\" is empty").arg(QLatin1String(ARGUMENT_NAME)));
+            if (arg.name.isEmpty()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: \"%1\" is empty")
+                        .arg(QLatin1String(ARGUMENT_NAME)));
+            }
             value = argumentObject.value(QLatin1String(ARGUMENT_DESCRIPTION));
-            if (!value.isUndefined() && !value.isString())
-                return reportError(tr("Argument: %1").arg(msgValueIsNotAString(ARGUMENT_DESCRIPTION)));
+            if (!value.isUndefined() && !value.isString()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                        .arg(msgValueIsNotAString(ARGUMENT_DESCRIPTION)));
+            }
             arg.description = value.toString();
             value = argumentObject.value(QLatin1String(ARGUMENT_PARAMETER));
-            if (!value.isUndefined() && !value.isString())
-                return reportError(tr("Argument: %1").arg(msgValueIsNotAString(ARGUMENT_PARAMETER)));
+            if (!value.isUndefined() && !value.isString()) {
+                return reportError(
+                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                        .arg(msgValueIsNotAString(ARGUMENT_PARAMETER)));
+            }
             arg.parameter = value.toString();
             argumentDescriptions.append(arg);
             qCDebug(pluginLog) << "Argument:" << arg.name << "Parameter:" << arg.parameter

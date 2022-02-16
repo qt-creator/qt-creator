@@ -4021,7 +4021,7 @@ class MemoryTreeModel : public Utils::BaseTreeModel
 public:
     MemoryTreeModel(QObject *parent) : BaseTreeModel(parent)
     {
-        setHeader({tr("Component"), tr("Total Memory")});
+        setHeader({MemoryUsageWidget::tr("Component"), MemoryUsageWidget::tr("Total Memory")});
     }
 
     void update(const MemoryTree &tree)

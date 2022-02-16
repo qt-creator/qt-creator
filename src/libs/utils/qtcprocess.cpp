@@ -638,7 +638,7 @@ public:
             start(commandString, QStringList(), workingDirectory, m_writeData);
         } else {
             if (!success) {
-                q->setErrorString(tr("Error in command line."));
+                q->setErrorString(QtcProcess::tr("Error in command line."));
                 // Should be FailedToStart, but we cannot set the process error from the outside,
                 // so it would be inconsistent.
                 emit q->errorOccurred(QProcess::UnknownError);

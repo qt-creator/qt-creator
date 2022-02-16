@@ -38,6 +38,8 @@ namespace Internal {
 
 class StudioSettingsPage : public Core::IOptionsPageWidget
 {
+    Q_OBJECT
+
 public:
     void apply() final;
 
