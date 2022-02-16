@@ -257,9 +257,9 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     designerActionManager().addDesignerAction(startNanotraceAction);
 
     auto shutDownNanotraceAction = new ModelNodeAction("ShutDown Nanotrace",
-                      QObject::tr("ShutDown Nanotrace"),
+                      QObject::tr("Shut Down Nanotrace"),
                       shutdownNanotraceIcon(),
-                      QObject::tr("ShutDown Nanotrace"),
+                      QObject::tr("Shut Down Nanotrace"),
                       ComponentCoreConstants::eventListCategory,
                       QKeySequence(),
                       220,

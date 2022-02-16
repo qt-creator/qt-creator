@@ -129,7 +129,7 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
                                 .arg(exportAssets? tr("Yes") : tr("No")));
 
     if (m_perComponentExport)
-        ExportNotification::addInfo(tr("Each component is exported separately"));
+        ExportNotification::addInfo(tr("Each component is exported separately."));
 
     notifyProgress(0.0);
     m_exportFiles = qmlFiles;
@@ -394,7 +394,7 @@ void AssetExporter::writeMetadata() const
 {
     if (m_cancelled) {
         notifyProgress(1.0);
-        ExportNotification::addInfo(tr("Export cancelled."));
+        ExportNotification::addInfo(tr("Export canceled."));
         m_currentState.change(ParsingState::ExportingDone);
         return;
     }

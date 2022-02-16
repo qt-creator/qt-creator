@@ -768,7 +768,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                             "NavigatorTreeModel",
                             "Inserting materials under imported 3D component nodes is not supported. "
                             "Materials used in imported 3D components have to be modified inside the component itself.\n\n"
-                            "Would you like to go into component '%1'?")
+                            "Would you like to go into component \"%1\"?")
                         .arg(targetProperty.parentModelNode().id()),
                         QMessageBox::Yes | QMessageBox::No,
                         QMessageBox::No);

@@ -41,7 +41,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Active")
-                tooltip: qsTr("This property is true if the Loader is currently active.")
+                tooltip: qsTr("Whether the loader is currently active.")
             }
 
             SecondColumnLayout {
@@ -57,7 +57,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Source")
-                tooltip: qsTr("This property holds the URL of the QML component to instantiate.")
+                tooltip: qsTr("URL of the component to instantiate.")
             }
 
             SecondColumnLayout {
@@ -70,8 +70,8 @@ Column {
             }
 
             PropertyLabel {
-                text: qsTr("Source Component")
-                tooltip: qsTr("This property holds the component to instantiate.")
+                text: qsTr("Source component")
+                tooltip: qsTr("Component to instantiate.")
             }
 
             SecondColumnLayout {
@@ -88,7 +88,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Asynchronous")
-                tooltip: qsTr("This property holds whether the component will be instantiated asynchronously.")
+                tooltip: qsTr("Whether the component will be instantiated asynchronously.")
             }
 
             SecondColumnLayout {

@@ -301,7 +301,7 @@ ModelNode TransitionEditorView::addNewTransition()
         if (!properties.isEmpty())
             properties.chop(2);
         Core::AsynchronousMessageBox::warning(
-            tr("No properties to animate found."),
+            tr("No Property Changes to Animate"),
             tr("To add transitions, first change the properties that you want to animate in states (%1).")
                 .arg(properties));
     }

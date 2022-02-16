@@ -59,8 +59,8 @@ Section {
 
         PropertyLabel {
             visible: root.showAudioOutput
-            text: qsTr("Audio Output")
-            tooltip: qsTr("Holds the target audio output.")
+            text: qsTr("Audio output")
+            tooltip: qsTr("Target audio output.")
         }
 
         SecondColumnLayout {
@@ -80,8 +80,8 @@ Section {
 
         PropertyLabel {
             visible: root.showVideoOutput
-            text: qsTr("Video Output")
-            tooltip: qsTr("Holds the target video output.")
+            text: qsTr("Video output")
+            tooltip: qsTr("Target video output.")
         }
 
         SecondColumnLayout {
