@@ -47,11 +47,8 @@
 
 using namespace Utils;
 
-ExampleCheckout::ExampleCheckout(QObject *) {}
-
 void ExampleCheckout::registerTypes()
 {
-    FileDownloader::registerQmlType();
     static bool once = []() {
         FileDownloader::registerQmlType();
         FileExtractor::registerQmlType();
@@ -59,69 +56,6 @@ void ExampleCheckout::registerTypes()
     }();
 
     QTC_ASSERT(once, ;);
-}
-
-void ExampleCheckout::checkoutExample(const QUrl &url, const QString &tempFile, const QString &completeBaseFileName)
-{
-    registerTypes();
-
-    m_dialog.reset(new QDialog(Core::ICore::dialogParent()));
-    m_dialog->setModal(true);
-    m_dialog->setFixedSize(620, 300);
-    QHBoxLayout *layout = new QHBoxLayout(m_dialog.get());
-    layout->setContentsMargins(2, 2, 2, 2);
-
-    auto widget = new QQuickWidget(m_dialog.get());
-
-    layout->addWidget(widget);
-    widget->engine()->addImportPath("qrc:/studiofonts");
-
-    widget->engine()->addImportPath(
-        Core::ICore::resourcePath("/qmldesigner/propertyEditorQmlSources/imports").toString());
-
-    widget->setSource(QUrl("qrc:/qml/downloaddialog/main.qml"));
-
-    m_dialog->setWindowFlag(Qt::Tool, true);
-    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-    rootObject = widget->rootObject();
-
-    QTC_ASSERT(rootObject, qWarning() << "QML error"; return );
-
-    rootObject->setProperty("url", url);
-    rootObject->setProperty("tempFile", tempFile);
-    rootObject->setProperty("completeBaseName", completeBaseFileName);
-
-    m_dialog->show();
-
-    rootObject = widget->rootObject();
-
-    connect(rootObject, SIGNAL(canceled()), this, SLOT(handleCancel()));
-    connect(rootObject, SIGNAL(accepted()), this, SLOT(handleAccepted()));
-}
-
-QString ExampleCheckout::extractionFolder() const
-{
-    return m_extrationFolder;
-}
-
-ExampleCheckout::~ExampleCheckout() {}
-
-void ExampleCheckout::handleCancel()
-{
-    m_dialog->close();
-    m_dialog.release()->deleteLater();
-    deleteLater();
-}
-
-void ExampleCheckout::handleAccepted()
-{
-    QQmlProperty property(rootObject, "path");
-    m_extrationFolder = property.read().toString();
-    m_dialog->close();
-    emit finishedSucessfully();
-    m_dialog.release()->deleteLater();
-    deleteLater();
 }
 
 void FileDownloader::registerQmlType()

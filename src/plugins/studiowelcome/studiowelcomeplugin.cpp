@@ -271,31 +271,6 @@ public:
                                  const QString &tempFile,
                                  const QString &completeBaseName)
     {
-        if (!url.isEmpty()) {
-            ExampleCheckout *checkout = new ExampleCheckout;
-            checkout->checkoutExample(QUrl::fromUserInput(url), tempFile, completeBaseName);
-            connect(checkout,
-                    &ExampleCheckout::finishedSucessfully,
-                    this,
-                    [checkout, formFile, example, explicitQmlproject]() {
-                        const QString exampleFolder = checkout->extractionFolder() + "/" + example
-                                                      + "/";
-
-                        QString projectFile = exampleFolder + example + ".qmlproject";
-
-                        if (!explicitQmlproject.isEmpty())
-                            projectFile = exampleFolder + explicitQmlproject;
-
-                        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-
-                        const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/"
-                                                + formFile;
-
-                        Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
-                    });
-            return;
-        }
-
         const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
                                             / example / example + ".qmlproject";
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile.toString());
