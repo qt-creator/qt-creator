@@ -585,7 +585,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBl
     const QByteArray buffer = m_doc->toPlainText().toUtf8();
 
     ReplacementsToKeep replacementsToKeep = ReplacementsToKeep::OnlyIndent;
-    if (formatWhileTyping()
+    if (formatCodeInsteadOfIndent()
         && (cursorPositionInEditor == -1 || cursorPositionInEditor >= startBlockPosition)
         && (typedChar == ';' || typedChar == '}')) {
         // Format before current position only in case the cursor is inside the indented block.

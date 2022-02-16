@@ -60,7 +60,6 @@ private:
     void onTableChanged();
 
     bool eventFilter(QObject *object, QEvent *event) override;
-    void showEvent(QShowEvent *event) override;
 
     void showOrHideWidgets();
     void initChecksAndPreview();
@@ -69,8 +68,7 @@ private:
     void fillTable();
     void saveChanges(QObject *sender);
 
-    void hideGlobalCheckboxes();
-    void showGlobalCheckboxes();
+    void showCombobox();
     void updatePreview();
 
     ProjectExplorer::Project *m_project;
