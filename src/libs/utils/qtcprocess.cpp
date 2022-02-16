@@ -69,6 +69,8 @@ using namespace Utils::Internal;
 namespace Utils {
 namespace Internal {
 
+const char QTC_PROCESS_BLOCKING_TYPE[] = "__BLOCKING_TYPE__";
+
 class MeasureAndRun
 {
 public:
@@ -568,8 +570,24 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
 
 } // Internal
 
+static QString blockingMessage(const QVariant &variant)
+{
+    if (!variant.isValid())
+        return "(non blocking):";
+    if (variant.toInt() == int(QtcProcess::WithEventLoop))
+        return "(blocking with event loop):";
+    return "(blocking without event loop):";
+}
+
 void ProcessInterface::defaultStart()
 {
+    if (processLog().isDebugEnabled()) {
+        static std::atomic_int n = 0;
+        qCDebug(processLog) << "Starting process no." << ++n
+                            << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
+                            << m_setup.m_commandLine.toUserOutput();
+    }
+
     QString program;
     QStringList arguments;
     if (!dissolveCommand(&program, &arguments))
@@ -582,11 +600,6 @@ void ProcessInterface::defaultStart()
 bool ProcessInterface::dissolveCommand(QString *program, QStringList *arguments)
 {
     const CommandLine &commandLine = m_setup.m_commandLine;
-    if (processLog().isDebugEnabled()) {
-        static std::atomic_int n = 0;
-        qCDebug(processLog) << "STARTING PROCESS: " << ++n << "  " << commandLine.toUserOutput();
-    }
-
     QString commandString;
     ProcessArgs processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
@@ -772,6 +785,10 @@ void QtcProcess::start()
     d->clearForRun();
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->m_process->m_setup.m_environment = d->fullEnvironment();
+    if (processLog().isDebugEnabled()) {
+        // Pass a dynamic property with info about blocking type
+        d->m_process->setProperty(QTC_PROCESS_BLOCKING_TYPE, property(QTC_PROCESS_BLOCKING_TYPE));
+    }
     d->m_process->start();
 }
 
@@ -1482,11 +1499,18 @@ void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
         return;
     };
 
-    qCDebug(processLog).noquote() << "Starting blocking:" << d->m_setup.m_commandLine.toUserOutput()
-        << " process user events: " << (eventLoopMode == QtcProcess::WithEventLoop);
+    if (processLog().isDebugEnabled()) {
+        // Attach a dynamic property with info about blocking type
+        setProperty(QTC_PROCESS_BLOCKING_TYPE, int(eventLoopMode));
+    }
+
     ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     QtcProcess::start();
+    if (processLog().isDebugEnabled()) {
+        // Remove the dynamic property so that it's not reused in subseqent start()
+        setProperty(QTC_PROCESS_BLOCKING_TYPE, QVariant());
+    }
     if (eventLoopMode == QtcProcess::WithEventLoop) {
         // On Windows, start failure is triggered immediately if the
         // executable cannot be found in the path. Do not start the
