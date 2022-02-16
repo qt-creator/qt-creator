@@ -26,11 +26,35 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QTimer>
 
+QT_FORWARD_DECLARE_CLASS(QCheckBox)
+
 namespace StudioWelcome {
 namespace Internal {
+
+class StudioSettingsPage : public Core::IOptionsPageWidget
+{
+public:
+    void apply() final;
+
+    StudioSettingsPage();
+
+private:
+    QCheckBox *m_buildCheckBox;
+    QCheckBox *m_debugCheckBox;
+    QCheckBox *m_analyzeCheckBox;
+};
+
+class StudioWelcomeSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    StudioWelcomeSettingsPage();
+};
 
 class StudioWelcomePlugin final : public ExtensionSystem::IPlugin
 {
@@ -55,6 +79,7 @@ public:
 private:
     class WelcomeMode *m_welcomeMode = nullptr;
     QTimer m_removeSplashTimer;
+    StudioWelcomeSettingsPage m_settingsPage;
     int m_removeSplashRemainingTime = 0;
 };
 

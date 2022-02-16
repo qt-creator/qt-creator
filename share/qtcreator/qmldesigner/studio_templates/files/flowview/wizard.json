@@ -7,7 +7,6 @@
     "trDisplayName": "Flow View",
     "trDisplayCategory": "Qt Quick Files",
     "icon": "flow_view.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

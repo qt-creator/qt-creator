@@ -34,7 +34,6 @@ const char ACTION_ID[] = "Docker.Action";
 const char MENU_ID[] = "Docker.Menu";
 
 const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
-const char DOCKER_RUN_FLAGS[] = "DockerRunFlags";
 
 const char DOCKER_BUILDHOST_BUILDSTEP_ID[] = "Docker.BuildStep.BuildHost";
 

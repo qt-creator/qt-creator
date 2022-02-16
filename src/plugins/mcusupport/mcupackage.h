@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "mcuabstractpackage.h"
 #include "mcusupportversiondetection.h"
 
 #include <utils/filepath.h>
@@ -46,19 +47,11 @@ class InfoLabel;
 namespace McuSupport {
 namespace Internal {
 
-class McuPackage : public QObject
+class McuPackage : public McuAbstractPackage
 {
     Q_OBJECT
 
 public:
-    enum Status {
-        EmptyPath,
-        InvalidPath,
-        ValidPathInvalidPackage,
-        ValidPackageMismatchedVersion,
-        ValidPackage
-    };
-
     McuPackage(const QString &label,
                const Utils::FilePath &defaultPath,
                const QString &detectionPath,
@@ -66,31 +59,32 @@ public:
                const QString &envVarName = {},
                const QString &downloadUrl = {},
                const McuPackageVersionDetector *versionDetector = nullptr);
-    virtual ~McuPackage() = default;
+    ~McuPackage() override = default;
 
-    Utils::FilePath basePath() const;
-    Utils::FilePath path() const;
-    QString label() const;
-    Utils::FilePath defaultPath() const;
-    QString detectionPath() const;
-    QString statusText() const;
-    void updateStatus();
+    Utils::FilePath basePath() const override;
+    Utils::FilePath path() const override;
+    QString label() const override;
+    Utils::FilePath defaultPath() const override;
+    QString detectionPath() const override;
+    QString statusText() const override;
+    void updateStatus() override;
 
-    Status status() const;
-    bool validStatus() const;
-    void setAddToPath(bool addToPath);
-    bool addToPath() const;
-    void writeGeneralSettings() const;
-    bool writeToSettings() const;
-    void setRelativePathModifier(const QString &path);
-    void setVersions(const QStringList &versions);
+    Status status() const override;
+    bool validStatus() const override;
+    void setAddToPath(bool addToPath) override;
+    bool addToPath() const override;
+    void writeGeneralSettings() const override;
+    bool writeToSettings() const override;
+    void setRelativePathModifier(const QString &path) override;
+    void setVersions(const QStringList &versions) override;
 
-    bool automaticKitCreationEnabled() const;
-    void setAutomaticKitCreationEnabled(const bool enabled);
+    //TODO(piotr.mucko): Why every package knows about automatic kit creation. This should be outside of this class.
+    bool automaticKitCreationEnabled() const override;
+    void setAutomaticKitCreationEnabled(const bool enabled) override;
 
-    QWidget *widget();
+    QWidget *widget() override;
 
-    const QString &environmentVariableName() const;
+    const QString &environmentVariableName() const override;
 
 signals:
     void changed();
@@ -119,7 +113,7 @@ private:
     bool m_addToPath = false;
     bool m_automaticKitCreation = true;
 
-    Status m_status = InvalidPath;
+    Status m_status = Status::InvalidPath;
 };
 
 class McuToolChainPackage : public McuPackage

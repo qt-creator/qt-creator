@@ -7,7 +7,6 @@
     "trDisplayName": "Custom Switch",
     "trDisplayCategory": "Qt Quick Controls",
     "icon": "custom_switch.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

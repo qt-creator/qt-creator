@@ -428,6 +428,13 @@ static QIcon interruptIcon(bool toolBarStyle)
     return toolBarStyle ? iconToolBar : icon;
 }
 
+static bool hideAnalyzeMenu()
+{
+    return Core::ICore::settings()
+        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE, false)
+        .toBool();
+}
+
 QAction *addAction(const QObject *parent, QMenu *menu, const QString &display, bool on,
                    const std::function<void()> &onTriggered)
 {
@@ -775,7 +782,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     ActionContainer *menubar = ActionManager::actionContainer(MENU_BAR);
     ActionContainer *mtools = ActionManager::actionContainer(M_TOOLS);
-    menubar->addMenu(mtools, m_menu);
+    if (!hideAnalyzeMenu())
+        menubar->addMenu(mtools, m_menu);
 
     m_menu->addSeparator(G_ANALYZER_TOOLS);
     m_menu->addSeparator(G_ANALYZER_REMOTE_TOOLS);

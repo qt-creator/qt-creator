@@ -7,7 +7,6 @@
     "trDisplayName": "Pane",
     "trDisplayCategory": "Qt Quick Controls",
     "icon": "custom_panes.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

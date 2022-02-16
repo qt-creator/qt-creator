@@ -542,11 +542,8 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
 
 void LanguageClientManager::documentClosed(Core::IDocument *document)
 {
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        for (Client *client : qAsConst(m_clients))
-            client->closeDocument(textDocument);
+    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
         m_clientForDocument.remove(textDocument);
-    }
 }
 
 void LanguageClientManager::documentContentsSaved(Core::IDocument *document)

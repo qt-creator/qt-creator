@@ -763,13 +763,18 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST" "TIMEOUT" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH" ${ARGN})
+  cmake_parse_arguments(_arg "GTEST;MANUALTEST" "TIMEOUT"
+      "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
   endif()
 
   update_cached_list(__QTC_TESTS "${name}")
+
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
 
   string(TOUPPER "BUILD_TEST_${name}" _build_test_var)
   set(_build_test_default ${BUILD_TESTS_BY_DEFAULT})
@@ -778,7 +783,7 @@ function(add_qtc_test name)
   endif()
   set(${_build_test_var} "${_build_test_default}" CACHE BOOL "Build test ${name}.")
 
-  if (NOT ${_build_test_var})
+  if (NOT ${_build_test_var} OR NOT ${_arg_CONDITION})
     return()
   endif()
 
@@ -820,7 +825,7 @@ function(add_qtc_test name)
     enable_pch(${name})
   endif()
 
-  if (NOT _arg_GTEST)
+  if (NOT _arg_GTEST AND NOT _arg_MANUALTEST)
     add_test(NAME ${name} COMMAND ${name})
     if (DEFINED _arg_TIMEOUT)
       set(timeout_option TIMEOUT ${_arg_TIMEOUT})

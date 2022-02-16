@@ -500,6 +500,26 @@ int main(int argc, char **argv)
         qputenv("QT_ENABLE_REGEXP_JIT", "0");
     }
 
+#if defined(QTC_FORCE_XCB)
+    if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("QT_QPA_PLATFORM")) {
+        // Enforce XCB on Linux/Gnome, if the user didn't override via QT_QPA_PLATFORM
+        // This was previously done in Qt, but removed in Qt 6.3. We found that bad things can still happen,
+        // like the Wayland session simply crashing when starting Qt Creator.
+        // TODO: Reconsider when Qt/Wayland is reliably working on the supported distributions
+        const bool hasWaylandDisplay = qEnvironmentVariableIsSet("WAYLAND_DISPLAY");
+        const bool isWaylandSessionType = qgetenv("XDG_SESSION_TYPE") == "wayland";
+        const QByteArray currentDesktop = qgetenv("XDG_CURRENT_DESKTOP").toLower();
+        const QByteArray sessionDesktop = qgetenv("XDG_SESSION_DESKTOP").toLower();
+        const bool isGnome = currentDesktop.contains("gnome") || sessionDesktop.contains("gnome");
+        const bool isWayland = hasWaylandDisplay || isWaylandSessionType;
+        if (isGnome && isWayland) {
+            qInfo() << "Warning: Ignoring WAYLAND_DISPLAY on Gnome."
+                    << "Use QT_QPA_PLATFORM=wayland to run on Wayland anyway.";
+            qputenv("QT_QPA_PLATFORM", "xcb");
+        }
+    }
+#endif
+
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 
 #ifdef Q_OS_MACOS

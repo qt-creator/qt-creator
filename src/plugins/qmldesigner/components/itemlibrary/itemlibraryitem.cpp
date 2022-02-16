@@ -68,6 +68,11 @@ QString ItemLibraryItem::requiredImport() const
     return m_itemLibraryEntry.requiredImport();
 }
 
+QString ItemLibraryItem::componentSource() const
+{
+    return m_itemLibraryEntry.customComponentSource();
+}
+
 bool ItemLibraryItem::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {

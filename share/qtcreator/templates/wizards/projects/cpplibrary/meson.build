@@ -1,8 +1,8 @@
 project('%{ProjectName}', 'cpp',
 @if %{IsStatic}
-        default_options : ['cpp_std=c++11', 'default_library=static'],
+        default_options : ['cpp_std=c++17', 'default_library=static'],
 @else
-        default_options : ['cpp_std=c++11', 'default_library=shared'],
+        default_options : ['cpp_std=c++17', 'default_library=shared'],
 @endif
         meson_version:'>=0.48')
 

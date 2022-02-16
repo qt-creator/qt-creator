@@ -76,8 +76,9 @@ itemLibraryModel [
 Item {
     id: itemsView
 
-    property string importToRemove: ""
-    property string importToAdd: ""
+    property string importToRemove
+    property string importToAdd
+    property string componentSource
     property var currentCategory: null
     property var currentImport: null
     property bool isHorizontalView: false
@@ -123,7 +124,7 @@ Item {
                 text: qsTr("Remove Module")
                 visible: itemsView.currentCategory === null
                 height: visible ? implicitHeight : 0
-                enabled: itemsView.importToRemove !== "" && !rootView.subCompEditMode
+                enabled: itemsView.importToRemove && !rootView.subCompEditMode
                 onTriggered: rootView.removeImport(itemsView.importToRemove)
             }
 
@@ -184,13 +185,22 @@ Item {
         StudioControls.Menu {
             id: itemContextMenu
             // Workaround for menu item implicit width not properly propagating to menu
-            width: importMenuItem.implicitWidth
+            width: Math.max(importMenuItem.implicitWidth, openSourceItem.implicitWidth)
 
             StudioControls.MenuItem {
                 id: importMenuItem
                 text: qsTr("Add Module: ") + itemsView.importToAdd
-                enabled: itemsView.importToAdd !== ""
+                visible: itemsView.importToAdd
+                height: visible ? implicitHeight : 0
                 onTriggered: rootView.addImportForItem(itemsView.importToAdd)
+            }
+
+            StudioControls.MenuItem {
+                id: openSourceItem
+                text: qsTr("Go into Component")
+                visible: itemsView.componentSource
+                height: visible ? implicitHeight : 0
+                onTriggered: rootView.goIntoComponent(itemsView.componentSource)
             }
         }
     }
@@ -323,8 +333,9 @@ Item {
                                                 width: styleConstants.cellWidth
                                                 height: styleConstants.cellHeight
                                                 onShowContextMenu: {
-                                                    if (!itemUsable) {
-                                                        itemsView.importToAdd = itemRequiredImport
+                                                    if (!itemUsable || itemComponentSource) {
+                                                        itemsView.importToAdd = !itemUsable ? itemRequiredImport : ""
+                                                        itemsView.componentSource = itemComponentSource
                                                         itemContextMenu.popup()
                                                     }
                                                 }
@@ -480,8 +491,9 @@ Item {
                             width: styleConstants.cellWidth
                             height: styleConstants.cellHeight
                             onShowContextMenu: {
-                                if (!itemUsable) {
-                                    itemsView.importToAdd = itemRequiredImport
+                                if (!itemUsable || itemComponentSource) {
+                                    itemsView.importToAdd = !itemUsable ? itemRequiredImport : ""
+                                    itemsView.componentSource = itemComponentSource
                                     itemContextMenu.popup()
                                 }
                             }

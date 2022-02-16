@@ -166,8 +166,8 @@ MsvcParser::Result MsvcParser::processCompileLine(const QString &line)
         QPair<FilePath, int> position = parseFileName(match.captured(1));
         const FilePath filePath = absoluteFilePath(position.first);
         LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, position.second, match, 1);
         if (!m_lastTask.isNull() && line.contains("note: ")) {
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, position.second, match, 1);
             const int offset = std::accumulate(m_lastTask.details.cbegin(),
                     m_lastTask.details.cend(), 0,
                     [](int total, const QString &line) { return total + line.length() + 1;});
@@ -181,6 +181,7 @@ MsvcParser::Result MsvcParser::processCompileLine(const QString &line)
             m_lastTask = CompileTask(taskType(match.captured(2)),
                                      match.captured(3) + match.captured(4).trimmed(), // description
                                      filePath, position.second);
+            m_linkSpecs << linkSpecs;
             m_lines = 1;
         }
         return {Status::InProgress, linkSpecs};

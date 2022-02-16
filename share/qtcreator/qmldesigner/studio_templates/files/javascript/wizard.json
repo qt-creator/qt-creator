@@ -7,7 +7,6 @@
     "trDisplayName": "Java Script File",
     "trDisplayCategory": "Java Script",
     "icon": "file_javascript.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
 

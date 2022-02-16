@@ -179,7 +179,6 @@ ClangdTestFindReferences::ClangdTestFindReferences()
 {
     setProjectFileName("find-usages.pro");
     setSourceFileNames({"defs.h", "main.cpp"});
-    setMinimumVersion(13);
 }
 
 void ClangdTestFindReferences::initTestCase()
@@ -322,7 +321,6 @@ ClangdTestFollowSymbol::ClangdTestFollowSymbol()
 {
     setProjectFileName("follow-symbol.pro");
     setSourceFileNames({"main.cpp", "header.h"});
-    setMinimumVersion(12);
 }
 
 void ClangdTestFollowSymbol::test_data()
@@ -409,7 +407,6 @@ ClangdTestLocalReferences::ClangdTestLocalReferences()
 {
     setProjectFileName("local-references.pro");
     setSourceFileNames({"references.cpp"});
-    setMinimumVersion(13);
 }
 
 // We currently only support local variables, but if and when clangd implements
@@ -525,7 +522,6 @@ ClangdTestTooltips::ClangdTestTooltips()
 {
     setProjectFileName("tooltips.pro");
     setSourceFileNames({"tooltips.cpp"});
-    setMinimumVersion(13);
 }
 
 void ClangdTestTooltips::test_data()
@@ -668,7 +664,6 @@ ClangdTestHighlighting::ClangdTestHighlighting()
 {
     setProjectFileName("highlighting.pro");
     setSourceFileNames({"highlighting.cpp"});
-    setMinimumVersion(13);
 }
 
 void ClangdTestHighlighting::initTestCase()
@@ -744,11 +739,11 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("static member function call") << 114 << 15 << 114 << 27
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("enum declaration") << 118 << 6 << 118 << 17
-        << QList<int>{C_TYPE, C_ENUMERATION, C_DECLARATION} << 0;
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("enumerator declaration") << 120 << 5 << 120 << 15
         << QList<int>{C_ENUMERATION, C_DECLARATION} << 0;
     QTest::newRow("enum in variable declaration") << 125 << 5 << 125 << 16
-        << QList<int>{C_TYPE, C_ENUMERATION} << 0;
+        << QList<int>{C_TYPE} << 0;
     QTest::newRow("enum variable declaration") << 125 << 17 << 125 << 28
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("enum variable reference") << 127 << 5 << 127 << 16 << QList<int>{C_LOCAL} << 0;
@@ -966,7 +961,7 @@ void ClangdTestHighlighting::test_data()
         << 310 << 29 << 310 << 38
         << QList<int>{C_FIELD} << 0;
     QTest::newRow("enum declaration with underlying type") << 316 << 6 << 316 << 21
-        << QList<int>{C_TYPE, C_ENUMERATION, C_DECLARATION} << 0;
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("type in static_cast") << 328 << 23 << 328 << 33
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("opening angle bracket in static_cast") << 328 << 16 << 328 << 17
@@ -1293,6 +1288,13 @@ void ClangdTestHighlighting::test_data()
                                       << QList<int>{C_LOCAL} << 0;
     QTest::newRow("const operator()") << 903 << 5 << 903 << 7
                                       << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("member initialization: member (user-defined type)") << 911 << 14 << 911 << 18
+                                      << QList<int>{C_FIELD} << 0;
+    QTest::newRow("member initialization: member (built-in type)") << 911 << 23 << 911 << 27
+                                      << QList<int>{C_FIELD} << 0;
+    QTest::newRow("keywords: true") << 920 << 15 << 920 << 19 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("keywords: false") << 921 << 15 << 921 << 20 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("keywords: nullptr") << 922 << 15 << 922 << 22 << QList<int>{C_KEYWORD} << 0;
 }
 
 void ClangdTestHighlighting::test()
@@ -2015,9 +2017,10 @@ void ClangdTestExternalChanges::test()
     header.close();
     ClangdClient * const oldClient = client();
     QVERIFY(oldClient);
-    QVERIFY(!waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
-                                    &ClangModelManagerSupport::createdClient, timeOutInMs()));
+    waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
+                           &ClangModelManagerSupport::createdClient, timeOutInMs());
     QCOMPARE(client(), oldClient);
+    QCOMPARE(client(), ClangModelManagerSupport::instance()->clientForProject(project()));
     const TextDocument * const curDoc = document("main.cpp");
     QVERIFY(curDoc);
     QVERIFY(curDoc->marks().isEmpty());

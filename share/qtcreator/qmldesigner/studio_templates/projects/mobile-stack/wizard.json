@@ -9,7 +9,6 @@
     "icon": "mobile_stack.png",
     "fontIconName": "wizardsMobile",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

@@ -33,17 +33,25 @@
 namespace McuSupport {
 namespace Internal {
 
-#define MAX_COMPATIBILITY_VERSION 1
+constexpr int MAX_COMPATIBILITY_VERSION {1};
 
 class McuSdkRepository;
+class McuAbstractPackage;
 class McuPackage;
+class McuTarget;
+
 namespace Sdk {
+
+struct McuTargetDescription;
 
 McuPackage *createQtForMCUsPackage();
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
 void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
+
+McuTargetDescription parseDescriptionJson(const QByteArray &);
+QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &, QVector<McuAbstractPackage *> *);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 

@@ -314,6 +314,16 @@ static const RunConfiguration *runConfigForNode(const Target *target, const Proj
     return target->activeRunConfiguration();
 }
 
+static bool hideBuildMenu()
+{
+    return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_BUILD, false).toBool();
+}
+
+static bool hideDebugMenu()
+{
+    return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_DEBUG, false).toBool();
+}
+
 static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode *node)
 {
     if (!project)
@@ -938,14 +948,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // build menu
     ActionContainer *mbuild =
         ActionManager::createMenu(Constants::M_BUILDPROJECT);
+
     mbuild->menu()->setTitle(tr("&Build"));
-    menubar->addMenu(mbuild, Core::Constants::G_VIEW);
+    if (!hideBuildMenu())
+        menubar->addMenu(mbuild, Core::Constants::G_VIEW);
 
     // debug menu
     ActionContainer *mdebug =
         ActionManager::createMenu(Constants::M_DEBUG);
     mdebug->menu()->setTitle(tr("&Debug"));
-    menubar->addMenu(mdebug, Core::Constants::G_VIEW);
+    if (!hideDebugMenu())
+        menubar->addMenu(mdebug, Core::Constants::G_VIEW);
 
     ActionContainer *mstartdebugging =
         ActionManager::createMenu(Constants::M_DEBUG_STARTDEBUGGING);

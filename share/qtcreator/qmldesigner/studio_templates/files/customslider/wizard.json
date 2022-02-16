@@ -7,7 +7,6 @@
     "trDisplayName": "Custom Slider",
     "trDisplayCategory": "Qt Quick Controls",
     "icon": "custom_slider.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

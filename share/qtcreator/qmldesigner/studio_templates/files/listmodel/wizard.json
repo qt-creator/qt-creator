@@ -7,7 +7,6 @@
     "trDisplayName": "ListModel",
     "trDisplayCategory": "QML Files",
     "icon": "data_listmodel.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

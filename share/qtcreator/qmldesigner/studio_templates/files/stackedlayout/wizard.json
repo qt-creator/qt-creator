@@ -6,7 +6,6 @@
     "trDescription": "Creates a UI file (.ui.qml) with a Stacked Layout as the root component.",
     "trDisplayName": "Stacked Layout",
     "trDisplayCategory": "Qt Quick Controls",
-    "featuresRequired": [ "QtStudio" ],
     "icon": "custom_stacked_view.png",
     "platformIndependent": true,
 

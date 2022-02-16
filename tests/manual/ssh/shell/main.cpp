@@ -27,6 +27,7 @@
 #include "shell.h"
 
 #include <ssh/sshconnection.h>
+#include <utils/launcherinterface.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -40,6 +41,8 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                                + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     bool parseSuccess;
     const QSsh::SshConnectionParameters &parameters
         = ArgumentsCollector(app.arguments()).collect(parseSuccess);

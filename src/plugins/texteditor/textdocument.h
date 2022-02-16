@@ -26,6 +26,7 @@
 #pragma once
 
 #include "texteditor_global.h"
+#include "blockrange.h"
 #include "formatter.h"
 #include "indenter.h"
 
@@ -49,7 +50,6 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BlockRange;
 class CompletionAssistProvider;
 class ExtraEncodingSettings;
 class FontSettings;
