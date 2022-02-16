@@ -303,7 +303,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_resetButton->setEnabled(false);
 
     m_batchEditButton = new QPushButton(tr("Batch Edit..."));
-    m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake Configuration."));
+    m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake configuration."));
 
     m_showAdvancedCheckBox = new QCheckBox(tr("Advanced"));
 
