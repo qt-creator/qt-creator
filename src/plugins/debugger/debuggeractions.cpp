@@ -120,7 +120,7 @@ DebuggerSettings::DebuggerSettings()
 
     forceLoggingToConsole.setSettingsKey(debugModeGroup, "ForceLoggingToConsole");
     forceLoggingToConsole.setLabelText(tr("Force logging to console"));
-    forceLoggingToConsole.setToolTip(tr("This sets QT_LOGGING_TO_CONSOLE=1 in the environment "
+    forceLoggingToConsole.setToolTip(tr("Sets QT_LOGGING_TO_CONSOLE=1 in the environment "
         "of the debugged program, preventing storing debug output "
         "in system logs."));
 
@@ -165,7 +165,7 @@ DebuggerSettings::DebuggerSettings()
         CommonOptionsPage::msgSetBreakpointAtFunction(Constants::CRT_DEBUG_REPORT));
     cdbBreakOnCrtDbgReport.setToolTip(
         CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(Constants::CRT_DEBUG_REPORT,
-            tr("This is useful to catch runtime error messages for example caused by assert().")));
+            tr("Catches runtime error messages caused by assert(), for example.")));
 
     useCdbConsole.setSettingsKey(cdbSettingsGroup, "CDB_Console");
     useCdbConsole.setToolTip("<html><head/><body><p>" + tr(
@@ -421,7 +421,7 @@ DebuggerSettings::DebuggerSettings()
 
     useAnnotationsInMainEditor.setSettingsKey(debugModeGroup, "UseAnnotations");
     useAnnotationsInMainEditor.setLabelText(tr("Use annotations in main editor when debugging"));
-    useAnnotationsInMainEditor.setToolTip(tr("<p>Checking this will show simple variable values "
+    useAnnotationsInMainEditor.setToolTip(tr("<p>Shows simple variable values "
         "as annotations in the main editor during debugging."));
     useAnnotationsInMainEditor.setDefaultValue(true);
 
@@ -440,7 +440,7 @@ DebuggerSettings::DebuggerSettings()
 
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
     useToolTipsInMainEditor.setLabelText(tr("Use tooltips in main editor when debugging"));
-    useToolTipsInMainEditor.setToolTip(tr("<p>Checking this will enable tooltips for variable "
+    useToolTipsInMainEditor.setToolTip(tr("<p>Enables tooltips for variable "
         "values during debugging. Since this can slow down debugging and "
         "does not provide reliable information as it does not use scope "
         "information, it is switched off by default."));
@@ -448,17 +448,17 @@ DebuggerSettings::DebuggerSettings()
 
     useToolTipsInLocalsView.setSettingsKey(debugModeGroup, "UseToolTipsInLocalsView");
     useToolTipsInLocalsView.setLabelText(tr("Use Tooltips in Locals View when Debugging"));
-    useToolTipsInLocalsView.setToolTip(tr("<p>Checking this will enable tooltips in the locals "
+    useToolTipsInLocalsView.setToolTip(tr("<p>Enables tooltips in the locals "
         "view during debugging."));
 
     useToolTipsInBreakpointsView.setSettingsKey(debugModeGroup, "UseToolTipsInBreakpointsView");
     useToolTipsInBreakpointsView.setLabelText(tr("Use Tooltips in Breakpoints View when Debugging"));
-    useToolTipsInBreakpointsView.setToolTip(tr("<p>Checking this will enable tooltips in the breakpoints "
+    useToolTipsInBreakpointsView.setToolTip(tr("<p>Enables tooltips in the breakpoints "
         "view during debugging."));
 
     useToolTipsInStackView.setSettingsKey(debugModeGroup, "UseToolTipsInStackView");
     useToolTipsInStackView.setLabelText(tr("Use Tooltips in Stack View when Debugging"));
-    useToolTipsInStackView.setToolTip(tr("<p>Checking this will enable tooltips in the stack "
+    useToolTipsInStackView.setToolTip(tr("<p>Enables tooltips in the stack "
         "view during debugging."));
     useToolTipsInStackView.setDefaultValue(true);
 
