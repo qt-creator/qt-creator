@@ -1327,6 +1327,33 @@ private:
     }
 };
 
+static void addToCompilationDb(QJsonObject &cdb,
+                               const CppEditor::ClangDiagnosticConfig &projectWarnings,
+                               const QStringList &projectOptions,
+                               const CppEditor::ProjectPart::ConstPtr &projectPart,
+                               const Utils::FilePath &workingDir,
+                               const Utils::FilePath &sourceFile)
+{
+    // TODO: Do we really need to re-calculate the project part options per source file?
+    QStringList args = createClangOptions(*projectPart, sourceFile.toString(),
+                                          projectWarnings, projectOptions);
+
+    // TODO: clangd seems to apply some heuristics depending on what we put here.
+    //       Should we make use of them or keep using our own?
+    args.prepend("clang");
+
+    args.append(sourceFile.toUserOutput());
+    QJsonObject value;
+    value.insert("workingDirectory", workingDir.toString());
+    value.insert("compilationCommand", QJsonArray::fromStringList(args));
+    cdb.insert(sourceFile.toUserOutput(), value);
+}
+
+static void addCompilationDb(QJsonObject &parentObject, const QJsonObject &cdb)
+{
+    parentObject.insert("compilationDatabaseChanges", cdb);
+}
+
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     : Client(clientInterface(project, jsonDbDir)), d(new Private(this, project))
 {
@@ -1717,18 +1744,11 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
             ->projectPartForId(config.preferredProjectPartId);
     if (!projectPart)
         return;
-    const CppEditor::ClangDiagnosticConfig projectWarnings = warningsConfigForProject(project());
-    const QStringList projectOptions = optionsForProject(project());
     QJsonObject cdbChanges;
-    QStringList args = createClangOptions(*projectPart, filePath.toString(), projectWarnings,
-                                          projectOptions);
-    args.prepend("clang");
-    args.append(filePath.toString());
-    QJsonObject value;
-    value.insert("workingDirectory", filePath.parentDir().toString());
-    value.insert("compilationCommand", QJsonArray::fromStringList(args));
-    cdbChanges.insert(filePath.toUserOutput(), value);
-    const QJsonObject settings({qMakePair(QString("compilationDatabaseChanges"), cdbChanges)});
+    addToCompilationDb(cdbChanges, warningsConfigForProject(project()),
+                       optionsForProject(project()), projectPart, filePath.parentDir(), filePath);
+    QJsonObject settings;
+    addCompilationDb(settings, cdbChanges);
     DidChangeConfigurationParams configChangeParams;
     configChangeParams.setSettings(settings);
     sendContent(DidChangeConfigurationNotification(configChangeParams));
