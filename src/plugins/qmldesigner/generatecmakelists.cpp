@@ -381,7 +381,7 @@ void generateModuleCmake(const FilePath &dir, const QString &uri)
     QString moduleUri = uri.isEmpty() ?
                 dir.fileName() :
                 uri;
-    QString moduleName = QString(moduleUri).remove('.');
+    QString moduleName = QString(moduleUri).replace('.', '_');
     moduleNames.append(moduleName);
 
     QString fileContent;
