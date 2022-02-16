@@ -29,6 +29,7 @@
 #include "filepath.h"
 #include "launcherpackets.h"
 #include "processutils.h"
+#include "qtcprocess.h"
 
 #include <QDeadlineTimer>
 #include <QHash>
@@ -70,8 +71,8 @@ public:
         Finished
     };
     Q_ENUM(SignalType)
-    CallerHandle(QObject *parent, quintptr token, ProcessMode mode)
-        : QObject(parent), m_token(token), m_processMode(mode) {}
+    CallerHandle(QObject *parent, quintptr token)
+        : QObject(parent), m_token(token) {}
     ~CallerHandle() override;
 
     LauncherHandle *launcherHandle() const { return m_launcherHandle; }
@@ -100,7 +101,7 @@ public:
     QString errorString() const;
     void setErrorString(const QString &str);
 
-    void start(const QString &program, const QStringList &arguments, const QByteArray &writeData);
+    void start(const QString &program, const QStringList &arguments);
     // Called from caller's or launcher's thread.
     void startIfNeeded();
 
@@ -111,16 +112,8 @@ public:
     QString program() const;
     // Called from caller's or launcher's thread.
     QStringList arguments() const;
-    void setStandardInputFile(const QString &fileName);
-    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-    void setEnvironment(const Environment &environment);
-    void setWorkingDirectory(const FilePath &dir);
+    void setProcessSetupData(const ProcessSetupData &setup);
     QProcess::ExitStatus exitStatus() const;
-
-    void setBelowNormalPriority();
-    void setNativeArguments(const QString &arguments);
-    void setLowPriority();
-    void setUnixTerminalDisabled();
 
 signals:
     void errorOccurred(QProcess::ProcessError error);
@@ -162,7 +155,6 @@ private:
     QList<LauncherSignal *> m_signals;
 
     const quintptr m_token;
-    const ProcessMode m_processMode;
 
     // Modified from caller's thread, read from launcher's thread
     std::atomic<QProcess::ProcessState> m_processState = QProcess::NotRunning;
@@ -172,20 +164,11 @@ private:
     QProcess::ExitStatus m_exitStatus = QProcess::ExitStatus::NormalExit;
     QByteArray m_stdout;
     QByteArray m_stderr;
-    QString m_errorString;
     QProcess::ProcessError m_error = QProcess::UnknownError;
 
     QString m_command;
     QStringList m_arguments;
-    Environment m_environment;
-    FilePath m_workingDirectory;
-    QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
-    QString m_standardInputFile;
-
-    bool m_belowNormalPriority = false;
-    QString m_nativeArguments;
-    bool m_lowPriority = false;
-    bool m_unixTerminalDisabled = false;
+    ProcessSetupData m_setup;
 };
 
 // Moved to the launcher thread, returned to caller's thread.
@@ -197,7 +180,7 @@ class LauncherHandle : public QObject
     Q_OBJECT
 public:
     // Called from caller's thread, moved to launcher's thread afterwards.
-    LauncherHandle(quintptr token, ProcessMode) : m_token(token) {}
+    LauncherHandle(quintptr token) : m_token(token) {}
     // Called from caller's thread exclusively.
     bool waitForSignal(int msecs, CallerHandle::SignalType newSignal);
     CallerHandle *callerHandle() const { return m_callerHandle; }

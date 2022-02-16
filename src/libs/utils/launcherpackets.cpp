@@ -58,9 +58,9 @@ StartProcessPacket::StartProcessPacket(quintptr token)
 
 void StartProcessPacket::doSerialize(QDataStream &stream) const
 {
-    stream << command << arguments << workingDir << env << int(processMode) << writeData << int(channelMode)
-           << standardInputFile << belowNormalPriority << nativeArguments << lowPriority
-           << unixTerminalDisabled;
+    stream << command << arguments << workingDir << env << int(processMode) << writeData
+           << int(processChannelMode) << standardInputFile << belowNormalPriority
+           << nativeArguments << lowPriority << unixTerminalDisabled;
 }
 
 void StartProcessPacket::doDeserialize(QDataStream &stream)
@@ -69,7 +69,7 @@ void StartProcessPacket::doDeserialize(QDataStream &stream)
     stream >> command >> arguments >> workingDir >> env >> pm >> writeData >> cm
            >> standardInputFile >> belowNormalPriority >> nativeArguments >> lowPriority
            >> unixTerminalDisabled;
-    channelMode = QProcess::ProcessChannelMode(cm);
+    processChannelMode = QProcess::ProcessChannelMode(cm);
     processMode = Utils::ProcessMode(pm);
 }
 

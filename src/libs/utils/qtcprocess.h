@@ -262,12 +262,12 @@ public:
 
     QString m_nativeArguments;
     QString m_standardInputFile;
-    QString m_initialErrorString;
+    QString m_errorString;
     bool m_belowNormalPriority = false;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
     bool m_abortOnMetaChars = true;
-    QProcess::ProcessChannelMode m_procesChannelMode = QProcess::SeparateChannels;
+    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject

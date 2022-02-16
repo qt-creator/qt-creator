@@ -113,7 +113,7 @@ public:
     QStringList env;
     ProcessMode processMode = ProcessMode::Reader;
     QByteArray writeData;
-    QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
+    QProcess::ProcessChannelMode processChannelMode = QProcess::SeparateChannels;
     QString standardInputFile;
     bool belowNormalPriority = false;
     QString nativeArguments;

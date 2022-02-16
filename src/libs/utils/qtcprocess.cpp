@@ -337,8 +337,8 @@ private:
         m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
         m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup.m_standardInputFile);
-        m_process->setProcessChannelMode(m_setup.m_procesChannelMode);
-        m_process->setErrorString(m_setup.m_initialErrorString);
+        m_process->setProcessChannelMode(m_setup.m_processChannelMode);
+        m_process->setErrorString(m_setup.m_errorString);
         if (m_setup.m_lowPriority)
             m_process->setLowPriority();
         if (m_setup.m_unixTerminalDisabled)
@@ -410,19 +410,8 @@ public:
 private:
     void doDefaultStart(const QString &program, const QStringList &arguments) override
     {
-        m_handle->setEnvironment(m_setup.m_environment);
-        m_handle->setWorkingDirectory(m_setup.m_workingDirectory);
-        m_handle->setStandardInputFile(m_setup.m_standardInputFile);
-        m_handle->setProcessChannelMode(m_setup.m_procesChannelMode);
-        m_handle->setErrorString(m_setup.m_initialErrorString);
-        if (m_setup.m_belowNormalPriority)
-            m_handle->setBelowNormalPriority();
-        m_handle->setNativeArguments(m_setup.m_nativeArguments);
-        if (m_setup.m_lowPriority)
-            m_handle->setLowPriority();
-        if (m_setup.m_unixTerminalDisabled)
-            m_handle->setUnixTerminalDisabled();
-        m_handle->start(program, arguments, m_setup.m_writeData);
+        m_handle->setProcessSetupData(m_setup);
+        m_handle->start(program, arguments);
     }
 
     void cancel();
@@ -476,7 +465,7 @@ public:
     {
         m_process.reset(process);
         m_process->m_setup = m_setup;
-        m_setup.m_initialErrorString.clear();
+        m_setup.m_errorString.clear();
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,
@@ -1141,7 +1130,7 @@ qint64 QtcProcess::applicationMainThreadID() const
 
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_setup.m_procesChannelMode = mode;
+    d->m_setup.m_processChannelMode = mode;
 }
 
 QProcess::ProcessError QtcProcess::error() const
@@ -1169,7 +1158,7 @@ QString QtcProcess::errorString() const
 {
     if (d->m_process)
         return d->m_process->errorString();
-    return d->m_setup.m_initialErrorString;
+    return d->m_setup.m_errorString;
 }
 
 void QtcProcess::setErrorString(const QString &str)
@@ -1177,7 +1166,7 @@ void QtcProcess::setErrorString(const QString &str)
     if (d->m_process)
         d->m_process->setErrorString(str);
     else
-        d->m_setup.m_initialErrorString = str;
+        d->m_setup.m_errorString = str;
 }
 
 qint64 QtcProcess::processId() const
