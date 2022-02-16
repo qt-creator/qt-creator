@@ -41,6 +41,29 @@
 namespace QmlDesigner {
 namespace {
 
+QStringList filterMultipleEntries(QStringList qmlTypes)
+{
+    std::sort(qmlTypes.begin(), qmlTypes.end());
+    qmlTypes.erase(std::unique(qmlTypes.begin(), qmlTypes.end()), qmlTypes.end());
+
+    return qmlTypes;
+}
+
+QList<QmlDirParser::Import> filterMultipleEntries(QList<QmlDirParser::Import> imports)
+{
+    std::stable_sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
+        return first.module < second.module;
+    });
+    imports.erase(std::unique(imports.begin(),
+                              imports.end(),
+                              [](auto &&first, auto &&second) {
+                                  return first.module == second.module;
+                              }),
+                  imports.end());
+
+    return imports;
+}
+
 ComponentReferences createComponentReferences(const QMultiHash<QString, QmlDirParser::Component> &components)
 {
     ComponentReferences componentReferences;
@@ -198,21 +221,22 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
             Utils::PathString moduleName{parser.typeNamespace()};
             ModuleId moduleId = m_projectStorage.moduleId(moduleName);
 
-            addModuleExportedImports(package.moduleExportedImports,
-                                     moduleId,
-                                     parser.imports(),
-                                     m_projectStorage);
+            auto imports = filterMultipleEntries(parser.imports());
+
+            addModuleExportedImports(package.moduleExportedImports, moduleId, imports, m_projectStorage);
             package.updatedModuleIds.push_back(moduleId);
 
             const auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(qmlDirSourceId);
             addSourceIds(package.updatedSourceIds, qmlProjectDatas);
             addSourceIds(package.updatedFileStatusSourceIds, qmlProjectDatas);
 
-            if (!parser.typeInfos().isEmpty()) {
+            auto qmlTypes = filterMultipleEntries(parser.typeInfos());
+
+            if (!qmlTypes.isEmpty()) {
                 ModuleId cppModuleId = m_projectStorage.moduleId(moduleName + "-cppnative");
-                parseTypeInfos(parser.typeInfos(),
-                               parser.dependencies(),
-                               parser.imports(),
+                parseTypeInfos(qmlTypes,
+                               filterMultipleEntries(parser.dependencies()),
+                               imports,
                                qmlDirSourceId,
                                directoryId,
                                cppModuleId,
