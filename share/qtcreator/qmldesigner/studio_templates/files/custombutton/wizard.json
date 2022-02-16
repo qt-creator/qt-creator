@@ -7,7 +7,6 @@
     "trDisplayName": "Custom Button",
     "trDisplayCategory": "Qt Quick Controls",
     "icon": "custom_button.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

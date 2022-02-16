@@ -902,3 +902,22 @@ void callOperators()
     Callable2 c2;
     c2();
 }
+
+namespace std { template<typename T> struct atomic { atomic(int) {} }; }
+
+void constructorMemberInitialization()
+{
+    struct S {
+        S(): m_m1(1), m_m2(0) {}
+
+        std::atomic<int> m_m1;
+        int m_m2;
+    };
+}
+
+void keywords()
+{
+    bool b1 = true;
+    bool b2 = false;
+    void *p = nullptr;
+}

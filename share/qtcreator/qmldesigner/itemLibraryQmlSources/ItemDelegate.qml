@@ -91,6 +91,12 @@ Item {
                 if (mouse.button === Qt.LeftButton)
                     rootView.startDragAndDrop(itemLibraryEntry, mapToGlobal(mouse.x, mouse.y))
             }
+            onDoubleClicked: (mouse)=> {
+                if (mouse.button === Qt.LeftButton && itemComponentSource) {
+                    hide()
+                    rootView.goIntoComponent(itemComponentSource)
+                }
+            }
         }
     }
 }

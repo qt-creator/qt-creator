@@ -348,6 +348,15 @@
         \li Qt 5.3
         \li Qt Quick 2
 
+    \row
+        \li \uicontrol Quick3D
+        \li Displays the time spent rendering Qt Quick 3D frames, timing information
+            for frame preparation and synchronization, particle system update times
+            and particle update count, as well as texture and mesh memory allocations
+            and memory consumption.
+        \li Qt 6.3
+        \li Qt Quick 3D
+
     \endtable
 
     \section2 Analyzing Scene Graph Events
@@ -548,6 +557,75 @@
         \li plain texture deleted
         \li Deleting a texture from the GPU that became unnecessary.
         \li None
+    \endtable
+
+    \section2 Analyzing Qt Quick 3D Events
+
+    The following is the list of events for Qt Quick 3D. Each rendered frame
+    consists of synchronize, prepare, and render phases, which are done in that order.
+    Synchronize happens in scene graph synchronizing phase, while prepare and
+    render happen in scene graph rendering phase.
+
+    Setting the environment variable \c QSG_RENDERER_DEBUG=render will also give
+    additional textual output of render call counts of different rendering passes.
+    These call counts are summed up in the Render Frame event.
+
+    \table
+    \header
+        \li Event Type
+        \li Thread
+        \li Description
+    \row
+        \li \uicontrol {Render Frame}
+        \li Render
+        \li Render time of a frame. Also shows the number of draw calls.
+    \row
+        \li \uicontrol {Prepare Frame}
+        \li Render
+        \li Time taken for preparing a frame. Resources are allocated and loaded
+            in the prepare phase. The first frame after scene loading usually takes
+            longer than others since most resources are loaded at that time.
+    \row
+        \li \uicontrol {Synchronize Frame}
+        \li Render
+        \li Synchronize time of a frame. Synchronize takes care of updating backend
+            values from the frontend. Also manages shared resources between Qt Quick
+            Scene Graph and Qt Quick 3D.
+    \row
+        \li \uicontrol {Mesh Load}
+        \li Render
+        \li Load time of a mesh. Shows total memory usage of all meshes. Also shows
+            unloads.
+    \row
+        \li \uicontrol {Custom Mesh Load}
+        \li Render
+        \li Load time of a custom mesh. Shows total memory usage of all meshes.
+            Also shows unloads.
+    \row
+        \li \uicontrol {Texture Load}
+        \li Render
+        \li Load time of a texture. Shows total memory usage of all textures.
+            Also shows unloads.
+    \row
+        \li \uicontrol {Generate Shader}
+        \li Render
+        \li Time for generating a shader for a material.
+    \row
+        \li \uicontrol {Load Shader}
+        \li Render
+        \li Time for loading a built-in shader.
+    \row
+        \li \uicontrol {Particle Update}
+        \li GUI
+        \li Update time of a particle system. Shows the number of particles updated.
+    \row
+        \li \uicontrol {Mesh Memory Consumption}
+        \li Render
+        \li Shows a bar view of total mesh memory consumption.
+    \row
+        \li \uicontrol {Texture Memory Consumption}
+        \li Render
+        \li Shows a bar view of total texture memory consumption.
     \endtable
 
     \section1 Viewing Statistics

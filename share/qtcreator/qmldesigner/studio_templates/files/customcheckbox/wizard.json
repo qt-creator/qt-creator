@@ -7,7 +7,6 @@
     "trDisplayName": "Custom CheckBox",
     "trDisplayCategory": "Qt Quick Controls",
     "icon": "custom_checkbox.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

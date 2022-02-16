@@ -34,35 +34,64 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
                                                            const NodeMetaInfo &parentInfo,
                                                            bool breakOnFirst)
 {
-    TypeName typeName = insertInfo.typeName();
-    TypeName superClass = insertInfo.directSuperClass().typeName();
-    TypeName nodePackage = insertInfo.typeName().replace(insertInfo.simplifiedTypeName(), "");
-    TypeName targetPackage = parentInfo.typeName().replace(parentInfo.simplifiedTypeName(), "");
-    if (!nodePackage.contains(targetPackage))
-        return;
+    // TODO: Metainfo based matching system (QDS-6240)
 
-    // Common base types cause too many rarely valid matches, so they are ignored
-    const QSet<TypeName> ignoredTypes {"<cpp>.QObject",
-                                       "<cpp>.QQuickItem",
-                                       "<cpp>.QQuick3DObject",
-                                       "QtQuick.Item",
-                                       "QtQuick3D.Object3D",
-                                       "QtQuick3D.Node",
-                                       "QtQuick3D.Particles3D.ParticleSystem3D"};
-    const PropertyNameList targetNodeNameList = parentInfo.propertyNames();
-    for (const PropertyName &name : targetNodeNameList) {
-        if (!name.contains('.')) {
-            TypeName propType = parentInfo.propertyTypeName(name).replace("<cpp>.", targetPackage);
-            // Skip properties that are not sub classes of anything
-            if (propType.contains('.')
-                && !ignoredTypes.contains(propType)
-                && (typeName == propType || propType == superClass)
-                && parentInfo.propertyIsWritable(propType)) {
-                propertyList.append(QString::fromLatin1(name));
-                if (breakOnFirst)
-                    break;
+    // Fall back to a hardcoded list of supported cases:
+    // Texture
+    //  -> DefaultMaterial
+    //  -> PrincipledMaterial
+    //  -> SpriteParticle3D
+    //  -> TextureInput
+    //  -> SceneEnvironment
+    // Effect
+    //  -> SceneEnvironment
+    // Shader, Command, Buffer
+    //  -> Pass
+    // InstanceListEntry
+    //  -> InstanceList
+    // Pass
+    //  -> Effect
+
+    const TypeName textureType = "QtQuick3D.Texture";
+    if (insertInfo.isSubclassOf(textureType)) {
+        const TypeName textureTypeCpp = "<cpp>.QQuick3DTexture";
+        if (parentInfo.isSubclassOf("QtQuick3D.DefaultMaterial")
+            || parentInfo.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+            // All texture properties are valid targets
+            const PropertyNameList targetNodeNameList = parentInfo.propertyNames();
+            for (const PropertyName &name : targetNodeNameList) {
+                TypeName propType = parentInfo.propertyTypeName(name);
+                if (propType == textureType || propType == textureTypeCpp) {
+                    propertyList.append(QString::fromLatin1(name));
+                    if (breakOnFirst)
+                        return;
+                }
             }
+        } else if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.SpriteParticle3D")) {
+            propertyList.append("sprite");
+        } else if (parentInfo.isSubclassOf("QtQuick3D.TextureInput")) {
+            propertyList.append("texture");
+        } else if (parentInfo.isSubclassOf("QtQuick3D.SceneEnvironment")) {
+            propertyList.append("lightProbe");
         }
+    } else if (insertInfo.isSubclassOf("QtQuick3D.Effect")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.SceneEnvironment"))
+            propertyList.append("effects");
+    } else if (insertInfo.isSubclassOf("QtQuick3D.Shader")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Pass"))
+            propertyList.append("shaders");
+    } else if (insertInfo.isSubclassOf("QtQuick3D.Command")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Pass"))
+            propertyList.append("commands");
+    } else if (insertInfo.isSubclassOf("QtQuick3D.Buffer")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Pass"))
+            propertyList.append("output");
+    } else if (insertInfo.isSubclassOf("QtQuick3D.InstanceListEntry")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.InstanceList"))
+            propertyList.append("instances");
+    } else if (insertInfo.isSubclassOf("QtQuick3D.Pass")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Effect"))
+            propertyList.append("passes");
     }
 }
 
@@ -110,14 +139,6 @@ TypeName ChooseFromPropertyListDialog::selectedProperty() const
 ChooseFromPropertyListDialog *ChooseFromPropertyListDialog::createIfNeeded(
         const ModelNode &targetNode, const ModelNode &newNode, QWidget *parent)
 {
-    TypeName typeName = newNode.type();
-
-    // Component matches cases where you don't want to insert a plain component,
-    // such as layer.effect. Also, default property is often a Component (typically 'delegate'),
-    // and inserting into such property will silently overwrite implicit component, if any.
-    if (typeName == "QtQml.Component")
-        return nullptr;
-
     const NodeMetaInfo info = newNode.metaInfo();
     const NodeMetaInfo targetInfo = targetNode.metaInfo();
     ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(info, targetInfo);

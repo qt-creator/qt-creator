@@ -173,6 +173,7 @@ def build_qtcreator(args, paths):
                   '-DBUILD_QBS=' + cmake_option(build_qbs),
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_EXECUTABLE_SDKTOOL=OFF',
+                  '-DQTC_FORCE_XCB=ON',
                   '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
                   '-DWITH_TESTS=' + cmake_option(args.with_tests)]
     cmake_args += common_cmake_arguments(args)

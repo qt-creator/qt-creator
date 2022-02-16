@@ -123,8 +123,6 @@ void DockerDeviceProcess::start()
     DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(device());
     QTC_ASSERT(dockerDevice, return);
 
-    const QStringList dockerRunFlags = extraData(Constants::DOCKER_RUN_FLAGS).toStringList();
-
     connect(this, &DeviceProcess::readyReadStandardOutput, this, [this] {
         MessageManager::writeSilently(QString::fromLocal8Bit(readAllStandardError()));
     });

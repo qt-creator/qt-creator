@@ -201,10 +201,11 @@ QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 
 void AssetsLibraryWidget::handleSearchfilterChanged(const QString &filterText)
 {
-    if (filterText != m_filterText) {
-        m_filterText = filterText;
-        updateSearch();
-    }
+    if (filterText == m_filterText || (m_assetsModel->isEmpty() && filterText.contains(m_filterText)))
+            return;
+
+    m_filterText = filterText;
+    updateSearch();
 }
 
 void AssetsLibraryWidget::handleAddAsset()

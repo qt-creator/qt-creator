@@ -121,10 +121,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
                 &QComboBox::currentTextChanged,
                 this,
                 &McuSupportOptionsWidget::showMcuTargetPackages);
-        connect(m_options.qtForMCUsSdkPackage,
-                &McuPackage::changed,
-                this,
-                &McuSupportOptionsWidget::populateMcuTargetsComboBox);
+        connect(m_options.qtForMCUsSdkPackage, &McuAbstractPackage::changed,
+                this, &McuSupportOptionsWidget::populateMcuTargetsComboBox);
     }
 
     {

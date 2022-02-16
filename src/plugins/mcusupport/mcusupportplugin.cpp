@@ -31,6 +31,10 @@
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
 
+#if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
+#include "test/unittest.h"
+#endif
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -59,14 +63,9 @@ public:
                                       {Constants::RUNCONFIGURATION}};
     McuSupportOptionsPage optionsPage;
     McuDependenciesKitAspect environmentPathsKitAspect;
-};
+}; // class McuSupportPluginPrivate
 
-static McuSupportPluginPrivate *dd = nullptr;
-
-McuSupportPlugin::McuSupportPlugin()
-{
-    setObjectName("McuSupportPlugin");
-}
+static McuSupportPluginPrivate* dd{nullptr};
 
 McuSupportPlugin::~McuSupportPlugin()
 {
@@ -79,6 +78,7 @@ bool McuSupportPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    setObjectName("McuSupportPlugin");
     dd = new McuSupportPluginPrivate;
 
     McuSupportOptions::registerQchFiles();
@@ -145,6 +145,15 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
     });
 
     ICore::infoBar()->addInfo(info);
+}
+
+QVector<QObject *> McuSupportPlugin::createTestObjects() const
+{
+    QVector<QObject *> tests;
+#if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
+    tests << new Test::McuSupportTest;
+#endif
+    return tests;
 }
 
 } // namespace Internal

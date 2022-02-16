@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "mcuabstractpackage.h",
         "mcupackage.cpp",
         "mcupackage.h",
         "mcusupport.qrc",
@@ -36,6 +37,7 @@ QtcPlugin {
         "mcusupportversiondetection.h",
         "mcusupportcmakemapper.h",
         "mcusupportcmakemapper.cpp",
+        "mcutargetdescription.h",
         "mcukitinformation.cpp",
         "mcukitinformation.h"
     ]

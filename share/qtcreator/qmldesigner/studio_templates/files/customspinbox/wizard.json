@@ -7,7 +7,6 @@
     "trDisplayName": "Custom SpinBox",
     "trDisplayCategory": "Qt Quick Controls",
     "icon": "custom_spinbox.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":

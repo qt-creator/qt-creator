@@ -445,7 +445,7 @@ Item {
                         hideHeader: dirDepth === 0
                         showLeftBorder: dirDepth > 0
                         expanded: dirExpanded
-                        visible: !assetsModel.isEmpty && dirVisible
+                        visible: dirVisible
                         expandOnClick: false
                         useDefaulContextMenu: false
 

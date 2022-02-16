@@ -260,7 +260,7 @@ void ClangFollowSymbol::switchDeclDef(const CppEditor::CursorInEditor &data,
 {
     ClangdClient * const client
             = ClangModelManagerSupport::instance()->clientForFile(data.filePath());
-    if (client && client->isFullyIndexed() && client->versionNumber() >= QVersionNumber(13)) {
+    if (client && client->isFullyIndexed()) {
         client->switchDeclDef(data.textDocument(), data.cursor(), data.editorWidget(),
                               std::move(processLinkCallback));
         return;

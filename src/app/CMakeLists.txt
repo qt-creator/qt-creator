@@ -24,6 +24,12 @@ add_qtc_executable(qtcreator
   QTC_RUNNABLE
 )
 
+extend_qtc_executable(qtcreator
+  CONDITION APPLE
+  SOURCES
+    main_mac.mm
+)
+
 if (NOT TARGET qtcreator)
   return()
 endif()
@@ -85,6 +91,13 @@ if (APPLE)
     DESTINATION ${IDE_DATA_PATH}
   )
 endif()
+
+option(QTC_FORCE_XCB "Enables that Qt Creator forces XCB on Linux if QT_QPA_PLATFORM is not set." OFF)
+extend_qtc_executable(qtcreator
+  CONDITION QTC_FORCE_XCB
+  DEFINES
+    QTC_FORCE_XCB
+)
 
 extend_qtc_executable(qtcreator
   CONDITION BUILD_WITH_CRASHPAD

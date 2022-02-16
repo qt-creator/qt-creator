@@ -1110,6 +1110,10 @@ static FilePaths findCompilerCandidates(const IDevice::ConstPtr &device,
                 << ("*-*-*-*-" + compilerName
                     + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
     }
+    nameFilters = transform(nameFilters,
+            [os = device ? device->osType() : HostOsInfo::hostOs()](const QString &baseName) {
+        return OsSpecificAspects::withExecutableSuffix(os, baseName);
+    });
 
     FilePaths compilerPaths;
 
@@ -1145,9 +1149,6 @@ static FilePaths findCompilerCandidates(const IDevice::ConstPtr &device,
         for (const FilePath &dir : qAsConst(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
-            nameFilters = transform(nameFilters, [](const QString &baseName) {
-                return HostOsInfo::withExecutableSuffix(baseName);
-            });
             const QStringList fileNames = binDir.entryList(nameFilters,
                                                            QDir::Files | QDir::Executable);
             for (const QString &fileName : fileNames) {

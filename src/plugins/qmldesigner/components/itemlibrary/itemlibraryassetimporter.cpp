@@ -389,7 +389,7 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(const ParseData &pd)
                         if (braceIdx != -1) {
                             int nlIdx = content.lastIndexOf('\n', braceIdx);
                             QByteArray rootItem = content.mid(nlIdx, braceIdx - nlIdx).trimmed();
-                            if (rootItem == "Node") { // a 3D object
+                            if (rootItem == "Node" || rootItem == "Model") { // a 3D object
                                 // create hints file with proper hints
                                 QFile file(outDir.path() + '/' + fi.baseName() + ".hints");
                                 file.open(QIODevice::WriteOnly | QIODevice::Text);

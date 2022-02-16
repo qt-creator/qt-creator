@@ -49,7 +49,7 @@ public:
                  ),
                 (override));
 
-    MOCK_METHOD((std::pair<int, QStringList>), screenSizeInfoFromPage, (const QString &), (const));
+    MOCK_METHOD((std::pair<int, QStringList>), screenSizeInfoFromPage, (const QString &), (const, override));
 
     MOCK_METHOD(bool, isAvailable, (Utils::Id), (const, override));
 };
@@ -69,13 +69,13 @@ protected:
         WizardFactories::setIconUnicodeCallback(oldIconUnicodeFunc);
     }
 
-    IWizardFactory *aWizardFactory(IWizardFactory::WizardKind kind, bool requiresQtStudio = true,
+    IWizardFactory *aWizardFactory(IWizardFactory::WizardKind kind,
                                    const QPair<QString, bool> &availableOnPlatform = {})
     {
         MockWizardFactory *factory = new MockWizardFactory;
         m_factories.push_back(std::unique_ptr<IWizardFactory>(factory));
 
-        configureFactory(*factory, kind, requiresQtStudio, availableOnPlatform);
+        configureFactory(*factory, kind, availableOnPlatform);
 
         return factory;
     }
@@ -88,7 +88,7 @@ protected:
         MockWizardFactory *factory = new MockWizardFactory;
         m_factories.push_back(std::unique_ptr<IWizardFactory>(factory));
 
-        configureFactory(*factory, IWizardFactory::ProjectWizard, /*req QtStudio*/true,
+        configureFactory(*factory, IWizardFactory::ProjectWizard,
                          {platform, true}, sizes);
 
         if (!name.isEmpty())
@@ -102,7 +102,6 @@ protected:
     }
 
     void configureFactory(MockWizardFactory &factory, IWizardFactory::WizardKind kind,
-                          bool requiresQtStudio = true,
                           const QPair<QString, bool> &availableOnPlatform = {},
                           const std::pair<int, QStringList> &sizes = {})
     {
@@ -115,14 +114,6 @@ protected:
             factory.setSupportedProjectTypes({});
             EXPECT_EQ(IWizardFactory::FileWizard, factory.kind())
                     << "Expected to create a File Wizard factory";
-        }
-
-        if (requiresQtStudio) {
-            QSet<Utils::Id> features{"QtStudio"};
-            factory.setRequiredFeatures(features);
-        } else {
-            QSet<Utils::Id> features{"some", "other", "features"};
-            factory.setRequiredFeatures(features);
         }
 
         if (!availableOnPlatform.first.isEmpty()) {
@@ -195,7 +186,7 @@ TEST_F(QdsWizardFactories, haveEmptyListOfWizardFactories)
 TEST_F(QdsWizardFactories, filtersOutNonProjectWizardFactories)
 {
     WizardFactories wf = makeWizardFactoriesHandler(
-                {aWizardFactory(IWizardFactory::FileWizard, /*req QtStudio*/ true, {platform, true})},
+                {aWizardFactory(IWizardFactory::FileWizard, {platform, true})},
                 /*get wizards supporting platform*/ platform
                 );
 
@@ -207,22 +198,9 @@ TEST_F(QdsWizardFactories, filtersOutNonProjectWizardFactories)
 TEST_F(QdsWizardFactories, filtersOutWizardFactoriesUnavailableForPlatform)
 {
     WizardFactories wf = makeWizardFactoriesHandler(
-                {aWizardFactory(IWizardFactory::ProjectWizard, /*req QtStudio*/ true, {"Non-Desktop", false})},
+                {aWizardFactory(IWizardFactory::ProjectWizard, {"Non-Desktop", false})},
                 /*get wizards supporting platform*/ "Non-Desktop"
                 );
-
-    std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
-
-    ASSERT_THAT(presets, IsEmpty());
-}
-
-TEST_F(QdsWizardFactories, filtersOutWizardFactoriesThatDontRequireQtStudio)
-{
-    WizardFactories wf = makeWizardFactoriesHandler(
-                {
-                    aWizardFactory(IWizardFactory::FileWizard, /*require QtStudio*/ false, {platform, true})
-                },
-                /*get wizards supporting platform*/ platform);
 
     std::map<QString, WizardCategory> presets = wf.presetsGroupedByCategory();
 

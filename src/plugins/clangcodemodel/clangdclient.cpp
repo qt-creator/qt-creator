@@ -1782,8 +1782,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
     }
 
     qCDebug(clangdLog) << "document count is" << refData->fileData.size();
-    if (refData->replacementData || q->versionNumber() < QVersionNumber(13)
-            || !refData->categorize) {
+    if (refData->replacementData || !refData->categorize) {
         qCDebug(clangdLog) << "skipping AST retrieval";
         reportAllSearchResultsAndFinish(*refData);
         return;
@@ -1952,11 +1951,6 @@ void ClangdClient::followSymbol(TextDocument *document,
             d->handleGotoDefinitionResult();
     };
     symbolSupport().findLinkAt(document, adjustedCursor, std::move(gotoDefCallback), true);
-
-    if (versionNumber() < QVersionNumber(12)) {
-        d->followSymbolData->cursorNode.emplace(AstNode());
-        return;
-    }
 
     const auto astHandler = [this, id = d->followSymbolData->id]
             (const AstNode &ast, const MessageId &) {
@@ -2747,6 +2741,11 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         const QList<AstNode> path = getAstPath(ast, range);
         if (path.size() < 2)
             return false;
+        if (token.type == "property"
+                && (path.rbegin()->kind() == "MemberInitializer"
+                    || path.rbegin()->kind() == "CXXConstruct")) {
+            return false;
+        }
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
                     || it->kind() == "MemberInitializer") {
@@ -2859,7 +2858,6 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
             styles.mainStyle = C_FIELD;
         } else if (token.type == "enum") {
             styles.mainStyle = C_TYPE;
-            styles.mixinStyles.push_back(C_ENUMERATION);
         } else if (token.type == "enumMember") {
             styles.mainStyle = C_ENUMERATION;
         } else if (token.type == "parameter") {
@@ -3640,9 +3638,11 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     if (node.kind().endsWith("Literal")) {
         HighlightingResult result;
         result.useTextSyles = true;
-        const bool isStringLike = node.kind().startsWith("String")
-                || node.kind().startsWith("Character");
-        result.textStyles.mainStyle = isStringLike ? C_STRING : C_NUMBER;
+        const bool isKeyword = node.kind() == "CXXBoolLiteral"
+                || node.kind() == "CXXNullPtrLiteral";
+        const bool isStringLike = !isKeyword && (node.kind().startsWith("String")
+                || node.kind().startsWith("Character"));
+        result.textStyles.mainStyle = isKeyword ? C_KEYWORD : isStringLike ? C_STRING : C_NUMBER;
         setResultPosFromRange(result, node.range());
         insertResult(result);
         return;

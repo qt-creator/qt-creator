@@ -544,7 +544,7 @@ void VariableChooserPrivate::updatePositionAndShow(bool)
 {
     if (QWidget *w = q->parentWidget()) {
         QPoint parentCenter = w->mapToGlobal(w->geometry().center());
-        q->move(parentCenter.x() - q->width()/2, parentCenter.y() - q->height()/2);
+        q->move(parentCenter.x() - q->width()/2, qMax(parentCenter.y() - q->height()/2, 0));
     }
     q->show();
     q->raise();

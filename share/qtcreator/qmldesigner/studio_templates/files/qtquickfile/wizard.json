@@ -7,7 +7,6 @@
     "trDisplayName": "Qt Quick File",
     "trDisplayCategory": "Qt Quick Files",
     "icon": "file_qml.png",
-    "featuresRequired": [ "QtStudio" ],
     "platformIndependent": true,
 
     "options":
