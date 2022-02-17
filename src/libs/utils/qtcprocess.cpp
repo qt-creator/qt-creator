@@ -467,7 +467,6 @@ public:
     void setProcessInterface(ProcessInterface *process)
     {
         m_process.reset(process);
-        m_process->m_setup = m_setup;
         m_setup.m_errorString.clear();
         m_process->setParent(this);
 
@@ -700,6 +699,7 @@ QtcProcess::~QtcProcess()
 void QtcProcess::setProcessInterface(ProcessInterface *interface)
 {
     d->setProcessInterface(interface);
+    d->m_process->m_setup = d->m_setup;
 }
 
 void QtcProcess::setProcessImpl(ProcessImpl processImpl)

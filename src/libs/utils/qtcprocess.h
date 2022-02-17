@@ -302,8 +302,6 @@ public:
     virtual void interruptProcess() { QTC_CHECK(false); }
     virtual qint64 applicationMainThreadID() const { QTC_CHECK(false); return -1; }
 
-    ProcessSetupData m_setup;
-
 signals:
     void started();
     void finished();
@@ -314,11 +312,14 @@ signals:
 protected:
     void defaultStart();
 
+    ProcessSetupData m_setup;
+
 private:
     virtual void doDefaultStart(const QString &program, const QStringList &arguments)
     { Q_UNUSED(program) Q_UNUSED(arguments) QTC_CHECK(false); }
     bool dissolveCommand(QString *program, QStringList *arguments);
     bool ensureProgramExists(const QString &program);
+    friend class QtcProcess;
 };
 
 
