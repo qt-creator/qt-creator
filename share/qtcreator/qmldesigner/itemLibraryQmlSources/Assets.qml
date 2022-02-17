@@ -98,6 +98,8 @@ Item {
     StudioControls.Menu {
         id: contextMenu
 
+        closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+
         StudioControls.MenuItem {
             text: qsTr("Expand All")
             enabled: allExpandedState !== 1
