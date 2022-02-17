@@ -77,7 +77,6 @@ public:
     void handleStandardError();
 
     // Local
-    void handleProcessStarted();
     void localProcessError(QProcess::ProcessError error);
     void cannotRetrieveLocalDebugOutput();
     void checkLocalDebugOutput(qint64 pid, const QString &message);
@@ -323,12 +322,6 @@ QProcess::ExitStatus ApplicationLauncher::exitStatus() const
     return d->m_exitStatus;
 }
 
-void ApplicationLauncherPrivate::handleProcessStarted()
-{
-    m_listeningPid = applicationPID();
-    emit q->processStarted();
-}
-
 void ApplicationLauncher::start()
 {
     d->start(IDevice::ConstPtr(), true);
@@ -349,8 +342,6 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
     if (m_isLocal) {
         m_process.reset(new QtcProcess(this));
 
-        connect(m_process.get(), &QtcProcess::started,
-                this, &ApplicationLauncherPrivate::handleProcessStarted);
         connect(m_process.get(), &QtcProcess::finished, this, [this] {
             m_exitCode = m_process->exitCode();
             m_exitStatus = m_process->exitStatus();
@@ -359,7 +350,6 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
         });
         connect(m_process.get(), &QtcProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::localProcessError);
-
 
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
         const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
@@ -412,8 +402,6 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
         m_stopRequested = false;
 
         m_process.reset(device->createProcess(this));
-        connect(m_process.get(), &QtcProcess::started,
-                q, &ApplicationLauncher::processStarted);
         connect(m_process.get(), &QtcProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::handleApplicationError);
         connect(m_process.get(), &QtcProcess::finished,
@@ -428,6 +416,13 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
         m_outputCodec = QTextCodec::codecForLocale();
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
+
+    connect(m_process.get(), &QtcProcess::started, this, [this] {
+        // The local bit affects only WinDebugInterface.
+        if (m_isLocal)
+            m_listeningPid = applicationPID();
+        emit q->processStarted();
+    });
 
     m_process->setProcessChannelMode(m_processChannelMode);
     if (m_processChannelMode == QProcess::SeparateChannels) {
