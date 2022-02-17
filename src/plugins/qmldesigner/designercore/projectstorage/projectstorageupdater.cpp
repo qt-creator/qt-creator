@@ -140,6 +140,7 @@ void addDependencies(Storage::Imports &dependencies,
 
 void addModuleExportedImports(Storage::ModuleExportedImports &imports,
                               ModuleId moduleId,
+                              ModuleId cppModuleId,
                               const QList<QmlDirParser::Import> &qmldirImports,
                               ProjectStorageInterface &projectStorage)
 {
@@ -155,7 +156,7 @@ void addModuleExportedImports(Storage::ModuleExportedImports &imports,
 
         ModuleId exportedCppModuleId = projectStorage.moduleId(
             Utils::PathString{qmldirImport.module} + "-cppnative");
-        imports.emplace_back(moduleId,
+        imports.emplace_back(cppModuleId,
                              exportedCppModuleId,
                              Storage::Version{},
                              Storage::IsAutoVersion::No);
@@ -232,10 +233,15 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
 
             Utils::PathString moduleName{parser.typeNamespace()};
             ModuleId moduleId = m_projectStorage.moduleId(moduleName);
+            ModuleId cppModuleId = m_projectStorage.moduleId(moduleName + "-cppnative");
 
             auto imports = filterMultipleEntries(parser.imports());
 
-            addModuleExportedImports(package.moduleExportedImports, moduleId, imports, m_projectStorage);
+            addModuleExportedImports(package.moduleExportedImports,
+                                     moduleId,
+                                     cppModuleId,
+                                     imports,
+                                     m_projectStorage);
             package.updatedModuleIds.push_back(moduleId);
 
             const auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(qmlDirSourceId);
@@ -245,7 +251,6 @@ void ProjectStorageUpdater::updateQmldirs(const QStringList &qmlDirs,
             auto qmlTypes = filterMultipleEntries(parser.typeInfos());
 
             if (!qmlTypes.isEmpty()) {
-                ModuleId cppModuleId = m_projectStorage.moduleId(moduleName + "-cppnative");
                 parseTypeInfos(qmlTypes,
                                filterMultipleEntries(parser.dependencies()),
                                imports,
