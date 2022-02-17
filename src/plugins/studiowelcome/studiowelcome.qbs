@@ -3,7 +3,7 @@ import qbs.FileInfo
 QtcPlugin {
     name: "StudioWelcome"
 
-    Depends { name: "Qt"; submodules: ["qml", "quick", "quickwidgets"] }
+    Depends { name: "Qt"; submodules: ["qml", "qml-private", "quick", "quickwidgets"] }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
