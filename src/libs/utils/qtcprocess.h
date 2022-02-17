@@ -77,6 +77,107 @@ public:
         TerminalOn = TerminalRun // default mode for ON
     };
 
+    void setProcessInterface(ProcessInterface *interface);
+
+    // ProcessInterface related
+
+    virtual void start();
+    virtual void terminate();
+    virtual void kill();
+    void close();
+
+    virtual QByteArray readAllStandardOutput();
+    virtual QByteArray readAllStandardError();
+    virtual qint64 write(const QByteArray &input);
+
+    qint64 processId() const;
+    virtual QProcess::ProcessState state() const;
+    virtual int exitCode() const;
+    virtual QProcess::ExitStatus exitStatus() const;
+
+    QProcess::ProcessError error() const;
+    virtual QString errorString() const;
+    void setErrorString(const QString &str);
+
+    bool waitForStarted(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
+    bool waitForFinished(int msecs = 30000);
+
+    void kickoffProcess();
+    void interruptProcess();
+    qint64 applicationMainThreadID() const;
+
+    // ProcessSetupData related
+
+    void setProcessImpl(ProcessImpl processImpl);
+
+    void setTerminalMode(TerminalMode mode);
+    TerminalMode terminalMode() const;
+    bool usesTerminal() const { return terminalMode() != TerminalOff; }
+
+    void setProcessMode(ProcessMode processMode);
+    ProcessMode processMode() const;
+
+    void setEnvironment(const Environment &env);
+    void unsetEnvironment();
+    const Environment &environment() const;
+    bool hasEnvironment() const;
+
+    void setCommand(const CommandLine &cmdLine);
+    const CommandLine &commandLine() const;
+
+    void setWorkingDirectory(const FilePath &dir);
+    FilePath workingDirectory() const;
+
+    void setWriteData(const QByteArray &writeData);
+
+    void setUseCtrlCStub(bool enabled); // debug only
+    void setLowPriority();
+    void setDisableUnixTerminal();
+    void setRunAsRoot(bool on);
+    bool isRunAsRoot() const;
+    void setAbortOnMetaChars(bool abort);
+
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+    void setStandardInputFile(const QString &inputFile);
+
+    void setExtraData(const QString &key, const QVariant &value);
+    QVariant extraData(const QString &key) const;
+
+    void setExtraData(const QVariantHash &extraData);
+    QVariantHash extraData() const;
+
+    static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
+
+    // TODO: Some usages of this method assume that Starting phase is also a running state
+    // i.e. if isRunning() returns false, they assume NotRunning state, what may be an error.
+    bool isRunning() const; // Short for state() == QProcess::Running.
+
+    // Other enhancements.
+    // These (or some of them) may be potentially moved outside of the class.
+    // For some we may aggregate in another public utils class (or subclass of QtcProcess)?
+
+    // TODO: Should it be a part of ProcessInterface, too?
+    virtual void interrupt();
+
+    // TODO: How below 3 methods relate to QtcProcess? Action: move them somewhere else.
+    // Helpers to find binaries. Do not use it for other path variables
+    // and file types.
+    static QString locateBinary(const QString &binary);
+    static QString locateBinary(const QString &path, const QString &binary);
+    static QString normalizeNewlines(const QString &text);
+
+    // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
+    static Environment systemEnvironmentForBinary(const FilePath &filePath);
+
+    static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
+                              qint64 *pid = nullptr);
+
+    enum EventLoopMode {
+        NoEventLoop,
+        WithEventLoop // Avoid
+    };
+
     enum Result {
         // Finished successfully. Unless an ExitCodeInterpreter is set
         // this corresponds to a return code 0.
@@ -94,48 +195,6 @@ public:
         Hang
     };
 
-    void setProcessInterface(ProcessInterface *interface);
-
-    void setProcessImpl(ProcessImpl processImpl);
-
-    void setTerminalMode(TerminalMode mode);
-    bool usesTerminal() const { return terminalMode() != TerminalOff; }
-    TerminalMode terminalMode() const;
-
-    void setProcessMode(ProcessMode processMode);
-    ProcessMode processMode() const;
-
-    void setEnvironment(const Environment &env);
-    void unsetEnvironment();
-    const Environment &environment() const;
-    bool hasEnvironment() const;
-
-    void setCommand(const CommandLine &cmdLine);
-    const CommandLine &commandLine() const;
-
-    FilePath workingDirectory() const;
-    void setWorkingDirectory(const FilePath &dir);
-
-    void setUseCtrlCStub(bool enabled);
-    void setLowPriority();
-    void setDisableUnixTerminal();
-    void setRunAsRoot(bool on);
-    bool isRunAsRoot() const;
-
-    void setAbortOnMetaChars(bool abort);
-
-    virtual void start();
-    virtual void terminate();
-    virtual void interrupt();
-
-    static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
-                              qint64 *pid = nullptr);
-
-    enum EventLoopMode {
-        NoEventLoop,
-        WithEventLoop // Avoid
-    };
-
     // Starts the command and waits for finish.
     // User input processing is enabled when WithEventLoop was passed.
     void runBlocking(EventLoopMode eventLoopMode = NoEventLoop);
@@ -144,24 +203,19 @@ public:
      * occurs on stderr/stdout). */
     void setTimeoutS(int timeoutS);
 
+    // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);
     void setTimeOutMessageBoxEnabled(bool);
     void setExitCodeInterpreter(const std::function<QtcProcess::Result(int)> &interpreter);
-
-    void setWriteData(const QByteArray &writeData);
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdOutLineCallback(const std::function<void(const QString &)> &callback);
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
     void setStdErrLineCallback(const std::function<void(const QString &)> &callback);
 
-    static void setRemoteProcessHooks(const DeviceProcessHooks &hooks);
-
     bool stopProcess();
     bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
                              bool showTimeOutMessageBox);
-
-    static QString normalizeNewlines(const QString &text);
 
     Result result() const;
     void setResult(Result result);
@@ -174,57 +228,9 @@ public:
 
     QByteArray rawStdOut() const;
 
-    virtual int exitCode() const;
-
     QString exitMessage();
 
-    // Helpers to find binaries. Do not use it for other path variables
-    // and file types.
-    static QString locateBinary(const QString &binary);
-    static QString locateBinary(const QString &path, const QString &binary);
-
-    static Environment systemEnvironmentForBinary(const FilePath &filePath);
-
-    void kickoffProcess();
-    void interruptProcess();
-    qint64 applicationMainThreadID() const;
-
-    // FIXME: Cut down the following bits inherited from QProcess and QIODevice.
-
-    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-
-    QProcess::ProcessError error() const;
-    virtual QProcess::ProcessState state() const;
-    bool isRunning() const; // Short for state() == QProcess::Running.
-
-    virtual QString errorString() const;
-    void setErrorString(const QString &str);
-
-    qint64 processId() const;
-
-    bool waitForStarted(int msecs = 30000);
-    bool waitForReadyRead(int msecs = 30000);
-    bool waitForFinished(int msecs = 30000);
-
-    virtual QByteArray readAllStandardOutput();
-    virtual QByteArray readAllStandardError();
-
-    virtual QProcess::ExitStatus exitStatus() const;
-
-    virtual void kill();
-
-    virtual qint64 write(const QByteArray &input);
-    void close();
-
-    void setStandardInputFile(const QString &inputFile);
-
     QString toStandaloneCommandLine() const;
-
-    void setExtraData(const QString &key, const QVariant &value);
-    QVariant extraData(const QString &key) const;
-
-    void setExtraData(const QVariantHash &extraData);
-    QVariantHash extraData() const;
 
 signals:
     void started();
@@ -255,19 +261,20 @@ public:
     FilePath m_workingDirectory;
     Environment m_environment;
     QByteArray m_writeData;
+    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
+    QVariantHash m_extraData;
+    QString m_standardInputFile;
+    QString m_errorString; // partial internal
+    QString m_nativeArguments; // internal, dependent on specific code path
+
+    // TODO: Make below bools a one common flag enum?
+    bool m_abortOnMetaChars = true;
     bool m_runAsRoot = false;
     bool m_haveEnv = false;
-    bool m_useCtrlCStub = false;
-    QVariantHash m_extraData;
-
-    QString m_nativeArguments;
-    QString m_standardInputFile;
-    QString m_errorString;
-    bool m_belowNormalPriority = false;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
-    bool m_abortOnMetaChars = true;
-    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
+    bool m_useCtrlCStub = false; // debug only
+    bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
@@ -277,20 +284,21 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 public:
     ProcessInterface(QObject *parent) : QObject(parent) {}
 
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual QByteArray readAllStandardError() = 0;
-
     virtual void start() { defaultStart(); }
     virtual void terminate() = 0;
     virtual void kill() = 0;
     virtual void close() = 0;
+
+    virtual QByteArray readAllStandardOutput() = 0;
+    virtual QByteArray readAllStandardError() = 0;
     virtual qint64 write(const QByteArray &data) = 0;
 
-    virtual QProcess::ProcessError error() const = 0;
-    virtual QProcess::ProcessState state() const = 0;
     virtual qint64 processId() const = 0;
+    virtual QProcess::ProcessState state() const = 0;
     virtual int exitCode() const = 0;
     virtual QProcess::ExitStatus exitStatus() const = 0;
+
+    virtual QProcess::ProcessError error() const = 0;
     virtual QString errorString() const = 0;
     virtual void setErrorString(const QString &str) = 0;
 
