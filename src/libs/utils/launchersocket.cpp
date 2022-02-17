@@ -763,7 +763,7 @@ void LauncherSocket::sendData(const QByteArray &data)
         QMetaObject::invokeMethod(this, &LauncherSocket::handleRequests);
 }
 
-CallerHandle *LauncherSocket::registerHandle(QObject *parent, quintptr token, ProcessMode mode)
+CallerHandle *LauncherSocket::registerHandle(QObject *parent, quintptr token)
 {
     QTC_ASSERT(!isCalledFromLaunchersThread(), return nullptr);
     QMutexLocker locker(&m_mutex);

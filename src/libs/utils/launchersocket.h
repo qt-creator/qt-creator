@@ -238,7 +238,7 @@ public:
     void sendData(const QByteArray &data);
 
     // Called from caller's thread exclusively.
-    CallerHandle *registerHandle(QObject *parent, quintptr token, ProcessMode mode);
+    CallerHandle *registerHandle(QObject *parent, quintptr token);
     void unregisterHandle(quintptr token);
 
 signals:

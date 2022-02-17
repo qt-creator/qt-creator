@@ -240,11 +240,10 @@ void LauncherInterface::sendData(const QByteArray &data)
     instance()->m_private->socket()->sendData(data);
 }
 
-Utils::Internal::CallerHandle *LauncherInterface::registerHandle(QObject *parent, quintptr token,
-                                                                 ProcessMode mode)
+Utils::Internal::CallerHandle *LauncherInterface::registerHandle(QObject *parent, quintptr token)
 {
     QMutexLocker locker(&s_instanceMutex);
-    return instance()->m_private->socket()->registerHandle(parent, token, mode);
+    return instance()->m_private->socket()->registerHandle(parent, token);
 }
 
 void LauncherInterface::unregisterHandle(quintptr token)

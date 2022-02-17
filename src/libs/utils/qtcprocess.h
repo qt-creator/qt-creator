@@ -275,9 +275,7 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
     Q_OBJECT
 
 public:
-    ProcessInterface(QObject *parent, ProcessMode processMode)
-        : QObject(parent)
-        , m_processMode(processMode) {}
+    ProcessInterface(QObject *parent) : QObject(parent) {}
 
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
@@ -304,7 +302,6 @@ public:
     virtual void interruptProcess() { QTC_CHECK(false); }
     virtual qint64 applicationMainThreadID() const { QTC_CHECK(false); return -1; }
 
-    const ProcessMode m_processMode;
     ProcessSetupData m_setup;
 
 signals:

@@ -219,7 +219,7 @@ class TerminalImpl : public ProcessInterface
 public:
     TerminalImpl(QObject *parent, QtcProcess::ProcessImpl processImpl,
                  QtcProcess::TerminalMode terminalMode)
-        : ProcessInterface(parent, ProcessMode::Reader)
+        : ProcessInterface(parent)
         , m_terminal(this, processImpl, terminalMode)
     {
         connect(&m_terminal, &Internal::TerminalProcess::started,
@@ -274,8 +274,8 @@ private:
 class QProcessImpl : public ProcessInterface
 {
 public:
-    QProcessImpl(QObject *parent, ProcessMode processMode)
-        : ProcessInterface(parent, processMode)
+    QProcessImpl(QObject *parent)
+        : ProcessInterface(parent)
         , m_process(new ProcessHelper(parent))
     {
         connect(m_process, &QProcess::started,
@@ -332,7 +332,7 @@ private:
     void doDefaultStart(const QString &program, const QStringList &arguments) override
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
-        handler->setProcessMode(m_processMode);
+        handler->setProcessMode(m_setup.m_processMode);
         handler->setWriteData(m_setup.m_writeData);
         if (m_setup.m_belowNormalPriority)
             handler->setBelowNormalPriority();
@@ -368,10 +368,10 @@ class ProcessLauncherImpl : public ProcessInterface
 {
     Q_OBJECT
 public:
-    ProcessLauncherImpl(QObject *parent, ProcessMode processMode)
-        : ProcessInterface(parent, processMode), m_token(uniqueToken())
+    ProcessLauncherImpl(QObject *parent)
+        : ProcessInterface(parent), m_token(uniqueToken())
     {
-        m_handle = LauncherInterface::registerHandle(parent, token(), processMode);
+        m_handle = LauncherInterface::registerHandle(parent, token());
         connect(m_handle, &CallerHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
         connect(m_handle, &CallerHandle::started,
@@ -460,8 +460,8 @@ public:
         if (m_setup.m_terminalMode != QtcProcess::TerminalOff)
             return new TerminalImpl(parent(), impl, m_setup.m_terminalMode);
         else if (impl == QtcProcess::QProcessImpl)
-            return new QProcessImpl(parent(), m_setup.m_processMode);
-        return new ProcessLauncherImpl(parent(), m_setup.m_processMode);
+            return new QProcessImpl(parent());
+        return new ProcessLauncherImpl(parent());
     }
 
     void setProcessInterface(ProcessInterface *process)
