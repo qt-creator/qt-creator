@@ -28,10 +28,18 @@
 #include <coreplugin/icore.h>
 
 #include <utils/archive.h>
+#include <utils/algorithm.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 
 #include <private/qqmldata_p.h>
+
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
+#include <projectexplorer/projectexplorer.h>
+
+#include <studiowelcomeplugin.h>
 
 #include <QDialog>
 #include <QFileDialog>
@@ -229,12 +237,9 @@ FileExtractor::FileExtractor(QObject *parent)
     : QObject(parent)
 {
     m_targetPath = Utils::FilePath::fromString(
-        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-
-    if (!m_targetPath.isEmpty())
-        m_targetPath = m_targetPath.pathAppended("QtDesignStudio");
-    else
-        m_targetPath = "/temp/";
+        Core::ICore::settings()
+            ->value(StudioWelcome::Internal::EXAMPLES_DOWNLOAD_PATH)
+            .toString());
 
     m_timer.setInterval(100);
     m_timer.setSingleShot(false);
@@ -247,6 +252,32 @@ FileExtractor::FileExtractor(QObject *parent)
 
         emit birthTimeChanged();
     });
+
+    const ExtensionSystem::PluginSpec *pluginSpec
+        = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
+                               Utils::equal(&ExtensionSystem::PluginSpec::name,
+                                            QString("StudioWelcome")));
+
+    if (!pluginSpec)
+        return;
+
+    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
+
+    if (!plugin)
+        return;
+
+    auto studioWelcomePlugin = qobject_cast<StudioWelcome::Internal::StudioWelcomePlugin *>(plugin);
+
+    if (studioWelcomePlugin) {
+        QObject::connect(studioWelcomePlugin,
+                         &StudioWelcome::Internal::StudioWelcomePlugin::examplesDownloadPathChanged,
+                         this,
+                         [this](const QString &path) {
+                             m_targetPath = Utils::FilePath::fromString(path);
+                             emit targetPathChanged();
+                             emit targetFolderExistsChanged();
+                         });
+    }
 }
 
 FileExtractor::~FileExtractor() {}

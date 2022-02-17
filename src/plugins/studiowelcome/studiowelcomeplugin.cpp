@@ -66,6 +66,7 @@
 #include <QFontDatabase>
 #include <QGroupBox>
 #include <QPointer>
+#include <QPushButton>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -777,6 +778,18 @@ void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
     }
 }
 
+const Utils::FilePath defaultExamplesPath = Utils::FilePath::fromString(
+                                                QStandardPaths::writableLocation(
+                                                    QStandardPaths::DocumentsLocation))
+                                                .pathAppended("QtDesignStudio");
+
+static QString examplesPathSetting()
+{
+    return Core::ICore::settings()
+        ->value(EXAMPLES_DOWNLOAD_PATH, defaultExamplesPath.toString())
+        .toString();
+}
+
 WelcomeMode::~WelcomeMode()
 {
     delete m_modeWidget;
@@ -786,19 +799,18 @@ StudioSettingsPage::StudioSettingsPage()
     : m_buildCheckBox(new QCheckBox(tr("Build")))
     , m_debugCheckBox(new QCheckBox(tr("Debug")))
     , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
+    , m_pathChooser(new Utils::PathChooser())
 {
     const QString toolTip = tr(
         "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
         "generally not required in the context of Qt Design Studio.<b>Debug</b> and <b>Analyze</b>"
         "are only required for debugging and profiling.");
 
-    QVBoxLayout *boxLayout = new QVBoxLayout(this);
+    QVBoxLayout *boxLayout = new QVBoxLayout();
     setLayout(boxLayout);
     auto groupBox = new QGroupBox(tr("Hide Menu"));
     groupBox->setToolTip(toolTip);
     boxLayout->addWidget(groupBox);
-    boxLayout->addSpacerItem(
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     auto verticalLayout = new QVBoxLayout();
     groupBox->setLayout(verticalLayout);
@@ -816,6 +828,28 @@ StudioSettingsPage::StudioSettingsPage()
     m_buildCheckBox->setChecked(hideBuildMenuSetting());
     m_debugCheckBox->setChecked(hideDebugMenuSetting());
     m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
+
+    auto examplesGroupBox = new QGroupBox(tr("Examples"));
+    boxLayout->addWidget(examplesGroupBox);
+
+    auto horizontalLayout = new QHBoxLayout();
+    examplesGroupBox->setLayout(horizontalLayout);
+
+    auto label = new QLabel(tr("Examples path:"));
+    m_pathChooser->setFilePath(Utils::FilePath::fromString(examplesPathSetting()));
+    auto resetButton = new QPushButton(tr("Reset Path"));
+
+    connect(resetButton, &QPushButton::clicked, this, [this]() {
+        m_pathChooser->setFilePath(defaultExamplesPath);
+    });
+
+    horizontalLayout->addWidget(label);
+    horizontalLayout->addWidget(m_pathChooser);
+    horizontalLayout->addWidget(resetButton);
+
+
+    boxLayout->addSpacerItem(
+        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
 
 void StudioSettingsPage::apply()
@@ -839,6 +873,14 @@ void StudioSettingsPage::apply()
         const QString restartText = tr("The menu visibility change will take effect after restart.");
         Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
         restartDialog.exec();
+    }
+
+    QSettings *s = Core::ICore::settings();
+    const QString value = m_pathChooser->filePath().toString();
+
+    if (s->value(EXAMPLES_DOWNLOAD_PATH, false).toString() != value) {
+        s->setValue(EXAMPLES_DOWNLOAD_PATH, value);
+        emit s_pluginInstance->examplesDownloadPathChanged(value);
     }
 }
 

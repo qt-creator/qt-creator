@@ -27,6 +27,7 @@
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/pathchooser.h>
 
 #include <QTimer>
 
@@ -34,6 +35,8 @@ QT_FORWARD_DECLARE_CLASS(QCheckBox)
 
 namespace StudioWelcome {
 namespace Internal {
+
+const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
 
 class StudioSettingsPage : public Core::IOptionsPageWidget
 {
@@ -46,6 +49,7 @@ private:
     QCheckBox *m_buildCheckBox;
     QCheckBox *m_debugCheckBox;
     QCheckBox *m_analyzeCheckBox;
+    Utils::PathChooser *m_pathChooser;
 };
 
 class StudioWelcomeSettingsPage : public Core::IOptionsPage
@@ -75,6 +79,9 @@ public:
 
     void pauseRemoveSplashTimer();
     void resumeRemoveSplashTimer();
+
+signals:
+    void examplesDownloadPathChanged(const QString &path);
 
 private:
     class WelcomeMode *m_welcomeMode = nullptr;
