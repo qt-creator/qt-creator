@@ -368,12 +368,21 @@ QString FileExtractor::sourceFile() const
 
 void FileExtractor::extract()
 {
+    const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
+
+    // If the target directory already exists, remove it and its content
+    QDir targetDir(targetFolder);
+    if (targetDir.exists())
+        targetDir.removeRecursively();
+
+    // Create a new directory to generate a proper creation date
+    targetDir.mkdir(targetFolder);
+
     Utils::Archive *archive = Utils::Archive::unarchive(m_sourceFile, m_targetPath);
     archive->setParent(this);
     QTC_ASSERT(archive, return );
 
     m_timer.start();
-    const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
     qint64 bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
     qint64 compressedSize = QFileInfo(m_sourceFile.toString()).size();
 
