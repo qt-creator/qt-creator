@@ -70,6 +70,7 @@ namespace Utils {
 namespace Internal {
 
 const char QTC_PROCESS_BLOCKING_TYPE[] = "__BLOCKING_TYPE__";
+const char QTC_PROCESS_NUMBER[] = "__NUMBER__";
 
 class MeasureAndRun
 {
@@ -582,10 +583,12 @@ static QString blockingMessage(const QVariant &variant)
 void ProcessInterface::defaultStart()
 {
     if (processLog().isDebugEnabled()) {
-        static std::atomic_int n = 0;
-        qCDebug(processLog) << "Starting process no." << ++n
+        static std::atomic_int startCounter = 0;
+        const int currentNumber = startCounter.fetch_add(1);
+        qCDebug(processLog) << "Starting process no." << currentNumber
                             << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
                             << m_setup.m_commandLine.toUserOutput();
+        setProperty(QTC_PROCESS_NUMBER, currentNumber);
     }
 
     QString program;
@@ -675,6 +678,18 @@ QtcProcess::QtcProcess(QObject *parent)
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
     Q_UNUSED(qProcessExitStatusMeta)
     Q_UNUSED(qProcessProcessErrorMeta)
+
+    if (processLog().isDebugEnabled()) {
+        connect(this, &QtcProcess::finished, [this] {
+            if (const QVariant n = d->m_process.get()->property(QTC_PROCESS_NUMBER); n.isValid()) {
+                qCDebug(processLog).nospace() << "Process no. " << n.toInt() << " finished: "
+                                              << "result=" << result()
+                                              << ", ex=" << exitCode()
+                                              << ", " << stdOut().size() << " bytes stdout"
+                                                 ", stderr=" << stdErr();
+            }
+        });
+    }
 }
 
 QtcProcess::~QtcProcess()
@@ -1504,8 +1519,6 @@ void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
         // Attach a dynamic property with info about blocking type
         setProperty(QTC_PROCESS_BLOCKING_TYPE, int(eventLoopMode));
     }
-
-    ExecuteOnDestruction logResult([this] { qCDebug(processLog) << *this; });
 
     QtcProcess::start();
     if (processLog().isDebugEnabled()) {
