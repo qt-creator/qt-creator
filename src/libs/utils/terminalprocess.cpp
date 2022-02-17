@@ -476,7 +476,7 @@ void TerminalProcess::finish(int exitCode, QProcess::ExitStatus exitStatus)
     d->m_processId = 0;
     d->m_exitCode = exitCode;
     d->m_appStatus = exitStatus;
-    emit finished(exitCode, exitStatus);
+    emit finished();
 }
 
 void TerminalProcess::kickoffProcess()

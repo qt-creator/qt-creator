@@ -256,7 +256,7 @@ void CallerHandle::handleFinished(const FinishedSignal *launcherSignal)
     m_processState = QProcess::NotRunning;
     m_exitStatus = launcherSignal->exitStatus();
     m_exitCode = launcherSignal->exitCode();
-    emit finished(m_exitCode, m_exitStatus);
+    emit finished();
 }
 
 // Called from launcher's thread exclusively.
