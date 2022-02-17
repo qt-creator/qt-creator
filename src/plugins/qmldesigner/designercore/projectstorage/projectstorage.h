@@ -1403,7 +1403,7 @@ private:
         Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
     }
 
-    Utils::PathString createJson(const Storage::ParameterDeclarations &parameters)
+    static Utils::PathString createJson(const Storage::ParameterDeclarations &parameters)
     {
         Utils::PathString json;
         json.append("[");
@@ -1437,7 +1437,16 @@ private:
         std::sort(functionsDeclarations.begin(),
                   functionsDeclarations.end(),
                   [](auto &&first, auto &&second) {
-                      return Sqlite::compare(first.name, second.name) < 0;
+                      auto compare = Sqlite::compare(first.name, second.name);
+
+                      if (compare == 0) {
+                          Utils::PathString firstSignature{createJson(first.parameters)};
+                          Utils::PathString secondSignature{createJson(second.parameters)};
+
+                          return Sqlite::compare(firstSignature, secondSignature) < 0;
+                      }
+
+                      return compare < 0;
                   });
 
         auto range = selectFunctionDeclarationsForTypeIdStatement
@@ -1445,7 +1454,13 @@ private:
 
         auto compareKey = [](const Storage::FunctionDeclarationView &view,
                              const Storage::FunctionDeclaration &value) {
-            return Sqlite::compare(view.name, value.name);
+            auto nameKey = Sqlite::compare(view.name, value.name);
+            if (nameKey != 0)
+                return nameKey;
+
+            Utils::PathString valueSignature{createJson(value.parameters)};
+
+            return Sqlite::compare(view.signature, valueSignature);
         };
 
         auto insert = [&](const Storage::FunctionDeclaration &value) {
@@ -1458,10 +1473,10 @@ private:
                           const Storage::FunctionDeclaration &value) {
             Utils::PathString signature{createJson(value.parameters)};
 
-            if (value.returnTypeName == view.returnTypeName && signature == view.signature)
+            if (value.returnTypeName == view.returnTypeName)
                 return Sqlite::UpdateChange::No;
 
-            updateFunctionDeclarationStatement.write(&view.id, value.returnTypeName, signature);
+            updateFunctionDeclarationStatement.write(&view.id, value.returnTypeName);
 
             return Sqlite::UpdateChange::Update;
         };
@@ -1512,7 +1527,7 @@ private:
         Sqlite::insertUpdateDelete(range, signalDeclarations, compareKey, insert, update, remove);
     }
 
-    Utils::PathString createJson(const Storage::EnumeratorDeclarations &enumeratorDeclarations)
+    static Utils::PathString createJson(const Storage::EnumeratorDeclarations &enumeratorDeclarations)
     {
         Utils::PathString json;
         json.append("{");
@@ -2121,10 +2136,10 @@ private:
                             {Sqlite::PrimaryKey{}});
             auto &typeIdColumn = table.addColumn("typeId");
             auto &nameColumn = table.addColumn("name");
-            table.addColumn("signature");
+            auto &signatureColumn = table.addColumn("signature");
             table.addColumn("returnTypeName");
 
-            table.addUniqueIndex({typeIdColumn, nameColumn});
+            table.addUniqueIndex({typeIdColumn, nameColumn, signatureColumn});
 
             table.initialize(database);
         }
@@ -2137,9 +2152,9 @@ private:
             table.addColumn("signalDeclarationId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
             auto &typeIdColumn = table.addColumn("typeId");
             auto &nameColumn = table.addColumn("name");
-            table.addColumn("signature");
+            auto &signatureColumn = table.addColumn("signature");
 
-            table.addUniqueIndex({typeIdColumn, nameColumn});
+            table.addUniqueIndex({typeIdColumn, nameColumn, signatureColumn});
 
             table.initialize(database);
         }
@@ -2429,7 +2444,7 @@ public:
         database};
     mutable ReadStatement<4, 1> selectFunctionDeclarationsForTypeIdStatement{
         "SELECT name, returnTypeName, signature, functionDeclarationId FROM "
-        "functionDeclarations WHERE typeId=? ORDER BY name",
+        "functionDeclarations WHERE typeId=? ORDER BY name, signature",
         database};
     mutable ReadStatement<3, 1> selectFunctionDeclarationsForTypeIdWithoutSignatureStatement{
         "SELECT name, returnTypeName, functionDeclarationId FROM "
@@ -2444,10 +2459,8 @@ public:
         "INSERT INTO functionDeclarations(typeId, name, returnTypeName, signature) VALUES(?1, ?2, "
         "?3, ?4)",
         database};
-    WriteStatement<3> updateFunctionDeclarationStatement{
-        "UPDATE functionDeclarations SET returnTypeName=?2, signature=?3 WHERE "
-        "functionDeclarationId=?1",
-        database};
+    WriteStatement<2> updateFunctionDeclarationStatement{
+        "UPDATE functionDeclarations SET returnTypeName=?2 WHERE functionDeclarationId=?1", database};
     WriteStatement<1> deleteFunctionDeclarationStatement{
         "DELETE FROM functionDeclarations WHERE functionDeclarationId=?", database};
     mutable ReadStatement<3, 1> selectSignalDeclarationsForTypeIdStatement{
