@@ -4126,4 +4126,36 @@ TEST_F(ProjectStorage, DistinguishBetweenImportKinds)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
+TEST_F(ProjectStorage, ModuleExportedImportDistinguishBetweenDependencyAndImportReExports)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    package.moduleDependencies.emplace_back(qtQuick3DModuleId, Storage::Version{1}, sourceId4);
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypes(),
+                UnorderedElementsAre(
+                    AllOf(IsStorageType(sourceId1,
+                                        "QQuickItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item")))),
+                    AllOf(IsStorageType(sourceId2, "QObject", TypeId{}, TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qmlModuleId, "Object")))),
+                    AllOf(IsStorageType(sourceId3,
+                                        "QQuickItem3d",
+                                        fetchTypeId(sourceId1, "QQuickItem"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(qtQuick3DModuleId, "Item3D")))),
+                    AllOf(IsStorageType(sourceId4,
+                                        "MyItem",
+                                        fetchTypeId(sourceId2, "QObject"),
+                                        TypeAccessSemantics::Reference),
+                          Field(&Storage::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
+}
+
 } // namespace

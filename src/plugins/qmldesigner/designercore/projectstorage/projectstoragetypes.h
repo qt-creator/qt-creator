@@ -152,7 +152,12 @@ inline int operator<(IsQualified first, IsQualified second)
     return static_cast<int>(first) < static_cast<int>(second);
 }
 
-enum class ImportKind : char { Import, ModuleDependency, ModuleExportedImport };
+enum class ImportKind : char {
+    Import,
+    ModuleDependency,
+    ModuleExportedImport,
+    ModuleExportedModuleDependency
+};
 
 class Import
 {

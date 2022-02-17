@@ -1374,10 +1374,14 @@ private:
                                                Storage::Version{majorVersion, minorVersion},
                                                import.sourceId};
 
-                    insertDocumentImport(additionImport,
-                                         Storage::ImportKind::ModuleExportedImport,
-                                         import.moduleId,
-                                         ModuleExportedImportId{moduleExportedImportId});
+                auto exportedImportKind = importKind == Storage::ImportKind::Import
+                                              ? Storage::ImportKind::ModuleExportedImport
+                                              : Storage::ImportKind::ModuleExportedModuleDependency;
+
+                insertDocumentImport(additionImport,
+                                     exportedImportKind,
+                                     import.moduleId,
+                                     ModuleExportedImportId{moduleExportedImportId});
 
                 return Sqlite::CallbackControl::Continue;
             };
