@@ -102,6 +102,9 @@ public:
     const Environment &environment() const;
     bool hasEnvironment() const;
 
+    void setRemoteEnvironment(const Environment &env);
+    Environment remoteEnvironment() const;
+
     void setCommand(const CommandLine &cmdLine);
     const CommandLine &commandLine() const;
 

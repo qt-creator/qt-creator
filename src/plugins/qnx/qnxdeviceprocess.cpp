@@ -59,7 +59,7 @@ QString QnxDeviceProcess::fullCommandLine() const
         fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(
             ProcessArgs::quoteArg(workingDirectory().toString()));
 
-    const Environment env = environment();
+    const Environment env = remoteEnvironment();
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
         fullCommandLine += QString::fromLatin1("%1='%2' ")
                 .arg(env.key(it)).arg(env.expandedValueForKey(env.key(it)));

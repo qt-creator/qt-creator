@@ -408,7 +408,7 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
                 this, &ApplicationLauncherPrivate::handleApplicationFinished);
         m_process->setCommand(m_runnable.command);
         m_process->setWorkingDirectory(m_runnable.workingDirectory);
-        m_process->setEnvironment(m_runnable.environment);
+        m_process->setRemoteEnvironment(m_runnable.environment);
         m_process->setExtraData(m_runnable.extraData);
     }
 

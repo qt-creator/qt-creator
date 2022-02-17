@@ -45,6 +45,7 @@ public:
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
+    Environment m_remoteEnvironment;
     QByteArray m_writeData;
     QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     QVariantHash m_extraData;

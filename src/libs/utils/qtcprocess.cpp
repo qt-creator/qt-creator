@@ -772,6 +772,16 @@ bool QtcProcess::hasEnvironment() const
     return d->m_setup.m_haveEnv;
 }
 
+void QtcProcess::setRemoteEnvironment(const Environment &environment)
+{
+    d->m_setup.m_remoteEnvironment = environment;
+}
+
+Environment QtcProcess::remoteEnvironment() const
+{
+    return d->m_setup.m_remoteEnvironment;
+}
+
 void QtcProcess::setCommand(const CommandLine &cmdLine)
 {
     if (d->m_setup.m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {

@@ -99,7 +99,7 @@ QString LinuxDeviceProcess::fullCommandLine() const
     if (!usesTerminal())
         cmd.addArgs(QString("echo ") + pidMarker + "$$" + pidMarker + " && ", CommandLine::Raw);
 
-    const Environment &env = environment();
+    const Environment &env = remoteEnvironment();
     for (auto it = env.constBegin(); it != env.constEnd(); ++it)
         cmd.addArgs(env.key(it) + "='" + env.expandedValueForKey(env.key(it)) + '\'', CommandLine::Raw);
 
