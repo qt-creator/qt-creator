@@ -202,7 +202,7 @@ Item {
             Text {
                 text: qsTr("Could not rename folder. Make sure no folder with the same name exists.")
                 wrapMode: Text.WordWrap
-                width: renameFolderDialog.width
+                width: renameFolderDialog.width - 12
                 color: "#ff0000"
                 visible: renameFolderDialog.renameError
             }
