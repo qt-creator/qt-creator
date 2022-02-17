@@ -77,7 +77,8 @@ FileDownloader::FileDownloader(QObject *parent)
 
 FileDownloader::~FileDownloader()
 {
-    m_tempFile.remove();
+    if (m_tempFile.exists())
+        m_tempFile.remove();
 }
 
 void FileDownloader::start()
@@ -111,7 +112,8 @@ void FileDownloader::start()
 
     QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error()) {
-            m_tempFile.remove();
+            if (m_tempFile.exists())
+                m_tempFile.remove();
             qDebug() << Q_FUNC_INFO << m_url << reply->errorString();
             emit downloadFailed();
         } else {
@@ -411,7 +413,7 @@ void FileExtractor::extract()
         emit detailedTextChanged();
     });
 
-    QObject::connect(archive, &Utils::Archive::finished, [this](bool ret) {
+    QObject::connect(archive, &Utils::Archive::finished, this, [this](bool ret) {
         m_finished = ret;
         m_timer.stop();
 
