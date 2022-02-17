@@ -774,7 +774,8 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 
 void QtcProcess::start()
 {
-    QTC_ASSERT(state() == QProcess::NotRunning, return);
+// TODO: Uncomment when we de-virtualize start()
+//    QTC_ASSERT(state() == QProcess::NotRunning, return);
 
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
         QTC_ASSERT(s_deviceHooks.startProcessHook, return);
