@@ -38,6 +38,8 @@ class ClangCodeCompletionTest : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+
     void testCompleteDoxygenKeywords();
     void testCompletePreprocessorKeywords();
     void testCompleteIncludeDirective();

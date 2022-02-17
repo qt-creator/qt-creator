@@ -35,10 +35,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/modelmanagertesthelper.h>
 #include <cppeditor/projectinfo.h>
+#include <languageclient/languageclientmanager.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/textdocument.h>
@@ -513,6 +515,13 @@ private:
 namespace ClangCodeModel {
 namespace Internal {
 namespace Tests {
+
+void ClangCodeCompletionTest::initTestCase()
+{
+    CppEditor::ClangdSettings::setUseClangd(false);
+    for (LanguageClient::Client * const c : LanguageClient::LanguageClientManager::clients())
+        LanguageClient::LanguageClientManager::shutdownClient(c);
+}
 
 void ClangCodeCompletionTest::testCompleteDoxygenKeywords()
 {
