@@ -2036,7 +2036,7 @@ void ClangdTestExternalChanges::test()
     QVERIFY(waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
                                    &ClangModelManagerSupport::createdClient, timeOutInMs()));
     ClangdClient * const newClient = ClangModelManagerSupport::instance()
-            ->clientForFile(filePath("main.cpp"));
+            ->clientForProject(project());
     QVERIFY(newClient);
     QVERIFY(newClient != oldClient);
     newClient->enableTesting();

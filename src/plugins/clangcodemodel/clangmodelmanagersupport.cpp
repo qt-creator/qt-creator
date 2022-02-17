@@ -58,6 +58,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -83,6 +84,13 @@ static ClangModelManagerSupport *m_instance = nullptr;
 static CppEditor::CppModelManager *cppModelManager()
 {
     return CppEditor::CppModelManager::instance();
+}
+
+static ProjectExplorer::Project *fallbackProject()
+{
+    if (ProjectExplorer::Project * const p = ProjectExplorer::ProjectTree::currentProject())
+        return p;
+    return ProjectExplorer::SessionManager::startupProject();
 }
 
 static const QList<TextEditor::BaseTextEditor *> allCppEditors()
@@ -148,10 +156,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, &ClangModelManagerSupport::onAboutToRemoveProject);
     connect(sessionManager, &ProjectExplorer::SessionManager::projectRemoved,
-            this, [this] {
-        if (ClangdClient * const fallbackClient = clientForProject(nullptr))
-            claimNonProjectSources(fallbackClient);
-    });
+            this, [this] { claimNonProjectSources(clientForProject(fallbackProject())); });
 
     CppEditor::ClangdSettings::setDefaultClangdPath(Core::ICore::clangdExecutable(CLANG_BINDIR));
     connect(&CppEditor::ClangdSettings::instance(), &CppEditor::ClangdSettings::changed,
@@ -369,12 +374,15 @@ void ClangModelManagerSupport::updateLanguageClient(
             // Acquaint the client with all open C++ documents for this project.
             bool hasDocuments = false;
             for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
-                const Utils::FilePath filePath = editor->textDocument()->filePath();
-                if (!project->isKnownFile(filePath))
-                    continue;
-                LanguageClientManager::openDocumentWithClient(editor->textDocument(), client);
-                ClangEditorDocumentProcessor::clearTextMarks(filePath);
-                hasDocuments = true;
+                TextEditor::TextDocument * const doc = editor->textDocument();
+                const Client * const currentClient = LanguageClientManager::clientForDocument(doc);
+                if (!currentClient || !currentClient->project()
+                        || currentClient->state() != Client::Initialized
+                        || project->isKnownFile(doc->filePath())) {
+                    LanguageClientManager::openDocumentWithClient(editor->textDocument(), client);
+                    ClangEditorDocumentProcessor::clearTextMarks(doc->filePath());
+                    hasDocuments = true;
+                }
             }
 
             if (client->state() == Client::Initialized)
@@ -443,7 +451,7 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
 
 ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file) const
 {
-    return clientForProject(ProjectExplorer::SessionManager::projectForFile(file));
+    return qobject_cast<ClangdClient *>(LanguageClientManager::clientForFilePath(file));
 }
 
 ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
@@ -454,15 +462,19 @@ ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *p
     return client;
 }
 
-void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *fallbackClient)
+void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
 {
+    if (!client)
+        return;
     for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
-        if (ProjectExplorer::SessionManager::projectForFile(editor->textDocument()->filePath()))
+        if (Client * const currentClient = LanguageClientManager::clientForDocument(
+                    editor->textDocument());
+                currentClient && currentClient->state() == Client::Initialized
+                && (currentClient == client || currentClient->project())) {
             continue;
-        if (!fallbackClient->documentOpen(editor->textDocument())) {
-            ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
-            fallbackClient->openDocument(editor->textDocument());
         }
+        ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
+        client->openDocument(editor->textDocument());
     }
 }
 
@@ -562,8 +574,10 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 
         // TODO: Ensure that not fully loaded documents are updated?
 
-        ProjectExplorer::Project * const project
+        ProjectExplorer::Project * project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
+        if (!project)
+            project = fallbackProject();
         if (ClangdClient * const client = clientForProject(project))
             LanguageClientManager::openDocumentWithClient(textDocument, client);
     }
