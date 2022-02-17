@@ -218,6 +218,7 @@ Project {
             "porting.h",
             "portlist.cpp",
             "portlist.h",
+            "processenums.h",
             "processhandle.cpp",
             "processhandle.h",
             "processreaper.cpp",

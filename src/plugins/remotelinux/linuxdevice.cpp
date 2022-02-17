@@ -287,7 +287,7 @@ public:
     ~LinuxDevicePrivate();
 
     CommandLine fullLocalCommandLine(const CommandLine &remoteCommand,
-                                     QtcProcess::TerminalMode terminalMode,
+                                     TerminalMode terminalMode,
                                      bool hasDisplay) const;
     bool setupShell();
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {});
@@ -335,7 +335,7 @@ LinuxDevice::LinuxDevice()
         if (env.size() > 0)
             proc->setCommand({"/bin/sh", {}});
 
-        proc->setTerminalMode(QtcProcess::TerminalOn);
+        proc->setTerminalMode(TerminalMode::On);
         proc->setEnvironment(env);
         proc->setWorkingDirectory(workingDir);
         proc->start();
@@ -438,7 +438,7 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
 }
 
 CommandLine LinuxDevicePrivate::fullLocalCommandLine(const CommandLine &remoteCommand,
-                                                     QtcProcess::TerminalMode terminalMode,
+                                                     TerminalMode terminalMode,
                                                      bool hasDisplay) const
 {
     Utils::CommandLine cmd{SshSettings::sshFilePath()};
@@ -446,7 +446,7 @@ CommandLine LinuxDevicePrivate::fullLocalCommandLine(const CommandLine &remoteCo
 
     if (hasDisplay)
         cmd.addArg("-X");
-    if (terminalMode != QtcProcess::TerminalOff)
+    if (terminalMode != TerminalMode::Off)
         cmd.addArg("-tt");
 
     cmd.addArg("-q");

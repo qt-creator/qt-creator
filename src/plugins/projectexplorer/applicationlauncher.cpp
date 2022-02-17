@@ -190,7 +190,7 @@ void ApplicationLauncherPrivate::stop()
             return;
         m_stopRequested = true;
         emit q->appendMessage(ApplicationLauncher::tr("User requested stop. Shutting down..."),
-                              Utils::NormalMessageFormat);
+                              NormalMessageFormat);
         switch (m_state) {
             case Run:
                 m_process->terminate();
@@ -439,7 +439,7 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
                 this, &ApplicationLauncherPrivate::handleStandardOutput);
     }
 
-    m_process->setTerminalMode(m_useTerminal ? QtcProcess::TerminalOn : QtcProcess::TerminalOff);
+    m_process->setTerminalMode(m_useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     m_process->start();
 }
 

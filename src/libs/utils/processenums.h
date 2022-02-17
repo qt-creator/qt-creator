@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,44 +25,31 @@
 
 #pragma once
 
-#include "utils_global.h"
-
-#include "processreaper.h"
-#include "singleton.h"
-
-#include <QThread>
+#include <QMetaType>
 
 namespace Utils {
-namespace Internal {
-class CallerHandle;
-class LauncherHandle;
-class LauncherInterfacePrivate;
-class ProcessLauncherImpl;
-}
 
-class QTCREATOR_UTILS_EXPORT LauncherInterface final
-        : public SingletonWithOptionalDependencies<LauncherInterface, ProcessReaper>
-{
-public:
-    static void setPathToLauncher(const QString &pathToLauncher);
+enum class ProcessMode {
+    Reader, // This opens in ReadOnly mode if no write data or in ReadWrite mode otherwise,
+            // closes the write channel afterwards.
+    Writer  // This opens in ReadWrite mode and doesn't close the write channel
+};
 
-private:
-    friend class Utils::Internal::CallerHandle;
-    friend class Utils::Internal::LauncherHandle;
-    friend class Utils::Internal::ProcessLauncherImpl;
+enum class ProcessImpl {
+    QProcess,
+    ProcessLauncher,
+    Default // Defaults to ProcessLauncherImpl, if QTC_USE_QPROCESS env var is set
+            // it equals to QProcessImpl.
+};
 
-    static bool isStarted();
-    static bool isReady();
-    static void sendData(const QByteArray &data);
-    static Utils::Internal::CallerHandle *registerHandle(QObject *parent, quintptr token);
-    static void unregisterHandle(quintptr token);
-
-    LauncherInterface();
-    ~LauncherInterface();
-
-    QThread m_thread;
-    Internal::LauncherInterfacePrivate *m_private;
-    friend class SingletonWithOptionalDependencies<LauncherInterface, ProcessReaper>;
+enum class TerminalMode {
+    Off,
+    Run,
+    Debug,
+    Suspend,
+    On = Run // Default mode for terminal set to on
 };
 
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::ProcessMode);

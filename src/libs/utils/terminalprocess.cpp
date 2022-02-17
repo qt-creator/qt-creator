@@ -63,16 +63,16 @@
 namespace Utils {
 namespace Internal {
 
-static QString modeOption(QtcProcess::TerminalMode m)
+static QString modeOption(TerminalMode m)
 {
     switch (m) {
-        case QtcProcess::TerminalRun:
+        case TerminalMode::Run:
         return QLatin1String("run");
-        case QtcProcess::TerminalDebug:
+        case TerminalMode::Debug:
         return QLatin1String("debug");
-        case QtcProcess::TerminalSuspend:
+        case TerminalMode::Suspend:
         return QLatin1String("suspend");
-        case QtcProcess::TerminalOff:
+        case TerminalMode::Off:
         QTC_CHECK(false);
         break;
     }
@@ -123,15 +123,14 @@ static QString msgCannotExecute(const QString & p, const QString &why)
 class TerminalProcessPrivate
 {
 public:
-    TerminalProcessPrivate(QObject *parent, QtcProcess::ProcessImpl processImpl,
-                           QtcProcess::TerminalMode terminalMode)
+    TerminalProcessPrivate(QObject *parent, ProcessImpl processImpl, TerminalMode terminalMode)
         : m_terminalMode(terminalMode)
         , m_process(parent)
     {
         m_process.setProcessImpl(processImpl);
     }
 
-    const QtcProcess::TerminalMode m_terminalMode;
+    const TerminalMode m_terminalMode;
     FilePath m_workingDir;
     Environment m_environment;
     qint64 m_processId = 0;
@@ -161,9 +160,9 @@ public:
 #endif
 };
 
-TerminalProcess::TerminalProcess(QObject *parent, QtcProcess::ProcessImpl processImpl,
-                                 QtcProcess::TerminalMode terminalMode) :
-    QObject(parent), d(new TerminalProcessPrivate(this, processImpl, terminalMode))
+TerminalProcess::TerminalProcess(QObject *parent, ProcessImpl processImpl,
+                                 TerminalMode terminalMode)
+    : QObject(parent), d(new TerminalProcessPrivate(this, processImpl, terminalMode))
 {
     connect(&d->m_stubServer, &QLocalServer::newConnection,
             this, &TerminalProcess::stubConnectionAvailable);
@@ -211,7 +210,7 @@ void TerminalProcess::start()
 
     QString pcmd;
     QString pargs;
-    if (d->m_terminalMode != QtcProcess::TerminalRun) { // The debugger engines already pre-process the arguments.
+    if (d->m_terminalMode != TerminalMode::Run) { // The debugger engines already pre-process the arguments.
         pcmd = d->m_commandLine.executable().toString();
         pargs = d->m_commandLine.arguments();
     } else {
@@ -376,7 +375,7 @@ void TerminalProcess::start()
             emitError(QProcess::FailedToStart, tr("Quoting error in command."));
             return;
         }
-        if (d->m_terminalMode == QtcProcess::TerminalDebug) {
+        if (d->m_terminalMode == TerminalMode::Debug) {
             // FIXME: QTCREATORBUG-2809
             emitError(QProcess::FailedToStart, tr("Debugging complex shell commands in a terminal"
                                  " is currently not supported."));

@@ -1680,7 +1680,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (tmp < 0 || tmp > int(StopBeforeBuild::SameApp))
         tmp = int(defaultSettings.stopBeforeBuild);
     dd->m_projectExplorerSettings.stopBeforeBuild = StopBeforeBuild(tmp);
-    dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(
+    dd->m_projectExplorerSettings.terminalMode = static_cast<Internal::TerminalMode>(
         s->value(Constants::TERMINAL_MODE_SETTINGS_KEY, int(defaultSettings.terminalMode)).toInt());
     dd->m_projectExplorerSettings.closeSourceFilesWithProject
         = s->value(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY,

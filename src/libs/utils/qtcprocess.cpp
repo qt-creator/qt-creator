@@ -32,6 +32,7 @@
 #include "launcherpackets.h"
 #include "launchersocket.h"
 #include "processreaper.h"
+#include "processutils.h"
 #include "stringutils.h"
 #include "terminalprocess_p.h"
 
@@ -217,8 +218,7 @@ public:
 class TerminalImpl : public ProcessInterface
 {
 public:
-    TerminalImpl(QObject *parent, QtcProcess::ProcessImpl processImpl,
-                 QtcProcess::TerminalMode terminalMode)
+    TerminalImpl(QObject *parent, ProcessImpl processImpl, TerminalMode terminalMode)
         : ProcessInterface(parent)
         , m_terminal(this, processImpl, terminalMode)
     {
@@ -431,11 +431,11 @@ void ProcessLauncherImpl::cancel()
     m_handle->cancel();
 }
 
-static QtcProcess::ProcessImpl defaultProcessImpl()
+static ProcessImpl defaultProcessImpl()
 {
     if (qEnvironmentVariableIsSet("QTC_USE_QPROCESS"))
-        return QtcProcess::QProcessImpl;
-    return QtcProcess::ProcessLauncherImpl;
+        return ProcessImpl::QProcess;
+    return ProcessImpl::ProcessLauncher;
 }
 
 class QtcProcessPrivate : public QObject
@@ -454,12 +454,12 @@ public:
 
     ProcessInterface *createProcessInterface()
     {
-        const QtcProcess::ProcessImpl impl = m_setup.m_processImpl == QtcProcess::DefaultImpl
-                    ? defaultProcessImpl() : m_setup.m_processImpl;
+        const ProcessImpl impl = m_setup.m_processImpl == ProcessImpl::Default
+                               ? defaultProcessImpl() : m_setup.m_processImpl;
 
-        if (m_setup.m_terminalMode != QtcProcess::TerminalOff)
+        if (m_setup.m_terminalMode != TerminalMode::Off)
             return new TerminalImpl(parent(), impl, m_setup.m_terminalMode);
-        else if (impl == QtcProcess::QProcessImpl)
+        else if (impl == ProcessImpl::QProcess)
             return new QProcessImpl(parent());
         return new ProcessLauncherImpl(parent());
     }
@@ -717,7 +717,7 @@ void QtcProcess::setTerminalMode(TerminalMode mode)
     d->m_setup.m_terminalMode = mode;
 }
 
-QtcProcess::TerminalMode QtcProcess::terminalMode() const
+TerminalMode QtcProcess::terminalMode() const
 {
     return d->m_setup.m_terminalMode;
 }

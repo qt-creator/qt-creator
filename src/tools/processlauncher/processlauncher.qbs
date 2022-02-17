@@ -29,6 +29,7 @@ QtcTool {
         files: [
             "launcherpackets.cpp",
             "launcherpackets.h",
+            "processenums.h",
             "processreaper.cpp",
             "processreaper.h",
             "processutils.cpp",

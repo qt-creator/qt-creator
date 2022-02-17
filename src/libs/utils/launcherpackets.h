@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "processutils.h"
+#include "processenums.h"
 
 #include <QDataStream>
 #include <QProcess>

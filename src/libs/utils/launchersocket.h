@@ -28,7 +28,6 @@
 #include "environment.h"
 #include "filepath.h"
 #include "launcherpackets.h"
-#include "processutils.h"
 #include "qtcprocess.h"
 
 #include <QDeadlineTimer>

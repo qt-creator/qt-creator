@@ -25,16 +25,12 @@
 
 #pragma once
 
+#include "processenums.h"
+
 #include <QIODevice>
 #include <QProcess>
 
 namespace Utils {
-
-enum class ProcessMode {
-    Reader, // This opens in ReadOnly mode if no write data or in ReadWrite mode otherwise,
-            // closes the write channel afterwards
-    Writer  // This opens in ReadWrite mode and doesn't close the write channel
-};
 
 class ProcessStartHandler {
 public:
@@ -83,5 +79,3 @@ private:
 };
 
 } // namespace Utils
-
-Q_DECLARE_METATYPE(Utils::ProcessMode);

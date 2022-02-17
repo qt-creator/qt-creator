@@ -108,7 +108,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);
     auto process = new QtcProcess(parent);
-    process->setTerminalMode(QtcProcess::TerminalOn);
+    process->setTerminalMode(TerminalMode::On);
     const FilePath pythonCommand = detectPython(file);
     process->setCommand({pythonCommand, args});
     process->setWorkingDirectory(workingDir(file));

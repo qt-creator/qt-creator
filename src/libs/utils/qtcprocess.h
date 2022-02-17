@@ -29,7 +29,7 @@
 
 #include "environment.h"
 #include "commandline.h"
-#include "processutils.h"
+#include "processenums.h"
 #include "qtcassert.h"
 
 #include <QProcess>
@@ -62,20 +62,6 @@ class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
 public:
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
-
-    enum ProcessImpl {
-        QProcessImpl,
-        ProcessLauncherImpl,
-        DefaultImpl,
-    };
-
-    enum TerminalMode {
-        TerminalOff,
-        TerminalRun,
-        TerminalDebug,
-        TerminalSuspend,
-        TerminalOn = TerminalRun // default mode for ON
-    };
 
     void setProcessInterface(ProcessInterface *interface);
 
@@ -113,7 +99,7 @@ public:
 
     void setTerminalMode(TerminalMode mode);
     TerminalMode terminalMode() const;
-    bool usesTerminal() const { return terminalMode() != TerminalOff; }
+    bool usesTerminal() const { return terminalMode() != TerminalMode::Off; }
 
     void setProcessMode(ProcessMode processMode);
     ProcessMode processMode() const;
@@ -253,9 +239,9 @@ private:
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
 public:
-    QtcProcess::ProcessImpl m_processImpl = QtcProcess::DefaultImpl;
+    ProcessImpl m_processImpl = ProcessImpl::Default;
     ProcessMode m_processMode = ProcessMode::Reader;
-    QtcProcess::TerminalMode m_terminalMode = QtcProcess::TerminalOff;
+    TerminalMode m_terminalMode = TerminalMode::Off;
 
     CommandLine m_commandLine;
     FilePath m_workingDirectory;

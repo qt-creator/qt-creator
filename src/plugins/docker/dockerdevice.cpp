@@ -534,7 +534,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
         }
 
         QtcProcess *proc = new QtcProcess;
-        proc->setTerminalMode(QtcProcess::TerminalOn);
+        proc->setTerminalMode(TerminalMode::On);
 
         QObject::connect(proc, &QtcProcess::finished, proc, &QObject::deleteLater);
 
