@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmldesignerplugin.h"
+#include "cmakeprojectconverter.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "exception.h"
@@ -230,6 +231,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         GenerateResource::generateMenuEntry();
 
     GenerateCmake::generateMenuEntry();
+    GenerateCmake::CmakeProjectConverter::generateMenuEntry();
 
     const QString fontPath
         = Core::ICore::resourcePath(

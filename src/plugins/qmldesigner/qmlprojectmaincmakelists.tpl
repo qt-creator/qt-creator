@@ -10,8 +10,7 @@ qt_add_executable(%1 src/main.cpp)
 
 qt_add_resources(%1 "configuration"
     PREFIX "/"
-    FILES
-        qtquickcontrols2.conf
+%2
 )
 
 target_link_libraries(%1 PRIVATE

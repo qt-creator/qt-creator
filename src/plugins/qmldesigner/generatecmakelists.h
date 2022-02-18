@@ -43,31 +43,56 @@ void generateMenuEntry();
 void onGenerateCmakeLists();
 bool isErrorFatal(int error);
 int isProjectCorrectlyFormed(const Utils::FilePath &rootDir);
-void removeUnconfirmedQueuedFiles(const Utils::FilePaths confirmedFiles);
 void showProjectDirErrorDialog(int error);
-bool showConfirmationDialog(const Utils::FilePath &rootDir);
-bool queueFile(const Utils::FilePath &filePath, const QString &fileContent);
-bool writeFile(const GeneratableFile &file);
-bool writeQueuedFiles();
 QString readTemplate(const QString &templatePath);
-}
-namespace GenerateCmakeLists {
-bool generateCmakes(const Utils::FilePath &rootDir);
-void generateMainCmake(const Utils::FilePath &rootDir);
-void generateImportCmake(const Utils::FilePath &dir, const QString &modulePrefix = QString());
-void generateModuleCmake(const Utils::FilePath &dir, const QString &moduleUri = QString());
-Utils::FilePaths getDirectoryQmls(const Utils::FilePath &dir);
-QStringList getSingletonsFromQmldirFile(const Utils::FilePath &filePath);
-QStringList getDirectoryTreeQmls(const Utils::FilePath &dir);
-QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
-void queueCmakeFile(const Utils::FilePath &filePath, const QString &content);
-bool isFileBlacklisted(const QString &fileName);
-bool isDirBlacklisted(const Utils::FilePath &dir);
-}
-namespace GenerateEntryPoints {
-bool generateEntryPointFiles(const Utils::FilePath &dir);
-bool generateMainCpp(const Utils::FilePath &dir);
-bool generateMainQml(const Utils::FilePath &dir);
-bool isFileResource(const QString &relativeFilePath);
-}
-}
+const QString projectEnvironmentVariable(const QString &key);
+
+class FileQueue {
+public:
+    bool queueFile(const Utils::FilePath &filePath, const QString &fileContent);
+    const QVector<GeneratableFile> queuedFiles() const;
+    bool writeQueuedFiles();
+    void filterFiles(const Utils::FilePaths keepFiles);
+
+private:
+    bool writeFile(const GeneratableFile &file);
+
+private:
+    QVector<GeneratableFile> m_queuedFiles;
+};
+
+class CmakeFileGenerator {
+public:
+    bool prepare(const Utils::FilePath &rootDir, bool check = true);
+    const FileQueue fileQueue() const;
+    void filterFileQueue(const Utils::FilePaths &keepFiles);
+    bool execute();
+
+private:
+    void generateMainCmake(const Utils::FilePath &rootDir);
+    void generateImportCmake(const Utils::FilePath &dir, const QString &modulePrefix = QString());
+    void generateModuleCmake(const Utils::FilePath &dir, const QString &moduleUri = QString());
+    bool generateEntryPointFiles(const Utils::FilePath &dir);
+    bool generateMainCpp(const Utils::FilePath &dir);
+    bool generateMainQml(const Utils::FilePath &dir);
+    QStringList getDirectoryQmls(const Utils::FilePath &dir);
+    QStringList getDirectoryResources(const Utils::FilePath &dir);
+    QStringList getSingletonsFromQmldirFile(const Utils::FilePath &filePath);
+    QStringList getDirectoryTreeQmls(const Utils::FilePath &dir);
+    QStringList getDirectoryTreeResources(const Utils::FilePath &dir);
+    void queueCmakeFile(const Utils::FilePath &filePath, const QString &content);
+    bool isFileResource(const QString &relativeFilePath);
+    bool isFileBlacklisted(const QString &fileName);
+    bool isDirBlacklisted(const Utils::FilePath &dir);
+    bool includeFile(const Utils::FilePath &filePath);
+
+private:
+    FileQueue m_fileQueue;
+    QStringList m_resourceFileLocations;
+    QStringList m_moduleNames;
+    bool m_checkFileIsInProject;
+};
+
+} //GenerateCmake
+
+} //QmlDesigner

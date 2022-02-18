@@ -30,6 +30,8 @@ add_qtc_plugin(QmlDesigner
     checkablefiletreeitem.cpp checkablefiletreeitem.h
     cmakegeneratordialog.cpp cmakegeneratordialog.h
     cmakegeneratordialogtreemodel.cpp cmakegeneratordialogtreemodel.h
+    cmakeprojectconverter.cpp cmakeprojectconverter.h
+    cmakeprojectconverterdialog.cpp cmakeprojectconverterdialog.h
     generateresource.cpp generateresource.h
     generatecmakelists.cpp generatecmakelists.h
     generatecmakelistsconstants.h

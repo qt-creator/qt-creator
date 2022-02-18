@@ -1035,6 +1035,8 @@ Project {
             "cmakegeneratordialogtreemodel.h",
             "cmakegeneratordialog.cpp",
             "cmakegeneratordialog.h",
+            "cmakeprojectconverter.cpp",
+            "cmakeprojectconverter.h",
             "designersettings.cpp",
             "designersettings.h",
             "designmodecontext.cpp",
