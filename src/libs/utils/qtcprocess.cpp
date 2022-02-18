@@ -447,9 +447,10 @@ public:
         OtherFailure
     };
 
-    explicit QtcProcessPrivate(QtcProcess *parent)
+    explicit QtcProcessPrivate(QtcProcess *parent, ProcessSetupData &setup)
         : QObject(parent)
         , q(parent)
+        , m_setup(setup)
     {}
 
     ProcessInterface *createProcessInterface()
@@ -525,7 +526,7 @@ public:
 
     QtcProcess *q;
     std::unique_ptr<ProcessInterface> m_process;
-    ProcessSetupData m_setup;
+    ProcessSetupData &m_setup;
 
     void slotTimeout();
     void slotFinished();
@@ -670,8 +671,8 @@ bool ProcessInterface::ensureProgramExists(const QString &program)
 */
 
 QtcProcess::QtcProcess(QObject *parent)
-    : QObject(parent),
-    d(new QtcProcessPrivate(this))
+    : ProcessInterface(parent),
+    d(new QtcProcessPrivate(this, m_setup))
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
