@@ -33,6 +33,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -52,11 +53,12 @@
 #include <qmldesigner/components/componentcore/theme.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
-#include <utils/hostosinfo.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -605,6 +607,12 @@ void StudioWelcomePlugin::extensionsInitialized()
             Core::ICore::resourcePath("qmldesigner/studio_templates"));
 
         Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
+
+        const QString filters = QString("Project (*.qmlproject);;UI file (*.ui.qml);;QML file "
+                                        "(*.qml);;JavaScript file (*.js);;%1")
+                                    .arg(Utils::allFilesFilterString());
+
+        Core::DocumentManager::setFileDialogFilter(filters);
     }
 
     if (showSplashScreen()) {
