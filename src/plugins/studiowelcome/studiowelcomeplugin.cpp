@@ -719,7 +719,7 @@ WelcomeMode::WelcomeMode()
     ExampleCheckout::registerTypes();
 
     m_modeWidget = new QQuickWidget;
-    m_modeWidget->setMinimumSize(1024, 768);
+    m_modeWidget->setMinimumSize(640, 480);
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     QmlDesigner::Theme::setupTheme(m_modeWidget->engine());
     m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
