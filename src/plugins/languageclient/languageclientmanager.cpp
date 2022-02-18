@@ -232,7 +232,7 @@ void LanguageClientManager::deleteClient(Client *client)
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
     qCDebug(Log) << "delete client: " << client->name() << client;
-    client->disconnect();
+    client->disconnect(managerInstance);
     managerInstance->m_clients.removeAll(client);
     for (QVector<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
