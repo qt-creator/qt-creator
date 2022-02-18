@@ -31,10 +31,10 @@
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/icon.h>
 
 #include <QHash>

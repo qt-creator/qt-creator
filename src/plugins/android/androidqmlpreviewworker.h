@@ -27,7 +27,8 @@
 #include "androidconfigurations.h"
 
 #include <projectexplorer/runcontrol.h>
-#include <utils/environment.h>
+
+#include <utils/qtcprocess.h>
 
 #include <QFutureWatcher>
 

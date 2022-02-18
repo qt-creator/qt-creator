@@ -32,6 +32,8 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QElapsedTimer>
 
 namespace Debugger {
