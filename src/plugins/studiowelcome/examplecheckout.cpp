@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "examplecheckout.h"
 
+#include "studiowelcomeplugin.h"
+
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
@@ -38,8 +40,6 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <projectexplorer/projectexplorer.h>
-
-#include <studiowelcomeplugin.h>
 
 #include <QDialog>
 #include <QFileDialog>
