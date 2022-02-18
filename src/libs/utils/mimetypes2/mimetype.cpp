@@ -515,6 +515,34 @@ bool MimeType::inherits(const QString &mimeTypeName) const
     return MimeDatabasePrivate::instance()->mimeInherits(d->name, mimeTypeName);
 }
 
+/*!
+    Returns \c true if the name or alias of the MIME type matches
+    \a nameOrAlias.
+*/
+bool MimeType::matchesName(const QString &nameOrAlias) const
+{
+//    if (d->name == nameOrAlias)
+//        return true;
+//    return MimeDatabasePrivate::instance()->provider()->resolveAlias(nameOrAlias) == d->name;
+    return true;
+}
+
+/*!
+    Sets the preferred filename suffix for the MIME type to \a suffix.
+*/
+void MimeType::setPreferredSuffix(const QString &suffix)
+{
+//    MimeDatabasePrivate::instance()->provider()->loadMimeTypePrivate(*d);
+
+//    auto it = std::find_if(d->globPatterns.begin(), d->globPatterns.end(),
+//                           [suffix](const QString &pattern) {
+//                               return suffixFromPattern(pattern) == suffix;
+//                           });
+//    if (it != d->globPatterns.end())
+//        d->globPatterns.erase(it);
+//    d->globPatterns.prepend(QLatin1String("*.") + suffix);
+}
+
 } // namespace Utils
 
 #ifndef QT_NO_DEBUG_STREAM

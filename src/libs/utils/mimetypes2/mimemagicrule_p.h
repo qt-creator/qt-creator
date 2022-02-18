@@ -50,19 +50,24 @@
 // We mean it.
 //
 
+#include <utils/utils_global.h>
+
 #include <QtCore/qbytearray.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qlist.h>
 
 namespace Utils {
 
-class MimeMagicRule
+class QTCREATOR_UTILS_EXPORT MimeMagicRule
 {
 public:
     enum Type { Invalid = 0, String, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
 
     MimeMagicRule(const QString &typeStr, const QByteArray &value, const QString &offsets,
                    const QByteArray &mask, QString *errorString);
+    // added for Qt Creator
+    MimeMagicRule(const Type &type, const QByteArray &value, int startPos, int endPos,
+                  const QByteArray &mask = {}, QString *errorString = nullptr);
 
     void swap(MimeMagicRule &other) noexcept
     {
@@ -97,6 +102,9 @@ public:
     static bool matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength, int valueLength, const char *valueData, const char *mask);
 
 private:
+    // added for Qt Creator
+    void init(QString *errorString);
+
     Type m_type;
     QByteArray m_value;
     int m_startPos;

@@ -42,6 +42,8 @@
 
 #include "mimetype.h"
 
+#include "mimemagicrule_p.h"
+
 #include <utils/utils_global.h>
 
 #include <QtCore/qstringlist.h>
@@ -72,6 +74,25 @@ QTCREATOR_UTILS_EXPORT MimeType mimeTypeForFile(const FilePath &filePath, MimeMa
 QTCREATOR_UTILS_EXPORT QList<MimeType> mimeTypesForFileName(const QString &fileName);
 QTCREATOR_UTILS_EXPORT MimeType mimeTypeForData(const QByteArray &data);
 QTCREATOR_UTILS_EXPORT QList<MimeType> allMimeTypes();
+
+// Qt Creator additions
+// For debugging purposes.
+enum class MimeStartupPhase {
+    BeforeInitialize,
+    PluginsLoading,
+    PluginsInitializing, // Register up to here.
+    PluginsDelayedInitializing, // Use from here on.
+    UpAndRunning
+};
+
+QTCREATOR_UTILS_EXPORT void setMimeStartupPhase(MimeStartupPhase);
+QTCREATOR_UTILS_EXPORT void addMimeTypes(const QString &id, const QByteArray &data);
+QTCREATOR_UTILS_EXPORT QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType); // priority -> rules
+QTCREATOR_UTILS_EXPORT void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
+QTCREATOR_UTILS_EXPORT void setMagicRulesForMimeType(const MimeType &mimeType,
+                                                     const QMap<int, QList<MimeMagicRule> > &rules); // priority -> rules
+
+// Original
 
 class MimeDatabasePrivate;
 class QTCREATOR_UTILS_EXPORT MimeDatabase

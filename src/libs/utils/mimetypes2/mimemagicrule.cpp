@@ -214,6 +214,21 @@ static inline QByteArray makePattern(const QByteArray &value)
     return pattern;
 }
 
+MimeMagicRule::MimeMagicRule(const Type &type,
+                             const QByteArray &value,
+                             int startPos,
+                             int endPos,
+                             const QByteArray &mask,
+                             QString *errorString)
+    : m_type(type)
+    , m_value(value)
+    , m_startPos(startPos)
+    , m_endPos(endPos)
+    , m_mask(mask)
+{
+    init(errorString);
+}
+
 // Evaluate a magic match rule like
 //  <match value="must be converted with BinHex" type="string" offset="11"/>
 //  <match value="0x9501" type="big16" offset="0:64"/>
@@ -248,6 +263,11 @@ MimeMagicRule::MimeMagicRule(const QString &type,
         return;
     }
 
+    init(errorString);
+}
+
+void MimeMagicRule::init(QString *errorString)
+{
     if (m_type >= Host16 && m_type <= Byte) {
         bool ok;
         m_number = m_value.toUInt(&ok, 0); // autodetect base
