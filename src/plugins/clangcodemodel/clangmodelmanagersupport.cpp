@@ -44,6 +44,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppfollowsymbolundercursor.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppprojectfile.h>
@@ -93,21 +94,13 @@ static ProjectExplorer::Project *fallbackProject()
     return ProjectExplorer::SessionManager::startupProject();
 }
 
-static const QList<TextEditor::BaseTextEditor *> allCppEditors()
+static const QList<TextEditor::TextDocument *> allCppDocuments()
 {
-    QList<TextEditor::BaseTextEditor *> cppEditors;
-    for (const Core::DocumentModel::Entry * const entry : Core::DocumentModel::entries()) {
-        const auto textDocument = qobject_cast<TextEditor::TextDocument *>(entry->document);
-        if (!textDocument)
-            continue;
-        if (const auto cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(Utils::findOrDefault(
-                Core::DocumentModel::editorsForDocument(textDocument), [](Core::IEditor *editor) {
-                    return CppEditor::CppModelManager::isCppEditor(editor);
-        }))) {
-            cppEditors << cppEditor;
-        }
-    }
-    return cppEditors;
+    const auto isCppDocument = Utils::equal(&Core::IDocument::id,
+                                            Utils::Id(CppEditor::Constants::CPPEDITOR_ID));
+    const QList<Core::IDocument *> documents
+        = Utils::filtered(Core::DocumentModel::openedDocuments(), isCppDocument);
+    return Utils::qobject_container_cast<TextEditor::TextDocument *>(documents);
 }
 
 ClangModelManagerSupport::ClangModelManagerSupport()
@@ -373,13 +366,12 @@ void ClangModelManagerSupport::updateLanguageClient(
 
             // Acquaint the client with all open C++ documents for this project.
             bool hasDocuments = false;
-            for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
-                TextEditor::TextDocument * const doc = editor->textDocument();
+            for (TextEditor::TextDocument * const doc : allCppDocuments()) {
                 const Client * const currentClient = LanguageClientManager::clientForDocument(doc);
                 if (!currentClient || !currentClient->project()
                         || currentClient->state() != Client::Initialized
                         || project->isKnownFile(doc->filePath())) {
-                    LanguageClientManager::openDocumentWithClient(editor->textDocument(), client);
+                    LanguageClientManager::openDocumentWithClient(doc, client);
                     ClangEditorDocumentProcessor::clearTextMarks(doc->filePath());
                     hasDocuments = true;
                 }
@@ -466,15 +458,14 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
 {
     if (!client)
         return;
-    for (TextEditor::BaseTextEditor * const editor : allCppEditors()) {
-        if (Client * const currentClient = LanguageClientManager::clientForDocument(
-                    editor->textDocument());
+    for (TextEditor::TextDocument * const doc : allCppDocuments()) {
+        if (Client * const currentClient = LanguageClientManager::clientForDocument(doc);
                 currentClient && currentClient->state() == Client::Initialized
                 && (currentClient == client || currentClient->project())) {
             continue;
         }
-        ClangEditorDocumentProcessor::clearTextMarks(editor->textDocument()->filePath());
-        client->openDocument(editor->textDocument());
+        ClangEditorDocumentProcessor::clearTextMarks(doc->filePath());
+        client->openDocument(doc);
     }
 }
 
