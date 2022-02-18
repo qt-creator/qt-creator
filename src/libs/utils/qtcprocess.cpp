@@ -580,6 +580,21 @@ static QString blockingMessage(const QVariant &variant)
     return "(blocking without event loop):";
 }
 
+void ProcessInterface::kickoffProcess()
+{
+    QTC_CHECK(false);
+}
+
+void ProcessInterface::interruptProcess()
+{
+    QTC_CHECK(false);
+}
+
+qint64 ProcessInterface::applicationMainThreadID() const
+{
+    QTC_CHECK(false); return -1;
+}
+
 void ProcessInterface::defaultStart()
 {
     if (processLog().isDebugEnabled()) {
@@ -598,6 +613,13 @@ void ProcessInterface::defaultStart()
     if (!ensureProgramExists(program))
         return;
     s_start.measureAndRun(&ProcessInterface::doDefaultStart, this, program, arguments);
+}
+
+void ProcessInterface::doDefaultStart(const QString &program, const QStringList &arguments)
+{
+    Q_UNUSED(program)
+    Q_UNUSED(arguments)
+    QTC_CHECK(false);
 }
 
 bool ProcessInterface::dissolveCommand(QString *program, QStringList *arguments)
