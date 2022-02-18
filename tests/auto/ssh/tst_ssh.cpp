@@ -330,8 +330,8 @@ void tst_Ssh::remoteProcessInput()
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
 
-    SshRemoteProcessPtr catProcess = connection.createRemoteProcess("/bin/cat",
-                                                                    Utils::ProcessMode::Writer);
+    SshRemoteProcessPtr catProcess = connection.createRemoteProcess("/bin/cat");
+    catProcess->setProcessMode(Utils::ProcessMode::Writer);
     QEventLoop loop;
     connect(catProcess.get(), &SshRemoteProcess::started, &loop, &QEventLoop::quit);
     connect(catProcess.get(), &SshRemoteProcess::done, &loop, &QEventLoop::quit);

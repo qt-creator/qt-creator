@@ -29,7 +29,6 @@
 #include "ssh_global.h"
 
 #include <utils/filepath.h>
-#include <utils/processutils.h>
 
 #include <QFlags>
 #include <QHostAddress>
@@ -115,10 +114,8 @@ public:
     bool sharingEnabled() const;
     ~SshConnection();
 
-    SshRemoteProcessPtr createRemoteProcess(const QString &command, Utils::ProcessMode processMode
-                                            = Utils::ProcessMode::Reader);
-    SshRemoteProcessPtr createRemoteShell(Utils::ProcessMode processMode
-                                          = Utils::ProcessMode::Reader);
+    SshRemoteProcessPtr createRemoteProcess(const QString &command);
+    SshRemoteProcessPtr createRemoteShell();
     SftpTransferPtr createUpload(const FilesToTransfer &files,
                                  FileTransferErrorHandling errorHandlingMode);
     SftpTransferPtr createDownload(const FilesToTransfer &files,

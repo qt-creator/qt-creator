@@ -34,7 +34,7 @@ namespace QSsh {
 class QSSH_EXPORT SshProcess : public Utils::QtcProcess
 {
 public:
-    SshProcess(Utils::ProcessMode processMode = Utils::ProcessMode::Reader);
+    SshProcess();
 };
 
 } // namespace QSsh

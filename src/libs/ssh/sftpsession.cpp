@@ -58,7 +58,7 @@ struct Command
 
 struct SftpSession::SftpSessionPrivate
 {
-    SshProcess sftpProc = {ProcessMode::Writer};
+    SshProcess sftpProc;
     QStringList connectionArgs;
     QByteArray output;
     QQueue<Command> pendingCommands;
@@ -111,6 +111,7 @@ static QByteArray prompt() { return "sftp> "; }
 
 SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionPrivate)
 {
+    d->sftpProc.setProcessMode(ProcessMode::Writer);
     d->connectionArgs = connectionArgs;
     connect(&d->sftpProc, &QtcProcess::started, [this] {
         qCDebug(sshLog) << "sftp process started";

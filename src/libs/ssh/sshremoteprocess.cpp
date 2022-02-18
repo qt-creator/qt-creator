@@ -49,9 +49,8 @@ using namespace QSsh::Internal;
 
 namespace QSsh {
 
-SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
-                                   Utils::ProcessMode processMode)
-    : SshProcess(processMode)
+SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs)
+    : SshProcess()
 {
     m_remoteCommand = command;
     m_connectionArgs = connectionArgs;

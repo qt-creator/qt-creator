@@ -209,8 +209,8 @@ public:
         // connect to it
         // wait for connected
         m_shell = new SshRemoteProcess("/bin/sh",
-                  parameters.connectionOptions(SshSettings::sshFilePath()) << parameters.host(),
-                  ProcessMode::Writer);
+                  parameters.connectionOptions(SshSettings::sshFilePath()) << parameters.host());
+        m_shell->setProcessMode(ProcessMode::Writer);
         m_shell->start();
         const bool startOK = m_shell->waitForStarted();
         if (!startOK)

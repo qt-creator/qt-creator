@@ -31,10 +31,8 @@
 
 namespace QSsh {
 
-SshProcess::SshProcess(Utils::ProcessMode processMode)
+SshProcess::SshProcess()
 {
-    setProcessMode(processMode);
-
     Utils::Environment env = Utils::Environment::systemEnvironment();
     if (SshSettings::askpassFilePath().exists()) {
         env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());

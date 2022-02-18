@@ -37,8 +37,7 @@ class QSSH_EXPORT SshRemoteProcess : public SshProcess
     Q_OBJECT
 
 public:
-    SshRemoteProcess(const QString &command, const QStringList &connectionArgs,
-                     Utils::ProcessMode processMode = Utils::ProcessMode::Reader);
+    SshRemoteProcess(const QString &command, const QStringList &connectionArgs);
 
     void requestX11Forwarding(const QString &displayName);
     void start();
