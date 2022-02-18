@@ -358,15 +358,13 @@ void Client::setClientCapabilities(const LanguageServerProtocol::ClientCapabilit
 void Client::openDocument(TextEditor::TextDocument *document)
 {
     using namespace TextEditor;
-    if (!isSupportedDocument(document))
+    if (m_openedDocument.contains(document) || !isSupportedDocument(document))
         return;
 
     if (m_state != Initialized) {
         m_postponedDocuments << document;
         return;
     }
-
-    QTC_ASSERT(!m_openedDocument.contains(document), return);
 
     const FilePath &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
