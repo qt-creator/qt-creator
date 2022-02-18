@@ -61,12 +61,6 @@
 #include <algorithm>
 #include <functional>
 
-#ifdef Q_OS_WIN
-static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*.*)", "On Windows");
-#else
-static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*)", "On Linux/macOS");
-#endif
-
 using namespace Utils;
 using namespace Utils::Internal;
 
@@ -345,53 +339,6 @@ void Utils::addMimeTypes(const QString &fileName, const QByteArray &data)
 
     auto xmlProvider = static_cast<MimeXMLProvider *>(d->provider());
     xmlProvider->addData(fileName, data);
-}
-
-QString Utils::allFiltersString(QString *allFilesFilter)
-{
-    MimeDatabase mdb;
-    QSet<QString> uniqueFilters;
-    const QList<MimeType> allMimeTypes = mdb.allMimeTypes();
-    for (const MimeType &mt : allMimeTypes) {
-        const QString &filterString = mt.filterString();
-        if (!filterString.isEmpty())
-            uniqueFilters.insert(mt.filterString());
-    }
-    QStringList filters;
-    for (const QString &filter : uniqueFilters)
-        filters.append(filter);
-    filters.sort();
-    const QString allFiles = allFilesFilterString();
-    if (allFilesFilter)
-        *allFilesFilter = allFiles;
-
-    // Prepend all files filter
-    filters.prepend(allFiles);
-
-    return filters.join(QLatin1String(";;"));
-}
-
-QString Utils::allFilesFilterString()
-{
-    auto d = MimeDatabasePrivate::instance();
-    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
-        qWarning("Accessing MimeDatabase files filter strings before plugins are initialized");
-
-    return QCoreApplication::translate("Core", ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
-}
-
-QStringList Utils::allGlobPatterns()
-{
-    auto d = MimeDatabasePrivate::instance();
-    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
-        qWarning("Accessing MimeDatabase glob patterns before plugins are initialized");
-
-    MimeDatabase mdb;
-    QStringList patterns;
-    const QList<MimeType> allMimeTypes = mdb.allMimeTypes();
-    for (const MimeType &mt : allMimeTypes)
-        patterns.append(mt.globPatterns());
-    return patterns;
 }
 
 /*!

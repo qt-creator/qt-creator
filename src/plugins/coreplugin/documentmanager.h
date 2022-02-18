@@ -145,6 +145,7 @@ public:
     static void setFileDialogFilter(const QString &filter);
 
     static QString fileDialogFilter(QString *selectedFilter = nullptr);
+    static QString allFilesFilterString();
 
 signals:
     /* Used to notify e.g. the code model to update the given files. Does *not*

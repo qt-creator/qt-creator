@@ -781,6 +781,17 @@ QString DocumentManager::fileDialogFilter(QString *selectedFilter)
     return allDocumentFactoryFiltersString(selectedFilter);
 }
 
+#ifdef Q_OS_WIN
+static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*.*)", "On Windows");
+#else
+static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*)", "On Linux/macOS");
+#endif
+
+QString DocumentManager::allFilesFilterString()
+{
+    return QCoreApplication::translate("Core", ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
+}
+
 QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = nullptr)
 {
     QSet<QString> uniqueFilters;
@@ -803,7 +814,7 @@ QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter
 
     QStringList filters = Utils::toList(uniqueFilters);
     filters.sort();
-    const QString allFiles = Utils::allFilesFilterString();
+    const QString allFiles = allFilesFilterString();
     if (allFilesFilter)
         *allFilesFilter = allFiles;
     filters.prepend(allFiles);
@@ -825,7 +836,7 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
             // specified. Otherwise the suffix must be one available in the selected filter. If
             // the name already ends with such suffix nothing needs to be done. But if not, the
             // first one from the filter is appended.
-            if (selectedFilter && *selectedFilter != Utils::allFilesFilterString()) {
+            if (selectedFilter && *selectedFilter != allFilesFilterString()) {
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
                 const QRegularExpression regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 QRegularExpressionMatchIterator matchIt = regExp.globalMatch(*selectedFilter);

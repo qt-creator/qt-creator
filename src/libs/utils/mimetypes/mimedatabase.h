@@ -80,9 +80,6 @@ enum class MimeStartupPhase {
 
 QTCREATOR_UTILS_EXPORT void setMimeStartupPhase(MimeStartupPhase);
 QTCREATOR_UTILS_EXPORT void addMimeTypes(const QString &id, const QByteArray &data);
-QTCREATOR_UTILS_EXPORT QString allFiltersString(QString *allFilesFilter = nullptr);
-QTCREATOR_UTILS_EXPORT QString allFilesFilterString();
-QTCREATOR_UTILS_EXPORT QStringList allGlobPatterns();
 QTCREATOR_UTILS_EXPORT QMap<int, QList<Internal::MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType); // priority -> rules
 QTCREATOR_UTILS_EXPORT void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
 QTCREATOR_UTILS_EXPORT void setMagicRulesForMimeType(const MimeType &mimeType,

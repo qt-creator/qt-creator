@@ -582,7 +582,7 @@ void StudioWelcomePlugin::extensionsInitialized()
 
         const QString filters = QString("Project (*.qmlproject);;UI file (*.ui.qml);;QML file "
                                         "(*.qml);;JavaScript file (*.js);;%1")
-                                    .arg(Utils::allFilesFilterString());
+                                    .arg(Core::DocumentManager::allFilesFilterString());
 
         Core::DocumentManager::setFileDialogFilter(filters);
     }
