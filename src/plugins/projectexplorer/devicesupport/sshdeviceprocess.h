@@ -63,7 +63,6 @@ private:
     void handleKillOperationTimeout();
 
     virtual QString fullCommandLine() const;
-    virtual qint64 processId() const;
 
     class SshDeviceProcessPrivate;
     friend class SshDeviceProcessPrivate;

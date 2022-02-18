@@ -177,11 +177,6 @@ QByteArray SshDeviceProcess::readAllStandardError()
     return d->remoteProcess.get() ? d->remoteProcess->readAllStandardError() : QByteArray();
 }
 
-qint64 SshDeviceProcess::processId() const
-{
-    return 0;
-}
-
 void SshDeviceProcess::handleConnected()
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Connecting, return);

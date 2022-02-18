@@ -76,7 +76,7 @@ public:
     virtual QByteArray readAllStandardError();
     virtual qint64 write(const QByteArray &input);
 
-    qint64 processId() const;
+    virtual qint64 processId() const;
     virtual QProcess::ProcessState state() const;
     virtual int exitCode() const;
     virtual QProcess::ExitStatus exitStatus() const;
