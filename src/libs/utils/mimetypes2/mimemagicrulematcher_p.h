@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMEMAGICRULEMATCHER_P_H
-#define QMIMEMAGICRULEMATCHER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -51,33 +50,31 @@
 // We mean it.
 //
 
-#include "qmimemagicrule_p.h"
-
-QT_REQUIRE_CONFIG(mimetype);
+#include "mimemagicrule_p.h"
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-class QMimeMagicRuleMatcher
+class MimeMagicRuleMatcher
 {
 public:
-    explicit QMimeMagicRuleMatcher(const QString &mime, unsigned priority = 65535);
+    explicit MimeMagicRuleMatcher(const QString &mime, unsigned priority = 65535);
 
-    void swap(QMimeMagicRuleMatcher &other) noexcept
+    void swap(MimeMagicRuleMatcher &other) noexcept
     {
         qSwap(m_list,     other.m_list);
         qSwap(m_priority, other.m_priority);
         qSwap(m_mimetype, other.m_mimetype);
     }
 
-    bool operator==(const QMimeMagicRuleMatcher &other) const;
+    bool operator==(const MimeMagicRuleMatcher &other) const;
 
-    void addRule(const QMimeMagicRule &rule);
-    void addRules(const QList<QMimeMagicRule> &rules);
-    QList<QMimeMagicRule> magicRules() const;
+    void addRule(const MimeMagicRule &rule);
+    void addRules(const QList<MimeMagicRule> &rules);
+    QList<MimeMagicRule> magicRules() const;
 
     bool matches(const QByteArray &data) const;
 
@@ -86,12 +83,11 @@ public:
     QString mimetype() const { return m_mimetype; }
 
 private:
-    QList<QMimeMagicRule> m_list;
+    QList<MimeMagicRule> m_list;
     unsigned m_priority;
     QString m_mimetype;
 };
-Q_DECLARE_SHARED(QMimeMagicRuleMatcher)
 
-QT_END_NAMESPACE
+} // namespace Utils
 
-#endif // QMIMEMAGICRULEMATCHER_P_H
+Q_DECLARE_SHARED(Utils::MimeMagicRuleMatcher)

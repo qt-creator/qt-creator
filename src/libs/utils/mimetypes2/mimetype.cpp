@@ -38,13 +38,13 @@
 **
 ****************************************************************************/
 
-#include "qmimetype.h"
+#include "mimetype.h"
 
-#include "qmimetype_p.h"
-#include "qmimedatabase_p.h"
-#include "qmimeprovider_p.h"
+#include "mimetype_p.h"
+#include "mimedatabase_p.h"
+#include "mimeprovider_p.h"
 
-#include "qmimeglobpattern_p.h"
+#include "mimeglobpattern_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QLocale>
@@ -52,13 +52,13 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-QMimeTypePrivate::QMimeTypePrivate()
+MimeTypePrivate::MimeTypePrivate()
     : loaded(false), fromCache(false)
 {}
 
-QMimeTypePrivate::QMimeTypePrivate(const QMimeType &other)
+MimeTypePrivate::MimeTypePrivate(const MimeType &other)
       : loaded(other.d->loaded),
         name(other.d->name),
         localeComments(other.d->localeComments),
@@ -67,7 +67,7 @@ QMimeTypePrivate::QMimeTypePrivate(const QMimeType &other)
         globPatterns(other.d->globPatterns)
 {}
 
-void QMimeTypePrivate::clear()
+void MimeTypePrivate::clear()
 {
     name.clear();
     localeComments.clear();
@@ -76,16 +76,16 @@ void QMimeTypePrivate::clear()
     globPatterns.clear();
 }
 
-void QMimeTypePrivate::addGlobPattern(const QString &pattern)
+void MimeTypePrivate::addGlobPattern(const QString &pattern)
 {
     globPatterns.append(pattern);
 }
 
 /*!
-    \class QMimeType
+    \class MimeType
     \inmodule QtCore
     \ingroup shared
-    \brief The QMimeType class describes types of file or data, represented by a MIME type string.
+    \brief The MimeType class describes types of file or data, represented by a MIME type string.
 
     \since 5.0
 
@@ -96,48 +96,48 @@ void QMimeTypePrivate::addGlobPattern(const QString &pattern)
 
     Determining the MIME type of a file can be useful to make sure your
     application supports it. It is also useful in file-manager-like applications
-    or widgets, in order to display an appropriate \l {QMimeType::iconName}{icon} for the file, or even
-    the descriptive \l {QMimeType::comment()}{comment} in detailed views.
+    or widgets, in order to display an appropriate \l {MimeType::iconName}{icon} for the file, or even
+    the descriptive \l {MimeType::comment()}{comment} in detailed views.
 
     To check if a file has the expected MIME type, you should use inherits()
     rather than a simple string comparison based on the name(). This is because
     MIME types can inherit from each other: for instance a C source file is
     a specific type of plain text file, so text/x-csrc inherits text/plain.
 
-    \sa QMimeDatabase, {MIME Type Browser Example}
+    \sa MimeDatabase, {MIME Type Browser Example}
  */
 
 /*!
-    \fn QMimeType &QMimeType::operator=(QMimeType &&other)
+    \fn MimeType &MimeType::operator=(MimeType &&other)
 
-    Move-assigns \a other to this QMimeType instance.
+    Move-assigns \a other to this MimeType instance.
 
     \since 5.2
 */
 
 /*!
-    \fn QMimeType::QMimeType();
-    Constructs this QMimeType object initialized with default property values that indicate an invalid MIME type.
+    \fn MimeType::MimeType();
+    Constructs this MimeType object initialized with default property values that indicate an invalid MIME type.
  */
-QMimeType::QMimeType() :
-        d(new QMimeTypePrivate())
+MimeType::MimeType() :
+        d(new MimeTypePrivate())
 {
 }
 
 /*!
-    \fn QMimeType::QMimeType(const QMimeType &other);
-    Constructs this QMimeType object as a copy of \a other.
+    \fn MimeType::MimeType(const MimeType &other);
+    Constructs this MimeType object as a copy of \a other.
  */
-QMimeType::QMimeType(const QMimeType &other) :
+MimeType::MimeType(const MimeType &other) :
         d(other.d)
 {
 }
 
 /*!
-    \fn QMimeType &QMimeType::operator=(const QMimeType &other);
-    Assigns the data of \a other to this QMimeType object, and returns a reference to this object.
+    \fn MimeType &MimeType::operator=(const MimeType &other);
+    Assigns the data of \a other to this MimeType object, and returns a reference to this object.
  */
-QMimeType &QMimeType::operator=(const QMimeType &other)
+MimeType &MimeType::operator=(const MimeType &other)
 {
     if (d != other.d)
         d = other.d;
@@ -145,18 +145,18 @@ QMimeType &QMimeType::operator=(const QMimeType &other)
 }
 
 /*!
-    \fn QMimeType::QMimeType(const QMimeTypePrivate &dd);
-    Assigns the data of the QMimeTypePrivate \a dd to this QMimeType object, and returns a reference to this object.
+    \fn MimeType::MimeType(const MimeTypePrivate &dd);
+    Assigns the data of the MimeTypePrivate \a dd to this MimeType object, and returns a reference to this object.
     \internal
  */
-QMimeType::QMimeType(const QMimeTypePrivate &dd) :
-        d(new QMimeTypePrivate(dd))
+MimeType::MimeType(const MimeTypePrivate &dd) :
+        d(new MimeTypePrivate(dd))
 {
 }
 
 /*!
-    \fn void QMimeType::swap(QMimeType &other);
-    Swaps QMimeType \a other with this QMimeType object.
+    \fn void MimeType::swap(MimeType &other);
+    Swaps MimeType \a other with this MimeType object.
 
     This operation is very fast and never fails.
 
@@ -167,83 +167,83 @@ QMimeType::QMimeType(const QMimeTypePrivate &dd) :
  */
 
 /*!
-    \fn QMimeType::~QMimeType();
-    Destroys the QMimeType object, and releases the d pointer.
+    \fn MimeType::~MimeType();
+    Destroys the MimeType object, and releases the d pointer.
  */
-QMimeType::~QMimeType()
+MimeType::~MimeType()
 {
 }
 
 /*!
-    \fn bool QMimeType::operator==(const QMimeType &other) const;
-    Returns \c true if \a other equals this QMimeType object, otherwise returns \c false.
+    \fn bool MimeType::operator==(const MimeType &other) const;
+    Returns \c true if \a other equals this MimeType object, otherwise returns \c false.
     The name is the unique identifier for a mimetype, so two mimetypes with
     the same name, are equal.
  */
-bool QMimeType::operator==(const QMimeType &other) const
+bool MimeType::operator==(const MimeType &other) const
 {
     return d == other.d || d->name == other.d->name;
 }
 
 /*!
     \since 5.6
-    \relates QMimeType
+    \relates MimeType
 
     Returns the hash value for \a key, using
     \a seed to seed the calculation.
  */
-size_t qHash(const QMimeType &key, size_t seed) noexcept
+size_t qHash(const MimeType &key, size_t seed) noexcept
 {
     return qHash(key.d->name, seed);
 }
 
 /*!
-    \fn bool QMimeType::operator!=(const QMimeType &other) const;
-    Returns \c true if \a other does not equal this QMimeType object, otherwise returns \c false.
+    \fn bool MimeType::operator!=(const MimeType &other) const;
+    Returns \c true if \a other does not equal this MimeType object, otherwise returns \c false.
  */
 
 /*!
-    \property QMimeType::valid
-    \brief \c true if the QMimeType object contains valid data, \c false otherwise
+    \property MimeType::valid
+    \brief \c true if the MimeType object contains valid data, \c false otherwise
 
     A valid MIME type has a non-empty name().
-    The invalid MIME type is the default-constructed QMimeType.
+    The invalid MIME type is the default-constructed MimeType.
 
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-bool QMimeType::isValid() const
+bool MimeType::isValid() const
 {
     return !d->name.isEmpty();
 }
 
 /*!
-    \property QMimeType::isDefault
+    \property MimeType::isDefault
     \brief \c true if this MIME type is the default MIME type which
     applies to all files: application/octet-stream.
 
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-bool QMimeType::isDefault() const
+bool MimeType::isDefault() const
 {
-    return d->name == QMimeDatabasePrivate::instance()->defaultMimeType();
+    return d->name == MimeDatabasePrivate::instance()->defaultMimeType();
 }
 
 /*!
-    \property QMimeType::name
+    \property MimeType::name
     \brief the name of the MIME type
 
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QString QMimeType::name() const
+QString MimeType::name() const
 {
     return d->name;
 }
 
 /*!
-    \property QMimeType::comment
+    \property MimeType::comment
     \brief the description of the MIME type to be displayed on user interfaces
 
     The default language (QLocale().name()) is used to select the appropriate translation.
@@ -251,9 +251,9 @@ QString QMimeType::name() const
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QString QMimeType::comment() const
+QString MimeType::comment() const
 {
-    QMimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<QMimeTypePrivate&>(*d));
+    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
 
     QStringList languageList;
     languageList << QLocale().name();
@@ -279,7 +279,7 @@ QString QMimeType::comment() const
 }
 
 /*!
-    \property QMimeType::genericIconName
+    \property MimeType::genericIconName
     \brief the file name of a generic icon that represents the MIME type
 
     This should be used if the icon returned by iconName() cannot be found on
@@ -292,9 +292,9 @@ QString QMimeType::comment() const
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QString QMimeType::genericIconName() const
+QString MimeType::genericIconName() const
 {
-    QMimeDatabasePrivate::instance()->loadGenericIcon(const_cast<QMimeTypePrivate&>(*d));
+    MimeDatabasePrivate::instance()->loadGenericIcon(const_cast<MimeTypePrivate&>(*d));
     if (d->genericIconName.isEmpty()) {
         // From the spec:
         // If the generic icon name is empty (not specified by the mimetype definition)
@@ -320,7 +320,7 @@ static QString make_default_icon_name_from_mimetype_name(QString iconName)
 }
 
 /*!
-    \property QMimeType::iconName
+    \property MimeType::iconName
     \brief the file name of an icon image that represents the MIME type
 
     The icon name can be given to QIcon::fromTheme() in order to load the icon.
@@ -328,9 +328,9 @@ static QString make_default_icon_name_from_mimetype_name(QString iconName)
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QString QMimeType::iconName() const
+QString MimeType::iconName() const
 {
-    QMimeDatabasePrivate::instance()->loadIcon(const_cast<QMimeTypePrivate&>(*d));
+    MimeDatabasePrivate::instance()->loadIcon(const_cast<MimeTypePrivate&>(*d));
     if (d->iconName.isEmpty()) {
         return make_default_icon_name_from_mimetype_name(name());
     }
@@ -338,20 +338,20 @@ QString QMimeType::iconName() const
 }
 
 /*!
-    \property QMimeType::globPatterns
+    \property MimeType::globPatterns
     \brief the list of glob matching patterns
 
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QStringList QMimeType::globPatterns() const
+QStringList MimeType::globPatterns() const
 {
-    QMimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<QMimeTypePrivate&>(*d));
+    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
     return d->globPatterns;
 }
 
 /*!
-    \property QMimeType::parentMimeTypes
+    \property MimeType::parentMimeTypes
     \brief the names of parent MIME types
 
     A type is a subclass of another type if any instance of the first type is
@@ -368,14 +368,14 @@ QStringList QMimeType::globPatterns() const
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
 */
-QStringList QMimeType::parentMimeTypes() const
+QStringList MimeType::parentMimeTypes() const
 {
-    return QMimeDatabasePrivate::instance()->mimeParents(d->name);
+    return MimeDatabasePrivate::instance()->mimeParents(d->name);
 }
 
 static void collectParentMimeTypes(const QString &mime, QStringList &allParents)
 {
-    const QStringList parents = QMimeDatabasePrivate::instance()->mimeParents(mime);
+    const QStringList parents = MimeDatabasePrivate::instance()->mimeParents(mime);
     for (const QString &parent : parents) {
         // I would use QSet, but since order matters I better not
         if (!allParents.contains(parent))
@@ -388,7 +388,7 @@ static void collectParentMimeTypes(const QString &mime, QStringList &allParents)
 }
 
 /*!
-    \property QMimeType::allAncestors
+    \property MimeType::allAncestors
     \brief the names of direct and indirect parent MIME types
 
     Return all the parent mimetypes of this mimetype, direct and indirect.
@@ -403,7 +403,7 @@ static void collectParentMimeTypes(const QString &mime, QStringList &allParents)
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
 */
-QStringList QMimeType::allAncestors() const
+QStringList MimeType::allAncestors() const
 {
     QStringList allParents;
     collectParentMimeTypes(d->name, allParents);
@@ -411,13 +411,13 @@ QStringList QMimeType::allAncestors() const
 }
 
 /*!
-    \property QMimeType::aliases
+    \property MimeType::aliases
     \brief the list of aliases of this mimetype
 
     For instance, for text/csv, the returned list would be:
     text/x-csv, text/x-comma-separated-values.
 
-    Note that all QMimeType instances refer to proper mimetypes,
+    Note that all MimeType instances refer to proper mimetypes,
     never to aliases directly.
 
     The order of the aliases in the list is undefined.
@@ -425,13 +425,13 @@ QStringList QMimeType::allAncestors() const
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
 */
-QStringList QMimeType::aliases() const
+QStringList MimeType::aliases() const
 {
-    return QMimeDatabasePrivate::instance()->listAliases(d->name);
+    return MimeDatabasePrivate::instance()->listAliases(d->name);
 }
 
 /*!
-    \property QMimeType::suffixes
+    \property MimeType::suffixes
     \brief the known suffixes for the MIME type
 
     No leading dot is included, so for instance this would return "jpg", "jpeg" for image/jpeg.
@@ -439,9 +439,9 @@ QStringList QMimeType::aliases() const
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QStringList QMimeType::suffixes() const
+QStringList MimeType::suffixes() const
 {
-    QMimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<QMimeTypePrivate&>(*d));
+    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
 
     QStringList result;
     for (const QString &pattern : qAsConst(d->globPatterns)) {
@@ -458,7 +458,7 @@ QStringList QMimeType::suffixes() const
 }
 
 /*!
-    \property QMimeType::preferredSuffix
+    \property MimeType::preferredSuffix
     \brief the preferred suffix for the MIME type
 
     No leading dot is included, so for instance this would return "pdf" for application/pdf.
@@ -467,7 +467,7 @@ QStringList QMimeType::suffixes() const
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
  */
-QString QMimeType::preferredSuffix() const
+QString MimeType::preferredSuffix() const
 {
     if (isDefault()) // workaround for unwanted *.bin suffix for octet-stream, https://bugs.freedesktop.org/show_bug.cgi?id=101667, fixed upstream in 1.10
         return QString();
@@ -476,15 +476,15 @@ QString QMimeType::preferredSuffix() const
 }
 
 /*!
-    \property QMimeType::filterString
+    \property MimeType::filterString
     \brief a filter string usable for a file dialog
 
     While this property was introduced in 5.10, the
     corresponding accessor method has always been there.
 */
-QString QMimeType::filterString() const
+QString MimeType::filterString() const
 {
-    QMimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<QMimeTypePrivate&>(*d));
+    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
     QString filter;
 
     if (!d->globPatterns.empty()) {
@@ -501,33 +501,33 @@ QString QMimeType::filterString() const
 }
 
 /*!
-    \fn bool QMimeType::inherits(const QString &mimeTypeName) const;
+    \fn bool MimeType::inherits(const QString &mimeTypeName) const;
     Returns \c true if this mimetype is \a mimeTypeName,
     or inherits \a mimeTypeName (see parentMimeTypes()),
     or \a mimeTypeName is an alias for this mimetype.
 
     This method has been made invokable from QML since 5.10.
  */
-bool QMimeType::inherits(const QString &mimeTypeName) const
+bool MimeType::inherits(const QString &mimeTypeName) const
 {
     if (d->name == mimeTypeName)
         return true;
-    return QMimeDatabasePrivate::instance()->mimeInherits(d->name, mimeTypeName);
+    return MimeDatabasePrivate::instance()->mimeInherits(d->name, mimeTypeName);
 }
 
+} // namespace Utils
+
 #ifndef QT_NO_DEBUG_STREAM
-QDebug operator<<(QDebug debug, const QMimeType &mime)
+QDebug operator<<(QDebug debug, const Utils::MimeType &mime)
 {
     QDebugStateSaver saver(debug);
     if (!mime.isValid()) {
-        debug.nospace() << "QMimeType(invalid)";
+        debug.nospace() << "MimeType(invalid)";
     } else {
-        debug.nospace() << "QMimeType(" << mime.name() << ")";
+        debug.nospace() << "MimeType(" << mime.name() << ")";
     }
     return debug;
 }
 #endif
 
-QT_END_NAMESPACE
-
-#include "moc_qmimetype.cpp"
+#include "moc_mimetype.cpp"

@@ -37,59 +37,57 @@
 **
 ****************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
+#include "mimemagicrulematcher_p.h"
 
-#include "qmimemagicrulematcher_p.h"
+#include "mimetype_p.h"
 
-#include "qmimetype_p.h"
-
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
 /*!
     \internal
-    \class QMimeMagicRuleMatcher
+    \class MimeMagicRuleMatcher
     \inmodule QtCore
 
-    \brief The QMimeMagicRuleMatcher class checks a number of rules based on operator "or".
+    \brief The MimeMagicRuleMatcher class checks a number of rules based on operator "or".
 
     It is used for rules parsed from XML files.
 
-    \sa QMimeType, QMimeDatabase, MagicRule, MagicStringRule, MagicByteRule, GlobPattern
-    \sa QMimeTypeParserBase, MimeTypeParser
+    \sa MimeType, MimeDatabase, MagicRule, MagicStringRule, MagicByteRule, GlobPattern
+    \sa MimeTypeParserBase, MimeTypeParser
 */
 
-QMimeMagicRuleMatcher::QMimeMagicRuleMatcher(const QString &mime, unsigned thePriority) :
+MimeMagicRuleMatcher::MimeMagicRuleMatcher(const QString &mime, unsigned thePriority) :
     m_list(),
     m_priority(thePriority),
     m_mimetype(mime)
 {
 }
 
-bool QMimeMagicRuleMatcher::operator==(const QMimeMagicRuleMatcher &other) const
+bool MimeMagicRuleMatcher::operator==(const MimeMagicRuleMatcher &other) const
 {
     return m_list == other.m_list &&
            m_priority == other.m_priority;
 }
 
-void QMimeMagicRuleMatcher::addRule(const QMimeMagicRule &rule)
+void MimeMagicRuleMatcher::addRule(const MimeMagicRule &rule)
 {
     m_list.append(rule);
 }
 
-void QMimeMagicRuleMatcher::addRules(const QList<QMimeMagicRule> &rules)
+void MimeMagicRuleMatcher::addRules(const QList<MimeMagicRule> &rules)
 {
     m_list.append(rules);
 }
 
-QList<QMimeMagicRule> QMimeMagicRuleMatcher::magicRules() const
+QList<MimeMagicRule> MimeMagicRuleMatcher::magicRules() const
 {
     return m_list;
 }
 
 // Check for a match on contents of a file
-bool QMimeMagicRuleMatcher::matches(const QByteArray &data) const
+bool MimeMagicRuleMatcher::matches(const QByteArray &data) const
 {
-    for (const QMimeMagicRule &magicRule : m_list) {
+    for (const MimeMagicRule &magicRule : m_list) {
         if (magicRule.matches(data))
             return true;
     }
@@ -98,9 +96,9 @@ bool QMimeMagicRuleMatcher::matches(const QByteArray &data) const
 }
 
 // Return a priority value from 1..100
-unsigned QMimeMagicRuleMatcher::priority() const
+unsigned MimeMagicRuleMatcher::priority() const
 {
     return m_priority;
 }
 
-QT_END_NAMESPACE
+} // namespace Utils

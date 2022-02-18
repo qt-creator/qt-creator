@@ -37,9 +37,7 @@
 **
 ****************************************************************************/
 
-
-#ifndef QMIMETYPEPARSER_P_H
-#define QMIMETYPEPARSER_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -52,34 +50,34 @@
 // We mean it.
 //
 
-#include "qmimedatabase_p.h"
+#include "mimedatabase_p.h"
 
-QT_REQUIRE_CONFIG(mimetype);
-
-#include "qmimeprovider_p.h"
+#include "mimeprovider_p.h"
 
 QT_BEGIN_NAMESPACE
-
 class QIODevice;
+QT_END_NAMESPACE
 
-class QMimeTypeParserBase
+namespace Utils {
+
+class MimeTypeParserBase
 {
-    Q_DISABLE_COPY_MOVE(QMimeTypeParserBase)
+    Q_DISABLE_COPY_MOVE(MimeTypeParserBase)
 
 public:
-    QMimeTypeParserBase() {}
-    virtual ~QMimeTypeParserBase() {}
+    MimeTypeParserBase() {}
+    virtual ~MimeTypeParserBase() {}
 
     bool parse(QIODevice *dev, const QString &fileName, QString *errorMessage);
 
     static bool parseNumber(QStringView n, int *target, QString *errorMessage);
 
 protected:
-    virtual bool process(const QMimeType &t, QString *errorMessage) = 0;
-    virtual bool process(const QMimeGlobPattern &t, QString *errorMessage) = 0;
+    virtual bool process(const MimeType &t, QString *errorMessage) = 0;
+    virtual bool process(const MimeGlobPattern &t, QString *errorMessage) = 0;
     virtual void processParent(const QString &child, const QString &parent) = 0;
     virtual void processAlias(const QString &alias, const QString &name) = 0;
-    virtual void processMagicMatcher(const QMimeMagicRuleMatcher &matcher) = 0;
+    virtual void processMagicMatcher(const MimeMagicRuleMatcher &matcher) = 0;
 
 private:
     enum ParseState {
@@ -103,16 +101,16 @@ private:
 };
 
 
-class QMimeTypeParser : public QMimeTypeParserBase
+class MimeTypeParser : public MimeTypeParserBase
 {
 public:
-    explicit QMimeTypeParser(QMimeXMLProvider &provider) : m_provider(provider) {}
+    explicit MimeTypeParser(MimeXMLProvider &provider) : m_provider(provider) {}
 
 protected:
-    inline bool process(const QMimeType &t, QString *) override
+    inline bool process(const MimeType &t, QString *) override
     { m_provider.addMimeType(t); return true; }
 
-    inline bool process(const QMimeGlobPattern &glob, QString *) override
+    inline bool process(const MimeGlobPattern &glob, QString *) override
     { m_provider.addGlobPattern(glob); return true; }
 
     inline void processParent(const QString &child, const QString &parent) override
@@ -121,13 +119,11 @@ protected:
     inline void processAlias(const QString &alias, const QString &name) override
     { m_provider.addAlias(alias, name); }
 
-    inline void processMagicMatcher(const QMimeMagicRuleMatcher &matcher) override
+    inline void processMagicMatcher(const MimeMagicRuleMatcher &matcher) override
     { m_provider.addMagicMatcher(matcher); }
 
 private:
-    QMimeXMLProvider &m_provider;
+    MimeXMLProvider &m_provider;
 };
 
-QT_END_NAMESPACE
-
-#endif // MIMETYPEPARSER_P_H
+} // namespace Utils

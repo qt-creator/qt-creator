@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMEGLOBPATTERN_P_H
-#define QMIMEGLOBPATTERN_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -51,16 +50,12 @@
 // We mean it.
 //
 
-#include <QtCore/private/qglobal_p.h>
-
-QT_REQUIRE_CONFIG(mimetype);
-
 #include <QtCore/qstringlist.h>
 #include <QtCore/qhash.h>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-struct QMimeGlobMatchResult
+struct MimeGlobMatchResult
 {
     void addMatch(const QString &mimeType, int weight, const QString &pattern, int knownSuffixLength = 0);
 
@@ -71,14 +66,14 @@ struct QMimeGlobMatchResult
     int m_knownSuffixLength = 0;
 };
 
-class QMimeGlobPattern
+class MimeGlobPattern
 {
 public:
     static const unsigned MaxWeight = 100;
     static const unsigned DefaultWeight = 50;
     static const unsigned MinWeight = 1;
 
-    explicit QMimeGlobPattern(const QString &thePattern, const QString &theMimeType, unsigned theWeight = DefaultWeight, Qt::CaseSensitivity s = Qt::CaseInsensitive) :
+    explicit MimeGlobPattern(const QString &thePattern, const QString &theMimeType, unsigned theWeight = DefaultWeight, Qt::CaseSensitivity s = Qt::CaseInsensitive) :
         m_pattern(s == Qt::CaseInsensitive ? thePattern.toLower() : thePattern),
         m_mimeType(theMimeType),
         m_weight(theWeight),
@@ -87,7 +82,7 @@ public:
     {
     }
 
-    void swap(QMimeGlobPattern &other) noexcept
+    void swap(MimeGlobPattern &other) noexcept
     {
         qSwap(m_pattern,         other.m_pattern);
         qSwap(m_mimeType,        other.m_mimeType);
@@ -120,9 +115,8 @@ private:
     Qt::CaseSensitivity m_caseSensitivity;
     PatternType m_patternType;
 };
-Q_DECLARE_SHARED(QMimeGlobPattern)
 
-class QMimeGlobPatternList : public QList<QMimeGlobPattern>
+class MimeGlobPatternList : public QList<MimeGlobPattern>
 {
 public:
     bool hasPattern(const QString &mimeType, const QString &pattern) const
@@ -140,13 +134,13 @@ public:
      */
     void removeMimeType(const QString &mimeType)
     {
-        auto isMimeTypeEqual = [&mimeType](const QMimeGlobPattern &pattern) {
+        auto isMimeTypeEqual = [&mimeType](const MimeGlobPattern &pattern) {
             return pattern.mimeType() == mimeType;
         };
         removeIf(isMimeTypeEqual);
     }
 
-    void match(QMimeGlobMatchResult &result, const QString &fileName) const;
+    void match(MimeGlobMatchResult &result, const QString &fileName) const;
 };
 
 /*!
@@ -156,21 +150,21 @@ public:
     2) a linear list of high-weight globs
     3) a linear list of low-weight globs
  */
-class QMimeAllGlobPatterns
+class MimeAllGlobPatterns
 {
 public:
     typedef QHash<QString, QStringList> PatternsMap; // MIME type -> patterns
 
-    void addGlob(const QMimeGlobPattern &glob);
+    void addGlob(const MimeGlobPattern &glob);
     void removeMimeType(const QString &mimeType);
-    void matchingGlobs(const QString &fileName, QMimeGlobMatchResult &result) const;
+    void matchingGlobs(const QString &fileName, MimeGlobMatchResult &result) const;
     void clear();
 
     PatternsMap m_fastPatterns; // example: "doc" -> "application/msword", "text/plain"
-    QMimeGlobPatternList m_highWeightGlobs;
-    QMimeGlobPatternList m_lowWeightGlobs; // <= 50, including the non-fast 50 patterns
+    MimeGlobPatternList m_highWeightGlobs;
+    MimeGlobPatternList m_lowWeightGlobs; // <= 50, including the non-fast 50 patterns
 };
 
-QT_END_NAMESPACE
+} // namespace Utils
 
-#endif // QMIMEGLOBPATTERN_P_H
+Q_DECLARE_SHARED(Utils::MimeGlobPattern)

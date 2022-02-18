@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMEMAGICRULE_P_H
-#define QMIMEMAGICRULE_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -51,25 +50,21 @@
 // We mean it.
 //
 
-#include <QtCore/private/qglobal_p.h>
-
-QT_REQUIRE_CONFIG(mimetype);
-
 #include <QtCore/qbytearray.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qlist.h>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-class QMimeMagicRule
+class MimeMagicRule
 {
 public:
     enum Type { Invalid = 0, String, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
 
-    QMimeMagicRule(const QString &typeStr, const QByteArray &value, const QString &offsets,
+    MimeMagicRule(const QString &typeStr, const QByteArray &value, const QString &offsets,
                    const QByteArray &mask, QString *errorString);
 
-    void swap(QMimeMagicRule &other) noexcept
+    void swap(MimeMagicRule &other) noexcept
     {
         qSwap(m_type,          other.m_type);
         qSwap(m_value,         other.m_value);
@@ -82,7 +77,7 @@ public:
         qSwap(m_matchFunction, other.m_matchFunction);
     }
 
-    bool operator==(const QMimeMagicRule &other) const;
+    bool operator==(const MimeMagicRule &other) const;
 
     Type type() const { return m_type; }
     QByteArray value() const { return m_value; }
@@ -94,7 +89,7 @@ public:
 
     bool matches(const QByteArray &data) const;
 
-    QList<QMimeMagicRule> m_subMatches;
+    QList<MimeMagicRule> m_subMatches;
 
     static Type type(const QByteArray &type);
     static QByteArray typeName(Type type);
@@ -112,7 +107,7 @@ private:
     quint32 m_number;
     quint32 m_numberMask;
 
-    typedef bool (QMimeMagicRule::*MatchFunction)(const QByteArray &data) const;
+    typedef bool (MimeMagicRule::*MatchFunction)(const QByteArray &data) const;
     MatchFunction m_matchFunction;
 
 private:
@@ -121,8 +116,7 @@ private:
     template <typename T>
     bool matchNumber(const QByteArray &data) const;
 };
-Q_DECLARE_SHARED(QMimeMagicRule)
 
-QT_END_NAMESPACE
+} // namespace Utils
 
-#endif // QMIMEMAGICRULE_H
+Q_DECLARE_SHARED(Utils::MimeMagicRule)

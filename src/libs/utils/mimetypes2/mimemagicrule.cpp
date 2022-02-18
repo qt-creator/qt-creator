@@ -37,17 +37,14 @@
 **
 ****************************************************************************/
 
+#include "mimemagicrule_p.h"
 
-#define QT_NO_CAST_FROM_ASCII
-
-#include "qmimemagicrule_p.h"
-
-#include "qmimetypeparser_p.h"
+#include "mimetypeparser_p.h"
 #include <QtCore/QList>
 #include <QtCore/QDebug>
 #include <qendian.h>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
 // in the same order as Type!
 static const char magicRuleTypes_string[] =
@@ -66,7 +63,7 @@ static const int magicRuleTypes_indices[] = {
     0, 8, 15, 22, 29, 35, 41, 50, 59, 64, 0
 };
 
-QMimeMagicRule::Type QMimeMagicRule::type(const QByteArray &theTypeName)
+MimeMagicRule::Type MimeMagicRule::type(const QByteArray &theTypeName)
 {
     for (int i = String; i <= Byte; ++i) {
         if (theTypeName == magicRuleTypes_string + magicRuleTypes_indices[i])
@@ -75,12 +72,12 @@ QMimeMagicRule::Type QMimeMagicRule::type(const QByteArray &theTypeName)
     return Invalid;
 }
 
-QByteArray QMimeMagicRule::typeName(QMimeMagicRule::Type theType)
+QByteArray MimeMagicRule::typeName(MimeMagicRule::Type theType)
 {
     return magicRuleTypes_string + magicRuleTypes_indices[theType];
 }
 
-bool QMimeMagicRule::operator==(const QMimeMagicRule &other) const
+bool MimeMagicRule::operator==(const MimeMagicRule &other) const
 {
     return m_type == other.m_type &&
            m_value == other.m_value &&
@@ -94,7 +91,7 @@ bool QMimeMagicRule::operator==(const QMimeMagicRule &other) const
 }
 
 // Used by both providers
-bool QMimeMagicRule::matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength,
+bool MimeMagicRule::matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength,
                                     int valueLength, const char *valueData, const char *mask)
 {
     // Size of searched data.
@@ -143,14 +140,14 @@ bool QMimeMagicRule::matchSubstring(const char *dataPtr, int dataSize, int range
     return true;
 }
 
-bool QMimeMagicRule::matchString(const QByteArray &data) const
+bool MimeMagicRule::matchString(const QByteArray &data) const
 {
     const int rangeLength = m_endPos - m_startPos + 1;
-    return QMimeMagicRule::matchSubstring(data.constData(), data.size(), m_startPos, rangeLength, m_pattern.size(), m_pattern.constData(), m_mask.constData());
+    return MimeMagicRule::matchSubstring(data.constData(), data.size(), m_startPos, rangeLength, m_pattern.size(), m_pattern.constData(), m_mask.constData());
 }
 
 template <typename T>
-bool QMimeMagicRule::matchNumber(const QByteArray &data) const
+bool MimeMagicRule::matchNumber(const QByteArray &data) const
 {
     const T value(m_number);
     const T mask(m_numberMask);
@@ -221,12 +218,12 @@ static inline QByteArray makePattern(const QByteArray &value)
 //  <match value="must be converted with BinHex" type="string" offset="11"/>
 //  <match value="0x9501" type="big16" offset="0:64"/>
 
-QMimeMagicRule::QMimeMagicRule(const QString &type,
+MimeMagicRule::MimeMagicRule(const QString &type,
                                const QByteArray &value,
                                const QString &offsets,
                                const QByteArray &mask,
                                QString *errorString)
-    : m_type(QMimeMagicRule::type(type.toLatin1())),
+    : m_type(MimeMagicRule::type(type.toLatin1())),
       m_value(value),
       m_mask(mask),
       m_matchFunction(nullptr)
@@ -238,8 +235,8 @@ QMimeMagicRule::QMimeMagicRule(const QString &type,
     const int colonIndex = offsets.indexOf(QLatin1Char(':'));
     const QStringView startPosStr = QStringView{offsets}.mid(0, colonIndex); // \ These decay to returning 'offsets'
     const QStringView endPosStr   = QStringView{offsets}.mid(colonIndex + 1);// / unchanged when colonIndex == -1
-    if (Q_UNLIKELY(!QMimeTypeParserBase::parseNumber(startPosStr, &m_startPos, errorString)) ||
-        Q_UNLIKELY(!QMimeTypeParserBase::parseNumber(endPosStr, &m_endPos, errorString))) {
+    if (Q_UNLIKELY(!MimeTypeParserBase::parseNumber(startPosStr, &m_startPos, errorString)) ||
+        Q_UNLIKELY(!MimeTypeParserBase::parseNumber(endPosStr, &m_endPos, errorString))) {
         m_type = Invalid;
         return;
     }
@@ -287,13 +284,13 @@ QMimeMagicRule::QMimeMagicRule(const QString &type,
             m_mask.fill(char(-1), m_pattern.size());
         }
         m_mask.squeeze();
-        m_matchFunction = &QMimeMagicRule::matchString;
+        m_matchFunction = &MimeMagicRule::matchString;
         break;
     case Byte:
         if (m_number <= quint8(-1)) {
             if (m_numberMask == 0)
                 m_numberMask = quint8(-1);
-            m_matchFunction = &QMimeMagicRule::matchNumber<quint8>;
+            m_matchFunction = &MimeMagicRule::matchNumber<quint8>;
         }
         break;
     case Big16:
@@ -308,7 +305,7 @@ QMimeMagicRule::QMimeMagicRule(const QString &type,
         if (m_number <= quint16(-1)) {
             if (m_numberMask == 0)
                 m_numberMask = quint16(-1);
-            m_matchFunction = &QMimeMagicRule::matchNumber<quint16>;
+            m_matchFunction = &MimeMagicRule::matchNumber<quint16>;
         }
         break;
     case Big32:
@@ -320,14 +317,14 @@ QMimeMagicRule::QMimeMagicRule(const QString &type,
     case Host32:
         if (m_numberMask == 0)
             m_numberMask = quint32(-1);
-        m_matchFunction = &QMimeMagicRule::matchNumber<quint32>;
+        m_matchFunction = &MimeMagicRule::matchNumber<quint32>;
         break;
     default:
         break;
     }
 }
 
-QByteArray QMimeMagicRule::mask() const
+QByteArray MimeMagicRule::mask() const
 {
     QByteArray result = m_mask;
     if (m_type == String) {
@@ -337,7 +334,7 @@ QByteArray QMimeMagicRule::mask() const
     return result;
 }
 
-bool QMimeMagicRule::matches(const QByteArray &data) const
+bool MimeMagicRule::matches(const QByteArray &data) const
 {
     const bool ok = m_matchFunction && (this->*m_matchFunction)(data);
     if (!ok)
@@ -349,7 +346,7 @@ bool QMimeMagicRule::matches(const QByteArray &data) const
 
     //qDebug() << "Checking" << m_subMatches.count() << "sub-rules";
     // Check that one of the submatches matches too
-    for ( QList<QMimeMagicRule>::const_iterator it = m_subMatches.begin(), end = m_subMatches.end() ;
+    for ( QList<MimeMagicRule>::const_iterator it = m_subMatches.begin(), end = m_subMatches.end() ;
           it != end ; ++it ) {
         if ((*it).matches(data)) {
             // One of the hierarchies matched -> mimetype recognized.
@@ -361,4 +358,4 @@ bool QMimeMagicRule::matches(const QByteArray &data) const
 
 }
 
-QT_END_NAMESPACE
+} // namespace Utils

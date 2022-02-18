@@ -38,26 +38,23 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMETYPE_H
-#define QMIMETYPE_H
+#pragma once
 
-#include <QtCore/qglobal.h>
-
-QT_REQUIRE_CONFIG(mimetype);
+#include <utils/utils_global.h>
 
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qshareddata.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-class QMimeTypePrivate;
-class QMimeType;
+class MimeTypePrivate;
+class MimeType;
 
-Q_CORE_EXPORT size_t qHash(const QMimeType &key, size_t seed = 0) noexcept;
+QTCREATOR_UTILS_EXPORT size_t qHash(const MimeType &key, size_t seed = 0) noexcept;
 
-class Q_CORE_EXPORT QMimeType
+class QTCREATOR_UTILS_EXPORT MimeType
 {
     Q_GADGET
     Q_PROPERTY(bool valid READ isValid CONSTANT)
@@ -75,20 +72,20 @@ class Q_CORE_EXPORT QMimeType
     Q_PROPERTY(QString filterString READ filterString CONSTANT)
 
 public:
-    QMimeType();
-    QMimeType(const QMimeType &other);
-    QMimeType &operator=(const QMimeType &other);
-    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(QMimeType)
-    void swap(QMimeType &other) noexcept
+    MimeType();
+    MimeType(const MimeType &other);
+    MimeType &operator=(const MimeType &other);
+    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_PURE_SWAP(MimeType)
+    void swap(MimeType &other) noexcept
     {
         d.swap(other.d);
     }
-    explicit QMimeType(const QMimeTypePrivate &dd);
-    ~QMimeType();
+    explicit MimeType(const MimeTypePrivate &dd);
+    ~MimeType();
 
-    bool operator==(const QMimeType &other) const;
+    bool operator==(const MimeType &other) const;
 
-    inline bool operator!=(const QMimeType &other) const
+    inline bool operator!=(const MimeType &other) const
     {
         return !operator==(other);
     }
@@ -113,24 +110,23 @@ public:
     QString filterString() const;
 
 protected:
-    friend class QMimeTypeParserBase;
+    friend class MimeTypeParserBase;
     friend class MimeTypeMapEntry;
-    friend class QMimeDatabasePrivate;
-    friend class QMimeXMLProvider;
-    friend class QMimeBinaryProvider;
-    friend class QMimeTypePrivate;
-    friend Q_CORE_EXPORT size_t qHash(const QMimeType &key, size_t seed) noexcept;
+    friend class MimeDatabasePrivate;
+    friend class MimeXMLProvider;
+    friend class MimeBinaryProvider;
+    friend class MimeTypePrivate;
+    friend QTCREATOR_UTILS_EXPORT size_t qHash(const MimeType &key, size_t seed) noexcept;
 
-    QExplicitlySharedDataPointer<QMimeTypePrivate> d;
+    QExplicitlySharedDataPointer<MimeTypePrivate> d;
 };
 
-Q_DECLARE_SHARED(QMimeType)
+
+} // namespace Utils
 
 #ifndef QT_NO_DEBUG_STREAM
 class QDebug;
-Q_CORE_EXPORT QDebug operator<<(QDebug debug, const QMimeType &mime);
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
 #endif
 
-QT_END_NAMESPACE
-
-#endif // QMIMETYPE_H
+Q_DECLARE_SHARED(Utils::MimeType)

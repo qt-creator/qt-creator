@@ -40,13 +40,11 @@
 
 #include <qplatformdefs.h> // always first
 
-#include "qmimedatabase.h"
-#include "qmimedatabase_p.h"
+#include "mimedatabase.h"
+#include "mimedatabase_p.h"
 
-#include "qmimeprovider_p.h"
-#include "qmimetype_p.h"
-
-#include <private/qfilesystementry_p.h>
+#include "mimeprovider_p.h"
+#include "mimetype_p.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -59,34 +57,34 @@
 #include <functional>
 #include <stack>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-Q_GLOBAL_STATIC(QMimeDatabasePrivate, staticQMimeDatabase)
+Q_GLOBAL_STATIC(MimeDatabasePrivate, staticMimeDatabase)
 
-QMimeDatabasePrivate *QMimeDatabasePrivate::instance()
+MimeDatabasePrivate *MimeDatabasePrivate::instance()
 {
-    return staticQMimeDatabase();
+    return staticMimeDatabase();
 }
 
-QMimeDatabasePrivate::QMimeDatabasePrivate()
+MimeDatabasePrivate::MimeDatabasePrivate()
     : m_defaultMimeType(QLatin1String("application/octet-stream"))
 {
 }
 
-QMimeDatabasePrivate::~QMimeDatabasePrivate()
+MimeDatabasePrivate::~MimeDatabasePrivate()
 {
 }
 
-#ifdef QT_BUILD_INTERNAL
+#if 0 //def QT_BUILD_INTERNAL
 Q_CORE_EXPORT
 #else
 static const
 #endif
-int qmime_secondsBetweenChecks = 5;
+int mime_secondsBetweenChecks = 5;
 
-bool QMimeDatabasePrivate::shouldCheck()
+bool MimeDatabasePrivate::shouldCheck()
 {
-    if (m_lastCheck.isValid() && m_lastCheck.elapsed() < qmime_secondsBetweenChecks * 1000)
+    if (m_lastCheck.isValid() && m_lastCheck.elapsed() < mime_secondsBetweenChecks * 1000)
         return false;
     m_lastCheck.start();
     return true;
@@ -96,14 +94,14 @@ bool QMimeDatabasePrivate::shouldCheck()
 #  define QT_USE_MMAP
 #endif
 
-void QMimeDatabasePrivate::loadProviders()
+void MimeDatabasePrivate::loadProviders()
 {
     // We use QStandardPaths every time to check if new files appeared
     const QStringList mimeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime"), QStandardPaths::LocateDirectory);
     const auto fdoIterator = std::find_if(mimeDirs.constBegin(), mimeDirs.constEnd(), [](const QString &mimeDir) -> bool {
         return QFileInfo::exists(mimeDir + QStringLiteral("/packages/freedesktop.org.xml")); }
     );
-    const bool needInternalDB = QMimeXMLProvider::InternalDatabaseAvailable && fdoIterator == mimeDirs.constEnd();
+    const bool needInternalDB = MimeXMLProvider::InternalDatabaseAvailable && fdoIterator == mimeDirs.constEnd();
     //qDebug() << "mime dirs:" << mimeDirs;
 
     Providers currentProviders;
@@ -114,16 +112,16 @@ void QMimeDatabasePrivate::loadProviders()
     for (const QString &mimeDir : mimeDirs) {
         const QString cacheFile = mimeDir + QStringLiteral("/mime.cache");
         // Check if we already have a provider for this dir
-        const auto predicate = [mimeDir](const std::unique_ptr<QMimeProviderBase> &prov)
+        const auto predicate = [mimeDir](const std::unique_ptr<MimeProviderBase> &prov)
         {
             return prov && prov->directory() == mimeDir;
         };
         const auto it = std::find_if(currentProviders.begin(), currentProviders.end(), predicate);
         if (it == currentProviders.end()) {
-            std::unique_ptr<QMimeProviderBase> provider;
+            std::unique_ptr<MimeProviderBase> provider;
 #if defined(QT_USE_MMAP)
             if (qEnvironmentVariableIsEmpty("QT_NO_MIME_CACHE") && QFileInfo::exists(cacheFile)) {
-                provider.reset(new QMimeBinaryProvider(this, mimeDir));
+                provider.reset(new MimeBinaryProvider(this, mimeDir));
                 //qDebug() << "Created binary provider for" << mimeDir;
                 if (!provider->isValid()) {
                     provider.reset();
@@ -131,7 +129,7 @@ void QMimeDatabasePrivate::loadProviders()
             }
 #endif
             if (!provider) {
-                provider.reset(new QMimeXMLProvider(this, mimeDir));
+                provider.reset(new MimeXMLProvider(this, mimeDir));
                 //qDebug() << "Created XML provider for" << mimeDir;
             }
             m_providers.push_back(std::move(provider));
@@ -139,7 +137,7 @@ void QMimeDatabasePrivate::loadProviders()
             auto provider = std::move(*it); // take provider out of the vector
             provider->ensureLoaded();
             if (!provider->isValid()) {
-                provider.reset(new QMimeXMLProvider(this, mimeDir));
+                provider.reset(new MimeXMLProvider(this, mimeDir));
                 //qDebug() << "Created XML provider to replace binary provider for" << mimeDir;
             }
             m_providers.push_back(std::move(provider));
@@ -149,20 +147,20 @@ void QMimeDatabasePrivate::loadProviders()
     // so the internal XML DB goes at the end
     if (needInternalDB) {
         // Check if we already have a provider for the InternalDatabase
-        const auto isInternal = [](const std::unique_ptr<QMimeProviderBase> &prov)
+        const auto isInternal = [](const std::unique_ptr<MimeProviderBase> &prov)
         {
             return prov && prov->isInternalDatabase();
         };
         const auto it = std::find_if(currentProviders.begin(), currentProviders.end(), isInternal);
         if (it == currentProviders.end()) {
-            m_providers.push_back(Providers::value_type(new QMimeXMLProvider(this, QMimeXMLProvider::InternalDatabase)));
+            m_providers.push_back(Providers::value_type(new MimeXMLProvider(this, MimeXMLProvider::InternalDatabase)));
         } else {
             m_providers.push_back(std::move(*it));
         }
     }
 }
 
-const QMimeDatabasePrivate::Providers &QMimeDatabasePrivate::providers()
+const MimeDatabasePrivate::Providers &MimeDatabasePrivate::providers()
 {
 #ifndef Q_OS_WASM // stub implementation always returns true
     Q_ASSERT(!mutex.tryLock()); // caller should have locked mutex
@@ -177,7 +175,7 @@ const QMimeDatabasePrivate::Providers &QMimeDatabasePrivate::providers()
     return m_providers;
 }
 
-QString QMimeDatabasePrivate::resolveAlias(const QString &nameOrAlias)
+QString MimeDatabasePrivate::resolveAlias(const QString &nameOrAlias)
 {
     for (const auto &provider : providers()) {
         const QString ret = provider->resolveAlias(nameOrAlias);
@@ -191,38 +189,38 @@ QString QMimeDatabasePrivate::resolveAlias(const QString &nameOrAlias)
     \internal
     Returns a MIME type or an invalid one if none found
  */
-QMimeType QMimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
+MimeType MimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
 {
     const QString mimeName = resolveAlias(nameOrAlias);
     for (const auto &provider : providers()) {
-        const QMimeType mime = provider->mimeTypeForName(mimeName);
+        const MimeType mime = provider->mimeTypeForName(mimeName);
         if (mime.isValid())
             return mime;
     }
     return {};
 }
 
-QStringList QMimeDatabasePrivate::mimeTypeForFileName(const QString &fileName)
+QStringList MimeDatabasePrivate::mimeTypeForFileName(const QString &fileName)
 {
     if (fileName.endsWith(QLatin1Char('/')))
         return QStringList() << QLatin1String("inode/directory");
 
-    const QMimeGlobMatchResult result = findByFileName(fileName);
+    const MimeGlobMatchResult result = findByFileName(fileName);
     QStringList matchingMimeTypes = result.m_matchingMimeTypes;
     matchingMimeTypes.sort(); // make it deterministic
     return matchingMimeTypes;
 }
 
-QMimeGlobMatchResult QMimeDatabasePrivate::findByFileName(const QString &fileName)
+MimeGlobMatchResult MimeDatabasePrivate::findByFileName(const QString &fileName)
 {
-    QMimeGlobMatchResult result;
-    const QString fileNameExcludingPath = QFileSystemEntry(fileName).fileName();
+    MimeGlobMatchResult result;
+    const QString fileNameExcludingPath = QFileInfo(fileName).fileName();
     for (const auto &provider : providers())
         provider->addFileNameMatches(fileNameExcludingPath, result);
     return result;
 }
 
-void QMimeDatabasePrivate::loadMimeTypePrivate(QMimeTypePrivate &mimePrivate)
+void MimeDatabasePrivate::loadMimeTypePrivate(MimeTypePrivate &mimePrivate)
 {
     QMutexLocker locker(&mutex);
     if (mimePrivate.name.isEmpty())
@@ -246,7 +244,7 @@ void QMimeDatabasePrivate::loadMimeTypePrivate(QMimeTypePrivate &mimePrivate)
     }
 }
 
-void QMimeDatabasePrivate::loadGenericIcon(QMimeTypePrivate &mimePrivate)
+void MimeDatabasePrivate::loadGenericIcon(MimeTypePrivate &mimePrivate)
 {
     QMutexLocker locker(&mutex);
     if (mimePrivate.fromCache) {
@@ -259,7 +257,7 @@ void QMimeDatabasePrivate::loadGenericIcon(QMimeTypePrivate &mimePrivate)
     }
 }
 
-void QMimeDatabasePrivate::loadIcon(QMimeTypePrivate &mimePrivate)
+void MimeDatabasePrivate::loadIcon(MimeTypePrivate &mimePrivate)
 {
     QMutexLocker locker(&mutex);
     if (mimePrivate.fromCache) {
@@ -288,13 +286,13 @@ static QString fallbackParent(const QString &mimeTypeName)
     return QString();
 }
 
-QStringList QMimeDatabasePrivate::mimeParents(const QString &mimeName)
+QStringList MimeDatabasePrivate::mimeParents(const QString &mimeName)
 {
     QMutexLocker locker(&mutex);
     return parents(mimeName);
 }
 
-QStringList QMimeDatabasePrivate::parents(const QString &mimeName)
+QStringList MimeDatabasePrivate::parents(const QString &mimeName)
 {
     Q_ASSERT(!mutex.tryLock());
     QStringList result;
@@ -308,7 +306,7 @@ QStringList QMimeDatabasePrivate::parents(const QString &mimeName)
     return result;
 }
 
-QStringList QMimeDatabasePrivate::listAliases(const QString &mimeName)
+QStringList MimeDatabasePrivate::listAliases(const QString &mimeName)
 {
     QMutexLocker locker(&mutex);
     QStringList result;
@@ -317,7 +315,7 @@ QStringList QMimeDatabasePrivate::listAliases(const QString &mimeName)
     return result;
 }
 
-bool QMimeDatabasePrivate::mimeInherits(const QString &mime, const QString &parent)
+bool MimeDatabasePrivate::mimeInherits(const QString &mime, const QString &parent)
 {
     QMutexLocker locker(&mutex);
     return inherits(mime, parent);
@@ -342,7 +340,7 @@ static inline bool isTextFile(const QByteArray &data)
     return true;
 }
 
-QMimeType QMimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPtr)
+MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPtr)
 {
     if (data.isEmpty()) {
         *accuracyPtr = 100;
@@ -350,7 +348,7 @@ QMimeType QMimeDatabasePrivate::findByData(const QByteArray &data, int *accuracy
     }
 
     *accuracyPtr = 0;
-    QMimeType candidate;
+    MimeType candidate;
     for (const auto &provider : providers())
         provider->findByMagic(data, accuracyPtr, candidate);
 
@@ -365,7 +363,7 @@ QMimeType QMimeDatabasePrivate::findByData(const QByteArray &data, int *accuracy
     return mimeTypeForName(defaultMimeType());
 }
 
-QMimeType QMimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *accuracyPtr)
+MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *accuracyPtr)
 {
     // First, glob patterns are evaluated. If there is a match with max weight,
     // this one is selected and we are done. Otherwise, the file contents are
@@ -375,10 +373,10 @@ QMimeType QMimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileNa
     *accuracyPtr = 0;
 
     // Pass 1) Try to match on the file name
-    QMimeGlobMatchResult candidatesByName = findByFileName(fileName);
+    MimeGlobMatchResult candidatesByName = findByFileName(fileName);
     if (candidatesByName.m_allMatchingMimeTypes.count() == 1) {
         *accuracyPtr = 100;
-        const QMimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
+        const MimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
         if (mime.isValid())
             return mime;
         candidatesByName = {};
@@ -393,7 +391,7 @@ QMimeType QMimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileNa
             const QByteArray data = device->peek(16384);
 
             int magicAccuracy = 0;
-            QMimeType candidateByData(findByData(data, &magicAccuracy));
+            MimeType candidateByData(findByData(data, &magicAccuracy));
 
             // Disambiguate conflicting extensions (if magic matching found something)
             if (candidateByData.isValid() && magicAccuracy > 0) {
@@ -421,7 +419,7 @@ QMimeType QMimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileNa
         if (candidatesByName.m_allMatchingMimeTypes.count() > 1) {
             candidatesByName.m_matchingMimeTypes.sort(); // make it deterministic
             *accuracyPtr = 20;
-            const QMimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
+            const MimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
             if (mime.isValid())
                 return mime;
         }
@@ -437,15 +435,15 @@ QMimeType QMimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileNa
     return matchOnContent(&fallbackFile);
 }
 
-QList<QMimeType> QMimeDatabasePrivate::allMimeTypes()
+QList<MimeType> MimeDatabasePrivate::allMimeTypes()
 {
-    QList<QMimeType> result;
+    QList<MimeType> result;
     for (const auto &provider : providers())
         provider->addAllMimeTypes(result);
     return result;
 }
 
-bool QMimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
+bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
 {
     const QString resolvedParent = resolveAlias(parent);
     std::stack<QString, QStringList> toCheck;
@@ -463,9 +461,9 @@ bool QMimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
 }
 
 /*!
-    \class QMimeDatabase
+    \class MimeDatabase
     \inmodule QtCore
-    \brief The QMimeDatabase class maintains a database of MIME types.
+    \brief The MimeDatabase class maintains a database of MIME types.
 
     \since 5.0
 
@@ -476,14 +474,14 @@ bool QMimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
     Applications which want to define custom MIME types need to install an
     XML file into the locations searched for MIME definitions.
     These locations can be queried with
-    \snippet code/src_corelib_mimetype_qmimedatabase.cpp 1
+    \snippet code/src_corelib_mimetype_mimedatabase.cpp 1
     On a typical Unix system, this will be /usr/share/mime/packages/, but it is also
     possible to extend the list of directories by setting the environment variable
     \c XDG_DATA_DIRS. For instance adding /opt/myapp/share to \c XDG_DATA_DIRS will result
     in /opt/myapp/share/mime/packages/ being searched for MIME definitions.
 
     Here is an example of MIME XML:
-    \snippet code/src_corelib_mimetype_qmimedatabase.cpp 2
+    \snippet code/src_corelib_mimetype_mimedatabase.cpp 2
 
     For more details about the syntax of XML MIME definitions, including defining
     "magic" in order to detect MIME types based on data as well, read the
@@ -497,39 +495,39 @@ bool QMimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
 
     \threadsafe
 
-    \snippet code/src_corelib_mimetype_qmimedatabase.cpp 0
+    \snippet code/src_corelib_mimetype_mimedatabase.cpp 0
 
-    \sa QMimeType, {MIME Type Browser Example}
+    \sa MimeType, {MIME Type Browser Example}
  */
 
 /*!
-    \fn QMimeDatabase::QMimeDatabase();
-    Constructs a QMimeDatabase object.
+    \fn MimeDatabase::MimeDatabase();
+    Constructs a MimeDatabase object.
 
-    It is perfectly OK to create an instance of QMimeDatabase every time you need to
+    It is perfectly OK to create an instance of MimeDatabase every time you need to
     perform a lookup.
     The parsing of mimetypes is done on demand (when shared-mime-info is installed)
     or when the very first instance is constructed (when parsing XML files directly).
  */
-QMimeDatabase::QMimeDatabase() :
-        d(staticQMimeDatabase())
+MimeDatabase::MimeDatabase() :
+        d(staticMimeDatabase())
 {
 }
 
 /*!
-    \fn QMimeDatabase::~QMimeDatabase();
-    Destroys the QMimeDatabase object.
+    \fn MimeDatabase::~MimeDatabase();
+    Destroys the MimeDatabase object.
  */
-QMimeDatabase::~QMimeDatabase()
+MimeDatabase::~MimeDatabase()
 {
     d = nullptr;
 }
 
 /*!
-    \fn QMimeType QMimeDatabase::mimeTypeForName(const QString &nameOrAlias) const;
+    \fn MimeType MimeDatabase::mimeTypeForName(const QString &nameOrAlias) const;
     Returns a MIME type for \a nameOrAlias or an invalid one if none found.
  */
-QMimeType QMimeDatabase::mimeTypeForName(const QString &nameOrAlias) const
+MimeType MimeDatabase::mimeTypeForName(const QString &nameOrAlias) const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -562,9 +560,9 @@ QMimeType QMimeDatabase::mimeTypeForName(const QString &nameOrAlias) const
 
     \a fileInfo may refer to an absolute or relative path.
 
-    \sa QMimeType::isDefault(), mimeTypeForData()
+    \sa MimeType::isDefault(), mimeTypeForData()
 */
-QMimeType QMimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode) const
+MimeType MimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode) const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -617,7 +615,7 @@ QMimeType QMimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mo
 
     \overload
 */
-QMimeType QMimeDatabase::mimeTypeForFile(const QString &fileName, MatchMode mode) const
+MimeType MimeDatabase::mimeTypeForFile(const QString &fileName, MatchMode mode) const
 {
     if (mode == MatchExtension) {
         QMutexLocker locker(&d->mutex);
@@ -650,12 +648,12 @@ QMimeType QMimeDatabase::mimeTypeForFile(const QString &fileName, MatchMode mode
 
     \sa mimeTypeForFile()
 */
-QList<QMimeType> QMimeDatabase::mimeTypesForFileName(const QString &fileName) const
+QList<MimeType> MimeDatabase::mimeTypesForFileName(const QString &fileName) const
 {
     QMutexLocker locker(&d->mutex);
 
     const QStringList matches = d->mimeTypeForFileName(fileName);
-    QList<QMimeType> mimes;
+    QList<MimeType> mimes;
     mimes.reserve(matches.count());
     for (const QString &mime : matches)
         mimes.append(d->mimeTypeForName(mime));
@@ -667,7 +665,7 @@ QList<QMimeType> QMimeDatabase::mimeTypesForFileName(const QString &fileName) co
     This allows to pre-select "tar.bz2" for foo.tar.bz2, but still only
     "txt" for my.file.with.dots.txt.
 */
-QString QMimeDatabase::suffixForFileName(const QString &fileName) const
+QString MimeDatabase::suffixForFileName(const QString &fileName) const
 {
     QMutexLocker locker(&d->mutex);
     const int suffixLength = d->findByFileName(fileName).m_knownSuffixLength;
@@ -681,7 +679,7 @@ QString QMimeDatabase::suffixForFileName(const QString &fileName) const
     known MIME type data, the default MIME type (application/octet-stream)
     is returned.
 */
-QMimeType QMimeDatabase::mimeTypeForData(const QByteArray &data) const
+MimeType MimeDatabase::mimeTypeForData(const QByteArray &data) const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -696,7 +694,7 @@ QMimeType QMimeDatabase::mimeTypeForData(const QByteArray &data) const
     known MIME type data, the default MIME type (application/octet-stream)
     is returned.
 */
-QMimeType QMimeDatabase::mimeTypeForData(QIODevice *device) const
+MimeType MimeDatabase::mimeTypeForData(QIODevice *device) const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -706,7 +704,7 @@ QMimeType QMimeDatabase::mimeTypeForData(QIODevice *device) const
         // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
         // This is much faster than seeking back and forth into QIODevice.
         const QByteArray data = device->peek(16384);
-        const QMimeType result = d->findByData(data, &accuracy);
+        const MimeType result = d->findByData(data, &accuracy);
         if (openedByUs)
             device->close();
         return result;
@@ -728,7 +726,7 @@ QMimeType QMimeDatabase::mimeTypeForData(QIODevice *device) const
     known MIME type data, the default MIME type (application/octet-stream)
     is returned.
 */
-QMimeType QMimeDatabase::mimeTypeForUrl(const QUrl &url) const
+MimeType MimeDatabase::mimeTypeForUrl(const QUrl &url) const
 {
     if (url.isLocalFile())
         return mimeTypeForFile(url.toLocalFile());
@@ -759,7 +757,7 @@ QMimeType QMimeDatabase::mimeTypeForUrl(const QUrl &url) const
     but the contents will be used if the file extension is unknown, or
     matches multiple MIME types.
 */
-QMimeType QMimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const
+MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -768,7 +766,7 @@ QMimeType QMimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIO
 
     int accuracy = 0;
     const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
-    const QMimeType result = d->mimeTypeForFileNameAndData(fileName, device, &accuracy);
+    const MimeType result = d->mimeTypeForFileNameAndData(fileName, device, &accuracy);
     if (openedByUs)
         device->close();
     return result;
@@ -790,7 +788,7 @@ QMimeType QMimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIO
     but the contents will be used if the file extension is unknown, or
     matches multiple MIME types.
 */
-QMimeType QMimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, const QByteArray &data) const
+MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, const QByteArray &data) const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -810,7 +808,7 @@ QMimeType QMimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, con
     in a MIME type editor. Do not use unless really necessary in other cases
     though, prefer using the  \l {mimeTypeForData()}{mimeTypeForXxx()} methods for performance reasons.
 */
-QList<QMimeType> QMimeDatabase::allMimeTypes() const
+QList<MimeType> MimeDatabase::allMimeTypes() const
 {
     QMutexLocker locker(&d->mutex);
 
@@ -818,7 +816,7 @@ QList<QMimeType> QMimeDatabase::allMimeTypes() const
 }
 
 /*!
-    \enum QMimeDatabase::MatchMode
+    \enum MimeDatabase::MatchMode
 
     This enum specifies how matching a file to a MIME type is performed.
 
@@ -829,4 +827,4 @@ QList<QMimeType> QMimeDatabase::allMimeTypes() const
     \value MatchContent The file content is used to look for a match
 */
 
-QT_END_NAMESPACE
+} // namespace Utils

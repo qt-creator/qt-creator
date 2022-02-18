@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMETYPE_P_H
-#define QMIMETYPE_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -51,23 +50,20 @@
 // We mean it.
 //
 
-#include <QtCore/private/qglobal_p.h>
-#include "qmimetype.h"
-
-QT_REQUIRE_CONFIG(mimetype);
+#include "mimetype.h"
 
 #include <QtCore/qhash.h>
 #include <QtCore/qstringlist.h>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
-class Q_AUTOTEST_EXPORT QMimeTypePrivate : public QSharedData
+class MimeTypePrivate : public QSharedData
 {
 public:
     typedef QHash<QString, QString> LocaleHash;
 
-    QMimeTypePrivate();
-    explicit QMimeTypePrivate(const QMimeType &other);
+    MimeTypePrivate();
+    explicit MimeTypePrivate(const MimeType &other);
 
     void clear();
 
@@ -82,8 +78,9 @@ public:
     QStringList globPatterns;
 };
 
-QT_END_NAMESPACE
+} // namespace Utils
 
+#if 0
 #define QMIMETYPE_BUILDER_FROM_RVALUE_REFS \
     QT_BEGIN_NAMESPACE \
     static QMimeType buildQMimeType ( \
@@ -102,5 +99,4 @@ QT_END_NAMESPACE
         return QMimeType(qMimeTypeData); \
     } \
     QT_END_NAMESPACE
-
-#endif   // QMIMETYPE_P_H
+#endif

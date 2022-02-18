@@ -38,32 +38,33 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMEDATABASE_H
-#define QMIMEDATABASE_H
+#pragma once
 
-#include <QtCore/qmimetype.h>
+#include "mimetype.h"
 
-QT_REQUIRE_CONFIG(mimetype);
+#include <utils/utils_global.h>
 
 #include <QtCore/qstringlist.h>
 
 QT_BEGIN_NAMESPACE
-
 class QByteArray;
 class QFileInfo;
 class QIODevice;
 class QUrl;
+QT_END_NAMESPACE
 
-class QMimeDatabasePrivate;
-class Q_CORE_EXPORT QMimeDatabase
+namespace Utils {
+
+class MimeDatabasePrivate;
+class QTCREATOR_UTILS_EXPORT MimeDatabase
 {
-    Q_DISABLE_COPY(QMimeDatabase)
+    Q_DISABLE_COPY(MimeDatabase)
 
 public:
-    QMimeDatabase();
-    ~QMimeDatabase();
+    MimeDatabase();
+    ~MimeDatabase();
 
-    QMimeType mimeTypeForName(const QString &nameOrAlias) const;
+    MimeType mimeTypeForName(const QString &nameOrAlias) const;
 
     enum MatchMode {
         MatchDefault = 0x0,
@@ -71,25 +72,23 @@ public:
         MatchContent = 0x2
     };
 
-    QMimeType mimeTypeForFile(const QString &fileName, MatchMode mode = MatchDefault) const;
-    QMimeType mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode = MatchDefault) const;
-    QList<QMimeType> mimeTypesForFileName(const QString &fileName) const;
+    MimeType mimeTypeForFile(const QString &fileName, MatchMode mode = MatchDefault) const;
+    MimeType mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode = MatchDefault) const;
+    QList<MimeType> mimeTypesForFileName(const QString &fileName) const;
 
-    QMimeType mimeTypeForData(const QByteArray &data) const;
-    QMimeType mimeTypeForData(QIODevice *device) const;
+    MimeType mimeTypeForData(const QByteArray &data) const;
+    MimeType mimeTypeForData(QIODevice *device) const;
 
-    QMimeType mimeTypeForUrl(const QUrl &url) const;
-    QMimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const;
-    QMimeType mimeTypeForFileNameAndData(const QString &fileName, const QByteArray &data) const;
+    MimeType mimeTypeForUrl(const QUrl &url) const;
+    MimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const;
+    MimeType mimeTypeForFileNameAndData(const QString &fileName, const QByteArray &data) const;
 
     QString suffixForFileName(const QString &fileName) const;
 
-    QList<QMimeType> allMimeTypes() const;
+    QList<MimeType> allMimeTypes() const;
 
 private:
-    QMimeDatabasePrivate *d;
+    MimeDatabasePrivate *d;
 };
 
-QT_END_NAMESPACE
-
-#endif // QMIMEDATABASE_H
+} // namespace Utils

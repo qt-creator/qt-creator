@@ -37,7 +37,7 @@
 **
 ****************************************************************************/
 
-#include "qmimeglobpattern_p.h"
+#include "mimeglobpattern_p.h"
 
 #if QT_CONFIG(regularexpression)
 #include <QRegularExpression>
@@ -45,18 +45,18 @@
 #include <QStringList>
 #include <QDebug>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
 /*!
     \internal
-    \class QMimeGlobMatchResult
+    \class MimeGlobMatchResult
     \inmodule QtCore
-    \brief The QMimeGlobMatchResult class accumulates results from glob matching.
+    \brief The MimeGlobMatchResult class accumulates results from glob matching.
 
     Handles glob weights, and preferring longer matches over shorter matches.
 */
 
-void QMimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QString &pattern, int knownSuffixLength)
+void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QString &pattern, int knownSuffixLength)
 {
     if (m_allMatchingMimeTypes.contains(mimeType))
         return;
@@ -91,7 +91,7 @@ void QMimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const Q
     }
 }
 
-QMimeGlobPattern::PatternType QMimeGlobPattern::detectPatternType(const QString &pattern) const
+MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(const QString &pattern) const
 {
     const int patternLength = pattern.length();
     if (!patternLength)
@@ -127,14 +127,14 @@ QMimeGlobPattern::PatternType QMimeGlobPattern::detectPatternType(const QString 
 
 /*!
     \internal
-    \class QMimeGlobPattern
+    \class MimeGlobPattern
     \inmodule QtCore
-    \brief The QMimeGlobPattern class contains the glob pattern for file names for MIME type matching.
+    \brief The MimeGlobPattern class contains the glob pattern for file names for MIME type matching.
 
-    \sa QMimeType, QMimeDatabase, QMimeMagicRuleMatcher, QMimeMagicRule
+    \sa MimeType, MimeDatabase, MimeMagicRuleMatcher, MimeMagicRule
 */
 
-bool QMimeGlobPattern::matchFileName(const QString &inputFileName) const
+bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
 {
     // "Applications MUST match globs case-insensitively, except when the case-sensitive
     // attribute is set to true."
@@ -219,7 +219,7 @@ static bool isFastPattern(const QString &pattern)
       ;
 }
 
-void QMimeAllGlobPatterns::addGlob(const QMimeGlobPattern &glob)
+void MimeAllGlobPatterns::addGlob(const MimeGlobPattern &glob)
 {
     const QString &pattern = glob.pattern();
     Q_ASSERT(!pattern.isEmpty());
@@ -245,7 +245,7 @@ void QMimeAllGlobPatterns::addGlob(const QMimeGlobPattern &glob)
     }
 }
 
-void QMimeAllGlobPatterns::removeMimeType(const QString &mimeType)
+void MimeAllGlobPatterns::removeMimeType(const QString &mimeType)
 {
     for (auto &x : m_fastPatterns)
         x.removeAll(mimeType);
@@ -253,14 +253,14 @@ void QMimeAllGlobPatterns::removeMimeType(const QString &mimeType)
     m_lowWeightGlobs.removeMimeType(mimeType);
 }
 
-void QMimeGlobPatternList::match(QMimeGlobMatchResult &result,
+void MimeGlobPatternList::match(MimeGlobMatchResult &result,
                                  const QString &fileName) const
 {
 
-    QMimeGlobPatternList::const_iterator it = this->constBegin();
-    const QMimeGlobPatternList::const_iterator endIt = this->constEnd();
+    MimeGlobPatternList::const_iterator it = this->constBegin();
+    const MimeGlobPatternList::const_iterator endIt = this->constEnd();
     for (; it != endIt; ++it) {
-        const QMimeGlobPattern &glob = *it;
+        const MimeGlobPattern &glob = *it;
         if (glob.matchFileName(fileName)) {
             const QString pattern = glob.pattern();
             const int suffixLen = isSimplePattern(pattern) ? pattern.length() - 2 : 0;
@@ -269,7 +269,7 @@ void QMimeGlobPatternList::match(QMimeGlobMatchResult &result,
     }
 }
 
-void QMimeAllGlobPatterns::matchingGlobs(const QString &fileName, QMimeGlobMatchResult &result) const
+void MimeAllGlobPatterns::matchingGlobs(const QString &fileName, MimeGlobMatchResult &result) const
 {
     // First try the high weight matches (>50), if any.
     m_highWeightGlobs.match(result, fileName);
@@ -294,11 +294,11 @@ void QMimeAllGlobPatterns::matchingGlobs(const QString &fileName, QMimeGlobMatch
     m_lowWeightGlobs.match(result, fileName);
 }
 
-void QMimeAllGlobPatterns::clear()
+void MimeAllGlobPatterns::clear()
 {
     m_fastPatterns.clear();
     m_highWeightGlobs.clear();
     m_lowWeightGlobs.clear();
 }
 
-QT_END_NAMESPACE
+} // namespace Utils

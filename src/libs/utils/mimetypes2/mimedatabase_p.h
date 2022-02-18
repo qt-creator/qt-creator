@@ -38,8 +38,7 @@
 **
 ****************************************************************************/
 
-#ifndef QMIMEDATABASE_P_H
-#define QMIMEDATABASE_P_H
+#pragma once
 
 //
 //  W A R N I N G
@@ -52,12 +51,10 @@
 // We mean it.
 //
 
-#include "qmimetype.h"
+#include "mimetype.h"
 
-QT_REQUIRE_CONFIG(mimetype);
-
-#include "qmimetype_p.h"
-#include "qmimeglobpattern_p.h"
+#include "mimeglobpattern_p.h"
+#include "mimetype_p.h"
 
 #include <QtCore/qelapsedtimer.h>
 #include <QtCore/qlist.h>
@@ -67,45 +64,48 @@ QT_REQUIRE_CONFIG(mimetype);
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-
 class QIODevice;
-class QMimeDatabase;
-class QMimeProviderBase;
+QT_END_NAMESPACE
 
-class QMimeDatabasePrivate
+namespace Utils {
+
+class MimeDatabase;
+class MimeProviderBase;
+
+class MimeDatabasePrivate
 {
 public:
-    Q_DISABLE_COPY_MOVE(QMimeDatabasePrivate)
+    Q_DISABLE_COPY_MOVE(MimeDatabasePrivate)
 
-    QMimeDatabasePrivate();
-    ~QMimeDatabasePrivate();
+    MimeDatabasePrivate();
+    ~MimeDatabasePrivate();
 
-    static QMimeDatabasePrivate *instance();
+    static MimeDatabasePrivate *instance();
 
     inline QString defaultMimeType() const { return m_defaultMimeType; }
 
     bool inherits(const QString &mime, const QString &parent);
 
-    QList<QMimeType> allMimeTypes();
+    QList<MimeType> allMimeTypes();
 
     QString resolveAlias(const QString &nameOrAlias);
     QStringList parents(const QString &mimeName);
-    QMimeType mimeTypeForName(const QString &nameOrAlias);
-    QMimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *priorityPtr);
-    QMimeType findByData(const QByteArray &data, int *priorityPtr);
+    MimeType mimeTypeForName(const QString &nameOrAlias);
+    MimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *priorityPtr);
+    MimeType findByData(const QByteArray &data, int *priorityPtr);
     QStringList mimeTypeForFileName(const QString &fileName);
-    QMimeGlobMatchResult findByFileName(const QString &fileName);
+    MimeGlobMatchResult findByFileName(const QString &fileName);
 
-    // API for QMimeType. Takes care of locking the mutex.
-    void loadMimeTypePrivate(QMimeTypePrivate &mimePrivate);
-    void loadGenericIcon(QMimeTypePrivate &mimePrivate);
-    void loadIcon(QMimeTypePrivate &mimePrivate);
+    // API for MimeType. Takes care of locking the mutex.
+    void loadMimeTypePrivate(MimeTypePrivate &mimePrivate);
+    void loadGenericIcon(MimeTypePrivate &mimePrivate);
+    void loadIcon(MimeTypePrivate &mimePrivate);
     QStringList mimeParents(const QString &mimeName);
     QStringList listAliases(const QString &mimeName);
     bool mimeInherits(const QString &mime, const QString &parent);
 
 private:
-    using Providers = std::vector<std::unique_ptr<QMimeProviderBase>>;
+    using Providers = std::vector<std::unique_ptr<MimeProviderBase>>;
     const Providers &providers();
     bool shouldCheck();
     void loadProviders();
@@ -118,6 +118,4 @@ public:
     QMutex mutex;
 };
 
-QT_END_NAMESPACE
-
-#endif // QMIMEDATABASE_P_H
+} // namespace Utils

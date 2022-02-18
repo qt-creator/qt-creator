@@ -37,12 +37,10 @@
 **
 ****************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
+#include "mimetypeparser_p.h"
 
-#include "qmimetypeparser_p.h"
-
-#include "qmimetype_p.h"
-#include "qmimemagicrulematcher_p.h"
+#include "mimetype_p.h"
+#include "mimemagicrulematcher_p.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -51,7 +49,7 @@
 #include <QtCore/QXmlStreamWriter>
 #include <QtCore/QStack>
 
-QT_BEGIN_NAMESPACE
+namespace Utils {
 
 // XML tags in MIME files
 static const char mimeInfoTagC[] = "mime-info";
@@ -80,35 +78,35 @@ static const char matchOffsetAttributeC[] = "offset";
 static const char matchMaskAttributeC[] = "mask";
 
 /*!
-    \class QMimeTypeParser
+    \class MimeTypeParser
     \inmodule QtCore
     \internal
-    \brief The QMimeTypeParser class parses MIME types, and builds a MIME database hierarchy by adding to QMimeDatabase.
+    \brief The MimeTypeParser class parses MIME types, and builds a MIME database hierarchy by adding to MimeDatabase.
 
-    Populates QMimeDataBase
+    Populates MimeDataBase
 
-    \sa QMimeDatabase, QMimeMagicRuleMatcher, MagicRule, MagicStringRule, MagicByteRule, GlobPattern
-    \sa QMimeTypeParser
+    \sa MimeDatabase, MimeMagicRuleMatcher, MagicRule, MagicStringRule, MagicByteRule, GlobPattern
+    \sa MimeTypeParser
 */
 
 /*!
-    \class QMimeTypeParserBase
+    \class MimeTypeParserBase
     \inmodule QtCore
     \internal
-    \brief The QMimeTypeParserBase class parses for a sequence of <mime-type> in a generic way.
+    \brief The MimeTypeParserBase class parses for a sequence of <mime-type> in a generic way.
 
-    Calls abstract handler function process for QMimeType it finds.
+    Calls abstract handler function process for MimeType it finds.
 
-    \sa QMimeDatabase, QMimeMagicRuleMatcher, MagicRule, MagicStringRule, MagicByteRule, GlobPattern
-    \sa QMimeTypeParser
+    \sa MimeDatabase, MimeMagicRuleMatcher, MagicRule, MagicStringRule, MagicByteRule, GlobPattern
+    \sa MimeTypeParser
 */
 
 /*!
-    \fn virtual bool QMimeTypeParserBase::process(const QMimeType &t, QString *errorMessage) = 0;
+    \fn virtual bool MimeTypeParserBase::process(const MimeType &t, QString *errorMessage) = 0;
     Overwrite to process the sequence of parsed data
 */
 
-QMimeTypeParserBase::ParseState QMimeTypeParserBase::nextState(ParseState currentState, QStringView startElement)
+MimeTypeParserBase::ParseState MimeTypeParserBase::nextState(ParseState currentState, QStringView startElement)
 {
     switch (currentState) {
     case ParseBeginning:
@@ -161,7 +159,7 @@ QMimeTypeParserBase::ParseState QMimeTypeParserBase::nextState(ParseState curren
 }
 
 // Parse int number from an (attribute) string
-bool QMimeTypeParserBase::parseNumber(QStringView n, int *target, QString *errorMessage)
+bool MimeTypeParserBase::parseNumber(QStringView n, int *target, QString *errorMessage)
 {
     bool ok;
     *target = n.toInt(&ok);
@@ -177,7 +175,7 @@ bool QMimeTypeParserBase::parseNumber(QStringView n, int *target, QString *error
 struct CreateMagicMatchRuleResult
 {
     QString errorMessage; // must be first
-    QMimeMagicRule rule;
+    MimeMagicRule rule;
 
     CreateMagicMatchRuleResult(QStringView type, QStringView value, QStringView offsets, QStringView mask)
         : errorMessage(), rule(type.toString(), value.toUtf8(), offsets.toString(), mask.toLatin1(), &errorMessage)
@@ -196,7 +194,7 @@ static CreateMagicMatchRuleResult createMagicMatchRule(const QXmlStreamAttribute
 }
 #endif
 
-bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString *errorMessage)
+bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString *errorMessage)
 {
 #ifdef QT_NO_XMLSTREAMREADER
     Q_UNUSED(dev);
@@ -204,11 +202,11 @@ bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString
         *errorMessage = QString::fromLatin1("QXmlStreamReader is not available, cannot parse '%1'.").arg(fileName);
     return false;
 #else
-    QMimeTypePrivate data;
+    MimeTypePrivate data;
     data.loaded = true;
     int priority = 50;
-    QStack<QMimeMagicRule *> currentRules; // stack for the nesting of rules
-    QList<QMimeMagicRule> rules; // toplevel rules
+    QStack<MimeMagicRule *> currentRules; // stack for the nesting of rules
+    QList<MimeMagicRule> rules; // toplevel rules
     QXmlStreamReader reader(dev);
     ParseState ps = ParseBeginning;
     while (!reader.atEnd()) {
@@ -238,13 +236,13 @@ bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString
                 const bool caseSensitive = atts.value(QLatin1String(caseSensitiveAttributeC)) == QLatin1String("true");
 
                 if (weight == 0)
-                    weight = QMimeGlobPattern::DefaultWeight;
+                    weight = MimeGlobPattern::DefaultWeight;
 
                 Q_ASSERT(!data.name.isEmpty());
-                const QMimeGlobPattern glob(pattern, data.name, weight, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+                const MimeGlobPattern glob(pattern, data.name, weight, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
                 if (!process(glob, errorMessage))   // for actual glob matching
                     return false;
-                data.addGlobPattern(pattern); // just for QMimeType::globPatterns()
+                data.addGlobPattern(pattern); // just for MimeType::globPatterns()
             }
                 break;
             case ParseGlobDeleteAll:
@@ -286,9 +284,9 @@ bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString
             case ParseMagicMatchRule: {
                 auto result = createMagicMatchRule(atts);
                 if (Q_UNLIKELY(!result.rule.isValid()))
-                    qWarning("QMimeDatabase: Error parsing %ls\n%ls",
+                    qWarning("MimeDatabase: Error parsing %ls\n%ls",
                              qUtf16Printable(fileName), qUtf16Printable(result.errorMessage));
-                QList<QMimeMagicRule> *ruleList;
+                QList<MimeMagicRule> *ruleList;
                 if (currentRules.isEmpty())
                     ruleList = &rules;
                 else // nest this rule into the proper parent
@@ -311,7 +309,7 @@ bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString
         {
             const auto elementName = reader.name();
             if (elementName == QLatin1String(mimeTypeTagC)) {
-                if (!process(QMimeType(data), errorMessage))
+                if (!process(MimeType(data), errorMessage))
                     return false;
                 data.clear();
             } else if (elementName == QLatin1String(matchTagC)) {
@@ -321,7 +319,7 @@ bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString
             } else if (elementName == QLatin1String(magicTagC)) {
                 //qDebug() << "MAGIC ended, we got" << rules.count() << "rules, with prio" << priority;
                 // Finished a <magic> sequence
-                QMimeMagicRuleMatcher ruleMatcher(data.name, priority);
+                MimeMagicRuleMatcher ruleMatcher(data.name, priority);
                 ruleMatcher.addRules(rules);
                 processMagicMatcher(ruleMatcher);
                 rules.clear();
@@ -347,4 +345,4 @@ bool QMimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString
 #endif //QT_NO_XMLSTREAMREADER
 }
 
-QT_END_NAMESPACE
+} // namespace Utils
