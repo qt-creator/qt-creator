@@ -274,6 +274,10 @@ public:
                                  const QString &tempFile,
                                  const QString &completeBaseName)
     {
+        Q_UNUSED(url)
+        Q_UNUSED(explicitQmlproject)
+        Q_UNUSED(tempFile)
+        Q_UNUSED(completeBaseName)
         const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
                                             / example / example + ".qmlproject";
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile.toString());

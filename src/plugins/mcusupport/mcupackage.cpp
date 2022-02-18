@@ -63,10 +63,10 @@ McuPackage::McuPackage(const QString &label,
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
+    , m_relativePathModifier(relativePathModifier)
     , m_environmentVariableName(envVarName)
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
-    , m_relativePathModifier(relativePathModifier)
 {
     m_path = Sdk::packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
 }

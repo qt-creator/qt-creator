@@ -57,15 +57,6 @@ namespace McuKitManager {
 
 static const int KIT_VERSION = 9; // Bumps up whenever details in Kit creation change
 
-static FilePath qulDocsDir()
-{
-    const FilePath qulDir = McuSupportOptions::qulDirFromSettings();
-    if (qulDir.isEmpty() || !qulDir.exists())
-        return {};
-    const FilePath docsDir = qulDir.pathAppended("docs");
-    return docsDir.exists() ? docsDir : FilePath();
-}
-
 static void setKitToolchains(Kit *k, const McuToolChainPackage *tcPackage)
 {
     switch (tcPackage->toolchainType()) {
@@ -166,11 +157,6 @@ static void setKitDevice(Kit *k, const McuTarget *mcuTarget)
         return;
 
     DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
-}
-
-static bool expectsCmakeVars(const McuTarget *mcuTarget)
-{
-    return mcuTarget->qulVersion() >= QVersionNumber{2, 0};
 }
 
 static void setKitDependencies(Kit *k,

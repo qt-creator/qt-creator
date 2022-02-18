@@ -573,7 +573,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
             []() { qCDebug(androidDeviceLog) << "ADB device watcher finished."; });
 
     connect(m_adbDeviceWatcherProcess.get(), &Utils::QtcProcess::errorOccurred, this,
-            [this](QProcess::ProcessError error) {
+            [this](QProcess::ProcessError) {
         qCDebug(androidDeviceLog) << "ADB device watcher encountered an error:"
                                   << m_adbDeviceWatcherProcess->errorString();
         if (!m_adbDeviceWatcherProcess->isRunning()) {
