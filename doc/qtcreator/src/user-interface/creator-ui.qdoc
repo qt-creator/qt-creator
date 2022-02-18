@@ -180,9 +180,9 @@
     \list
         \li On \macos, high DPI scaling is forced, which means that \QC allows
             Qt to use the system scaling factor as the \QC scaling factor.
-        \li On Windows, if no \l{High DPI Support in Qt}
-            {scaling environment variables} are set, \QC instructs Qt to detect
-            the scaling factor and use it for \QC.
+        \li On Windows, if no \l{High DPI}{scaling environment variables} are
+            set, \QC instructs Qt to detect the scaling factor and use it for
+            \QC.
         \li On Linux, \QC leaves it to the user to enable high DPI scaling,
             because the process varies so much on different distributions
             and windowing systems that it cannot be reliably done automatically.

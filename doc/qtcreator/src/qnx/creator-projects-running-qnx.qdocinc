@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -51,7 +51,7 @@
 
     To support running, debugging, and stopping applications from \QC, the QNX
     Neutrino RTOS should provide a few additional command line tools and
-    services, as described in \l {Qt Creator Target Requirements}.
+    services, as described in \l {Qt for QNX}.
 
     \section3 Debug Output Cannot Be Shown
 
@@ -70,8 +70,6 @@
     applications on QNX devices: \c awk, \c grep, \c kill, \c netstat, \c print,
     \c printf, \c ps, \c read, \c sed, \c sleep, \c uname, \c slog2info, and
     \c cat.
-
-    For more information, see \l{Other Utilities on the Target Device}.
 
 //! [running on qnx]
 */

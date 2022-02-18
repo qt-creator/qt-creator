@@ -4,7 +4,7 @@
 ** Contact: Blackberry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,11 +38,9 @@
     You can connect QNX devices to the development PC to deploy, run and debug
     applications on them from within \QC. The QNX Neutrino RTOS should provide
     a few additional command line tools and services, as described in
-    \l {Qt Creator Target Requirements}.
+    \l {Qt for QNX}.
 
-    \note In Qt 6, Qt for QNX is a part of
-    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation},
-    and the \QC support is considered experimental.
+    \note In Qt 6, \QC support for QNX is considered experimental.
 
     \section1 Adding a QNX Neutrino Device in \QC
 
