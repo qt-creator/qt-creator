@@ -46,6 +46,8 @@
 #include "mimeprovider_p.h"
 #include "mimetype_p.h"
 
+#include "filepath.h"
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStandardPaths>
@@ -826,5 +828,49 @@ QList<MimeType> MimeDatabase::allMimeTypes() const
 
     \value MatchContent The file content is used to look for a match
 */
+
+MimeType mimeTypeForName(const QString &nameOrAlias)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForName(nameOrAlias);
+}
+
+MimeType mimeTypeForFile(const QString &fileName, MimeMatchMode mode)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForFile(fileName, MimeDatabase::MatchMode(mode));
+}
+
+MimeType mimeTypeForFile(const QFileInfo &fileInfo, MimeMatchMode mode)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForFile(fileInfo, MimeDatabase::MatchMode(mode));
+}
+
+MimeType mimeTypeForFile(const FilePath &filePath, MimeMatchMode mode)
+{
+    MimeDatabase mdb;
+    if (filePath.needsDevice())
+        return mdb.mimeTypeForUrl(filePath.toUrl());
+    return mdb.mimeTypeForFile(filePath.toString(), MimeDatabase::MatchMode(mode));
+}
+
+QList<MimeType> mimeTypesForFileName(const QString &fileName)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypesForFileName(fileName);
+}
+
+MimeType mimeTypeForData(const QByteArray &data)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForData(data);
+}
+
+QList<MimeType> allMimeTypes()
+{
+    MimeDatabase mdb;
+    return mdb.allMimeTypes();
+}
 
 } // namespace Utils
