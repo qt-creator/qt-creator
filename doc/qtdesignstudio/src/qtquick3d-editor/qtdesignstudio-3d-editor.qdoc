@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -26,7 +26,7 @@
 /*!
     \previouspage qtquick-form-editor.html
     \page studio-3d-editor.html
-    \nextpage quick-library.html
+    \nextpage quick-components-view.html
 
     \title 3D Editor
 
@@ -64,11 +64,11 @@
     affect only the local transformations of the component or whether they
     transform with respect to the global space.
 
-    Additional helpful features when editing 3D scenes are the \e {edit light},
-    which is a quick way to light the scene, and the grid that helps you to
-    navigate in 3D space. Select the \inlineimage grid_on.png
-    (\uicontrol {Toggle Grid Visibility}) or press \key G to show or hide the
-    grid.
+    Another helpful feature when editing 3D scenes is the \e {edit light},
+    which is a quick way to light the scene.
+
+    Additionally, you can toggle the visibility of the grid, selection boxes,
+    icon gizmos, and camera frustums in the 3D scene.
 
     To refresh the contents of \uicontrol {3D Editor}, press \key P or
     select the \inlineimage icons/reset.png
@@ -97,7 +97,7 @@
         \li To pan, press \key Alt (or \key Option on \macos) and use the
             middle mouse button to click and drag anywhere in the rendered
             view to slide the view around.
-            \note At the moment it is not possible to pan using Magic Mouse.
+            \note It is not possible to pan using Magic Mouse.
         \li To orbit, press \key Alt and click and drag anywhere in the rendered
             view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
@@ -109,7 +109,7 @@
     select \inlineimage fit_selected.png
     (\uicontrol {Fit Selected}) or press \key F.
 
-    The world axis helper (1) shows the direction of the world axes in view.
+    The world axis helper (1) shows the direction of the world axes in the view.
     To point the camera at the currently selected component in the direction of
     an axis, click the axis. Clicking the dot at the end of the axis will point
     the camera at the opposite direction of the axis. If no component is
@@ -179,6 +179,7 @@
     {keyboard shortcuts} applicable to your operating system, for example,
     \key Ctrl+C and \key Ctrl+V on Windows to copy-paste components.
 
+    \target moving components 3d editor
     \section1 Moving Components
 
     \image studio-3d-editor-move.png "3D Editor in move mode"
@@ -233,6 +234,76 @@
             gray handle at the center of the component.
     \endlist
 
+    \section1 Aligning Views and Cameras
+
+    To align a camera to the \uicontrol {3D Editor} view:
+    \list 1
+      \li Select a camera in \uicontrol {3D Editor} or \uicontrol {Navigator}.
+      \li In \uicontrol {3D Editor},
+      select \inlineimage icons/align-camera-on.png
+      .
+    \endlist
+
+    This moves and rotates the camera so that the camera shows the same view
+    as the current view in \uicontrol {3D Editor}.
+
+    To align the \uicontrol {3D Editor} view to a camera:
+        \list 1
+      \li Select a camera in \uicontrol {3D Editor} or \uicontrol {Navigator}.
+      \li In \uicontrol {3D Editor},
+      select \inlineimage icons/align-view-on.png
+      .
+    \endlist
+
+    This copies the position as well as x and y rotation values from the
+    camera and applies them to \uicontrol {3D Editor}.
+
+    \section1 Toggling Visibility
+
+    To toggle the visibility of objects in \uicontrol {3D Editor}, select
+    \inlineimage icons/visibilityon.png
+    in the toolbar. This opens a menu with the following options:
+
+    \table
+      \row
+        \li Show Grid
+        \li Toggles the visibility of the helper grid.
+      \row
+        \li Show Selection Boxes
+        \li Toggles the visibility of selection boxes for selected 3D objects.
+      \row
+        \li Show Icon Gizmos
+        \li Toggles the visibility of icon gizmos for object such as cameras,
+            lights, and particle systems.
+      \row
+        \li Always Show Camera Frustums
+        \li Toggles between always showing the camera frustum and showing it
+        only for cameras selected in \uicontrol {3D Editor}.
+    \endtable
+
+    \section1 Particle Editor
+
+    The particle editor tools help you preview your particle systems in
+    \uicontrol {3D Editor}. You can select one particle system to preview at a
+    time.
+
+    To preview a particle system in \uicontrol{3D Editor}:
+
+    \list 1
+      \li Select a particle system in \uicontrol Navigator or
+      \uicontrol {3D Editor}.
+      \li In the \uicontrol {3D Editor}, select
+      \inlineimage icons/particle-animation-on.png
+      to activate particle animation. Now you can see the particle animation in
+      \uicontrol{3D Editor}.
+    \endlist
+
+    You can pause the particle animation by selecting
+    \inlineimage icons/particle-animation-on.png
+    . When the animation is paused, you can use
+    \inlineimage icons/particles-seek.png
+    to manually seek forward or backward in the particle animation.
+
     \section1 Summary of the 3D Editor Toolbar Buttons
 
     The \uicontrol {3D Editor} toolbar contains the following buttons:
@@ -254,7 +325,7 @@
             \inlineimage move_on.png
         \li Activate the Move Tool
         \li \key W
-        \li \l{Moving Components}
+        \li \l{moving components 3d editor}{Moving Components}
     \row
         \li \inlineimage rotate_off.png
             \inlineimage rotate_on.png
@@ -291,17 +362,47 @@
         \li \key U
         \li \l{Using Edit Light}
     \row
-        \li \inlineimage grid_off.png
-            \inlineimage grid_on.png
-        \li Toggle Grid Visibility
-        \li \key G
+        \li \inlineimage icons/align-camera-on.png
+        \li Align Selected Cameras to View
         \li
+        \li\l{Aligning Views and Cameras}
+    \row
+        \li \inlineimage icons/align-view-on.png
+        \li Align View to Selected Camera
+        \li
+        \li \l{Aligning Views and Cameras}
+    \row
+        \li \inlineimage icons/visibilityon.png
+        \li Visibility Toggles
+        \li
+        \li \l{Toggling Visibility}
+    \row
+        \li \inlineimage icons/particles-seek.png
+        \li Seek Particle System Time
+        \li
+        \li \l{Particle Editor}
+    \row
+        \li \inlineimage icons/particle-animation-on.png
+            \inlineimage icons/particle-animation-off.png
+        \li Toggle Particle Animation
+        \li \key V
+        \li \l{Particle Editor}
+    \row
+        \li \inlineimage icons/particle-play.png
+            \inlineimage icons/particle-pause.png
+        \li Play/Pause Particles
+        \li \key ,
+        \li \l{Particle Editor}
+    \row
+        \li \inlineimage icons/particle-restart.png
+        \li Restart Particles
+        \li \key /
+        \li \l{Particle Editor}
     \row
         \li \inlineimage icons/reset.png
         \li Reset View
-        \li \key R
+        \li \key P
         \li
     \endtable
-
 
 */
