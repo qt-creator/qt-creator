@@ -48,7 +48,8 @@ class RsyncDeployService : public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
 public:
-    RsyncDeployService(QObject *parent = nullptr) : AbstractRemoteLinuxDeployService(parent) {}
+    RsyncDeployService(QObject *parent = nullptr) : AbstractRemoteLinuxDeployService(parent)
+        { SshRemoteProcess::setupSshEnvironment(&m_rsync); }
 
     void setDeployableFiles(const QList<DeployableFile> &files) { m_deployableFiles = files; }
     void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }
@@ -69,7 +70,7 @@ private:
     mutable QList<DeployableFile> m_deployableFiles;
     bool m_ignoreMissingFiles = false;
     QString m_flags;
-    SshProcess m_rsync;
+    QtcProcess m_rsync;
     SshRemoteProcessPtr m_mkdir;
 };
 

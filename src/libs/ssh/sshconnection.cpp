@@ -28,7 +28,6 @@
 #include "sftpsession.h"
 #include "sftptransfer.h"
 #include "sshlogging_p.h"
-#include "sshprocess.h"
 #include "sshremoteprocess.h"
 #include "sshsettings.h"
 
@@ -129,7 +128,10 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
 struct SshConnection::SshConnectionPrivate
 {
     SshConnectionPrivate(const SshConnectionParameters &sshParameters)
-        : connParams(sshParameters) {}
+        : connParams(sshParameters)
+    {
+        SshRemoteProcess::setupSshEnvironment(&masterProcess);
+    }
 
     QString fullProcessError()
     {
@@ -166,7 +168,7 @@ struct SshConnection::SshConnectionPrivate
 
     const SshConnectionParameters connParams;
     SshConnectionInfo connInfo;
-    SshProcess masterProcess;
+    QtcProcess masterProcess;
     QString errorString;
     std::unique_ptr<QTemporaryDir> masterSocketDir;
     State state = Unconnected;

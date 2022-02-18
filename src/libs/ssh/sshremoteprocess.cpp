@@ -46,12 +46,14 @@
  */
 
 using namespace QSsh::Internal;
+using namespace Utils;
 
 namespace QSsh {
 
 SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs)
-    : SshProcess()
+    : QtcProcess()
 {
+    setupSshEnvironment(this);
     m_remoteCommand = command;
     m_connectionArgs = connectionArgs;
 
@@ -70,9 +72,9 @@ SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &co
 void SshRemoteProcess::start()
 {
     QTC_ASSERT(!isRunning(), return);
-    const Utils::CommandLine cmd = fullLocalCommandLine();
+    const CommandLine cmd = fullLocalCommandLine();
     if (!m_displayName.isEmpty()) {
-        Utils::Environment env = environment();
+        Environment env = environment();
         env.set("DISPLAY", m_displayName);
         setEnvironment(env);
     }
@@ -86,9 +88,9 @@ void SshRemoteProcess::requestX11Forwarding(const QString &displayName)
     m_displayName = displayName;
 }
 
-Utils::CommandLine SshRemoteProcess::fullLocalCommandLine(bool inTerminal) const
+CommandLine SshRemoteProcess::fullLocalCommandLine(bool inTerminal) const
 {
-    Utils::CommandLine cmd{SshSettings::sshFilePath()};
+    CommandLine cmd {SshSettings::sshFilePath()};
 
     if (!m_displayName.isEmpty())
         cmd.addArg("-X");
@@ -102,6 +104,25 @@ Utils::CommandLine SshRemoteProcess::fullLocalCommandLine(bool inTerminal) const
         cmd.addArg(m_remoteCommand);
 
     return cmd;
+}
+
+bool SshRemoteProcess::setupSshEnvironment(QtcProcess *process)
+{
+    Environment env = process->hasEnvironment() ? process->environment()
+                                                : Environment::systemEnvironment();
+    const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
+    if (SshSettings::askpassFilePath().exists()) {
+        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
+
+        // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
+        if (!env.hasKey("DISPLAY"))
+            env.set("DISPLAY", ":0");
+    }
+    process->setEnvironment(env);
+
+    // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
+    process->setDisableUnixTerminal();
+    return hasDisplay;
 }
 
 } // namespace QSsh

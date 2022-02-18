@@ -26,7 +26,7 @@
 #include "sftpsession.h"
 
 #include "sshlogging_p.h"
-#include "sshprocess.h"
+#include "sshremoteprocess.h"
 #include "sshsettings.h"
 
 #include <utils/fileutils.h>
@@ -58,7 +58,7 @@ struct Command
 
 struct SftpSession::SftpSessionPrivate
 {
-    SshProcess sftpProc;
+    QtcProcess sftpProc;
     QStringList connectionArgs;
     QByteArray output;
     QQueue<Command> pendingCommands;
@@ -111,6 +111,7 @@ static QByteArray prompt() { return "sftp> "; }
 
 SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionPrivate)
 {
+    SshRemoteProcess::setupSshEnvironment(&d->sftpProc);
     d->sftpProc.setProcessMode(ProcessMode::Writer);
     d->connectionArgs = connectionArgs;
     connect(&d->sftpProc, &QtcProcess::started, [this] {

@@ -29,8 +29,6 @@ Project {
             "sshkeycreationdialog.ui",
             "sshlogging.cpp",
             "sshlogging_p.h",
-            "sshprocess.cpp",
-            "sshprocess.h",
             "sshremoteprocess.cpp",
             "sshremoteprocess.h",
             "sshremoteprocessrunner.cpp",

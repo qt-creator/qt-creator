@@ -466,21 +466,7 @@ void LinuxDevice::runProcess(QtcProcess &process) const
 {
     QTC_ASSERT(!process.isRunning(), return);
 
-    Utils::Environment env = process.hasEnvironment() ? process.environment()
-                                                      : Utils::Environment::systemEnvironment();
-    const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
-    if (SshSettings::askpassFilePath().exists()) {
-        env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
-
-        // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
-        if (!env.hasKey("DISPLAY"))
-            env.set("DISPLAY", ":0");
-    }
-    process.setEnvironment(env);
-
-    // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
-    process.setDisableUnixTerminal();
-
+    const bool hasDisplay = SshRemoteProcess::setupSshEnvironment(&process);
     process.setCommand(d->fullLocalCommandLine(process.commandLine(), process.terminalMode(),
                                                hasDisplay));
     process.start();

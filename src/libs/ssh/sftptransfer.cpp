@@ -26,7 +26,7 @@
 #include "sftptransfer.h"
 
 #include "sshlogging_p.h"
-#include "sshprocess.h"
+#include "sshremoteprocess.h"
 #include "sshsettings.h"
 
 #include <QDir>
@@ -44,7 +44,7 @@ namespace QSsh {
 
 struct SftpTransfer::SftpTransferPrivate
 {
-    SshProcess sftpProc;
+    QtcProcess sftpProc;
     FilesToTransfer files;
     Internal::FileTransferType transferType;
     FileTransferErrorHandling errorHandlingMode;
@@ -109,6 +109,7 @@ SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferT
                            const QStringList &connectionArgs)
     : d(new SftpTransferPrivate)
 {
+    SshRemoteProcess::setupSshEnvironment(&d->sftpProc);
     d->files = files;
     d->transferType = type;
     d->errorHandlingMode = errorHandlingMode;

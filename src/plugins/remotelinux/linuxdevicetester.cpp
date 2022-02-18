@@ -55,7 +55,7 @@ public:
     SshRemoteProcessPtr process;
     DeviceUsedPortsGatherer portsGatherer;
     SftpTransferPtr sftpTransfer;
-    SshProcess rsyncProcess;
+    Utils::QtcProcess rsyncProcess;
     State state = Inactive;
     bool sftpWorks = false;
 };
@@ -67,6 +67,7 @@ using namespace Internal;
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
     : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
 {
+    SshRemoteProcess::setupSshEnvironment(&d->rsyncProcess);
 }
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
