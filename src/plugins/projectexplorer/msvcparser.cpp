@@ -78,7 +78,9 @@ static Task handleNmakeJomMessage(const QString &line)
     if (!matchLength)
         return {};
 
-    return CompileTask(Task::Error, line.mid(matchLength).trimmed());
+    CompileTask task(Task::Error, line.mid(matchLength).trimmed());
+    task.details << line;
+    return task;
 }
 
 static Task::TaskType taskType(const QString &category)
@@ -139,6 +141,7 @@ OutputLineParser::Result MsvcParser::handleLine(const QString &line, OutputForma
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 2);
             m_lastTask = CompileTask(Task::Unknown, description, filePath, lineNo);
+            m_lastTask.details << line;
             m_lines = 1;
             return {Status::InProgress, linkSpecs};
         }
@@ -173,17 +176,16 @@ MsvcParser::Result MsvcParser::processCompileLine(const QString &line)
                     [](int total, const QString &line) { return total + line.length() + 1;});
             for (LinkSpec &ls : linkSpecs)
                 ls.startPos += offset;
-            m_linkSpecs << linkSpecs;
-            m_lastTask.details.append(line);
             ++m_lines;
         } else {
             flush();
             m_lastTask = CompileTask(taskType(match.captured(2)),
                                      match.captured(3) + match.captured(4).trimmed(), // description
                                      filePath, position.second);
-            m_linkSpecs << linkSpecs;
             m_lines = 1;
         }
+        m_linkSpecs << linkSpecs;
+        m_lastTask.details.append(line);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -196,6 +198,8 @@ void MsvcParser::flush()
     if (m_lastTask.isNull())
         return;
 
+    if (m_lastTask.details.count() == 1)
+        m_lastTask.details.clear();
     setDetailsFormat(m_lastTask, m_linkSpecs);
     Task t = m_lastTask;
     m_lastTask.clear();
@@ -476,6 +480,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << (Tasks()
                 << compileTask(Task::Error,
                                "C2440: 'initializing' : cannot convert from 'int' to 'std::_Tree<_Traits>::iterator'\n"
+                               "..\\untitled\\main.cpp(19) : error C2440: 'initializing' : cannot convert from 'int' to 'std::_Tree<_Traits>::iterator'\n"
                                "        with\n"
                                "        [\n"
                                "            _Traits=std::_Tmap_traits<int,double,std::less<int>,std::allocator<std::pair<const int,double>>,false>\n"
@@ -484,7 +489,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                                FilePath::fromUserInput("..\\untitled\\main.cpp"),
                                19,
                                QVector<QTextLayout::FormatRange>()
-                                   << formatRange(85, 247)))
+                                   << formatRange(85, 365)))
             << "";
 
     QTest::newRow("Linker error 1")
@@ -545,6 +550,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         FilePath::fromUserInput("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility"), 2212)
                 << compileTask(Task::Unknown,
                         "see reference to function template instantiation '_OutIt std::copy<const unsigned char*,unsigned short*>(_InIt,_InIt,_OutIt)' being compiled\n"
+                        "        symbolgroupvalue.cpp(2314) : see reference to function template instantiation '_OutIt std::copy<const unsigned char*,unsigned short*>(_InIt,_InIt,_OutIt)' being compiled\n"
                         "        with\n"
                         "        [\n"
                         "            _OutIt=unsigned short *,\n"
@@ -553,7 +559,7 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         FilePath::fromUserInput("symbolgroupvalue.cpp"),
                         2314,
                         QVector<QTextLayout::FormatRange>()
-                            << formatRange(141, 109)))
+                            << formatRange(141, 287)))
             << "";
 
     QTest::newRow("Ambiguous symbol")
@@ -588,11 +594,12 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << "" << ""
             << Tasks{compileTask(Task::Error,
                                "C2733: 'func': second C linkage of overloaded function not allowed\n"
+                               "main.cpp(7): error C2733: 'func': second C linkage of overloaded function not allowed\n"
                                "main.cpp(6): note: see declaration of 'func'",
                                FilePath::fromUserInput("main.cpp"),
                                7,
                                QVector<QTextLayout::FormatRange>()
-                                   << formatRange(67, 44))}
+                                   << formatRange(67, 130))}
             << "";
 
     QTest::newRow("cyrillic warning") // QTCREATORBUG-20297
