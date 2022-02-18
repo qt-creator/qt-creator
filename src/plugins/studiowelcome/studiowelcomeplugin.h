@@ -36,8 +36,6 @@ QT_FORWARD_DECLARE_CLASS(QCheckBox)
 namespace StudioWelcome {
 namespace Internal {
 
-const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
-
 class StudioSettingsPage : public Core::IOptionsPageWidget
 {
 public:
@@ -79,6 +77,9 @@ public:
 
     void pauseRemoveSplashTimer();
     void resumeRemoveSplashTimer();
+
+    static Utils::FilePath defaultExamplesPath();
+    static QString examplesPathSetting();
 
 signals:
     void examplesDownloadPathChanged(const QString &path);

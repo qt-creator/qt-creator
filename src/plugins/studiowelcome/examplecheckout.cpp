@@ -239,9 +239,7 @@ FileExtractor::FileExtractor(QObject *parent)
     : QObject(parent)
 {
     m_targetPath = Utils::FilePath::fromString(
-        Core::ICore::settings()
-            ->value(StudioWelcome::Internal::EXAMPLES_DOWNLOAD_PATH)
-            .toString());
+        StudioWelcome::Internal::StudioWelcomePlugin::examplesPathSetting());
 
     m_timer.setInterval(100);
     m_timer.setSingleShot(false);

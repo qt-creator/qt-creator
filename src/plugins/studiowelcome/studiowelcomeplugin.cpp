@@ -98,6 +98,8 @@ const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
 const char NO_TELEMETRY[] = "NoTelemetry";
 const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
 
+const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
+
 QPointer<QQuickWidget> s_view = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
@@ -676,6 +678,20 @@ void StudioWelcomePlugin::resumeRemoveSplashTimer()
         m_removeSplashTimer.start(m_removeSplashRemainingTime);
 }
 
+Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()
+{
+    return Utils::FilePath::fromString(
+               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
+        .pathAppended("QtDesignStudio");
+}
+
+QString StudioWelcomePlugin::examplesPathSetting()
+{
+    return Core::ICore::settings()
+        ->value(EXAMPLES_DOWNLOAD_PATH, defaultExamplesPath().toString())
+        .toString();
+}
+
 WelcomeMode::WelcomeMode()
 {
     setDisplayName(tr("Studio"));
@@ -778,18 +794,6 @@ void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
     }
 }
 
-const Utils::FilePath defaultExamplesPath = Utils::FilePath::fromString(
-                                                QStandardPaths::writableLocation(
-                                                    QStandardPaths::DocumentsLocation))
-                                                .pathAppended("QtDesignStudio");
-
-static QString examplesPathSetting()
-{
-    return Core::ICore::settings()
-        ->value(EXAMPLES_DOWNLOAD_PATH, defaultExamplesPath.toString())
-        .toString();
-}
-
 WelcomeMode::~WelcomeMode()
 {
     delete m_modeWidget;
@@ -836,11 +840,12 @@ StudioSettingsPage::StudioSettingsPage()
     examplesGroupBox->setLayout(horizontalLayout);
 
     auto label = new QLabel(tr("Examples path:"));
-    m_pathChooser->setFilePath(Utils::FilePath::fromString(examplesPathSetting()));
+    m_pathChooser->setFilePath(
+        Utils::FilePath::fromString(StudioWelcomePlugin::examplesPathSetting()));
     auto resetButton = new QPushButton(tr("Reset Path"));
 
     connect(resetButton, &QPushButton::clicked, this, [this]() {
-        m_pathChooser->setFilePath(defaultExamplesPath);
+        m_pathChooser->setFilePath(StudioWelcomePlugin::defaultExamplesPath());
     });
 
     horizontalLayout->addWidget(label);
