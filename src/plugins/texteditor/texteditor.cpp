@@ -835,6 +835,8 @@ public:
         setMultiTextCursorProvider([editor]() { return editor->multiTextCursor(); });
     }
 
+    ~TextEditorWidgetFind() override { cancelCurrentSelectAll(); }
+
     bool supportsSelectAll() const override { return true; }
     void selectAll(const QString &txt, FindFlags findFlags) override;
 
@@ -858,6 +860,8 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
     connect(m_selectWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
             this, [this]() {
                 const QFuture<FileSearchResultList> future = m_selectWatcher->future();
+                m_selectWatcher->deleteLater();
+                m_selectWatcher = nullptr;
                 if (future.resultCount() <= 0)
                     return;
                 const FileSearchResultList &results = future.result();
