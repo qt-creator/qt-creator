@@ -33,9 +33,18 @@
 
 namespace QmlDesigner {
 
-inline bool eventListEnabled(const SelectionContext &)
+inline bool eventListEnabled(const SelectionContext &context)
 {
-    return EventList::hasEventListModel();
+    static ModelNode lastRootNode;
+    static bool lastValue = false;
+
+    if (lastRootNode == context.rootNode())
+        return lastValue;
+
+    lastRootNode = context.rootNode();
+    lastValue = EventList::hasEventListModel();
+
+    return lastValue;
 }
 
 QIcon eventListIconFromIconFont(Theme::Icon iconType)
