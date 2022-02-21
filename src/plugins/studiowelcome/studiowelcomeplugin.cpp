@@ -39,9 +39,6 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
-
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -59,6 +56,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/dynamiclicensecheck.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -302,35 +300,9 @@ private:
 
 void ProjectModel::setupVersion()
 {
-    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
-        ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker")));
-
-    if (!pluginSpec)
-        return;
-
-    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
-
-    if (!plugin)
-        return;
-
-    m_communityVersion = false;
-
-    bool retVal = false;
-    bool success = QMetaObject::invokeMethod(plugin,
-                                             "qdsEnterpriseLicense",
-                                             Qt::DirectConnection,
-                                             Q_RETURN_ARG(bool, retVal));
-
-    if (!success) {
-        qWarning("Check for Qt Design Studio Enterprise License failed.");
-        return;
-    }
-    if (!retVal) {
-        qWarning("No Qt Design Studio Enterprise License. Disabling asset importer.");
-        return;
-    }
-    m_enterpriseVersion = true;
+    Utils::FoundLicense license = Utils::checkLicense();
+    m_communityVersion = license == Utils::FoundLicense::community;
+    m_enterpriseVersion = license == Utils::FoundLicense::enterprise;
 }
 
 ProjectModel::ProjectModel(QObject *parent)

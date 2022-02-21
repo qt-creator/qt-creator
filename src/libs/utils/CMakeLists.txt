@@ -34,6 +34,7 @@ add_qtc_library(Utils
     differ.cpp differ.h
     displayname.cpp displayname.h
     dropsupport.cpp dropsupport.h
+    dynamiclicensecheck.h
     elfreader.cpp elfreader.h
     elidinglabel.cpp elidinglabel.h
     environment.cpp environment.h
