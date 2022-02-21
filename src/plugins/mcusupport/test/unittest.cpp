@@ -92,7 +92,7 @@ void McuSupportTest::test_addFreeRtosCmakeVarToKit()
     QCOMPARE(cmakeConfig.size(), 1);
 
     CMakeConfigItem expectedCmakeVar{freeRtosCmakeVar.toLocal8Bit(),
-                                     defaultfreeRtosPath.toLocal8Bit()};
+                                     FilePath::fromString(defaultfreeRtosPath).toUserOutput().toLocal8Bit()};
     QVERIFY(cmakeConfig.contains(expectedCmakeVar));
 }
 
