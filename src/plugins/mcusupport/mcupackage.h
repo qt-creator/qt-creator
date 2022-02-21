@@ -74,14 +74,9 @@ public:
     bool validStatus() const override;
     void setAddToPath(bool addToPath) override;
     bool addToPath() const override;
-    void writeGeneralSettings() const override;
     bool writeToSettings() const override;
     void setRelativePathModifier(const QString &path) override;
     void setVersions(const QStringList &versions) override;
-
-    //TODO(piotr.mucko): Why every package knows about automatic kit creation. This should be outside of this class.
-    bool automaticKitCreationEnabled() const override;
-    void setAutomaticKitCreationEnabled(const bool enabled) override;
 
     QWidget *widget() override;
 
@@ -108,7 +103,6 @@ private:
     const QString m_environmentVariableName;
     const QString m_downloadUrl;
     bool m_addToPath = false;
-    bool m_automaticKitCreation = true;
 
     Status m_status = Status::InvalidPath;
 };

@@ -91,9 +91,15 @@ public:
     void populatePackagesAndTargets();
 
     static bool kitsNeedQtVersion();
+
+    bool automaticKitCreationEnabled() const;
+    void setAutomaticKitCreationEnabled(const bool enabled);
+    void writeGeneralSettings() const;
+    static bool automaticKitCreationFromSettings();
 private:
     void deletePackagesAndTargets();
 
+    bool m_automaticKitCreation = true;
 signals:
     void packagesChanged();
 };

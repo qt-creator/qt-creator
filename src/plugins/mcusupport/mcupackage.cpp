@@ -41,15 +41,6 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
-static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)
-{
-    QSettings *settings = Core::ICore::settings(scope);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-    bool automaticKitCreation = settings->value(key, true).toBool();
-    return automaticKitCreation;
-}
-
 McuPackage::McuPackage(const QString &label,
                        const FilePath &defaultPath,
                        const QString &detectionPath,
@@ -66,7 +57,6 @@ McuPackage::McuPackage(const QString &label,
     , m_downloadUrl(downloadUrl)
 {
     m_path = Sdk::packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
-    m_automaticKitCreation = automaticKitCreationFromSettings(QSettings::UserScope);
 }
 
 FilePath McuPackage::basePath() const
@@ -162,14 +152,6 @@ bool McuPackage::addToPath() const
     return m_addToPath;
 }
 
-void McuPackage::writeGeneralSettings() const
-{
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(key, m_automaticKitCreation);
-}
-
 bool McuPackage::writeToSettings() const
 {
     const FilePath savedPath = Sdk::packagePathFromSettings(m_settingsKey,
@@ -190,16 +172,6 @@ void McuPackage::setRelativePathModifier(const QString &path)
 void McuPackage::setVersions(const QStringList &versions)
 {
     m_versions = versions;
-}
-
-bool McuPackage::automaticKitCreationEnabled() const
-{
-    return m_automaticKitCreation;
-}
-
-void McuPackage::setAutomaticKitCreationEnabled(const bool enabled)
-{
-    m_automaticKitCreation = enabled;
 }
 
 void McuPackage::updatePath()

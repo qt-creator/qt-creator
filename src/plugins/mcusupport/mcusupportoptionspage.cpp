@@ -146,7 +146,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         m_kitAutomaticCreationCheckBox = new QCheckBox(
             tr("Automatically create kits for all available targets on start"));
         connect(m_kitAutomaticCreationCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
-            m_options.qtForMCUsSdkPackage->setAutomaticKitCreationEnabled(
+            m_options.setAutomaticKitCreationEnabled(
                 state == Qt::CheckState::Checked);
         });
         mainLayout->addWidget(m_kitAutomaticCreationCheckBox);
@@ -245,8 +245,7 @@ void McuSupportOptionsWidget::updateStatus()
     }
 
     // Automatic Kit creation
-    m_kitAutomaticCreationCheckBox->setChecked(
-        m_options.qtForMCUsSdkPackage->automaticKitCreationEnabled());
+    m_kitAutomaticCreationCheckBox->setChecked(m_options.automaticKitCreationEnabled());
 
     // Status label in the bottom
     {
@@ -300,7 +299,7 @@ void McuSupportOptionsWidget::apply()
 {
     bool pathsChanged = false;
 
-    m_options.qtForMCUsSdkPackage->writeGeneralSettings();
+    m_options.writeGeneralSettings();
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
     for (auto package : qAsConst(m_options.sdkRepository.packages))
         pathsChanged |= package->writeToSettings();

@@ -387,7 +387,7 @@ void createAutomaticKits()
     auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
 
     const auto createKits = [qtForMCUsPackage]() {
-        if (qtForMCUsPackage->automaticKitCreationEnabled()) {
+        if (McuSupportOptions::automaticKitCreationFromSettings()) {
             qtForMCUsPackage->updateStatus();
             if (!qtForMCUsPackage->validStatus()) {
                 switch (qtForMCUsPackage->status()) {

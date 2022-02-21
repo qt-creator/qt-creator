@@ -70,6 +70,7 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
             &McuAbstractPackage::changed,
             this,
             &McuSupportOptions::populatePackagesAndTargets);
+    m_automaticKitCreation = automaticKitCreationFromSettings();
 }
 
 McuSupportOptions::~McuSupportOptions()
@@ -432,6 +433,34 @@ bool McuSupportOptions::kitsNeedQtVersion()
     // Only on Windows, Qt is linked into the distributed qul Desktop libs. Also, the host tools
     // are missing the Qt runtime libraries on non-Windows.
     return !HostOsInfo::isWindowsHost();
+}
+
+
+bool McuSupportOptions::automaticKitCreationEnabled() const
+{
+    return m_automaticKitCreation;
+}
+
+void McuSupportOptions::setAutomaticKitCreationEnabled(const bool enabled)
+{
+    m_automaticKitCreation = enabled;
+}
+
+void McuSupportOptions::writeGeneralSettings() const
+{
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    settings->setValue(key, m_automaticKitCreation);
+}
+
+bool McuSupportOptions::automaticKitCreationFromSettings()
+{
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    const bool automaticKitCreation = settings->value(key, true).toBool();
+    return automaticKitCreation;
 }
 
 } // namespace Internal

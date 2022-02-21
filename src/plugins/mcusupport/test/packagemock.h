@@ -45,18 +45,12 @@ public:
 
     MOCK_METHOD(Status, status, (), (const));
     MOCK_METHOD(bool, validStatus, (), (const));
-    MOCK_METHOD(void, setDownloadUrl, (const QString &) );
-    MOCK_METHOD(void, setEnvironmentVariableName, (const QString &) );
     MOCK_METHOD(const QString &, environmentVariableName, (), (const));
     MOCK_METHOD(void, setAddToPath, (bool) );
     MOCK_METHOD(bool, addToPath, (), (const));
-    MOCK_METHOD(void, writeGeneralSettings, (), (const));
     MOCK_METHOD(bool, writeToSettings, (), (const));
     MOCK_METHOD(void, setRelativePathModifier, (const QString &) );
     MOCK_METHOD(void, setVersions, (const QStringList &) );
-
-    MOCK_METHOD(bool, automaticKitCreationEnabled, (), (const));
-    MOCK_METHOD(void, setAutomaticKitCreationEnabled, (const bool enabled));
 
     MOCK_METHOD(QWidget *, widget, ());
 }; // class PackageMock
