@@ -29,7 +29,9 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/icore.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -100,10 +102,16 @@ bool CmakeProjectConverter::convertProject(const QmlProjectManager::QmlProject *
 
     bool retVal = prepareAndExecute();
 
-    if (retVal)
-        QMessageBox::information(nullptr, SUCCESS_TITLE, SUCCESS_TEXT);
-    else
-        QMessageBox::critical(nullptr, ERROR_TITLE, ERROR_TEXT.arg(m_errorText));
+    if (retVal) {
+        QMessageBox::information(Core::ICore::dialogParent(), SUCCESS_TITLE, SUCCESS_TEXT);
+        ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result
+                = ProjectExplorer::ProjectExplorerPlugin::openProject(newProjectFile());
+        if (!result)
+            ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);
+    }
+    else {
+        QMessageBox::critical(Core::ICore::dialogParent(), ERROR_TITLE, ERROR_TEXT.arg(m_errorText));
+    }
 
     return retVal;
 }
@@ -298,29 +306,34 @@ bool CmakeProjectConverter::createPreparedProject()
     return true;
 }
 
-const FilePath CmakeProjectConverter::contentDir()
+const FilePath CmakeProjectConverter::contentDir() const
 {
     return m_newProjectDir.pathAppended(DIRNAME_CONTENT);
 }
 
-const FilePath CmakeProjectConverter::sourceDir()
+const FilePath CmakeProjectConverter::sourceDir() const
 {
     return m_newProjectDir.pathAppended(DIRNAME_CPP);
 }
 
-const FilePath CmakeProjectConverter::importDir()
+const FilePath CmakeProjectConverter::importDir() const
 {
     return m_newProjectDir.pathAppended(DIRNAME_IMPORT);
 }
 
-const FilePath CmakeProjectConverter::assetDir()
+const FilePath CmakeProjectConverter::assetDir() const
 {
     return contentDir().pathAppended(DIRNAME_ASSET);
 }
 
-const FilePath CmakeProjectConverter::assetImportDir()
+const FilePath CmakeProjectConverter::assetImportDir() const
 {
     return m_newProjectDir.pathAppended(DIRNAME_ASSETIMPORT);
+}
+
+const FilePath CmakeProjectConverter::newProjectFile() const
+{
+    return m_newProjectDir.pathAppended(m_project->projectFilePath().fileName());
 }
 
 const FilePath CmakeProjectConverter::projectMainFile() const
@@ -370,17 +383,20 @@ bool CmakeProjectConverter::modifyProjectFile()
     QString projectFileName = m_project->projectFilePath().fileName();
     FilePath projectFilePath = m_newProjectDir.pathAppended(projectFileName);
     QFile projectFile(projectFilePath.toString());
-    projectFile.open(QIODevice::ReadWrite);
+    projectFile.open(QIODevice::ReadOnly);
     if (!projectFile.isOpen())
         return false;
-
     QString projectFileContent = QString::fromUtf8(projectFile.readAll());
+    projectFile.close();
+
     const QRegularExpression mainFilePattern("^\\s*mainFile:\\s*\".*\"", QRegularExpression::MultilineOption);
     const QString mainFileString("    mainFile: \"content/App.qml\"");
 
     projectFileContent.replace(mainFilePattern, mainFileString);
 
-    projectFile.reset();
+    projectFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    if (!projectFile.isOpen())
+        return false;
     projectFile.write(projectFileContent.toUtf8());
     projectFile.close();
 
