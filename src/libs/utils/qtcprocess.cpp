@@ -822,12 +822,21 @@ void QtcProcess::start()
 // TODO: Uncomment when we de-virtualize start()
 //    QTC_ASSERT(state() == QProcess::NotRunning, return);
 
+    ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.startProcessHook, return);
-        s_deviceHooks.startProcessHook(*this);
-        return;
+        if (s_deviceHooks.processImplHook) { // TODO: replace "if" with an assert for the hook
+            processImpl = s_deviceHooks.processImplHook(commandLine().executable());
+        }
+        if (!processImpl) { // TODO: remove this branch when docker is adapted accordingly
+            QTC_ASSERT(s_deviceHooks.startProcessHook, return);
+            s_deviceHooks.startProcessHook(*this);
+            return;
+        }
+    } else {
+        processImpl = d->createProcessInterface();
     }
-    setProcessInterface(d->createProcessInterface());
+    QTC_ASSERT(processImpl, return);
+    setProcessInterface(processImpl);
     d->clearForRun();
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->m_process->m_setup.m_environment = d->fullEnvironment();

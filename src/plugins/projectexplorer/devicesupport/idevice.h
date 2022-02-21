@@ -54,6 +54,7 @@ class Environment;
 class Icon;
 class PortList;
 class Port;
+class ProcessInterface;
 class QtcProcess;
 } // Utils
 
@@ -266,6 +267,7 @@ public:
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;
+    virtual Utils::ProcessInterface *createProcessInterface() const;
     virtual void runProcess(Utils::QtcProcess &process) const;
     virtual Utils::Environment systemEnvironment() const;
     virtual qint64 fileSize(const Utils::FilePath &filePath) const;

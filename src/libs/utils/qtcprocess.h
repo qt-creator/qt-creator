@@ -56,8 +56,6 @@ public:
     QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
-    void setProcessInterface(ProcessInterface *interface);
-
     // ProcessInterface related
 
     void start() override;
@@ -215,6 +213,8 @@ public:
     QString toStandaloneCommandLine() const;
 
 private:
+    void setProcessInterface(ProcessInterface *interface);
+
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
 
     friend class Internal::QtcProcessPrivate;
@@ -229,6 +229,8 @@ private:
 class DeviceProcessHooks
 {
 public:
+    std::function<ProcessInterface *(const FilePath &)> processImplHook;
+    // TODO: remove this hook
     std::function<void(QtcProcess &)> startProcessHook;
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };

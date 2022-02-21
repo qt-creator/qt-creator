@@ -595,11 +595,18 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
 
     DeviceProcessHooks processHooks;
 
+    // TODO: remove this hook
     processHooks.startProcessHook = [](QtcProcess &process) {
         FilePath filePath = process.commandLine().executable();
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return);
         device->runProcess(process);
+    };
+
+    processHooks.processImplHook = [](const FilePath &filePath) -> ProcessInterface * {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return nullptr);
+        return device->createProcessInterface();
     };
 
     processHooks.systemEnvironmentForBinary = [](const FilePath &filePath) {
