@@ -989,15 +989,6 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
 }
 
-Utils::FilePath projectFilePath()
-{
-    if (auto *doc = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()) {
-        if (auto *proj = ProjectExplorer::SessionManager::projectForFile(doc->fileName()))
-            return proj->projectDirectory();
-    }
-    return Utils::FilePath();
-}
-
 static AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
@@ -1050,10 +1041,10 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 {
     QString adjustedDefaultDirectory = defaultDirectory;
 
-    Utils::FilePath contentPath = projectFilePath();
+    Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
 
     if (contentPath.pathAppended("content").exists())
-            contentPath = contentPath.pathAppended("content");
+        contentPath = contentPath.pathAppended("content");
 
     Utils::FilePath assetPath = contentPath.pathAppended(assetDir);
 

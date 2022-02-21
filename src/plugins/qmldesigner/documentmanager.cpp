@@ -358,11 +358,18 @@ Utils::FilePath DocumentManager::currentProjectDirPath()
         return {};
 
     Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
-    if (!project)
-        return {};
 
-    return project->projectDirectory();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    if (project)
+        return project->projectDirectory();
+
+    const QList projects = ProjectExplorer::SessionManager::projects();
+    for (auto p : projects) {
+        if (qmlFileName.startsWith(p->projectDirectory().toString()))
+            return p->projectDirectory();
+    }
+
+    return {};
 }
 
 QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
