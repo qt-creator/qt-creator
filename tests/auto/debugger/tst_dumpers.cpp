@@ -1648,7 +1648,7 @@ void tst_Dumpers::dumper()
 
         if (data.allProfile.isEmpty()) { // Nim...
             if (!error.isEmpty()) {
-                qDebug() << error; QVERIFY(false);
+                qDebug() << error; QVERIFY(qmake.exitCode() == 0);
             }
         }
     }
