@@ -54,6 +54,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <limits>
 #include <memory>
@@ -72,6 +73,7 @@ namespace Internal {
 
 const char QTC_PROCESS_BLOCKING_TYPE[] = "__BLOCKING_TYPE__";
 const char QTC_PROCESS_NUMBER[] = "__NUMBER__";
+const char QTC_PROCESS_STARTTIME[] = "__STARTTIME__";
 
 class MeasureAndRun
 {
@@ -193,6 +195,8 @@ enum { syncDebug = 0 };
 enum { defaultMaxHangTimerCount = 10 };
 
 static Q_LOGGING_CATEGORY(processLog, "qtc.utils.qtcprocess", QtWarningMsg)
+static Q_LOGGING_CATEGORY(processStdoutLog, "qtc.utils.qtcprocess.stdout", QtWarningMsg)
+static Q_LOGGING_CATEGORY(processStderrLog, "qtc.utils.qtcprocess.stderr", QtWarningMsg)
 
 static DeviceProcessHooks s_deviceHooks;
 
@@ -571,10 +575,10 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
 static QString blockingMessage(const QVariant &variant)
 {
     if (!variant.isValid())
-        return "(non blocking):";
+        return "non blocking";
     if (variant.toInt() == int(QtcProcess::WithEventLoop))
-        return "(blocking with event loop):";
-    return "(blocking without event loop):";
+        return "blocking with event loop";
+    return "blocking without event loop";
 }
 
 void ProcessInterface::kickoffProcess()
@@ -595,11 +599,18 @@ qint64 ProcessInterface::applicationMainThreadID() const
 void ProcessInterface::defaultStart()
 {
     if (processLog().isDebugEnabled()) {
+        using namespace std::chrono;
+        const quint64 msSinceEpoc =
+                duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        setProperty(QTC_PROCESS_STARTTIME, msSinceEpoc);
+
         static std::atomic_int startCounter = 0;
         const int currentNumber = startCounter.fetch_add(1);
-        qCDebug(processLog) << "Starting process no." << currentNumber
-                            << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
-                            << m_setup.m_commandLine.toUserOutput();
+        qCDebug(processLog).nospace().noquote()
+                << "Process " << currentNumber << " starting ("
+                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
+                << "): "
+                << m_setup.m_commandLine.toUserOutput();
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     }
 
@@ -701,11 +712,26 @@ QtcProcess::QtcProcess(QObject *parent)
     if (processLog().isDebugEnabled()) {
         connect(this, &QtcProcess::finished, [this] {
             if (const QVariant n = d->m_process.get()->property(QTC_PROCESS_NUMBER); n.isValid()) {
-                qCDebug(processLog).nospace() << "Process no. " << n.toInt() << " finished: "
+                using namespace std::chrono;
+                const quint64 msSinceEpoc =
+                        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                const quint64 msStarted =
+                        d->m_process.get()->property(QTC_PROCESS_STARTTIME).toULongLong();
+                const quint64 msElapsed = msSinceEpoc - msStarted;
+
+                const int number = n.toInt();
+                qCDebug(processLog).nospace() << "Process " << number << " finished: "
                                               << "result=" << result()
                                               << ", ex=" << exitCode()
                                               << ", " << stdOut().size() << " bytes stdout"
-                                                 ", stderr=" << stdErr();
+                                              << ", " << stdErr().size() << " bytes stderr"
+                                              << ", " << msElapsed << " ms elapsed";
+                if (processStdoutLog().isDebugEnabled() && !stdOut().isEmpty())
+                    qCDebug(processStdoutLog).nospace()
+                            << "Process " << number << " sdout: " << stdOut();
+                if (processStderrLog().isDebugEnabled() && !stdErr().isEmpty())
+                    qCDebug(processStderrLog).nospace()
+                            << "Process " << number << " stderr: " << stdErr();
             }
         });
     }
