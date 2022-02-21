@@ -67,7 +67,7 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
     Q_OBJECT
 
 public:
-    ProcessInterface(QObject *parent) : QObject(parent) {}
+    ProcessInterface(QObject *parent = nullptr) : QObject(parent) {}
 
     virtual void start() { defaultStart(); }
     virtual void terminate() = 0;

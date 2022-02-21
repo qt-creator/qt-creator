@@ -218,9 +218,8 @@ public:
 class TerminalImpl : public ProcessInterface
 {
 public:
-    TerminalImpl(QObject *parent, ProcessImpl processImpl, TerminalMode terminalMode)
-        : ProcessInterface(parent)
-        , m_terminal(this, processImpl, terminalMode)
+    TerminalImpl(ProcessImpl processImpl, TerminalMode terminalMode)
+        : m_terminal(this, processImpl, terminalMode)
     {
         connect(&m_terminal, &Internal::TerminalProcess::started,
                 this, &ProcessInterface::started);
@@ -274,9 +273,7 @@ private:
 class QProcessImpl : public ProcessInterface
 {
 public:
-    QProcessImpl(QObject *parent)
-        : ProcessInterface(parent)
-        , m_process(new ProcessHelper(parent))
+    QProcessImpl() : m_process(new ProcessHelper(this))
     {
         connect(m_process, &QProcess::started,
                 this, &QProcessImpl::handleStarted);
@@ -368,10 +365,9 @@ class ProcessLauncherImpl : public ProcessInterface
 {
     Q_OBJECT
 public:
-    ProcessLauncherImpl(QObject *parent)
-        : ProcessInterface(parent), m_token(uniqueToken())
+    ProcessLauncherImpl() : m_token(uniqueToken())
     {
-        m_handle = LauncherInterface::registerHandle(parent, token());
+        m_handle = LauncherInterface::registerHandle(this, token());
         connect(m_handle, &CallerHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
         connect(m_handle, &CallerHandle::started,
@@ -459,10 +455,10 @@ public:
                                ? defaultProcessImpl() : m_setup.m_processImpl;
 
         if (m_setup.m_terminalMode != TerminalMode::Off)
-            return new TerminalImpl(parent(), impl, m_setup.m_terminalMode);
+            return new TerminalImpl(impl, m_setup.m_terminalMode);
         else if (impl == ProcessImpl::QProcess)
-            return new QProcessImpl(parent());
-        return new ProcessLauncherImpl(parent());
+            return new QProcessImpl();
+        return new ProcessLauncherImpl();
     }
 
     void setProcessInterface(ProcessInterface *process)
