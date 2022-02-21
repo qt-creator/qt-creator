@@ -337,9 +337,8 @@ void ApplicationLauncherPrivate::start()
 
     m_resultData = {};
 
+    m_process.reset(new QtcProcess(this));
     if (m_isLocal) {
-        m_process.reset(new QtcProcess(this));
-
         // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
         const FilePath fixedPath = m_runnable.workingDirectory.normalizedPathName();
         m_process->setWorkingDirectory(fixedPath);
@@ -399,8 +398,9 @@ void ApplicationLauncherPrivate::start()
         m_state = Run;
         m_stopRequested = false;
 
-        m_process.reset(m_runnable.device->createProcess(this));
-        m_process->setCommand(m_runnable.command);
+        CommandLine cmd = m_runnable.command;
+        cmd.setExecutable(m_runnable.device->mapToGlobalPath(cmd.executable()));
+        m_process->setCommand(cmd);
         m_process->setWorkingDirectory(m_runnable.workingDirectory);
         m_process->setRemoteEnvironment(m_runnable.environment);
         m_process->setExtraData(m_runnable.extraData);
