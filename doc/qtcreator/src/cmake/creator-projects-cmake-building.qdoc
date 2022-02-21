@@ -39,6 +39,17 @@
 
     \image qtcreator-cmake-build-settings-initial.png "CMake build settings"
 
+    \uicontrol {Initial Configuration} lists the variables that are used to
+    configure the CMake project for the first time. The default values that
+    are inherited from the kit's CMake configuration are displayed in italic.
+    The initial configuration list of variables is saved in the project's source
+    directory as the \e CMakeLists.txt.user file.
+
+    \uicontrol {Current Configuration} lists the CMake variables in the
+    \c cmake-file-api JSON export in the \c {.cmake/api/v1/reply} directory.
+    The variables that are inherited from the initial configuration are
+    displayed in italic. Mismatched values are displayed in red.
+
     You can view and edit the actual values of the variables that are passed
     to CMake. Variable names are listed in the \uicontrol Key column and their
     current values in the \uicontrol Value column. For more information about
