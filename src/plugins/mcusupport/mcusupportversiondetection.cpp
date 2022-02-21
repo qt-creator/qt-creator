@@ -46,7 +46,7 @@ QString matchRegExp(const QString &text, const QString &regExp)
 McuPackageVersionDetector::McuPackageVersionDetector() {}
 
 McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
-    const QString &detectionPath, const QStringList &detectionArgs, const QString &detectionRegExp)
+    const Utils::FilePath &detectionPath, const QStringList &detectionArgs, const QString &detectionRegExp)
     : McuPackageVersionDetector()
     , m_detectionPath(detectionPath)
     , m_detectionArgs(detectionArgs)
@@ -58,7 +58,7 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
     if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
         return QString();
 
-    const Utils::FilePath binaryPath = Utils::FilePath::fromString(packagePath) / m_detectionPath;
+    const Utils::FilePath binaryPath = Utils::FilePath::fromString(packagePath).resolvePath(m_detectionPath);
     if (!binaryPath.exists())
         return QString();
 

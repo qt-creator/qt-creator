@@ -45,22 +45,22 @@ public:
         ValidPackage
     };
 
+    virtual QString label() const = 0;
+    virtual const QString &environmentVariableName() const = 0;
+    virtual bool isAddToSystemPath() const = 0;
+    virtual void setVersions(const QStringList &) = 0;
+
     virtual Utils::FilePath basePath() const = 0;
     virtual Utils::FilePath path() const = 0;
-    virtual QString label() const = 0;
     virtual Utils::FilePath defaultPath() const = 0;
-    virtual QString detectionPath() const = 0;
-    virtual QString statusText() const = 0;
-    virtual void updateStatus() = 0;
+    virtual Utils::FilePath detectionPath() const = 0;
 
+    virtual void updateStatus() = 0;
     virtual Status status() const = 0;
-    virtual bool validStatus() const = 0;
-    virtual const QString &environmentVariableName() const = 0;
-    virtual void setAddToPath(bool) = 0;
-    virtual bool addToPath() const = 0;
+    virtual QString statusText() const = 0;
+    virtual bool isValidStatus() const = 0;
+
     virtual bool writeToSettings() const = 0;
-    virtual void setRelativePathModifier(const QString &) = 0;
-    virtual void setVersions(const QStringList &) = 0;
 
     virtual QWidget *widget() = 0;
 

@@ -55,32 +55,34 @@ class McuPackage : public McuAbstractPackage
 public:
     McuPackage(const QString &label,
                const Utils::FilePath &defaultPath,
-               const QString &detectionPath,
+               const Utils::FilePath &detectionPath,
                const QString &settingsKey,
                const QString &envVarName = {},
                const QString &downloadUrl = {},
-               const McuPackageVersionDetector *versionDetector = nullptr);
+               const McuPackageVersionDetector *versionDetector = nullptr,
+               const bool addToPath = false,
+               const Utils::FilePath &relativePathModifier = Utils::FilePath());
+
     ~McuPackage() override = default;
+
+    QString label() const override;
+    const QString &environmentVariableName() const override;
+    bool isAddToSystemPath() const override;
+    void setVersions(const QStringList &versions) override;
 
     Utils::FilePath basePath() const override;
     Utils::FilePath path() const override;
-    QString label() const override;
     Utils::FilePath defaultPath() const override;
-    QString detectionPath() const override;
-    QString statusText() const override;
-    void updateStatus() override;
+    Utils::FilePath detectionPath() const override;
 
+    void updateStatus() override;
     Status status() const override;
-    bool validStatus() const override;
-    void setAddToPath(bool addToPath) override;
-    bool addToPath() const override;
+    bool isValidStatus() const override;
+    QString statusText() const override;
+
     bool writeToSettings() const override;
-    void setRelativePathModifier(const QString &path) override;
-    void setVersions(const QStringList &versions) override;
 
     QWidget *widget() override;
-
-    const QString &environmentVariableName() const override;
 
 private:
     void updatePath();
@@ -92,17 +94,17 @@ private:
 
     const QString m_label;
     const Utils::FilePath m_defaultPath;
-    const QString m_detectionPath;
+    const Utils::FilePath m_detectionPath;
     const QString m_settingsKey;
     const McuPackageVersionDetector *m_versionDetector;
 
     Utils::FilePath m_path;
-    QString m_relativePathModifier; // relative path to m_path to be returned by path()
+    Utils::FilePath m_relativePathModifier; // relative path to m_path to be returned by path()
     QString m_detectedVersion;
     QStringList m_versions;
     const QString m_environmentVariableName;
     const QString m_downloadUrl;
-    bool m_addToPath = false;
+    const bool m_addToSystemPath;
 
     Status m_status = Status::InvalidPath;
 };
@@ -110,17 +112,17 @@ private:
 class McuToolChainPackage : public McuPackage
 {
 public:
-    enum class Type { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, Unsupported };
+    enum class ToolChainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, Unsupported };
 
     McuToolChainPackage(const QString &label,
                         const Utils::FilePath &defaultPath,
-                        const QString &detectionPath,
+                        const Utils::FilePath &detectionPath,
                         const QString &settingsKey,
-                        Type type,
+                        ToolChainType toolchainType,
                         const QString &envVarName = {},
                         const McuPackageVersionDetector *versionDetector = nullptr);
 
-    Type type() const;
+    ToolChainType toolchainType() const;
     bool isDesktopToolchain() const;
     ProjectExplorer::ToolChain *toolChain(Utils::Id language) const;
     QString toolChainName() const;
@@ -128,7 +130,7 @@ public:
     QVariant debuggerId() const;
 
 private:
-    const Type m_type;
+    const ToolChainType m_type;
 };
 
 } // namespace Internal

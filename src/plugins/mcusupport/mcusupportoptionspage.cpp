@@ -196,7 +196,7 @@ void McuSupportOptionsWidget::updateStatus()
     // Page elements
     {
         m_qtForMCUsSdkGroupBox->setVisible(cMakeAvailable);
-        const bool valid = cMakeAvailable && m_options.qtForMCUsSdkPackage->validStatus();
+        const bool valid = cMakeAvailable && m_options.qtForMCUsSdkPackage->isValidStatus();
         const bool ready = valid && mcuTarget;
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());

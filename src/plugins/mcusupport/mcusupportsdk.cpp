@@ -71,24 +71,24 @@ McuPackage *createQtForMCUsPackage()
 {
     return new McuPackage(McuPackage::tr("Qt for MCUs SDK"),
                           FileUtils::homePath(),                                      // defaultPath
-                          FilePath("bin/qmltocpp").withExecutableSuffix().toString(), // detectionPath
+                          FilePath("bin/qmltocpp").withExecutableSuffix(),            // detectionPath
                           Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,            // settingsKey
                           QStringLiteral("Qul_DIR"));                                 // envVarName
 }
 
 static McuToolChainPackage *createMsvcToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::MSVC);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::ToolChainType::MSVC);
 }
 
 static McuToolChainPackage *createGccToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::GCC);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::ToolChainType::GCC);
 }
 
 static McuToolChainPackage *createUnsupportedToolChainPackage()
 {
-    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::Type::Unsupported);
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::ToolChainType::Unsupported);
 }
 
 static McuToolChainPackage *createArmGccPackage()
@@ -109,7 +109,7 @@ static McuToolChainPackage *createArmGccPackage()
         }
     }
 
-    const QString detectionPath = Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++");
+    const Utils::FilePath detectionPath = FilePath("bin/arm-none-eabi-g++").withExecutableSuffix();
     const auto versionDetector
         = new McuPackageExecutableVersionDetector(detectionPath,
                                                   {"--version"},
@@ -119,7 +119,7 @@ static McuToolChainPackage *createArmGccPackage()
                                    defaultPath,
                                    detectionPath,
                                    "GNUArmEmbeddedToolchain", // settingsKey
-                                   McuToolChainPackage::Type::ArmGcc,
+                                   McuToolChainPackage::ToolChainType::ArmGcc,
                                    envVar,
                                    versionDetector);
 }
@@ -131,16 +131,15 @@ static McuToolChainPackage *createGhsToolchainPackage()
     const FilePath defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
 
     const auto versionDetector
-        = new McuPackageExecutableVersionDetector(Utils::HostOsInfo::withExecutableSuffix("as850"),
+        = new McuPackageExecutableVersionDetector(FilePath("as850").withExecutableSuffix(),
                                                   {"-V"},
                                                   "\\bv(\\d+\\.\\d+\\.\\d+)\\b");
 
     return new McuToolChainPackage("Green Hills Compiler",
                                    defaultPath,
-                                   Utils::HostOsInfo::withExecutableSuffix(
-                                       "ccv850"),  // detectionPath
+                                   FilePath("ccv850").withExecutableSuffix(),  // detectionPath
                                    "GHSToolchain", // settingsKey
-                                   McuToolChainPackage::Type::GHS,
+                                   McuToolChainPackage::ToolChainType::GHS,
                                    envVar,
                                    versionDetector);
 }
@@ -152,15 +151,15 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
     const FilePath defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar));
 
     const auto versionDetector
-        = new McuPackageExecutableVersionDetector(Utils::HostOsInfo::withExecutableSuffix("asarm"),
+        = new McuPackageExecutableVersionDetector(FilePath("asarm").withExecutableSuffix(),
                                                   {"-V"},
                                                   "\\bv(\\d+\\.\\d+\\.\\d+)\\b");
 
     return new McuToolChainPackage("Green Hills Compiler for ARM",
                                    defaultPath,
-                                   Utils::HostOsInfo::withExecutableSuffix("cxarm"), // detectionPath
+                                   FilePath("cxarm").withExecutableSuffix(), // detectionPath
                                    "GHSArmToolchain",                                // settingsKey
-                                   McuToolChainPackage::Type::GHSArm,
+                                   McuToolChainPackage::ToolChainType::GHSArm,
                                    envVar,
                                    versionDetector);
 }
@@ -183,7 +182,7 @@ static McuToolChainPackage *createIarToolChainPackage()
         }
     }
 
-    const QString detectionPath = Utils::HostOsInfo::withExecutableSuffix("bin/iccarm");
+    const FilePath detectionPath = FilePath("bin/iccarm").withExecutableSuffix();
     const auto versionDetector
         = new McuPackageExecutableVersionDetector(detectionPath,
                                                   {"--version"},
@@ -193,7 +192,7 @@ static McuToolChainPackage *createIarToolChainPackage()
                                    defaultPath,
                                    detectionPath,
                                    "IARToolchain", // settings key
-                                   McuToolChainPackage::Type::IAR,
+                                   McuToolChainPackage::ToolChainType::IAR,
                                    envVar,
                                    versionDetector);
 }
@@ -237,17 +236,24 @@ static McuPackage *createStm32CubeProgrammerPackage()
         if (programPath.exists())
             defaultPath = programPath;
     }
+
+    const FilePath detectionPath =  FilePath::fromString(
+                QLatin1String(Utils::HostOsInfo::isWindowsHost()
+                   ? "/bin/STM32_Programmer_CLI.exe"
+                   : "/bin/STM32_Programmer.sh")
+                );
+
     auto result
         = new McuPackage(McuPackage::tr("STM32CubeProgrammer"),
                          defaultPath,
-                         QLatin1String(Utils::HostOsInfo::isWindowsHost()
-                                           ? "/bin/STM32_Programmer_CLI.exe"
-                                           : "/bin/STM32_Programmer.sh"), // detection path
+                         detectionPath,
                          "Stm32CubeProgrammer",
                          {},                                                            // env var
-                         "https://www.st.com/en/development-tools/stm32cubeprog.html"); // download url
-    result->setRelativePathModifier("/bin");
-    result->setAddToPath(true);
+                         "https://www.st.com/en/development-tools/stm32cubeprog.html", // download url
+                         nullptr, // version detector
+                         true, // add to path
+                         "/bin" // relative path modifier
+                         );
     return result;
 }
 
@@ -276,8 +282,7 @@ static McuPackage *createMcuXpressoIdePackage()
 
     return new McuPackage("MCUXpresso IDE",
                           defaultPath,
-                          Utils::HostOsInfo::withExecutableSuffix(
-                              "ide/binaries/crt_emu_cm_redlink"), // detection path
+                          FilePath("ide/binaries/crt_emu_cm_redlink").withExecutableSuffix(), // detection path
                           "MCUXpressoIDE",                        // settings key
                           envVar,
                           "https://www.nxp.com/mcuxpresso/ide"); // download url
@@ -303,7 +308,7 @@ static McuPackage *createCypressProgrammerPackage()
 
     auto result = new McuPackage("Cypress Auto Flash Utility",
                                  defaultPath,
-                                 Utils::HostOsInfo::withExecutableSuffix("/bin/openocd"),
+                                 FilePath("/bin/openocd").withExecutableSuffix(),
                                  "CypressAutoFlashUtil",
                                  envVar);
     return result;
@@ -329,7 +334,7 @@ static McuPackage *createRenesasProgrammerPackage()
 
     auto result = new McuPackage("Renesas Flash Programmer",
                                  defaultPath,
-                                 Utils::HostOsInfo::withExecutableSuffix("rfp-cli"),
+                                 FilePath("rfp-cli").withExecutableSuffix(),
                                  "RenesasFlashProgrammer",
                                  envVar);
     return result;
@@ -538,7 +543,7 @@ protected:
             QVector<McuAbstractPackage *> required3rdPartyPkgs;
             // Desktop toolchains don't need any additional settings
             if (tcPkg && !tcPkg->isDesktopToolchain()
-                && tcPkg->type() != McuToolChainPackage::Type::Unsupported)
+                && tcPkg->toolchainType() != McuToolChainPackage::ToolChainType::Unsupported)
                 required3rdPartyPkgs.append(tcPkg);
 
             // Add setting specific to platform IDE
