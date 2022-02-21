@@ -218,8 +218,7 @@ public:
 class TerminalImpl : public ProcessInterface
 {
 public:
-    TerminalImpl(ProcessImpl processImpl, TerminalMode terminalMode)
-        : m_terminal(this, processImpl, terminalMode)
+    TerminalImpl() : m_terminal(this)
     {
         connect(&m_terminal, &Internal::TerminalProcess::started,
                 this, &ProcessInterface::started);
@@ -237,6 +236,8 @@ public:
 
     void start() override
     {
+        m_terminal.setProcessImpl(m_setup.m_processImpl);
+        m_terminal.setTerminalMode(m_setup.m_terminalMode);
         m_terminal.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
         m_terminal.setCommand(m_setup.m_commandLine);
         m_terminal.setWorkingDirectory(m_setup.m_workingDirectory);
@@ -451,12 +452,12 @@ public:
 
     ProcessInterface *createProcessInterface()
     {
+        if (m_setup.m_terminalMode != TerminalMode::Off)
+            return new TerminalImpl();
+
         const ProcessImpl impl = m_setup.m_processImpl == ProcessImpl::Default
                                ? defaultProcessImpl() : m_setup.m_processImpl;
-
-        if (m_setup.m_terminalMode != TerminalMode::Off)
-            return new TerminalImpl(impl, m_setup.m_terminalMode);
-        else if (impl == ProcessImpl::QProcess)
+        if (impl == ProcessImpl::QProcess)
             return new QProcessImpl();
         return new ProcessLauncherImpl();
     }

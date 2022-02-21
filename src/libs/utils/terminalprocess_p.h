@@ -41,8 +41,11 @@ class TerminalProcess : public QObject
 {
     Q_OBJECT
 public:
-    explicit TerminalProcess(QObject *parent, ProcessImpl processImpl, TerminalMode terminalMode);
+    explicit TerminalProcess(QObject *parent);
     ~TerminalProcess() override;
+
+    void setProcessImpl(ProcessImpl processImpl);
+    void setTerminalMode(TerminalMode mode);
 
     void setCommand(const CommandLine &command);
     const CommandLine &commandLine() const;

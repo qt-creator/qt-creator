@@ -123,14 +123,10 @@ static QString msgCannotExecute(const QString & p, const QString &why)
 class TerminalProcessPrivate
 {
 public:
-    TerminalProcessPrivate(QObject *parent, ProcessImpl processImpl, TerminalMode terminalMode)
-        : m_terminalMode(terminalMode)
-        , m_process(parent)
-    {
-        m_process.setProcessImpl(processImpl);
-    }
+    TerminalProcessPrivate(QObject *parent)
+        : m_process(parent) {}
 
-    const TerminalMode m_terminalMode;
+    TerminalMode m_terminalMode = TerminalMode::On;
     FilePath m_workingDir;
     Environment m_environment;
     qint64 m_processId = 0;
@@ -160,9 +156,8 @@ public:
 #endif
 };
 
-TerminalProcess::TerminalProcess(QObject *parent, ProcessImpl processImpl,
-                                 TerminalMode terminalMode)
-    : QObject(parent), d(new TerminalProcessPrivate(this, processImpl, terminalMode))
+TerminalProcess::TerminalProcess(QObject *parent)
+    : QObject(parent), d(new TerminalProcessPrivate(this))
 {
     connect(&d->m_stubServer, &QLocalServer::newConnection,
             this, &TerminalProcess::stubConnectionAvailable);
@@ -174,6 +169,17 @@ TerminalProcess::~TerminalProcess()
 {
     stopProcess();
     delete d;
+}
+
+void TerminalProcess::setProcessImpl(ProcessImpl processImpl)
+{
+    d->m_process.setProcessImpl(processImpl);
+}
+
+void TerminalProcess::setTerminalMode(TerminalMode mode)
+{
+    QTC_ASSERT(mode != TerminalMode::Off, return);
+    d->m_terminalMode = mode;
 }
 
 void TerminalProcess::setCommand(const CommandLine &command)
