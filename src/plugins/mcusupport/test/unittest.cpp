@@ -56,7 +56,7 @@ void McuSupportTest::test_parseBasicInfoFromJson()
 {
     const auto description = Sdk::parseDescriptionJson(nxp_1064_json);
 
-    QVERIFY(not description.freeRTOS.envVar.isEmpty());
+    QVERIFY(!description.freeRTOS.envVar.isEmpty());
     QVERIFY(description.freeRTOS.boardSdkSubDir.isEmpty());
 }
 
@@ -86,7 +86,7 @@ void McuSupportTest::test_addFreeRtosCmakeVarToKit()
 
     QVERIFY(kit.hasValue(EnvironmentKitAspect::id()));
     QVERIFY(kit.isValid());
-    QVERIFY(not kit.allKeys().empty());
+    QVERIFY(!kit.allKeys().empty());
 
     const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
     QCOMPARE(cmakeConfig.size(), 1);
