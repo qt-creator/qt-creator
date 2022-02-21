@@ -254,6 +254,20 @@ void ItemLibraryWidget::handleSearchfilterChanged(const QString &filterText)
     }
 }
 
+QString ItemLibraryWidget::getDependencyImport(const Import &import)
+{
+    static QStringList prefixDependencies = {"QtQuick3D"};
+
+    const QStringList splitImport = import.url().split('.');
+
+    if (splitImport.count() > 1) {
+        if (prefixDependencies.contains(splitImport.first()))
+            return splitImport.first();
+    }
+
+    return {};
+}
+
 void ItemLibraryWidget::handleAddImport(int index)
 {
     Import import = m_addModuleModel->getImportAt(index);
@@ -263,8 +277,19 @@ void ItemLibraryWidget::handleAddImport(int index)
                                                + import.toImportString());
     }
 
+    QList<Import> imports;
+    const QString dependency = getDependencyImport(import);
+
     auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    document->documentModel()->changeImports({import}, {});
+    Model *model = document->documentModel();
+
+    if (!dependency.isEmpty()) {
+        Import dependencyImport = m_addModuleModel->getImport(dependency);
+        if (!dependencyImport.isEmpty())
+            imports.append(dependencyImport);
+    }
+    imports.append(import);
+    model->changeImports(imports, {});
 
     QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "switchToComponentsView");
     updateSearch();
