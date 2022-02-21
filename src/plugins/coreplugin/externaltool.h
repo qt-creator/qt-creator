@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/core_global.h>
+
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
@@ -38,9 +40,8 @@
 
 namespace Utils { class QtcProcess; }
 namespace Core {
-namespace Internal {
 
-class ExternalTool : public QObject
+class CORE_EXPORT ExternalTool : public QObject
 {
     Q_OBJECT
 
@@ -123,7 +124,7 @@ private:
     QSharedPointer<ExternalTool> m_presetTool;
 };
 
-class ExternalToolRunner : public QObject
+class CORE_EXPORT ExternalToolRunner : public QObject
 {
     Q_OBJECT
 public:
@@ -158,7 +159,6 @@ private:
     QString m_errorString;
 };
 
-} // Internal
 } // Core
 
-Q_DECLARE_METATYPE(Core::Internal::ExternalTool *)
+Q_DECLARE_METATYPE(Core::ExternalTool *)

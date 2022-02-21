@@ -61,13 +61,6 @@ static ExternalToolManager *m_instance = nullptr;
 static ExternalToolManagerPrivate *d = nullptr;
 
 static void writeSettings();
-static void readSettings(const QMap<QString, ExternalTool *> &tools,
-                  QMap<QString, QList<ExternalTool*> > *categoryPriorityMap);
-
-static void parseDirectory(const QString &directory,
-                     QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
-                     QMap<QString, ExternalTool *> *tools,
-                     bool isPreset = false);
 
 ExternalToolManager::ExternalToolManager()
     : QObject(ICore::instance())
@@ -120,7 +113,7 @@ ExternalToolManager *ExternalToolManager::instance()
     return m_instance;
 }
 
-static void parseDirectory(const QString &directory,
+void ExternalToolManager::parseDirectory(const QString &directory,
                            QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
                            QMap<QString, ExternalTool *> *tools,
                            bool isPreset)
@@ -254,7 +247,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
     mexternaltools->menu()->addAction(d->m_configureAction);
 }
 
-static void readSettings(const QMap<QString, ExternalTool *> &tools,
+void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
                                        QMap<QString, QList<ExternalTool *> > *categoryMap)
 {
     QSettings *settings = ICore::settings();

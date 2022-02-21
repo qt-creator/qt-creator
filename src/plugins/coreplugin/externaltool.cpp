@@ -51,7 +51,6 @@ using namespace Utils;
 using namespace Core::Internal;
 
 namespace Core {
-namespace Internal {
 
 const char kExternalTool[] = "externaltool";
 const char kId[] = "id";
@@ -331,7 +330,7 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         }
     } else {
         if (*currentLocale < 0 && currentText->isEmpty()) {
-            *currentText = QCoreApplication::translate("Core::Internal::ExternalTool",
+            *currentText = QCoreApplication::translate("Core::ExternalTool",
                                                        reader->readElementText().toUtf8().constData(),
                                                        "");
         } else {
@@ -720,7 +719,5 @@ void ExternalToolRunner::readStandardError()
     else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }
-
-} // namespace Internal
 
 } // namespace Core

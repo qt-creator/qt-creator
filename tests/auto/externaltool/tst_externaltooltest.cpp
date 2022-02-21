@@ -28,7 +28,7 @@
 
 #include <coreplugin/externaltool.h>
 
-using namespace Core::Internal;
+using namespace Core;
 using namespace Utils;
 
 static const char TEST_XML1[] =
