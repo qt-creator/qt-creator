@@ -118,17 +118,18 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
-    const QString sceneKey         = QStringLiteral("sceneInstanceId");
-    const QString selectKey        = QStringLiteral("selectionMode");
-    const QString transformKey     = QStringLiteral("transformMode");
-    const QString perspectiveKey   = QStringLiteral("usePerspective");
-    const QString orientationKey   = QStringLiteral("globalOrientation");
-    const QString editLightKey     = QStringLiteral("showEditLight");
-    const QString gridKey          = QStringLiteral("showGrid");
-    const QString selectionBoxKey  = QStringLiteral("showSelectionBox");
-    const QString iconGizmoKey     = QStringLiteral("showIconGizmo");
-    const QString cameraFrustumKey = QStringLiteral("showCameraFrustum");
-    const QString particlesPlayKey = QStringLiteral("particlePlay");
+    const QString sceneKey           = QStringLiteral("sceneInstanceId");
+    const QString selectKey          = QStringLiteral("selectionMode");
+    const QString transformKey       = QStringLiteral("transformMode");
+    const QString perspectiveKey     = QStringLiteral("usePerspective");
+    const QString orientationKey     = QStringLiteral("globalOrientation");
+    const QString editLightKey       = QStringLiteral("showEditLight");
+    const QString gridKey            = QStringLiteral("showGrid");
+    const QString selectionBoxKey    = QStringLiteral("showSelectionBox");
+    const QString iconGizmoKey       = QStringLiteral("showIconGizmo");
+    const QString cameraFrustumKey   = QStringLiteral("showCameraFrustum");
+    const QString particleEmitterKey = QStringLiteral("showParticleEmitter");
+    const QString particlesPlayKey   = QStringLiteral("particlePlay");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -187,6 +188,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showCameraFrustumAction->action()->setChecked(sceneState[cameraFrustumKey].toBool());
     else
         m_showCameraFrustumAction->action()->setChecked(false);
+
+    if (sceneState.contains(particleEmitterKey))
+        m_showParticleEmitterAction->action()->setChecked(sceneState[particleEmitterKey].toBool());
+    else
+        m_showParticleEmitterAction->action()->setChecked(false);
 
     if (sceneState.contains(particlesPlayKey))
         m_particlesPlayAction->action()->setChecked(sceneState[particlesPlayKey].toBool());
@@ -352,6 +358,12 @@ void Edit3DView::createEdit3DActions()
                 QKeySequence(Qt::Key_C), true, false, {}, {}, nullptr,
                 QCoreApplication::translate("ShowCameraFrustumAction", "Toggle between always showing the camera frustum visualization and only showing it when the camera is selected."));
 
+    m_showParticleEmitterAction = new Edit3DAction(
+                QmlDesigner::Constants::EDIT3D_EDIT_SHOW_PARTICLE_EMITTER, View3DActionCommand::ShowParticleEmitter,
+                QCoreApplication::translate("ShowParticleEmitterAction", "Always Show Particle Emitters"),
+                QKeySequence(Qt::Key_M), true, false, {}, {}, nullptr,
+                QCoreApplication::translate("ShowParticleEmitterAction", "Toggle between always showing the particle emitter visualization and only showing it when the emitter is selected."));
+
     SelectionContextOperation resetTrigger = [this](const SelectionContext &) {
         m_particlesPlayAction->action()->setEnabled(particlemode);
         m_particlesRestartAction->action()->setEnabled(particlemode);
@@ -458,6 +470,7 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showSelectionBoxAction;
     m_visibilityToggleActions << m_showIconGizmoAction;
     m_visibilityToggleActions << m_showCameraFrustumAction;
+    m_visibilityToggleActions << m_showParticleEmitterAction;
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const

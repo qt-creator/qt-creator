@@ -46,6 +46,12 @@
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmath.h>
 
+#ifdef QUICK3D_PARTICLES_MODULE
+#include <QtQuick3DParticles/private/qquick3dparticlemodelshape_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticleemitter_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticletrailemitter_p.h>
+#endif
+
 #include <limits>
 
 namespace QmlDesigner {
@@ -458,6 +464,31 @@ bool GeneralHelper::isPickable(QQuick3DNode *node) const
         n = n->parentNode();
     }
     return true;
+}
+
+// Emitter gizmo model creation is done in C++ as creating dynamic properties and
+// assigning materials to dynamically created models is lot simpler in C++
+QQuick3DNode *GeneralHelper::createParticleEmitterGizmoModel(QQuick3DNode *emitter,
+                                                             QQuick3DMaterial *material) const
+{
+#ifdef QUICK3D_PARTICLES_MODULE
+    auto e = qobject_cast<QQuick3DParticleEmitter *>(emitter);
+    if (!e || qobject_cast<QQuick3DParticleTrailEmitter *>(e) || !material)
+        return nullptr;
+
+    auto shape = qobject_cast<QQuick3DParticleModelShape *>(e->shape());
+    if (shape && shape->delegate()) {
+        if (auto model = qobject_cast<QQuick3DModel *>(
+                    shape->delegate()->create(shape->delegate()->creationContext()))) {
+            QQmlEngine::setObjectOwnership(model, QQmlEngine::JavaScriptOwnership);
+            model->setProperty("_pickTarget", QVariant::fromValue(emitter));
+            QQmlListReference matRef(model, "materials");
+            matRef.append(material);
+            return model;
+        }
+    }
+#endif
+    return nullptr;
 }
 
 void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, const QVariant &state,

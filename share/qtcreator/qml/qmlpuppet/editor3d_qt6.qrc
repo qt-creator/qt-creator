@@ -35,7 +35,6 @@
         <file>mockfiles/qt6/LightGizmo.qml</file>
         <file>mockfiles/qt6/LightIconGizmo.qml</file>
         <file>mockfiles/qt6/LightModel.qml</file>
-        <file>mockfiles/qt6/ParticleSystemGizmo.qml</file>
         <file>mockfiles/qt6/Line3D.qml</file>
         <file>mockfiles/qt6/MaterialNodeView.qml</file>
         <file>mockfiles/qt6/ModelNode2DImageView.qml</file>
@@ -44,6 +43,8 @@
         <file>mockfiles/qt6/MoveGizmo.qml</file>
         <file>mockfiles/qt6/NodeNodeView.qml</file>
         <file>mockfiles/qt6/Overlay2D.qml</file>
+        <file>mockfiles/qt6/ParticleSystemGizmo.qml</file>
+        <file>mockfiles/qt6/ParticleEmitterGizmo.qml</file>
         <file>mockfiles/qt6/PlanarDraggable.qml</file>
         <file>mockfiles/qt6/PlanarMoveHandle.qml</file>
         <file>mockfiles/qt6/PlanarScaleHandle.qml</file>

@@ -68,6 +68,7 @@ const char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
 const char EDIT3D_EDIT_SHOW_SELECTION_BOX[] = "QmlDesigner.Editor3D.ToggleSelectionBox";
 const char EDIT3D_EDIT_SHOW_ICON_GIZMO[] = "QmlDesigner.Editor3D.ToggleIconGizmo";
 const char EDIT3D_EDIT_SHOW_CAMERA_FRUSTUM[] = "QmlDesigner.Editor3D.ToggleCameraFrustum";
+const char EDIT3D_EDIT_SHOW_PARTICLE_EMITTER[] = "QmlDesigner.Editor3D.ToggleParticleEmitter";
 const char EDIT3D_RESET_VIEW[]     = "QmlDesigner.Editor3D.ResetView";
 const char EDIT3D_PARTICLE_MODE[]     = "QmlDesigner.Editor3D.ParticleViewModeToggle";
 const char EDIT3D_PARTICLES_PLAY[]    = "QmlDesigner.Editor3D.ParticlesPlay";

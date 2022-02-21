@@ -28,5 +28,9 @@ import QtQuick3D 6.0
 
 IconGizmo {
     id: particleSystemGizmo
+
+    property Node activeParticleSystem: null
+
     iconSource: "qrc:///qtquickplugin/mockfiles/images/editor_particlesystem.png"
+    iconOpacity: selected || activeParticleSystem == targetNode ? 0.2 : 1
 }

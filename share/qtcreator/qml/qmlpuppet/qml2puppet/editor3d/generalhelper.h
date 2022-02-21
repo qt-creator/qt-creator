@@ -89,6 +89,8 @@ public:
     Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
     Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;
     Q_INVOKABLE bool isPickable(QQuick3DNode *node) const;
+    Q_INVOKABLE QQuick3DNode *createParticleEmitterGizmoModel(QQuick3DNode *emitter,
+                                                              QQuick3DMaterial *material) const;
 
     Q_INVOKABLE void storeToolState(const QString &sceneId, const QString &tool,
                                     const QVariant &state, int delayEmit = 0);

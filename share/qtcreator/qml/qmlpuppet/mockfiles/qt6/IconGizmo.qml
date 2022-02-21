@@ -47,6 +47,7 @@ Item {
     property bool locked: false
     property bool globalShow: true
     property bool canBeVisible: activeScene === scene && !hidden && (targetNode ? targetNode.visible : false)
+    property real iconOpacity: selected ? 0.2 : 1
 
     property alias iconSource: iconImage.source
 
@@ -76,7 +77,7 @@ Item {
             border.color: "#7777ff"
             border.width: !iconGizmo.locked && iconGizmo.highlightOnHover && iconGizmo.hasMouse ? 2 : 0
             radius: 5
-            opacity: iconGizmo.selected ? 0.2 : 1
+            opacity: iconGizmo.iconOpacity
             Image {
                 id: iconImage
                 fillMode: Image.Pad

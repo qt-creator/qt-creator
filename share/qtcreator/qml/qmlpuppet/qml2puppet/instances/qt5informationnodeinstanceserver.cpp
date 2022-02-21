@@ -113,6 +113,7 @@
 #include <QtQuick3DParticles/private/qquick3dparticle_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticleaffector_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticleemitter_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticletrailemitter_p.h>
 #endif
 
 #ifdef IMPORT_QUICK3D_ASSETS
@@ -427,14 +428,22 @@ void Qt5InformationNodeInstanceServer::resetParticleSystem()
 
 void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DParticleSystem* targetParticleSystem)
 {
-    if (!m_particleAnimationDriver || targetParticleSystem == m_targetParticleSystem)
+    if (targetParticleSystem == m_targetParticleSystem)
+        return;
+
+    m_targetParticleSystem = targetParticleSystem;
+
+    if (m_editView3DData.rootItem) {
+        QQmlProperty systemProperty(m_editView3DData.rootItem, "activeParticleSystem", context());
+        systemProperty.write(objectToVariant(m_targetParticleSystem));
+    }
+
+    if (!m_particleAnimationDriver)
         return;
 
     m_particleAnimationDriver->reset();
     // stop the previously selected from animating
     resetParticleSystem();
-
-    m_targetParticleSystem = targetParticleSystem;
 
     resetParticleSystem();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 2)
@@ -507,9 +516,17 @@ static QQuick3DParticleSystem *parentParticleSystem(QObject *selectedObject)
     return nullptr;
 }
 
-void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected(QObject *selectedObject)
+void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected()
 {
+    resetParticleSystem();
+
     m_targetParticleSystem = nullptr;
+
+    if (m_editView3DData.rootItem) {
+        QQmlProperty systemProperty(m_editView3DData.rootItem, "activeParticleSystem", context());
+        systemProperty.write(objectToVariant(nullptr));
+    }
+
     const auto anim = animations();
     int i = 0;
     for (auto a : anim) {
@@ -526,7 +543,7 @@ void Qt5InformationNodeInstanceServer::handleParticleSystemDeselected(QObject *s
 void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &objs)
 {
 #ifdef QUICK3D_PARTICLES_MODULE
-    resetParticleSystem();
+    bool skipSystemDeselect = m_targetParticleSystem == nullptr;
 #endif
     QList<ServerNodeInstance> instanceList;
     const QVariantList varObjs = objs.value<QVariantList>();
@@ -535,8 +552,20 @@ void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &ob
         if (obj) {
             ServerNodeInstance instance = instanceForObject(obj);
             instanceList << instance;
+#ifdef QUICK3D_PARTICLES_MODULE
+            if (!skipSystemDeselect) {
+                auto particleSystem = parentParticleSystem(instance.internalObject());
+                skipSystemDeselect = particleSystem == m_targetParticleSystem;
+            }
+#endif
         }
     }
+
+#ifdef QUICK3D_PARTICLES_MODULE
+    if (m_targetParticleSystem && !skipSystemDeselect)
+        handleParticleSystemDeselected();
+#endif
+
     selectInstances(instanceList);
     // Hold selection changes reflected back from designer for a bit
     m_selectionChangeTimer.start(500);
@@ -745,6 +774,10 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
     } else if (qobject_cast<QQuick3DParticleSystem *>(obj)) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseParticleSystemGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
+    } else if (qobject_cast<QQuick3DParticleEmitter *>(obj)
+               && !qobject_cast<QQuick3DParticleTrailEmitter *>(obj)) {
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseParticleEmitterGizmo",
+                                  Q_ARG(QVariant, objectToVariant(obj)));
 #endif
     }
     removeNode3D(obj);
@@ -851,6 +884,11 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
 #ifdef QUICK3D_PARTICLES_MODULE
             } else if (qobject_cast<QQuick3DParticleSystem *>(node)) {
                 QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateParticleSystemGizmoScene",
+                                          Q_ARG(QVariant, objectToVariant(newRoot)),
+                                          Q_ARG(QVariant, objectToVariant(node)));
+            } else if (qobject_cast<QQuick3DParticleEmitter *>(node)
+                       && !qobject_cast<QQuick3DParticleTrailEmitter *>(node)) {
+                QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateParticleEmitterGizmoScene",
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
                                           Q_ARG(QVariant, objectToVariant(node)));
 #endif
@@ -1415,15 +1453,19 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
     QHash<QObject *, QObjectList> cameras;
     QHash<QObject *, QObjectList> lights;
     QHash<QObject *, QObjectList> particleSystems;
+    QHash<QObject *, QObjectList> particleEmitters;
 
     for (const ServerNodeInstance &instance : instanceList) {
-        if (instance.isSubclassOf("QQuick3DCamera"))
+        if (instance.isSubclassOf("QQuick3DCamera")) {
             cameras[find3DSceneRoot(instance)] << instance.internalObject();
-        else if (instance.isSubclassOf("QQuick3DAbstractLight"))
+        } else if (instance.isSubclassOf("QQuick3DAbstractLight")) {
             lights[find3DSceneRoot(instance)] << instance.internalObject();
-        else if (instance.isSubclassOf("QQuick3DParticleSystem"))
+        } else if (instance.isSubclassOf("QQuick3DParticleSystem")) {
             particleSystems[find3DSceneRoot(instance)] << instance.internalObject();
-
+        } else if (instance.isSubclassOf("QQuick3DParticleEmitter")
+                   && !instance.isSubclassOf("QQuick3DParticleTrailEmitter")) {
+            particleEmitters[find3DSceneRoot(instance)] << instance.internalObject();
+        }
     }
 
     auto cameraIt = cameras.constBegin();
@@ -1455,6 +1497,17 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
                                       Q_ARG(QVariant, objectToVariant(obj)));
         }
         ++particleIt;
+    }
+
+    auto emitterIt = particleEmitters.constBegin();
+    while (emitterIt != particleEmitters.constEnd()) {
+        const auto emitterObjs = emitterIt.value();
+        for (auto &obj : emitterObjs) {
+            QMetaObject::invokeMethod(m_editView3DData.rootItem, "addParticleEmitterGizmo",
+                                      Q_ARG(QVariant, objectToVariant(emitterIt.key())),
+                                      Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        ++emitterIt;
     }
 }
 
@@ -1946,7 +1999,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                     if (particlesystem != m_targetParticleSystem)
                         handleParticleSystemSelected(particlesystem);
                 } else {
-                    handleParticleSystemDeselected(instance.internalObject());
+                    handleParticleSystemDeselected();
                 }
             }
 #endif
@@ -1957,6 +2010,8 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                     || qobject_cast<QQuick3DAbstractLight *>(object)
 #ifdef QUICK3D_PARTICLES_MODULE
                     || qobject_cast<QQuick3DParticleSystem *>(object)
+                    || qobject_cast<QQuick3DParticleEmitter *>(object)
+
 #endif
                 ) {
                     return true;
@@ -2105,6 +2160,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         updatedState.insert("showCameraFrustum", command.isEnabled());
         break;
 #ifdef QUICK3D_PARTICLES_MODULE
+    case View3DActionCommand::ShowParticleEmitter:
+        updatedState.insert("showParticleEmitter", command.isEnabled());
+        break;
     case View3DActionCommand::ParticlesPlay:
         m_particleAnimationPlaying = command.isEnabled();
         updatedState.insert("particlePlay", command.isEnabled());
