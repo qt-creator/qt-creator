@@ -921,3 +921,17 @@ void keywords()
     bool b2 = false;
     void *p = nullptr;
 }
+
+namespace std {
+struct Debug {};
+Debug& operator<<(Debug &dbg, int) { return dbg; }
+Debug& operator>>(Debug &dbg, int&) { return dbg; }
+static Debug cout;
+static Debug cin;
+}
+void outputOperator()
+{
+    std::cout << 0;
+    int i;
+    std::cin >> i;
+}
