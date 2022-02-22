@@ -1739,8 +1739,22 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
 {
     QStringList arguments = values.split('\n', Qt::SkipEmptyParts);
     for (QString &arg: arguments) {
-        if (arg.startsWith("-G"))
-            arg.replace("-G", "-DCMAKE_GENERATOR:STRING=");
+        if (arg.startsWith("-G")) {
+            const QString strDash(" - ");
+            const int idxDash = arg.indexOf(strDash);
+            if (idxDash > 0) {
+                // -GCodeBlocks - Ninja
+                QString generator = "-DCMAKE_GENERATOR:STRING=" + arg.mid(idxDash + strDash.length());
+                arguments.append(generator);
+
+                arg = arg.first(idxDash);
+                arg.replace("-G", "-DCMAKE_EXTRA_GENERATOR:STRING=");
+
+            } else {
+                // -GNinja
+                arg.replace("-G", "-DCMAKE_GENERATOR:STRING=");
+            }
+        }
         if (arg.startsWith("-A"))
             arg.replace("-A", "-DCMAKE_GENERATOR_PLATFORM:STRING=");
         if (arg.startsWith("-T"))
