@@ -46,8 +46,9 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 
-#include <qmldesigner/qmldesignerplugin.h>
 #include <qmldesigner/components/componentcore/theme.h>
+#include <qmldesigner/dynamiclicensecheck.h>
+#include <qmldesigner/qmldesignerplugin.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
@@ -56,7 +57,6 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
-#include <utils/dynamiclicensecheck.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -300,9 +300,9 @@ private:
 
 void ProjectModel::setupVersion()
 {
-    Utils::FoundLicense license = Utils::checkLicense();
-    m_communityVersion = license == Utils::FoundLicense::community;
-    m_enterpriseVersion = license == Utils::FoundLicense::enterprise;
+    QmlDesigner::FoundLicense license = QmlDesigner::checkLicense();
+    m_communityVersion = license == QmlDesigner::FoundLicense::community;
+    m_enterpriseVersion = license == QmlDesigner::FoundLicense::enterprise;
 }
 
 ProjectModel::ProjectModel(QObject *parent)
