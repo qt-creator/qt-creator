@@ -114,12 +114,7 @@ public:
     DockerDeviceData &data();
 
     void updateContainerAccess() const;
-    bool hasLocalFileAccess() const;
     void setMounts(const QStringList &mounts) const;
-
-    Utils::FilePath mapToLocalAccess(const Utils::FilePath &filePath) const;
-    Utils::FilePath mapFromLocalAccess(const Utils::FilePath &filePath) const;
-    Utils::FilePath mapFromLocalAccess(const QString &filePath) const;
 
 protected:
     void fromMap(const QVariantMap &map) final;

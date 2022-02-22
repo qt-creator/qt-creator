@@ -87,8 +87,6 @@
 #include <sys/types.h>
 #endif
 
-//#define ALLOW_LOCAL_ACCESS 1
-
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -246,18 +244,7 @@ class DockerDevicePrivate : public QObject
 
 public:
     DockerDevicePrivate(DockerDevice *parent) : q(parent)
-    {
-#ifdef ALLOW_LOCAL_ACCESS
-        connect(&m_mergedDirWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
-            Q_UNUSED(path)
-            LOG("Container watcher change, file: " << path);
-        });
-        connect(&m_mergedDirWatcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString &path) {
-            Q_UNUSED(path)
-            LOG("Container watcher change, directory: " << path);
-        });
-#endif
-    }
+    {}
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
@@ -266,7 +253,6 @@ public:
     QByteArray outputForRunInShell(const CommandLine &cmd) const;
 
     void updateContainerAccess();
-    void updateFileSystemAccess();
 
     void startContainer();
     void stopCurrentContainer();
@@ -279,11 +265,6 @@ public:
     QPointer<QtcProcess> m_shell;
     mutable QMutex m_shellMutex;
     QString m_container;
-
-#ifdef ALLOW_LOCAL_ACCESS
-    QString m_mergedDir;
-    QFileSystemWatcher m_mergedDirWatcher;
-#endif
 
     Environment m_cachedEnviroment;
 
@@ -340,24 +321,6 @@ public:
         connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [&data](bool on) {
             data.useLocalUidGid = on;
         });
-
-#ifdef ALLOW_LOCAL_ACCESS
-        // This tries to find the directory in the host file system that corresponds to the
-        // docker container root file system, which is a merge of the layers from the
-        // container image and the volumes mapped using -v on container startup.
-        //
-        // Accessing files there is much faster than using 'docker exec', but conceptually
-        // only works on Linux, and is restricted there by proper matching of user
-        // permissions between host and container.
-        m_usePathMapping = new QCheckBox(tr("Use local file path mapping"));
-        m_usePathMapping->setToolTip(tr("Maps docker filesystem to a local directory."));
-        m_usePathMapping->setChecked(data.useFilePathMapping);
-        m_usePathMapping->setEnabled(HostOsInfo::isLinuxHost());
-        connect(m_usePathMapping, &QCheckBox::toggled, this, [&, dockerDevice](bool on) {
-            data.useFilePathMapping = on;
-            dockerDevice->updateContainerAccess();
-        });
-#endif
 
         m_pathsListEdit = new PathListEditor;
         m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
@@ -431,9 +394,6 @@ public:
             idLabel, m_idLineEdit, Break(),
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
-#ifdef ALLOW_LOCAL_ACCESS
-            m_usePathMapping, Break(),
-#endif
             Column {
                 new QLabel(tr("Paths to mount:")),
                 m_pathsListEdit,
@@ -473,9 +433,6 @@ private:
     QToolButton *m_daemonReset;
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
-#ifdef ALLOW_LOCAL_ACCESS
-    QCheckBox *m_usePathMapping;
-#endif
     Utils::PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
@@ -817,9 +774,6 @@ void DockerDevicePrivate::stopCurrentContainer()
         if (m_shell->state() == QProcess::NotRunning) {
             LOG("Clean exit via shell");
             m_container.clear();
-#ifdef ALLOW_LOCAL_ACCESS
-            m_mergedDir.clear();
-#endif
             delete m_shell;
             m_shell = nullptr;
             return;
@@ -830,9 +784,6 @@ void DockerDevicePrivate::stopCurrentContainer()
     proc.setCommand({"docker", {"container", "stop", m_container}});
 
     m_container.clear();
-#ifdef ALLOW_LOCAL_ACCESS
-    m_mergedDir.clear();
-#endif
 
     proc.runBlocking();
 }
@@ -940,113 +891,16 @@ void DockerDevicePrivate::updateContainerAccess()
     if (DockerPlugin::isDaemonRunning().value_or(true) == false)
         return;
 
-    if (!m_shell)
-        startContainer();
-
-    updateFileSystemAccess();
-}
-
-void DockerDevicePrivate::updateFileSystemAccess()
-{
-#ifdef ALLOW_LOCAL_ACCESS
-    if (!m_data.useFilePathMapping) {
-        // Direct access was used previously, but is not wanted anymore.
-        if (!m_mergedDir.isEmpty()) {
-            m_mergedDirWatcher.removePath(m_mergedDir);
-            m_mergedDir.clear();
-        }
-        return;
-    }
-
-    if (!DockerPlugin::isDaemonRunning().value_or(false))
+    if (m_shell)
         return;
 
-    QtcProcess proc;
-    proc.setCommand({"docker", {"inspect", "--format={{.GraphDriver.Data.MergedDir}}", m_container}});
-    LOG(proc.commandLine().toUserOutput());
-    proc.start();
-    proc.waitForFinished();
-    const QString out = proc.stdOut();
-    m_mergedDir = out.trimmed();
-    LOG("Found merged dir: " << m_mergedDir);
-    if (m_mergedDir.endsWith('/'))
-        m_mergedDir.chop(1);
-
-    if (!QFileInfo(m_mergedDir).isReadable()) {
-        MessageManager::writeFlashing(
-            tr("Local read access to docker container %1 unavailable through directory \"%2\".")
-                .arg(m_container, m_mergedDir)
-                    + '\n' + tr("Output: \"%1\"").arg(out)
-                    + '\n' + tr("Error: \"%1\"").arg(proc.stdErr()));
-        if (!HostOsInfo::isLinuxHost()) {
-            // Disabling merged layer access. This is not supported and anything
-            // related to accessing merged layers on Windows or macOS fails due
-            // to the need of using wsl or a named pipe.
-            // TODO investigate how to make it possible nevertheless.
-            m_mergedDir.clear();
-            MessageManager::writeSilently(tr("This is expected on Windows and macOS."));
-            return;
-        }
-    }
-
-    m_mergedDirWatcher.addPath(m_mergedDir);
-#endif
-}
-
-bool DockerDevice::hasLocalFileAccess() const
-{
-#ifdef ALLOW_LOCAL_ACCESS
-    static const bool denyLocalAccess = qEnvironmentVariableIsSet("QTC_DOCKER_DENY_LOCAL_ACCESS");
-    if (denyLocalAccess)
-        return false;
-    return !d->m_mergedDir.isEmpty();
-#else
-    return false;
-#endif
+     startContainer();
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
 {
     d->m_data.mounts = mounts;
     d->stopCurrentContainer(); // Force re-start with new mounts.
-}
-
-FilePath DockerDevice::mapToLocalAccess(const FilePath &filePath) const
-{
-#ifdef ALLOW_LOCAL_ACCESS
-    QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
-    QString path = filePath.path();
-    for (const QString &mount : qAsConst(d->m_data.mounts)) {
-        if (path.startsWith(mount + '/'))
-            return FilePath::fromString(path);
-    }
-    if (path.startsWith('/'))
-        return FilePath::fromString(d->m_mergedDir + path);
-    return FilePath::fromString(d->m_mergedDir + '/' + path);
-#else
-    QTC_CHECK(false);
-    Q_UNUSED(filePath)
-    return {};
-#endif
-}
-
-FilePath DockerDevice::mapFromLocalAccess(const FilePath &filePath) const
-{
-    QTC_ASSERT(!filePath.needsDevice(), return {});
-    return mapFromLocalAccess(filePath.toString());
-}
-
-FilePath DockerDevice::mapFromLocalAccess(const QString &filePath) const
-{
-#ifdef ALLOW_LOCAL_FILE_ACCESS
-    QTC_ASSERT(!d->m_mergedDir.isEmpty(), return {});
-    QTC_ASSERT(filePath.startsWith(d->m_mergedDir), return FilePath::fromString(filePath));
-    return mapToGlobalPath(FilePath::fromString(filePath.mid(d->m_mergedDir.size())));
-#else
-    Q_UNUSED(filePath)
-    QTC_CHECK(false);
-    return {};
-#endif
 }
 
 const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
@@ -1155,12 +1009,6 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isExecutableFile();
-        LOG("Executable? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-x", path}});
 }
@@ -1169,12 +1017,6 @@ bool DockerDevice::isReadableFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isReadableFile();
-        LOG("ReadableFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-r", path, "-a", "-f", path}});
 }
@@ -1183,12 +1025,6 @@ bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isWritableFile();
-        LOG("WritableFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-w", path, "-a", "-f", path}});
 }
@@ -1197,12 +1033,6 @@ bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isReadableDir();
-        LOG("ReadableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-r", path, "-a", "-d", path}});
 }
@@ -1211,12 +1041,6 @@ bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isWritableDir();
-        LOG("WritableDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-w", path, "-a", "-d", path}});
 }
@@ -1225,12 +1049,6 @@ bool DockerDevice::isFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isFile();
-        LOG("IsFile? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-f", path}});
 }
@@ -1239,12 +1057,6 @@ bool DockerDevice::isDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.isDir();
-        LOG("IsDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-d", path}});
 }
@@ -1253,12 +1065,6 @@ bool DockerDevice::createDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.createDir();
-        LOG("CreateDirectory? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInContainer({"mkdir", {"-p", path}});
 }
@@ -1267,12 +1073,6 @@ bool DockerDevice::exists(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.exists();
-        LOG("Exists? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"test", {"-e", path}});
 }
@@ -1281,12 +1081,6 @@ bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.ensureExistingFile();
-        LOG("Ensure existing file? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     const QString path = filePath.path();
     return d->runInShell({"touch", {path}});
 }
@@ -1295,12 +1089,6 @@ bool DockerDevice::removeFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.removeFile();
-        LOG("Remove? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
     return d->runInContainer({"rm", {filePath.path()}});
 }
 
@@ -1309,12 +1097,6 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
     QTC_ASSERT(handlesFile(filePath), return false);
     QTC_ASSERT(filePath.path().startsWith('/'), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const bool res = localAccess.removeRecursively();
-        LOG("Remove recursively? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
 
     const QString path = filePath.cleanPath().path();
     // We are expecting this only to be called in a context of build directories or similar.
@@ -1331,13 +1113,6 @@ bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) co
     QTC_ASSERT(handlesFile(filePath), return false);
     QTC_ASSERT(handlesFile(target), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const FilePath localTarget = mapToLocalAccess(target);
-        const bool res = localAccess.copyFile(localTarget);
-        LOG("Copy " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
-        return res;
-    }
     return d->runInContainer({"cp", {filePath.path(), target.path()}});
 }
 
@@ -1346,13 +1121,6 @@ bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) 
     QTC_ASSERT(handlesFile(filePath), return false);
     QTC_ASSERT(handlesFile(target), return false);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const FilePath localTarget = mapToLocalAccess(target);
-        const bool res = localAccess.renameFile(localTarget);
-        LOG("Move " << filePath.toUserOutput() << localAccess.toUserOutput() << localTarget << res);
-        return res;
-    }
     return d->runInContainer({"mv", {filePath.path(), target.path()}});
 }
 
@@ -1360,13 +1128,6 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const QDateTime res = localAccess.lastModified();
-        LOG("Last modified? " << filePath.toUserOutput() << localAccess.toUserOutput() << res);
-        return res;
-    }
-
     const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%Y", filePath.path()}});
     qint64 secs = output.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
@@ -1377,15 +1138,6 @@ FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        const FilePath target = localAccess.symLinkTarget();
-        LOG("SymLinkTarget? " << filePath.toUserOutput() << localAccess.toUserOutput() << target);
-        if (target.isEmpty())
-            return {};
-        return mapToGlobalPath(target);
-    }
-
     const QByteArray output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
     const QString out = QString::fromUtf8(output.data(), output.size());
     return out.isEmpty() ? FilePath() : filePath.withNewPath(out);
@@ -1395,12 +1147,6 @@ qint64 DockerDevice::fileSize(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return -1);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        LOG("File size? " << filePath.toUserOutput() << localAccess.toUserOutput() << localAccess.fileSize());
-        return localAccess.fileSize();
-    }
-
     const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%s", filePath.path()}});
     return output.toLongLong();
 }
@@ -1409,11 +1155,6 @@ QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) con
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        LOG("Permissions? " << filePath.toUserOutput() << localAccess.toUserOutput() << localAccess.permissions());
-        return localAccess.permissions();
-    }
 
     const QByteArray output = d->outputForRunInShell({"stat", {"-c", "%a", filePath.path()}});
     const uint bits = output.toUInt(nullptr, 8);
@@ -1436,12 +1177,6 @@ bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permiss
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath localAccess = mapToLocalAccess(filePath);
-        LOG("Set permissions? " << filePath.toUserOutput() << localAccess.toUserOutput() << localAccess.permissions());
-        return localAccess.setPermissions(permissions);
-    }
-
     QTC_CHECK(false); // FIXME: Implement.
     return false;
 }
@@ -1529,14 +1264,6 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
 {
     QTC_ASSERT(handlesFile(filePath), return);
     updateContainerAccess();
-    if (hasLocalFileAccess()) {
-        const FilePath local = mapToLocalAccess(filePath);
-        local.iterateDirectory([&callBack, this](const FilePath &entry) {
-                                    return callBack(mapFromLocalAccess(entry));
-                               },
-                               filter);
-        return;
-    }
 
     if (d->m_useFind) {
         iterateWithFind(filePath, callBack, filter);
@@ -1556,8 +1283,6 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qi
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    if (hasLocalFileAccess())
-        return mapToLocalAccess(filePath).fileContents(limit, offset);
 
     QStringList args = {"if=" + filePath.path(), "status=none"};
     if (limit > 0 || offset > 0) {
@@ -1580,8 +1305,6 @@ bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray 
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
-    if (hasLocalFileAccess())
-        return mapToLocalAccess(filePath).writeFileContents(data);
 
 // This following would be the generic Unix solution.
 // But it doesn't pass input. FIXME: Why?
@@ -1630,7 +1353,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
     }
     if (process.processMode() == ProcessMode::Writer)
         cmd.addArg("-i");
-    if (env.size() != 0 && !hasLocalFileAccess()) {
+    if (env.size() != 0) {
         process.unsetEnvironment();
         // FIXME the below would be probably correct if the respective tools would use correct
         //       environment already, but most are using the host environment which usually makes
