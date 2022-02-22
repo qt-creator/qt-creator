@@ -99,7 +99,7 @@ PropertyEditorPane {
         anchors.right: parent.right
 
         StudioControls.TabButton {
-            text: backendValues.className.value
+            text: backendValues.__classNamePrivateInternal.value
         }
         StudioControls.TabButton {
             text: qsTr("Layout")

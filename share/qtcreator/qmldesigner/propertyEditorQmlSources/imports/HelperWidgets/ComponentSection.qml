@@ -56,13 +56,13 @@ Section {
                     anchors.fill: parent
                     anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
                     anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
-                    text: backendValues.className.value
+                    text: backendValues.__classNamePrivateInternal.value
                 }
 
                 ToolTipArea {
                     anchors.fill: parent
                     onDoubleClicked: {
-                        typeLineEdit.text = backendValues.className.value
+                        typeLineEdit.text = backendValues.__classNamePrivateInternal.value
                         typeLineEdit.visible = !typeLineEdit.visible
                         typeLineEdit.forceActiveFocus()
                     }

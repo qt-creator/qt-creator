@@ -107,6 +107,8 @@ const char EVENT_TIMELINE_TIME[] = "Timeline";
 const char EVENT_TRANSITIONEDITOR_TIME[] = "Transition Editor";
 const char EVENT_CURVEDITOR_TIME[] = "Curve Editor";
 
+const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
+
 namespace Internal {
     enum { debug = 0 };
 }
