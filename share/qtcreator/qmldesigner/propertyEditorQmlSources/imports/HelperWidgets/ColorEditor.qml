@@ -386,6 +386,7 @@ SecondColumnLayout {
 
                             property ListModel items: ListModel {}
 
+                            enabled: isBaseState
                             implicitWidth: StudioTheme.Values.colorEditorPopupCmoboBoxWidth
                             width: implicitWidth
                             actionIndicatorVisible: false
@@ -441,6 +442,13 @@ SecondColumnLayout {
                                     console.log("Unknown item selected in color mode ComboBox.")
                                 }
                                 colorEditor.updateThumbnail()
+                            }
+
+                            ToolTipArea {
+                                enabled: !isBaseState
+                                anchors.fill: parent
+                                tooltip: qsTr("Fill type can only be changed in base state.")
+                                z: 10
                             }
                         }
 
