@@ -88,26 +88,19 @@ void DiagnosticManager::setDiagnostics(const LanguageServerProtocol::DocumentUri
                                        const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
                                        const Utils::optional<int> &version)
 {
-    removeDiagnostics(uri);
+    hideDiagnostics(uri.toFilePath());
     m_diagnostics[uri] = {version, diagnostics};
 }
 
-void DiagnosticManager::hideDiagnostics(TextDocument *doc)
+void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
 {
-    if (!doc)
-        return;
-
     if (m_hideHandler)
         m_hideHandler();
-    for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
-        editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
-    qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextMark::category, m_client->id())));
-}
-
-void DiagnosticManager::removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri)
-{
-    hideDiagnostics(TextDocument::textDocumentForFilePath(uri.toFilePath()));
-    m_diagnostics.remove(uri);
+    if (auto doc = TextDocument::textDocumentForFilePath(filePath)) {
+        for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
+            editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
+    }
+    qDeleteAll(m_marks.take(filePath));
 }
 
 static QTextEdit::ExtraSelection toDiagnosticsSelections(const Diagnostic &diagnostic,
@@ -130,11 +123,11 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
     const FilePath &filePath = uri.toFilePath();
     if (TextDocument *doc = TextDocument::textDocumentForFilePath(filePath)) {
         QList<QTextEdit::ExtraSelection> extraSelections;
-        const VersionedDiagnostics &versionedDiagnostics =  m_diagnostics.value(uri);
+        const VersionedDiagnostics &versionedDiagnostics = m_diagnostics.value(uri);
         if (versionedDiagnostics.version.value_or(version) == version) {
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
                 extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
-                doc->addMark(m_textMarkCreator(filePath, diagnostic));
+                m_marks[filePath].append(m_textMarkCreator(filePath, diagnostic));
             }
         }
 
@@ -164,7 +157,13 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath
 void DiagnosticManager::clearDiagnostics()
 {
     for (const DocumentUri &uri : m_diagnostics.keys())
-        removeDiagnostics(uri);
+        hideDiagnostics(uri.toFilePath());
+    m_diagnostics.clear();
+    if (!QTC_GUARD(m_marks.isEmpty())) {
+        for (const QList<TextEditor::TextMark *> &marks : qAsConst(m_marks))
+            qDeleteAll(marks);
+        m_marks.clear();
+    }
 }
 
 QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,

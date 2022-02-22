@@ -617,7 +617,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
 
 void Client::deactivateDocument(TextEditor::TextDocument *document)
 {
-    m_diagnosticManager.hideDiagnostics(document);
+    m_diagnosticManager.hideDiagnostics(document->filePath());
     resetAssistProviders(document);
     document->setFormatter(nullptr);
     m_tokenSupport.clearHighlight(document);

@@ -56,10 +56,9 @@ public:
     void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
                         const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
                         const Utils::optional<int> &version);
-    void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
 
     void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri, int version);
-    void hideDiagnostics(TextEditor::TextDocument *doc);
+    void hideDiagnostics(const Utils::FilePath &filePath);
 
     void clearDiagnostics();
 
@@ -81,6 +80,7 @@ private:
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
     QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
+    QMap<Utils::FilePath, QList<TextEditor::TextMark *>> m_marks;
     TextMarkCreator m_textMarkCreator;
     HideDiagnosticsHandler m_hideHandler;
     Client *m_client;
