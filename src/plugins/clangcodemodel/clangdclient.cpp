@@ -2675,6 +2675,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                     || path.rbegin()->kind() == "CXXConstruct")) {
             return false;
         }
+        if (path.rbegin()->hasConstType())
+            return false;
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
                     || it->kind() == "MemberInitializer") {

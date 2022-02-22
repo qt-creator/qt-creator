@@ -935,3 +935,12 @@ void outputOperator()
     int i;
     std::cin >> i;
 }
+
+template <typename To, typename From, typename Op>
+void transform(const From &from, To &&to, Op op) {}
+struct WithVector { std::vector<int> v; };
+void inputsAndOutputsFromObject(const WithVector &s)
+{
+    std::vector<int> out;
+    transform(s.v, out, [] {});
+}
