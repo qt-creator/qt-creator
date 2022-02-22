@@ -1,0 +1,13 @@
+add_qtc_executable(qml_ast2dot
+  BUILD_DEFAULT OFF
+  DEPENDS Qt5::Core Qt5::Gui QmlJS
+  SOURCES main.cpp
+)
+
+extend_qtc_executable(qml_ast2dot
+  PROPERTIES
+    OUTPUT_NAME "qml-ast2dot"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+)
