@@ -147,6 +147,7 @@ public:
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     static bool isQtDesignStudio();
+    static bool isQtDesignStudioStartedFromQtC();
 
     bool isEditModePreferred() const override;
 

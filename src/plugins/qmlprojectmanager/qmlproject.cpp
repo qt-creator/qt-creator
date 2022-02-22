@@ -517,6 +517,11 @@ bool QmlProject::isQtDesignStudio()
     return settings->value(qdsStandaloneEntry, false).toBool();
 }
 
+bool QmlProject::isQtDesignStudioStartedFromQtC()
+{
+    return qEnvironmentVariableIsSet(Constants::enviromentLaunchedQDS);
+}
+
 ProjectExplorer::DeploymentKnowledge QmlProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;

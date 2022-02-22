@@ -25,6 +25,7 @@
 
 #include "qmlprojectplugin.h"
 #include "qmlproject.h"
+#include "qmlprojectconstants.h"
 #include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -105,6 +106,7 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
 {
     const Utils::FilePath &qdsPath = QmlProjectPlugin::qdsInstallationEntry();
     bool qdsStarted = false;
+    qputenv(Constants::enviromentLaunchedQDS, "true");
     //-a and -client arguments help to append project to open design studio application
     if (Utils::HostOsInfo::isMacHost())
         qdsStarted = Utils::QtcProcess::startDetached(
