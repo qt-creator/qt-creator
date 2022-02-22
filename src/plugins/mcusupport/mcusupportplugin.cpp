@@ -125,6 +125,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
                              tr("Create Kits for Qt for MCUs? "
                                 "To do it later, select Options > Devices > MCU."),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    // clazy:excludeall=connect-3arg-lambda
     info.addCustomButton(tr("Create Kits for Qt for MCUs"), [setupMcuSupportKits] {
         ICore::infoBar()->removeInfo(setupMcuSupportKits);
         QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });

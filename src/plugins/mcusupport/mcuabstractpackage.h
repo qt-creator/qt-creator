@@ -46,6 +46,7 @@ public:
     };
 
     virtual QString label() const = 0;
+    virtual const QString &cmakeVariableName() const = 0;
     virtual const QString &environmentVariableName() const = 0;
     virtual bool isAddToSystemPath() const = 0;
     virtual void setVersions(const QStringList &) = 0;

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "mcukitinformation.h"
-#include "mcusupportcmakemapper.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <utils/qtcassert.h>

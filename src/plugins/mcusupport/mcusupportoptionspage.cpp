@@ -307,7 +307,7 @@ void McuSupportOptionsWidget::apply()
 
     if (pathsChanged) {
         m_options.checkUpgradeableKits();
-        McuKitManager::fixKitsDependencies();
+        McuKitManager::updatePathsInExistingKits();
     }
 }
 
@@ -317,7 +317,7 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
     m_mcuTargetsComboBox->clear();
     m_mcuTargetsComboBox->addItems(
         Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets,
-                                      [](McuTarget *t) { return McuKitManager::kitName(t); }));
+                                      [](McuTarget *t) { return McuKitManager::generateKitNameFromTarget(t); }));
     updateStatus();
 }
 

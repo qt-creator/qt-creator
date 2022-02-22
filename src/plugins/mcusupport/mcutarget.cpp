@@ -82,13 +82,13 @@ void McuTarget::printPackageProblems() const
         package->updateStatus();
         if (!package->isValidStatus())
             printMessage(tr("Error creating kit for target %1, package %2: %3")
-                             .arg(McuKitManager::kitName(this),
+                             .arg(McuKitManager::generateKitNameFromTarget(this),
                                   package->label(),
                                   package->statusText()),
                          true);
         if (package->status() == McuAbstractPackage::Status::ValidPackageMismatchedVersion)
             printMessage(tr("Warning creating kit for target %1, package %2: %3")
-                             .arg(McuKitManager::kitName(this),
+                             .arg(McuKitManager::generateKitNameFromTarget(this),
                                   package->label(),
                                   package->statusText()),
                          false);

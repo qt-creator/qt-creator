@@ -17,7 +17,6 @@ add_qtc_plugin(McuSupport
     mcusupportsdk.cpp mcusupportsdk.h
     mcusupportrunconfiguration.cpp mcusupportrunconfiguration.h
     mcusupportversiondetection.cpp mcusupportversiondetection.h
-    mcusupportcmakemapper.cpp mcusupportcmakemapper.h
     mcutargetdescription.h
 )
 

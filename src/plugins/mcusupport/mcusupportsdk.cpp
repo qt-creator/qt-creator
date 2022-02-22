@@ -74,6 +74,7 @@ McuPackage *createQtForMCUsPackage()
                           FileUtils::homePath(),                                      // defaultPath
                           FilePath("bin/qmltocpp").withExecutableSuffix(),            // detectionPath
                           Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,            // settingsKey
+                          QStringLiteral("Qul_ROOT"),                                 // cmakeVarName
                           QStringLiteral("Qul_DIR"));                                 // envVarName
 }
 
@@ -130,6 +131,7 @@ McuPackage *createBoardSdkPackage(const McuTargetDescription &desc)
                           defaultPath,
                           {},                   // detection path
                           desc.boardSdk.envVar, // settings key
+                          "QUL_BOARD_SDK_DIR",  // cmake var
                           desc.boardSdk.envVar, // env var
                           {},                   // download URL
                           versionDetector);
@@ -147,12 +149,14 @@ McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
     else if (!boardSdkDir.isEmpty() && !freeRTOSBoardSdkSubDir.isEmpty())
         defaultPath = boardSdkDir / freeRTOSBoardSdkSubDir;
 
-    return new McuPackage(QString{"FreeRTOS Sources (%1)"}.arg(envVarPrefix),
+    return new McuPackage(QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
                           defaultPath,
-                          {},
-                          QString{"FreeRTOSSourcePackage_%1"}.arg(envVarPrefix),
-                          envVar,
-                          "https://freertos.org");
+                          {}, // detection path
+                          QString::fromLatin1("FreeRTOSSourcePackage_%1").arg(envVarPrefix), // settings key
+                          "FREERTOS_DIR", // cmake var
+                          envVar, // env var
+                          "https://freertos.org"); // download url
+
 }
 
 
@@ -199,8 +203,9 @@ static McuToolChainPackage *createArmGccToolchainPackage()
                                    defaultPath,
                                    detectionPath,
                                    "GNUArmEmbeddedToolchain", // settingsKey
-                                   McuToolChainPackage::ToolChainType::ArmGcc,
-                                   envVar,
+                                   McuToolChainPackage::ToolChainType::ArmGcc, // toolchainType
+                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
+                                   envVar, // env var
                                    versionDetector);
 }
 
@@ -219,8 +224,9 @@ static McuToolChainPackage *createGhsToolchainPackage()
                                    defaultPath,
                                    FilePath("ccv850").withExecutableSuffix(),  // detectionPath
                                    "GHSToolchain", // settingsKey
-                                   McuToolChainPackage::ToolChainType::GHS,
-                                   envVar,
+                                   McuToolChainPackage::ToolChainType::GHS, // toolchainType
+                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
+                                   envVar, // env var
                                    versionDetector);
 }
 
@@ -239,8 +245,9 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
                                    defaultPath,
                                    FilePath("cxarm").withExecutableSuffix(), // detectionPath
                                    "GHSArmToolchain",                                // settingsKey
-                                   McuToolChainPackage::ToolChainType::GHSArm,
-                                   envVar,
+                                   McuToolChainPackage::ToolChainType::GHSArm, // toolchainType
+                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
+                                   envVar, // env var
                                    versionDetector);
 }
 
@@ -272,8 +279,9 @@ static McuToolChainPackage *createIarToolChainPackage()
                                    defaultPath,
                                    detectionPath,
                                    "IARToolchain", // settings key
-                                   McuToolChainPackage::ToolChainType::IAR,
-                                   envVar,
+                                   McuToolChainPackage::ToolChainType::IAR, // toolchainType
+                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
+                                   envVar, // env var
                                    versionDetector);
 }
 
@@ -302,7 +310,8 @@ static McuPackage *createStm32CubeProgrammerPackage()
                          defaultPath,
                          detectionPath,
                          "Stm32CubeProgrammer",
-                         {},                                                            // env var
+                         {},  // cmake var
+                         {},  // env var
                          "https://www.st.com/en/development-tools/stm32cubeprog.html", // download url
                          nullptr, // version detector
                          true, // add to path
@@ -338,6 +347,7 @@ static McuPackage *createMcuXpressoIdePackage()
                           defaultPath,
                           FilePath("ide/binaries/crt_emu_cm_redlink").withExecutableSuffix(), // detection path
                           "MCUXpressoIDE",                        // settings key
+                          "MCUXPRESSO_IDE_PATH", // cmake var
                           envVar,
                           "https://www.nxp.com/mcuxpresso/ide"); // download url
 }
@@ -363,8 +373,9 @@ static McuPackage *createCypressProgrammerPackage()
     auto result = new McuPackage("Cypress Auto Flash Utility",
                                  defaultPath,
                                  FilePath("/bin/openocd").withExecutableSuffix(),
-                                 "CypressAutoFlashUtil",
-                                 envVar);
+                                 "CypressAutoFlashUtil", // settings key
+                                 "INFINEON_AUTO_FLASH_UTILITY_DIR", // cmake var
+                                 envVar); // env var
     return result;
 }
 
@@ -389,8 +400,9 @@ static McuPackage *createRenesasProgrammerPackage()
     auto result = new McuPackage("Renesas Flash Programmer",
                                  defaultPath,
                                  FilePath("rfp-cli").withExecutableSuffix(),
-                                 "RenesasFlashProgrammer",
-                                 envVar);
+                                 "RenesasFlashProgrammer", // settings key
+                                 "RENESAS_FLASH_PROGRAMMER_PATH", // cmake var
+                                 envVar); // env var
     return result;
 }
 
@@ -596,7 +608,7 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
     std::sort(repo->mcuTargets.begin(),
               repo->mcuTargets.end(),
               [](const McuTarget *lhs, const McuTarget *rhs) {
-                  return McuKitManager::kitName(lhs) < McuKitManager::kitName(rhs);
+                  return McuKitManager::generateKitNameFromTarget(lhs) < McuKitManager::generateKitNameFromTarget(rhs);
               });
 }
 

@@ -52,7 +52,6 @@ class McuSupportTest : public QObject
 private slots:
     void initTestCase();
 
-    void test_addFreeRtosCmakeVarToKit();
     void test_addNewKit();
     void test_parseBasicInfoFromJson();
     void test_createPackagesWithCorrespondingSettings();
@@ -68,17 +67,6 @@ private:
     const QString freeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
     const QString freeRtosCmakeVar{"FREERTOS_DIR"};
     const QString defaultfreeRtosPath{"/opt/freertos/default"};
-
-    PackageMock freeRtosPackage;
-    Kit kit;
-
-    McuToolChainPackage toolchainPackage{{}, {}, {}, {}, {}};
-    const McuTarget::Platform platform{id, name, vendor};
-    McuTarget mcuTarget{currentQulVersion,
-                        platform,
-                        McuTarget::OS::FreeRTOS,
-                        {&freeRtosPackage},
-                        &toolchainPackage};
 
 }; // class McuSupportTest
 

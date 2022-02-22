@@ -53,6 +53,7 @@ McuPackage::McuPackage(const QString &label,
                        const FilePath &defaultPath,
                        const FilePath &detectionPath,
                        const QString &settingsKey,
+                       const QString &cmakeVarName,
                        const QString &envVarName,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
@@ -64,6 +65,7 @@ McuPackage::McuPackage(const QString &label,
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
     , m_relativePathModifier(relativePathModifier)
+    , m_cmakeVariableName(cmakeVarName)
     , m_environmentVariableName(envVarName)
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
@@ -79,6 +81,11 @@ QString McuPackage::label() const
 QString McuPackage::settingsKey() const
 {
     return m_settingsKey;
+}
+
+const QString &McuPackage::cmakeVariableName() const
+{
+    return m_cmakeVariableName;
 }
 
 const QString &McuPackage::environmentVariableName() const
@@ -278,9 +285,10 @@ McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const FilePath &detectionPath,
                                          const QString &settingsKey,
                                          McuToolChainPackage::ToolChainType type,
+                                         const QString &cmakeVarName,
                                          const QString &envVarName,
                                          const McuPackageVersionDetector *versionDetector)
-    : McuPackage(label, defaultPath, detectionPath, settingsKey, envVarName, {}, versionDetector)
+    : McuPackage(label, defaultPath, detectionPath, settingsKey, cmakeVarName, envVarName, {}, versionDetector)
     , m_type(type)
 {}
 

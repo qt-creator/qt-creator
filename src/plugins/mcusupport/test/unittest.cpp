@@ -47,6 +47,7 @@
 
 namespace McuSupport::Internal::Test {
 
+// clazy:excludeall=non-pod-global-static
 static const QString nxp1050FreeRtosEnvVar{"IMXRT1050_FREERTOS_DIR"};
 static const QString nxp1064FreeRtosEnvVar{"IMXRT1064_FREERTOS_DIR"};
 static const QString nxp1170FreeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
@@ -69,10 +70,6 @@ using Utils::FilePath;
 
 void McuSupportTest::initTestCase()
 {
-    EXPECT_CALL(freeRtosPackage, environmentVariableName()).WillRepeatedly(ReturnRef(freeRtosEnvVar));
-    EXPECT_CALL(freeRtosPackage, isValidStatus()).WillRepeatedly(Return(true));
-    EXPECT_CALL(freeRtosPackage, path())
-        .WillRepeatedly(Return(FilePath::fromString(defaultfreeRtosPath)));
 }
 
 void McuSupportTest::test_parseBasicInfoFromJson()
@@ -85,11 +82,35 @@ void McuSupportTest::test_parseBasicInfoFromJson()
 
 void McuSupportTest::test_addNewKit()
 {
+    const QString cmakeVar = "CMAKE_SDK";
+    McuPackage sdkPackage{"sdk", // label
+                          {}, // defaultPath
+                          {}, // detectionPath
+                          "sdk", // settingsKey
+                          cmakeVar, // cmake var
+                          {}}; // env var
+    Kit kit;
+
+    McuToolChainPackage toolchainPackage{
+        {}, // label
+        {}, // defaultPath
+        {}, // detectionPath
+        {}, // settingsKey
+        McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
+        {}, // cmake var name
+        {}}; // env var name
+    const McuTarget::Platform platform{id, name, vendor};
+    McuTarget mcuTarget{currentQulVersion, // version
+                        platform, // platform
+                        McuTarget::OS::FreeRTOS, // os
+                        {&sdkPackage}, // packages
+                        &toolchainPackage}; // toolchain packages
+
     auto &kitManager{*KitManager::instance()};
 
     QSignalSpy kitAddedSpy(&kitManager, &KitManager::kitAdded);
 
-    auto *newKit{McuKitManager::newKit(&mcuTarget, &freeRtosPackage)};
+    auto *newKit{McuKitManager::newKit(&mcuTarget, &sdkPackage)};
     QVERIFY(newKit != nullptr);
 
     QCOMPARE(kitAddedSpy.count(), 1);
@@ -98,26 +119,11 @@ void McuSupportTest::test_addNewKit()
     QVERIFY(createdKit != nullptr);
     QCOMPARE(createdKit, newKit);
 
-    auto cmakeAspect{CMakeConfigurationKitAspect{}};
-    QVERIFY(createdKit->hasValue(cmakeAspect.id()));
-    QVERIFY(createdKit->value(cmakeAspect.id(), freeRtosCmakeVar).isValid());
-}
-
-void McuSupportTest::test_addFreeRtosCmakeVarToKit()
-{
-    McuKitManager::updateKitEnvironment(&kit, &mcuTarget);
-
-    QVERIFY(kit.hasValue(EnvironmentKitAspect::id()));
-    QVERIFY(kit.isValid());
-    QVERIFY(!kit.allKeys().empty());
-
-    const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
-    QCOMPARE(cmakeConfig.size(), 1);
-
-    CMakeConfigItem
-        expectedCmakeVar{freeRtosCmakeVar.toLocal8Bit(),
-                         FilePath::fromString(defaultfreeRtosPath).toUserOutput().toLocal8Bit()};
-    QVERIFY(cmakeConfig.contains(expectedCmakeVar));
+    const auto config = CMakeConfigurationKitAspect::configuration(newKit);
+    QVERIFY(config.size() > 0);
+    QVERIFY(Utils::indexOf(config.toVector(), [&cmakeVar](const CMakeConfigItem &item) {
+        return item.key == cmakeVar.toUtf8();
+    }) != -1);
 }
 
 void McuSupportTest::test_createPackagesWithCorrespondingSettings_data()
@@ -160,6 +166,8 @@ void McuSupportTest::test_createPackagesWithCorrespondingSettings()
     QFETCH(QString, json);
     const auto description = Sdk::parseDescriptionJson(json.toLocal8Bit());
     QVector<McuAbstractPackage *> packages;
+    const auto targets = Sdk::targetsFromDescriptions({description}, &packages);
+    Q_UNUSED(targets);
 
     QSet<QString> settings = Utils::transform<QSet<QString>>(packages, [](const auto &package) {
         return package->settingsKey();

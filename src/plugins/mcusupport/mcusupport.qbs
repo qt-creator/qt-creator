@@ -44,8 +44,6 @@ QtcPlugin {
         "mcusupportrunconfiguration.h",
         "mcusupportversiondetection.cpp",
         "mcusupportversiondetection.h",
-        "mcusupportcmakemapper.h",
-        "mcusupportcmakemapper.cpp",
         "mcutargetdescription.h",
         "mcukitinformation.cpp",
         "mcukitinformation.h"
