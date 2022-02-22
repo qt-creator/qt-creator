@@ -660,8 +660,11 @@ void StudioWelcomePlugin::resumeRemoveSplashTimer()
 
 Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()
 {
-    return Utils::FilePath::fromString(
-               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
+    QStandardPaths::StandardLocation location = Utils::HostOsInfo::isMacHost()
+                                                    ? QStandardPaths::HomeLocation
+                                                    : QStandardPaths::DocumentsLocation;
+
+    return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
         .pathAppended("QtDesignStudio");
 }
 
