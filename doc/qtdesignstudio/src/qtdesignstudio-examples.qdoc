@@ -35,20 +35,18 @@
     \image studio-examples-download.png "Examples for download in Welcome mode"
 
     To run an example project:
+
     \list 1
-      \li Select the example.
-      \li Select the \inlineimage icons/live_preview.png
-      (\uicontrol {Show Live Preview}) button to preview the example.
+      \li Select the example project to open it. \QDS makes all necessary
+      downloads.
+      \li Select \inlineimage icons/run_small.png
+      (\uicontrol {Run}) to run the example.
     \endlist
 
-    Some of the example projects require that you download them before you can run them, to do this:
-    \list 1
-      \li Select an example.
-      \li Select \uicontrol {Start Download}.
-      \li Select the folder where the source files will be installed.
-      \li Select \uicontrol Continue to install the files.
-      \li Select \uicontrol Open to open the example in \QDS.
-    \endlist
+    If there is an update available for an example project that you have
+    installed, it is indicated by a yellow icon next to the example project name
+    on the \uicontrol Welcome page. Select the icon to download the latest
+    version of the example project.
 
     \section1 Example Documentation
 
