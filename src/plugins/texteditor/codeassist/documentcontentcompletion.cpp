@@ -86,7 +86,7 @@ DocumentContentCompletionProcessor::~DocumentContentCompletionProcessor()
 static void createProposal(QFutureInterface<QStringList> &future, const QString &text,
                            const QString &wordUnderCursor)
 {
-    const QRegularExpression wordRE("([a-zA-Z_][a-zA-Z0-9_]{2,})");
+    const QRegularExpression wordRE("([\\p{L}_][\\p{L}0-9_]{2,})");
 
     QSet<QString> words;
     QRegularExpressionMatchIterator it = wordRE.globalMatch(text);
