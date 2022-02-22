@@ -53,6 +53,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTimer>
+#include <QRegularExpression>
 
 #include <utils/qtcprocess.h>
 
@@ -716,7 +717,14 @@ void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)
         devMgr->setDeviceState(avdId, state);
     } else {
         const Utils::Id id = Utils::Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + serial);
-        const QString displayName = AndroidConfigurations::currentConfig().getProductModel(serial);
+        QString displayName = AndroidConfigurations::currentConfig().getProductModel(serial);
+        // Check if the device is connected via WiFi. A sample serial of such devices can be
+        // like: "192.168.1.190:5555"
+        const QRegularExpression wifiSerialRegExp(
+                    QLatin1String("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})"));
+        if (wifiSerialRegExp.match(serial).hasMatch())
+            displayName += QLatin1String(" (WiFi)");
+
         if (IDevice::ConstPtr dev = devMgr->find(id)) {
             // DeviceManager doens't seem to have a way to directly update the name, if the name
             // of the device has changed, remove it and register it again with the new name.
