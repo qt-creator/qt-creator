@@ -45,6 +45,8 @@
     \uicontrol Environment > \uicontrol System, and then select
     \uicontrol Change in the \uicontrol Environment field.
 
+    \image qtcreator-options-environment-system.png "Environment options System tab"
+
     In addition, you can specify custom environment variables in the
     \uicontrol {Project Settings} > \uicontrol Environment settings.
     They are added to all build environments. The final build environment

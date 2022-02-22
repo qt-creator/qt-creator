@@ -63,6 +63,8 @@
         \li Select the \uicontrol {Auto-save modified files} check box to
             automatically save changed files at the intervals specified in
             the \uicontrol Interval field.
+        \li Select the \uicontrol {Auto-save files after refactoring} check
+            box to automatically save \l{Refactoring}{refactored files}.
         \li Select the \uicontrol {Auto-suspend unmodified files} check
             box to automatically free the resources of open files after
             prolonged inactivity. The files are still listed in the
