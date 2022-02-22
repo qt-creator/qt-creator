@@ -464,7 +464,8 @@ void RewriterView::auxiliaryDataChanged(const ModelNode &node, const PropertyNam
         return;
 
     if (node.isRootNode()) {
-        if (name == "width" || name == "height" || name == "autoSize" || name == "formeditorColor")
+        if (name == "width" || name == "height" || name == "autoSize" || name == "formeditorColor"
+            || name == "formeditorZoom")
             return;
     }
 
