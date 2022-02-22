@@ -86,7 +86,7 @@ QtObject {
     property real contextMenuHorizontalPadding: Math.round(6 * values.scaleFactor)
 
     property real inputHorizontalPadding: Math.round(6 * values.scaleFactor)
-    property real typeLabelVerticalShift: Math.round(5 * values.scaleFactor)
+    property real typeLabelVerticalShift: Math.round(6 * values.scaleFactor)
 
     property real scrollBarThickness: 10
 
