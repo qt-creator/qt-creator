@@ -73,7 +73,7 @@ MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(MercurialSettings::tr("Mercurial"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(m_settings);
+    setSettings(settings);
 
     setLayouter([settings](QWidget *widget) {
         MercurialSettings &s = *settings;

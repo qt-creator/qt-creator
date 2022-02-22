@@ -68,7 +68,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::deployAndFinish()
             = deviceConfiguration()->mapToGlobalPath(Utils::FilePath::fromString(d->pathToCheck));
     const qint64 freeSpace = path.bytesAvailable();
     if (freeSpace < 0) {
-        emit errorMessage(tr("Can't get the info about the free disk space for \"%1\"")
+        emit errorMessage(tr("Cannot get info about free disk space for \"%1\"")
                 .arg(path.toUserOutput()));
         return;
     }

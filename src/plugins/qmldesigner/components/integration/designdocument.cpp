@@ -344,7 +344,7 @@ Utils::FilePath DesignDocument::projectFolder() const
 
 bool DesignDocument::hasProject() const
 {
-    return ProjectExplorer::SessionManager::projectForFile(fileName());
+    return !DocumentManager::currentProjectDirPath().isEmpty();
 }
 
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)

@@ -33,36 +33,9 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QDialog;
-QT_END_NAMESPACE
-
-class ExampleCheckout : public QObject
+struct ExampleCheckout
 {
-    Q_OBJECT
-public:
-    explicit ExampleCheckout(QObject *parent = nullptr);
-
-    Q_INVOKABLE void checkoutExample(const QUrl &url, const QString &tempFile, const QString &completeBaseFileName);
-
-    QString extractionFolder() const;
-
-    ~ExampleCheckout();
-
     static void registerTypes();
-
-public slots:
-    void handleCancel();
-    void handleAccepted();
-
-signals:
-    void finishedSucessfully();
-    void progressChanged(int);
-
-private:
-    std::unique_ptr<QDialog> m_dialog;
-    QObject *rootObject = nullptr;
-    QString m_extrationFolder;
 };
 
 class FileExtractor : public QObject

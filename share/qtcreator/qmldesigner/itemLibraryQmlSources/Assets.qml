@@ -98,6 +98,8 @@ Item {
     StudioControls.Menu {
         id: contextMenu
 
+        closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+
         StudioControls.MenuItem {
             text: qsTr("Expand All")
             enabled: allExpandedState !== 1
@@ -167,7 +169,7 @@ Item {
     Dialog {
         id: renameFolderDialog
 
-        title: qsTr("Rename folder")
+        title: qsTr("Rename Folder")
         anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape
         implicitWidth: 280
@@ -192,15 +194,15 @@ Item {
             }
 
             Text {
-                text: qsTr("Folder Name cannot be empty.")
+                text: qsTr("Folder name cannot be empty.")
                 color: "#ff0000"
                 visible: folderRename.text === "" && !renameFolderDialog.renameError
             }
 
             Text {
-                text: qsTr("Could not rename directory. Make sure no folder with the same name exists.")
+                text: qsTr("Could not rename folder. Make sure no folder with the same name exists.")
                 wrapMode: Text.WordWrap
-                width: renameFolderDialog.width
+                width: renameFolderDialog.width - 12
                 color: "#ff0000"
                 visible: renameFolderDialog.renameError
             }
@@ -259,7 +261,7 @@ Item {
     Dialog {
         id: newFolderDialog
 
-        title: qsTr("Create new folder")
+        title: qsTr("Create New Folder")
         anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape
         modal: true
@@ -269,7 +271,7 @@ Item {
 
             Row {
                 Text {
-                    text: qsTr("Folder Name: ")
+                    text: qsTr("Folder name: ")
                     anchors.verticalCenter: parent.verticalCenter
                     color: StudioTheme.Values.themeTextColor
                 }
@@ -287,7 +289,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Folder Name cannot be empty.")
+                text: qsTr("Folder name cannot be empty.")
                 color: "#ff0000"
                 anchors.right: parent.right
                 visible: folderName.text === ""
@@ -329,7 +331,7 @@ Item {
     Dialog {
         id: confirmDeleteFolderDialog
 
-        title: qsTr("Folder not empty")
+        title: qsTr("Folder Not Empty")
         anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape
         implicitWidth: 300
@@ -342,7 +344,7 @@ Item {
             Text {
                 id: folderNotEmpty
 
-                text: qsTr("Folder '%1' is not empty. Are you sure you want to delete it?")
+                text: qsTr("Folder \"%1\" is not empty. Delete it anyway?")
                             .arg(contextDir ? contextDir.dirName : "")
                 color: StudioTheme.Values.themeTextColor
                 wrapMode: Text.WordWrap

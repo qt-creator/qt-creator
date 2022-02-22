@@ -204,31 +204,31 @@ QVariant AndroidServiceWidget::AndroidServiceModel::headerData(int section, Qt::
 {
     if (role == Qt::ToolTipRole && orientation == Qt::Horizontal) {
         if (section == 0)
-            return tr("The name of the class implementing the service");
+            return tr("The name of the class implementing the service.");
         else if (section == 1)
-            return tr("Checked if the service is run in an external process");
+            return tr("Checked if the service is run in an external process.");
         else if (section == 2)
             return tr("The name of the external process.\n"
                       "Prefix with : if the process is private, use a lowercase name if the process is global.");
         else if (section == 3)
-            return tr("Checked if the service is in a separate dynamic library");
+            return tr("Checked if the service is in a separate dynamic library.");
         else if (section == 4)
-            return tr("The name of the separate dynamic library");
+            return tr("The name of the separate dynamic library.");
         else if (section == 5)
-            return tr("The arguments for telling the app to run the service instead of the main activity");
+            return tr("The arguments for telling the app to run the service instead of the main activity.");
     } else if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         if (section == 0)
-            return tr("Service class name");
+            return tr("Service class name.");
         else if (section == 1)
-            return tr("Run in external process");
+            return tr("Run in external process.");
         else if (section == 2)
-            return tr("Process name");
+            return tr("Process name.");
         else if (section == 3)
-            return tr("Run in external library");
+            return tr("Run in external library.");
         else if (section == 4)
-            return tr("Library name");
+            return tr("Library name.");
         else if (section == 5)
-            return tr("Service arguments");
+            return tr("Service arguments.");
     }
     return {};
 }
@@ -247,22 +247,22 @@ QVariant AndroidServiceWidget::AndroidServiceModel::data(const QModelIndex &inde
         if (index.column() == 0)
             return m_services[index.row()].className();
         else if (index.column() == 1)
-            return tr("Run in external process");
+            return tr("Run in external process.");
         else if (index.column() == 2)
             return m_services[index.row()].externalProcessName();
         else if (index.column() == 3)
-            return tr("Run in external library");
+            return tr("Run in external library.");
         else if (index.column() == 4)
             return m_services[index.row()].externalLibraryName();
         else if (index.column() == 5)
             return m_services[index.row()].serviceArguments();
     } else if (role == Qt::ToolTipRole) {
         if (index.column() == 0 && m_services[index.row()].className().isEmpty())
-            return tr("The class name must be set");
+            return tr("The class name must be set.");
         else if (index.column() == 2 && m_services[index.row()].isRunInExternalProcess())
-            return tr("The process name must be set for a service run in an external process");
+            return tr("The process name must be set for a service run in an external process.");
         else if (index.column() == 4 && m_services[index.row()].isRunInExternalLibrary())
-            return tr("The library name must be set for a service run in an external library");
+            return tr("The library name must be set for a service run in an external library.");
     } else if (role == Qt::EditRole) {
         if (index.column() == 0)
             return m_services[index.row()].className();

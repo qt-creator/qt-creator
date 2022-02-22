@@ -24,47 +24,27 @@
 ****************************************************************************/
 
 #include "mcusupportoptions.h"
-#include "mcukitinformation.h"
+
 #include "mcupackage.h"
+#include "mcutarget.h"
+#include "mcukitmanager.h"
+#include "mcukitinformation.h"
 #include "mcusupportcmakemapper.h"
 #include "mcusupportconstants.h"
-#include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
+#include "mcusupportplugin.h"
 
-#include <baremetal/baremetalconstants.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <debugger/debuggeritem.h>
-#include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/infolabel.h>
-#include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QDesktopServices>
-#include <QDir>
-#include <QFileInfo>
-#include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QToolButton>
-#include <QVBoxLayout>
-#include <QVariant>
 
 using CMakeProjectManager::CMakeConfigItem;
 using CMakeProjectManager::CMakeConfigurationKitAspect;
@@ -73,263 +53,6 @@ using namespace Utils;
 
 namespace McuSupport {
 namespace Internal {
-
-static const int KIT_VERSION = 9; // Bumps up whenever details in Kit creation change
-
-static bool kitNeedsQtVersion()
-{
-    // Only on Windows, Qt is linked into the distributed qul Desktop libs. Also, the host tools
-    // are missing the Qt runtime libraries on non-Windows.
-    return !HostOsInfo::isWindowsHost();
-}
-
-static ToolChain *msvcToolChain(Id language)
-{
-    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
-        const Abi abi = t->targetAbi();
-        // TODO: Should Abi::WindowsMsvc2022Flavor be added too?
-        return (abi.osFlavor() == Abi::WindowsMsvc2017Flavor
-                || abi.osFlavor() == Abi::WindowsMsvc2019Flavor)
-               && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
-               && t->language() == language;
-    });
-    return toolChain;
-}
-
-static ToolChain *gccToolChain(Id language)
-{
-    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
-        const Abi abi = t->targetAbi();
-        return abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
-               && abi.wordWidth() == 64 && t->language() == language;
-    });
-    return toolChain;
-}
-
-static ToolChain *armGccToolChain(const FilePath &path, Id language)
-{
-    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t) {
-        return t->compilerCommand() == path && t->language() == language;
-    });
-    if (!toolChain) {
-        ToolChainFactory *gccFactory
-            = Utils::findOrDefault(ToolChainFactory::allToolChainFactories(),
-                                   [](ToolChainFactory *f) {
-                                       return f->supportedToolChainType()
-                                              == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
-                                   });
-        if (gccFactory) {
-            const QList<ToolChain *> detected = gccFactory->detectForImport({path, language});
-            if (!detected.isEmpty()) {
-                toolChain = detected.first();
-                toolChain->setDetection(ToolChain::ManualDetection);
-                toolChain->setDisplayName("Arm GCC");
-                ToolChainManager::registerToolChain(toolChain);
-            }
-        }
-    }
-
-    return toolChain;
-}
-
-static ToolChain *iarToolChain(const FilePath &path, Id language)
-{
-    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
-        return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
-               && t->language() == language;
-    });
-    if (!toolChain) {
-        ToolChainFactory *iarFactory
-            = Utils::findOrDefault(ToolChainFactory::allToolChainFactories(),
-                                   [](ToolChainFactory *f) {
-                                       return f->supportedToolChainType()
-                                              == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
-                                   });
-        if (iarFactory) {
-            Toolchains detected = iarFactory->autoDetect(ToolchainDetector({}, {}));
-            if (detected.isEmpty())
-                detected = iarFactory->detectForImport({path, language});
-            for (auto tc : detected) {
-                if (tc->language() == language) {
-                    toolChain = tc;
-                    toolChain->setDetection(ToolChain::ManualDetection);
-                    toolChain->setDisplayName("IAREW");
-                    ToolChainManager::registerToolChain(toolChain);
-                }
-            }
-        }
-    }
-
-    return toolChain;
-}
-
-ToolChain *McuToolChainPackage::toolChain(Id language) const
-{
-    switch (m_type) {
-    case Type::MSVC:
-        return msvcToolChain(language);
-    case Type::GCC:
-        return gccToolChain(language);
-    case Type::IAR: {
-        const FilePath compiler = path().pathAppended("/bin/iccarm").withExecutableSuffix();
-        return iarToolChain(compiler, language);
-    }
-    case Type::ArmGcc:
-    case Type::KEIL:
-    case Type::GHS:
-    case Type::GHSArm:
-    case Type::Unsupported: {
-        const QLatin1String compilerName(
-            language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
-        const QString comp = QLatin1String(m_type == Type::ArmGcc ? "/bin/arm-none-eabi-%1"
-                                                                  : "/bar/foo-keil-%1")
-                                 .arg(compilerName);
-        const FilePath compiler = path().pathAppended(comp).withExecutableSuffix();
-
-        return armGccToolChain(compiler, language);
-    }
-    default:
-        Q_UNREACHABLE();
-    }
-}
-
-QString McuToolChainPackage::toolChainName() const
-{
-    switch (m_type) {
-    case Type::ArmGcc:
-        return QLatin1String("armgcc");
-    case Type::IAR:
-        return QLatin1String("iar");
-    case Type::KEIL:
-        return QLatin1String("keil");
-    case Type::GHS:
-        return QLatin1String("ghs");
-    case Type::GHSArm:
-        return QLatin1String("ghs-arm");
-    default:
-        return QLatin1String("unsupported");
-    }
-}
-
-QString McuToolChainPackage::cmakeToolChainFileName() const
-{
-    return toolChainName() + QLatin1String(".cmake");
-}
-
-QVariant McuToolChainPackage::debuggerId() const
-{
-    using namespace Debugger;
-
-    QString sub, displayName;
-    DebuggerEngineType engineType;
-
-    switch (m_type) {
-    case Type::ArmGcc: {
-        sub = QString::fromLatin1("bin/arm-none-eabi-gdb-py");
-        displayName = McuPackage::tr("Arm GDB at %1");
-        engineType = Debugger::GdbEngineType;
-        break;
-    }
-    case Type::IAR: {
-        sub = QString::fromLatin1("../common/bin/CSpyBat");
-        displayName = QLatin1String("CSpy");
-        engineType = Debugger::NoEngineType; // support for IAR missing
-        break;
-    }
-    case Type::KEIL: {
-        sub = QString::fromLatin1("UV4/UV4");
-        displayName = QLatin1String("KEIL uVision Debugger");
-        engineType = Debugger::UvscEngineType;
-        break;
-    }
-    default:
-        return QVariant();
-    }
-
-    const FilePath command = path().pathAppended(sub).withExecutableSuffix();
-    if (const DebuggerItem *debugger = DebuggerItemManager::findByCommand(command)) {
-        return debugger->id();
-    }
-
-    DebuggerItem newDebugger;
-    newDebugger.setCommand(command);
-    newDebugger.setUnexpandedDisplayName(displayName.arg(command.toUserOutput()));
-    newDebugger.setEngineType(engineType);
-    return DebuggerItemManager::registerDebugger(newDebugger);
-}
-
-McuTarget::McuTarget(const QVersionNumber &qulVersion,
-                     const Platform &platform,
-                     OS os,
-                     const QVector<McuAbstractPackage *> &packages,
-                     const McuToolChainPackage *toolChainPackage,
-                     int colorDepth)
-    : m_qulVersion(qulVersion)
-    , m_platform(platform)
-    , m_os(os)
-    , m_packages(packages)
-    , m_toolChainPackage(toolChainPackage)
-    , m_colorDepth(colorDepth)
-{}
-
-const QVector<McuAbstractPackage *> &McuTarget::packages() const
-{
-    return m_packages;
-}
-
-const McuToolChainPackage *McuTarget::toolChainPackage() const
-{
-    return m_toolChainPackage;
-}
-
-McuTarget::OS McuTarget::os() const
-{
-    return m_os;
-}
-
-const McuTarget::Platform &McuTarget::platform() const
-{
-    return m_platform;
-}
-
-bool McuTarget::isValid() const
-{
-    return Utils::allOf(packages(), [](McuAbstractPackage *package) {
-        package->updateStatus();
-        return package->validStatus();
-    });
-}
-
-void McuTarget::printPackageProblems() const
-{
-    for (auto package : packages()) {
-        package->updateStatus();
-        if (!package->validStatus()) {
-            printMessage(tr("Error creating kit for target %1, package %2: %3")
-                             .arg(McuSupportOptions::kitName(this),
-                                  package->label(),
-                                  package->statusText()),
-                         true);
-        }
-        if (package->status() == McuAbstractPackage::Status::ValidPackageMismatchedVersion) {
-            printMessage(tr("Warning creating kit for target %1, package %2: %3")
-                             .arg(McuSupportOptions::kitName(this),
-                                  package->label(),
-                                  package->statusText()),
-                         false);
-        }
-    }
-}
-
-const QVersionNumber &McuTarget::qulVersion() const
-{
-    return m_qulVersion;
-}
-
-int McuTarget::colorDepth() const
-{
-    return m_colorDepth;
-}
 
 void McuSdkRepository::deletePackagesAndTargets()
 {
@@ -347,6 +70,7 @@ McuSupportOptions::McuSupportOptions(QObject *parent)
             &McuAbstractPackage::changed,
             this,
             &McuSupportOptions::populatePackagesAndTargets);
+    m_automaticKitCreation = automaticKitCreationFromSettings();
 }
 
 McuSupportOptions::~McuSupportOptions()
@@ -402,7 +126,7 @@ void McuSupportOptions::registerExamples()
 
 const QVersionNumber &McuSupportOptions::minimalQulVersion()
 {
-    static const QVersionNumber v({1, 3});
+    static const QVersionNumber v({2, 0});
     return v;
 }
 
@@ -413,48 +137,16 @@ void McuSupportOptions::setQulDir(const FilePath &dir)
     if (qtForMCUsSdkPackage->validStatus())
         Sdk::targetsAndPackages(dir, &sdkRepository);
     for (const auto &package : qAsConst(sdkRepository.packages))
-        connect(package, &McuAbstractPackage::changed, this, &McuSupportOptions::changed);
+        connect(package, &McuAbstractPackage::changed, this, &McuSupportOptions::packagesChanged);
 
-    emit changed();
+    emit packagesChanged();
 }
 
 FilePath McuSupportOptions::qulDirFromSettings()
 {
     return Sdk::packagePathFromSettings(Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
-                                        QSettings::UserScope);
-}
-
-static void setKitProperties(const QString &kitName,
-                             Kit *k,
-                             const McuTarget *mcuTarget,
-                             const FilePath &sdkPath)
-{
-    using namespace Constants;
-
-    k->setUnexpandedDisplayName(kitName);
-    k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->platform().vendor);
-    k->setValue(KIT_MCUTARGET_MODEL_KEY, mcuTarget->platform().name);
-    k->setValue(KIT_MCUTARGET_COLORDEPTH_KEY, mcuTarget->colorDepth());
-    k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, mcuTarget->qulVersion().toString());
-    k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
-    k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
-    k->setValue(KIT_MCUTARGET_TOOCHAIN_KEY, mcuTarget->toolChainPackage()->toolChainName());
-    k->setAutoDetected(false);
-    k->makeSticky();
-    if (mcuTarget->toolChainPackage()->isDesktopToolchain())
-        k->setDeviceTypeForIcon(DEVICE_TYPE);
-    k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
-    k->setValue(QtSupport::KitQmlImportPath::id(), sdkPath.pathAppended("include/qul").toVariant());
-    k->setValue(QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), true);
-    QSet<Id> irrelevant = {
-        SysRootKitAspect::id(),
-        QtSupport::SuppliesQtQuickImportPath::id(),
-        QtSupport::KitQmlImportPath::id(),
-        QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(),
-    };
-    if (!kitNeedsQtVersion())
-        irrelevant.insert(QtSupport::QtKitAspect::id());
-    k->setIrrelevantAspects(irrelevant);
+                                        QSettings::UserScope,
+                                        {});
 }
 
 void McuSupportOptions::remapQul2xCmakeVars(Kit *kit, const EnvironmentItems &envItems)
@@ -465,13 +157,12 @@ void McuSupportOptions::remapQul2xCmakeVars(Kit *kit, const EnvironmentItems &en
     // First filter out all Qul2.x CMake vars
     auto config = Utils::filtered(CMakeConfigurationKitAspect::configuration(kit),
                                   [&](const auto &configItem) {
-        return !cmakeVarNames.contains(configItem.key);
-    });
+                                      return !cmakeVarNames.contains(configItem.key);
+                                  });
     // Then append them with new values
     config.append(cmakeVars);
     CMakeConfigurationKitAspect::setConfiguration(kit, config);
 }
-
 
 static void setKitToolchains(Kit *k, const McuToolChainPackage *tcPackage)
 {
@@ -569,15 +260,7 @@ void McuSupportOptions::setKitEnvironment(Kit *k,
         processPackage(package);
     processPackage(qtForMCUsSdkPackage);
 
-    // Clang not needed in version 1.7+
-    if (mcuTarget->qulVersion() < QVersionNumber{1, 7}) {
-        const QString path = QLatin1String(HostOsInfo::isWindowsHost() ? "Path" : "PATH");
-        pathAdditions.append("${" + path + "}");
-        pathAdditions.append(Core::ICore::libexecPath("clang/bin").toUserOutput());
-        changes.append({path, pathAdditions.join(HostOsInfo::pathListSeparator())});
-    }
-
-    if (kitNeedsQtVersion())
+    if (McuSupportOptions::kitsNeedQtVersion())
         changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
 
     // Hack, this problem should be solved in lower layer
@@ -657,7 +340,7 @@ static void setKitCMakeOptions(Kit *k, const McuTarget *mcuTarget, const FilePat
         if (!cMakeToolchainFile.exists()) {
             printMessage(McuTarget::tr(
                              "Warning for target %1: missing CMake toolchain file expected at %2.")
-                             .arg(McuSupportOptions::kitName(mcuTarget),
+                             .arg(McuKitManager::kitName(mcuTarget),
                                   cMakeToolchainFile.toUserOutput()),
                          false);
         }
@@ -667,19 +350,16 @@ static void setKitCMakeOptions(Kit *k, const McuTarget *mcuTarget, const FilePat
     config.append(CMakeConfigItem("QUL_GENERATORS", generatorsPath.toString().toUtf8()));
     if (!generatorsPath.exists()) {
         printMessage(McuTarget::tr("Warning for target %1: missing QulGenerators expected at %2.")
-                         .arg(McuSupportOptions::kitName(mcuTarget), generatorsPath.toUserOutput()),
+                         .arg(McuKitManager::kitName(mcuTarget), generatorsPath.toUserOutput()),
                      false);
     }
 
     config.append(CMakeConfigItem("QUL_PLATFORM", mcuTarget->platform().name.toUtf8()));
 
-    if (mcuTarget->qulVersion() <= QVersionNumber{1, 3} // OS variable was removed in Qul 1.4
-        && mcuTarget->os() == McuTarget::OS::FreeRTOS)
-        config.append(CMakeConfigItem("OS", "FreeRTOS"));
     if (mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
                                       QString::number(mcuTarget->colorDepth()).toLatin1()));
-    if (kitNeedsQtVersion())
+    if (McuSupportOptions::kitsNeedQtVersion())
         config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
 
@@ -695,132 +375,9 @@ static void setKitCMakeOptions(Kit *k, const McuTarget *mcuTarget, const FilePat
 
 static void setKitQtVersionOptions(Kit *k)
 {
-    if (!kitNeedsQtVersion())
+    if (!McuSupportOptions::kitsNeedQtVersion())
         QtSupport::QtKitAspect::setQtVersion(k, nullptr);
     // else: auto-select a Qt version
-}
-
-QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
-{
-    QString os;
-    if (mcuTarget->qulVersion() <= QVersionNumber{1, 3}
-        && mcuTarget->os() == McuTarget::OS::FreeRTOS)
-        // Starting from Qul 1.4 each OS is a separate platform
-        os = QLatin1String(" FreeRTOS");
-
-    const McuToolChainPackage *tcPkg = mcuTarget->toolChainPackage();
-    const QString compilerName = tcPkg && !tcPkg->isDesktopToolchain()
-                                     ? QString::fromLatin1(" (%1)").arg(
-                                         tcPkg->toolChainName().toUpper())
-                                     : "";
-    const QString colorDepth = mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth
-                                   ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
-                                   : "";
-    const QString targetName = mcuTarget->platform().displayName.isEmpty()
-                                   ? mcuTarget->platform().name
-                                   : mcuTarget->platform().displayName;
-    return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5%6")
-        .arg(QString::number(mcuTarget->qulVersion().majorVersion()),
-             QString::number(mcuTarget->qulVersion().minorVersion()),
-             targetName,
-             os,
-             colorDepth,
-             compilerName);
-}
-
-QList<Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
-{
-    using namespace Constants;
-    return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
-        return kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
-               && (!mcuTarget
-                   || (kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->platform().vendor
-                       && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->platform().name
-                       && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
-                       && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
-                              == static_cast<int>(mcuTarget->os())
-                       && kit->value(KIT_MCUTARGET_TOOCHAIN_KEY)
-                              == mcuTarget->toolChainPackage()->toolChainName()));
-    });
-}
-
-QList<Kit *> McuSupportOptions::matchingKits(const McuTarget *mcuTarget,
-                                             const McuAbstractPackage *qtForMCUsSdkPackage)
-{
-    return Utils::filtered(existingKits(mcuTarget), [mcuTarget, qtForMCUsSdkPackage](Kit *kit) {
-        return kitUpToDate(kit, mcuTarget, qtForMCUsSdkPackage);
-    });
-}
-
-QList<Kit *> McuSupportOptions::upgradeableKits(const McuTarget *mcuTarget,
-                                                const McuAbstractPackage *qtForMCUsSdkPackage)
-{
-    return Utils::filtered(existingKits(mcuTarget), [mcuTarget, qtForMCUsSdkPackage](Kit *kit) {
-        return !kitUpToDate(kit, mcuTarget, qtForMCUsSdkPackage);
-    });
-}
-
-QList<Kit *> McuSupportOptions::kitsWithMismatchedDependencies(const McuTarget *mcuTarget)
-{
-    return Utils::filtered(existingKits(mcuTarget), [mcuTarget](Kit *kit) {
-        const auto environment = Utils::NameValueDictionary(
-            Utils::NameValueItem::toStringList(EnvironmentKitAspect::environmentChanges(kit)));
-        return Utils::anyOf(mcuTarget->packages(), [&environment](const McuAbstractPackage *package) {
-            return !package->environmentVariableName().isEmpty() &&
-                    environment.value(package->environmentVariableName()) != package->path().toUserOutput();
-        });
-    });
-}
-
-QList<Kit *> McuSupportOptions::outdatedKits()
-{
-    return Utils::filtered(KitManager::kits(), [](Kit *kit) {
-        return !kit->value(Constants::KIT_MCUTARGET_VENDOR_KEY).isNull()
-               && kit->value(Constants::KIT_MCUTARGET_KITVERSION_KEY) != KIT_VERSION;
-    });
-}
-
-void McuSupportOptions::removeOutdatedKits()
-{
-    for (auto kit : McuSupportOptions::outdatedKits())
-        KitManager::deregisterKit(kit);
-}
-
-Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget, const McuAbstractPackage *qtForMCUsSdk)
-{
-    const auto init = [mcuTarget, qtForMCUsSdk](Kit *k) {
-        KitGuard kitGuard(k);
-
-        setKitProperties(kitName(mcuTarget), k, mcuTarget, qtForMCUsSdk->path());
-        setKitDevice(k, mcuTarget);
-        setKitToolchains(k, mcuTarget->toolChainPackage());
-        setKitDebugger(k, mcuTarget->toolChainPackage());
-        setKitEnvironment(k, mcuTarget, qtForMCUsSdk);
-        setKitDependencies(k, mcuTarget, qtForMCUsSdk);
-        setKitCMakeOptions(k, mcuTarget, qtForMCUsSdk->path());
-        setKitQtVersionOptions(k);
-
-        k->setup();
-        k->fix();
-    };
-
-    return KitManager::registerKit(init);
-}
-
-void printMessage(const QString &message, bool important)
-{
-    const QString displayMessage = QCoreApplication::translate("QtForMCUs", "Qt for MCUs: %1")
-                                       .arg(message);
-    if (important)
-        Core::MessageManager::writeFlashing(displayMessage);
-    else
-        Core::MessageManager::writeSilently(displayMessage);
-}
-
-QVersionNumber McuSupportOptions::kitQulVersion(const Kit *kit)
-{
-    return QVersionNumber::fromString(
-        kit->value(McuSupport::Constants::KIT_MCUTARGET_SDKVERSION_KEY).toString());
 }
 
 static FilePath kitDependencyPath(const Kit *kit, const QString &variableName)
@@ -832,21 +389,7 @@ static FilePath kitDependencyPath(const Kit *kit, const QString &variableName)
     return FilePath();
 }
 
-bool McuSupportOptions::kitUpToDate(const Kit *kit,
-                                    const McuTarget *mcuTarget,
-                                    const McuAbstractPackage *qtForMCUsSdkPackage)
-{
-    return kitQulVersion(kit) == mcuTarget->qulVersion()
-           && kitDependencyPath(kit, qtForMCUsSdkPackage->environmentVariableName()).toUserOutput()
-                  == qtForMCUsSdkPackage->path().toUserOutput();
-}
-
-void McuSupportOptions::deletePackagesAndTargets()
-{
-    sdkRepository.deletePackagesAndTargets();
-}
-
-McuSupportOptions::UpgradeOption McuSupportOptions::askForKitUpgrades()
+McuKitManager::UpgradeOption McuSupportOptions::askForKitUpgrades()
 {
     QMessageBox upgradePopup(Core::ICore::dialogParent());
     upgradePopup.setStandardButtons(QMessageBox::Cancel);
@@ -859,86 +402,17 @@ McuSupportOptions::UpgradeOption McuSupportOptions::askForKitUpgrades()
     upgradePopup.exec();
 
     if (upgradePopup.clickedButton() == keepButton)
-        return Keep;
+        return McuKitManager::UpgradeOption::Keep;
 
     if (upgradePopup.clickedButton() == replaceButton)
-        return Replace;
+        return McuKitManager::UpgradeOption::Replace;
 
-    return Ignore;
+    return McuKitManager::UpgradeOption::Ignore;
 }
 
-void McuSupportOptions::createAutomaticKits()
+void McuSupportOptions::deletePackagesAndTargets()
 {
-    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
-
-    const auto createKits = [qtForMCUsPackage]() {
-        if (qtForMCUsPackage->automaticKitCreationEnabled()) {
-            qtForMCUsPackage->updateStatus();
-            if (!qtForMCUsPackage->validStatus()) {
-                switch (qtForMCUsPackage->status()) {
-                case McuAbstractPackage::Status::ValidPathInvalidPackage: {
-                    const QString displayPath = FilePath::fromString(qtForMCUsPackage->detectionPath())
-                        .toUserOutput();
-                    printMessage(tr("Path %1 exists, but does not contain %2.")
-                                     .arg(qtForMCUsPackage->path().toUserOutput(), displayPath),
-                                 true);
-                    break;
-                }
-                case McuAbstractPackage::Status::InvalidPath: {
-                    printMessage(tr("Path %1 does not exist. Add the path in Tools > Options > "
-                                    "Devices > MCU.")
-                                     .arg(qtForMCUsPackage->path().toUserOutput()),
-                                 true);
-                    break;
-                }
-                case McuAbstractPackage::Status::EmptyPath: {
-                    printMessage(tr("Missing %1. Add the path in Tools > Options > Devices > MCU.")
-                                     .arg(qtForMCUsPackage->detectionPath()),
-                                 true);
-                    return;
-                }
-                default:
-                    break;
-                }
-                return;
-            }
-
-            if (CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty()) {
-                printMessage(tr("No CMake tool was detected. Add a CMake tool in Tools > Options > "
-                                "Kits > CMake."),
-                             true);
-                return;
-            }
-
-            FilePath dir = qtForMCUsPackage->path();
-            McuSdkRepository repo;
-            Sdk::targetsAndPackages(dir, &repo);
-
-            bool needsUpgrade = false;
-            for (const auto &target : qAsConst(repo.mcuTargets)) {
-                // if kit already exists, skip
-                if (!matchingKits(target, qtForMCUsPackage).empty())
-                    continue;
-                if (!upgradeableKits(target, qtForMCUsPackage).empty()) {
-                    // if kit exists but wrong version/path
-                    needsUpgrade = true;
-                } else {
-                    // if no kits for this target, create
-                    if (target->isValid())
-                        newKit(target, qtForMCUsPackage);
-                    target->printPackageProblems();
-                }
-            }
-
-            repo.deletePackagesAndTargets();
-
-            if (needsUpgrade)
-                McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade();
-        }
-    };
-
-    createKits();
-    delete qtForMCUsPackage;
+    sdkRepository.deletePackagesAndTargets();
 }
 
 void McuSupportOptions::checkUpgradeableKits()
@@ -947,144 +421,44 @@ void McuSupportOptions::checkUpgradeableKits()
         return;
 
     if (Utils::anyOf(sdkRepository.mcuTargets, [this](const McuTarget *target) {
-            return !upgradeableKits(target, this->qtForMCUsSdkPackage).empty()
-                   && matchingKits(target, this->qtForMCUsSdkPackage).empty();
+            return !McuKitManager::upgradeableKits(target, this->qtForMCUsSdkPackage).empty()
+                   && McuKitManager::matchingKits(target, this->qtForMCUsSdkPackage).empty();
         }))
-        upgradeKits(askForKitUpgrades());
+        McuKitManager::upgradeKitsByCreatingNewPackage(askForKitUpgrades());
 }
 
-void McuSupportOptions::upgradeKits(UpgradeOption upgradeOption)
+bool McuSupportOptions::kitsNeedQtVersion()
 {
-    if (upgradeOption == Ignore)
-        return;
-
-    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
-
-    auto dir = qtForMCUsPackage->path();
-    McuSdkRepository repo;
-    Sdk::targetsAndPackages(dir, &repo);
-
-    for (const auto &target : qAsConst(repo.mcuTargets)) {
-        if (!matchingKits(target, qtForMCUsPackage).empty())
-            // already up-to-date
-            continue;
-
-        const auto kits = upgradeableKits(target, qtForMCUsPackage);
-        if (!kits.empty()) {
-            if (upgradeOption == Replace)
-                for (auto existingKit : kits)
-                    KitManager::deregisterKit(existingKit);
-
-            if (target->isValid())
-                newKit(target, qtForMCUsPackage);
-            target->printPackageProblems();
-        }
-    }
-
-    repo.deletePackagesAndTargets();
-    delete qtForMCUsPackage;
+    // Only on Windows, Qt is linked into the distributed qul Desktop libs. Also, the host tools
+    // are missing the Qt runtime libraries on non-Windows.
+    return !HostOsInfo::isWindowsHost();
 }
 
-void McuSupportOptions::upgradeKitInPlace(ProjectExplorer::Kit *kit,
-                                          const McuTarget *mcuTarget,
-                                          const McuAbstractPackage *qtForMCUsSdk)
+bool McuSupportOptions::automaticKitCreationEnabled() const
 {
-    setKitProperties(kitName(mcuTarget), kit, mcuTarget, qtForMCUsSdk->path());
-    setKitEnvironment(kit, mcuTarget, qtForMCUsSdk);
-    setKitDependencies(kit, mcuTarget, qtForMCUsSdk);
+    return m_automaticKitCreation;
 }
 
-void McuSupportOptions::fixKitsDependencies()
+void McuSupportOptions::setAutomaticKitCreationEnabled(const bool enabled)
 {
-    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
-
-    FilePath dir = qtForMCUsPackage->path();
-    McuSdkRepository repo;
-    Sdk::targetsAndPackages(dir, &repo);
-    for (const auto &target : qAsConst(repo.mcuTargets)) {
-        if (target->isValid()) {
-            for (auto* kit : kitsWithMismatchedDependencies(target)) {
-                updateKitEnvironment(kit, target);
-            }
-        }
-    }
-
-    repo.deletePackagesAndTargets();
-    delete qtForMCUsPackage;
+    m_automaticKitCreation = enabled;
 }
 
-/**
- * @brief Fix/update existing kits if needed
- */
-void McuSupportOptions::fixExistingKits()
+void McuSupportOptions::writeGeneralSettings() const
 {
-    for (Kit *kit : KitManager::kits()) {
-        if (!kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
-            continue;
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    settings->setValue(key, m_automaticKitCreation);
+}
 
-        if (kit->isAutoDetected()) {
-            kit->setAutoDetected(false);
-        }
-
-        // Check if the MCU kits are flagged as supplying a QtQuick import path, in order
-        // to tell the QMLJS code-model that it won't need to add a fall-back import
-        // path.
-        const auto bringsQtQuickImportPath = QtSupport::SuppliesQtQuickImportPath::id();
-        auto irrelevantAspects = kit->irrelevantAspects();
-        if (!irrelevantAspects.contains(bringsQtQuickImportPath)) {
-            irrelevantAspects.insert(bringsQtQuickImportPath);
-            kit->setIrrelevantAspects(irrelevantAspects);
-        }
-        if (!kit->hasValue(bringsQtQuickImportPath)) {
-            kit->setValue(bringsQtQuickImportPath, true);
-        }
-
-        // Check if the MCU kit supplies its import path.
-        const auto kitQmlImportPath = QtSupport::KitQmlImportPath::id();
-        if (!irrelevantAspects.contains(kitQmlImportPath)) {
-            irrelevantAspects.insert(kitQmlImportPath);
-            kit->setIrrelevantAspects(irrelevantAspects);
-        }
-        if (!kit->hasValue(kitQmlImportPath)) {
-            auto config = CMakeProjectManager::CMakeConfigurationKitAspect::configuration(kit);
-            for (const auto &cfgItem : qAsConst(config)) {
-                if (cfgItem.key == "QUL_GENERATORS") {
-                    auto idx = cfgItem.value.indexOf("/lib/cmake/Qul");
-                    auto qulDir = cfgItem.value.left(idx);
-                    kit->setValue(kitQmlImportPath, QVariant(qulDir + "/include/qul"));
-                    break;
-                }
-            }
-        }
-
-        // Check if the MCU kit has the flag for merged header/qml-import paths set.
-        const auto mergedPaths = QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id();
-        if (!irrelevantAspects.contains(mergedPaths)) {
-            irrelevantAspects.insert(mergedPaths);
-            kit->setIrrelevantAspects(irrelevantAspects);
-        }
-        if (!kit->value(mergedPaths, false).toBool()) {
-            kit->setValue(mergedPaths, true);
-        }
-    }
-
-    // Fix kit dependencies for known targets
-    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
-    qtForMCUsPackage->updateStatus();
-    if (qtForMCUsPackage->validStatus()) {
-        FilePath dir = qtForMCUsPackage->path();
-        McuSdkRepository repo;
-        Sdk::targetsAndPackages(dir, &repo);
-        for (const auto &target : qAsConst(repo.mcuTargets))
-            for (auto kit : existingKits(target)) {
-                if (McuDependenciesKitAspect::dependencies(kit).isEmpty()) {
-                    setKitDependencies(kit, target, qtForMCUsPackage);
-                }
-            }
-
-        repo.deletePackagesAndTargets();
-    }
-    delete qtForMCUsPackage;
+bool McuSupportOptions::automaticKitCreationFromSettings()
+{
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    const bool automaticKitCreation = settings->value(key, true).toBool();
+    return automaticKitCreation;
 }
 
 } // namespace Internal

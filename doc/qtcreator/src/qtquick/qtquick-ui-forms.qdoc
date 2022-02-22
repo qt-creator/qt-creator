@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -52,6 +52,7 @@
     be edited in \QDS only.
     \endif
 
+
     The following features are not supported in .ui.qml files:
 
     \list
@@ -61,6 +62,7 @@
         \li States in other components than the root component
         \li Root components that are not derived from \l QQuickItem or
             \l [QML]{Item}
+        \li Referencing the parent of the root component
     \endlist
 
     The following components are not supported:
@@ -69,11 +71,9 @@
         \li Behavior
         \li Binding
         \li Canvas
-        \li Component
         \li Shader Effect
         \li Timer
         \li Transform
-        \li Transition
     \endlist
 
     \section1 Supported Methods
@@ -164,6 +164,8 @@
         \li \l{Qt::}{qsTrIdNoOp()}
         \li \l{Qt::}{qsTrNoOp()}
     \endlist
+
+    \note Do not mix translation methods in a UI file.
 
     For more information about using the methods, see
     \l{https://doc.qt.io/qt/qml-qtqml-qt.html}{Qt QML Methods}.

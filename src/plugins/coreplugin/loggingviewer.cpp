@@ -425,7 +425,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     buttonsLayout->addWidget(stop);
     auto qtInternal = new QToolButton;
     qtInternal->setIcon(Core::Icons::QTLOGO.icon());
-    qtInternal->setToolTip(tr("Toggle logging of Qt internal loggings"));
+    qtInternal->setToolTip(tr("Toggle Qt Internal Logging"));
     qtInternal->setCheckable(true);
     qtInternal->setChecked(false);
     buttonsLayout->addWidget(qtInternal);
@@ -616,7 +616,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
     if (enabled)
         m_manager->setEnabled(false);
     const Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                                 tr("Save logs as"));
+                                                                 tr("Save Logs As"));
     if (fp.isEmpty())
         return;
     const bool useTS = m_timestamps->isChecked();
@@ -628,7 +628,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
             if (res == -1) {
                 QMessageBox::critical(
                             ICore::dialogParent(), tr("Error"),
-                            tr("Failed to write logs to '%1'.").arg(fp.toUserOutput()));
+                            tr("Failed to write logs to \"%1\".").arg(fp.toUserOutput()));
                 break;
             }
         }
@@ -636,14 +636,14 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
     } else {
         QMessageBox::critical(
                     ICore::dialogParent(), tr("Error"),
-                    tr("Failed to open file '%1' for writing logs.").arg(fp.toUserOutput()));
+                    tr("Failed to open file \"%1\" for writing logs.").arg(fp.toUserOutput()));
     }
 }
 
 void LoggingViewManagerWidget::saveEnabledCategoryPreset() const
 {
     Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                           tr("Save enabled categories as"));
+                                                           tr("Save Enabled Categories As"));
     if (fp.isEmpty())
         return;
     const QList<LoggingCategoryItem> enabled = m_categoryModel->enabledCategories();
@@ -663,13 +663,13 @@ void LoggingViewManagerWidget::saveEnabledCategoryPreset() const
     if (!fp.writeFileContents(doc.toJson(QJsonDocument::Compact)))
         QMessageBox::critical(
                     ICore::dialogParent(), tr("Error"),
-                    tr("Failed to write preset file '%1'.").arg(fp.toUserOutput()));
+                    tr("Failed to write preset file \"%1\".").arg(fp.toUserOutput()));
 }
 
 void LoggingViewManagerWidget::loadAndUpdateFromPreset()
 {
     Utils::FilePath fp = Utils::FileUtils::getOpenFilePath(ICore::dialogParent(),
-                                                           tr("Load enabled categories from"));
+                                                           tr("Load Enabled Categories From"));
     if (fp.isEmpty())
         return;
     // read file, update categories
@@ -677,7 +677,7 @@ void LoggingViewManagerWidget::loadAndUpdateFromPreset()
     QJsonDocument doc = QJsonDocument::fromJson(fp.fileContents(), &error);
     if (error.error != QJsonParseError::NoError) {
         QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                              tr("Failed to read preset file '%1': %2").arg(fp.toUserOutput())
+                              tr("Failed to read preset file \"%1\": %2").arg(fp.toUserOutput())
                               .arg(error.errorString()));
         return;
     }

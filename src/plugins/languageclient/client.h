@@ -316,6 +316,7 @@ private:
     LogTarget m_logTarget = LogTarget::Ui;
     bool m_locatorsEnabled = true;
     bool m_autoRequestCodeActions = true;
+    QTimer m_shutdownTimer;
 };
 
 } // namespace LanguageClient

@@ -199,6 +199,7 @@ public:
     IDocument *m_blockedIDocument = nullptr;
 
     QAction *m_saveAllAction;
+    QString fileDialogFilterOverride;
 };
 
 static DocumentManager *m_instance;
@@ -768,6 +769,16 @@ bool DocumentManager::saveDocument(IDocument *document,
     unexpectFileChange(savePath);
     m_instance->updateSaveAll();
     return ret;
+}
+
+QString DocumentManager::fileDialogFilter(QString *selectedFilter)
+{
+    if (!d->fileDialogFilterOverride.isEmpty()) {
+        if (selectedFilter)
+            *selectedFilter = d->fileDialogFilterOverride.split(";;").first();
+        return d->fileDialogFilterOverride;
+    }
+    return allDocumentFactoryFiltersString(selectedFilter);
 }
 
 QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = nullptr)
@@ -1529,6 +1540,11 @@ void DocumentManager::setFileDialogLastVisitedDirectory(const FilePath &director
 void DocumentManager::notifyFilesChangedInternally(const FilePaths &filePaths)
 {
     emit m_instance->filesChangedInternally(filePaths);
+}
+
+void DocumentManager::setFileDialogFilter(const QString &filter)
+{
+    d->fileDialogFilterOverride = filter;
 }
 
 void DocumentManager::registerSaveAllAction()

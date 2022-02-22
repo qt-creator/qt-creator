@@ -35,13 +35,14 @@ import QtQuick.VirtualKeyboard %{QtQuickVersion}
 @endif
 
 Window {
-    width: Constants.width
-    height: Constants.height
+    width: mainScreen.width
+    height: mainScreen.height
 
     visible: true
     title: "%{ProjectName}"
 
     %{UIClassName} {
+        id: mainScreen
     }
 
 @if %{UseVirtualKeyboard}

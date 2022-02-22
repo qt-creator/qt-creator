@@ -43,6 +43,8 @@ QtcProduct {
         project.sharedSourcesDir + "/qtlockedfile",
     ]
 
+    cpp.frameworks: base.concat(qbs.targetOS.contains("macos") ? ["Foundation"] : [])
+
     Depends { name: "app_version_header" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Utils" }
@@ -95,6 +97,14 @@ QtcProduct {
         condition: qbs.targetOS.contains("windows")
         files: [
             "../shared/qtlockedfile/qtlockedfile_win.cpp"
+        ]
+    }
+
+    Group {
+        name: "main_macos"
+        condition: qbs.targetOS.contains("macos")
+        files: [
+            "main_mac.mm"
         ]
     }
 }

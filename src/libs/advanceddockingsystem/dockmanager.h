@@ -60,7 +60,7 @@ QT_END_NAMESPACE
 namespace ADS {
 
 namespace Constants {
-const char DEFAULT_WORKSPACE[] = "Essentials"; // This needs to align with a name of the shipped presets
+const char DEFAULT_WORKSPACE[] = "Basic"; // This needs to align with a name of the shipped presets
 const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
 } // namespace Constants

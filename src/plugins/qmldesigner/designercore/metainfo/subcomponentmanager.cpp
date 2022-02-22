@@ -69,10 +69,38 @@ SubComponentManager::SubComponentManager(Model *model, QObject *parent)
             this, [this](const QString &path) { parseDirectory(path); });
 }
 
+QString findFolderForImport(const QStringList &importPaths, const QString &url)
+{
+    if (url.isEmpty())
+        return {};
+
+    QString folderUrl = url;
+    folderUrl.replace('.', '/');
+
+    for (const QString &path : importPaths) {
+        QFileInfo dirInfo = QFileInfo(path + QLatin1Char('/') + folderUrl);
+
+        if (dirInfo.exists() && dirInfo.isDir())
+            return dirInfo.canonicalFilePath();
+
+        const QDir parentDir = dirInfo.dir();
+        if (parentDir.exists()) {
+            const QStringList parts = url.split('.');
+            const QString lastFolder = parts.last();
+
+            const QStringList candidates = parentDir.entryList({lastFolder + ".*"}, QDir::Dirs);
+            if (!candidates.isEmpty())
+                return parentDir.canonicalPath() + "/" + candidates.first();
+        }
+    }
+    return {};
+}
 bool SubComponentManager::addImport(const Import &import, int index)
 {
-    if (debug)
+    if (debug) {
         qDebug() << Q_FUNC_INFO << index << import.file().toUtf8();
+        qDebug() << Q_FUNC_INFO << index << import.url();
+    }
 
     bool importExists = false;
     if (import.isFileImport()) {
@@ -85,19 +113,11 @@ bool SubComponentManager::addImport(const Import &import, int index)
         }
     } else {
         QString url = import.url();
-
-        url.replace(QLatin1Char('.'), QLatin1Char('/'));
-
-        foreach (const QString &path, importPaths()) {
-            QFileInfo dirInfo = QFileInfo(path + QLatin1Char('/') + url);
-            if (dirInfo.exists() && dirInfo.isDir()) {
-                const QString canonicalDirPath = dirInfo.canonicalFilePath();
-                m_watcher.addPath(canonicalDirPath);
-                importExists = true;
-                //m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier()); ### todo: proper support for import as
-            }
+        const QString result = findFolderForImport(importPaths(), url);
+        if (!result.isEmpty()) {
+            m_watcher.addPath(result);
+            importExists = true;
         }
-        // TODO: QDeclarativeDomImport::Library
     }
 
     if (importExists) {

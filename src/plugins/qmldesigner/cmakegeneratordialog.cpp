@@ -151,5 +151,5 @@ void CmakeGeneratorDialog::refreshNotificationText()
     }
 }
 
-}
-}
+} //GenerateCmake
+} //QmlDesigner

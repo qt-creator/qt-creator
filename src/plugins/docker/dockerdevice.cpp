@@ -333,7 +333,7 @@ public:
 
         m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
         m_runAsOutsideUser->setToolTip(tr("Uses user ID and group ID of the user running Qt Creator "
-                                          "in the Docker container."));
+                                          "in the docker container."));
         m_runAsOutsideUser->setChecked(data.useLocalUidGid);
         m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
 
@@ -361,7 +361,7 @@ public:
 
         m_pathsListEdit = new PathListEditor;
         m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
-                                       "Docker container."));
+                                       "docker container."));
         m_pathsListEdit->setPathList(data.mounts);
 
         connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, this]() {
@@ -378,12 +378,12 @@ public:
 
         auto searchDirsComboBox = new QComboBox;
         searchDirsComboBox->addItem(tr("Search in PATH"));
-        searchDirsComboBox->addItem(tr("Search in selected directories"));
+        searchDirsComboBox->addItem(tr("Search in Selected Directories"));
 
         auto searchDirsLineEdit = new QLineEdit;
         searchDirsLineEdit->setText("/usr/bin;/opt");
         searchDirsLineEdit->setToolTip(
-            tr("Select the paths in the Docker image that should be scanned for Kit entries"));
+            tr("Select the paths in the docker image that should be scanned for kit entries."));
 
         auto searchPaths = [this, searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
             FilePaths paths;
@@ -491,7 +491,7 @@ Tasks DockerDevice::validate() const
     Tasks result;
     if (d->m_data.mounts.isEmpty()) {
         result << Task(Task::Error,
-                       tr("The Docker device has not set up shared directories."
+                       tr("The docker device has not set up shared directories."
                           "This will not work for building."),
                        {}, -1, {});
     }
@@ -529,7 +529,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
         updateContainerAccess();
         if (d->m_container.isEmpty()) {
-            MessageManager::writeDisrupting(tr("Error starting remote shell. No container"));
+            MessageManager::writeDisrupting(tr("Error starting remote shell. No container."));
             return;
         }
 
@@ -910,7 +910,7 @@ void DockerDevicePrivate::startContainer()
         if (exitCode > 120) {
             DockerPlugin::setGlobalDaemonState(false);
             LOG("DOCKER DAEMON NOT RUNNING?");
-            MessageManager::writeFlashing(tr("Docker Daemon appears to be not running. "
+            MessageManager::writeFlashing(tr("Docker daemon appears to be not running. "
                                              "Verify daemon is up and running and reset the "
                                              "docker daemon on the docker device settings page "
                                              "or restart Qt Creator."));
@@ -974,7 +974,7 @@ void DockerDevicePrivate::updateFileSystemAccess()
 
     if (!QFileInfo(m_mergedDir).isReadable()) {
         MessageManager::writeFlashing(
-            tr("Local read access to Docker container %1 unavailable through directory \"%2\".")
+            tr("Local read access to docker container %1 unavailable through directory \"%2\".")
                 .arg(m_container, m_mergedDir)
                     + '\n' + tr("Output: \"%1\"").arg(out)
                     + '\n' + tr("Error: \"%1\"").arg(proc.stdErr()));

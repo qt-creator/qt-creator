@@ -24,12 +24,22 @@
 ****************************************************************************/
 #include "examplecheckout.h"
 
+#include "studiowelcomeplugin.h"
+
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
 #include <utils/archive.h>
+#include <utils/algorithm.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
+
+#include <private/qqmldata_p.h>
+
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
+#include <projectexplorer/projectexplorer.h>
 
 #include <QDialog>
 #include <QFileDialog>
@@ -45,11 +55,8 @@
 
 using namespace Utils;
 
-ExampleCheckout::ExampleCheckout(QObject *) {}
-
 void ExampleCheckout::registerTypes()
 {
-    FileDownloader::registerQmlType();
     static bool once = []() {
         FileDownloader::registerQmlType();
         FileExtractor::registerQmlType();
@@ -57,69 +64,6 @@ void ExampleCheckout::registerTypes()
     }();
 
     QTC_ASSERT(once, ;);
-}
-
-void ExampleCheckout::checkoutExample(const QUrl &url, const QString &tempFile, const QString &completeBaseFileName)
-{
-    registerTypes();
-
-    m_dialog.reset(new QDialog(Core::ICore::dialogParent()));
-    m_dialog->setModal(true);
-    m_dialog->setFixedSize(620, 300);
-    QHBoxLayout *layout = new QHBoxLayout(m_dialog.get());
-    layout->setContentsMargins(2, 2, 2, 2);
-
-    auto widget = new QQuickWidget(m_dialog.get());
-
-    layout->addWidget(widget);
-    widget->engine()->addImportPath("qrc:/studiofonts");
-
-    widget->engine()->addImportPath(
-        Core::ICore::resourcePath("/qmldesigner/propertyEditorQmlSources/imports").toString());
-
-    widget->setSource(QUrl("qrc:/qml/downloaddialog/main.qml"));
-
-    m_dialog->setWindowFlag(Qt::Tool, true);
-    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-    rootObject = widget->rootObject();
-
-    QTC_ASSERT(rootObject, qWarning() << "QML error"; return );
-
-    rootObject->setProperty("url", url);
-    rootObject->setProperty("tempFile", tempFile);
-    rootObject->setProperty("completeBaseName", completeBaseFileName);
-
-    m_dialog->show();
-
-    rootObject = widget->rootObject();
-
-    connect(rootObject, SIGNAL(canceled()), this, SLOT(handleCancel()));
-    connect(rootObject, SIGNAL(accepted()), this, SLOT(handleAccepted()));
-}
-
-QString ExampleCheckout::extractionFolder() const
-{
-    return m_extrationFolder;
-}
-
-ExampleCheckout::~ExampleCheckout() {}
-
-void ExampleCheckout::handleCancel()
-{
-    m_dialog->close();
-    m_dialog.release()->deleteLater();
-    deleteLater();
-}
-
-void ExampleCheckout::handleAccepted()
-{
-    QQmlProperty property(rootObject, "path");
-    m_extrationFolder = property.read().toString();
-    m_dialog->close();
-    emit finishedSucessfully();
-    m_dialog.release()->deleteLater();
-    deleteLater();
 }
 
 void FileDownloader::registerQmlType()
@@ -133,7 +77,8 @@ FileDownloader::FileDownloader(QObject *parent)
 
 FileDownloader::~FileDownloader()
 {
-    m_tempFile.remove();
+    if (m_tempFile.exists())
+        m_tempFile.remove();
 }
 
 void FileDownloader::start()
@@ -167,7 +112,8 @@ void FileDownloader::start()
 
     QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error()) {
-            m_tempFile.remove();
+            if (m_tempFile.exists())
+                m_tempFile.remove();
             qDebug() << Q_FUNC_INFO << m_url << reply->errorString();
             emit downloadFailed();
         } else {
@@ -247,6 +193,17 @@ void FileDownloader::probeUrl()
     });
 
     QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        QQmlData *data = QQmlData::get(this, false);
+        if (!data) {
+            qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
+            return;
+        }
+
+        if (QQmlData::wasDeleted(this)) {
+            qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
+            return;
+        }
+
         if (reply->error())
             return;
 
@@ -261,8 +218,17 @@ void FileDownloader::probeUrl()
                            &QNetworkReply::errorOccurred,
                            this,
                            [this, reply](QNetworkReply::NetworkError code) {
-                               // QNetworkReply::HostNotFoundError
-                               // QNetworkReply::ContentNotFoundError
+                               QQmlData *data = QQmlData::get(this, false);
+                               if (!data) {
+                                   qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
+                                   return;
+                               }
+
+                               if (QQmlData::wasDeleted(this)) {
+                                   qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
+                                   return;
+                               }
+
                                m_available = false;
                                emit availableChanged();
                            });
@@ -273,12 +239,7 @@ FileExtractor::FileExtractor(QObject *parent)
     : QObject(parent)
 {
     m_targetPath = Utils::FilePath::fromString(
-        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-
-    if (!m_targetPath.isEmpty())
-        m_targetPath = m_targetPath.pathAppended("QtDesignStudio");
-    else
-        m_targetPath = "/temp/";
+        StudioWelcome::Internal::StudioWelcomePlugin::examplesPathSetting());
 
     m_timer.setInterval(100);
     m_timer.setSingleShot(false);
@@ -291,6 +252,32 @@ FileExtractor::FileExtractor(QObject *parent)
 
         emit birthTimeChanged();
     });
+
+    const ExtensionSystem::PluginSpec *pluginSpec
+        = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
+                               Utils::equal(&ExtensionSystem::PluginSpec::name,
+                                            QString("StudioWelcome")));
+
+    if (!pluginSpec)
+        return;
+
+    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
+
+    if (!plugin)
+        return;
+
+    auto studioWelcomePlugin = qobject_cast<StudioWelcome::Internal::StudioWelcomePlugin *>(plugin);
+
+    if (studioWelcomePlugin) {
+        QObject::connect(studioWelcomePlugin,
+                         &StudioWelcome::Internal::StudioWelcomePlugin::examplesDownloadPathChanged,
+                         this,
+                         [this](const QString &path) {
+                             m_targetPath = Utils::FilePath::fromString(path);
+                             emit targetPathChanged();
+                             emit targetFolderExistsChanged();
+                         });
+    }
 }
 
 FileExtractor::~FileExtractor() {}
@@ -381,12 +368,21 @@ QString FileExtractor::sourceFile() const
 
 void FileExtractor::extract()
 {
+    const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
+
+    // If the target directory already exists, remove it and its content
+    QDir targetDir(targetFolder);
+    if (targetDir.exists())
+        targetDir.removeRecursively();
+
+    // Create a new directory to generate a proper creation date
+    targetDir.mkdir(targetFolder);
+
     Utils::Archive *archive = Utils::Archive::unarchive(m_sourceFile, m_targetPath);
     archive->setParent(this);
     QTC_ASSERT(archive, return );
 
     m_timer.start();
-    const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
     qint64 bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
     qint64 compressedSize = QFileInfo(m_sourceFile.toString()).size();
 
@@ -424,7 +420,7 @@ void FileExtractor::extract()
         emit detailedTextChanged();
     });
 
-    QObject::connect(archive, &Utils::Archive::finished, [this](bool ret) {
+    QObject::connect(archive, &Utils::Archive::finished, this, [this](bool ret) {
         m_finished = ret;
         m_timer.stop();
 

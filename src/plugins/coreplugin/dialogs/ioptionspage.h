@@ -83,13 +83,16 @@ protected:
     void setSettings(Utils::AspectContainer *settings);
     void setLayouter(const std::function<void(QWidget *w)> &layouter);
 
+    // Used in FontSettingsPage. FIXME?
+    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
+
+private:
     Utils::Id m_id;
     Utils::Id m_category;
     QString m_displayName;
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
     WidgetCreator m_widgetCreator;
-    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
 
     mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;

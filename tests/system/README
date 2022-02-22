@@ -59,7 +59,7 @@ This folder must contain the following:
  * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
 
 Fifth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
- * cmake
+ * cmake 3.14 or newer
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
 

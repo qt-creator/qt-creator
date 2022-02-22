@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,10 +26,8 @@
 #pragma once
 
 #include "mcuabstractpackage.h"
-#include "mcusupportversiondetection.h"
 
 #include <utils/filepath.h>
-#include <utils/id.h>
 
 #include <QObject>
 
@@ -42,10 +40,13 @@ class ToolChain;
 namespace Utils {
 class PathChooser;
 class InfoLabel;
+class Id;
 } // namespace Utils
 
 namespace McuSupport {
 namespace Internal {
+
+class McuPackageVersionDetector;
 
 class McuPackage : public McuAbstractPackage
 {
@@ -73,22 +74,13 @@ public:
     bool validStatus() const override;
     void setAddToPath(bool addToPath) override;
     bool addToPath() const override;
-    void writeGeneralSettings() const override;
     bool writeToSettings() const override;
     void setRelativePathModifier(const QString &path) override;
     void setVersions(const QStringList &versions) override;
 
-    //TODO(piotr.mucko): Why every package knows about automatic kit creation. This should be outside of this class.
-    bool automaticKitCreationEnabled() const override;
-    void setAutomaticKitCreationEnabled(const bool enabled) override;
-
     QWidget *widget() override;
 
     const QString &environmentVariableName() const override;
-
-signals:
-    void changed();
-    void statusChanged();
 
 private:
     void updatePath();
@@ -111,7 +103,6 @@ private:
     const QString m_environmentVariableName;
     const QString m_downloadUrl;
     bool m_addToPath = false;
-    bool m_automaticKitCreation = true;
 
     Status m_status = Status::InvalidPath;
 };

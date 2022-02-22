@@ -27,7 +27,7 @@
 
 #include <texteditorstatusbar.h>
 #include <texteditorview.h>
-
+#include <coreplugin/findplaceholder.h>
 #include <rewriterview.h>
 
 #include <qmldesignerplugin.h>
@@ -52,13 +52,17 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     : QWidget()
     , m_textEditorView(textEditorView)
     , m_statusBar(new TextEditorStatusBar(this))
+    , m_findToolBar(new Core::FindToolBarPlaceHolder(this))
+    , m_layout(new QVBoxLayout(this))
 {
     setAcceptDrops(true);
 
-    QBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    layout->addWidget(m_statusBar);
+    m_statusBar->hide();
+
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
+    m_layout->addWidget(m_statusBar);
+    m_layout->addWidget(m_findToolBar);
 
     m_updateSelectionTimer.setSingleShot(true);
     m_updateSelectionTimer.setInterval(200);
@@ -72,24 +76,22 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
     m_textEditor.reset(textEditor);
 
     if (textEditor) {
-        layout()->removeWidget(m_statusBar);
-        layout()->addWidget(textEditor->editorWidget());
-        layout()->addWidget(m_statusBar);
+        m_layout->insertWidget(0, textEditor->editorWidget());
+
         setFocusProxy(textEditor->editorWidget());
 
         QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
 
-        connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
-                this, [this]() {
-            /* Cursor position is changed by rewriter */
+        connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged, this, [this] {
+            // Cursor position is changed by rewriter
             if (!m_blockCursorSelectionSynchronisation)
                 m_updateSelectionTimer.start();
         });
 
         textEditor->editorWidget()->installEventFilter(this);
+
         static QString styleSheet = Theme::replaceCssColors(
-            QString::fromUtf8(Utils::FileReader::fetchQrc(
-                ":/qmldesigner/scrollbar.css")));
+            QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
         textEditor->editorWidget()->verticalScrollBar()->setStyleSheet(styleSheet);
         textEditor->editorWidget()->horizontalScrollBar()->setStyleSheet(styleSheet);
     }
@@ -105,7 +107,6 @@ void TextEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback)
 
 void TextEditorWidget::updateSelectionByCursorPosition()
 {
-    /* Because of the timer we have to be careful. */
     if (!m_textEditorView->model())
         return;
 
@@ -162,11 +163,13 @@ void TextEditorWidget::gotoCursorPosition(int line, int column)
 void TextEditorWidget::setStatusText(const QString &text)
 {
     m_statusBar->setText(text);
+    m_statusBar->setVisible(!text.isEmpty());
 }
 
 void TextEditorWidget::clearStatusBar()
 {
     m_statusBar->clearText();
+    m_statusBar->hide();
 }
 
 int TextEditorWidget::currentLine() const
@@ -199,21 +202,25 @@ bool TextEditorWidget::eventFilter(QObject *, QEvent *event)
         auto keyEvent = static_cast<QKeyEvent *>(event);
 
         if (std::find(overrideKeys.begin(), overrideKeys.end(), keyEvent->key()) != overrideKeys.end()) {
+            if (keyEvent->key() == Qt::Key_Escape)
+                m_findToolBar->hide();
+
             keyEvent->accept();
             return true;
         }
 
         static const Qt::KeyboardModifiers relevantModifiers = Qt::ShiftModifier
-                | Qt::ControlModifier
-                | Qt::AltModifier
-                | Qt::MetaModifier;
+                                                             | Qt::ControlModifier
+                                                             | Qt::AltModifier
+                                                             | Qt::MetaModifier;
 
-        QKeySequence keySqeuence(keyEvent->key() | (keyEvent->modifiers() & relevantModifiers));
-        for (const QKeySequence &overrideSequence : overrideSequences)
+        const QKeySequence keySqeuence(keyEvent->key() | (keyEvent->modifiers() & relevantModifiers));
+        for (const QKeySequence &overrideSequence : overrideSequences) {
             if (keySqeuence.matches(overrideSequence)) {
                 keyEvent->accept();
                 return true;
             }
+        }
     }
     return false;
 }

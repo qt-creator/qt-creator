@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -291,7 +291,7 @@
     \row
         \li M106
         \li Warning
-        \li \c Name is already a var
+        \li \c Name already is a var
         \li
 
     \row
@@ -417,6 +417,12 @@
         \li
 
     \row
+        \li M129
+        \li Error
+        \li Type cannot be instantiated recursively
+        \li
+
+    \row
         \li M201
         \li Hint
         \li Place var declarations at the start of a function
@@ -430,6 +436,7 @@
         \li Use only one statement per line
         \li
 
+    \if defined(qtdesignstudio)
     \row
         \li M203
         \li Warning
@@ -463,60 +470,70 @@
     \row
         \li M208
         \li Error
-        \li This id might be ambiguous and is not supported in \QDS.
+        \li This id might be ambiguous and is not supported in \QDS
         \li
 
     \row
         \li M209
         \li Error
         \li This type (type name) is not supported as a root element in
-            \QDS.
+            \QDS
         \li
+    \endif
 
     \row
         \li M220
         \li Error
         \li This type (type name) is not supported as a root element of a
-            UI file (.ui.qml).
-        \li
+            UI file (.ui.qml)
+        \li For more information about supported QML types, see \l{UI Files}.
 
     \row
         \li M221
         \li Error
-        \li This type (type name) is not supported in a UI file (.ui.qml).
-        \li
+        \li This type (type name) is not supported in a UI file (.ui.qml)
+        \li For more information about supported QML types, see \l{UI Files}.
 
     \row
         \li M222
         \li Error
-        \li Functions are not supported in a UI file (.ui.qml).
+        \li Functions are not supported in a UI file (.ui.qml)
         \li For a list of supported JavaScript functions, see
             \l{Supported Methods}.
 
     \row
         \li M223
         \li Error
-        \li Java Script blocks are not supported in a UI file (.ui.qml).
-        \li
+        \li JavaScript blocks are not supported in a UI file (.ui.qml)
+        \li For more information about supported features, see \l{UI Files}.
 
     \row
         \li M224
         \li Error
-        \li Behavior type is not supported in a UI file (.ui.qml).
-        \li
+        \li Behavior type is not supported in a UI file (.ui.qml)
+        \li For more information about supported QML types, see \l{UI Files}.
 
     \row
         \li M225
         \li Error
-        \li States are only supported in the root item in a UI file (.ui.qml).
-        \li
+        \li States are only supported in the root item in a UI file (.ui.qml)
+        \li For more information about supported features, see \l{UI Files}.
 
     \row
         \li M226
         \li Error
         \li Referencing the parent of the root item is not supported in a
-            UI file (.ui.qml).
-        \li
+            UI file (.ui.qml)
+        \li For more information about supported features, see \l{UI Files}.
+
+    \row
+        \li M227
+        \li Error
+        \li Do not mix translation functions in a UI file (.ui.qml)
+        \li Even though several different translation functions, such as
+            \c qsTr and \c qsTrId are supported, you should pick one and
+            use it consistently within a UI file. For more information,
+            see \l{Qt QML Methods}.
 
     \row
         \li M300
@@ -675,10 +692,29 @@
         \li
 
     \row
+        \li M325
+        \li Warning
+        \li Logical value does not depend on actual values
+        \li
+
+    \row
+        \li M326
+        \li Error
+        \li Components are only allowed to have a single child element
+        \li For more information, see \l [QML] {Component}.
+
+    \row
+        \li M327
+        \li Warning
+        \li Components require a child element
+        \li For more information, see \l [QML] {Component}.
+
+    \row
         \li M400
         \li Warning
         \li Duplicate import
-        \li
+        \li An import statement has been added twice. For more information,
+            see \l{Import Statements}.
 
     \endtable
 

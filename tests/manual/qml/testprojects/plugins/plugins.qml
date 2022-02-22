@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,13 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.3
-import QtQuick.Controls 1.2
-import QtQuick.Window 2.2
+import QtQuick
 import MyPlugin 1.0
 
-ApplicationWindow {
-    title: qsTr("Hello World")
+Rectangle {
     width: 640
     height: 480
 
@@ -38,3 +35,9 @@ ApplicationWindow {
 
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

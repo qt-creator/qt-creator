@@ -19,6 +19,7 @@
         "qbs.FileInfo",
         "qbs.ModUtils",
         "qbs.PathTools",
+        "qbs.PkgConfig",
         "qbs.Probes",
         "qbs.Process",
         "qbs.PropertyList",

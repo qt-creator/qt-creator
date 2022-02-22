@@ -33,13 +33,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
-
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
@@ -52,11 +50,13 @@
 #include <qmldesigner/components/componentcore/theme.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
-#include <utils/hostosinfo.h>
+#include <utils/dynamiclicensecheck.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -66,6 +66,7 @@
 #include <QFontDatabase>
 #include <QGroupBox>
 #include <QPointer>
+#include <QPushButton>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -96,6 +97,8 @@ const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
 const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
 const char NO_TELEMETRY[] = "NoTelemetry";
 const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
+
+const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
 
 QPointer<QQuickWidget> s_view = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
@@ -224,9 +227,15 @@ public:
 
     Q_INVOKABLE void openProjectAt(int row)
     {
+        if (m_blockOpenRecent)
+            return;
+
+        m_blockOpenRecent = true;
         const QString projectFile = data(index(row, 0), ProjectModel::FilePathRole).toString();
         if (QFileInfo::exists(projectFile))
             ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+
+        resetProjects();
     }
 
     Q_INVOKABLE int get(int) { return -1; }
@@ -265,31 +274,6 @@ public:
                                  const QString &tempFile,
                                  const QString &completeBaseName)
     {
-        if (!url.isEmpty()) {
-            ExampleCheckout *checkout = new ExampleCheckout;
-            checkout->checkoutExample(QUrl::fromUserInput(url), tempFile, completeBaseName);
-            connect(checkout,
-                    &ExampleCheckout::finishedSucessfully,
-                    this,
-                    [checkout, formFile, example, explicitQmlproject]() {
-                        const QString exampleFolder = checkout->extractionFolder() + "/" + example
-                                                      + "/";
-
-                        QString projectFile = exampleFolder + example + ".qmlproject";
-
-                        if (!explicitQmlproject.isEmpty())
-                            projectFile = exampleFolder + explicitQmlproject;
-
-                        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-
-                        const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/"
-                                                + formFile;
-
-                        Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
-                    });
-            return;
-        }
-
         const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
                                             / example / example + ".qmlproject";
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile.toString());
@@ -311,39 +295,14 @@ private:
 
     bool m_communityVersion = true;
     bool m_enterpriseVersion = false;
+    bool m_blockOpenRecent = false;
 };
 
 void ProjectModel::setupVersion()
 {
-    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
-        ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker")));
-
-    if (!pluginSpec)
-        return;
-
-    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
-
-    if (!plugin)
-        return;
-
-    m_communityVersion = false;
-
-    bool retVal = false;
-    bool success = QMetaObject::invokeMethod(plugin,
-                                             "qdsEnterpriseLicense",
-                                             Qt::DirectConnection,
-                                             Q_RETURN_ARG(bool, retVal));
-
-    if (!success) {
-        qWarning("Check for Qt Design Studio Enterprise License failed.");
-        return;
-    }
-    if (!retVal) {
-        qWarning("No Qt Design Studio Enterprise License. Disabling asset importer.");
-        return;
-    }
-    m_enterpriseVersion = true;
+    Utils::FoundLicense license = Utils::checkLicense();
+    m_communityVersion = license == Utils::FoundLicense::community;
+    m_enterpriseVersion = license == Utils::FoundLicense::enterprise;
 }
 
 ProjectModel::ProjectModel(QObject *parent)
@@ -520,8 +479,11 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
 
 void ProjectModel::resetProjects()
 {
-    beginResetModel();
-    endResetModel();
+    QTimer::singleShot(2000, this, [this]() {
+        beginResetModel();
+        endResetModel();
+        m_blockOpenRecent = false;
+    });
 }
 
 class WelcomeMode : public Core::IMode
@@ -617,6 +579,12 @@ void StudioWelcomePlugin::extensionsInitialized()
             Core::ICore::resourcePath("qmldesigner/studio_templates"));
 
         Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
+
+        const QString filters = QString("Project (*.qmlproject);;UI file (*.ui.qml);;QML file "
+                                        "(*.qml);;JavaScript file (*.js);;%1")
+                                    .arg(Utils::allFilesFilterString());
+
+        Core::DocumentManager::setFileDialogFilter(filters);
     }
 
     if (showSplashScreen()) {
@@ -690,6 +658,20 @@ void StudioWelcomePlugin::resumeRemoveSplashTimer()
         m_removeSplashTimer.start(m_removeSplashRemainingTime);
 }
 
+Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()
+{
+    return Utils::FilePath::fromString(
+               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
+        .pathAppended("QtDesignStudio");
+}
+
+QString StudioWelcomePlugin::examplesPathSetting()
+{
+    return Core::ICore::settings()
+        ->value(EXAMPLES_DOWNLOAD_PATH, defaultExamplesPath().toString())
+        .toString();
+}
+
 WelcomeMode::WelcomeMode()
 {
     setDisplayName(tr("Studio"));
@@ -709,7 +691,7 @@ WelcomeMode::WelcomeMode()
     ExampleCheckout::registerTypes();
 
     m_modeWidget = new QQuickWidget;
-    m_modeWidget->setMinimumSize(1024, 768);
+    m_modeWidget->setMinimumSize(640, 480);
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     QmlDesigner::Theme::setupTheme(m_modeWidget->engine());
     m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
@@ -801,19 +783,18 @@ StudioSettingsPage::StudioSettingsPage()
     : m_buildCheckBox(new QCheckBox(tr("Build")))
     , m_debugCheckBox(new QCheckBox(tr("Debug")))
     , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
+    , m_pathChooser(new Utils::PathChooser())
 {
     const QString toolTip = tr(
         "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
         "generally not required in the context of Qt Design Studio.<b>Debug</b> and <b>Analyze</b>"
         "are only required for debugging and profiling.");
 
-    QVBoxLayout *boxLayout = new QVBoxLayout(this);
+    QVBoxLayout *boxLayout = new QVBoxLayout();
     setLayout(boxLayout);
     auto groupBox = new QGroupBox(tr("Hide Menu"));
     groupBox->setToolTip(toolTip);
     boxLayout->addWidget(groupBox);
-    boxLayout->addSpacerItem(
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     auto verticalLayout = new QVBoxLayout();
     groupBox->setLayout(verticalLayout);
@@ -831,6 +812,29 @@ StudioSettingsPage::StudioSettingsPage()
     m_buildCheckBox->setChecked(hideBuildMenuSetting());
     m_debugCheckBox->setChecked(hideDebugMenuSetting());
     m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
+
+    auto examplesGroupBox = new QGroupBox(tr("Examples"));
+    boxLayout->addWidget(examplesGroupBox);
+
+    auto horizontalLayout = new QHBoxLayout();
+    examplesGroupBox->setLayout(horizontalLayout);
+
+    auto label = new QLabel(tr("Examples path:"));
+    m_pathChooser->setFilePath(
+        Utils::FilePath::fromString(StudioWelcomePlugin::examplesPathSetting()));
+    auto resetButton = new QPushButton(tr("Reset Path"));
+
+    connect(resetButton, &QPushButton::clicked, this, [this]() {
+        m_pathChooser->setFilePath(StudioWelcomePlugin::defaultExamplesPath());
+    });
+
+    horizontalLayout->addWidget(label);
+    horizontalLayout->addWidget(m_pathChooser);
+    horizontalLayout->addWidget(resetButton);
+
+
+    boxLayout->addSpacerItem(
+        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
 
 void StudioSettingsPage::apply()
@@ -854,6 +858,14 @@ void StudioSettingsPage::apply()
         const QString restartText = tr("The menu visibility change will take effect after restart.");
         Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
         restartDialog.exec();
+    }
+
+    QSettings *s = Core::ICore::settings();
+    const QString value = m_pathChooser->filePath().toString();
+
+    if (s->value(EXAMPLES_DOWNLOAD_PATH, false).toString() != value) {
+        s->setValue(EXAMPLES_DOWNLOAD_PATH, value);
+        emit s_pluginInstance->examplesDownloadPathChanged(value);
     }
 }
 

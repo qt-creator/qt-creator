@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmldesignerplugin.h"
+#include "cmakeprojectconverter.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "exception.h"
@@ -230,6 +231,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         GenerateResource::generateMenuEntry();
 
     GenerateCmake::generateMenuEntry();
+    GenerateCmake::CmakeProjectConverter::generateMenuEntry();
 
     const QString fontPath
         = Core::ICore::resourcePath(
@@ -257,9 +259,9 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     designerActionManager().addDesignerAction(startNanotraceAction);
 
     auto shutDownNanotraceAction = new ModelNodeAction("ShutDown Nanotrace",
-                      QObject::tr("ShutDown Nanotrace"),
+                      QObject::tr("Shut Down Nanotrace"),
                       shutdownNanotraceIcon(),
-                      QObject::tr("ShutDown Nanotrace"),
+                      QObject::tr("Shut Down Nanotrace"),
                       ComponentCoreConstants::eventListCategory,
                       QKeySequence(),
                       220,

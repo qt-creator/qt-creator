@@ -41,7 +41,7 @@ import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 
 Section {
-    caption: qsTr("Button content")
+    caption: qsTr("Button Content")
 
     anchors.left: parent.left
     anchors.right: parent.right
@@ -49,7 +49,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Text")
-            tooltip: qsTr("The text displayed on the button.")
+            tooltip: qsTr("Text displayed on the button.")
         }
 
         SecondColumnLayout {

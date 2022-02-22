@@ -3231,7 +3231,7 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 FilePaths EditorManager::getOpenFilePaths()
 {
     QString selectedFilter;
-    const QString &fileFilters = DocumentManager::allDocumentFactoryFiltersString(&selectedFilter);
+    const QString &fileFilters = DocumentManager::fileDialogFilter(&selectedFilter);
     return DocumentManager::getOpenFileNames(fileFilters, {}, &selectedFilter);
 }
 

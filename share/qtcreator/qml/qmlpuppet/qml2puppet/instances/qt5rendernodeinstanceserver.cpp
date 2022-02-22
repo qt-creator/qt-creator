@@ -133,6 +133,14 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             nodeInstanceClient()->synchronizeWithClientProcess();
         }
 
+        if (rootNodeInstance().isSubclassOf("QQuick3DNode") && rootNodeInstance().contentItem()
+            && DesignerSupport::isDirty(rootNodeInstance().contentItem(),
+                                        DesignerSupport::ContentUpdateMask)
+            && nodeInstanceClient()->bytesToWrite() < 10000) {
+            Internal::QuickItemNodeInstance::updateDirtyNode(rootNodeInstance().contentItem());
+            nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
+        }
+
         inFunction = false;
     }
 }

@@ -218,7 +218,7 @@ Section {
                 AbstractButton {
                     id: editAnnotationButton
                     buttonIcon: StudioTheme.Constants.edit
-                    tooltip: qsTr("Edit annotation")
+                    tooltip: qsTr("Edit Annotation")
                     onClicked: annotationEditor.showWidget()
                     onHoveredChanged: annotationEditor.checkAux()
                 }
@@ -226,7 +226,7 @@ Section {
                 AbstractButton {
                     id: removeAnnotationButton
                     buttonIcon: StudioTheme.Constants.closeCross
-                    tooltip: qsTr("Remove annotation")
+                    tooltip: qsTr("Remove Annotation")
                     onClicked: annotationEditor.removeFullAnnotation()
                     onHoveredChanged: annotationEditor.checkAux()
                 }

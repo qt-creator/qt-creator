@@ -83,7 +83,7 @@
 
     By default, logging categories and messages coming directly from Qt are
     disabled. To display them, select \inlineimage icons/qtlogo-16.png
-    (\uicontrol {Toggle logging of Qt internal loggings.})
+    (\uicontrol {Toggle Qt Internal Logging}).
 
     New messages automatically scroll the message display to the bottom.
     To stop automatic scrolling, toggle \inlineimage icons/arrowdown.png

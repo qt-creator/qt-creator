@@ -134,7 +134,7 @@ private:
     void updateLanguageClient(ProjectExplorer::Project *project,
                               const CppEditor::ProjectInfo::ConstPtr &projectInfo);
     ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
-    void claimNonProjectSources(ClangdClient *fallbackClient);
+    void claimNonProjectSources(ClangdClient *client);
     void watchForExternalChanges();
     void watchForInternalChanges();
 

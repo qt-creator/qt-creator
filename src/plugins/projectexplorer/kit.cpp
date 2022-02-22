@@ -113,11 +113,11 @@ public:
             [kit] { return kit->fileSystemFriendlyName(); });
 
         m_macroExpander.registerVariable("CurrentKit:Id",
-            tr("The id of the currently active kit."),
+            tr("The ID of the currently active kit."),
             [kit] { return kit->id().toString(); },
             false);
         m_macroExpander.registerVariable("Kit:Id",
-            tr("The id of the kit."),
+            tr("The ID of the kit."),
             [kit] { return kit->id().toString(); });
     }
 

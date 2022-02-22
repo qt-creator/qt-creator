@@ -4,52 +4,10 @@ import qbs.FileInfo
 Project {
     name: "Unit test & helper products"
 
-    Product {
-        name: "qtc_gtest_gmock"
-
-        Export {
-            property bool useExternalLibs: preferExternalLibs && externalLibsPresent
-            property bool useRepo: !useExternalLibs && hasRepo
-            property bool preferExternalLibs: true
-            property bool externalLibsPresent: preferExternalLibs && gtest.present && gmock.present
-            property string repoDir: FileInfo.joinPaths(path, "3rdparty", "googletest")
-            property string gtestDir: FileInfo.joinPaths(repoDir, "googletest")
-            property string gmockDir: FileInfo.joinPaths(repoDir, "googlemock")
-            property bool hasRepo: File.exists(gtestDir)
-
-            Depends { name: "pkgconfig"; condition: preferExternalLibs; required: false }
-            Depends { name: "gtest"; condition: preferExternalLibs; required: false }
-            Depends { name: "gmock"; condition: preferExternalLibs; required: false }
-
-            Depends { name: "cpp" }
-            Group {
-                name: "Files from repository"
-                condition: qtc_gtest_gmock.useRepo
-                cpp.includePaths: [
-                    qtc_gtest_gmock.gtestDir,
-                    qtc_gtest_gmock.gmockDir,
-                    FileInfo.joinPaths(qtc_gtest_gmock.gtestDir, "include"),
-                    FileInfo.joinPaths(qtc_gtest_gmock.gmockDir, "include"),
-                ]
-                files: [
-                    FileInfo.joinPaths(qtc_gtest_gmock.gtestDir, "src", "gtest-all.cc"),
-                    FileInfo.joinPaths(qtc_gtest_gmock.gmockDir, "src", "gmock-all.cc"),
-                ]
-            }
-
-            Properties {
-                condition: useRepo
-                cpp.includePaths: [
-                    FileInfo.joinPaths(gtestDir, "include"),
-                    FileInfo.joinPaths(gmockDir, "include"),
-                ]
-            }
-        }
-    }
-
     QtcProduct {
         name: "Unit test"
         condition: qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent
+
         type: ["application", "autotest"]
         consoleApplication: true
         destinationDirectory: FileInfo.joinPaths(project.buildDirectory,
@@ -72,7 +30,7 @@ Project {
         Depends { name: "pkgconfig"; required: false }
         Depends { name: "benchmark"; required: false }
 
-        Depends { name: "qtc_gtest_gmock" }
+        Depends { name: "qtc_gtest_gmock"; required: false }
 
         sqlite_sources.buildSharedLib: false
 

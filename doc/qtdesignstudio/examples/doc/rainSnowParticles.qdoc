@@ -74,12 +74,8 @@
       In \uicontrol Navigator, select \e particleSystem and in
       \uicontrol Properties, set \uicontrol Translation > \uicontrol Y to 193.
       \li Set the \e rain-drop-white-square.png as texture for the particles.
-      From \uicontrol Library > \uicontrol Components, drag a \uicontrol Texture
-      to \e spriteParticle.
-      \li In \uicontrol Navigator, select \uicontrol texture1 and in \uicontrol
-      Properties, set \uicontrol Source to \e rain-drop-white-square.png.
-      \li In \uicontrol Navigator, select \uicontrol spriteParticle and in the
-      \uicontrol Properties, set \uicontrol Sprite to texture.
+      From \uicontrol Library > \uicontrol Assets, drag
+      \e {rain-drop-white-square.png} to \e spriteParticle.
       \li Adjust the apperance and behavior of the sprite further. In \uicontrol
       Properties, set:
         \list

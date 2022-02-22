@@ -7,5 +7,6 @@
         <file>qmlprojectmaincmakelists.tpl</file>
         <file>qmlprojectmodulecmakelists.tpl</file>
         <file>qmlprojectmainqml.tpl</file>
+        <file>qmlprojectappmainqml.tpl</file>
     </qresource>
 </RCC>

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,6 +25,7 @@
 
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
+#include "mcusupportversiondetection.h"
 #include "mcusupportsdk.h"
 
 #include <coreplugin/icore.h>
@@ -39,15 +40,6 @@
 using namespace Utils;
 
 namespace McuSupport::Internal {
-
-static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)
-{
-    QSettings *settings = Core::ICore::settings(scope);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-    bool automaticKitCreation = settings->value(key, true).toBool();
-    return automaticKitCreation;
-}
 
 McuPackage::McuPackage(const QString &label,
                        const FilePath &defaultPath,
@@ -65,7 +57,6 @@ McuPackage::McuPackage(const QString &label,
     , m_downloadUrl(downloadUrl)
 {
     m_path = Sdk::packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
-    m_automaticKitCreation = automaticKitCreationFromSettings(QSettings::UserScope);
 }
 
 FilePath McuPackage::basePath() const
@@ -161,14 +152,6 @@ bool McuPackage::addToPath() const
     return m_addToPath;
 }
 
-void McuPackage::writeGeneralSettings() const
-{
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(key, m_automaticKitCreation);
-}
-
 bool McuPackage::writeToSettings() const
 {
     const FilePath savedPath = Sdk::packagePathFromSettings(m_settingsKey,
@@ -189,16 +172,6 @@ void McuPackage::setRelativePathModifier(const QString &path)
 void McuPackage::setVersions(const QStringList &versions)
 {
     m_versions = versions;
-}
-
-bool McuPackage::automaticKitCreationEnabled() const
-{
-    return m_automaticKitCreation;
-}
-
-void McuPackage::setAutomaticKitCreationEnabled(const bool enabled)
-{
-    m_automaticKitCreation = enabled;
 }
 
 void McuPackage::updatePath()
@@ -269,9 +242,10 @@ QString McuPackage::statusText() const
                              .arg(displayPackagePath, displayDetectedPath);
         break;
     case Status::ValidPackageMismatchedVersion: {
-        const QString versionWarning = m_versions.size() == 1 ?
-                    tr("but only version %1 is supported").arg(m_versions.first()) :
-                    tr("but only versions %1 are supported").arg(displayVersions);
+        const QString versionWarning
+            = m_versions.size() == 1
+                  ? tr("but only version %1 is supported").arg(m_versions.first())
+                  : tr("but only versions %1 are supported").arg(displayVersions);
         response = tr("Path %1 is valid, %2 was found, %3.")
                        .arg(displayPackagePath, displayDetectedPath, versionWarning);
         break;
@@ -313,4 +287,5 @@ bool McuToolChainPackage::isDesktopToolchain() const
     return m_type == Type::MSVC || m_type == Type::GCC;
 }
 
-}  // namespace McuSupport::Internal
+
+} // namespace McuSupport::Internal

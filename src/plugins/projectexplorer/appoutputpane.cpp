@@ -174,7 +174,7 @@ AppOutputPane::AppOutputPane() :
     m_formatterWidget(new QWidget),
     m_handler(new ShowOutputTaskHandler(this,
         tr("Show &App Output"),
-        tr("Show the output that generated this issue in the application output window"),
+        tr("Show the output that generated this issue in the Application Output pane."),
         tr("A")))
 {
     ExtensionSystem::PluginManager::addObject(m_handler);

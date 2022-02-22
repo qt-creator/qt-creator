@@ -133,6 +133,7 @@ Module {
         Property { name: "multiplexedType"; type: "string"; isList: true }
         Property { name: "name"; type: "string" }
         Property { name: "profiles"; type: "string"; isList: true }
+        Property { name: "qbsModuleProviders"; type: "string"; isList: true }
         Property { name: "qbsSearchPaths"; type: "string"; isList: true }
         Property { name: "targetName"; type: "string" }
         Property { name: "type"; type: "string"; isList: true }
@@ -155,6 +156,7 @@ Module {
         Property { name: "minimumQbsVersion"; type: "string" }
         Property { name: "name"; type: "string" }
         Property { name: "profile"; type: "string" }
+        Property { name: "qbsModuleProviders"; type: "string"; isList: true }
         Property { name: "qbsSearchPaths"; type: "string"; isList: true }
         Property { name: "references"; type: "string"; isList: true }
         Property { name: "sourceDirectory"; type: "string" }

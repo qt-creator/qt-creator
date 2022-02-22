@@ -60,7 +60,7 @@ struct ConvertArgValueToString {
 
 std::string Arg::value() const
 {
-    return std::visit(ConvertArgValueToString(), m_value);
+    return Utils::visit(ConvertArgValueToString(), m_value);
 }
 
 

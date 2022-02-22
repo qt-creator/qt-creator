@@ -58,13 +58,9 @@ public:
     virtual const QString &environmentVariableName() const = 0;
     virtual void setAddToPath(bool) = 0;
     virtual bool addToPath() const = 0;
-    virtual void writeGeneralSettings() const = 0;
     virtual bool writeToSettings() const = 0;
     virtual void setRelativePathModifier(const QString &) = 0;
     virtual void setVersions(const QStringList &) = 0;
-
-    virtual bool automaticKitCreationEnabled() const = 0;
-    virtual void setAutomaticKitCreationEnabled(const bool enabled) = 0;
 
     virtual QWidget *widget() = 0;
 

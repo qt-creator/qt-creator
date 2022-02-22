@@ -41,7 +41,7 @@ namespace CppEditor {
 
 ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
     : QWidget(parent)
-    , m_label(new QLabel(tr("Diagnostic Configuration:")))
+    , m_label(new QLabel(tr("Diagnostic configuration:")))
     , m_button(new QPushButton)
 {
     auto *layout = new QHBoxLayout(this);

@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-#include "mcutargetdescription.h"
-#include "nxp_1064_json.h"
 #include "unittest.h"
+#include "mcutargetdescription.h"
+#include "mcukitmanager.h"
+#include "nxp_1064_json.h"
 #include "utils/filepath.h"
 #include <cmakeprojectmanager/cmakeconfigitem.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
@@ -55,7 +56,7 @@ void McuSupportTest::test_parseBasicInfoFromJson()
 {
     const auto description = Sdk::parseDescriptionJson(nxp_1064_json);
 
-    QVERIFY(not description.freeRTOS.envVar.isEmpty());
+    QVERIFY(!description.freeRTOS.envVar.isEmpty());
     QVERIFY(description.freeRTOS.boardSdkSubDir.isEmpty());
 }
 
@@ -65,7 +66,7 @@ void McuSupportTest::test_addNewKit()
 
     QSignalSpy kitAddedSpy(&kitManager, &KitManager::kitAdded);
 
-    auto *newKit{McuSupportOptions::newKit(&mcuTarget, &freeRtosPackage)};
+    auto *newKit{McuKitManager::newKit(&mcuTarget, &freeRtosPackage)};
     QVERIFY(newKit != nullptr);
 
     QCOMPARE(kitAddedSpy.count(), 1);
@@ -85,13 +86,13 @@ void McuSupportTest::test_addFreeRtosCmakeVarToKit()
 
     QVERIFY(kit.hasValue(EnvironmentKitAspect::id()));
     QVERIFY(kit.isValid());
-    QVERIFY(not kit.allKeys().empty());
+    QVERIFY(!kit.allKeys().empty());
 
     const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
     QCOMPARE(cmakeConfig.size(), 1);
 
     CMakeConfigItem expectedCmakeVar{freeRtosCmakeVar.toLocal8Bit(),
-                                     defaultfreeRtosPath.toLocal8Bit()};
+                                     FilePath::fromString(defaultfreeRtosPath).toUserOutput().toLocal8Bit()};
     QVERIFY(cmakeConfig.contains(expectedCmakeVar));
 }
 

@@ -303,7 +303,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_resetButton->setEnabled(false);
 
     m_batchEditButton = new QPushButton(tr("Batch Edit..."));
-    m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake Configuration."));
+    m_batchEditButton->setToolTip(tr("Set or reset multiple values in the CMake configuration."));
 
     m_showAdvancedCheckBox = new QCheckBox(tr("Advanced"));
 
@@ -339,16 +339,18 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             qmlDebugAspect
         },
         m_warningMessageLabel,
-        Space(10),
-        Row{m_kitConfiguration, m_configurationStates},
-        Group {
-            cmakeConfiguration,
-            Row {
-                bc->aspect<InitialCMakeArgumentsAspect>(),
-                bc->aspect<AdditionalCMakeOptionsAspect>()
-            },
-            m_reconfigureButton,
-        }
+        m_kitConfiguration,
+        Column {
+            m_configurationStates,
+            Group {
+                cmakeConfiguration,
+                Row {
+                    bc->aspect<InitialCMakeArgumentsAspect>(),
+                    bc->aspect<AdditionalCMakeOptionsAspect>()
+                },
+                m_reconfigureButton,
+            }
+        }.setSpacing(0)
     }.attachTo(details, false);
 
     updateAdvancedCheckBox();

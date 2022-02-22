@@ -50,7 +50,7 @@ Product {
                 flags.push("-Wno-deprecated-copy", "-Wno-constant-logical-operand");
             }
             if (!qbs.toolchain.contains("clang")) {
-                flags.push("-Wno-noexcept-type");
+                flags.push("-Wno-missing-field-initializers", "-Wno-noexcept-type");
                 if (Utilities.versionCompare(cpp.compilerVersion, "9") >= 0)
                     flags.push("-Wno-deprecated-copy", "-Wno-init-list-lifetime");
             }

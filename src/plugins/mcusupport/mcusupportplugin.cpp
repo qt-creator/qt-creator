@@ -28,6 +28,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
 #include "mcusupportoptions.h"
+#include "mcukitmanager.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
 
@@ -38,6 +39,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
@@ -53,6 +55,16 @@ using namespace ProjectExplorer;
 namespace McuSupport {
 namespace Internal {
 
+void printMessage(const QString &message, bool important)
+{
+    const QString displayMessage = QCoreApplication::translate("QtForMCUs", "Qt for MCUs: %1")
+                                       .arg(message);
+    if (important)
+        Core::MessageManager::writeFlashing(displayMessage);
+    else
+        Core::MessageManager::writeSilently(displayMessage);
+}
+
 class McuSupportPluginPrivate
 {
 public:
@@ -65,7 +77,7 @@ public:
     McuDependenciesKitAspect environmentPathsKitAspect;
 }; // class McuSupportPluginPrivate
 
-static McuSupportPluginPrivate* dd{nullptr};
+static McuSupportPluginPrivate *dd{nullptr};
 
 McuSupportPlugin::~McuSupportPlugin()
 {
@@ -93,9 +105,9 @@ void McuSupportPlugin::extensionsInitialized()
     ProjectExplorer::DeviceManager::instance()->addDevice(McuSupportDevice::create());
 
     connect(KitManager::instance(), &KitManager::kitsLoaded, []() {
-        McuSupportOptions::removeOutdatedKits();
-        McuSupportOptions::createAutomaticKits();
-        McuSupportOptions::fixExistingKits();
+        McuKitManager::removeOutdatedKits();
+        McuKitManager::createAutomaticKits();
+        McuKitManager::fixExistingKits();
         McuSupportPlugin::askUserAboutMcuSupportKitsSetup();
     });
 }
@@ -106,7 +118,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
 
     if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
         || McuSupportOptions::qulDirFromSettings().isEmpty()
-        || !McuSupportOptions::existingKits(nullptr).isEmpty())
+        || !McuKitManager::existingKits(nullptr).isEmpty())
         return;
 
     Utils::InfoBarEntry info(setupMcuSupportKits,
@@ -130,18 +142,19 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
     Utils::InfoBarEntry info(upgradeMcuSupportKits,
                              tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    static McuKitManager::UpgradeOption selectedOption = McuKitManager::UpgradeOption::Keep;
 
-    static McuSupportOptions::UpgradeOption selectedOption;
     const QStringList options = {tr("Create new kits"), tr("Replace existing kits")};
-    selectedOption = McuSupportOptions::UpgradeOption::Keep;
     info.setComboInfo(options, [options](const QString &selected) {
-        selectedOption = options.indexOf(selected) == 0 ? McuSupportOptions::UpgradeOption::Keep
-                                                        : McuSupportOptions::UpgradeOption::Replace;
+        selectedOption = options.indexOf(selected) == 0 ? McuKitManager::UpgradeOption::Keep
+                                                        : McuKitManager::UpgradeOption::Replace;
     });
 
     info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits] {
         ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
-        QTimer::singleShot(0, []() { McuSupportOptions::upgradeKits(selectedOption); });
+        QTimer::singleShot(0, []() {
+            McuKitManager::upgradeKitsByCreatingNewPackage(selectedOption);
+        });
     });
 
     ICore::infoBar()->addInfo(info);

@@ -1546,6 +1546,12 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
 
 static QVersionNumber clangClVersion(const FilePath &clangClPath)
 {
+    QString error;
+    QString dllversion = winGetDLLVersion(Utils::WinDLLFileVersion, clangClPath.toString(), &error);
+
+    if (!dllversion.isEmpty())
+        return QVersionNumber::fromString(dllversion);
+
     QtcProcess clangClProcess;
     clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();

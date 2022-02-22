@@ -62,6 +62,10 @@ Project {
     Environment {
        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+@if %{IsQt6Project}
+@else
+       QMLSCENE_CORE_PROFILE: "true" // Required for macOS, but can create issues on embedded Linux
+@endif
 @if %{UseVirtualKeyboard}
        QT_IM_MODULE: "qtvirtualkeyboard"
        QT_VIRTUALKEYBOARD_DESKTOP_DISABLE: 1

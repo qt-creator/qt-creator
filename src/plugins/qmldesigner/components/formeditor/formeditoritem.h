@@ -171,6 +171,23 @@ private:
     QPointF m_oldPos;
 };
 
+class FormEditor3dPreview : public FormEditorItem
+{
+    friend FormEditorScene;
+
+public:
+    void updateGeometry() override;
+    QPointF instancePosition() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+protected:
+    FormEditor3dPreview(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
+        : FormEditorItem(qmlItemNode, scene)
+    {
+        setHighlightBoundingRect(true);
+    }
+};
+
 class FormEditorFlowActionItem : public FormEditorItem
 {
     friend FormEditorScene;

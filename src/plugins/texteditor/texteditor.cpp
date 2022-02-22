@@ -836,6 +836,8 @@ public:
         setMultiTextCursorProvider([editor]() { return editor->multiTextCursor(); });
     }
 
+    ~TextEditorWidgetFind() override { cancelCurrentSelectAll(); }
+
     bool supportsSelectAll() const override { return true; }
     void selectAll(const QString &txt, FindFlags findFlags) override;
 
@@ -858,7 +860,12 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
     m_selectWatcher = new QFutureWatcher<FileSearchResultList>();
     connect(m_selectWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
             this, [this]() {
-                const FileSearchResultList &results = m_selectWatcher->result();
+                const QFuture<FileSearchResultList> future = m_selectWatcher->future();
+                m_selectWatcher->deleteLater();
+                m_selectWatcher = nullptr;
+                if (future.resultCount() <= 0)
+                    return;
+                const FileSearchResultList &results = future.result();
                 const QTextCursor c(m_editor->document());
                 auto cursorForResult = [c](const FileSearchResult &r) {
                     return Utils::Text::selectAt(c, r.lineNumber, r.matchStart + 1, r.matchLength);
