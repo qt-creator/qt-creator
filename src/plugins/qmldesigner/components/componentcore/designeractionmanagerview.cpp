@@ -141,12 +141,6 @@ void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProp
         setupContext(SelectionContext::UpdateMode::Properties);
 }
 
-void DesignerActionManagerView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &)
-{
-    if (hasSingleSelectedModelNode())
-        setupContext(SelectionContext::UpdateMode::Properties);
-}
-
 void DesignerActionManagerView::customNotification(const AbstractView * /*view*/,
                                       const QString &identifier,
                                       const QList<ModelNode> & /* nodeList */,
