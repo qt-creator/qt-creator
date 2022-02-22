@@ -1560,12 +1560,8 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
     m_shutdownTimer.stop();
     QTC_ASSERT(m_state == ShutdownRequested, return);
     QTC_ASSERT(m_clientInterface, return);
-    optional<ShutdownRequest::Response::Error> errorValue = shutdownResponse.error();
-    if (errorValue.has_value()) {
-        ShutdownRequest::Response::Error error = errorValue.value();
-        qDebug() << error;
-        return;
-    }
+    if (optional<ShutdownRequest::Response::Error> error = shutdownResponse.error())
+        log(*error);
     // directly send message otherwise the state check of sendContent would fail
     sendMessage(ExitNotification().toBaseMessage());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
