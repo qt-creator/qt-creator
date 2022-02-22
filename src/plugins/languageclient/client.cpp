@@ -112,6 +112,11 @@ Client::Client(BaseClientInterface *clientInterface)
 
     m_tokenSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
     m_tokenSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
+
+    m_shutdownTimer.setInterval(20 /*seconds*/ * 1000);
+    connect(&m_shutdownTimer, &QTimer::timeout, this, [this] {
+        LanguageClientManager::deleteClient(this);
+    });
 }
 
 QString Client::name() const
@@ -325,6 +330,7 @@ void Client::shutdown()
     });
     sendContent(shutdown);
     m_state = ShutdownRequested;
+    m_shutdownTimer.start();
 }
 
 Client::State Client::state() const
@@ -1551,6 +1557,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 
 void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
 {
+    m_shutdownTimer.stop();
     QTC_ASSERT(m_state == ShutdownRequested, return);
     QTC_ASSERT(m_clientInterface, return);
     optional<ShutdownRequest::Response::Error> errorValue = shutdownResponse.error();
@@ -1563,6 +1570,7 @@ void Client::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
     sendMessage(ExitNotification().toBaseMessage());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     m_state = Shutdown;
+    m_shutdownTimer.start();
 }
 
 bool Client::sendWorkspceFolderChanges() const
