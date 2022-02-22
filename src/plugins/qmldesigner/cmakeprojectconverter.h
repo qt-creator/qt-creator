@@ -51,6 +51,8 @@ public:
                         const Utils::FilePath &targetDir);
     static void generateMenuEntry();
     static void onConvertProject();
+    static bool isProjectConvertable(const ProjectExplorer::Project *project);
+    static bool isProjectCurrentFormat(const ProjectExplorer::Project *project);
 
 private:
     bool prepareAndExecute();

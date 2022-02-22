@@ -65,11 +65,44 @@ void CmakeProjectConverter::generateMenuEntry()
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.ConvertToCmakeProject");
     menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
 
-    action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
+    action->setEnabled(isProjectConvertable(ProjectExplorer::SessionManager::startupProject()));
     QObject::connect(ProjectExplorer::SessionManager::instance(),
         &ProjectExplorer::SessionManager::startupProjectChanged, [action]() {
-            action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
+            action->setEnabled(isProjectConvertable(ProjectExplorer::SessionManager::startupProject()));
     });
+}
+
+bool CmakeProjectConverter::isProjectConvertable(const ProjectExplorer::Project *project)
+{
+    if (!project)
+        return false;
+
+    return !isProjectCurrentFormat(project);
+}
+
+const QStringList sanityCheckFiles({FILENAME_CMAKELISTS,
+                                    FILENAME_MODULES,
+                                    FILENAME_MAINQML,
+                                    QString(DIRNAME_CONTENT)+'/'+FILENAME_CMAKELISTS,
+                                    QString(DIRNAME_IMPORT)+'/'+FILENAME_CMAKELISTS,
+                                    QString(DIRNAME_CPP)+'/'+FILENAME_MAINCPP,
+                                    QString(DIRNAME_CPP)+'/'+FILENAME_ENV_HEADER,
+                                    QString(DIRNAME_CPP)+'/'+FILENAME_MAINCPP_HEADER
+                                   });
+
+bool CmakeProjectConverter::isProjectCurrentFormat(const ProjectExplorer::Project *project)
+{
+    const QmlProjectManager::QmlProject *qmlprj = qobject_cast<const QmlProjectManager::QmlProject*>(project);
+
+    if (!qmlprj)
+        return false;
+
+    FilePath rootDir = qmlprj->rootProjectDirectory();
+    for (const QString &file : sanityCheckFiles)
+        if (!rootDir.pathAppended(file).exists())
+            return false;
+
+    return true;
 }
 
 void CmakeProjectConverter::onConvertProject()
