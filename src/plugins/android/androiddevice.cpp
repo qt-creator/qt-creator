@@ -753,9 +753,11 @@ AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
       m_avdManager(m_androidConfig)
 {
     connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
-        m_adbDeviceWatcherProcess->terminate();
-        m_adbDeviceWatcherProcess->waitForFinished();
-        m_adbDeviceWatcherProcess.reset();
+        if (m_adbDeviceWatcherProcess) {
+            m_adbDeviceWatcherProcess->terminate();
+            m_adbDeviceWatcherProcess->waitForFinished();
+            m_adbDeviceWatcherProcess.reset();
+        }
         m_avdsFutureWatcher.waitForFinished();
         m_removeAvdFutureWatcher.waitForFinished();
     });
