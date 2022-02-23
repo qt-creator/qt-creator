@@ -1194,10 +1194,16 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
                     || compilerPath.toString().contains("ccache")) {
                 existingTcMatches = existingCommand == compilerPath;
             } else {
-                existingTcMatches = Environment::systemEnvironment().isSameExecutable(
-                            existingCommand.toString(), compilerPath.toString())
-                        || (HostOsInfo::isWindowsHost() && existingCommand.toFileInfo().size()
-                            == compilerPath.toFileInfo().size());
+                existingTcMatches = Environment::systemEnvironment()
+                                        .isSameExecutable(existingCommand.toString(),
+                                                          compilerPath.toString());
+                if (!existingTcMatches
+                        && HostOsInfo::isWindowsHost()
+                        && !existingCommand.needsDevice()
+                        && !compilerPath.needsDevice()) {
+                    existingTcMatches = existingCommand.toFileInfo().size()
+                                        == compilerPath.toFileInfo().size();
+                }
             }
             if (existingTcMatches) {
                 if (existingTc->typeId() == requiredTypeId && (!checker || checker(existingTc))
