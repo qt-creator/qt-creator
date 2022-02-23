@@ -697,7 +697,7 @@ void GccToolChain::addToEnvironment(Environment &env) const
 {
     // On Windows gcc invokes cc1plus which is in libexec directory.
     // cc1plus depends on libwinpthread-1.dll which is in bin, so bin must be in the PATH.
-    if (HostOsInfo::isWindowsHost())
+    if (compilerCommand().osType() == OsTypeWindows)
         addCommandPathToEnvironment(compilerCommand(), env);
 }
 
@@ -1223,7 +1223,7 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
 {
     Toolchains result;
 
-    Environment systemEnvironment = Environment::systemEnvironment();
+    Environment systemEnvironment = tcd.compilerPath.deviceEnvironment();
     GccToolChain::addCommandPathToEnvironment(tcd.compilerPath, systemEnvironment);
     const FilePath localCompilerPath = findLocalCompiler(tcd.compilerPath, systemEnvironment);
     if (ToolChainManager::isBadToolchain(localCompilerPath))
@@ -1430,7 +1430,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
         haveCompiler = fi.isExecutable() && fi.isFile();
     }
     if (haveCompiler) {
-        Environment env = Environment::systemEnvironment();
+        Environment env = path.deviceEnvironment();
         GccToolChain::addCommandPathToEnvironment(path, env);
         QStringList args = gccPredefinedMacrosOptions(Constants::CXX_LANGUAGE_ID)
                 + splitString(m_platformCodeGenFlagsLineEdit->text());
