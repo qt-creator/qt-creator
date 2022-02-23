@@ -137,7 +137,7 @@ public:
         auto isMimeTypeEqual = [&mimeType](const MimeGlobPattern &pattern) {
             return pattern.mimeType() == mimeType;
         };
-        removeIf(isMimeTypeEqual);
+        erase(std::remove_if(begin(), end(), isMimeTypeEqual), end());
     }
 
     void match(MimeGlobMatchResult &result, const QString &fileName) const;
