@@ -99,7 +99,7 @@ public:
                          CommandLine::Raw};
             r.workingDirectory = target->activeBuildConfiguration()->buildDirectory();
             r.environment = target->activeBuildConfiguration()->environment();
-            SimpleTargetRunner::doStart(r, {});
+            SimpleTargetRunner::doStart(r);
         });
     }
 };

@@ -294,7 +294,7 @@ public:
 
 protected:
     void setStarter(const std::function<void()> &starter);
-    void doStart(const Runnable &runnable, const IDevice::ConstPtr &device);
+    void doStart(const Runnable &runnable);
 
 private:
     void start() final;

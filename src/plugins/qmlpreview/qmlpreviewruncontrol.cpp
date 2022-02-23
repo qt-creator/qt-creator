@@ -149,7 +149,8 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
 
         runnable.command.addArg(QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
                                                                  serverUrl.path()));
-        doStart(runnable, {});
+        runnable.device.reset();
+        doStart(runnable);
     });
 }
 

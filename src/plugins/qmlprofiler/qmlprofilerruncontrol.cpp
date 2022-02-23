@@ -255,8 +255,8 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
             arguments += ' ' + debuggee.command.arguments();
 
         debuggee.command.setArguments(arguments);
-
-        doStart(debuggee, {});
+        debuggee.device.reset();
+        doStart(debuggee);
     });
 }
 

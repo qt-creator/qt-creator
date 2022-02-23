@@ -62,8 +62,8 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
 
         Runnable r = runControl->runnable();
         r.command.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl));
-
-        doStart(r, runControl->device());
+        r.device = runControl->device();
+        doStart(r);
     });
 }
 

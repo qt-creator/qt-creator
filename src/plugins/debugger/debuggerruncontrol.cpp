@@ -1085,8 +1085,8 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
             }
         }
         debugServer.command.setArguments(ProcessArgs::joinArgs(args, OsTypeLinux));
-
-        doStart(debugServer, runControl->device());
+        debugServer.device = runControl->device();
+        doStart(debugServer);
     });
 }
 

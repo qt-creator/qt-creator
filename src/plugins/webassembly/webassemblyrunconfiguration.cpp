@@ -124,7 +124,7 @@ public:
             r.command = emrunCommand(runControl->runConfiguration(),
                                      browserId,
                                      QString::number(portsGatherer->findEndPoint().port()));
-            SimpleTargetRunner::doStart(r, {});
+            SimpleTargetRunner::doStart(r);
         });
     }
 };

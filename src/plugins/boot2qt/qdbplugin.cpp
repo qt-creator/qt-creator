@@ -147,7 +147,8 @@ public:
             // FIXME: Spaces!
             r.command.setArguments(r.command.executable().toString() + ' ' + r.command.arguments());
             r.command.setExecutable(FilePath::fromString(Constants::AppcontrollerFilepath));
-            doStart(r, runControl->device());
+            r.device = runControl->device();
+            doStart(r);
         });
     }
 };

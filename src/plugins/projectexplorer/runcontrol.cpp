@@ -1188,13 +1188,16 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
 
 void SimpleTargetRunner::start()
 {
-    if (m_starter)
+    if (m_starter) {
         m_starter();
-    else
-        doStart(runControl()->runnable(), runControl()->device());
+    } else {
+        Runnable runnable = runControl()->runnable();
+        runnable.device = runControl()->device();
+        doStart(runControl()->runnable());
+    }
 }
 
-void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstPtr &device)
+void SimpleTargetRunner::doStart(const Runnable &runnable)
 {
     m_stopForced = false;
     m_stopReported = false;
@@ -1231,7 +1234,8 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
 
     connect(&m_launcher, &ApplicationLauncher::appendMessage, this, &RunWorker::appendMessage);
 
-    const bool isDesktop = device.isNull() || device.dynamicCast<const DesktopDevice>();
+    const bool isDesktop = runnable.device.isNull()
+                        || runnable.device.dynamicCast<const DesktopDevice>();
     if (isDesktop) {
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, [this] {
             // Console processes only know their pid after being started
@@ -1248,9 +1252,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
     } else {
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, &RunWorker::reportStarted);
     }
-    Runnable runnableWithDevice = runnable;
-    runnableWithDevice.device = device;
-    m_launcher.setRunnable(runnableWithDevice);
+    m_launcher.setRunnable(runnable);
     m_launcher.start();
 }
 

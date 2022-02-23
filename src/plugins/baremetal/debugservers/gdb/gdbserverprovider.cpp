@@ -348,7 +348,9 @@ GdbServerProviderRunner::GdbServerProviderRunner(ProjectExplorer::RunControl *ru
 {
     setId("BareMetalGdbServer");
     // Baremetal's GDB servers are launched on the host, not on the target.
-    setStarter([this, runnable] { doStart(runnable, {}); });
+    Runnable devicelessRunnable = runnable;
+    devicelessRunnable.device.reset();
+    setStarter([this, devicelessRunnable] { doStart(devicelessRunnable); });
 }
 
 } // namespace Internal

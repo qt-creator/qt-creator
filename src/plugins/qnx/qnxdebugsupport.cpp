@@ -116,8 +116,8 @@ public:
                                                                 portsGatherer->qmlServer()));
             }
             r.command.setArguments(ProcessArgs::joinArgs(arguments));
-
-            doStart(r, runControl->device());
+            r.device = runControl->device();
+            doStart(r);
         });
     }
 };
@@ -202,7 +202,8 @@ public:
 
             Runnable r;
             r.command = {QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}};
-            doStart(r, runControl->device());
+            r.device = runControl->device();
+            doStart(r);
         });
     }
 };
