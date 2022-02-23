@@ -47,15 +47,23 @@ class WizardHandler: public QObject
     Q_OBJECT
 
 public:
-    void reset(const PresetItem &presetInfo, int presetSelection);
+    void reset(const std::shared_ptr<PresetItem> &presetInfo, int presetSelection);
     void setScreenSizeIndex(int index);
     int screenSizeIndex(const QString &sizeName) const;
     QString screenSizeName(int index) const;
     int screenSizeIndex() const;
+    int targetQtVersionIndex() const;
+    int targetQtVersionIndex(const QString &qtVersionName) const;
     void setTargetQtVersionIndex(int index);
     bool haveTargetQtVersion() const;
+    QString targetQtVersionName(int index) const;
+
     void setStyleIndex(int index);
     int styleIndex() const;
+    int styleIndex(const QString &styleName) const;
+    QString styleName(int index) const;
+    bool haveStyleModel() const;
+
     void destroyWizard();
 
     void setUseVirtualKeyboard(bool value);
@@ -66,7 +74,7 @@ public:
 
     void run(const std::function<void (QWizardPage *)> &processPage);
 
-    PresetItem preset() const { return m_preset; }
+    std::shared_ptr<PresetItem> preset() const { return m_preset; }
 
 signals:
     void deletingWizard();
@@ -93,7 +101,7 @@ private:
 
     int m_selectedPreset = -1;
 
-    PresetItem m_preset;
+    std::shared_ptr<PresetItem> m_preset;
     Utils::FilePath m_projectLocation;
 };
 

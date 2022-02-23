@@ -28,111 +28,252 @@ import QtQuick.Controls
 
 import QtQuick
 import QtQuick.Layouts
+import StudioControls as SC
 import StudioTheme as StudioTheme
 
-GridView {
-    id: projectView
+import BackendApi
+
+ScrollView {
+    id: scrollView
 
     required property Item loader
+    required property string currentTabName
 
-    cellWidth: DialogValues.projectItemWidth
-    cellHeight: DialogValues.projectItemHeight
-    clip: true
+    property string backgroundHoverColor: DialogValues.presetItemBackgroundHover
 
-    boundsBehavior: Flickable.StopAtBounds
+    // selectLast: if true, it will select last item in the model after a model reset.
+    property bool selectLast: false
 
-    children: [
-        Rectangle {
-            color: DialogValues.darkPaneColor
-            anchors.fill: parent
-            z: -1
-        }
-    ]
-
-    model: presetModel
-
-    // called by onModelReset and when user clicks on an item, or when the header item is changed.
-    onCurrentIndexChanged: {
-        dialogBox.selectedPreset = projectView.currentIndex
-        var source = dialogBox.currentPresetQmlPath()
-        loader.source = source
+    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+    ScrollBar.vertical: SC.VerticalScrollBar {
+        parent: scrollView
+        x: scrollView.width + (DialogValues.gridMargins
+                               - StudioTheme.Values.scrollBarThickness) * 0.5
+        y: scrollView.topPadding
+        height: scrollView.availableHeight
     }
 
-    Connections {
-        target: presetModel
+    contentWidth: gridView.contentItem.childrenRect.width
+    contentHeight: gridView.contentItem.childrenRect.height
 
-        // called when data is set (setWizardFactories)
-        function onModelReset() {
-            currentIndex = 0
-            currentIndexChanged()
+    GridView {
+        id: gridView
+
+        clip: true
+        anchors.fill: parent
+        cellWidth: DialogValues.gridCellWidth
+        cellHeight: DialogValues.gridCellHeight
+        rightMargin: -DialogValues.gridSpacing
+        bottomMargin: -DialogValues.gridSpacing
+        boundsBehavior: Flickable.StopAtBounds
+        model: BackendApi.presetModel
+
+        // called by onModelReset and when user clicks on an item, or when the header item is changed.
+        onCurrentIndexChanged: {
+            BackendApi.selectedPreset = gridView.currentIndex
+            var source = BackendApi.currentPresetQmlPath()
+            scrollView.loader.source = source
         }
-    }
 
-    delegate: ItemDelegate {
-        id: delegate
+        Connections {
+            target: BackendApi.presetModel
 
-        width: DialogValues.projectItemWidth
-        height: DialogValues.projectItemHeight
-        background: null
+            // called when data is set (setWizardFactories)
+            function onModelReset() {
+                if (scrollView.selectLast) {
+                    gridView.currentIndex = BackendApi.presetModel.rowCount() - 1
+                    scrollView.selectLast = false
+                } else {
+                    gridView.currentIndex = 0
+                }
 
-        function fontIconCode(index) {
-            var code = presetModel.fontIconCode(index)
-            return code ? code : StudioTheme.Constants.wizardsUnknown
-        }
-
-        Column {
-            width: parent.width
-            height: parent.height
-
-            Label {
-                id: projectTypeIcon
-                text: fontIconCode(index)
-                color: DialogValues.textColor
-                width: parent.width
-                height: DialogValues.projectItemHeight / 2
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignBottom
-                renderType: Text.NativeRendering
-                font.pixelSize: 65
-                font.family: StudioTheme.Constants.iconFont.family
+                // This will load Details.qml and Styles.qml by setting "source" on the Loader.
+                gridView.currentIndexChanged()
             }
+        }
+
+        delegate: ItemDelegate {
+            id: delegate
+
+            property bool hover: delegate.hovered || removeMouseArea.containsMouse
+
+            width: DialogValues.projectItemWidth
+            height: DialogValues.projectItemHeight
+
+            onClicked: delegate.GridView.view.currentIndex = index
+
+            background: Rectangle {
+                id: delegateBackground
+                width: parent.width
+                height: parent.height
+                color: delegate.hover ? scrollView.backgroundHoverColor : "transparent"
+                border.color: delegate.hover ? projectTypeName.color : "transparent"
+            }
+
+            function fontIconCode(index) {
+                var code = BackendApi.presetModel.fontIconCode(index)
+                return code ? code : StudioTheme.Constants.wizardsUnknown
+            }
+
+            contentItem: Item {
+                anchors.fill: parent
+
+                ColumnLayout {
+                    spacing: 0
+                    anchors.top: parent.top
+                    anchors.topMargin: -1
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Label {
+                        id: projectTypeIcon
+                        text: delegate.fontIconCode(index)
+                        color: DialogValues.textColor
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignBottom
+                        renderType: Text.NativeRendering
+                        font.pixelSize: 65
+                        font.family: StudioTheme.Constants.iconFont.family
+                        Layout.alignment: Qt.AlignHCenter
+                    } // Preset type icon Label
+
+                    Text {
+                        id: projectTypeName
+                        color: DialogValues.textColor
+                        text: name
+                        font.pixelSize: DialogValues.defaultPixelSize
+                        lineHeight: DialogValues.defaultLineHeight
+                        lineHeightMode: Text.FixedHeight
+                        width: DialogValues.projectItemWidth - 16
+                        elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignTop
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: projectTypeName.width
+                        Layout.minimumWidth: projectTypeName.width
+                        Layout.maximumWidth: projectTypeName.width
+
+                        ToolTip {
+                            id: toolTip
+                            y: -toolTip.height
+                            visible: delegate.hovered && projectTypeName.truncated
+                            text: name
+                            delay: 1000
+                            height: 20
+
+                            background: Rectangle {
+                                color: StudioTheme.Values.themeToolTipBackground
+                                border.color: StudioTheme.Values.themeToolTipOutline
+                                border.width: StudioTheme.Values.border
+                            }
+
+                            contentItem: Text {
+                                color: StudioTheme.Values.themeToolTipText
+                                text: toolTip.text
+                                font.pixelSize: DialogValues.defaultPixelSize
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+
+                    Text {
+                        id: projectTypeResolution
+                        color: DialogValues.textColor
+                        text: resolution
+                        font.pixelSize: DialogValues.defaultPixelSize
+                        lineHeight: DialogValues.defaultLineHeight
+                        lineHeightMode: Text.FixedHeight
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignTop
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                } // ColumnLayout
+
+                Item {
+                    id: removePresetButton
+                    width: 20
+                    height: 20
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: 4
+                    visible: isUserPreset === true
+                             && delegate.hover
+                             && scrollView.currentTabName !== "Recents"
+
+                    Text {
+                        anchors.fill: parent
+                        text: StudioTheme.Constants.closeCross
+                        color: DialogValues.textColor
+                        horizontalAlignment: Qt.AlignHCenter
+                        verticalAlignment: Qt.AlignVCenter
+                        font.family: StudioTheme.Constants.iconFont.family
+                        font.pixelSize: StudioTheme.Values.myIconFontSize
+                    }
+
+                    MouseArea {
+                        id: removeMouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: removeMouseArea.containsMouse ? Qt.PointingHandCursor
+                                                                   : Qt.ArrowCursor
+
+                        onClicked: {
+                            removePresetDialog.presetName = projectTypeName.text
+                            removePresetDialog.open()
+                        }
+                    }
+                } // Delete preset button Item
+            } // Item
+
+            states: [
+                State {
+                    name: "current"
+                    when: delegate.GridView.isCurrentItem
+
+                    PropertyChanges {
+                        target: projectTypeName
+                        color: DialogValues.textColorInteraction
+                    }
+                    PropertyChanges {
+                        target: projectTypeResolution
+                        color: DialogValues.textColorInteraction
+                    }
+                    PropertyChanges {
+                        target: projectTypeIcon
+                        color: DialogValues.textColorInteraction
+                    }
+                    PropertyChanges {
+                        target: scrollView
+                        backgroundHoverColor: DialogValues.presetItemBackgroundHoverInteraction
+                    }
+                } // State
+            ]
+        } // ItemDelegate
+
+        PopupDialog {
+            id: removePresetDialog
+
+            property string presetName
+
+            title: qsTr("Delete Custom Preset")
+            standardButtons: Dialog.Yes | Dialog.No
+            modal: true
+            closePolicy: Popup.CloseOnEscape
+            anchors.centerIn: parent
+            width: DialogValues.popupDialogWidth
+
+            onAccepted: BackendApi.removeCurrentPreset()
 
             Text {
-                id: projectTypeLabel
+                text: qsTr("Are you sure you want to delete \"" + removePresetDialog.presetName + "\" ?")
                 color: DialogValues.textColor
-
-                text: name
                 font.pixelSize: DialogValues.defaultPixelSize
-                lineHeight: DialogValues.defaultLineHeight
-                lineHeightMode: Text.FixedHeight
-                width: parent.width
-                height: DialogValues.projectItemHeight / 2
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignTop
+                wrapMode: Text.WordWrap
+
+                width: DialogValues.popupDialogWidth - 2 * DialogValues.popupDialogPadding
             }
-        } // Column
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                delegate.GridView.view.currentIndex = index
-            }
-        }
-
-        states: [
-            State {
-                when: delegate.GridView.isCurrentItem
-                PropertyChanges {
-                    target: projectTypeLabel
-                    color: DialogValues.textColorInteraction
-                }
-
-                PropertyChanges {
-                    target: projectTypeIcon
-                    color: DialogValues.textColorInteraction
-                }
-            } // State
-        ]
-    } // ItemDelegate
-} // GridView
+        } // Dialog
+    } // GridView
+} // ScrollView

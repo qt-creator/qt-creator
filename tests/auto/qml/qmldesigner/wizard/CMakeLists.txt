@@ -18,12 +18,14 @@ add_qtc_test(tst_qml_wizard
     wizardfactories-test.cpp
     stylemodel-test.cpp
     recentpresets-test.cpp
+    userpresets-test.cpp
     presetmodel-test.cpp
     test-utilities.h
     test-main.cpp
     "${StudioWelcomeDir}/wizardfactories.cpp"
     "${StudioWelcomeDir}/stylemodel.cpp"
     "${StudioWelcomeDir}/recentpresets.cpp"
+    "${StudioWelcomeDir}/userpresets.cpp"
     "${StudioWelcomeDir}/presetmodel.cpp"
 )
 

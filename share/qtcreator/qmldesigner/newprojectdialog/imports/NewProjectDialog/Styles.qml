@@ -23,20 +23,21 @@
 **
 ****************************************************************************/
 
+import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
-
-import QtQuick
 import QtQuick.Layouts
 
 import StudioControls as SC
 import StudioTheme as StudioTheme
 
+import BackendApi
+
 Item {
     width: DialogValues.stylesPaneWidth
 
     Component.onCompleted: {
-        dialogBox.stylesLoaded = true;
+        BackendApi.stylesLoaded = true
 
         /*
          * TODO: roleNames is called before the backend model (in the proxy class StyleModel) is
@@ -47,7 +48,7 @@ Item {
     }
 
     Component.onDestruction: {
-        dialogBox.stylesLoaded = false;
+        BackendApi.stylesLoaded = false
     }
 
     Rectangle {
@@ -57,116 +58,120 @@ Item {
 
         Item {
             x: DialogValues.stylesPanePadding
-            width: parent.width - DialogValues.stylesPanePadding * 2 + styleScrollBar.width
+            width: parent.width - DialogValues.stylesPanePadding * 2
             height: parent.height
 
-            ColumnLayout {
-                anchors.fill: parent
-                spacing: 5
+            Text {
+                id: styleTitleText
+                text: qsTr("Style")
+                height: DialogValues.paneTitleTextHeight
+                width: parent.width
+                font.weight: Font.DemiBold
+                font.pixelSize: DialogValues.paneTitlePixelSize
+                lineHeight: DialogValues.paneTitleLineHeight
+                lineHeightMode: Text.FixedHeight
+                color: DialogValues.textColor
+                verticalAlignment: Qt.AlignVCenter
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                Text {
-                    id: styleTitleText
-                    text: qsTr("Style")
-                    Layout.minimumHeight: DialogValues.paneTitleTextHeight
-                    font.weight: Font.DemiBold
-                    font.pixelSize: DialogValues.paneTitlePixelSize
-                    lineHeight: DialogValues.paneTitleLineHeight
-                    lineHeightMode: Text.FixedHeight
-                    color: DialogValues.textColor
-                    verticalAlignment: Qt.AlignVCenter
+                function refresh() {
+                    styleTitleText.text = qsTr("Style") + " (" + BackendApi.styleModel.rowCount() + ")"
+                }
+            }
 
-                    function refresh() {
-                        text = qsTr("Style") + " (" + styleModel.rowCount() + ")"
-                    }
+            SC.ComboBox { // Style Filter ComboBox
+                id: styleComboBox
+                actionIndicatorVisible: false
+                currentIndex: 0
+                textRole: "text"
+                valueRole: "value"
+                font.pixelSize: DialogValues.defaultPixelSize
+                width: parent.width
+
+                anchors.top: styleTitleText.bottom
+                anchors.topMargin: 5
+
+                model: ListModel {
+                    ListElement { text: qsTr("All"); value: "all" }
+                    ListElement { text: qsTr("Light"); value: "light" }
+                    ListElement { text: qsTr("Dark"); value: "dark" }
                 }
 
-                SC.ComboBox {   // Style Filter ComboBox
-                    actionIndicatorVisible: false
-                    currentIndex: 0
-                    textRole: "text"
-                    valueRole: "value"
-                    font.pixelSize: DialogValues.defaultPixelSize
+                onActivated: (index) => {
+                    BackendApi.styleModel.filter(currentValue.toLowerCase())
+                    styleTitleText.refresh()
+                }
+            } // Style Filter ComboBox
 
-                    model: ListModel {
-                        ListElement { text: qsTr("All"); value: "all" }
-                        ListElement { text: qsTr("Light"); value: "light" }
-                        ListElement { text: qsTr("Dark"); value: "dark" }
-                    }
+            ScrollView {
+                id: scrollView
 
-                    implicitWidth: parent.width
+                anchors.top: styleComboBox.bottom
+                anchors.topMargin: 11
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: DialogValues.stylesPanePadding
+                width: parent.width
 
-                    onActivated: (index) => {
-                        styleModel.filter(currentValue.toLowerCase());
-                        styleTitleText.refresh();
-                    }
-                } // Style Filter ComboBox
-
-                Item { implicitWidth: 1; implicitHeight: 9 }
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical: SC.VerticalScrollBar {
+                    id: styleScrollBar
+                    x: stylesList.width + (DialogValues.stylesPanePadding
+                                           - StudioTheme.Values.scrollBarThickness) * 0.5
+                }
 
                 ListView {
                     id: stylesList
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    clip: true
-                    model: styleModel
-
-                    MouseArea {
-                        id: listViewMouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        propagateComposedEvents: true
-                    }
-
+                    anchors.fill: parent
                     focus: true
+                    clip: true
+                    model: BackendApi.styleModel
                     boundsBehavior: Flickable.StopAtBounds
-
                     highlightFollowsCurrentItem: false
-
-                    ScrollBar.vertical: SC.VerticalScrollBar {
-                        id: styleScrollBar
-                        property int extraPadding: 0
-                        bottomInset: extraPadding
-                        bottomPadding: bottomInset + 16
-                        viewMouseArea: listViewMouseArea
-                    } // ScrollBar
+                    bottomMargin: -DialogValues.styleListItemBottomMargin
 
                     onCurrentIndexChanged: {
-                        if (styleModel.rowCount() > 0)
-                            dialogBox.styleIndex = stylesList.currentIndex;
+                        if (BackendApi.styleModel.rowCount() > 0)
+                            BackendApi.styleIndex = stylesList.currentIndex
                     }
 
                     delegate: ItemDelegate {
                         id: delegateId
-                        height: styleImage.height + DialogValues.styleImageBorderWidth + styleText.height + extraPadding.height + 1
-                        width: stylesList.width - styleScrollBar.width
+                        width: stylesList.width
+                        height: DialogValues.styleListItemHeight
 
-                        Component.onCompleted: {
-                            styleScrollBar.extraPadding = styleText.height + extraPadding.height
-                        }
+                        onClicked: stylesList.currentIndex = index
 
-                        Rectangle {
+                        background: Rectangle {
                             anchors.fill: parent
                             color: DialogValues.lightPaneColor
+                        }
+
+                        contentItem: Item {
+                            anchors.fill: parent
 
                             Column {
-                                spacing: 0
                                 anchors.fill: parent
+                                spacing: DialogValues.styleListItemSpacing
 
                                 Rectangle {
-                                    border.color: index == stylesList.currentIndex ? DialogValues.textColorInteraction : "transparent"
-                                    border.width: index == stylesList.currentIndex ? DialogValues.styleImageBorderWidth : 0
+                                    width: DialogValues.styleImageWidth
+                                           + 2 * DialogValues.styleImageBorderWidth
+                                    height: DialogValues.styleImageHeight
+                                            + 2 * DialogValues.styleImageBorderWidth
+                                    border.color: index === stylesList.currentIndex ? DialogValues.textColorInteraction : "transparent"
+                                    border.width: index === stylesList.currentIndex ? DialogValues.styleImageBorderWidth : 0
                                     color: "transparent"
-                                    width: parent.width
-                                    height: parent.height - styleText.height - extraPadding.height
 
                                     Image {
                                         id: styleImage
-                                        asynchronous: false
-                                        source: "image://newprojectdialog_library/" + styleModel.iconId(model.index)
-                                        width: 200
-                                        height: 262
                                         x: DialogValues.styleImageBorderWidth
                                         y: DialogValues.styleImageBorderWidth
+                                        width: DialogValues.styleImageWidth
+                                        height: DialogValues.styleImageHeight
+                                        asynchronous: false
+                                        source: "image://newprojectdialog_library/" + BackendApi.styleModel.iconId(model.index)
                                     }
                                 } // Rectangle
 
@@ -175,35 +180,26 @@ Item {
                                     text: model.display
                                     font.pixelSize: DialogValues.defaultPixelSize
                                     lineHeight: DialogValues.defaultLineHeight
-                                    height: 18
+                                    height: DialogValues.styleTextHeight
                                     lineHeightMode: Text.FixedHeight
                                     horizontalAlignment: Text.AlignHCenter
                                     width: parent.width
                                     color: DialogValues.textColor
                                 }
-
-                                Item { id: extraPadding; width: 1; height: 10 }
                             } // Column
-                        } // Rectangle
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                stylesList.currentIndex = index
-                            }
                         }
                     }
 
                     Connections {
-                        target: styleModel
+                        target: BackendApi.styleModel
                         function onModelReset() {
-                            stylesList.currentIndex = dialogBox.styleIndex;
-                            stylesList.currentIndexChanged();
-                            styleTitleText.refresh();
+                            stylesList.currentIndex = BackendApi.styleIndex
+                            stylesList.currentIndexChanged()
+                            styleTitleText.refresh()
                         }
                     }
                 } // ListView
-            } // ColumnLayout
+            } // ScrollView
         } // Parent Item
     } // Rectangle
 }

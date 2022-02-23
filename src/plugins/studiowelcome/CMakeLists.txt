@@ -14,6 +14,7 @@ add_qtc_plugin(StudioWelcome
     createproject.cpp createproject.h
     wizardhandler.cpp wizardhandler.h
     recentpresets.cpp recentpresets.h
+    userpresets.cpp userpresets.h
     screensizemodel.h
     algorithm.h
     stylemodel.h stylemodel.cpp

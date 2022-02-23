@@ -64,7 +64,7 @@ private:
     void sortByCategoryAndId();
     void filter();
 
-    PresetItem makePresetItem(JsonWizardFactory *f, QWidget *parent, const Utils::Id &platform);
+    std::shared_ptr<PresetItem> makePresetItem(JsonWizardFactory *f, QWidget *parent, const Utils::Id &platform);
     std::map<QString, WizardCategory> makePresetItemsGroupedByCategory();
 
 private:

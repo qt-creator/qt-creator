@@ -35,37 +35,26 @@ ScrollBar {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
-    property bool scrollBarVisible: parent.childrenRect.height > parent.height
-    // viewMouseArea: if set, the scrollbar will be visible only on hover over the view containing
-    // the mouse area item.
-    property MouseArea viewMouseArea: null
+    property bool scrollBarVisible: parent.contentHeight > scrollBar.height
 
-    minimumSize: orientation == Qt.Horizontal ? height / width : width / height
-
+    minimumSize: scrollBar.width / scrollBar.height
     orientation: Qt.Vertical
-    policy: computePolicy()
-    x: parent.width - width
-    y: 0
+    policy: scrollBar.scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+
     height: parent.availableHeight
             - (parent.bothVisible ? parent.horizontalThickness : 0)
-    padding: 0
+    padding: scrollBar.active ? StudioTheme.Values.scrollBarActivePadding
+                              : StudioTheme.Values.scrollBarInactivePadding
 
     background: Rectangle {
+        implicitWidth: StudioTheme.Values.scrollBarThickness
+        implicitHeight: StudioTheme.Values.scrollBarThickness
         color: StudioTheme.Values.themeScrollBarTrack
     }
 
     contentItem: Rectangle {
-        implicitWidth: StudioTheme.Values.scrollBarThickness
+        implicitWidth: StudioTheme.Values.scrollBarThickness - 2 * scrollBar.padding
+        implicitHeight: StudioTheme.Values.scrollBarThickness - 2 * scrollBar.padding
         color: StudioTheme.Values.themeScrollBarHandle
-    }
-
-    function computePolicy() {
-        if (!scrollBar.scrollBarVisible)
-            return ScrollBar.AlwaysOff;
-
-        if (scrollBar.viewMouseArea)
-            return scrollBar.viewMouseArea.containsMouse ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
-        else
-            return ScrollBar.AlwaysOn;
     }
 }
