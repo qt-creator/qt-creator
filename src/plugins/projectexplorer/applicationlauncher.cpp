@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include "devicesupport/desktopdevice.h"
 #include "devicesupport/deviceprocess.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -329,7 +330,7 @@ void ApplicationLauncher::start()
 
 void ApplicationLauncherPrivate::start()
 {
-    m_isLocal = m_runnable.device.isNull();
+    m_isLocal = m_runnable.device.isNull() || m_runnable.device.dynamicCast<const DesktopDevice>();
 
     m_exitCode = 0;
     m_exitStatus = QProcess::NormalExit;

@@ -135,10 +135,9 @@ bool ValgrindRunner::Private::run()
     valgrind.command = cmd;
     valgrind.workingDirectory = m_debuggee.workingDirectory;
     valgrind.environment = m_debuggee.environment;
-    if (m_device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-            && m_device->type() != "DockerDeviceType") {
+    if (m_device->type() != "DockerDeviceType")
         valgrind.device = m_device;
-    }
+
     m_valgrindProcess.setRunnable(valgrind);
     m_valgrindProcess.start();
     return true;

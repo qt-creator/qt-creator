@@ -125,10 +125,7 @@ void CallgrindController::run(Option option)
     Runnable controller = m_valgrindRunnable;
     controller.command.setExecutable(FilePath::fromString(CALLGRIND_CONTROL_BINARY));
     controller.command.setArguments(QString("%1 %2").arg(toOptionString(option)).arg(m_pid));
-    if (m_valgrindRunnable.device
-        && m_valgrindRunnable.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        controller.device = m_valgrindRunnable.device;
-    }
+    controller.device = m_valgrindRunnable.device;
     m_controllerProcess->setRunnable(controller);
     m_controllerProcess->start();
 }
