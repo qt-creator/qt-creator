@@ -259,19 +259,21 @@ Rectangle {
         hoverEnabled: enabled
         z: 2
 
-        onReleased:  {
-            if (selectionRange.creationState === selectionRange.creationSecondLimit) {
-                content.interactive = true;
-                selectionRange.creationState = selectionRange.creationFinished;
-            }
-        }
-        onPressed:  {
+        function handlePress() {
             if (selectionRange.creationState === selectionRange.creationFirstLimit) {
                 content.interactive = false;
                 selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
                 selectionRange.creationState = selectionRange.creationSecondLimit;
             }
         }
+
+        onReleased:  {
+            if (selectionRange.creationState === selectionRange.creationSecondLimit) {
+                content.interactive = true;
+                selectionRange.creationState = selectionRange.creationFinished;
+            }
+        }
+        onPressed: handlePress()
         onPositionChanged: {
             if (selectionRange.creationState === selectionRange.creationInactive)
                 selectionRange.creationState = selectionRange.creationFirstLimit;
@@ -280,7 +282,7 @@ Rectangle {
                     selectionRange.creationState !== selectionRange.creationFinished)
                 selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
         }
-        onCanceled: pressed()
+        onCanceled: handlePress()
     }
 
     Flickable {
