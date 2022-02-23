@@ -438,6 +438,7 @@ bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
 
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;
+    arguments.push_back("--no-rate-limit");
 
     CrashpadClient *client = new CrashpadClient();
     bool success = client->StartHandler(
