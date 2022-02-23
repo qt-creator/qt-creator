@@ -28,6 +28,7 @@
 #include "sharedmemory.h"
 #include <QCache>
 #include <QDebug>
+#include <QLoggingCategory>
 
 #include <cstring>
 
@@ -35,6 +36,8 @@
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
 #define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
 #define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
+
+static Q_LOGGING_CATEGORY(imageContainerDebug, "qtc.imagecontainer.debug", QtDebugMsg)
 
 namespace QmlDesigner {
 
@@ -202,7 +205,7 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
         image.setDevicePixelRatio(pixelRatio);
 
         if (image.isNull())
-            qDebug() << Q_FUNC_INFO << "Not able to create image:" << imageWidth << imageHeight << imageFormat;
+            qCInfo(imageContainerDebug()) << Q_FUNC_INFO << "Not able to create image:" << imageWidth << imageHeight << imageFormat;
         else
             std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 6, byteCount);
 
