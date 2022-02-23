@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -114,7 +114,7 @@
             \c {share/qtcreator/templates/wizards/classes/mycpp}
 
         \li Use the \uicontrol {Factory.Reset} action to make the wizard appear
-            in \uicontrol File > \uicontrol {New File or Project} without
+            in \uicontrol File > \uicontrol {New File} without
             restarting \QC.
 
         \li Open the wizard configuration file, \c {wizard.json} for editing:
@@ -122,7 +122,7 @@
             \list
 
                 \li The following settings determine the type of the wizard and
-                    its place in the \uicontrol {New File or Project} dialog:
+                    its place in the \uicontrol {New File} dialog:
 
                     \code
                     "version": 1,
@@ -163,14 +163,14 @@
                     \li \c category is the category in which to place the wizard
                         in the list. You can use a leading letter to specify the
                         position of the category in the list in the
-                        \uicontrol {New File or Project} dialog.
+                        \uicontrol {New File} dialog.
 
                         This information is available in the wizard as
                         \c {%\{category\}}.
                 \endlist
 
             \li The following settings specify the icon and text that appear in
-               the  \uicontrol {New File or Project} dialog:
+                the \uicontrol {New File} dialog:
 
                 \code
                 "trDescription": "Creates a C++ header and a source file for a new class that you can add to a C++ project.",
@@ -194,9 +194,8 @@
                     This information is available in the wizard as
                     \c {%\{trDisplayName\}}.
 
-                \li \c trDisplayCategory appears in the
-                    \uicontrol {New File or Project} dialog, under
-                    \uicontrol Projects.
+                \li \c trDisplayCategory appears in the \uicontrol {New File}
+                    dialog, under \uicontrol {Files and Classes}.
 
                     This information is available in the wizard as
                     \c {%\{trDisplayCategory\}}.
@@ -231,9 +230,9 @@
                     \c{false}.
 
                 \li \c enabled is evaluated to determine whether a wizard is
-                    listed in \uicontrol Files >
-                    \uicontrol {New File or Project}, after \c featuresRequired
-                    has been checked.
+                    listed in \uicontrol File > \uicontrol {New Project} or
+                    \uicontrol {New File}, after \c featuresRequired has been
+                    checked.
 
                     The default value is \c true.
 
@@ -373,7 +372,8 @@
             instance of \QC.
 
         \li \c Platform contains the platform selected in the \uicontrol File >
-            \uicontrol {New File or Project} dialog. This value may be empty.
+            \uicontrol {New Project} or \uicontrol {New File} dialog. This value
+            may be empty.
     \endlist
 
     The following information is only available when the wizard was triggered
@@ -487,7 +487,7 @@
     \endcode
 
     The page evaluates \c {%\{Platform\}} to set the platform selected in
-    \uicontrol File > \uicontrol {New File or Project}.
+    \uicontrol File > \uicontrol {New Project} or \uicontrol {New File}.
 
 
 
