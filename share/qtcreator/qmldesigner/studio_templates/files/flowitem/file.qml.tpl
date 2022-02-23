@@ -15,6 +15,11 @@ import %{ApplicationImport}
 import FlowView 1.0
 
 FlowItem {
+@if %{UseImport}
     width: Constants.width
     height: Constants.height
+@else
+    width: 800
+    height: 600
+@endif
 }

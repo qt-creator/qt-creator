@@ -12,8 +12,13 @@ import %{ApplicationImport}
 import FlowView 1.0
 
 FlowView {
+@if %{UseImport}
     width: Constants.width
     height: Constants.height
+@else
+    width: 800
+    height: 600
+@endif
 
     defaultTransition: FlowTransition {
         id: defaultTransition
