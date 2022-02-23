@@ -1244,14 +1244,18 @@ void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstP
         if (runnable.command.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
         } else {
-            m_launcher.setRunnable(runnable);
+            Runnable runnableWithoutDevice = runnable;
+            runnableWithoutDevice.device.reset();
+            m_launcher.setRunnable(runnableWithoutDevice);
             m_launcher.start();
         }
 
     } else {
         connect(&m_launcher, &ApplicationLauncher::processStarted, this, &RunWorker::reportStarted);
+        Runnable runnableWithDevice = runnable;
+        runnableWithDevice.device = device;
         m_launcher.setRunnable(runnable);
-        m_launcher.start(device);
+        m_launcher.start();
     }
 }
 

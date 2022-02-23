@@ -504,7 +504,8 @@ void QmlEngine::closeConnection()
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
-        const Runnable runnable = runParameters().inferior;
+        Runnable runnable = runParameters().inferior;
+        runnable.device.reset();
         showMessage(tr("Starting %1").arg(runnable.command.toUserOutput()),
                     NormalMessageFormat);
         d->applicationLauncher.setRunnable(runnable);

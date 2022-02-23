@@ -135,20 +135,12 @@ bool ValgrindRunner::Private::run()
     valgrind.command = cmd;
     valgrind.workingDirectory = m_debuggee.workingDirectory;
     valgrind.environment = m_debuggee.environment;
-    valgrind.device = m_device;
-
-    if (m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        m_valgrindProcess.setRunnable(valgrind);
-        m_valgrindProcess.start();
-    } else if (m_device->type() == "DockerDeviceType") {
-        valgrind.device = {};
-        m_valgrindProcess.setRunnable(valgrind);
-        m_valgrindProcess.start();
-    } else {
-        m_valgrindProcess.setRunnable(valgrind);
-        m_valgrindProcess.start(m_device);
+    if (m_device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
+            && m_device->type() != "DockerDeviceType") {
+        valgrind.device = m_device;
     }
-
+    m_valgrindProcess.setRunnable(valgrind);
+    m_valgrindProcess.start();
     return true;
 }
 
@@ -192,12 +184,13 @@ void ValgrindRunner::Private::remoteProcessStarted()
            " | awk '\\$5 ~ /^%3/"  // 5th column must start with valgrind process
            " {print \\$1;}'"       // print 1st then (with PID)
            "\"").arg(proc, m_debuggee.command.executable().fileName(), procEscaped));
+    findPid.device = m_device;
 
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(&m_findPID, &ApplicationLauncher::appendMessage,
             this, &ValgrindRunner::Private::findPidOutputReceived);
     m_findPID.setRunnable(findPid);
-    m_findPID.start(m_device);
+    m_findPID.start();
 }
 
 void ValgrindRunner::Private::findPidOutputReceived(const QString &out, Utils::OutputFormat format)

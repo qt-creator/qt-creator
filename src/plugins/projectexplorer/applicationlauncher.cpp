@@ -70,7 +70,7 @@ public:
     explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
     ~ApplicationLauncherPrivate() override { setFinished(); }
 
-    void start(const IDevice::ConstPtr &device, bool local);
+    void start();
     void stop();
 
     void handleStandardOutput();
@@ -324,17 +324,12 @@ QProcess::ExitStatus ApplicationLauncher::exitStatus() const
 
 void ApplicationLauncher::start()
 {
-    d->start(IDevice::ConstPtr(), true);
+    d->start();
 }
 
-void ApplicationLauncher::start(const IDevice::ConstPtr &device)
+void ApplicationLauncherPrivate::start()
 {
-    d->start(device, false);
-}
-
-void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool local)
-{
-    m_isLocal = local;
+    m_isLocal = m_runnable.device.isNull();
 
     m_exitCode = 0;
     m_exitStatus = QProcess::NormalExit;
@@ -381,19 +376,19 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
         QTC_ASSERT(m_state == Inactive, return);
 
         m_state = Run;
-        if (!device) {
+        if (!m_runnable.device) {
             doReportError(ApplicationLauncher::tr("Cannot run: No device."));
             setFinished();
             return;
         }
 
-        if (!device->canCreateProcess()) {
+        if (!m_runnable.device->canCreateProcess()) {
             doReportError(ApplicationLauncher::tr("Cannot run: Device is not able to create processes."));
             setFinished();
             return;
         }
 
-        if (!device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
+        if (!m_runnable.device->isEmptyCommandAllowed() && m_runnable.command.isEmpty()) {
             doReportError(ApplicationLauncher::tr("Cannot run: No command given."));
             setFinished();
             return;
@@ -401,7 +396,7 @@ void ApplicationLauncherPrivate::start(const IDevice::ConstPtr &device, bool loc
 
         m_stopRequested = false;
 
-        m_process.reset(device->createProcess(this));
+        m_process.reset(m_runnable.device->createProcess(this));
         connect(m_process.get(), &QtcProcess::errorOccurred,
                 this, &ApplicationLauncherPrivate::handleApplicationError);
         connect(m_process.get(), &QtcProcess::finished,

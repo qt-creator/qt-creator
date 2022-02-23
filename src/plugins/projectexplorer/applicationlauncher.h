@@ -58,7 +58,6 @@ public:
     void setRunnable(const Runnable &runnable);
 
     void start();
-    void start(const IDevice::ConstPtr &device);
     void stop();
     bool isRunning() const;
     Utils::ProcessHandle applicationPID() const;
