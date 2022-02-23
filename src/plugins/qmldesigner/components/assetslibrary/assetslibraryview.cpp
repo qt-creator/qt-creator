@@ -126,6 +126,12 @@ void AssetsLibraryView::modelAboutToBeDetached(Model *model)
 
 void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 {
+
+    if (resourcePath == m_lastResourcePath)
+        return;
+
+    m_lastResourcePath = resourcePath;
+
     if (m_widget.isNull()) {
         m_widget = new AssetsLibraryWidget{m_imageCacheData->cache,
                                            m_imageCacheData->asynchronousFontImageCache,
