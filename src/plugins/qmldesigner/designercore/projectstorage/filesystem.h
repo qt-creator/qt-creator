@@ -43,7 +43,7 @@ class ProjectStorage;
 
 using PathCache = SourcePathCache<ProjectStorage<Sqlite::Database>, NonLockingMutex>;
 
-class FileSystem final : public FileSystemInterface
+class FileSystem : public FileSystemInterface
 {
 public:
     FileSystem(PathCache &sourcePathCache)

@@ -1924,6 +1924,8 @@ private:
         void createTypesAndePropertyDeclarationsTables(Database &database,
                                                        const Sqlite::Column &foreignModuleIdColumn)
         {
+            Q_UNUSED(foreignModuleIdColumn)
+
             Sqlite::Table typesTable;
             typesTable.setUseIfNotExists(true);
             typesTable.setName("types");

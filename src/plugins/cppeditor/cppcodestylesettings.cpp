@@ -40,7 +40,6 @@
 #include <utils/qtcassert.h>
 #include <utils/settingsutils.h>
 
-static const char groupPostfix[] = "IndentSettings";
 static const char indentBlockBracesKey[] = "IndentBlockBraces";
 static const char indentBlockBodyKey[] = "IndentBlockBody";
 static const char indentClassBracesKey[] = "IndentClassBraces";

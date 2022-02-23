@@ -135,8 +135,6 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                               disconnect(m_openFileConnection);
 
                           if (target && success) {
-                              const Utils::FilePath &folder = projectDirectory() + "/content";
-
                               Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
                                                                                 + "/content");
                               if (uiFiles.isEmpty())

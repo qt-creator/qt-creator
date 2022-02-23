@@ -217,7 +217,7 @@ void FileDownloader::probeUrl()
     QNetworkReply::connect(reply,
                            &QNetworkReply::errorOccurred,
                            this,
-                           [this, reply](QNetworkReply::NetworkError) {
+                           [this](QNetworkReply::NetworkError) {
                                QQmlData *data = QQmlData::get(this, false);
                                if (!data) {
                                    qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
