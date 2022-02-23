@@ -234,8 +234,6 @@ void ItemLibraryModel::showAllHiddenCategories()
 void ItemLibraryModel::setFlowMode(bool b)
 {
     m_flowMode = b;
-    bool changed;
-    updateVisibility(&changed);
 }
 
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
