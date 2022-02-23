@@ -46,13 +46,13 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
-#include <utils/QtConcurrentTools>
 
 #include <QLoggingCategory>
 #include <QMessageBox>

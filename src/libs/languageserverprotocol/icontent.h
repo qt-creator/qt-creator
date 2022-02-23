@@ -28,7 +28,6 @@
 #include "basemessage.h"
 #include "lsputils.h"
 
-#include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 #include <utils/variant.h>
 

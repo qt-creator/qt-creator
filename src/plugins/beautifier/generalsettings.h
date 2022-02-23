@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <utils/mimetypes/mimetype.h>
+#include <utils/mimeutils.h>
 
 #include <QList>
 

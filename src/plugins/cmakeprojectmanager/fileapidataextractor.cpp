@@ -31,7 +31,7 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>

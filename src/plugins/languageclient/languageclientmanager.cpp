@@ -42,7 +42,6 @@
 #include <texteditor/textmark.h>
 #include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 

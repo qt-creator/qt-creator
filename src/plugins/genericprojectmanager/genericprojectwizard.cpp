@@ -36,7 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QApplication>
 #include <QDebug>

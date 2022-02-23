@@ -37,7 +37,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/stringutils.h>
 
 #include <QCoreApplication>

@@ -31,6 +31,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/link.h>
+#include <utils/mimeutils.h>
 #include <utils/optional.h>
 #include <utils/textutils.h>
 #include <utils/variant.h>

@@ -28,7 +28,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/treescanner.h>
-#include <utils/mimetypes/mimetype.h>
+#include <utils/mimeutils.h>
 #include <utils/runextensions.h>
 
 #include <QCryptographicHash>

@@ -56,10 +56,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QInputDialog>

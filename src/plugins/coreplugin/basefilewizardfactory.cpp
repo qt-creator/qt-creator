@@ -26,14 +26,14 @@
 #include "basefilewizardfactory.h"
 
 #include "basefilewizard.h"
+#include "dialogs/promptoverwritedialog.h"
+#include "editormanager/editormanager.h"
 #include "icontext.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
-#include "editormanager/editormanager.h"
-#include "dialogs/promptoverwritedialog.h"
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizardpage.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/wizard.h>

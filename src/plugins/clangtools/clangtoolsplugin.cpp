@@ -38,8 +38,7 @@
 #include "clangtoolsunittests.h"
 #endif
 
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/mimetypes/mimetype.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>

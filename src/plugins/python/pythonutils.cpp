@@ -36,7 +36,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 
 using namespace Utils;

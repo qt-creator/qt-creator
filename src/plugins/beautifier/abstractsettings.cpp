@@ -33,7 +33,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/genericconstants.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QFile>
 #include <QFileInfo>

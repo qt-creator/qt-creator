@@ -51,10 +51,10 @@
 #include <qmldesigner/qmldesignerplugin.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/dynamiclicensecheck.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 

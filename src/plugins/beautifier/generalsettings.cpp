@@ -30,7 +30,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 namespace Beautifier {
 namespace Internal {

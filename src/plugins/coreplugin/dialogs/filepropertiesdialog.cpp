@@ -29,7 +29,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QDateTime>
 #include <QDebug>

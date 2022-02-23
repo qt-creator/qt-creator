@@ -42,9 +42,9 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
-#include <utils/textutils.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppRewriter.h>

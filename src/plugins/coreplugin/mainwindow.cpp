@@ -56,13 +56,13 @@
 #include <coreplugin/actionmanager/actionmanager_p.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/dialogs/externaltoolconfig.h>
-#include <coreplugin/iwizardfactory.h>
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/editormanager/documentmodel_p.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/inavigationwidgetfactory.h>
+#include <coreplugin/iwizardfactory.h>
 #include <coreplugin/progressmanager/progressmanager_p.h>
 #include <coreplugin/progressmanager/progressview.h>
 #include <coreplugin/settingsdatabase.h>
@@ -70,11 +70,11 @@
 #include <utils/algorithm.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
-#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>

@@ -30,7 +30,7 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/macroexpander.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/templateengine.h>

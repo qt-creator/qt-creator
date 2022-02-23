@@ -43,10 +43,9 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <utils/mimetypes/mimetype.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/qtcassert.h>
+#include <utils/mimeutils.h>
 #include <utils/porting.h>
+#include <utils/qtcassert.h>
 
 #include <QQueue>
 #include <QMutex>

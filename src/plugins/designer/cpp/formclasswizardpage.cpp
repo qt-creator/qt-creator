@@ -31,7 +31,7 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QDebug>
 #include <QMessageBox>

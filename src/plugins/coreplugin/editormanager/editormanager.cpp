@@ -72,8 +72,7 @@
 #include <utils/infobar.h>
 #include <utils/link.h>
 #include <utils/macroexpander.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/mimetypes/mimetype.h>
+#include <utils/mimeutils.h>
 #include <utils/overridecursor.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

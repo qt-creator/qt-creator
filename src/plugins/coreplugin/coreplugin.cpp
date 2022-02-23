@@ -53,7 +53,7 @@
 #include <utils/commandline.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>

@@ -32,7 +32,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QTextDocument>
 

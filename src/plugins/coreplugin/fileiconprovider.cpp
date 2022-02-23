@@ -27,7 +27,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <utils/variant.h>

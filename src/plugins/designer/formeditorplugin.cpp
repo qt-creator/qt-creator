@@ -39,14 +39,14 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/designmode.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QAction>
 #include <QCoreApplication>

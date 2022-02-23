@@ -39,7 +39,6 @@
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

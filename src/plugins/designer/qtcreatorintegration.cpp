@@ -46,7 +46,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

@@ -59,7 +59,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/mimetypes/mimetype.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>

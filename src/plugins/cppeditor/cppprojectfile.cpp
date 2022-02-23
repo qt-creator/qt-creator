@@ -28,7 +28,7 @@
 #include "cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QDebug>
 

@@ -35,7 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;

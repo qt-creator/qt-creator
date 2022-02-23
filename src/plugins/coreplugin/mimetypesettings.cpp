@@ -35,7 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/headerviewstretcher.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -87,7 +87,7 @@ public:
     bool isValid() const { return !name.isEmpty(); }
     QString name;
     QStringList globPatterns;
-    QMap<int, QList<Utils::Internal::MimeMagicRule> > rules;
+    QMap<int, QList<Utils::MimeMagicRule> > rules;
 };
 
 // MimeTypeSettingsModel
@@ -346,12 +346,12 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
                     modifiedType.isValid() ? modifiedType.globPatterns.join(kSemiColon)
                                            : currentMimeType.globPatterns().join(kSemiColon));
 
-        QMap<int, QList<Utils::Internal::MimeMagicRule> > rules =
+        QMap<int, QList<Utils::MimeMagicRule> > rules =
                 modifiedType.isValid() ? modifiedType.rules
                                        : Utils::magicRulesForMimeType(currentMimeType);
         for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
             int priority = it.key();
-            foreach (const Utils::Internal::MimeMagicRule &rule, it.value()) {
+            foreach (const Utils::MimeMagicRule &rule, it.value()) {
                 addMagicHeaderRow(MagicData(rule, priority));
             }
         }
@@ -394,7 +394,7 @@ void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicD
 {
     auto item = new QTreeWidgetItem;
     item->setText(0, QString::fromUtf8(data.m_rule.value()));
-    item->setText(1, QString::fromLatin1(Utils::Internal::MimeMagicRule::typeName(data.m_rule.type())));
+    item->setText(1, QString::fromLatin1(Utils::MimeMagicRule::typeName(data.m_rule.type())));
     item->setText(2, QString::fromLatin1("%1:%2").arg(data.m_rule.startPos()).arg(data.m_rule.endPos()));
     item->setText(3, QString::number(data.m_priority));
     item->setData(0, Qt::UserRole, QVariant::fromValue(data));
@@ -522,12 +522,12 @@ void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
                                       mt.globPatterns.join(kSemiColon));
                 for (auto prioIt = mt.rules.constBegin(); prioIt != mt.rules.constEnd(); ++prioIt) {
                     const QString priorityString = QString::number(prioIt.key());
-                    foreach (const Utils::Internal::MimeMagicRule &rule, prioIt.value()) {
+                    foreach (const Utils::MimeMagicRule &rule, prioIt.value()) {
                         writer.writeStartElement(QLatin1String(matchTagC));
                         writer.writeAttribute(QLatin1String(matchValueAttributeC),
                                               QString::fromUtf8(rule.value()));
                         writer.writeAttribute(QLatin1String(matchTypeAttributeC),
-                                              QString::fromUtf8(Utils::Internal::MimeMagicRule::typeName(rule.type())));
+                                              QString::fromUtf8(Utils::MimeMagicRule::typeName(rule.type())));
                         writer.writeAttribute(QLatin1String(matchOffsetAttributeC),
                                               QString::fromLatin1("%1:%2").arg(rule.startPos())
                                               .arg(rule.endPos()));
@@ -585,7 +585,7 @@ MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModif
                     int priority = atts.value(QLatin1String(priorityAttributeC)).toString().toInt();
                     QByteArray mask = atts.value(QLatin1String(matchMaskAttributeC)).toLatin1();
                     QString errorMessage;
-                    Utils::Internal::MimeMagicRule rule(Utils::Internal::MimeMagicRule::type(typeName),
+                    Utils::MimeMagicRule rule(Utils::MimeMagicRule::type(typeName),
                                                         value, range.first, range.second, mask,
                                                         &errorMessage);
                     if (rule.isValid()) {

@@ -27,7 +27,7 @@
 
 #include "ui_mimetypemagicdialog.h"
 
-#include <utils/mimetypes/mimemagicrule_p.h>
+#include <utils/mimeutils.h>
 
 namespace Core {
 namespace Internal {
@@ -36,11 +36,11 @@ class MagicData
 {
 public:
     MagicData()
-        : m_rule(Utils::Internal::MimeMagicRule::String, QByteArray(" "), 0, 0)
+        : m_rule(Utils::MimeMagicRule::String, QByteArray(" "), 0, 0)
     {
     }
 
-    MagicData(Utils::Internal::MimeMagicRule rule, int priority)
+    MagicData(Utils::MimeMagicRule rule, int priority)
         : m_rule(rule)
         , m_priority(priority)
     {
@@ -49,9 +49,9 @@ public:
     bool operator==(const MagicData &other) const;
     bool operator!=(const MagicData &other) { return !(*this == other); }
 
-    static QByteArray normalizedMask(const Utils::Internal::MimeMagicRule &rule);
+    static QByteArray normalizedMask(const Utils::MimeMagicRule &rule);
 
-    Utils::Internal::MimeMagicRule m_rule;
+    Utils::MimeMagicRule m_rule;
     int m_priority = 0;
 };
 
@@ -68,7 +68,7 @@ private:
     void setToRecommendedValues();
     void applyRecommended(bool checked);
     void validateAccept();
-    Utils::Internal::MimeMagicRule createRule(QString *errorMessage = nullptr) const;
+    Utils::MimeMagicRule createRule(QString *errorMessage = nullptr) const;
 
     Ui::MimeTypeMagicDialog ui;
     int m_customRangeStart = 0;

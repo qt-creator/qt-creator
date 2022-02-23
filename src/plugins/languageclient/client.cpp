@@ -57,7 +57,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 
 

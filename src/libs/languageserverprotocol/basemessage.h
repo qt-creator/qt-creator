@@ -27,8 +27,6 @@
 
 #include "languageserverprotocol_global.h"
 
-#include <utils/mimetypes/mimetype.h>
-
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QLoggingCategory>

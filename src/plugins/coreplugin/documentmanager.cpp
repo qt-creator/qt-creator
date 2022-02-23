@@ -50,7 +50,7 @@
 #include <utils/fileutils.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/optional.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

@@ -28,14 +28,16 @@
 #include <coreplugin/core_global.h>
 
 #include <utils/id.h>
-#include <utils/mimetypes/mimetype.h>
 
 #include <QObject>
 #include <QStringList>
 
 #include <functional>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class MimeType;
+}
 
 namespace Core {
 

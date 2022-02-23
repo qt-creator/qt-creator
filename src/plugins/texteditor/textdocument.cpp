@@ -27,21 +27,21 @@
 
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
-#include "textindenter.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
 #include "texteditorconstants.h"
+#include "textindenter.h"
 #include "typingsettings.h"
 #include <coreplugin/diffservice.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/textutils.h>
 #include <utils/guard.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
+#include <utils/textutils.h>
 
 #include <QAction>
 #include <QApplication>

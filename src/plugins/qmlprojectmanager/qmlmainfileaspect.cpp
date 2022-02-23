@@ -37,7 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QComboBox>
 

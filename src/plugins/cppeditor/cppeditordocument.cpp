@@ -49,7 +49,7 @@
 
 #include <utils/executeondestruction.h>
 #include <utils/infobar.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 

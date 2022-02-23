@@ -27,8 +27,6 @@
 
 #include "jsonrpcmessages.h"
 
-#include <utils/mimetypes/mimedatabase.h>
-
 #include <QBuffer>
 #include <QTextCodec>
 

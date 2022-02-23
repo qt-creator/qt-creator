@@ -30,7 +30,7 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>

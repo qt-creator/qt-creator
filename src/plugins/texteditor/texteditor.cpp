@@ -79,7 +79,7 @@
 #include <utils/fixedsizeclicklabel.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/multitextcursor.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>

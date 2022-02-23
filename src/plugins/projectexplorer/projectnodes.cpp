@@ -39,8 +39,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/mimetypes/mimetype.h>
+#include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

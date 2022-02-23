@@ -49,7 +49,6 @@
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/winutils.h>
 

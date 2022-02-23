@@ -28,7 +28,7 @@
 #include "algorithm.h"
 #include "checkablemessagebox.h"
 #include "environment.h"
-#include "mimetypes/mimedatabase.h"
+#include "mimeutils.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
 

@@ -26,8 +26,6 @@
 #include <languageserverprotocol/basemessage.h>
 #include <languageserverprotocol/jsonobject.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
-#include <utils/mimetypes/mimetype.h>
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QTextCodec>
 #include <QtTest>

@@ -46,7 +46,6 @@
 
 #include <qtsupport/qtkitinformation.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 

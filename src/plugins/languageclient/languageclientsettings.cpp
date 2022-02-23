@@ -41,12 +41,11 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
-#include <utils/utilsicons.h>
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/jsontreeitem.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
 #include <QBoxLayout>

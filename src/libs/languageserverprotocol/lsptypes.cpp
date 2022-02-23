@@ -26,7 +26,6 @@
 #include "lsptypes.h"
 #include "lsputils.h"
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/textutils.h>
 
 #include <QFile>

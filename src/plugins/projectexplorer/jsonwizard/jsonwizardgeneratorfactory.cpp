@@ -42,9 +42,9 @@
 #include <texteditor/textindenter.h>
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/stringutils.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QCoreApplication>
 #include <QDebug>

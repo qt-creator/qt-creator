@@ -28,7 +28,7 @@
 #include "editormanager.h"
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>

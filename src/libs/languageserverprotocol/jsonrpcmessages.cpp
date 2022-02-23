@@ -28,7 +28,6 @@
 #include "lsputils.h"
 #include "initializemessages.h"
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

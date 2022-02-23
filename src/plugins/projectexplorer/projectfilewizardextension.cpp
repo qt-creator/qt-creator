@@ -44,7 +44,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textindenter.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QPointer>
 #include <QDebug>

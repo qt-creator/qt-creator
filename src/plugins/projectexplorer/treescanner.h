@@ -28,8 +28,8 @@
 #include "projectexplorer_export.h"
 #include "projectnodes.h"
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 
 #include <QObject>
 #include <QFuture>

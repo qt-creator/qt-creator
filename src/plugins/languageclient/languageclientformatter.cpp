@@ -30,7 +30,7 @@
 
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QTextDocument>
 

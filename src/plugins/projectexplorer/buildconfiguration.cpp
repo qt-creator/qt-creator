@@ -49,10 +49,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/macroexpander.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/mimetypes/mimetype.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 

@@ -86,13 +86,7 @@ add_qtc_library(Utils
     listutils.h
     macroexpander.cpp macroexpander.h
     mapreduce.h
-    mimetypes/mimedatabase.cpp mimetypes/mimedatabase.h mimetypes/mimedatabase_p.h
-    mimetypes/mimeglobpattern.cpp mimetypes/mimeglobpattern_p.h
-    mimetypes/mimemagicrule.cpp mimetypes/mimemagicrule_p.h
-    mimetypes/mimemagicrulematcher.cpp mimetypes/mimemagicrulematcher_p.h
-    mimetypes/mimeprovider.cpp mimetypes/mimeprovider_p.h
-    mimetypes/mimetype.cpp mimetypes/mimetype.h mimetypes/mimetype_p.h
-    mimetypes/mimetypeparser.cpp mimetypes/mimetypeparser_p.h
+    mimeutils.h
     multitextcursor.cpp multitextcursor.h
     namevaluedictionary.cpp namevaluedictionary.h
     namevaluedictionary.cpp namevaluedictionary.h
@@ -190,6 +184,37 @@ add_qtc_library(Utils
     winutils.cpp winutils.h
     wizard.cpp wizard.h
     wizardpage.cpp wizardpage.h
+)
+
+option(QTC_USE_NEW_MIMEDATABASE "Use updated MIME database implementation" NO)
+
+if(QTC_USE_NEW_MIMEDATABASE)
+  set(mime_prefix "mimetypes2")
+else()
+  set(mime_prefix "mimetypes")
+endif()
+
+extend_qtc_library(Utils
+  SOURCES_PREFIX ${mime_prefix}
+  PUBLIC_INCLUDES ${mime_prefix}
+  SOURCES
+    mimedatabase.cpp
+    mimedatabase.h
+    mimedatabase_p.h
+    mimeglobpattern.cpp
+    mimeglobpattern_p.h
+    mimemagicrule.cpp
+    mimemagicrule_p.h
+    mimemagicrulematcher.cpp
+    mimemagicrulematcher_p.h
+    mimeprovider.cpp
+    mimeprovider_p.h
+    mimetype.cpp
+    mimetype.h
+    mimetype_p.h
+    mimetypeparser.cpp
+    mimetypeparser_p.h
+    mimeutils.cpp
 )
 
 extend_qtc_library(Utils CONDITION WIN32

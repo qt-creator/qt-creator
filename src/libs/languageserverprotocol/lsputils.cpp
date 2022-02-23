@@ -25,8 +25,6 @@
 
 #include "lsputils.h"
 
-#include <utils/mimetypes/mimedatabase.h>
-
 #include <QHash>
 #include <QLoggingCategory>
 #include <QVector>

@@ -50,7 +50,7 @@
 #include <clangsupport/filecontainer.h>
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 #include <utils/optional.h>
 #include <utils/porting.h>
 #include <utils/qtcassert.h>

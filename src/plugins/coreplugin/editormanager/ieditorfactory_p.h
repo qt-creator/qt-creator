@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <utils/mimetypes/mimetype.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QHash>
 #include <QSet>

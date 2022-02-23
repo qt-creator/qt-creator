@@ -62,8 +62,8 @@ namespace Utils {
 class MimeType;
 
 namespace Internal {
-
 class MimeMagicRulePrivate;
+}
 
 class QTCREATOR_UTILS_EXPORT MimeMagicRule
 {
@@ -97,12 +97,11 @@ public:
     static bool matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength, int valueLength, const char *valueData, const char *mask);
 
 private:
-    const QScopedPointer<MimeMagicRulePrivate> d;
+    const QScopedPointer<Internal::MimeMagicRulePrivate> d;
 };
 
-} // Internal
 } // Utils
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(Utils::Internal::MimeMagicRule, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(Utils::MimeMagicRule, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE

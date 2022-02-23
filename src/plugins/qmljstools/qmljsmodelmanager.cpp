@@ -55,7 +55,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimeutils.h>
 
 #include <QDir>
 #include <QFile>
