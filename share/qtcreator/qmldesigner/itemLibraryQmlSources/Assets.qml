@@ -424,7 +424,7 @@ Item {
             width: parent.width
             height: parent.height - y
             clip: true
-            interactive: assetsView.verticalScrollBarVisible
+            interactive: assetsView.verticalScrollBarVisible && !contextMenu.opened
 
             Column {
                 Repeater {

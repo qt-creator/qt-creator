@@ -246,6 +246,7 @@ Item {
             id: verticalScrollView
             anchors.fill: parent
             clip: true
+            interactive: !itemContextMenu.opened && !moduleContextMenu.opened
 
             onContentHeightChanged: {
                 var maxPosition = Math.max(contentHeight - verticalScrollView.height, 0)
@@ -362,6 +363,7 @@ Item {
                 width: 270
                 height: parent.height
                 clip: true
+                interactive: !itemContextMenu.opened && !moduleContextMenu.opened
 
                 onContentHeightChanged: {
                     var maxPosition = Math.max(contentHeight - horizontalScrollView.height, 0)
