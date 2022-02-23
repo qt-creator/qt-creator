@@ -357,7 +357,8 @@ void FormEditorWidget::initialize()
             defaultZoom = m_formEditorView->rootModelNode().auxiliaryData("formeditorZoom").toDouble();
     }
     m_graphicsView->setZoomFactor(defaultZoom);
-    m_graphicsView->centerOn(m_formEditorView->scene()->rootFormEditorItem());
+    if (m_formEditorView->scene() && m_formEditorView->scene()->rootFormEditorItem())
+        m_graphicsView->centerOn(m_formEditorView->scene()->rootFormEditorItem());
     m_zoomAction->setZoomFactor(defaultZoom);
     updateActions();
 }
