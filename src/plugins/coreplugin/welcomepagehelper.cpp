@@ -406,6 +406,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     if (hovered) {
         if (index != m_previousIndex) {
             m_previousIndex = index;
+            m_currentTagRects.clear();
             m_blurredThumbnail = QPixmap();
             m_startTime.start();
             m_currentWidget = qobject_cast<QAbstractItemView *>(
@@ -521,10 +522,10 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->drawText(tagsLabelRect, tagsLabelText);
 
     painter->setPen(themeColor(Theme::Welcome_LinkColor));
-    m_currentTagRects.clear();
     int emptyTagRowsLeft = 2;
     int xx = 0;
     int yy = 0;
+    const bool populateTagsRects = m_currentTagRects.empty();
     for (const QString &tag : item->tags) {
         const int ww = fm.horizontalAdvance(tag) + tagsHorSpacing;
         if (xx + ww > textArea.width() - tagsLabelRect.width()) {
@@ -536,7 +537,8 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         const QRect tagRect = QRect(xx, yy, ww, tagsLabelRect.height())
                 .translated(tagsLabelRect.topRight());
         painter->drawText(tagRect, tag);
-        m_currentTagRects.append({ tag, tagRect.translated(rc.topLeft()) });
+        if (populateTagsRects)
+            m_currentTagRects.append({ tag, tagRect });
         xx += ww;
     }
 
@@ -556,16 +558,16 @@ bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
             return false;
 
         if (index.isValid()) {
-            const QPoint pos = mev->pos();
-            if (pos.y() > option.rect.y() + TagsSeparatorY) {
-                //const QStringList tags = idx.data(Tags).toStringList();
-                for (const auto &it : qAsConst(m_currentTagRects)) {
-                    if (it.second.contains(pos))
-                        emit tagClicked(it.first);
-                }
-            } else {
+            const QPoint mousePos = mev->pos() - option.rect.topLeft();
+            const auto tagUnderMouse =
+                    Utils::findOrDefault(m_currentTagRects,
+                                         [&mousePos](const QPair<QString, QRect> &tag) {
+                return tag.second.contains(mousePos);
+            });
+            if (!tagUnderMouse.first.isEmpty())
+                emit tagClicked(tagUnderMouse.first);
+            else
                 clickAction(item);
-            }
         }
     }
     return QStyledItemDelegate::editorEvent(event, model, option, index);
