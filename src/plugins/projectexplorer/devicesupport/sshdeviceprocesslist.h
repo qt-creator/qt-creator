@@ -44,10 +44,10 @@ private:
     void handleKillProcessFinished(const QString &errorString);
 
     virtual QString listProcessesCommandLine() const = 0;
-    virtual QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const = 0;
+    virtual QList<Utils::ProcessInfo> buildProcessList(const QString &listProcessesReply) const = 0;
 
     void doUpdate() override;
-    void doKillProcess(const DeviceProcessItem &process) override;
+    void doKillProcess(const Utils::ProcessInfo &process) override;
 
     void handleProcessError(const QString &errorMessage);
     void setFinished();

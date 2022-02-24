@@ -51,6 +51,7 @@
 #include <QFileDialog>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -224,7 +225,7 @@ void UnstartedAppWatcherDialog::startWatching()
     }
 }
 
-void UnstartedAppWatcherDialog::pidFound(const DeviceProcessItem &p)
+void UnstartedAppWatcherDialog::pidFound(const ProcessInfo &p)
 {
     setWaitingState(FoundState);
     startStopTimer(false);
@@ -256,16 +257,17 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 void UnstartedAppWatcherDialog::findProcess()
 {
     const QString &appName = m_pathChooser->filePath().normalizedPathName().toString();
-    DeviceProcessItem fallback;
-    foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
-        if (Utils::FileUtils::normalizedPathName(p.exe) == appName) {
-            pidFound(p);
+    ProcessInfo fallback;
+    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+    for (const ProcessInfo &processInfo : processInfoList) {
+        if (Utils::FileUtils::normalizedPathName(processInfo.executable) == appName) {
+            pidFound(processInfo);
             return;
         }
-        if (p.cmdLine.startsWith(appName))
-            fallback = p;
+        if (processInfo.commandLine.startsWith(appName))
+            fallback = processInfo;
     }
-    if (fallback.pid != 0)
+    if (fallback.processId != 0)
         pidFound(fallback);
 }
 
@@ -302,7 +304,7 @@ Kit *UnstartedAppWatcherDialog::currentKit() const
     return m_kitChooser->currentKit();
 }
 
-DeviceProcessItem UnstartedAppWatcherDialog::currentProcess() const
+ProcessInfo UnstartedAppWatcherDialog::currentProcess() const
 {
     return m_process;
 }

@@ -32,19 +32,11 @@
 
 #include <memory>
 
+namespace Utils { class ProcessInfo; }
+
 namespace ProjectExplorer {
 
 namespace Internal { class DeviceProcessListPrivate; }
-
-class PROJECTEXPLORER_EXPORT DeviceProcessItem
-{
-public:
-    bool operator<(const DeviceProcessItem &other) const;
-
-    qint64 pid = 0;
-    QString cmdLine;
-    QString exe;
-};
 
 class PROJECTEXPLORER_EXPORT DeviceProcessList : public QObject
 {
@@ -58,10 +50,8 @@ public:
     void killProcess(int row);
     void setOwnPid(qint64 pid);
 
-    DeviceProcessItem at(int row) const;
+    Utils::ProcessInfo at(int row) const;
     QAbstractItemModel *model() const;
-
-    static QList<DeviceProcessItem> localProcesses();
 
 signals:
     void processListUpdated();
@@ -71,13 +61,13 @@ signals:
 protected:
     void reportError(const QString &message);
     void reportProcessKilled();
-    void reportProcessListUpdated(const QList<DeviceProcessItem> &processes);
+    void reportProcessListUpdated(const QList<Utils::ProcessInfo> &processes);
 
     IDevice::ConstPtr device() const;
 
 private:
     virtual void doUpdate() = 0;
-    virtual void doKillProcess(const DeviceProcessItem &process) = 0;
+    virtual void doKillProcess(const Utils::ProcessInfo &process) = 0;
 
     void setFinished();
 

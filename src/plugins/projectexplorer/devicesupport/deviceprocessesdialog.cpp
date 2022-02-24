@@ -30,6 +30,7 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/itemviews.h>
+#include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDialogButtonBox>
@@ -99,7 +100,7 @@ public:
     void handleProcessListUpdated();
     void handleProcessKilled();
     void updateButtons();
-    DeviceProcessItem selectedProcess() const;
+    ProcessInfo selectedProcess() const;
 
     QDialog *q;
     DeviceProcessList *processList;
@@ -279,11 +280,11 @@ void DeviceProcessesDialogPrivate::updateButtons()
     errorText->setVisible(!errorText->document()->isEmpty());
 }
 
-DeviceProcessItem DeviceProcessesDialogPrivate::selectedProcess() const
+ProcessInfo DeviceProcessesDialogPrivate::selectedProcess() const
 {
     const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
     if (indexes.empty() || !processList)
-        return DeviceProcessItem();
+        return ProcessInfo();
     return processList->at(proxyModel.mapToSource(indexes.first()).row());
 }
 
@@ -352,7 +353,7 @@ void DeviceProcessesDialog::showAllDevices()
     d->updateDevice();
 }
 
-DeviceProcessItem DeviceProcessesDialog::currentProcess() const
+ProcessInfo DeviceProcessesDialog::currentProcess() const
 {
     return d->selectedProcess();
 }

@@ -37,11 +37,9 @@ class LocalProcessList : public DeviceProcessList
 public:
     explicit LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = nullptr);
 
-    static QList<DeviceProcessItem> getLocalProcesses();
-
 private:
     void doUpdate() override;
-    void doKillProcess(const DeviceProcessItem &process) override;
+    void doKillProcess(const Utils::ProcessInfo &process) override;
 
 private:
     void handleUpdate();

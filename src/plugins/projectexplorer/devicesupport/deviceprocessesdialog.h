@@ -33,9 +33,10 @@
 
 #include <memory>
 
+namespace Utils { class ProcessInfo; }
+
 namespace ProjectExplorer {
 
-class DeviceProcessItem;
 class KitChooser;
 
 namespace Internal { class DeviceProcessesDialogPrivate; }
@@ -52,7 +53,7 @@ public:
 
     void setDevice(const IDevice::ConstPtr &device);
     void showAllDevices();
-    DeviceProcessItem currentProcess() const;
+    Utils::ProcessInfo currentProcess() const;
     KitChooser *kitChooser() const;
     void logMessage(const QString &line);
     DeviceProcessesDialog(KitChooser *chooser, QWidget *parent);

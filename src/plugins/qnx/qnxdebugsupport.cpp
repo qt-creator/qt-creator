@@ -38,7 +38,6 @@
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
@@ -55,6 +54,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
+#include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -244,8 +244,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
     if (!runConfig)
         return;
 
-    DeviceProcessItem process = dlg.currentProcess();
-    const int pid = process.pid;
+    const int pid = dlg.currentProcess().processId;
 //    QString projectSourceDirectory = dlg.projectSource();
     FilePath localExecutable = dlg.localExecutable();
     if (localExecutable.isEmpty()) {

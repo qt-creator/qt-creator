@@ -25,12 +25,11 @@
 
 #include "desktopprocesssignaloperation.h"
 
-#include "localprocesslist.h"
-
 #include <app/app_version.h>
 
 #include <utils/winutils.h>
 #include <utils/fileutils.h>
+#include <utils/processinfo.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -46,6 +45,8 @@
 #include <signal.h>
 #endif // else Q_OS_WIN
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 void DesktopProcessSignalOperation::killProcess(qint64 pid)
@@ -57,9 +58,10 @@ void DesktopProcessSignalOperation::killProcess(qint64 pid)
 void DesktopProcessSignalOperation::killProcess(const QString &filePath)
 {
     m_errorMessage.clear();
-    foreach (const DeviceProcessItem &process, Internal::LocalProcessList::getLocalProcesses()) {
-        if (process.cmdLine == filePath)
-            killProcessSilently(process.pid);
+    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+    for (const ProcessInfo &processInfo : processInfoList) {
+        if (processInfo.commandLine == filePath)
+            killProcessSilently(processInfo.processId);
     }
     emit finished(m_errorMessage);
 }
@@ -74,9 +76,10 @@ void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
 void DesktopProcessSignalOperation::interruptProcess(const QString &filePath)
 {
     m_errorMessage.clear();
-    foreach (const DeviceProcessItem &process, Internal::LocalProcessList::getLocalProcesses()) {
-        if (process.cmdLine == filePath)
-            interruptProcessSilently(process.pid);
+    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+    for (const ProcessInfo &processInfo : processInfoList) {
+        if (processInfo.commandLine == filePath)
+            interruptProcessSilently(processInfo.processId);
     }
     emit finished(m_errorMessage);
 }
@@ -105,7 +108,7 @@ void DesktopProcessSignalOperation::killProcessSilently(qint64 pid)
             |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
     if (const HANDLE handle = OpenProcess(rights, FALSE, DWORD(pid))) {
         if (!TerminateProcess(handle, UINT(-1)))
-            appendMsgCannotKill(pid, Utils::winErrorMessage(GetLastError()));
+            appendMsgCannotKill(pid, winErrorMessage(GetLastError()));
         CloseHandle(handle);
     } else {
         appendMsgCannotKill(pid, tr("Cannot open process."));
@@ -123,10 +126,10 @@ void DesktopProcessSignalOperation::interruptProcessSilently(qint64 pid)
 #ifdef Q_OS_WIN
     enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
 
-    bool is64BitSystem = Utils::is64BitWindowsSystem();
+    bool is64BitSystem = is64BitWindowsSystem();
     SpecialInterrupt si = NoSpecialInterrupt;
     if (is64BitSystem)
-        si = Utils::is64BitWindowsBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
+        si = is64BitWindowsBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
     /*
     Windows 64 bit has a 32 bit subsystem (WOW64) which makes it possible to run a
     32 bit application inside a 64 bit environment.
@@ -164,18 +167,18 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
         inferior = OpenProcess(rights, FALSE, pid);
         if (inferior == NULL) {
             appendMsgCannotInterrupt(pid, tr("Cannot open process: %1")
-                                     + Utils::winErrorMessage(GetLastError()));
+                                     + winErrorMessage(GetLastError()));
             break;
         }
-        bool creatorIs64Bit = Utils::is64BitWindowsBinary(
-            Utils::FilePath::fromUserInput(QCoreApplication::applicationFilePath()));
+        bool creatorIs64Bit = is64BitWindowsBinary(
+            FilePath::fromUserInput(QCoreApplication::applicationFilePath()));
         if (!is64BitSystem
                 || si == NoSpecialInterrupt
                 || (si == Win64Interrupt && creatorIs64Bit)
                 || (si == Win32Interrupt && !creatorIs64Bit)) {
             if (!DebugBreakProcess(inferior)) {
                 appendMsgCannotInterrupt(pid, tr("DebugBreakProcess failed:")
-                                          + QLatin1Char(' ') + Utils::winErrorMessage(GetLastError()));
+                                          + QLatin1Char(' ') + winErrorMessage(GetLastError()));
             }
         } else if (si == Win32Interrupt || si == Win64Interrupt) {
             QString executable = QCoreApplication::applicationDirPath();

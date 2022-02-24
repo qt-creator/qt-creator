@@ -28,7 +28,7 @@
 #include <QDialog>
 #include <QTimer>
 
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <utils/processinfo.h>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -53,7 +53,7 @@ public:
     explicit UnstartedAppWatcherDialog(QWidget *parent = nullptr);
 
     ProjectExplorer::Kit *currentKit() const;
-    ProjectExplorer::DeviceProcessItem currentProcess() const;
+    Utils::ProcessInfo currentProcess() const;
     bool hideOnAttach() const;
     bool continueOnAttach() const;
     void startWatching();
@@ -65,7 +65,7 @@ signals:
 
 private:
     void selectExecutable();
-    void pidFound(const ProjectExplorer::DeviceProcessItem &p);
+    void pidFound(const Utils::ProcessInfo &p);
     void startStopWatching(bool start);
     void findProcess();
     void stopAndCheckExecutable();
@@ -89,7 +89,7 @@ private:
     QCheckBox *m_hideOnAttachCheckBox;
     QCheckBox *m_continueOnAttachCheckBox;
     QPushButton *m_watchingPushButton;
-    ProjectExplorer::DeviceProcessItem m_process;
+    Utils::ProcessInfo m_process;
     QTimer m_timer;
 };
 

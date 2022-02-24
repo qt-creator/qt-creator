@@ -89,7 +89,6 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -114,6 +113,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
+#include <utils/processinfo.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/statuslabel.h>
@@ -606,7 +606,7 @@ public:
     void extensionsInitialized();
     void aboutToShutdown();
 
-    RunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process, bool contAfterAttach);
+    RunControl *attachToRunningProcess(Kit *kit, const ProcessInfo &process, bool contAfterAttach);
 
     void writeSettings()
     {
@@ -1659,16 +1659,16 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     QTC_ASSERT(device, return);
 
-    DeviceProcessItem process = dlg->currentProcess();
+    const ProcessInfo processInfo = dlg->currentProcess();
 
     if (device->type() == PE::DESKTOP_DEVICE_TYPE) {
-        attachToRunningProcess(kit, process, false);
+        attachToRunningProcess(kit, processInfo, false);
     } else {
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(kit);
         //: %1: PID
-        runControl->setDisplayName(tr("Process %1").arg(process.pid));
-        auto debugger = new RemoteAttachRunner(runControl, ProcessHandle(process.pid));
+        runControl->setDisplayName(tr("Process %1").arg(processInfo.processId));
+        auto debugger = new RemoteAttachRunner(runControl, ProcessHandle(processInfo.processId));
         debugger->startRunControl();
     }
 }
@@ -1693,23 +1693,23 @@ void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
 }
 
 RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
-    DeviceProcessItem process, bool contAfterAttach)
+    const ProcessInfo &processInfo, bool contAfterAttach)
 {
     QTC_ASSERT(kit, return nullptr);
     IDevice::ConstPtr device = DeviceKitAspect::device(kit);
     QTC_ASSERT(device, return nullptr);
-    if (process.pid == 0) {
+    if (processInfo.processId == 0) {
         AsynchronousMessageBox::warning(tr("Warning"), tr("Cannot attach to process with PID 0"));
         return nullptr;
     }
 
     const Abi tcAbi = ToolChainKitAspect::targetAbi(kit);
     const bool isWindows = (tcAbi.os() == Abi::WindowsOS);
-    if (isWindows && isWinProcessBeingDebugged(process.pid)) {
+    if (isWindows && isWinProcessBeingDebugged(processInfo.processId)) {
         AsynchronousMessageBox::warning(
                     tr("Process Already Under Debugger Control"),
                     tr("The process %1 is already under the control of a debugger.\n"
-                       "%2 cannot attach to it.").arg(process.pid)
+                       "%2 cannot attach to it.").arg(processInfo.processId)
                     .arg(Core::Constants::IDE_DISPLAY_NAME));
         return nullptr;
     }
@@ -1723,10 +1723,10 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(kit);
     //: %1: PID
-    runControl->setDisplayName(tr("Process %1").arg(process.pid));
+    runControl->setDisplayName(tr("Process %1").arg(processInfo.processId));
     auto debugger = new DebuggerRunTool(runControl);
-    debugger->setAttachPid(ProcessHandle(process.pid));
-    debugger->setInferiorExecutable(FilePath::fromString(process.exe));
+    debugger->setAttachPid(ProcessHandle(processInfo.processId));
+    debugger->setInferiorExecutable(FilePath::fromString(processInfo.executable));
     debugger->setInferiorDevice(device);
     debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);

@@ -31,7 +31,6 @@
 
 #include <projectexplorer/devicesupport/desktopprocesssignaloperation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtversionmanager.h>

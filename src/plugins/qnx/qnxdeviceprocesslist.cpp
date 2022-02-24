@@ -27,12 +27,14 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/processinfo.h>
 
 #include <QRegularExpression>
 #include <QStringList>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+using namespace Utils;
 
 QnxDeviceProcessList::QnxDeviceProcessList(
         const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent)
@@ -45,10 +47,9 @@ QString QnxDeviceProcessList::listProcessesCommandLine() const
     return QLatin1String("pidin -F '%a %A {/%n}'");
 }
 
-QList<ProjectExplorer::DeviceProcessItem> QnxDeviceProcessList::buildProcessList(
-        const QString &listProcessesReply) const
+QList<ProcessInfo> QnxDeviceProcessList::buildProcessList(const QString &listProcessesReply) const
 {
-    QList<ProjectExplorer::DeviceProcessItem> processes;
+    QList<ProcessInfo> processes;
     QStringList lines = listProcessesReply.split(QLatin1Char('\n'));
     if (lines.isEmpty())
         return processes;
@@ -64,10 +65,10 @@ QList<ProjectExplorer::DeviceProcessItem> QnxDeviceProcessList::buildProcessList
                 const int pid = captures[1].toInt();
                 const QString args = captures[2];
                 const QString exe = captures[3];
-                ProjectExplorer::DeviceProcessItem deviceProcess;
-                deviceProcess.pid = pid;
-                deviceProcess.exe = exe.trimmed();
-                deviceProcess.cmdLine = args.trimmed();
+                ProcessInfo deviceProcess;
+                deviceProcess.processId = pid;
+                deviceProcess.executable = exe.trimmed();
+                deviceProcess.commandLine = args.trimmed();
                 processes.append(deviceProcess);
             }
         }

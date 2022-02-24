@@ -40,8 +40,7 @@ public:
 
 private:
     QString listProcessesCommandLine() const override;
-    QList<ProjectExplorer::DeviceProcessItem> buildProcessList(
-            const QString &listProcessesReply) const override;
+    QList<Utils::ProcessInfo> buildProcessList(const QString &listProcessesReply) const override;
 };
 
 } // namespace Internal

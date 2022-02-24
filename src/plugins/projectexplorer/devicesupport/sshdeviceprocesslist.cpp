@@ -28,10 +28,12 @@
 #include "idevice.h"
 
 #include <ssh/sshremoteprocessrunner.h>
-#include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <utils/processinfo.h>
+#include <utils/qtcassert.h>
 
 using namespace QSsh;
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -58,13 +60,13 @@ void SshDeviceProcessList::doUpdate()
     d->process.run(listProcessesCommandLine(), device()->sshParameters());
 }
 
-void SshDeviceProcessList::doKillProcess(const DeviceProcessItem &process)
+void SshDeviceProcessList::doKillProcess(const ProcessInfo &process)
 {
     d->signalOperation = device()->signalOperation();
     QTC_ASSERT(d->signalOperation, return);
     connect(d->signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &SshDeviceProcessList::handleKillProcessFinished);
-    d->signalOperation->killProcess(process.pid);
+    d->signalOperation->killProcess(process.processId);
 }
 
 void SshDeviceProcessList::handleConnectionError()

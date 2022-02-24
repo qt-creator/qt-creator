@@ -48,6 +48,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/port.h>
+#include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
@@ -100,12 +101,12 @@ private:
             "done").arg(QLatin1String(Delimiter0)).arg(QLatin1String(Delimiter1));
     }
 
-    QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const override
+    QList<ProcessInfo> buildProcessList(const QString &listProcessesReply) const override
     {
-        QList<DeviceProcessItem> processes;
+        QList<ProcessInfo> processes;
         const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
                 + QString::fromLatin1(Delimiter1), Qt::SkipEmptyParts);
-        foreach (const QString &line, lines) {
+        for (const QString &line : lines) {
             const QStringList elements = line.split(QLatin1Char('\n'));
             if (elements.count() < 4) {
                 qDebug("%s: Expected four list elements, got %d. Line was '%s'.", Q_FUNC_INFO,
@@ -132,10 +133,10 @@ private:
                         + QLatin1Char(']');
             }
 
-            DeviceProcessItem process;
-            process.pid = pid;
-            process.cmdLine = command;
-            process.exe = elements.at(3);
+            ProcessInfo process;
+            process.processId = pid;
+            process.commandLine = command;
+            process.executable = elements.at(3);
             processes.append(process);
         }
 
