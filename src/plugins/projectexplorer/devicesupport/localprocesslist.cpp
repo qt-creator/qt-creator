@@ -107,23 +107,23 @@ static QList<DeviceProcessItem> getLocalProcessesUsingProc(const QDir &procDir)
     QList<DeviceProcessItem> processes;
     const QString procDirPath = QLatin1String(procDirC);
     const QStringList procIds = procDir.entryList();
-    foreach (const QString &procId, procIds) {
+    for (const QString &procId : procIds) {
         if (!isUnixProcessId(procId))
             continue;
         DeviceProcessItem proc;
         proc.pid = procId.toInt();
         const QString root = procDirPath + procId;
 
-        QFile exeFile(root + QLatin1String("/exe"));
+        const QFile exeFile(root + QLatin1String("/exe"));
         proc.exe = exeFile.symLinkTarget();
 
         QFile cmdLineFile(root + QLatin1String("/cmdline"));
         if (cmdLineFile.open(QIODevice::ReadOnly)) { // process may have exited
-            QList<QByteArray> tokens = cmdLineFile.readAll().split('\0');
+            const QList<QByteArray> tokens = cmdLineFile.readAll().split('\0');
             if (!tokens.isEmpty()) {
                 if (proc.exe.isEmpty())
                     proc.exe = QString::fromLocal8Bit(tokens.front());
-                foreach (const QByteArray &t,  tokens) {
+                for (const QByteArray &t : tokens) {
                     if (!proc.cmdLine.isEmpty())
                         proc.cmdLine.append(QLatin1Char(' '));
                     proc.cmdLine.append(QString::fromLocal8Bit(t));
