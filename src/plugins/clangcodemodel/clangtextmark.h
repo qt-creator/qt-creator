@@ -73,7 +73,6 @@ public:
     ClangdTextMark(const ::Utils::FilePath &filePath,
                    const LanguageServerProtocol::Diagnostic &diagnostic,
                    const LanguageClient::Client *client);
-    ~ClangdTextMark();
 
 private:
     bool addToolTipContent(QLayout *target) const override;
@@ -81,8 +80,6 @@ private:
     const LanguageServerProtocol::Diagnostic m_lspDiagnostic;
     const ClangBackEnd::DiagnosticContainer m_diagnostic;
     const QPointer<const LanguageClient::Client> m_client;
-
-    QMetaObject::Connection m_clientDeleted;
 };
 
 } // namespace Internal

@@ -406,11 +406,6 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         ClangDiagnosticManager::addTask(m_diagnostic);
     }
 
-    m_clientDeleted = QObject::connect(client, &QObject::destroyed, [this] (){
-        QTC_ASSERT_STRING("ClangdClient deleted before TextMark");
-        delete this;
-    });
-
     // Copy to clipboard action
     QVector<QAction *> actions;
     QAction *action = new QAction();
@@ -436,11 +431,6 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     }
 
     setActions(actions);
-}
-
-ClangdTextMark::~ClangdTextMark()
-{
-    QObject::disconnect(m_clientDeleted);
 }
 
 bool ClangdTextMark::addToolTipContent(QLayout *target) const
