@@ -30,6 +30,8 @@
 #include "cppworkingcopy.h"
 #include "projectpart.h"
 
+#include <projectexplorer/project.h>
+
 #include <QFutureInterface>
 #include <QObject>
 #include <QMutex>
@@ -65,14 +67,14 @@ public:
                      Utils::Language languagePreference,
                      bool projectsUpdated)
             : workingCopy(workingCopy)
-            , activeProject(activeProject)
+            , activeProject(activeProject ? activeProject->projectFilePath() : Utils::FilePath())
             , languagePreference(languagePreference)
             , projectsUpdated(projectsUpdated)
         {
         }
 
         WorkingCopy workingCopy;
-        const ProjectExplorer::Project *activeProject = nullptr;
+        const Utils::FilePath activeProject;
         Utils::Language languagePreference = Utils::Language::Cxx;
         bool projectsUpdated = false;
     };
@@ -104,7 +106,7 @@ protected:
     static ProjectPartInfo determineProjectPart(const QString &filePath,
             const QString &preferredProjectPartId,
             const ProjectPartInfo &currentProjectPartInfo,
-            const ProjectExplorer::Project *activeProject,
+            const Utils::FilePath &activeProject,
             Utils::Language languagePreference,
             bool projectsUpdated);
 
