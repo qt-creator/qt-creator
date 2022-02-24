@@ -62,6 +62,7 @@ const char DEBUGGER_ENGINE[] = "EngineType";
 const char DEBUGGER_BINARY[] = "Binary";
 const char DEVICE_TYPE[] = "PE.Profile.DeviceType";
 const char DEVICE_ID[] = "PE.Profile.Device";
+const char BUILDDEVICE_ID[] = "PE.Profile.BuildDevice";
 const char SYSROOT[] = "PE.Profile.SysRoot";
 const char TOOLCHAIN[] = "PE.Profile.ToolChainsV3";
 const char MKSPEC[] = "QtPM4.mkSpecInformation";
@@ -90,8 +91,9 @@ QString AddKitOperation::argumentsHelpText() const
            "                                               (not compatible with --debugger and --debuggerengine)\n"
            "    --debuggerengine <ENGINE>                  debuggerengine of the new kit.\n"
            "    --debugger <PATH>                          debugger of the new kit.\n"
-           "    --devicetype <TYPE>                        device type of the new kit (required).\n"
-           "    --device <ID>                              device id to use (optional).\n"
+           "    --devicetype <TYPE>                        (run-)device type of the new kit (required).\n"
+           "    --device <ID>                              (run-)device id to use (optional).\n"
+           "    --builddevice <ID>                         build device id to use (optional).\n"
            "    --sysroot <PATH>                           sysroot of the new kit.\n"
            "    --toolchain <ID>                           tool chain of the new kit (obsolete!).\n"
            "    --<LANG>toolchain <ID>                     tool chain for a language.\n"
@@ -177,6 +179,14 @@ bool AddKitOperation::setArguments(const QStringList &args)
                 return false;
             ++i; // skip next;
             m_device = next;
+            continue;
+        }
+
+        if (current == "--builddevice") {
+            if (next.isNull())
+                return false;
+            ++i; // skip next;
+            m_buildDevice = next;
             continue;
         }
 
@@ -721,6 +731,10 @@ QVariantMap AddKitData::addKit(const QVariantMap &map, const QVariantMap &tcMap,
         std::cerr << "Error: Device " << qPrintable(m_device) << " does not exist." << std::endl;
         return QVariantMap();
     }
+    if (!m_buildDevice.isEmpty() && !AddDeviceOperation::exists(devMap, m_buildDevice)) {
+        std::cerr << "Error: Device " << qPrintable(m_buildDevice) << " does not exist." << std::endl;
+        return QVariantMap();
+    }
 
     // Treat a qt that was explicitly set to '' as "no Qt"
     if (!qtId.isNull() && qtId.isEmpty())
@@ -767,6 +781,8 @@ QVariantMap AddKitData::addKit(const QVariantMap &map, const QVariantMap &tcMap,
         data << KeyValuePair({kit, DATA, DEVICE_TYPE}, QVariant(m_deviceType));
     if (!m_device.isNull())
         data << KeyValuePair({kit, DATA, DEVICE_ID}, QVariant(m_device));
+    if (!m_buildDevice.isNull())
+        data << KeyValuePair({kit, DATA, BUILDDEVICE_ID}, QVariant(m_buildDevice));
     if (!m_sysRoot.isNull())
         data << KeyValuePair({kit, DATA, SYSROOT}, Utils::FilePath::fromUserInput(m_sysRoot).toVariant());
     for (auto i = m_tcs.constBegin(); i != m_tcs.constEnd(); ++i)
