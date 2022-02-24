@@ -303,7 +303,18 @@ int AddKitOperation::execute() const
 #ifdef WITH_TESTS
 bool AddKitOperation::test() const
 {
-    AddKitData kitData;
+    AddKitData baseData;
+    baseData.m_id ="testId";
+    baseData.m_displayName = "Test Kit";
+    baseData.m_icon = "/tmp/icon.png";
+    baseData.m_debuggerEngine = 1;
+    baseData.m_debugger = "/usr/bin/gdb-test";
+    baseData.m_deviceType = "Desktop";
+    baseData.m_device =  "{dev-id}";
+    baseData.m_qt = "{qt-id}";
+    baseData.m_mkspec ="unsupported/mkspec";
+    baseData.m_extra = {{"PE.Profile.Data/extraData", QVariant("extraValue")}};
+
     QVariantMap map = initializeKits();
 
     QVariantMap tcMap = AddToolChainData::initializeToolChains();
@@ -326,22 +337,27 @@ bool AddKitOperation::test() const
 
     const QStringList env = {"TEST=1", "PATH"};
 
-    if (map.count() != 3
-            || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
-            || !map.contains(COUNT) || map.value(COUNT).toInt() != 0
-            || !map.contains(DEFAULT) || !map.value(DEFAULT).toString().isEmpty())
+    if (map.count() != 3)
+        return false;
+    if (!map.contains(VERSION))
+        return false;
+    if (map.value(VERSION).toInt() != 1)
+        return false;
+    if (!map.contains(COUNT))
+        return false;
+    if (map.value(COUNT).toInt() != 0)
+        return false;
+    if (!map.contains(DEFAULT))
+        return false;
+    if (!map.value(DEFAULT).toString().isEmpty())
         return false;
 
     QHash<QString, QString> tcs;
     tcs.insert("Cxx", "{tcXX-id}");
 
     // Fail if TC is not there:
-    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-               tcs, "{qt-id}", "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(),
-               QStringList(),
-               {{{"PE.Profile.Data/extraData", QVariant("extraValue")}}}};
+    AddKitData kitData = baseData;
+    kitData.m_tcs = tcs;
     QVariantMap empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
 
     if (!empty.isEmpty())
@@ -349,21 +365,16 @@ bool AddKitOperation::test() const
     // Do not fail if TC is an ABI:
     tcs.clear();
     tcs.insert("C", "x86-linux-generic-elf-64bit");
-    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-               tcs, "{qt-id}", "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}};
+    kitData = baseData;
+    kitData.m_tcs = tcs;
     empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (empty.isEmpty())
         return false;
+
     // QTCREATORBUG-11983, mach_o was not covered by the first attempt to fix this.
     tcs.insert("D", "x86-macos-generic-mach_o-64bit");
-    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(),
-               tcs, "{qt-id}", "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    kitData = baseData;
+    kitData.m_tcs = tcs;
     empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (empty.isEmpty())
         return false;
@@ -372,153 +383,288 @@ bool AddKitOperation::test() const
     tcs.insert("Cxx", "{tc-id}");
 
     // Fail if Qt is not there:
-    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-               "/usr/bin/gdb-test", "Desktop", "{dev-id}", QString(), tcs, "{qtXX-id}",
-               "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    kitData = baseData;
+    kitData.m_qt = "{qtXX-id}";
     empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (!empty.isEmpty())
         return false;
+
     // Fail if dev is not there:
-    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-               "/usr/bin/gdb-test", "Desktop", "{devXX-id}", QString(), tcs, "{qt-id}",
-               "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}};
+    kitData = baseData;
+    kitData.m_device = "{devXX-id}";
     empty = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (!empty.isEmpty())
         return false;
 
     // Profile 0:
-    kitData = {"testId", "Test Kit", "/tmp/icon.png", QString(), 1,
-               "/usr/bin/gdb-test", "Desktop", QString(), QString(), tcs, "{qt-id}",
-               "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    kitData = baseData;
+    kitData.m_tcs = tcs;
     map = kitData.addKit(map, tcMap, qtMap, devMap, {});
 
-    if (map.count() != 4
-            || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
-            || !map.contains(COUNT) || map.value(COUNT).toInt() != 1
-            || !map.contains(DEFAULT) || map.value(DEFAULT).toString() != "testId"
-            || !map.contains("Profile.0"))
+    if (map.count() != 4)
+        return false;
+    if (!map.contains(VERSION))
+        return false;
+    if (map.value(VERSION).toInt() != 1)
+        return false;
+    if (!map.contains(COUNT))
+        return false;
+    if (map.value(COUNT).toInt() != 1)
+        return false;
+    if (!map.contains(DEFAULT))
+        return false;
+    if (map.value(DEFAULT).toString() != "testId")
+        return false;
+    if (!map.contains("Profile.0"))
         return false;
 
     QVariantMap profile0 = map.value("Profile.0").toMap();
-    if (profile0.count() != 6
-            || !profile0.contains(ID) || profile0.value(ID).toString() != "testId"
-            || !profile0.contains(DISPLAYNAME) || profile0.value(DISPLAYNAME).toString() != "Test Kit"
-            || !profile0.contains(ICON) || profile0.value(ICON).toString() != "/tmp/icon.png"
-            || !profile0.contains(DATA) || profile0.value(DATA).type() != QVariant::Map
-            || !profile0.contains(AUTODETECTED) || profile0.value(AUTODETECTED).toBool() != true
-            || !profile0.contains(SDK) || profile0.value(SDK).toBool() != true)
+    if (profile0.count() != 6)
+        return false;
+
+    if (!profile0.contains(ID))
+        return false;
+    if (profile0.value(ID).toString() != "testId")
+        return false;
+    if (!profile0.contains(DISPLAYNAME))
+        return false;
+    if (profile0.value(DISPLAYNAME).toString() != "Test Kit")
+        return false;
+    if (!profile0.contains(ICON))
+        return false;
+    if (profile0.value(ICON).toString() != "/tmp/icon.png")
+        return false;
+    if (!profile0.contains(DATA))
+        return false;
+    if (profile0.value(DATA).type() != QVariant::Map)
+        return false;
+    if (!profile0.contains(AUTODETECTED))
+        return false;
+    if (profile0.value(AUTODETECTED).toBool() != true)
+        return false;
+    if (!profile0.contains(SDK))
+        return false;
+    if (profile0.value(SDK).toBool() != true)
         return false;
 
     QVariantMap data = profile0.value(DATA).toMap();
-    if (data.count() != 7
-            || !data.contains(DEBUGGER) || data.value(DEBUGGER).type() != QVariant::Map
-            || !data.contains(DEVICE_TYPE) || data.value(DEVICE_TYPE).toString() != "Desktop"
-            || !data.contains(TOOLCHAIN)
-            || !data.contains(QT) || data.value(QT).toString() != "SDK.{qt-id}"
-            || !data.contains(MKSPEC) || data.value(MKSPEC).toString() != "unsupported/mkspec"
-            || !data.contains("extraData") || data.value("extraData").toString() != "extraValue")
+    if (data.count() != 7)
         return false;
-    QVariantMap tcOutput = data.value(TOOLCHAIN).toMap();
-    if (tcOutput.count() != 1
-            || !tcOutput.contains("Cxx") || tcOutput.value("Cxx") != "{tc-id}")
+    if (!data.contains(DEBUGGER))
+        return false;
+    if (data.value(DEBUGGER).type() != QVariant::Map)
+        return false;
+    if (!data.contains(DEVICE_TYPE))
+        return false;
+    if (data.value(DEVICE_TYPE).toString() != "Desktop")
+        return false;
+    if (!data.contains(TOOLCHAIN))
+        return false;
+    if (!data.contains(QT))
+        return false;
+    if (data.value(QT).toString() != "SDK.{qt-id}")
+        return false;
+    if (!data.contains(MKSPEC))
+        return false;
+    if (data.value(MKSPEC).toString() != "unsupported/mkspec")
+        return false;
+    if (!data.contains("extraData"))
+        return false;
+    if (data.value("extraData").toString() != "extraValue")
         return false;
 
-    // Ignore existing ids:
-    kitData = {"testId", "Test Qt Version X",
-               "/tmp/icon3.png", QString(), 1, "/usr/bin/gdb-test3", "Desktop",
-               QString(), QString(), tcs, "{qt-id}", "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    QVariantMap tcOutput = data.value(TOOLCHAIN).toMap();
+    if (tcOutput.count() != 1)
+        return false;
+    if (!tcOutput.contains("Cxx"))
+        return false;
+    if (tcOutput.value("Cxx") != "{tc-id}")
+        return false;
+
+    // Ignore exist ids:
+    kitData = baseData;
+    kitData.m_displayName = "Test Qt Version X";
+    kitData.m_icon = "/tmp/icon3.png";
+    kitData.m_debugger = "/usr/bin/gdb-test3";
+    kitData.m_tcs = tcs;
     QVariantMap result = kitData.addKit(map, tcMap, qtMap, devMap, {});
     if (!result.isEmpty())
         return false;
 
     // Profile 1: Make sure name is unique:
-    kitData = {"testId2", "Test Kit2", "/tmp/icon2.png", QString(), 1,
-               "/usr/bin/gdb-test2", "Desktop", "{dev-id}", "/sys/root//", tcs,
-               "{qt-id}", "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {{KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}}};
+    kitData = baseData;
+    kitData.m_id = "testId2";
+    kitData.m_displayName = "Test Kit2";
+    kitData.m_icon = "/tmp/icon2.png";
+    kitData.m_debugger = "/usr/bin/gdb-test2";
+    kitData.m_sysRoot = "/sys/root//";
+    kitData.m_env = env;
+    kitData.m_tcs = tcs;
     map = kitData.addKit(map, tcMap, qtMap, devMap, {});
 
-    if (map.count() != 5
-            || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
-            || !map.contains(COUNT) || map.value(COUNT).toInt() != 2
-            || !map.contains(DEFAULT) || map.value(DEFAULT).toInt() != 0
-            || !map.contains("Profile.0")
-            || !map.contains("Profile.1"))
+    if (map.count() != 5)
         return false;
-
+    if (!map.contains(VERSION) )
+        return false;
+    if (map.value(VERSION).toInt() != 1)
+        return false;
+    if (!map.contains(COUNT) )
+        return false;
+    if (map.value(COUNT).toInt() != 2)
+        return false;
+    if (!map.contains(DEFAULT) )
+        return false;
+    if (map.value(DEFAULT).toInt() != 0)
+        return false;
+    if (!map.contains("Profile.0"))
+        return false;
+    if (!map.contains("Profile.1"))
+        return false;
     if (map.value("Profile.0") != profile0)
         return false;
 
     QVariantMap profile1 = map.value("Profile.1").toMap();
-    if (profile1.count() != 6
-            || !profile1.contains(ID) || profile1.value(ID).toString() != "testId2"
-            || !profile1.contains(DISPLAYNAME) || profile1.value(DISPLAYNAME).toString() != "Test Kit2"
-            || !profile1.contains(ICON) || profile1.value(ICON).toString() != "/tmp/icon2.png"
-            || !profile1.contains(DATA) || profile1.value(DATA).type() != QVariant::Map
-            || !profile1.contains(AUTODETECTED) || profile1.value(AUTODETECTED).toBool() != true
-            || !profile1.contains(SDK) || profile1.value(SDK).toBool() != true)
+    if (profile1.count() != 6)
+        return false;
+    if (!profile1.contains(ID) )
+        return false;
+    if (profile1.value(ID).toString() != "testId2")
+        return false;
+    if (!profile1.contains(DISPLAYNAME) )
+        return false;
+    if (profile1.value(DISPLAYNAME).toString() != "Test Kit2")
+        return false;
+    if (!profile1.contains(ICON) )
+        return false;
+    if (profile1.value(ICON).toString() != "/tmp/icon2.png")
+        return false;
+    if (!profile1.contains(DATA) )
+        return false;
+    if (profile1.value(DATA).type() != QVariant::Map)
+        return false;
+    if (!profile1.contains(AUTODETECTED) )
+        return false;
+    if (profile1.value(AUTODETECTED).toBool() != true)
+        return false;
+    if (!profile1.contains(SDK) )
+        return false;
+    if (profile1.value(SDK).toBool() != true)
         return false;
 
     data = profile1.value(DATA).toMap();
-    if (data.count() != 9
-            || !data.contains(DEBUGGER) || data.value(DEBUGGER).type() != QVariant::Map
-            || !data.contains(DEVICE_TYPE) || data.value(DEVICE_TYPE).toString() != "Desktop"
-            || !data.contains(DEVICE_ID) || data.value(DEVICE_ID).toString() != "{dev-id}"
-            || !data.contains(SYSROOT) || data.value(SYSROOT).toString() != "/sys/root//"
-            || !data.contains(TOOLCHAIN)
-            || !data.contains(QT) || data.value(QT).toString() != "SDK.{qt-id}"
-            || !data.contains(MKSPEC) || data.value(MKSPEC).toString() != "unsupported/mkspec"
-            || !data.contains(ENV) || data.value(ENV).toStringList() != env
-            || !data.contains("extraData") || data.value("extraData").toString() != "extraValue")
+    if (data.count() != 9)
         return false;
+    if (!data.contains(DEBUGGER) )
+        return false;
+    if (data.value(DEBUGGER).type() != QVariant::Map)
+        return false;
+    if (!data.contains(DEVICE_TYPE) )
+        return false;
+    if (data.value(DEVICE_TYPE).toString() != "Desktop")
+        return false;
+    if (!data.contains(DEVICE_ID) )
+        return false;
+    if (data.value(DEVICE_ID).toString() != "{dev-id}")
+        return false;
+    if (!data.contains(SYSROOT) )
+        return false;
+    if (data.value(SYSROOT).toString() != "/sys/root//")
+        return false;
+    if (!data.contains(TOOLCHAIN))
+        return false;
+    if (!data.contains(QT) )
+        return false;
+    if (data.value(QT).toString() != "SDK.{qt-id}")
+        return false;
+    if (!data.contains(MKSPEC) )
+        return false;
+    if (data.value(MKSPEC).toString() != "unsupported/mkspec")
+        return false;
+    if (!data.contains(ENV) )
+        return false;
+    if (data.value(ENV).toStringList() != env)
+        return false;
+    if (!data.contains("extraData") )
+        return false;
+    if (data.value("extraData").toString() != "extraValue")
+        return false;
+
     tcOutput = data.value(TOOLCHAIN).toMap();
-    if (tcOutput.count() != 1
-            || !tcOutput.contains("Cxx") || tcOutput.value("Cxx") != "{tc-id}")
+    if (tcOutput.count() != 1)
+        return false;
+    if (!tcOutput.contains("Cxx") )
+        return false;
+    if (tcOutput.value("Cxx") != "{tc-id}")
         return false;
 
     // Profile 2: Test debugger id:
-    kitData = {"test with debugger Id", "Test debugger Id",
-               "/tmp/icon2.png", "debugger Id", 0, QString(), "Desktop", QString(), QString(),
-               tcs, "{qt-id}", "unsupported/mkspec",
-               QString(), QString(), QString(), QString(), QString(), QStringList(), env,
-               {KeyValuePair("PE.Profile.Data/extraData", QVariant("extraValue"))}};
-    map = kitData.addKit(map, tcMap, qtMap, devMap, {});
-    if (map.count() != 6
-            || !map.contains(VERSION) || map.value(VERSION).toInt() != 1
-            || !map.contains(COUNT) || map.value(COUNT).toInt() != 3
-            || !map.contains(DEFAULT) || map.value(DEFAULT).toInt() != 0
-            || !map.contains("Profile.0")
-            || !map.contains("Profile.1")
-            || !map.contains("Profile.2"))
-        return false;
+    kitData = baseData;
+    kitData.m_id = "test with debugger Id";
+    kitData.m_displayName = "Test debugger Id";
+    kitData.m_icon = "/tmp/icon2.png";
+    kitData.m_debuggerId = "debugger Id";
+    kitData.m_env = env;
 
+    map = kitData.addKit(map, tcMap, qtMap, devMap, {});
+    if (map.count() != 6)
+        return false;
+    if (!map.contains(VERSION) )
+        return false;
+    if (map.value(VERSION).toInt() != 1)
+        return false;
+    if (!map.contains(COUNT) )
+        return false;
+    if (map.value(COUNT).toInt() != 3)
+        return false;
+    if (!map.contains(DEFAULT) )
+        return false;
+    if (map.value(DEFAULT).toInt() != 0)
+        return false;
+    if (!map.contains("Profile.0"))
+        return false;
+    if (!map.contains("Profile.1"))
+        return false;
+    if (!map.contains("Profile.2"))
+        return false;
     if (map.value("Profile.0") != profile0)
         return false;
     if (map.value("Profile.1") != profile1)
         return false;
 
     QVariantMap profile2 = map.value("Profile.2").toMap();
-    if (profile2.count() != 6
-            || !profile2.contains(ID) || profile2.value(ID).toString() != "test with debugger Id"
-            || !profile2.contains(DISPLAYNAME) || profile2.value(DISPLAYNAME).toString() != "Test debugger Id"
-            || !profile2.contains(ICON) || profile2.value(ICON).toString() != "/tmp/icon2.png"
-            || !profile2.contains(DATA) || profile2.value(DATA).type() != QVariant::Map
-            || !profile2.contains(AUTODETECTED) || profile2.value(AUTODETECTED).toBool() != true
-            || !profile2.contains(SDK) || profile2.value(SDK).toBool() != true)
+    if (profile2.count() != 6)
+        return false;
+    if (!profile2.contains(ID) )
+        return false;
+    if (profile2.value(ID).toString() != "test with debugger Id")
+        return false;
+    if (!profile2.contains(DISPLAYNAME) )
+        return false;
+    if (profile2.value(DISPLAYNAME).toString() != "Test debugger Id")
+        return false;
+    if (!profile2.contains(ICON) )
+        return false;
+    if (profile2.value(ICON).toString() != "/tmp/icon2.png")
+        return false;
+    if (!profile2.contains(DATA) )
+        return false;
+    if (profile2.value(DATA).type() != QVariant::Map)
+        return false;
+    if (!profile2.contains(AUTODETECTED) )
+        return false;
+    if (profile2.value(AUTODETECTED).toBool() != true)
+        return false;
+    if (!profile2.contains(SDK) )
+        return false;
+    if (profile2.value(SDK).toBool() != true)
         return false;
 
     data = profile2.value(DATA).toMap();
-    if (data.count() != 7
-            || !data.contains(DEBUGGER) || data.value(DEBUGGER).toString() != "debugger Id")
+    if (data.count() != 7)
+        return false;
+    if (!data.contains(DEBUGGER))
+        return false;
+    if (data.value(DEBUGGER).toString() != "debugger Id")
         return false;
 
     return true;
