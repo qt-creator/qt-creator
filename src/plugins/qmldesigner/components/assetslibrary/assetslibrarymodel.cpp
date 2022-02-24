@@ -102,7 +102,7 @@ void AssetsLibraryModel::toggleExpandAll(bool expand)
     endResetModel();
 }
 
-void AssetsLibraryModel::deleteFile(const QString &filePath)
+void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
 {
     bool askBeforeDelete = DesignerSettings::getValue(
                 DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
@@ -110,7 +110,10 @@ void AssetsLibraryModel::deleteFile(const QString &filePath)
 
     if (askBeforeDelete) {
         QMessageBox msg(QMessageBox::Question, tr("Confirm Delete File"),
-                        tr("\"%1\" might be in use. Delete anyway?").arg(filePath),
+                        tr("File%1 might be in use. Delete anyway?\n\n%2")
+                            .arg(filePaths.size() > 1 ? QChar('s') : QChar())
+                            .arg(filePaths.join('\n').remove(DocumentManager::currentProjectDirPath()
+                                                             .toString().append('/'))),
                         QMessageBox::No | QMessageBox::Yes);
         QCheckBox cb;
         cb.setText(tr("Do not ask this again"));
@@ -125,14 +128,16 @@ void AssetsLibraryModel::deleteFile(const QString &filePath)
     }
 
     if (assetDelete) {
-        if (!QFile::exists(filePath)) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Failed to Locate File"),
-                                 tr("Could not find \"%1\".").arg(filePath));
-        } else if (!QFile::remove(filePath)) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Failed to Delete File"),
-                                 tr("Could not delete \"%1\".").arg(filePath));
+        for (const QString &filePath : filePaths) {
+            if (!QFile::exists(filePath)) {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Locate File"),
+                                     tr("Could not find \"%1\".").arg(filePath));
+            } else if (!QFile::remove(filePath)) {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Delete File"),
+                                     tr("Could not delete \"%1\".").arg(filePath));
+            }
         }
     }
 }

@@ -100,6 +100,11 @@ Item {
 
         closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
+        onOpened: {
+            var numSelected = Object.values(selectedAssets).filter(p => p).length
+            deleteFileItem.text = numSelected > 1 ? qsTr("Delete Files") : qsTr("Delete File")
+        }
+
         StudioControls.MenuItem {
             text: qsTr("Expand All")
             enabled: allExpandedState !== 1
@@ -122,10 +127,13 @@ Item {
         }
 
         StudioControls.MenuItem {
+            id: deleteFileItem
             text: qsTr("Delete File")
             visible: contextFilePath
             height: visible ? implicitHeight : 0
-            onTriggered: assetsModel.deleteFile(contextFilePath)
+            onTriggered: {
+                assetsModel.deleteFiles(Object.keys(selectedAssets).filter(p => selectedAssets[p]))
+            }
         }
 
         StudioControls.MenuSeparator {
@@ -601,23 +609,26 @@ Item {
                             onPositionChanged: tooltipBackend.reposition()
                             onPressed: (mouse)=> {
                                 forceActiveFocus()
+                                var ctrlDown = mouse.modifiers & Qt.ControlModifier
                                 if (mouse.button === Qt.LeftButton) {
-                                    var ctrlDown = mouse.modifiers & Qt.ControlModifier
                                     if (!selectedAssets[filePath] && !ctrlDown)
                                         selectedAssets = {}
                                     currFileSelected = ctrlDown ? !selectedAssets[filePath] : true
                                     selectedAssets[filePath] = currFileSelected
                                     selectedAssetsChanged()
 
-                                    var selectedAssetsArr = []
-                                    for (var assetPath in selectedAssets) {
-                                        if (selectedAssets[assetPath])
-                                            selectedAssetsArr.push(assetPath)
+                                    if (currFileSelected) {
+                                        rootView.startDragAsset(
+                                                   Object.keys(selectedAssets).filter(p => selectedAssets[p]),
+                                                   mapToGlobal(mouse.x, mouse.y))
                                     }
-
-                                    if (currFileSelected)
-                                        rootView.startDragAsset(selectedAssetsArr, mapToGlobal(mouse.x, mouse.y))
                                 } else {
+                                    if (!selectedAssets[filePath] && !ctrlDown)
+                                        selectedAssets = {}
+                                    currFileSelected = selectedAssets[filePath] || !ctrlDown
+                                    selectedAssets[filePath] = currFileSelected
+                                    selectedAssetsChanged()
+
                                     contextFilePath = filePath
                                     contextDir = model.fileDir
 
