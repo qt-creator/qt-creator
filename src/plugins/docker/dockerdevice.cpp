@@ -402,11 +402,11 @@ public:
         };
 
         connect(autoDetectButton, &QPushButton::clicked, this,
-                [this, logView, data, dockerDevice, searchPaths] {
+                [this, logView, dockerDevice, searchPaths] {
             logView->clear();
             dockerDevice->updateContainerAccess();
 
-            m_kitItemDetector.autoDetect(data.autodetectId(), searchPaths());
+            m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
             if (DockerPlugin::isDaemonRunning().value_or(false) == false)
                 logView->append(tr("Docker daemon appears to be not running."));
@@ -415,14 +415,14 @@ public:
             updateDaemonStateTexts();
         });
 
-        connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, data] {
+        connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, device] {
             logView->clear();
-            m_kitItemDetector.undoAutoDetect(data.autodetectId());
+            m_kitItemDetector.undoAutoDetect(device->id().toString());
         });
 
-        connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, data] {
+        connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, device] {
             logView->clear();
-            m_kitItemDetector.listAutoDetected(data.autodetectId());
+            m_kitItemDetector.listAutoDetected(device->id().toString());
         });
 
         using namespace Layouting;
@@ -503,7 +503,7 @@ Tasks DockerDevice::validate() const
 
 // DockerDeviceData
 
-QString DockerDeviceData::dockerId() const
+QString DockerDeviceData::repoAndTag() const
 {
     if (repo == "<none>")
         return imageId;
@@ -524,7 +524,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
     setDisplayType(tr("Docker"));
     setOsType(OsTypeOtherUnix);
     setDefaultDisplayName(tr("Docker Image"));;
-    setDisplayName(tr("Docker Image \"%1\" (%2)").arg(data.dockerId()).arg(data.imageId));
+    setDisplayName(tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
@@ -878,7 +878,7 @@ void DockerDevicePrivate::startContainer()
     dockerCreate.addArgs({"-v", q->debugDumperPath().toUserOutput() + ':' + dumperPath.path()});
     q->setDebugDumperPath(dumperPath);
 
-    dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.dockerId()});
+    dockerCreate.addArgs({"--entrypoint", "/bin/sh", m_data.repoAndTag()});
 
     LOG("RUNNING: " << dockerCreate.toUserOutput());
     QtcProcess createProcess;
@@ -1125,10 +1125,20 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
         QTC_CHECK(handlesFile(pathOnDevice));
         return pathOnDevice;
     }
+
     FilePath result;
-    result.setScheme("docker");
-    result.setHost(d->m_data.dockerId());
     result.setPath(pathOnDevice.path());
+    result.setScheme("docker");
+    result.setHost(d->m_data.repoAndTag());
+
+// The following would work, but gives no hint on repo and tag
+//   result.setScheme("docker");
+//    result.setHost(d->m_data.imageId);
+
+// The following would work, but gives no hint on repo, tag and imageid
+//    result.setScheme("device");
+//    result.setHost(id().toString());
+
     return result;
 }
 
@@ -1147,7 +1157,13 @@ QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
-    return filePath.scheme() == "docker" && filePath.host() == d->m_data.dockerId();
+    if (filePath.scheme() == "device" && filePath.host() == id().toString())
+        return true;
+    if (filePath.scheme() == "docker" && filePath.host() == d->m_data.imageId)
+        return true;
+    if (filePath.scheme() == "docker" && filePath.host() == d->m_data.repo + ':' + d->m_data.tag)
+        return true;
+    return false;
 }
 
 bool DockerDevice::isExecutableFile(const FilePath &filePath) const
@@ -1697,7 +1713,7 @@ Environment DockerDevice::systemEnvironment() const
 void DockerDevice::aboutToBeRemoved() const
 {
     KitDetector detector(sharedFromThis());
-    detector.undoAutoDetect(d->m_data.autodetectId());
+    detector.undoAutoDetect(id().toString());
 }
 
 void DockerDevicePrivate::fetchSystemEnviroment()
@@ -1901,7 +1917,7 @@ public:
         QTC_ASSERT(item, return {});
 
         auto device = DockerDevice::create(*item);
-        device->setupId(IDevice::ManuallyAdded, Id::fromString(item->autodetectId()));
+        device->setupId(IDevice::ManuallyAdded);
         device->setType(Constants::DOCKER_DEVICE_TYPE);
         device->setMachineType(IDevice::Hardware);
 
