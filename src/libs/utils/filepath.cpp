@@ -454,14 +454,21 @@ FilePath FilePath::fromUrl(const QUrl &url)
     return fn;
 }
 
+static QString hostEncoded(QString host)
+{
+    host.replace('%', "%25");
+    host.replace('/', "%2f");
+    return host;
+}
+
 /// \returns a QString for passing on to QString based APIs
 QString FilePath::toString() const
 {
     if (m_scheme.isEmpty())
         return m_data;
     if (m_data.startsWith('/'))
-        return m_scheme + "://" + m_host + m_data;
-    return m_scheme + "://" + m_host + "/./" + m_data;
+        return m_scheme + "://" + hostEncoded(m_host) + m_data;
+    return m_scheme + "://" + hostEncoded(m_host) + "/./" + m_data;
 }
 
 QUrl FilePath::toUrl() const
@@ -595,7 +602,6 @@ void FilePath::setScheme(const QString &scheme)
 
 void FilePath::setHost(const QString &host)
 {
-    QTC_CHECK(!host.contains('/'));
     m_host = host;
 }
 
@@ -943,6 +949,8 @@ void FilePath::setFromString(const QString &filename)
                 m_data = filename.mid(pos1);
             } else {
                 m_host = filename.mid(pos1, pos2 - pos1);
+                m_host.replace("%2f", "/");
+                m_host.replace("%25", "%");
                 m_data = filename.mid(pos2);
             }
             if (m_data.startsWith("/./"))
