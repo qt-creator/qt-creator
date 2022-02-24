@@ -617,7 +617,8 @@ void MimeBinaryProvider::loadGenericIcon(MimeTypePrivate &data)
 
 ////
 
-#if 0 //QT_CONFIG(mimetype_database)
+#if 0
+#if QT_CONFIG(mimetype_database)
 static QString internalMimeFileName()
 {
     return QStringLiteral("<internal MIME data>");
@@ -670,6 +671,16 @@ MimeXMLProvider::MimeXMLProvider(MimeDatabasePrivate *db, InternalDatabaseEnum)
     Q_UNREACHABLE();
 }
 #endif // QT_CONFIG(mimetype_database)
+#endif
+
+static const char internalMimeFileName[] = ":/utils/mimetypes/freedesktop.org.xml";
+
+// for Qt Creator: internal database from resources
+MimeXMLProvider::MimeXMLProvider(MimeDatabasePrivate *db, InternalDatabaseEnum)
+    : MimeProviderBase(db, internalMimeFileName)
+{
+    load(internalMimeFileName);
+}
 
 MimeXMLProvider::MimeXMLProvider(MimeDatabasePrivate *db, const QString &directory)
     : MimeProviderBase(db, directory)
@@ -690,8 +701,8 @@ bool MimeXMLProvider::isValid()
 
 bool MimeXMLProvider::isInternalDatabase() const
 {
-#if 0 //QT_CONFIG(mimetype_database)
-    return m_directory == internalMimeFileName();
+#if 1 //QT_CONFIG(mimetype_database)
+    return m_directory == internalMimeFileName;
 #else
     return false;
 #endif

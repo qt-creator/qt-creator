@@ -139,7 +139,7 @@ class MimeXMLProvider : public MimeProviderBase
 {
 public:
     enum InternalDatabaseEnum { InternalDatabase };
-#if 0 // QT_CONFIG(mimetype_database)
+#if 1 // QT_CONFIG(mimetype_database)
     enum : bool { InternalDatabaseAvailable = true };
 #else
     enum : bool { InternalDatabaseAvailable = false };
