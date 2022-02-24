@@ -117,6 +117,7 @@ add_qtc_library(Utils
     predicates.h
     processenums.h
     processhandle.cpp processhandle.h
+    processinfo.cpp processinfo.h
     processinterface.h
     processreaper.cpp processreaper.h
     processutils.cpp processutils.h
