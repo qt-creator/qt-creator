@@ -233,6 +233,7 @@ function(add_qtc_library name)
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
     ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_ARCHIVE_PATH}"
+    QT_COMPILE_OPTIONS_DISABLE_WARNINGS OFF
     ${_arg_PROPERTIES}
   )
 
@@ -485,6 +486,7 @@ function(add_qtc_plugin target_name)
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
     OUTPUT_NAME "${name}"
     QT_SKIP_TRANSLATION "${skip_translation}"
+    QT_COMPILE_OPTIONS_DISABLE_WARNINGS OFF
     ${_arg_PROPERTIES}
   )
 
@@ -667,6 +669,7 @@ function(add_qtc_executable name)
     CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
+    QT_COMPILE_OPTIONS_DISABLE_WARNINGS OFF
     ${_arg_PROPERTIES}
   )
   if (NOT _arg_SKIP_PCH)
