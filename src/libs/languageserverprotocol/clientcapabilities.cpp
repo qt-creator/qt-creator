@@ -29,12 +29,12 @@ namespace LanguageServerProtocol {
 
 Utils::optional<QList<SymbolKind> > SymbolCapabilities::SymbolKindCapabilities::valueSet() const
 {
-    Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey);
-    if (!array)
-        return Utils::nullopt;
-    return Utils::make_optional(Utils::transform(array.value(), [] (int value) {
-        return static_cast<SymbolKind>(value);
-    }));
+    if (Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
+        return Utils::make_optional(Utils::transform(*array, [] (int value) {
+            return static_cast<SymbolKind>(value);
+        }));
+    }
+    return Utils::nullopt;
 }
 
 void SymbolCapabilities::SymbolKindCapabilities::setValueSet(const QList<SymbolKind> &valueSet)

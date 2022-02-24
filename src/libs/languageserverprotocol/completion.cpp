@@ -44,12 +44,10 @@ Utils::optional<MarkupOrString> CompletionItem::documentation() const
 
 Utils::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextFormat() const
 {
-    Utils::optional<int> value = optionalValue<int>(insertTextFormatKey);
-    return value.has_value()
-            ? Utils::make_optional(CompletionItem::InsertTextFormat(value.value()))
-            : Utils::nullopt;
+    if (Utils::optional<int> value = optionalValue<int>(insertTextFormatKey))
+        return Utils::make_optional(CompletionItem::InsertTextFormat(*value));
+    return Utils::nullopt;
 }
-
 
 
 CompletionItemResolveRequest::CompletionItemResolveRequest(const CompletionItem &params)

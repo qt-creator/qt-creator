@@ -169,7 +169,7 @@ public:
 
     bool detailIs(const QString &s) const
     {
-        return detail() && detail().value() == s;
+        return detail() && *detail() == s;
     }
 
     bool isMemberFunctionCall() const

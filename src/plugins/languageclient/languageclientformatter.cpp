@@ -77,7 +77,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
     const DynamicCapabilities dynamicCapabilities = m_client->dynamicCapabilities();
     const QString method(DocumentRangeFormattingRequest::methodName);
     if (optional<bool> registered = dynamicCapabilities.isRegistered(method)) {
-        if (!registered.value())
+        if (!*registered)
             return nullptr;
         const TextDocumentRegistrationOptions option(dynamicCapabilities.option(method).toObject());
         if (option.isValid()

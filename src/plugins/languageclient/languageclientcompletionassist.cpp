@@ -66,7 +66,7 @@ bool LanguageClientCompletionItem::implicitlyApplies() const
 
 bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacter) const
 {
-    if (m_item.commitCharacters().has_value() && m_item.commitCharacters().value().contains(typedCharacter)) {
+    if (m_item.commitCharacters() && m_item.commitCharacters()->contains(typedCharacter)) {
         m_triggeredCommitCharacter = typedCharacter;
         return true;
     }
@@ -194,10 +194,8 @@ bool LanguageClientCompletionItem::hasSortText() const
 
 QString LanguageClientCompletionItem::filterText() const
 {
-    if (m_filterText.isEmpty()) {
-        const Utils::optional<QString> filterText = m_item.filterText();
-        m_filterText = filterText.has_value() ? filterText.value() : m_item.label();
-    }
+    if (m_filterText.isEmpty())
+        m_filterText = m_item.filterText().value_or(m_item.label());
     return m_filterText;
 }
 
@@ -211,7 +209,7 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
     QTC_ASSERT(doc, return false);
     using namespace Utils::Text;
     if (auto additionalEdits = m_item.additionalTextEdits()) {
-        if (!additionalEdits.value().isEmpty())
+        if (!additionalEdits->isEmpty())
             return false;
     }
     if (isSnippet())
@@ -393,7 +391,7 @@ void LanguageClientCompletionAssistProcessor::cancel()
 {
     if (m_currentRequest.has_value()) {
         if (m_client) {
-            m_client->cancelRequest(m_currentRequest.value());
+            m_client->cancelRequest(*m_currentRequest);
             m_client->removeAssistProcessor(this);
         }
         m_currentRequest.reset();
@@ -410,7 +408,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     m_currentRequest.reset();
     QTC_ASSERT(m_client, setAsyncProposalAvailable(nullptr); return);
     if (auto error = response.error())
-        m_client->log(error.value());
+        m_client->log(*error);
 
     const Utils::optional<CompletionResult> &result = response.result();
     if (!result || Utils::holds_alternative<std::nullptr_t>(*result)) {

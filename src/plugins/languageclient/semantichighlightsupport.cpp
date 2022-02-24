@@ -301,14 +301,15 @@ SemanticRequestTypes SemanticTokenSupport::supportedSemanticRequests(TextDocumen
     };
     const QString dynamicMethod = "textDocument/semanticTokens";
     const DynamicCapabilities &dynamicCapabilities = m_client->dynamicCapabilities();
-    if (auto registered = dynamicCapabilities.isRegistered(dynamicMethod);
-        registered.has_value()) {
-        if (!registered.value())
+    if (auto registered = dynamicCapabilities.isRegistered(dynamicMethod)) {
+        if (!*registered)
             return SemanticRequestType::None;
         return supportedRequests(dynamicCapabilities.option(dynamicMethod).toObject());
     }
-    if (m_client->capabilities().semanticTokensProvider().has_value())
-        return supportedRequests(m_client->capabilities().semanticTokensProvider().value());
+    if (Utils::optional<SemanticTokensOptions> provider = m_client->capabilities()
+                                                              .semanticTokensProvider()) {
+        return supportedRequests(*provider);
+    }
     return SemanticRequestType::None;
 }
 
@@ -359,10 +360,9 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
                 return;
             for (const auto start = data.begin() + edit.start(); it < start; ++it)
                 newData.append(*it);
-            const Utils::optional<QList<int>> editData = edit.data();
-            if (editData.has_value()) {
-                newData.append(editData.value());
-                qCDebug(LOGLSPHIGHLIGHT) << edit.start() << edit.deleteCount() << editData.value();
+            if (const Utils::optional<QList<int>> editData = edit.data()) {
+                newData.append(*editData);
+                qCDebug(LOGLSPHIGHLIGHT) << edit.start() << edit.deleteCount() << *editData;
             } else {
                 qCDebug(LOGLSPHIGHLIGHT) << edit.start() << edit.deleteCount();
             }

@@ -85,12 +85,12 @@ Utils::optional<QList<CompletionItemKind::Kind>>
 TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemKindCapabilities::
 valueSet() const
 {
-    Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey);
-    if (!array)
-        return Utils::nullopt;
-    return Utils::make_optional(Utils::transform(array.value(), [] (int value) {
-        return static_cast<CompletionItemKind::Kind>(value);
-    }));
+    if (Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
+        return Utils::make_optional(Utils::transform(*array, [] (int value) {
+            return static_cast<CompletionItemKind::Kind>(value);
+        }));
+    }
+    return Utils::nullopt;
 }
 
 void

@@ -76,13 +76,12 @@ static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &
                                          Utils::ProcessLinkCallback callback,
                                          Utils::optional<Utils::Link> linkUnderCursor)
 {
-    if (Utils::optional<GotoResult> _result = response.result()) {
-        const GotoResult result = _result.value();
-        if (Utils::holds_alternative<std::nullptr_t>(result)) {
+    if (Utils::optional<GotoResult> result = response.result()) {
+        if (Utils::holds_alternative<std::nullptr_t>(*result)) {
             callback({});
-        } else if (auto ploc = Utils::get_if<Location>(&result)) {
+        } else if (auto ploc = Utils::get_if<Location>(&*result)) {
             callback(linkUnderCursor.value_or(ploc->toLink()));
-        } else if (auto plloc = Utils::get_if<QList<Location>>(&result)) {
+        } else if (auto plloc = Utils::get_if<QList<Location>>(&*result)) {
             if (!plloc->isEmpty())
                 callback(linkUnderCursor.value_or(plloc->value(0).toLink()));
             else
@@ -206,8 +205,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     if (result) {
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
             tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
-        search->addResults(generateSearchResultItems(result.value()),
-                           Core::SearchResult::AddOrdered);
+        search->addResults(generateSearchResultItems(*result), Core::SearchResult::AddOrdered);
         QObject::connect(search,
                          &Core::SearchResult::activated,
                          [](const Core::SearchResultItem &item) {

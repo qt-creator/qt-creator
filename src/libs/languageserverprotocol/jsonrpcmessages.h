@@ -122,7 +122,7 @@ public:
     virtual bool parametersAreValid(QString *errorMessage) const
     {
         if (auto parameter = params())
-            return parameter.value().isValid();
+            return parameter->isValid();
         if (errorMessage)
             *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Notification",
                                                         "No parameters in \"%1\".").arg(method());

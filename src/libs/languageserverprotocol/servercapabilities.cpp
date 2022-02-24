@@ -43,13 +43,12 @@ void ServerCapabilities::setTextDocumentSync(const ServerCapabilities::TextDocum
 
 TextDocumentSyncKind ServerCapabilities::textDocumentSyncKindHelper()
 {
-    Utils::optional<TextDocumentSync> sync = textDocumentSync();
-    if (sync.has_value()) {
-        if (auto kind = Utils::get_if<int>(&sync.value()))
+    if (Utils::optional<TextDocumentSync> sync = textDocumentSync()) {
+        if (auto kind = Utils::get_if<int>(&*sync))
             return static_cast<TextDocumentSyncKind>(*kind);
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&sync.value())) {
+        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*sync)) {
             if (const Utils::optional<int> &change = options->change())
-                return static_cast<TextDocumentSyncKind>(change.value());
+                return static_cast<TextDocumentSyncKind>(*change);
         }
     }
     return TextDocumentSyncKind::None;

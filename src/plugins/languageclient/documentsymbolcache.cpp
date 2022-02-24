@@ -117,7 +117,7 @@ void DocumentSymbolCache::handleResponse(const DocumentUri &uri,
     m_runningRequests.remove(uri);
     if (Utils::optional<DocumentSymbolsRequest::Response::Error> error = response.error()) {
         if (m_client)
-            m_client->log(error.value());
+            m_client->log(*error);
     }
     const DocumentSymbolsResult &symbols = response.result().value_or(DocumentSymbolsResult());
     m_cache[uri] = symbols;

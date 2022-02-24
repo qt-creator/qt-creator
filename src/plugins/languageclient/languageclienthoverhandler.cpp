@@ -58,7 +58,8 @@ void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
                                const Core::HelpItem &help)
 {
     if (msgId == m_response.id()) {
-        setContent(m_response.result().value().content());
+        if (Utils::optional<Hover> result = m_response.result())
+            setContent(result->content());
         m_response = {};
         setLastHelpItemIdentified(help);
         m_report(priority());
@@ -95,7 +96,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         sendMessage = Utils::get<bool>(*provider);
     if (Utils::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
             HoverRequest::methodName)) {
-        sendMessage = registered.value();
+        sendMessage = *registered;
         if (sendMessage) {
             const TextDocumentRegistrationOptions option(
                 m_client->dynamicCapabilities().option(HoverRequest::methodName).toObject());
@@ -126,7 +127,7 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response)
     m_currentRequest.reset();
     if (Utils::optional<HoverRequest::Response::Error> error = response.error()) {
         if (m_client)
-            m_client->log(error.value());
+            m_client->log(*error);
     }
     if (Utils::optional<Hover> result = response.result()) {
         if (m_helpItemProvider) {
@@ -134,7 +135,7 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response)
             m_helpItemProvider(response, m_uri);
             return;
         }
-        setContent(result.value().content());
+        setContent(result->content());
     }
     m_report(priority());
 }

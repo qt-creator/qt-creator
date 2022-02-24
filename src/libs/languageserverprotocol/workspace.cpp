@@ -81,7 +81,7 @@ ExecuteCommandParams::ExecuteCommandParams(const Command &command)
 {
     setCommand(command.command());
     if (command.arguments().has_value())
-        setArguments(command.arguments().value());
+        setArguments(*command.arguments());
 }
 
 LanguageServerProtocol::WorkSpaceFolderResult::operator const QJsonValue() const

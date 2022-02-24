@@ -108,7 +108,7 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
 void LanguageClientQuickFixAssistProcessor::cancel()
 {
     if (running()) {
-        m_client->cancelRequest(m_currentRequest.value());
+        m_client->cancelRequest(*m_currentRequest);
         m_client->removeAssistProcessor(this);
         m_currentRequest.reset();
     }
@@ -120,9 +120,8 @@ void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeA
     if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
         m_client->log(*error);
     QuickFixOperations ops;
-    if (const Utils::optional<CodeActionResult> &_result = response.result()) {
-        const CodeActionResult &result = _result.value();
-        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+    if (const Utils::optional<CodeActionResult> &result = response.result()) {
+        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&*result)) {
             for (const Utils::variant<Command, CodeAction> &item : *list) {
                 if (auto action = Utils::get_if<CodeAction>(&item))
                     ops << new CodeActionQuickFixOperation(*action, m_client);

@@ -103,7 +103,7 @@ IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface
 void FunctionHintProcessor::cancel()
 {
     if (running()) {
-        m_client->cancelRequest(m_currentRequest.value());
+        m_client->cancelRequest(*m_currentRequest);
         m_client->removeAssistProcessor(this);
         m_currentRequest.reset();
     }
@@ -113,7 +113,7 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
 {
     m_currentRequest.reset();
     if (auto error = response.error())
-        m_client->log(error.value());
+        m_client->log(*error);
     m_client->removeAssistProcessor(this);
     auto result = response.result().value_or(LanguageClientValue<SignatureHelp>());
     if (result.isNull()) {

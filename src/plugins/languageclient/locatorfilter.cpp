@@ -210,9 +210,9 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
 
     QTC_ASSERT(m_currentSymbols.has_value(), return {});
 
-    if (auto list = Utils::get_if<QList<DocumentSymbol>>(&m_currentSymbols.value()))
+    if (auto list = Utils::get_if<QList<DocumentSymbol>>(&*m_currentSymbols))
         return generateEntries(*list, entry);
-    else if (auto list = Utils::get_if<QList<SymbolInformation>>(&m_currentSymbols.value()))
+    else if (auto list = Utils::get_if<QList<SymbolInformation>>(&*m_currentSymbols))
         return generateEntries(*list, entry);
 
     return {};

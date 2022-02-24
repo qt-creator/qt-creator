@@ -43,7 +43,7 @@ namespace LanguageServerProtocol {
 Utils::optional<DiagnosticSeverity> Diagnostic::severity() const
 {
     if (auto val = optionalValue<int>(severityKey))
-        return Utils::make_optional(static_cast<DiagnosticSeverity>(val.value()));
+        return Utils::make_optional(static_cast<DiagnosticSeverity>(*val));
     return Utils::nullopt;
 }
 
@@ -352,13 +352,13 @@ bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeT
         QRegularExpression::PatternOption option = QRegularExpression::NoPatternOption;
         if (fileName.caseSensitivity() == Qt::CaseInsensitive)
             option = QRegularExpression::CaseInsensitiveOption;
-        const QRegularExpression regexp(expressionForGlob(_pattern.value()), option);
+        const QRegularExpression regexp(expressionForGlob(*_pattern), option);
         if (regexp.isValid() && regexp.match(fileName.toString()).hasMatch())
             return true;
     }
     if (Utils::optional<QString> _lang = language()) {
         auto match = [&_lang](const Utils::MimeType &mimeType){
-            return _lang.value() == TextDocumentItem::mimeTypeToLanguageId(mimeType);
+            return *_lang == TextDocumentItem::mimeTypeToLanguageId(mimeType);
         };
         if (mimeType.isValid() && match(mimeType))
             return true;

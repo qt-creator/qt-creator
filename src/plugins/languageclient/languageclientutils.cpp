@@ -166,22 +166,21 @@ void updateCodeActionRefactoringMarker(Client *client,
     marker.type = client->id();
     if (action.isValid())
         marker.tooltip = action.title();
-    if (action.edit().has_value()) {
-        WorkspaceEdit edit = action.edit().value();
+    if (Utils::optional<WorkspaceEdit> edit = action.edit()) {
         marker.callback = [client, edit](const TextEditorWidget *) {
-            applyWorkspaceEdit(client, edit);
+            applyWorkspaceEdit(client, *edit);
         };
         if (diagnostics.isEmpty()) {
             QList<TextEdit> edits;
-            if (optional<QList<TextDocumentEdit>> documentChanges = edit.documentChanges()) {
+            if (optional<QList<TextDocumentEdit>> documentChanges = edit->documentChanges()) {
                 QList<TextDocumentEdit> changesForUri = Utils::filtered(
-                    documentChanges.value(), [uri](const TextDocumentEdit &edit) {
+                    *documentChanges, [uri](const TextDocumentEdit &edit) {
                     return edit.textDocument().uri() == uri;
                 });
                 for (const TextDocumentEdit &edit : changesForUri)
                     edits << edit.edits();
-            } else if (optional<WorkspaceEdit::Changes> localChanges = edit.changes()) {
-                edits = localChanges.value()[uri];
+            } else if (optional<WorkspaceEdit::Changes> localChanges = edit->changes()) {
+                edits = (*localChanges)[uri];
             }
             for (const TextEdit &edit : qAsConst(edits)) {
                 marker.cursor = endOfLineCursor(edit.range().start().toTextCursor(doc->document()));

@@ -380,7 +380,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
     const FilePath &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        if (!registered.value())
+        if (!*registered)
             return;
         const TextDocumentRegistrationOptions option(
             m_dynamicCapabilities.option(method).toObject());
@@ -390,7 +390,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = m_serverCapabilities.textDocumentSync()) {
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&_sync.value())) {
+        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync)) {
             if (!options->openClose().value_or(true))
                 return;
         }
@@ -570,7 +570,7 @@ void Client::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
             const Id &id = TextEditor::TextEditorWidget::CodeSemanticsSelection;
             QList<QTextEdit::ExtraSelection> selections;
             const Utils::optional<DocumentHighlightsResult> &result = response.result();
-            if (!result.has_value() || holds_alternative<std::nullptr_t>(result.value())) {
+            if (!result.has_value() || holds_alternative<std::nullptr_t>(*result)) {
                 widget->setExtraSelections(id, selections);
                 return;
             }
@@ -578,7 +578,7 @@ void Client::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
             const QTextCharFormat &format =
                 widget->textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
             QTextDocument *document = widget->document();
-            for (const auto &highlight : get<QList<DocumentHighlight>>(result.value())) {
+            for (const auto &highlight : get<QList<DocumentHighlight>>(*result)) {
                 QTextEdit::ExtraSelection selection{widget->textCursor(), format};
                 const int &start = highlight.range().start().toPositionInDocument(document);
                 const int &end = highlight.range().end().toPositionInDocument(document);
@@ -663,7 +663,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
     bool includeText = false;
     const QString method(DidSaveTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        sendMessage = registered.value();
+        sendMessage = *registered;
         if (sendMessage) {
             const TextDocumentSaveRegistrationOptions option(
                         m_dynamicCapabilities.option(method).toObject());
@@ -675,9 +675,9 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = m_serverCapabilities.textDocumentSync()) {
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&_sync.value())) {
+        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync)) {
             if (Utils::optional<SaveOptions> saveOptions = options->save())
-                includeText = saveOptions.value().includeText().value_or(includeText);
+                includeText = saveOptions->includeText().value_or(includeText);
         }
     }
     if (!sendMessage)
@@ -698,7 +698,7 @@ void Client::documentWillSave(Core::IDocument *document)
     bool sendMessage = false;
     const QString method(WillSaveTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        sendMessage = registered.value();
+        sendMessage = *registered;
         if (sendMessage) {
             const TextDocumentRegistrationOptions option(m_dynamicCapabilities.option(method));
             if (option.isValid()) {
@@ -708,7 +708,7 @@ void Client::documentWillSave(Core::IDocument *document)
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = m_serverCapabilities.textDocumentSync()) {
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&_sync.value()))
+        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync))
             sendMessage = options->willSave().value_or(sendMessage);
     }
     if (!sendMessage)
@@ -728,7 +728,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = m_serverCapabilities.textDocumentSyncKindHelper();
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        syncKind = registered.value() ? TextDocumentSyncKind::Full : TextDocumentSyncKind::None;
+        syncKind = *registered ? TextDocumentSyncKind::Full : TextDocumentSyncKind::None;
         if (syncKind != TextDocumentSyncKind::None) {
             const TextDocumentChangeRegistrationOptions option(
                                     m_dynamicCapabilities.option(method).toObject());
@@ -920,7 +920,7 @@ void Client::requestCodeActions(const CodeActionRequest &request)
 
     const QString method(CodeActionRequest::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
-        if (!registered.value())
+        if (!*registered)
             return;
         const TextDocumentRegistrationOptions option(
             m_dynamicCapabilities.option(method).toObject());
@@ -941,9 +941,8 @@ void Client::handleCodeActionResponse(const CodeActionRequest::Response &respons
 {
     if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
         log(*error);
-    if (const Utils::optional<CodeActionResult> &_result = response.result()) {
-        const CodeActionResult &result = _result.value();
-        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+    if (const Utils::optional<CodeActionResult> &result = response.result()) {
+        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&*result)) {
             for (const Utils::variant<Command, CodeAction> &item : *list) {
                 if (auto action = Utils::get_if<CodeAction>(&item))
                     updateCodeActionRefactoringMarker(this, *action, uri);
@@ -1269,7 +1268,7 @@ LanguageClientValue<MessageActionItem> Client::showMessageBox(
     }
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
     if (const Utils::optional<QList<MessageActionItem>> actions = message.actions()) {
-        for (const MessageActionItem &action : actions.value())
+        for (const MessageActionItem &action : *actions)
             itemForButton.insert(box->addButton(action.title(), QMessageBox::InvalidRole), action);
     }
     box->exec();
@@ -1538,45 +1537,45 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == InitializeRequested, return);
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
-        if (error.value().data().has_value() && error.value().data().value().retry()) {
-            const QString title(tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
-            auto result = QMessageBox::warning(Core::ICore::dialogParent(),
-                                               title,
-                                               error.value().message(),
-                                               QMessageBox::Retry | QMessageBox::Cancel,
-                                               QMessageBox::Retry);
-            if (result == QMessageBox::Retry) {
-                m_state = Uninitialized;
-                initialize();
-                return;
+        if (Utils::optional<InitializeError> data = error->data()) {
+            if (data->retry()) {
+                const QString title(tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
+                auto result = QMessageBox::warning(Core::ICore::dialogParent(),
+                                                   title,
+                                                   error->message(),
+                                                   QMessageBox::Retry | QMessageBox::Cancel,
+                                                   QMessageBox::Retry);
+                if (result == QMessageBox::Retry) {
+                    m_state = Uninitialized;
+                    initialize();
+                    return;
+                }
             }
         }
-        setError(tr("Initialize error: ") + error.value().message());
+        setError(tr("Initialize error: ") + error->message());
         emit finished();
         return;
     }
-    const optional<InitializeResult> &_result = initResponse.result();
-    if (!_result.has_value()) {// continue on ill formed result
-        log(tr("No initialize result."));
-    } else {
-        const InitializeResult &result = _result.value();
-        if (!result.isValid()) { // continue on ill formed result
-            log(QJsonDocument(result).toJson(QJsonDocument::Indented) + '\n'
+    if (const optional<InitializeResult> &result = initResponse.result()) {
+        if (!result->isValid()) { // continue on ill formed result
+            log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
                 + tr("Initialize result is not valid"));
         }
-        const Utils::optional<ServerInfo> serverInfo = result.serverInfo();
+        const Utils::optional<ServerInfo> serverInfo = result->serverInfo();
         if (serverInfo) {
             if (!serverInfo->isValid()) {
-                log(QJsonDocument(result).toJson(QJsonDocument::Indented) + '\n'
+                log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
                     + tr("Server Info is not valid"));
             } else {
                 m_serverName = serverInfo->name();
                 if (const Utils::optional<QString> version = serverInfo->version())
-                    m_serverVersion = version.value();
+                    m_serverVersion = *version;
             }
         }
 
-        m_serverCapabilities = result.capabilities();
+        m_serverCapabilities = result->capabilities();
+    } else {
+        log(tr("No initialize result."));
     }
 
     if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(
@@ -1646,10 +1645,10 @@ bool Client::sendWorkspceFolderChanges() const
         return true;
     }
     if (auto workspace = m_serverCapabilities.workspace()) {
-        if (auto folder = workspace.value().workspaceFolders()) {
-            if (folder.value().supported().value_or(false)) {
+        if (auto folder = workspace->workspaceFolders()) {
+            if (folder->supported().value_or(false)) {
                 // holds either the Id for deregistration or whether it is registered
-                auto notification = folder.value().changeNotifications().value_or(false);
+                auto notification = folder->changeNotifications().value_or(false);
                 return holds_alternative<QString>(notification)
                         || (holds_alternative<bool>(notification) && get<bool>(notification));
             }

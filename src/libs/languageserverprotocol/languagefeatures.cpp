@@ -204,10 +204,9 @@ RenameRequest::RenameRequest(const RenameParams &params)
 
 Utils::optional<DocumentUri> DocumentLink::target() const
 {
-    Utils::optional<QString> optionalTarget = optionalValue<QString>(targetKey);
-    return optionalTarget.has_value()
-            ? Utils::make_optional(DocumentUri::fromProtocol(optionalTarget.value()))
-            : Utils::nullopt;
+    if (Utils::optional<QString> optionalTarget = optionalValue<QString>(targetKey))
+        return Utils::make_optional(DocumentUri::fromProtocol(*optionalTarget));
+    return Utils::nullopt;
 }
 
 Utils::optional<QJsonValue> DocumentLink::data() const
