@@ -94,11 +94,14 @@ QList<MimeType> allMimeTypes()
 
 void setMimeStartupPhase(MimeStartupPhase phase)
 {
-    //    auto d = MimeDatabasePrivate::instance();
-    //    QMutexLocker locker(&d->mutex);
-    //    if (int(phase) != d->m_startupPhase + 1)
-    //        qWarning("Unexpected jump in MimedDatabase lifetime from %d to %d", d->m_startupPhase, int(phase));
-    //    d->m_startupPhase = int(phase);
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
+    if (int(phase) != d->m_startupPhase + 1) {
+        qWarning("Unexpected jump in MimedDatabase lifetime from %d to %d",
+                 d->m_startupPhase,
+                 int(phase));
+    }
+    d->m_startupPhase = int(phase);
 }
 
 void addMimeTypes(const QString &fileName, const QByteArray &data)

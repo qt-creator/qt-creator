@@ -116,6 +116,9 @@ private:
 public:
     const QString m_defaultMimeType;
     QMutex mutex;
+
+    // added for Qt Creator
+    int m_startupPhase = 0;
 };
 
 } // namespace Utils
