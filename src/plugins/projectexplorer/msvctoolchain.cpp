@@ -901,34 +901,18 @@ QStringList MsvcToolChain::suggestedMkspecList() const
     case Abi::WindowsMsvc2013Flavor:
         return {"win32-msvc",
                 "win32-msvc2013",
-                "winphone-arm-msvc2013",
-                "winphone-x86-msvc2013",
-                "winrt-arm-msvc2013",
-                "winrt-x86-msvc2013",
-                "winrt-x64-msvc2013",
                 "win32-msvc2012",
                 "win32-msvc2010"};
     case Abi::WindowsMsvc2015Flavor:
         return {"win32-msvc",
-                "win32-msvc2015",
-                "winphone-arm-msvc2015",
-                "winphone-x86-msvc2015",
-                "winrt-arm-msvc2015",
-                "winrt-x86-msvc2015",
-                "winrt-x64-msvc2015"};
+                "win32-msvc2015"};
     case Abi::WindowsMsvc2017Flavor:
         return {"win32-msvc",
-                "win32-msvc2017",
-                "winrt-arm-msvc2017",
-                "winrt-x86-msvc2017",
-                "winrt-x64-msvc2017"};
+                "win32-msvc2017",};
     case Abi::WindowsMsvc2019Flavor:
         return {"win32-msvc",
                 "win32-msvc2019",
-                "win32-arm64-msvc",
-                "winrt-arm-msvc2019",
-                "winrt-x86-msvc2019",
-                "winrt-x64-msvc2019"};
+                "win32-arm64-msvc"};
     case Abi::WindowsMsvc2022Flavor:
         return {"win32-msvc",
                 "win32-msvc2022",

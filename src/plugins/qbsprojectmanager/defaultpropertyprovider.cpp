@@ -45,7 +45,6 @@
 #include <ios/iosconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-#include <winrt/winrtconstants.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -60,7 +59,6 @@ using namespace Constants;
 namespace Internal {
 using namespace ProjectExplorer::Constants;
 using namespace Ios::Constants;
-using namespace WinRt::Internal::Constants;
 
 static QString extractToolchainPrefix(QString *compilerName)
 {

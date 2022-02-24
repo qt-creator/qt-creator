@@ -16,7 +16,6 @@ Project {
         "sdktool/sdktool.qbs",
         "valgrindfake/valgrindfake.qbs",
         "iostool/iostool.qbs",
-        "winrtdebughelper/winrtdebughelper.qbs"
     ].concat(project.additionalTools)
 
     Project {

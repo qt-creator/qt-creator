@@ -9921,43 +9921,6 @@
          id="path6333" />
     </g>
     <g
-       id="src/plugins/winrt/images/winrtdevice"
-       transform="translate(-206,-74)">
-      <use
-         transform="translate(561,337)"
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect_32_28"
-         id="use5913-0-8-1-5-6-8-11"
-         width="100%"
-         height="100%" />
-      <path
-         sodipodi:nodetypes="cccccccccccccccccccc"
-         style="fill:#000000;fill-opacity:1"
-         inkscape:connector-curvature="0"
-         d="m 607,391 h 10 v -10.16502 l -10,1.1313 z m 12,-10.3911 V 391 h 12 v -11.74108 z m 0,22.75938 12,1.34794 V 393 h -12 z m -12,-1.35943 10,1.12952 V 393 h -10 z"
-         id="path5333-0" />
-    </g>
-    <g
-       id="src/plugins/winrt/images/winrtdevicesmall"
-       transform="translate(-238,-58)">
-      <use
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect"
-         id="use6054-3"
-         width="100%"
-         height="100%"
-         transform="translate(650,-41)" />
-      <path
-         sodipodi:nodetypes="cccccccccccccccccccc"
-         style="fill:#000000;fill-opacity:1"
-         inkscape:connector-curvature="0"
-         d="M 636.00003,403 H 641 v -4.67861 l -4.99997,0.67433 z M 642,398.18129 V 403 h 6.00003 v -5.6287 z m 0,10.72061 6.00003,0.81345 V 404 H 642 Z M 636.00003,408.09093 641,408.7667 V 404 h -4.99997 z"
-         id="path5333" />
-    </g>
-    <g
        id="src/plugins/debugger/images/debugger_stop_mask"
        transform="translate(-711,333)"
        style="display:inline">

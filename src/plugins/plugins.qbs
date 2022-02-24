@@ -80,7 +80,6 @@ Project {
         "valgrind/valgrind.qbs",
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
-        "welcome/welcome.qbs",
-        "winrt/winrt.qbs"
+        "welcome/welcome.qbs"
     ].concat(project.additionalPlugins)
 }

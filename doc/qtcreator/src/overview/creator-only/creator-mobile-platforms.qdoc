@@ -35,7 +35,6 @@
     \list
         \li \l Android
         \li \l iOS
-        \li \l {Universal Windows Platform (UWP)}
     \endlist
 
     You must install the tool chain for building applications for the targeted
@@ -83,17 +82,4 @@
         \li \l{Qt for iOS}
     \endlist
 
-    \section1 Universal Windows Platform (UWP)
-
-    Microsoft Windows 10 introduced the Universal Windows Platform (UWP),
-    which provides a common application platform on every device that runs
-    Windows 10, as a successor to Windows Runtime (WinRT) introduced by
-    Windows 8. The UWP core APIs are the same on all Windows devices, and
-    therefore applications that only use the core APIs will run on any
-    Windows 10 device, such as a desktop PC, or Xbox One.
-
-    For more information about developing applications for UWP using Qt 5, see
-    \l{https://doc.qt.io/qt-5/winrt-support.html}{Qt for UWP}.
-
-    \note Developing for UWP using Qt 6 is not supported.
 */

@@ -81,16 +81,14 @@
             \li \image ok
             \li \inlineimage ok
         \row
-            \li \l{Universal Windows Platform (UWP)}{UWP}
-            \li
-            \li
-            \li \image ok
-        \row
             \li \l{Building Applications for the Web}{WebAssembly}
             \li \image ok
             \li \image ok
             \li \image ok
     \endtable
+
+    \note UWP support was removed from \QC 8.0.
+    To develop for UWP using Qt 5, use \QC 7.0, or earlier.
 
     \QC automatically runs scheduled checks for updates based on the settings
     specified in \uicontrol Tools > \uicontrol Options \uicontrol Environment >

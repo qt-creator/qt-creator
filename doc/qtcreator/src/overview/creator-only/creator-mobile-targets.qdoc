@@ -38,7 +38,7 @@
 
     You can connect \l{glossary-device}{devices} to the development PC to run, debug,
     and analyze applications built for them from \QC. When you install Qt for a
-    target platform, such as Android, QNX, or Universal Windows Platform (UWP),
+    target platform, such as Android or QNX,
     the build and run settings for the development targets might be set up
     automatically in \QC.
 

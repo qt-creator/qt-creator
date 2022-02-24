@@ -58,9 +58,6 @@
         \li \l{Connecting MCUs}{MCU Device} (commercial only)
         \li \l{Connecting QNX Devices}{QNX Device}
         \li \l{Building Applications for the Web}{WebAssembly Runtime}
-        \li \l{https://doc.qt.io/qt-5/winrt-support.html}{Windows Phone} (Qt 5)
-        \li Windows Phone Emulator (Qt 5)
-        \li Windows Runtime (local, Qt 5)
     \endlist
 
     \section1 Filtering Kit Settings
