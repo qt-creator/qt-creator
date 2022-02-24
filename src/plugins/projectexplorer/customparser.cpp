@@ -271,7 +271,7 @@ OutputLineParser::Result CustomParser::parseLine(
         CustomParserExpression::CustomParserChannel channel
         )
 {
-    const QString line = rawLine.trimmed();
+    const QString line = rightTrimmed(rawLine);
     const Result res = hasMatch(line, channel, m_error, Task::Error);
     if (res.status != Status::NotHandled)
         return res;
@@ -628,6 +628,55 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString() << 1 << 2 << 3
             << QString() << QString()
             << Tasks({CompileTask(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber)})
+            << QString();
+
+    const QString leadingSpacesPattern = "^    MESSAGE:(.+)";
+    const QString leadingSpacesMessage = "    MESSAGE:Error";
+    const QString noLeadingSpacesMessage = "MESSAGE:Error";
+    QTest::newRow("leading spaces: match")
+            << leadingSpacesMessage
+            << QString()
+            << OutputParserTester::STDOUT
+            << CustomParserExpression::ParseBothChannels
+            << CustomParserExpression::ParseBothChannels
+            << leadingSpacesPattern << 2 << 3 << 1
+            << QString() << 1 << 2 << 3
+            << QString() << QString()
+            << Tasks({CompileTask(Task::Error, "Error", {}, -1)})
+            << QString();
+    QTest::newRow("leading spaces: no match")
+            << noLeadingSpacesMessage
+            << QString()
+            << OutputParserTester::STDOUT
+            << CustomParserExpression::ParseBothChannels
+            << CustomParserExpression::ParseBothChannels
+            << leadingSpacesPattern << 2 << 3 << 1
+            << QString() << 1 << 2 << 3
+            << (noLeadingSpacesMessage + '\n') << QString()
+            << Tasks()
+            << QString();
+    const QString noLeadingSpacesPattern = "^MESSAGE:(.+)";
+    QTest::newRow("no leading spaces: match")
+            << noLeadingSpacesMessage
+            << QString()
+            << OutputParserTester::STDOUT
+            << CustomParserExpression::ParseBothChannels
+            << CustomParserExpression::ParseBothChannels
+            << noLeadingSpacesPattern << 2 << 3 << 1
+            << QString() << 1 << 2 << 3
+            << QString() << QString()
+            << Tasks({CompileTask(Task::Error, "Error", {}, -1)})
+            << QString();
+    QTest::newRow("no leading spaces: no match")
+            << leadingSpacesMessage
+            << QString()
+            << OutputParserTester::STDOUT
+            << CustomParserExpression::ParseBothChannels
+            << CustomParserExpression::ParseBothChannels
+            << noLeadingSpacesPattern << 3 << 2 << 1
+            << QString() << 1 << 2 << 3
+            << (leadingSpacesMessage + '\n') << QString()
+            << Tasks()
             << QString();
 }
 
