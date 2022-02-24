@@ -62,6 +62,7 @@ private:
     std::once_flag imageCacheFlag;
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     QPointer<AssetsLibraryWidget> m_widget;
+    QString m_lastResourcePath;
 };
 
 }

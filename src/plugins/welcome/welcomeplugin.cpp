@@ -110,6 +110,8 @@ void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
 
 class WelcomeMode : public IMode
 {
+    Q_OBJECT
+
 public:
     WelcomeMode();
     ~WelcomeMode();

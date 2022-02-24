@@ -35,6 +35,7 @@
 
 #include <utils/variant.h> // revert when macos minimum target is >= 10.14
 
+#include <chrono>
 #include <string>
 #include <vector>
 

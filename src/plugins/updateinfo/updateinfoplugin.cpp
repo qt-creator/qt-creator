@@ -209,7 +209,7 @@ struct QtPackage
     QString displayName;
     QVersionNumber version;
     bool installed;
-    bool isPrerelease;
+    bool isPrerelease = false;
 };
 
 static QList<QtPackage> availableQtPackages(const QDomDocument &document)

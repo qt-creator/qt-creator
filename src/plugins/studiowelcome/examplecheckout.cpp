@@ -106,7 +106,7 @@ void FileDownloader::start()
                                emit progressChanged();
                            });
 
-    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &url) {
+    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &) {
         emit reply->redirectAllowed();
     });
 
@@ -188,7 +188,7 @@ void FileDownloader::probeUrl()
                          QNetworkRequest::UserVerifiedRedirectPolicy);
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->head(request);
 
-    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &url) {
+    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &) {
         emit reply->redirectAllowed();
     });
 
@@ -217,7 +217,7 @@ void FileDownloader::probeUrl()
     QNetworkReply::connect(reply,
                            &QNetworkReply::errorOccurred,
                            this,
-                           [this, reply](QNetworkReply::NetworkError code) {
+                           [this](QNetworkReply::NetworkError) {
                                QQmlData *data = QQmlData::get(this, false);
                                if (!data) {
                                    qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";

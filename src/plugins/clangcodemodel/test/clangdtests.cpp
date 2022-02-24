@@ -1295,6 +1295,13 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("keywords: true") << 920 << 15 << 920 << 19 << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("keywords: false") << 921 << 15 << 921 << 20 << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("keywords: nullptr") << 922 << 15 << 922 << 22 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("operator<<") << 934 << 10 << 934 << 14 << QList<int>{C_GLOBAL} << 0;
+    QTest::newRow("operator>>") << 936 << 10 << 936 << 13 << QList<int>{C_GLOBAL} << 0;
+    QTest::newRow("operator>>") << 936 << 17 << 936 << 18 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("input arg from passed object") << 945 << 17 << 945 << 18
+                                                  << QList<int>{C_FIELD} << 0;
+    QTest::newRow("output arg") << 945 << 20 << 945 << 23
+                                << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
 }
 
 void ClangdTestHighlighting::test()

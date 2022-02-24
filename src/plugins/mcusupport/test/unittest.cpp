@@ -47,7 +47,7 @@ using Utils::FilePath;
 void McuSupportTest::initTestCase()
 {
     EXPECT_CALL(freeRtosPackage, environmentVariableName()).WillRepeatedly(ReturnRef(freeRtosEnvVar));
-    EXPECT_CALL(freeRtosPackage, validStatus()).WillRepeatedly(Return(true));
+    EXPECT_CALL(freeRtosPackage, isValidStatus()).WillRepeatedly(Return(true));
     EXPECT_CALL(freeRtosPackage, path())
         .WillRepeatedly(Return(FilePath::fromString(defaultfreeRtosPath)));
 }

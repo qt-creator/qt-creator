@@ -110,6 +110,7 @@ private:
 
     void updateSearch();
     void handlePriorityImportsChanged();
+    static QString getDependencyImport(const Import &import);
 
     QTimer m_compressionTimer;
     QSize m_itemIconSize;

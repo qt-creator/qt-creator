@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -59,8 +59,8 @@
     wizard directory and instruct the recipients to extract it into one of the
     directories \QC searches wizards from.
 
-    \QC displays the wizards that it finds in the
-    \uicontrol {New File} and \uicontrol {New Project} dialogs. For each wizard, an icon (1), a
+    \QC displays the wizards that it finds in the \uicontrol {New Project}
+    and \uicontrol {New File} dialogs. For each wizard, an icon (1), a
     display name (2), and a description (3) are displayed.
 
     \image qtcreator-custom-wizard.png

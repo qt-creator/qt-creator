@@ -57,30 +57,21 @@ namespace McuKitManager {
 
 static const int KIT_VERSION = 9; // Bumps up whenever details in Kit creation change
 
-static FilePath qulDocsDir()
-{
-    const FilePath qulDir = McuSupportOptions::qulDirFromSettings();
-    if (qulDir.isEmpty() || !qulDir.exists())
-        return {};
-    const FilePath docsDir = qulDir.pathAppended("docs");
-    return docsDir.exists() ? docsDir : FilePath();
-}
-
 static void setKitToolchains(Kit *k, const McuToolChainPackage *tcPackage)
 {
-    switch (tcPackage->type()) {
-    case McuToolChainPackage::Type::Unsupported:
+    switch (tcPackage->toolchainType()) {
+    case McuToolChainPackage::ToolChainType::Unsupported:
         return;
 
-    case McuToolChainPackage::Type::GHS:
-    case McuToolChainPackage::Type::GHSArm:
+    case McuToolChainPackage::ToolChainType::GHS:
+    case McuToolChainPackage::ToolChainType::GHSArm:
         return; // No Green Hills toolchain, because support for it is missing.
 
-    case McuToolChainPackage::Type::IAR:
-    case McuToolChainPackage::Type::KEIL:
-    case McuToolChainPackage::Type::MSVC:
-    case McuToolChainPackage::Type::GCC:
-    case McuToolChainPackage::Type::ArmGcc:
+    case McuToolChainPackage::ToolChainType::IAR:
+    case McuToolChainPackage::ToolChainType::KEIL:
+    case McuToolChainPackage::ToolChainType::MSVC:
+    case McuToolChainPackage::ToolChainType::GCC:
+    case McuToolChainPackage::ToolChainType::ArmGcc:
         ToolChainKitAspect::setToolChain(k,
                                          tcPackage->toolChain(
                                              ProjectExplorer::Constants::C_LANGUAGE_ID));
@@ -136,17 +127,17 @@ static void setKitDebugger(Kit *k, const McuToolChainPackage *tcPackage)
         return;
     }
 
-    switch (tcPackage->type()) {
-    case McuToolChainPackage::Type::Unsupported:
-    case McuToolChainPackage::Type::GHS:
-    case McuToolChainPackage::Type::GHSArm:
-    case McuToolChainPackage::Type::IAR:
+    switch (tcPackage->toolchainType()) {
+    case McuToolChainPackage::ToolChainType::Unsupported:
+    case McuToolChainPackage::ToolChainType::GHS:
+    case McuToolChainPackage::ToolChainType::GHSArm:
+    case McuToolChainPackage::ToolChainType::IAR:
         return; // No Green Hills and IAR debugger, because support for it is missing.
 
-    case McuToolChainPackage::Type::KEIL:
-    case McuToolChainPackage::Type::MSVC:
-    case McuToolChainPackage::Type::GCC:
-    case McuToolChainPackage::Type::ArmGcc: {
+    case McuToolChainPackage::ToolChainType::KEIL:
+    case McuToolChainPackage::ToolChainType::MSVC:
+    case McuToolChainPackage::ToolChainType::GCC:
+    case McuToolChainPackage::ToolChainType::ArmGcc: {
         const QVariant debuggerId = tcPackage->debuggerId();
         if (debuggerId.isValid()) {
             Debugger::DebuggerKitAspect::setDebugger(k, debuggerId);
@@ -168,11 +159,6 @@ static void setKitDevice(Kit *k, const McuTarget *mcuTarget)
     DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
 }
 
-static bool expectsCmakeVars(const McuTarget *mcuTarget)
-{
-    return mcuTarget->qulVersion() >= QVersionNumber{2, 0};
-}
-
 static void setKitDependencies(Kit *k,
                                const McuTarget *mcuTarget,
                                const McuAbstractPackage *qtForMCUsSdkPackage)
@@ -182,7 +168,7 @@ static void setKitDependencies(Kit *k,
     auto processPackage = [&dependencies](const McuAbstractPackage *package) {
         if (!package->environmentVariableName().isEmpty())
             dependencies.append({package->environmentVariableName(),
-                                 QDir::toNativeSeparators(package->detectionPath())});
+                                 package->detectionPath().toUserOutput()});
     };
     for (auto package : mcuTarget->packages())
         processPackage(package);
@@ -201,8 +187,8 @@ static void setKitCMakeOptions(Kit *k, const McuTarget *mcuTarget, const FilePat
 
     CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
     // CMake ToolChain file for ghs handles CMAKE_*_COMPILER autonomously
-    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::Type::GHS
-        && mcuTarget->toolChainPackage()->type() != McuToolChainPackage::Type::GHSArm) {
+    if (mcuTarget->toolChainPackage()->toolchainType() != McuToolChainPackage::ToolChainType::GHS
+        && mcuTarget->toolChainPackage()->toolchainType() != McuToolChainPackage::ToolChainType::GHSArm) {
         config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
         config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
     }
@@ -240,8 +226,8 @@ static void setKitCMakeOptions(Kit *k, const McuTarget *mcuTarget, const FilePat
     CMakeConfigurationKitAspect::setConfiguration(k, config);
 
     if (HostOsInfo::isWindowsHost()) {
-        auto type = mcuTarget->toolChainPackage()->type();
-        if (type == McuToolChainPackage::Type::GHS || type == McuToolChainPackage::Type::GHSArm) {
+        auto type = mcuTarget->toolChainPackage()->toolchainType();
+        if (type == McuToolChainPackage::ToolChainType::GHS || type == McuToolChainPackage::ToolChainType::GHSArm) {
             // See https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565802&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565802
             // and https://bugreports.qt.io/browse/UL-4247?focusedCommentId=565803&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-565803
             CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
@@ -389,13 +375,12 @@ void createAutomaticKits()
     const auto createKits = [qtForMCUsPackage]() {
         if (McuSupportOptions::automaticKitCreationFromSettings()) {
             qtForMCUsPackage->updateStatus();
-            if (!qtForMCUsPackage->validStatus()) {
+            if (!qtForMCUsPackage->isValidStatus()) {
                 switch (qtForMCUsPackage->status()) {
                 case McuAbstractPackage::Status::ValidPathInvalidPackage: {
-                    const QString displayPath
-                        = FilePath::fromString(qtForMCUsPackage->detectionPath()).toUserOutput();
                     printMessage(McuPackage::tr("Path %1 exists, but does not contain %2.")
-                                     .arg(qtForMCUsPackage->path().toUserOutput(), displayPath),
+                                     .arg(qtForMCUsPackage->path().toUserOutput(),
+                                          qtForMCUsPackage->detectionPath().toUserOutput()),
                                  true);
                     break;
                 }
@@ -408,7 +393,7 @@ void createAutomaticKits()
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
                     printMessage(McuPackage::tr("Missing %1. Add the path in Tools > Options > Devices > MCU.")
-                                     .arg(qtForMCUsPackage->detectionPath()),
+                                     .arg(qtForMCUsPackage->detectionPath().toUserOutput()),
                                  true);
                     return;
                 }
@@ -575,7 +560,7 @@ void fixExistingKits()
     // Fix kit dependencies for known targets
     auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
     qtForMCUsPackage->updateStatus();
-    if (qtForMCUsPackage->validStatus()) {
+    if (qtForMCUsPackage->isValidStatus()) {
         FilePath dir = qtForMCUsPackage->path();
         McuSdkRepository repo;
         Sdk::targetsAndPackages(dir, &repo);

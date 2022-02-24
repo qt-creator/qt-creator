@@ -276,8 +276,6 @@ void ImageView::doScale(qreal factor)
 void ImageView::wheelEvent(QWheelEvent *event)
 {
     qreal factor = qPow(Constants::DEFAULT_SCALE_FACTOR, event->angleDelta().y() / 240.0);
-    qreal currentScale = transform().m11();
-    qreal newScale = currentScale * factor;
     // cap to 0.001 - 1000
     qreal actualFactor = qBound(0.001, factor, 1000.0);
     doScale(actualFactor);

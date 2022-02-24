@@ -321,6 +321,8 @@ static QHash<QByteArray, QStringList> allImageFormats()
 
 void AssetsLibraryWidget::addResources(const QStringList &files)
 {
+    clearSearchFilter();
+
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
 
     QTC_ASSERT(document, return);

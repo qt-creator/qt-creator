@@ -214,11 +214,7 @@ void DesignModeWidget::setup()
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
-    const QColor iconColor(Theme::getColor(Theme::DStitleBarIcon));
-
     const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::adsClose);
-    const QString menuUnicode = Theme::getIconUnicode(Theme::Icon::adsDropDown);
-    const QString undockUnicode = Theme::getIconUnicode(Theme::Icon::adsDetach);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
     const QSize size = QSize(28, 28);

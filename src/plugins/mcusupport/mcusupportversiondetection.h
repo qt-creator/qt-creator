@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QObject>
+#include <utils/filepath.h>
 
 namespace McuSupport {
 namespace Internal {
@@ -43,13 +44,13 @@ public:
 class McuPackageExecutableVersionDetector : public McuPackageVersionDetector
 {
 public:
-    McuPackageExecutableVersionDetector(const QString &detectionPath,
+    McuPackageExecutableVersionDetector(const Utils::FilePath &detectionPath,
                                         const QStringList &detectionArgs,
                                         const QString &detectionRegExp);
     QString parseVersion(const QString &packagePath) const final;
 
 private:
-    const QString m_detectionPath;
+    const Utils::FilePath m_detectionPath;
     const QStringList m_detectionArgs;
     const QString m_detectionRegExp;
 };

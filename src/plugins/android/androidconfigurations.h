@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 ** Contact: https://www.qt.io/licensing/
 **
@@ -176,15 +177,12 @@ public:
 
     static Utils::FilePath getJdkPath();
     static QStringList getAbis(const QString &device);
-
-    QString getRunningAvdsSerialNumber(const QString &name) const;
-    static QStringList getRunningAvdsFromDevices(const QVector<AndroidDeviceInfo> &devs);
+    static int getSDKVersion(const QString &device);
 
 private:
     static QString getDeviceProperty(const QString &device, const QString &property);
 
     Utils::FilePath openJDKBinPath() const;
-    static int getSDKVersion(const QString &device);
     static QString getAvdName(const QString &serialnumber);
 
     void parseDependenciesJson();

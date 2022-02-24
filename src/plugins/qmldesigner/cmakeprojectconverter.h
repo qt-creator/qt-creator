@@ -51,6 +51,8 @@ public:
                         const Utils::FilePath &targetDir);
     static void generateMenuEntry();
     static void onConvertProject();
+    static bool isProjectConvertable(const ProjectExplorer::Project *project);
+    static bool isProjectCurrentFormat(const ProjectExplorer::Project *project);
 
 private:
     bool prepareAndExecute();
@@ -68,11 +70,12 @@ private:
                        const Utils::FilePath &original, const Utils::FilePath &target);
     bool createPreparedProject();
 
-    const Utils::FilePath contentDir();
-    const Utils::FilePath sourceDir();
-    const Utils::FilePath importDir();
-    const Utils::FilePath assetDir();
-    const Utils::FilePath assetImportDir();
+    const Utils::FilePath contentDir() const;
+    const Utils::FilePath sourceDir() const;
+    const Utils::FilePath importDir() const;
+    const Utils::FilePath assetDir() const;
+    const Utils::FilePath assetImportDir() const;
+    const Utils::FilePath newProjectFile() const;
 
     const QString environmentVariable(const QString &key) const;
     const Utils::FilePath projectMainFile() const;

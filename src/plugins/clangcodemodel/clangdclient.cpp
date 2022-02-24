@@ -2779,6 +2779,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                     || path.rbegin()->kind() == "CXXConstruct")) {
             return false;
         }
+        if (path.rbegin()->hasConstType())
+            return false;
         for (auto it = path.rbegin() + 1; it != path.rend(); ++it) {
             if (it->kind() == "Call" || it->kind() == "CXXConstruct"
                     || it->kind() == "MemberInitializer") {
@@ -2810,8 +2812,9 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                     const AstNode n = firstChildTree.takeFirst();
                     const QString detail = n.detail().value_or(QString());
                     if (detail.startsWith("operator")) {
-                        return !detail.contains('=') && !detail.contains("++")
-                                && !detail.contains("--");
+                        return !detail.contains('=')
+                                && !detail.contains("++") && !detail.contains("--")
+                                && !detail.contains("<<") && !detail.contains(">>");
                     }
                     firstChildTree << n.children().value_or(QList<AstNode>());
                 }
@@ -4122,7 +4125,7 @@ class MemoryTreeModel : public Utils::BaseTreeModel
 public:
     MemoryTreeModel(QObject *parent) : BaseTreeModel(parent)
     {
-        setHeader({tr("Component"), tr("Total Memory")});
+        setHeader({MemoryUsageWidget::tr("Component"), MemoryUsageWidget::tr("Total Memory")});
     }
 
     void update(const MemoryTree &tree)

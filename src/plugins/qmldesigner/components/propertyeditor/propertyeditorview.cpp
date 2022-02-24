@@ -144,7 +144,7 @@ void PropertyEditorView::changeValue(const QString &name)
     if (locked())
         return;
 
-    if (propertyName == "className")
+    if (propertyName == Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY)
         return;
 
     if (noValidSelection())

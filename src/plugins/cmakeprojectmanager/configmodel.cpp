@@ -268,7 +268,7 @@ bool ConfigModel::hasChanges(bool initialParameters) const
               return initialParameters ? i.isInitial : !i.isInitial;
           });
 
-    return Utils::contains(filtered, [initialParameters](const InternalDataItem &i) {
+    return Utils::contains(filtered, [](const InternalDataItem &i) {
         return i.isUserChanged || i.isUserNew || i.isUnset;
     });
 }

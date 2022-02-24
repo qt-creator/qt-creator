@@ -157,14 +157,6 @@
     re-scanning is incremental, so nothing is lost by closing and re-starting
     \QC.
 
-    Because clangd considers only the on-disk state of included header files
-    when parsing a source file, you need to save changes in header files to
-    have them considered elsewhere for completion, diagnostics, and so on.
-    Partly for this reason, files that are changed by refactoring actions are
-    saved automatically. To disable this feature, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol Environment > \uicontrol System >
-    \uicontrol {Auto-save files after refactoring}.
-
     The document outline in the \l{Viewing Defined Types and Symbols}
     {Outline} view is backed by clangd's document symbol support, which
     makes the results more reliable than before.

@@ -128,11 +128,9 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             importPaths = model->importPaths();
     }
 
-    QString targetDir = defaulTargetDirectory;
-
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(doc->fileName());
-    if (currentProject)
-        targetDir = currentProject->projectDirectory().toString();
+    QString targetDir = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
+    if (targetDir.isEmpty())
+        targetDir = defaulTargetDirectory;
 
     // Import is always done under known folder. The order of preference for folder is:
     // 1) An existing QUICK_3D_ASSETS_FOLDER under DEFAULT_ASSET_IMPORT_FOLDER project import path

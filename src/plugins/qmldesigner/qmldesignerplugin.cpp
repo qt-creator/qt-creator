@@ -312,8 +312,11 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::PathTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TransitionTool>());
 
-    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
         emitUsageStatistics("StandaloneMode");
+        if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
+            emitUsageStatistics("QDSlaunchedFromQtC");
+    }
 
     return true;
 }

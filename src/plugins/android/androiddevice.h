@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 ** Contact: https://www.qt.io/licensing/
 **
@@ -33,8 +33,10 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <utils/qtcprocess.h>
+
 #include <QFutureWatcher>
-#include <QTimer>
+#include <QFileSystemWatcher>
 
 namespace Android {
 namespace Internal {
@@ -70,6 +72,7 @@ public:
     QString androidTargetName() const;
     QString sdcardSize() const;
     QString openGlStatusString() const;
+    // TODO: remove not used
     AndroidConfig::OpenGl openGlStatus() const;
 
 protected:
@@ -98,24 +101,29 @@ class AndroidDeviceManager : public QObject
 public:
     static AndroidDeviceManager *instance();
     void setupDevicesWatcher();
-    void updateDevicesList();
-    void updateDevicesListOnce();
-    void updateDeviceState(const ProjectExplorer::IDevice::Ptr &device);
+    void updateAvdsList();
+    IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type) const;
+    void updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device);
 
     void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
     void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
 
     void setEmulatorArguments(QWidget *parent = nullptr);
 
+    QString getRunningAvdsSerialNumber(const QString &name) const;
+
 private:
     AndroidDeviceManager(QObject *parent = nullptr);
-    void devicesListUpdated();
+    void HandleDevicesListChange(const QString &serialNumber);
+    void HandleAvdsListChange();
     void handleAvdRemoved();
 
+    QString emulatorName(const QString &serialNumber) const;
+
     QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
-    QFutureWatcher<QVector<AndroidDeviceInfo>> m_devicesFutureWatcher;
     QFutureWatcher<QPair<ProjectExplorer::IDevice::ConstPtr, bool>> m_removeAvdFutureWatcher;
-    QTimer m_devicesUpdaterTimer;
+    QFileSystemWatcher m_avdFileSystemWatcher;
+    std::unique_ptr<Utils::QtcProcess> m_adbDeviceWatcherProcess;
     AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
 };

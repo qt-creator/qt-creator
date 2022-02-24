@@ -32,6 +32,7 @@ add_qtc_plugin(QmlDesigner
     cmakegeneratordialogtreemodel.cpp cmakegeneratordialogtreemodel.h
     cmakeprojectconverter.cpp cmakeprojectconverter.h
     cmakeprojectconverterdialog.cpp cmakeprojectconverterdialog.h
+    dynamiclicensecheck.h
     generateresource.cpp generateresource.h
     generatecmakelists.cpp generatecmakelists.h
     generatecmakelistsconstants.h

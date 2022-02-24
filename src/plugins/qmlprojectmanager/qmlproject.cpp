@@ -135,8 +135,6 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                               disconnect(m_openFileConnection);
 
                           if (target && success) {
-                              const Utils::FilePath &folder = projectDirectory() + "/content";
-
                               Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
                                                                                 + "/content");
                               if (uiFiles.isEmpty())
@@ -515,6 +513,11 @@ bool QmlProject::isQtDesignStudio()
     const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode";
 
     return settings->value(qdsStandaloneEntry, false).toBool();
+}
+
+bool QmlProject::isQtDesignStudioStartedFromQtC()
+{
+    return qEnvironmentVariableIsSet(Constants::enviromentLaunchedQDS);
 }
 
 ProjectExplorer::DeploymentKnowledge QmlProject::deploymentKnowledge() const

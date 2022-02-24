@@ -421,14 +421,19 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
 
         // className
-        auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
+        auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
+            m_backendValuesPropertyMap.value(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY)));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
-        valueObject->setName("className");
+        valueObject->setName(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY);
         valueObject->setModelNode(qmlObjectNode.modelNode());
         valueObject->setValue(m_backendModelNode.simplifiedTypeName());
-        QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
-        m_backendValuesPropertyMap.insert(QLatin1String("className"), QVariant::fromValue(valueObject));
+        QObject::connect(valueObject,
+                         &PropertyEditorValue::valueChanged,
+                         &backendValuesPropertyMap(),
+                         &DesignerPropertyMap::valueChanged);
+        m_backendValuesPropertyMap.insert(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY,
+                                          QVariant::fromValue(valueObject));
 
         // id
         valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("id"))));
@@ -506,14 +511,19 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     foreach (const PropertyName &propertyName, metaInfo.propertyNames())
         setupPropertyEditorValue(propertyName, propertyEditor, QString::fromUtf8(metaInfo.propertyTypeName(propertyName)));
 
-    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
+    auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
+        m_backendValuesPropertyMap.value(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY)));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
-    valueObject->setName("className");
+    valueObject->setName(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY);
 
     valueObject->setValue(typeName);
-    QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
-    m_backendValuesPropertyMap.insert(QLatin1String("className"), QVariant::fromValue(valueObject));
+    QObject::connect(valueObject,
+                     &PropertyEditorValue::valueChanged,
+                     &backendValuesPropertyMap(),
+                     &DesignerPropertyMap::valueChanged);
+    m_backendValuesPropertyMap.insert(Constants::PROPERTY_EDITOR_CLASSNAME_PROPERTY,
+                                      QVariant::fromValue(valueObject));
 
     // id
     valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("id"))));

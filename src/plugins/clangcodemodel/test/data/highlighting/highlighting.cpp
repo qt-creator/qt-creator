@@ -921,3 +921,26 @@ void keywords()
     bool b2 = false;
     void *p = nullptr;
 }
+
+namespace std {
+struct Debug {};
+Debug& operator<<(Debug &dbg, int) { return dbg; }
+Debug& operator>>(Debug &dbg, int&) { return dbg; }
+static Debug cout;
+static Debug cin;
+}
+void outputOperator()
+{
+    std::cout << 0;
+    int i;
+    std::cin >> i;
+}
+
+template <typename To, typename From, typename Op>
+void transform(const From &from, To &&to, Op op) {}
+struct WithVector { std::vector<int> v; };
+void inputsAndOutputsFromObject(const WithVector &s)
+{
+    std::vector<int> out;
+    transform(s.v, out, [] {});
+}

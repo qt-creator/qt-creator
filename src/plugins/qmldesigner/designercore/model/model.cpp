@@ -1576,9 +1576,9 @@ QUrl Model::fileUrl() const
 QUrl Model::projectUrl() const
 {
 #ifndef QMLDESIGNER_TEST
-DesignDocument *document = QmlDesignerPlugin::instance()->viewManager().currentDesignDocument();
-if (document)
-    return QUrl::fromLocalFile(document->projectFolder().toString());
+    DesignDocument *document = QmlDesignerPlugin::instance()->viewManager().currentDesignDocument();
+    if (document)
+        return QUrl::fromLocalFile(document->projectFolder().toString());
 #endif
     return {};
 }

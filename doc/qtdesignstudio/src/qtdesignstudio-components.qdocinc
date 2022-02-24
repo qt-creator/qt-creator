@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Design Studio documentation.
@@ -61,7 +61,7 @@
     To create stylable UI controls:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
+        \li Select \uicontrol File > \uicontrol {New File} >
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls}.
         \li Select the control to create, and then select \uicontrol Choose.
 

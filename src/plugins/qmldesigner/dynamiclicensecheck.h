@@ -34,7 +34,7 @@
 
 #include <QMetaObject>
 
-namespace Utils {
+namespace QmlDesigner {
 
 enum FoundLicense {
     community,
