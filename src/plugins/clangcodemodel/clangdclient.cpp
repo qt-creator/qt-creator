@@ -1315,10 +1315,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
 
     const auto textMarkCreator = [this](const Utils::FilePath &filePath,
-            const Diagnostic &diag) {
+            const Diagnostic &diag, bool isProjectFile) {
         if (d->isTesting)
             emit textMarkCreated(filePath);
-        return new ClangdTextMark(filePath, diag, this);
+        return new ClangdTextMark(filePath, diag, isProjectFile, this);
     };
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);

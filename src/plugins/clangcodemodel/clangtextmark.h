@@ -72,6 +72,7 @@ class ClangdTextMark : public TextEditor::TextMark
 public:
     ClangdTextMark(const ::Utils::FilePath &filePath,
                    const LanguageServerProtocol::Diagnostic &diagnostic,
+                   bool isProjectFile,
                    const LanguageClient::Client *client);
 
 private:

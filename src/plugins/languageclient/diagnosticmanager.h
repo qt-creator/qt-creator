@@ -43,7 +43,7 @@ namespace LanguageClient {
 class Client;
 
 using TextMarkCreator = std::function<TextEditor::TextMark *(const Utils::FilePath &,
-        const LanguageServerProtocol::Diagnostic &)>;
+        const LanguageServerProtocol::Diagnostic &, bool)>;
 using HideDiagnosticsHandler = std::function<void()>;
 
 class DiagnosticManager

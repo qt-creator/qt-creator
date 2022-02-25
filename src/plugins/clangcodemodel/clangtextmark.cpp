@@ -385,6 +385,7 @@ ClangBackEnd::DiagnosticContainer convertDiagnostic(const ClangdDiagnostic &src,
 
 ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                const Diagnostic &diagnostic,
+                               bool isProjectFile,
                                const Client *client)
     : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
     , m_lspDiagnostic(diagnostic)
@@ -399,7 +400,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     setPriority(isError ? TextEditor::TextMark::HighPriority
                         : TextEditor::TextMark::NormalPriority);
     setIcon(isError ? Icons::CODEMODEL_ERROR.icon() : Icons::CODEMODEL_WARNING.icon());
-    if (client->project()) {
+    if (isProjectFile) {
         setLineAnnotation(diagnostic.message());
         setColor(isError ? Theme::CodeModel_Error_TextMarkColor
                          : Theme::CodeModel_Warning_TextMarkColor);
