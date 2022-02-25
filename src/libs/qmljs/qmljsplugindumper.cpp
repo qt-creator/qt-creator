@@ -210,7 +210,7 @@ static QString qmldumpFailedMessage(const FilePath &libraryPath, const QString &
                              "\n"
                              "%1"
                              "\n"
-                             "Check 'General Messages' output pane for details."
+                             "Check General Messages for details."
                              ).arg(firstLines);
 }
 

@@ -68,7 +68,7 @@ Settings::Settings()
     registerAspect(&displayOutput);
     displayOutput.setSettingsKey("DisplayOutput");
     displayOutput.setDefaultValue(true);
-    displayOutput.setLabelText(tr("Display Output pane after sending a post"));
+    displayOutput.setLabelText(tr("Display General Messages after sending a post"));
 }
 
 // SettingsPage

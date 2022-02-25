@@ -303,10 +303,10 @@ void OutputPaneManager::updateMaximizeButton(bool maximized)
 {
     if (maximized) {
         m_instance->m_minMaxAction->setIcon(m_instance->m_minimizeIcon);
-        m_instance->m_minMaxAction->setText(tr("Minimize Output Pane"));
+        m_instance->m_minMaxAction->setText(tr("Minimize"));
     } else {
         m_instance->m_minMaxAction->setIcon(m_instance->m_maximizeIcon);
-        m_instance->m_minMaxAction->setText(tr("Maximize Output Pane"));
+        m_instance->m_minMaxAction->setText(tr("Maximize"));
     }
 }
 
@@ -352,7 +352,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     m_minMaxAction = new QAction(this);
     m_minMaxAction->setIcon(m_maximizeIcon);
-    m_minMaxAction->setText(tr("Maximize Output Pane"));
+    m_minMaxAction->setText(tr("Maximize"));
 
     m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
     connect(m_closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);

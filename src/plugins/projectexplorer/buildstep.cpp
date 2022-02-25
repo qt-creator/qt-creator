@@ -113,7 +113,7 @@
     \fn  void ProjectExplorer::BuildStep::addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
               ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const
 
-    The \a string is added to the generated output, usually in the output pane.
+    The \a string is added to the generated output, usually in the output.
     It should be in plain text, with the format in the parameter.
 */
 

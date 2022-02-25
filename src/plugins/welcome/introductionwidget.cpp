@@ -143,7 +143,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
             "<li>click on the magnifier icon for a complete list of possible options</li>"
             "</ul>")},
         {QLatin1String("OutputPaneButtons"),
-         tr("Output Panes"),
+         tr("Output"),
          tr("Find compile and application output here, "
             "as well as a list of configuration and build issues, "
             "and the panel for global searches."),
@@ -155,7 +155,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
         {{},
          tr("Escape to Editor"),
          tr("Pressing the Escape key brings you back to the editor. Press it "
-            "multiple times to also hide output panes and context help, giving the editor more "
+            "multiple times to also hide context help and output, giving the editor more "
             "space."),
          {}},
         {{},

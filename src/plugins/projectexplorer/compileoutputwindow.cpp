@@ -118,7 +118,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     m_handler = new ShowOutputTaskHandler(this,
         tr("Show Compile &Output"),
-        tr("Show the output that generated this issue in the Compile Output pane."),
+        tr("Show the output that generated this issue in Compile Output."),
         tr("O"));
     ExtensionSystem::PluginManager::addObject(m_handler);
     setupContext(C_COMPILE_OUTPUT, m_outputWindow);

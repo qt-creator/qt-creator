@@ -336,7 +336,7 @@ void DesignModeWidget::setup()
         auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
         m_outputPaneDockWidget = new ADS::DockWidget(uniqueId);
         m_outputPaneDockWidget->setWidget(outputPanePlaceholder);
-        m_outputPaneDockWidget->setWindowTitle(tr("Output Pane"));
+        m_outputPaneDockWidget->setWindowTitle(tr("Output"));
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
 
         // Set unique id as object name
