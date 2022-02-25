@@ -30,6 +30,8 @@
 #include "androidconfigurations.h"
 #include "androiddeviceinfo.h"
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
@@ -98,9 +100,13 @@ private:
 
 class AndroidDeviceManager : public QObject
 {
+    Q_OBJECT
+
 public:
     static AndroidDeviceManager *instance();
     void setupDevicesWatcher();
+    void shutdownDevicesWatcher();
+    ExtensionSystem::IPlugin::ShutdownFlag devicesShutdownFlag() const;
     void updateAvdsList();
     IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type) const;
     void updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device);
@@ -111,6 +117,9 @@ public:
     void setEmulatorArguments(QWidget *parent = nullptr);
 
     QString getRunningAvdsSerialNumber(const QString &name) const;
+
+signals:
+    void devicesWatcherShutdownFinished();
 
 private:
     AndroidDeviceManager(QObject *parent = nullptr);
