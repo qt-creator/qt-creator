@@ -52,8 +52,6 @@ public:
     QString m_command;
     QString m_lastConnectionErrorString;
     QProcess::ExitStatus m_exitStatus;
-    QByteArray m_stdout;
-    QByteArray m_stderr;
     int m_exitCode;
     QString m_processErrorString;
     State m_state;
@@ -116,9 +114,9 @@ void SshRemoteProcessRunner::handleConnected()
     connect(d->m_process.get(), &SshRemoteProcess::done,
             this, &SshRemoteProcessRunner::handleProcessFinished);
     connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardOutput,
-            this, &SshRemoteProcessRunner::handleStdout);
+            this, &SshRemoteProcessRunner::readyReadStandardOutput);
     connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardError,
-            this, &SshRemoteProcessRunner::handleStderr);
+            this, &SshRemoteProcessRunner::readyReadStandardError);
     d->m_process->start();
 }
 
@@ -151,18 +149,6 @@ void SshRemoteProcessRunner::handleProcessFinished(const QString &error)
     d->m_processErrorString = error;
     setState(Inactive);
     emit processClosed(d->m_processErrorString);
-}
-
-void SshRemoteProcessRunner::handleStdout()
-{
-    d->m_stdout += d->m_process->readAllStandardOutput();
-    emit readyReadStandardOutput();
-}
-
-void SshRemoteProcessRunner::handleStderr()
-{
-    d->m_stderr += d->m_process->readAllStandardError();
-    emit readyReadStandardError();
 }
 
 void SshRemoteProcessRunner::setState(int newState)
@@ -213,16 +199,12 @@ QString SshRemoteProcessRunner::processErrorString() const
 
 QByteArray SshRemoteProcessRunner::readAllStandardOutput()
 {
-    const QByteArray data = d->m_stdout;
-    d->m_stdout.clear();
-    return data;
+    return d->m_process.get() ? d->m_process->readAllStandardOutput() : QByteArray();
 }
 
 QByteArray SshRemoteProcessRunner::readAllStandardError()
 {
-    const QByteArray data = d->m_stderr;
-    d->m_stderr.clear();
-    return data;
+    return d->m_process.get() ? d->m_process->readAllStandardError() : QByteArray();
 }
 
 void SshRemoteProcessRunner::cancel()
