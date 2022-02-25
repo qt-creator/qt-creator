@@ -3598,8 +3598,16 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     }
 
     const bool isExpression = node.role() == "expression";
-    const bool isDeclaration = node.role() == "declaration";
+    if (isExpression && node.kind() == "Predefined") {
+        HighlightingResult result;
+        result.useTextSyles = true;
+        result.textStyles.mainStyle = C_PREPROCESSOR;
+        setResultPosFromRange(result, node.range());
+        insertResult(result);
+        return;
+    }
 
+    const bool isDeclaration = node.role() == "declaration";
     const int nodeStartPos = posForNodeStart(node);
     const int nodeEndPos = posForNodeEnd(node);
     const QList<AstNode> children = node.children().value_or(QList<AstNode>());
