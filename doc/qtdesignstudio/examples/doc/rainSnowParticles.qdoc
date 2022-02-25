@@ -53,11 +53,10 @@
     module to your project:
 
     \list 1
-      \li In the \uicontrol Library view, select
-      \inlineimage icons/plus.png
-      next to \uicontrol Components.
+      \li In the \uicontrol Component view, select \inlineimage icons/plus.png
+      .
       \li Find QtQuick3D.Particles3D and select it to add it to your project.
-      \li From \uicontrol Library > \uicontrol Components, drag a
+      \li From \uicontrol Components, drag a
       \uicontrol{Particle System} to \uicontrol scene in \uicontrol Navigator.
     \endlist
 
@@ -74,7 +73,7 @@
       In \uicontrol Navigator, select \e particleSystem and in
       \uicontrol Properties, set \uicontrol Translation > \uicontrol Y to 193.
       \li Set the \e rain-drop-white-square.png as texture for the particles.
-      From \uicontrol Library > \uicontrol Assets, drag
+      From \uicontrol Assets, drag
       \e {rain-drop-white-square.png} to \e spriteParticle.
       \li Adjust the apperance and behavior of the sprite further. In \uicontrol
       Properties, set:

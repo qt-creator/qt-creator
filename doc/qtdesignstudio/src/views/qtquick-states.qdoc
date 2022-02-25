@@ -49,7 +49,7 @@
     place or to change the button background or text color. When you use
     instances of the button in other components, you can define states to
     create different screens by hiding or showing button component instances.
-    The preset \l Button control in \l Library > \uicontrol Components
+    The preset \l Button control in \uicontrol Components
     > \uicontrol {Qt Quick Controls} > \uicontrol Controls has predefined
     \e normal and \e down states.
 
@@ -149,7 +149,7 @@
 
     \if defined(qtdesignstudio)
     If you are not familiar with writing expressions, you can use preset
-    \l{Logic Helpers}{logic helpers} from \l Library > \uicontrol Components
+    \l{Logic Helpers}{logic helpers} from \uicontrol Components
     > \uicontrol {Qt Quick Studio Logic Helper}.
     \endif
 

@@ -158,10 +158,9 @@
     \l{https://fonts.google.com/specimen/Titillium+Web#standard-styles}
     {Titillium Web ExtraLight font} or use Arial as a substitute.
 
-    To add the assets to \l Library:
+    To add the assets:
     \list 1
-        \li Select \uicontrol Library > \uicontrol Assets
-            > \inlineimage icons/plus.png
+        \li Select \uicontrol Assets > \inlineimage icons/plus.png
             .
         \li Select the asset files, and then select \uicontrol Open.
         \li Select the location where the files will be saved in the
@@ -181,8 +180,8 @@
     To modify the \e Screen01 component in \uicontrol {Form Editor}:
 
     \list 1
-        \li Drag-and-drop the background image from \uicontrol Library >
-            \uicontrol Assets to the rectangle in \l Navigator.
+        \li Drag-and-drop the background image from \uicontrol Assets to the
+            rectangle in \l Navigator.
             \image loginui1-library-assets.jpg "Library view Assets tab"
         \li \QDS automatically creates an instance of the \l{Images}{Image}
             component for you with the path to the image file set as the
@@ -237,11 +236,10 @@
 
     You can view the import statements in the \uicontrol {Text Editor} view.
 
-    The \l Library view lists the components in each module that are
+    The \l Components view lists the components in each module that are
     supported by \QDS. You can use the basic components to create your own
-    components, and they will be listed in \uicontrol Components >
-    \uicontrol {My Components}. This section is only visible if you have created
-    custom components.
+    components, and they will be listed in \uicontrol {My Components}.
+    This section is only visible if you have created custom components.
 
     The \l {basic-rectangle}{Rectangle}, \l Text, and \l {Images}{Image}
     components used in this tutorial are based on the \l Item component.
@@ -264,7 +262,7 @@
     If you want to specify the radius of each corner separately, you can use the
     \l{studio-rectangle}{Rectangle} component from the
     \uicontrol {Qt Quick Studio Components} module instead of the basic rectangle
-    component. It is available in \uicontrol Library > \uicontrol Components
+    component. It is available in \uicontrol Components
     > \uicontrol {Qt Quick Studio Components}.
 
     \section3 Text Properties
@@ -281,25 +279,25 @@
 
     The \l {Images}{Image} component is used for adding images to the UI in several
     supported formats, including bitmap formats such as PNG and JPEG and vector
-    graphics formats such as SVG. To add an image to \uicontrol Library, select
-    \uicontrol Assets > \inlineimage icons/plus.png
+    graphics formats such as SVG. To add an image to \uicontrol Assets, select
+    \inlineimage icons/plus.png
     , and then select the image file.
 
     If you need to display animated images, use the \l {Animated Image}
-    component, also available in \uicontrol Library > \uicontrol Components >
+    component, also available in \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic.
 
     \section1 Creating a Push Button
 
     You can use another wizard template to create a push button and to add it to
     the project. The wizard template creates a reusable button component that
-    appears in \uicontrol Library > \uicontrol Components >
-    \uicontrol {My Components}. You can drag-and-drop it to \l Navigator
-    to create button instances and modify their properties in the
-    \uicontrol Properties view to change their appearance and functionality.
+    appears in \uicontrol Components > \uicontrol {My Components}.
+    You can drag-and-drop it to \l Navigator to create button instances and
+    modify their properties in the \uicontrol Properties view to change their
+    appearance and functionality.
 
     If you cannot use the wizard template nor the preset
-    button controls available in \uicontrol Library > \uicontrol Components >
+    button controls available in \uicontrol Components >
     \uicontrol {Qt Quick Controls} to create the kind of push button that you
     want, you can create your button from scratch using default components. For
     more information, see \l {Creating Buttons} and
@@ -409,8 +407,8 @@
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
             to open it in \uicontrol {Form Editor}.
         \li Drag-and-drop two instances of the EntryField component from
-            \uicontrol Library > \uicontrol Components >
-            \uicontrol {My Components} to the rectangle in \uicontrol Navigator.
+            \uicontrol Components > \uicontrol {My Components} to the rectangle
+            in \uicontrol Navigator.
             \image loginui1-library.jpg "My Components tab of Library view"
         \li Select the first EntryField instance in \uicontrol Navigator
             to modify its ID and text in \uicontrol Properties.
@@ -482,8 +480,8 @@
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
             to open it in \uicontrol {Form Editor}.
         \li Drag-and-drop two instances of the PushButton component from
-            \uicontrol Library > \uicontrol Components >
-            \uicontrol {My Components} to the rectangle in \uicontrol Navigator.
+            \uicontrol Components > \uicontrol {My Components} to the rectangle
+            in \uicontrol Navigator.
         \li Drag the button instances to the bottom of the background image in
             \uicontrol {Form Editor}. Use the guidelines to align the button
             instances horizontally with the entry fields.

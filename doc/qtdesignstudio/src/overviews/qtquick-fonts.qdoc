@@ -45,7 +45,7 @@
     To add fonts:
 
     \list 1
-        \li Select \uicontrol Library > \l Assets
+        \li Select \uicontrol Assets
          > \inlineimage icons/plus.png
          .
         \li Browse to the folder that contains the font files and select them,

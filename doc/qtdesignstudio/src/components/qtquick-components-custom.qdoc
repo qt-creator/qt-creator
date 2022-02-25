@@ -37,9 +37,9 @@
 
     \image qtquick-components-custom.png "Custom components in My Components"
 
-    Custom components are stored in \l Library > \uicontrol Components >
+    Custom components are stored in \uicontrol Components >
     \uicontrol {My Components}. You can create instances of custom components
-    by dragging-and-dropping them from \uicontrol Library to \l {Form Editor},
+    by dragging-and-dropping them from \uicontrol Components to \l {Form Editor},
     \l {3D Editor}, or \l Navigator.
 
     \section1 Creating Components from Scratch
@@ -54,12 +54,12 @@
             \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
             \endif
             \uicontrol Choose to create a new \c .ui.qml file.
-            \note Components are listed in \uicontrol Library >
-            \uicontrol Components > \uicontrol {My Components} only
-            if the filename begins with a capital letter.
+            \note Components are listed in \uicontrol Components >
+            \uicontrol {My Components} only if the filename begins with a
+            capital letter.
         \li Click \uicontrol Design to open the file in
             \uicontrol {Form Editor}.
-        \li Drag-and-drop a component from \uicontrol Library to
+        \li Drag-and-drop a component from \uicontrol Components to
             \uicontrol Navigator or \uicontrol {Form Editor}.
         \li Edit component properties in the \uicontrol Properties view.
             The available properties depend on the component type. You can
@@ -134,7 +134,7 @@
     \l{Progress Bar}.
     \endif
 
-    Custom components are listed in \uicontrol Library > \uicontrol Components
+    Custom components are listed in \uicontrol Components
     > \uicontrol {My Components}, and you can use instances of them to build
     more components.
 

@@ -36,11 +36,11 @@
     As a secondary light source, you can use \l{Setting the Light Probe}
     {image-based lighting}.
 
-    To add light components to your UI, drag-and-drop them from \l Library
-    > \uicontrol Components > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
+    To add light components to your UI, drag-and-drop them from
+    \uicontrol Components > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
     \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene.
 
-    If you cannot find the light components in \uicontrol Library, add the
+    If you cannot find the light components in \uicontrol {Components}, add the
     \uicontrol {Qt Quick 3D} module to your project as instructed in
     \l {Adding and Removing Modules}.
 

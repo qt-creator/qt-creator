@@ -94,7 +94,7 @@
     Yes, you can create custom components and controls by using wizard templates
     or move component instances into separate files to turn them into new
     components that you can create instances of. For more information, see
-    \l {Components}.
+    \l {Using Components}.
 
     \section2 What are the 3D import formats for \QDS?
 

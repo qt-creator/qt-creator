@@ -50,7 +50,7 @@
 
     \section1 Adding a Particle System
 
-    Preset particle components are available in \l Library >
+    Preset particle components are available in
     \uicontrol Components > \uicontrol {Qt Quick 3D Particles 3D}
     after you add the \uicontrol {QtQuick3D.Particles3D} module to
     your project, as instructed in \l{Adding and Removing Modules}.
@@ -86,15 +86,14 @@
     To add a particle system that emits sprite particles:
 
     \list 1
-        \li Select \uicontrol Library > \uicontrol Assets > \inlineimage icons/plus.png
+        \li Select \uicontrol Assets > \inlineimage icons/plus.png
             to add your sprites, 3D models, textures, and other graphical
             \l{Assets}{assets} to the project.
         \li Drag-and-drop an instance of the \uicontrol {Particle System}
-            component from \uicontrol Library to a scene component instance
+            component from \uicontrol Components to a scene component instance
             in \l Navigator.
-        \li Drag-and-drop the sprite image from \uicontrol Library >
-            \uicontrol Assets to the sprite particle instance
-            in \uicontrol Navigator.
+        \li Drag-and-drop the sprite image from \uicontrol Assets to the sprite
+            particle instance in \uicontrol Navigator.
     \endlist
 
     Add instances of other components according to your use case. The following

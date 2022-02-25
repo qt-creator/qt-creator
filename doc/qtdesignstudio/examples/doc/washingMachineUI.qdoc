@@ -68,7 +68,7 @@
     project.
 
     This way, only the components and properties supported on MCUs are visible
-    in \l Library and \l Properties, and we won't accidentally
+    in \l Components and \l Properties, and we won't accidentally
     add unsupported components to our UI or specify unsupported properties for
     supported components. For more information, see \l{Creating Projects}.
 
@@ -103,7 +103,7 @@
     by selecting \uicontrol File > \uicontrol {New File} >
     \uicontrol {Qt Quick Files}. While designing the screens, you can
     move reusable components into separate files. For more information,
-    see \l{Components}.
+    see \l{Using Components}.
 
     \section1 Creating a Progress Indicator
 
@@ -177,7 +177,7 @@
     In our UI, we use connections and states to move between screens. First,
     we specify the application workflow in \e ApplicationFlow.qml. When the
     file is open in \uicontrol {Form Editor}, we drag-and-drop the components
-    that define the screens in the application from \uicontrol Library to
+    that define the screens in the application from \uicontrol Components to
     \uicontrol Navigator or \uicontrol {Form Editor}: \e StartScreen,
     \e SettingsScreen, \e PresetsScreen, and \e RunningScreen.
 

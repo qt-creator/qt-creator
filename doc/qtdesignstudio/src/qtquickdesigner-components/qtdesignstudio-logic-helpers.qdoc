@@ -44,11 +44,11 @@
 
     Logic helpers are invisible components that you can use in connection with
     controls, such as a \l {slider-control}{Slider} or \l {Check Box}.
-    To use a logic helper, drag-and-drop it from \l Library >
-    \uicontrol Components > \uicontrol {Qt Quick Studio Logic Helper} to
-    \l Navigator. If you cannot find the logic helpers in \uicontrol Library,
-    you need to add the \uicontrol {Qt Quick Studio Logic Helper} module to
-    your project, as described in \l {Adding and Removing Modules}.
+    To use a logic helper, drag-and-drop it from \uicontrol Components >
+    \uicontrol {Qt Quick Studio Logic Helper} to \l Navigator. If you cannot
+    find the logic helpers in \uicontrol {Components}, you need to add the
+    \uicontrol {Qt Quick Studio Logic Helper} module to your project,
+    as described in \l {Adding and Removing Modules}.
 
     The following sections describe the different types of logic helpers in more
     detail.

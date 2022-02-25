@@ -103,7 +103,7 @@
 
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
     \l {Form Editor}. The CustomButton component is listed in
-    \l Library > \uicontrol Components > \uicontrol {My Components}.
+    \uicontrol Components > \uicontrol {My Components}.
     We drag-and-drop several instances of the component to \uicontrol Navigator
     or \uicontrol {Form Editor} and enclose them in a \uicontrol {Row Layout}
     component instance to lay them out as a menu bar.
@@ -127,7 +127,7 @@
 
     We can now continue to create a side menu that slides open when users
     click the burger menu. We drag-and-drop a \l Text component from
-    \uicontrol Library > \uicontrol Components > \uicontrol {Default Components}
+    \uicontrol Components > \uicontrol {Default Components}
     > \uicontrol Basic and a \l {slider-control}{Slider} component from
     \uicontrol {Qt Quick Controls} to \uicontrol Navigator to create separate
     submenus for each set of effects we want to apply to the images. We use
@@ -232,9 +232,8 @@
     \uicontrol Properties > \uicontrol Slider.
 
     We open the \e {EffectStack.qml} file, and drag-and-drop components from
-    \uicontrol Library > \uicontrol Components >
-    \uicontrol {Qt Quick Studio Effects} to \uicontrol Navigator to create the
-    effect stack.
+    \uicontrol Components > \uicontrol {Qt Quick Studio Effects} to
+    \uicontrol Navigator to create the effect stack.
 
     \image sidemenu-effects-stack.png "Effects stack in the Navigator"
 

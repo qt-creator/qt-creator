@@ -59,13 +59,13 @@
     The 3D asset you dragged-and-dropped to \uicontrol {3D Editor} has now
     been added to your scene, and you can see it in the \uicontrol {3D Editor}
     view and in \uicontrol Navigator. It is also available in
-    \uicontrol Library > \uicontrol Components > \uicontrol {My 3D Components}.
+    \uicontrol Components > \uicontrol {My 3D Components}.
 
     Alternatively, you can initiate the import dialog from the
-    \uicontrol Library view:
+    \uicontrol Assets view:
 
     \list 1
-        \li In the \l{Design Views}{Design mode}, select \l Library >
+        \li In the \l{Design Views}{Design mode}, select
             \uicontrol Assets > \inlineimage icons/plus.png
             .
         \li Select \uicontrol {3D Assets} in the dropdown menu to filter 3D
@@ -77,7 +77,7 @@
         \li When the import is done, select \uicontrol Close.
     \endlist
 
-    The 3D asset now appears in \uicontrol Library > \uicontrol Components >
+    The 3D asset now appears in \uicontrol Components >
     \uicontrol {My 3D Components}. You can add it to the scene by
     drag-and-dropping it to \uicontrol {3D Editor}.
 
@@ -88,7 +88,7 @@
     or with other 3D graphics tools. See the tooltips in the options dialog
     for more information about a particular option.
 
-    The 3D asset you added to the project now appears in \uicontrol Library >
+    The 3D asset you added to the project now appears in
     \uicontrol Components > \uicontrol {My 3D Components}. You can add it to
     your UI by dragging-and-dropping it to \l {3D Editor}.
 */

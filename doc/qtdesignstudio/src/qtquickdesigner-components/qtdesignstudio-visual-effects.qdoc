@@ -31,7 +31,7 @@
     \title 2D Effects
 
     \QDS provides a set of effects that you can apply to components by
-    dragging-and-dropping them from \l Library > \uicontrol Components
+    dragging-and-dropping them from \uicontrol Components
     > \uicontrol {Qt Quick Studio Effects} to the component in \l Navigator.
 
     \image studio-2d-effects.png "Effects tab in Library"

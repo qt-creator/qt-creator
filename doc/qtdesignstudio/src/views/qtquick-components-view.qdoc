@@ -24,23 +24,17 @@
 ****************************************************************************/
 
 /*!
-    \page quick-library.html
-    \if defined(qtdesignstudio)
+    \page quick-components-view.html
     \previouspage studio-3d-editor.html
-    \else
-    \previouspage creator-using-qt-quick-designer.html
-    \endif
-    \nextpage qtquick-navigator.html
+    \nextpage quick-assets.html
 
-    \title Library
+    \title Components
 
-    The \uicontrol Library view lists the available components and assets.
-
-    \section1 Components
+    The \uicontrol Component view lists the available components.
 
     \image qtquick-components-tab.png "Library view Components tab"
 
-    \uicontrol Library > \uicontrol Components displays modules that have been
+    \uicontrol Components displays modules that have been
     added to your project. In many modules the components have been further
     organized into different categories. The modules contain visual components,
     such as basic shapes, UI controls, and 3D components, and add functionality
@@ -103,7 +97,7 @@
     alphabetical order. You can search for components and modules by entering
     search criteria in the \uicontrol Search field.
 
-    Select the module to add it to \uicontrol Library > \uicontrol Components.
+    Select the module to add it to \uicontrol Components.
 
     \image qtquick-components-tab-add.png "Select Modules to Add"
 
@@ -116,38 +110,17 @@
     final application package, it is recommended that you select
     \uicontrol {Remove Module} to remove the ones you don't use in the project.
 
-    \section1 Assets
-
-    \uicontrol Library > \uicontrol {Assets} displays the images and other files
-    that you add to the project folder by dragging-and-dropping external asset
-    files to \QDS or by selecting \inlineimage icons/plus.png
-    . For more information about importing assets to \QDS, see
-    \l {Importing 2D Assets} and \l {Importing 3D Assets}.
-
-    To add assets to your UI, drag-and-drop them from \uicontrol Library >
-    \uicontrol Assets to \l Navigator, \l {Form Editor}, or \l {3D Editor}.
-
-    To add multiple assets to your UI simultaneously, multiselect them first by
-    holding \key Ctrl and clicking the asset files you wish to select.
-
-    \image qtquick-assets-tab.png "Library view Assets tab"
-
-    When you drag-and-drop assets from \uicontrol Assets to \l Navigator
-    or \l {Form Editor}, component instances with a suitable type are
-    automatically created for you. For example, instances of the
-    \l{Images}{Image} component will be created for graphics files.
-
     \section1 Context Menu Commands
 
-    \image qtquick-library-context-menu.png "Context menu commands in Library"
-    \image qtquick-library-context-menu-hide.png "Context menu command Hide Category"
+    \image qtquick-components-context-menu.png "Context menu commands in Components"
+    \image qtquick-components-context-menu-hide.png "Context menu command Hide Category"
 
-    To use the context menu commands in \uicontrol Library, right-click the
+    To use the context menu commands in \uicontrol Components, right-click the
     name of a module or category and select one of the following commands:
 
     \list
         \li \uicontrol {Remove Module}: removes the module and all of its
-            components from \uicontrol Library > \uicontrol Components.
+            components from \uicontrol Components.
         \li \uicontrol {Expand All}: expands all the modules.
         \li \uicontrol {Collapse All}: collapses all the modules.
         \li \uicontrol {Hide Category}: hides the category from the module.
@@ -157,7 +130,7 @@
             categories in all of the modules.
     \endlist
 
-    \note The context menu commands for the \uicontrol Library categories do not
-    function if you have entered something into the \uicontrol Search field.
+    \note The context menu commands for the \uicontrol Components categories do
+    not function if you have entered something into the \uicontrol Search field.
     Clear the \uicontrol Search field to resume using the context menu commands.
 */

@@ -153,7 +153,7 @@
         \li qtquickcontrols2.conf file specifies the preferred style and some
             style-specific arguments.
         \li \e fonts folder contains font files that you have added in
-            \l Library > \uicontrol Assets.
+            \uicontrol Assets.
         \li \e imports folder contains a \e {Constants.qml} file that specifies
             a font loader for the Arial font and the screen resolution. The size
             of the default Screen.ui.qml \l{basic-rectangle}{Rectangle} should
@@ -163,7 +163,7 @@
             For more information, see \l {Module Definition qmldir Files}.
     \endlist
 
-    To use JavaScript and image files in the UI, select \uicontrol Library >
+    To use JavaScript and image files in the UI, select
     \uicontrol Assets > \inlineimage icons/plus.png
     .
 

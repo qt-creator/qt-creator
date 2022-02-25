@@ -145,8 +145,8 @@
     \section2 Importing the Simulink Connector
 
     To integrate the Simulink model into \QDS, you first need to add the
-    Simulink connector module to your project. In the \l Library view, select
-    \uicontrol Components > \inlineimage icons/plus.png
+    Simulink connector module to your project. In the \uicontrol Components
+    view, select \inlineimage icons/plus.png
     > \uicontrol SimulinkConnector. \QDS is now ready to communicate with the
     Simulink model.
 

@@ -32,7 +32,7 @@
 
     You can create instances of preset UI controls to inform users about
     the progress of the application or to gather input from users. They are
-    available in \l Library > \uicontrol Components >
+    available in \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls.
 
     \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls components in Library"
@@ -111,7 +111,7 @@
 
     \section2 Button
 
-    You can create an instance of \l Library > \uicontrol Components >
+    You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Button:
 
     \image qtquickcontrols2-button.gif "Qt Quick Controls - Button"
@@ -178,7 +178,7 @@
 
     \section2 Check Box
 
-    You can create instances of \l Library > \uicontrol Components >
+    You can create instances of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls >
     \uicontrol {Check Box}:
 
@@ -272,7 +272,7 @@
 
     \section2 Switch
 
-    You can create an instance of \l Library > \uicontrol Components >
+    You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Switch:
 
     \image qtquickcontrols2-switch.gif "Switch"
@@ -458,7 +458,7 @@
     \target slider-control
     \section2 Slider and Dial
 
-    You can create an instance of \l Library > \uicontrol Components >
+    You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Slider:
 
     \image qtquickcontrols2-slider.gif "Slider"
@@ -480,7 +480,7 @@
     devices such as stereos or industrial equipment. It allows users to
     specify a value within a range.
 
-    You can create an instance of \l Library > \uicontrol Components >
+    You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls > \uicontrol Dial:
 
     \image qtquickcontrols2-dial-no-wrap.gif "Dial"
@@ -530,7 +530,7 @@
 
     \section2 Spin Box
 
-    You can create an instance of \l Library > \uicontrol Components >
+    You can create an instance of \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls >
     \uicontrol {Spin Box}:
 
@@ -711,7 +711,7 @@
     \section1 Summary of UI Controls
 
     The following table lists preset UI controls with links to their developer
-    documentation. They are available in \l Library > \uicontrol Components >
+    documentation. They are available in \uicontrol Components >
     \uicontrol {Qt Quick Controls}. The \e MCU column indicates which controls
     are supported on MCUs.
 

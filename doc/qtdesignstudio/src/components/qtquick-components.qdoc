@@ -32,7 +32,7 @@
     \endif
     \nextpage quick-preset-components.html
 
-    \title Components
+    \title Using Components
 
     A \e component is a reusable building block for a UI.
 
@@ -57,7 +57,7 @@
     \l{Turning Component Instances into Custom Components}
     {move component instances into separate component files}.
 
-    Select \l Library > \uicontrol Components to view the preset components that
+    Select \uicontrol Components to view the preset components that
     have been added to your project. If you cannot find the components you need,
     add the relevant modules to your project, as described in
     \l {Adding and Removing Modules}.

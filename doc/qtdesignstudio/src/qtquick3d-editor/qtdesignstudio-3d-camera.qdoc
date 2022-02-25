@@ -41,9 +41,9 @@
      \image studio-qtquick-3d-components.png "Qt Quick 3D components in Library"
 
     Add a camera by dragging-and-dropping one of the camera components from
-    \l Library > \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol
+    \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol
     {Qt Quick 3D} to \l {3D Editor} or to a 3D view in \l Navigator.
-    If the cameras are not displayed in \uicontrol Library, add the
+    If the cameras are not displayed in \uicontrol {Components}, add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 

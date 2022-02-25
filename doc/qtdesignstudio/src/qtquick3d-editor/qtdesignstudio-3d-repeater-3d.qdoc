@@ -47,7 +47,7 @@
     as the model data relevant to the delegate.
 
     Add a \uicontrol Repeater3D component to your scene by drag-and-dropping it
-    from \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    from \uicontrol Components > \uicontrol {Qt Quick 3D} >
     \uicontrol {Qt Quick 3D} to \uicontrol Scene in \uicontrol Navigator.
 
     \note \uicontrol Repeater3D owns all items it instantiates. Removing or

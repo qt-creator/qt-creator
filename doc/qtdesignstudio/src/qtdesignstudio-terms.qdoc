@@ -106,7 +106,7 @@
     text, or images, while others represent complex UI controls with full
     functionality, such as spin boxes or sliders. You can also add instances of
     preset \l {3D Components}{3D components} to your UIs. You can find all
-    the preset components in \l Library.
+    the preset components in \l Components.
 
     To build \l {Creating Component Instances}{your own components}, you can
     modify the \l{glossary-property}{properties} of the component instances
@@ -191,7 +191,7 @@
     You use templates to create different types of projects according to your
     needs. The templates add preset components to the project by default. For
     example, if you create a 3D project, preset 3D components are added to it.
-    You can add more preset components in \uicontrol Library.
+    You can add more preset components in \uicontrol {Components}.
 
     \image studio-project-wizards.png "New Project dialog"
 

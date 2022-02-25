@@ -166,7 +166,7 @@
 
     \section2 Importing Assets
     \list 1
-    \li Select \uicontrol Library > \uicontrol Assets > \inlineimage icons/plus.png
+    \li Select \uicontrol Assets > \inlineimage icons/plus.png
         .
         \image exporting-from-qt3ds/09-add-new-assets.png
 
@@ -178,18 +178,17 @@
         Close.
         \image exporting-from-qt3ds/11-import.png "Import the file"
 
-    \li The 2D assets imported from \Q3DS now appear in \uicontrol Library
-        > \uicontrol Assets.
+    \li The 2D assets imported from \Q3DS now appear in > \uicontrol Assets.
         \image exporting-from-qt3ds/12-imported-image-assets.png "Imported assets in Library"
 
     \li The QML components generated from the imported \Q3DS project now appear
-        as available imports in \uicontrol Library under \uicontrol {QML Types}.
+        as available imports in \uicontrol Components under \uicontrol {QML Types}.
         Select \uicontrol Quick3DAssets.MyOwnCluster to import them to your
         project.
         \image exporting-from-qt3ds/13-myowncluster-in-qml-types.png "Available imports in QML Types"
 
-    \li The imported QML types now appear in \uicontrol Library and can be added
-        to the project.
+    \li The imported QML types now appear in \uicontrol Components and can be
+        added to the project.
         \image exporting-from-qt3ds/14-add-myowncluster-to-project.png "MyOwnCluster in Library"
     \endlist
 
@@ -197,7 +196,7 @@
 
     \list 1
     \li Drag \uicontrol MyOwnCluster from \uicontrol {My Quick3D Components}
-        in \uicontrol Library to \uicontrol {Form Editor}.
+        in \uicontrol Components to \uicontrol {Form Editor}.
         \image exporting-from-qt3ds/15-drag-to-project.png "Drag MyOwnCluster to Form Editor"
 
     \li In \uicontrol Navigator, right click on myOwnCluster and select \uicontrol
@@ -222,7 +221,7 @@
     \section2 Converting 3D Elements
 
     \list 1
-    \li Drag subpresentation_ADAS from \uicontrol Library > \uicontrol Components
+    \li Drag subpresentation_ADAS from \uicontrol Components
         > {My 3D Components} into layer folder in \uicontrol Navigator.
         \image exporting-from-qt3ds/20-drag-subpresentation-adas-into-layer.png "Drag into layer"
 

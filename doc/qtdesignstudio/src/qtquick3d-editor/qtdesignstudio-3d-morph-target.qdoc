@@ -43,7 +43,7 @@
     a mesh, which also contains morph targets, and import it to \QDS.
 
     To add a morph target for a model in \QDS, drag-and-drop a
-    \uicontrol {Morph Target} component from \l Library > \uicontrol Components
+    \uicontrol {Morph Target} component from \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \uicontrol Scene in
     \l Navigator. Then select the model in \uicontrol Navigator, and in
     \l Properties > \uicontrol Model > \uicontrol {Morph Targets}, select the

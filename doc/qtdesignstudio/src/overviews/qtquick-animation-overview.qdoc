@@ -221,7 +221,7 @@
     \c complete() functions.
 
     You can create instances of preset animation components available in
-    \l Library > \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Animation to create animations depending on the type of the
     property and the behavior that you want.
 

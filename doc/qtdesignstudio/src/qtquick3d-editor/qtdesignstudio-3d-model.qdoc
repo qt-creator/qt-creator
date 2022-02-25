@@ -32,7 +32,7 @@
 
     \title 3D Models
 
-    The \l Library view features some built-in primitive 3D models. This allows
+    The \l Components view features some built-in primitive 3D models. This allows
     you to add cubes, cones, cylinders, and planes (rectangles) to your scene.
 
     \image studio-3d-models.png "Various 3D models in 3D Editor"
@@ -41,10 +41,10 @@
     component is shaded by using materials. For more information, see
     \l {Materials and Shaders} and \l {Creating Custom Materials}.
 
-    You can drag-and-drop a model from \uicontrol Library > \uicontrol Components
+    You can drag-and-drop a model from \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \l {3D Editor} or
     to \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene. If the
-    models are not displayed in \uicontrol Library, you should add the
+    models are not displayed in \uicontrol {Components}, you should add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
@@ -79,8 +79,8 @@
     Set the \uicontrol Instancing property to render a number of instances of
     the model as defined by an instancing table. The instancing tables can be
     defined by using one of the \l{Instanced Rendering}{instancing components}
-    available in \uicontrol Library > \uicontrol Components >
-    \uicontrol {Qt Quick 3D} > {Qt Quick 3D}.
+    available in \uicontrol Components > \uicontrol {Qt Quick 3D}
+    > {Qt Quick 3D}.
 
     Set the \uicontrol {Instance root} property to define the origin of the
     instance's coordinate system.

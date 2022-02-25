@@ -45,7 +45,7 @@
     \youtube yOUdg1o2KJM
 
     To create a label with a background, use the \uicontrol Label
-    component available in \l Library > \uicontrol Components >
+    component available in \uicontrol Components >
     \uicontrol {Qt Quick Controls}. The module also contains components
     for creating \uicontrol {Text Field} and \uicontrol {Text Area} controls.
     They differ from the basic components in that a common style is applied
@@ -119,10 +119,10 @@
     \image qtquick-designer-text-properties.png "Character properties"
 
     To display custom fonts in the list of available fonts in the
-    \uicontrol Font field, you need to first add them to \l Library:
+    \uicontrol Font field, you need to first add them to \l Assets:
 
     \list 1
-        \li Select \uicontrol Library > \l Assets
+        \li Select \uicontrol Assets
             > \inlineimage icons/plus.png
             .
         \li Select the font file, and then select \uicontrol Open.
@@ -422,7 +422,7 @@
 
     The following table lists the components that you can use to add text to
     UIs. The \e Location column contains the tab name where you can find the
-    component in \l Library > \uicontrol Components. The \e MCU column
+    component in \uicontrol Components. The \e MCU column
     indicates which components are supported on MCUs.
 
     \table

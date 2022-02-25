@@ -32,24 +32,25 @@
 
     \title Custom Shaders
 
-    You can use the 3D shader utilities and commands available in \l Library
+    You can use the 3D shader utilities and commands available in
     > \uicontrol Components > \uicontrol {Qt Quick 3D} >
     \uicontrol {Qt Quick 3D Custom Shader Utilities} to create your own effects
     and materials.
 
-    If the custom shader utilities are not displayed in \uicontrol Library, add
-    the \uicontrol QtQuick3D module to your project, as described in
+    If the custom shader utilities are not displayed in \uicontrol {Components},
+    add the \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
     \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
     when \l {Creating Projects}{creating your project}, the available custom
     shader utilities and their properties will be slightly different, and some
-    of the components can be found in different locations in \uicontrol Library.
+    of the components can be found in different locations in
+    \uicontrol {Components}.
 
     \image studio-qtquick-3d-shader-utilities.png "Custom shader utilities in Library"
 
     You can find additional shader utilities, the \uicontrol Effect and
-    \uicontrol {Custom Material} components, in \uicontrol Library >
+    \uicontrol {Custom Material} components, in
     \uicontrol Components > \uicontrol {Qt Quick3D} > \uicontrol {Qt Quick 3D}.
 
     \image studio-qtquick-3d-components.png "Effect and Custom Material Components in Library"
