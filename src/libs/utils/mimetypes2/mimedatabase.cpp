@@ -378,10 +378,12 @@ static inline bool isTextFile(const QByteArray &data)
 
 MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPtr)
 {
+#if 0
     if (data.isEmpty()) {
         *accuracyPtr = 100;
         return mimeTypeForName(QLatin1String("application/x-zerosize"));
     }
+#endif
 
     *accuracyPtr = 0;
     MimeType candidate;
