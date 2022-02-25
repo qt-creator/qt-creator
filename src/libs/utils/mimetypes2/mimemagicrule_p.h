@@ -53,15 +53,27 @@
 #include <utils/utils_global.h>
 
 #include <QtCore/qbytearray.h>
-#include <QtCore/qscopedpointer.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qregularexpression.h>
+#include <QtCore/qscopedpointer.h>
 
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT MimeMagicRule
 {
 public:
-    enum Type { Invalid = 0, String, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
+    enum Type {
+        Invalid = 0,
+        String,
+        RegExp,
+        Host16,
+        Host32,
+        Big16,
+        Big32,
+        Little16,
+        Little32,
+        Byte
+    };
 
     MimeMagicRule(const QString &typeStr, const QByteArray &value, const QString &offsets,
                    const QByteArray &mask, QString *errorString);
@@ -111,6 +123,7 @@ private:
     int m_endPos;
     QByteArray m_mask;
 
+    QRegularExpression m_regexp;
     QByteArray m_pattern;
     quint32 m_number;
     quint32 m_numberMask;
@@ -123,6 +136,7 @@ private:
     bool matchString(const QByteArray &data) const;
     template <typename T>
     bool matchNumber(const QByteArray &data) const;
+    bool matchRegExp(const QByteArray &data) const;
 };
 
 } // namespace Utils

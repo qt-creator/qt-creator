@@ -50,6 +50,7 @@ namespace Utils {
 static const char magicRuleTypes_string[] =
     "invalid\0"
     "string\0"
+    "regexp\0"
     "host16\0"
     "host32\0"
     "big16\0"
@@ -60,7 +61,7 @@ static const char magicRuleTypes_string[] =
     "\0";
 
 static const int magicRuleTypes_indices[] = {
-    0, 8, 15, 22, 29, 35, 41, 50, 59, 64, 0
+    0, 8, 15, 22, 29, 36, 42, 48, 57, 66, 71, 0
 };
 
 MimeMagicRule::Type MimeMagicRule::type(const QByteArray &theTypeName)
@@ -84,6 +85,7 @@ bool MimeMagicRule::operator==(const MimeMagicRule &other) const
            m_startPos == other.m_startPos &&
            m_endPos == other.m_endPos &&
            m_mask == other.m_mask &&
+           m_regexp == other.m_regexp &&
            m_pattern == other.m_pattern &&
            m_number == other.m_number &&
            m_numberMask == other.m_numberMask &&
@@ -214,6 +216,16 @@ static inline QByteArray makePattern(const QByteArray &value)
     return pattern;
 }
 
+bool MimeMagicRule::matchRegExp(const QByteArray &data) const
+{
+    const QString str = QString::fromUtf8(data);
+    int length = m_endPos;
+    if (length == m_startPos)
+        length = -1; // from startPos to end of string
+    const QString subStr = str.left(length);
+    return m_regexp.match(subStr, m_startPos).hasMatch();
+}
+
 MimeMagicRule::MimeMagicRule(const Type &type,
                              const QByteArray &value,
                              int startPos,
@@ -305,6 +317,19 @@ void MimeMagicRule::init(QString *errorString)
         }
         m_mask.squeeze();
         m_matchFunction = &MimeMagicRule::matchString;
+        break;
+    case RegExp:
+        m_regexp.setPatternOptions(QRegularExpression::MultilineOption
+                                   | QRegularExpression::DotMatchesEverythingOption);
+        m_regexp.setPattern(QString::fromLatin1(m_value));
+        if (!m_regexp.isValid()) {
+            m_type = Invalid;
+            if (errorString)
+                *errorString = QString::fromLatin1("Invalid magic rule regexp value \"%1\"")
+                                   .arg(QString::fromLatin1(m_value));
+            return;
+        }
+        m_matchFunction = &MimeMagicRule::matchRegExp;
         break;
     case Byte:
         if (m_number <= quint8(-1)) {
