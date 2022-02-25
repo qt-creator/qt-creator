@@ -1054,9 +1054,10 @@ bool Client::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
 }
 
 void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
-                                    const HideDiagnosticsHandler &hideHandler)
+                                    const HideDiagnosticsHandler &hideHandler,
+                                    const DiagnosticsFilter &filter)
 {
-    m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler);
+    m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler, filter);
 }
 
 void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)

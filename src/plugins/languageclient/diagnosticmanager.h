@@ -45,6 +45,7 @@ class Client;
 using TextMarkCreator = std::function<TextEditor::TextMark *(const Utils::FilePath &,
         const LanguageServerProtocol::Diagnostic &, bool)>;
 using HideDiagnosticsHandler = std::function<void()>;
+using DiagnosticsFilter = std::function<bool(const LanguageServerProtocol::Diagnostic &)>;
 
 class DiagnosticManager
 {
@@ -70,7 +71,8 @@ public:
                        const LanguageServerProtocol::Diagnostic &diag) const;
 
     void setDiagnosticsHandlers(const TextMarkCreator &shownHandler,
-                                const HideDiagnosticsHandler &removalHandler);
+                                const HideDiagnosticsHandler &removalHandler,
+                                const DiagnosticsFilter &filter);
 
 private:
     TextEditor::TextMark *createTextMark(const Utils::FilePath &filePath,
@@ -83,6 +85,7 @@ private:
     QMap<Utils::FilePath, QList<TextEditor::TextMark *>> m_marks;
     TextMarkCreator m_textMarkCreator;
     HideDiagnosticsHandler m_hideHandler;
+    DiagnosticsFilter m_filter;
     Client *m_client;
 };
 

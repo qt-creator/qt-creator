@@ -1321,7 +1321,12 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         return new ClangdTextMark(filePath, diag, isProjectFile, this);
     };
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
-    setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
+    static const auto diagsFilter = [](const Diagnostic &diag) {
+        const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
+        const QString * const codeString = Utils::get_if<QString>(&code);
+        return !codeString || *codeString != "drv_unknown_argument";
+    };
+    setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler, diagsFilter);
     setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                                     int version, bool force) {
