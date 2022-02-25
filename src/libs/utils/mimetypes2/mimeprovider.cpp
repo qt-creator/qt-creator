@@ -1005,6 +1005,12 @@ QMap<int, QList<MimeMagicRule>> MimeBinaryProvider::magicRulesForMimeType(const 
     return {};
 }
 
+void MimeBinaryProvider::setMagicRulesForMimeType(const MimeType &mimeType,
+                                                  const QMap<int, QList<MimeMagicRule>> &rules)
+{
+    qWarning("Mimetypes: setMagicRulesForMimeType not implemented for binary provider");
+}
+
 QMap<int, QList<MimeMagicRule>> MimeXMLProvider::magicRulesForMimeType(const MimeType &mimeType) const
 {
     QMap<int, QList<MimeMagicRule>> result;
@@ -1013,6 +1019,24 @@ QMap<int, QList<MimeMagicRule>> MimeXMLProvider::magicRulesForMimeType(const Mim
             result[matcher.priority()].append(matcher.magicRules());
     }
     return result;
+}
+
+void MimeXMLProvider::setMagicRulesForMimeType(const MimeType &mimeType,
+                                               const QMap<int, QList<MimeMagicRule>> &rules)
+{
+    // remove previous rules
+    m_magicMatchers.erase(std::remove_if(m_magicMatchers.begin(),
+                                         m_magicMatchers.end(),
+                                         [mimeType](const MimeMagicRuleMatcher &matcher) {
+                                             return mimeType.name() == matcher.mimetype();
+                                         }),
+                          m_magicMatchers.end());
+    // add new rules
+    for (auto it = rules.cbegin(); it != rules.cend(); ++it) {
+        MimeMagicRuleMatcher matcher(mimeType.name(), it.key() /*priority*/);
+        matcher.addRules(it.value());
+        addMagicMatcher(matcher);
+    }
 }
 
 } // namespace Utils

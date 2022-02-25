@@ -108,6 +108,8 @@ public:
     // added for Qt Creator
     void addMimeData(const QString &id, const QByteArray &data);
     QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType);
+    void setMagicRulesForMimeType(const MimeType &mimeType,
+                                  const QMap<int, QList<MimeMagicRule>> &rules);
 
 private:
     using Providers = std::vector<std::unique_ptr<MimeProviderBase>>;

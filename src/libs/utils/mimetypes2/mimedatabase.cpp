@@ -906,4 +906,15 @@ QMap<int, QList<MimeMagicRule>> MimeDatabasePrivate::magicRulesForMimeType(const
     return {};
 }
 
+void MimeDatabasePrivate::setMagicRulesForMimeType(const MimeType &mimeType,
+                                                   const QMap<int, QList<MimeMagicRule>> &rules)
+{
+    for (const auto &provider : providers()) {
+        if (provider->hasMimeTypeForName(mimeType.name())) {
+            provider->setMagicRulesForMimeType(mimeType, rules);
+            return;
+        }
+    }
+}
+
 } // namespace Utils
