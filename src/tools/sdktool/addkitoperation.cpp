@@ -336,14 +336,25 @@ bool AddKitOperation::test() const
     qtMap = AddQtData{"{qt-id}", "Qt", "desktop-qt", "/usr/bin/qmake", {}, {}}.addQt(qtMap);
 
     QVariantMap devMap = AddDeviceOperation::initializeDevices();
-    devMap = AddDeviceData{"{dev-id}", "Dev", 0, 0,
-                           "HWplatform", "SWplatform",
-                           "localhost", "10000-11000",
-                           "localhost", "", 42,
-                           "desktop", "", 22, 10000,
-                           "uname", 1,
-                           KeyValuePairList()}
-            .addDevice(devMap);
+    AddDeviceData devData;
+    devData.m_id = "{dev-id}";
+    devData.m_displayName = "Dev";
+    devData.m_type = 0;
+    devData.m_authentication = 0;
+    devData.m_b2q_platformHardware = "HWplatform";
+    devData.m_b2q_platformSoftware = "SWplatform";
+    devData.m_debugServer = "localhost";
+    devData.m_freePortsSpec = "10000-11000";
+    devData.m_host = "localhost";
+    devData.m_keyFile = "";
+    devData.m_origin = 42;
+    devData.m_osType = "desktop";
+    devData.m_password = "";
+    devData.m_sshPort = 22;
+    devData.m_timeout = 10000;
+    devData.m_uname = "uname";
+    devData.m_version = 1;
+    devMap = devData.addDevice(devMap);
 
     const QStringList env = {"TEST=1", "PATH"};
 

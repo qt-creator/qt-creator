@@ -260,14 +260,25 @@ bool AddDeviceOperation::test() const
 {
     QVariantMap map = initializeDevices();
 
-    AddDeviceData devData = {
-        QLatin1String("test id"), QLatin1String("test name"),
-        1, 2, QLatin1String("HW"), QLatin1String("SW"),
-        QLatin1String("debugServer"), QLatin1String("ports"),
-        QLatin1String("host"), QLatin1String("keyfile"), 3,
-        QLatin1String("ostype"), QLatin1String("passwd"), 4, 5,
-        QLatin1String("uname"), 6, KeyValuePairList()
-    };
+    AddDeviceData devData;
+    devData.m_id = "test id";
+    devData.m_displayName = "test name";
+    devData.m_type = 1;
+    devData.m_authentication = 2;
+    devData.m_b2q_platformHardware = "HW";
+    devData.m_b2q_platformSoftware = "SW";
+    devData.m_debugServer = "debugServer";
+    devData.m_freePortsSpec = "ports";
+    devData.m_host = "host";
+    devData.m_keyFile = "keyfile";
+    devData.m_origin = 3;
+    devData.m_osType = "ostype";
+    devData.m_password = "passwd";
+    devData.m_sshPort = 4;
+    devData.m_timeout = 5;
+    devData.m_uname = "uname";
+    devData.m_version = 6;
+
     QVariantMap result = devData.addDevice(map);
     QVariantMap data = result.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
     QVariantList devList = data.value(QLatin1String(DEVICE_LIST_ID)).toList();
