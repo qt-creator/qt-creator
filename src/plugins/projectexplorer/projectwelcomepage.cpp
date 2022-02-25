@@ -142,6 +142,7 @@ ProjectWelcomePage::ProjectWelcomePage()
         cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
         connect(act, &QAction::triggered, this, [this, i] {
+            QTC_ASSERT(m_projectModel, return);
             if (i <= m_projectModel->rowCount(QModelIndex()))
                 openProjectAt(i - 1);
         });
