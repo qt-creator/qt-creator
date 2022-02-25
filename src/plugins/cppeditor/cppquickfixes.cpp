@@ -3476,18 +3476,24 @@ public:
         };
         for (auto spec : classLayout) {
             const auto iter = m_headerFileCode.find(spec);
-            if (iter != m_headerFileCode.end())
-                insertAndIndent(m_headerFile, headerLocationFor(spec), *iter);
+            if (iter != m_headerFileCode.end()) {
+                const InsertionLocation loc = headerLocationFor(spec);
+                m_headerFile->setOpenEditor(true, m_headerFile->position(loc.line(), loc.column()));
+                insertAndIndent(m_headerFile, loc, *iter);
+            }
         }
-        if (!m_sourceFileCode.isEmpty() && m_sourceFileInsertionPoint.isValid())
+        if (!m_sourceFileCode.isEmpty() && m_sourceFileInsertionPoint.isValid()) {
+            m_sourceFile->setOpenEditor(true, m_sourceFile->position(
+                                            m_sourceFileInsertionPoint.line(),
+                                            m_sourceFileInsertionPoint.column()));
             insertAndIndent(m_sourceFile, m_sourceFileInsertionPoint, m_sourceFileCode);
+        }
 
         if (!m_headerFileChangeSet.isEmpty()) {
             m_headerFile->setChangeSet(m_headerFileChangeSet);
             m_headerFile->apply();
         }
         if (!m_sourceFileChangeSet.isEmpty()) {
-            m_sourceFile->setOpenEditor();
             m_sourceFile->setChangeSet(m_sourceFileChangeSet);
             m_sourceFile->apply();
         }
