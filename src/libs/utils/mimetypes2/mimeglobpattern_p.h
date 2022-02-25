@@ -140,7 +140,9 @@ public:
         erase(std::remove_if(begin(), end(), isMimeTypeEqual), end());
     }
 
-    void match(MimeGlobMatchResult &result, const QString &fileName) const;
+    void match(MimeGlobMatchResult &result,
+               const QString &fileName,
+               const QList<QString> &ignoreMimeTypes) const;
 };
 
 /*!
@@ -157,7 +159,9 @@ public:
 
     void addGlob(const MimeGlobPattern &glob);
     void removeMimeType(const QString &mimeType);
-    void matchingGlobs(const QString &fileName, MimeGlobMatchResult &result) const;
+    void matchingGlobs(const QString &fileName,
+                       MimeGlobMatchResult &result,
+                       const QList<QString> &ignoreMimeTypes) const;
     void clear();
 
     PatternsMap m_fastPatterns; // example: "doc" -> "application/msword", "text/plain"

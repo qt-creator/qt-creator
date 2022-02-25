@@ -255,13 +255,16 @@ void MimeAllGlobPatterns::removeMimeType(const QString &mimeType)
 }
 
 void MimeGlobPatternList::match(MimeGlobMatchResult &result,
-                                 const QString &fileName) const
+                                const QString &fileName,
+                                const QList<QString> &ignoreMimeTypes) const
 {
 
     MimeGlobPatternList::const_iterator it = this->constBegin();
     const MimeGlobPatternList::const_iterator endIt = this->constEnd();
     for (; it != endIt; ++it) {
         const MimeGlobPattern &glob = *it;
+        if (ignoreMimeTypes.contains(glob.mimeType()))
+            continue;
         if (glob.matchFileName(fileName)) {
             const QString pattern = glob.pattern();
             const int suffixLen = isSimplePattern(pattern) ? pattern.length() - 2 : 0;
@@ -270,10 +273,12 @@ void MimeGlobPatternList::match(MimeGlobMatchResult &result,
     }
 }
 
-void MimeAllGlobPatterns::matchingGlobs(const QString &fileName, MimeGlobMatchResult &result) const
+void MimeAllGlobPatterns::matchingGlobs(const QString &fileName,
+                                        MimeGlobMatchResult &result,
+                                        const QList<QString> &ignoreMimeTypes) const
 {
     // First try the high weight matches (>50), if any.
-    m_highWeightGlobs.match(result, fileName);
+    m_highWeightGlobs.match(result, fileName, ignoreMimeTypes);
 
     // Now use the "fast patterns" dict, for simple *.foo patterns with weight 50
     // (which is most of them, so this optimization is definitely worth it)
@@ -285,14 +290,16 @@ void MimeAllGlobPatterns::matchingGlobs(const QString &fileName, MimeGlobMatchRe
 
         const QStringList matchingMimeTypes = m_fastPatterns.value(simpleExtension);
         const QString simplePattern = QLatin1String("*.") + simpleExtension;
-        for (const QString &mime : matchingMimeTypes)
-            result.addMatch(mime, 50, simplePattern, simpleExtension.size());
+        for (const QString &mime : matchingMimeTypes) {
+            if (!ignoreMimeTypes.contains(mime))
+                result.addMatch(mime, 50, simplePattern, simpleExtension.size());
+        }
         // Can't return yet; *.tar.bz2 has to win over *.bz2, so we need the low-weight mimetypes anyway,
         // at least those with weight 50.
     }
 
     // Finally, try the low weight matches (<=50)
-    m_lowWeightGlobs.match(result, fileName);
+    m_lowWeightGlobs.match(result, fileName, ignoreMimeTypes);
 }
 
 void MimeAllGlobPatterns::clear()

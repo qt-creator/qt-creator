@@ -244,8 +244,9 @@ MimeGlobMatchResult MimeDatabasePrivate::findByFileName(const QString &fileName)
 {
     MimeGlobMatchResult result;
     const QString fileNameExcludingPath = QFileInfo(fileName).fileName();
+    QList<QString> checkedMimeTypes;
     for (const auto &provider : providers())
-        provider->addFileNameMatches(fileNameExcludingPath, result);
+        provider->addFileNameMatches(fileNameExcludingPath, result, checkedMimeTypes);
     return result;
 }
 
@@ -325,13 +326,15 @@ QStringList MimeDatabasePrivate::parents(const QString &mimeName)
 {
     Q_ASSERT(!mutex.tryLock());
     QStringList result;
-    for (const auto &provider : providers())
-        provider->addParents(mimeName, result);
-    if (result.isEmpty()) {
-        const QString parent = fallbackParent(mimeName);
-        if (!parent.isEmpty())
-            result.append(parent);
+    for (const auto &provider : providers()) {
+        if (provider->hasMimeTypeForName(mimeName)) {
+            provider->addParents(mimeName, result);
+            break;
+        }
     }
+    const QString parent = fallbackParent(mimeName);
+    if (!parent.isEmpty())
+        result.append(parent);
     return result;
 }
 
@@ -339,8 +342,12 @@ QStringList MimeDatabasePrivate::listAliases(const QString &mimeName)
 {
     QMutexLocker locker(&mutex);
     QStringList result;
-    for (const auto &provider : providers())
-        provider->addAliases(mimeName, result);
+    for (const auto &provider : providers()) {
+        if (provider->hasMimeTypeForName(mimeName)) {
+            provider->addAliases(mimeName, result);
+            return result;
+        }
+    }
     return result;
 }
 
@@ -378,8 +385,9 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
 
     *accuracyPtr = 0;
     MimeType candidate;
+    QList<QString> checkedMimeTypes;
     for (const auto &provider : providers())
-        provider->findByMagic(data, accuracyPtr, candidate);
+        provider->findByMagic(data, accuracyPtr, candidate, checkedMimeTypes);
 
     if (candidate.isValid())
         return candidate;

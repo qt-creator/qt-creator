@@ -239,29 +239,62 @@ MimeType MimeBinaryProvider::mimeTypeForName(const QString &name)
     return mimeTypeForNameUnchecked(name);
 }
 
-void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMatchResult &result)
+void MimeBinaryProvider::addFileNameMatches(const QString &fileName,
+                                            MimeGlobMatchResult &result,
+                                            QList<QString> &checkedMimeTypes)
 {
+    // TODO checkedMimeTypes
     if (fileName.isEmpty())
         return;
     Q_ASSERT(m_cacheFile);
     const QString lowerFileName = fileName.toLower();
     // Check literals (e.g. "Makefile")
-    matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosLiteralListOffset), fileName);
+    matchGlobList(result,
+                  m_cacheFile,
+                  m_cacheFile->getUint32(PosLiteralListOffset),
+                  fileName,
+                  checkedMimeTypes);
     // Check the very common *.txt cases with the suffix tree
     if (result.m_matchingMimeTypes.isEmpty()) {
         const int reverseSuffixTreeOffset = m_cacheFile->getUint32(PosReverseSuffixTreeOffset);
         const int numRoots = m_cacheFile->getUint32(reverseSuffixTreeOffset);
         const int firstRootOffset = m_cacheFile->getUint32(reverseSuffixTreeOffset + 4);
-        matchSuffixTree(result, m_cacheFile, numRoots, firstRootOffset, lowerFileName, lowerFileName.length() - 1, false);
+        matchSuffixTree(result,
+                        m_cacheFile,
+                        numRoots,
+                        firstRootOffset,
+                        lowerFileName,
+                        lowerFileName.length() - 1,
+                        false,
+                        checkedMimeTypes);
         if (result.m_matchingMimeTypes.isEmpty())
-            matchSuffixTree(result, m_cacheFile, numRoots, firstRootOffset, fileName, fileName.length() - 1, true);
+            matchSuffixTree(result,
+                            m_cacheFile,
+                            numRoots,
+                            firstRootOffset,
+                            fileName,
+                            fileName.length() - 1,
+                            true,
+                            checkedMimeTypes);
     }
     // Check complex globs (e.g. "callgrind.out[0-9]*" or "README*")
     if (result.m_matchingMimeTypes.isEmpty())
-        matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosGlobListOffset), fileName);
+        matchGlobList(result,
+                      m_cacheFile,
+                      m_cacheFile->getUint32(PosGlobListOffset),
+                      fileName,
+                      checkedMimeTypes);
+    // add all mime types from this provider to checkedMimeTypes, so they
+    // don't get checked again by another provider (if this provider overrides
+    // a mime type from another provider)
+    addAllMimeTypeNames(checkedMimeTypes);
 }
 
-void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result, CacheFile *cacheFile, int off, const QString &fileName)
+void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result,
+                                       CacheFile *cacheFile,
+                                       int off,
+                                       const QString &fileName,
+                                       const QList<QString> &ignoreMimeTypes)
 {
     const int numGlobs = cacheFile->getUint32(off);
     //qDebug() << "Loading" << numGlobs << "globs from" << cacheFile->file.fileName() << "at offset" << cacheFile->globListOffset;
@@ -275,6 +308,8 @@ void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result, CacheFile *c
         const QString pattern = QLatin1String(cacheFile->getCharStar(globOffset));
 
         const char *mimeType = cacheFile->getCharStar(mimeTypeOffset);
+        if (ignoreMimeTypes.contains(QLatin1String(mimeType)))
+            continue;
         //qDebug() << pattern << mimeType << weight << caseSensitive;
         MimeGlobPattern glob(pattern, QString() /*unused*/, weight, qtCaseSensitive);
 
@@ -283,7 +318,14 @@ void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result, CacheFile *c
     }
 }
 
-bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result, MimeBinaryProvider::CacheFile *cacheFile, int numEntries, int firstOffset, const QString &fileName, int charPos, bool caseSensitiveCheck)
+bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result,
+                                         MimeBinaryProvider::CacheFile *cacheFile,
+                                         int numEntries,
+                                         int firstOffset,
+                                         const QString &fileName,
+                                         int charPos,
+                                         bool caseSensitiveCheck,
+                                         const QList<QString> &ignoreMimeTypes)
 {
     QChar fileChar = fileName[charPos];
     int min = 0;
@@ -302,7 +344,14 @@ bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result, MimeBinary
             int childrenOffset = cacheFile->getUint32(off + 8);
             bool success = false;
             if (charPos > 0)
-                success = matchSuffixTree(result, cacheFile, numChildren, childrenOffset, fileName, charPos, caseSensitiveCheck);
+                success = matchSuffixTree(result,
+                                          cacheFile,
+                                          numChildren,
+                                          childrenOffset,
+                                          fileName,
+                                          charPos,
+                                          caseSensitiveCheck,
+                                          ignoreMimeTypes);
             if (!success) {
                 for (int i = 0; i < numChildren; ++i) {
                     const int childOff = childrenOffset + 12 * i;
@@ -311,6 +360,8 @@ bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result, MimeBinary
                         break;
                     const int mimeTypeOffset = cacheFile->getUint32(childOff + 4);
                     const char *mimeType = cacheFile->getCharStar(mimeTypeOffset);
+                    if (ignoreMimeTypes.contains(QLatin1String(mimeType)))
+                        continue;
                     const int flagsAndWeight = cacheFile->getUint32(childOff + 8);
                     const int weight = flagsAndWeight & 0xff;
                     const bool caseSensitive = flagsAndWeight & 0x100;
@@ -355,7 +406,10 @@ bool MimeBinaryProvider::matchMagicRule(MimeBinaryProvider::CacheFile *cacheFile
     return false;
 }
 
-void MimeBinaryProvider::findByMagic(const QByteArray &data, int *accuracyPtr, MimeType &candidate)
+void MimeBinaryProvider::findByMagic(const QByteArray &data,
+                                     int *accuracyPtr,
+                                     MimeType &candidate,
+                                     QList<QString> &checkedMimeTypes)
 {
     const int magicListOffset = m_cacheFile->getUint32(PosMagicListOffset);
     const int numMatches = m_cacheFile->getUint32(magicListOffset);
@@ -369,6 +423,8 @@ void MimeBinaryProvider::findByMagic(const QByteArray &data, int *accuracyPtr, M
         if (matchMagicRule(m_cacheFile, numMatchlets, firstMatchletOffset, data)) {
             const int mimeTypeOffset = m_cacheFile->getUint32(off + 4);
             const char *mimeType = m_cacheFile->getCharStar(mimeTypeOffset);
+            if (checkedMimeTypes.contains(QLatin1String(mimeType)))
+                continue;
             *accuracyPtr = m_cacheFile->getUint32(off);
             // Return the first match. We have no rules for conflicting magic data...
             // (mime.cache itself is sorted, but what about local overrides with a lower prio?)
@@ -376,6 +432,10 @@ void MimeBinaryProvider::findByMagic(const QByteArray &data, int *accuracyPtr, M
             return;
         }
     }
+    // add all mime types from this provider to checkedMimeTypes, so they
+    // don't get checked again by another provider (if this provider overrides
+    // a mime type from another provider)
+    addAllMimeTypeNames(checkedMimeTypes);
 }
 
 void MimeBinaryProvider::addParents(const QString &mime, QStringList &result)
@@ -713,16 +773,27 @@ MimeType MimeXMLProvider::mimeTypeForName(const QString &name)
     return m_nameMimeTypeMap.value(name);
 }
 
-void MimeXMLProvider::addFileNameMatches(const QString &fileName, MimeGlobMatchResult &result)
+void MimeXMLProvider::addFileNameMatches(const QString &fileName,
+                                         MimeGlobMatchResult &result,
+                                         QList<QString> &checkedMimeTypes)
 {
-    m_mimeTypeGlobs.matchingGlobs(fileName, result);
+    m_mimeTypeGlobs.matchingGlobs(fileName, result, checkedMimeTypes);
+    // add all mime types from this provider to checkedMimeTypes, so they
+    // don't get checked again by another provider (if this provider overrides
+    // a mime type from another provider)
+    addAllMimeTypeNames(checkedMimeTypes);
 }
 
-void MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr, MimeType &candidate)
+void MimeXMLProvider::findByMagic(const QByteArray &data,
+                                  int *accuracyPtr,
+                                  MimeType &candidate,
+                                  QList<QString> &checkedMimeTypes)
 {
     QString candidateName;
     bool foundOne = false;
     for (const MimeMagicRuleMatcher &matcher : qAsConst(m_magicMatchers)) {
+        if (checkedMimeTypes.contains(matcher.mimetype()))
+            continue;
         if (matcher.matches(data)) {
             const int priority = matcher.priority();
             if (priority > *accuracyPtr) {
@@ -734,6 +805,10 @@ void MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr, Mime
     }
     if (foundOne)
         candidate = mimeTypeForName(candidateName);
+    // add all mime types from this provider to checkedMimeTypes, so they
+    // don't get checked again by another provider (if this provider overrides
+    // a mime type from another provider)
+    addAllMimeTypeNames(checkedMimeTypes);
 }
 
 void MimeXMLProvider::ensureLoaded()
@@ -881,6 +956,46 @@ MimeXMLProvider::MimeXMLProvider(MimeDatabasePrivate *db,
         qWarning("MimeDatabase: Error loading data for ID %ls\n%ls",
                  qUtf16Printable(directory),
                  qUtf16Printable(errorMessage));
+    }
+}
+
+bool MimeBinaryProvider::hasMimeTypeForName(const QString &name)
+{
+    loadMimeTypeList();
+    return m_mimetypeNames.contains(name);
+}
+
+void MimeBinaryProvider::addAllMimeTypeNames(QList<QString> &result)
+{
+    // similar to addAllMimeTypes
+    loadMimeTypeList();
+    if (result.isEmpty()) { // fast path
+        result = QList(m_mimetypeNames.cbegin(), m_mimetypeNames.cend());
+    } else {
+        for (const QString &name : qAsConst(m_mimetypeNames))
+            if (!result.contains(name))
+                result.append(name);
+    }
+}
+
+bool MimeXMLProvider::hasMimeTypeForName(const QString &name)
+{
+    return m_nameMimeTypeMap.contains(name);
+}
+
+void MimeXMLProvider::addAllMimeTypeNames(QList<QString> &result)
+{
+    // similar to addAllMimeTypes
+    if (result.isEmpty()) { // fast path
+        result = m_nameMimeTypeMap.keys();
+    } else {
+        for (auto it = m_nameMimeTypeMap.constBegin(), end = m_nameMimeTypeMap.constEnd();
+             it != end;
+             ++it) {
+            const QString newMime = it.key();
+            if (!result.contains(newMime))
+                result.append(newMime);
+        }
     }
 }
 
