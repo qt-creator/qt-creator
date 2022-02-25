@@ -792,6 +792,8 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
                 commonFlags << "-fPIC";
         }
         cFlags = cxxFlags = commonFlags;
+        cFlags << arrayToStringList(getCppProp("cFlags"));
+        cxxFlags << arrayToStringList(getCppProp("cxxFlags"));
 
         const auto cxxLanguageVersion = arrayToStringList(getCppProp("cxxLanguageVersion"));
         if (cxxLanguageVersion.contains("c++23"))
