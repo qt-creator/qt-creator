@@ -919,4 +919,15 @@ void MimeDatabasePrivate::setMagicRulesForMimeType(const MimeType &mimeType,
     }
 }
 
+void MimeDatabasePrivate::setGlobPatternsForMimeType(const MimeType &mimeType,
+                                                     const QStringList &patterns)
+{
+    for (const auto &provider : providers()) {
+        if (provider->hasMimeTypeForName(mimeType.name())) {
+            provider->setGlobPatternsForMimeType(mimeType, patterns);
+            return;
+        }
+    }
+}
+
 } // namespace Utils

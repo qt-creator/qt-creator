@@ -110,6 +110,7 @@ public:
     QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType);
     void setMagicRulesForMimeType(const MimeType &mimeType,
                                   const QMap<int, QList<MimeMagicRule>> &rules);
+    void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
 
 private:
     using Providers = std::vector<std::unique_ptr<MimeProviderBase>>;

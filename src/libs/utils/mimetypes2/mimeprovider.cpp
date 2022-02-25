@@ -1011,6 +1011,12 @@ void MimeBinaryProvider::setMagicRulesForMimeType(const MimeType &mimeType,
     qWarning("Mimetypes: setMagicRulesForMimeType not implemented for binary provider");
 }
 
+void MimeBinaryProvider::setGlobPatternsForMimeType(const MimeType &mimeType,
+                                                    const QStringList &patterns)
+{
+    qWarning("Mimetypes: setGlobPatternsForMimeType not implemented for binary provider");
+}
+
 QMap<int, QList<MimeMagicRule>> MimeXMLProvider::magicRulesForMimeType(const MimeType &mimeType) const
 {
     QMap<int, QList<MimeMagicRule>> result;
@@ -1037,6 +1043,19 @@ void MimeXMLProvider::setMagicRulesForMimeType(const MimeType &mimeType,
         matcher.addRules(it.value());
         addMagicMatcher(matcher);
     }
+}
+
+void MimeXMLProvider::setGlobPatternsForMimeType(const MimeType &mimeType,
+                                                 const QStringList &patterns)
+{
+    // remove all previous globs
+    m_mimeTypeGlobs.removeMimeType(mimeType.name());
+    // add new patterns as case-insensitive default-weight patterns
+    for (const QString &pattern : patterns)
+        addGlobPattern(MimeGlobPattern(pattern, mimeType.name()));
+    // the following is safe, because for XML provider mimetype private is always "loaded"
+    // (see comment in MimeDatabasePrivate::loadMimeTypePrivate)
+    mimeType.d->globPatterns = patterns;
 }
 
 } // namespace Utils

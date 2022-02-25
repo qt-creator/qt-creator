@@ -126,9 +126,9 @@ QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType)
 
 void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns)
 {
-    //    auto d = MimeDatabasePrivate::instance();
-    //    QMutexLocker locker(&d->mutex);
-    //    d->provider()->setGlobPatternsForMimeType(mimeType, patterns);
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
+    d->setGlobPatternsForMimeType(mimeType, patterns);
 }
 
 void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule>> &rules)
