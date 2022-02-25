@@ -51,7 +51,6 @@
 #include <qmldesigner/qmldesignerplugin.h>
 
 #include <utils/checkablemessagebox.h>
-#include <utils/dynamiclicensecheck.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
