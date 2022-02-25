@@ -521,10 +521,11 @@ bool MimeType::inherits(const QString &mimeTypeName) const
 */
 bool MimeType::matchesName(const QString &nameOrAlias) const
 {
-//    if (d->name == nameOrAlias)
-//        return true;
-//    return MimeDatabasePrivate::instance()->provider()->resolveAlias(nameOrAlias) == d->name;
-    return true;
+    if (d->name == nameOrAlias)
+        return true;
+    auto dbp = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&dbp->mutex);
+    return MimeDatabasePrivate::instance()->resolveAlias(nameOrAlias) == d->name;
 }
 
 /*!
