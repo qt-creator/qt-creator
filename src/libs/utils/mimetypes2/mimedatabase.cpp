@@ -85,10 +85,14 @@ int mime_secondsBetweenChecks = 5;
 
 bool MimeDatabasePrivate::shouldCheck()
 {
+#if 0
     if (m_lastCheck.isValid() && m_lastCheck.elapsed() < mime_secondsBetweenChecks * 1000)
         return false;
     m_lastCheck.start();
     return true;
+#endif
+    // Qt Creator forces reload manually
+    return m_forceLoad;
 }
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_NACL) && !defined(Q_OS_INTEGRITY)
@@ -108,7 +112,23 @@ void MimeDatabasePrivate::loadProviders()
     Providers currentProviders;
     std::swap(m_providers, currentProviders);
 
-    m_providers.reserve(mimeDirs.size() + (needInternalDB ? 1 : 0));
+    m_providers.reserve(m_additionalData.size() + mimeDirs.size() + (needInternalDB ? 1 : 0));
+
+    // added for Qt Creator: additional mime data
+    for (auto dataIt = m_additionalData.cbegin(); dataIt != m_additionalData.cend(); ++dataIt) {
+        // Check if we already have a provider for this data
+        const QString id = dataIt.key();
+        const auto it = std::find_if(currentProviders.begin(), currentProviders.end(),
+                                     [id](const std::unique_ptr<MimeProviderBase> &prov) {
+                                         return prov && prov->directory() == id;
+                                     });
+        std::unique_ptr<MimeProviderBase> provider;
+        if (it != currentProviders.end())
+            provider = std::move(*it); // take provider out of the vector
+        provider.reset(new MimeXMLProvider(this, id, dataIt.value()));
+        m_providers.push_back(std::move(provider));
+    }
+
 
     for (const QString &mimeDir : mimeDirs) {
         const QString cacheFile = mimeDir + QStringLiteral("/mime.cache");
@@ -168,11 +188,14 @@ const MimeDatabasePrivate::Providers &MimeDatabasePrivate::providers()
 #endif
     if (m_providers.empty()) {
         loadProviders();
-        m_lastCheck.start();
+        // Qt Creator forces reload manually
+        // m_lastCheck.start();
     } else {
         if (shouldCheck())
             loadProviders();
     }
+    // Qt Creator forces reload manually
+    m_forceLoad = false;
     return m_providers;
 }
 
@@ -850,5 +873,15 @@ QList<MimeType> MimeDatabase::allMimeTypes() const
 
     \value MatchContent The file content is used to look for a match
 */
+
+// added for Qt Creator
+void MimeDatabasePrivate::addMimeData(const QString &id, const QByteArray &data)
+{
+    if (m_additionalData.contains(id))
+        qWarning("Overwriting data in mime database, id '%s'", qPrintable(id));
+
+    m_additionalData.insert(id, data);
+    m_forceLoad = true;
+}
 
 } // namespace Utils

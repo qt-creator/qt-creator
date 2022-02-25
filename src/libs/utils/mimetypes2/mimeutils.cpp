@@ -104,17 +104,17 @@ void setMimeStartupPhase(MimeStartupPhase phase)
     d->m_startupPhase = int(phase);
 }
 
-void addMimeTypes(const QString &fileName, const QByteArray &data)
+void addMimeTypes(const QString &id, const QByteArray &data)
 {
-    //    auto d = MimeDatabasePrivate::instance();
-    //    QMutexLocker locker(&d->mutex);
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
 
-    //    if (d->m_startupPhase >= MimeDatabase::PluginsDelayedInitializing)
-    //        qWarning("Adding items from %s to MimeDatabase after initialization time",
-    //                 qPrintable(fileName));
+    if (d->m_startupPhase >= int(MimeStartupPhase::PluginsDelayedInitializing)) {
+        qWarning("Adding items for ID \"%s\" to MimeDatabase after initialization time",
+                 qPrintable(id));
+    }
 
-    //    auto xmlProvider = static_cast<MimeXMLProvider *>(d->provider());
-    //    xmlProvider->addData(fileName, data);
+    d->addMimeData(id, data);
 }
 
 QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType)

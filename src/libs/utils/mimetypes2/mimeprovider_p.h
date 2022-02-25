@@ -146,6 +146,8 @@ public:
 #endif
     MimeXMLProvider(MimeDatabasePrivate *db, InternalDatabaseEnum);
     MimeXMLProvider(MimeDatabasePrivate *db, const QString &directory);
+    // added for Qt Creator
+    MimeXMLProvider(MimeDatabasePrivate *db, const QString &directory, const QByteArray &data);
     ~MimeXMLProvider();
 
     bool isValid() override;

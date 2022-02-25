@@ -104,6 +104,9 @@ public:
     QStringList listAliases(const QString &mimeName);
     bool mimeInherits(const QString &mime, const QString &parent);
 
+    // added for Qt Creator
+    void addMimeData(const QString &id, const QByteArray &data);
+
 private:
     using Providers = std::vector<std::unique_ptr<MimeProviderBase>>;
     const Providers &providers();
@@ -112,6 +115,10 @@ private:
 
     mutable Providers m_providers;
     QElapsedTimer m_lastCheck;
+
+    // added for Qt Creator
+    QHash<QString, QByteArray> m_additionalData; // id -> data
+    bool m_forceLoad = true;
 
 public:
     const QString m_defaultMimeType;
