@@ -54,6 +54,7 @@
 #include "mimetype.h"
 
 #include "mimeglobpattern_p.h"
+#include "mimemagicrule_p.h"
 #include "mimetype_p.h"
 
 #include <QtCore/qelapsedtimer.h>
@@ -106,6 +107,7 @@ public:
 
     // added for Qt Creator
     void addMimeData(const QString &id, const QByteArray &data);
+    QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType);
 
 private:
     using Providers = std::vector<std::unique_ptr<MimeProviderBase>>;

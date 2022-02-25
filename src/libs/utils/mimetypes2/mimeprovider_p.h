@@ -93,6 +93,7 @@ public:
     // added for Qt Creator
     virtual bool hasMimeTypeForName(const QString &name) = 0;
     virtual void addAllMimeTypeNames(QList<QString> &result) = 0;
+    virtual QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType) const = 0;
 
     MimeDatabasePrivate *m_db;
     QString m_directory;
@@ -129,6 +130,7 @@ public:
     // added for Qt Creator
     bool hasMimeTypeForName(const QString &name) override;
     void addAllMimeTypeNames(QList<QString> &result) override;
+    QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType) const override;
 
 private:
     struct CacheFile;
@@ -209,6 +211,7 @@ public:
     // added for Qt Creator
     bool hasMimeTypeForName(const QString &name) override;
     void addAllMimeTypeNames(QList<QString> &result) override;
+    QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(const MimeType &mimeType) const override;
 
 private:
     void load(const QString &fileName);

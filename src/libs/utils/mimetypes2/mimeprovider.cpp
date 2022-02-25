@@ -999,4 +999,20 @@ void MimeXMLProvider::addAllMimeTypeNames(QList<QString> &result)
     }
 }
 
+QMap<int, QList<MimeMagicRule>> MimeBinaryProvider::magicRulesForMimeType(const MimeType &mimeType) const
+{
+    qWarning("Mimetypes: magicRulesForMimeType not implemented for binary provider");
+    return {};
+}
+
+QMap<int, QList<MimeMagicRule>> MimeXMLProvider::magicRulesForMimeType(const MimeType &mimeType) const
+{
+    QMap<int, QList<MimeMagicRule>> result;
+    for (const MimeMagicRuleMatcher &matcher : m_magicMatchers) {
+        if (mimeType.name() == matcher.mimetype())
+            result[matcher.priority()].append(matcher.magicRules());
+    }
+    return result;
+}
+
 } // namespace Utils

@@ -897,4 +897,13 @@ void MimeDatabasePrivate::addMimeData(const QString &id, const QByteArray &data)
     m_forceLoad = true;
 }
 
+QMap<int, QList<MimeMagicRule>> MimeDatabasePrivate::magicRulesForMimeType(const MimeType &mimeType)
+{
+    for (const auto &provider : providers()) {
+        if (provider->hasMimeTypeForName(mimeType.name()))
+            return provider->magicRulesForMimeType(mimeType);
+    }
+    return {};
+}
+
 } // namespace Utils
