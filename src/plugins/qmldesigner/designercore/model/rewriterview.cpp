@@ -862,14 +862,8 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
 
     ModelNode lastNode = root;
 
-    int i = 0;
     for (const myPair &pair : data) {
         ModelNode node = pair.first;
-        i++;
-        if (i >= int(data.size())) {
-            lastNode = node;
-            break;
-        }
 
         const int nodeTextOffset = nodeOffset(node);
         const int nodeTextLength = m_textModifier->text().indexOf("}", nodeTextOffset) - nodeTextOffset - 1;
