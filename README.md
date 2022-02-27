@@ -52,7 +52,7 @@ Prerequisites:
 * CMake
 * Ninja (recommended)
 
-The installed toolchains have to match the one Qt was compiled with.
+The used toolchain has to be compatible with the one Qt was compiled with.
 
 ### Linux and macOS
 
