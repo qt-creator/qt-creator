@@ -1747,7 +1747,7 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
                 QString generator = "-DCMAKE_GENERATOR:STRING=" + arg.mid(idxDash + strDash.length());
                 arguments.append(generator);
 
-                arg = arg.first(idxDash);
+                arg = arg.left(idxDash);
                 arg.replace("-G", "-DCMAKE_EXTRA_GENERATOR:STRING=");
 
             } else {
