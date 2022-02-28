@@ -62,6 +62,9 @@ public:
     int m_timeout = 5;
     QString m_uname;
     int m_version = 0;
+    QStringList m_dockerMappedPaths;
+    QString m_dockerRepo;
+    QString m_dockerTag;
     KeyValuePairList m_extra;
 };
 
