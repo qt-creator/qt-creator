@@ -390,13 +390,13 @@ void Edit3DView::createEdit3DActions()
             = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_PARTICLES_PLAY, View3DActionCommand::ParticlesPlay,
                 QCoreApplication::translate("ParticlesPlayAction", "Play Particles"),
-                QKeySequence(Qt::Key_W), true, true, Icons::EDIT3D_PARTICLE_PLAY.icon(),
+                QKeySequence(Qt::Key_Comma), true, true, Icons::EDIT3D_PARTICLE_PLAY.icon(),
                 Icons::EDIT3D_PARTICLE_PAUSE.icon(), particlesPlayTrigger);
     m_particlesRestartAction
             = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_PARTICLES_RESTART, View3DActionCommand::ParticlesRestart,
                 QCoreApplication::translate("ParticlesRestartAction", "Restart Particles"),
-                QKeySequence(Qt::Key_E), false, false, Icons::EDIT3D_PARTICLE_RESTART.icon(),
+                QKeySequence(Qt::Key_Slash), false, false, Icons::EDIT3D_PARTICLE_RESTART.icon(),
                 Icons::EDIT3D_PARTICLE_RESTART.icon());
     m_particlesPlayAction->action()->setEnabled(particlemode);
     m_particlesRestartAction->action()->setEnabled(particlemode);
