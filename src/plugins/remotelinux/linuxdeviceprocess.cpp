@@ -40,10 +40,10 @@ LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplore
                                        QObject *parent)
     : ProjectExplorer::SshDeviceProcess(device, parent)
 {
-    connect(this, &DeviceProcess::finished, this, [this]() {
+    connect(this, &QtcProcess::finished, this, [this]() {
         m_processId = 0;
     });
-    connect(this, &DeviceProcess::started, this, [this]() {
+    connect(this, &QtcProcess::started, this, [this]() {
         m_pidParsed = false;
         m_output.clear();
     });

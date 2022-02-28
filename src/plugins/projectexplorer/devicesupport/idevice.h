@@ -60,7 +60,6 @@ class QtcProcess;
 
 namespace ProjectExplorer {
 
-class DeviceProcess;
 class DeviceProcessList;
 class Kit;
 class Task;
@@ -182,7 +181,7 @@ public:
     virtual DeviceTester *createDeviceTester() const;
 
     virtual bool canCreateProcess() const { return false; }
-    virtual DeviceProcess *createProcess(QObject *parent) const;
+    virtual Utils::QtcProcess *createProcess(QObject *parent) const;
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
     virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
 

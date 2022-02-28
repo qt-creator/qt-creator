@@ -44,7 +44,7 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
 
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const final;
+    Utils::QtcProcess *createProcess(QObject *parent) const final;
 
     void setSerialNumber(const QString &serial);
     QString serialNumber() const;

@@ -47,7 +47,7 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
+    Utils::QtcProcess *createProcess(QObject *parent) const override;
 
     int qnxVersion() const;
 

@@ -26,7 +26,6 @@
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/runcontrol.h>
 
 using namespace ProjectExplorer;

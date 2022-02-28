@@ -317,15 +317,15 @@ LinuxDevice::LinuxDevice()
     }});
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
-        DeviceProcess * const proc = createProcess(nullptr);
-        QObject::connect(proc, &DeviceProcess::finished, [proc] {
+        QtcProcess * const proc = createProcess(nullptr);
+        QObject::connect(proc, &QtcProcess::finished, [proc] {
             if (!proc->errorString().isEmpty()) {
                 Core::MessageManager::writeDisrupting(
                     tr("Error running remote shell: %1").arg(proc->errorString()));
             }
             proc->deleteLater();
         });
-        QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
+        QObject::connect(proc, &QtcProcess::errorOccurred, [proc] {
             Core::MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
@@ -358,7 +358,7 @@ IDeviceWidget *LinuxDevice::createWidget()
     return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
-DeviceProcess *LinuxDevice::createProcess(QObject *parent) const
+QtcProcess *LinuxDevice::createProcess(QObject *parent) const
 {
     return new LinuxDeviceProcess(sharedFromThis(), parent);
 }

@@ -54,7 +54,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 

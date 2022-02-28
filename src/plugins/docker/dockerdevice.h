@@ -66,7 +66,7 @@ public:
     QList<ProjectExplorer::Task> validate() const override;
 
     bool canCreateProcess() const override { return true; }
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
+    Utils::QtcProcess *createProcess(QObject *parent) const override;
     bool canAutoDetectPorts() const override;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
     bool canCreateProcessModel() const override { return false; }

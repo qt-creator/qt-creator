@@ -50,7 +50,7 @@ public:
     DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool canCreateProcess() const override { return true; }
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
-    DeviceProcess *createProcess(QObject *parent) const override;
+    Utils::QtcProcess *createProcess(QObject *parent) const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;

@@ -32,7 +32,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -131,9 +130,9 @@ public:
             return;
         }
 
-        connect(m_process, &DeviceProcess::started, this, &RunWorker::reportStarted);
-        connect(m_process, &DeviceProcess::finished, this, &RunWorker::reportStopped);
-        connect(m_process, &DeviceProcess::errorOccurred, [this](QProcess::ProcessError e) {
+        connect(m_process, &QtcProcess::started, this, &RunWorker::reportStarted);
+        connect(m_process, &QtcProcess::finished, this, &RunWorker::reportStopped);
+        connect(m_process, &QtcProcess::errorOccurred, [this](QProcess::ProcessError e) {
             // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
             // in that. FailedToStart is the only actual failure.
             if (e == QProcess::FailedToStart) {
@@ -162,10 +161,10 @@ public:
             m_process->terminate();
     }
 
-    DeviceProcess *recorder() { return m_process; }
+    QtcProcess *recorder() { return m_process; }
 
 private:
-    QPointer<DeviceProcess> m_process;
+    QPointer<QtcProcess> m_process;
     QStringList m_perfRecordArguments;
 };
 
@@ -214,12 +213,12 @@ void PerfProfilerRunner::start()
     PerfDataReader *reader = m_perfParserWorker->reader();
     if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {
         // That's the local case.
-        DeviceProcess *recorder = prw->recorder();
-        connect(recorder, &DeviceProcess::readyReadStandardError, this, [this, recorder] {
+        QtcProcess *recorder = prw->recorder();
+        connect(recorder, &QtcProcess::readyReadStandardError, this, [this, recorder] {
             appendMessage(QString::fromLocal8Bit(recorder->readAllStandardError()),
                           Utils::StdErrFormat);
         });
-        connect(recorder, &DeviceProcess::readyReadStandardOutput, this, [this, reader, recorder] {
+        connect(recorder, &QtcProcess::readyReadStandardOutput, this, [this, reader, recorder] {
             if (!reader->feedParser(recorder->readAllStandardOutput()))
                 reportFailure(tr("Failed to transfer Perf data to perfparser."));
         });

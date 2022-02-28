@@ -167,7 +167,7 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
     return w;
 }
 
-ProjectExplorer::DeviceProcess *QdbDevice::createProcess(QObject *parent) const
+QtcProcess *QdbDevice::createProcess(QObject *parent) const
 {
     return new QdbDeviceProcess(sharedFromThis(), parent);
 }

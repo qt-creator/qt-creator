@@ -30,8 +30,6 @@
 
 #include <QObject>
 
-namespace ProjectExplorer { class DeviceProcess; }
-
 namespace RemoteLinux {
 namespace Internal {
 
@@ -61,7 +59,7 @@ private:
     bool m_stop = false;
     Utils::Environment m_env;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    ProjectExplorer::DeviceProcess *m_deviceProcess = nullptr;
+    Utils::QtcProcess *m_deviceProcess = nullptr;
 };
 
 } // namespace Internal

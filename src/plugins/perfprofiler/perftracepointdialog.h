@@ -25,14 +25,10 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QDialog>
-#include <QTextEdit>
-#include <QLabel>
-#include <QDialogButtonBox>
-#include <QComboBox>
+#include <QProcess>
 
 namespace PerfProfiler {
 namespace Internal {
@@ -55,7 +51,7 @@ private:
 
     Ui::PerfTracePointDialog *m_ui;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    std::unique_ptr<ProjectExplorer::DeviceProcess> m_process;
+    std::unique_ptr<Utils::QtcProcess> m_process;
 
     void accept() final;
     void reject() final;

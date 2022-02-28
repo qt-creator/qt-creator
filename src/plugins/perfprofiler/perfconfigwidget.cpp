@@ -29,7 +29,6 @@
 
 #include <coreplugin/messagebox.h>
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runcontrol.h>
@@ -43,7 +42,9 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QPushButton>
 #include <QStyledItemDelegate>
+#include <QTableView>
 
 using namespace Utils;
 
@@ -124,6 +125,8 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
     }.attachTo(this);
 }
 
+PerfConfigWidget::~PerfConfigWidget() = default;
+
 void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
 {
     ProjectExplorer::IDevice::ConstPtr device;
@@ -146,10 +149,10 @@ void PerfConfigWidget::setTarget(ProjectExplorer::Target *target)
         return;
     }
 
-    connect(m_process.get(), &ProjectExplorer::DeviceProcess::finished,
+    connect(m_process.get(), &QtcProcess::finished,
             this, &PerfConfigWidget::handleProcessFinished);
 
-    connect(m_process.get(), &ProjectExplorer::DeviceProcess::errorOccurred,
+    connect(m_process.get(), &QtcProcess::errorOccurred,
             this, &PerfConfigWidget::handleProcessError);
 
     useTracePointsButton->setEnabled(true);

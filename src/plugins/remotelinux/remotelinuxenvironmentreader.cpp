@@ -25,10 +25,10 @@
 
 #include "remotelinuxenvironmentreader.h"
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
@@ -54,9 +54,9 @@ void RemoteLinuxEnvironmentReader::start()
     }
     m_stop = false;
     m_deviceProcess = m_device->createProcess(this);
-    connect(m_deviceProcess, &DeviceProcess::errorOccurred,
+    connect(m_deviceProcess, &QtcProcess::errorOccurred,
             this, &RemoteLinuxEnvironmentReader::handleError);
-    connect(m_deviceProcess, &DeviceProcess::finished,
+    connect(m_deviceProcess, &QtcProcess::finished,
             this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
     m_deviceProcess->setCommand({"env", {}});
     m_deviceProcess->start();

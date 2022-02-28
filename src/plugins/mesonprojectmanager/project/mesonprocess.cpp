@@ -33,6 +33,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QLoggingCategory>

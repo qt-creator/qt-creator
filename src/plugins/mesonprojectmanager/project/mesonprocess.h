@@ -27,9 +27,6 @@
 
 #include "exewrappers/mesonwrapper.h"
 
-#include <utils/qtcprocess.h>
-
-#include <QBuffer>
 #include <QByteArray>
 #include <QElapsedTimer>
 #include <QFutureInterface>
@@ -38,6 +35,8 @@
 #include <QTimer>
 
 #include <memory>
+
+namespace Utils { class QtcProcess; }
 
 namespace MesonProjectManager {
 namespace Internal {

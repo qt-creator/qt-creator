@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "deviceprocess.h"
 #include "deviceusedportsgatherer.h"
 
 #include <ssh/sshconnection.h>
@@ -31,6 +30,7 @@
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 #include <QPointer>
@@ -44,7 +44,7 @@ namespace Internal {
 class DeviceUsedPortsGathererPrivate
 {
  public:
-    QPointer<DeviceProcess> process;
+    QPointer<QtcProcess> process;
     QList<Port> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
@@ -77,13 +77,13 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
     const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
     d->process = d->device->createProcess(this);
 
-    connect(d->process.data(), &DeviceProcess::finished,
+    connect(d->process.data(), &QtcProcess::finished,
             this, &DeviceUsedPortsGatherer::handleProcessFinished);
-    connect(d->process.data(), &DeviceProcess::errorOccurred,
+    connect(d->process.data(), &QtcProcess::errorOccurred,
             this, &DeviceUsedPortsGatherer::handleProcessError);
-    connect(d->process.data(), &DeviceProcess::readyReadStandardOutput,
+    connect(d->process.data(), &QtcProcess::readyReadStandardOutput,
             this, &DeviceUsedPortsGatherer::handleRemoteStdOut);
-    connect(d->process.data(), &DeviceProcess::readyReadStandardError,
+    connect(d->process.data(), &QtcProcess::readyReadStandardError,
             this, &DeviceUsedPortsGatherer::handleRemoteStdErr);
 
     d->process->setCommand(d->portsGatheringMethod->commandLine(protocol));

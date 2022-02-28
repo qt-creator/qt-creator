@@ -36,7 +36,6 @@
 #include <utils/qtcprocess.h>
 
 #include "devicesupport/desktopdevice.h"
-#include "devicesupport/deviceprocess.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "runcontrol.h"

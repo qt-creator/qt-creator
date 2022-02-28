@@ -29,10 +29,14 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
+#include <QProcess>
 
-#include <QPushButton>
-#include <QTableView>
+QT_BEGIN_NAMESPACE
+class QPushButton;
+class QTableView;
+QT_END_NAMESPACE
+
+namespace Utils { class QtcProcess; }
 
 namespace PerfProfiler {
 namespace Internal {
@@ -42,6 +46,7 @@ class PerfConfigWidget : public Core::IOptionsPageWidget
     Q_OBJECT
 public:
     explicit PerfConfigWidget(PerfSettings *settings, QWidget *parent = nullptr);
+    ~PerfConfigWidget();
 
     void updateUi();
     void setTarget(ProjectExplorer::Target *target);
@@ -55,7 +60,7 @@ private:
     void handleProcessError(QProcess::ProcessError error);
 
     PerfSettings *m_settings;
-    std::unique_ptr<ProjectExplorer::DeviceProcess> m_process;
+    std::unique_ptr<Utils::QtcProcess> m_process;
 
     QTableView *eventsView;
     QPushButton *useTracePointsButton;

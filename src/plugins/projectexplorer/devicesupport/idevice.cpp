@@ -590,7 +590,7 @@ OsType IDevice::osType() const
     return d->osType;
 }
 
-DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
+QtcProcess *IDevice::createProcess(QObject * /* parent */) const
 {
     QTC_CHECK(false);
     return nullptr;

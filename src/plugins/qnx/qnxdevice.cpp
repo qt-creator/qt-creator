@@ -101,8 +101,8 @@ void QnxDevice::updateVersionNumber() const
 {
     QEventLoop eventLoop;
     SshDeviceProcess versionNumberProcess(sharedFromThis());
-    QObject::connect(&versionNumberProcess, &SshDeviceProcess::finished, &eventLoop, &QEventLoop::quit);
-    QObject::connect(&versionNumberProcess, &DeviceProcess::errorOccurred, &eventLoop, &QEventLoop::quit);
+    QObject::connect(&versionNumberProcess, &QtcProcess::finished, &eventLoop, &QEventLoop::quit);
+    QObject::connect(&versionNumberProcess, &QtcProcess::errorOccurred, &eventLoop, &QEventLoop::quit);
 
     versionNumberProcess.setCommand({"uname", {"-r"}});
     versionNumberProcess.start();
@@ -156,7 +156,7 @@ DeviceTester *QnxDevice::createDeviceTester() const
     return new QnxDeviceTester;
 }
 
-DeviceProcess *QnxDevice::createProcess(QObject *parent) const
+QtcProcess *QnxDevice::createProcess(QObject *parent) const
 {
     return new QnxDeviceProcess(sharedFromThis(), parent);
 }

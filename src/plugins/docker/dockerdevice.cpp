@@ -121,10 +121,10 @@ void DockerDeviceProcess::start()
     DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(device());
     QTC_ASSERT(dockerDevice, return);
 
-    connect(this, &DeviceProcess::readyReadStandardOutput, this, [this] {
+    connect(this, &QtcProcess::readyReadStandardOutput, this, [this] {
         MessageManager::writeSilently(QString::fromLocal8Bit(readAllStandardError()));
     });
-    connect(this, &DeviceProcess::readyReadStandardError, this, [this] {
+    connect(this, &QtcProcess::readyReadStandardError, this, [this] {
         MessageManager::writeDisrupting(QString::fromLocal8Bit(readAllStandardError()));
     });
 
@@ -495,7 +495,7 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
 
         QObject::connect(proc, &QtcProcess::finished, proc, &QObject::deleteLater);
 
-        QObject::connect(proc, &DeviceProcess::errorOccurred, [proc] {
+        QObject::connect(proc, &QtcProcess::errorOccurred, [proc] {
             MessageManager::writeDisrupting(tr("Error starting remote shell."));
             proc->deleteLater();
         });
@@ -938,7 +938,7 @@ QVariantMap DockerDevice::toMap() const
     return map;
 }
 
-DeviceProcess *DockerDevice::createProcess(QObject *parent) const
+QtcProcess *DockerDevice::createProcess(QObject *parent) const
 {
     return new DockerDeviceProcess(sharedFromThis(), parent);
 }
