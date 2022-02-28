@@ -111,7 +111,7 @@ void SshRemoteProcessRunner::handleConnected()
     d->m_process = d->m_connection->createRemoteProcess(d->m_command);
     connect(d->m_process.get(), &SshRemoteProcess::started,
             this, &SshRemoteProcessRunner::handleProcessStarted);
-    connect(d->m_process.get(), &SshRemoteProcess::done,
+    connect(d->m_process.get(), &SshRemoteProcess::finished,
             this, &SshRemoteProcessRunner::handleProcessFinished);
     connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardOutput,
             this, &SshRemoteProcessRunner::readyReadStandardOutput);

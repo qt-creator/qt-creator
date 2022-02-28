@@ -47,8 +47,9 @@ public:
 
     static bool setupSshEnvironment(Utils::QtcProcess *process);
 
-signals:
-    void done();
+protected:
+    void emitFinished() override;
+    void emitErrorOccurred(QProcess::ProcessError error) override;
 
 private:
     QString m_remoteCommand;

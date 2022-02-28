@@ -299,7 +299,7 @@ void tst_Ssh::remoteProcessChannels()
     SshRemoteProcessPtr echoProcess
             = connection.createRemoteProcess("printf " + QString::fromUtf8(testString) + " >&2");
     QEventLoop loop;
-    connect(echoProcess.get(), &SshRemoteProcess::done, &loop, &QEventLoop::quit);
+    connect(echoProcess.get(), &SshRemoteProcess::finished, &loop, &QEventLoop::quit);
     connect(echoProcess.get(), &Utils::QtcProcess::readyReadStandardError,
             [&remoteData, p = echoProcess.get()] { remoteData += p->readAllStandardError(); });
     connect(echoProcess.get(), &SshRemoteProcess::readyReadStandardOutput,
@@ -334,7 +334,7 @@ void tst_Ssh::remoteProcessInput()
     catProcess->setProcessMode(Utils::ProcessMode::Writer);
     QEventLoop loop;
     connect(catProcess.get(), &SshRemoteProcess::started, &loop, &QEventLoop::quit);
-    connect(catProcess.get(), &SshRemoteProcess::done, &loop, &QEventLoop::quit);
+    connect(catProcess.get(), &SshRemoteProcess::finished, &loop, &QEventLoop::quit);
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.setSingleShot(true);

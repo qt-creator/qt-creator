@@ -75,7 +75,7 @@ void Shell::handleConnected()
             this, &Shell::handleRemoteStdout);
     connect(m_shell.get(), &SshRemoteProcess::readyReadStandardError,
             this, &Shell::handleRemoteStderr);
-    connect(m_shell.get(), &SshRemoteProcess::done, this, &Shell::handleChannelClosed);
+    connect(m_shell.get(), &SshRemoteProcess::finished, this, &Shell::handleChannelClosed);
     m_shell->start();
 }
 
