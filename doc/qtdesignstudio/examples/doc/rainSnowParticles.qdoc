@@ -38,8 +38,8 @@
     scene using the \QDS particle system.
 
     You need to download the starting project for this tutorial from
-    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/
-    tutorial%20projects/rain-snow-particles/Start}{here} before you start.
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/rain-snow-particles/Start}{here}
+    before you start.
 
     Download the project and open the \e faceparticles.qmlproject file in \QDS
     to get started.
