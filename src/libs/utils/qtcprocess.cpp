@@ -711,28 +711,31 @@ QtcProcess::QtcProcess(QObject *parent)
 
     if (processLog().isDebugEnabled()) {
         connect(this, &QtcProcess::finished, [this] {
-            if (const QVariant n = d->m_process.get()->property(QTC_PROCESS_NUMBER); n.isValid()) {
-                using namespace std::chrono;
-                const quint64 msSinceEpoc =
-                        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-                const quint64 msStarted =
-                        d->m_process.get()->property(QTC_PROCESS_STARTTIME).toULongLong();
-                const quint64 msElapsed = msSinceEpoc - msStarted;
+            if (!d->m_process.get())
+                return;
+            const QVariant n = d->m_process.get()->property(QTC_PROCESS_NUMBER);
+            if (!n.isValid())
+                return;
+            using namespace std::chrono;
+            const quint64 msSinceEpoc =
+                    duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+            const quint64 msStarted =
+                    d->m_process.get()->property(QTC_PROCESS_STARTTIME).toULongLong();
+            const quint64 msElapsed = msSinceEpoc - msStarted;
 
-                const int number = n.toInt();
-                qCDebug(processLog).nospace() << "Process " << number << " finished: "
-                                              << "result=" << result()
-                                              << ", ex=" << exitCode()
-                                              << ", " << stdOut().size() << " bytes stdout"
-                                              << ", " << stdErr().size() << " bytes stderr"
-                                              << ", " << msElapsed << " ms elapsed";
-                if (processStdoutLog().isDebugEnabled() && !stdOut().isEmpty())
-                    qCDebug(processStdoutLog).nospace()
-                            << "Process " << number << " sdout: " << stdOut();
-                if (processStderrLog().isDebugEnabled() && !stdErr().isEmpty())
-                    qCDebug(processStderrLog).nospace()
-                            << "Process " << number << " stderr: " << stdErr();
-            }
+            const int number = n.toInt();
+            qCDebug(processLog).nospace() << "Process " << number << " finished: "
+                                          << "result=" << result()
+                                          << ", ex=" << exitCode()
+                                          << ", " << stdOut().size() << " bytes stdout"
+                                          << ", " << stdErr().size() << " bytes stderr"
+                                          << ", " << msElapsed << " ms elapsed";
+            if (processStdoutLog().isDebugEnabled() && !stdOut().isEmpty())
+                qCDebug(processStdoutLog).nospace()
+                        << "Process " << number << " sdout: " << stdOut();
+            if (processStderrLog().isDebugEnabled() && !stdErr().isEmpty())
+                qCDebug(processStderrLog).nospace()
+                        << "Process " << number << " stderr: " << stdErr();
         });
     }
 }
