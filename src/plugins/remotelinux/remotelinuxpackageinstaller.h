@@ -54,7 +54,7 @@ protected:
 
 private:
     void handleConnectionError();
-    void handleInstallationFinished(const QString &error);
+    void handleInstallationFinished();
     void handleInstallerOutput();
     void handleInstallerErrorOutput();
 

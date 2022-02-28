@@ -99,8 +99,9 @@ void AbstractRemoteLinuxPackageInstaller::handleConnectionError()
     setFinished();
 }
 
-void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished(const QString &error)
+void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished()
 {
+    const QString error = d->installer->errorString();
     if (!d->isRunning)
         return;
 

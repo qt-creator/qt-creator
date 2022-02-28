@@ -42,7 +42,7 @@ public:
 
 private:
     void handleStdErr();
-    void handleProcessFinished(const QString &error);
+    void handleProcessFinished();
 
     bool isDeploymentNecessary() const final { return true; }
 

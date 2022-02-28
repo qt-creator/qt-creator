@@ -145,8 +145,9 @@ void QnxDeviceTester::handleVarRunProcessFinished(const QString &error)
     testNextCommand();
 }
 
-void QnxDeviceTester::handleProcessFinished(const QString &error)
+void QnxDeviceTester::handleProcessFinished()
 {
+    const QString error = m_processRunner->errorString();
     if (m_state == VarRunTest) {
         handleVarRunProcessFinished(error);
         return;

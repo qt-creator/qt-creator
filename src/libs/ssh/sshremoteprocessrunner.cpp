@@ -148,7 +148,7 @@ void SshRemoteProcessRunner::handleProcessFinished()
     d->m_exitCode = d->m_process->exitCode();
     d->m_errorString = d->m_process->errorString();
     setState(Inactive);
-    emit processClosed(d->m_errorString);
+    emit processClosed();
 }
 
 void SshRemoteProcessRunner::setState(int newState)

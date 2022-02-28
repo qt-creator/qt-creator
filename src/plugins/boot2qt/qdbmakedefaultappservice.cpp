@@ -66,8 +66,9 @@ void QdbMakeDefaultAppService::handleStdErr()
     emit stdErrData(QString::fromUtf8(d->processRunner->readAllStandardError()));
 }
 
-void QdbMakeDefaultAppService::handleProcessFinished(const QString &error)
+void QdbMakeDefaultAppService::handleProcessFinished()
 {
+    const QString error = d->processRunner->errorString();
     if (!error.isEmpty()) {
         emit errorMessage(tr("Remote process failed: %1").arg(error));
         stopDeployment();

@@ -50,7 +50,7 @@ protected:
 private:
     void handleStdout();
     void handleStderr();
-    void handleProcessClosed(const QString &error);
+    void handleProcessClosed();
 
     Internal::RemoteLinuxCustomCommandDeployservicePrivate *d;
 };

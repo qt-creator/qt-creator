@@ -57,7 +57,7 @@ signals:
     void processStarted();
     void readyReadStandardOutput();
     void readyReadStandardError();
-    void processClosed(const QString &error);
+    void processClosed();
 
 private:
     void handleConnected();

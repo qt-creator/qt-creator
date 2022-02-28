@@ -40,7 +40,7 @@ public:
 
 private:
     void handleConnectionError();
-    void handleListProcessFinished(const QString &error);
+    void handleListProcessFinished();
     void handleKillProcessFinished(const QString &errorString);
 
     virtual QString listProcessesCommandLine() const = 0;

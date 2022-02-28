@@ -73,8 +73,9 @@ void SshDeviceProcessList::handleConnectionError()
     reportError(tr("Connection failure: %1").arg(d->process.lastConnectionErrorString()));
 }
 
-void SshDeviceProcessList::handleListProcessFinished(const QString &error)
+void SshDeviceProcessList::handleListProcessFinished()
 {
+    const QString error = d->process.errorString();
     setFinished();
     if (!error.isEmpty()) {
         handleProcessError(error);

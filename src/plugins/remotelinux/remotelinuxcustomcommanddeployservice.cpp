@@ -115,8 +115,9 @@ void RemoteLinuxCustomCommandDeployService::handleStderr()
     emit stdErrData(QString::fromUtf8(d->runner->readAllStandardError()));
 }
 
-void RemoteLinuxCustomCommandDeployService::handleProcessClosed(const QString &error)
+void RemoteLinuxCustomCommandDeployService::handleProcessClosed()
 {
+    const QString error = d->runner->errorString();
     QTC_ASSERT(d->state == Running, return);
 
     if (!error.isEmpty()) {
