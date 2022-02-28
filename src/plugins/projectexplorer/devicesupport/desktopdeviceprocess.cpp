@@ -41,7 +41,6 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
                                            QObject *parent)
     : DeviceProcess(device, parent)
 {
-    setProcessMode(ProcessMode::Writer);
 }
 
 void DesktopDeviceProcess::interrupt()
