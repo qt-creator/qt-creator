@@ -27,7 +27,6 @@
 
 #include "qnxconstants.h"
 
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <utils/portlist.h>
 
