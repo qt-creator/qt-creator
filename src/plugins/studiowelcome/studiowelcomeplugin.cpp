@@ -776,7 +776,7 @@ void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
 {
     QSettings *s = Core::ICore::settings();
     if (s->value(key, false).toBool() != value) {
-        dirty = false;
+        dirty = true;
         s->setValue(key, value);
     }
 }
