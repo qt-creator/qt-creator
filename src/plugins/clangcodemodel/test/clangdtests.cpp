@@ -1308,6 +1308,8 @@ void ClangdTestHighlighting::test_data()
                                 << QList<int>{C_PREPROCESSOR} << 0;
     QTest::newRow("built-in define 3") << 952 << 21 << 952 << 40
                                 << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("deref operator (object)") << 960 << 10 << 960 << 11 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("deref operator (member)") << 960 << 12 << 960 << 13 << QList<int>{C_FIELD} << 0;
 }
 
 void ClangdTestHighlighting::test()

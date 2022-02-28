@@ -951,3 +951,12 @@ void builtinDefines()
     const auto f2 = __FUNCTION__;
     const auto f3 = __PRETTY_FUNCTION__;
 }
+
+void derefOperator()
+{
+    struct S { bool operator*(); };
+    struct S2 { S s; };
+    S2 s;
+    if (*s.s)
+        return;
+}
