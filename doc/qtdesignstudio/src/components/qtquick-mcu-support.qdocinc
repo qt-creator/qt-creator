@@ -3,7 +3,7 @@
 ** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the Qt Creator documentation.
+** This file is part of Qt Design Studio.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -36,9 +36,9 @@
 
     To develop for MCUs, \l{Using Project Wizards}{create an MCU project}. Only
     the components available on MCUs are displayed in \l Components. Only a
-    subset of properties is supported for the
-    supported components. The properties that are not available on MCUs are
-    marked in the \l Properties view with strikethrough text.
+    subset of properties is supported for the supported components. The
+    properties that are not available on MCUs are marked in the \l Properties
+    view with strikethrough text.
 
     \image qmldesigner-mcu-support.png "Components and Text properties supported for MCUs"
 
