@@ -87,7 +87,7 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
             this, &RemoteLinuxCustomCommandDeployService::handleStdout);
     connect(d->runner, &SshRemoteProcessRunner::readyReadStandardError,
             this, &RemoteLinuxCustomCommandDeployService::handleStderr);
-    connect(d->runner, &SshRemoteProcessRunner::processClosed,
+    connect(d->runner, &SshRemoteProcessRunner::finished,
             this, &RemoteLinuxCustomCommandDeployService::handleProcessClosed);
 
     emit progressMessage(tr("Starting remote command \"%1\"...").arg(d->commandLine));

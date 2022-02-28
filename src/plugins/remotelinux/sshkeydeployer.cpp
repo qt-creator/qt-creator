@@ -66,7 +66,7 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
 
     connect(&d->deployProcess, &SshRemoteProcessRunner::connectionError,
             this, &SshKeyDeployer::handleConnectionFailure);
-    connect(&d->deployProcess, &SshRemoteProcessRunner::processClosed,
+    connect(&d->deployProcess, &SshRemoteProcessRunner::finished,
             this, &SshKeyDeployer::handleKeyUploadFinished);
     const QString command = "test -d .ssh "
         "|| mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"

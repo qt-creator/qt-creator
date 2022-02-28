@@ -53,7 +53,7 @@ void RemoteLinuxSignalOperation::run(const QString &command)
 {
     QTC_ASSERT(!m_runner, return);
     m_runner = new QSsh::SshRemoteProcessRunner();
-    connect(m_runner, &QSsh::SshRemoteProcessRunner::processClosed,
+    connect(m_runner, &QSsh::SshRemoteProcessRunner::finished,
             this, &RemoteLinuxSignalOperation::runnerProcessFinished);
     connect(m_runner, &QSsh::SshRemoteProcessRunner::connectionError,
             this, &RemoteLinuxSignalOperation::runnerConnectionError);

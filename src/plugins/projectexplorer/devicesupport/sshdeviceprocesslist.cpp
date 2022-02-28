@@ -53,7 +53,7 @@ void SshDeviceProcessList::doUpdate()
 {
     connect(&d->process, &SshRemoteProcessRunner::connectionError,
             this, &SshDeviceProcessList::handleConnectionError);
-    connect(&d->process, &SshRemoteProcessRunner::processClosed,
+    connect(&d->process, &SshRemoteProcessRunner::finished,
             this, &SshDeviceProcessList::handleListProcessFinished);
     d->process.run(listProcessesCommandLine(), device()->sshParameters());
 }

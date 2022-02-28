@@ -50,7 +50,7 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
     m_processRunner = new QSsh::SshRemoteProcessRunner(this);
     connect(m_processRunner, &QSsh::SshRemoteProcessRunner::connectionError,
             this, &QnxDeviceTester::handleConnectionError);
-    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::processClosed,
+    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::finished,
             this, &QnxDeviceTester::handleProcessFinished);
 
     m_commandsToTest << QLatin1String("awk")

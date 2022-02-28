@@ -71,7 +71,7 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const IDevice::ConstPtr
             this, &AbstractRemoteLinuxPackageInstaller::handleInstallerOutput);
     connect(d->installer, &SshRemoteProcessRunner::readyReadStandardError,
             this, &AbstractRemoteLinuxPackageInstaller::handleInstallerErrorOutput);
-    connect(d->installer, &SshRemoteProcessRunner::processClosed,
+    connect(d->installer, &SshRemoteProcessRunner::finished,
             this, &AbstractRemoteLinuxPackageInstaller::handleInstallationFinished);
 
     QString cmdLine = installCommandLine(packageFilePath);

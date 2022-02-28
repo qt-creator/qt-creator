@@ -242,8 +242,8 @@ void tst_Ssh::remoteProcess()
     SshRemoteProcessRunner runner;
     QEventLoop loop;
     connect(&runner, &SshRemoteProcessRunner::connectionError, &loop, &QEventLoop::quit);
-    connect(&runner, &SshRemoteProcessRunner::processStarted, &loop, &QEventLoop::quit);
-    connect(&runner, &SshRemoteProcessRunner::processClosed, &loop, &QEventLoop::quit);
+    connect(&runner, &SshRemoteProcessRunner::started, &loop, &QEventLoop::quit);
+    connect(&runner, &SshRemoteProcessRunner::finished, &loop, &QEventLoop::quit);
     connect(&runner, &SshRemoteProcessRunner::readyReadStandardOutput,
             [&remoteStdout, &runner] { remoteStdout += runner.readAllStandardOutput(); });
     connect(&runner, &SshRemoteProcessRunner::readyReadStandardError,

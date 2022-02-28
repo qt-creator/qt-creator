@@ -139,7 +139,7 @@ void SshRemoteProcessRunner::handleProcessStarted()
     QTC_ASSERT(d->m_state == Connected, return);
 
     setState(ProcessRunning);
-    emit processStarted();
+    emit started();
 }
 
 void SshRemoteProcessRunner::handleProcessFinished()
@@ -148,7 +148,7 @@ void SshRemoteProcessRunner::handleProcessFinished()
     d->m_exitCode = d->m_process->exitCode();
     d->m_errorString = d->m_process->errorString();
     setState(Inactive);
-    emit processClosed();
+    emit finished();
 }
 
 void SshRemoteProcessRunner::setState(int newState)

@@ -91,7 +91,7 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     m_processRunner = new QSsh::SshRemoteProcessRunner(this);
     connect(m_processRunner, &QSsh::SshRemoteProcessRunner::connectionError,
             this, &QnxDeployQtLibrariesDialog::handleRemoteProcessError);
-    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::processClosed,
+    connect(m_processRunner, &QSsh::SshRemoteProcessRunner::finished,
             this, &QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted);
 
     connect(m_ui->deployButton, &QAbstractButton::clicked,

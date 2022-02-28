@@ -54,10 +54,10 @@ public:
 
 signals:
     void connectionError();
-    void processStarted();
+    void started();
+    void finished();
     void readyReadStandardOutput();
     void readyReadStandardError();
-    void processClosed();
 
 private:
     void handleConnected();
