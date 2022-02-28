@@ -1302,6 +1302,12 @@ void ClangdTestHighlighting::test_data()
                                                   << QList<int>{C_FIELD} << 0;
     QTest::newRow("output arg") << 945 << 20 << 945 << 23
                                 << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
+    QTest::newRow("built-in define 1") << 950 << 21 << 950 << 29
+                                << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("built-in define 2") << 951 << 21 << 951 << 33
+                                << QList<int>{C_PREPROCESSOR} << 0;
+    QTest::newRow("built-in define 3") << 952 << 21 << 952 << 40
+                                << QList<int>{C_PREPROCESSOR} << 0;
 }
 
 void ClangdTestHighlighting::test()

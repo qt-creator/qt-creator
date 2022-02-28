@@ -50,7 +50,7 @@ public:
     ProjectPartInfo choose(const QString &filePath,
             const ProjectPartInfo &currentProjectPartInfo,
             const QString &preferredProjectPartId,
-            const ProjectExplorer::Project *activeProject,
+            const Utils::FilePath &activeProject,
             Utils::Language languagePreference,
             bool projectsUpdated) const;
 

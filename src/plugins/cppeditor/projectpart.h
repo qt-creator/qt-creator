@@ -75,6 +75,7 @@ public:
     QString projectFileLocation() const;
     bool hasProject() const { return !topLevelProject.isEmpty(); }
     bool belongsToProject(const ProjectExplorer::Project *project) const;
+    bool belongsToProject(const Utils::FilePath &project) const;
 
     static QByteArray readProjectConfigFile(const QString &projectConfigFile);
 

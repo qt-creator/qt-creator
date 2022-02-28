@@ -37,10 +37,8 @@ namespace Internal {
 class DockerDeviceData
 {
 public:
-    // Used for "docker run" and for host parts of FilePaths
-    QString dockerId() const;
-    // Used as autodetection source string
-    QString autodetectId() const { return "docker:" + dockerId(); }
+    // Used for "docker run"
+    QString repoAndTag() const;
 
     QString imageId;
     QString repo;

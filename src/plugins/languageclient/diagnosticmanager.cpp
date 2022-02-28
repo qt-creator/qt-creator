@@ -28,6 +28,7 @@
 #include "client.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
+#include <projectexplorer/project.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -74,7 +75,7 @@ private:
 DiagnosticManager::DiagnosticManager(Client *client)
     : m_client(client)
 {
-    m_textMarkCreator = [this](const FilePath &filePath, const Diagnostic &diagnostic) {
+    m_textMarkCreator = [this](const FilePath &filePath, const Diagnostic &diagnostic, bool /*isProjectFile*/) {
         return createTextMark(filePath, diagnostic);
     };
 }
@@ -125,9 +126,11 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
         QList<QTextEdit::ExtraSelection> extraSelections;
         const VersionedDiagnostics &versionedDiagnostics = m_diagnostics.value(uri);
         if (versionedDiagnostics.version.value_or(version) == version) {
+            const bool isProjectFile = m_client->project()
+                                       && m_client->project()->isKnownFile(filePath);
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
                 extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
-                m_marks[filePath].append(m_textMarkCreator(filePath, diagnostic));
+                m_marks[filePath].append(m_textMarkCreator(filePath, diagnostic, isProjectFile));
             }
         }
 

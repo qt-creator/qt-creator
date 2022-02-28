@@ -92,7 +92,7 @@ Rectangle {
     Text {
         id: software_for_ui
         x: 15
-        y: 124
+        y: 126
         width: 300
         height: 30
         color: "#ffffff"

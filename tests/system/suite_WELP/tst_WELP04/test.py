@@ -30,7 +30,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started Now')
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started')
     if not test.verify(all((wsButtonFrame, wsButtonLabel)),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
         test.fatal("Something's wrong - leaving test.")
@@ -44,16 +44,16 @@ def main():
     searchTutorials = waitForObject("{type='QLineEdit' placeholderText='Search in Tutorials...'}")
     mouseClick(searchTutorials)
     replaceEditorContent(searchTutorials, "qwerty")
-    tableView = waitForObject("{type='QTableView' unnamed='1' visible='1' "
+    listView = waitForObject("{type='QListView' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}")
-    waitFor('findExampleOrTutorial(tableView, ".*") is None', 3000)
-    tutorial = findExampleOrTutorial(tableView, ".*", True)
+    waitFor('findExampleOrTutorial(listView, ".*") is None', 3000)
+    tutorial = findExampleOrTutorial(listView, ".*", True)
     test.verify(tutorial is None,
                 "Verifying: 'Tutorials' topic is opened and nothing is shown.")
     bnr = "Help: Building and Running an Example"
     replaceEditorContent(searchTutorials, bnr.lower())
-    waitFor('findExampleOrTutorial(tableView, "%s.*") is not None' % bnr, 3000)
-    tutorial = findExampleOrTutorial(tableView, "%s.*" % bnr, True)
+    waitFor('findExampleOrTutorial(listView, "%s.*") is not None' % bnr, 3000)
+    tutorial = findExampleOrTutorial(listView, "%s.*" % bnr, True)
     test.verify(tutorial is not None, "Verifying: Expected Text tutorial is shown.")
     # clicking before documentation was updated will open the tutorial in browser
     progressBarWait(warn=False)
@@ -67,8 +67,9 @@ def main():
     # check a demonstration video link
     mouseClick(searchTutorials)
     replaceEditorContent(searchTutorials, "embedded device")
-    waitFor('findExampleOrTutorial(tableView, "Online: Qt for Device Creation.*") is not None', 3000)
-    tutorial = findExampleOrTutorial(tableView, "Online: Qt for Device Creation.*", True)
+    embeddedTutorial = "Online: How to install and set up Qt for Device Creation.*"
+    waitFor('findExampleOrTutorial(listView, embeddedTutorial) is not None', 3000)
+    tutorial = findExampleOrTutorial(listView, embeddedTutorial, True)
     test.verify(tutorial is not None,
                 "Verifying: Link to the expected demonstration video exists.")
     # exit Qt Creator

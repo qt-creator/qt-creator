@@ -60,8 +60,11 @@ public:
 
     const ProjectPartInfo choose()
     {
+        const Project * const project = projectMap.value(activeProject).get();
+        const Utils::FilePath projectFilePath = project ? project->projectFilePath()
+                                                        : Utils::FilePath();
         return chooser.choose(filePath, currentProjectPartInfo, preferredProjectPartId,
-                              projectMap.value(activeProject).get(),
+                              projectFilePath,
                               languagePreference, projectsChanged);
     }
 

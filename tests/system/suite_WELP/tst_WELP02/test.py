@@ -75,12 +75,14 @@ def main():
         return
 
     switchToSubMode('Projects')
-    typePropDet = (("QPushButton", "Get Started Now", "Get Started Now button"),
-                   ("QTreeView", "Sessions", "Sessions section"),
+    typePropDet = (("QTreeView", "Sessions", "Sessions section"),
                    ("SessionModelIndex", ("default", False), "default session listed"),
                    ("QTreeView", "Recent Projects", "Projects section")
                    )
     checkTypeAndProperties(typePropDet)
+
+    getStartedF, getStartedL = getWelcomeScreenSideBarButton("Get Started")
+    test.verify(getStartedF is not None and getStartedL is not None, "'Get Started' button found")
 
     # select "Create Project" and try to create a new project
     createNewQtQuickApplication(tempDir(), "SampleApp", fromWelcome = True)

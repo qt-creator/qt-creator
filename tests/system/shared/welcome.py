@@ -41,8 +41,9 @@ def __getWelcomeScreenButtonHelper__(buttonLabel, widgetWithQFrames, isUrlButton
     return None, None
 
 def getWelcomeScreenSideBarButton(buttonLabel, isUrlButton = False):
-    sideBar = waitForObject("{type='Welcome::Internal::SideBar' unnamed='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
+    sideBar = waitForObject("{container={type='Welcome::Internal::SideArea' unnamed='1' "
+                            "window=':Qt Creator_Core::Internal::MainWindow'} type='QWidget' "
+                            "unnamed='1'}")
     return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar, isUrlButton)
 
 def getWelcomeScreenMainButton(buttonLabel):

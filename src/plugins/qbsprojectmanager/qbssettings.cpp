@@ -87,6 +87,18 @@ FilePath QbsSettings::qbsExecutableFilePath()
     return candidate;
 }
 
+FilePath QbsSettings::qbsConfigFilePath()
+{
+    const FilePath qbsExe = qbsExecutableFilePath();
+    if (!qbsExe.isExecutableFile())
+        return {};
+    const FilePath qbsConfig = qbsExe.absolutePath().pathAppended("qbs-config")
+            .withExecutableSuffix();
+    if (!qbsConfig.isExecutableFile())
+        return {};
+    return qbsConfig;
+}
+
 QString QbsSettings::defaultInstallDirTemplate()
 {
     return instance().m_settings.defaultInstallDirTemplate;
