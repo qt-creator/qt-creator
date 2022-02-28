@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "desktopdevice.h"
-#include "desktopdeviceprocess.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
 #include "desktopprocesssignaloperation.h"
@@ -39,6 +38,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/url.h>
 
@@ -99,7 +99,7 @@ DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 
 QtcProcess *DesktopDevice::createProcess(QObject *parent) const
 {
-    return new Internal::DesktopDeviceProcess(sharedFromThis(), parent);
+    return new QtcProcess(parent);
 }
 
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const

@@ -221,7 +221,6 @@ Project {
                 "idevice.cpp", "idevice.h",
                 "idevicefactory.cpp", "idevicefactory.h",
                 "idevicewidget.h",
-                "desktopdeviceprocess.cpp", "desktopdeviceprocess.h",
                 "localprocesslist.cpp", "localprocesslist.h",
                 "sshdeviceprocess.cpp", "sshdeviceprocess.h",
                 "sshdeviceprocesslist.cpp", "sshdeviceprocesslist.h",
