@@ -69,7 +69,7 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 public:
     ProcessInterface(QObject *parent = nullptr) : QObject(parent) {}
 
-    virtual void start() { defaultStart(); }
+    virtual void start() = 0;
     virtual void terminate() = 0;
     virtual void kill() = 0;
     virtual void close() = 0;
@@ -103,14 +103,7 @@ signals:
     void readyReadStandardError();
 
 protected:
-    void defaultStart();
-
     ProcessSetupData m_setup;
-
-private:
-    virtual void doDefaultStart(const QString &program, const QStringList &arguments);
-    bool dissolveCommand(QString *program, QStringList *arguments);
-    bool ensureProgramExists(const QString &program);
     friend class QtcProcess;
 };
 

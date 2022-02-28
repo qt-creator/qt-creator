@@ -275,7 +275,119 @@ private:
     Internal::TerminalProcess m_terminal;
 };
 
-class QProcessImpl : public ProcessInterface
+class DefaultImpl : public ProcessInterface
+{
+public:
+    virtual void start() { defaultStart(); }
+
+protected:
+    void defaultStart();
+
+private:
+    virtual void doDefaultStart(const QString &program, const QStringList &arguments) = 0;
+    bool dissolveCommand(QString *program, QStringList *arguments);
+    bool ensureProgramExists(const QString &program);
+};
+
+static QString blockingMessage(const QVariant &variant)
+{
+    if (!variant.isValid())
+        return "non blocking";
+    if (variant.toInt() == int(QtcProcess::WithEventLoop))
+        return "blocking with event loop";
+    return "blocking without event loop";
+}
+
+void DefaultImpl::defaultStart()
+{
+    if (processLog().isDebugEnabled()) {
+        using namespace std::chrono;
+        const quint64 msSinceEpoc =
+                duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        setProperty(QTC_PROCESS_STARTTIME, msSinceEpoc);
+
+        static std::atomic_int startCounter = 0;
+        const int currentNumber = startCounter.fetch_add(1);
+        qCDebug(processLog).nospace().noquote()
+                << "Process " << currentNumber << " starting ("
+                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
+                << "): "
+                << m_setup.m_commandLine.toUserOutput();
+        setProperty(QTC_PROCESS_NUMBER, currentNumber);
+    }
+
+    QString program;
+    QStringList arguments;
+    if (!dissolveCommand(&program, &arguments))
+        return;
+    if (!ensureProgramExists(program))
+        return;
+    s_start.measureAndRun(&DefaultImpl::doDefaultStart, this, program, arguments);
+}
+
+bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
+{
+    const CommandLine &commandLine = m_setup.m_commandLine;
+    QString commandString;
+    ProcessArgs processArgs;
+    const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
+                                                     &m_setup.m_environment,
+                                                     &m_setup.m_workingDirectory);
+
+    if (commandLine.executable().osType() == OsTypeWindows) {
+        QString args;
+        if (m_setup.m_useCtrlCStub) {
+            if (m_setup.m_lowPriority)
+                ProcessArgs::addArg(&args, "-nice");
+            ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
+            commandString = QCoreApplication::applicationDirPath()
+                    + QLatin1String("/qtcreator_ctrlc_stub.exe");
+        } else if (m_setup.m_lowPriority) {
+            m_setup.m_belowNormalPriority = true;
+        }
+        ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
+        m_setup.m_nativeArguments = args;
+        // Note: Arguments set with setNativeArgs will be appended to the ones
+        // passed with start() below.
+        *arguments = QStringList();
+    } else {
+        if (!success) {
+            setErrorString(tr("Error in command line."));
+            // TODO: in fact it's WrongArgumentsFailure
+            emit errorOccurred(QProcess::FailedToStart);
+            return false;
+        }
+        *arguments = processArgs.toUnixArgs();
+    }
+    *program = commandString;
+    return true;
+}
+
+static FilePath resolve(const FilePath &workingDir, const FilePath &filePath)
+{
+    if (filePath.isAbsolutePath())
+        return filePath;
+
+    const FilePath fromWorkingDir = workingDir.resolvePath(filePath);
+    if (fromWorkingDir.exists() && fromWorkingDir.isExecutableFile())
+        return fromWorkingDir;
+    return filePath.searchInPath();
+}
+
+bool DefaultImpl::ensureProgramExists(const QString &program)
+{
+    const FilePath programFilePath = resolve(m_setup.m_workingDirectory,
+                                             FilePath::fromString(program));
+    if (programFilePath.exists() && programFilePath.isExecutableFile())
+        return true;
+
+    setErrorString(QLatin1String("The program \"%1\" does not exist or is not executable.")
+                   .arg(program));
+    emit errorOccurred(QProcess::FailedToStart);
+    return false;
+}
+
+class QProcessImpl : public DefaultImpl
 {
 public:
     QProcessImpl() : m_process(new ProcessHelper(this))
@@ -366,7 +478,7 @@ static uint uniqueToken()
     return ++globalUniqueToken;
 }
 
-class ProcessLauncherImpl : public ProcessInterface
+class ProcessLauncherImpl : public DefaultImpl
 {
     Q_OBJECT
 public:
@@ -572,15 +684,6 @@ QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
 
 } // Internal
 
-static QString blockingMessage(const QVariant &variant)
-{
-    if (!variant.isValid())
-        return "non blocking";
-    if (variant.toInt() == int(QtcProcess::WithEventLoop))
-        return "blocking with event loop";
-    return "blocking without event loop";
-}
-
 void ProcessInterface::kickoffProcess()
 {
     QTC_CHECK(false);
@@ -594,102 +697,6 @@ void ProcessInterface::interruptProcess()
 qint64 ProcessInterface::applicationMainThreadID() const
 {
     QTC_CHECK(false); return -1;
-}
-
-void ProcessInterface::defaultStart()
-{
-    if (processLog().isDebugEnabled()) {
-        using namespace std::chrono;
-        const quint64 msSinceEpoc =
-                duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-        setProperty(QTC_PROCESS_STARTTIME, msSinceEpoc);
-
-        static std::atomic_int startCounter = 0;
-        const int currentNumber = startCounter.fetch_add(1);
-        qCDebug(processLog).nospace().noquote()
-                << "Process " << currentNumber << " starting ("
-                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
-                << "): "
-                << m_setup.m_commandLine.toUserOutput();
-        setProperty(QTC_PROCESS_NUMBER, currentNumber);
-    }
-
-    QString program;
-    QStringList arguments;
-    if (!dissolveCommand(&program, &arguments))
-        return;
-    if (!ensureProgramExists(program))
-        return;
-    s_start.measureAndRun(&ProcessInterface::doDefaultStart, this, program, arguments);
-}
-
-void ProcessInterface::doDefaultStart(const QString &program, const QStringList &arguments)
-{
-    Q_UNUSED(program)
-    Q_UNUSED(arguments)
-    QTC_CHECK(false);
-}
-
-bool ProcessInterface::dissolveCommand(QString *program, QStringList *arguments)
-{
-    const CommandLine &commandLine = m_setup.m_commandLine;
-    QString commandString;
-    ProcessArgs processArgs;
-    const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
-                                                     &m_setup.m_environment,
-                                                     &m_setup.m_workingDirectory);
-
-    if (commandLine.executable().osType() == OsTypeWindows) {
-        QString args;
-        if (m_setup.m_useCtrlCStub) {
-            if (m_setup.m_lowPriority)
-                ProcessArgs::addArg(&args, "-nice");
-            ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
-            commandString = QCoreApplication::applicationDirPath()
-                    + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else if (m_setup.m_lowPriority) {
-            m_setup.m_belowNormalPriority = true;
-        }
-        ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
-        m_setup.m_nativeArguments = args;
-        // Note: Arguments set with setNativeArgs will be appended to the ones
-        // passed with start() below.
-        *arguments = QStringList();
-    } else {
-        if (!success) {
-            setErrorString(tr("Error in command line."));
-            // TODO: in fact it's WrongArgumentsFailure
-            emit errorOccurred(QProcess::FailedToStart);
-            return false;
-        }
-        *arguments = processArgs.toUnixArgs();
-    }
-    *program = commandString;
-    return true;
-}
-
-static FilePath resolve(const FilePath &workingDir, const FilePath &filePath)
-{
-    if (filePath.isAbsolutePath())
-        return filePath;
-
-    const FilePath fromWorkingDir = workingDir.resolvePath(filePath);
-    if (fromWorkingDir.exists() && fromWorkingDir.isExecutableFile())
-        return fromWorkingDir;
-    return filePath.searchInPath();
-}
-
-bool ProcessInterface::ensureProgramExists(const QString &program)
-{
-    const FilePath programFilePath = resolve(m_setup.m_workingDirectory,
-                                             FilePath::fromString(program));
-    if (programFilePath.exists() && programFilePath.isExecutableFile())
-        return true;
-
-    setErrorString(QLatin1String("The program \"%1\" does not exist or is not executable.")
-                   .arg(program));
-    emit errorOccurred(QProcess::FailedToStart);
-    return false;
 }
 
 /*!
