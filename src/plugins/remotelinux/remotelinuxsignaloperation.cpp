@@ -115,10 +115,10 @@ void RemoteLinuxSignalOperation::interruptProcess(const QString &filePath)
 void RemoteLinuxSignalOperation::runnerProcessFinished()
 {
     m_errorMessage.clear();
-    if (m_runner->processExitStatus() != QProcess::NormalExit) {
-        m_errorMessage = m_runner->processErrorString();
-    } else if (m_runner->processExitCode() != 0) {
-        m_errorMessage = tr("Exit code is %1. stderr:").arg(m_runner->processExitCode())
+    if (m_runner->exitStatus() != QProcess::NormalExit) {
+        m_errorMessage = m_runner->errorString();
+    } else if (m_runner->exitCode() != 0) {
+        m_errorMessage = tr("Exit code is %1. stderr:").arg(m_runner->exitCode())
                 + QLatin1Char(' ')
                 + QString::fromLatin1(m_runner->readAllStandardError());
     }

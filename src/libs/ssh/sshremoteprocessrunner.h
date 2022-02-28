@@ -44,11 +44,11 @@ public:
 
     QString lastConnectionErrorString() const;
 
-    bool isProcessRunning() const;
+    bool isRunning() const;
     void cancel();
-    QProcess::ExitStatus processExitStatus() const;
-    int processExitCode() const;
-    QString processErrorString() const;
+    QProcess::ExitStatus exitStatus() const;
+    int exitCode() const;
+    QString errorString() const;
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
 

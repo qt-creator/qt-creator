@@ -104,7 +104,7 @@ void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished(const QStri
     if (!d->isRunning)
         return;
 
-    if (!error.isEmpty() || d->installer->processExitCode() != 0)
+    if (!error.isEmpty() || d->installer->exitCode() != 0)
         emit finished(tr("Installing package failed."));
     else if (!errorString().isEmpty())
         emit finished(errorString());

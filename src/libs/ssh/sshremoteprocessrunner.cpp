@@ -53,7 +53,7 @@ public:
     QString m_lastConnectionErrorString;
     QProcess::ExitStatus m_exitStatus;
     int m_exitCode;
-    QString m_processErrorString;
+    QString m_errorString;
     State m_state;
 };
 
@@ -86,7 +86,7 @@ void SshRemoteProcessRunner::runInternal(const QString &command,
     setState(Connecting);
 
     d->m_lastConnectionErrorString.clear();
-    d->m_processErrorString.clear();
+    d->m_errorString.clear();
     d->m_exitCode = -1;
     d->m_command = command;
     d->m_connection = SshConnectionManager::acquireConnection(sshParams);
@@ -146,9 +146,9 @@ void SshRemoteProcessRunner::handleProcessFinished()
 {
     d->m_exitStatus = d->m_process->exitStatus();
     d->m_exitCode = d->m_process->exitCode();
-    d->m_processErrorString = d->m_process->errorString();
+    d->m_errorString = d->m_process->errorString();
     setState(Inactive);
-    emit processClosed(d->m_processErrorString);
+    emit processClosed(d->m_errorString);
 }
 
 void SshRemoteProcessRunner::setState(int newState)
@@ -175,26 +175,26 @@ QString SshRemoteProcessRunner::lastConnectionErrorString() const {
     return d->m_lastConnectionErrorString;
 }
 
-bool SshRemoteProcessRunner::isProcessRunning() const
+bool SshRemoteProcessRunner::isRunning() const
 {
     return d->m_process && d->m_process->isRunning();
 }
 
-QProcess::ExitStatus SshRemoteProcessRunner::processExitStatus() const
+QProcess::ExitStatus SshRemoteProcessRunner::exitStatus() const
 {
-    QTC_CHECK(!isProcessRunning());
+    QTC_CHECK(!isRunning());
     return d->m_exitStatus;
 }
 
-int SshRemoteProcessRunner::processExitCode() const
+int SshRemoteProcessRunner::exitCode() const
 {
-    QTC_CHECK(processExitStatus() == QProcess::NormalExit);
+    QTC_CHECK(exitStatus() == QProcess::NormalExit);
     return d->m_exitCode;
 }
 
-QString SshRemoteProcessRunner::processErrorString() const
+QString SshRemoteProcessRunner::errorString() const
 {
-    return d->m_processErrorString;
+    return d->m_errorString;
 }
 
 QByteArray SshRemoteProcessRunner::readAllStandardOutput()

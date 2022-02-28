@@ -80,14 +80,14 @@ void SshDeviceProcessList::handleListProcessFinished(const QString &error)
         handleProcessError(error);
         return;
     }
-    if (d->process.processExitCode() == 0) {
+    if (d->process.exitCode() == 0) {
         const QByteArray remoteStdout = d->process.readAllStandardOutput();
         const QString stdoutString
                 = QString::fromUtf8(remoteStdout.data(), remoteStdout.count());
         reportProcessListUpdated(buildProcessList(stdoutString));
     } else {
         handleProcessError(tr("Process listing command failed with exit code %1.")
-                           .arg(d->process.processExitCode()));
+                           .arg(d->process.exitCode()));
     }
 }
 

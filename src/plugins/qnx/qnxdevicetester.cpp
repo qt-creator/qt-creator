@@ -124,7 +124,7 @@ void QnxDeviceTester::handleVarRunProcessFinished(const QString &error)
     QTC_ASSERT(m_state == VarRunTest, return);
 
     if (error.isEmpty()) {
-        if (m_processRunner->processExitCode() == 0) {
+        if (m_processRunner->exitCode() == 0) {
             emit progressMessage(tr("Files can be created in /var/run.") + QLatin1Char('\n'));
         } else {
             emit errorMessage(tr("Files cannot be created in /var/run.") + QLatin1Char('\n'));
@@ -156,7 +156,7 @@ void QnxDeviceTester::handleProcessFinished(const QString &error)
 
     const QString command = m_commandsToTest[m_currentCommandIndex];
     if (error.isEmpty()) {
-        if (m_processRunner->processExitCode() == 0) {
+        if (m_processRunner->exitCode() == 0) {
             emit progressMessage(tr("%1 found.").arg(command) + QLatin1Char('\n'));
         } else {
             emit errorMessage(tr("%1 not found.").arg(command) + QLatin1Char('\n'));

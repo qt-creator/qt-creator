@@ -201,7 +201,7 @@ void QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted()
 
     if (m_state == CheckingRemoteDirectory) {
         // Directory exists
-        if (m_processRunner->processExitCode() == 0) {
+        if (m_processRunner->exitCode() == 0) {
             int answer = QMessageBox::question(this, windowTitle(),
                                                tr("The remote directory \"%1\" already exists. "
                                                   "Deploying to that directory will remove any files "
@@ -217,7 +217,7 @@ void QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted()
             startUpload();
         }
     } else if (m_state == RemovingRemoteDirectory) {
-        QTC_ASSERT(m_processRunner->processExitCode() == 0, return);
+        QTC_ASSERT(m_processRunner->exitCode() == 0, return);
 
         startUpload();
     }

@@ -83,8 +83,8 @@ void SshKeyDeployer::handleConnectionFailure()
 
 void SshKeyDeployer::handleKeyUploadFinished()
 {
-    const int exitCode = d->deployProcess.processExitCode();
-    const QString errorMsg = d->deployProcess.processErrorString();
+    const int exitCode = d->deployProcess.exitCode();
+    const QString errorMsg = d->deployProcess.errorString();
     cleanup();
     if (errorMsg.isEmpty() && exitCode == 0) {
         emit finishedSuccessfully();

@@ -121,9 +121,9 @@ void RemoteLinuxCustomCommandDeployService::handleProcessClosed(const QString &e
 
     if (!error.isEmpty()) {
         emit errorMessage(tr("Remote process failed: %1").arg(error));
-    } else if (d->runner->processExitCode() != 0) {
+    } else if (d->runner->exitCode() != 0) {
         emit errorMessage(tr("Remote process finished with exit code %1.")
-            .arg(d->runner->processExitCode()));
+            .arg(d->runner->exitCode()));
     } else {
         emit progressMessage(tr("Remote command finished successfully."));
     }
