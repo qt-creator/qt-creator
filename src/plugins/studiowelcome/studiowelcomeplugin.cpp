@@ -794,7 +794,7 @@ StudioSettingsPage::StudioSettingsPage()
 {
     const QString toolTip = tr(
         "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
-        "generally not required in the context of Qt Design Studio.<b>Debug</b> and <b>Analyze</b>"
+        "generally not required in the context of Qt Design Studio. <b>Debug</b> and <b>Analyze</b> "
         "are only required for debugging and profiling.");
 
     QVBoxLayout *boxLayout = new QVBoxLayout();
