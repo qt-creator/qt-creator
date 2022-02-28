@@ -31,5 +31,6 @@ namespace McuSupport {
 namespace Internal {
 QList<CMakeProjectManager::CMakeConfigItem> mapEnvVarsToQul2xCmakeVars(
     const Utils::EnvironmentItems &envVars);
+QString mapEnvVarToQul2xCmakeVar(const QString &envVar);
 }
 } // namespace McuSupport

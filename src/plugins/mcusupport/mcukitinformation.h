@@ -37,16 +37,17 @@ class McuDependenciesKitAspect final : public ProjectExplorer::KitAspect
 public:
     McuDependenciesKitAspect();
 
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
-    void fix(ProjectExplorer::Kit *k) override;
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *kit) const override;
+    void fix(ProjectExplorer::Kit *kit) override;
 
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *kit) const override;
 
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+    ItemList toUserOutput(const ProjectExplorer::Kit *kit) const override;
 
     static Utils::Id id();
-    static Utils::NameValueItems dependencies(const ProjectExplorer::Kit *k);
-    static void setDependencies(ProjectExplorer::Kit *k, const Utils::NameValueItems &dependencies);
+    static Utils::NameValueItems dependencies(const ProjectExplorer::Kit *kit);
+    static void setDependencies(ProjectExplorer::Kit *kit, const Utils::NameValueItems &dependencies);
+    static Utils::NameValuePairs configuration(const ProjectExplorer::Kit *kit);
 };
 
 } // namespace Internal

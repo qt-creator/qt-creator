@@ -82,7 +82,7 @@ void McuSupportTest::test_addNewKit()
 
 void McuSupportTest::test_addFreeRtosCmakeVarToKit()
 {
-    McuSupportOptions::updateKitEnvironment(&kit, &mcuTarget);
+    McuKitManager::updateKitEnvironment(&kit, &mcuTarget);
 
     QVERIFY(kit.hasValue(EnvironmentKitAspect::id()));
     QVERIFY(kit.isValid());

@@ -71,6 +71,7 @@ namespace McuKitManager
     // Fixing kits:
     void fixKitsDependencies();
     void fixExistingKits();
+    void updateKitEnvironment(ProjectExplorer::Kit *k, const McuTarget *mcuTarget);
 
     // Outdated kits:
     QList<ProjectExplorer::Kit *> outdatedKits();

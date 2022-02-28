@@ -29,7 +29,6 @@
 #include "mcutarget.h"
 #include "mcukitmanager.h"
 #include "mcukitinformation.h"
-#include "mcusupportcmakemapper.h"
 #include "mcusupportconstants.h"
 #include "mcusupportsdk.h"
 #include "mcusupportplugin.h"
@@ -147,87 +146,6 @@ FilePath McuSupportOptions::qulDirFromSettings()
     return Sdk::packagePathFromSettings(Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
                                         QSettings::UserScope,
                                         {});
-}
-
-void McuSupportOptions::remapQul2xCmakeVars(Kit *kit, const EnvironmentItems &envItems)
-{
-    const auto cmakeVars = mapEnvVarsToQul2xCmakeVars(envItems);
-    const auto cmakeVarNames = Utils::transform(cmakeVars, &CMakeConfigItem::key);
-
-    // First filter out all Qul2.x CMake vars
-    auto config = Utils::filtered(CMakeConfigurationKitAspect::configuration(kit),
-                                  [&](const auto &configItem) {
-                                      return !cmakeVarNames.contains(configItem.key);
-                                  });
-    // Then append them with new values
-    config.append(cmakeVars);
-    CMakeConfigurationKitAspect::setConfiguration(kit, config);
-}
-
-static bool expectsCmakeVars(const McuTarget *mcuTarget)
-{
-    return mcuTarget->qulVersion() >= QVersionNumber{2, 0};
-}
-
-void McuSupportOptions::setKitEnvironment(Kit *k,
-                                          const McuTarget *mcuTarget,
-                                          const McuAbstractPackage *qtForMCUsSdkPackage)
-{
-    EnvironmentItems changes;
-    QStringList pathAdditions;
-
-    // The Desktop version depends on the Qt shared libs in Qul_DIR/bin.
-    // If CMake's fileApi is avaialble, we can rely on the "Add library search path to PATH"
-    // feature of the run configuration. Otherwise, we just prepend the path, here.
-    if (mcuTarget->toolChainPackage()->isDesktopToolchain()
-        && !CMakeProjectManager::CMakeToolManager::defaultCMakeTool()->hasFileApi())
-        pathAdditions.append(qtForMCUsSdkPackage->path().pathAppended("bin").toUserOutput());
-
-    auto processPackage = [&pathAdditions, &changes](const McuAbstractPackage *package) {
-        if (package->isAddToSystemPath())
-            pathAdditions.append(package->path().toUserOutput());
-        if (!package->environmentVariableName().isEmpty())
-            changes.append({package->environmentVariableName(), package->path().toUserOutput()});
-    };
-    for (auto package : mcuTarget->packages())
-        processPackage(package);
-    processPackage(qtForMCUsSdkPackage);
-
-    if (McuSupportOptions::kitsNeedQtVersion())
-        changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
-
-    // Hack, this problem should be solved in lower layer
-    if (expectsCmakeVars(mcuTarget)) {
-        McuSupportOptions::remapQul2xCmakeVars(k, changes);
-    }
-
-    EnvironmentKitAspect::setEnvironmentChanges(k, changes);
-}
-
-void McuSupportOptions::updateKitEnvironment(Kit *k, const McuTarget *mcuTarget)
-{
-    EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(k);
-    for (auto package : mcuTarget->packages()) {
-        const QString varName = package->environmentVariableName();
-        if (!varName.isEmpty() && package->isValidStatus()) {
-            const int index = Utils::indexOf(changes, [varName](const EnvironmentItem &item) {
-                return item.name == varName;
-            });
-            const EnvironmentItem item = {package->environmentVariableName(),
-                                          package->path().toUserOutput()};
-            if (index != -1)
-                changes.replace(index, item);
-            else
-                changes.append(item);
-        }
-    }
-
-    // Hack, this problem should be solved in lower layer
-    if (expectsCmakeVars(mcuTarget)) {
-        remapQul2xCmakeVars(k, changes);
-    }
-
-    EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
 McuKitManager::UpgradeOption McuSupportOptions::askForKitUpgrades()

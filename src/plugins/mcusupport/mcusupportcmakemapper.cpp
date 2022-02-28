@@ -58,6 +58,7 @@ static const QHash<QString, QString> &envVarToCMakeVarMapping()
         {"JLINK_PATH", "JLINK_PATH"},
         {"CYPRESS_AUTO_FLASH_UTILITY_DIR", "INFINEON_AUTO_FLASH_UTILITY_DIR"},
         {"EK_RA6M3G_E2_PROJECT_PATH", "EK_RA6M3G_E2_PROJECT_PATH"},
+        {"Qul_DIR", "Qul_ROOT"},
     };
     return mapping;
 }
@@ -76,4 +77,9 @@ QList<CMakeProjectManager::CMakeConfigItem> McuSupport::Internal::mapEnvVarsToQu
     return Utils::filtered(cmakeVars, [](const CMakeProjectManager::CMakeConfigItem &item) {
         return !item.key.isEmpty();
     });
+}
+
+QString McuSupport::Internal::mapEnvVarToQul2xCmakeVar(const QString &envVar)
+{
+    return envVarToCMakeVarMapping().value(envVar, QString());
 }

@@ -74,11 +74,6 @@ public:
     McuSdkRepository sdkRepository;
 
     void setQulDir(const Utils::FilePath &dir);
-    static void setKitEnvironment(ProjectExplorer::Kit *,
-                                  const McuTarget *,
-                                  const McuAbstractPackage *);
-    static void updateKitEnvironment(ProjectExplorer::Kit *, const McuTarget *);
-    static void remapQul2xCmakeVars(ProjectExplorer::Kit *, const Utils::EnvironmentItems &);
     static Utils::FilePath qulDirFromSettings();
     static McuKitManager::UpgradeOption askForKitUpgrades();
 
