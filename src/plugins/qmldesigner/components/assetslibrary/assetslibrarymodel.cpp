@@ -27,10 +27,12 @@
 #include "assetslibrarydirsmodel.h"
 #include "assetslibraryfilesmodel.h"
 
+#include <designersettings.h>
+#include <documentmanager.h>
+#include <hdrimage.h>
+#include <qmldesignerplugin.h>
 #include <synchronousimagecache.h>
 #include <theme.h>
-#include <hdrimage.h>
-#include <designersettings.h>
 
 #include <coreplugin/icore.h>
 
@@ -298,8 +300,8 @@ void AssetsLibraryModel::setRootPath(const QString &path)
 
     m_fileSystemWatcher->clear();
 
-    std::function<bool(AssetsLibraryDir *, int)> parseDirRecursive;
-    parseDirRecursive = [this, &parseDirRecursive](AssetsLibraryDir *currAssetsDir, int currDepth) {
+    std::function<bool(AssetsLibraryDir *, int, bool)> parseDir;
+    parseDir = [this, &parseDir](AssetsLibraryDir *currAssetsDir, int currDepth, bool recursive) {
         m_fileSystemWatcher->addDirectory(currAssetsDir->dirPath(), Utils::FileSystemWatcher::WatchAllChanges);
 
         QDir dir(currAssetsDir->dirPath());
@@ -317,20 +319,22 @@ void AssetsLibraryModel::setRootPath(const QString &path)
             }
         }
 
-        dir.setNameFilters({});
-        dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-        QDirIterator itDirs(dir);
+        if (recursive) {
+            dir.setNameFilters({});
+            dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+            QDirIterator itDirs(dir);
 
-        while (itDirs.hasNext()) {
-            QDir subDir = itDirs.next();
-            if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
-                continue;
+            while (itDirs.hasNext()) {
+                QDir subDir = itDirs.next();
+                if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
+                    continue;
 
-            auto assetsDir = new AssetsLibraryDir(subDir.path(), currDepth,
-                                                  loadExpandedState(subDir.path()), currAssetsDir);
-            currAssetsDir->addDir(assetsDir);
-            saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
-            isEmpty &= parseDirRecursive(assetsDir, currDepth + 1);
+                auto assetsDir = new AssetsLibraryDir(subDir.path(), currDepth,
+                                                      loadExpandedState(subDir.path()), currAssetsDir);
+                currAssetsDir->addDir(assetsDir);
+                saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
+                isEmpty &= parseDir(assetsDir, currDepth + 1, true);
+            }
         }
 
         if (!m_searchText.isEmpty() && isEmpty)
@@ -344,7 +348,8 @@ void AssetsLibraryModel::setRootPath(const QString &path)
 
     beginResetModel();
     m_assetsDir = new AssetsLibraryDir(path, 0, true, this);
-    bool isEmpty = parseDirRecursive(m_assetsDir, 1);
+    bool hasProject = !QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().isEmpty();
+    bool isEmpty = parseDir(m_assetsDir, 1, hasProject);
     setIsEmpty(isEmpty);
 
     bool noAssets = m_searchText.isEmpty() && isEmpty;
