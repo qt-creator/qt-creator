@@ -2723,6 +2723,19 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 return false;
             if (it->hasConstType())
                 return false;
+
+            if (it->kind() == "CXXMemberCall") {
+                if (it == path.rbegin())
+                    return false;
+                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                QTC_ASSERT(!children.isEmpty(), return false);
+
+                // The called object is never displayed as an output parameter.
+                // TODO: A good argument can be made to display objects on which a non-const
+                //       operator or function is called as output parameters.
+                return (it - 1)->range() != children.first().range();
+            }
+
             if (it->kind() == "Member" && it->arcanaContains("(")
                     && !it->arcanaContains("bound member function type")) {
                 return false;

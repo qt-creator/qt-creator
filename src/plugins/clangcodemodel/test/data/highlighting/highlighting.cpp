@@ -960,3 +960,21 @@ void derefOperator()
     if (*s.s)
         return;
 }
+
+struct my_struct
+{
+    void* method(int dummy);
+};
+
+my_struct* get_my_struct();
+
+struct my_struct2
+{
+    my_struct2(void* p);
+};
+
+void nestedCall()
+{
+    my_struct* s = get_my_struct();
+    new my_struct2(s->method(0));
+}

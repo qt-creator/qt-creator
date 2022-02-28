@@ -1310,6 +1310,7 @@ void ClangdTestHighlighting::test_data()
                                 << QList<int>{C_PREPROCESSOR} << 0;
     QTest::newRow("deref operator (object)") << 960 << 10 << 960 << 11 << QList<int>{C_LOCAL} << 0;
     QTest::newRow("deref operator (member)") << 960 << 12 << 960 << 13 << QList<int>{C_FIELD} << 0;
+    QTest::newRow("nested call") << 979 << 20 << 979 << 21 << QList<int>{C_LOCAL} << 0;
 }
 
 void ClangdTestHighlighting::test()
@@ -1397,6 +1398,8 @@ void ClangdTestHighlighting::test()
         QEXPECT_FAIL("non-final virtual function call via pointer",
                      "clangd < 14 does not send virtual modifier", Continue);
     }
+    QEXPECT_FAIL("non-const reference via member function call as output argument (object)",
+                 "See below", Continue);
     QEXPECT_FAIL("non-const reference via member function call as output argument (function)",
                  "Without punctuation and comment tokens from clangd, it's not possible "
                  "to highlight entire expressions. But do we really want this? What about nested "
