@@ -42,10 +42,10 @@ def handlePackagingMessageBoxes():
 
 def openExample(examplesLineEdit, input, exampleRegex, exampleName):
     replaceEditorContent(examplesLineEdit, input)
-    tableView = waitForObject("{type='QTableView' unnamed='1' visible='1' "
+    listView = waitForObject("{type='QListView' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}")
-    waitFor('findExampleOrTutorial(tableView, exampleRegex) is not None', 3000)
-    example = findExampleOrTutorial(tableView, exampleRegex, True)
+    waitFor('findExampleOrTutorial(listView, exampleRegex) is not None', 3000)
+    example = findExampleOrTutorial(listView, exampleRegex, True)
     if test.verify(example is not None, "Verifying: Example (%s) is shown." % exampleName):
         mouseClick(example)
         handlePackagingMessageBoxes()
@@ -67,7 +67,7 @@ def main():
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
     setFixedHelpViewer(HelpViewer.HELPMODE)
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started Now')
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started')
     if not test.verify(all((wsButtonFrame, wsButtonLabel)),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
         test.fatal("Something's wrong - leaving test.")
@@ -75,7 +75,7 @@ def main():
         return
     # select "Examples" topic
     switchToSubMode('Examples')
-    expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
+    expect = (("QListView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "examples list"),
               ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),
               ("QComboBox", "currentText~='.*Qt.*' visible='1'", "Qt version combo box"))
@@ -88,9 +88,9 @@ def main():
     combo = waitForObject(search % (expect[2][0], expect[2][1]))
     test.log("Using examples from Kit %s." % str(combo.currentText))
     replaceEditorContent(examplesLineEdit, "qwerty")
-    tableView = waitForObject(search % (expect[0][0], expect[0][1]))
-    waitFor('findExampleOrTutorial(tableView, ".*") is None', 3000)
-    example = findExampleOrTutorial(tableView, ".*", True)
+    listView = waitForObject(search % (expect[0][0], expect[0][1]))
+    waitFor('findExampleOrTutorial(listView, ".*") is None', 3000)
+    example = findExampleOrTutorial(listView, ".*", True)
     test.verify(example is None, "Verifying: No example is shown.")
 
     proFiles = map(lambda p: os.path.join(p, "opengl", "2dpainting", "2dpainting.pro"),

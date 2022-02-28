@@ -944,3 +944,10 @@ void inputsAndOutputsFromObject(const WithVector &s)
     std::vector<int> out;
     transform(s.v, out, [] {});
 }
+
+void builtinDefines()
+{
+    const auto f1 = __func__;
+    const auto f2 = __FUNCTION__;
+    const auto f3 = __PRETTY_FUNCTION__;
+}

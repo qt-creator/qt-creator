@@ -366,6 +366,15 @@ bool DeviceManager::isLoaded() const
 IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
 {
     const QList<IDevice::Ptr> devices = instance()->d->deviceList();
+
+    if (path.scheme() == "device") {
+        for (const IDevice::Ptr &dev : devices) {
+            if (path.host() == dev->id().toString())
+                return dev;
+        }
+        return {};
+    }
+
     for (const IDevice::Ptr &dev : devices) {
         // TODO: ensure handlesFile is thread safe
         if (dev->handlesFile(path))

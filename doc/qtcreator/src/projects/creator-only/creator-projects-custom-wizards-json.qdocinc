@@ -176,7 +176,7 @@
                 "trDescription": "Creates a C++ header and a source file for a new class that you can add to a C++ project.",
                 "trDisplayName": "C++ Class",
                 "trDisplayCategory": "C++",
-                "icon": "../../global/genericfilewizard.png",
+                "iconText": "h/cpp",
                 "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
                 \endcode
 
@@ -203,7 +203,13 @@
                 \li \c icon appears next to the \c trDisplayName in the middle
                     panel when \c trDisplayCategory is selected. We recommend
                     that you specify the path relative to the wizard.json file,
-                    but you can also use an absolute path.
+                    but you can also use an absolute path. Omit this value to
+                    use the default icon for the wizard type.
+
+                \li \c iconText determines the text overlay for the default
+                    file icon.
+
+               \li \c iconKind determines whether the icon is themed.
 
                 \li \c image specifies a path to an image (for example a
                     screenshot) that appears below the \c trDescription.
@@ -281,8 +287,12 @@
                                 "trDisplayName": "Class name:",
                                 "mandatory": true,
                                 "type": "LineEdit",
-                                "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)+[a-zA-Z_][a-zA-Z_0-9]*|)" }
-                            },
+                                "data": {
+                                    "trPlaceholder": "Fully qualified name, including namespaces",
+                                    "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                                    "completion": "namespaces"
+                                    }
+                    },
                             ...
                 ]
                 \endcode
@@ -335,11 +345,19 @@
                                 "source": "file.h",
                                 "target": "%{HdrPath}",
                                 "openInEditor": true
+                                "options": [
+                                    { "key": "Cpp:License:FileName", "value": "%{HdrFileName}" },
+                                    { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                                ]
                             },
                             {
                                 "source": "file.cpp",
                                 "target": "%{SrcPath}",
                                 "openInEditor": true
+                                "options": [
+                                    { "key": "Cpp:License:FileName", "value": "%{SrcFileName}" },
+                                    { "key": "Cpp:License:ClassName", "value": "%{CN}" }
+                                ]
                             }
                 ]
                 \endcode
@@ -410,7 +428,11 @@
                     "trDisplayName": "Class name:",
                     "mandatory": true,
                     "type": "LineEdit",
-                    "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)+[a-zA-Z_][a-zA-Z_0-9]*|)" }
+                    "data": {
+                        "trPlaceholder": "Fully qualified name, including namespaces",
+                        "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                        "completion": "namespaces"
+                        }
                 },
                 ...
     ],
@@ -776,7 +798,11 @@
         "trDisplayName": "Class name:",
         "mandatory": true,
         "type": "LineEdit",
-        "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)+[a-zA-Z_][a-zA-Z_0-9]*|)" }
+        "data": {
+            "trPlaceholder": "Fully qualified name, including namespaces",
+            "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+            "completion": "namespaces"
+        }
     },
     {
         "name": "BaseEdit",
@@ -787,8 +813,7 @@
         {
             "trText": "%{BaseCB}",
             "trDisabledText": "%{BaseCB}",
-            "historyId": "EditValues",
-            "restoreLastHistoryItem": false
+            "completion": "classes"
         }
     },
     \endcode
@@ -798,6 +823,11 @@
         \li \c trText specifies the default text to display.
 
         \li \c trDisabledText specifies the text to display in a disabled field.
+
+        \li \c completion lists existing \c namespaces for the class name line
+            edit and existing \c classes for the base class line edit. This
+            value replaces the history completer that is usually available for
+            such fields.
 
         \li \c trPlaceholder specifies the placeholder text.
 
@@ -812,7 +842,8 @@
             contains a password, which will be masked.
 
         \li \c historyId is a key that specifies the name for a list of items
-            for the history completer.
+            for the history completer. This value and \c completion are
+            mutually exclusive, so do not set both of them at the same time.
 
         \li \c restoreLastHistoryItem is a boolean that specifies that the
             last history item is automatically set as the default text in

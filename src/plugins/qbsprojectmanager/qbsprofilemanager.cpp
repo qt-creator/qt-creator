@@ -218,8 +218,7 @@ QString QbsProfileManager::profileNameForKit(const ProjectExplorer::Kit *kit)
 
 QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value)
 {
-    Utils::QtcProcess qbsConfig;
-    QStringList args("config");
+    QStringList args;
     if (QbsSettings::useCreatorSettingsDirForQbs())
         args << "--settings-dir" << QbsSettings::qbsSettingsBaseDir();
     switch (op) {
@@ -242,10 +241,11 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
         break;
     }
     }
-    const Utils::FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
-    if (qbsExe.isEmpty() || !qbsExe.exists())
+    const Utils::FilePath qbsConfigExe = QbsSettings::qbsConfigFilePath();
+    if (qbsConfigExe.isEmpty() || !qbsConfigExe.exists())
         return {};
-    qbsConfig.setCommand({qbsExe, args});
+    Utils::QtcProcess qbsConfig;
+    qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
     if (!qbsConfig.waitForStarted(3000) || !qbsConfig.waitForFinished(5000)) {
         Core::MessageManager::writeFlashing(

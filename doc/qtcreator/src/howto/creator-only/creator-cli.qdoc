@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -114,6 +114,10 @@
                 command line until the first editor is closed.
 
        \row
+            \li -nocrashcheck
+            \li Disable the startup check for a previously crashed \QC instance.
+
+       \row
             \li -load <plugin>
             \li Enable the specified plugin and all plugins that it depends on.
                 You can combine \c -load and \c -noload options and specify both
@@ -122,7 +126,7 @@
 
        \row
             \li -load all
-            \li Enables all plugins.
+            \li Enable all plugins.
 
         \row
             \li -noload <plugin>
@@ -130,11 +134,11 @@
 
         \row
             \li -noload all
-            \li Disables all plugins.
+            \li Disable all plugins.
 
         \row
             \li -profile
-            \li Output plugin start up and shut down profiling data.
+            \li Output profiling data about plugin startup and shutdown.
 
        \row
             \li -pluginpath <path>
@@ -151,9 +155,27 @@
                 (for example written by the installer).
 
         \row
-            \li -temporarycleansettings
+            \li -temporarycleansettings, -tcs
             \li Use clean settings for debug or testing reasons. The settings
                 will be deleted when \QC exits.
+
+       \row
+            \li -test <plugin>[,testfunction[:testdata]] ...
+            \li For \QC plugin developers: run the plugin's tests using a
+                separate settings path by default.
+
+       \row
+            \li -test all
+            \li For \QC plugin developers: run tests from all plugins.
+
+       \row
+            \li -notest <plugin>
+            \li For \QC plugin developers: exclude all of the plugin's
+                tests from the test run.
+
+       \row
+            \li -scenario <scenarioname>
+            \li For \QC plugin developers: run the specified scenario.
 
         \row
             \li -color <color>
@@ -171,7 +193,7 @@
 
         \row
             \li -notour
-            \li Welcome plugin: Skip the UI tour on startup.
+            \li Welcome plugin: skip the UI tour on startup.
 
         \row
             \li -debug <pid>
@@ -208,8 +230,12 @@
 
         \row
             \li -wincrashevent <event-handle:pid>
-            \li Debugger plugin: Attach to crashed processes by using the
+            \li Debugger plugin: attach to crashed processes by using the
                 specified event handle and process ID.
+
+        \row
+            \li -git-show <git commit hash>
+            \li Git plugin: show the specified commit hash.
 
         \row
             \li -customwizard-verbose

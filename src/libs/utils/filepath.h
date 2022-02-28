@@ -105,7 +105,6 @@ public:
     bool endsWith(const QString &s) const;
 
     bool exists() const;
-    bool needsDevice() const;
 
     FilePath parentDir() const;
     bool isChildOf(const FilePath &s) const;
@@ -191,6 +190,13 @@ public:
                            qint64 maxSize = -1, qint64 offset = 0) const;
     void asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const;
 
+    // Prefer not to use
+    // Using needsDevice() in "user" code is likely to result in code that
+    // makes a local/remote distinction which should be avoided in general.
+    // There are usually other means available. E.g. distinguishing based
+    // on FilePath::osType().
+    bool needsDevice() const;
+
     // Deprecated.
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info); // Avoid.
     [[nodiscard]] QFileInfo toFileInfo() const; // Avoid.
@@ -205,7 +211,7 @@ private:
     [[nodiscard]] QString mapToDevicePath() const;
 
     QString m_scheme;
-    QString m_host;
+    QString m_host; // May contain raw slashes.
     QString m_data;
 };
 

@@ -1410,10 +1410,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
 
     const auto textMarkCreator = [this](const Utils::FilePath &filePath,
-            const Diagnostic &diag) {
+            const Diagnostic &diag, bool isProjectFile) {
         if (d->isTesting)
             emit textMarkCreated(filePath);
-        return new ClangdTextMark(filePath, diag, this);
+        return new ClangdTextMark(filePath, diag, isProjectFile, this);
     };
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
     setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
@@ -2652,6 +2652,7 @@ private:
     int posForNodeStart(const AstNode &node) const;
     int posForNodeEnd(const AstNode &node) const;
     void insertResult(const HighlightingResult &result);
+    void insertResult(const AstNode &node, TextStyle style);
     void insertAngleBracketInfo(int searchStart1, int searchEnd1, int searchStart2, int searchEnd2);
     void setResultPosFromRange(HighlightingResult &result, const Range &range);
     void collectFromNode(const AstNode &node);
@@ -3619,6 +3620,16 @@ void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &r
     }
 }
 
+void ExtraHighlightingResultsCollector::insertResult(const AstNode &node, TextStyle style)
+{
+    HighlightingResult result;
+    result.useTextSyles = true;
+    result.textStyles.mainStyle = style;
+    setResultPosFromRange(result, node.range());
+    insertResult(result);
+    return;
+}
+
 // For matching the "<" and ">" brackets of template declarations, specializations
 // and instantiations.
 void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1, int searchEnd1,
@@ -3673,37 +3684,30 @@ void ExtraHighlightingResultsCollector::collectFromNode(const AstNode &node)
     if (node.kind() == "UserDefinedLiteral")
         return;
     if (node.kind().endsWith("Literal")) {
-        HighlightingResult result;
-        result.useTextSyles = true;
         const bool isKeyword = node.kind() == "CXXBoolLiteral"
                 || node.kind() == "CXXNullPtrLiteral";
         const bool isStringLike = !isKeyword && (node.kind().startsWith("String")
                 || node.kind().startsWith("Character"));
-        result.textStyles.mainStyle = isKeyword ? C_KEYWORD : isStringLike ? C_STRING : C_NUMBER;
-        setResultPosFromRange(result, node.range());
-        insertResult(result);
+        const TextStyle style = isKeyword ? C_KEYWORD : isStringLike ? C_STRING : C_NUMBER;
+        insertResult(node, style);
         return;
     }
     if (node.role() == "type" && node.kind() == "Builtin") {
-        HighlightingResult result;
-        result.useTextSyles = true;
-        result.textStyles.mainStyle = C_PRIMITIVE_TYPE;
-        setResultPosFromRange(result, node.range());
-        insertResult(result);
+        insertResult(node, C_PRIMITIVE_TYPE);
         return;
     }
     if (node.role() == "attribute" && (node.kind() == "Override" || node.kind() == "Final")) {
-        HighlightingResult result;
-        result.useTextSyles = true;
-        result.textStyles.mainStyle = C_KEYWORD;
-        setResultPosFromRange(result, node.range());
-        insertResult(result);
+        insertResult(node, C_KEYWORD);
         return;
     }
 
     const bool isExpression = node.role() == "expression";
-    const bool isDeclaration = node.role() == "declaration";
+    if (isExpression && node.kind() == "Predefined") {
+        insertResult(node, C_PREPROCESSOR);
+        return;
+    }
 
+    const bool isDeclaration = node.role() == "declaration";
     const int nodeStartPos = posForNodeStart(node);
     const int nodeEndPos = posForNodeEnd(node);
     const QList<AstNode> children = node.children().value_or(QList<AstNode>());

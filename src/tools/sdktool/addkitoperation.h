@@ -47,6 +47,7 @@ public:
     QString m_debugger;
     QString m_deviceType;
     QString m_device;
+    QString m_buildDevice;
     QString m_sysRoot;
     QHash<QString, QString> m_tcs;
     QString m_qt;

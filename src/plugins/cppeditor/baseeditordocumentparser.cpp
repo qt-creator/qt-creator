@@ -120,7 +120,7 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &fileP
 ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(const QString &filePath,
         const QString &preferredProjectPartId,
         const ProjectPartInfo &currentProjectPartInfo,
-        const ProjectExplorer::Project *activeProject,
+        const Utils::FilePath &activeProject,
         Utils::Language languagePreference,
         bool projectsUpdated)
 {

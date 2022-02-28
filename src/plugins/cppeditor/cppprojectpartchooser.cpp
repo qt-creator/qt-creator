@@ -46,7 +46,7 @@ public:
 
     ProjectPartPrioritizer(const QList<ProjectPart::ConstPtr> &projectParts,
                            const QString &preferredProjectPartId,
-                           const ProjectExplorer::Project *activeProject,
+                           const Utils::FilePath &activeProject,
                            Language languagePreference,
                            bool areProjectPartsFromDependencies)
         : m_preferredProjectPartId(preferredProjectPartId)
@@ -124,7 +124,7 @@ private:
 
 private:
     const QString m_preferredProjectPartId;
-    const ProjectExplorer::Project *m_activeProject = nullptr;
+    const Utils::FilePath m_activeProject;
     Language m_languagePreference = Language::Cxx;
 
     // Results
@@ -134,7 +134,7 @@ private:
 ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
         const ProjectPartInfo &currentProjectPartInfo,
         const QString &preferredProjectPartId,
-        const ProjectExplorer::Project *activeProject,
+        const Utils::FilePath &activeProject,
         Language languagePreference,
         bool projectsUpdated) const
 {

@@ -37,6 +37,7 @@ Usage:
 """
 
 import os, sys, string
+import platform
 import subprocess
 
 from xml.sax import saxutils, handler, make_parser
