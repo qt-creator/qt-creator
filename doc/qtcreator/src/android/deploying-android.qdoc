@@ -172,8 +172,8 @@
 
     \image qtcreator-android-cmake-settings.png "CMake settings for building AABs"
 
-    When building with qmake, you can select the ABIs in the \uicontrol ABIs
-    field in the \uicontrol {Build Steps}:
+    When building with Qbs or qmake, you can select the ABIs in the
+    \uicontrol ABIs field in the \uicontrol {Build Steps}:
 
     \image qtcreator-android-build-steps.png "qmake settings for building AABs"
 
