@@ -48,6 +48,12 @@
     For an example of how to debug Qt Quick Projects, see
     \l{Debugging a Qt Quick Example Application}.
 
+    \if defined(qtdesignstudio)
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+    \endif
+
     \section1 Setting Up QML Debugging
 
     \if defined(qtcreator)

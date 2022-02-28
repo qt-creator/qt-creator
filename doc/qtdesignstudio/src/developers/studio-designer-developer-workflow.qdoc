@@ -30,6 +30,10 @@
 
     \title Designer-Developer Workflow
 
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+
     \QDS enables designers and developers to work together on common
     projects to develop applications. Designers use the \l{Design Views}{views}
     in the \uicontrol Design mode to modify \l{UI Files}{UI files} (\e .ui.qml),

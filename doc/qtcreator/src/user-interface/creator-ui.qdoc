@@ -132,6 +132,27 @@
                 \uicontrol Keyboard
     \endtable
 
+    \if defined(qtdesignstudio)
+    \section1 Customizing the Menu
+
+    By default, top-level menu items \uicontrol Build, \uicontrol Debug, and
+    \uicontrol Analyze are not visible. These menu items contain options for
+    advanced functionality.
+
+    To toggle the visibility of these menu items:
+    \list 1
+      \li Go to \uicontrol Tools > \uicontrol Options.
+      \li On the \uicontrol Environment tab, select
+      \uicontrol{Qt Design Studio Configuration}.
+      \li Clear the checkbox for the items that you want to be visible.
+    \endlist
+
+    \image studio-menu-item-visibility.png
+
+    You need to restart \QDS to apply changes made to these settings.
+
+    \endif
+
     \section1 Switching UI Themes
 
     Themes enable you to change the appearance of the UI from dark to light,

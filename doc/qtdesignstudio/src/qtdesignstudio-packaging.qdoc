@@ -30,6 +30,10 @@
 
     \title Packaging Applications
 
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+
     When you are ready to deliver your application to users or upload it to
     app stores, you can use \QDS to create suitable packages that contain all
     the necessary files, such as fonts, images, components, and modules.
