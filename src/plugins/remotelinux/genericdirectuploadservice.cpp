@@ -200,12 +200,11 @@ void GenericDirectUploadService::runStat(const DeployableFile &file)
     const QString statCmd = "stat -t " + Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath());
     SshRemoteProcess * const statProc = connection()->createRemoteProcess(statCmd).release();
     statProc->setParent(this);
-    connect(statProc, &SshRemoteProcess::done, this,
-            [this, statProc, state = d->state](const QString &errorMsg) {
+    connect(statProc, &SshRemoteProcess::done, this, [this, statProc, state = d->state] {
         QTC_ASSERT(d->state == state, return);
         const DeployableFile file = d->getFileForProcess(statProc);
         QTC_ASSERT(file.isValid(), return);
-        const QDateTime timestamp = timestampFromStat(file, statProc, errorMsg);
+        const QDateTime timestamp = timestampFromStat(file, statProc, statProc->errorString());
         statProc->deleteLater();
         switch (state) {
         case PreChecking:
@@ -342,11 +341,11 @@ void GenericDirectUploadService::chmod()
         SshRemoteProcess * const chmodProc
                 = connection()->createRemoteProcess(command).release();
         chmodProc->setParent(this);
-        connect(chmodProc, &SshRemoteProcess::done, this,
-                [this, chmodProc, state = d->state](const QString &error) {
+        connect(chmodProc, &SshRemoteProcess::done, this, [this, chmodProc, state = d->state] {
             QTC_ASSERT(state == d->state, return);
             const DeployableFile file = d->getFileForProcess(chmodProc);
             QTC_ASSERT(file.isValid(), return);
+            const QString error = chmodProc->errorString();
             if (!error.isEmpty()) {
                 emit warningMessage(tr("Remote chmod failed for file \"%1\": %2")
                                     .arg(file.remoteFilePath(), error));

@@ -143,11 +143,11 @@ void GenericLinuxDeviceTester::handleConnectionFailure()
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handleProcessFinished(const QString &error)
+void GenericLinuxDeviceTester::handleProcessFinished()
 {
     QTC_ASSERT(d->state == RunningUname, return);
 
-    if (!error.isEmpty() || d->process->exitCode() != 0) {
+    if (!d->process->errorString().isEmpty() || d->process->exitCode() != 0) {
         const QByteArray stderrOutput = d->process->readAllStandardError();
         if (!stderrOutput.isEmpty())
             emit errorMessage(tr("uname failed: %1").arg(QString::fromUtf8(stderrOutput)) + QLatin1Char('\n'));

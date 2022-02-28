@@ -64,7 +64,7 @@ private:
     void handleConnectionError();
     void handleDisconnected();
     void handleProcessStarted();
-    void handleProcessFinished(const QString &error);
+    void handleProcessFinished();
     void runInternal(const QString &command, const QSsh::SshConnectionParameters &sshParams);
     void setState(int newState);
 

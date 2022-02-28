@@ -142,11 +142,11 @@ void SshRemoteProcessRunner::handleProcessStarted()
     emit processStarted();
 }
 
-void SshRemoteProcessRunner::handleProcessFinished(const QString &error)
+void SshRemoteProcessRunner::handleProcessFinished()
 {
     d->m_exitStatus = d->m_process->exitStatus();
     d->m_exitCode = d->m_process->exitCode();
-    d->m_processErrorString = error;
+    d->m_processErrorString = d->m_process->errorString();
     setState(Inactive);
     emit processClosed(d->m_processErrorString);
 }

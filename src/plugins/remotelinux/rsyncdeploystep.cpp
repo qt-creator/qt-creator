@@ -103,8 +103,9 @@ void RsyncDeployService::createRemoteDirectories()
     remoteDirs.removeDuplicates();
     m_mkdir = connection()->createRemoteProcess("mkdir -p " +
                                                 ProcessArgs::createUnixArgs(remoteDirs).toString());
-    connect(m_mkdir.get(), &SshRemoteProcess::done, this, [this](const QString &error) {
+    connect(m_mkdir.get(), &SshRemoteProcess::done, this, [this] {
         QString userError;
+        const QString error = m_mkdir->errorString();
         if (!error.isEmpty())
             userError = error;
         if (m_mkdir->exitCode() != 0)

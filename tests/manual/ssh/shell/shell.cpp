@@ -95,10 +95,10 @@ void Shell::handleRemoteStderr()
     std::cerr << m_shell->readAllStandardError().data() << std::flush;
 }
 
-void Shell::handleChannelClosed(const QString &error)
+void Shell::handleChannelClosed()
 {
     std::cerr << "Shell closed. Exit code was " << m_shell->exitCode() << "." << std::endl;
-    QCoreApplication::exit(error.isEmpty() && m_shell->exitCode() == 0
+    QCoreApplication::exit(m_shell->errorString().isEmpty() && m_shell->exitCode() == 0
         ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 

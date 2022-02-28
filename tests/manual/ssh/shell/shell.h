@@ -50,7 +50,7 @@ private:
     void handleRemoteStdout();
     void handleRemoteStderr();
     void handleShellMessage(const QString &message);
-    void handleChannelClosed(const QString &error);
+    void handleChannelClosed();
     void handleShellStarted();
     void handleStdin();
 
