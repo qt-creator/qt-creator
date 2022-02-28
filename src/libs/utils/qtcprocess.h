@@ -212,6 +212,12 @@ public:
 
     QString toStandaloneCommandLine() const;
 
+protected:
+    // TODO: remove these methods on QtcProcess de-virtualization
+    virtual void emitStarted();
+    virtual void emitFinished();
+    virtual void emitErrorOccurred(QProcess::ProcessError error);
+
 private:
     void setProcessInterface(ProcessInterface *interface);
 

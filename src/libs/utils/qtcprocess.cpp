@@ -473,7 +473,7 @@ public:
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,
-                q, &QtcProcess::started);
+                q, &QtcProcess::emitStarted);
         connect(m_process.get(), &ProcessInterface::finished,
                 this, &QtcProcessPrivate::slotFinished);
         connect(m_process.get(), &ProcessInterface::errorOccurred,
@@ -740,6 +740,21 @@ QtcProcess::QtcProcess(QObject *parent)
 QtcProcess::~QtcProcess()
 {
     delete d;
+}
+
+void QtcProcess::emitStarted()
+{
+    emit started();
+}
+
+void QtcProcess::emitFinished()
+{
+    emit finished();
+}
+
+void QtcProcess::emitErrorOccurred(QProcess::ProcessError error)
+{
+    emit errorOccurred(error);
 }
 
 void QtcProcess::setProcessInterface(ProcessInterface *interface)
@@ -1710,7 +1725,7 @@ void QtcProcessPrivate::slotFinished()
     m_stdOut.handleRest();
     m_stdErr.handleRest();
 
-    emit q->finished();
+    q->emitFinished();
 }
 
 void QtcProcessPrivate::handleError(QProcess::ProcessError error)
@@ -1725,7 +1740,7 @@ void QtcProcessPrivate::handleError(QProcess::ProcessError error)
     if (m_eventLoop)
         m_eventLoop->quit();
 
-    emit q->errorOccurred(error);
+    q->emitErrorOccurred(error);
 }
 
 } // namespace Utils

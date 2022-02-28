@@ -53,6 +53,10 @@ public:
 
     qint64 write(const QByteArray &data) override;
 
+protected:
+    void emitStarted() override;
+    void emitFinished() override;
+
 private:
     void handleConnected();
     void handleConnectionError();
