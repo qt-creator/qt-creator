@@ -908,7 +908,6 @@ const char DockerDeviceDataRepoKey[] = "DockerDeviceDataRepo";
 const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
 const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
 const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
-const char DockerDeviceUseFilePathMapping[] = "DockerDeviceFilePathMapping";
 const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 
 void DockerDevice::fromMap(const QVariantMap &map)
@@ -920,8 +919,6 @@ void DockerDevice::fromMap(const QVariantMap &map)
     d->m_data.size = map.value(DockerDeviceDataSizeKey).toString();
     d->m_data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser,
                                          HostOsInfo::isLinuxHost()).toBool();
-    d->m_data.useFilePathMapping = map.value(DockerDeviceUseFilePathMapping,
-                                             HostOsInfo::isLinuxHost()).toBool();
     d->m_data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
 }
 
@@ -933,7 +930,6 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceDataImageIdKey, d->m_data.imageId);
     map.insert(DockerDeviceDataSizeKey, d->m_data.size);
     map.insert(DockerDeviceUseOutsideUser, d->m_data.useLocalUidGid);
-    map.insert(DockerDeviceUseFilePathMapping, d->m_data.useFilePathMapping);
     map.insert(DockerDeviceMappedPaths, d->m_data.mounts);
     return map;
 }
