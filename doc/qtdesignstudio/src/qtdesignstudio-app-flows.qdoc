@@ -186,7 +186,7 @@
     flow items that you attach the components to are listed under
     \uicontrol {My Components}.
 
-    \image studio-flow-item.png "Custom Flow Item in Library"
+    \image studio-flow-item.png "Custom Flow Item in Components"
 
     \note You must use the wizard to create the flow items. After you create
     a flow view, the \uicontrol {Flow View} module is added to

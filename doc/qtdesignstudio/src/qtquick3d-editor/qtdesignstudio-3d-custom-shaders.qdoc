@@ -47,13 +47,13 @@
     of the components can be found in different locations in
     \uicontrol {Components}.
 
-    \image studio-qtquick-3d-shader-utilities.png "Custom shader utilities in Library"
+    \image studio-qtquick-3d-shader-utilities.png "Custom shader utilities in Components"
 
     You can find additional shader utilities, the \uicontrol Effect and
     \uicontrol {Custom Material} components, in
     \uicontrol Components > \uicontrol {Qt Quick3D} > \uicontrol {Qt Quick 3D}.
 
-    \image studio-qtquick-3d-components.png "Effect and Custom Material Components in Library"
+    \image studio-qtquick-3d-components.png "Effect and Custom Material Components in Components"
 
     \note In Qt 5 the \uicontrol Effect component is located in
     \uicontrol {Qt Quick 3D Effects} >

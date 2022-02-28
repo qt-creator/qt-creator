@@ -118,7 +118,7 @@
         \li An image of smoke: \e smoke_01.png
     \endlist
 
-    \image studio-3d-particles-fire-assets.png "The assets in Library"
+    \image studio-3d-particles-fire-assets.png "The assets in Assets"
 
     We will also need instances of the following components:
 

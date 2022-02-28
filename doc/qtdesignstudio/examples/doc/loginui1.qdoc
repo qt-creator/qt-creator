@@ -182,7 +182,7 @@
     \list 1
         \li Drag-and-drop the background image from \uicontrol Assets to the
             rectangle in \l Navigator.
-            \image loginui1-library-assets.jpg "Library view Assets tab"
+            \image loginui1-library-assets.jpg "Assets view"
         \li \QDS automatically creates an instance of the \l{Images}{Image}
             component for you with the path to the image file set as the
             value of \l Properties > \uicontrol Image > \uicontrol Source.
@@ -409,7 +409,7 @@
         \li Drag-and-drop two instances of the EntryField component from
             \uicontrol Components > \uicontrol {My Components} to the rectangle
             in \uicontrol Navigator.
-            \image loginui1-library.jpg "My Components tab of Library view"
+            \image loginui1-library.jpg "My Components tab of Components view"
         \li Select the first EntryField instance in \uicontrol Navigator
             to modify its ID and text in \uicontrol Properties.
         \li In \uicontrol Component > \uicontrol ID, enter \e username.

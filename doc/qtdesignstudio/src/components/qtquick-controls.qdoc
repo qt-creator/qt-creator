@@ -35,7 +35,7 @@
     available in \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls.
 
-    \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls components in Library"
+    \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls components"
 
     The following types of controls are available for user interaction:
 

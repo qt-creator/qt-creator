@@ -52,7 +52,7 @@
     An \e asset is an image, font file, 3D model, or other supported file that
     you add to your \l{glossary-project}{project}.
 
-    \image qtquick-assets-tab.png "Assets in Library"
+    \image qtquick-assets-tab.png "Assets"
 
     Assets are packaged with \l{glossary-component}{components} for delivery
     to users.
@@ -100,7 +100,7 @@
     creating instances of them. These are similar to \e Symbols in Sketch or
     \e Prefab in Unity.
 
-    \image qtquick-components-tab.png "Preset components in Library"
+    \image qtquick-components-tab.png "Preset components in Components"
 
     Some of the \l {Component Types}{preset components} represent simple shapes,
     text, or images, while others represent complex UI controls with full

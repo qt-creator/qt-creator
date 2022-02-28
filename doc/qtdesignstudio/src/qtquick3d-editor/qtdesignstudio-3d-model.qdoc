@@ -48,7 +48,7 @@
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
-    \image studio-qtquick-3d-components.png "The Qt Quick 3D section in Library"
+    \image studio-qtquick-3d-components.png "The Qt Quick 3D section in Components"
 
     \section1 Model Properties
 

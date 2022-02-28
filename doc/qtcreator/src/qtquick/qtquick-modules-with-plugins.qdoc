@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -48,7 +48,7 @@
 
     To create a QML module
     \if defined(qtdesignstudio)
-    and make it appear in the \l Library view:
+    and make it appear in the \l Components view:
     \else
     :
     \endif
@@ -77,8 +77,8 @@
         \li Create a \c .metainfo file for your module and place it in the
             \c designer directory.
             \if defined(qtdesignstudio)
-            Meta information is needed to display the
-            components in the \uicontrol Components tab in \uicontrol Library.
+            Meta information is needed to display the components in
+            \uicontrol Components.
             \endif
             Use a metainfo file delivered with Qt, such as
             \c qtquickcontrols2.metainfo, as an example.
@@ -92,9 +92,9 @@
             For more information, see \l {Running QML Modules in Design Mode}.
         \endlist
 
-    Your module should now appear in the \uicontrol Components tab in
-    \uicontrol Library. Your components should appear in a subsection of
-    the \uicontrol Components tab if a valid \c .metainfo file is in place.
+    Your module should now appear in \uicontrol Components. Your components
+    should appear in a subsection of \uicontrol Components if a valid
+    \c .metainfo file is in place.
     \endif
 
     \if defined(qtcreator)

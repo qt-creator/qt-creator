@@ -44,7 +44,7 @@
     \uicontrol {Qt Quick 3D} module to \uicontrol {Components}, as described in
     \l {Adding and Removing Modules}.
 
-    \image studio-qtquick-3d-components.png "Qt Quick 3D components in Library"
+    \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
 
     You can now drag-and-drop a \uicontrol View3D component to \l Navigator or
     to \l {Form Editor}.

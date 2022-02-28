@@ -179,7 +179,7 @@
         \image exporting-from-qt3ds/11-import.png "Import the file"
 
     \li The 2D assets imported from \Q3DS now appear in > \uicontrol Assets.
-        \image exporting-from-qt3ds/12-imported-image-assets.png "Imported assets in Library"
+        \image exporting-from-qt3ds/12-imported-image-assets.png "Imported assets in Components"
 
     \li The QML components generated from the imported \Q3DS project now appear
         as available imports in \uicontrol Components under \uicontrol {QML Types}.
@@ -189,7 +189,7 @@
 
     \li The imported QML types now appear in \uicontrol Components and can be
         added to the project.
-        \image exporting-from-qt3ds/14-add-myowncluster-to-project.png "MyOwnCluster in Library"
+        \image exporting-from-qt3ds/14-add-myowncluster-to-project.png "MyOwnCluster in Components"
     \endlist
 
     \section2 Adding Components to the Project

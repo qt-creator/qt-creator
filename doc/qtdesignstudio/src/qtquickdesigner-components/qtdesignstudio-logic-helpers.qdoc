@@ -35,7 +35,7 @@
     To make this easier, \QDS provides a set of components called
     \e {logic helpers}.
 
-    \image studio-logic-helpers.png "Logic Helper component in Library"
+    \image studio-logic-helpers.png "Logic Helper component in Components"
 
     Logic helpers are available for binding property values using the boolean
     AND, NOT, and OR operators, as well as for mapping numbers and numerical

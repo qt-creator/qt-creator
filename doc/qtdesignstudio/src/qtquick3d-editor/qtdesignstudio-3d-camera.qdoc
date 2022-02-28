@@ -38,7 +38,7 @@
     scene, it can be used to direct what is displayed in a \l {3D Views}
     {3D view}.
 
-     \image studio-qtquick-3d-components.png "Qt Quick 3D components in Library"
+     \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
 
     Add a camera by dragging-and-dropping one of the camera components from
     \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol

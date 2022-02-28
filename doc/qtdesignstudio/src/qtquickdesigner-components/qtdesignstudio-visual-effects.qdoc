@@ -34,7 +34,7 @@
     dragging-and-dropping them from \uicontrol Components
     > \uicontrol {Qt Quick Studio Effects} to the component in \l Navigator.
 
-    \image studio-2d-effects.png "Effects tab in Library"
+    \image studio-2d-effects.png "Effects tab in Components"
 
     \note The availability of effects depends on whether you selected
     \uicontrol {Qt 5} or \uicontrol {Qt 6} when \l{Creating Projects}
