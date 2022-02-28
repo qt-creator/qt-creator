@@ -99,15 +99,14 @@ void PerfTracePointDialog::runScript()
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     m_process.reset(m_device->createProcess(this));
+    m_process->setWriteData(m_ui->textEdit->toPlainText().toUtf8());
+    m_ui->textEdit->clear();
 
     const QString elevate = m_ui->privilegesChooser->currentText();
     if (elevate != QLatin1String("n.a."))
         m_process->setCommand({FilePath::fromString(elevate), {"sh"}});
     else
         m_process->setCommand({"sh", {}});
-
-    connect(m_process.get(), &DeviceProcess::started,
-            this, &PerfTracePointDialog::feedScriptToProcess);
 
     connect(m_process.get(), &DeviceProcess::finished,
             this, &PerfTracePointDialog::handleProcessFinished);
@@ -116,12 +115,6 @@ void PerfTracePointDialog::runScript()
             this, &PerfTracePointDialog::handleProcessError);
 
     m_process->start();
-}
-
-void PerfTracePointDialog::feedScriptToProcess()
-{
-    m_process->write(m_ui->textEdit->toPlainText().toUtf8());
-    m_ui->textEdit->clear();
 }
 
 void PerfTracePointDialog::handleProcessFinished()

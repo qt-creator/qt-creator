@@ -49,7 +49,6 @@ public:
 
 private:
     void runScript();
-    void feedScriptToProcess();
     void handleProcessFinished();
     void handleProcessError(QProcess::ProcessError error);
     void finish();
