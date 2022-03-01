@@ -13,7 +13,7 @@ env:
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
   BUILD_TYPE: Release
-  CCACHE_VERSION: 4.5
+  CCACHE_VERSION: 4.6
   QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirror.bit.edu.cn/qtproject
 
 jobs:
