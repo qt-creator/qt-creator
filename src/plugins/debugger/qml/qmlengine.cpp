@@ -273,7 +273,7 @@ QmlEngine::QmlEngine()
             this, &QmlEngine::disconnected);
     connect(&d->applicationLauncher, &ApplicationLauncher::appendMessage,
             this, &QmlEngine::appMessage);
-    connect(&d->applicationLauncher, &ApplicationLauncher::processStarted,
+    connect(&d->applicationLauncher, &ApplicationLauncher::started,
             this, &QmlEngine::handleLauncherStarted);
 
     debuggerConsole()->populateFileFinder();

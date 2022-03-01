@@ -55,7 +55,7 @@ public:
     {
         setId("QdbDebuggeeRunner");
 
-        connect(&m_launcher, &ApplicationLauncher::processStarted,
+        connect(&m_launcher, &ApplicationLauncher::started,
                 this, &RunWorker::reportStarted);
         connect(&m_launcher, &ApplicationLauncher::finished,
                 this, &RunWorker::reportStopped);

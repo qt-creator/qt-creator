@@ -82,7 +82,7 @@ public:
     {
         connect(&m_appRunner, &ApplicationLauncher::appendMessage, this,
                 &DeviceApplicationObserver::handleAppendMessage);
-        connect(&m_appRunner, &ApplicationLauncher::error, this,
+        connect(&m_appRunner, &ApplicationLauncher::errorOccurred, this,
                 [this] { m_error = m_appRunner.errorString(); });
         connect(&m_appRunner, &ApplicationLauncher::finished, this,
                 &DeviceApplicationObserver::handleFinished);

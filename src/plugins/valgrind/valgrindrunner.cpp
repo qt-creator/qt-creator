@@ -116,9 +116,9 @@ bool ValgrindRunner::Private::run()
 
     connect(&m_valgrindProcess, &ApplicationLauncher::finished,
             q, &ValgrindRunner::processFinished);
-    connect(&m_valgrindProcess, &ApplicationLauncher::processStarted,
+    connect(&m_valgrindProcess, &ApplicationLauncher::started,
             this, &ValgrindRunner::Private::processStarted);
-    connect(&m_valgrindProcess, &ApplicationLauncher::error,
+    connect(&m_valgrindProcess, &ApplicationLauncher::errorOccurred,
             q, &ValgrindRunner::processError);
     connect(&m_valgrindProcess, &ApplicationLauncher::appendMessage,
             q, &ValgrindRunner::processOutputReceived);
@@ -300,7 +300,7 @@ void ValgrindRunner::processFinished()
     emit finished();
 
     if (d->m_valgrindProcess.exitCode() != 0 || d->m_valgrindProcess.exitStatus() == QProcess::CrashExit)
-        emit processErrorReceived(errorString(), d->m_valgrindProcess.processError());
+        emit processErrorReceived(errorString(), d->m_valgrindProcess.error());
 }
 
 QString ValgrindRunner::errorString() const

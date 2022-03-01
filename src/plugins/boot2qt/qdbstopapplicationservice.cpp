@@ -88,7 +88,7 @@ void QdbStopApplicationService::handleAppendMessage(const QString &message, Util
 
 void QdbStopApplicationService::doDeploy()
 {
-    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::error,
+    connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::errorOccurred,
             this, [this] { emit stdErrData(d->applicationLauncher.errorString()); });
     connect(&d->applicationLauncher, &ProjectExplorer::ApplicationLauncher::finished,
             this, &QdbStopApplicationService::handleProcessFinished);

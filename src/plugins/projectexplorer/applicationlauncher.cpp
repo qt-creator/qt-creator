@@ -237,7 +237,7 @@ QString ApplicationLauncher::errorString() const
     return d->m_remoteErrorString;
 }
 
-QProcess::ProcessError ApplicationLauncher::processError() const
+QProcess::ProcessError ApplicationLauncher::error() const
 {
     if (d->m_isLocal)
         return d->m_process ? d->m_process->error() : QProcess::UnknownError;
@@ -274,7 +274,7 @@ void ApplicationLauncherPrivate::localProcessError(QProcess::ProcessError error)
             emit q->finished();
         }
     }
-    emit q->error(error);
+    emit q->errorOccurred(error);
 }
 
 void ApplicationLauncherPrivate::handleStandardOutput()
@@ -416,7 +416,7 @@ void ApplicationLauncherPrivate::start()
         // The local bit affects only WinDebugInterface.
         if (m_isLocal)
             m_listeningPid = applicationPID();
-        emit q->processStarted();
+        emit q->started();
     });
 
     m_process->setProcessChannelMode(m_processChannelMode);
@@ -467,7 +467,7 @@ void ApplicationLauncherPrivate::doReportError(const QString &message, QProcess:
     m_remoteErrorString = message;
     m_remoteError = error;
     m_exitStatus = QProcess::CrashExit;
-    emit q->error(error);
+    emit q->errorOccurred(error);
 }
 
 } // namespace ProjectExplorer

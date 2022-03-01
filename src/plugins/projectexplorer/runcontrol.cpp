@@ -1219,7 +1219,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
         reportStopped();
     });
 
-    connect(&m_launcher, &ApplicationLauncher::error,
+    connect(&m_launcher, &ApplicationLauncher::errorOccurred,
         this, [this, runnable](QProcess::ProcessError error) {
         if (m_stopReported)
             return;
@@ -1237,7 +1237,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
     const bool isDesktop = runnable.device.isNull()
                         || runnable.device.dynamicCast<const DesktopDevice>();
     if (isDesktop) {
-        connect(&m_launcher, &ApplicationLauncher::processStarted, this, [this] {
+        connect(&m_launcher, &ApplicationLauncher::started, this, [this] {
             // Console processes only know their pid after being started
             ProcessHandle pid = m_launcher.applicationPID();
             runControl()->setApplicationProcessHandle(pid);
@@ -1250,7 +1250,7 @@ void SimpleTargetRunner::doStart(const Runnable &runnable)
             return;
         }
     } else {
-        connect(&m_launcher, &ApplicationLauncher::processStarted, this, &RunWorker::reportStarted);
+        connect(&m_launcher, &ApplicationLauncher::started, this, &RunWorker::reportStarted);
     }
     m_launcher.setRunnable(runnable);
     m_launcher.start();

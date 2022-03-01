@@ -119,7 +119,7 @@ void CallgrindController::run(Option option)
 #endif
     connect(m_controllerProcess, &ApplicationLauncher::finished,
             this, &CallgrindController::controllerProcessFinished);
-    connect(m_controllerProcess, &ApplicationLauncher::error,
+    connect(m_controllerProcess, &ApplicationLauncher::errorOccurred,
             this, &CallgrindController::handleControllerProcessError);
 
     Runnable controller = m_valgrindRunnable;
