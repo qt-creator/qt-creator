@@ -43,6 +43,7 @@ const char KIT_MCUTARGET_TOOCHAIN_KEY[] = "McuSupport.McuTargetToolchain";
 
 const char SETTINGS_GROUP[] = "McuSupport";
 const char SETTINGS_KEY_PACKAGE_PREFIX[] = "Package_";
+const char SETTINGS_KEY_FREERTOS_PREFIX[] = "FreeRTOSSourcePackage_";
 const char SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK[] = "QtForMCUsSdk"; // Key known by SDK installer
 const char SETTINGS_KEY_AUTOMATIC_KIT_CREATION[] = "AutomaticKitCreation";
 

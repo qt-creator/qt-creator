@@ -76,6 +76,11 @@ QString McuPackage::label() const
     return m_label;
 }
 
+QString McuPackage::settingsKey() const
+{
+    return m_settingsKey;
+}
+
 const QString &McuPackage::environmentVariableName() const
 {
     return m_environmentVariableName;
@@ -147,7 +152,6 @@ bool McuPackage::isValidStatus() const
 {
     return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion;
 }
-
 
 void McuPackage::updateStatusUi()
 {
@@ -268,7 +272,6 @@ QWidget *McuPackage::widget()
     updateStatus();
     return m_widget;
 }
-
 
 McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const FilePath &defaultPath,
@@ -465,6 +468,5 @@ QVariant McuToolChainPackage::debuggerId() const
     newDebugger.setEngineType(engineType);
     return DebuggerItemManager::registerDebugger(newDebugger);
 }
-
 
 } // namespace McuSupport::Internal

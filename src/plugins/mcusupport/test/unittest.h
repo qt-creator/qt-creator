@@ -55,6 +55,9 @@ private slots:
     void test_addFreeRtosCmakeVarToKit();
     void test_addNewKit();
     void test_parseBasicInfoFromJson();
+    void test_createPackagesWithCorrespondingSettings();
+    void test_createPackagesWithCorrespondingSettings_data();
+    void test_createFreeRtosPackageWithCorrectSetting();
 
 private:
     QVersionNumber currentQulVersion{2, 0};

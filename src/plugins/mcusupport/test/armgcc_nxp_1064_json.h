@@ -25,7 +25,9 @@
 
 #pragma once
 
-constexpr auto nxp_1064_json = R"({
+constexpr auto armgcc_nxp_1064_json = R"({
+    "compatVersion": "1",
+    "qulVersion": "2.0.0",
     "boardSdk": {
         "cmakeCacheEntries": [
             {
@@ -35,9 +37,9 @@ constexpr auto nxp_1064_json = R"({
                 "optional": false,
                 "type": "path"
             }
-        ],
-        "envVar": "EVK_MIMXRT1064_SDK_PATH",
-        "versions": ["2.10.0"]
+         ],
+         "envVar": "EVK_MIMXRT1064_SDK_PATH",
+         "versions": ["2.10.0"]
     },
     "compatVersion": "1",
     "freeRTOS": {
@@ -49,7 +51,7 @@ constexpr auto nxp_1064_json = R"({
                 "id": "NXP_FREERTOS_DIR",
                 "optional": false,
                 "type": "path"
-            }
+           }
         ],
         "envVar": "IMXRT1064_FREERTOS_DIR"
     },

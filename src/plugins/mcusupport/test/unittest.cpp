@@ -24,17 +24,38 @@
 ****************************************************************************/
 
 #include "unittest.h"
-#include "mcutargetdescription.h"
+#include "armgcc_nxp_1050_json.h"
+#include "armgcc_nxp_1064_json.h"
+#include "armgcc_stm32f769i_freertos_json.h"
+#include "armgcc_stm32h750b_metal_json.h"
+#include "iar_stm32f469i_metal_json.h"
 #include "mcukitmanager.h"
-#include "nxp_1064_json.h"
+#include "mcusupportconstants.h"
+#include "mcusupportsdk.h"
+#include "mcutargetdescription.h"
 #include "utils/filepath.h"
+
 #include <cmakeprojectmanager/cmakeconfigitem.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <gmock/gmock.h>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <qtestcase.h>
+#include <algorithm>
+#include <ciso646>
 
 namespace McuSupport::Internal::Test {
+
+static const QString nxp1050FreeRtosEnvVar{"IMXRT1050_FREERTOS_DIR"};
+static const QString nxp1064FreeRtosEnvVar{"IMXRT1064_FREERTOS_DIR"};
+static const QString nxp1170FreeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
+static const QString stm32f7FreeRtosEnvVar{"STM32F7_FREERTOS_DIR"};
+static const QString stm32f7{"STM32F7"};
+static const QString nxp1170{"EVK_MIMXRT1170"};
+static const QString nxp1050{"IMXRT1050"};
+static const QString nxp1064{"IMXRT1064"};
+
+static const QStringList jsonFiles{armgcc_nxp_1050_json, armgcc_nxp_1064_json};
 
 using CMakeProjectManager::CMakeConfigItem;
 using CMakeProjectManager::CMakeConfigurationKitAspect;
@@ -54,7 +75,7 @@ void McuSupportTest::initTestCase()
 
 void McuSupportTest::test_parseBasicInfoFromJson()
 {
-    const auto description = Sdk::parseDescriptionJson(nxp_1064_json);
+    const auto description = Sdk::parseDescriptionJson(armgcc_nxp_1064_json);
 
     QVERIFY(!description.freeRTOS.envVar.isEmpty());
     QVERIFY(description.freeRTOS.boardSdkSubDir.isEmpty());
@@ -91,9 +112,96 @@ void McuSupportTest::test_addFreeRtosCmakeVarToKit()
     const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
     QCOMPARE(cmakeConfig.size(), 1);
 
-    CMakeConfigItem expectedCmakeVar{freeRtosCmakeVar.toLocal8Bit(),
-                                     FilePath::fromString(defaultfreeRtosPath).toUserOutput().toLocal8Bit()};
+    CMakeConfigItem
+        expectedCmakeVar{freeRtosCmakeVar.toLocal8Bit(),
+                         FilePath::fromString(defaultfreeRtosPath).toUserOutput().toLocal8Bit()};
     QVERIFY(cmakeConfig.contains(expectedCmakeVar));
+}
+
+void McuSupportTest::test_createPackagesWithCorrespondingSettings_data()
+{
+    QTest::addColumn<QString>("json");
+    QTest::addColumn<QSet<QString>>("expectedSettings");
+
+    QSet<QString> commonSettings{{"CypressAutoFlashUtil"},
+                                 {"GHSArmToolchain"},
+                                 {"GHSToolchain"},
+                                 {"GNUArmEmbeddedToolchain"},
+                                 {"IARToolchain"},
+                                 {"MCUXpressoIDE"},
+                                 {"RenesasFlashProgrammer"},
+                                 {"Stm32CubeProgrammer"}};
+
+    QTest::newRow("nxp1064") << armgcc_nxp_1064_json
+                             << QSet<QString>{{"EVK_MIMXRT1064_SDK_PATH"},
+                                              {QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}
+                                                   .append("IMXRT1064")}}
+                                    .unite(commonSettings);
+    QTest::newRow("nxp1050") << armgcc_nxp_1050_json
+                             << QSet<QString>{{"EVKB_IMXRT1050_SDK_PATH"},
+                                              {QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}
+                                                   .append("IMXRT1050")}}
+                                    .unite(commonSettings);
+
+    QTest::newRow("stm32h750b") << armgcc_stm32h750b_metal_json
+                                << QSet<QString>{{"STM32Cube_FW_H7_SDK_PATH"}}.unite(commonSettings);
+
+    QTest::newRow("stm32f769i") << armgcc_stm32f769i_freertos_json
+                                << QSet<QString>{{"STM32Cube_FW_F7_SDK_PATH"}}.unite(commonSettings);
+
+    QTest::newRow("stm32f469i") << iar_stm32f469i_metal_json
+                                << QSet<QString>{{"STM32Cube_FW_F4_SDK_PATH"}}.unite(commonSettings);
+}
+
+void McuSupportTest::test_createPackagesWithCorrespondingSettings()
+{
+    QFETCH(QString, json);
+    const auto description = Sdk::parseDescriptionJson(json.toLocal8Bit());
+    QVector<McuAbstractPackage *> packages;
+    const auto targets = Sdk::targetsFromDescriptions({description}, &packages);
+
+    QSet<QString> settings;
+    std::transform(packages.begin(),
+                   packages.end(),
+                   std::inserter(settings, settings.end()),
+                   [](const auto &package) { return package->settingsKey(); });
+
+    QFETCH(QSet<QString>, expectedSettings);
+    QVERIFY(settings.contains(expectedSettings));
+}
+
+//TODO(piotr.mucko): Enable when mcutargetfactory is delivered.
+void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
+{
+    // Sdk::targetsAndPackages(jsonFile, &mcuSdkRepo);
+    //
+    // QVector<Package *> mcuPackages;
+    // auto mcuTargets = Sdk::targetsFromDescriptions({description}, &mcuPackages);
+    // QVERIFY(mcuPackages contains freertos package)
+    // QVERIFY(freertos package is not empty & has proper value)
+
+    // McuSupportOptions mcuSuportOptions{};
+    // mcuSuportOptions.createAutomaticKits();
+
+    QFETCH(QString, freeRtosEnvVar);
+    QFETCH(QString, expectedSettingsKey);
+
+    auto *package{Sdk::createFreeRTOSSourcesPackage(freeRtosEnvVar, FilePath{}, QString{})};
+    QVERIFY(package != nullptr);
+
+    QCOMPARE(package->settingsKey(), expectedSettingsKey);
+
+    // QVERIFY(freertos package is not empty & has proper value)
+    // static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
+    //                                                 const FilePath &boardSdkDir,
+    //                                                 const QString &freeRTOSBoardSdkSubDir)
+    // createFreeRtosPackage
+    // verify that package's setting is Package_FreeRTOSSourcePackage_IMXRT1064.
+    //TODO(me): write settings
+    // auto *freeRtosPackage
+    // = new McuPackage;
+    // freeRtosPackage->writeToSettings();
+    //TODO(me): verify that setting is the same as in 2.0.0
 }
 
 } // namespace McuSupport::Internal::Test

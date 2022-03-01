@@ -74,6 +74,7 @@ public:
     Utils::FilePath path() const override;
     Utils::FilePath defaultPath() const override;
     Utils::FilePath detectionPath() const override;
+    QString settingsKey() const final;
 
     void updateStatus() override;
     Status status() const override;

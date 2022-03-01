@@ -54,6 +54,7 @@ public:
     virtual Utils::FilePath path() const = 0;
     virtual Utils::FilePath defaultPath() const = 0;
     virtual Utils::FilePath detectionPath() const = 0;
+    virtual QString settingsKey() const = 0;
 
     virtual void updateStatus() = 0;
     virtual Status status() const = 0;
