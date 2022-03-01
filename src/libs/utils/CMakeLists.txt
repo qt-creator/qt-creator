@@ -187,7 +187,7 @@ add_qtc_library(Utils
     wizardpage.cpp wizardpage.h
 )
 
-option(QTC_USE_NEW_MIMEDATABASE "Use updated MIME database implementation" NO)
+option(QTC_USE_NEW_MIMEDATABASE "Use updated MIME database implementation" YES)
 
 if(QTC_USE_NEW_MIMEDATABASE)
   set(mime_prefix "mimetypes2")
