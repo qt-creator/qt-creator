@@ -169,7 +169,7 @@
     The \e {LayoutReference.ui.qml} file contains a reference image of
     the UI we will create. We use the imported components to create the
     UI in the \e {MainApp.ui.qml} file. The imported components are
-    listed in \l Library > \uicontrol Components > \uicontrol {My Components},
+    listed in \uicontrol Components > \uicontrol {My Components},
     and we can drag-and-drop them to \l {Form Editor}.
 
     \image webinardemo-mainappui.png "Main app UI in Design mode"

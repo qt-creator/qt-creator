@@ -38,7 +38,7 @@
     To create component instances and edit their properties:
 
     \list 1
-        \li Drag-and-drop components from \uicontrol Library (1) to
+        \li Drag-and-drop components from \uicontrol Components (1) to
             \l Navigator (2), \l {Form Editor} (3), or \l {3D Editor} (4).
             This creates instances of the components in the current
             component file.

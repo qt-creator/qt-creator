@@ -664,13 +664,13 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
   OTHER DEALINGS IN THE FONT SOFTWARE.
 
-  ### Qbs
+### Qbs
 
   Qt Creator installations deliver Qbs. Its licensing and third party
   attributions are listed in Qbs Manual at
   https://doc.qt.io/qbs/attributions.html
 
-  ### conan.cmake
+### conan.cmake
 
   CMake script used by Qt Creator's auto setup of package manager dependencies.
 

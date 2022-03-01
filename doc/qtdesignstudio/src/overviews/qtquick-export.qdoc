@@ -30,6 +30,10 @@
 
     \title Exporting Components
 
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+
     \l{glossary-component}{Components} contained in \l{UI Files}
     {UI files} (.ui.qml) can be exported to JSON metadata format and PNG assets.
 

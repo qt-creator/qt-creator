@@ -36,7 +36,7 @@
     how a scene is rendered globally. You can specify settings for antialiasing,
     scene background, ambient occlusion, and image-based lighting in the
     \l Properties view. The \uicontrol {Scene Environment} component is available
-    in \l Library > \uicontrol Components > \uicontrol {Qt Quick 3D}. It is
+    in \uicontrol Components > \uicontrol {Qt Quick 3D}. It is
     automatically included under the 3D view component in \l{Creating Projects}
     {projects created} using the \uicontrol {Qt Quick 3D Application} wizard
     template.

@@ -65,7 +65,7 @@
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls}.
         \li Select the control to create, and then select \uicontrol Choose.
 
-            \note Components are listed in \l Library > \uicontrol Components >
+            \note Components are listed in \l Components >
             \uicontrol {My Components} only if the filename begins with a
             capital letter.
         \li Edit component properties in the \l Properties view.

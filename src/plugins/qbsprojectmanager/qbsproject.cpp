@@ -561,7 +561,7 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
         m_qbsUpdateFutureInterface->reportCanceled();
     }
 
-    m_qbsProjectParser->deleteLater();
+    delete m_qbsProjectParser;
     m_qbsProjectParser = nullptr;
     m_qbsUpdateFutureInterface->reportFinished();
     delete m_qbsUpdateFutureInterface;
@@ -792,6 +792,8 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
                 commonFlags << "-fPIC";
         }
         cFlags = cxxFlags = commonFlags;
+        cFlags << arrayToStringList(getCppProp("cFlags"));
+        cxxFlags << arrayToStringList(getCppProp("cxxFlags"));
 
         const auto cxxLanguageVersion = arrayToStringList(getCppProp("cxxLanguageVersion"));
         if (cxxLanguageVersion.contains("c++23"))

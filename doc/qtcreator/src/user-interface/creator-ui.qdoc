@@ -132,6 +132,27 @@
                 \uicontrol Keyboard
     \endtable
 
+    \if defined(qtdesignstudio)
+    \section1 Customizing the Menu
+
+    By default, top-level menu items \uicontrol Build, \uicontrol Debug, and
+    \uicontrol Analyze are not visible. These menu items contain options for
+    advanced functionality.
+
+    To toggle the visibility of these menu items:
+    \list 1
+      \li Go to \uicontrol Tools > \uicontrol Options.
+      \li On the \uicontrol Environment tab, select
+      \uicontrol{Qt Design Studio Configuration}.
+      \li Clear the checkbox for the items that you want to be visible.
+    \endlist
+
+    \image studio-menu-item-visibility.png
+
+    You need to restart \QDS to apply changes made to these settings.
+
+    \endif
+
     \section1 Switching UI Themes
 
     Themes enable you to change the appearance of the UI from dark to light,
@@ -159,9 +180,9 @@
     \list
         \li On \macos, high DPI scaling is forced, which means that \QC allows
             Qt to use the system scaling factor as the \QC scaling factor.
-        \li On Windows, if no \l{High DPI Support in Qt}
-            {scaling environment variables} are set, \QC instructs Qt to detect
-            the scaling factor and use it for \QC.
+        \li On Windows, if no \l{High DPI}{scaling environment variables} are
+            set, \QC instructs Qt to detect the scaling factor and use it for
+            \QC.
         \li On Linux, \QC leaves it to the user to enable high DPI scaling,
             because the process varies so much on different distributions
             and windowing systems that it cannot be reliably done automatically.

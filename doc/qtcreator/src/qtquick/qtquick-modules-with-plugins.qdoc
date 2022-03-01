@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -48,7 +48,7 @@
 
     To create a QML module
     \if defined(qtdesignstudio)
-    and make it appear in the \l Library view:
+    and make it appear in the \l Components view:
     \else
     :
     \endif
@@ -69,16 +69,16 @@
             in the module directory. For more information, see
             \l {Module Definition qmldir Files}.
 
-        \li Create a \c qmltypes file, preferably using \c qmlplugindump.
-            For more information see, \l {Generating qmltypes Files}.
+        \li Create a \c qmltypes file, as instructed in
+            \l {Generating Type Description Files}.
 
         \li Create a directory named \c designer in your module directory.
 
         \li Create a \c .metainfo file for your module and place it in the
             \c designer directory.
             \if defined(qtdesignstudio)
-            Meta information is needed to display the
-            components in the \uicontrol Components tab in \uicontrol Library.
+            Meta information is needed to display the components in
+            \uicontrol Components.
             \endif
             Use a metainfo file delivered with Qt, such as
             \c qtquickcontrols2.metainfo, as an example.
@@ -92,9 +92,9 @@
             For more information, see \l {Running QML Modules in Design Mode}.
         \endlist
 
-    Your module should now appear in the \uicontrol Components tab in
-    \uicontrol Library. Your components should appear in a subsection of
-    the \uicontrol Components tab if a valid \c .metainfo file is in place.
+    Your module should now appear in \uicontrol Components. Your components
+    should appear in a subsection of \uicontrol Components if a valid
+    \c .metainfo file is in place.
     \endif
 
     \if defined(qtcreator)
@@ -111,39 +111,14 @@
     for QML modules with plugins before distributing them.
     \endif
 
-    \section1 Generating qmltypes Files
+    \section1 Generating Type Description Files
 
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
     components exported by the module's plugins and is loaded by \QC when the
     module is imported.
 
-    For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
-    \c qmldir file under the \c typeinfo header. These files will be read in
-    addition to \c{plugins.qmltypes}. For more information, see
-    \l{Writing a qmltypes File}.
-
-    You can create and edit \c qmltypes files manually, but you are recommended
-    to use the \c qmlplugindump tool shipped with Qt 4.8 and later to generate
-    them automatically.
-
-    Once you have obtained \c qmlplugindump for the Qt version the QML module's
-    plugins were compiled with, run the following command to load My.Module
-    version 1.0 from \c{/import/path/my/module} including all its plugins and
-    output a description of the plugins' components to
-    \c{/import/path/my/module/plugins.qmltypes}:
-
-    \code
-    qmlplugindump -nonrelocatable My.Module 1.0 /import/path > /import/path/my/module/plugins.qmltypes
-    \endcode
-
-    You can safely ignore the debug output.
-
-    \if defined(qtcreator)
-    For Qt 4.7.x, you can compile a version of the tool called \c qmldump from
-    the sources in \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version
-    contains private headers.
-    \endif
+    For more information, see \l{Type Description Files}.
 
     \section2 Dumping Plugins Automatically
 

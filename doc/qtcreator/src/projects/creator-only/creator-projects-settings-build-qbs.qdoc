@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -48,8 +48,8 @@
     more information, see \l{Using the Performance Analyzer}. To use default
     settings, select \uicontrol {Leave at Default}.
 
-    For more information about the QML and Qt Quick options, see
-    \l{Compiling QML}.
+    For more information about the QML debugging options, see
+    \l{Setting Up QML Debugging}.
 
     For more information about configuring Qbs, see \l{Setting Up Qbs}.
 
@@ -64,6 +64,10 @@
         \li In the \uicontrol {Build variant} field, select \uicontrol Debug to
             include debug symbols in the build for debugging the application and
             \uicontrol Release to create the final installation file.
+
+        \li In the \uicontrol ABIs field, select the ABIs for
+            the \l{Connecting Android Devices}{Android} device
+            architectures to build the project for.
 
         \li In the \uicontrol {Parallel jobs} field, specify the number of
             parallel jobs to use for building.
@@ -118,10 +122,6 @@
             \endlist
 
     \endlist
-
-    If the \l{glossary-buildandrun-kit}{kit} specifies Qt for Android
-    version 5.14.0 or later, you can select the ABIs for the Android device
-    architectures to build the project for in the \uicontrol ABIs field.
 
     The \uicontrol {Equivalent command line} field displays the build command
     that is constructed based on the selected options.

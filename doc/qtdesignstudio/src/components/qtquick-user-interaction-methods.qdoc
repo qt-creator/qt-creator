@@ -33,7 +33,7 @@
     You can create instances of preset basic components to add interaction
     methods to UIs, such as performing actions by using a pointing device or
     the keyboard, or flicking the visible area of the screen horizontally or
-    vertically. They are availabe in \l Library > \uicontrol Components >
+    vertically. They are availabe in \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic.
 
     In addition, you can create instances of preset \l{UI Controls} to inform
@@ -318,7 +318,7 @@
 
     The following table lists the components that you can use to add basic
     interaction methods to UIs with links to their developer documentation.
-    They are availabe in \l Library > \uicontrol Components >
+    They are availabe in \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic. The \e MCU column
     indicates which components are supported on MCUs.
 

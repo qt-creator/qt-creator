@@ -74,8 +74,8 @@
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects to open it
             in \uicontrol {Form Editor}.
         \li Drag-and-drop an instance of the EntryField component from
-            \uicontrol Library > \uicontrol Components >
-            \uicontrol {My Components} to \e fields in \l Navigator.
+            \uicontrol Components > \uicontrol {My Components} to \e fields in
+            \l Navigator.
         \li Select the EntryField instance in \uicontrol Navigator to modify
         its ID and text in \uicontrol Properties.
         \li In \uicontrol Component > \uicontrol ID, enter

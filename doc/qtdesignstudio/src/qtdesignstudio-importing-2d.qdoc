@@ -36,18 +36,18 @@
     To import an asset, drag-and-drop the external file containing the asset from,
     for example, File Explorer on Windows, to \uicontrol {Form Editor},
     \uicontrol Navigator, or \uicontrol {Text Editor}. Alternatively, select
-    \l Library > \uicontrol Assets > \inlineimage icons/plus.png
+    \uicontrol Assets > \inlineimage icons/plus.png
     and follow the instructions in the \uicontrol {Asset Import} dialog. You can
     also multiselect several external asset files to drag-and-drop them to
     \QDS simultaneously.
 
-    The imported images will appear in \uicontrol Library > \uicontrol Assets.
+    The imported images will appear in \uicontrol Assets.
     If you initiate the import by dragging the assets to \uicontrol {Form Editor},
     they are also added to your projects as image components, and you can view
     them in \uicontrol {Form Editor} and \uicontrol Navigator. If you drag an
     external font file to \uicontrol {Form Editor}, it will be added to your
     project as a text component. Other imported assets, such as sound files,
-    will only appear in \uicontrol Library > \uicontrol Assets, and you can then
+    will only appear in \uicontrol Assets, and you can then
     drag-and-drop them to a suitable view.
 
     \section1 Importing Designs From Other Design Tools
@@ -76,7 +76,7 @@
             create an empty project.
         \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
             the Design mode.
-        \li Select \l Library > \uicontrol Assets > \inlineimage icons/plus.png
+        \li Select \uicontrol Assets > \inlineimage icons/plus.png
             .
         \li Select the folder where you exported the assets.
         \li Select \uicontrol {Exported Assets (*.metadata)} in the dropdown
@@ -108,12 +108,12 @@
             might take a little while for complex projects.
     \endlist
 
-    The imported assets are displayed in \uicontrol Library > \uicontrol Assets
+    The imported assets are displayed in \uicontrol Assets
     as PNG images. The components that you specified in the design tool are
-    displayed in \uicontrol Library > \uicontrol Components >
-    \uicontrol {My Components} as well as in the \uicontrol Projects view as
-    separate QML files. To start using them, drag-and-drop them from
-    \uicontrol Library to \uicontrol {Form Editor} or \l Navigator.
+    displayed in \uicontrol Components > \uicontrol {My Components} as well as
+    in the \uicontrol Projects view as separate QML files. To start using them,
+    drag-and-drop them from \uicontrol Components to \uicontrol {Form Editor} or
+    \l Navigator.
 
     \note The layer that was the bottom layer in the design tool becames the top
     layer in \uicontrol Navigator to reflect the QML code model. You

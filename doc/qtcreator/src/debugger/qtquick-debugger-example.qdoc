@@ -49,6 +49,13 @@
     For more information about all the options you have, see
     \l{Debugging Qt Quick Projects}.
 
+    \if defined(qtdesignstudio)
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+
+    \endif
+
     The Same Game demo shows how to write a game in QML, using JavaScript for
     all the game logic. Open the demo project in \QC to debug it:
 

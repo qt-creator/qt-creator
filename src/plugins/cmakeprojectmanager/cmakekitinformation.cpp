@@ -668,11 +668,10 @@ CMakeConfig CMakeGeneratorKitAspect::generatorCMakeConfig(const ProjectExplorer:
     if (info.generator.isEmpty())
         return config;
 
-    if (info.extraGenerator.isEmpty())
-        config << CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8());
-    else
-        config << CMakeConfigItem("CMAKE_GENERATOR",
-                                  (info.extraGenerator + " - " + info.generator).toUtf8());
+    config << CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8());
+
+    if (!info.extraGenerator.isEmpty())
+        config << CMakeConfigItem("CMAKE_EXTRA_GENERATOR", info.extraGenerator.toUtf8());
 
     if (!info.platform.isEmpty())
         config << CMakeConfigItem("CMAKE_GENERATOR_PLATFORM", info.platform.toUtf8());

@@ -44,7 +44,7 @@
     \l{Lights}{light}, \l{3D Models}{model}, and
     \l {Materials and Shaders}{materials}. If your scene did not contain
     them, you can add the corresponding \l {3D Components}{Qt Quick 3D}
-    components from \l Library > \uicontrol Components > \inlineimage icons/plus.png
+    components from \uicontrol Components > \inlineimage icons/plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
     You can use the \l{Summary of the 3D Editor Toolbar Buttons}{toolbar buttons}
@@ -120,7 +120,7 @@
 
     You can use scene cameras (2) to view the \uicontrol View3D component from a
     specific angle in \l {Form Editor} while editing scenes. Different types of
-    cameras are available in \uicontrol Library > \uicontrol Components
+    cameras are available in \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
     about using cameras in the scene, the available camera types, and their
     properties, see \l{Cameras}.

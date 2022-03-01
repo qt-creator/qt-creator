@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -62,12 +62,11 @@
     \section1 Boot2Qt
 
     The Boot2Qt stack can be made to run on a variety of hardware. For
-    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
     license holders, tooling is provided to customize the contents of the stack
     as well as to take it into desired production hardware.
 
     Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS
-    or later is required to install and use Qt for Device Creation.
+    or later is required to install and use Boot2Qt.
 
     The following topics contain more information about developing applications
     for Boot2Qt devices:
@@ -121,11 +120,9 @@
     \section1 QNX
 
     The QNX Neutrino RTOS should provide a few additional command line tools
-    and services, as described in \l {Qt Creator Target Requirements}.
+    and services, as described in \l {Qt for QNX}.
 
-    \note In Qt 6, Qt for QNX is a part of
-    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation},
-    and the \QC support is considered experimental.
+    \note In Qt 6, \QC support for QNX is considered experimental.
 
     The following topics contain more information about developing applications
     for QNX devices:

@@ -38,7 +38,7 @@
     that is to be animated, and apply the animation depending on the type of
     behavior that is required.
 
-    You can drag-and-drop animation components from \l Library >
+    You can drag-and-drop animation components from
     \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Animation to \l Navigator or \l {Form Editor} to
     create instances of them.
@@ -206,9 +206,9 @@
     \section1 Summary of Animation Components
 
     The following table lists the components that you can use to animate
-    component properties programmatically. They are available in \l Library
-    > \uicontrol Components > \uicontrol {Default Components} >
-    \uicontrol Animation
+    component properties programmatically. They are available in
+    \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol {Animation}.
 
     \table
     \header

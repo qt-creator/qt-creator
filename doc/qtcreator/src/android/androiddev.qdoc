@@ -63,7 +63,7 @@
     To use \QC to develop Qt applications for Android, you need
     \l{Qt for Android} 5.2, or later, and the tool chain that \QC
     can automatically download, install, and configure for you.
-    For more information, see \l{Installing the Prerequisites}.
+    For more information, see \l{Manually Installing the Prerequisites}.
 
     \section1 Specifying Android Device Settings
 

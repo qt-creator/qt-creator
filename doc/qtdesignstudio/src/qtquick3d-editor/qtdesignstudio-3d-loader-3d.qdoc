@@ -44,7 +44,7 @@
     should not be created unnecessarily for performance reasons.
 
     Add a \uicontrol Loader3D component to your scene by drag-and-dropping it
-    from \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    from \uicontrol Components > \uicontrol {Qt Quick 3D} >
     \uicontrol {Qt Quick 3D} to \uicontrol Scene in \uicontrol Navigator.
 
     For more information, see the \l{https://doc.qt.io/qt/qml-qtquick3d-loader3d.html}

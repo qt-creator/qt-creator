@@ -74,11 +74,15 @@
             applications and stored in one of the supported formats.
         \li \l{3D Editor}
    \row
-        \li \l Library
-        \li Contains the building blocks that you can use to design
-            applications: preset components, your own components, and
-            assets.
-        \li \l{Components}
+        \li \l Components
+        \li Contains preset components and your own components, that you can use
+            to design you application.
+        \li \l{Using Components}
+   \row
+        \li \l Assets
+        \li Contains assets such as images and fonts that you can use in your
+            application.
+        \li \l Assets
     \row
         \li \l Navigator
         \li Displays the composition of the current component file as
@@ -288,7 +292,7 @@
             component in the list to open it in \uicontrol {Form Editor} and
             \uicontrol Navigator.
         \li
-        \li \l{Components}
+        \li \l{Using Components}
     \row
         \li Workspace
         \li Displays the currently selected workspace. To switch to another

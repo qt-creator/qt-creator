@@ -43,18 +43,18 @@
     \l{basic-rectangle}{Rectangle} component and an instance of the preset
     \l{Text} component to create the progress bar. There is also a preset
     \l {progress-bar-control}{Progress Bar} component available in
-    \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick Controls}.
+    \uicontrol Components > \uicontrol {Qt Quick Controls}.
 
     In the \uicontrol Design mode, we drag-and-drop a \uicontrol Rectangle from
-    \l Library > \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Basic to \l {Form Editor} and modify its size to create the
     background for the progress bar. We change its ID to \e pb_back in
     \l Properties.
 
     We want to be able to control the background rectangle and the text label
     that was added by the project wizard, so we will use an \uicontrol Item
-    component for that. We drag-and-drop the Item from \uicontrol Library >
-    \uicontrol Components > \uicontrol {Default Components} > \uicontrol Basic
+    component for that. We drag-and-drop the Item from \uicontrol Components >
+    \uicontrol {Default Components} > \uicontrol Basic
     to \uicontrol {Form Editor} and change its ID to \e root in
     \uicontrol Properties.
 
@@ -75,7 +75,7 @@
     change for the animation.
 
     For more information about creating and positioning components, see
-    \l {Components} and \l {Scalable Layouts}.
+    \l {Using Components} and \l {Scalable Layouts}.
 
     \section1 Animating Progress Bar Elements
 
