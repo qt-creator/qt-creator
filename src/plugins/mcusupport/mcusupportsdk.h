@@ -38,6 +38,7 @@ constexpr int MAX_COMPATIBILITY_VERSION{1};
 class McuSdkRepository;
 class McuAbstractPackage;
 class McuPackage;
+class McuToolChainPackage;
 class McuTarget;
 
 namespace Sdk {
@@ -59,6 +60,13 @@ Utils::FilePath kitsPath(const Utils::FilePath &dir);
 Utils::FilePath packagePathFromSettings(const QString &settingsKey,
                                         QSettings::Scope scope,
                                         const Utils::FilePath &defaultPath);
+
+McuToolChainPackage *createUnsupportedToolChainPackage();
+McuPackage *createBoardSdkPackage(const McuTargetDescription &desc);
+McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
+                                                const Utils::FilePath &boardSdkDir,
+                                                const QString &freeRTOSBoardSdkSubDir);
+
 } // namespace Sdk
 } // namespace Internal
 } // namespace McuSupport

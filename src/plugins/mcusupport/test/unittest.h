@@ -26,10 +26,10 @@
 #pragma once
 
 #include "mcupackage.h"
-#include "mcutarget.h"
 #include "mcusupportoptions.h"
 #include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
+#include "mcutarget.h"
 #include "packagemock.h"
 
 #include <projectexplorer/kit.h>

@@ -25,63 +25,39 @@
 
 #pragma once
 
-#include <QObject>
-#include <QVersionNumber>
-
-namespace ProjectExplorer {
-class ToolChain;
-}
-
-namespace Utils {
-class PathChooser;
-class InfoLabel;
-} // namespace Utils
+#include <QHash>
+#include <QVector>
 
 namespace McuSupport::Internal {
 
 class McuAbstractPackage;
+class McuPackage;
+class McuTarget;
 class McuToolChainPackage;
 
-class McuTarget : public QObject
+namespace Sdk {
+
+struct McuTargetDescription;
+
+class McuTargetFactory
 {
-    Q_OBJECT
-
 public:
-    enum class OS { Desktop, BareMetal, FreeRTOS };
+    McuTargetFactory(const QHash<QString, McuToolChainPackage *> &tcPkgs,
+                     const QHash<QString, McuPackage *> &vendorPkgs)
+        : tcPkgs(tcPkgs)
+        , vendorPkgs(vendorPkgs)
+    {}
 
-    struct Platform
-    {
-        QString name;
-        QString displayName;
-        QString vendor;
-    };
-
-    enum { UnspecifiedColorDepth = -1 };
-
-    McuTarget(const QVersionNumber &qulVersion,
-              const Platform &platform,
-              OS os,
-              const QVector<McuAbstractPackage *> &packages,
-              const McuToolChainPackage *toolChainPackage,
-              int colorDepth = UnspecifiedColorDepth);
-
-    const QVersionNumber &qulVersion() const;
-    const QVector<McuAbstractPackage *> &packages() const;
-    const McuToolChainPackage *toolChainPackage() const;
-    const Platform &platform() const;
-    OS os() const;
-    int colorDepth() const;
-    bool isValid() const;
-    void printPackageProblems() const;
+    QVector<McuTarget *> createTargets(const McuTargetDescription &description);
+    QVector<McuAbstractPackage *> getMcuPackages() const;
 
 private:
-    const QVersionNumber m_qulVersion;
-    const Platform m_platform;
-    const OS m_os;
-    const QVector<McuAbstractPackage *> m_packages;
-    const McuToolChainPackage *m_toolChainPackage;
-    const int m_colorDepth;
-}; // class McuTarget
+    const QHash<QString, McuToolChainPackage *> &tcPkgs;
+    const QHash<QString, McuPackage *> &vendorPkgs;
 
+    QHash<QString, McuPackage *> boardSdkPkgs;
+    QHash<QString, McuPackage *> freeRTOSPkgs;
+}; // struct McuTargetFactory
 
+} // namespace Sdk
 } // namespace McuSupport::Internal
