@@ -2821,8 +2821,11 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         }
         if (token.modifiers.contains(QLatin1String("declaration")))
             styles.mixinStyles.push_back(C_DECLARATION);
-        if (token.modifiers.contains(QLatin1String("static")))
-            styles.mixinStyles.push_back(C_STATIC_MEMBER);
+        if (token.modifiers.contains(QLatin1String("static"))) {
+            if (styles.mainStyle != C_FIELD && styles.mainStyle != C_TEXT)
+                styles.mixinStyles.push_back(styles.mainStyle);
+            styles.mainStyle = C_STATIC_MEMBER;
+        }
         if (isOutputParameter(token))
             styles.mixinStyles.push_back(C_OUTPUT_ARGUMENT);
         qCDebug(clangdLogHighlight) << "adding highlighting result"

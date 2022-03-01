@@ -998,6 +998,10 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("class template instantiation (closing angle bracket)") << 384 << 22 << 384 << 23
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
+    QTest::newRow("static member function decl") << 395 << 17 << 395 << 30
+        << QList<int>{C_STATIC_MEMBER, C_DECLARATION, C_FUNCTION} << 0;
+    QTest::newRow("static member function call") << 400 << 17 << 400 << 30
+        << QList<int>{C_STATIC_MEMBER, C_FUNCTION} << 0;
     QTest::newRow("namespace in declaration") << 413 << 4 << 413 << 26
                                               << QList<int>{C_NAMESPACE} << 0;
     QTest::newRow("namespaced class in declaration") << 413 << 28 << 413 << 41
@@ -1122,9 +1126,9 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("local variable captured by lambda") << 442 << 24 << 442 << 27
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("static protected member") << 693 << 16 << 693 << 30
-        << QList<int>{C_FIELD, C_DECLARATION, C_STATIC_MEMBER} << 0;
+        << QList<int>{C_STATIC_MEMBER, C_DECLARATION} << 0;
     QTest::newRow("static private member") << 696 << 16 << 696 << 28
-        << QList<int>{C_FIELD, C_DECLARATION, C_STATIC_MEMBER} << 0;
+        << QList<int>{C_STATIC_MEMBER, C_DECLARATION} << 0;
     QTest::newRow("alias template declaration (opening angle bracket)") << 700 << 10 << 700 << 11
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketOpen);
     QTest::newRow("alias template declaration (closing angle bracket)") << 700 << 16 << 700 << 17
