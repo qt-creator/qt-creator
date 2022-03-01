@@ -309,7 +309,7 @@
     Positioner components are containers that manage the positions of their
     child components. For many use cases, the best positioner to use is a simple
     column, row, flow, or grid. You can use the components available in
-    \l Library > \uicontrol Components > \uicontrol {Default Components} >
+    \uicontrol Components > \uicontrol {Default Components} >
     \uicontrol Positioner to position the children of a component in these
     formations in the most efficient manner possible.
 
@@ -382,7 +382,7 @@
     \section3 Summary of Positioners
 
     The following table lists the positioners that you can use to arrange
-    components in UIs. They are available in \l Library > \uicontrol Components
+    components in UIs. They are available in \uicontrol Components
     > \uicontrol {Default Components} > \uicontrol Positioner.
 
     \table
@@ -415,7 +415,7 @@
     Since Qt 5.1, you can use QML types in the \l{qtquicklayouts-index.html}
     {Qt Quick Layouts} module to arrange components in UIs.
     \else
-    You can use the components available in \l Library > \uicontrol Components
+    You can use the components available in \uicontrol Components
     > \uicontrol {Qt Quick Layouts} to arrange components in UIs.
     \endif
     Unlike positioners, layouts manage both the positions and sizes of their
@@ -501,7 +501,7 @@
     \section3 Summary of Layouts
 
     The following table lists the layout components that you can use to arrange
-    components in UIs. They are available in \l Library > \uicontrol Components
+    components in UIs. They are available in \uicontrol Components
     > \uicontrol {Qt Quick Layouts}.
 
     \table
@@ -540,7 +540,7 @@
 
     The following table lists the UI controls that you can use to organize
     components in UIs (since Qt 5.7). The \e Location column indicates the
-    location of the component in \l Library > \uicontrol Components.
+    location of the component in \uicontrol Components.
 
     \table
     \header

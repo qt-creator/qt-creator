@@ -51,13 +51,13 @@
 
     In \QC, you build UIs around the behavior of \l{glossary-component}
     {components} and how they connect with one another. You can use preset
-    components available in the \l Library view or combine them to create
+    components available in the \l Components view or combine them to create
     your own components. You can specify values for the \e properties of a
     component to change its appearance and behavior. All components have a
     set of predefined properties, some of which control things that are
     visible to users, while others are used behind the scene.
 
-    You drag-and-drop the preset components from the \uicontrol Library view
+    You drag-and-drop the preset components from the \uicontrol Components view
     to the \l {Form Editor}, \l{3D Editor}, or \l Navigator view to create
     instances of them. You then change the instances to your liking by modifying
     their properties in the \l Properties view. The application code is
@@ -76,7 +76,7 @@
             the user experience of the application.
         \endif
 
-        \li \l {Components}
+        \li \l {Using Components}
 
             \QDS comes with \e {preset components} that you can use in
             wireframes and prototypes by creating instances of them.

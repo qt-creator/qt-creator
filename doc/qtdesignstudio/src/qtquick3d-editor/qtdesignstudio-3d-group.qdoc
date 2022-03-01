@@ -36,13 +36,13 @@
     the \l Properties view simultaneously.
 
     To add a \uicontrol Group component
-    to your scene, drag-and-drop it from \l Library > \uicontrol Components >
+    to your scene, drag-and-drop it from \uicontrol Components >
     \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to the \l {3D Editor}
     view or to \l Navigator > \uicontrol View3D > \uicontrol {Scene Environment}
     > \uicontrol Scene.
 
     If the \uicontrol Group component is not displayed in
-    \uicontrol Library, you should add the \uicontrol {Qt Quick 3D} module to
+    \uicontrol {Components}, you should add the \uicontrol {Qt Quick 3D} module to
     your project, as described in \l {Adding and Removing Modules}.
 
     Select the \uicontrol Group component in \uicontrol Navigator to modify

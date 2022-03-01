@@ -40,7 +40,7 @@
     implements all the functions needed to calculate the shaded color. The
     material system also offers ready-made functions to help you implement
     the material. If the 3D effects and materials are not displayed in
-    \l Library, you should add the \uicontrol QtQuick3D.Effects and
+    \l Components, you should add the \uicontrol QtQuick3D.Effects and
     \uicontrol QtQuick3D.Materials modules to your project, as described in
     \l {Adding and Removing Modules}.
 
@@ -49,12 +49,12 @@
     two-sided polygons, index-of-refraction, and fragment cutoff (masking).
     For more information, see \l {Qt Quick 3D Custom Material Reference}.
 
-    Use the components in \uicontrol Library > \uicontrol Components >
+    Use the components in \uicontrol Components >
     \uicontrol QtQuick3D > \uicontrol {Qt Quick 3D Custom Shader Utils} to
     create custom effects and materials. You can find the \uicontrol Effect
-    component in \uicontrol Library > \uicontrol {QtQuick3D Effects} > \uicontrol
+    component in \uicontrol Components > \uicontrol {QtQuick3D Effects} > \uicontrol
     {Qt Quick 3D Custom Shader Utils}, and the \uicontrol {Custom Material}
-    component in \uicontrol Library > \uicontrol {QtQuick3D Materials} >
+    component in \uicontrol Components> \uicontrol {QtQuick3D Materials} >
     \uicontrol {Qt Quick 3D Custom Shader Utils}. For more information about the
     shader utilities and commands and their properties, see
     \l {Custom Shaders}.
@@ -83,7 +83,7 @@
     \list 1
         \li Drag-and-drop an \uicontrol {Effect} component from the
             \uicontrol {Qt Quick 3D Custom Shader Utils} tab of
-            \uicontrol Library to a Model component in \l Navigator.
+            \uicontrol Component to a Model component in \l Navigator.
         \li Select the custom effect component in \uicontrol Navigator to edit
             the values of its properties in the \l Properties view.
             \image studio-qtquick-3d-custom-effect.png "Custom effect properties"
@@ -93,7 +93,7 @@
             for its properties in \uicontrol Properties.
             \image studio-qtquick-3d-pass.png "Pass properties"
         \li To execute commands during the pass, drag-and-drop the following
-            command components from \uicontrol Library to the custom material in
+            command components from \uicontrol Component to the custom material in
             \uicontrol Navigator: \uicontrol Blending, \uicontrol {Buffer Blit},
             \uicontrol {Buffer Input}, \uicontrol {Cull Mode},
             \uicontrol {Depth Input}, \uicontrol {Render State}, and
@@ -135,7 +135,7 @@
     \list 1
         \li Drag-and-drop a \uicontrol {Custom Material} component from the
             \uicontrol {Qt Quick 3D Custom Shader Utils} tab of
-            \uicontrol Library to a Model component in \uicontrol Navigator.
+            \uicontrol Component to a Model component in \uicontrol Navigator.
         \li Select the custom material component in \uicontrol Navigator to
             edit the values of its properties in the \uicontrol Properties view.
             \image studio-qtquick-3d-custom-material.png "Custom material properties"
@@ -160,7 +160,7 @@
             for its properties in \uicontrol Properties.
             \image studio-qtquick-3d-pass.png "Pass properties"
         \li To execute commands during the pass, drag-and-drop the following
-            command components from \uicontrol Library to the pass component in
+            command components from \uicontrol Component to the pass component in
             \uicontrol Navigator: \uicontrol Blending, \uicontrol {Buffer Blit},
             \uicontrol {Buffer Input}, \uicontrol {Cull Mode},
             \uicontrol {Depth Input}, \uicontrol {Render State}, and
@@ -171,7 +171,7 @@
             component to the custom material. Then select the buffer in the
             \uicontrol Buffer field.
         \li To add a shader to the pass, drag-and-drop the \uicontrol Shader
-            component from the \uicontrol Library to the pass component in
+            component from the \uicontrol Component to the pass component in
             \uicontrol Navigator. The shader components are created at the same
             level as the pass component and automatically added to the
             \uicontrol Shaders field.

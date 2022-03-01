@@ -40,8 +40,8 @@
     instance is modified relative to the base model.
 
     You can add instancing to your scenes by using the instancing components
-    available in \uicontrol Library > \uicontrol Components >
-    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}:
+    available in \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    \uicontrol {Qt Quick 3D}:
         \list
             \li \uicontrol {Instancing}
             \li \uicontrol {Instance List}
@@ -70,7 +70,7 @@
     QML type.
 
     To use the \uicontrol Instancing component, drag-and-drop it from
-    \uicontrol Library to \uicontrol Scene in \uicontrol Navigator.
+    \uicontrol Components to \uicontrol Scene in \uicontrol Navigator.
 
     \section2 Instancing Properties
 
@@ -107,7 +107,7 @@
     To build an instance table:
         \list 1
             \li Drag-and-drop an \uicontrol {Instance List} component from
-                \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D}
+                \uicontrol Components > \uicontrol {Qt Quick 3D}
                 > \uicontrol {Qt Quick 3D} to \uicontrol Scene in
                 \uicontrol Navigator.
             \li Drag-and-drop \uicontrol {Instance List Entry} components to the

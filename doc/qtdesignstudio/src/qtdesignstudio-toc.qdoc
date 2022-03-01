@@ -39,7 +39,8 @@
                             \list
                                 \li \l{Form Editor}
                                 \li \l{3D Editor}
-                                \li \l{Library}
+                                \li \l{Components}
+                                \li \l{Assets}
                                 \li \l{Navigator}
                                 \li \l{Properties}
                                 \li \l{Connection View}
@@ -75,7 +76,7 @@
                         \li \l{Applying States in Flows}
                         \li \l{Reacting to External Events}
                     \endlist
-                \li \l {Components}
+                \li \l {Using Components}
                     \list
                         \li \l{Preset Components}
                             \list

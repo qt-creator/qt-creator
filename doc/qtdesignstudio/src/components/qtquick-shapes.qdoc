@@ -36,7 +36,7 @@
     according to your needs. The values of some properties of the controls are
     specified by using styling, and therefore you cannot change them.
 
-    However, you can use some of the components in \l Library to draw
+    However, you can use some of the components in \l Components to draw
     basic shapes, such as rectangles. In addition, \QDS comes with a set of
     more powerful and flexible graphical primitives, that allow creating more
     complex shapes, such as borders, triangles, arcs, and pies in
@@ -50,7 +50,7 @@
     \image qml-shapes.png "Shapes in Form Editor"
     \endif
 
-    Most visual components in \uicontrol Library are based on the \l [QtQuick]
+    Most visual components in \uicontrol Components are based on the \l [QtQuick]
     {Item} component. Even though it has no visual appearance itself (similarly
     to a mouse area, for example), it defines all the properties that are
     common across visual components, such as position, size, and visibility. For
@@ -102,7 +102,7 @@
 
     If you want to modify each corner of the rectangle independently
     or use a dashed border, create an instance of the \uicontrol Rectangle
-    component available in \uicontrol Library > \uicontrol Components >
+    component available in \uicontrol Components >
     \uicontrol {Qt Quick Studio Components} instead of the basic
     \uicontrol Rectangle component available in \uicontrol {Default Components}
     > \uicontrol Basic.
@@ -242,7 +242,7 @@
 
     The following table lists the components that you can use to draw shapes.
     The \e Location column indicates the location of the component in
-    \l Library > \uicontrol Components. The \e MCU column indicates which
+    \uicontrol Components. The \e MCU column indicates which
     components are supported on MCUs.
 
     \table

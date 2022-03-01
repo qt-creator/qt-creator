@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -92,6 +92,8 @@
     therefore applications that only use the core APIs will run on any
     Windows 10 device, such as a desktop PC, or Xbox One.
 
-    For more information about developing applications for UWP, see
-    \l{Qt for UWP}.
+    For more information about developing applications for UWP using Qt 5, see
+    \l{https://doc.qt.io/qt-5/winrt-support.html}{Qt for UWP}.
+
+    \note Developing for UWP using Qt 6 is not supported.
 */

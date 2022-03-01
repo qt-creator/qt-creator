@@ -33,12 +33,12 @@
     \title 3D Effects
 
     \QDS provides a set of 3D effects, which are visible in \l {Form Editor}.
-    To apply a visual effect to a scene, drag-and-drop an effect from \l Library
-    > \uicontrol Components > \uicontrol {Qt Quick 3D} >
+    To apply a visual effect to a scene, drag-and-drop an effect from
+    \uicontrol Components > \uicontrol {Qt Quick 3D} >
     \uicontrol {Qt Quick 3D Effects} to a \uicontrol View3D component in
     \l Navigator.
 
-    You can use the \l Effect component available in \uicontrol Library >
+    You can use the \l Effect component available in \uicontrol Components >
     \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} as the base
     component for creating custom post-processing effects. For more information,
     see \l {Custom Effects and Materials} and \l {Custom Shaders}.
@@ -51,7 +51,7 @@
     {Scene Environment} component in \uicontrol Navigator to view the applied
     effects in \l Properties > \uicontrol {Scene Environment} > \uicontrol Effect.
 
-    If the effects are not displayed in \l Library, you should add the
+    If the effects are not displayed in \l Components, you should add the
     \uicontrol QtQuick3D.Effects module to your project, as described in
     \l {Adding and Removing Modules}.
 

@@ -40,8 +40,7 @@
     the skeleton and the skin (this is sometimes also referred to as rigging),
     and import them to \QDS. You can then create skeletal animations using
     \uicontrol Skeleton and \uicontrol Joint components available in
-    \uicontrol Library > \uicontrol Components > \uicontrol {Qt Quick 3D} >
-    \uicontrol {Qt Quick 3D}.
+    \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
     \section1 Skeleton
 

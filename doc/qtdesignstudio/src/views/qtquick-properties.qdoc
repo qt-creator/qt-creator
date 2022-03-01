@@ -412,7 +412,7 @@
     When layering is enabled, you can use the component directly as a texture,
     in combination with the component you select in the \uicontrol Effect field.
     Typically, this component should be a shader effect with a source texture
-    specified. You can use the effects in \l Library > \uicontrol Components >
+    specified. You can use the effects in \uicontrol Components >
     \uicontrol {Qt Quick Studio Effects} that are based on the components in the
     \l {Qt Graphical Effects} module.
 

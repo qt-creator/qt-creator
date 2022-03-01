@@ -394,6 +394,8 @@ Item {
         spacing: 5
 
         Row {
+            id: searchRow
+
             width: parent.width
 
             SearchBox {
@@ -417,6 +419,60 @@ Item {
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: 12
             visible: assetsModel.isEmpty && !searchBox.isEmpty()
+        }
+
+
+        Item { // placeholder when the assets library is empty
+            width: parent.width
+            height: parent.height - searchRow.height
+            visible: assetsModel.isEmpty && searchBox.isEmpty()
+            clip: true
+
+            Column {
+                id: colNoAssets
+
+                spacing: 20
+                x: 20
+                width: rootItem.width - 2 * x
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    text: qsTr("Looks like you don't have any assets yet.")
+                    color: StudioTheme.Values.themeTextColor
+                    font.pixelSize: 18
+                    width: colNoAssets.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
+
+                Image {
+                    source: "image://qmldesigner_assets/browse"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    scale: maBrowse.containsMouse ? 1.2 : 1
+                    Behavior on scale {
+                        NumberAnimation {
+                            duration: 300
+                            easing.type: Easing.OutQuad
+                        }
+                    }
+
+                    MouseArea {
+                        id: maBrowse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: rootView.handleAddAsset();
+                    }
+                }
+
+                Text {
+                    text: qsTr("Drag-and-drop your assets here or click the '+' button to browse assets from the file system.")
+                    color: StudioTheme.Values.themeTextColor
+                    font.pixelSize: 18
+                    width: colNoAssets.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
+            }
         }
 
         ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
@@ -601,54 +657,6 @@ Item {
                     }
                 }
             }
-        }
-    }
-
-    // Placeholder when the assets panel is empty
-    Column {
-        id: colNoAssets
-        visible: assetsModel.isEmpty && searchBox.isEmpty()
-
-        spacing: 20
-        x: 20
-        width: rootItem.width - 2 * x
-        anchors.verticalCenter: parent.verticalCenter
-
-        Text {
-            text: qsTr("Looks like you don't have any assets yet.")
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: 18
-            width: colNoAssets.width
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-        }
-
-        Image {
-            source: "image://qmldesigner_assets/browse"
-            anchors.horizontalCenter: parent.horizontalCenter
-            scale: maBrowse.containsMouse ? 1.2 : 1
-            Behavior on scale {
-                NumberAnimation {
-                    duration: 300
-                    easing.type: Easing.OutQuad
-                }
-            }
-
-            MouseArea {
-                id: maBrowse
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: rootView.handleAddAsset();
-            }
-        }
-
-        Text {
-            text: qsTr("Drag-and-drop your assets here or click the '+' button to browse assets from the file system.")
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: 18
-            width: colNoAssets.width
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
         }
     }
 }

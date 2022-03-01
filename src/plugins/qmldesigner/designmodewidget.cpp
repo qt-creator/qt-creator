@@ -190,12 +190,6 @@ static void addSpacerToToolBar(QToolBar *toolBar)
 
 void DesignModeWidget::setup()
 {
-    auto &actionManager = viewManager().designerActionManager();
-    actionManager.createDefaultDesignerActions();
-    actionManager.createDefaultAddResourceHandler();
-    actionManager.createDefaultModelNodePreviewImageHandlers();
-    actionManager.polishActions();
-
     auto settings = Core::ICore::settings(QSettings::UserScope);
 
     ADS::DockManager::setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);

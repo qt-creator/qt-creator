@@ -221,7 +221,7 @@
     \section1 Applying Materials to Models
 
     To apply materials to models, you should first delete the default material,
-    and then drag-and-drop a new material from \l Library to a model component
+    and then drag-and-drop a new material from \l Assets to a model component
     in \l Navigator.
 
     You can apply the same material to another component as well. Again,

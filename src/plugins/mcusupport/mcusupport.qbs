@@ -5,6 +5,7 @@ QtcPlugin {
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.widgets" }
+    Depends { name: "Qt.testlib"; condition: qtc.testsEnabled }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
@@ -13,6 +14,8 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "CMakeProjectManager" }
     Depends { name: "QtSupport" }
+
+    Depends { name: "qtc_gtest_gmock"; condition: qtc.testsEnabled; required: false }
 
     files: [
         "mcuabstractpackage.h",
@@ -45,4 +48,20 @@ QtcPlugin {
         "mcukitinformation.cpp",
         "mcukitinformation.h"
     ]
+
+    Group {
+        name: "McuSupport test files"
+        condition: qtc.testsEnabled && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
+        prefix: "test/"
+        files: [
+            "packagemock.h",
+            "unittest.cpp", "unittest.h"
+        ]
+    }
+
+    Properties {
+        condition: qtc.testsEnabled && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
+        cpp.defines: base.concat(["GOOGLE_TEST_IS_FOUND"])
+        cpp.includePaths: base.concat([ "." ])
+    }
 }

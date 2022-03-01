@@ -22,8 +22,7 @@ examples.fileextensions += *.qml *.svg
 
 include(../../qtcreator/images/extraimages/qtcreator-extraimages.qdocconf)
 
-depends +=    qtandroidextras\
-              qtwidgets \
+depends +=    qtwidgets \
               qtcmake \
               qtcore \
               qtqml \
@@ -40,7 +39,6 @@ depends +=    qtandroidextras\
               qttestlib \
               qtuitools \
               qtxml \
-              qtlocation \
               qtvirtualkeyboard
 
 include(../../config/macros.qdocconf)

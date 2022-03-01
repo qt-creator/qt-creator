@@ -207,7 +207,7 @@
     \uicontrol {Run CMake} to apply configuration changes.
 
     For more information about the CMakeLists.txt file, see
-    \l{Get started with CMake}.
+    \l{Getting started with CMake}.
 
     \section1 Running the Application
 

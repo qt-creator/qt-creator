@@ -113,17 +113,17 @@
 
     \section1 Applying Textures to Materials
 
-    Drag-and-drop an image from \l Library > \l Assets on a material to
+    Drag-and-drop an image from \l Assets on a material to
     create a texture component. Dragging an image to a default or principled
     material opens a \uicontrol {Select Texture Property} dialog. You can select
     the  property to attach the texture to in the \uicontrol {Set texture to property}
     field. For a custom material, you must assign the texture to a map. If the
-    \uicontrol Texture component is not displayed in \uicontrol Library, you
-    should add the \uicontrol {Qt Quick 3D} module to your project, as described
-    in \l {Adding and Removing Modules}.
+    \uicontrol Texture component is not displayed in \uicontrol {Components},
+    you should add the \uicontrol {Qt Quick 3D} module to your project, as
+    described in \l {Adding and Removing Modules}.
 
     To use Texture components to apply textures to materials, drag-and-drop a
-    Texture component from \uicontrol Library > \uicontrol Components >
+    Texture component from \uicontrol Components >
     \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to a material component
     in \l Navigator. The new texture should now be visible in \l {Form Editor}
     and \l {3D Editor}. \note If the colors in your texture are not visualized
