@@ -1193,7 +1193,7 @@ void SimpleTargetRunner::start()
     } else {
         Runnable runnable = runControl()->runnable();
         runnable.device = runControl()->device();
-        doStart(runControl()->runnable());
+        doStart(runnable);
     }
 }
 
