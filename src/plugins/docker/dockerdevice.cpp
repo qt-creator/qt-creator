@@ -98,7 +98,7 @@ namespace Internal {
 static Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
 #define LOG(x) qCDebug(dockerDeviceLog) << this << x << '\n'
 
-class DockerDeviceProcess : public ProjectExplorer::DeviceProcess
+class DockerDeviceProcess : public Utils::QtcProcess
 {
 public:
     DockerDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
@@ -106,11 +106,13 @@ public:
 
     void start() override;
     void interrupt() override;
+
+    const QSharedPointer<const IDevice> m_device;
 };
 
 DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &device,
-                                          QObject *parent)
-    : DeviceProcess(device, parent)
+                                         QObject *parent)
+    : QtcProcess(parent), m_device(device)
 {
     setProcessMode(ProcessMode::Writer);
 }
@@ -118,7 +120,7 @@ DockerDeviceProcess::DockerDeviceProcess(const QSharedPointer<const IDevice> &de
 void DockerDeviceProcess::start()
 {
     QTC_ASSERT(state() == QProcess::NotRunning, return);
-    DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(device());
+    DockerDevice::ConstPtr dockerDevice = qSharedPointerCast<const DockerDevice>(m_device);
     QTC_ASSERT(dockerDevice, return);
 
     connect(this, &QtcProcess::readyReadStandardOutput, this, [this] {
@@ -139,7 +141,7 @@ void DockerDeviceProcess::start()
 
 void DockerDeviceProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(processId());
+    m_device->signalOperation()->interruptProcess(processId());
 }
 
 class DockerPortsGatheringMethod : public PortsGatheringMethod

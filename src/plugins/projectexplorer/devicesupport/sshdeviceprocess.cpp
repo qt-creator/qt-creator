@@ -51,6 +51,7 @@ public:
     SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q) {}
 
     SshDeviceProcess * const q;
+    QSharedPointer<const IDevice> m_device;
     QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcessPtr remoteProcess;
     QString processName;
@@ -66,9 +67,10 @@ public:
 };
 
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
-    : DeviceProcess(device, parent),
+    : QtcProcess(parent),
       d(std::make_unique<SshDeviceProcessPrivate>(this))
 {
+    d->m_device = device;
     connect(&d->killTimer, &QTimer::timeout, this, &SshDeviceProcess::handleKillOperationTimeout);
 }
 
@@ -80,6 +82,11 @@ void SshDeviceProcess::emitStarted()
 void SshDeviceProcess::emitFinished()
 {
     handleProcessFinished(QtcProcess::errorString());
+}
+
+const QSharedPointer<const IDevice> &SshDeviceProcess::device() const
+{
+    return d->m_device;
 }
 
 SshDeviceProcess::~SshDeviceProcess()
@@ -98,7 +105,7 @@ void SshDeviceProcess::start()
     d->processName = commandLine().executable().toString();
     d->displayName = extraData("Ssh.X11ForwardToDisplay").toString();
 
-    QSsh::SshConnectionParameters params = device()->sshParameters();
+    QSsh::SshConnectionParameters params = d->m_device->sshParameters();
     params.x11DisplayName = d->displayName;
     d->connection = QSsh::SshConnectionManager::acquireConnection(params);
     connect(d->connection, &QSsh::SshConnection::errorOccurred,
@@ -287,7 +294,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
         break;
     case SshDeviceProcessPrivate::Connected:
     case SshDeviceProcessPrivate::ProcessRunning:
-        DeviceProcessSignalOperation::Ptr signalOperation = q->device()->signalOperation();
+        DeviceProcessSignalOperation::Ptr signalOperation = m_device->signalOperation();
         const qint64 processId = q->processId();
         if (signal == Signal::Interrupt) {
             if (processId != 0)

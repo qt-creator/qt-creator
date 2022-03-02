@@ -211,7 +211,6 @@ Project {
                 "devicefactoryselectiondialog.cpp", "devicefactoryselectiondialog.h", "devicefactoryselectiondialog.ui",
                 "devicemanager.cpp", "devicemanager.h",
                 "devicemanagermodel.cpp", "devicemanagermodel.h",
-                "deviceprocess.cpp", "deviceprocess.h",
                 "deviceprocessesdialog.cpp", "deviceprocessesdialog.h",
                 "deviceprocesslist.cpp", "deviceprocesslist.h",
                 "devicesettingspage.cpp", "devicesettingspage.h",
