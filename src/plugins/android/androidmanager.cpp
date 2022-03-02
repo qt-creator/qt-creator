@@ -593,8 +593,8 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand(cmd);
-    proc.runBlocking(QtcProcess::WithEventLoop);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    proc.runBlocking(EventLoopMode::On);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd)
@@ -610,8 +610,8 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    proc.runBlocking(QtcProcess::WithEventLoop);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    proc.runBlocking(EventLoopMode::On);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool AndroidManager::checkCertificateExists(const QString &keystorePath,
@@ -624,8 +624,8 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
-    proc.runBlocking(QtcProcess::WithEventLoop);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    proc.runBlocking(EventLoopMode::On);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 using GradleProperties = QMap<QByteArray, QByteArray>;
@@ -779,10 +779,10 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     cmdProc.setWriteData(writeData);
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
     cmdProc.setCommand(command);
-    cmdProc.runBlocking(QtcProcess::WithEventLoop);
+    cmdProc.runBlocking(EventLoopMode::On);
     cmdResult.m_stdOut = cmdProc.stdOut().trimmed();
     cmdResult.m_stdErr = cmdProc.stdErr().trimmed();
-    cmdResult.m_success = cmdProc.result() == QtcProcess::FinishedWithSuccess;
+    cmdResult.m_success = cmdProc.result() == ProcessResult::FinishedWithSuccess;
     qCDebug(androidManagerLog) << "Command finshed (sync):" << command.toUserOutput()
                                << "Success:" << cmdResult.m_success
                                << "Output:" << cmdProc.allRawOutput();

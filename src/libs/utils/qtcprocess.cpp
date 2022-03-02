@@ -293,7 +293,7 @@ static QString blockingMessage(const QVariant &variant)
 {
     if (!variant.isValid())
         return "non blocking";
-    if (variant.toInt() == int(QtcProcess::WithEventLoop))
+    if (variant.toInt() == int(EventLoopMode::On))
         return "blocking with event loop";
     return "blocking without event loop";
 }
@@ -646,11 +646,11 @@ public:
     void handleError(QProcess::ProcessError error);
     void clearForRun();
 
-    QtcProcess::Result interpretExitCode(int exitCode);
+    ProcessResult interpretExitCode(int exitCode);
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
     QEventLoop *m_eventLoop = nullptr;
-    QtcProcess::Result m_result = QtcProcess::StartFailed;
+    ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
     ExitCodeInterpreter m_exitCodeInterpreter;
@@ -669,17 +669,17 @@ void QtcProcessPrivate::clearForRun()
     m_stdOut.codec = m_codec;
     m_stdErr.clearForRun();
     m_stdErr.codec = m_codec;
-    m_result = QtcProcess::StartFailed;
+    m_result = ProcessResult::StartFailed;
     m_startFailure = NoFailure;
 }
 
-QtcProcess::Result QtcProcessPrivate::interpretExitCode(int exitCode)
+ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
 {
     if (m_exitCodeInterpreter)
         return m_exitCodeInterpreter(exitCode);
 
     // default:
-    return exitCode ? QtcProcess::FinishedWithError : QtcProcess::FinishedWithSuccess;
+    return exitCode ? ProcessResult::FinishedWithError : ProcessResult::FinishedWithSuccess;
 }
 
 } // Internal
@@ -732,7 +732,7 @@ QtcProcess::QtcProcess(QObject *parent)
 
             const int number = n.toInt();
             qCDebug(processLog).nospace() << "Process " << number << " finished: "
-                                          << "result=" << result()
+                                          << "result=" << int(result())
                                           << ", ex=" << exitCode()
                                           << ", " << stdOut().size() << " bytes stdout"
                                           << ", " << stdErr().size() << " bytes stderr"
@@ -1119,12 +1119,12 @@ QString QtcProcess::normalizeNewlines(const QString &text)
     return res;
 }
 
-QtcProcess::Result QtcProcess::result() const
+ProcessResult QtcProcess::result() const
 {
     return d->m_result;
 }
 
-void QtcProcess::setResult(Result result)
+void QtcProcess::setResult(const ProcessResult &result)
 {
     d->m_result = result;
 }
@@ -1411,16 +1411,16 @@ QString QtcProcess::exitMessage()
 {
     const QString fullCmd = commandLine().toUserOutput();
     switch (result()) {
-    case FinishedWithSuccess:
+    case ProcessResult::FinishedWithSuccess:
         return QtcProcess::tr("The command \"%1\" finished successfully.").arg(fullCmd);
-    case FinishedWithError:
+    case ProcessResult::FinishedWithError:
         return QtcProcess::tr("The command \"%1\" terminated with exit code %2.")
             .arg(fullCmd).arg(exitCode());
-    case TerminatedAbnormally:
+    case ProcessResult::TerminatedAbnormally:
         return QtcProcess::tr("The command \"%1\" terminated abnormally.").arg(fullCmd);
-    case StartFailed:
+    case ProcessResult::StartFailed:
         return QtcProcess::tr("The command \"%1\" could not be started.").arg(fullCmd);
-    case Hang:
+    case ProcessResult::Hang:
         return QtcProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
             .arg(fullCmd).arg(d->m_maxHangTimerCount);
     }
@@ -1484,7 +1484,7 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r)
 {
     QDebug nsp = str.nospace();
     nsp << "QtcProcess: result="
-        << r.d->m_result << " ex=" << r.exitCode() << '\n'
+        << int(r.d->m_result) << " ex=" << r.exitCode() << '\n'
         << r.d->m_stdOut.rawData.size() << " bytes stdout, stderr=" << r.d->m_stdErr.rawData << '\n';
     return str;
 }
@@ -1595,7 +1595,7 @@ static bool isGuiThread()
 }
 #endif
 
-void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
+void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
 {
     // FIXME: Implement properly
 
@@ -1615,7 +1615,7 @@ void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
         // Remove the dynamic property so that it's not reused in subseqent start()
         setProperty(QTC_PROCESS_BLOCKING_TYPE, QVariant());
     }
-    if (eventLoopMode == QtcProcess::WithEventLoop) {
+    if (eventLoopMode == EventLoopMode::On) {
         // On Windows, start failure is triggered immediately if the
         // executable cannot be found in the path. Do not start the
         // event loop in that case.
@@ -1644,11 +1644,11 @@ void QtcProcess::runBlocking(QtcProcess::EventLoopMode eventLoopMode)
         }
     } else {
         if (!waitForStarted(d->m_maxHangTimerCount * 1000)) {
-            d->m_result = QtcProcess::StartFailed;
+            d->m_result = ProcessResult::StartFailed;
             return;
         }
         if (!waitForFinished(d->m_maxHangTimerCount * 1000)) {
-            d->m_result = QtcProcess::Hang;
+            d->m_result = ProcessResult::Hang;
             terminate();
             if (!waitForFinished(1000)) {
                 kill();
@@ -1701,7 +1701,7 @@ void QtcProcessPrivate::slotTimeout()
         m_waitingForUser = false;
         if (terminate) {
             q->stopProcess();
-            m_result = QtcProcess::Hang;
+            m_result = ProcessResult::Hang;
         } else {
             m_hangTimerCount = 0;
         }
@@ -1725,8 +1725,8 @@ void QtcProcessPrivate::slotFinished()
         break;
     case QProcess::CrashExit:
         // Was hang detected before and killed?
-        if (m_result != QtcProcess::Hang)
-            m_result = QtcProcess::TerminatedAbnormally;
+        if (m_result != ProcessResult::Hang)
+            m_result = ProcessResult::TerminatedAbnormally;
         break;
     }
     if (m_eventLoop)
@@ -1744,8 +1744,8 @@ void QtcProcessPrivate::handleError(QProcess::ProcessError error)
     if (debug)
         qDebug() << Q_FUNC_INFO << error;
     // Was hang detected before and killed?
-    if (m_result != QtcProcess::Hang)
-        m_result = QtcProcess::StartFailed;
+    if (m_result != ProcessResult::Hang)
+        m_result = ProcessResult::StartFailed;
     m_startFailure = (error == QProcess::FailedToStart) ? WrongCommandFailure : OtherFailure;
     if (m_eventLoop)
         m_eventLoop->quit();

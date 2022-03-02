@@ -33,10 +33,10 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <utils/qtcprocess.h>
-
 #include <QFutureWatcher>
 #include <QFileSystemWatcher>
+
+namespace Utils { class QtcProcess; }
 
 namespace Android {
 namespace Internal {

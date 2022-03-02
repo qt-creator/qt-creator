@@ -185,7 +185,7 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
     proc.setCommand({m_command, {version}});
     proc.runBlocking();
     const QString output = proc.allOutput().trimmed();
-    if (proc.result() != QtcProcess::FinishedWithSuccess) {
+    if (proc.result() != ProcessResult::FinishedWithSuccess) {
         if (error)
             *error = output;
         m_engineType = NoEngineType;

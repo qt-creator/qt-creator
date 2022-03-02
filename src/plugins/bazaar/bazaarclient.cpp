@@ -31,6 +31,7 @@
 #include <vcsbase/vcsbaseeditorconfig.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -153,7 +154,7 @@ bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     VcsOutputWindow::append(proc.stdOut());
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 void BazaarClient::commit(const FilePath &repositoryRoot, const QStringList &files,
@@ -191,7 +192,7 @@ bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != QtcProcess::FinishedWithSuccess)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
     return proc.rawStdOut().startsWith("unknown");
 }
@@ -231,8 +232,8 @@ ExitCodeInterpreter BazaarClient::exitCodeInterpreter(VcsCommandTag cmd) const
 {
     if (cmd == DiffCommand) {
         return [](int code) {
-            return (code < 0 || code > 2) ? QtcProcess::FinishedWithError
-                                          : QtcProcess::FinishedWithSuccess;
+            return (code < 0 || code > 2) ? ProcessResult::FinishedWithError
+                                          : ProcessResult::FinishedWithSuccess;
         };
     }
     return {};

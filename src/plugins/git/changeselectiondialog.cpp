@@ -31,19 +31,20 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/pathchooser.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <vcsbase/vcscommand.h>
 
-#include <QFormLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPlainTextEdit>
+#include <QCompleter>
 #include <QDir>
 #include <QFileDialog>
-#include <QCompleter>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QPushButton>
 #include <QStringListModel>
 #include <QTimer>
 
@@ -161,7 +162,7 @@ void ChangeSelectionDialog::setDetails()
     Theme *theme = creatorTheme();
 
     QPalette palette;
-    if (m_process->result() == QtcProcess::FinishedWithSuccess) {
+    if (m_process->result() == ProcessResult::FinishedWithSuccess) {
         m_ui->detailsText->setPlainText(m_process->stdOut());
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);

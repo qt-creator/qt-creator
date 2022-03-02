@@ -27,9 +27,13 @@
 
 #include "clangtoolslogfilereader.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/commandline.h>
+
+#include <QProcess>
 
 #include <memory>
+
+namespace Utils { class QtcProcess; }
 
 namespace ClangTools {
 namespace Internal {

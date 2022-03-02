@@ -28,7 +28,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <utils/qtcprocess.h>
+namespace Utils { class QtcProcess; }
 
 namespace WinRt {
 namespace Internal {

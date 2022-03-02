@@ -61,6 +61,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/infobar.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>

@@ -29,6 +29,7 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QMessageBox>
 
@@ -128,7 +129,7 @@ void ExecuteFilter::finished()
     QTC_ASSERT(m_process, return);
     const QString commandName = headCommand();
     QString message;
-    if (m_process->result() == QtcProcess::FinishedWithSuccess)
+    if (m_process->result() == ProcessResult::FinishedWithSuccess)
         message = tr("Command \"%1\" finished.").arg(commandName);
     else
         message = tr("Command \"%1\" failed.").arg(commandName);

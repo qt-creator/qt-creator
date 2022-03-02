@@ -31,6 +31,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <diffeditor/diffutils.h>
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>

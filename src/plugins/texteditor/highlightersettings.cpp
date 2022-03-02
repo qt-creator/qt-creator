@@ -70,7 +70,7 @@ FilePath findFallbackDefinitionsLocation()
             process.setTimeoutS(5);
             process.setCommand({program, {"--prefix"}});
             process.runBlocking();
-            if (process.result() == QtcProcess::FinishedWithSuccess) {
+            if (process.result() == ProcessResult::FinishedWithSuccess) {
                 QString output = process.stdOut();
                 output.remove('\n');
                 const FilePath dir = FilePath::fromString(output);

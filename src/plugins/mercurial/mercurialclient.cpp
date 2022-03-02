@@ -128,7 +128,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
         QStringList arguments(QLatin1String("init"));
         QtcProcess proc;
         vcsFullySynchronousExec(proc, workingDirectory, arguments);
-        if (proc.result() != QtcProcess::FinishedWithSuccess)
+        if (proc.result() != ProcessResult::FinishedWithSuccess)
             return false;
 
         // Then pull remote repository
@@ -136,7 +136,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
         arguments << QLatin1String("pull") << dstLocation;
         QtcProcess proc1;
         vcsSynchronousExec(proc1, workingDirectory, arguments, flags);
-        if (proc1.result() != QtcProcess::FinishedWithSuccess)
+        if (proc1.result() != ProcessResult::FinishedWithSuccess)
             return false;
 
         // By now, there is no hgrc file -> create it
@@ -153,13 +153,13 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
         arguments << QLatin1String("update");
         QtcProcess proc2;
         vcsSynchronousExec(proc2, workingDirectory, arguments, flags);
-        return proc2.result() == QtcProcess::FinishedWithSuccess;
+        return proc2.result() == ProcessResult::FinishedWithSuccess;
     } else {
         QStringList arguments(QLatin1String("clone"));
         arguments << dstLocation << workingDirectory.parentDir().toString();
         QtcProcess proc;
         vcsSynchronousExec(proc, workingDirectory.parentDir(), arguments, flags);
-        return proc.result() == QtcProcess::FinishedWithSuccess;
+        return proc.result() == ProcessResult::FinishedWithSuccess;
     }
 }
 
@@ -183,7 +183,7 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     command.addFlags(flags);
     command.runCommand(proc, {vcsBinary(), args});
 
-    const bool ok = proc.result() == QtcProcess::FinishedWithSuccess;
+    const bool ok = proc.result() == ProcessResult::FinishedWithSuccess;
 
     parsePullOutput(proc.stdOut().trimmed());
     return ok;
@@ -224,7 +224,7 @@ QStringList MercurialClient::parentRevisionsSync(const FilePath &workingDirector
         args << file;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != QtcProcess::FinishedWithSuccess)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return QStringList();
     /* Looks like: \code
 changeset:   0:031a48610fba
@@ -267,7 +267,7 @@ QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,
 
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != QtcProcess::FinishedWithSuccess)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return revision;
     return stripLastNewline(proc.stdOut());
 }

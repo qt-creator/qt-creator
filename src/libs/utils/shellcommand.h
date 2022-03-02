@@ -27,7 +27,10 @@
 
 #include "utils_global.h"
 
-#include "qtcprocess.h"
+#include "filepath.h"
+#include "processenums.h"
+
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QMutex;
@@ -36,9 +39,14 @@ template <typename T>
 class QFutureInterface;
 template <typename T>
 class QFuture;
+class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils {
+
+class CommandLine;
+class Environment;
+class QtcProcess;
 
 namespace Internal { class ShellCommandPrivate; }
 

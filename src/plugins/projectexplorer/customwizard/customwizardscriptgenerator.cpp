@@ -115,8 +115,8 @@ static bool
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory.toUserOutput()),
                qPrintable(cmd.toUserOutput()));
     process.setCommand(cmd);
-    process.runBlocking(QtcProcess::WithEventLoop);
-    if (process.result() != Utils::QtcProcess::FinishedWithSuccess) {
+    process.runBlocking(EventLoopMode::On);
+    if (process.result() != Utils::ProcessResult::FinishedWithSuccess) {
         *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.stdErr();
         if (!stdErr.isEmpty()) {

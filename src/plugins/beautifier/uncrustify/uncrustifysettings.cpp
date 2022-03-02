@@ -39,6 +39,8 @@
 #include <QRegularExpression>
 #include <QXmlStreamWriter>
 
+using namespace Utils;
+
 namespace Beautifier {
 namespace Internal {
 
@@ -54,7 +56,7 @@ const char SETTINGS_NAME[]                 = "uncrustify";
 UncrustifySettings::UncrustifySettings() :
     AbstractSettings(SETTINGS_NAME, ".cfg")
 {
-    connect(&m_versionProcess, &Utils::QtcProcess::finished,
+    connect(&m_versionProcess, &QtcProcess::finished,
             this, &UncrustifySettings::parseVersionProcessResult);
 
     setCommand("uncrustify");
@@ -88,12 +90,12 @@ void UncrustifySettings::setUseHomeFile(bool useHomeFile)
     m_settings.insert(USE_HOME_FILE, QVariant(useHomeFile));
 }
 
-Utils::FilePath UncrustifySettings::specificConfigFile() const
+FilePath UncrustifySettings::specificConfigFile() const
 {
-    return Utils::FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE_PATH).toString());
+    return FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE_PATH).toString());
 }
 
-void UncrustifySettings::setSpecificConfigFile(const Utils::FilePath &filePath)
+void UncrustifySettings::setSpecificConfigFile(const FilePath &filePath)
 {
     m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant(filePath.toString()));
 }
@@ -148,11 +150,11 @@ QString UncrustifySettings::documentationFilePath() const
 
 void UncrustifySettings::createDocumentationFile() const
 {
-    Utils::QtcProcess process;
+    QtcProcess process;
     process.setTimeoutS(2);
     process.setCommand({command(), {"--show-config"}});
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
+    if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
     QFile file(documentationFilePath());

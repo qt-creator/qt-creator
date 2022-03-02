@@ -31,6 +31,7 @@
 #include <projectexplorer/jsonwizard/jsonwizard.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>

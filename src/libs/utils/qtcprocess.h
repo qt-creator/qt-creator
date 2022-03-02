@@ -35,8 +35,6 @@
 
 #include <QProcess>
 
-#include <functional>
-
 QT_FORWARD_DECLARE_CLASS(QDebug)
 QT_FORWARD_DECLARE_CLASS(QTextCodec)
 
@@ -153,31 +151,9 @@ public:
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
 
-    enum EventLoopMode {
-        NoEventLoop,
-        WithEventLoop // Avoid
-    };
-
-    enum Result {
-        // Finished successfully. Unless an ExitCodeInterpreter is set
-        // this corresponds to a return code 0.
-        FinishedWithSuccess,
-        Finished = FinishedWithSuccess, // FIXME: Kept to ease downstream transition
-        // Finished unsuccessfully. Unless an ExitCodeInterpreter is set
-        // this corresponds to a return code different from 0.
-        FinishedWithError,
-        FinishedError = FinishedWithError, // FIXME: Kept to ease downstream transition
-        // Process terminated abnormally (kill)
-        TerminatedAbnormally,
-        // Executable could not be started
-        StartFailed,
-        // Hang, no output after time out
-        Hang
-    };
-
     // Starts the command and waits for finish.
     // User input processing is enabled when WithEventLoop was passed.
-    void runBlocking(EventLoopMode eventLoopMode = NoEventLoop);
+    void runBlocking(EventLoopMode eventLoopMode = EventLoopMode::Off);
 
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
@@ -186,7 +162,7 @@ public:
     // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);
     void setTimeOutMessageBoxEnabled(bool);
-    void setExitCodeInterpreter(const std::function<QtcProcess::Result(int)> &interpreter);
+    void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
 
     void setStdOutCallback(const std::function<void(const QString &)> &callback);
     void setStdOutLineCallback(const std::function<void(const QString &)> &callback);
@@ -197,8 +173,8 @@ public:
     bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
                              bool showTimeOutMessageBox);
 
-    Result result() const;
-    void setResult(Result result);
+    ProcessResult result() const;
+    void setResult(const ProcessResult &result);
 
     QByteArray allRawOutput() const;
     QString allOutput() const;
@@ -240,7 +216,5 @@ public:
     std::function<void(QtcProcess &)> startProcessHook;
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
-
-using ExitCodeInterpreter = std::function<QtcProcess::Result(int /*exitCode*/)>;
 
 } // namespace Utils

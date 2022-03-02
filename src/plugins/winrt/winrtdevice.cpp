@@ -36,6 +36,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/portlist.h>
 
 #include <QFileInfo>
@@ -45,7 +46,6 @@
 
 using QtSupport::QtVersion;
 using QtSupport::QtVersionManager;
-
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -61,9 +61,9 @@ WinRtDevice::WinRtDevice()
     setDisplayType(displayNameForType(type()));
     setOsType(OsTypeWindows);
 
-    Utils::PortList portList;
-    portList.addRange(Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_START),
-                      Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_END));
+    PortList portList;
+    portList.addRange(Port(ProjectExplorer::Constants::DESKTOP_PORT_START),
+                      Port(ProjectExplorer::Constants::DESKTOP_PORT_END));
     setFreePorts(portList);
 }
 
@@ -97,7 +97,7 @@ QVariantMap WinRtDevice::toMap() const
     return map;
 }
 
-QString WinRtDevice::displayNameForType(Utils::Id type)
+QString WinRtDevice::displayNameForType(Id type)
 {
     if (type == Constants::WINRT_DEVICE_TYPE_LOCAL)
         return QCoreApplication::translate("WinRt::Internal::WinRtDevice",
@@ -114,7 +114,7 @@ QString WinRtDevice::displayNameForType(Utils::Id type)
 
 // Factory
 
-WinRtDeviceFactory::WinRtDeviceFactory(Utils::Id deviceType)
+WinRtDeviceFactory::WinRtDeviceFactory(Id deviceType)
     : ProjectExplorer::IDeviceFactory(deviceType)
 {
     if (allPrerequisitesLoaded()) {
@@ -143,7 +143,7 @@ void WinRtDeviceFactory::autoDetect()
 
     if (!m_process) {
         qCDebug(winrtDeviceLog) << __FUNCTION__ << "Creating process";
-        m_process = new Utils::QtcProcess(this);
+        m_process = new QtcProcess(this);
         connect(m_process, &QtcProcess::errorOccurred, this, &WinRtDeviceFactory::onProcessError);
         connect(m_process, &QtcProcess::finished, this, &WinRtDeviceFactory::onProcessFinished);
     }
@@ -310,7 +310,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
             }
 
             const IDevice::MachineType machineType = machineTypeFromLine(line);
-            Utils::Id deviceType;
+            Id deviceType;
             QString name;
             QString internalName = QStringLiteral("WinRT.");
             if (state == AppxState) {
@@ -333,7 +333,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                     deviceType = Constants::WINRT_DEVICE_TYPE_PHONE;
             }
             internalName += QString::number(deviceId);
-            const Utils::Id internalId = Utils::Id::fromString(internalName);
+            const Id internalId = Id::fromString(internalName);
             ++numFound;
             if (DeviceManager::instance()->find(internalId)) {
                 qCDebug(winrtDeviceLog) << __FUNCTION__ << "Skipping device with ID" << deviceId;

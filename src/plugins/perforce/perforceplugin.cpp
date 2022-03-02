@@ -1270,7 +1270,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({m_settings.p4BinaryPath.filePath(), args});
-    process.runBlocking(QtcProcess::WithEventLoop);
+    process.runBlocking(EventLoopMode::On);
 
     PerforceResponse response;
     response.error = true;
@@ -1278,20 +1278,20 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     response.stdErr = process.stdErr();
     response.stdOut = process.stdOut();
     switch (process.result()) {
-    case QtcProcess::FinishedWithSuccess:
+    case ProcessResult::FinishedWithSuccess:
         response.error = false;
         break;
-    case QtcProcess::FinishedWithError:
+    case ProcessResult::FinishedWithError:
         response.message = msgExitCode(process.exitCode());
         response.error = !(flags & IgnoreExitCode);
         break;
-    case QtcProcess::TerminatedAbnormally:
+    case ProcessResult::TerminatedAbnormally:
         response.message = msgCrash();
         break;
-    case QtcProcess::StartFailed:
+    case ProcessResult::StartFailed:
         response.message = msgNotStarted(m_settings.p4BinaryPath.value());
         break;
-    case QtcProcess::Hang:
+    case ProcessResult::Hang:
         response.message = msgCrash();
         break;
     }

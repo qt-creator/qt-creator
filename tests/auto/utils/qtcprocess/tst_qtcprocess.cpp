@@ -935,7 +935,7 @@ void tst_QtcProcess::exitCode()
 
         QVERIFY(finished);
         QCOMPARE(qtcP.exitCode(), exitCode);
-        QCOMPARE(qtcP.exitCode() == 0, qtcP.result() == QtcProcess::FinishedWithSuccess);
+        QCOMPARE(qtcP.exitCode() == 0, qtcP.result() == ProcessResult::FinishedWithSuccess);
     }
     {
         QtcProcess sP;
@@ -944,7 +944,7 @@ void tst_QtcProcess::exitCode()
         sP.runBlocking();
 
         QCOMPARE(sP.exitCode(), exitCode);
-        QCOMPARE(sP.exitCode() == 0, sP.result() == QtcProcess::FinishedWithSuccess);
+        QCOMPARE(sP.exitCode() == 0, sP.result() == ProcessResult::FinishedWithSuccess);
     }
 }
 
@@ -989,7 +989,7 @@ void tst_QtcProcess::runBlockingStdOut()
     // See also QTCREATORBUG-25667 for why it is a bad idea to use QtcProcess::runBlocking
     // with interactive cli tools.
     QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
-    QVERIFY2(sp.result() != QtcProcess::Hang, "Process run did not time out.");
+    QVERIFY2(sp.result() != ProcessResult::Hang, "Process run did not time out.");
     QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
     QVERIFY2(readLastLine, "Last line was read.");
 }

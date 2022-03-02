@@ -258,7 +258,7 @@ bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory
     args << extraOptions;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != QtcProcess::FinishedWithSuccess)
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
     VcsOutputWindow::append(proc.stdOut());
 
@@ -279,7 +279,7 @@ bool VcsBaseClient::synchronousClone(const FilePath &workingDir,
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
     resetCachedVcsInfo(workingDir);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousAdd(const FilePath &workingDir,
@@ -290,7 +290,7 @@ bool VcsBaseClient::synchronousAdd(const FilePath &workingDir,
     args << vcsCommandString(AddCommand) << extraOptions << relFileName;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousRemove(const FilePath &workingDir,
@@ -301,7 +301,7 @@ bool VcsBaseClient::synchronousRemove(const FilePath &workingDir,
     args << vcsCommandString(RemoveCommand) << extraOptions << filename;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
@@ -313,7 +313,7 @@ bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
     args << vcsCommandString(MoveCommand) << extraOptions << from << to;
     QtcProcess proc;
     vcsFullySynchronousExec(proc, workingDir, args);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
@@ -329,7 +329,7 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
             | VcsCommand::ShowSuccessMessage;
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
-    const bool ok = proc.result() == QtcProcess::FinishedWithSuccess;
+    const bool ok = proc.result() == ProcessResult::FinishedWithSuccess;
     if (ok)
         emit changed(QVariant(workingDir.toString()));
     return ok;
@@ -348,7 +348,7 @@ bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
             | VcsCommand::ShowSuccessMessage;
     QtcProcess proc;
     vcsSynchronousExec(proc, workingDir, args, flags);
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 VcsBaseEditorWidget *VcsBaseClient::annotate(

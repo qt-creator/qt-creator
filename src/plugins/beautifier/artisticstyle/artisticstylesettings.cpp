@@ -41,6 +41,8 @@
 #include <QRegularExpression>
 #include <QXmlStreamWriter>
 
+using namespace Utils;
+
 namespace Beautifier {
 namespace Internal {
 
@@ -81,12 +83,12 @@ static int parseVersion(const QString &text)
     return 0;
 }
 
-static int updateVersionHelper(const Utils::FilePath &command)
+static int updateVersionHelper(const FilePath &command)
 {
-    Utils::QtcProcess process;
+    QtcProcess process;
     process.setCommand({command, {"--version"}});
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
+    if (process.result() != ProcessResult::FinishedWithSuccess)
         return 0;
 
     // Astyle prints the version on stdout or stderr, depending on platform
@@ -101,7 +103,7 @@ void ArtisticStyleSettings::updateVersion()
     if (m_versionFuture.isRunning())
         m_versionFuture.cancel();
 
-    m_versionFuture = Utils::runAsync(updateVersionHelper, command());
+    m_versionFuture = runAsync(updateVersionHelper, command());
     m_versionWatcher.setFuture(m_versionFuture);
 }
 
@@ -184,7 +186,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     process.setTimeoutS(2);
     process.setCommand({command(), {"-h"}});
     process.runBlocking();
-    if (process.result() != Utils::QtcProcess::FinishedWithSuccess)
+    if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
     QFile file(documentationFilePath());

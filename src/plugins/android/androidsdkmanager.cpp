@@ -138,10 +138,10 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(QtcProcess::WithEventLoop);
+    proc.runBlocking(EventLoopMode::On);
     if (output)
         *output = proc.allOutput();
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 /*!
@@ -179,7 +179,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                          &proc, &QtcProcess::stopProcess);
     }
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(QtcProcess::WithEventLoop);
+    proc.runBlocking(EventLoopMode::On);
     if (assertionFound) {
         output.success = false;
         output.stdOutput = proc.stdOut();
@@ -187,7 +187,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                                       "The operation requires user interaction. "
                                                       "Use the \"sdkmanager\" command-line tool.");
     } else {
-        output.success = proc.result() == QtcProcess::FinishedWithSuccess;
+        output.success = proc.result() == ProcessResult::FinishedWithSuccess;
     }
 }
 

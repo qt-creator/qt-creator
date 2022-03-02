@@ -88,7 +88,7 @@ static QString pythonName(const FilePath &pythonPath)
         pythonProcess.setTimeoutS(2);
         pythonProcess.setCommand({pythonPath, {"--version"}});
         pythonProcess.runBlocking();
-        if (pythonProcess.result() != QtcProcess::FinishedWithSuccess)
+        if (pythonProcess.result() != ProcessResult::FinishedWithSuccess)
             return {};
         name = pythonProcess.allOutput().trimmed();
         nameForPython[pythonPath] = name;
@@ -601,7 +601,7 @@ private:
     void installFinished()
     {
         m_future.reportFinished();
-        if (m_process.result() == QtcProcess::FinishedWithSuccess) {
+        if (m_process.result() == ProcessResult::FinishedWithSuccess) {
             if (Client *client = registerLanguageServer(m_python))
                 LanguageClientManager::openDocumentWithClient(m_document, client);
         } else {

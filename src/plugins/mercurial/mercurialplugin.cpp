@@ -36,32 +36,32 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <coreplugin/locator/commandlocator.h>
+#include <coreplugin/vcsmanager.h>
 
+#include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsoutputwindow.h>
+#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
-#include <QMenu>
 #include <QDebug>
-#include <QtGlobal>
 #include <QDir>
-#include <QDialog>
 #include <QFileDialog>
+#include <QMenu>
+#include <QtGlobal>
 
 #ifdef WITH_TESTS
 #include <QTest>

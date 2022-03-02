@@ -55,9 +55,9 @@ static QString runExecutable(const Utils::CommandLine &commandLine, QueryFailMod
     cpp.setCommand(commandLine);
 
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::FinishedWithSuccess
+    if (cpp.result() != ProcessResult::FinishedWithSuccess
             && (queryFailMode == QueryFailMode::Noisy
-            || cpp.result() != QtcProcess::FinishedWithError)) {
+            || cpp.result() != ProcessResult::FinishedWithError)) {
         Core::MessageManager::writeFlashing(cpp.exitMessage());
         Core::MessageManager::writeFlashing(QString::fromUtf8(cpp.allRawOutput()));
         return {};

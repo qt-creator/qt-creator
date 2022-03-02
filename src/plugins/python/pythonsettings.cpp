@@ -283,7 +283,7 @@ Interpreter::Interpreter(const FilePath &python, const QString &defaultName, boo
     pythonProcess.setTimeoutS(1);
     pythonProcess.setCommand({python, {"--version"}});
     pythonProcess.runBlocking();
-    if (pythonProcess.result() == QtcProcess::FinishedWithSuccess)
+    if (pythonProcess.result() == ProcessResult::FinishedWithSuccess)
         name = pythonProcess.stdOut().trimmed();
     if (name.isEmpty())
         name = defaultName;

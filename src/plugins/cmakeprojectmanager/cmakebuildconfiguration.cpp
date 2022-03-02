@@ -64,6 +64,7 @@
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/commandline.h>
 #include <utils/detailswidget.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>

@@ -204,13 +204,13 @@ public:
         proc.setTimeoutS(0);
         m_command->runCommand(proc, {m_vcsBinary, arguments});
         switch (proc.result()) {
-        case QtcProcess::TerminatedAbnormally:
-        case QtcProcess::StartFailed:
-        case QtcProcess::Hang:
+        case ProcessResult::TerminatedAbnormally:
+        case ProcessResult::StartFailed:
+        case ProcessResult::Hang:
             fi.reportCanceled();
             break;
-        case QtcProcess::FinishedWithSuccess:
-        case QtcProcess::FinishedWithError:
+        case ProcessResult::FinishedWithSuccess:
+        case ProcessResult::FinishedWithError:
             // When no results are found, git-grep exits with non-zero status.
             // Do not consider this as an error.
             break;

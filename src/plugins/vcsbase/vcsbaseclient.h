@@ -31,7 +31,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/qtcprocess.h>
+#include <utils/processenums.h>
 
 #include <QObject>
 #include <QStringList>
@@ -41,8 +41,11 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
+class QTextCodec;
 class QToolBar;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcProcess; }
 
 namespace VcsBase {
 

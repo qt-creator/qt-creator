@@ -27,11 +27,13 @@
 
 #include "ilocatorfilter.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/commandline.h>
 
 #include <QQueue>
 #include <QStringList>
 #include <QTextCodec>
+
+namespace Utils { class QtcProcess; }
 
 namespace Core {
 namespace Internal {

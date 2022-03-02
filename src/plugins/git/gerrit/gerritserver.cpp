@@ -247,7 +247,7 @@ int GerritServer::testConnection()
     QtcProcess proc;
     client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments},
                                     Core::ShellCommand::NoOutput);
-    if (proc.result() == QtcProcess::FinishedWithSuccess) {
+    if (proc.result() == ProcessResult::FinishedWithSuccess) {
         QString output = proc.stdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
         // so consider this as 404.
@@ -357,7 +357,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
                                         Core::ShellCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
-        if (proc.result() == QtcProcess::FinishedWithSuccess) {
+        if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QString output = proc.stdOut();
             if (output.isEmpty())
                 return;

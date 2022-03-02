@@ -836,7 +836,7 @@ void DockerDevicePrivate::startContainer()
     createProcess.setCommand(dockerCreate);
     createProcess.runBlocking();
 
-    if (createProcess.result() != QtcProcess::FinishedWithSuccess)
+    if (createProcess.result() != ProcessResult::FinishedWithSuccess)
         return;
 
     m_container = createProcess.stdOut().trimmed();
@@ -852,7 +852,7 @@ void DockerDevicePrivate::startContainer()
         LOG("\nSHELL FINISHED\n");
         QTC_ASSERT(shell, return);
         const int exitCode = shell->exitCode();
-        LOG("RES: " << shell->result()
+        LOG("RES: " << int(shell->result())
             << " EXIT CODE: " << exitCode
             << " STDOUT: " << shell->readAllStandardOutput()
             << " STDERR: " << shell->readAllStandardError());
@@ -1350,7 +1350,7 @@ void DockerDevice::runProcess(QtcProcess &process) const
     if (d->m_container.isEmpty()) {
         LOG("No container set to run " << process.commandLine().toUserOutput());
         QTC_CHECK(false);
-        process.setResult(QtcProcess::StartFailed);
+        process.setResult(ProcessResult::StartFailed);
         return;
     }
 

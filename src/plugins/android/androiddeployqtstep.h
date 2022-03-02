@@ -32,8 +32,10 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <qtsupport/baseqtversion.h>
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+
+namespace Utils { class QtcProcess; }
 
 namespace Android {
 namespace Internal {

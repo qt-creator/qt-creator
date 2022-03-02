@@ -265,21 +265,21 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking();
     switch (vsWhereProcess.result()) {
-    case QtcProcess::FinishedWithSuccess:
+    case ProcessResult::FinishedWithSuccess:
         break;
-    case QtcProcess::StartFailed:
+    case ProcessResult::StartFailed:
         qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "could not be started.";
         return installations;
-    case QtcProcess::FinishedWithError:
+    case ProcessResult::FinishedWithError:
         qWarning().noquote().nospace() << QDir::toNativeSeparators(vswhere)
                                        << " finished with exit code "
                                        << vsWhereProcess.exitCode() << ".";
         return installations;
-    case QtcProcess::TerminatedAbnormally:
+    case ProcessResult::TerminatedAbnormally:
         qWarning().noquote().nospace()
             << QDir::toNativeSeparators(vswhere) << " crashed. Exit code: " << vsWhereProcess.exitCode();
         return installations;
-    case QtcProcess::Hang:
+    case ProcessResult::Hang:
         qWarning().noquote() << QDir::toNativeSeparators(vswhere) << "did not finish in" << timeoutS
                              << "seconds.";
         return installations;
@@ -652,7 +652,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     arguments << toProcess << QLatin1String("/EP") << saver.filePath().toUserOutput();
     cpp.setCommand({binary, arguments});
     cpp.runBlocking();
-    if (cpp.result() != QtcProcess::FinishedWithSuccess)
+    if (cpp.result() != ProcessResult::FinishedWithSuccess)
         return predefinedMacros;
 
     const QStringList output = Utils::filtered(cpp.stdOut().split('\n'),
@@ -1555,7 +1555,7 @@ static QVersionNumber clangClVersion(const FilePath &clangClPath)
     QtcProcess clangClProcess;
     clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();
-    if (clangClProcess.result() != QtcProcess::FinishedWithSuccess)
+    if (clangClProcess.result() != ProcessResult::FinishedWithSuccess)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
                                               QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
@@ -1780,7 +1780,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     arguments.append("-");
     cpp.setCommand({compilerCommand(), arguments});
     cpp.runBlocking();
-    if (cpp.result() != Utils::QtcProcess::FinishedWithSuccess) {
+    if (cpp.result() != ProcessResult::FinishedWithSuccess) {
         // Show the warning but still parse the output.
         QTC_CHECK(false && "clang-cl exited with non-zero code.");
     }
@@ -2128,7 +2128,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     run.setCommand(cmd);
     run.runBlocking();
 
-    if (run.result() != QtcProcess::FinishedWithSuccess) {
+    if (run.result() != ProcessResult::FinishedWithSuccess) {
         const QString message = !run.stdErr().isEmpty() ? run.stdErr() : run.exitMessage();
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);

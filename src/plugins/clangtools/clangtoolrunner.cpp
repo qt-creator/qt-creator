@@ -60,14 +60,14 @@ static QString finishedWithBadExitCode(const QString &name, int exitCode)
 }
 
 ClangToolRunner::ClangToolRunner(QObject *parent)
-    : QObject(parent), m_process(new Utils::QtcProcess)
+    : QObject(parent), m_process(new QtcProcess)
 {}
 
 ClangToolRunner::~ClangToolRunner()
 {
     if (m_process->state() != QProcess::NotRunning) {
         // asking politly to terminate costs ~300 ms on windows so skip the courtasy and direct kill the process
-        if (Utils::HostOsInfo::isWindowsHost()) {
+        if (HostOsInfo::isWindowsHost()) {
             m_process->kill();
             m_process->waitForFinished(100);
         } else {
@@ -147,10 +147,10 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
 
 void ClangToolRunner::onProcessFinished()
 {
-    if (m_process->result() == QtcProcess::FinishedWithSuccess) {
+    if (m_process->result() == ProcessResult::FinishedWithSuccess) {
         qCDebug(LOG).noquote() << "Output:\n" << m_process->stdOut();
         emit finishedWithSuccess(m_fileToAnalyze);
-    } else if (m_process->result() == QtcProcess::FinishedWithError) {
+    } else if (m_process->result() == ProcessResult::FinishedWithError) {
         emit finishedWithFailure(finishedWithBadExitCode(m_name, m_process->exitCode()),
                                  commandlineAndOutput());
     } else { // == QProcess::CrashExit

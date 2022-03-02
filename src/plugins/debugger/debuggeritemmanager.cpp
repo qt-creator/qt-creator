@@ -763,7 +763,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         proc.setCommand({"xcrun", {"--find", "lldb"}});
         proc.runBlocking();
         // FIXME:
-        if (proc.result() == QtcProcess::FinishedWithSuccess) {
+        if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QString lPath = proc.allOutput().trimmed();
             if (!lPath.isEmpty()) {
                 const QFileInfo fi(lPath);

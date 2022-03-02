@@ -28,15 +28,17 @@
 #include "builddirparameters.h"
 
 #include <utils/outputformatter.h>
-#include <utils/qtcprocess.h>
 
 #include <QElapsedTimer>
 #include <QFutureInterface>
 #include <QObject>
+#include <QProcess>
 #include <QStringList>
 #include <QTimer>
 
 #include <memory>
+
+namespace Utils { class QtcProcess; }
 
 namespace CMakeProjectManager {
 namespace Internal {

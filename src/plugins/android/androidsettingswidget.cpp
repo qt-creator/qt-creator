@@ -636,7 +636,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
                 m_ui.openSslPathChooser->triggerChanged(); // After cloning, the path exists
 
                 if (!openSslProgressDialog->wasCanceled()
-                    || gitCloner->result() == QtcProcess::FinishedWithError) {
+                    || gitCloner->result() == ProcessResult::FinishedWithError) {
                     failDialog();
                 }
             });

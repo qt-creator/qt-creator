@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QMetaType>
+#include <functional>
 
 namespace Utils {
 
@@ -49,6 +50,32 @@ enum class TerminalMode {
     Suspend,
     On = Run // Default mode for terminal set to on
 };
+
+// Miscellaneous, not process core
+
+enum class EventLoopMode {
+    Off,
+    On // Avoid
+};
+
+enum class ProcessResult {
+    // Finished successfully. Unless an ExitCodeInterpreter is set
+    // this corresponds to a return code 0.
+    FinishedWithSuccess,
+    Finished = FinishedWithSuccess, // FIXME: Kept to ease downstream transition
+    // Finished unsuccessfully. Unless an ExitCodeInterpreter is set
+    // this corresponds to a return code different from 0.
+    FinishedWithError,
+    FinishedError = FinishedWithError, // FIXME: Kept to ease downstream transition
+    // Process terminated abnormally (kill)
+    TerminatedAbnormally,
+    // Executable could not be started
+    StartFailed,
+    // Hang, no output after time out
+    Hang
+};
+
+using ExitCodeInterpreter = std::function<ProcessResult(int /*exitCode*/)>;
 
 } // namespace Utils
 

@@ -527,8 +527,8 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
                    OutputFormat::NormalMessage);
 
     buildProc.setCommand(command);
-    buildProc.runBlocking(QtcProcess::WithEventLoop);
-    if (buildProc.result() != QtcProcess::FinishedWithSuccess)
+    buildProc.runBlocking(EventLoopMode::On);
+    if (buildProc.result() != ProcessResult::FinishedWithSuccess)
         reportWarningOrError(buildProc.exitMessage(), Task::Error);
 }
 

@@ -165,7 +165,7 @@ namespace {
                 proc.setTimeoutS(30);
                 proc.setCommand({executable, {shell}});
                 proc.runBlocking();
-                if (proc.result() != QtcProcess::FinishedWithSuccess)
+                if (proc.result() != ProcessResult::FinishedWithSuccess)
                     return true;
                 return !proc.allOutput().contains("x86-64");
             }
@@ -635,7 +635,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
     CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::FinishedWithSuccess) {
+    if (adbProc.result() != ProcessResult::FinishedWithSuccess) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration", "Could not run: %1")
                 .arg(cmd.toUserOutput());
@@ -706,7 +706,7 @@ QString AndroidConfig::getDeviceProperty(const QString &device, const QString &p
     adbProc.setTimeoutS(10);
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::FinishedWithSuccess)
+    if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return QString();
 
     return adbProc.allOutput();
@@ -805,7 +805,7 @@ QStringList AndroidConfig::getAbis(const QString &device)
     adbProc.setTimeoutS(10);
     adbProc.setCommand({adbTool, arguments});
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::FinishedWithSuccess)
+    if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return result;
 
     QString output = adbProc.allOutput().trimmed();
@@ -828,7 +828,7 @@ QStringList AndroidConfig::getAbis(const QString &device)
         abiProc.setTimeoutS(10);
         abiProc.setCommand({adbTool, arguments});
         abiProc.runBlocking();
-        if (abiProc.result() != QtcProcess::FinishedWithSuccess)
+        if (abiProc.result() != ProcessResult::FinishedWithSuccess)
             return result;
 
         QString abi = abiProc.allOutput().trimmed();

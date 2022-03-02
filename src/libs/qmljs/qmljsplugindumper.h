@@ -27,8 +27,6 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <utils/qtcprocess.h>
-
 #include <QObject>
 #include <QHash>
 
@@ -36,7 +34,10 @@ QT_BEGIN_NAMESPACE
 class QDir;
 QT_END_NAMESPACE
 
-namespace Utils { class FileSystemWatcher; }
+namespace Utils {
+class FileSystemWatcher;
+class QtcProcess;
+}
 
 namespace QmlJS {
 

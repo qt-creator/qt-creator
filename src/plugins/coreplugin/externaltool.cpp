@@ -670,7 +670,7 @@ void ExternalToolRunner::run()
 
 void ExternalToolRunner::finished()
 {
-    if (m_process->result() == QtcProcess::FinishedWithSuccess
+    if (m_process->result() == ProcessResult::FinishedWithSuccess
             &&  (m_tool->outputHandling() == ExternalTool::ReplaceSelection
                  || m_tool->errorHandling() == ExternalTool::ReplaceSelection)) {
         ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);

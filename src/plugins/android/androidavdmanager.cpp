@@ -66,13 +66,13 @@ const int avdCreateTimeoutMs = 30000;
 bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
-    Utils::QtcProcess proc;
+    QtcProcess proc;
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
     qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
-    if (proc.result() == Utils::QtcProcess::FinishedWithSuccess) {
+    if (proc.result() == ProcessResult::FinishedWithSuccess) {
         if (output)
             *output = proc.allOutput();
         return true;
@@ -196,7 +196,7 @@ AndroidAvdManager::~AndroidAvdManager() = default;
 
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    return Utils::runAsync(&createAvdCommand, m_config, info);
+    return runAsync(&createAvdCommand, m_config, info);
 }
 
 bool AndroidAvdManager::removeAvd(const QString &name) const
@@ -208,12 +208,12 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     proc.setCommand(command);
     proc.runBlocking();
-    return proc.result() == QtcProcess::FinishedWithSuccess;
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
 {
-    const Utils::FilePath avdPath = Utils::FilePath::fromString(avdPathStr);
+    const FilePath avdPath = FilePath::fromString(avdPathStr);
     if (avdPath.exists()) {
         const QString configFilePath = avdPath.pathAppended("config.ini").toString();
         QFile configFile(configFilePath);
@@ -273,7 +273,7 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    return Utils::runAsync(listVirtualDevices, m_config);
+    return runAsync(listVirtualDevices, m_config);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const
@@ -356,7 +356,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();
-    if (adbProc.result() != QtcProcess::FinishedWithSuccess)
+    if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return false;
     QString value = adbProc.allOutput().trimmed();
     return value == "stopped";

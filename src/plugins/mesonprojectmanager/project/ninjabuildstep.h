@@ -30,8 +30,6 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
 
-#include <utils/qtcprocess.h>
-
 namespace MesonProjectManager {
 namespace Internal {
 

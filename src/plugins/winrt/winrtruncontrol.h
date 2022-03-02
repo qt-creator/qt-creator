@@ -28,7 +28,6 @@
 #include "winrtdevice.h"
 
 #include <projectexplorer/runcontrol.h>
-#include <utils/qtcprocess.h>
 
 namespace WinRt {
 namespace Internal {
@@ -52,7 +51,6 @@ private:
     void onProcessError();
 
     State m_state = StoppedState;
-    Utils::QtcProcess *m_process = nullptr;
     WinRtRunnerHelper *m_runner = nullptr;
 };
 

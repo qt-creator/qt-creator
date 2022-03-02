@@ -28,13 +28,13 @@
 #include "environment.h"
 #include "fileutils.h"
 #include "qtcassert.h"
+#include "qtcprocess.h"
 #include "runextensions.h"
 
 #include <QFileInfo>
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QMutex>
-#include <QProcess>
 #include <QProcessEnvironment>
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -280,7 +280,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
         stdOut += proc.stdOut();
         stdErr += proc.stdErr();
         d->m_lastExecExitCode = proc.exitCode();
-        d->m_lastExecSuccess = proc.result() == QtcProcess::FinishedWithSuccess;
+        d->m_lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
         if (!d->m_lastExecSuccess)
             break;
     }
@@ -314,7 +314,7 @@ void ShellCommand::runCommand(QtcProcess &proc,
     const FilePath dir = workDirectory(workingDirectory);
 
     if (command.executable().isEmpty()) {
-        proc.setResult(QtcProcess::StartFailed);
+        proc.setResult(ProcessResult::StartFailed);
         return;
     }
 
@@ -332,7 +332,7 @@ void ShellCommand::runCommand(QtcProcess &proc,
 
     if (!d->m_aborted) {
         // Success/Fail message in appropriate window?
-        if (proc.result() == QtcProcess::FinishedWithSuccess) {
+        if (proc.result() == ProcessResult::FinishedWithSuccess) {
             if (d->m_flags & ShowSuccessMessage)
                 emit appendMessage(proc.exitMessage());
         } else if (!(d->m_flags & SuppressFailMessage)) {
@@ -416,7 +416,7 @@ void ShellCommand::runSynchronous(QtcProcess &process, const FilePath &workingDi
     if (d->m_codec)
         process.setCodec(d->m_codec);
 
-    process.runBlocking(QtcProcess::WithEventLoop);
+    process.runBlocking(EventLoopMode::On);
 }
 
 const QVariant &ShellCommand::cookie() const

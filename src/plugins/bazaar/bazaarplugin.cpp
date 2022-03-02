@@ -50,6 +50,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
 
+#include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
