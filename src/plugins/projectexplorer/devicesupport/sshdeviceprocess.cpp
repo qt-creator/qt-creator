@@ -26,7 +26,6 @@
 #include "sshdeviceprocess.h"
 
 #include "idevice.h"
-#include "../runcontrol.h"
 
 #include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>

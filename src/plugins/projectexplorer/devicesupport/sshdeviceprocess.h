@@ -25,13 +25,15 @@
 
 #pragma once
 
-#include "idevice.h"
+#include "../projectexplorer_export.h"
 
 #include <utils/qtcprocess.h>
 
 #include <memory>
 
 namespace ProjectExplorer {
+
+class IDevice;
 
 class PROJECTEXPLORER_EXPORT SshDeviceProcess : public Utils::QtcProcess
 {

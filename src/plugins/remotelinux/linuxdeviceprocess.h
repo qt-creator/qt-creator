@@ -29,8 +29,6 @@
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
-#include <QStringList>
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT LinuxDeviceProcess : public ProjectExplorer::SshDeviceProcess

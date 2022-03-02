@@ -26,7 +26,7 @@
 #pragma once
 
 #include "qnx_export.h"
-#include <remotelinux/linuxdevice.h>
+
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 
 namespace Qnx {
