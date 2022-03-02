@@ -141,7 +141,7 @@ Utils::NameValuePairs McuDependenciesKitAspect::configuration(const Kit *kit)
 {
     using namespace CMakeProjectManager;
     const auto config = CMakeConfigurationKitAspect::configuration(kit).toList();
-    return Utils::transform(config, [](const CMakeConfigItem &it) {
+    return Utils::transform<Utils::NameValuePairs>(config, [](const CMakeConfigItem &it) {
         return Utils::NameValuePair(QString::fromUtf8(it.key), QString::fromUtf8(it.value));
     });
 }
