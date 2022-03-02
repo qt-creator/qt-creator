@@ -485,6 +485,7 @@ public:
     ProcessLauncherImpl() : m_token(uniqueToken())
     {
         m_handle = LauncherInterface::registerHandle(this, token());
+        m_handle->setProcessSetupData(m_setup);
         connect(m_handle, &CallerHandle::errorOccurred,
                 this, &ProcessInterface::errorOccurred);
         connect(m_handle, &CallerHandle::started,
@@ -526,7 +527,6 @@ public:
 private:
     void doDefaultStart(const QString &program, const QStringList &arguments) override
     {
-        m_handle->setProcessSetupData(m_setup);
         m_handle->start(program, arguments);
     }
 
