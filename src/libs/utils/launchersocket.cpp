@@ -337,12 +337,14 @@ int CallerHandle::exitCode() const
 QString CallerHandle::errorString() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return {});
+    QTC_ASSERT(m_setup.get(), return {});
     return m_setup->m_errorString;
 }
 
 void CallerHandle::setErrorString(const QString &str)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
+    QTC_ASSERT(m_setup.get(), return);
     m_setup->m_errorString = str;
 }
 
