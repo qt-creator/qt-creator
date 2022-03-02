@@ -85,6 +85,7 @@ const char kHiddenFilesKey[] = ".HiddenFilesFilter";
 const char kSyncKey[] = ".SyncWithEditor";
 const char kShowBreadCrumbs[] = ".ShowBreadCrumbs";
 const char kSyncRootWithEditor[] = ".SyncRootWithEditor";
+const char kShowFoldersOnTop[] = ".ShowFoldersOnTop";
 
 const char ADDNEWFILE[] = "QtCreator.FileSystem.AddNewFile";
 const char RENAMEFILE[] = "QtCreator.FileSystem.RenameFile";
@@ -834,6 +835,7 @@ const bool kHiddenFilesDefault = false;
 const bool kAutoSyncDefault = true;
 const bool kShowBreadCrumbsDefault = true;
 const bool kRootAutoSyncDefault = true;
+const bool kShowFoldersOnTopDefault = true;
 
 void FolderNavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
                                                  int position,
@@ -852,6 +854,9 @@ void FolderNavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
     settings->setValueWithDefault(base + kSyncRootWithEditor,
                                   fnw->rootAutoSynchronization(),
                                   kRootAutoSyncDefault);
+    settings->setValueWithDefault(base + kShowFoldersOnTop,
+                                  fnw->isShowingFoldersOnTop(),
+                                  kShowFoldersOnTopDefault);
 }
 
 void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
@@ -865,6 +870,8 @@ void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int pos
         settings->value(base + kShowBreadCrumbs, kShowBreadCrumbsDefault).toBool());
     fnw->setRootAutoSynchronization(
         settings->value(base + kSyncRootWithEditor, kRootAutoSyncDefault).toBool());
+    fnw->setShowFoldersOnTop(
+        settings->value(base + kShowFoldersOnTop, kShowFoldersOnTopDefault).toBool());
 }
 
 void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)
