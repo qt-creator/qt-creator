@@ -111,7 +111,7 @@ public:
     QString program() const;
     // Called from caller's or launcher's thread.
     QStringList arguments() const;
-    void setProcessSetupData(const ProcessSetupData &setup);
+    void setProcessSetupData(const ProcessSetupData::Ptr &setup);
     QProcess::ExitStatus exitStatus() const;
 
 signals:
@@ -167,7 +167,7 @@ private:
 
     QString m_command;
     QStringList m_arguments;
-    ProcessSetupData m_setup;
+    ProcessSetupData::Ptr m_setup;
 };
 
 // Moved to the launcher thread, returned to caller's thread.

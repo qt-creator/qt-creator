@@ -240,12 +240,12 @@ public:
 
     void start() override
     {
-        m_terminal.setProcessImpl(m_setup.m_processImpl);
-        m_terminal.setTerminalMode(m_setup.m_terminalMode);
-        m_terminal.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
-        m_terminal.setCommand(m_setup.m_commandLine);
-        m_terminal.setWorkingDirectory(m_setup.m_workingDirectory);
-        m_terminal.setEnvironment(m_setup.m_environment);
+        m_terminal.setProcessImpl(m_setup->m_processImpl);
+        m_terminal.setTerminalMode(m_setup->m_terminalMode);
+        m_terminal.setAbortOnMetaChars(m_setup->m_abortOnMetaChars);
+        m_terminal.setCommand(m_setup->m_commandLine);
+        m_terminal.setWorkingDirectory(m_setup->m_workingDirectory);
+        m_terminal.setEnvironment(m_setup->m_environment);
         m_terminal.start();
     }
     void terminate() override { m_terminal.stopProcess(); }
@@ -312,7 +312,7 @@ void DefaultImpl::defaultStart()
                 << "Process " << currentNumber << " starting ("
                 << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
                 << "): "
-                << m_setup.m_commandLine.toUserOutput();
+                << m_setup->m_commandLine.toUserOutput();
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     }
 
@@ -327,26 +327,26 @@ void DefaultImpl::defaultStart()
 
 bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
 {
-    const CommandLine &commandLine = m_setup.m_commandLine;
+    const CommandLine &commandLine = m_setup->m_commandLine;
     QString commandString;
     ProcessArgs processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
-                                                     &m_setup.m_environment,
-                                                     &m_setup.m_workingDirectory);
+                                                     &m_setup->m_environment,
+                                                     &m_setup->m_workingDirectory);
 
     if (commandLine.executable().osType() == OsTypeWindows) {
         QString args;
-        if (m_setup.m_useCtrlCStub) {
-            if (m_setup.m_lowPriority)
+        if (m_setup->m_useCtrlCStub) {
+            if (m_setup->m_lowPriority)
                 ProcessArgs::addArg(&args, "-nice");
             ProcessArgs::addArg(&args, QDir::toNativeSeparators(commandString));
             commandString = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else if (m_setup.m_lowPriority) {
-            m_setup.m_belowNormalPriority = true;
+        } else if (m_setup->m_lowPriority) {
+            m_setup->m_belowNormalPriority = true;
         }
         ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
-        m_setup.m_nativeArguments = args;
+        m_setup->m_nativeArguments = args;
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
         *arguments = QStringList();
@@ -376,7 +376,7 @@ static FilePath resolve(const FilePath &workingDir, const FilePath &filePath)
 
 bool DefaultImpl::ensureProgramExists(const QString &program)
 {
-    const FilePath programFilePath = resolve(m_setup.m_workingDirectory,
+    const FilePath programFilePath = resolve(m_setup->m_workingDirectory,
                                              FilePath::fromString(program));
     if (programFilePath.exists() && programFilePath.isExecutableFile())
         return true;
@@ -446,19 +446,19 @@ private:
     void doDefaultStart(const QString &program, const QStringList &arguments) override
     {
         ProcessStartHandler *handler = m_process->processStartHandler();
-        handler->setProcessMode(m_setup.m_processMode);
-        handler->setWriteData(m_setup.m_writeData);
-        if (m_setup.m_belowNormalPriority)
+        handler->setProcessMode(m_setup->m_processMode);
+        handler->setWriteData(m_setup->m_writeData);
+        if (m_setup->m_belowNormalPriority)
             handler->setBelowNormalPriority();
-        handler->setNativeArguments(m_setup.m_nativeArguments);
-        m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
-        m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
-        m_process->setStandardInputFile(m_setup.m_standardInputFile);
-        m_process->setProcessChannelMode(m_setup.m_processChannelMode);
-        m_process->setErrorString(m_setup.m_errorString);
-        if (m_setup.m_lowPriority)
+        handler->setNativeArguments(m_setup->m_nativeArguments);
+        m_process->setProcessEnvironment(m_setup->m_environment.toProcessEnvironment());
+        m_process->setWorkingDirectory(m_setup->m_workingDirectory.path());
+        m_process->setStandardInputFile(m_setup->m_standardInputFile);
+        m_process->setProcessChannelMode(m_setup->m_processChannelMode);
+        m_process->setErrorString(m_setup->m_errorString);
+        if (m_setup->m_lowPriority)
             m_process->setLowPriority();
-        if (m_setup.m_unixTerminalDisabled)
+        if (m_setup->m_unixTerminalDisabled)
             m_process->setUnixTerminalDisabled();
         m_process->start(program, arguments, handler->openMode());
         handler->handleProcessStart();
@@ -560,7 +560,7 @@ public:
         OtherFailure
     };
 
-    explicit QtcProcessPrivate(QtcProcess *parent, ProcessSetupData &setup)
+    explicit QtcProcessPrivate(QtcProcess *parent, const ProcessSetupData::Ptr &setup)
         : QObject(parent)
         , q(parent)
         , m_setup(setup)
@@ -568,11 +568,11 @@ public:
 
     ProcessInterface *createProcessInterface()
     {
-        if (m_setup.m_terminalMode != TerminalMode::Off)
+        if (m_setup->m_terminalMode != TerminalMode::Off)
             return new TerminalImpl();
 
-        const ProcessImpl impl = m_setup.m_processImpl == ProcessImpl::Default
-                               ? defaultProcessImpl() : m_setup.m_processImpl;
+        const ProcessImpl impl = m_setup->m_processImpl == ProcessImpl::Default
+                               ? defaultProcessImpl() : m_setup->m_processImpl;
         if (impl == ProcessImpl::QProcess)
             return new QProcessImpl();
         return new ProcessLauncherImpl();
@@ -581,7 +581,7 @@ public:
     void setProcessInterface(ProcessInterface *process)
     {
         m_process.reset(process);
-        m_setup.m_errorString.clear();
+        m_setup->m_errorString.clear();
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,
@@ -612,21 +612,21 @@ public:
 
     CommandLine fullCommandLine() const
     {
-        if (!m_setup.m_runAsRoot || HostOsInfo::isWindowsHost())
-            return m_setup.m_commandLine;
+        if (!m_setup->m_runAsRoot || HostOsInfo::isWindowsHost())
+            return m_setup->m_commandLine;
         CommandLine rootCommand("sudo", {"-A"});
-        rootCommand.addCommandLineAsArgs(m_setup.m_commandLine);
+        rootCommand.addCommandLineAsArgs(m_setup->m_commandLine);
         return rootCommand;
     }
 
     Environment fullEnvironment() const
     {
         Environment env;
-        if (m_setup.m_haveEnv) {
-            if (m_setup.m_environment.size() == 0)
+        if (m_setup->m_haveEnv) {
+            if (m_setup->m_environment.size() == 0)
                 qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-                         qPrintable(m_setup.m_commandLine.executable().toString()));
-            env = m_setup.m_environment;
+                         qPrintable(m_setup->m_commandLine.executable().toString()));
+            env = m_setup->m_environment;
         } else {
             env = Environment::systemEnvironment();
         }
@@ -639,7 +639,7 @@ public:
 
     QtcProcess *q;
     std::unique_ptr<ProcessInterface> m_process;
-    ProcessSetupData &m_setup;
+    ProcessSetupData::Ptr m_setup;
 
     void slotTimeout();
     void slotFinished();
@@ -770,90 +770,91 @@ void QtcProcess::emitErrorOccurred(QProcess::ProcessError error)
 void QtcProcess::setProcessInterface(ProcessInterface *interface)
 {
     d->setProcessInterface(interface);
-    d->m_process->m_setup = d->m_setup;
+    // Make a copy, don't share, until we get rid of fullCommandLine() and fullEnvironment()
+    *d->m_process->m_setup = *d->m_setup;
 }
 
 void QtcProcess::setProcessImpl(ProcessImpl processImpl)
 {
-    d->m_setup.m_processImpl = processImpl;
+    d->m_setup->m_processImpl = processImpl;
 }
 
 ProcessMode QtcProcess::processMode() const
 {
-    return d->m_setup.m_processMode;
+    return d->m_setup->m_processMode;
 }
 
 void QtcProcess::setTerminalMode(TerminalMode mode)
 {
-    d->m_setup.m_terminalMode = mode;
+    d->m_setup->m_terminalMode = mode;
 }
 
 TerminalMode QtcProcess::terminalMode() const
 {
-    return d->m_setup.m_terminalMode;
+    return d->m_setup->m_terminalMode;
 }
 
 void QtcProcess::setProcessMode(ProcessMode processMode)
 {
-    d->m_setup.m_processMode = processMode;
+    d->m_setup->m_processMode = processMode;
 }
 
 void QtcProcess::setEnvironment(const Environment &env)
 {
-    d->m_setup.m_environment = env;
-    d->m_setup.m_haveEnv = true;
+    d->m_setup->m_environment = env;
+    d->m_setup->m_haveEnv = true;
 }
 
 void QtcProcess::unsetEnvironment()
 {
-    d->m_setup.m_environment = Environment();
-    d->m_setup.m_haveEnv = false;
+    d->m_setup->m_environment = Environment();
+    d->m_setup->m_haveEnv = false;
 }
 
 const Environment &QtcProcess::environment() const
 {
-    return d->m_setup.m_environment;
+    return d->m_setup->m_environment;
 }
 
 bool QtcProcess::hasEnvironment() const
 {
-    return d->m_setup.m_haveEnv;
+    return d->m_setup->m_haveEnv;
 }
 
 void QtcProcess::setRemoteEnvironment(const Environment &environment)
 {
-    d->m_setup.m_remoteEnvironment = environment;
+    d->m_setup->m_remoteEnvironment = environment;
 }
 
 Environment QtcProcess::remoteEnvironment() const
 {
-    return d->m_setup.m_remoteEnvironment;
+    return d->m_setup->m_remoteEnvironment;
 }
 
 void QtcProcess::setCommand(const CommandLine &cmdLine)
 {
-    if (d->m_setup.m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
-        QTC_CHECK(d->m_setup.m_workingDirectory.host() == cmdLine.executable().host());
+    if (d->m_setup->m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
+        QTC_CHECK(d->m_setup->m_workingDirectory.host() == cmdLine.executable().host());
     }
-    d->m_setup.m_commandLine = cmdLine;
+    d->m_setup->m_commandLine = cmdLine;
 }
 
 const CommandLine &QtcProcess::commandLine() const
 {
-    return d->m_setup.m_commandLine;
+    return d->m_setup->m_commandLine;
 }
 
 FilePath QtcProcess::workingDirectory() const
 {
-    return d->m_setup.m_workingDirectory;
+    return d->m_setup->m_workingDirectory;
 }
 
 void QtcProcess::setWorkingDirectory(const FilePath &dir)
 {
-    if (dir.needsDevice() && d->m_setup.m_commandLine.executable().needsDevice()) {
-        QTC_CHECK(dir.host() == d->m_setup.m_commandLine.executable().host());
+    if (dir.needsDevice() && d->m_setup->m_commandLine.executable().needsDevice()) {
+        QTC_CHECK(dir.host() == d->m_setup->m_commandLine.executable().host());
     }
-    d->m_setup.m_workingDirectory = dir;
+    d->m_setup->m_workingDirectory = dir;
 }
 
 void QtcProcess::setUseCtrlCStub(bool enabled)
@@ -862,7 +863,7 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
     // Qt Creator otherwise, because they share the same Windows console.
     // See QTCREATORBUG-11995 for details.
 #ifndef QT_DEBUG
-    d->m_setup.m_useCtrlCStub = enabled;
+    d->m_setup->m_useCtrlCStub = enabled;
 #else
     Q_UNUSED(enabled)
 #endif
@@ -874,7 +875,7 @@ void QtcProcess::start()
 //    QTC_ASSERT(state() == QProcess::NotRunning, return);
 
     ProcessInterface *processImpl = nullptr;
-    if (d->m_setup.m_commandLine.executable().needsDevice()) {
+    if (d->m_setup->m_commandLine.executable().needsDevice()) {
         if (s_deviceHooks.processImplHook) { // TODO: replace "if" with an assert for the hook
             processImpl = s_deviceHooks.processImplHook(commandLine().executable());
         }
@@ -889,8 +890,8 @@ void QtcProcess::start()
     QTC_ASSERT(processImpl, return);
     setProcessInterface(processImpl);
     d->clearForRun();
-    d->m_process->m_setup.m_commandLine = d->fullCommandLine();
-    d->m_process->m_setup.m_environment = d->fullEnvironment();
+    d->m_process->m_setup->m_commandLine = d->fullCommandLine();
+    d->m_process->m_setup->m_environment = d->fullEnvironment();
     if (processLog().isDebugEnabled()) {
         // Pass a dynamic property with info about blocking type
         d->m_process->setProperty(QTC_PROCESS_BLOCKING_TYPE, property(QTC_PROCESS_BLOCKING_TYPE));
@@ -926,7 +927,7 @@ BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARA
 void QtcProcess::terminate()
 {
 #ifdef Q_OS_WIN
-    if (d->m_setup.m_useCtrlCStub)
+    if (d->m_setup->m_useCtrlCStub)
         EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, processId());
     else
 #endif
@@ -937,7 +938,7 @@ void QtcProcess::terminate()
 void QtcProcess::interrupt()
 {
 #ifdef Q_OS_WIN
-    QTC_ASSERT(d->m_setup.m_useCtrlCStub, return);
+    QTC_ASSERT(d->m_setup->m_useCtrlCStub, return);
     EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
 #endif
 }
@@ -952,71 +953,71 @@ bool QtcProcess::startDetached(const CommandLine &cmd, const FilePath &workingDi
 
 void QtcProcess::setLowPriority()
 {
-    d->m_setup.m_lowPriority = true;
+    d->m_setup->m_lowPriority = true;
 }
 
 void QtcProcess::setDisableUnixTerminal()
 {
-    d->m_setup.m_unixTerminalDisabled = true;
+    d->m_setup->m_unixTerminalDisabled = true;
 }
 
 void QtcProcess::setAbortOnMetaChars(bool abort)
 {
-    d->m_setup.m_abortOnMetaChars = abort;
+    d->m_setup->m_abortOnMetaChars = abort;
 }
 
 void QtcProcess::setRunAsRoot(bool on)
 {
-    d->m_setup.m_runAsRoot = on;
+    d->m_setup->m_runAsRoot = on;
 }
 
 bool QtcProcess::isRunAsRoot() const
 {
-    return d->m_setup.m_runAsRoot;
+    return d->m_setup->m_runAsRoot;
 }
 
 void QtcProcess::setStandardInputFile(const QString &inputFile)
 {
-    d->m_setup.m_standardInputFile = inputFile;
+    d->m_setup->m_standardInputFile = inputFile;
 }
 
 QString QtcProcess::toStandaloneCommandLine() const
 {
     QStringList parts;
     parts.append("/usr/bin/env");
-    if (!d->m_setup.m_workingDirectory.isEmpty()) {
+    if (!d->m_setup->m_workingDirectory.isEmpty()) {
         parts.append("-C");
-        d->m_setup.m_workingDirectory.path();
+        d->m_setup->m_workingDirectory.path();
     }
     parts.append("-i");
-    if (d->m_setup.m_environment.size() > 0) {
-        const QStringList envVars = d->m_setup.m_environment.toStringList();
+    if (d->m_setup->m_environment.size() > 0) {
+        const QStringList envVars = d->m_setup->m_environment.toStringList();
         std::transform(envVars.cbegin(), envVars.cend(),
                        std::back_inserter(parts), ProcessArgs::quoteArgUnix);
     }
-    parts.append(d->m_setup.m_commandLine.executable().path());
-    parts.append(d->m_setup.m_commandLine.splitArguments());
+    parts.append(d->m_setup->m_commandLine.executable().path());
+    parts.append(d->m_setup->m_commandLine.splitArguments());
     return parts.join(" ");
 }
 
 void QtcProcess::setExtraData(const QString &key, const QVariant &value)
 {
-    d->m_setup.m_extraData.insert(key, value);
+    d->m_setup->m_extraData.insert(key, value);
 }
 
 QVariant QtcProcess::extraData(const QString &key) const
 {
-    return d->m_setup.m_extraData.value(key);
+    return d->m_setup->m_extraData.value(key);
 }
 
 void QtcProcess::setExtraData(const QVariantHash &extraData)
 {
-    d->m_setup.m_extraData = extraData;
+    d->m_setup->m_extraData = extraData;
 }
 
 QVariantHash QtcProcess::extraData() const
 {
-    return d->m_setup.m_extraData;
+    return d->m_setup->m_extraData;
 }
 
 void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
@@ -1101,7 +1102,7 @@ bool QtcProcess::readDataFromProcess(int timeoutS,
         }
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
-        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_setup.m_commandLine.executable().path());
+        hasData = hang && showTimeOutMessageBox && !askToKill(d->m_setup->m_commandLine.executable().path());
     } while (hasData && !finished);
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
@@ -1249,7 +1250,7 @@ qint64 QtcProcess::applicationMainThreadID() const
 
 void QtcProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_setup.m_processChannelMode = mode;
+    d->m_setup->m_processChannelMode = mode;
 }
 
 QProcess::ProcessError QtcProcess::error() const
@@ -1277,7 +1278,7 @@ QString QtcProcess::errorString() const
 {
     if (d->m_process)
         return d->m_process->errorString();
-    return d->m_setup.m_errorString;
+    return d->m_setup->m_errorString;
 }
 
 void QtcProcess::setErrorString(const QString &str)
@@ -1285,7 +1286,7 @@ void QtcProcess::setErrorString(const QString &str)
     if (d->m_process)
         d->m_process->setErrorString(str);
     else
-        d->m_setup.m_errorString = str;
+        d->m_setup->m_errorString = str;
 }
 
 qint64 QtcProcess::processId() const
@@ -1585,7 +1586,7 @@ void QtcProcess::setExitCodeInterpreter(const ExitCodeInterpreter &interpreter)
 
 void QtcProcess::setWriteData(const QByteArray &writeData)
 {
-    d->m_setup.m_writeData = writeData;
+    d->m_setup->m_writeData = writeData;
 }
 
 #ifdef QT_GUI_LIB
@@ -1599,7 +1600,7 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
 {
     // FIXME: Implement properly
 
-    if (d->m_setup.m_commandLine.executable().needsDevice()) {
+    if (d->m_setup->m_commandLine.executable().needsDevice()) {
         QtcProcess::start();
         waitForFinished();
         return;
@@ -1697,7 +1698,7 @@ void QtcProcessPrivate::slotTimeout()
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         m_waitingForUser = true;
         const bool terminate = !m_timeOutMessageBoxEnabled
-            || askToKill(m_setup.m_commandLine.executable().toString());
+            || askToKill(m_setup->m_commandLine.executable().toString());
         m_waitingForUser = false;
         if (terminate) {
             q->stopProcess();

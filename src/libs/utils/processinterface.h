@@ -38,6 +38,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
 public:
+    using Ptr = std::shared_ptr<ProcessSetupData>;
+
     ProcessImpl m_processImpl = ProcessImpl::Default;
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
@@ -67,7 +69,8 @@ class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
     Q_OBJECT
 
 public:
-    ProcessInterface(QObject *parent = nullptr) : QObject(parent) {}
+    ProcessInterface(QObject *parent = nullptr) : QObject(parent), m_setup(new ProcessSetupData) {}
+    ProcessInterface(ProcessSetupData::Ptr setup) : m_setup(setup) {}
 
     virtual void start() = 0;
     virtual void terminate() = 0;
@@ -103,8 +106,59 @@ signals:
     void readyReadStandardError();
 
 protected:
-    ProcessSetupData m_setup;
+    ProcessSetupData::Ptr m_setup;
+    friend class ProcessProxyInterface;
     friend class QtcProcess;
 };
+
+class QTCREATOR_UTILS_EXPORT ProcessProxyInterface : public ProcessInterface
+{
+    Q_OBJECT
+
+public:
+    ProcessProxyInterface(ProcessInterface *target)
+        : ProcessInterface(target->m_setup)
+        , m_target(target)
+    {
+        m_target->setParent(this);
+        connect(m_target, &ProcessInterface::started, this, &ProcessInterface::started);
+        connect(m_target, &ProcessInterface::finished, this, &ProcessInterface::finished);
+        connect(m_target, &ProcessInterface::errorOccurred, this, &ProcessInterface::errorOccurred);
+        connect(m_target, &ProcessInterface::readyReadStandardOutput,
+                this, &ProcessInterface::readyReadStandardOutput);
+        connect(m_target, &ProcessInterface::readyReadStandardError,
+                this, &ProcessInterface::readyReadStandardError);
+    }
+
+    void start() override { m_target->start(); }
+    void terminate() override { m_target->terminate(); }
+    void kill() override { m_target->kill(); }
+    void close() override { m_target->close(); }
+
+    QByteArray readAllStandardOutput() override { return m_target->readAllStandardOutput(); }
+    QByteArray readAllStandardError() override { return m_target->readAllStandardError(); }
+    qint64 write(const QByteArray &data) override { return m_target->write(data); }
+
+    qint64 processId() const override { return m_target->processId(); }
+    QProcess::ProcessState state() const override { return m_target->state(); }
+    int exitCode() const override { return m_target->exitCode(); }
+    QProcess::ExitStatus exitStatus() const override { return m_target->exitStatus(); }
+
+    QProcess::ProcessError error() const override { return m_target->error(); }
+    QString errorString() const override { return m_target->errorString(); }
+    void setErrorString(const QString &str) override { m_target->setErrorString(str); }
+
+    bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
+    bool waitForReadyRead(int msecs) override { return m_target->waitForReadyRead(msecs); }
+    bool waitForFinished(int msecs) override { return m_target->waitForFinished(msecs); }
+
+    void kickoffProcess() override { m_target->kickoffProcess(); }
+    void interruptProcess() override { m_target->interruptProcess(); }
+    qint64 applicationMainThreadID() const override { return m_target->applicationMainThreadID(); }
+
+protected:
+    ProcessInterface *m_target;
+};
+
 
 } // namespace Utils

@@ -215,7 +215,7 @@ void CallerHandle::handleError(const ErrorSignal *launcherSignal)
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::NotRunning;
     m_error = launcherSignal->error();
-    m_setup.m_errorString = launcherSignal->errorString();
+    m_setup->m_errorString = launcherSignal->errorString();
     if (m_error == QProcess::FailedToStart)
         m_exitCode = 255; // This code is being returned by QProcess when FailedToStart error occurred
     emit errorOccurred(m_error);
@@ -232,16 +232,16 @@ void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
 void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    if (m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel
-            || m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
+    if (m_setup->m_processChannelMode == QProcess::ForwardedOutputChannel
+            || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
         std::cout << launcherSignal->stdOut().constData();
     } else {
         m_stdout += launcherSignal->stdOut();
         if (!m_stdout.isEmpty())
             emit readyReadStandardOutput();
     }
-    if (m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel
-            || m_setup.m_processChannelMode == QProcess::ForwardedChannels) {
+    if (m_setup->m_processChannelMode == QProcess::ForwardedErrorChannel
+            || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
         std::cerr << launcherSignal->stdErr().constData();
     } else {
         m_stderr += launcherSignal->stdErr();
@@ -293,8 +293,8 @@ void CallerHandle::cancel()
     case QProcess::NotRunning:
         break;
     case QProcess::Starting:
-        m_setup.m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
-                                "Process was canceled before it was started.");
+        m_setup->m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
+                                 "Process was canceled before it was started.");
         m_error = QProcess::FailedToStart;
         if (LauncherInterface::isReady()) // TODO: race condition with m_processState???
             sendPacket(StopProcessPacket(m_token));
@@ -337,13 +337,13 @@ int CallerHandle::exitCode() const
 QString CallerHandle::errorString() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return {});
-    return m_setup.m_errorString;
+    return m_setup->m_errorString;
 }
 
 void CallerHandle::setErrorString(const QString &str)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    m_setup.m_errorString = str;
+    m_setup->m_errorString = str;
 }
 
 void CallerHandle::start(const QString &program, const QStringList &arguments)
@@ -374,16 +374,16 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     StartProcessPacket *p = new StartProcessPacket(m_token);
     p->command = m_command;
     p->arguments = m_arguments;
-    p->env = m_setup.m_environment.toStringList();
-    p->workingDir = m_setup.m_workingDirectory.path();
-    p->processMode = m_setup.m_processMode;
-    p->writeData = m_setup.m_writeData;
-    p->processChannelMode = m_setup.m_processChannelMode;
-    p->standardInputFile = m_setup.m_standardInputFile;
-    p->belowNormalPriority = m_setup.m_belowNormalPriority;
-    p->nativeArguments = m_setup.m_nativeArguments;
-    p->lowPriority = m_setup.m_lowPriority;
-    p->unixTerminalDisabled = m_setup.m_unixTerminalDisabled;
+    p->env = m_setup->m_environment.toStringList();
+    p->workingDir = m_setup->m_workingDirectory.path();
+    p->processMode = m_setup->m_processMode;
+    p->writeData = m_setup->m_writeData;
+    p->processChannelMode = m_setup->m_processChannelMode;
+    p->standardInputFile = m_setup->m_standardInputFile;
+    p->belowNormalPriority = m_setup->m_belowNormalPriority;
+    p->nativeArguments = m_setup->m_nativeArguments;
+    p->lowPriority = m_setup->m_lowPriority;
+    p->unixTerminalDisabled = m_setup->m_unixTerminalDisabled;
     m_startPacket.reset(p);
     if (LauncherInterface::isReady())
         doStart();
@@ -443,7 +443,7 @@ QStringList CallerHandle::arguments() const
     return m_arguments;
 }
 
-void CallerHandle::setProcessSetupData(const ProcessSetupData &setup)
+void CallerHandle::setProcessSetupData(const ProcessSetupData::Ptr &setup)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_setup = setup;
