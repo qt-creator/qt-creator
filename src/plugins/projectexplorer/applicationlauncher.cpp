@@ -447,7 +447,7 @@ void ApplicationLauncherPrivate::setFinished()
     if (m_state == Inactive)
         return;
 
-    m_exitCode = m_process ? m_exitCode = m_process->exitCode() : 0;
+    m_exitCode = m_process ? m_process->exitCode() : 0;
 
     m_state = Inactive;
     emit q->finished();
