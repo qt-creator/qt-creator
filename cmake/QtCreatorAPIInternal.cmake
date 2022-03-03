@@ -4,7 +4,10 @@ if (CMAKE_VERSION VERSION_LESS 3.18)
   endif()
 endif()
 
-include(CheckLinkerFlag)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18)
+  include(CheckLinkerFlag)
+endif()
+
 include(FeatureSummary)
 
 #
@@ -163,6 +166,8 @@ function(qtc_enable_sanitize _sanitize_flags)
 endfunction()
 
 function(qtc_add_link_flags_no_undefined target)
+  # needs CheckLinkerFlags
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18)
     set(no_undefined_flag "-Wl,--no-undefined")
     check_linker_flag(CXX ${no_undefined_flag} QTC_LINKER_SUPPORTS_NO_UNDEFINED)
     if (NOT QTC_LINKER_SUPPORTS_NO_UNDEFINED)
@@ -173,6 +178,7 @@ function(qtc_add_link_flags_no_undefined target)
         endif()
     endif()
     target_link_options("${target}" PRIVATE "${no_undefined_flag}")
+  endif()
 endfunction()
 
 function(append_extra_translations target_name)
