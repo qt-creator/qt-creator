@@ -51,8 +51,8 @@ QtcPlugin {
         "mcutargetdescription.h",
         "mcukitinformation.cpp",
         "mcukitinformation.h",
-        "mcuhelpers.h",
         "mcuhelpers.cpp",
+        "mcuhelpers.h",
     ]
 
     Group {

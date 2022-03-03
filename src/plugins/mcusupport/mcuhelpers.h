@@ -36,5 +36,6 @@ struct McuTargetDescription;
 }
 
 Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDescription &);
+QString removeRtosSuffix(const QString &environmentVariable);
 
 }; // namespace McuSupport

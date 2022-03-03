@@ -26,6 +26,8 @@
 #include "mcuhelpers.h"
 #include "mcutargetdescription.h"
 
+#include <QRegularExpression>
+
 namespace McuSupport {
 
 Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDescription &desc)
@@ -37,6 +39,13 @@ Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDesc
     else if (!desc.freeRTOS.envVar.isEmpty())
         return OS::FreeRTOS;
     return OS::BareMetal;
+}
+
+QString removeRtosSuffix(const QString &environmentVariable)
+{
+    static const QRegularExpression freeRtosSuffix{R"(_FREERTOS_\w+)"};
+    QString result = environmentVariable;
+    return result.replace(freeRtosSuffix, QString{});
 }
 
 } //namespace McuSupport

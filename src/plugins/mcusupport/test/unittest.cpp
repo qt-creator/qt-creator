@@ -59,7 +59,7 @@ const QString nxp1064FreeRtosEnvVar{"IMXRT1064_FREERTOS_DIR"};
 const QString nxp1170FreeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
 const QString stm32f7FreeRtosEnvVar{"STM32F7_FREERTOS_DIR"};
 const QString stm32f7{"STM32F7"};
-const QString nxp1170{"EVK_MIMXRT1170_"};
+const QString nxp1170{"EVK_MIMXRT1170"};
 const QString nxp1050{"IMXRT1050"};
 const QString nxp1064{"IMXRT1064"};
 const QStringList jsonFiles{armgcc_nxp_1050_json, armgcc_nxp_1064_json};
@@ -294,6 +294,24 @@ void McuSupportTest::test_createPackages()
     Sdk::McuTargetFactory targetFactory;
     const auto packages{targetFactory.createPackages(targetDescription)};
     QVERIFY(not packages.empty());
+}
+
+void McuSupportTest::test_removeRtosSuffix_data()
+{
+    QTest::addColumn<QString>("freeRtosEnvVar");
+    QTest::addColumn<QString>("expectedEnvVarWithoutSuffix");
+
+    QTest::newRow("nxp1050") << nxp1050FreeRtosEnvVar << nxp1050;
+    QTest::newRow("nxp1064") << nxp1064FreeRtosEnvVar << nxp1064;
+    QTest::newRow("nxp1170") << nxp1170FreeRtosEnvVar << nxp1170;
+    QTest::newRow("stm32f7") << stm32f7FreeRtosEnvVar << stm32f7;
+}
+
+void McuSupportTest::test_removeRtosSuffix()
+{
+    QFETCH(QString, freeRtosEnvVar);
+    QFETCH(QString, expectedEnvVarWithoutSuffix);
+    QCOMPARE(removeRtosSuffix(freeRtosEnvVar), expectedEnvVarWithoutSuffix);
 }
 
 } // namespace McuSupport::Internal::Test

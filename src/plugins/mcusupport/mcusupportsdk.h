@@ -36,10 +36,10 @@ namespace McuSupport::Internal {
 
 constexpr int MAX_COMPATIBILITY_VERSION{1};
 
-class McuSdkRepository;
 class McuAbstractPackage;
-class McuToolChainPackage;
+class McuSdkRepository;
 class McuTarget;
+class McuToolChainPackage;
 
 namespace Sdk {
 

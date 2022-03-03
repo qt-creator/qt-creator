@@ -60,6 +60,8 @@ private slots:
     void test_createTargetsTheNewWay();
     void test_createPackages();
     void test_parseCmakeEntries();
+    void test_removeRtosSuffix_data();
+    void test_removeRtosSuffix();
 
 private:
     QVersionNumber currentQulVersion{2, 0};

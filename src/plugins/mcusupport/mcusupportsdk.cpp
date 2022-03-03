@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "mcusupportsdk.h"
+#include "mcuhelpers.h"
 #include "mcukitmanager.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
@@ -149,7 +150,7 @@ McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
                                                  const FilePath &boardSdkDir,
                                                  const QString &freeRTOSBoardSdkSubDir)
 {
-    const QString envVarPrefix = envVar.chopped(int(strlen("_FREERTOS_DIR")));
+    const QString envVarPrefix = removeRtosSuffix(envVar);
 
     FilePath defaultPath;
     if (qEnvironmentVariableIsSet(envVar.toLatin1()))
@@ -160,8 +161,7 @@ McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
     return new McuPackage(QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
                           defaultPath,
                           {}, // detection path
-                          QString::fromLatin1("FreeRTOSSourcePackage_%1")
-                              .arg(envVarPrefix),  // settings key
+                          QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(envVarPrefix),
                           "FREERTOS_DIR",          // cmake var
                           envVar,                  // env var
                           "https://freertos.org"); // download url
@@ -480,7 +480,7 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
 static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
 {
     QList<PackageDescription> result;
-    for (const auto& cmakeEntryRef : cmakeEntries) {
+    for (const auto &cmakeEntryRef : cmakeEntries) {
         const QJsonObject cmakeEntry{cmakeEntryRef.toObject()};
         result.push_back({cmakeEntry[ID].toString(),
                           cmakeEntry["envVar"].toString(),

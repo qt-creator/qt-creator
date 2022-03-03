@@ -51,8 +51,9 @@ namespace Internal {
 
 class McuAbstractPackage;
 
-struct McuSdkRepository
+class McuSdkRepository
 {
+public:
     Packages packages;
     Targets mcuTargets;
     void deletePackagesAndTargets();
