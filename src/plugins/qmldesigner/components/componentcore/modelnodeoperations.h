@@ -76,6 +76,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void addTabBarToStackedContainer(const SelectionContext &selectionContext);
+AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory);
 AddFilesResult addImageToProject(const QStringList &fileNames, const QString &directory);
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &directory);
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory);

@@ -373,7 +373,7 @@ void AssetsLibraryModel::setSearchText(const QString &searchText)
     }
 }
 
-const QSet<QString> &AssetsLibraryModel::supportedSuffixes() const
+const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
 {
     static QSet<QString> allSuffixes;
     if (allSuffixes.isEmpty()) {

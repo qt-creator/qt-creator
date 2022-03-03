@@ -32,45 +32,67 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Item {
-    id: rootItem
+    id: root
 
     property var selectedAssets: ({})
     property int allExpandedState: 0
     property string contextFilePath: ""
     property var contextDir: undefined
     property bool isDirContextMenu: false
+    property var dropExtFiles: [] // array of supported externally dropped files
 
     function clearSearchFilter()
     {
         searchBox.text = "";
     }
 
-    DropArea {
+    function updateDropExtFiles(drag)
+    {
+        root.dropExtFiles = []
+        for (const u of drag.urls) {
+            var url = u.toString();
+            if (url.startsWith("file:///")) // remove file scheme (happens on Windows)
+                url = url.substr(8)
+
+            var ext = url.slice(url.lastIndexOf('.') + 1).toLowerCase()
+            if (rootView.supportedDropSuffixes().includes('*.' + ext))
+                root.dropExtFiles.push(url)
+        }
+
+        drag.accepted = root.dropExtFiles.length > 0
+    }
+
+    DropArea { // handles external drop on empty area of the view (goes to root folder)
         id: dropArea
-
-        property var files // list of supported dropped files
-
-        enabled: true
-        anchors.fill: parent
+        y: assetsView.y + assetsView.contentHeight + 5
+        width: parent.width
+        height: parent.height - y
 
         onEntered: (drag)=> {
-            files = []
-            for (var i = 0; i < drag.urls.length; ++i) {
-                var url = drag.urls[i].toString();
-                if (url.startsWith("file:///")) // remove file scheme (happens on Windows)
-                    url = url.substr(8)
-                var ext = url.slice(url.lastIndexOf('.') + 1).toLowerCase()
-                if (rootView.supportedDropSuffixes().includes('*.' + ext))
-                    files.push(url)
-            }
-
-            if (files.length === 0)
-                drag.accepted = false;
+            root.updateDropExtFiles(drag)
         }
 
         onDropped: {
-            if (files.length > 0)
-                rootView.handleFilesDrop(files)
+            rootView.handleExtFilesDrop(root.dropExtFiles, assetsModel.rootDir().dirPath)
+        }
+
+        Canvas { // marker for the drop area
+            id: dropCanvas
+            anchors.fill: parent
+            visible: dropArea.containsDrag
+
+            onWidthChanged: dropCanvas.requestPaint()
+            onHeightChanged: dropCanvas.requestPaint()
+
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.reset()
+                ctx.strokeStyle = StudioTheme.Values.themeInteraction
+                ctx.lineWidth = 2
+                ctx.setLineDash([4, 4])
+                ctx.rect(5, 5, dropCanvas.width - 10, dropCanvas.height - 10)
+                ctx.stroke()
+            }
         }
     }
 
@@ -79,9 +101,9 @@ Item {
         acceptedButtons: Qt.RightButton
         onClicked: {
             if (!assetsModel.isEmpty) {
-                contextFilePath = ""
-                contextDir = assetsModel.rootDir()
-                isDirContextMenu = false
+                root.contextFilePath = ""
+                root.contextDir = assetsModel.rootDir()
+                root.isDirContextMenu = false
                 contextMenu.popup()
             }
         }
@@ -91,8 +113,8 @@ Item {
     function handleViewFocusOut()
     {
         contextMenu.close()
-        selectedAssets = {}
-        selectedAssetsChanged()
+        root.selectedAssets = {}
+        root.selectedAssetsChanged()
     }
 
     StudioControls.Menu {
@@ -101,49 +123,49 @@ Item {
         closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
         onOpened: {
-            var numSelected = Object.values(selectedAssets).filter(p => p).length
+            var numSelected = Object.values(root.selectedAssets).filter(p => p).length
             deleteFileItem.text = numSelected > 1 ? qsTr("Delete Files") : qsTr("Delete File")
         }
 
         StudioControls.MenuItem {
             text: qsTr("Expand All")
-            enabled: allExpandedState !== 1
-            visible: isDirContextMenu
+            enabled: root.allExpandedState !== 1
+            visible: root.isDirContextMenu
             height: visible ? implicitHeight : 0
             onTriggered: assetsModel.toggleExpandAll(true)
         }
 
         StudioControls.MenuItem {
             text: qsTr("Collapse All")
-            enabled: allExpandedState !== 2
-            visible: isDirContextMenu
+            enabled: root.allExpandedState !== 2
+            visible: root.isDirContextMenu
             height: visible ? implicitHeight : 0
             onTriggered: assetsModel.toggleExpandAll(false)
         }
 
         StudioControls.MenuSeparator {
-            visible: isDirContextMenu
+            visible: root.isDirContextMenu
             height: visible ? StudioTheme.Values.border : 0
         }
 
         StudioControls.MenuItem {
             id: deleteFileItem
             text: qsTr("Delete File")
-            visible: contextFilePath
-            height: visible ? implicitHeight : 0
+            visible: root.contextFilePath
+            height: deleteFileItem.visible ? deleteFileItem.implicitHeight : 0
             onTriggered: {
-                assetsModel.deleteFiles(Object.keys(selectedAssets).filter(p => selectedAssets[p]))
+                assetsModel.deleteFiles(Object.keys(root.selectedAssets).filter(p => root.selectedAssets[p]))
             }
         }
 
         StudioControls.MenuSeparator {
-            visible: contextFilePath
+            visible: root.contextFilePath
             height: visible ? StudioTheme.Values.border : 0
         }
 
         StudioControls.MenuItem {
             text: qsTr("Rename Folder")
-            visible: isDirContextMenu
+            visible: root.isDirContextMenu
             height: visible ? implicitHeight : 0
             onTriggered: renameFolderDialog.open()
         }
@@ -155,14 +177,14 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Delete Folder")
-            visible: isDirContextMenu
+            visible: root.isDirContextMenu
             height: visible ? implicitHeight : 0
             onTriggered: {
-                var dirEmpty = !(contextDir.dirsModel && contextDir.dirsModel.rowCount() > 0)
-                            && !(contextDir.filesModel && contextDir.filesModel.rowCount() > 0);
+                var dirEmpty = !(root.contextDir.dirsModel && root.contextDir.dirsModel.rowCount() > 0)
+                            && !(root.contextDir.filesModel && root.contextDir.filesModel.rowCount() > 0);
 
                 if (dirEmpty)
-                    assetsModel.deleteFolder(contextDir.dirPath)
+                    assetsModel.deleteFolder(root.contextDir.dirPath)
                 else
                     confirmDeleteFolderDialog.open()
             }
@@ -243,7 +265,7 @@ Item {
                     text: qsTr("Rename")
                     enabled: folderRename.text !== ""
                     onClicked: {
-                        var success = assetsModel.renameFolder(contextDir.dirPath, folderRename.text)
+                        var success = assetsModel.renameFolder(root.contextDir.dirPath, folderRename.text)
                         if (success)
                             renameFolderDialog.accept()
 
@@ -259,7 +281,7 @@ Item {
         }
 
         onOpened: {
-            folderRename.text = contextDir.dirName
+            folderRename.text = root.contextDir.dirName
             folderRename.selectAll()
             folderRename.forceActiveFocus()
             renameFolderDialog.renameError = false
@@ -317,7 +339,7 @@ Item {
                     text: qsTr("Create")
                     enabled: folderName.text !== ""
                     onClicked: {
-                        assetsModel.addNewFolder(contextDir.dirPath + '/' + folderName.text)
+                        assetsModel.addNewFolder(root.contextDir.dirPath + '/' + folderName.text)
                         newFolderDialog.accept()
                     }
                 }
@@ -353,7 +375,7 @@ Item {
                 id: folderNotEmpty
 
                 text: qsTr("Folder \"%1\" is not empty. Delete it anyway?")
-                            .arg(contextDir ? contextDir.dirName : "")
+                            .arg(root.contextDir ? root.contextDir.dirName : "")
                 color: StudioTheme.Values.themeTextColor
                 wrapMode: Text.WordWrap
                 width: confirmDeleteFolderDialog.width
@@ -381,7 +403,7 @@ Item {
                     text: qsTr("Delete")
 
                     onClicked: {
-                        assetsModel.deleteFolder(contextDir.dirPath)
+                        assetsModel.deleteFolder(root.contextDir.dirPath)
                         confirmDeleteFolderDialog.accept()
                     }
                 }
@@ -441,7 +463,7 @@ Item {
 
                 spacing: 20
                 x: 20
-                width: rootItem.width - 2 * x
+                width: root.width - 2 * x
                 anchors.verticalCenter: parent.verticalCenter
 
                 Text {
@@ -500,6 +522,8 @@ Item {
                     id: dirSection
 
                     Section {
+                        id: section
+
                         width: assetsView.width -
                                (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0) - 5
                         caption: dirName
@@ -514,16 +538,31 @@ Item {
                         visible: dirVisible
                         expandOnClick: false
                         useDefaulContextMenu: false
+                        dropEnabled: true
 
                         onToggleExpand: {
                             dirExpanded = !dirExpanded
                         }
 
+                        onDropEnter: (drag)=> {
+                            root.updateDropExtFiles(drag)
+                            section.highlight = drag.accepted
+                        }
+
+                        onDropExit: {
+                            section.highlight = false
+                        }
+
+                        onDrop: {
+                            section.highlight = false
+                            rootView.handleExtFilesDrop(root.dropExtFiles, dirPath)
+                        }
+
                         onShowContextMenu: {
-                            contextFilePath = ""
-                            contextDir = model
-                            isDirContextMenu = true
-                            allExpandedState = assetsModel.getAllExpandedState()
+                            root.contextFilePath = ""
+                            root.contextDir = model
+                            root.isDirContextMenu = true
+                            root.allExpandedState = assetsModel.getAllExpandedState()
                             contextMenu.popup()
                         }
 
@@ -552,9 +591,9 @@ Item {
                                     anchors.fill: parent
                                     acceptedButtons: Qt.RightButton
                                     onClicked: {
-                                        contextFilePath = ""
-                                        contextDir = model
-                                        isDirContextMenu = true
+                                        root.contextFilePath = ""
+                                        root.contextDir = model
+                                        root.isDirContextMenu = true
                                         contextMenu.popup()
                                     }
                                 }
@@ -570,9 +609,10 @@ Item {
                         width: assetsView.width -
                                (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
                         height: img.height
-                        color: selectedAssets[filePath] ? StudioTheme.Values.themeInteraction
-                                                        : (mouseArea.containsMouse ? StudioTheme.Values.themeSectionHeadBackground
-                                                                                   : "transparent")
+                        color: root.selectedAssets[filePath]
+                                            ? StudioTheme.Values.themeInteraction
+                                            : (mouseArea.containsMouse ? StudioTheme.Values.themeSectionHeadBackground
+                                                                       : "transparent")
 
                         Row {
                             spacing: 5
@@ -611,29 +651,29 @@ Item {
                                 forceActiveFocus()
                                 var ctrlDown = mouse.modifiers & Qt.ControlModifier
                                 if (mouse.button === Qt.LeftButton) {
-                                    if (!selectedAssets[filePath] && !ctrlDown)
-                                        selectedAssets = {}
-                                    currFileSelected = ctrlDown ? !selectedAssets[filePath] : true
-                                    selectedAssets[filePath] = currFileSelected
-                                    selectedAssetsChanged()
+                                    if (!root.selectedAssets[filePath] && !ctrlDown)
+                                        root.selectedAssets = {}
+                                    currFileSelected = ctrlDown ? !root.selectedAssets[filePath] : true
+                                    root.selectedAssets[filePath] = currFileSelected
+                                    root.selectedAssetsChanged()
 
                                     if (currFileSelected) {
                                         rootView.startDragAsset(
-                                                   Object.keys(selectedAssets).filter(p => selectedAssets[p]),
+                                                   Object.keys(root.selectedAssets).filter(p => root.selectedAssets[p]),
                                                    mapToGlobal(mouse.x, mouse.y))
                                     }
                                 } else {
-                                    if (!selectedAssets[filePath] && !ctrlDown)
-                                        selectedAssets = {}
-                                    currFileSelected = selectedAssets[filePath] || !ctrlDown
-                                    selectedAssets[filePath] = currFileSelected
-                                    selectedAssetsChanged()
+                                    if (!root.selectedAssets[filePath] && !ctrlDown)
+                                        root.selectedAssets = {}
+                                    currFileSelected = root.selectedAssets[filePath] || !ctrlDown
+                                    root.selectedAssets[filePath] = currFileSelected
+                                    root.selectedAssetsChanged()
 
-                                    contextFilePath = filePath
-                                    contextDir = model.fileDir
+                                    root.contextFilePath = filePath
+                                    root.contextDir = model.fileDir
+                                    root.isDirContextMenu = false
 
                                     tooltipBackend.hideTooltip()
-                                    isDirContextMenu = false
                                     contextMenu.popup()
                                 }
                             }
@@ -641,9 +681,9 @@ Item {
                             onReleased: (mouse)=> {
                                 if (mouse.button === Qt.LeftButton) {
                                     if (!(mouse.modifiers & Qt.ControlModifier))
-                                        selectedAssets = {}
-                                    selectedAssets[filePath] = currFileSelected
-                                    selectedAssetsChanged()
+                                        root.selectedAssets = {}
+                                    root.selectedAssets[filePath] = currFileSelected
+                                    root.selectedAssetsChanged()
                                 }
                             }
 

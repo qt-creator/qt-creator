@@ -213,9 +213,24 @@ void AssetsLibraryWidget::handleAddAsset()
     addResources({});
 }
 
-void AssetsLibraryWidget::handleFilesDrop(const QStringList &filesPaths)
+void AssetsLibraryWidget::handleExtFilesDrop(const QStringList &filesPaths, const QString &targetDirPath)
 {
-    addResources(filesPaths);
+    QStringList assetPaths;
+    QStringList otherPaths; // as of now 3D models, and 3D Studio presentations
+    std::tie(assetPaths, otherPaths) = Utils::partition(filesPaths, [](const QString &path) {
+        QString suffix = "*." + path.split('.').last().toLower();
+        return AssetsLibraryModel::supportedSuffixes().contains(suffix);
+    });
+
+    AddFilesResult result = ModelNodeOperations::addFilesToProject(assetPaths, targetDirPath);
+    if (result == AddFilesResult::Failed) {
+        Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                              tr("Could not add %1 to project.")
+                                                  .arg(filesPaths.join(' ')));
+    }
+
+    if (!otherPaths.empty())
+        addResources(otherPaths);
 }
 
 QSet<QString> AssetsLibraryWidget::supportedDropSuffixes()

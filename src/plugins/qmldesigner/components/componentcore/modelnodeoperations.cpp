@@ -989,7 +989,7 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
 }
 
-static AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
     if (directory.isEmpty())
