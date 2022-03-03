@@ -79,6 +79,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     auto handleActions = [this, &context](const QVector<Edit3DAction *> &actions, QMenu *menu, bool left) {
         bool previousWasSeparator = true;
         QActionGroup *group = nullptr;
+        QActionGroup *proxyGroup = nullptr;
         for (auto action : actions) {
             if (action) {
                 QAction *a = action->action();
@@ -99,6 +100,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
                 Core::Command *command = Core::ActionManager::registerAction(
                             a, action->menuId().constData(), context);
                 command->setDefaultKeySequence(a->shortcut());
+                if (proxyGroup)
+                    proxyGroup->addAction(command->action());
                 // Menu actions will have custom tooltips
                 if (menu)
                     a->setToolTip(command->stringWithAppendedShortcut(a->toolTip()));
@@ -110,9 +113,11 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
             } else {
                 if (previousWasSeparator) {
                     group = new QActionGroup(this);
+                    proxyGroup = new QActionGroup(this);
                     previousWasSeparator = false;
                 } else {
                     group = nullptr;
+                    proxyGroup = nullptr;
                     auto separator = new QAction(this);
                     separator->setSeparator(true);
                     if (menu) {
