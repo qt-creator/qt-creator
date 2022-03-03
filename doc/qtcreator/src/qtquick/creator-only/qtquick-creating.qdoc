@@ -36,7 +36,7 @@
 
     \title Creating Qt Quick Projects
 
-    \image qmldesigner-new-project.png "New Project dialog"
+    \image qtcreator-new-qt-quick-project.png "New Project dialog"
 
     The following table lists the wizard templates for creating a new
     Qt Quick project from scratch.

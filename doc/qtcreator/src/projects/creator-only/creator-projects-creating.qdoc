@@ -80,7 +80,7 @@
     In the first step, you select a template for the project. You can filter
     templates (1) to view only those that apply to a particular target platform.
 
-    \image qtcreator-new-qt-quick-project-wizard.png
+    \image qtcreator-new-project.png
 
     Next, you select a location for the project and specify settings for it.
 
@@ -326,7 +326,7 @@
     \uicontrol {New Subproject}. Follow the steps in the
      \uicontrol {New Subproject} wizard to create a subproject.
 
-    \image qtcreator-new-subproject.png
+    \image qtcreator-new-qt-quick-project.png
 
     To add an existing project as a subproject, select
     \uicontrol {Add Existing Projects} in the context menu.
