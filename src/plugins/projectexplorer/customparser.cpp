@@ -288,7 +288,7 @@ public:
         const auto layout = new QVBoxLayout(this);
         const auto explanatoryLabel = new QLabel(tr(
             "Custom output parsers scan command line output for user-provided error patterns<br>"
-            "in order to create entries in the issues pane.<br>"
+            "to create entries in Issues.<br>"
             "The parsers can be configured <a href=\"dummy\">here</a>."));
         layout->addWidget(explanatoryLabel);
         connect(explanatoryLabel, &QLabel::linkActivated, [] {

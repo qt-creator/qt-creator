@@ -106,20 +106,20 @@
           <item>
            <widget class="QCheckBox" name="openResultsOnStartCB">
             <property name="toolTip">
-             <string>Opens the test results pane automatically when tests are started.</string>
+             <string>Displays test results automatically when tests are started.</string>
             </property>
             <property name="text">
-             <string>Open results pane when tests start</string>
+             <string>Open results when tests start</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="openResultsOnFinishCB">
             <property name="toolTip">
-             <string>Opens the test result pane automatically when tests are finished.</string>
+             <string>Displays test results automatically when tests are finished.</string>
             </property>
             <property name="text">
-             <string>Open results pane when tests finish</string>
+             <string>Open results when tests finish</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -147,7 +147,7 @@
             <item>
              <widget class="QCheckBox" name="openResultsOnFailCB">
               <property name="toolTip">
-               <string>Opens the test result pane only if the test run contains failed, fatal or unexpectedly passed tests.</string>
+               <string>Displays test results only if the test run contains failed, fatal or unexpectedly passed tests.</string>
               </property>
               <property name="text">
                <string>Only for unsuccessful test runs</string>

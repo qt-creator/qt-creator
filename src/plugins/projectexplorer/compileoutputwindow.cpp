@@ -283,7 +283,7 @@ public:
         const CompileOutputSettings &settings = BuildManager::compileOutputSettings();
         m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
         m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
-        m_popUpCheckBox.setText(tr("Open pane when building"));
+        m_popUpCheckBox.setText(tr("Open Compile Output when building"));
         m_popUpCheckBox.setChecked(settings.popUp);
         m_maxCharsBox.setMaximum(100000000);
         m_maxCharsBox.setValue(settings.maxCharCount);

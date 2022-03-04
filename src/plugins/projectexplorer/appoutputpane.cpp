@@ -874,8 +874,8 @@ public:
         maxCharsLayout->addWidget(new QLabel(parts.at(1).trimmed()));
         maxCharsLayout->addStretch(1);
         const auto outputModeLayout = new QFormLayout;
-        outputModeLayout->addRow(tr("Open pane on output when running:"), &m_runOutputModeComboBox);
-        outputModeLayout->addRow(tr("Open pane on output when debugging:"),
+        outputModeLayout->addRow(tr("Open Application Output when running:"), &m_runOutputModeComboBox);
+        outputModeLayout->addRow(tr("Open Application Output when debugging:"),
                                  &m_debugOutputModeComboBox);
         layout->addLayout(outputModeLayout);
         layout->addLayout(maxCharsLayout);
