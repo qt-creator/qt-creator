@@ -997,9 +997,12 @@ public:
             m_started = true;
             m_finalized = false;
             qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": starting";
+
+            // Used by ThreadedSubtaskTimer to mark the end of the whole highlighting operation
+            m_startTimer.restart();
         }
         qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": subtask started at "
-                                                     << QDateTime::currentDateTime().toString();
+                                                     << QDateTime::currentDateTime().time().toString("hh:mm:ss.zzz");
         QTC_CHECK(!m_timer.isValid());
         m_timer.start();
     }
@@ -1012,7 +1015,7 @@ public:
         if (--m_subtasks > 0) // See startSubtask().
             return;
         qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": subtask stopped at "
-                                                     << QDateTime::currentDateTime().toString();
+                                                     << QDateTime::currentDateTime().time().toString("hh:mm:ss.zzz");
         QTC_CHECK(m_timer.isValid());
         m_elapsedMs += m_timer.elapsed();
         m_timer.invalidate();
@@ -1020,9 +1023,12 @@ public:
             stopTask();
     }
 
+    QElapsedTimer startTimer() const { return m_startTimer; }
+
 private:
     const QString m_task;
     QElapsedTimer m_timer;
+    QElapsedTimer m_startTimer;
     qint64 m_elapsedMs = 0;
     int m_subtasks = 0;
     bool m_started = false;
@@ -1052,7 +1058,7 @@ public:
 class ThreadedSubtaskTimer
 {
 public:
-    ThreadedSubtaskTimer(const QString &task) : m_task(task)
+    ThreadedSubtaskTimer(const QString &task, const TaskTimer &taskTimer) : m_task(task), m_taskTimer(taskTimer)
     {
         qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": starting thread";
         m_timer.start();
@@ -1062,10 +1068,15 @@ public:
     {
         qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": took " << m_timer.elapsed()
                                                      << " ms in dedicated thread";
+
+        qCDebug(clangdLogTiming).noquote().nospace() << m_task << ": Start to end: "
+                                                     << m_taskTimer.startTimer().elapsed() << " ms";
     }
+
 private:
     const QString m_task;
     QElapsedTimer m_timer;
+    const TaskTimer &m_taskTimer;
 };
 
 class MemoryTreeModel;
@@ -1191,6 +1202,13 @@ public:
         : LanguageClientCompletionAssistProcessor(client, snippetsGroup)
         , m_client(client)
     {
+        m_timer.start();
+    }
+
+    ~ClangdCompletionAssistProcessor()
+    {
+        qCDebug(clangdLogTiming).noquote().nospace()
+            << "ClangdCompletionAssistProcessor took: " << m_timer.elapsed() << " ms";
     }
 
 private:
@@ -1208,6 +1226,7 @@ private:
         const QList<LanguageServerProtocol::CompletionItem> &items) const override;
 
     ClangdClient * const m_client;
+    QElapsedTimer m_timer;
 };
 
 QList<AssistProposalItemInterface *>
@@ -2653,9 +2672,10 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                                 const QList<ExpandedSemanticToken> &tokens,
                                 const QString &docContents, const AstNode &ast,
                                 const QPointer<TextDocument> &textDocument,
-                                int docRevision, const QVersionNumber &clangdVersion)
+                                int docRevision, const QVersionNumber &clangdVersion,
+                                const TaskTimer &taskTimer)
 {
-    ThreadedSubtaskTimer t("highlighting");
+    ThreadedSubtaskTimer t("highlighting", taskTimer);
     if (future.isCanceled()) {
         future.reportFinished();
         return;
@@ -2921,9 +2941,10 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         const auto runner = [tokens, filePath = doc->filePath(),
                              text = doc->document()->toPlainText(), ast,
                              doc = QPointer(doc), rev = doc->document()->revision(),
-                             clangdVersion = q->versionNumber()] {
+                             clangdVersion = q->versionNumber(),
+                             this] {
             return Utils::runAsync(semanticHighlighter, filePath, tokens, text, ast, doc, rev,
-                                   clangdVersion);
+                                   clangdVersion, highlightingTimer);
         };
 
         if (isTesting) {
