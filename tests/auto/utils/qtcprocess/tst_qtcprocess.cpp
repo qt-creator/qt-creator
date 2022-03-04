@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include <app/app_version.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
@@ -30,6 +32,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/singleton.h>
 #include <utils/stringutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QElapsedTimer>
 #include <QRegularExpression>
@@ -226,6 +229,8 @@ private:
 
 void tst_QtcProcess::initTestCase()
 {
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
+                                                + Core::Constants::IDE_CASED_ID + "-XXXXXX");
     Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                 + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     if (qEnvironmentVariableIsSet(kExitCodeSubProcessCode))
