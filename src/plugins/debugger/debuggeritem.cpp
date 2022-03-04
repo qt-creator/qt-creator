@@ -180,6 +180,12 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         return;
     }
 
+    // QNX gdb unconditionally checks whether the QNX_TARGET env variable is
+    // set and bails otherwise, even when it is not used by the specific
+    // codepath triggered by the --version and --configuration arguments. The
+    // hack below tricks it into giving us the information we want.
+    env.set("QNX_TARGET", QString());
+
     QtcProcess proc;
     proc.setEnvironment(env);
     proc.setCommand({m_command, {version}});
@@ -208,9 +214,18 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         const bool unableToFindAVersion = (0 == version);
         const bool gdbSupportsConfigurationFlag = (version >= 70700);
         if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-            const QString gdbConfiguration = getGdbConfiguration(m_command, sysEnv);
+
+            auto gdbConfiguration = [this, &output, &sysEnv]() {
+                if (!output.contains("qnx"))
+                    return getGdbConfiguration(m_command, sysEnv);
+
+                Environment env = sysEnv;
+                env.set("QNX_TARGET", QString());
+                return getGdbConfiguration(m_command, env);
+            };
+
             const QString gdbTargetAbiString =
-                    extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration);
+                    extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration());
             if (!gdbTargetAbiString.isEmpty()) {
                 m_abis.append(Abi::abiFromTargetTriplet(gdbTargetAbiString));
                 return;
