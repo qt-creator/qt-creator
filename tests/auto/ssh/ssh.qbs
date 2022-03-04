@@ -11,6 +11,7 @@ QtcAutotest {
                                                 qtc.ide_libexec_path);
         var relLibExecPath = FileInfo.relativePath(destinationDirectory, absLibExecPath);
         defines.push('TEST_RELATIVE_LIBEXEC_PATH="' + relLibExecPath + '"');
+        defines.push("WITH_TESTS");
         return defines;
     }
 }

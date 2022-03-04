@@ -41,10 +41,12 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-static const char TEST_IP[] = "127.0.0.1";
 static const char TEST_DIR[] = "/tmp/testdir";
-static const FilePath baseFilePath = FilePath::fromString("ssh://" + QString(TEST_IP)
-                                                          + QString(TEST_DIR));
+
+static const FilePath baseFilePath()
+{
+    return FilePath::fromString("ssh://" + QSsh::SshTest::userAtHost() + QString(TEST_DIR));
+}
 
 TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     : IDeviceFactory("test")
@@ -54,11 +56,9 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     setConstructionFunction(&LinuxDevice::create);
     setCreator([] {
         LinuxDevice::Ptr newDev = LinuxDevice::create();
-        qDebug() << "device : " << newDev->type();
         newDev->setType("test");
-        QSsh::SshConnectionParameters sshParams = newDev->sshParameters();
-        sshParams.setHost(TEST_IP);
-        sshParams.setPort(22);
+        qDebug() << "device : " << newDev->type();
+        QSsh::SshConnectionParameters sshParams = QSsh::SshTest::getParameters();
         newDev->setSshParameters(sshParams);
         return newDev;
     });
@@ -66,15 +66,28 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
 
 FilePath createFile(const QString &name)
 {
-    FilePath testFilePath = baseFilePath / name;
-    FilePath dummyFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/dev/null");
+    FilePath testFilePath = baseFilePath() / name;
+    FilePath dummyFilePath = FilePath::fromString("ssh://" + QSsh::SshTest::userAtHost() + "/dev/null");
     dummyFilePath.copyFile(testFilePath);
     return testFilePath;
 }
 
 void FileSystemAccessTest::initTestCase()
 {
-    FilePath filePath = baseFilePath;
+    const QSsh::SshConnectionParameters params = QSsh::SshTest::getParameters();
+    qDebug() << "Using following SSH parameter:"
+             << "\nHost:" << params.host()
+             << "\nPort:" << params.port()
+             << "\nUser:" << params.userName()
+             << "\nSSHKey:" << params.privateKeyFile;
+    if (!QSsh::SshTest::checkParameters(params)) {
+        m_skippedAtWhole = true;
+        QSsh::SshTest::printSetupHelp();
+        QSKIP("Ensure you have added your default ssh public key to your own authorized keys and "
+              "environment QTC_REMOTELINUX_SSH_DEFAULTS set or follow setup help above.");
+        return;
+    }
+    FilePath filePath = baseFilePath();
 
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
         DeviceManager *const devMgr = DeviceManager::instance();
@@ -87,13 +100,15 @@ void FileSystemAccessTest::initTestCase()
 
 void FileSystemAccessTest::cleanupTestCase()
 {
-    QVERIFY(baseFilePath.exists());
-    QVERIFY(baseFilePath.removeRecursively());
+    if (m_skippedAtWhole) // no need to clean up either
+        return;
+    QVERIFY(baseFilePath().exists());
+    QVERIFY(baseFilePath().removeRecursively());
 }
 
 void FileSystemAccessTest::testDirStatuses()
 {
-    FilePath filePath = baseFilePath;
+    FilePath filePath = baseFilePath();
     QVERIFY(filePath.exists());
     QVERIFY(filePath.isDir());
     QVERIFY(filePath.isWritableDir());
@@ -120,7 +135,7 @@ void FileSystemAccessTest::testDirStatuses()
 
 void FileSystemAccessTest::testBytesAvailable()
 {
-    FilePath testFilePath = FilePath::fromString("ssh://" + QString(TEST_IP) + "/tmp");
+    FilePath testFilePath = FilePath::fromString("ssh://" + QSsh::SshTest::userAtHost() + "/tmp");
     QVERIFY(testFilePath.exists());
     QVERIFY(testFilePath.bytesAvailable() > 0);
 }
@@ -143,9 +158,9 @@ void FileSystemAccessTest::testFileActions()
     // ToDo: remove ".contains", make fileContents exact equal content
     QVERIFY(testFilePath.fileContents().contains(content));
 
-    QVERIFY(testFilePath.renameFile(baseFilePath / "test1"));
+    QVERIFY(testFilePath.renameFile(baseFilePath() / "test1"));
     // It is Ok that FilePath doesn't change itself after rename.
-    FilePath newTestFilePath = baseFilePath / "test1";
+    FilePath newTestFilePath = baseFilePath() / "test1";
     QVERIFY(newTestFilePath.exists());
     QVERIFY(!testFilePath.removeFile());
     QVERIFY(newTestFilePath.exists());

@@ -4,7 +4,13 @@ Project {
     name: "QtcSsh"
 
     QtcLibrary {
-        cpp.defines: base.concat("QTCSSH_LIBRARY")
+        cpp.defines: {
+            var defines = base;
+            defines.push("QTCSSH_LIBRARY");
+            if (project.withAutotests && !defines.contains("WITH_TESTS"))
+                defines.push("WITH_TESTS");
+            return defines;
+        }
         cpp.enableExceptions: true
 
         Depends { name: "Qt"; submodules: ["widgets", "network" ] }

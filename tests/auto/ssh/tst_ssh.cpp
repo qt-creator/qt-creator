@@ -47,72 +47,7 @@
 
 #include <cstdlib>
 
-/*
-In order to run this test properly it requires some setup (example for fedora):
-1. Run a server:
-   systemctl start sshd
-2. Create your own ssh key (needed only once). For fedora it needs ecdsa type:
-   ssh-keygen -t ecdsa
-3. Make your public key known to the server (needed only once):
-   ssh-copy-id -i [full path to your public key]
-4. Set the env variables before executing test:
-   QTC_SSH_TEST_HOST=127.0.0.1
-   QTC_SSH_TEST_KEYFILE=[full path to your private key]
-   QTC_SSH_TEST_USER=[your user name]
-*/
 using namespace QSsh;
-
-static QString getHostFromEnvironment()
-{
-    return QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_HOST"));
-}
-
-static const char *portVar() { return "QTC_SSH_TEST_PORT"; }
-static const char *userVar() { return "QTC_SSH_TEST_USER"; }
-static const char *keyFileVar() { return "QTC_SSH_TEST_KEYFILE"; }
-
-static quint16 getPortFromEnvironment()
-{
-    const int port = qEnvironmentVariableIntValue(portVar());
-    return port != 0 ? quint16(port) : 22;
-}
-
-static QString getUserFromEnvironment()
-{
-    return QString::fromLocal8Bit(qgetenv(userVar()));
-}
-
-static QString getKeyFileFromEnvironment()
-{
-    return QString::fromLocal8Bit(qgetenv(keyFileVar()));
-}
-
-static SshConnectionParameters getParameters()
-{
-    SshConnectionParameters params;
-    params.setHost(getHostFromEnvironment());
-    params.setPort(getPortFromEnvironment());
-    params.setUserName(getUserFromEnvironment());
-    params.timeout = 10;
-    params.privateKeyFile = Utils::FilePath::fromUserInput(getKeyFileFromEnvironment());
-    params.authenticationType = !params.privateKeyFile.isEmpty()
-            ? SshConnectionParameters::AuthenticationTypeSpecificKey
-            : SshConnectionParameters::AuthenticationTypeAll;
-    return params;
-}
-
-#define CHECK_PARAMS(params) \
-    do { \
-        if (params.host().isEmpty()) { \
-            QSKIP("No hostname provided. Set QTC_SSH_TEST_HOST."); \
-        } \
-        if (params.userName().isEmpty()) \
-            QSKIP(qPrintable(QString::fromLatin1("No user name provided. Set %1.") \
-                .arg(QString::fromUtf8(userVar())))); \
-        if (params.privateKeyFile.isEmpty()) \
-            QSKIP(qPrintable(QString::fromLatin1("No key file provided. Set %1.") \
-                .arg(QString::fromUtf8(keyFileVar())))); \
-    } while (false)
 
 class tst_Ssh : public QObject
 {
@@ -137,6 +72,10 @@ private:
 
 void tst_Ssh::initTestCase()
 {
+    const SshConnectionParameters params = SshTest::getParameters();
+    if (!SshTest::checkParameters(params))
+        SshTest::printSetupHelp();
+
     Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                 + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
@@ -154,10 +93,10 @@ void tst_Ssh::errorHandling_data()
     QTest::newRow("no host")
             << QString("hgdfxgfhgxfhxgfchxgcf") << quint16(12345)
             << SshConnectionParameters::AuthenticationTypeAll  << QString("egal") << QString();
-    const QString theHost = getHostFromEnvironment();
+    const QString theHost = SshTest::getHostFromEnvironment();
     if (theHost.isEmpty())
         return;
-    const quint16 thePort = getPortFromEnvironment();
+    const quint16 thePort = SshTest::getPortFromEnvironment();
     QTest::newRow("non-existing key file")
             << theHost << thePort << SshConnectionParameters::AuthenticationTypeSpecificKey
             << QString("root") << QString("somefilenamethatwedontexpecttocontainavalidkey");
@@ -228,8 +167,9 @@ void tst_Ssh::remoteProcess_data()
 
 void tst_Ssh::remoteProcess()
 {
-    const SshConnectionParameters params = getParameters();
-    CHECK_PARAMS(params);
+    const SshConnectionParameters params = SshTest::getParameters();
+    if (!SshTest::checkParameters(params))
+        QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
 
     QFETCH(QByteArray, commandLine);
     QFETCH(bool, isBlocking);
@@ -287,8 +227,9 @@ void tst_Ssh::remoteProcess()
 
 void tst_Ssh::remoteProcessChannels()
 {
-    const SshConnectionParameters params = getParameters();
-    CHECK_PARAMS(params);
+    const SshConnectionParameters params = SshTest::getParameters();
+    if (!SshTest::checkParameters(params))
+        QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
 
@@ -325,8 +266,9 @@ void tst_Ssh::remoteProcessChannels()
 
 void tst_Ssh::remoteProcessInput()
 {
-    const SshConnectionParameters params = getParameters();
-    CHECK_PARAMS(params);
+    const SshConnectionParameters params = SshTest::getParameters();
+    if (!SshTest::checkParameters(params))
+        QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
 
@@ -369,8 +311,9 @@ void tst_Ssh::remoteProcessInput()
 void tst_Ssh::sftp()
 {
     // Connect to server
-    const SshConnectionParameters params = getParameters();
-    CHECK_PARAMS(params);
+    const SshConnectionParameters params = SshTest::getParameters();
+    if (!SshTest::checkParameters(params))
+        QSKIP("Insufficient setup - set QTC_SSH_TEST_* variables.");
     SshConnection connection(params);
     QVERIFY(waitForConnection(connection));
 
