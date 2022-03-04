@@ -57,6 +57,7 @@ public:
     // ProcessInterface related
 
     void start() override;
+    void interrupt() override;
     void terminate() override;
     void kill() override;
     void close() final;
@@ -79,7 +80,6 @@ public:
     bool waitForFinished(int msecs = 30000) final;
 
     void kickoffProcess() final;
-    void interruptProcess() final;
     qint64 applicationMainThreadID() const final;
 
     // ProcessSetupData related
@@ -134,9 +134,6 @@ public:
     // Other enhancements.
     // These (or some of them) may be potentially moved outside of the class.
     // For some we may aggregate in another public utils class (or subclass of QtcProcess)?
-
-    // TODO: Should it be a part of ProcessInterface, too?
-    virtual void interrupt();
 
     // TODO: How below 3 methods relate to QtcProcess? Action: move them somewhere else.
     // Helpers to find binaries. Do not use it for other path variables

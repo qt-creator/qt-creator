@@ -496,7 +496,7 @@ void TerminalProcess::kickoffProcess()
 #endif
 }
 
-void TerminalProcess::interruptProcess()
+void TerminalProcess::interrupt()
 {
 #ifdef Q_OS_WIN
     // Not used.

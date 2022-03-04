@@ -78,7 +78,7 @@ public:
     qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
 
     void kickoffProcess();
-    void interruptProcess();
+    void interrupt();
 
 private:
     void start() final;

@@ -73,7 +73,7 @@ public:
 
     void setAbortOnMetaChars(bool abort); // used only in sshDeviceProcess
     void kickoffProcess(); // only debugger terminal, only non-windows
-    void interruptProcess(); // only debugger terminal, only non-windows
+    void interrupt(); // only debugger terminal, only non-windows
     qint64 applicationMainThreadID() const; // only debugger terminal, only windows (-1 otherwise)
 
 signals:

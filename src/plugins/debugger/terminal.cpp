@@ -182,10 +182,10 @@ void TerminalRunner::kickoffProcess()
         m_stubProc->kickoffProcess();
 }
 
-void TerminalRunner::interruptProcess()
+void TerminalRunner::interrupt()
 {
     if (m_stubProc)
-        m_stubProc->interruptProcess();
+        m_stubProc->interrupt();
 }
 
 void TerminalRunner::start()

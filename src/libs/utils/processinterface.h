@@ -73,6 +73,7 @@ public:
     ProcessInterface(ProcessSetupData::Ptr setup) : m_setup(setup) {}
 
     virtual void start() = 0;
+    virtual void interrupt() = 0;
     virtual void terminate() = 0;
     virtual void kill() = 0;
     virtual void close() = 0;
@@ -95,7 +96,6 @@ public:
     virtual bool waitForFinished(int msecs) = 0;
 
     virtual void kickoffProcess();
-    virtual void interruptProcess();
     virtual qint64 applicationMainThreadID() const;
 
 signals:
@@ -131,6 +131,7 @@ public:
     }
 
     void start() override { m_target->start(); }
+    void interrupt() override { m_target->interrupt(); };
     void terminate() override { m_target->terminate(); }
     void kill() override { m_target->kill(); }
     void close() override { m_target->close(); }
@@ -153,7 +154,6 @@ public:
     bool waitForFinished(int msecs) override { return m_target->waitForFinished(msecs); }
 
     void kickoffProcess() override { m_target->kickoffProcess(); }
-    void interruptProcess() override { m_target->interruptProcess(); }
     qint64 applicationMainThreadID() const override { return m_target->applicationMainThreadID(); }
 
 protected:

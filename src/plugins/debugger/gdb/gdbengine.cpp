@@ -4667,7 +4667,7 @@ void GdbEngine::interruptInferior2()
 
     } else if (isTermEngine()) {
 
-        terminal()->interruptProcess();
+        terminal()->interrupt();
     }
 }
 

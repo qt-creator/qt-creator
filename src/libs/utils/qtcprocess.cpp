@@ -248,6 +248,7 @@ public:
         m_terminal.setEnvironment(m_setup->m_environment);
         m_terminal.start();
     }
+    void interrupt() override { m_terminal.interrupt(); }
     void terminate() override { m_terminal.stopProcess(); }
     void kill() override { m_terminal.stopProcess(); }
     void close() override { m_terminal.stopProcess(); }
@@ -268,7 +269,6 @@ public:
     bool waitForFinished(int) override  { return false; }
 
     void kickoffProcess() override { m_terminal.kickoffProcess(); }
-    void interruptProcess() override { m_terminal.interruptProcess(); }
     qint64 applicationMainThreadID() const override { return m_terminal.applicationMainThreadID(); }
 
 private:
@@ -411,6 +411,8 @@ public:
     QByteArray readAllStandardOutput() override { return m_process->readAllStandardOutput(); }
     QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
 
+    void interrupt() override
+    { QTC_CHECK(false); } // TODO: provide default impl
     void terminate() override
     { m_process->terminate(); }
     void kill() override
@@ -507,6 +509,8 @@ public:
     QByteArray readAllStandardOutput() override { return m_handle->readAllStandardOutput(); }
     QByteArray readAllStandardError() override { return m_handle->readAllStandardError(); }
 
+    void interrupt() override
+    { QTC_CHECK(false); } // TODO: send it to process launcher and use there a default impl of QProcessImpl
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
     void kill() override { cancel(); } // TODO: see above
     void close() override { cancel(); } // TODO: see above
@@ -686,11 +690,6 @@ ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
 } // Internal
 
 void ProcessInterface::kickoffProcess()
-{
-    QTC_CHECK(false);
-}
-
-void ProcessInterface::interruptProcess()
 {
     QTC_CHECK(false);
 }
@@ -939,9 +938,12 @@ void QtcProcess::terminate()
 void QtcProcess::interrupt()
 {
 #ifdef Q_OS_WIN
-    QTC_ASSERT(d->m_setup->m_useCtrlCStub, return);
-    EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
+    if (d->m_setup->m_useCtrlCStub)
+        EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
+    else
 #endif
+    if (d->m_process)
+        d->m_process->interrupt();
 }
 
 bool QtcProcess::startDetached(const CommandLine &cmd, const FilePath &workingDirectory, qint64 *pid)
@@ -1236,12 +1238,6 @@ void QtcProcess::kickoffProcess()
         d->m_process->kickoffProcess();
 }
 
-void QtcProcess::interruptProcess()
-{
-    if (d->m_process)
-        d->m_process->interruptProcess();
-}
-
 qint64 QtcProcess::applicationMainThreadID() const
 {
     if (d->m_process)
@@ -1377,7 +1373,6 @@ QString QtcProcess::locateBinary(const QString &binary)
     const QByteArray path = qgetenv("PATH");
     return locateBinary(QString::fromLocal8Bit(path), binary);
 }
-
 
 /*!
     \class Utils::SynchronousProcess
