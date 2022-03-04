@@ -396,7 +396,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     // Window->Output Panes
     ActionContainer *mpanes = ActionManager::createMenu(Constants::M_VIEW_PANES);
     mview->addMenu(mpanes, Constants::G_VIEW_PANES);
-    mpanes->menu()->setTitle(tr("Output &Panes"));
+    mpanes->menu()->setTitle(tr("Out&put"));
     mpanes->appendGroup("Coreplugin.OutputPane.ActionsGroup");
     mpanes->appendGroup("Coreplugin.OutputPane.PanesGroup");
 
