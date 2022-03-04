@@ -140,7 +140,7 @@ StudioControls.TextField {
                                                            + 2 : 0)
                 height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
                 color: StudioTheme.Values.themeInteraction
-                y: listView.currentItem.y
+                y: listView.currentItem?.y ?? 0
             }
             highlightFollowsCurrentItem: false
         }
