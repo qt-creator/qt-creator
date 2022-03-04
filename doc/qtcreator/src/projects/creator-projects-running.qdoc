@@ -77,9 +77,9 @@
     Select \uicontrol Manage to manage device settings. For example, you can add
     AVDs or manually start disconnected AVDs.
 
-    The \uicontrol {Application Output} pane displays the status of the
+    \l {Application Output} displays the status of the
     application while it is running. You can select the \uicontrol Run button
-    in the pane to re-run applications without building them first. This is
+    to re-run applications without building them first. This is
     useful when developing Qt Quick applications, because the QML files are
     interpreted at runtime. Therefore, the application does not need to be
     built again if you edited only QML files. This saves time especially if

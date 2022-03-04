@@ -104,7 +104,7 @@
             items with names consisting of plain characters, numbers,
             underscores, and hyphens.
 
-        \li  If error messages displayed in the \uicontrol {Compile Output} pane contain
+        \li  If error messages displayed in \l {Compile Output} contain
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see
             \l{Troubleshooting MinGW Compilation Errors}.

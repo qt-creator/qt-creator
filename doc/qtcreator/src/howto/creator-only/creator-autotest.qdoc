@@ -332,7 +332,7 @@
 
         \li In the \uicontrol Tests view, select the tests to run.
 
-        \li In the \uicontrol {Test Results} output pane, select:
+        \li In the \uicontrol {Test Results}, select:
 
             \list
                 \li \inlineimage icons/run_small.png
@@ -437,8 +437,8 @@
     are omitted by default. To view them, deselect the \uicontrol {Omit internal
     messages} and \uicontrol {Omit run configuration warnings} check boxes.
 
-    By default, test result output is limited to 100,000 characters. The output
-    pane is automatically scrolled down when new results are added. To display
+    By default, test result output is limited to 100,000 characters. The view
+    is automatically scrolled down when new results are added. To display
     full results, deselect the \uicontrol {Limit result output} check box.
     To disable automatic scrolling, deselect the
     \uicontrol {Automatically scroll results} check box.
@@ -598,7 +598,7 @@
 
     \section1 Viewing Test Output
 
-    The test results are displayed in the \uicontrol {Test Results} output pane
+    The test results are displayed in \l{Viewing Output}{Test Results}
     in XML format. XML can be parsed more easily and reliably than plain text.
 
     However, if a Qt test crashes, it might not produce complete XML code that
@@ -608,11 +608,11 @@
     \uicontrol Options > \uicontrol {Testing} > \uicontrol {Qt Test}, and
     then deselect the \uicontrol {Use XML output} check box. Then select the
     \inlineimage icons/text.png
-    (\uicontrol {Switch Between Visual and Text Display}) button in the
-    \uicontrol {Test Results} output pane to switch to the text display.
+    (\uicontrol {Switch Between Visual and Text Display}) button in
+    \uicontrol {Test Results} to switch to the text display.
 
-    The following table lists the messages that the \uicontrol {Test Results}
-    output pane displays:
+    The following table lists the messages that \uicontrol {Test Results}
+    displays:
 
     \table
         \header

@@ -88,12 +88,11 @@
 
     \list
 
-        \li \l{Showing Task List Files in Issues Pane}
+        \li \l{Showing Task List Files in Issues}
 
             You can load report files created by code scanning and analysis
-            tools to the \uicontrol Issues output pane. You can navigate to the
-            corresponding source code by clicking the error message or by using
-            keyboard shortcuts.
+            tools to \l Issues. You can navigate to the corresponding source
+            code by clicking the error message or by using keyboard shortcuts.
 
         \li \l{Inspecting Internal Logs}
 

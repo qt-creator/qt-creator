@@ -56,9 +56,9 @@
         \li Select the \uicontrol {Copy-paste URL to clipboard} check box to
             copy the URL of the post on the code pasting service to the
             clipboard when you paste a post.
-        \li Select the \uicontrol {Display Output pane after sending a post}
-            check box to display the URL in the \uicontrol {General Messages}
-            output pane when you paste a post.
+        \li Select the \uicontrol {Display General Messages after sending a post}
+            check box to display the URL in \l{Viewing Output}{General Messages}
+            when you paste a post.
     \endlist
 
     Select \uicontrol Fileshare to specify the path to a shared network drive.
@@ -70,8 +70,7 @@
     To paste a snippet of code onto the server, select \uicontrol Tools >
     \uicontrol {Code Pasting} > \uicontrol {Paste Snippet} or press
     \key {Alt+C,Alt+P}. By default, \QC copies the URL of the snippet to the
-    clipboard and displays the URL in the \uicontrol {General Messages} output
-    pane.
+    clipboard and displays the URL in \uicontrol {General Messages}.
 
     To paste any content that you copied to the clipboard, select
     \uicontrol Tools > \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.

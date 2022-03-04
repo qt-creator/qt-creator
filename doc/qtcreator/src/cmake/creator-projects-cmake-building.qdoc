@@ -237,6 +237,5 @@
 
     \image qtcreator-cmake-clean-steps.png
 
-    The build errors and warnings are parsed and displayed in the
-    \l Issues output pane.
+    The build errors and warnings are parsed and displayed in \l Issues.
 */

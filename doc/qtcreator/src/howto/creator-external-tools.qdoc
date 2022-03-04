@@ -135,8 +135,8 @@
             working directory.
 
         \li In the \uicontrol Output field, select how to handle output from the
-            tool. You can ignore the output, view it in the \uicontrol {General
-            Messages} output pane, or replace the selected text with the
+            tool. You can ignore the output, view it in \l{Viewing Output}
+            {General Messages}, or replace the selected text with the
             output in the code editor.
 
         \li In the \uicontrol {Error output} field, select how to handle error

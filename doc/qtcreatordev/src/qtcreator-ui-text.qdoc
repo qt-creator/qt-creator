@@ -404,7 +404,7 @@
             \li  Dialog that provides feedback to users, in the form of status
                  information, a warning, or an error message.
                  \image qtcreator-error-message.png "Message box"
-                 Output from Qt Creator should be displayed in output panes,
+                 Output from Qt Creator should be displayed in output views,
                  instead.
             \li  Use the event as the title and provide a solution in the
                  message box.
@@ -417,10 +417,10 @@
                  Use descriptive, but short mode names. They have to fit in the
                  \uicontrol {Mode selector}.
         \row
-            \li  Output pane
-            \li  A pane displayed in the task pane that displays output from Qt Creator.
-                 \image qtcreator-output-pane.png "Output pane"
-            \li  Use descriptive names for output panes.
+            \li  Output
+            \li  Views to display output from Qt Creator.
+                 \image qtcreator-output-pane.png "Output"
+            \li  Use descriptive names for output views.
         \row
             \li  Sidebar
             \li  A view available in the \uicontrol Edit and \uicontrol Debug modes that

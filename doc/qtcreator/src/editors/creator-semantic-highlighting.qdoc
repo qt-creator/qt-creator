@@ -73,8 +73,8 @@
     If the editor cannot find the highlight definition for a file that you open
     for editing, it prompts you to download additional highlight definition
     files. Select \uicontrol {Download Definitions} to download the files.
-    Information about the downloaded files is displayed in the
-    \uicontrol {General Messages} \l{Viewing Output}{output pane}.
+    Information about the downloaded files is displayed in \l{Viewing Output}
+    {General Messages}.
 
     To suppress the message for a particular file pattern, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}

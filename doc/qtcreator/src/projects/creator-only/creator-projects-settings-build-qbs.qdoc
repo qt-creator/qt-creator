@@ -86,7 +86,7 @@
                     errors occur, if possible.
 
                 \li Select \uicontrol {Show command lines} to print actual
-                    command lines to the compile output pane instead of
+                    command lines to \l{Compile Output} instead of
                     high-level descriptions.
 
                 \li Select \uicontrol {Force probes} to force re-execution of

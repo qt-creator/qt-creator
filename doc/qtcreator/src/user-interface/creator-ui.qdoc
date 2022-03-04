@@ -77,8 +77,8 @@
 
     You can use the kit selector (2) to select the
     \l{glossary-buildandrun-kit}{kit} for running (3), debugging (4), or
-    building (5) the application. Output from these actions is displayed in the
-    output panes (7).
+    building (5) the application. Output from these actions is displayed on
+    the task bar (7).
 
     You can use the \l{Searching with the Locator}{locator} (6) to browse
     through projects, files, classes, functions, documentation, and file
@@ -93,7 +93,7 @@
         \li \l{Selecting Modes}{Mode selector}
         \li \l{Working with Sidebars}{Sidebars}
         \li \l{Browsing Project Contents}{Views}
-        \li \l{Viewing Output}{Output panes}
+        \li \l{Viewing Output}{Output}
     \endlist
 
     \else
@@ -377,9 +377,9 @@
 
     \title Viewing Output
 
-    \image qtcreator-general-messages.png "General Messages output pane"
+    \image qtcreator-general-messages.png "General Messages"
 
-    The task pane in \QC can display one of the following panes:
+    The taskbar in \QC can display following types of output:
 
     \list
 
@@ -405,30 +405,30 @@
 
     \endlist
 
-    Output panes are available on the taskbar in all \l{Selecting Modes}{modes}.
+    Output is available on the taskbar in all \l{Selecting Modes}{modes}.
 
-    \image qtcreator-output-panes-taskbar.png "Output panes on the taskbar"
+    \image qtcreator-output-panes-taskbar.png "Output on the taskbar"
 
-    You can open output panes in the following ways:
+    You can view output in the following ways:
 
     \list
-        \li Select the output pane on the taskbar.
-        \li Select \key Alt (\key Cmd on \macos) and the number of the pane on
+        \li Select the output view on the taskbar.
+        \li Select \key Alt (\key Cmd on \macos) and the number of the view on
             the taskbar.
         \li Select \inlineimage icons/output-pane-menu.png
-            , and then select the pane to open.
-        \li Select \uicontrol View > \uicontrol {Output Panes}.
+            , and then select the view to open.
+        \li Select \uicontrol View > \uicontrol Output.
             The menu items also display the keyboard shortcuts that you can use.
     \endlist
 
-    To maximize an open output pane, select the \inlineimage icons/arrowup.png
-    (\uicontrol {Maximize Output Pane}) button or press \key {Alt+Shift+9}.
+    To maximize an open output view, select the \inlineimage icons/arrowup.png
+    (\uicontrol Maximize) button or press \key {Alt+Shift+9}.
 
 
     To increase or decrease the output text size, select \inlineimage icons/plus.png
     (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
     (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-. Zooming is
-    not supported in all output panes.
+    not supported in all output views.
 
     To open the \uicontrol{General Messages} and
     \if defined(qtcreator)
@@ -436,16 +436,15 @@
     \else
     \l{Using Git}{Version Control}
     \endif
-     panes, select \uicontrol View > \uicontrol {Output Panes}.
+     views, select \uicontrol View > \uicontrol Output.
     \if defined(qtcreator)
-    To display the \uicontrol {To-Do Entries} pane, enable the \uicontrol Todo
-    plugin.
+    To view \uicontrol {To-Do Entries}, enable the \uicontrol Todo plugin.
     \endif
 
     For more information about the \uicontrol {QML Debugger Console} view, see
     \l{Executing JavaScript Expressions}.
 
-    If the text in the output panes is not displayed correctly, \QC might
+    If the text in the output is not displayed correctly, \QC might
     be using a different codec from the one used by the tools that generate
     the output. To specify the codec to use, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Environment > \uicontrol Interface, and
@@ -455,7 +454,7 @@
 
     \section1 Finding and Filtering Output
 
-    To search from output, press \key {Ctrl+F} when the pane is active. Enter
+    To search from output, press \key {Ctrl+F} when the view is active. Enter
     search criteria in the \uicontrol Find field. For more information, see
     \l{Finding and Replacing}.
 
@@ -466,11 +465,11 @@
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
     hide the lines that match the filter.
 
-    Finding and filtering are not supported in all output panes.
+    Finding and filtering are not supported in all output views.
 
     \section1 Issues
 
-    The \uicontrol{Issues} pane provides lists of following types of issues:
+    \uicontrol{Issues} provides lists of following types of issues:
 
     \list
 
@@ -491,8 +490,8 @@
             {Errors and warnings from the current editor}.
         \endif
 
-        \li \uicontrol Compile - Selected output from the compiler. Open the
-            \uicontrol {Compile Output} pane for more detailed information.
+        \li \uicontrol Compile - Selected output from the compiler. Open
+            \uicontrol {Compile Output} for more detailed information.
 
        \li \uicontrol{Debug Information} - Lists debug information packages that might
             be missing.
@@ -510,7 +509,7 @@
 
         \if defined(qtcreator)
         \li \uicontrol {My Tasks} - Entries from a task list file (.tasks) generated
-            by \l{Showing Task List Files in Issues Pane}
+            by \l{Showing Task List Files in Issues}
             {code scanning and analysis tools}.
 
         \li \uicontrol Python - Runtime errors and exceptions of Python scripts.
@@ -522,12 +521,12 @@
 
     \endlist
 
-    The pane filters out irrelevant output from the build tools and presents the
+    The view filters out irrelevant output from the build tools and presents the
     issues in an organized way. To further filter the output by type, select
     \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}) and then select a filter.
 
-    \image qtcreator-issues.png "Issues output pane"
+    \image qtcreator-issues.png "Issues"
 
     Select one or several lines to apply context-menu actions to their contents.
     You can remove the selected lines or copy their contents to the clipboard.
@@ -539,23 +538,23 @@
     select \uicontrol {Show in Editor} in the context menu. The entry must contain the
     name of the file where the issue was found.
 
-    To view more information about an issue in the \uicontrol {Compile Output} pane,
+    To view more information about an issue in \l {Compile Output},
     select \uicontrol {Show Output} in the context menu.
 
     To jump from one issue to the next or previous one, press \key F6 and
     \key Shift+F6.
 
-    By default, the \uicontrol Issues pane is cleared on a new build. To keep
+    By default, the \uicontrol Issues view is cleared on a new build. To keep
     the issues from the previous build rounds, deselect \uicontrol Tools >
     \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
 
     \section1 Search Results
 
-    In the \uicontrol{Search Results} pane, you can search through projects, files on
+    In \uicontrol{Search Results}, you can search through projects, files on
     a file system or the currently open files:
 
-    \image qtcreator-search-results.png "Search Results output pane"
+    \image qtcreator-search-results.png "Search Results"
 
     The search results are stored in the search history (1) from which you can
     select earlier searches.
@@ -570,7 +569,7 @@
 
     \section1 Application Output
 
-    The \uicontrol{Application Output} pane displays the status of a program when
+    \uicontrol{Application Output} displays the status of a program when
     it is executed, and the debug output.
 
     \image qtcreator-application-output.png
@@ -589,37 +588,36 @@
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
     \uicontrol {Application Output}, or click the \inlineimage icons/settings.png
     (\uicontrol {Open Settings Page}) button. You can select whether to open
-    the \uicontrol{Application Output} pane on output when running or debugging
+    \uicontrol{Application Output} on output when running or debugging
     applications, to clear old output on a new run,
     to word-wrap output, and to limit output to the specified number of lines.
 
     \section1 Compile Output
 
-    The \uicontrol{Compile Output} pane provides all output from the compiler.
+    \uicontrol{Compile Output} provides all output from the compiler.
     The \uicontrol{Compile Output} is a more detailed version of information
-    displayed in the \uicontrol{Issues} pane.
+    displayed in \l Issues.
 
-    \image qtcreator-compile-output.png "Compile Output pane"
+    \image qtcreator-compile-output.png "Compile Output"
 
     Double-click on a file name in an error message to open the file in the
     code editor.
 
     Select the \uicontrol {Cancel Build} button to cancel the build.
 
-    To specify whether to open the \uicontrol {Compile Output} pane on output
+    To specify whether to open the \uicontrol {Compile Output} view on output
     when building applications, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Build & Run} > \uicontrol {Compile Output}, and then select the
-    \uicontrol {Open pane when building} check box.
+    \uicontrol {Open view when building} check box.
     In the \uicontrol {Limit output to} field, you can specify the maximum
-    amount of build output lines to display in the pane.
+    amount of build output lines to display.
 
     You can also reach the options page by clicking \inlineimage icons/settings.png
     (\uicontrol {Open Settings Page}).
 
-    To copy the output from the pane to the clipboard, select
-    \uicontrol {Select All} in the context menu, and then select
-    \uicontrol Copy. Save the output as a file if you want to
-    examine it later without having to build the project again.
+    To copy the output to the clipboard, select \uicontrol {Select All} in the
+    context menu, and then select \uicontrol Copy. Save the output as a file if
+    you want to examine it later without having to build the project again.
     This is useful for large projects that take a long time to build.
 
     \section2 Parsing Existing Compile Output
@@ -641,8 +639,8 @@
         \li In the \uicontrol {Use parsers from kit} field, select the kit to
             use for parsing the output. Select \uicontrol Manage to view
             and modify kit settings.
-        \li The parser displays the parsed output in the \uicontrol Issues
-            pane. By default, the pane is cleared before adding the new output.
+        \li The parser displays the parsed output in \l Issues. By default, the
+            view is cleared before adding the new output.
             Deselect the \uicontrol {Clear existing tasks} check box to append
             the new output to the old output.
         \li Select \uicontrol OK to start parsing.
@@ -651,7 +649,7 @@
     \if defined(qtcreator)
     \section1 To-Do Entries
 
-    The \uicontrol {To-Do Entries} pane lists the BUG, FIXME, NOTE, TODO, and
+    \uicontrol {To-Do Entries} lists the BUG, FIXME, NOTE, TODO, and
     WARNING keywords from the current file, from all project files, or from a
     subproject. Click the icons on the toolbar to show only the selected
     keywords.
@@ -688,8 +686,8 @@
     and load the plugin.
 
     In addition, you can open task list files generated by code scanning and
-    analysis tools in the \uicontrol Issues pane. For more information, see
-    \l{Showing Task List Files in Issues Pane}.
+    analysis tools in \l Issues. For more information, see
+    \l{Showing Task List Files in Issues}.
     \endif
 
 */

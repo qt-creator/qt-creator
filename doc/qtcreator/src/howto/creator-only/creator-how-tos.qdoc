@@ -43,7 +43,7 @@
     \li \l {Move between open files}
     \li \l {Switch to Edit mode}
     \li \l {Find a specific setting}
-    \li \l {Open output panes}
+    \li \l {View output}
     \li \l {Find keyboard shortcuts}
     \li \l {Run \QC from the command line}
     \li \l {Show and hide sidebars}
@@ -114,13 +114,16 @@
     To find specific settings in \uicontrol Tools > \uicontrol Options,
     use the filter located at the top left of the \uicontrol Options dialog box.
 
-    \section1 Open output panes
+    \section1 View output
 
-    The \l{Viewing Output}{output panes} provide a list of errors and warnings
-    encountered during a build, detailed output from the compiler, status of a
-    program when it is executed, debug output, and search results.
+    The \l{Viewing Output}{taskbar} provides different views to output from
+    several sources, such as a list of errors and warnings encountered during
+    a build, detailed output from the compiler, status of a program when it is
+    executed, debug output, or search results.
 
-    To open output panes, use the following shortcuts:
+    \image qtcreator-output-panes-taskbar.png "Output on the taskbar"
+
+    To view different types of output, use the following shortcuts:
 
     \list
 
@@ -134,7 +137,7 @@
 
     \endlist
 
-    For additional ways to open all output panes, see \l{Viewing Output}.
+    For additional ways to view other types of output, see \l{Viewing Output}.
 
     \section1 Find keyboard shortcuts
 

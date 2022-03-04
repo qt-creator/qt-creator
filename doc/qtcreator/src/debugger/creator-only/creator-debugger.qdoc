@@ -1497,7 +1497,7 @@
     You might have created a release build that does not contain debug
     information. A GNU Compiler Collection (GCC) debug build has the \c {-g}
     option on the compiler command line. Check that this option is present in
-    the \uicontrol {Compile Output} pane. If it is not, adjust your build
+    the \l {Compile Output}. If it is not, adjust your build
     settings in the \uicontrol Projects mode.
 
     \section1 Debugger Does Not Work

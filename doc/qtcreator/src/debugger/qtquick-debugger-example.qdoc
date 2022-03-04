@@ -104,7 +104,7 @@
             \image qtquick-example-setting-breakpoint3.png
 
         \li To execute JavaScript commands in the current context, open the
-            \uicontrol {QML Debugger Console} output pane.
+            \uicontrol {QML Debugger Console}.
 
             \image qml-script-console.png
 

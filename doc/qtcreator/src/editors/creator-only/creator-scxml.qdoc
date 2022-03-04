@@ -90,7 +90,7 @@
     chart, select \inlineimage icons/statistics.png
     (\uicontrol {View Statistics}).
 
-    To search from the state chart, use the \uicontrol Search pane. The search
+    To search from the state chart, use \l {Search Results}. The search
     checks the whole SCXML tree for attributes that match the search criteria.
 
     To save the currently visible part of the state chart as an image, select

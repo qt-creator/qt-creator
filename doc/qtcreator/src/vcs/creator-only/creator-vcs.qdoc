@@ -129,9 +129,9 @@
         \li \l{Using Subversion}
     \endlist
 
-    The \uicontrol{Version Control} output pane displays the commands that are
+    \uicontrol{Version Control} displays the commands that are
     executed, a timestamp, and the relevant output. Select \uicontrol View >
-    \uicontrol {Output Panes} > \uicontrol {Version Control} to open the pane.
+    \uicontrol Output > \uicontrol {Version Control} to open the view.
 
     \image qtcreator-vcs-pane.png
 

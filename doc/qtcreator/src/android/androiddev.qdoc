@@ -295,8 +295,8 @@
     the application for debugging.
 
     \note \QC cannot debug applications on Android devices if Android Studio is
-    running. If the following message is displayed in the \uicontrol Output
-    pane, close Android Studio and try again:
+    running. If the following message is displayed in \l {Application Output},
+    close Android Studio and try again:
 
     \badcode
     Ignoring second debugger -accepting and dropping.

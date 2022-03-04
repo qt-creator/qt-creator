@@ -89,8 +89,8 @@
         \endif
     \endlist
 
-    The \uicontrol {Search Results} pane shows the location
-    and number of search hits in the current project.
+    \l{Search Results} shows the location and number of search hits in the
+    current project.
 
     \if defined(qtcreator)
     \image qtcreator-refactoring-find.png
@@ -101,12 +101,11 @@
     You can browse the search results in the following ways:
 
     \list
-        \li To go directly to an instance, double-click the instance in the
-            \uicontrol {Search Results} pane.
+        \li To go directly to an instance, double-click the instance in
+            \uicontrol {Search Results}.
         \li To move between instances, click the \inlineimage icons/next.png
             (\uicontrol {Next Item}) button and \inlineimage icons/prev.png
-            (\uicontrol {Previous Item}) button in the
-            \uicontrol {Search Results} pane.
+            (\uicontrol {Previous Item}) button in \uicontrol {Search Results}.
         \li To expand and collapse the list of all instances, click the
             \inlineimage icons/qtcreator-expand.png
             (\uicontrol {Expand All}) button.
@@ -139,7 +138,7 @@
     \uicontrol {QML/JS} > \uicontrol {Rename Symbol Under Cursor}
     or press \key {Ctrl+Shift+R}.
 
-    The \uicontrol {Search Results} pane shows the location
+    \uicontrol {Search Results} shows the location
     and number of instances of the symbol in the current project.
 
     \if defined(qtcreator)
@@ -153,15 +152,15 @@
     To omit an instance, deselect the check box next to the instance.
 
     \note This action replaces all selected instances of the symbol in
-    all files listed in the \uicontrol {Search Results} pane. You cannot
+    all files listed in \uicontrol {Search Results}. You cannot
     undo this action.
 
     \if defined(qtcreator)
     If the symbol is a class, select the \uicontrol {Rename files} check
     box to also change the filenames that match the class name.
 
-    \note Renaming local symbols does not open the \uicontrol {Search Results}
-    pane. The instances of the symbol are highlighted in code and you can edit
+    \note Renaming local symbols does not open \uicontrol {Search Results}.
+    The instances of the symbol are highlighted in code and you can edit
     the symbol. All instances of the local symbol are changed as you type.
     \endif
 

@@ -224,11 +224,11 @@
     One way to handle that would be to let the tool create an output file, which
     is then opened within \QC. You provide an editor (probably read-only) for
     handling this file. For lists of issues, consider creating task list files
-    which are shown in the \uicontrol Issues output pane.
+    which are shown in \l Issues.
 
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-task-lists.html}
-            {Showing Task List Files in the Issues Pane}
+            {Showing Task List Files in Issues}
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
         \omit

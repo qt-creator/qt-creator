@@ -32,7 +32,7 @@
 
     Custom output parsers scan command line output for error
     and warning patterns that you specify and create entries
-    for found patterns in the \uicontrol Issues output pane.
+    for found patterns in \l Issues.
 
     To view or add custom output parsers, select
     \uicontrol Tools > \uicontrol Options >
@@ -68,9 +68,9 @@
         \li In the \uicontrol {Error message capture pattern} field, specify
             a regular expression to define what is an error. The custom
             parser matches the compile output line by line against the
-            regular expression and displays errors in the \uicontrol Issues
-            output pane. Create regular expression groups that contain
-            the file name, line number and error message.
+            regular expression and displays errors in \l Issues. Create
+            regular expression groups that contain the file name, line number
+            and error message.
         \li In the \uicontrol {Capture Positions} field, map the regular
             expression groups to \uicontrol {File name}, \uicontrol {Line number},
             and \uicontrol Message.

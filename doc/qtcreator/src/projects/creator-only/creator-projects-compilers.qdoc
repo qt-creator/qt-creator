@@ -245,7 +245,7 @@
 
     \section1 Troubleshooting \MinGW Compilation Errors
 
-    If error messages displayed in the \uicontrol {Compile Output} pane contain
+    If error messages displayed in \l {Compile Output} contain
     paths where slashes are missing (for example, \c {C:QtSDK}),
     check your PATH variable. At the command line, enter the following commands:
 

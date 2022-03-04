@@ -194,8 +194,8 @@
 
             \image qtcreator-searchresults.png
 
-             A list of files containing the searched text is displayed in the
-            \uicontrol {Search Results} pane.
+            A list of files containing the searched text is displayed in
+            \l {Search Results}.
 
             \list
 

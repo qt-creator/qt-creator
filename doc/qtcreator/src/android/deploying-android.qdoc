@@ -138,7 +138,7 @@
     \l{androiddeployqt}.
 
     You can view information about what the \c androiddeployqt tool is doing in
-    the \uicontrol {Compile Output} pane. To view additional information, select the
+    \l {Compile Output}. To view additional information, select the
     \uicontrol {Verbose output} check box.
 
     Select \uicontrol {Add debug server} to include the debug server binary

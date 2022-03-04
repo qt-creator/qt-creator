@@ -203,9 +203,9 @@
     views, select the \uicontrol {Use Python dumper} check box.
     For more information, see \l{Debugging Helper Implementation}.
 
-    To add information about first-chance and second-chance exceptions
-    to the \uicontrol Issues output pane, select the check boxes
-    in the \uicontrol {Add Exceptions to the Issues View} group.
+    To display information about first-chance and second-chance exceptions
+    in \l Issues, select the check boxes
+    in the \uicontrol {Add Exceptions to Issues View} group.
 
     \section2 Setting CDB Paths on Windows
 

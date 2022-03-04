@@ -256,7 +256,7 @@
 
     \b {On Unix (Linux and \macos):} \c qDebug() and related functions use
     the standard output and error output. When you run or debug the
-    application, you can view the output in the \uicontrol{Application Output} pane.
+    application, you can view the output in \l{Application Output}.
 
     For console applications that require input, select \uicontrol Projects >
     \uicontrol {Run Settings} > \uicontrol {Run in terminal}. To specify the
@@ -287,9 +287,9 @@
     \uicontrol {Run in terminal} for console applications.
 
     For GUI applications, \c qDebug() and related functions use the Windows API
-    function \c OutputDebugString(). The output is displayed in the
-    \uicontrol{Application Output} pane. However, only one output pane tab may be
-    open at a time or the output is not displayed correctly. You can use an
+    function \c OutputDebugString(). The output is displayed in
+    \uicontrol{Application Output}. However, \QC can show output from only one
+    source at the time for it to be displayed correctly. You can use an
     external debug output viewer, such as the
     \l{https://technet.microsoft.com/en-us/sysinternals/bb896647}
     {DebugView for Windows} to display output from GUI applications.

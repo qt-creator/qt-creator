@@ -166,7 +166,7 @@
 
     \endlist
 
-    Warnings and errors are displayed in the \l {Issues} output pane.
+    Warnings and errors are displayed in \l {Issues}.
 
    \section1 Adding External Libraries to CMake Projects
 

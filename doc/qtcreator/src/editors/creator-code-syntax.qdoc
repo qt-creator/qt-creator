@@ -106,7 +106,7 @@
     find common problems. To run the checks, select \uicontrol Tools >
     \uicontrol {QML/JS} > \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}.
     The results are shown in the \uicontrol QML and \uicontrol {QML Analysis}
-    filters of the \uicontrol Issues output pane.
+    filters in \l Issues.
 
     Many of the error messages are similar to the ones in Douglas Crockford's
     \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint

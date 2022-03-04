@@ -46,8 +46,7 @@
 
     To check that the application code can be compiled and linked for a device,
     you can build the project. The build errors and warnings are displayed in
-    the \uicontrol {Issues} output pane. More detailed information is displayed
-    in the \uicontrol {Compile Output} pane.
+    the \l Issues. More detailed information is displayed in \l {Compile Output}.
 
     To build an application:
 

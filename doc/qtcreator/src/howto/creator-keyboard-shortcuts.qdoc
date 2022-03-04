@@ -227,22 +227,22 @@
             \li  Switch to \uicontrol Help mode
             \li  Ctrl+6
         \row
-            \li  Toggle \uicontrol{Issues} pane
+            \li  Toggle \uicontrol{Issues}
             \li  Alt+1 (Cmd+1 on \macos)
         \row
-            \li  Toggle \uicontrol{Search Results} pane
+            \li  Toggle \uicontrol{Search Results}
             \li  Alt+2 (Cmd+2 on \macos)
         \row
-            \li  Toggle \uicontrol{Application Output} pane
+            \li  Toggle \uicontrol{Application Output}
             \li  Alt+3 (Cmd+3 on \macos)
         \row
-            \li  Toggle \uicontrol{Compile Output} pane
+            \li  Toggle \uicontrol{Compile Output}
             \li  Alt+4 (Cmd+4 on \macos)
         \row
-            \li  Toggle other output panes
+            \li  Toggle other output views
             \li  Alt+number (Cmd+number on \macos)
 
-            Where the number is the number of the output pane.
+            Where the number is the number of the view.
         \if defined(qtcreator)
         \row
             \li  Activate \uicontrol Bookmarks view
@@ -255,13 +255,13 @@
             \li  Activate \uicontrol{Open Documents} view
             \li  Alt+O
         \row
-            \li  Maximize output panes
+            \li  Maximize output views
             \li  Alt+9
         \row
-            \li  Move to next item in output panes
+            \li  Move to next item in output
             \li  F6
         \row
-            \li  Move to previous item in output panes
+            \li  Move to previous item in output
             \li  Shift+F6
         \row
             \li  Activate \uicontrol Projects view

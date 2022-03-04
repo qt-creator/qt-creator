@@ -198,9 +198,9 @@
 
     \section2 Viewing Git Status
 
-    To view the status of the repository in the \uicontrol {Version Control}
-    output pane, select \uicontrol Status. The context menu contains additional
-    actions, such as selecting and clearing all entries in the pane, copying
+    To view the status of the repository in \uicontrol {Version Control},
+    select \uicontrol Status. The context menu contains additional
+    actions, such as selecting and clearing all entries, copying
     text, and opening files.
 
     \section2 Committing Changes to Git

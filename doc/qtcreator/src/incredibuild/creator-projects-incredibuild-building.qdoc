@@ -51,8 +51,7 @@
     In the \uicontrol {Target and configuration} group, specify the command
     helper and arguments that will be used to construct the build command.
 
-    The build errors and warnings are parsed and displayed in the
-    \uicontrol Issues output pane.
+    The build errors and warnings are parsed and displayed in \l Issues.
 
     Select the \uicontrol {Keep original jobs number} check box to stop
     IncrediBuild from overriding the \c {-j} command line switch, which
@@ -142,6 +141,5 @@
 
     For more information about the settings, see \l{IncrediBuild Build Steps}.
 
-    The build errors and warnings are parsed and displayed in the
-    \uicontrol Issues output pane.
+    The build errors and warnings are parsed and displayed in \l Issues.
 */

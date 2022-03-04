@@ -504,6 +504,6 @@
             the performance counters system.
     \endlist
 
-    Output from the helper program that processes the data is displayed in the
-    \uicontrol {General Messages} output pane.
+    Output from the helper program that processes the data is displayed in
+    \l{Viewing Output}{General Messages}.
 */
