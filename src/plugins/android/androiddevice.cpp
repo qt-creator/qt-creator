@@ -67,6 +67,10 @@ static Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.androiddevice", QtWarni
 namespace Android {
 namespace Internal {
 
+static constexpr char ipRegexStr[] = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
+static const QRegularExpression ipRegex = QRegularExpression(ipRegexStr);
+static constexpr char wifiDevicePort[] = "5555";
+
 class AndroidDeviceWidget : public IDeviceWidget
 {
 public:
@@ -74,7 +78,9 @@ public:
 
     void updateDeviceFromUi() final {}
     static QString dialogTitle();
+    static bool messageDialog(const QString &msg, QMessageBox::Icon icon, QWidget *parent = nullptr);
     static bool criticalDialog(const QString &error, QWidget *parent = nullptr);
+    static bool infoDialog(const QString &msg, QWidget *parent = nullptr);
     static bool questionDialog(const QString &question, QWidget *parent = nullptr);
 };
 
@@ -127,15 +133,25 @@ QString AndroidDeviceWidget::dialogTitle()
     return AndroidDevice::tr("Android Device Manager");
 }
 
-bool AndroidDeviceWidget::criticalDialog(const QString &error, QWidget *parent)
+bool AndroidDeviceWidget::messageDialog(const QString &msg, QMessageBox::Icon icon, QWidget *parent)
 {
-    qCDebug(androidDeviceLog) << error;
+    qCDebug(androidDeviceLog) << msg;
     QMessageBox box(parent ? parent : Core::ICore::dialogParent());
     box.QDialog::setWindowTitle(dialogTitle());
-    box.setText(error);
-    box.setIcon(QMessageBox::Critical);
+    box.setText(msg);
+    box.setIcon(icon);
     box.setWindowFlag(Qt::WindowTitleHint);
     return box.exec();
+}
+
+bool AndroidDeviceWidget::criticalDialog(const QString &error, QWidget *parent)
+{
+    return messageDialog(error, QMessageBox::Critical, parent);
+}
+
+bool AndroidDeviceWidget::infoDialog(const QString &message, QWidget *parent)
+{
+    return messageDialog(message, QMessageBox::Information, parent);
 }
 
 bool AndroidDeviceWidget::questionDialog(const QString &question, QWidget *parent)
@@ -168,19 +184,19 @@ AndroidDevice::AndroidDevice()
         Q_UNUSED(parent)
         AndroidDeviceManager::instance()->updateDeviceState(device);
     }});
-
-    addEmulatorActionsIfNotFound();
 }
 
-void AndroidDevice::addEmulatorActionsIfNotFound()
+void AndroidDevice::addActionsIfNotFound()
 {
     static const QString startAvdAction = tr("Start AVD");
     static const QString eraseAvdAction = tr("Erase AVD");
     static const QString avdArgumentsAction = tr("AVD Arguments");
+    static const QString setupWifi = tr("Setup Wi-Fi");
 
     bool hasStartAction = false;
     bool hasEraseAction = false;
     bool hasAvdArgumentsAction = false;
+    bool hasSetupWifi = false;
 
     for (const DeviceAction &item : deviceActions()) {
         if (item.display == startAvdAction)
@@ -189,6 +205,8 @@ void AndroidDevice::addEmulatorActionsIfNotFound()
             hasEraseAction = true;
         else if (item.display == avdArgumentsAction)
             hasAvdArgumentsAction = true;
+        else if (item.display == setupWifi)
+            hasSetupWifi = true;
     }
 
     if (machineType() == Emulator) {
@@ -210,6 +228,12 @@ void AndroidDevice::addEmulatorActionsIfNotFound()
                 AndroidDeviceManager::instance()->setEmulatorArguments(parent);
             }});
         }
+    } else if (machineType() == Hardware && !ipRegex.match(id().toString()).hasMatch()) {
+        if (!hasSetupWifi) {
+            addDeviceAction({setupWifi, [](const IDevice::Ptr &device, QWidget *parent) {
+                AndroidDeviceManager::instance()->setupWifiForDevice(device, parent);
+            }});
+        }
     }
 }
 
@@ -217,9 +241,9 @@ void AndroidDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
     initAvdSettings();
-    // Add Actions for Emulator is not added already.
+    // Add Actions for Emulator and hardware if not added already.
     // This is needed because actions for Emulators and physical devices are not the same.
-    addEmulatorActionsIfNotFound();
+    addActionsIfNotFound();
 }
 
 IDevice::Ptr AndroidDevice::create()
@@ -488,6 +512,66 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
     }));
 }
 
+void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
+{
+    if (device->deviceState() != IDevice::DeviceReadyToUse) {
+        AndroidDeviceWidget::infoDialog(
+                    AndroidDevice::tr("The device has to be connected with ADB debugging "
+                                      "enabled to use this feature."), parent);
+        return;
+    }
+
+    const auto androidDev = static_cast<const AndroidDevice *>(device.data());
+    const QStringList adbSelector = AndroidDeviceInfo::adbSelector(androidDev->serialNumber());
+    // prepare port
+    QStringList args = adbSelector;
+    args.append({"tcpip", wifiDevicePort});
+    const SdkToolResult result = AndroidManager::runAdbCommand(args);
+    if (!result.success()) {
+        AndroidDeviceWidget::criticalDialog(
+                    AndroidDevice::tr("Opening connection port %1 failed.").arg(wifiDevicePort),
+                    parent);
+        return;
+    }
+
+    QTimer::singleShot(2000, parent, [adbSelector, &parent]() {
+        // Get device IP address
+        QStringList args = adbSelector;
+        args.append({"shell", "ip", "route"});
+        const SdkToolResult ipRes = AndroidManager::runAdbCommand(args);
+        if (!ipRes.success()) {
+            AndroidDeviceWidget::criticalDialog(
+                        AndroidDevice::tr("Retrieving the device IP address failed."), parent);
+            return;
+        }
+
+        // Expected output from "ip route" is:
+        // 192.168.1.0/24 dev wlan0 proto kernel scope link src 192.168.1.190
+        // where the ip of interest is at the end of the line
+        const QStringList ipParts = ipRes.stdOut().split(" ");
+        QString ip;
+        if (!ipParts.isEmpty()) {
+            ip = ipParts.last();
+        }
+        if (!ipRegex.match(ipParts.last()).hasMatch()) {
+            AndroidDeviceWidget::criticalDialog(
+                        AndroidDevice::tr("The retrieved IP address is invalid."), parent);
+            return;
+        }
+
+        // Connect to device
+        args = adbSelector;
+        args.append({"connect", QString("%1:%2").arg(ip).arg(wifiDevicePort)});
+        const SdkToolResult connectRes = AndroidManager::runAdbCommand(args);
+        if (!connectRes.success()) {
+            AndroidDeviceWidget::criticalDialog(
+                        AndroidDevice::tr("Connecting to to the device IP \"%1\" failed.").arg(ip),
+                        parent);
+            return;
+        }
+    });
+}
+
 void AndroidDeviceManager::handleAvdRemoved()
 {
     const QPair<IDevice::ConstPtr, bool> result = m_removeAvdFutureWatcher.result();
@@ -723,9 +807,8 @@ void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)
         QString displayName = AndroidConfigurations::currentConfig().getProductModel(serial);
         // Check if the device is connected via WiFi. A sample serial of such devices can be
         // like: "192.168.1.190:5555"
-        const QRegularExpression wifiSerialRegExp(
-                    QLatin1String("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})"));
-        if (wifiSerialRegExp.match(serial).hasMatch())
+        static const auto ipRegex = QRegularExpression(ipRegexStr + QStringLiteral(":(\\d{1,5})"));
+        if (ipRegex.match(serial).hasMatch())
             displayName += QLatin1String(" (WiFi)");
 
         if (IDevice::ConstPtr dev = devMgr->find(id)) {
