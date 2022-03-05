@@ -162,7 +162,7 @@ AndroidDevice::AndroidDevice()
     setDisplayType(tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(OsType::OsTypeOtherUnix);
-    setDeviceState(DeviceConnected);
+    setDeviceState(DeviceDisconnected);
 
     addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
         Q_UNUSED(parent)
@@ -441,12 +441,10 @@ void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Con
     const QString serial = dev->serialNumber();
     DeviceManager *const devMgr = DeviceManager::instance();
     const Utils::Id id = dev->id();
-    if (serial.isEmpty() && dev->machineType() == IDevice::Emulator) {
+    if (!serial.isEmpty())
+        devMgr->setDeviceState(id, getDeviceState(serial, dev->machineType()));
+    else if (dev->machineType() == IDevice::Emulator)
         devMgr->setDeviceState(id, IDevice::DeviceConnected);
-        return;
-    }
-
-    devMgr->setDeviceState(id, getDeviceState(serial, dev->machineType()));
 }
 
 void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)
@@ -641,11 +639,15 @@ void AndroidDeviceManager::HandleAvdsListChange()
             } else {
                 // Find the state of the AVD retrieved from the AVD watcher
                 const QString serial = getRunningAvdsSerialNumber(item.avdName);
-                const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
-                if (dev->deviceState() != state) {
-                    devMgr->setDeviceState(dev->id(), state);
-                    qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
-                            dev->id().toString().toUtf8().data());
+                if (!serial.isEmpty()) {
+                    const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
+                    if (dev->deviceState() != state) {
+                        devMgr->setDeviceState(dev->id(), state);
+                        qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
+                                dev->id().toString().toUtf8().data());
+                    }
+                } else {
+                    devMgr->setDeviceState(dev->id(), IDevice::DeviceConnected);
                 }
                 connectedDevs.append(dev->id());
                 continue;
