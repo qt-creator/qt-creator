@@ -304,34 +304,7 @@ bool AndroidSettingsWidget::isDefaultNdkSelected() const
 AndroidSettingsWidget::AndroidSettingsWidget()
 {
     m_ui.setupUi(this);
-    m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, &m_sdkManager,
-                                                     m_ui.sdkManagerGroupBox);
-    auto sdkMangerLayout = new QVBoxLayout(m_ui.sdkManagerGroupBox);
-    sdkMangerLayout->addWidget(m_sdkManagerWidget);
-    connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdk, [this] {
-        // Disable the top level UI to keep the user from unintentionally interrupting operations
-        m_ui.androidSettingsGroupBox->setEnabled(false);
-        m_ui.androidOpenSSLSettingsGroupBox->setEnabled(false);
-        m_ui.CreateKitCheckBox->setEnabled(false);
-        m_androidSummary->setState(DetailsWidget::Collapsed);
-        m_androidProgress->hide();
-    });
-    connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdkFinished, [this] {
-        m_ui.androidSettingsGroupBox->setEnabled(true);
-        m_ui.androidOpenSSLSettingsGroupBox->setEnabled(true);
-        m_ui.CreateKitCheckBox->setEnabled(true);
-    });
-    connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::licenseWorkflowStarted, [this] {
-        QObject *parentWidget = parent();
-        while (parentWidget) {
-            if (auto scrollArea = qobject_cast<QScrollArea *>(parentWidget)) {
-                scrollArea->ensureWidgetVisible(m_ui.sdkManagerGroupBox);
-                break;
-            }
-            parentWidget = parentWidget->parent();
-        };
-    });
-
+    m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, &m_sdkManager, this);
     QMap<int, QString> androidValidationPoints;
     androidValidationPoints[SdkPathExistsAndWritableRow] =
             tr("Android SDK path exists and is writable.");
@@ -446,6 +419,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_androidSummary->setInProgressText("Retrieving packages information");
         m_androidProgress->show();
     });
+    connect(m_ui.sdkManagerToolButton, &QAbstractButton::clicked,
+            this, [this]() { m_sdkManagerWidget->exec(); });
     connect(m_ui.sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
     connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, [this](const QString &error) {
@@ -668,11 +643,8 @@ void AndroidSettingsWidget::createKitToggled()
 
 void AndroidSettingsWidget::updateUI()
 {
-    const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsAndWritableRow, SdkToolsInstalledRow});
     const bool androidSetupOk = m_androidSummary->allRowsOk();
     const bool openSslOk = m_openSslSummary->allRowsOk();
-
-    m_ui.sdkManagerGroupBox->setEnabled(sdkToolsOk);
 
     const QListWidgetItem *currentItem = m_ui.ndkListWidget->currentItem();
     const FilePath currentNdk = FilePath::fromString(currentItem ? currentItem->text() : "");

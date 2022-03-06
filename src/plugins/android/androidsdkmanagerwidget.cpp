@@ -68,7 +68,7 @@ private:
 
 AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
                                                  AndroidSdkManager *sdkManager, QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     m_androidConfig(config),
     m_sdkManager(sdkManager),
     m_sdkModel(new AndroidSdkModel(m_androidConfig, m_sdkManager, this)),
@@ -79,6 +79,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     m_ui->sdkLicensebuttonBox->hide();
     m_ui->sdkLicenseLabel->hide();
     m_ui->viewStack->setCurrentWidget(m_ui->packagesStack);
+    setModal(true);
 
     m_formatter = new Utils::OutputFormatter;
     m_formatter->setPlainTextEdit(m_ui->outputEdit);
@@ -136,6 +137,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         m_ui->expandCheck->setChecked(!text.isEmpty());
     });
 
+    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &AndroidSdkManagerWidget::close);
     connect(m_ui->applySelectionButton, &QPushButton::clicked,
             this, [this]() { onApplyButton(); });
     connect(m_ui->cancelButton, &QPushButton::clicked, this,
@@ -267,6 +269,9 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
     messageDlg.setDetailedText(details);
     if (messageDlg.exec() == QMessageBox::Cancel)
         return;
+
+    // Open the SDK Manager dialog after accepting to continue with the installation
+    show();
 
     switchView(Operations);
     m_pendingCommand = AndroidSdkManager::UpdatePackage;
@@ -401,6 +406,8 @@ void AndroidSdkManagerWidget::notifyOperationFinished()
         QMessageBox::information(this, tr("Android SDK Changes"),
                                  tr("Android SDK operations finished."), QMessageBox::Ok);
         m_ui->operationProgress->setValue(0);
+        // Once the update/install is done, let's hide the dialog.
+        hide();
     }
 }
 
@@ -464,10 +471,15 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
     if (m_currentView == PackageListing)
         m_formatter->clear();
     m_currentView = view;
-    if (m_currentView == PackageListing)
+    if (m_currentView == PackageListing) {
+        // We need the buttonBox only in the main listing view, as the license and update
+        // views already have a cancel button.
+        m_ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(true);
         emit updatingSdkFinished();
-    else
+    } else {
+        m_ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(false);
         emit updatingSdk();
+    }
 
     if (m_currentView == LicenseWorkflow)
         emit licenseWorkflowStarted();

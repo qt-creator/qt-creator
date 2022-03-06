@@ -158,6 +158,13 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="2" colspan="4">
+       <widget class="QPushButton" name="sdkManagerToolButton">
+        <property name="text">
+         <string>SDK Manager</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0">
        <widget class="QLabel" name="ndkComboBoxLabel">
         <property name="text">
@@ -234,11 +241,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="sdkManagerGroupBox">
-     <property name="title">
-      <string>SDK Manager</string>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-    </widget>
+    </spacer>
    </item>
   </layout>
  </widget>

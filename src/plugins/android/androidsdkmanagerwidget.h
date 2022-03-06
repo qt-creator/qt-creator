@@ -65,7 +65,7 @@ private:
     QFuture<QString> m_optionsFuture;
 };
 
-class AndroidSdkManagerWidget : public QWidget
+class AndroidSdkManagerWidget : public QDialog
 {
     Q_OBJECT
 
