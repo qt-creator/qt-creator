@@ -19692,7 +19692,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>(SDK-Version: %1, NDK-Version: %2)</translation>
     </message>
     <message>
-        <source>Download and install Android SDK Tools to: %1?</source>
+        <source>Download and install Android SDK Tools to %1?</source>
         <translation>Android-SDK-Tools herunterladen und nach %1 installieren?</translation>
     </message>
     <message>

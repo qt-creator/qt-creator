@@ -1967,7 +1967,7 @@ Prefix with : if the process is private, use a lowercase name if the process is 
         <translation>Выбранный путь уже содержит корректный пакет инструментов SDK.</translation>
     </message>
     <message>
-        <source>Download and install Android SDK Tools to: %1?</source>
+        <source>Download and install Android SDK Tools to %1?</source>
         <translation>Загрузить и установить инструменты Android SDK в %1?</translation>
     </message>
     <message>
