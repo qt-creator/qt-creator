@@ -813,7 +813,10 @@ QSet<Id> KitFeatureProvider::availablePlatforms() const
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
     if (IDeviceFactory *f = IDeviceFactory::find(id)) {
-        const QString dn = f->displayName();
+        QString dn = f->displayName();
+        const QString deviceStr = QStringLiteral("device");
+        if (dn.endsWith(deviceStr, Qt::CaseInsensitive))
+            dn = dn.remove(deviceStr, Qt::CaseInsensitive).trimmed();
         QTC_CHECK(!dn.isEmpty());
         return dn;
     }
