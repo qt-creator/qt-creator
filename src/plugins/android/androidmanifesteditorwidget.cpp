@@ -1229,8 +1229,15 @@ static void addServiceArgumentsAndLibName(const AndroidServiceData &service, QXm
         writeMetadataElement("android.app.lib_name", "android:value", "-- %%INSERT_APP_LIB_NAME%% --", writer);
 }
 
-static void addServiceMetadata(QXmlStreamWriter &writer)
+void AndroidManifestEditorWidget::addServiceMetadata(QXmlStreamWriter &writer)
 {
+    // The values below are no longer needed in Qt 6.2+, don't add them
+    const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
+    if (target) {
+        const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+        if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber(6, 2))
+            return;
+    }
     writeMetadataElement("android.app.qt_sources_resource_id", "android:resource", "@array/qt_sources", writer);
     writeMetadataElement("android.app.repository", "android:value", "default", writer);
     writeMetadataElement("android.app.qt_libs_resource_id", "android:resource", "@array/qt_libs", writer);
