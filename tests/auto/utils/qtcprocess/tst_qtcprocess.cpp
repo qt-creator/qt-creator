@@ -198,6 +198,7 @@ private slots:
     void notRunningAfterStartingNonExistingProgram();
     void processChannelForwarding_data();
     void processChannelForwarding();
+    void killBlockingProcess_data();
     void killBlockingProcess();
     void flushFinishedWhileWaitingForReadyRead();
 
@@ -1223,16 +1224,56 @@ protected:
 bool MessageHandler::ok = true;
 QtMessageHandler MessageHandler::oldMessageHandler = 0;
 
+enum class BlockType {
+    EndlessLoop,
+    InfiniteSleep,
+    MutexDeadlock,
+    EventLoop
+};
+
 void tst_QtcProcess::KillBlockingProcess::main()
 {
     std::cout << "Blocking process successfully executed." << std::endl;
-    while (true)
-        ;
+    const BlockType blockType = BlockType(qEnvironmentVariableIntValue(envVar()));
+    switch (blockType) {
+    case BlockType::EndlessLoop:
+        while (true)
+            ;
+        break;
+    case BlockType::InfiniteSleep:
+        QThread::sleep(INT_MAX);
+        break;
+    case BlockType::MutexDeadlock: {
+        QMutex mutex;
+        mutex.lock();
+        mutex.lock();
+        break;
+    }
+    case BlockType::EventLoop: {
+        QEventLoop loop;
+        loop.exec();
+        break;
+    }
+
+    }
+    exit(1);
+}
+
+void tst_QtcProcess::killBlockingProcess_data()
+{
+    QTest::addColumn<BlockType>("blockType");
+
+    QTest::newRow("EndlessLoop") << BlockType::EndlessLoop;
+    QTest::newRow("InfiniteSleep") << BlockType::InfiniteSleep;
+    QTest::newRow("MutexDeadlock") << BlockType::MutexDeadlock;
+    QTest::newRow("EventLoop") << BlockType::EventLoop;
 }
 
 void tst_QtcProcess::killBlockingProcess()
 {
-    SubCreatorConfig subConfig(KillBlockingProcess::envVar(), {});
+    QFETCH(BlockType, blockType);
+
+    SubCreatorConfig subConfig(KillBlockingProcess::envVar(), QString::number(int(blockType)));
 
     MessageHandler msgHandler;
     {
