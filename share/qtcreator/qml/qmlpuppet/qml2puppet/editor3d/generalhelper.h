@@ -41,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QQuick3DCamera;
 class QQuick3DNode;
 class QQuick3DViewport;
+class QQuick3DMaterial;
 class QQuickItem;
 QT_END_NAMESPACE
 
