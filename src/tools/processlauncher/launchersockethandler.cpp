@@ -59,13 +59,20 @@ LauncherSocketHandler::LauncherSocketHandler(QString serverPath, QObject *parent
 
 LauncherSocketHandler::~LauncherSocketHandler()
 {
+    for (auto it = m_processes.cbegin(); it != m_processes.cend(); ++it) {
+        Process *p = it.value();
+        if (p->state() != QProcess::NotRunning)
+            logWarn(QStringLiteral("Shutting down while process %1 is running").arg(p->program()));
+        ProcessReaper::reap(p);
+    }
+
     m_socket->disconnect();
-    if (m_socket->state() != QLocalSocket::UnconnectedState) {
-        logWarn("socket handler destroyed while connection was active");
+    m_socket->disconnectFromServer();
+    if (m_socket->state() != QLocalSocket::UnconnectedState
+            && !m_socket->waitForDisconnected())  {
+        logWarn("Could not disconnect from server");
         m_socket->close();
     }
-    for (auto it = m_processes.cbegin(); it != m_processes.cend(); ++it)
-        ProcessReaper::reap(it.value());
 }
 
 void LauncherSocketHandler::start()
@@ -85,7 +92,7 @@ void LauncherSocketHandler::handleSocketData()
         if (!m_packetParser.parse())
             return;
     } catch (const PacketParser::InvalidPacketSizeException &e) {
-        logWarn(QStringLiteral("Internal protocol error: invalid packet size %1.")
+        logWarn(QStringLiteral("Internal protocol error: Invalid packet size %1")
                 .arg(e.size));
         return;
     }
@@ -103,7 +110,7 @@ void LauncherSocketHandler::handleSocketData()
         handleShutdownPacket();
         return;
     default:
-        logWarn(QStringLiteral("Internal protocol error: invalid packet type %1.")
+        logWarn(QStringLiteral("Internal protocol error: Invalid packet type %1")
                 .arg(static_cast<int>(m_packetParser.type())));
         return;
     }
@@ -113,7 +120,7 @@ void LauncherSocketHandler::handleSocketData()
 void LauncherSocketHandler::handleSocketError()
 {
     if (m_socket->error() != QLocalSocket::PeerClosedError) {
-        logError(QStringLiteral("socket error: %1").arg(m_socket->errorString()));
+        logError(QStringLiteral("Socket error: %1").arg(m_socket->errorString()));
         m_socket->disconnect();
         qApp->quit();
     }
@@ -121,12 +128,7 @@ void LauncherSocketHandler::handleSocketError()
 
 void LauncherSocketHandler::handleSocketClosed()
 {
-    for (auto it = m_processes.cbegin(); it != m_processes.cend(); ++it) {
-        if (it.value()->state() != QProcess::NotRunning) {
-            logWarn("client closed connection while process still running");
-            break;
-        }
-    }
+    logWarn("The connection has closed unexpectedly, shutting down");
     m_socket->disconnect();
     qApp->quit();
 }
@@ -190,7 +192,7 @@ void LauncherSocketHandler::handleStartPacket()
     if (!process)
         process = setupProcess(m_packetParser.token());
     if (process->state() != QProcess::NotRunning) {
-        logWarn("got start request while process was running");
+        logWarn("Got start request while process was running");
         return;
     }
     const auto packet = LauncherPacket::extractPacket<StartProcessPacket>(
@@ -220,11 +222,11 @@ void LauncherSocketHandler::handleWritePacket()
 {
     Process * const process = m_processes.value(m_packetParser.token());
     if (!process) {
-        logWarn("got write request for unknown process");
+        logWarn("Got write request for unknown process");
         return;
     }
     if (process->state() != QProcess::Running) {
-        logDebug("can't write into not running process");
+        logDebug("Can't write into not running process");
         return;
     }
     const auto packet = LauncherPacket::extractPacket<WritePacket>(
@@ -239,13 +241,13 @@ void LauncherSocketHandler::handleStopPacket()
     if (!process) {
         // This can happen when the process finishes on its own at about the same time the client
         // sends the request. In this case the process was already deleted.
-        logDebug("got stop request for unknown process");
+        logDebug("Got stop request for unknown process");
         return;
     }
     if (process->state() == QProcess::NotRunning) {
         // This shouldn't happen, since as soon as process finishes or error occurrs
         // the process is being removed.
-        logWarn("got stop request when process was not running");
+        logWarn("Got stop request when process was not running");
     } else {
         // We got the client request to stop the starting / running process.
         // We report process exit to the client.
@@ -262,14 +264,7 @@ void LauncherSocketHandler::handleStopPacket()
 
 void LauncherSocketHandler::handleShutdownPacket()
 {
-    logDebug("got shutdown request, closing down");
-    for (auto it = m_processes.cbegin(); it != m_processes.cend(); ++it) {
-        it.value()->disconnect();
-        if (it.value()->state() != QProcess::NotRunning) {
-            logWarn("got shutdown request while process was running");
-            it.value()->terminate();
-        }
-    }
+    logDebug("Got shutdown request, closing down");
     m_socket->disconnect();
     qApp->quit();
 }
