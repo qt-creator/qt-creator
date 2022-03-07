@@ -1632,6 +1632,8 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
             d->m_eventLoop = nullptr;
             d->m_stdOut.append(d->m_process->readAllStandardOutput());
             d->m_stdErr.append(d->m_process->readAllStandardError());
+            d->m_stdOut.handleRest();
+            d->m_stdErr.handleRest();
 
             timer.stop();
 #ifdef QT_GUI_LIB
@@ -1651,13 +1653,11 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
                 kill();
                 waitForFinished(1000);
             }
+            d->m_stdOut.append(d->m_process->readAllStandardOutput());
+            d->m_stdErr.append(d->m_process->readAllStandardError());
+            d->m_stdOut.handleRest();
+            d->m_stdErr.handleRest();
         }
-
-        if (state() != QProcess::NotRunning)
-            return;
-
-        d->m_stdOut.append(d->m_process->readAllStandardOutput());
-        d->m_stdErr.append(d->m_process->readAllStandardError());
     }
 }
 

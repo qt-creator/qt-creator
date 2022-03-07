@@ -184,8 +184,6 @@ public:
     bool waitForSignal(int msecs, CallerHandle::SignalType newSignal);
     CallerHandle *callerHandle() const { return m_callerHandle; }
     void setCallerHandle(CallerHandle *handle) { QMutexLocker locker(&m_mutex); m_callerHandle = handle; }
-    // Called from caller's thread exclusively.
-    void setCanceled() { m_awaitingShouldContinue = false; }
 
     // Called from launcher's thread exclusively.
     void handleSocketReady();
@@ -217,8 +215,6 @@ private:
     // Lives in caller's thread. Modified only in caller's thread. TODO: check usages - all should be with mutex
     CallerHandle *m_callerHandle = nullptr;
 
-    // Modified only in caller's thread.
-    bool m_awaitingShouldContinue = false;
     mutable QMutex m_mutex;
     QWaitCondition m_waitCondition;
     const quintptr m_token;

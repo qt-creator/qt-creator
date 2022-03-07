@@ -966,6 +966,8 @@ void tst_QtcProcess::RunBlockingStdOut::main()
     std::cout << runBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
     if (qEnvironmentVariable(envVar()) == "true")
         std::cout << std::endl;
+    else
+        std::cout << std::flush; // otherwise it won't reach the original process (will be buffered)
     QThread::msleep(5000);
     exit(0);
 }
@@ -974,22 +976,27 @@ void tst_QtcProcess::runBlockingStdOut_data()
 {
     QTest::addColumn<bool>("withEndl");
     QTest::addColumn<int>("timeOutS");
+    QTest::addColumn<ProcessResult>("expectedResult");
 
-    QTest::newRow("Terminated stdout delivered instantly")
-            << true
-            << 2;
-    QTest::newRow("Unterminated stdout lost: early timeout")
-            << false
-            << 2;
-    QTest::newRow("Unterminated stdout lost: hanging")
-            << false
-            << 20;
-}
+    // TerminatedAbnormally, since it didn't time out and callback stopped the process forcefully.
+    QTest::newRow("Short timeout with end of line")
+            << true << 2 << ProcessResult::TerminatedAbnormally;
+
+    // Hang, since it times out, calls the callback handler and stops the process forcefully.
+    QTest::newRow("Short timeout without end of line")
+            << false << 2 << ProcessResult::Hang;
+
+    // FinishedWithSuccess, since it doesn't time out, it finishes process normally,
+    // calls the callback handler and tries to stop the process forcefully what is no-op
+    // at this point in time since the process is already finished.
+    QTest::newRow("Long timeout without end of line")
+            << false << 20 << ProcessResult::FinishedWithSuccess;}
 
 void tst_QtcProcess::runBlockingStdOut()
 {
     QFETCH(bool, withEndl);
     QFETCH(int, timeOutS);
+    QFETCH(ProcessResult, expectedResult);
 
     SubCreatorConfig subConfig(RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
     TestProcess process;
@@ -1007,9 +1014,7 @@ void tst_QtcProcess::runBlockingStdOut()
 
     // See also QTCREATORBUG-25667 for why it is a bad idea to use QtcProcess::runBlocking
     // with interactive cli tools.
-    QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
-    QVERIFY2(process.result() != ProcessResult::Hang, "Process run did not time out.");
-    QEXPECT_FAIL("Unterminated stdout lost: early timeout", "", Continue);
+    QCOMPARE(process.result(), expectedResult);
     QVERIFY2(readLastLine, "Last line was read.");
 }
 

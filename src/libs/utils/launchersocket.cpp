@@ -234,7 +234,7 @@ void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
     QTC_ASSERT(isCalledFromCallersThread(), return);
     if (m_setup->m_processChannelMode == QProcess::ForwardedOutputChannel
             || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
-        std::cout << launcherSignal->stdOut().constData();
+        std::cout << launcherSignal->stdOut().constData() << std::flush;
     } else {
         m_stdout += launcherSignal->stdOut();
         if (!m_stdout.isEmpty())
@@ -242,7 +242,7 @@ void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
     }
     if (m_setup->m_processChannelMode == QProcess::ForwardedErrorChannel
             || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
-        std::cerr << launcherSignal->stdErr().constData();
+        std::cerr << launcherSignal->stdErr().constData() << std::flush;
     } else {
         m_stderr += launcherSignal->stdErr();
         if (!m_stderr.isEmpty())
@@ -305,9 +305,6 @@ void CallerHandle::cancel()
         sendPacket(StopProcessPacket(m_token));
         break;
     }
-
-    if (m_launcherHandle)
-        m_launcherHandle->setCanceled();
 }
 
 QByteArray CallerHandle::readAllStandardOutput()
@@ -504,21 +501,16 @@ bool LauncherHandle::waitForSignal(int msecs, CallerHandle::SignalType newSignal
             break;
         if (!doWaitForSignal(deadline, newSignal))
             break;
-        m_awaitingShouldContinue = true; // TODO: make it recursive?
         const QList<CallerHandle::SignalType> flushedSignals = m_callerHandle->flushFor(newSignal);
-        const bool wasCanceled = !m_awaitingShouldContinue;
-        m_awaitingShouldContinue = false;
         const bool errorOccurred = flushedSignals.contains(CallerHandle::SignalType::Error);
         if (errorOccurred)
-            return false; // apparently QProcess behaves like this in case of error
+            return true; // apparently QProcess behaves like this in case of error
         const bool newSignalFlushed = flushedSignals.contains(newSignal);
         if (newSignalFlushed) // so we don't continue waiting
             return true;
-        if (wasCanceled)
-            return true; // or false? is false only in case of timeout?
         const bool finishedSignalFlushed = flushedSignals.contains(CallerHandle::SignalType::Finished);
         if (finishedSignalFlushed)
-            return false; // finish has appeared but we were waiting for other signal
+            return true; // finish has appeared but we were waiting for other signal
     }
     return false;
 }
