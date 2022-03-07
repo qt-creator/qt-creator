@@ -2278,8 +2278,12 @@ void Qt5InformationNodeInstanceServer::handleInstanceLocked(const ServerNodeInst
 
     QObject *obj = instance.internalObject();
     auto node = qobject_cast<QQuick3DNode *>(obj);
-    if (node)
+    if (node) {
         node->setProperty("_edit3dLocked", edit3dLocked);
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (helper)
+            emit helper->lockedStateChanged(node);
+    }
     const auto children = obj->children();
     for (auto child : children) {
         if (hasInstanceForObject(child)) {
@@ -2334,6 +2338,9 @@ void Qt5InformationNodeInstanceServer::handleInstanceHidden(const ServerNodeInst
         // as changes in the node tree (reparenting, adding new nodes) can make the previously set
         // hide status based on ancestor unreliable.
         node->setProperty("_edit3dHidden", edit3dHidden);
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (helper)
+            emit helper->hiddenStateChanged(node);
 #if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
         if (auto model = qobject_cast<QQuick3DModel *>(node))
             model->setPickable(!edit3dHidden); // allow 3D objects to receive mouse clicks

@@ -385,14 +385,12 @@ Item {
             lightIconGizmos[slotFound].targetNode = obj;
             lightIconGizmos[slotFound].locked = _generalHelper.isLocked(obj);
             lightIconGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
         // No free gizmos available, create a new one
         var gizmoComponent = Qt.createComponent("LightIconGizmo.qml");
         if (gizmoComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var gizmo = gizmoComponent.createObject(overlayView,
                                                     {"view3D": overlayView, "targetNode": obj,
                                                      "selectedNodes": selectedNodes, "scene": scene,
@@ -426,7 +424,6 @@ Item {
             cameraGizmos[slotFound].targetNode = obj;
             cameraGizmos[slotFound].locked = _generalHelper.isLocked(obj);
             cameraGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
@@ -434,7 +431,6 @@ Item {
         var gizmoComponent = Qt.createComponent("CameraGizmo.qml");
         var frustumComponent = Qt.createComponent("CameraFrustum.qml");
         if (gizmoComponent.status === Component.Ready && frustumComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var geometryName = _generalHelper.generateUniqueName("CameraGeometry");
             var frustum = frustumComponent.createObject(
                         overlayScene,
@@ -475,14 +471,12 @@ Item {
             particleSystemIconGizmos[slotFound].targetNode = obj;
             particleSystemIconGizmos[slotFound].locked = _generalHelper.isLocked(obj);
             particleSystemIconGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
         // No free gizmos available, create a new one
         var gizmoComponent = Qt.createComponent("ParticleSystemGizmo.qml");
         if (gizmoComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var gizmo = gizmoComponent.createObject(overlayView,
                                                     {"view3D": overlayView, "targetNode": obj,
                                                      "selectedNodes": selectedNodes, "scene": scene,
@@ -518,14 +512,12 @@ Item {
             particleEmitterGizmos[slotFound].targetNode = obj;
             particleEmitterGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
             particleEmitterGizmos[slotFound].systemHidden = _generalHelper.isHidden(obj.system);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
         // No free gizmos available, create a new one
         var gizmoComponent = Qt.createComponent("ParticleEmitterGizmo.qml");
         if (gizmoComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var gizmo = gizmoComponent.createObject(
                         overlayScene,
                         {"targetNode": obj, "selectedNodes": selectedNodes,
@@ -548,7 +540,6 @@ Item {
             if (lightIconGizmos[i].targetNode === obj) {
                 lightIconGizmos[i].scene = null;
                 lightIconGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
                 return;
             }
         }
@@ -560,7 +551,6 @@ Item {
             if (cameraGizmos[i].targetNode === obj) {
                 cameraGizmos[i].scene = null;
                 cameraGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
                 return;
             }
         }
@@ -572,7 +562,6 @@ Item {
             if (particleSystemIconGizmos[i].targetNode === obj) {
                 particleSystemIconGizmos[i].scene = null;
                 particleSystemIconGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
                 return;
             }
         }
@@ -584,7 +573,6 @@ Item {
             if (particleEmitterGizmos[i].targetNode === obj) {
                 particleEmitterGizmos[i].scene = null;
                 particleEmitterGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
                 return;
             }
         }

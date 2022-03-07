@@ -410,22 +410,6 @@ QQuick3DNode *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
     return pickNode;
 }
 
-void GeneralHelper::registerGizmoTarget(QQuick3DNode *node)
-{
-    if (!m_gizmoTargets.contains(node)) {
-        m_gizmoTargets.insert(node);
-        node->installEventFilter(this);
-    }
-}
-
-void GeneralHelper::unregisterGizmoTarget(QQuick3DNode *node)
-{
-    if (m_gizmoTargets.contains(node)) {
-        m_gizmoTargets.remove(node);
-        node->removeEventFilter(this);
-    }
-}
-
 bool GeneralHelper::isLocked(QQuick3DNode *node) const
 {
     if (node) {
@@ -742,21 +726,6 @@ void GeneralHelper::removeRotationBlocks(const QSet<QQuick3DNode *> &nodes)
 bool GeneralHelper::isRotationBlocked(QQuick3DNode *node) const
 {
     return m_rotationBlockedNodes.contains(node);
-}
-
-bool GeneralHelper::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::DynamicPropertyChange) {
-        auto node = qobject_cast<QQuick3DNode *>(obj);
-        if (m_gizmoTargets.contains(node)) {
-            auto de = static_cast<QDynamicPropertyChangeEvent *>(event);
-            if (de->propertyName() == "_edit3dLocked")
-                emit lockedStateChanged(node);
-            else if (de->propertyName() == "_edit3dHidden")
-                emit hiddenStateChanged(node);
-        }
-    }
-    return QObject::eventFilter(obj, event);
 }
 
 void GeneralHelper::handlePendingToolStateUpdate()
