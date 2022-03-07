@@ -38,19 +38,10 @@
     To open the \uicontrol States view, select \uicontrol View >
     \uicontrol Views > \uicontrol States.
 
-    To collapse or expand the \uicontrol States view, select:
-
-    \list
-        \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Toggle States}.
-        \li Press \key {Ctr+Alt+S} on Windows or \key {Cmd+Option+S} on \macOS.
-        \li Right-click the view and select \uicontrol Collapse or
-            \uicontrol Expand.
-    \endlist
-
     Initially, \uicontrol States displays a \e {base state} that shows the
     selected \l{glossary-component}{component} in its initial state. To add
-    states, select \uicontrol {Create New State}.
+    states, select \inlineimage icons/plus.png
+    in the \uicontrol States view.
 
     For more information, watch the following video:
 

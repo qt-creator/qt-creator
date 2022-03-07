@@ -267,10 +267,10 @@
     in \uicontrol Timeline:
 
     \list 1
-        \li In \uicontrol States, select \uicontrol {Create New State} twice to
-            add two states called \e login and \e createAccount. You don't
-            need to make any property changes this time because you'll bind the
-            states to property animations.
+        \li In \uicontrol States, select \inlineimage icons/plus.png
+            twice to add two states called \e login and \e createAccount. You
+            don't need to make any property changes this time because you'll
+            bind the states to property animations.
        \li In \uicontrol States, select \inlineimage icons/action-icon.png
             for \e login to open the \uicontrol Actions menu, and then
             select \uicontrol {Set as Default} to determine that the \e login
