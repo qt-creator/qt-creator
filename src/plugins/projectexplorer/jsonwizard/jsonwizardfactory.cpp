@@ -247,18 +247,8 @@ QVariant JsonWizardFactory::mergeDataValueMaps(const QVariant &valueMap, const Q
 {
     QVariantMap retVal;
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    const QVariantMap &map = defaultValueMap.toMap();
-    for (auto it = map.begin(), end = map.end(); it != end; ++it)
-        retVal.insert(it.key(), it.value());
-
-    const QVariantMap &map2 = valueMap.toMap();
-    for (auto it = map2.begin(), end = map2.end(); it != end; ++it)
-        retVal.insert(it.key(), it.value());
-#else
     retVal.insert(defaultValueMap.toMap());
     retVal.insert(valueMap.toMap());
-#endif
     return retVal;
 }
 

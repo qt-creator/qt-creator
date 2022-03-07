@@ -327,15 +327,8 @@ void ConnectionClient::connectStandardOutputAndError(QtcProcess *process) const
 
 void ConnectionClient::connectLocalSocketError() const
 {
-    void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-            = &QLocalSocket::error;
-#else
-            = &QLocalSocket::errorOccurred;
-#endif
-
     connect(m_localSocket,
-            LocalSocketErrorFunction,
+            &QLocalSocket::errorOccurred,
             this,
             &ConnectionClient::printLocalSocketError);
 }

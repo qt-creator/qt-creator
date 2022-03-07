@@ -161,13 +161,9 @@ QHash<int, QByteArray> WorkspaceModel::roleNames() const
                                              {LastWorkspaceRole, "activeWorkspace"},
                                              {ActiveWorkspaceRole, "lastWorkspace"}};
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     auto defaultRoles = QAbstractTableModel::roleNames();
     defaultRoles.insert(extraRoles);
     return defaultRoles;
-#else
-    return QAbstractTableModel::roleNames().unite(extraRoles);
-#endif
 }
 
 void WorkspaceModel::sort(int column, Qt::SortOrder order)

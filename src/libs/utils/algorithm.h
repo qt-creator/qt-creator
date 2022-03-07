@@ -1303,11 +1303,7 @@ QList<T> toList(const QSet<T> &set)
 template <class Key, class T>
 void addToHash(QHash<Key, T> *result, const QHash<Key, T> &additionalContents)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
-    result->unite(additionalContents);
-#else
     result->insert(additionalContents);
-#endif
 }
 
 } // namespace Utils

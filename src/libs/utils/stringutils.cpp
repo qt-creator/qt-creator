@@ -400,9 +400,6 @@ QString formatElapsedTime(qint64 elapsed)
  */
 QString wildcardToRegularExpression(const QString &original)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
-    using qsizetype = int;
-#endif
     const qsizetype wclen = original.size();
     QString rx;
     rx.reserve(wclen + wclen / 16);
@@ -459,11 +456,7 @@ QString wildcardToRegularExpression(const QString &original)
         }
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     return QRegularExpression::anchoredPattern(rx);
-#else
-    return "\\A" + rx + "\\z";
-#endif
 }
 
 QTCREATOR_UTILS_EXPORT QString languageNameFromLanguageCode(const QString &languageCode)

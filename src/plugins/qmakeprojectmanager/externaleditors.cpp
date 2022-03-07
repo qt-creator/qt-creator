@@ -272,12 +272,7 @@ bool DesignerExternalEditor::startEditor(const Utils::FilePath &filePath, QStrin
         m_processCache.insert(binary, socket);
         auto mapSlot = [this, binary] { processTerminated(binary); };
         connect(socket, &QAbstractSocket::disconnected, this, mapSlot);
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-        const auto errorOccurred = QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error);
-#else
-        const auto errorOccurred = &QAbstractSocket::errorOccurred;
-#endif
-        connect(socket, errorOccurred, this, mapSlot);
+        connect(socket, &QAbstractSocket::errorOccurred, this, mapSlot);
     }
     return true;
 }

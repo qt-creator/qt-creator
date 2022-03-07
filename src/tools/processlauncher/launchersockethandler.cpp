@@ -74,11 +74,7 @@ void LauncherSocketHandler::start()
             this, &LauncherSocketHandler::handleSocketClosed);
     connect(m_socket, &QLocalSocket::readyRead, this, &LauncherSocketHandler::handleSocketData);
     connect(m_socket,
-#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
-            static_cast<void(QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
-#else
             &QLocalSocket::errorOccurred,
-#endif
             this, &LauncherSocketHandler::handleSocketError);
     m_socket->connectToServer(m_serverPath);
 }
