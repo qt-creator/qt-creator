@@ -43,6 +43,10 @@
 
     You can also view and modify other types of text files.
 
+    To open the search dialog in \uicontrol {Text Editor}, go to
+    \uicontrol Edit > \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
+    You can also select \key Ctrl + \key {F}.
+
     You can use a subset of the functions available in the
     \l{Writing Code}{Edit mode}:
 
