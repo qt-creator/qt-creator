@@ -74,6 +74,7 @@ public:
     Q_INVOKABLE int screenSizeIndex() const;
 
     Q_INVOKABLE QString chooseProjectLocation();
+    Q_INVOKABLE QString recentsTabName() const;
 
     Q_PROPERTY(QAbstractListModel *categoryModel MEMBER m_categoryModel CONSTANT);
     Q_PROPERTY(QAbstractListModel *presetModel MEMBER m_presetModel CONSTANT);

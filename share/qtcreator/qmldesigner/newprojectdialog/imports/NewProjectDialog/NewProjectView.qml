@@ -199,7 +199,7 @@ ScrollView {
                     anchors.margins: 4
                     visible: isUserPreset === true
                              && delegate.hover
-                             && scrollView.currentTabName !== "Recents"
+                             && scrollView.currentTabName !== BackendApi.recentsTabName()
 
                     Text {
                         anchors.fill: parent

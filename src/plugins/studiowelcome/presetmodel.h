@@ -115,7 +115,7 @@ inline QDebug &operator<<(QDebug &d, const PresetItem &item)
     d << "; size = " << item.screenSizeName;
 
     if (item.isUserPreset())
-        d << (UserPresetItem &) item;
+        d << "; " << (UserPresetItem &) item;
 
     return d;
 }
@@ -176,6 +176,8 @@ public:
 
     const std::vector<PresetItems> &presets() const { return m_presets; }
     const Categories &categories() const { return m_categories; }
+
+    static QString recentsTabName();
 
 private:
     PresetItems makeRecentPresets(const PresetItems &wizardPresets);

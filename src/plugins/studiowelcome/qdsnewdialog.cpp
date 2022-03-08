@@ -376,6 +376,11 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
     }
 }
 
+QString QdsNewDialog::recentsTabName() const
+{
+    return PresetData::recentsTabName();
+}
+
 QString QdsNewDialog::qmlPath() const
 {
     return Core::ICore::resourcePath("qmldesigner/newprojectdialog/NewProjectDialog.qml").toString();

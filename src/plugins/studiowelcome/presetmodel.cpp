@@ -39,6 +39,12 @@ static const QString CustomTabName = QObject::tr("Custom");
 
 /****************** PresetData ******************/
 
+
+QString PresetData::recentsTabName()
+{
+    return RecentsTabName;
+}
+
 void PresetData::setData(const PresetsByCategory &presetsByCategory,
                          const std::vector<UserPresetData> &userPresetsData,
                          const std::vector<RecentPresetData> &loadedRecentsData)
@@ -47,11 +53,6 @@ void PresetData::setData(const PresetsByCategory &presetsByCategory,
     m_recents = loadedRecentsData;
     m_userPresets = userPresetsData;
 
-    if (!m_recents.empty()) {
-        m_categories.push_back(RecentsTabName);
-        m_presets.push_back({});
-    }
-
     for (auto &[id, category] : presetsByCategory) {
         m_categories.push_back(category.name);
         m_presets.push_back(category.items);
@@ -59,15 +60,19 @@ void PresetData::setData(const PresetsByCategory &presetsByCategory,
 
     PresetItems wizardPresets = Utils::flatten(m_presets);
 
-    PresetItems recentPresets = makeRecentPresets(wizardPresets);
-    if (!m_recents.empty()) {
-        m_presets[0] = recentPresets;
-    }
-
     PresetItems userPresetItems = makeUserPresets(wizardPresets);
     if (!userPresetItems.empty()) {
         m_categories.push_back(CustomTabName);
         m_presets.push_back(userPresetItems);
+    }
+
+    PresetItems allWizardPresets = std::move(wizardPresets);
+    Utils::concat(allWizardPresets, userPresetItems);
+
+    PresetItems recentPresets = makeRecentPresets(allWizardPresets);
+    if (!recentPresets.empty()) {
+        Utils::prepend(m_categories, RecentsTabName);
+        Utils::prepend(m_presets, recentPresets);
     }
 
     m_presetsByCategory = presetsByCategory;

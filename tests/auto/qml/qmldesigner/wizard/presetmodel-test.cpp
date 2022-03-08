@@ -326,6 +326,79 @@ TEST(QdsPresetModel, userPresetWithSameNameAsWizardPreset)
                             ElementsAre(UserPresetIs("A.categ", "Desktop", "Desktop"))));
 }
 
+TEST(QdsPresetModel, recentOfUserPresetReferringToExistingWizardPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {
+            aUserPreset("A.categ", "Desktop", "Windows 7"),
+        },
+        /*recents*/
+        {
+            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+        });
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("Recents", "A", "Custom"));
+    ASSERT_THAT(data.presets(),
+                ElementsAre(ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows 7")),
+                            ElementsAre(PresetIs("A.categ", "Desktop")),
+                            ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows 7"))));
+}
+
+TEST(QdsPresetModel, recentOfUserPresetReferringToNonexistingWizardPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {
+            aUserPreset("A.categ", "Not-Desktop", "Windows 7"), // Non-existing Wizard Preset
+        },
+        /*recents*/
+        {
+            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+        });
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A"));
+    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
+}
+
+TEST(QdsPresetModel, recentOfNonExistentUserPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {/*user presets*/},
+        /*recents*/
+        {
+            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+        });
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A"));
+    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
+}
+
 TEST(QdsPresetModel, recentsShouldNotBeSorted)
 {
     // Given
