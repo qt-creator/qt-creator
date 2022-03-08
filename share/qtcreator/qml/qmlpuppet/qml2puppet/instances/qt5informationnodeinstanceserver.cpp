@@ -431,6 +431,9 @@ void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DPart
     if (targetParticleSystem == m_targetParticleSystem)
         return;
 
+    // stop the previously selected from animating
+    resetParticleSystem();
+
     m_targetParticleSystem = targetParticleSystem;
 
     if (m_editView3DData.rootItem) {
@@ -441,11 +444,9 @@ void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DPart
     if (!m_particleAnimationDriver)
         return;
 
-    m_particleAnimationDriver->reset();
-    // stop the previously selected from animating
+    // Ensure clean slate for newly selected system
     resetParticleSystem();
 
-    resetParticleSystem();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 2)
     QObject::disconnect(m_particleAnimationConnection);
     m_particleAnimationConnection = connect(m_particleAnimationDriver, &AnimationDriver::advanced, [this] () {
@@ -1977,6 +1978,9 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     QVariantList selectedObjs;
     QObject *firstSceneRoot = nullptr;
     ServerNodeInstance firstInstance;
+#ifdef QUICK3D_PARTICLES_MODULE
+    QList<QQuick3DParticleSystem *> selectedParticleSystems;
+#endif
     for (qint32 id : instanceIds) {
         if (hasInstanceForId(id)) {
             ServerNodeInstance instance = instanceForId(id);
@@ -1990,17 +1994,12 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                 object = instance.internalObject();
 
 #ifdef QUICK3D_PARTICLES_MODULE
-            auto particlesystem = qobject_cast<QQuick3DParticleSystem *>(instance.internalObject());
-            if (particlesystem) {
-                handleParticleSystemSelected(particlesystem);
-            } else {
-                particlesystem = parentParticleSystem(instance.internalObject());
-                if (particlesystem) {
-                    if (particlesystem != m_targetParticleSystem)
-                        handleParticleSystemSelected(particlesystem);
-                } else {
-                    handleParticleSystemDeselected();
-                }
+            if (selectedParticleSystems.size() <= 1) {
+                auto particleSystem = qobject_cast<QQuick3DParticleSystem *>(instance.internalObject());
+                if (!particleSystem)
+                    particleSystem = parentParticleSystem(instance.internalObject());
+                if (particleSystem && !selectedParticleSystems.contains(particleSystem))
+                    selectedParticleSystems.append(particleSystem);
             }
 #endif
             auto isSelectableAsRoot = [&]() -> bool {
@@ -2032,6 +2031,14 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                 selectedObjs << objectToVariant(object);
         }
     }
+
+#ifdef QUICK3D_PARTICLES_MODULE
+    // We only support exactly one active particle systems at a time
+    if (selectedParticleSystems.size() == 1)
+        handleParticleSystemSelected(selectedParticleSystems[0]);
+    else
+        handleParticleSystemDeselected();
+#endif
 
     if (firstSceneRoot && m_active3DScene != firstSceneRoot) {
         m_active3DScene = firstSceneRoot;
