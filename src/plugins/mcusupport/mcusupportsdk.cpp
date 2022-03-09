@@ -33,6 +33,7 @@
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
 #include "mcutargetfactory.h"
+#include "mcutargetfactorylegacy.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
@@ -50,11 +51,19 @@
 #include <QJsonObject>
 #include <QVariant>
 
+#include <ciso646>
+#include <memory>
+
 using namespace Utils;
 
 namespace McuSupport {
 namespace Internal {
 namespace Sdk {
+
+namespace {
+const char CMAKE_ENTRIES[]{"cmakeEntries"};
+const char ID[]{"id"};
+} // namespace
 
 static FilePath findInProgramFiles(const QString &folder)
 {
@@ -68,14 +77,14 @@ static FilePath findInProgramFiles(const QString &folder)
     return {};
 }
 
-McuPackage *createQtForMCUsPackage()
+McuAbstractPackage *createQtForMCUsPackage()
 {
     return new McuPackage(McuPackage::tr("Qt for MCUs SDK"),
-                          FileUtils::homePath(),                                      // defaultPath
-                          FilePath("bin/qmltocpp").withExecutableSuffix(),            // detectionPath
-                          Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,            // settingsKey
-                          QStringLiteral("Qul_ROOT"),                                 // cmakeVarName
-                          QStringLiteral("Qul_DIR"));                                 // envVarName
+                          FileUtils::homePath(),                           // defaultPath
+                          FilePath("bin/qmltocpp").withExecutableSuffix(), // detectionPath
+                          Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
+                          QStringLiteral("Qul_ROOT"),                      // cmakeVarName
+                          QStringLiteral("Qul_DIR"));                      // envVarName
 }
 
 static McuPackageVersionDetector *generatePackageVersionDetector(const QString &envVar)
@@ -95,11 +104,10 @@ static McuPackageVersionDetector *generatePackageVersionDetector(const QString &
     return nullptr;
 }
 
-
 /// Create the McuPackage by checking the "boardSdk" property in the JSON file for the board.
 /// The name of the environment variable pointing to the the SDK for the board will be defined in the "envVar" property
 /// inside the "boardSdk".
-McuPackage *createBoardSdkPackage(const McuTargetDescription &desc)
+McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc)
 {
     const auto generateSdkName = [](const QString &envVar) {
         qsizetype postfixPos = envVar.indexOf("_SDK_PATH");
@@ -137,9 +145,9 @@ McuPackage *createBoardSdkPackage(const McuTargetDescription &desc)
                           versionDetector);
 }
 
-McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
-                                                const FilePath &boardSdkDir,
-                                                const QString &freeRTOSBoardSdkSubDir)
+McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
+                                                 const FilePath &boardSdkDir,
+                                                 const QString &freeRTOSBoardSdkSubDir)
 {
     const QString envVarPrefix = envVar.chopped(int(strlen("_FREERTOS_DIR")));
 
@@ -152,13 +160,12 @@ McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
     return new McuPackage(QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
                           defaultPath,
                           {}, // detection path
-                          QString::fromLatin1("FreeRTOSSourcePackage_%1").arg(envVarPrefix), // settings key
-                          "FREERTOS_DIR", // cmake var
-                          envVar, // env var
+                          QString::fromLatin1("FreeRTOSSourcePackage_%1")
+                              .arg(envVarPrefix),  // settings key
+                          "FREERTOS_DIR",          // cmake var
+                          envVar,                  // env var
                           "https://freertos.org"); // download url
-
 }
-
 
 McuToolChainPackage *createUnsupportedToolChainPackage()
 {
@@ -202,10 +209,10 @@ static McuToolChainPackage *createArmGccToolchainPackage()
     return new McuToolChainPackage(McuPackage::tr("GNU Arm Embedded Toolchain"),
                                    defaultPath,
                                    detectionPath,
-                                   "GNUArmEmbeddedToolchain", // settingsKey
+                                   "GNUArmEmbeddedToolchain",                  // settingsKey
                                    McuToolChainPackage::ToolChainType::ArmGcc, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
-                                   envVar, // env var
+                                   "QUL_TARGET_TOOLCHAIN_DIR",                 // cmake var
+                                   envVar,                                     // env var
                                    versionDetector);
 }
 
@@ -222,11 +229,11 @@ static McuToolChainPackage *createGhsToolchainPackage()
 
     return new McuToolChainPackage("Green Hills Compiler",
                                    defaultPath,
-                                   FilePath("ccv850").withExecutableSuffix(),  // detectionPath
-                                   "GHSToolchain", // settingsKey
-                                   McuToolChainPackage::ToolChainType::GHS, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
-                                   envVar, // env var
+                                   FilePath("ccv850").withExecutableSuffix(), // detectionPath
+                                   "GHSToolchain",                            // settingsKey
+                                   McuToolChainPackage::ToolChainType::GHS,   // toolchainType
+                                   "QUL_TARGET_TOOLCHAIN_DIR",                // cmake var
+                                   envVar,                                    // env var
                                    versionDetector);
 }
 
@@ -243,11 +250,11 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
 
     return new McuToolChainPackage("Green Hills Compiler for ARM",
                                    defaultPath,
-                                   FilePath("cxarm").withExecutableSuffix(), // detectionPath
-                                   "GHSArmToolchain",                                // settingsKey
+                                   FilePath("cxarm").withExecutableSuffix(),   // detectionPath
+                                   "GHSArmToolchain",                          // settingsKey
                                    McuToolChainPackage::ToolChainType::GHSArm, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
-                                   envVar, // env var
+                                   "QUL_TARGET_TOOLCHAIN_DIR",                 // cmake var
+                                   envVar,                                     // env var
                                    versionDetector);
 }
 
@@ -278,10 +285,10 @@ static McuToolChainPackage *createIarToolChainPackage()
     return new McuToolChainPackage("IAR ARM Compiler",
                                    defaultPath,
                                    detectionPath,
-                                   "IARToolchain", // settings key
+                                   "IARToolchain",                          // settings key
                                    McuToolChainPackage::ToolChainType::IAR, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR", // cmake var
-                                   envVar, // env var
+                                   "QUL_TARGET_TOOLCHAIN_DIR",              // cmake var
+                                   envVar,                                  // env var
                                    versionDetector);
 }
 
@@ -299,24 +306,22 @@ static McuPackage *createStm32CubeProgrammerPackage()
             defaultPath = programPath;
     }
 
-    const FilePath detectionPath =  FilePath::fromString(
-                QLatin1String(Utils::HostOsInfo::isWindowsHost()
-                   ? "/bin/STM32_Programmer_CLI.exe"
-                   : "/bin/STM32_Programmer.sh")
-                );
+    const FilePath detectionPath = FilePath::fromString(
+        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
+                                                         : "/bin/STM32_Programmer.sh"));
 
     auto result
         = new McuPackage(McuPackage::tr("STM32CubeProgrammer"),
                          defaultPath,
                          detectionPath,
                          "Stm32CubeProgrammer",
-                         {},  // cmake var
-                         {},  // env var
+                         {},                                                           // cmake var
+                         {},                                                           // env var
                          "https://www.st.com/en/development-tools/stm32cubeprog.html", // download url
                          nullptr, // version detector
-                         true, // add to path
-                         "/bin" // relative path modifier
-                         );
+                         true,    // add to path
+                         "/bin"   // relative path modifier
+        );
     return result;
 }
 
@@ -345,9 +350,10 @@ static McuPackage *createMcuXpressoIdePackage()
 
     return new McuPackage("MCUXpresso IDE",
                           defaultPath,
-                          FilePath("ide/binaries/crt_emu_cm_redlink").withExecutableSuffix(), // detection path
-                          "MCUXpressoIDE",                        // settings key
-                          "MCUXPRESSO_IDE_PATH", // cmake var
+                          FilePath("ide/binaries/crt_emu_cm_redlink")
+                              .withExecutableSuffix(), // detection path
+                          "MCUXpressoIDE",             // settings key
+                          "MCUXPRESSO_IDE_PATH",       // cmake var
                           envVar,
                           "https://www.nxp.com/mcuxpresso/ide"); // download url
 }
@@ -373,9 +379,9 @@ static McuPackage *createCypressProgrammerPackage()
     auto result = new McuPackage("Cypress Auto Flash Utility",
                                  defaultPath,
                                  FilePath("/bin/openocd").withExecutableSuffix(),
-                                 "CypressAutoFlashUtil", // settings key
+                                 "CypressAutoFlashUtil",            // settings key
                                  "INFINEON_AUTO_FLASH_UTILITY_DIR", // cmake var
-                                 envVar); // env var
+                                 envVar);                           // env var
     return result;
 }
 
@@ -400,51 +406,64 @@ static McuPackage *createRenesasProgrammerPackage()
     auto result = new McuPackage("Renesas Flash Programmer",
                                  defaultPath,
                                  FilePath("rfp-cli").withExecutableSuffix(),
-                                 "RenesasFlashProgrammer", // settings key
+                                 "RenesasFlashProgrammer",        // settings key
                                  "RENESAS_FLASH_PROGRAMMER_PATH", // cmake var
-                                 envVar); // env var
+                                 envVar);                         // env var
     return result;
 }
 
-QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
-                                             QVector<McuAbstractPackage *> *packages)
+static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy)
 {
-    const QHash<QString, McuToolChainPackage *> tcPkgs = {
-        {{"armgcc"}, createArmGccToolchainPackage()},
-        {{"greenhills"}, createGhsToolchainPackage()},
-        {{"iar"}, createIarToolChainPackage()},
-        {{"msvc"}, createMsvcToolChainPackage()},
-        {{"gcc"}, createGccToolChainPackage()},
-        {{"arm-greenhills"}, createGhsArmToolchainPackage()},
-    };
+    McuAbstractTargetFactory::Ptr result;
+    if (isLegacy) {
+        static const QHash<QString, McuToolChainPackage *> tcPkgs = {
+            {{"armgcc"}, createArmGccToolchainPackage()},
+            {{"greenhills"}, createGhsToolchainPackage()},
+            {{"iar"}, createIarToolChainPackage()},
+            {{"msvc"}, createMsvcToolChainPackage()},
+            {{"gcc"}, createGccToolChainPackage()},
+            {{"arm-greenhills"}, createGhsArmToolchainPackage()},
+        };
 
-    // Note: the vendor name (the key of the hash) is case-sensitive. It has to match the "platformVendor" key in the
-    // json file.
-    const QHash<QString, McuPackage *> vendorPkgs = {
-        {{"ST"}, createStm32CubeProgrammerPackage()},
-        {{"NXP"}, createMcuXpressoIdePackage()},
-        {{"CYPRESS"}, createCypressProgrammerPackage()},
-        {{"RENESAS"}, createRenesasProgrammerPackage()},
-    };
+        // Note: the vendor name (the key of the hash) is case-sensitive. It has to match the "platformVendor" key in the
+        // json file.
+        static const QHash<QString, McuAbstractPackage *> vendorPkgs = {
+            {{"ST"}, createStm32CubeProgrammerPackage()},
+            {{"NXP"}, createMcuXpressoIdePackage()},
+            {{"CYPRESS"}, createCypressProgrammerPackage()},
+            {{"RENESAS"}, createRenesasProgrammerPackage()},
+        };
 
-    McuTargetFactory targetFactory(tcPkgs, vendorPkgs);
-    QVector<McuTarget *> mcuTargets;
+        result = std::make_unique<McuTargetFactoryLegacy>(tcPkgs, vendorPkgs);
+    } else {
+        result = std::make_unique<McuTargetFactory>();
+    }
+    return result;
+}
 
-    for (const auto &desc : descriptions) {
-        auto newTargets = targetFactory.createTargets(desc);
-        mcuTargets.append(newTargets);
+QPair<Targets, Packages> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
+                                                 bool isLegacy)
+{
+    Targets mcuTargets;
+    Packages mcuPackages;
+
+    McuAbstractTargetFactory::Ptr targetFactory = createFactory(isLegacy);
+    for (const McuTargetDescription &desc : descriptions) {
+        auto [targets, packages] = targetFactory->createTargets(desc);
+        mcuTargets.append(targets);
+        mcuPackages.append(packages);
     }
 
-    packages->append(
-        Utils::transform<QVector<McuAbstractPackage *>>(tcPkgs.values(),
-                                                        [&](McuToolChainPackage *tcPkg) {
-                                                            return tcPkg;
-                                                        }));
-    for (auto *package : vendorPkgs)
-        packages->append(package);
-    packages->append(targetFactory.getMcuPackages());
-
-    return mcuTargets;
+    if (isLegacy) {
+        auto [toolchainPkgs, vendorPkgs]{targetFactory->getAdditionalPackages()};
+        for (McuAbstractPackage *package : toolchainPkgs) {
+            mcuPackages.emplace_back(package);
+        }
+        for (McuAbstractPackage *package : vendorPkgs) {
+            mcuPackages.emplace_back(package);
+        }
+    }
+    return {mcuTargets, mcuPackages};
 }
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir)
@@ -458,6 +477,24 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
     return kitsDir.entryInfoList();
 }
 
+static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
+{
+    QList<PackageDescription> result;
+    for (const auto& cmakeEntryRef : cmakeEntries) {
+        const QJsonObject cmakeEntry{cmakeEntryRef.toObject()};
+        result.push_back({cmakeEntry[ID].toString(),
+                          cmakeEntry["envVar"].toString(),
+                          cmakeEntry["cmakeVar"].toString(),
+                          cmakeEntry["description"].toString(),
+                          cmakeEntry["setting"].toString(),
+                          FilePath::fromString(cmakeEntry["defaultValue"].toString()),
+                          FilePath::fromString(cmakeEntry["validation"].toString()),
+                          {},
+                          false});
+    }
+    return result;
+}
+
 McuTargetDescription parseDescriptionJson(const QByteArray &data)
 {
     const QJsonDocument document = QJsonDocument::fromJson(data);
@@ -468,6 +505,11 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
     const QJsonObject toolchain = target.value("toolchain").toObject();
     const QJsonObject boardSdk = target.value("boardSdk").toObject();
     const QJsonObject freeRTOS = target.value("freeRTOS").toObject();
+
+    QJsonArray cmakeEntries = freeRTOS.value(CMAKE_ENTRIES).toArray();
+    cmakeEntries.append(toolchain.value(CMAKE_ENTRIES).toArray());
+    cmakeEntries.append(boardSdk.value(CMAKE_ENTRIES).toArray());
+    const QList<PackageDescription> freeRtosEntries = parsePackages(cmakeEntries);
 
     const QVariantList toolchainVersions = toolchain.value("versions").toArray().toVariantList();
     const auto toolchainVersionsList = Utils::transform<QStringList>(toolchainVersions,
@@ -497,30 +539,26 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
                 platformName == "Desktop" ? McuTargetDescription::TargetType::Desktop
                                           : McuTargetDescription::TargetType::MCU,
             },
-            {
-                toolchain.value("id").toString(),
-                toolchainVersionsList,
-            },
+            {toolchain.value("id").toString(), toolchainVersionsList, {}},
             {
                 boardSdk.value("name").toString(),
                 boardSdk.value("defaultPath").toString(),
                 boardSdk.value("envVar").toString(),
                 boardSdkVersionsList,
+                {},
             },
             {
                 freeRTOS.value("envVar").toString(),
                 freeRTOS.value("boardSdkSubDir").toString(),
+                freeRtosEntries,
             }};
 }
 
 // https://doc.qt.io/qtcreator/creator-developing-mcu.html#supported-qt-for-mcus-sdks
 static const QString legacySupportVersionFor(const QString &sdkVersion)
 {
-    static const QHash<QString, QString> oldSdkQtcRequiredVersion = {
-        {{"1.0"}, {"4.11.x"}},
-        {{"1.1"}, {"4.12.0 or 4.12.1"}},
-        {{"1.2"}, {"4.12.2 or 4.12.3"}}
-    };
+    static const QHash<QString, QString> oldSdkQtcRequiredVersion
+        = {{{"1.0"}, {"4.11.x"}}, {{"1.1"}, {"4.12.0 or 4.12.1"}}, {{"1.2"}, {"4.12.2 or 4.12.3"}}};
     if (oldSdkQtcRequiredVersion.contains(sdkVersion))
         return oldSdkQtcRequiredVersion.value(sdkVersion);
 
@@ -553,6 +591,8 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
 {
     QList<McuTargetDescription> descriptions;
 
+    bool isLegacy = false;
+
     auto descriptionFiles = targetDescriptionFiles(dir);
     for (const QFileInfo &fileInfo : descriptionFiles) {
         QFile file(fileInfo.absoluteFilePath());
@@ -569,7 +609,12 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
                          false);
             continue;
         }
-        if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion()) {
+
+        const auto qulVersion{QVersionNumber::fromString(desc.qulVersion)};
+        if (qulVersion == McuSupportOptions::minimalQulVersion())
+            isLegacy = true;
+
+        if (qulVersion < McuSupportOptions::minimalQulVersion()) {
             const QString legacyVersion = legacySupportVersionFor(desc.qulVersion);
             const QString qtcSupportText
                 = !legacyVersion.isEmpty()
@@ -601,14 +646,14 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
             }
         }
     }
-
-    repo->mcuTargets.append(targetsFromDescriptions(descriptions, &(repo->packages)));
+    std::tie(repo->mcuTargets, repo->packages) = targetsFromDescriptions(descriptions, isLegacy);
 
     // Keep targets sorted lexicographically
     std::sort(repo->mcuTargets.begin(),
               repo->mcuTargets.end(),
               [](const McuTarget *lhs, const McuTarget *rhs) {
-                  return McuKitManager::generateKitNameFromTarget(lhs) < McuKitManager::generateKitNameFromTarget(rhs);
+                  return McuKitManager::generateKitNameFromTarget(lhs)
+                         < McuKitManager::generateKitNameFromTarget(rhs);
               });
 }
 

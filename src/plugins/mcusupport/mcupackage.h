@@ -64,8 +64,6 @@ public:
                const bool addToPath = false,
                const Utils::FilePath &relativePathModifier = Utils::FilePath());
 
-    ~McuPackage() override = default;
-
     QString label() const override;
     const QString &cmakeVariableName() const override;
     const QString &environmentVariableName() const override;

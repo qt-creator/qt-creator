@@ -26,9 +26,22 @@
 #pragma once
 
 #include <QtGlobal>
+#include <QList>
+#include <QVersionNumber>
 
 #if defined(MCUSUPPORT_LIBRARY)
 #define MCUSUPPORTSHARED_EXPORT Q_DECL_EXPORT
 #else
 #define MCUSUPPORTSHARED_EXPORT Q_DECL_IMPORT
 #endif
+
+namespace McuSupport::Internal {
+
+class McuTarget;
+class McuAbstractPackage;
+
+using Targets = QList<McuTarget*>;
+using Packages = QList<McuAbstractPackage*>;
+static const QVersionNumber legacyVersion {2, 0, 0};
+
+}

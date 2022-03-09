@@ -37,7 +37,7 @@ namespace McuSupport::Internal {
 McuTarget::McuTarget(const QVersionNumber &qulVersion,
                      const Platform &platform,
                      OS os,
-                     const QVector<McuAbstractPackage *> &packages,
+                     const Packages& packages,
                      const McuToolChainPackage *toolChainPackage,
                      int colorDepth)
     : m_qulVersion(qulVersion)
@@ -48,7 +48,7 @@ McuTarget::McuTarget(const QVersionNumber &qulVersion,
     , m_colorDepth(colorDepth)
 {}
 
-const QVector<McuAbstractPackage *> &McuTarget::packages() const
+const Packages &McuTarget::packages() const
 {
     return m_packages;
 }

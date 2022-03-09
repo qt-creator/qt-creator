@@ -23,17 +23,20 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "mcuhelpers.h"
+#include "mcutargetdescription.h"
 
-#include "mcuabstracttargetfactory.h"
+namespace McuSupport {
 
-namespace McuSupport::Internal::Sdk {
-
-class McuTargetFactory : public McuAbstractTargetFactory
+Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDescription &desc)
 {
-public:
-    QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
-    Packages createPackages(const McuTargetDescription &);
-}; // struct McuTargetFactory
+    using OS = Internal::McuTarget::OS;
+    using TargetType = Internal::Sdk::McuTargetDescription::TargetType;
+    if (desc.platform.type == TargetType::Desktop)
+        return OS::Desktop;
+    else if (!desc.freeRTOS.envVar.isEmpty())
+        return OS::FreeRTOS;
+    return OS::BareMetal;
+}
 
-} // namespace McuSupport::Internal::Sdk
+} //namespace McuSupport

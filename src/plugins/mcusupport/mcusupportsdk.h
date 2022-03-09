@@ -25,19 +25,19 @@
 
 #pragma once
 
+#include "mcusupport_global.h"
+
 #include <utils/filepath.h>
 
+#include <QPair>
 #include <QSettings>
-#include <QVector>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 constexpr int MAX_COMPATIBILITY_VERSION{1};
 
 class McuSdkRepository;
 class McuAbstractPackage;
-class McuPackage;
 class McuToolChainPackage;
 class McuTarget;
 
@@ -45,15 +45,14 @@ namespace Sdk {
 
 struct McuTargetDescription;
 
-McuPackage *createQtForMCUsPackage();
+McuAbstractPackage *createQtForMCUsPackage();
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
 void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
 
 McuTargetDescription parseDescriptionJson(const QByteArray &);
-QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &,
-                                             QVector<McuAbstractPackage *> *);
+QPair<Targets, Packages> targetsFromDescriptions(const QList<McuTargetDescription> &, bool isLegacy);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 
@@ -62,11 +61,10 @@ Utils::FilePath packagePathFromSettings(const QString &settingsKey,
                                         const Utils::FilePath &defaultPath);
 
 McuToolChainPackage *createUnsupportedToolChainPackage();
-McuPackage *createBoardSdkPackage(const McuTargetDescription &desc);
-McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
-                                                const Utils::FilePath &boardSdkDir,
-                                                const QString &freeRTOSBoardSdkSubDir);
+McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc);
+McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
+                                                 const Utils::FilePath &boardSdkDir,
+                                                 const QString &freeRTOSBoardSdkSubDir);
 
 } // namespace Sdk
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

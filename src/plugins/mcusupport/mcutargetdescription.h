@@ -25,11 +25,26 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <QString>
 #include <QStringList>
 #include <QVector>
+#include <QVersionNumber>
 
 namespace McuSupport::Internal::Sdk {
+
+struct PackageDescription
+{
+    QString label;
+    QString envVar;
+    QString cmakeVar;
+    QString description;
+    QString setting;
+    Utils::FilePath defaultPath;
+    Utils::FilePath validationPath;
+    QList<QVersionNumber> versions;
+    bool shouldAddToSystemPath;
+}; //struct PackageDescription
 
 struct McuTargetDescription
 {
@@ -49,6 +64,7 @@ struct McuTargetDescription
     {
         QString id;
         QStringList versions;
+        QList<PackageDescription> packages;
     } toolchain;
     struct
     {
@@ -56,11 +72,13 @@ struct McuTargetDescription
         QString defaultPath;
         QString envVar;
         QStringList versions;
+        QList<PackageDescription> packages;
     } boardSdk;
     struct
     {
         QString envVar;
         QString boardSdkSubDir;
+        QList<PackageDescription> packages;
     } freeRTOS;
 };
 

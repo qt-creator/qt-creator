@@ -25,6 +25,10 @@ QtcPlugin {
         "mcutarget.h",
         "mcutargetfactory.cpp",
         "mcutargetfactory.h",
+        "mcutargetfactorylegacy.cpp",
+        "mcutargetfactorylegacy.h",
+        "mcutargetfactory.cpp",
+        "mcutargetfactory.h",
         "mcusupport.qrc",
         "mcusupport_global.h",
         "mcusupportconstants.h",
@@ -46,7 +50,9 @@ QtcPlugin {
         "mcusupportversiondetection.h",
         "mcutargetdescription.h",
         "mcukitinformation.cpp",
-        "mcukitinformation.h"
+        "mcukitinformation.h",
+        "mcuhelpers.h",
+        "mcuhelpers.cpp",
     ]
 
     Group {

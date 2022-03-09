@@ -27,13 +27,28 @@
 
 #include "mcuabstracttargetfactory.h"
 
+#include <QHash>
+#include <QPair>
+
 namespace McuSupport::Internal::Sdk {
 
-class McuTargetFactory : public McuAbstractTargetFactory
+class McuTargetFactoryLegacy : public McuAbstractTargetFactory
 {
 public:
+    McuTargetFactoryLegacy(const QHash<QString, McuToolChainPackage *> &tcPkgs,
+                           const QHash<QString, McuAbstractPackage *> &vendorPkgs)
+        : tcPkgs(tcPkgs)
+        , vendorPkgs(vendorPkgs)
+    {}
+
     QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
-    Packages createPackages(const McuTargetDescription &);
-}; // struct McuTargetFactory
+    using AdditionalPackages
+        = QPair<QHash<QString, McuToolChainPackage *>, QHash<QString, McuAbstractPackage *>>;
+    AdditionalPackages getAdditionalPackages() const override;
+
+private:
+    const QHash<QString, McuToolChainPackage *> tcPkgs;
+    const QHash<QString, McuAbstractPackage *> vendorPkgs;
+}; // struct McuTargetFactoryLegacy
 
 } // namespace McuSupport::Internal::Sdk

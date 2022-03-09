@@ -25,15 +25,16 @@
 
 #pragma once
 
-#include "mcuabstracttargetfactory.h"
+#include "mcutarget.h"
 
-namespace McuSupport::Internal::Sdk {
+#include <QRegularExpression>
 
-class McuTargetFactory : public McuAbstractTargetFactory
-{
-public:
-    QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
-    Packages createPackages(const McuTargetDescription &);
-}; // struct McuTargetFactory
+namespace McuSupport {
 
-} // namespace McuSupport::Internal::Sdk
+namespace Internal::Sdk {
+struct McuTargetDescription;
+}
+
+Internal::McuTarget::OS deduceOperatingSystem(const Internal::Sdk::McuTargetDescription &);
+
+}; // namespace McuSupport

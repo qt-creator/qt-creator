@@ -29,13 +29,14 @@ constexpr auto armgcc_nxp_1064_json = R"({
     "compatVersion": "1",
     "qulVersion": "2.0.0",
     "boardSdk": {
-        "cmakeCacheEntries": [
+        "cmakeEntries": [
             {
                 "cmakeOptionName": "QUL_BOARD_SDK_DIR",
                 "description": "Board SDK for MIMXRT1064-EVK",
                 "id": "NXP_SDK_DIR",
                 "optional": false,
-                "type": "path"
+                "type": "path",
+                "versions": ["2.10.0"]
             }
          ],
          "envVar": "EVK_MIMXRT1064_SDK_PATH",
@@ -43,10 +44,12 @@ constexpr auto armgcc_nxp_1064_json = R"({
     },
     "compatVersion": "1",
     "freeRTOS": {
-        "cmakeCacheEntries": [
+        "cmakeEntries": [
             {
-                "cmakeOptionName": "FREERTOS_DIR",
+                "envVar": "IMXRT1064_FREERTOS_DIR",
+                "cmakeVar": "FREERTOS_DIR",
                 "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+                "label": "FreeRTOS Sources (IMXRT1064) ",
                 "description": "FreeRTOS SDK for MIMXRT1064-EVK",
                 "id": "NXP_FREERTOS_DIR",
                 "optional": false,
@@ -56,7 +59,7 @@ constexpr auto armgcc_nxp_1064_json = R"({
         "envVar": "IMXRT1064_FREERTOS_DIR"
     },
     "platform": {
-        "cmakeCacheEntries": [
+        "cmakeEntries": [
             {
                 "cmakeOptionName": "Qul_ROOT",
                 "description": "Qt for MCUs SDK",
@@ -80,7 +83,7 @@ constexpr auto armgcc_nxp_1064_json = R"({
     },
     "qulVersion": "2.0.0",
     "toolchain": {
-        "cmakeCacheEntries": [
+        "cmakeEntries": [
             {
                 "cmakeOptionName": "QUL_TARGET_TOOLCHAIN_DIR",
                 "description": "IAR ARM Compiler",

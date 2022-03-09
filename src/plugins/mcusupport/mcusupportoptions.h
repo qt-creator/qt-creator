@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include <utils/environmentfwd.h>
-#include "mcusupport_global.h"
 #include "mcukitmanager.h"
+#include "mcusupport_global.h"
+
+#include <utils/environmentfwd.h>
 
 #include <QObject>
-#include <QVector>
 #include <QVersionNumber>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
@@ -50,15 +50,11 @@ namespace McuSupport {
 namespace Internal {
 
 class McuAbstractPackage;
-class McuToolChainPackage;
-class McuTarget;
 
-class McuSdkRepository
+struct McuSdkRepository
 {
-public:
-    QVector<McuAbstractPackage *> packages;
-    QVector<McuTarget *> mcuTargets;
-
+    Packages packages;
+    Targets mcuTargets;
     void deletePackagesAndTargets();
 };
 
@@ -91,6 +87,7 @@ public:
     void setAutomaticKitCreationEnabled(const bool enabled);
     void writeGeneralSettings() const;
     static bool automaticKitCreationFromSettings();
+
 private:
     void deletePackagesAndTargets();
 
@@ -98,7 +95,6 @@ private:
 signals:
     void packagesChanged();
 };
-
 
 } // namespace Internal
 } // namespace McuSupport

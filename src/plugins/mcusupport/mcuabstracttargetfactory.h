@@ -25,64 +25,31 @@
 
 #pragma once
 
-#include "mcupackage.h"
 #include "mcusupport_global.h"
 
-#include <QObject>
-#include <QVersionNumber>
+#include <QHash>
+#include <QPair>
 
-namespace ProjectExplorer {
-class ToolChain;
-}
-
-namespace Utils {
-class PathChooser;
-class InfoLabel;
-} // namespace Utils
+#include <memory>
 
 namespace McuSupport::Internal {
 
+class McuAbstractPackage;
 class McuToolChainPackage;
 
-class McuTarget : public QObject
+namespace Sdk {
+struct McuTargetDescription;
+
+class McuAbstractTargetFactory
 {
-    Q_OBJECT
-
 public:
-    enum class OS { Desktop, BareMetal, FreeRTOS };
+    using Ptr = std::unique_ptr<McuAbstractTargetFactory>;
+    ~McuAbstractTargetFactory() = default;
 
-    struct Platform
-    {
-        QString name;
-        QString displayName;
-        QString vendor;
-    };
-
-    enum { UnspecifiedColorDepth = -1 };
-
-    McuTarget(const QVersionNumber &qulVersion,
-              const Platform &platform,
-              OS os,
-              const Packages& packages,
-              const McuToolChainPackage *toolChainPackage,
-              int colorDepth = UnspecifiedColorDepth);
-
-    const QVersionNumber &qulVersion() const;
-    const Packages &packages() const;
-    const McuToolChainPackage *toolChainPackage() const;
-    const Platform &platform() const;
-    OS os() const;
-    int colorDepth() const;
-    bool isValid() const;
-    void printPackageProblems() const;
-
-private:
-    const QVersionNumber m_qulVersion;
-    const Platform m_platform;
-    const OS m_os;
-    const Packages m_packages;
-    const McuToolChainPackage* m_toolChainPackage;
-    const int m_colorDepth;
-}; // class McuTarget
-
+    virtual QPair<Targets, Packages> createTargets(const McuTargetDescription &) = 0;
+    using AdditionalPackages
+        = QPair<QHash<QString, McuToolChainPackage *>, QHash<QString, McuAbstractPackage *>>;
+    virtual AdditionalPackages getAdditionalPackages() const { return {}; }
+}; // struct McuAbstractTargetFactory
+} // namespace Sdk
 } // namespace McuSupport::Internal

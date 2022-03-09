@@ -36,7 +36,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     ],
     "pathEntries": [],
     "environmentEntries": [],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "Qul_DIR",
         "description": "Qt for MCUs SDK",
@@ -62,7 +62,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "versions": [
       "9.3.1"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ARMGCC_DIR",
         "description": "GNU Arm Embedded Toolchain",
@@ -86,7 +86,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "versions": [
       "2.10.0"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "NXP_SDK_DIR",
         "description": "Board SDK for MIMXRT1050-EVK",
@@ -98,7 +98,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
   },
   "freeRTOS": {
     "envVar": "IMXRT1050_FREERTOS_DIR",
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "NXP_FREERTOS_DIR",
         "description": "FreeRTOS SDK for MIMXRT1050-EVK",

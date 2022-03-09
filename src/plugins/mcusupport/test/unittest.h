@@ -43,8 +43,6 @@
 
 namespace McuSupport::Internal::Test {
 
-using ProjectExplorer::Kit;
-
 class McuSupportTest : public QObject
 {
     Q_OBJECT
@@ -56,6 +54,12 @@ private slots:
     void test_parseBasicInfoFromJson();
     void test_createPackagesWithCorrespondingSettings();
     void test_createPackagesWithCorrespondingSettings_data();
+    void test_createFreeRtosPackageWithCorrectSetting_data();
+    void test_createFreeRtosPackageWithCorrectSetting();
+    void test_createTargetsTheNewWay_data();
+    void test_createTargetsTheNewWay();
+    void test_createPackages();
+    void test_parseCmakeEntries();
 
 private:
     QVersionNumber currentQulVersion{2, 0};
@@ -67,7 +71,6 @@ private:
     const QString freeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
     const QString freeRtosCmakeVar{"FREERTOS_DIR"};
     const QString defaultfreeRtosPath{"/opt/freertos/default"};
-
 }; // class McuSupportTest
 
 } // namespace McuSupport::Internal::Test

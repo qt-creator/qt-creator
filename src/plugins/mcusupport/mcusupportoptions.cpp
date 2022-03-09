@@ -25,13 +25,13 @@
 
 #include "mcusupportoptions.h"
 
-#include "mcupackage.h"
-#include "mcutarget.h"
-#include "mcukitmanager.h"
 #include "mcukitinformation.h"
+#include "mcukitmanager.h"
+#include "mcupackage.h"
 #include "mcusupportconstants.h"
-#include "mcusupportsdk.h"
 #include "mcusupportplugin.h"
+#include "mcusupportsdk.h"
+#include "mcutarget.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
@@ -57,7 +57,6 @@ void McuSdkRepository::deletePackagesAndTargets()
 {
     qDeleteAll(packages);
     packages.clear();
-    qDeleteAll(mcuTargets);
     mcuTargets.clear();
 }
 
@@ -125,8 +124,7 @@ void McuSupportOptions::registerExamples()
 
 const QVersionNumber &McuSupportOptions::minimalQulVersion()
 {
-    static const QVersionNumber v({2, 0});
-    return v;
+    return legacyVersion;
 }
 
 void McuSupportOptions::setQulDir(const FilePath &dir)
@@ -176,7 +174,7 @@ void McuSupportOptions::deletePackagesAndTargets()
 
 void McuSupportOptions::checkUpgradeableKits()
 {
-    if (!qtForMCUsSdkPackage->isValidStatus() || sdkRepository.mcuTargets.length() == 0)
+    if (!qtForMCUsSdkPackage->isValidStatus() || sdkRepository.mcuTargets.size() == 0)
         return;
 
     if (Utils::anyOf(sdkRepository.mcuTargets, [this](const McuTarget *target) {

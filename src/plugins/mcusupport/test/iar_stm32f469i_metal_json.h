@@ -47,7 +47,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
       }
     ],
     "environmentEntries": [],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "Qul_DIR",
         "description": "Qt for MCUs SDK",
@@ -62,7 +62,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
     "versions": [
       "8.50.9"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "IARToolchain",
         "envVar": "IAR_ARM_COMPILER_DIR",
@@ -87,7 +87,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
     "versions": [
       "1.25.0"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ST_SDK_DIR",
         "description": "Board SDK for STM32F469I-Discovery",

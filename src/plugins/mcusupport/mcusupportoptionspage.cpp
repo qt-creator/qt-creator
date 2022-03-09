@@ -146,8 +146,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         m_kitAutomaticCreationCheckBox = new QCheckBox(
             tr("Automatically create kits for all available targets on start"));
         connect(m_kitAutomaticCreationCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
-            m_options.setAutomaticKitCreationEnabled(
-                state == Qt::CheckState::Checked);
+            m_options.setAutomaticKitCreationEnabled(state == Qt::CheckState::Checked);
         });
         mainLayout->addWidget(m_kitAutomaticCreationCheckBox);
     }
@@ -171,7 +170,9 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         connect(m_kitUpdatePushButton, &QPushButton::clicked, this, [this] {
             for (auto kit :
                  McuKitManager::upgradeableKits(currentMcuTarget(), m_options.qtForMCUsSdkPackage))
-                McuKitManager::upgradeKitInPlace(kit, currentMcuTarget(), m_options.qtForMCUsSdkPackage);
+                McuKitManager::upgradeKitInPlace(kit,
+                                                 currentMcuTarget(),
+                                                 m_options.qtForMCUsSdkPackage);
             updateStatus();
         });
         vLayout->addWidget(m_kitCreationPushButton);
@@ -223,9 +224,10 @@ void McuSupportOptionsWidget::updateStatus()
         if (mcuTargetValid) {
             const bool hasMatchingKits
                 = !McuKitManager::matchingKits(mcuTarget, m_options.qtForMCUsSdkPackage).isEmpty();
-            const bool hasUpgradeableKits = !hasMatchingKits &&
-                    !McuKitManager::upgradeableKits(
-                        mcuTarget, m_options.qtForMCUsSdkPackage).isEmpty();
+            const bool hasUpgradeableKits
+                = !hasMatchingKits
+                  && !McuKitManager::upgradeableKits(mcuTarget, m_options.qtForMCUsSdkPackage)
+                          .isEmpty();
 
             m_kitCreationPushButton->setEnabled(!hasMatchingKits);
             m_kitUpdatePushButton->setEnabled(hasUpgradeableKits);
@@ -316,8 +318,9 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
     m_options.populatePackagesAndTargets();
     m_mcuTargetsComboBox->clear();
     m_mcuTargetsComboBox->addItems(
-        Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets,
-                                      [](McuTarget *t) { return McuKitManager::generateKitNameFromTarget(t); }));
+        Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets, [](McuTarget *t) {
+            return McuKitManager::generateKitNameFromTarget(t);
+        }));
     updateStatus();
 }
 

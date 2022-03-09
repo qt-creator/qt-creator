@@ -24,91 +24,62 @@
 ****************************************************************************/
 
 #include "mcutargetfactory.h"
+#include "mcuhelpers.h"
 #include "mcupackage.h"
-#include "mcusupportsdk.h"
-#include "mcusupportversiondetection.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
 
-#include <utils/fileutils.h>
 #include <QVersionNumber>
 
 namespace McuSupport::Internal::Sdk {
 
-using namespace Utils;
-
-QVector<McuAbstractPackage *> McuTargetFactory::getMcuPackages() const
+QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescription &desc)
 {
-    QVector<McuAbstractPackage *> packages;
-    for (auto *package : qAsConst(boardSdkPkgs))
-        packages.append(package);
-    for (auto *package : qAsConst(freeRTOSPkgs))
-        packages.append(package);
+    Targets mcuTargets;
+    Packages packages;
+
+    for (int colorDepth : desc.platform.colorDepths) {
+        const McuTarget::Platform platform(
+            {desc.platform.id, desc.platform.name, desc.platform.vendor});
+
+        Packages targetPackages = createPackages(desc);
+        packages.append(targetPackages);
+        mcuTargets.emplace_back(new McuTarget{QVersionNumber::fromString(desc.qulVersion),
+                                              platform,
+                                              deduceOperatingSystem(desc),
+                                              targetPackages,
+                                              new McuToolChainPackage{{}, {}, {}, {}, {}},
+                                              colorDepth});
+    }
+    return {mcuTargets, packages};
+}
+
+QList<PackageDescription> aggregatePackageEntries(const McuTargetDescription &desc)
+{
+    QList<PackageDescription> result;
+    result.append(desc.boardSdk.packages);
+    result.append(desc.freeRTOS.packages);
+    result.append(desc.toolchain.packages);
+    return result;
+}
+
+Packages McuTargetFactory::createPackages(const McuTargetDescription &desc)
+{
+    Packages packages;
+    QList<PackageDescription> packageDescriptions = aggregatePackageEntries(desc);
+
+    for (const PackageDescription &pkgDesc : packageDescriptions) {
+        packages.emplace_back(new McuPackage{
+            pkgDesc.label,
+            pkgDesc.defaultPath,
+            pkgDesc.validationPath,
+            pkgDesc.setting,
+            pkgDesc.cmakeVar,
+            pkgDesc.envVar,
+        });
+    }
+
     return packages;
 }
 
-QVector<McuTarget *> McuTargetFactory::createTargets(const McuTargetDescription &desc)
-{
-    // OS deduction
-    const auto os = [&] {
-        if (desc.platform.type == McuTargetDescription::TargetType::Desktop)
-            return McuTarget::OS::Desktop;
-        else if (!desc.freeRTOS.envVar.isEmpty())
-            return McuTarget::OS::FreeRTOS;
-        return McuTarget::OS::BareMetal;
-    }();
-
-    QVector<McuTarget *> mcuTargets;
-    McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchain.id);
-    if (tcPkg)
-        tcPkg->setVersions(desc.toolchain.versions);
-    else
-        tcPkg = createUnsupportedToolChainPackage();
-    for (int colorDepth : desc.platform.colorDepths) {
-        QVector<McuAbstractPackage *> required3rdPartyPkgs;
-        // Desktop toolchains don't need any additional settings
-        if (tcPkg && !tcPkg->isDesktopToolchain()
-            && tcPkg->toolchainType() != McuToolChainPackage::ToolChainType::Unsupported)
-            required3rdPartyPkgs.append(tcPkg);
-
-        // Add setting specific to platform IDE
-        if (vendorPkgs.contains(desc.platform.vendor))
-            required3rdPartyPkgs.push_back(vendorPkgs.value(desc.platform.vendor));
-
-        // Board SDK specific settings
-        FilePath boardSdkDefaultPath;
-        if (!desc.boardSdk.envVar.isEmpty()) {
-            if (!boardSdkPkgs.contains(desc.boardSdk.envVar)) {
-                auto boardSdkPkg = createBoardSdkPackage(desc);
-                boardSdkPkgs.insert(desc.boardSdk.envVar, boardSdkPkg);
-            }
-            auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdk.envVar);
-            boardSdkPkg->setVersions(desc.boardSdk.versions);
-            boardSdkDefaultPath = boardSdkPkg->defaultPath();
-            required3rdPartyPkgs.append(boardSdkPkg);
-        }
-
-        // Free RTOS specific settings
-        if (!desc.freeRTOS.envVar.isEmpty()) {
-            if (!freeRTOSPkgs.contains(desc.freeRTOS.envVar)) {
-                freeRTOSPkgs.insert(desc.freeRTOS.envVar,
-                                    createFreeRTOSSourcesPackage(desc.freeRTOS.envVar,
-                                                                 boardSdkDefaultPath,
-                                                                 desc.freeRTOS.boardSdkSubDir));
-            }
-            required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOS.envVar));
-        }
-
-        const McuTarget::Platform platform(
-            {desc.platform.id, desc.platform.name, desc.platform.vendor});
-        auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
-                                       platform,
-                                       os,
-                                       required3rdPartyPkgs,
-                                       tcPkg,
-                                       colorDepth);
-        mcuTargets.append(mcuTarget);
-    }
-    return mcuTargets;
-}
 } // namespace McuSupport::Internal::Sdk
