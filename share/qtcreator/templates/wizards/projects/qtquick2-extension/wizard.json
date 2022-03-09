@@ -13,16 +13,23 @@
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{ProFile}" },
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : value('CMakeFile')}" },
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "PluginBaseFileName", "value": "%{JS: value('ProjectName') + '_plugin'}" },
         { "key": "PluginSrc", "value": "%{JS: Cpp.classToFileName(value('PluginBaseFileName'), Util.preferredSuffix('text/x-c++src'))}" },
         { "key": "PluginHdr", "value": "%{JS: Cpp.classToFileName(value('PluginBaseFileName'), Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "ObjectSrc", "value": "%{JS: Cpp.classToFileName(value('ObjectName'), Util.preferredSuffix('text/x-c++src'))}" },
         { "key": "ObjectHdr", "value": "%{JS: Cpp.classToFileName(value('ObjectName'), Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "ObjectQml", "value": "%{JS: Util.fileName(value('ObjectName') + 'Controls', 'qml')}" },
         { "key": "PluginName", "value": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1) + 'Plugin' }" },
         { "key": "PLUGINGUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('PluginBaseFileName'), Util.preferredSuffix('text/x-c++hdr'))}" },
-        { "key": "OBJECTGUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('ObjectName'), Util.preferredSuffix('text/x-c++hdr'))}" }
+        { "key": "OBJECTGUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('ObjectName'), Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "IsQt6", "value": "%{JS: value('QtVersion').IsQt6}" },
+        { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
+        { "key": "QtQuickFeature", "value": "%{JS: (value('QtQuickVersion')=='') ? 'QtSupport.Wizards.FeatureQt.6.2' : 'QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}'}" },
+        { "key": "CreateExampleProjectDefault", "value": false },
+        { "key": "TargetName", "value": "%{JS: 'lib' + value('ProjectName')}" }
     ],
 
     "pages":
@@ -33,11 +40,101 @@
             "typeId": "Project"
         },
         {
+            "trDisplayName": "Define Build System",
+            "trShortTitle": "Build System",
+            "typeId": "Fields",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data":
+            [
+                {
+                    "name": "BuildSystem",
+                    "trDisplayName": "Build system:",
+                    "type": "ComboBox",
+                    "persistenceKey": "BuildSystemType",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "qmake",
+                                "value": "qmake",
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
             "trDisplayName": "Custom Parameters",
             "trShortTitle": "Details",
             "typeId": "Fields",
             "data":
             [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimal required Qt version:",
+                    "type": "ComboBox",
+                    "persistenceKey": "QtQuick.minimumQtVersion",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 6.2",
+                                "value":
+                                {
+                                    "QtQuickVersion": "",
+                                    "IsQt6": true
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.15",
+                                "condition": "%{JS: value('BuildSystem') === 'qmake'}",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.15",
+                                    "IsQt6": false
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.14",
+                                "condition": "%{JS: value('BuildSystem') === 'qmake'}",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.14",
+                                    "IsQt6": false
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.13",
+                                "condition": "%{JS: value('BuildSystem') === 'qmake'}",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.13",
+                                    "IsQt6": false
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.12",
+                                "condition": "%{JS: value('BuildSystem') === 'qmake'}",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.12",
+                                    "IsQt6": false
+                                }
+                            }
+                        ]
+                    }
+                },
                 {
                     "name": "ObjectName",
                     "trDisplayName": "Object class-name:",
@@ -59,6 +156,16 @@
                         "validator": "^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$",
                         "trText": "com.mycompany.qmlcomponents"
                     }
+                },
+                {
+                    "name": "CreateExampleProject",
+                    "trDisplayName": "Create example project",
+                    "visible": "%{JS: value('BuildSystem') === 'cmake'}",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": "%{CreateExampleProjectDefault}"
+                    }
                 }
             ]
         },
@@ -69,7 +176,7 @@
             "enabled": "%{JS: !value('IsSubproject')}",
             "data": {
                  "projectFilePath": "%{ProjectFile}",
-                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuick", "QtSupport.Wizards.FeatureQtQuick.2" ]
+                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuick", "%{QtQuickFeature}" ]
             }
         },
         {
@@ -87,7 +194,14 @@
                 {
                     "source": "project.pro",
                     "target": "%{ProFile}",
-                    "openAsProject": true
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
+                },
+                {
+                    "source": "CMakeLists.6.x.txt",
+                    "target": "CMakeLists.txt",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
                 },
                 {
                     "source": "qmldir",
@@ -96,11 +210,13 @@
                 {
                     "source": "plugin.cpp",
                     "target": "%{PluginSrc}",
-                    "openInEditor": true
+                    "openInEditor": true,
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
                 },
                 {
                     "source": "plugin.h",
-                    "target": "%{PluginHdr}"
+                    "target": "%{PluginHdr}",
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
                 },
                 {
                     "source": "object.cpp",
@@ -109,6 +225,20 @@
                 {
                     "source": "object.h",
                     "target": "%{ObjectHdr}"
+                },
+                {
+                    "source": "object.qml",
+                    "target": "%{ObjectQml}"
+                },
+                {
+                    "source": "example/example.cpp",
+                    "target": "example/example.cpp",
+                    "condition": "%{JS: value('CreateExampleProject')}"
+                },
+                {
+                    "source": "example/example.qml",
+                    "target": "example/example.qml",
+                    "condition": "%{JS: value('CreateExampleProject')}"
                 },
                 {
                     "source": "../git.ignore",

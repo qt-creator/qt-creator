@@ -1265,7 +1265,11 @@ void ComboBoxField::initializeData(MacroExpander *expander)
     ListField::initializeData(expander);
     // refresh also the current text of the combobox
     auto w = qobject_cast<QComboBox *>(widget());
-    w->setCurrentIndex(selectionModel()->currentIndex().row());
+    const int row = selectionModel()->currentIndex().row();
+    if (row < w->count() && row > 0)
+        w->setCurrentIndex(row);
+    else
+        w->setCurrentIndex(0);
 }
 
 QVariant ComboBoxField::toSettings() const
