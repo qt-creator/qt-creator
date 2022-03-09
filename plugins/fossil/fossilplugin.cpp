@@ -53,6 +53,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
+#include <utils/commandline.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
