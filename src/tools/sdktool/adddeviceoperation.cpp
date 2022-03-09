@@ -55,8 +55,8 @@ QString AddDeviceOperation::helpText() const
 
 QString AddDeviceOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new kit (required).\n"
-                         "    --name <NAME>                              display name of the new kit (required).\n"
+    return QLatin1String("    --id <ID>                                  id of the new device (required).\n"
+                         "    --name <NAME>                              display name of the new device (required).\n"
                          "    --type <INT>                               type (required).\n"
                          "    --authentication <INT>                     authentication.\n"
                          "    --b2qHardware <STRING>                     Boot2Qt Platform Info Hardware.\n"
