@@ -33,9 +33,9 @@ QtObject {
 
     readonly property int dialogWidth: 1522
     readonly property int dialogHeight: 940
-    readonly property int projectViewMinimumWidth: 600
-    readonly property int projectViewMinimumHeight: root.gridCellHeight
-    readonly property int dialogContentHeight: root.projectViewHeight + 300 // i.e. dialog without header and footer
+    readonly property int presetViewMinimumWidth: 600
+    readonly property int presetViewMinimumHeight: root.gridCellHeight
+    readonly property int dialogContentHeight: root.presetViewHeight + 300 // i.e. dialog without header and footer
     readonly property int loadedPanesWidth: root.detailsPaneWidth + root.stylesPaneWidth
     readonly property int detailsPaneWidth: 330 + root.detailsPanePadding * 2
     readonly property int dialogTitleTextHeight: 85
@@ -62,14 +62,14 @@ QtObject {
     readonly property int styleTextHeight: 18
 
     readonly property int footerHeight: 73
-    readonly property int projectItemWidth: 136
-    readonly property int projectItemHeight: 110
-    property int projectViewHeight: root.projectItemHeight * 2 + root.gridSpacing + root.gridMargins * 2
-    readonly property int projectViewHeaderHeight: 38
+    readonly property int presetItemWidth: 136
+    readonly property int presetItemHeight: 110
+    property int presetViewHeight: root.presetItemHeight * 2 + root.gridSpacing + root.gridMargins * 2
+    readonly property int presetViewHeaderHeight: 38
 
     readonly property int gridMargins: 20
-    readonly property int gridCellWidth: root.projectItemWidth + root.gridSpacing
-    readonly property int gridCellHeight: root.projectItemHeight + root.gridSpacing
+    readonly property int gridCellWidth: root.presetItemWidth + root.gridSpacing
+    readonly property int gridCellHeight: root.presetItemHeight + root.gridSpacing
     readonly property int gridSpacing: 2
 
     readonly property int dialogButtonWidth: 100

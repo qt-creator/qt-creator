@@ -371,6 +371,9 @@ Item {
                                     if (widthField.realValue && heightField.realValue) {
                                         [widthField.realValue, heightField.realValue] = [heightField.realValue, widthField.realValue]
                                         orientationButton.checked = !orientationButton.checked
+
+                                        if (widthField.realValue === heightField.realValue)
+                                            orientationButton.checked ? setVertical() : setHorizontal()
                                     }
                                 }
 

@@ -163,14 +163,14 @@ Item {
                                 id: tabBar
                                 x: 10                       // left padding
                                 width: parent.width - 20    // right padding
-                                height: DialogValues.projectViewHeaderHeight
+                                height: DialogValues.presetViewHeaderHeight
                                 color: DialogValues.lightPaneColor
 
                                 function selectTab(tabIndex, selectLast = false) {
                                     var item = repeater.itemAt(tabIndex)
                                     tabBarRow.currIndex = tabIndex
 
-                                    projectView.selectLast = selectLast
+                                    presetView.selectLast = selectLast
                                     BackendApi.presetModel.setPage(tabIndex) // NOTE: it resets preset model
                                 }
 
@@ -244,10 +244,10 @@ Item {
                             } // Rectangle
 
                             Rectangle {
-                                id: projectViewFrame
+                                id: presetViewFrame
                                 x: 10                       // left padding
                                 width: parent.width - 20    // right padding
-                                height: DialogValues.projectViewHeight
+                                height: DialogValues.presetViewHeight
                                 color: DialogValues.darkPaneColor
 
                                 Item {
@@ -255,7 +255,7 @@ Item {
                                     anchors.margins: DialogValues.gridMargins
 
                                     NewProjectView {
-                                        id: projectView
+                                        id: presetView
                                         anchors.fill: parent
 
                                         loader: projectDetailsLoader
@@ -265,12 +265,12 @@ Item {
                                             target: rootDialog
                                             function onHeightChanged() {
                                                 if (rootDialog.height < 720) { // 720 = minimum height big dialog
-                                                    DialogValues.projectViewHeight =
-                                                            DialogValues.projectItemHeight
+                                                    DialogValues.presetViewHeight =
+                                                            DialogValues.presetItemHeight
                                                             + 2 * DialogValues.gridMargins
                                                 } else {
-                                                    DialogValues.projectViewHeight =
-                                                            DialogValues.projectItemHeight * 2
+                                                    DialogValues.presetViewHeight =
+                                                            DialogValues.presetItemHeight * 2
                                                             + DialogValues.gridSpacing
                                                             + 2 * DialogValues.gridMargins
                                                 }
@@ -289,7 +289,7 @@ Item {
                                 lineHeight: DialogValues.defaultLineHeight
                                 lineHeightMode: Text.FixedHeight
                                 leftPadding: 14
-                                width: projectViewFrame.width
+                                width: presetViewFrame.width
                                 color: DialogValues.textColor
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 4

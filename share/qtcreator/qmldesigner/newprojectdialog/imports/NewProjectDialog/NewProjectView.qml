@@ -97,8 +97,8 @@ ScrollView {
 
             property bool hover: delegate.hovered || removeMouseArea.containsMouse
 
-            width: DialogValues.projectItemWidth
-            height: DialogValues.projectItemHeight
+            width: DialogValues.presetItemWidth
+            height: DialogValues.presetItemHeight
 
             onClicked: delegate.GridView.view.currentIndex = index
 
@@ -107,7 +107,7 @@ ScrollView {
                 width: parent.width
                 height: parent.height
                 color: delegate.hover ? scrollView.backgroundHoverColor : "transparent"
-                border.color: delegate.hover ? projectTypeName.color : "transparent"
+                border.color: delegate.hover ? presetName.color : "transparent"
             }
 
             function fontIconCode(index) {
@@ -125,7 +125,7 @@ ScrollView {
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     Label {
-                        id: projectTypeIcon
+                        id: presetIcon
                         text: delegate.fontIconCode(index)
                         color: DialogValues.textColor
                         horizontalAlignment: Text.AlignHCenter
@@ -137,25 +137,25 @@ ScrollView {
                     } // Preset type icon Label
 
                     Text {
-                        id: projectTypeName
+                        id: presetName
                         color: DialogValues.textColor
                         text: name
                         font.pixelSize: DialogValues.defaultPixelSize
                         lineHeight: DialogValues.defaultLineHeight
                         lineHeightMode: Text.FixedHeight
-                        width: DialogValues.projectItemWidth - 16
+                        width: DialogValues.presetItemWidth - 16
                         elide: Text.ElideRight
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignTop
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: projectTypeName.width
-                        Layout.minimumWidth: projectTypeName.width
-                        Layout.maximumWidth: projectTypeName.width
+                        Layout.preferredWidth: presetName.width
+                        Layout.minimumWidth: presetName.width
+                        Layout.maximumWidth: presetName.width
 
                         ToolTip {
                             id: toolTip
                             y: -toolTip.height
-                            visible: delegate.hovered && projectTypeName.truncated
+                            visible: delegate.hovered && presetName.truncated
                             text: name
                             delay: 1000
                             height: 20
@@ -176,7 +176,7 @@ ScrollView {
                     }
 
                     Text {
-                        id: projectTypeResolution
+                        id: presetResolution
                         color: DialogValues.textColor
                         text: resolution
                         font.pixelSize: DialogValues.defaultPixelSize
@@ -219,7 +219,7 @@ ScrollView {
                                                                    : Qt.ArrowCursor
 
                         onClicked: {
-                            removePresetDialog.presetName = projectTypeName.text
+                            removePresetDialog.presetName = presetName.text
                             removePresetDialog.open()
                         }
                     }
@@ -232,15 +232,15 @@ ScrollView {
                     when: delegate.GridView.isCurrentItem
 
                     PropertyChanges {
-                        target: projectTypeName
+                        target: presetName
                         color: DialogValues.textColorInteraction
                     }
                     PropertyChanges {
-                        target: projectTypeResolution
+                        target: presetResolution
                         color: DialogValues.textColorInteraction
                     }
                     PropertyChanges {
-                        target: projectTypeIcon
+                        target: presetIcon
                         color: DialogValues.textColorInteraction
                     }
                     PropertyChanges {
