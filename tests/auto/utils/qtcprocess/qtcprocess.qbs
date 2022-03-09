@@ -3,6 +3,8 @@ import qbs.FileInfo
 QtcAutotest {
     name: "QtcProcess autotest"
     Depends { name: "Utils" }
+    Depends { name: "app_version_header" }
+
     files: "tst_qtcprocess.cpp"
     cpp.defines: {
         var defines = base;
