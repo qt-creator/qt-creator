@@ -27,8 +27,6 @@
 
 #include "utils_global.h"
 
-#include "porting.h"
-
 #include <QList>
 #include <QString>
 

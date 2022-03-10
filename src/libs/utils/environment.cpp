@@ -310,7 +310,7 @@ FilePaths Environment::path() const
 FilePaths Environment::pathListValue(const QString &varName) const
 {
     const QStringList pathComponents = expandedValueForKey(varName).split(
-        OsSpecificAspects::pathListSeparator(m_osType), SkipEmptyParts);
+        OsSpecificAspects::pathListSeparator(m_osType), Qt::SkipEmptyParts);
     return transform(pathComponents, &FilePath::fromUserInput);
 }
 

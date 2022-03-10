@@ -42,11 +42,6 @@
 
 #include <texteditor/textdocument.h>
 
-#include <utils/parameteraction.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -58,18 +53,22 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <utils/fileutils.h>
+#include <utils/parameteraction.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
-#include <QDebug>
+#include <QAction>
 #include <QDate>
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QTextCodec>
-#include <QAction>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QTextCodec>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -181,7 +180,7 @@ public:
 
     QStringList arguments() const override
     {
-        QStringList args = m_settings.diffOptions.value().split(' ', SkipEmptyParts);
+        QStringList args = m_settings.diffOptions.value().split(' ', Qt::SkipEmptyParts);
         args += VcsBaseEditorConfig::arguments();
         return args;
     }

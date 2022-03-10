@@ -34,8 +34,6 @@
 
 namespace Utils {
 
-constexpr Qt::SplitBehaviorFlags SkipEmptyParts = Qt::SkipEmptyParts;
-
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 using QHashValueType = uint;
 #else
