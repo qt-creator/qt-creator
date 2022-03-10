@@ -291,16 +291,15 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->settings.fromSettings(Core::ICore::settings());
 
     d->viewManager.registerView(std::make_unique<QmlDesigner::Internal::ConnectionView>());
-    if (DesignerSettings::getValue(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool()) {
-        auto timelineView = d->viewManager.registerView(std::make_unique<QmlDesigner::TimelineView>());
-        timelineView->registerActions();
 
-        d->viewManager.registerView(std::make_unique<QmlDesigner::CurveEditorView>());
+    auto timelineView = d->viewManager.registerView(std::make_unique<QmlDesigner::TimelineView>());
+    timelineView->registerActions();
 
-        auto eventlistView = d->viewManager.registerView(
-            std::make_unique<QmlDesigner::EventListPluginView>());
-        eventlistView->registerActions();
-    }
+    d->viewManager.registerView(std::make_unique<QmlDesigner::CurveEditorView>());
+
+    auto eventlistView = d->viewManager.registerView(
+        std::make_unique<QmlDesigner::EventListPluginView>());
+    eventlistView->registerActions();
 
     auto transitionEditorView = d->viewManager.registerView(
         std::make_unique<QmlDesigner::TransitionEditorView>());
