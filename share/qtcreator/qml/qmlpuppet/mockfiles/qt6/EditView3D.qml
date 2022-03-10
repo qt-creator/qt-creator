@@ -651,12 +651,6 @@ Item {
                     return;
                 }
             }
-            for (var i = 0; i < particleEmitterGizmos.length; ++i) {
-                if (particleEmitterGizmos[i].targetNode === node) {
-                    particleEmitterGizmos[i].locked = _generalHelper.isLocked(node);
-                    return;
-                }
-            }
         }
         function onHiddenStateChanged(node)
         {
