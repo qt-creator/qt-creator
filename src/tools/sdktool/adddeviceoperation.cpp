@@ -307,7 +307,7 @@ bool AddDeviceOperation::test() const
     devData.m_version = 6;
     devData.m_dockerRepo = "repo";
     devData.m_dockerTag = "tag";
-    devData.m_dockerMappedPaths = {"/opt", "/data"};
+    devData.m_dockerMappedPaths = QStringList{"/opt", "/data"};
 
     QVariantMap result = devData.addDevice(map);
     QVariantMap data = result.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
