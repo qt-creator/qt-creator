@@ -160,8 +160,17 @@ Item {
                                            + 2 * DialogValues.styleImageBorderWidth
                                     height: DialogValues.styleImageHeight
                                             + 2 * DialogValues.styleImageBorderWidth
-                                    border.color: index === stylesList.currentIndex ? DialogValues.textColorInteraction : "transparent"
-                                    border.width: index === stylesList.currentIndex ? DialogValues.styleImageBorderWidth : 0
+
+                                    border.color: itemRectMouseArea.containsMouse
+                                                  ? DialogValues.textColor
+                                                  : (index === stylesList.currentIndex
+                                                     ? DialogValues.textColorInteraction
+                                                     : "transparent")
+
+                                    border.width: index === stylesList.currentIndex || itemRectMouseArea.containsMouse
+                                                  ? DialogValues.styleImageBorderWidth
+                                                  : 0
+
                                     color: "transparent"
 
                                     Image {
@@ -172,6 +181,12 @@ Item {
                                         height: DialogValues.styleImageHeight
                                         asynchronous: false
                                         source: "image://newprojectdialog_library/" + BackendApi.styleModel.iconId(model.index)
+                                    }
+
+                                    MouseArea {
+                                        id: itemRectMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
                                     }
                                 } // Rectangle
 

@@ -286,12 +286,8 @@ Item {
                                 realStepSize: 10
                                 font.pixelSize: DialogValues.defaultPixelSize
 
-                                onRealValueChanged: {
-                                    if (widthField.realValue >= heightField.realValue)
-                                        orientationButton.setHorizontal()
-                                    else
-                                        orientationButton.setVertical()
-                                }
+                                onRealValueChanged: orientationButton.isHorizontal =
+                                                    widthField.realValue >= heightField.realValue
                             } // Width Text Field
 
                             Binding {
@@ -311,12 +307,8 @@ Item {
                                 realStepSize: 10
                                 font.pixelSize: DialogValues.defaultPixelSize
 
-                                onRealValueChanged: {
-                                    if (widthField.realValue >= heightField.realValue)
-                                        orientationButton.setHorizontal()
-                                    else
-                                        orientationButton.setVertical()
-                                }
+                                onRealValueChanged: orientationButton.isHorizontal =
+                                                    widthField.realValue >= heightField.realValue
                             } // Height Text Field
 
                             Binding {
@@ -327,69 +319,69 @@ Item {
 
                             Item { Layout.fillWidth: true }
 
-                            Button {
+                            Item {
                                 id: orientationButton
                                 implicitWidth: 100
                                 implicitHeight: 50
-                                checked: false
-                                hoverEnabled: false
-                                background: Rectangle {
-                                    width: parent.width
-                                    height: parent.height
-                                    color: "transparent"
+                                property bool isHorizontal: false
 
-                                    Row {
-                                        Item {
-                                            width: orientationButton.width / 2
-                                            height: orientationButton.height
-                                            Rectangle {
-                                                id: horizontalBar
-                                                color: "white"
-                                                width: parent.width
-                                                height: orientationButton.height / 2
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                radius: 3
-                                            }
+                                Row {
+                                    spacing: orientationButton.width / 4
+
+                                    function computeColor(barId) {
+                                        var color = DialogValues.textColor
+
+                                        if (barId === horizontalBar) {
+                                            color = orientationButton.isHorizontal
+                                                    ? DialogValues.textColorInteraction
+                                                    : DialogValues.textColor
+                                        } else {
+                                            color = orientationButton.isHorizontal
+                                                    ? DialogValues.textColor
+                                                    : DialogValues.textColorInteraction
                                         }
 
-                                        Item {
-                                            width: orientationButton.width / 4
-                                            height: orientationButton.height
-                                        }
+                                        if (orientationButtonMouseArea.containsMouse)
+                                            color = Qt.darker(color, 1.5)
 
-                                        Rectangle {
-                                            id: verticalBar
-                                            width: orientationButton.width / 4
-                                            height: orientationButton.height
-                                            color: "white"
-                                            radius: 3
-                                        }
+                                        return color
+                                    }
+
+                                    Rectangle {
+                                        id: horizontalBar
+                                        color: parent.computeColor(horizontalBar)
+                                        width: orientationButton.width / 2
+                                        height: orientationButton.height / 2
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        radius: 3
+                                    }
+
+                                    Rectangle {
+                                        id: verticalBar
+                                        color: parent.computeColor(verticalBar)
+                                        width: orientationButton.width / 4
+                                        height: orientationButton.height
+                                        radius: 3
                                     }
                                 }
 
-                                onClicked: {
-                                    if (widthField.realValue && heightField.realValue) {
-                                        [widthField.realValue, heightField.realValue] = [heightField.realValue, widthField.realValue]
-                                        orientationButton.checked = !orientationButton.checked
+                                MouseArea {
+                                    id: orientationButtonMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
 
-                                        if (widthField.realValue === heightField.realValue)
-                                            orientationButton.checked ? setVertical() : setHorizontal()
+                                    onClicked: {
+                                        if (widthField.realValue && heightField.realValue) {
+                                            [widthField.realValue, heightField.realValue] = [heightField.realValue, widthField.realValue]
+
+                                            if (widthField.realValue === heightField.realValue)
+                                                orientationButton.isHorizontal = !orientationButton.isHorizontal
+                                            else
+                                                orientationButton.isHorizontal = widthField.realValue > heightField.realValue
+                                        }
                                     }
-                                }
-
-                                function setHorizontal() {
-                                    orientationButton.checked = false
-                                    horizontalBar.color = DialogValues.textColorInteraction
-                                    verticalBar.color = "white"
-                                }
-
-                                function setVertical() {
-                                    orientationButton.checked = true
-                                    horizontalBar.color = "white"
-                                    verticalBar.color = DialogValues.textColorInteraction
                                 }
                             } // Orientation button
-
                         } // GridLayout: orientation + width + height
 
                         Rectangle {
@@ -507,6 +499,8 @@ Item {
                             presetNameTextField.text = text.trim()
                             presetNameTextField.text = text.replace(/\s+/g, " ")
                         }
+
+                        onAccepted: savePresetDialog.accept()
                     }
 
                     Binding {
