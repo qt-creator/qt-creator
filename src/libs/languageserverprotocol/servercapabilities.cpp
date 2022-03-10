@@ -282,11 +282,11 @@ Utils::optional<Utils::variant<QString, bool> >
 ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::changeNotifications() const
 {
     using RetType = Utils::variant<QString, bool>;
-    const QJsonValue &provider = value(implementationProviderKey);
-    if (provider.isUndefined())
+    const QJsonValue &change = value(changeNotificationsKey);
+    if (change.isUndefined())
         return Utils::nullopt;
-    return Utils::make_optional(provider.isBool() ? RetType(provider.toBool())
-                                                  : RetType(provider.toString()));
+    return Utils::make_optional(change.isBool() ? RetType(change.toBool())
+                                                : RetType(change.toString()));
 }
 
 void ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabilities::setChangeNotifications(
