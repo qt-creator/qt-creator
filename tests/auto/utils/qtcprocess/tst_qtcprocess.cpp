@@ -105,7 +105,8 @@ static CommandLine subCommandLine()
 {
     QStringList args = QCoreApplication::arguments();
     const QString binary = args.takeFirst();
-    return CommandLine(FilePath::fromString(binary), args);
+    const FilePath filePath = FilePath::fromString(QDir::currentPath()).resolvePath(binary);
+    return CommandLine(filePath, args);
 }
 
 class SubCreatorConfig
