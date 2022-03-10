@@ -234,7 +234,7 @@ FilePath CMakeTool::qchFilePath() const
 
 FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 {
-    if (HostOsInfo::isMacHost()) {
+    if (path.osType() == OsTypeMac) {
         const QString executableString = path.toString();
         const int appIndex = executableString.lastIndexOf(".app");
         const int appCutIndex = appIndex + 4;
@@ -251,7 +251,7 @@ FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 
     const FilePath resolvedPath = path.canonicalPath();
     // Evil hack to make snap-packages of CMake work. See QTCREATORBUG-23376
-    if (HostOsInfo::isLinuxHost() && resolvedPath.fileName() == "snap")
+    if (path.osType() == OsTypeLinux && resolvedPath.fileName() == "snap")
         return path;
 
     return resolvedPath;
