@@ -1017,7 +1017,7 @@ void tst_QtcProcess::LineCallback::main()
 {
 #ifdef Q_OS_WIN
     // Prevent \r\n -> \r\r\n translation.
-    setmode(fileno(stderr), O_BINARY);
+    _setmode(_fileno(stderr), O_BINARY);
 #endif
     fprintf(stderr, "%s", QByteArray(lineCallbackData).replace('|', "").data());
     exit(0);
