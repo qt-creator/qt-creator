@@ -315,6 +315,7 @@ bool QmlDesignerPlugin::delayedInitialize()
         emitUsageStatistics("StandaloneMode");
         if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
             emitUsageStatistics("QDSlaunchedFromQtC");
+         emitUsageStatistics("QDSstartupCount");
     }
 
     if (QmlProjectManager::QmlProject::isQtDesignStudio())
@@ -336,6 +337,14 @@ void QmlDesignerPlugin::extensionsInitialized()
     actionManager.createDefaultAddResourceHandler();
     actionManager.createDefaultModelNodePreviewImageHandlers();
     actionManager.polishActions();
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
+{
+    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+        emitUsageStatistics("QDSstartupCount");
+
+    return SynchronousShutdown;
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)
