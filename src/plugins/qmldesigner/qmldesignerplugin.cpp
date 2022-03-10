@@ -318,6 +318,9 @@ bool QmlDesignerPlugin::delayedInitialize()
             emitUsageStatistics("QDSlaunchedFromQtC");
     }
 
+    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+        d->mainWidget.initialize();
+
     return true;
 }
 
@@ -328,9 +331,6 @@ void QmlDesignerPlugin::extensionsInitialized()
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
         integrateIntoQtCreator(&d->mainWidget);
     });
-
-    if (QmlProjectManager::QmlProject::isQtDesignStudio())
-        d->mainWidget.initialize();
 
     auto &actionManager = d->viewManager.designerActionManager();
     actionManager.createDefaultDesignerActions();
