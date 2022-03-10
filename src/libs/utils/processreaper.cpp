@@ -27,149 +27,234 @@
 #include "qtcassert.h"
 
 #include <QCoreApplication>
+#include <QElapsedTimer>
+#include <QHash>
 #include <QProcess>
-#include <QThread>
 #include <QTimer>
-
-#ifdef Q_OS_WIN
-#ifdef QTCREATOR_PCH_H
-#define CALLBACK WINAPI
-#endif
-#include <qt_windows.h>
-#endif
+#include <QWaitCondition>
 
 using namespace Utils;
 
 namespace Utils {
 namespace Internal {
 
-class Reaper final : public QObject
+/*
+
+Observations on how QProcess::terminate() behaves on different platforms when called for
+never ending running process:
+
+1. Windows:
+
+   The issue in QTCREATORBUG-27118 with adb.exe is most probably a special
+   Windows only case described in docs of QProcess::terminate():
+
+   "Console applications on Windows that do not run an event loop, or whose event loop does
+   not handle the WM_CLOSE message, can only be terminated by calling kill()."
+
+   It looks like when you call terminate() for the adb.exe, it won't stop, never, even after
+   default 30 seconds timeout. The same happens for blocking processes tested in
+   tst_QtcProcess::killBlockingProcess(). It's hard to say whether any process on Windows can
+   be finished by a call to terminate(). Until now, no such a process has been found.
+
+   Further call to kill() (after a call to terminate()) finishes the process quickly.
+
+2. Linux:
+
+   It looks like a call to terminate() finishes the running process after a long wait
+   (between 10-15 seconds). After calling terminate(), further calls to kill() doesn't
+   make the process to finish soon (are no-op). On the other hand, when we start reaping the
+   running process from a call to kill() without a prior call to terminate(), the process
+   finishes quickly.
+
+3. Mac:
+
+   It looks like the process finishes quickly after a call to terminate().
+
+*/
+
+static const int s_timeoutThreshold = 10000; // 10 seconds
+
+static QString execWithArguments(QProcess *process)
 {
-public:
-    Reaper(QProcess *p, int timeoutMs);
-    ~Reaper() final;
+    QStringList commandLine;
+    commandLine.append(process->program());
+    commandLine.append(process->arguments());
+    return commandLine.join(QChar::Space);
+}
 
-    int timeoutMs() const;
-    bool isFinished() const;
-    void nextIteration();
-
-private:
-    mutable QTimer m_iterationTimer;
+struct ReaperSetup
+{
     QProcess *m_process = nullptr;
-    int m_emergencyCounter = 0;
-    QProcess::ProcessState m_lastState = QProcess::NotRunning;
+    int m_timeoutMs;
 };
 
-static QList<Reaper *> g_reapers;
-
-Reaper::Reaper(QProcess *p, int timeoutMs) : m_process(p)
+class Reaper : public QObject
 {
-    g_reapers.append(this);
+    Q_OBJECT
 
-    m_iterationTimer.setInterval(timeoutMs);
-    m_iterationTimer.setSingleShot(true);
-    connect(&m_iterationTimer, &QTimer::timeout, this, &Reaper::nextIteration);
+public:
+    Reaper(const ReaperSetup &reaperSetup) : m_reaperSetup(reaperSetup) {}
 
-    QMetaObject::invokeMethod(this, &Reaper::nextIteration, Qt::QueuedConnection);
-}
+    void reap()
+    {
+        m_timer.start();
 
-Reaper::~Reaper()
-{
-    g_reapers.removeOne(this);
-}
+        connect(m_reaperSetup.m_process, &QProcess::finished,
+                this, &Reaper::handleFinished);
 
-int Reaper::timeoutMs() const
-{
-    const int remaining = m_iterationTimer.remainingTime();
-    if (remaining < 0)
-        return m_iterationTimer.interval();
-    m_iterationTimer.stop();
-    return remaining;
-}
+        if (emitFinished())
+            return;
 
-bool Reaper::isFinished() const
-{
-    return !m_process;
-}
-
-#ifdef Q_OS_WIN
-static BOOL sendMessage(UINT message, HWND hwnd, LPARAM lParam)
-{
-    DWORD dwProcessID;
-    GetWindowThreadProcessId(hwnd, &dwProcessID);
-    if ((DWORD)lParam == dwProcessID) {
-        SendNotifyMessage(hwnd, message, 0, 0);
-        return FALSE;
-    }
-    return TRUE;
-}
-
-BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
-{
-    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
-    return sendMessage(uiShutDownMessage, hwnd, lParam);
-}
-
-#endif
-
-void Reaper::nextIteration()
-{
-    QProcess::ProcessState state = m_process ? m_process->state() : QProcess::NotRunning;
-    if (state == QProcess::NotRunning || m_emergencyCounter > 5) {
-        delete m_process;
-        m_process = nullptr;
-        return;
+        terminate();
     }
 
-    if (state == QProcess::Starting) {
-        if (m_lastState == QProcess::Starting)
-            m_process->kill();
-    } else if (state == QProcess::Running) {
-        if (m_lastState == QProcess::Running) {
-            m_process->kill();
-        } else if (m_process->program().endsWith(QLatin1String("qtcreator_ctrlc_stub.exe"))) {
-#ifdef Q_OS_WIN
-            EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, m_process->processId());
-#endif
-        } else {
-            m_process->terminate();
+signals:
+    void finished();
+
+private:
+    void terminate()
+    {
+        // TODO: do a custom terminate here for ctrlCStub
+        m_reaperSetup.m_process->terminate();
+        QTimer::singleShot(m_reaperSetup.m_timeoutMs, this, &Reaper::handleTerminateTimeout);
+    }
+
+    void kill() { m_reaperSetup.m_process->kill(); }
+
+    bool emitFinished()
+    {
+        if (m_reaperSetup.m_process->state() != QProcess::NotRunning)
+            return false;
+
+        if (!m_finished) {
+            const int timeout = m_timer.elapsed();
+            if (timeout > s_timeoutThreshold) {
+                qWarning() << "Finished parallel reaping of" << execWithArguments(m_reaperSetup.m_process)
+                           << "in" << (timeout / 1000.0) << "seconds.";
+            }
+
+            m_finished = true;
+            emit finished();
+        }
+        return true;
+    }
+
+    void handleFinished()
+    {
+        // In case the process is still running - wait until it has finished
+        QTC_ASSERT(emitFinished(), QTimer::singleShot(m_reaperSetup.m_timeoutMs,
+                                                      this, &Reaper::handleFinished));
+    }
+
+    void handleTerminateTimeout()
+    {
+        if (emitFinished())
+            return;
+
+        kill();
+    }
+
+    bool m_finished = false;
+    QElapsedTimer m_timer;
+    const ReaperSetup m_reaperSetup;
+};
+
+class ProcessReaperPrivate : public QObject
+{
+    Q_OBJECT
+
+public:
+    // Called from non-reaper's thread
+    void scheduleReap(const ReaperSetup &reaperSetup)
+    {
+        QTC_CHECK(QThread::currentThread() != thread());
+        QMutexLocker locker(&m_mutex);
+        m_reaperSetupList.append(reaperSetup);
+        QMetaObject::invokeMethod(this, &ProcessReaperPrivate::flush);
+    }
+
+    // Called from non-reaper's thread
+    void waitForFinished()
+    {
+        QTC_CHECK(QThread::currentThread() != thread());
+        QMetaObject::invokeMethod(this, &ProcessReaperPrivate::flush,
+                                  Qt::BlockingQueuedConnection);
+        QMutexLocker locker(&m_mutex);
+        if (m_reaperList.isEmpty())
+            return;
+
+        m_waitCondition.wait(&m_mutex);
+    }
+
+private:
+    // All the private methods are called from the reaper's thread
+    QList<ReaperSetup> takeReaperSetupList()
+    {
+        QMutexLocker locker(&m_mutex);
+        const QList<ReaperSetup> reaperSetupList = m_reaperSetupList;
+        m_reaperSetupList.clear();
+        return reaperSetupList;
+    }
+
+    void flush()
+    {
+        while (true) {
+            const QList<ReaperSetup> reaperSetupList = takeReaperSetupList();
+            if (reaperSetupList.isEmpty())
+                return;
+            for (const ReaperSetup &reaperSetup : reaperSetupList)
+                reap(reaperSetup);
         }
     }
 
-    m_lastState = state;
-    m_iterationTimer.start();
+    void reap(const ReaperSetup &reaperSetup)
+    {
+        Reaper *reaper = new Reaper(reaperSetup);
+        connect(reaper, &Reaper::finished, this, [this, reaper, process = reaperSetup.m_process] {
+            QMutexLocker locker(&m_mutex);
+            QTC_CHECK(m_reaperList.removeOne(reaper));
+            delete reaper;
+            delete process;
+            if (m_reaperList.isEmpty())
+                m_waitCondition.wakeOne();
+        }, Qt::QueuedConnection);
 
-    ++m_emergencyCounter;
-}
+        {
+            QMutexLocker locker(&m_mutex);
+            m_reaperList.append(reaper);
+        }
+
+        reaper->reap();
+    }
+
+    QMutex m_mutex;
+    QWaitCondition m_waitCondition;
+    QList<ReaperSetup> m_reaperSetupList;
+    QList<Reaper *> m_reaperList;
+};
 
 } // namespace Internal
 
+using namespace Utils::Internal;
+
+static QMutex s_instanceMutex;
+
+ProcessReaper::ProcessReaper()
+    : m_private(new ProcessReaperPrivate())
+{
+    m_private->moveToThread(&m_thread);
+    QObject::connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
+    m_thread.start();
+    m_thread.moveToThread(qApp->thread());
+}
+
 ProcessReaper::~ProcessReaper()
 {
-    while (!Internal::g_reapers.isEmpty()) {
-        int alreadyWaited = 0;
-        QList<Internal::Reaper *> toDelete;
-
-        // push reapers along:
-        for (Internal::Reaper *pr : qAsConst(Internal::g_reapers)) {
-            const int timeoutMs = pr->timeoutMs();
-            if (alreadyWaited < timeoutMs) {
-                const unsigned long toSleep = static_cast<unsigned long>(timeoutMs - alreadyWaited);
-                QThread::msleep(toSleep);
-                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-                alreadyWaited += toSleep;
-            }
-
-            pr->nextIteration();
-
-            if (pr->isFinished())
-                toDelete.append(pr);
-        }
-
-        // Clean out reapers that finished in the meantime
-        qDeleteAll(toDelete);
-        toDelete.clear();
-    }
+    QTC_CHECK(QThread::currentThread() == qApp->thread());
+    QMutexLocker locker(&s_instanceMutex);
+    instance()->m_private->waitForFinished();
+    m_thread.quit();
+    m_thread.wait();
 }
 
 void ProcessReaper::reap(QProcess *process, int timeoutMs)
@@ -177,27 +262,26 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     if (!process)
         return;
 
-    QTC_ASSERT(QThread::currentThread() == process->thread(), return );
+    QTC_ASSERT(QThread::currentThread() == process->thread(), return);
 
     process->disconnect();
     if (process->state() == QProcess::NotRunning) {
         process->deleteLater();
         return;
     }
+
     // Neither can move object with a parent into a different thread
     // nor reaping the process with a parent makes any sense.
     process->setParent(nullptr);
-    if (process->thread() != QCoreApplication::instance()->thread()) {
-        process->moveToThread(QCoreApplication::instance()->thread());
-        QMetaObject::invokeMethod(process, [process, timeoutMs] {
-            reap(process, timeoutMs);
-        }); // will be queued
-        return;
-    }
 
-    ProcessReaper::instance();
-    new Internal::Reaper(process, timeoutMs);
+    QMutexLocker locker(&s_instanceMutex);
+    ProcessReaperPrivate *priv = instance()->m_private;
+
+    process->moveToThread(priv->thread());
+    ReaperSetup reaperSetup {process, timeoutMs};
+    priv->scheduleReap(reaperSetup);
 }
 
 } // namespace Utils
 
+#include "processreaper.moc"
