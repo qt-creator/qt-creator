@@ -33,7 +33,8 @@
 #include "mcusupportconstants.h"
 #include "mcusupportsdk.h"
 #include "mcutargetdescription.h"
-#include "utils/filepath.h"
+#include <utils/algorithm.h>
+#include <utils/filepath.h>
 
 #include <cmakeprojectmanager/cmakeconfigitem.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
@@ -55,7 +56,8 @@ static const QString nxp1170{"EVK_MIMXRT1170"};
 static const QString nxp1050{"IMXRT1050"};
 static const QString nxp1064{"IMXRT1064"};
 
-static const QStringList jsonFiles{armgcc_nxp_1050_json, armgcc_nxp_1064_json};
+static const QStringList jsonFiles{QString::fromUtf8(armgcc_nxp_1050_json),
+                                   QString::fromUtf8(armgcc_nxp_1064_json)};
 
 using CMakeProjectManager::CMakeConfigItem;
 using CMakeProjectManager::CMakeConfigurationKitAspect;
@@ -158,50 +160,12 @@ void McuSupportTest::test_createPackagesWithCorrespondingSettings()
     QFETCH(QString, json);
     const auto description = Sdk::parseDescriptionJson(json.toLocal8Bit());
     QVector<McuAbstractPackage *> packages;
-    const auto targets = Sdk::targetsFromDescriptions({description}, &packages);
 
-    QSet<QString> settings;
-    std::transform(packages.begin(),
-                   packages.end(),
-                   std::inserter(settings, settings.end()),
-                   [](const auto &package) { return package->settingsKey(); });
-
+    QSet<QString> settings = Utils::transform<QSet<QString>>(packages, [](const auto &package) {
+        return package->settingsKey();
+    });
     QFETCH(QSet<QString>, expectedSettings);
     QVERIFY(settings.contains(expectedSettings));
-}
-
-//TODO(piotr.mucko): Enable when mcutargetfactory is delivered.
-void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
-{
-    // Sdk::targetsAndPackages(jsonFile, &mcuSdkRepo);
-    //
-    // QVector<Package *> mcuPackages;
-    // auto mcuTargets = Sdk::targetsFromDescriptions({description}, &mcuPackages);
-    // QVERIFY(mcuPackages contains freertos package)
-    // QVERIFY(freertos package is not empty & has proper value)
-
-    // McuSupportOptions mcuSuportOptions{};
-    // mcuSuportOptions.createAutomaticKits();
-
-    QFETCH(QString, freeRtosEnvVar);
-    QFETCH(QString, expectedSettingsKey);
-
-    auto *package{Sdk::createFreeRTOSSourcesPackage(freeRtosEnvVar, FilePath{}, QString{})};
-    QVERIFY(package != nullptr);
-
-    QCOMPARE(package->settingsKey(), expectedSettingsKey);
-
-    // QVERIFY(freertos package is not empty & has proper value)
-    // static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
-    //                                                 const FilePath &boardSdkDir,
-    //                                                 const QString &freeRTOSBoardSdkSubDir)
-    // createFreeRtosPackage
-    // verify that package's setting is Package_FreeRTOSSourcePackage_IMXRT1064.
-    //TODO(me): write settings
-    // auto *freeRtosPackage
-    // = new McuPackage;
-    // freeRtosPackage->writeToSettings();
-    //TODO(me): verify that setting is the same as in 2.0.0
 }
 
 } // namespace McuSupport::Internal::Test
