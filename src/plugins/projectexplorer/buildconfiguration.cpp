@@ -71,7 +71,7 @@ const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.
 const char CUSTOM_PARSERS_KEY[] = "ProjectExplorer.BuildConfiguration.CustomParsers";
 const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStandardOutput";
 
-Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig");
+Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 
 namespace ProjectExplorer {
 namespace Internal {
