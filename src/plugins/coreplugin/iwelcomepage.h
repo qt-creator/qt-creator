@@ -28,7 +28,6 @@
 #include "core_global.h"
 
 #include <utils/id.h>
-#include <utils/porting.h>
 
 #include <QWidget>
 #include <QObject>
