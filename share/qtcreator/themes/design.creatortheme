@@ -430,8 +430,8 @@ PaletteBase=normalBackground
 
 
 
-;can't see where this is used.
-PaletteAlternateBase=alternateBackground
+;can't see where this is used. ;Used in plugin dialog
+PaletteAlternateBase=normalBackground
 ;PaletteAlternateBase=ffd3299a
 
 
