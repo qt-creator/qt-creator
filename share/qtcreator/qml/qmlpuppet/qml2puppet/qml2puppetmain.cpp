@@ -228,10 +228,9 @@ int internalMain(QGuiApplication *application)
     if (application->arguments().at(1) == "--import3dAsset") {
         QString sourceAsset = application->arguments().at(2);
         QString outDir = application->arguments().at(3);
-        int exitId = application->arguments().at(4).toInt();
-        QString options = application->arguments().at(5);
+        QString options = application->arguments().at(4);
 
-        Import3D::import3D(sourceAsset, outDir, exitId, options);
+        Import3D::import3D(sourceAsset, outDir, options);
 
         return application->exec();
     }

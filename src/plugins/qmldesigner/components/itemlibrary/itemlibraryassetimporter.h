@@ -74,7 +74,7 @@ signals:
     void importFinished();
 
 private slots:
-    void importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus, int importId);
     void iconProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
@@ -125,7 +125,7 @@ private:
     std::vector<QProcessUniquePointer> m_qmlPuppetProcesses;
     int m_qmlPuppetCount = 0;
     int m_qmlImportFinishedCount = 0;
-    int m_importIdCounter = 1000000; // Use ids in range unlikely to clash with any normal process exit codes
+    int m_importIdCounter = 0;
     QHash<int, ParseData> m_parseData;
     QString m_progressTitle;
     QList<Import> m_requiredImports;

@@ -29,5 +29,5 @@
 
 namespace Import3D
 {
-    void import3D(const QString &sourceAsset, const QString &outDir, int id, const QString &options);
+    void import3D(const QString &sourceAsset, const QString &outDir, const QString &options);
 };
