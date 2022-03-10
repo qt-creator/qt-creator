@@ -124,6 +124,11 @@ public:
 
     void clearMetaInfoCache();
 
+    bool hasId(const QString &id) const;
+
+    QString generateNewId(const QString &prefixName) const;
+    QString generateNewId(const QString &prefixName, const QString &fallbackPrefix) const;
+
 protected:
     Model();
 
