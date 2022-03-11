@@ -32,6 +32,7 @@ import StudioTheme as StudioTheme
 import StudioControls as SC
 
 import NewProjectDialog
+import BackendApi
 
 Item {
     id: rootDialog
@@ -161,17 +162,43 @@ Item {
                                 readonly property int animDur: 500
                                 id: tabBar
                                 x: 10                       // left padding
-                                width: parent.width - 64    // right padding
-                                height: DialogValues.projectViewHeaderHeight
+                                width: parent.width - 20    // right padding
+                                height: DialogValues.presetViewHeaderHeight
                                 color: DialogValues.lightPaneColor
+
+                                function selectTab(tabIndex, selectLast = false) {
+                                    var item = repeater.itemAt(tabIndex)
+                                    tabBarRow.currIndex = tabIndex
+
+                                    presetView.selectLast = selectLast
+                                    BackendApi.presetModel.setPage(tabIndex) // NOTE: it resets preset model
+                                }
+
+                                Connections {
+                                    target: BackendApi
+
+                                    function onUserPresetSaved() {
+                                        var customTabIndex = repeater.count - 1
+                                        tabBar.selectTab(customTabIndex, true)
+                                    }
+
+                                    function onLastUserPresetRemoved() {
+                                        tabBar.selectTab(0, false)
+                                    }
+                                }
 
                                 Row {
                                     id: tabBarRow
                                     spacing: 20
                                     property int currIndex: 0
+                                    readonly property string currentTabName:
+                                        repeater.count > 0 && repeater.itemAt(currIndex)
+                                        ? repeater.itemAt(currIndex).text
+                                        : ''
 
                                     Repeater {
-                                        model: categoryModel
+                                        id: repeater
+                                        model: BackendApi.categoryModel
                                         Text {
                                             text: name
                                             font.weight: Font.DemiBold
@@ -184,13 +211,7 @@ Item {
                                             MouseArea {
                                                 anchors.fill: parent
                                                 onClicked: {
-                                                    tabBarRow.currIndex = index
-                                                    presetModel.setPage(index)
-                                                    projectView.currentIndex = 0
-                                                    projectView.currentIndexChanged()
-
-                                                    strip.x = parent.x
-                                                    strip.width = parent.width
+                                                    tabBar.selectTab(index)
                                                 }
                                             }
 
@@ -199,8 +220,19 @@ Item {
                                 } // tabBarRow
 
                                 Rectangle {
+                                    function computeX() {
+                                        var item = tabBarRow.children[tabBarRow.currIndex] ?? tabBarRow.children[0]
+                                        return item.x;
+                                    }
+
+                                    function computeWidth() {
+                                        var item = tabBarRow.children[tabBarRow.currIndex] ?? tabBarRow.children[0]
+                                        return item.width;
+                                    }
+
                                     id: strip
-                                    width: tabBarRow.children[0].width
+                                    x: computeX()
+                                    width: computeWidth()
                                     height: 5
                                     radius: 2
                                     color: DialogValues.textColorInteraction
@@ -209,35 +241,40 @@ Item {
                                     Behavior on x { SmoothedAnimation { duration: tabBar.animDur } }
                                     Behavior on width { SmoothedAnimation { duration: strip.width === 0 ? 0 : tabBar.animDur } } // do not animate initial width
                                 }
-
-                                Connections {
-                                    target: rootDialog
-                                    function onWidthChanged() {
-                                        if (rootDialog.width < 1200) { // 1200 = the width threshold
-                                            tabBar.width = tabBar.parent.width - 20
-                                            projectView.width = projectView.parent.width - 20
-                                        } else {
-                                            tabBar.width = tabBar.parent.width - 64
-                                            projectView.width = projectView.parent.width - 64
-                                        }
-                                    }
-                                }
                             } // Rectangle
 
-                            NewProjectView {
-                                id: projectView
+                            Rectangle {
+                                id: presetViewFrame
                                 x: 10                       // left padding
-                                width: parent.width - 64    // right padding
-                                height: DialogValues.projectViewHeight
-                                loader: projectDetailsLoader
+                                width: parent.width - 20    // right padding
+                                height: DialogValues.presetViewHeight
+                                color: DialogValues.darkPaneColor
 
-                                Connections {
-                                    target: rootDialog
-                                    function onHeightChanged() {
-                                        if (rootDialog.height < 700) { // 700 = minimum height big dialog
-                                            projectView.height = DialogValues.projectViewHeight / 2
-                                        } else {
-                                            projectView.height = DialogValues.projectViewHeight
+                                Item {
+                                    anchors.fill: parent
+                                    anchors.margins: DialogValues.gridMargins
+
+                                    NewProjectView {
+                                        id: presetView
+                                        anchors.fill: parent
+
+                                        loader: projectDetailsLoader
+                                        currentTabName: tabBarRow.currentTabName
+
+                                        Connections {
+                                            target: rootDialog
+                                            function onHeightChanged() {
+                                                if (rootDialog.height < 720) { // 720 = minimum height big dialog
+                                                    DialogValues.presetViewHeight =
+                                                            DialogValues.presetItemHeight
+                                                            + 2 * DialogValues.gridMargins
+                                                } else {
+                                                    DialogValues.presetViewHeight =
+                                                            DialogValues.presetItemHeight * 2
+                                                            + DialogValues.gridSpacing
+                                                            + 2 * DialogValues.gridMargins
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -247,12 +284,12 @@ Item {
 
                             Text {
                                 id: descriptionText
-                                text: dialogBox.projectDescription
+                                text: BackendApi.projectDescription
                                 font.pixelSize: DialogValues.defaultPixelSize
                                 lineHeight: DialogValues.defaultLineHeight
                                 lineHeightMode: Text.FixedHeight
                                 leftPadding: 14
-                                width: projectView.width
+                                width: presetViewFrame.width
                                 color: DialogValues.textColor
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 4
@@ -298,7 +335,7 @@ Item {
                                 iconFont: StudioTheme.Constants.font
 
                                 onClicked: {
-                                    dialogBox.reject();
+                                    BackendApi.reject();
                                 }
                             }
 
@@ -310,11 +347,11 @@ Item {
                                 visible: true
                                 buttonIcon: qsTr("Create")
                                 iconSize: DialogValues.defaultPixelSize
-                                enabled: dialogBox.fieldsValid
+                                enabled: BackendApi.fieldsValid
                                 iconFont: StudioTheme.Constants.font
 
                                 onClicked: {
-                                    dialogBox.accept();
+                                    BackendApi.accept();
                                 }
                             }
                         } // RowLayout

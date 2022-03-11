@@ -132,8 +132,9 @@ public:
 
     void onTagClicked(const QString &tag)
     {
-        QString text = m_searcher->text();
-        m_searcher->setText(text + QString("tag:\"%1\" ").arg(tag));
+        const QString text = m_searcher->text();
+        m_searcher->setText((text.startsWith("tag:\"") ? text.trimmed() + " " : QString())
+                            + QString("tag:\"%1\" ").arg(tag));
     }
 
 private:

@@ -160,6 +160,8 @@ private:
     QGroupBox *createApplicationGroupBox(QWidget *parent);
     QGroupBox *createAdvancedGroupBox(QWidget *parent);
 
+    void addServiceMetadata(QXmlStreamWriter &writer);
+
     bool m_dirty; // indicates that we need to call syncToEditor()
     bool m_stayClean;
     int m_errorLine;

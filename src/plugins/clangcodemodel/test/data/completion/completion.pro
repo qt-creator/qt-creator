@@ -27,5 +27,7 @@ SOURCES = \
     privateFuncDefCompletion.cpp \
     signalCompletion.cpp
 
+QMAKE_CXXFLAGS += -ffoo
+
 HEADERS = mainwindow.h
 FORMS = mainwindow.ui

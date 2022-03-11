@@ -83,20 +83,29 @@ void CrumbleBar::pushFile(const Utils::FilePath &fileName)
     if (!m_isInternalCalled) {
         crumblePath()->clear();
     } else {
-        CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
+        // If the path already exists in crumblePath, pop up to first instance of that to avoid
+        // cyclical crumblePath
+        int match = -1;
+        for (int i = crumblePath()->length() - 1; i >= 0; --i) {
+            CrumbleBarInfo info = crumblePath()->dataForIndex(i).value<CrumbleBarInfo>();
+            if (info.fileName == fileName)
+                match = i;
+        }
 
-        if (!lastElementCrumbleBarInfo.displayName.isEmpty()
-                && lastElementCrumbleBarInfo.fileName == fileName)
-            crumblePath()->popElement();
+        if (match != -1) {
+            for (int i = crumblePath()->length() - 1 - match; i > 0; --i)
+                crumblePath()->popElement();
+        }
     }
 
-    CrumbleBarInfo crumbleBarInfo;
-    crumbleBarInfo.fileName = fileName;
-
-    crumblePath()->pushElement(fileName.fileName(), QVariant::fromValue(crumbleBarInfo));
+    CrumbleBarInfo info = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
+    if (info.fileName != fileName) {
+        CrumbleBarInfo crumbleBarInfo;
+        crumbleBarInfo.fileName = fileName;
+        crumblePath()->pushElement(fileName.fileName(), QVariant::fromValue(crumbleBarInfo));
+    }
 
     m_isInternalCalled = false;
-
     updateVisibility();
 }
 

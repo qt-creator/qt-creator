@@ -239,9 +239,10 @@ CMakeToolSettingsAccessor::cmakeTools(const QVariantMap &data, bool fromSdk) con
 
         const QVariantMap dbMap = data.value(key).toMap();
         auto item = std::make_unique<CMakeTool>(dbMap, fromSdk);
-        if (item->isAutoDetected() && !item->cmakeExecutable().isExecutableFile()) {
-            qWarning() << QString::fromLatin1("CMakeTool \"%1\" (%2) dropped since the command is not executable.")
-                          .arg(item->cmakeExecutable().toUserOutput(), item->id().toString());
+        const FilePath cmakeExecutable = item->cmakeExecutable();
+        if (item->isAutoDetected() && !cmakeExecutable.needsDevice() && !cmakeExecutable.isExecutableFile()) {
+            qWarning() << QString("CMakeTool \"%1\" (%2) dropped since the command is not executable.")
+                          .arg(cmakeExecutable.toUserOutput(), item->id().toString());
             continue;
         }
 

@@ -131,6 +131,10 @@ bool AvdDialog::isValid() const
 
 ProjectExplorer::IDevice::Ptr AvdDialog::device() const
 {
+    if (!m_createdAvdInfo.systemImage) {
+        qCWarning(avdDialogLog) << "System image of the created AVD is nullptr";
+        return IDevice::Ptr();
+    }
     AndroidDevice *dev = new AndroidDevice();
     const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(m_createdAvdInfo);
     using namespace ProjectExplorer;
@@ -140,10 +144,6 @@ ProjectExplorer::IDevice::Ptr AvdDialog::device() const
     dev->setDeviceState(IDevice::DeviceConnected);
     dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
     dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});
-    if (!m_createdAvdInfo.systemImage) {
-        qCWarning(avdDialogLog) << "System image of the created AVD is nullptr";
-        return IDevice::Ptr();
-    }
     dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.systemImage->apiLevel());
     dev->setExtraData(Constants::AndroidAvdSdcard, QString("%1 MB")
                       .arg(m_createdAvdInfo.sdcardSize));

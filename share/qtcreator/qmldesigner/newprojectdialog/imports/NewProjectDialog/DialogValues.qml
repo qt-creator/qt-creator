@@ -29,39 +29,57 @@ import QtQml
 import StudioTheme as StudioTheme
 
 QtObject {
+    id: root
+
     readonly property int dialogWidth: 1522
     readonly property int dialogHeight: 940
-    readonly property int projectViewMinimumWidth: 600
-    readonly property int projectViewMinimumHeight: projectViewHeight
-    readonly property int dialogContentHeight: projectViewHeight + 300  // i.e. dialog without header and footer
-    readonly property int loadedPanesWidth: detailsPaneWidth + stylesPaneWidth
-    readonly property int detailsPaneWidth: 330 + detailsPanePadding * 2
+    readonly property int presetViewMinimumWidth: 600
+    readonly property int presetViewMinimumHeight: root.gridCellHeight
+    readonly property int dialogContentHeight: root.presetViewHeight + 300 // i.e. dialog without header and footer
+    readonly property int loadedPanesWidth: root.detailsPaneWidth + root.stylesPaneWidth
+    readonly property int detailsPaneWidth: 330 + root.detailsPanePadding * 2
     readonly property int dialogTitleTextHeight: 85
     readonly property int paneTitleTextHeight: 47
     readonly property int logoWidth: 85
     readonly property int logoHeight: 85
 
-    /* detailsScrollableContentHeight - the full height that may need to be scrolled to be fully
-       visible, if the dialog box is too small. */
-    readonly property int detailsScrollableContentHeight: 428
-    readonly property int stylesPaneWidth: styleImageWidth + stylesPanePadding * 2 + styleImageBorderWidth * 2 // i.e. 240px
+    readonly property int stylesPaneWidth: root.styleImageWidth + root.stylesPanePadding * 2
+                                           + root.styleImageBorderWidth * 2 // i.e. 240px
     readonly property int detailsPanePadding: 18
     readonly property int stylesPanePadding: 18
     readonly property int defaultPadding: 18
     readonly property int dialogLeftPadding: 35
 
+    readonly property int styleListItemHeight: root.styleImageHeight + root.styleTextHeight
+                                               + 2 * root.styleImageBorderWidth
+                                               + root.styleListItemBottomMargin
+                                               + root.styleListItemSpacing
+    readonly property int styleListItemBottomMargin: 10
+    readonly property int styleListItemSpacing: 4
     readonly property int styleImageWidth: 200
+    readonly property int styleImageHeight: 262
     readonly property int styleImageBorderWidth: 2
+    readonly property int styleTextHeight: 18
+
     readonly property int footerHeight: 73
-    readonly property int projectItemWidth: 90
-    readonly property int projectItemHeight: 144
-    readonly property int projectViewHeight: projectItemHeight * 2
-    readonly property int projectViewHeaderHeight: 38
+    readonly property int presetItemWidth: 136
+    readonly property int presetItemHeight: 110
+    property int presetViewHeight: root.presetItemHeight * 2 + root.gridSpacing + root.gridMargins * 2
+    readonly property int presetViewHeaderHeight: 38
+
+    readonly property int gridMargins: 20
+    readonly property int gridCellWidth: root.presetItemWidth + root.gridSpacing
+    readonly property int gridCellHeight: root.presetItemHeight + root.gridSpacing
+    readonly property int gridSpacing: 2
 
     readonly property int dialogButtonWidth: 100
 
-    readonly property int loadedPanesHeight: dialogContentHeight
-    readonly property int detailsPaneHeight: dialogContentHeight
+    // This is for internal popup dialogs
+    readonly property int popupDialogWidth: 270
+    readonly property int popupDialogPadding: 12
+
+    readonly property int loadedPanesHeight: root.dialogContentHeight
+    readonly property int detailsPaneHeight: root.dialogContentHeight
 
     readonly property string darkPaneColor: StudioTheme.Values.themeBackgroundColorNormal
     readonly property string lightPaneColor: StudioTheme.Values.themeBackgroundColorAlternate
@@ -71,6 +89,8 @@ QtObject {
     readonly property string dividerlineColor: StudioTheme.Values.themeTextColorDisabled
     readonly property string textError: StudioTheme.Values.themeError
     readonly property string textWarning: StudioTheme.Values.themeWarning
+    readonly property string presetItemBackgroundHover: StudioTheme.Values.themeControlBackgroundGlobalHover
+    readonly property string presetItemBackgroundHoverInteraction: StudioTheme.Values.themeControlBackgroundInteraction
 
     readonly property real defaultPixelSize: 14
     readonly property real defaultLineHeight: 21
@@ -91,6 +111,6 @@ QtObject {
                 item and spacing after it). So we have to subtract 2 x layout spacing before setting
                 our own, narrower, spacing.
                */
-        return -layoutSpacing -layoutSpacing + value
+        return -layoutSpacing - layoutSpacing + value
     }
 }

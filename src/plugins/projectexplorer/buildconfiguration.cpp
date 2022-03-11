@@ -58,6 +58,7 @@
 #include <QCheckBox>
 #include <QDebug>
 #include <QFormLayout>
+#include <QLoggingCategory>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -68,6 +69,8 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
 const char CUSTOM_PARSERS_KEY[] = "ProjectExplorer.BuildConfiguration.CustomParsers";
 const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStandardOutput";
+
+Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -608,6 +611,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
 {
     MacroExpander exp;
 
+    qCDebug(bcLog) << Q_FUNC_INFO << projectDir << mainFilePath << projectName << bcName;
+
     // TODO: Remove "Current" variants in ~4.16
     exp.registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
                               QCoreApplication::translate("ProjectExplorer", "Main file of current project"),
@@ -638,7 +643,9 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 
     QString buildDir = ProjectExplorerPlugin::buildDirectoryTemplate();
+    qCDebug(bcLog) << "build dir template:" << buildDir;
     buildDir = exp.expand(buildDir);
+    qCDebug(bcLog) << "expanded build:" << buildDir;
     if (spaceHandling == ReplaceSpaces)
         buildDir.replace(" ", "-");
 

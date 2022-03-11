@@ -50,6 +50,7 @@ public:
                 ShowSelectionBox,
                 ShowIconGizmo,
                 ShowCameraFrustum,
+                ShowParticleEmitter,
                 Edit3DParticleModeToggle,
                 ParticlesPlay,
                 ParticlesRestart,

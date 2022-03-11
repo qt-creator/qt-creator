@@ -33,15 +33,43 @@ using ::testing::ElementsAreArray;
 using ::testing::PrintToString;
 
 namespace StudioWelcome {
+
+void PrintTo(const UserPresetItem &item, std::ostream *os);
+
 void PrintTo(const PresetItem &item, std::ostream *os)
 {
+    if (typeid(item) == typeid(UserPresetItem)) {
+        PrintTo((UserPresetItem &) item, os);
+        return;
+    }
+
     *os << "{categId: " << item.categoryId << ", "
-        << "name: " << item.name;
+        << "name: " << item.wizardName;
 
     if (!item.screenSizeName.isEmpty())
         *os << ", size: " << item.screenSizeName;
 
     *os << "}";
+}
+
+void PrintTo(const UserPresetItem &item, std::ostream *os)
+{
+    *os << "{categId: " << item.categoryId << ", "
+        << "name: " << item.wizardName << ", "
+        << "user name: " << item.userName;
+
+    if (!item.screenSizeName.isEmpty())
+        *os << ", size: " << item.screenSizeName;
+
+    *os << "}";
+}
+
+void PrintTo(const std::shared_ptr<PresetItem> &p, std::ostream *os)
+{
+    if (p)
+        PrintTo(*p, os);
+    else
+        *os << "{null}";
 }
 
 } // namespace StudioWelcome
@@ -51,20 +79,47 @@ std::pair<QString, WizardCategory> aCategory(const QString &categId,
                                              const QString &categName,
                                              const std::vector<QString> &names)
 {
-    std::vector<PresetItem> items = Utils::transform(names, [&categId](const QString &name) {
-        return PresetItem{name, categId};
-    });
+    std::vector<std::shared_ptr<PresetItem>> items
+        = Utils::transform(names, [&categId](const QString &name) {
+              std::shared_ptr<PresetItem> item{new PresetItem};
+              item->wizardName = name;
+              item->categoryId = categId;
+
+              return item;
+          });
     return std::make_pair(categId, WizardCategory{categId, categName, items});
+}
+
+UserPresetData aUserPreset(const QString &categId, const QString &wizardName, const QString &userName)
+{
+    UserPresetData preset;
+    preset.categoryId = categId;
+    preset.wizardName = wizardName;
+    preset.name = userName;
+
+    return preset;
 }
 
 MATCHER_P2(PresetIs, category, name, PrintToString(PresetItem{name, category}))
 {
-    return arg.categoryId == category && arg.name == name;
+    return arg->categoryId == category && arg->wizardName == name;
+}
+
+MATCHER_P3(UserPresetIs,
+           category,
+           wizardName,
+           userName,
+           PrintToString(UserPresetItem{wizardName, userName, category}))
+{
+    auto userPreset = dynamic_cast<UserPresetItem *>(arg.get());
+
+    return userPreset->categoryId == category && userPreset->wizardName == wizardName
+           && userPreset->userName == userName;
 }
 
 MATCHER_P3(PresetIs, category, name, size, PrintToString(PresetItem{name, category, size}))
 {
-    return arg.categoryId == category && arg.name == name && size == arg.screenSizeName;
+    return arg->categoryId == category && arg->wizardName == name && size == arg->screenSizeName;
 }
 
 } // namespace
@@ -88,6 +143,7 @@ TEST(QdsPresetModel, haveSameArraySizeForPresetsAndCategories)
             aCategory("A.categ", "A", {"item a", "item b"}),
             aCategory("B.categ", "B", {"item c", "item d"}),
         },
+        {/*user presets*/},
         {/*recents*/});
 
     ASSERT_THAT(data.presets(), SizeIs(2));
@@ -105,6 +161,7 @@ TEST(QdsPresetModel, haveWizardPresetsNoRecents)
             aCategory("A.categ", "A", {"item a", "item b"}),
             aCategory("B.categ", "B", {"item c", "item d"}),
         },
+        {/*user presets*/},
         {/*recents*/});
 
     // Then
@@ -115,11 +172,30 @@ TEST(QdsPresetModel, haveWizardPresetsNoRecents)
                 ElementsAre(PresetIs("B.categ", "item c"), PresetIs("B.categ", "item d")));
 }
 
+TEST(QdsPresetModel, whenHaveUserPresetsButNoWizardPresetsReturnEmpty)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData({/*builtin presets*/},
+                 {
+                     aUserPreset("A.Mobile", "Scroll", "iPhone5"),
+                     aUserPreset("B.Desktop", "Launcher", "MacBook"),
+                 },
+                 {/*recents*/});
+
+    // Then
+    ASSERT_THAT(data.categories(), IsEmpty());
+    ASSERT_THAT(data.presets(), IsEmpty());
+}
+
 TEST(QdsPresetModel, haveRecentsNoWizardPresets)
 {
     PresetData data;
 
     data.setData({/*wizardPresets*/},
+                 {/*user presets*/},
                  {
                      {"A.categ", "Desktop", "640 x 480"},
                      {"B.categ", "Mobile", "800 x 600"},
@@ -129,7 +205,7 @@ TEST(QdsPresetModel, haveRecentsNoWizardPresets)
     ASSERT_THAT(data.presets(), IsEmpty());
 }
 
-TEST(QdsPresetModel, recentsAddedBeforeWizardPresets)
+TEST(QdsPresetModel, recentsAddedWithWizardPresets)
 {
     // Given
     PresetData data;
@@ -141,6 +217,7 @@ TEST(QdsPresetModel, recentsAddedBeforeWizardPresets)
             aCategory("A.categ", "A", {"Desktop", "item b"}),
             aCategory("B.categ", "B", {"item c", "Mobile"}),
         },
+        {/*user presets*/},
         /*recents*/
         {
             {"A.categ", "Desktop", "800 x 600"},
@@ -158,7 +235,171 @@ TEST(QdsPresetModel, recentsAddedBeforeWizardPresets)
                      ElementsAre(PresetIs("B.categ", "item c"), PresetIs("B.categ", "Mobile"))}));
 }
 
-TEST(QdsPresetModel, recentsShouldNotSorted)
+TEST(QdsPresetModel, userPresetsAddedWithWizardPresets)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop", "item b"}),
+            aCategory("B.categ", "B", {"Mobile"}),
+        },
+        {
+            aUserPreset("A.categ", "Desktop", "Windows10"),
+        },
+        {/*recents*/});
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A", "B", "Custom"));
+    ASSERT_THAT(data.presets(),
+                ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"),
+                                        PresetIs("A.categ", "item b")),
+                            ElementsAre(PresetIs("B.categ", "Mobile")),
+                            ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows10"))));
+}
+
+TEST(QdsPresetModel, doesNotAddUserPresetsOfNonExistingCategory)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}), // Only category "A.categ" exists
+        },
+        {
+            aUserPreset("Bad.Categ", "Desktop", "Windows8"), // Bad.Categ does not exist
+        },
+        {/*recents*/});
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A"));
+    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
+}
+
+TEST(QdsPresetModel, doesNotAddUserPresetIfWizardPresetItRefersToDoesNotExist)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {
+            aUserPreset("B.categ", "BadWizard", "Tablet"),   // BadWizard referenced does not exist
+        },
+        {/*recents*/});
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A"));
+    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
+}
+
+TEST(QdsPresetModel, userPresetWithSameNameAsWizardPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {
+            aUserPreset("A.categ", "Desktop", "Desktop"),
+        },
+        {/*recents*/});
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A", "Custom"));
+    ASSERT_THAT(data.presets(),
+                ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop")),
+                            ElementsAre(UserPresetIs("A.categ", "Desktop", "Desktop"))));
+}
+
+TEST(QdsPresetModel, recentOfUserPresetReferringToExistingWizardPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {
+            aUserPreset("A.categ", "Desktop", "Windows 7"),
+        },
+        /*recents*/
+        {
+            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+        });
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("Recents", "A", "Custom"));
+    ASSERT_THAT(data.presets(),
+                ElementsAre(ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows 7")),
+                            ElementsAre(PresetIs("A.categ", "Desktop")),
+                            ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows 7"))));
+}
+
+TEST(QdsPresetModel, recentOfUserPresetReferringToNonexistingWizardPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {
+            aUserPreset("A.categ", "Not-Desktop", "Windows 7"), // Non-existing Wizard Preset
+        },
+        /*recents*/
+        {
+            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+        });
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A"));
+    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
+}
+
+TEST(QdsPresetModel, recentOfNonExistentUserPreset)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {/*user presets*/},
+        /*recents*/
+        {
+            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+        });
+
+    // Then
+    ASSERT_THAT(data.categories(), ElementsAre("A"));
+    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
+}
+
+TEST(QdsPresetModel, recentsShouldNotBeSorted)
 {
     // Given
     PresetData data;
@@ -171,6 +412,7 @@ TEST(QdsPresetModel, recentsShouldNotSorted)
             aCategory("B.categ", "B", {"item c", "Mobile"}),
             aCategory("Z.categ", "Z", {"Z.desktop"}),
         },
+        {/*user presets*/},
         /*recents*/
         {
             {"Z.categ", "Z.desktop", "200 x 300"},
@@ -197,6 +439,7 @@ TEST(QdsPresetModel, recentsOfSameWizardProjectButDifferentSizesAreRecognizedAsD
             aCategory("A.categ", "A", {"Desktop"}),
             aCategory("B.categ", "B", {"Mobile"}),
         },
+        {/*user presets*/},
         /*recents*/
         {
             {"B.categ", "Mobile", "400 x 400"},
@@ -223,6 +466,7 @@ TEST(QdsPresetModel, outdatedRecentsAreNotShown)
             aCategory("A.categ", "A", {"Desktop"}),
             aCategory("B.categ", "B", {"Mobile"}),
         },
+        {/*user presets*/},
         /*recents*/
         {
             {"B.categ", "NoLongerExists", "400 x 400"},

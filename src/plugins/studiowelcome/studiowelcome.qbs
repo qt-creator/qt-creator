@@ -38,7 +38,9 @@ QtcPlugin {
         "wizardhandler.cpp",
         "wizardhandler.h",
         "recentpresets.cpp",
-        "recentpresets.h"
+        "recentpresets.h",
+        "userpresets.cpp",
+        "userpresets.h"
     ]
 
     Group {

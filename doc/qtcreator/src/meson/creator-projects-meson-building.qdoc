@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,19 +31,22 @@
 
     \image qtcreator-meson-build-settings.png "Meson build settings"
 
-    Settings are grouped by category by Meson. All items are user modifiable
-    except \c backend which is forced to Ninja, \c {buildtype}, \c debug as well
-    as \c optimization to ensure a good compatibility with \QC.
+    Meson builds projects in the directory specified in the
+    \uicontrol {Build directory} field.
 
-    Each setting type has its own editor. To modif any setting, double-click it,
-    either edit the field, or select your choice depending on the control. To
-    apply changes, select \uicontrol {Apply configuration changes}. This will
-    trigger a \c {meson configure} command if there were any configuration
-    changes. If for any reason the build directory configuration is broken,
-    select \uicontrol {Wipe project}. This should fix any build directory.
+    Build settings are grouped by category. You can modify all settings,
+    except \c backend, which is forced to Ninja, \c {buildtype}, \c debug,
+    and \c optimization to ensure compatibility with \QC.
 
-    \note Any modified setting will remain in bold until \uicontrol
-    {Apply configuration changes} is selected.
+    To modify a setting, double-click it. Modified settings are formatted in
+    bold until you select \uicontrol {Apply configuration changes} to apply
+    them. This triggers \c {meson configure}. If problems arise, select
+    \uicontrol {Wipe Project} to fix the build directory configuration.
+
+    Meson supports cross-compiling in addition to native building. \QC
+    generates a native build file for you. To use a custom native file or a
+    cross file instead, specify the file name in \uicontrol Parameters.
+    For example, \c {--cross-file cross_file.txt}.
 
     For more information about using Meson, see \l{Setting Up Meson}.
 
@@ -56,8 +59,7 @@
 
     \image qtcreator-meson-build-steps.png "Meson build steps"
 
-    The build errors and warnings are parsed and displayed in the
-    \uicontrol Issues output pane.
+    The build errors and warnings are parsed and displayed in \l Issues.
 
     \section1 Meson Clean Steps
 

@@ -40,7 +40,7 @@ def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
         test.log("checkLastBuild called without a build")
         return
     buildIssues = getBuildIssues()
-    types = map(lambda i: i[5], buildIssues)
+    types = [i[5] for i in buildIssues]
     errors = types.count("1")
     warnings = types.count("2")
     gotErrors = errors != 0
@@ -78,8 +78,8 @@ def waitForCompile(timeout=60000):
 def dumpBuildIssues(listModel):
     issueDump = []
     for index in dumpIndices(listModel):
-        issueDump.extend([map(lambda role: index.data(role).toString(),
-                              range(Qt.UserRole, Qt.UserRole + 6))])
+        issueDump.extend([[index.data(role).toString() for role
+                           in range(Qt.UserRole, Qt.UserRole + 6)]])
     return issueDump
 
 # counter for written tasks files

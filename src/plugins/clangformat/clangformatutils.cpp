@@ -376,18 +376,27 @@ static std::string readFile(const QString &path)
     if (!file.open(QFile::ReadOnly))
         return defaultStyle;
 
-    const QByteArray content = file.readAll();
+    const std::string content = file.readAll().toStdString();
     file.close();
 
     clang::format::FormatStyle style;
     style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = clang::format::parseConfiguration(content.toStdString(), &style);
-
+    const std::error_code error = clang::format::parseConfiguration(content, &style);
     QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return defaultStyle);
 
     addQtcStatementMacros(style);
+    std::string settings = clang::format::configurationAsText(style);
 
-    return clang::format::configurationAsText(style);
+    // Needed workaround because parseConfiguration remove BasedOnStyle field
+    // ToDo: standardize this behavior for future
+    const size_t index = content.find("BasedOnStyle");
+    if (index != std::string::npos) {
+        const size_t size = content.find("\n", index) - index;
+        const size_t insert_index = settings.find("\n");
+        settings.insert(insert_index, "\n" + content.substr(index, size));
+    }
+
+    return settings;
 }
 
 std::string currentProjectConfigText()

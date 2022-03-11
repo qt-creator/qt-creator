@@ -89,6 +89,8 @@ QtObject {
     property real typeLabelVerticalShift: Math.round(6 * values.scaleFactor)
 
     property real scrollBarThickness: 10
+    property real scrollBarActivePadding: 1
+    property real scrollBarInactivePadding: 2
 
     property real toolTipHeight: 25
     property int toolTipDelay: 1000

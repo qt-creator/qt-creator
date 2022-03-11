@@ -60,6 +60,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     bool delayedInitialize() final;
     void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
 
     static QmlDesignerPlugin *instance();
 

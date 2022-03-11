@@ -41,6 +41,8 @@ bool ImageCacheConnectionManager::waitForCapturedData()
     disconnect(connections().front().socket.get(), &QIODevice::readyRead, nullptr, nullptr);
 
     while (!m_capturedDataArrived) {
+        if (!(connections().front().socket))
+            return false;
         bool dataArrived = connections().front().socket->waitForReadyRead(10000);
 
         if (!dataArrived)

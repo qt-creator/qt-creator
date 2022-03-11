@@ -58,7 +58,7 @@ QString McuPackageExecutableVersionDetector::parseVersion(const QString &package
     if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
         return QString();
 
-    const Utils::FilePath binaryPath = Utils::FilePath::fromString(packagePath).resolvePath(m_detectionPath);
+    const Utils::FilePath binaryPath = Utils::FilePath::fromString(packagePath).pathAppended(m_detectionPath.path());
     if (!binaryPath.exists())
         return QString();
 

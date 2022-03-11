@@ -206,7 +206,7 @@ void tst_Ssh::pristineConnectionObject()
     QSsh::SshConnection connection((SshConnectionParameters()));
     QCOMPARE(connection.state(), SshConnection::Unconnected);
     QRegularExpression assertToIgnore(
-              "SOFT ASSERT: \"state\\(\\) == Connected\" in file .*/sshconnection.cpp, line \\d*");
+              "SOFT ASSERT: \"state\\(\\) == Connected\" in file .*[/\\\\]sshconnection.cpp, line \\d*");
     QTest::ignoreMessage(QtDebugMsg, assertToIgnore);
     QVERIFY(!connection.createRemoteProcess(""));
     QTest::ignoreMessage(QtDebugMsg, assertToIgnore);

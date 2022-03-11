@@ -181,6 +181,8 @@ int platformNameToApiLevel(const QString &platformName)
                 apiLevel = 30;
             else if (apiLevelStr == 'S')
                 apiLevel = 31;
+            else if (apiLevelStr == "Tiramisu")
+                apiLevel = 33;
         }
     }
     return apiLevel;

@@ -27,10 +27,12 @@
 #include "assetslibrarydirsmodel.h"
 #include "assetslibraryfilesmodel.h"
 
+#include <designersettings.h>
+#include <documentmanager.h>
+#include <hdrimage.h>
+#include <qmldesignerplugin.h>
 #include <synchronousimagecache.h>
 #include <theme.h>
-#include <hdrimage.h>
-#include <designersettings.h>
 
 #include <coreplugin/icore.h>
 
@@ -100,7 +102,7 @@ void AssetsLibraryModel::toggleExpandAll(bool expand)
     endResetModel();
 }
 
-void AssetsLibraryModel::deleteFile(const QString &filePath)
+void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
 {
     bool askBeforeDelete = DesignerSettings::getValue(
                 DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
@@ -108,7 +110,10 @@ void AssetsLibraryModel::deleteFile(const QString &filePath)
 
     if (askBeforeDelete) {
         QMessageBox msg(QMessageBox::Question, tr("Confirm Delete File"),
-                        tr("\"%1\" might be in use. Delete anyway?").arg(filePath),
+                        tr("File%1 might be in use. Delete anyway?\n\n%2")
+                            .arg(filePaths.size() > 1 ? QChar('s') : QChar())
+                            .arg(filePaths.join('\n').remove(DocumentManager::currentProjectDirPath()
+                                                             .toString().append('/'))),
                         QMessageBox::No | QMessageBox::Yes);
         QCheckBox cb;
         cb.setText(tr("Do not ask this again"));
@@ -123,14 +128,16 @@ void AssetsLibraryModel::deleteFile(const QString &filePath)
     }
 
     if (assetDelete) {
-        if (!QFile::exists(filePath)) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Failed to Locate File"),
-                                 tr("Could not find \"%1\".").arg(filePath));
-        } else if (!QFile::remove(filePath)) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Failed to Delete File"),
-                                 tr("Could not delete \"%1\".").arg(filePath));
+        for (const QString &filePath : filePaths) {
+            if (!QFile::exists(filePath)) {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Locate File"),
+                                     tr("Could not find \"%1\".").arg(filePath));
+            } else if (!QFile::remove(filePath)) {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                                     tr("Failed to Delete File"),
+                                     tr("Could not delete \"%1\".").arg(filePath));
+            }
         }
     }
 }
@@ -298,8 +305,8 @@ void AssetsLibraryModel::setRootPath(const QString &path)
 
     m_fileSystemWatcher->clear();
 
-    std::function<bool(AssetsLibraryDir *, int)> parseDirRecursive;
-    parseDirRecursive = [this, &parseDirRecursive](AssetsLibraryDir *currAssetsDir, int currDepth) {
+    std::function<bool(AssetsLibraryDir *, int, bool)> parseDir;
+    parseDir = [this, &parseDir](AssetsLibraryDir *currAssetsDir, int currDepth, bool recursive) {
         m_fileSystemWatcher->addDirectory(currAssetsDir->dirPath(), Utils::FileSystemWatcher::WatchAllChanges);
 
         QDir dir(currAssetsDir->dirPath());
@@ -317,20 +324,22 @@ void AssetsLibraryModel::setRootPath(const QString &path)
             }
         }
 
-        dir.setNameFilters({});
-        dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-        QDirIterator itDirs(dir);
+        if (recursive) {
+            dir.setNameFilters({});
+            dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+            QDirIterator itDirs(dir);
 
-        while (itDirs.hasNext()) {
-            QDir subDir = itDirs.next();
-            if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
-                continue;
+            while (itDirs.hasNext()) {
+                QDir subDir = itDirs.next();
+                if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
+                    continue;
 
-            auto assetsDir = new AssetsLibraryDir(subDir.path(), currDepth,
-                                                  loadExpandedState(subDir.path()), currAssetsDir);
-            currAssetsDir->addDir(assetsDir);
-            saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
-            isEmpty &= parseDirRecursive(assetsDir, currDepth + 1);
+                auto assetsDir = new AssetsLibraryDir(subDir.path(), currDepth,
+                                                      loadExpandedState(subDir.path()), currAssetsDir);
+                currAssetsDir->addDir(assetsDir);
+                saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
+                isEmpty &= parseDir(assetsDir, currDepth + 1, true);
+            }
         }
 
         if (!m_searchText.isEmpty() && isEmpty)
@@ -344,7 +353,8 @@ void AssetsLibraryModel::setRootPath(const QString &path)
 
     beginResetModel();
     m_assetsDir = new AssetsLibraryDir(path, 0, true, this);
-    bool isEmpty = parseDirRecursive(m_assetsDir, 1);
+    bool hasProject = !QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().isEmpty();
+    bool isEmpty = parseDir(m_assetsDir, 1, hasProject);
     setIsEmpty(isEmpty);
 
     bool noAssets = m_searchText.isEmpty() && isEmpty;
@@ -363,7 +373,7 @@ void AssetsLibraryModel::setSearchText(const QString &searchText)
     }
 }
 
-const QSet<QString> &AssetsLibraryModel::supportedSuffixes() const
+const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
 {
     static QSet<QString> allSuffixes;
     if (allSuffixes.isEmpty()) {

@@ -29,13 +29,13 @@
 
 #include <coreplugin/dialogs/newdialog.h>
 #include <utils/infolabel.h>
-#include <utils/optional.h>
 
 #include "wizardhandler.h"
 #include "presetmodel.h"
 #include "screensizemodel.h"
 #include "stylemodel.h"
 #include "recentpresets.h"
+#include "userpresets.h"
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
@@ -57,21 +57,31 @@ public:
     Q_PROPERTY(bool useVirtualKeyboard MEMBER m_qmlUseVirtualKeyboard READ getUseVirtualKeyboard WRITE setUseVirtualKeyboard NOTIFY useVirtualKeyboardChanged)
     Q_PROPERTY(bool haveVirtualKeyboard MEMBER m_qmlHaveVirtualKeyboard READ getHaveVirtualKeyboard NOTIFY haveVirtualKeyboardChanged)
     Q_PROPERTY(bool haveTargetQtVersion MEMBER m_qmlHaveTargetQtVersion READ getHaveTargetQtVersion NOTIFY haveTargetQtVersionChanged)
+    Q_PROPERTY(int targetQtVersionIndex MEMBER m_qmlTargetQtVersionIndex READ getTargetQtVersionIndex WRITE setTargetQtVersionIndex NOTIFY targetQtVersionIndexChanged)
     Q_PROPERTY(bool saveAsDefaultLocation MEMBER m_qmlSaveAsDefaultLocation WRITE setSaveAsDefaultLocation)
     Q_PROPERTY(QString statusMessage MEMBER m_qmlStatusMessage READ getStatusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(QString statusType MEMBER m_qmlStatusType READ getStatusType NOTIFY statusTypeChanged)
     Q_PROPERTY(bool fieldsValid MEMBER m_qmlFieldsValid READ getFieldsValid NOTIFY fieldsValidChanged)
+    Q_PROPERTY(QString presetName MEMBER m_qmlPresetName)
 
     Q_PROPERTY(bool detailsLoaded MEMBER m_qmlDetailsLoaded)
     Q_PROPERTY(bool stylesLoaded MEMBER m_qmlStylesLoaded)
 
+    Q_INVOKABLE void removeCurrentPreset();
     Q_INVOKABLE QString currentPresetQmlPath() const;
     // TODO: screen size index should better be a property
     Q_INVOKABLE void setScreenSizeIndex(int index); // called when ComboBox item is "activated"
     Q_INVOKABLE int screenSizeIndex() const;
-    Q_INVOKABLE void setTargetQtVersion(int index);
 
     Q_INVOKABLE QString chooseProjectLocation();
+    Q_INVOKABLE QString recentsTabName() const;
+
+    Q_PROPERTY(QAbstractListModel *categoryModel MEMBER m_categoryModel CONSTANT);
+    Q_PROPERTY(QAbstractListModel *presetModel MEMBER m_presetModel CONSTANT);
+    Q_PROPERTY(QAbstractListModel *screenSizeModel MEMBER m_screenSizeModel CONSTANT);
+    Q_PROPERTY(QAbstractListModel *styleModel MEMBER m_styleModel CONSTANT);
+
+    /*********************/
 
     explicit QdsNewDialog(QWidget *parent);
 
@@ -85,7 +95,11 @@ public:
 
     void setStyleIndex(int index);
     int getStyleIndex() const;
-    void setUseVirtualKeyboard(bool value) { m_qmlUseVirtualKeyboard = value; }
+
+    void setTargetQtVersionIndex(int index);
+    int getTargetQtVersionIndex() const;
+
+    void setUseVirtualKeyboard(bool value);
     bool getUseVirtualKeyboard() const { return m_qmlUseVirtualKeyboard; }
 
     bool getFieldsValid() const { return m_qmlFieldsValid; }
@@ -101,6 +115,8 @@ public slots:
     void accept();
     void reject();
 
+    void savePresetDialogAccept();
+
 signals:
     void projectNameChanged();
     void projectLocationChanged();
@@ -111,6 +127,9 @@ signals:
     void statusMessageChanged();
     void statusTypeChanged();
     void fieldsValidChanged();
+    void targetQtVersionIndexChanged();
+    void userPresetSaved();
+    void lastUserPresetRemoved();
 
 private slots:
     void onStatusMessageChanged(Utils::InfoLabel::InfoType type, const QString &message);
@@ -160,6 +179,7 @@ private:
     bool m_qmlFieldsValid = false;
     QString m_qmlStatusMessage;
     QString m_qmlStatusType;
+    QString m_qmlPresetName;
 
     int m_presetPage = -1; // i.e. the page in the Presets View
 
@@ -169,10 +189,11 @@ private:
     bool m_qmlDetailsLoaded = false;
     bool m_qmlStylesLoaded = false;
 
-    Utils::optional<PresetItem> m_currentPreset;
+    std::shared_ptr<PresetItem> m_currentPreset;
 
     WizardHandler m_wizard;
     RecentPresetsStore m_recentsStore;
+    UserPresetsStore m_userPresetsStore;
 };
 
 } //namespace StudioWelcome

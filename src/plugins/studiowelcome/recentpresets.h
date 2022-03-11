@@ -31,8 +31,43 @@
 
 namespace StudioWelcome {
 
-// preset category, preset name, size name
-using RecentPreset = std::tuple<QString, QString, QString>;
+struct RecentPresetData
+{
+    RecentPresetData() = default;
+    RecentPresetData(const QString &category,
+                 const QString &name,
+                 const QString &size,
+                 bool isUserPreset = false)
+        : category{category}
+        , presetName{name}
+        , sizeName{size}
+        , isUserPreset{isUserPreset}
+    {}
+
+    QString category;
+    QString presetName;
+    QString sizeName;
+    bool isUserPreset = false;
+};
+
+inline bool operator==(const RecentPresetData &lhs, const RecentPresetData &rhs)
+{
+    return lhs.category == rhs.category && lhs.presetName == rhs.presetName
+           && lhs.sizeName == rhs.sizeName && lhs.isUserPreset == rhs.isUserPreset;
+}
+
+inline bool operator!=(const RecentPresetData &lhs, const RecentPresetData &rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline QDebug &operator<<(QDebug &d, const RecentPresetData &preset)
+{
+    d << "RecentPreset{category=" << preset.category << "; name=" << preset.presetName
+      << "; size=" << preset.sizeName << "; isUserPreset=" << preset.isUserPreset << "}";
+
+    return d;
+}
 
 class RecentPresetsStore
 {
@@ -42,14 +77,21 @@ public:
     {}
 
     void setMaximum(int n) { m_max = n; }
-    void add(const QString &categoryId, const QString &name, const QString &sizeName);
-    std::vector<RecentPreset> fetchAll() const;
+    void add(const QString &categoryId,
+             const QString &name,
+             const QString &sizeName,
+             bool isUserPreset = false);
+
+    std::vector<RecentPresetData> remove(const QString &categoryId, const QString &presetName);
+    std::vector<RecentPresetData> fetchAll() const;
 
 private:
-    QStringList addRecentToExisting(const RecentPreset &preset, std::vector<RecentPreset> &recents);
-    static QStringList encodeRecentPresets(const std::vector<RecentPreset> &recents);
-    static std::vector<RecentPreset> decodeRecentPresets(const QVariantList &values);
-    static RecentPreset decodeOneRecentPreset(const QString &encoded);
+    std::vector<RecentPresetData> addRecentToExisting(const RecentPresetData &preset,
+                                                      std::vector<RecentPresetData> &recents);
+    static QStringList encodeRecentPresets(const std::vector<RecentPresetData> &recents);
+    static std::vector<RecentPresetData> decodeRecentPresets(const QVariantList &values);
+    static RecentPresetData decodeOneRecentPreset(const QString &encoded);
+    void save(const std::vector<RecentPresetData> &recents);
 
 private:
     QSettings *m_settings = nullptr;

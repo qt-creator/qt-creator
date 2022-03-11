@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -99,7 +99,6 @@
     The following features are not supported yet:
 
     \list
-        \li Cross compilation.
         \li Showing header files in project tree.
         \li Configuration change detection, for example when building triggers a
         Meson configuration first.

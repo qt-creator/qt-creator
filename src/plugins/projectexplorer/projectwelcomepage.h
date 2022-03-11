@@ -75,6 +75,7 @@ signals:
 private:
     void openSessionAt(int index);
     void openProjectAt(int index);
+    void createActions();
 
     friend class SessionsPage;
     SessionModel *m_sessionModel = nullptr;

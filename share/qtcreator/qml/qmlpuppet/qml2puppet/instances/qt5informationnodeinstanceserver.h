@@ -151,7 +151,7 @@ private:
 #ifdef QUICK3D_PARTICLES_MODULE
     void handleParticleSystemSelected(QQuick3DParticleSystem* targetParticleSystem);
     void resetParticleSystem();
-    void handleParticleSystemDeselected(QObject *selectedObject);
+    void handleParticleSystemDeselected();
 #endif
 
     RenderViewData m_editView3DData;

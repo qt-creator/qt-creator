@@ -517,6 +517,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
         return QLatin1String("Android 12");
     case 32:
         return QLatin1String("Android 12L");
+    case 33:
+        return QLatin1String("Android 13");
     default:
         return tr("Unknown Android version. API Level: %1").arg(x);
     }

@@ -1134,13 +1134,14 @@ QString InternalLibraryDetailsController::snippet() const
     const QString proRelavitePath = rootDir.relativeFilePath(proFile().toString());
 
     // project for which we insert the snippet
-    const Project *project = SessionManager::projectForFile(proFile());
 
     // the build directory of the active build configuration
     QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir
-    if (ProjectExplorer::Target *t = project->activeTarget())
-        if (ProjectExplorer::BuildConfiguration *bc = t->activeBuildConfiguration())
-            rootBuildDir.setPath(bc->buildDirectory().toString());
+    if (const Project *project = SessionManager::projectForFile(proFile())) {
+        if (ProjectExplorer::Target *t = project->activeTarget())
+            if (ProjectExplorer::BuildConfiguration *bc = t->activeBuildConfiguration())
+                rootBuildDir.setPath(bc->buildDirectory().toString());
+    }
 
     // the project for which we insert the snippet inside build tree
     QFileInfo pfi(rootBuildDir.filePath(proRelavitePath));

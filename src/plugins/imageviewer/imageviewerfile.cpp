@@ -111,7 +111,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
     if (format.startsWith("svg")) {
         m_tempSvgItem = new QGraphicsSvgItem(fileName);
         QRectF bound = m_tempSvgItem->boundingRect();
-        if (qFuzzyIsNull(bound.width()) && qFuzzyIsNull(bound.height())) {
+        if (!bound.isValid() || (qFuzzyIsNull(bound.width()) && qFuzzyIsNull(bound.height()))) {
             delete m_tempSvgItem;
             m_tempSvgItem = nullptr;
             if (errorString)
@@ -123,8 +123,17 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
     } else
 #endif
     if (QMovie::supportedFormats().contains(format)) {
-        m_type = TypeMovie;
         m_movie = new QMovie(fileName, QByteArray(), this);
+        // force reading movie/image data, so we can catch completely invalid movies/images early:
+        m_movie->jumpToNextFrame();
+        if (!m_movie->isValid()) {
+            if (errorString)
+                *errorString = tr("Failed to read image.");
+            delete m_movie;
+            m_movie = nullptr;
+            return OpenResult::CannotHandle;
+        }
+        m_type = TypeMovie;
         m_movie->setCacheMode(QMovie::CacheAll);
         connect(
             m_movie,

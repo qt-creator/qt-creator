@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -52,7 +52,7 @@
 
     To use Conan, install it by using the Qt installer or the tools provided by
     your operating system. For example, on Windows, you can use the
-    \c {choco install conan} or \{pip install conan} command.
+    \c {choco install conan} or \c {pip install conan} command.
 
     To enable the experimental Conan plugin, select \uicontrol Help >
     \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol Conan.

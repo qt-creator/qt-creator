@@ -38,7 +38,7 @@
 
 using namespace StudioWelcome;
 
-void WizardHandler::reset(const PresetItem &presetInfo, int presetSelection)
+void WizardHandler::reset(const std::shared_ptr<PresetItem> &presetInfo, int presetSelection)
 {
     m_preset = presetInfo;
     m_selectedPreset = presetSelection;
@@ -67,7 +67,7 @@ void WizardHandler::destroyWizard()
 
 void WizardHandler::setupWizard()
 {
-    m_wizard = m_preset.create(m_projectLocation);
+    m_wizard = m_preset->create(m_projectLocation);
     if (!m_wizard) {
         emit wizardCreationFailed();
         return;
@@ -140,6 +140,11 @@ QStandardItemModel *WizardHandler::getScreenFactorModel(ProjectExplorer::JsonFie
     QTC_ASSERT(cbfield, return nullptr);
 
     return cbfield->model();
+}
+
+bool WizardHandler::haveStyleModel() const
+{
+    return m_wizard->hasField("ControlsStyle");
 }
 
 QStandardItemModel *WizardHandler::getStyleModel(ProjectExplorer::JsonFieldPage *page)
@@ -229,6 +234,47 @@ bool WizardHandler::haveTargetQtVersion() const
     return m_wizard->hasField("TargetQtVersion");
 }
 
+QString WizardHandler::targetQtVersionName(int index) const
+{
+    auto *field = m_detailsPage->jsonField("TargetQtVersion");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return "");
+
+    QStandardItemModel *model = cbfield->model();
+    if (index < 0 || index >= model->rowCount())
+        return {};
+
+    QString text = model->item(index)->text();
+    return text;
+}
+
+int WizardHandler::targetQtVersionIndex(const QString &qtVersionName) const
+{
+    auto *field = m_detailsPage->jsonField("TargetQtVersion");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return -1);
+
+    const QStandardItemModel *model = cbfield->model();
+    for (int i = 0; i < model->rowCount(); ++i) {
+        const QStandardItem *item = model->item(i, 0);
+        const QString text = item->text();
+
+        if (text == qtVersionName)
+            return i;
+    }
+
+    return -1;
+}
+
+int WizardHandler::targetQtVersionIndex() const
+{
+    auto *field = m_detailsPage->jsonField("TargetQtVersion");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return -1);
+
+    return cbfield->selectedRow();
+}
+
 void WizardHandler::setStyleIndex(int index)
 {
     auto *field = m_detailsPage->jsonField("ControlsStyle");
@@ -245,6 +291,38 @@ int WizardHandler::styleIndex() const
     QTC_ASSERT(cbfield, return -1);
 
     return cbfield->selectedRow();
+}
+
+int WizardHandler::styleIndex(const QString &styleName) const
+{
+    auto *field = m_detailsPage->jsonField("ControlsStyle");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return -1);
+
+    const QStandardItemModel *model = cbfield->model();
+    for (int i = 0; i < model->rowCount(); ++i) {
+        const QStandardItem *item = model->item(i, 0);
+        const QString text = item->text();
+
+        if (text == styleName)
+            return i;
+    }
+
+    return -1;
+}
+
+QString WizardHandler::styleName(int index) const
+{
+    auto *field = m_detailsPage->jsonField("ControlsStyle");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return "");
+
+    QStandardItemModel *model = cbfield->model();
+    if (index < 0 || index >= model->rowCount())
+        return {};
+
+    QString text = model->item(index)->text();
+    return text;
 }
 
 void WizardHandler::setUseVirtualKeyboard(bool value)

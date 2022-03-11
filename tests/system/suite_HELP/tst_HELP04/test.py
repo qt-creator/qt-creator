@@ -84,10 +84,9 @@ def main():
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
     resultWidget = waitForObject(':Hits_QResultWidget', 5000)
-    if os.getenv("SYSTEST_BUILT_WITH_QT_5_13_1_OR_NEWER", "0") == "1":
-        test.verify(waitFor("noMatch in "
-                            "str(resultWidget.plainText)", 2000),
-                            "Verifying if search did not match anything.")
+    test.verify(waitFor("noMatch in "
+                        "str(resultWidget.plainText)", 2000),
+                        "Verifying if search did not match anything.")
     # workaround for "endless waiting cursor"
     mouseClick(waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
                              "text='Qt Reference Documentation' type='QModelIndex'}"))
@@ -115,9 +114,8 @@ def main():
             if not (searchKeyword == "QODBC" and JIRA.isBugStillOpen(10331)):
                 verifyUrl(urlDictionary[searchKeyword])
         else:
-            if os.getenv("SYSTEST_BUILT_WITH_QT_5_13_1_OR_NEWER", "0") == "1":
-                test.verify(waitFor("noMatch in "
-                                    "str(resultWidget.plainText)", 1000),
-                                    "Verifying if search did not match anything for: " + searchKeyword)
+            test.verify(waitFor("noMatch in "
+                                "str(resultWidget.plainText)", 1000),
+                                "Verifying if search did not match anything for: " + searchKeyword)
     # exit
     invokeMenuItem("File", "Exit")

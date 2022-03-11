@@ -151,7 +151,7 @@ private:
 
 QStringList presetNames(const WizardCategory &cat)
 {
-    QStringList result = Utils::transform<QStringList>(cat.items, &PresetItem::name);
+    QStringList result = Utils::transform<QStringList>(cat.items, &PresetItem::wizardName);
     return result;
 }
 
@@ -319,9 +319,9 @@ TEST_F(QdsWizardFactories, createsPresetItemAndCategoryCorrectlyFromWizardFactor
     ASSERT_EQ("myDisplayCategory", category.name);
 
     auto presetItem = presets["myCategoryId"].items[0];
-    ASSERT_EQ("myName", presetItem.name);
-    ASSERT_EQ("myDescription", presetItem.description);
-    ASSERT_EQ("qrc:/my/qml/path", presetItem.qmlPath.toString());
-    ASSERT_EQ("\uABCD", presetItem.fontIconCode);
+    ASSERT_EQ("myName", presetItem->wizardName);
+    ASSERT_EQ("myDescription", presetItem->description);
+    ASSERT_EQ("qrc:/my/qml/path", presetItem->qmlPath.toString());
+    ASSERT_EQ("\uABCD", presetItem->fontIconCode);
 }
 

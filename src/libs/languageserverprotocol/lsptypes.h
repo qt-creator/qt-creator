@@ -142,6 +142,12 @@ public:
     { return JsonObject::contains(startKey) && JsonObject::contains(endKey); }
 };
 
+inline bool operator==(const Range &r1, const Range &r2)
+{
+    return r1.contains(r2) && r2.contains(r1);
+}
+inline bool operator!=(const Range &r1, const Range &r2) { return !(r1 == r2); }
+
 class LANGUAGESERVERPROTOCOL_EXPORT Location : public JsonObject
 {
 public:

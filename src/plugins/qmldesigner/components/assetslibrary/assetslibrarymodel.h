@@ -68,6 +68,7 @@ public:
     static const QStringList &supportedAudioSuffixes();
     static const QStringList &supportedVideoSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
+    static const QSet<QString> &supportedSuffixes();
 
     const QSet<QString> &previewableSuffixes() const;
 
@@ -83,7 +84,7 @@ public:
 
     Q_INVOKABLE void toggleExpandAll(bool expand);
     Q_INVOKABLE DirExpandState getAllExpandedState() const;
-    Q_INVOKABLE void deleteFile(const QString &filePath);
+    Q_INVOKABLE void deleteFiles(const QStringList &filePaths);
     Q_INVOKABLE bool renameFolder(const QString &folderPath, const QString &newName);
     Q_INVOKABLE void addNewFolder(const QString &folderPath);
     Q_INVOKABLE void deleteFolder(const QString &folderPath);
@@ -93,7 +94,6 @@ signals:
     void isEmptyChanged();
 
 private:
-    const QSet<QString> &supportedSuffixes() const;
 
     void setIsEmpty(bool empty);
 

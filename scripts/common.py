@@ -229,6 +229,16 @@ def codesign_call():
         codesign_call.extend(signing_flags.split())
     return codesign_call
 
+def codesign_executable(path):
+    codesign = codesign_call()
+    if not codesign:
+        return
+    entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
+                                     'installer', 'mac', os.path.basename(path) + '.entitlements')
+    if os.path.exists(entitlements_path):
+        codesign.extend(['--entitlements', entitlements_path])
+    subprocess.check_call(codesign + [path])
+
 def os_walk(path, filter, function):
     for r, _, fs in os.walk(path):
         for f in fs:
@@ -237,20 +247,21 @@ def os_walk(path, filter, function):
                 function(ff)
 
 def conditional_sign_recursive(path, filter):
-    codesign = codesign_call()
-    if is_mac_platform() and codesign:
-        os_walk(path, filter, lambda fp: subprocess.check_call(codesign + [fp]))
+    if is_mac_platform():
+        os_walk(path, filter, lambda fp: codesign_executable(fp))
 
 def codesign(app_path):
+    codesign = codesign_call()
+    if not codesign or not is_mac_platform():
+        return
     # sign all executables in Resources
     conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Resources'),
                                lambda ff: os.access(ff, os.X_OK))
     # sign all libraries in Imports
     conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Imports'),
                                lambda ff: ff.endswith('.dylib'))
-    codesign = codesign_call()
-    if is_mac_platform() and codesign:
-        entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
-                                         'installer', 'mac', 'entitlements.plist')
-        # sign the whole bundle
-        subprocess.check_call(codesign + ['--deep', app_path, '--entitlements', entitlements_path])
+
+    # sign the whole bundle
+    entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
+                                     'installer', 'mac', 'entitlements.plist')
+    subprocess.check_call(codesign + ['--deep', app_path, '--entitlements', entitlements_path])

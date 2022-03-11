@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -40,12 +40,18 @@
 
     \title Configuring the Editor
 
-    \QC allows you to configure the text editor to suit your specific
-    needs. To configure the editor, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol{Text Editor}.
+    You can configure the text editor to suit your specific needs by selecting
+    \uicontrol Tools > \uicontrol Options > \uicontrol{Text Editor}.
 
-    These settings apply to all projects. To specify editor behavior for an open
-    project, select \uicontrol Projects > \uicontrol Editor.
+    \image qtcreator-font-colors.png "Text Editor options"
+
+    The settings you specify apply globally to all projects.
+
+    To specify editor behavior for an open project, select \uicontrol Projects >
+    \uicontrol Editor.
+
+    \image qtcreator-editor-settings.png "Editor settings"
+
     \if defined(qtcreator)
     For more information, see \l{Specifying Editor Settings}.
     \endif

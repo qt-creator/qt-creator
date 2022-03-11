@@ -299,7 +299,7 @@
     \uicontrol {Include Old Entries} and \uicontrol {Include Tags}.
 
     To add a tag to a change in the change log, select \uicontrol Branches >
-    \uicontrol Log. Select the change, and then select > \uicontrol {Add Tag
+    \uicontrol Log. Select the change, and then select \uicontrol {Add Tag
     for Change} in the context menu.
 
     If you checked out a specific commit, the list of branches displays a

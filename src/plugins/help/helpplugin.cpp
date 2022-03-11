@@ -607,12 +607,14 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 void HelpPluginPrivate::activateIndex()
 {
     activateHelpMode();
+    showHelpUrl(LocalHelpManager::homePage(), Core::HelpManager::HelpModeAlways);
     m_centralWidget->activateSideBarItem(Constants::HELP_INDEX);
 }
 
 void HelpPluginPrivate::activateContents()
 {
     activateHelpMode();
+    showHelpUrl(LocalHelpManager::homePage(), Core::HelpManager::HelpModeAlways);
     m_centralWidget->activateSideBarItem(Constants::HELP_CONTENTS);
 }
 

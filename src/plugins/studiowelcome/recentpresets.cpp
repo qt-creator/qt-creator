@@ -32,19 +32,27 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 
-using Core::ICore;
-using Utils::QtcSettings;
-
 using namespace StudioWelcome;
 
 constexpr char GROUP_NAME[] = "RecentPresets";
 constexpr char WIZARDS[] = "Wizards";
 
-void RecentPresetsStore::add(const QString &categoryId, const QString &name, const QString &sizeName)
+void RecentPresetsStore::add(const QString &categoryId,
+                             const QString &name,
+                             const QString &sizeName,
+                             bool isUserPreset)
 {
-    std::vector<RecentPreset> existing = fetchAll();
-    QStringList encodedRecents = addRecentToExisting(RecentPreset{categoryId, name, sizeName},
-                                                     existing);
+    std::vector<RecentPresetData> existing = fetchAll();
+
+    std::vector<RecentPresetData> recents
+        = addRecentToExisting(RecentPresetData{categoryId, name, sizeName, isUserPreset}, existing);
+
+    save(recents);
+}
+
+void RecentPresetsStore::save(const std::vector<RecentPresetData> &recents)
+{
+    QStringList encodedRecents = encodeRecentPresets(recents);
 
     m_settings->beginGroup(GROUP_NAME);
     m_settings->setValue(WIZARDS, encodedRecents);
@@ -52,8 +60,26 @@ void RecentPresetsStore::add(const QString &categoryId, const QString &name, con
     m_settings->sync();
 }
 
-QStringList RecentPresetsStore::addRecentToExisting(const RecentPreset &preset,
-                                                    std::vector<RecentPreset> &recents)
+std::vector<RecentPresetData> RecentPresetsStore::remove(const QString &categoryId, const QString &presetName)
+{
+    std::vector<RecentPresetData> recents = fetchAll();
+    size_t countBefore = recents.size();
+
+    /* NOTE: when removing one preset, it may happen that there are more than one recent for that
+     * preset. In that case, we need to remove all associated recents, for the preset.*/
+
+    Utils::erase(recents, [&](const RecentPresetData &p) {
+        return p.category == categoryId && p.presetName == presetName;
+    });
+
+    if (recents.size() < countBefore)
+        save(recents);
+
+    return recents;
+}
+
+std::vector<RecentPresetData> RecentPresetsStore::addRecentToExisting(
+    const RecentPresetData &preset, std::vector<RecentPresetData> &recents)
 {
     Utils::erase_one(recents, preset);
     Utils::prepend(recents, preset);
@@ -61,48 +87,64 @@ QStringList RecentPresetsStore::addRecentToExisting(const RecentPreset &preset,
     if (int(recents.size()) > m_max)
         recents.pop_back();
 
-    return encodeRecentPresets(recents);
+    return recents;
 }
 
-std::vector<RecentPreset> RecentPresetsStore::fetchAll() const
+std::vector<RecentPresetData> RecentPresetsStore::fetchAll() const
 {
     m_settings->beginGroup(GROUP_NAME);
     QVariant value = m_settings->value(WIZARDS);
     m_settings->endGroup();
 
-    std::vector<RecentPreset> result;
+    std::vector<RecentPresetData> result;
 
     if (value.type() == QVariant::String)
         result.push_back(decodeOneRecentPreset(value.toString()));
     else if (value.type() == QVariant::StringList)
         Utils::concat(result, decodeRecentPresets(value.toList()));
 
-    const RecentPreset empty;
-    return Utils::filtered(result, [&empty](const RecentPreset &recent) { return recent != empty; });
+    const RecentPresetData empty;
+    return Utils::filtered(result, [&empty](const RecentPresetData &recent) { return recent != empty; });
 }
 
-QStringList RecentPresetsStore::encodeRecentPresets(const std::vector<RecentPreset> &recents)
+QStringList RecentPresetsStore::encodeRecentPresets(const std::vector<RecentPresetData> &recents)
 {
-    return Utils::transform<QList>(recents, [](const RecentPreset &p) -> QString {
-        return std::get<0>(p) + "/" + std::get<1>(p) + ":" + std::get<2>(p);
+    return Utils::transform<QList>(recents, [](const RecentPresetData &p) -> QString {
+        QString name = p.presetName;
+        if (p.isUserPreset)
+            name.prepend("[U]");
+
+        return p.category + "/" + name + ":" + p.sizeName;
     });
 }
 
-RecentPreset RecentPresetsStore::decodeOneRecentPreset(const QString &encoded)
+RecentPresetData RecentPresetsStore::decodeOneRecentPreset(const QString &encoded)
 {
-    QRegularExpression pattern{R"(^(\S+)/(.+):(\d+ x \d+))"};
+    QRegularExpression pattern{R"(^(\S+)/(.+):(\d+ x \d+)$)"};
     auto m = pattern.match(encoded);
     if (!m.hasMatch())
-        return RecentPreset{};
+        return RecentPresetData{};
 
     QString category = m.captured(1);
     QString name = m.captured(2);
     QString size = m.captured(3);
+    bool isUserPreset = name.startsWith("[U]");
+    if (isUserPreset)
+        name = name.split("[U]")[1];
 
-    return std::make_tuple(category, name, size);
+    if (!QRegularExpression{R"(^\w[\w ]*$)"}.match(name).hasMatch())
+        return RecentPresetData{};
+
+    RecentPresetData result;
+    result.category = category;
+    result.presetName = name;
+    result.sizeName = size;
+    result.isUserPreset = isUserPreset;
+
+    return result;
 }
 
-std::vector<RecentPreset> RecentPresetsStore::decodeRecentPresets(const QVariantList &values)
+std::vector<RecentPresetData> RecentPresetsStore::decodeRecentPresets(const QVariantList &values)
 {
     return Utils::transform<std::vector>(values, [](const QVariant &value) {
         return decodeOneRecentPreset(value.toString());

@@ -103,7 +103,7 @@ FilePath McuPackage::basePath() const
 
 FilePath McuPackage::path() const
 {
-    return basePath().resolvePath(m_relativePathModifier).absoluteFilePath();
+    return basePath().pathAppended(m_relativePathModifier.path()).absoluteFilePath();
 }
 
 FilePath McuPackage::defaultPath() const
@@ -126,7 +126,7 @@ void McuPackage::updatePath()
 void McuPackage::updateStatus()
 {
     bool validPath = !m_path.isEmpty() && m_path.exists();
-    const FilePath detectionPath = basePath().resolvePath(m_detectionPath);
+    const FilePath detectionPath = basePath().pathAppended(m_detectionPath.path());
     const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
     m_detectedVersion = validPath && validPackage && m_versionDetector
                             ? m_versionDetector->parseVersion(basePath().toString())

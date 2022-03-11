@@ -80,7 +80,7 @@ public:
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
-    Q_INVOKABLE void handleFilesDrop(const QStringList &filesPaths);
+    Q_INVOKABLE void handleExtFilesDrop(const QStringList &filesPaths, const QString &targetDirPath);
     Q_INVOKABLE QSet<QString> supportedDropSuffixes();
 
 signals:

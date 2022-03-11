@@ -54,6 +54,7 @@ Model {
 
     Model {
         id: pickModel
+        readonly property bool _edit3dLocked: true // Make this non-pickable in main picking handling
         objectName: "PickModel for " + rotateRing.objectName
         source: "../meshes/ringselect.mesh"
         pickable: true

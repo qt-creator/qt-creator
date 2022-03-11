@@ -90,7 +90,9 @@ void DiagnosticManager::setDiagnostics(const LanguageServerProtocol::DocumentUri
                                        const Utils::optional<int> &version)
 {
     hideDiagnostics(uri.toFilePath());
-    m_diagnostics[uri] = {version, diagnostics};
+    const QList<Diagnostic> filteredDiags = m_filter
+            ? Utils::filtered(diagnostics, m_filter) : diagnostics;
+    m_diagnostics[uri] = {version, filteredDiags};
 }
 
 void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
@@ -201,10 +203,12 @@ bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri 
 }
 
 void DiagnosticManager::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
-                                               const HideDiagnosticsHandler &removalHandler)
+                                               const HideDiagnosticsHandler &removalHandler,
+                                               const DiagnosticsFilter &filter)
 {
     m_textMarkCreator = textMarkCreator;
     m_hideHandler = removalHandler;
+    m_filter = filter;
 }
 
 } // namespace LanguageClient

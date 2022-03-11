@@ -31,16 +31,13 @@ import QtQuick.Layouts
 import StudioControls as SC
 import StudioTheme as StudioTheme
 
+import BackendApi
+
 Item {
     width: DialogValues.detailsPaneWidth
 
-    Component.onCompleted: {
-        dialogBox.detailsLoaded = true;
-    }
-
-    Component.onDestruction: {
-        dialogBox.detailsLoaded = false;
-    }
+    Component.onCompleted: BackendApi.detailsLoaded = true
+    Component.onDestruction: BackendApi.detailsLoaded = false
 
     Rectangle {
         color: DialogValues.darkPaneColor
@@ -53,13 +50,13 @@ Item {
 
             Column {
                 anchors.fill: parent
-                spacing: DialogValues.defaultPadding
+                spacing: 5
 
                 Text {
                     id: detailsHeading
                     text: qsTr("Details")
                     height: DialogValues.paneTitleTextHeight
-                    width: parent.width;
+                    width: parent.width
                     font.weight: Font.DemiBold
                     font.pixelSize: DialogValues.paneTitlePixelSize
                     lineHeight: DialogValues.paneTitleLineHeight
@@ -71,39 +68,36 @@ Item {
                 Flickable {
                     width: parent.width
                     height: parent.height - detailsHeading.height - DialogValues.defaultPadding
-
+                            - savePresetButton.height
                     contentWidth: parent.width
                     contentHeight: scrollContent.height
                     boundsBehavior: Flickable.StopAtBounds
                     clip: true
 
-                    ScrollBar.vertical: SC.VerticalScrollBar {
-                    }
+                    ScrollBar.vertical: SC.VerticalScrollBar {}
 
                     Column {
                         id: scrollContent
                         width: parent.width - DialogValues.detailsPanePadding
-                        height: DialogValues.detailsScrollableContentHeight
                         spacing: DialogValues.defaultPadding
 
                         SC.TextField {
                             id: projectNameTextField
                             actionIndicatorVisible: false
                             translationIndicatorVisible: false
-                            text: dialogBox.projectName
+                            text: BackendApi.projectName
                             width: parent.width
                             color: DialogValues.textColor
                             selectByMouse: true
+                            font.pixelSize: DialogValues.defaultPixelSize
 
                             onEditingFinished: {
                                 text = text.charAt(0).toUpperCase() + text.slice(1)
                             }
-
-                            font.pixelSize: DialogValues.defaultPixelSize
                         }
 
                         Binding {
-                            target: dialogBox
+                            target: BackendApi
                             property: "projectName"
                             value: projectNameTextField.text
                         }
@@ -118,14 +112,14 @@ Item {
                                 id: projectLocationTextField
                                 actionIndicatorVisible: false
                                 translationIndicatorVisible: false
-                                text: dialogBox.projectLocation
+                                text: BackendApi.projectLocation
                                 color: DialogValues.textColor
                                 selectByMouse: true
                                 font.pixelSize: DialogValues.defaultPixelSize
                             }
 
                             Binding {
-                                target: dialogBox
+                                target: BackendApi
                                 property: "projectLocation"
                                 value: projectLocationTextField.text
                             }
@@ -138,7 +132,7 @@ Item {
                                 iconFont: StudioTheme.Constants.font
 
                                 onClicked: {
-                                    var newLocation = dialogBox.chooseProjectLocation()
+                                    var newLocation = BackendApi.chooseProjectLocation()
                                     if (newLocation)
                                         projectLocationTextField.text = newLocation
                                 }
@@ -159,7 +153,7 @@ Item {
 
                             Text {
                                 id: statusMessage
-                                text: dialogBox.statusMessage
+                                text: BackendApi.statusMessage
                                 font.pixelSize: DialogValues.defaultPixelSize
                                 lineHeight: DialogValues.defaultLineHeight
                                 lineHeightMode: Text.FixedHeight
@@ -172,7 +166,7 @@ Item {
                                 states: [
                                     State {
                                         name: "warning"
-                                        when: dialogBox.statusType === "warning"
+                                        when: BackendApi.statusType === "warning"
                                         PropertyChanges {
                                             target: statusMessage
                                             color: DialogValues.textWarning
@@ -185,7 +179,7 @@ Item {
 
                                     State {
                                         name: "error"
-                                        when: dialogBox.statusType === "error"
+                                        when: BackendApi.statusType === "error"
                                         PropertyChanges {
                                             target: statusMessage
                                             color: DialogValues.textError
@@ -208,7 +202,7 @@ Item {
                         }
 
                         Binding {
-                            target: dialogBox
+                            target: BackendApi
                             property: "saveAsDefaultLocation"
                             value: defaultLocationCheckbox.checked
                         }
@@ -219,25 +213,25 @@ Item {
                             id: screenSizeComboBox
                             actionIndicatorVisible: false
                             currentIndex: -1
-                            model: screenSizeModel
+                            model: BackendApi.screenSizeModel
                             textRole: "display"
                             width: parent.width
                             font.pixelSize: DialogValues.defaultPixelSize
 
                             onActivated: (index) => {
-                                dialogBox.setScreenSizeIndex(index);
+                                BackendApi.setScreenSizeIndex(index);
 
-                                var size = screenSizeModel.screenSizes(index);
+                                var size = BackendApi.screenSizeModel.screenSizes(index);
                                 widthField.realValue = size.width;
                                 heightField.realValue = size.height;
                             }
 
                             Connections {
-                                target: screenSizeModel
+                                target: BackendApi.screenSizeModel
                                 function onModelReset() {
                                     var newIndex = screenSizeComboBox.currentIndex > -1
                                             ? screenSizeComboBox.currentIndex
-                                            : dialogBox.screenSizeIndex()
+                                            : BackendApi.screenSizeIndex()
 
                                     screenSizeComboBox.currentIndex = newIndex
                                     screenSizeComboBox.activated(newIndex)
@@ -248,10 +242,8 @@ Item {
                         GridLayout { // orientation + width + height
                             width: parent.width
                             height: 85
-
                             columns: 4
                             rows: 2
-
                             columnSpacing: 10
                             rowSpacing: 10
 
@@ -295,10 +287,7 @@ Item {
                                 font.pixelSize: DialogValues.defaultPixelSize
 
                                 onRealValueChanged: {
-                                    var height = heightField.realValue
-                                    var width = realValue
-
-                                    if (width >= height)
+                                    if (widthField.realValue >= heightField.realValue)
                                         orientationButton.setHorizontal()
                                     else
                                         orientationButton.setVertical()
@@ -306,7 +295,7 @@ Item {
                             } // Width Text Field
 
                             Binding {
-                                target: dialogBox
+                                target: BackendApi
                                 property: "customWidth"
                                 value: widthField.realValue
                             }
@@ -323,10 +312,7 @@ Item {
                                 font.pixelSize: DialogValues.defaultPixelSize
 
                                 onRealValueChanged: {
-                                    var height = realValue
-                                    var width = widthField.realValue
-
-                                    if (width >= height)
+                                    if (widthField.realValue >= heightField.realValue)
                                         orientationButton.setHorizontal()
                                     else
                                         orientationButton.setVertical()
@@ -334,7 +320,7 @@ Item {
                             } // Height Text Field
 
                             Binding {
-                                target: dialogBox
+                                target: BackendApi
                                 property: "customHeight"
                                 value: heightField.realValue
                             }
@@ -345,7 +331,6 @@ Item {
                                 id: orientationButton
                                 implicitWidth: 100
                                 implicitHeight: 50
-
                                 checked: false
                                 hoverEnabled: false
                                 background: Rectangle {
@@ -384,19 +369,22 @@ Item {
 
                                 onClicked: {
                                     if (widthField.realValue && heightField.realValue) {
-                                        [widthField.realValue, heightField.realValue] = [heightField.realValue, widthField.realValue];
-                                        checked = !checked
+                                        [widthField.realValue, heightField.realValue] = [heightField.realValue, widthField.realValue]
+                                        orientationButton.checked = !orientationButton.checked
+
+                                        if (widthField.realValue === heightField.realValue)
+                                            orientationButton.checked ? setVertical() : setHorizontal()
                                     }
                                 }
 
                                 function setHorizontal() {
-                                    checked = false
+                                    orientationButton.checked = false
                                     horizontalBar.color = DialogValues.textColorInteraction
                                     verticalBar.color = "white"
                                 }
 
                                 function setVertical() {
-                                    checked = true
+                                    orientationButton.checked = true
                                     horizontalBar.color = "white"
                                     verticalBar.color = DialogValues.textColorInteraction
                                 }
@@ -404,23 +392,27 @@ Item {
 
                         } // GridLayout: orientation + width + height
 
-                        Rectangle { width: parent.width; height: 1; color: DialogValues.dividerlineColor }
+                        Rectangle {
+                            width: parent.width
+                            height: 1
+                            color: DialogValues.dividerlineColor
+                        }
 
                         SC.CheckBox {
                             id: useQtVirtualKeyboard
                             actionIndicatorVisible: false
                             text: qsTr("Use Qt Virtual Keyboard")
                             font.pixelSize: DialogValues.defaultPixelSize
-                            checked: dialogBox.useVirtualKeyboard
-                            visible: dialogBox.haveVirtualKeyboard
+                            checked: BackendApi.useVirtualKeyboard
+                            visible: BackendApi.haveVirtualKeyboard
                         }
 
                         RowLayout { // Target Qt Version
                             width: parent.width
-                            visible: dialogBox.haveTargetQtVersion
+                            visible: BackendApi.haveTargetQtVersion
 
                             Text {
-                                text: "Target Qt Version:"
+                                text: qsTr("Target Qt Version:")
                                 font.pixelSize: DialogValues.defaultPixelSize
                                 lineHeight: DialogValues.defaultLineHeight
                                 lineHeightMode: Text.FixedHeight
@@ -432,33 +424,98 @@ Item {
                                 actionIndicatorVisible: false
                                 implicitWidth: 70
                                 Layout.alignment: Qt.AlignRight
-                                currentIndex: 1
+                                currentIndex: BackendApi.targetQtVersionIndex
                                 font.pixelSize: DialogValues.defaultPixelSize
 
                                 model: ListModel {
-                                    ListElement {
-                                        name: "Qt 5"
-                                    }
-                                    ListElement {
-                                        name: "Qt 6"
-                                    }
+                                    ListElement { name: "Qt 5" }
+                                    ListElement { name: "Qt 6" }
                                 }
 
                                 onActivated: (index) => {
-                                    dialogBox.setTargetQtVersion(index)
+                                    BackendApi.targetQtVersionIndex = index
                                 }
                             } // Target Qt Version ComboBox
+
+                            Binding {
+                                target: BackendApi
+                                property: "targetQtVersionIndex"
+                                value: qtVersionComboBox.currentIndex
+                            }
+
                         } // RowLayout
 
                         Binding {
-                            target: dialogBox
+                            target: BackendApi
                             property: "useVirtualKeyboard"
                             value: useQtVirtualKeyboard.checked
                         }
                     } // ScrollContent Column
                 } // ScrollView
-
             } // Column
+
+            SC.AbstractButton {
+                id: savePresetButton
+                width: StudioTheme.Values.singleControlColumnWidth
+                buttonIcon: qsTr("Save Custom Preset")
+                iconFont: StudioTheme.Constants.font
+                iconSize: DialogValues.defaultPixelSize
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                onClicked: savePresetDialog.open()
+            }
+
+            PopupDialog {
+                id: savePresetDialog
+                title: qsTr("Save Preset")
+                standardButtons: Dialog.Save | Dialog.Cancel
+                modal: true
+                closePolicy: Popup.CloseOnEscape
+                anchors.centerIn: parent
+                width: DialogValues.popupDialogWidth
+
+                onAccepted: BackendApi.savePresetDialogAccept()
+
+                onOpened: {
+                    presetNameTextField.selectAll()
+                    presetNameTextField.forceActiveFocus()
+                }
+
+                ColumnLayout {
+                    width: parent.width
+                    spacing: 10
+
+                    Text {
+                        text: qsTr("Preset name")
+                        font.pixelSize: DialogValues.defaultPixelSize
+                        color: DialogValues.textColor
+                    }
+
+                    SC.TextField {
+                        id: presetNameTextField
+                        actionIndicatorVisible: false
+                        translationIndicatorVisible: false
+                        text: qsTr("MyPreset")
+                        color: DialogValues.textColor
+                        font.pixelSize: DialogValues.defaultPixelSize
+                        Layout.fillWidth: true
+                        maximumLength: 30
+                        validator: RegularExpressionValidator { regularExpression: /\w[\w ]*/ }
+
+                        onEditingFinished: {
+                            presetNameTextField.text = text.trim()
+                            presetNameTextField.text = text.replace(/\s+/g, " ")
+                        }
+                    }
+
+                    Binding {
+                        target: BackendApi
+                        property: "presetName"
+                        value: presetNameTextField.text
+                    }
+                }
+            }
         } // Item
-    }
-}
+    } // Rectangle
+} // root Item

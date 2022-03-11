@@ -8,12 +8,12 @@ on:
 
 env:
   QT_VERSION: 6.2.3
-  CLANG_VERSION: 130
+  CLANG_VERSION: 140
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
   BUILD_TYPE: Release
-  CCACHE_VERSION: 4.5
+  CCACHE_VERSION: 4.6
   QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirror.bit.edu.cn/qtproject
 
 jobs:
@@ -31,12 +31,14 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             is_msvc: true
           }
-#        - {
-#            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-#            os: windows-latest,
-#            cc: "gcc", cxx: "g++",
-#            is_msvc: false
-#          }
+        - {
+            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
+            os: windows-latest,
+            toolchain: "https://github.com/cristianadam/mingw-builds/releases/download/v11.2.0-rev1/x86_64-11.2.0-release-posix-seh-rt_v9-rev1.7z",
+            toolchain_path: "mingw64/bin",
+            cc: "gcc", cxx: "g++",
+            is_msvc: false
+          }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux",
             os: ubuntu-latest,
@@ -111,6 +113,33 @@ jobs:
           )
         endif()
 
+    - name: Install system libs
+      shell: cmake -P {0}
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Linux")
+          execute_process(
+            COMMAND sudo apt update
+          )
+          execute_process(
+            COMMAND sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to install dependencies")
+          endif()
+        endif()
+
+        if (NOT "x${{ matrix.config.toolchain }}" STREQUAL "x")
+          foreach(retry RANGE 10)
+            file(DOWNLOAD "${{ matrix.config.toolchain }}" ./toolchain.7z SHOW_PROGRESS)
+            file(SIZE ./toolchain.7z fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./toolchain.7z)
+        endif()
+
     - name: Download Qt
       id: qt
       shell: cmake -P {0}
@@ -121,8 +150,8 @@ jobs:
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
-            set(qt_package_arch_suffix "win64_mingw81")
-            set(qt_dir_prefix "${qt_version}/mingw81_64")
+            set(qt_package_arch_suffix "win64_mingw")
+            set(qt_dir_prefix "${qt_version}/mingw_64")
             set(qt_package_suffix "-Windows-Windows_10_21H2-Mingw-Windows-Windows_10_21H2-X86_64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
             set(qt_package_arch_suffix "win64_msvc2019_64")
@@ -218,7 +247,7 @@ jobs:
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
             # deploy MinGW
             foreach(file libwinpthread-1.dll libstdc++-6.dll libgcc_s_seh-1.dll)
-              file(INSTALL "C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/${file}"
+              file(INSTALL "$ENV{GITHUB_WORKSPACE}/${{ matrix.config.toolchain_path }}/${file}"
                    DESTINATION "qt6/${qt_dir_prefix}/bin"
                    USE_SOURCE_PERMISSIONS)
             endforeach()
@@ -434,22 +463,6 @@ jobs:
           endforeach()
         endforeach()
 
-    - name: Install system libs
-      shell: cmake -P {0}
-      run: |
-        if ("${{ runner.os }}" STREQUAL "Linux")
-          execute_process(
-            COMMAND sudo apt update
-          )
-          execute_process(
-            COMMAND sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Failed to install dependencies")
-          endif()
-        endif()
-
     - name: Build
       shell: cmake -P {0}
       run: |
@@ -514,6 +527,14 @@ jobs:
         if (${{github.ref}} MATCHES "tags/v")
           unset(WITH_TESTS)
           unset(NO_DMG)
+        endif()
+
+        if (NOT "x${{ matrix.config.toolchain_path }}" STREQUAL "x")
+          set(path_separator ":")
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(path_separator ";")
+          endif()
+          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}/${{ matrix.config.toolchain_path }}${path_separator}$ENV{PATH}")
         endif()
 
         execute_process(
@@ -673,10 +694,10 @@ jobs:
             name: "Windows Latest MSVC", artifact: "Windows-MSVC",
             os: ubuntu-latest
           }
-#        - {
-#            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-#            os: ubuntu-latest
-#          }
+        - {
+            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
+            os: ubuntu-latest
+          }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux",
             os: ubuntu-latest

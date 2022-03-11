@@ -291,16 +291,15 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->settings.fromSettings(Core::ICore::settings());
 
     d->viewManager.registerView(std::make_unique<QmlDesigner::Internal::ConnectionView>());
-    if (DesignerSettings::getValue(DesignerSettingsKey::ENABLE_TIMELINEVIEW).toBool()) {
-        auto timelineView = d->viewManager.registerView(std::make_unique<QmlDesigner::TimelineView>());
-        timelineView->registerActions();
 
-        d->viewManager.registerView(std::make_unique<QmlDesigner::CurveEditorView>());
+    auto timelineView = d->viewManager.registerView(std::make_unique<QmlDesigner::TimelineView>());
+    timelineView->registerActions();
 
-        auto eventlistView = d->viewManager.registerView(
-            std::make_unique<QmlDesigner::EventListPluginView>());
-        eventlistView->registerActions();
-    }
+    d->viewManager.registerView(std::make_unique<QmlDesigner::CurveEditorView>());
+
+    auto eventlistView = d->viewManager.registerView(
+        std::make_unique<QmlDesigner::EventListPluginView>());
+    eventlistView->registerActions();
 
     auto transitionEditorView = d->viewManager.registerView(
         std::make_unique<QmlDesigner::TransitionEditorView>());
@@ -316,7 +315,11 @@ bool QmlDesignerPlugin::delayedInitialize()
         emitUsageStatistics("StandaloneMode");
         if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
             emitUsageStatistics("QDSlaunchedFromQtC");
+         emitUsageStatistics("QDSstartupCount");
     }
+
+    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+        d->mainWidget.initialize();
 
     return true;
 }
@@ -329,14 +332,19 @@ void QmlDesignerPlugin::extensionsInitialized()
         integrateIntoQtCreator(&d->mainWidget);
     });
 
-    if (QmlProjectManager::QmlProject::isQtDesignStudio())
-        d->mainWidget.initialize();
-
     auto &actionManager = d->viewManager.designerActionManager();
     actionManager.createDefaultDesignerActions();
     actionManager.createDefaultAddResourceHandler();
     actionManager.createDefaultModelNodePreviewImageHandlers();
     actionManager.polishActions();
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
+{
+    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+        emitUsageStatistics("QDSstartupCount");
+
+    return SynchronousShutdown;
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)

@@ -124,28 +124,6 @@ void ProjectModel::resetProjects()
 
 ProjectWelcomePage::ProjectWelcomePage()
 {
-    const int actionsCount = 9;
-    Context welcomeContext(Core::Constants::C_WELCOME_MODE);
-
-    const Id projectBase = PROJECT_BASE_ID;
-    const Id sessionBase = SESSION_BASE_ID;
-    for (int i = 1; i <= actionsCount; ++i) {
-        auto act = new QAction(tr("Open Session #%1").arg(i), this);
-        Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
-        cmd->setDefaultKeySequence(QKeySequence((useMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-        connect(act, &QAction::triggered, this, [this, i] {
-            if (i <= m_sessionModel->rowCount())
-                openSessionAt(i - 1);
-        });
-
-        act = new QAction(tr("Open Recent Project #%1").arg(i), this);
-        cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-        connect(act, &QAction::triggered, this, [this, i] {
-            if (i <= m_projectModel->rowCount(QModelIndex()))
-                openProjectAt(i - 1);
-        });
-    }
 }
 
 Utils::Id ProjectWelcomePage::id() const
@@ -183,6 +161,40 @@ void ProjectWelcomePage::openProjectAt(int index)
     const QString projectFile = m_projectModel->data(m_projectModel->index(index, 0),
                                                      ProjectModel::FilePathRole).toString();
     ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+}
+
+void ProjectWelcomePage::createActions()
+{
+    static bool actionsRegistered = false;
+
+    if (actionsRegistered)
+        return;
+
+    actionsRegistered = true;
+
+    const int actionsCount = 9;
+    Context welcomeContext(Core::Constants::C_WELCOME_MODE);
+
+    const Id projectBase = PROJECT_BASE_ID;
+    const Id sessionBase = SESSION_BASE_ID;
+
+    for (int i = 1; i <= actionsCount; ++i) {
+        auto act = new QAction(tr("Open Session #%1").arg(i), this);
+        Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence((useMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
+        connect(act, &QAction::triggered, this, [this, i] {
+            if (i <= m_sessionModel->rowCount())
+                openSessionAt(i - 1);
+        });
+
+        act = new QAction(tr("Open Recent Project #%1").arg(i), this);
+        cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
+        connect(act, &QAction::triggered, this, [this, i] {
+            if (i <= m_projectModel->rowCount(QModelIndex()))
+                openProjectAt(i - 1);
+        });
+    }
 }
 
 ///////////////////
@@ -636,7 +648,11 @@ public:
 
 QWidget *ProjectWelcomePage::createWidget() const
 {
-    return new SessionsPage(const_cast<ProjectWelcomePage *>(this));
+    auto that = const_cast<ProjectWelcomePage *>(this);
+    QWidget *widget = new SessionsPage(that);
+    that->createActions();
+
+    return widget;
 }
 
 } // namespace Internal

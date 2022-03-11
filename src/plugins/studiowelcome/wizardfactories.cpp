@@ -76,7 +76,7 @@ void WizardFactories::filter()
     m_factories = acceptedFactories;
 }
 
-PresetItem WizardFactories::makePresetItem(JsonWizardFactory *f, QWidget *parent,
+std::shared_ptr<PresetItem> WizardFactories::makePresetItem(JsonWizardFactory *f, QWidget *parent,
                                              const Utils::Id &platform)
 {
     using namespace std::placeholders;
@@ -89,16 +89,17 @@ PresetItem WizardFactories::makePresetItem(JsonWizardFactory *f, QWidget *parent
     else
         sizeName = screenSizes[index];
 
-    return {
-        /*.name =*/f->displayName(),
-        /*.categoryId =*/f->category(),
-        /*.screenSizeName=*/sizeName,
-        /*.description =*/f->description(),
-        /*.qmlPath =*/f->detailsPageQmlPath(),
-        /*.fontIconCode =*/m_getIconUnicode(f->fontIconName()),
-        /*.create =*/ std::bind(&JsonWizardFactory::runWizard, f, _1, parent, platform,
-                               QVariantMap(), false),
-    };
+    auto result = std::make_shared<PresetItem>();
+    result->wizardName = f->displayName();
+    result->categoryId = f->category();
+    result->screenSizeName=sizeName;
+    result->description = f->description();
+    result->qmlPath = f->detailsPageQmlPath();
+    result->fontIconCode = m_getIconUnicode(f->fontIconName());
+    result->create
+        = std::bind(&JsonWizardFactory::runWizard, f, _1, parent, platform, QVariantMap(), false);
+
+    return result;
 }
 
 std::map<QString, WizardCategory> WizardFactories::makePresetItemsGroupedByCategory()

@@ -1416,7 +1416,12 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         return new ClangdTextMark(filePath, diag, isProjectFile, this);
     };
     const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
-    setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler);
+    static const auto diagsFilter = [](const Diagnostic &diag) {
+        const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
+        const QString * const codeString = Utils::get_if<QString>(&code);
+        return !codeString || *codeString != "drv_unknown_argument";
+    };
+    setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler, diagsFilter);
     setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                                     int version, bool force) {
@@ -2815,7 +2820,8 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                     if (detail.startsWith("operator")) {
                         return !detail.contains('=')
                                 && !detail.contains("++") && !detail.contains("--")
-                                && !detail.contains("<<") && !detail.contains(">>");
+                                && !detail.contains("<<") && !detail.contains(">>")
+                                && !detail.contains("*");
                     }
                     firstChildTree << n.children().value_or(QList<AstNode>());
                 }
@@ -2826,6 +2832,19 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
                 return false;
             if (it->hasConstType())
                 return false;
+
+            if (it->kind() == "CXXMemberCall") {
+                if (it == path.rbegin())
+                    return false;
+                const QList<AstNode> children = it->children().value_or(QList<AstNode>());
+                QTC_ASSERT(!children.isEmpty(), return false);
+
+                // The called object is never displayed as an output parameter.
+                // TODO: A good argument can be made to display objects on which a non-const
+                //       operator or function is called as output parameters.
+                return (it - 1)->range() != children.first().range();
+            }
+
             if (it->kind() == "Member" && it->arcanaContains("(")
                     && !it->arcanaContains("bound member function type")) {
                 return false;
@@ -2911,8 +2930,11 @@ static void semanticHighlighter(QFutureInterface<HighlightingResult> &future,
         }
         if (token.modifiers.contains(QLatin1String("declaration")))
             styles.mixinStyles.push_back(C_DECLARATION);
-        if (token.modifiers.contains(QLatin1String("static")))
-            styles.mixinStyles.push_back(C_STATIC_MEMBER);
+        if (token.modifiers.contains(QLatin1String("static"))) {
+            if (styles.mainStyle != C_FIELD && styles.mainStyle != C_TEXT)
+                styles.mixinStyles.push_back(styles.mainStyle);
+            styles.mainStyle = C_STATIC_MEMBER;
+        }
         if (isOutputParameter(token))
             styles.mixinStyles.push_back(C_OUTPUT_ARGUMENT);
         qCDebug(clangdLogHighlight) << "adding highlighting result"

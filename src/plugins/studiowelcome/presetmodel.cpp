@@ -25,52 +25,132 @@
 
 #include "presetmodel.h"
 #include <utils/optional.h>
-#include <utils/qtcassert.h>
 
 #include "algorithm.h"
 
 using namespace StudioWelcome;
 
+constexpr int NameRole = Qt::UserRole;
+constexpr int ScreenSizeRole = Qt::UserRole + 1;
+constexpr int IsUserPresetRole = Qt::UserRole + 2;
+
+static const QString RecentsTabName = QObject::tr("Recents");
+static const QString CustomTabName = QObject::tr("Custom");
+
 /****************** PresetData ******************/
 
-void PresetData::setData(const PresetsByCategory &presetsByCategory,
-                         const std::vector<RecentPreset> &loadedRecents)
-{
-    QTC_ASSERT(!presetsByCategory.empty(), return);
-    m_recents = loadedRecents;
 
-    if (!m_recents.empty()) {
-        m_categories.push_back("Recents");
-        m_presets.push_back({});
-    }
+QString PresetData::recentsTabName()
+{
+    return RecentsTabName;
+}
+
+void PresetData::setData(const PresetsByCategory &presetsByCategory,
+                         const std::vector<UserPresetData> &userPresetsData,
+                         const std::vector<RecentPresetData> &loadedRecentsData)
+{
+    QTC_ASSERT(!presetsByCategory.empty(), return );
+    m_recents = loadedRecentsData;
+    m_userPresets = userPresetsData;
 
     for (auto &[id, category] : presetsByCategory) {
         m_categories.push_back(category.name);
         m_presets.push_back(category.items);
     }
 
-    PresetItems presets = Utils::flatten(m_presets);
+    PresetItems wizardPresets = Utils::flatten(m_presets);
 
-    std::vector<PresetItem> recentPresets = makeRecentPresets(presets);
+    PresetItems userPresetItems = makeUserPresets(wizardPresets);
+    if (!userPresetItems.empty()) {
+        m_categories.push_back(CustomTabName);
+        m_presets.push_back(userPresetItems);
+    }
 
-    if (!m_recents.empty())
-        m_presets[0] = recentPresets;
+    PresetItems allWizardPresets = std::move(wizardPresets);
+    Utils::concat(allWizardPresets, userPresetItems);
+
+    PresetItems recentPresets = makeRecentPresets(allWizardPresets);
+    if (!recentPresets.empty()) {
+        Utils::prepend(m_categories, RecentsTabName);
+        Utils::prepend(m_presets, recentPresets);
+    }
+
+    m_presetsByCategory = presetsByCategory;
 }
 
-std::vector<PresetItem> PresetData::makeRecentPresets(const PresetItems &wizardPresets)
+void PresetData::reload(const std::vector<UserPresetData> &userPresetsData,
+                        const std::vector<RecentPresetData> &loadedRecentsData)
 {
-    static const PresetItem empty;
+    m_categories.clear();
+    m_presets.clear();
+    m_recents.clear();
+    m_userPresets.clear();
+    setData(m_presetsByCategory, userPresetsData, loadedRecentsData);
+}
 
+std::shared_ptr<PresetItem> PresetData::findPresetItemForUserPreset(const UserPresetData &preset,
+                                                                    const PresetItems &wizardPresets)
+{
+    return Utils::findOrDefault(wizardPresets, [&preset](const std::shared_ptr<PresetItem> &item) {
+        return item->wizardName == preset.wizardName && item->categoryId == preset.categoryId;
+    });
+}
+
+PresetItems PresetData::makeUserPresets(const PresetItems &wizardPresets)
+{
     PresetItems result;
 
-    for (const RecentPreset &recent : m_recents) {
-        auto item = Utils::findOptional(wizardPresets, [&recent](const PresetItem &item) {
-            return item.categoryId == std::get<0>(recent) && item.name == std::get<1>(recent);
-        });
+    for (const UserPresetData &userPresetData : m_userPresets) {
+        std::shared_ptr<PresetItem> foundPreset = findPresetItemForUserPreset(userPresetData,
+                                                                              wizardPresets);
+        if (!foundPreset)
+            continue;
 
-        if (item) {
-            item->screenSizeName = std::get<2>(recent);
-            result.push_back(item.value());
+        auto presetItem = std::make_shared<UserPresetItem>();
+
+        presetItem->categoryId = userPresetData.categoryId;
+        presetItem->wizardName = userPresetData.wizardName;
+        presetItem->screenSizeName = userPresetData.screenSize;
+
+        presetItem->userName = userPresetData.name;
+        presetItem->qtVersion = userPresetData.qtVersion;
+        presetItem->styleName = userPresetData.styleName;
+        presetItem->useQtVirtualKeyboard = userPresetData.useQtVirtualKeyboard;
+
+        presetItem->create = foundPreset->create;
+        presetItem->description = foundPreset->description;
+        presetItem->fontIconCode = foundPreset->fontIconCode;
+        presetItem->qmlPath = foundPreset->qmlPath;
+
+        result.push_back(presetItem);
+    }
+
+    return result;
+}
+
+std::shared_ptr<PresetItem> PresetData::findPresetItemForRecent(const RecentPresetData &recent, const PresetItems &wizardPresets)
+{
+    return Utils::findOrDefault(wizardPresets, [&recent](const std::shared_ptr<PresetItem> &item) {
+        bool sameName = item->categoryId == recent.category
+                        && item->displayName() == recent.presetName;
+
+        bool sameType = (recent.isUserPreset ? item->isUserPreset() : !item->isUserPreset());
+
+        return sameName && sameType;
+    });
+}
+
+PresetItems PresetData::makeRecentPresets(const PresetItems &wizardPresets)
+{
+    PresetItems result;
+
+    for (const RecentPresetData &recent : m_recents) {
+        std::shared_ptr<PresetItem> preset = findPresetItemForRecent(recent, wizardPresets);
+
+        if (preset) {
+            auto clone = std::shared_ptr<PresetItem>{preset->clone()};
+            clone->screenSizeName = recent.sizeName;
+            result.push_back(clone);
         }
     }
 
@@ -86,8 +166,8 @@ BasePresetModel::BasePresetModel(const PresetData *data, QObject *parent)
 
 QHash<int, QByteArray> BasePresetModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::UserRole] = "name";
+    static QHash<int, QByteArray> roleNames{{NameRole, "name"},
+                                            {ScreenSizeRole, "resolution"}};
     return roleNames;
 }
 
@@ -97,8 +177,9 @@ PresetCategoryModel::PresetCategoryModel(const PresetData *data, QObject *parent
     : BasePresetModel(data, parent)
 {}
 
-int PresetCategoryModel::rowCount(const QModelIndex &) const
+int PresetCategoryModel::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent)
     return static_cast<int>(m_data->categories().size());
 }
 
@@ -116,9 +197,9 @@ PresetModel::PresetModel(const PresetData *data, QObject *parent)
 
 QHash<int, QByteArray> PresetModel::roleNames() const
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::UserRole] = "name";
-    roleNames[Qt::UserRole + 1] = "size";
+    static QHash<int, QByteArray> roleNames{{NameRole, "name"},
+                                            {ScreenSizeRole, "resolution"},
+                                            {IsUserPresetRole, "isUserPreset"}};
     return roleNames;
 }
 
@@ -132,9 +213,16 @@ int PresetModel::rowCount(const QModelIndex &) const
 
 QVariant PresetModel::data(const QModelIndex &index, int role) const
 {
-    Q_UNUSED(role)
-    PresetItem preset = presetsOfCurrentCategory().at(index.row());
-    return QVariant::fromValue<QString>(preset.name + "\n" + preset.screenSizeName);
+    std::shared_ptr<PresetItem> preset = presetsOfCurrentCategory().at(index.row());
+
+    if (role == NameRole)
+        return preset->displayName();
+    else if (role == ScreenSizeRole)
+        return preset->screenSize();
+    else if (role == IsUserPresetRole)
+        return preset->isUserPreset();
+    else
+        return {};
 }
 
 void PresetModel::setPage(int index)
@@ -148,7 +236,7 @@ void PresetModel::setPage(int index)
 
 QString PresetModel::fontIconCode(int index) const
 {
-    Utils::optional<PresetItem> presetItem = preset(index);
+    std::shared_ptr<PresetItem> presetItem = preset(index);
     if (!presetItem)
         return {};
 

@@ -49,7 +49,7 @@ protected:
 
 private:
     ServerNodeInstance m_currentState;
-    QSize m_previewSize{160, 160};
+    QSize m_previewSize{320, 320};
 };
 
 } // namespace QmlDesigner

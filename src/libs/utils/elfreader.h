@@ -146,7 +146,7 @@ public:
     ElfType    elftype;
     ElfMachine elfmachine;
     ElfClass   elfclass;
-    quint64    entryPoint;
+    quint64    entryPoint = 0;
     QByteArray debugLink;
     QByteArray buildId;
     DebugSymbolsType symbolsType = UnknownSymbols;

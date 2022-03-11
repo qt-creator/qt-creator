@@ -54,6 +54,8 @@ Item {
     property bool expandOnClick: true // if false, toggleExpand signal will be emitted instead
     property bool addTopPadding: true
     property bool addBottomPadding: true
+    property bool dropEnabled: false
+    property bool highlight: false
 
     property bool useDefaulContextMenu: true
 
@@ -72,9 +74,22 @@ Item {
         function onExpandAll() { section.expanded = true }
     }
 
+    signal drop(var drag)
+    signal dropEnter(var drag)
+    signal dropExit()
     signal showContextMenu()
     signal toggleExpand()
 
+    DropArea {
+        id: dropArea
+
+        enabled: section.dropEnabled
+        anchors.fill: parent
+
+        onEntered: (drag)=> section.dropEnter(drag)
+        onDropped: (drag)=> section.drop(drag)
+        onExited: section.dropExit()
+    }
 
     Rectangle {
         id: header
@@ -82,7 +97,9 @@ Item {
         visible: !section.hideHeader
         anchors.left: parent.left
         anchors.right: parent.right
-        color: Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0 + (0.2 * section.level))
+        color: section.highlight ? StudioTheme.Values.themeInteraction
+                                 : Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.0
+                                              + (0.2 * section.level))
 
         Item {
             StudioControls.Menu {

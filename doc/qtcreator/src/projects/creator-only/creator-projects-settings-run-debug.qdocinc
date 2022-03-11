@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -37,6 +37,18 @@
     on the Internet could connect to the application that you are debugging and
     execute any JavaScript functions. Therefore, you must make sure that the
     port is properly protected by a firewall.
+
+    Optionally, in \uicontrol {Additional startup commands}, you can enter
+    additional settings for debugging C++:
+
+    \list
+        \li \l{Adding Custom Debugging Helpers}{Custom debugging helpers}
+        \li \l{Specifying GDB Settings}{GDB commands} to execute after GDB
+            has started, but before the debugged program is started or
+            attached, and before the debugging helpers are initialized
+    \endlist
+
+    However, you can usually leave this field empty.
 
     For more information about debugging, see \l{Debugging}.
 

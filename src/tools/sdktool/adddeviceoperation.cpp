@@ -55,8 +55,8 @@ QString AddDeviceOperation::helpText() const
 
 QString AddDeviceOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new kit (required).\n"
-                         "    --name <NAME>                              display name of the new kit (required).\n"
+    return QLatin1String("    --id <ID>                                  id of the new device (required).\n"
+                         "    --name <NAME>                              display name of the new device (required).\n"
                          "    --type <INT>                               type (required).\n"
                          "    --authentication <INT>                     authentication.\n"
                          "    --b2qHardware <STRING>                     Boot2Qt Platform Info Hardware.\n"
@@ -71,6 +71,9 @@ QString AddDeviceOperation::argumentsHelpText() const
                          "    --sshPort <INT>                            ssh port.\n"
                          "    --timeout <INT>                            timeout.\n"
                          "    --uname <STRING>                           uname.\n"
+                         "    --dockerRepo <STRING>                      Docker image repo.\n"
+                         "    --dockerTag <STRING>                       Docker image tag.\n"
+                         "    --dockerMappedPaths <STRING>               Docker mapped paths (semi-colon separated).\n"
                          "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
 
@@ -224,6 +227,30 @@ bool AddDeviceOperation::setArguments(const QStringList &args)
             continue;
         }
 
+        if (current == QLatin1String("--dockerMappedPaths")) {
+            if (next.isNull())
+                return false;
+            ++i; // skip next;
+            m_dockerMappedPaths = next.split(';');
+            continue;
+        }
+
+        if (current == QLatin1String("--dockerRepo")) {
+            if (next.isNull())
+                return false;
+            ++i; // skip next;
+            m_dockerRepo = next;
+            continue;
+        }
+
+        if (current == QLatin1String("--dockerTag")) {
+            if (next.isNull())
+                return false;
+            ++i; // skip next;
+            m_dockerTag = next;
+            continue;
+        }
+
         if (next.isNull())
             return false;
         ++i; // skip next;
@@ -278,6 +305,9 @@ bool AddDeviceOperation::test() const
     devData.m_timeout = 5;
     devData.m_uname = "uname";
     devData.m_version = 6;
+    devData.m_dockerRepo = "repo";
+    devData.m_dockerTag = "tag";
+    devData.m_dockerMappedPaths = QStringList{"/opt", "/data"};
 
     QVariantMap result = devData.addDevice(map);
     QVariantMap data = result.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
@@ -285,7 +315,7 @@ bool AddDeviceOperation::test() const
     if (devList.count() != 1)
         return false;
     QVariantMap dev = devList.at(0).toMap();
-    if (dev.count() != 17)
+    if (dev.count() != 20)
         return false;
     if (dev.value(QLatin1String("Authentication")).toInt() != 2)
         return false;
@@ -316,6 +346,13 @@ bool AddDeviceOperation::test() const
     if (dev.value(QLatin1String("Uname")).toString() != QLatin1String("uname"))
         return false;
     if (dev.value(QLatin1String("Version")).toInt() != 6)
+        return false;
+    if (dev.value(QLatin1String("DockerDeviceDataRepo")).toString() != "repo")
+        return false;
+    if (dev.value(QLatin1String("DockerDeviceDataTag")).toString() != "tag")
+        return false;
+    const QStringList paths = dev.value(QLatin1String("DockerDeviceMappedPaths")).toStringList();
+    if (paths != QStringList({"/opt", "/data"}))
         return false;
 
     return true;
@@ -351,6 +388,9 @@ QVariantMap AddDeviceData::addDevice(const QVariantMap &map) const
     dev.append(KeyValuePair(QLatin1String("Timeout"), QVariant(m_timeout)));
     dev.append(KeyValuePair(QLatin1String("Uname"), QVariant(m_uname)));
     dev.append(KeyValuePair(QLatin1String("Version"), QVariant(m_version)));
+    dev.append(KeyValuePair(QLatin1String("DockerDeviceMappedPaths"), QVariant(m_dockerMappedPaths)));
+    dev.append(KeyValuePair(QLatin1String("DockerDeviceDataRepo"), QVariant(m_dockerRepo)));
+    dev.append(KeyValuePair(QLatin1String("DockerDeviceDataTag"), QVariant(m_dockerTag)));
     dev.append(m_extra);
 
     QVariantMap devMap = AddKeysData{dev}.addKeys(QVariantMap());

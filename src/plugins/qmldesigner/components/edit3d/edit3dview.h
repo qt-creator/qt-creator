@@ -102,6 +102,7 @@ private:
     Edit3DAction *m_showSelectionBoxAction = nullptr;
     Edit3DAction *m_showIconGizmoAction = nullptr;
     Edit3DAction *m_showCameraFrustumAction = nullptr;
+    Edit3DAction *m_showParticleEmitterAction = nullptr;
     Edit3DAction *m_resetAction = nullptr;
     Edit3DAction *m_particleViewModeAction = nullptr;
     Edit3DAction *m_particlesPlayAction = nullptr;

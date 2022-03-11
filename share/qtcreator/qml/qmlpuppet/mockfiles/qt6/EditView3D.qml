@@ -42,6 +42,7 @@ Item {
     property bool showSelectionBox: true
     property bool showIconGizmo: true
     property bool showCameraFrustum: false
+    property bool showParticleEmitter: false
     property bool usePerspective: true
     property bool globalOrientation: false
     property alias contentItem: contentItem
@@ -58,9 +59,10 @@ Item {
     property var lightIconGizmos: []
     property var cameraGizmos: []
     property var particleSystemIconGizmos: []
+    property var particleEmitterGizmos: []
     property var selectionBoxes: []
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
-
+    property Node activeParticleSystem: null
     property bool shuttingDown: false
 
     property real fps: 0
@@ -70,15 +72,16 @@ Item {
     signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
 
-    onUsePerspectiveChanged:    _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
-    onShowEditLightChanged:     _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
-    onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
-    onShowGridChanged:          _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
-    onShowSelectionBoxChanged:  _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
-    onShowIconGizmoChanged:     _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
-    onShowCameraFrustumChanged: _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
-    onSelectionModeChanged:     _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
-    onTransformModeChanged:     _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
+    onUsePerspectiveChanged:      _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
+    onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
+    onGlobalOrientationChanged:   _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
+    onShowGridChanged:            _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
+    onShowSelectionBoxChanged:    _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
+    onShowIconGizmoChanged:       _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
+    onShowCameraFrustumChanged:   _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
+    onShowParticleEmitterChanged: _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter);
+    onSelectionModeChanged:       _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
+    onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
 
     onActiveSceneChanged: updateActiveScene()
 
@@ -232,6 +235,11 @@ Item {
         else if (resetToDefault)
             showCameraFrustum = false;
 
+        if ("showParticleEmitter" in toolStates)
+            showParticleEmitter = toolStates.showParticleEmitter;
+        else if (resetToDefault)
+            showParticleEmitter = false;
+
         if ("usePerspective" in toolStates)
             usePerspective = toolStates.usePerspective;
         else if (resetToDefault)
@@ -265,6 +273,7 @@ Item {
         _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)
         _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum)
+        _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter)
         _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
         _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
@@ -376,14 +385,12 @@ Item {
             lightIconGizmos[slotFound].targetNode = obj;
             lightIconGizmos[slotFound].locked = _generalHelper.isLocked(obj);
             lightIconGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
         // No free gizmos available, create a new one
         var gizmoComponent = Qt.createComponent("LightIconGizmo.qml");
         if (gizmoComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var gizmo = gizmoComponent.createObject(overlayView,
                                                     {"view3D": overlayView, "targetNode": obj,
                                                      "selectedNodes": selectedNodes, "scene": scene,
@@ -417,7 +424,6 @@ Item {
             cameraGizmos[slotFound].targetNode = obj;
             cameraGizmos[slotFound].locked = _generalHelper.isLocked(obj);
             cameraGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
@@ -425,7 +431,6 @@ Item {
         var gizmoComponent = Qt.createComponent("CameraGizmo.qml");
         var frustumComponent = Qt.createComponent("CameraFrustum.qml");
         if (gizmoComponent.status === Component.Ready && frustumComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var geometryName = _generalHelper.generateUniqueName("CameraGeometry");
             var frustum = frustumComponent.createObject(
                         overlayScene,
@@ -466,26 +471,66 @@ Item {
             particleSystemIconGizmos[slotFound].targetNode = obj;
             particleSystemIconGizmos[slotFound].locked = _generalHelper.isLocked(obj);
             particleSystemIconGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
-            _generalHelper.registerGizmoTarget(obj);
             return;
         }
 
         // No free gizmos available, create a new one
         var gizmoComponent = Qt.createComponent("ParticleSystemGizmo.qml");
         if (gizmoComponent.status === Component.Ready) {
-            _generalHelper.registerGizmoTarget(obj);
             var gizmo = gizmoComponent.createObject(overlayView,
                                                     {"view3D": overlayView, "targetNode": obj,
                                                      "selectedNodes": selectedNodes, "scene": scene,
                                                      "activeScene": activeScene,
                                                      "locked": _generalHelper.isLocked(obj),
                                                      "hidden": _generalHelper.isHidden(obj),
-                                                     "globalShow": showIconGizmo});
+                                                     "globalShow": showIconGizmo,
+                                                     "activeParticleSystem": activeParticleSystem});
             particleSystemIconGizmos[particleSystemIconGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
             gizmo.globalShow = Qt.binding(function() {return showIconGizmo;});
+            gizmo.activeParticleSystem = Qt.binding(function() {return activeParticleSystem;});
+        }
+    }
+
+    function addParticleEmitterGizmo(scene, obj)
+    {
+        // Insert into first available gizmo if we don't already have gizmo for this object
+        var slotFound = -1;
+        for (var i = 0; i < particleEmitterGizmos.length; ++i) {
+            if (!particleEmitterGizmos[i].targetNode) {
+                slotFound = i;
+            } else if (particleEmitterGizmos[i].targetNode === obj) {
+                particleEmitterGizmos[i].scene = scene;
+                return;
+            }
+        }
+
+        if (slotFound !== -1) {
+            particleEmitterGizmos[slotFound].scene = scene;
+            particleEmitterGizmos[slotFound].targetNode = obj;
+            particleEmitterGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
+            particleEmitterGizmos[slotFound].systemHidden = _generalHelper.isHidden(obj.system);
+            return;
+        }
+
+        // No free gizmos available, create a new one
+        var gizmoComponent = Qt.createComponent("ParticleEmitterGizmo.qml");
+        if (gizmoComponent.status === Component.Ready) {
+            var gizmo = gizmoComponent.createObject(
+                        overlayScene,
+                        {"targetNode": obj, "selectedNodes": selectedNodes,
+                         "activeParticleSystem": activeParticleSystem, "scene": scene,
+                         "activeScene": activeScene, "hidden": _generalHelper.isHidden(obj),
+                         "systemHidden": _generalHelper.isHidden(obj.system),
+                         "globalShow": showParticleEmitter});
+
+            particleEmitterGizmos[particleEmitterGizmos.length] = gizmo;
+            gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
+            gizmo.activeParticleSystem = Qt.binding(function() {return activeParticleSystem;});
+            gizmo.globalShow = Qt.binding(function() {return showParticleEmitter;});
+            gizmo.activeScene = Qt.binding(function() {return activeScene;});
         }
     }
 
@@ -495,7 +540,6 @@ Item {
             if (lightIconGizmos[i].targetNode === obj) {
                 lightIconGizmos[i].scene = null;
                 lightIconGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
                 return;
             }
         }
@@ -507,7 +551,6 @@ Item {
             if (cameraGizmos[i].targetNode === obj) {
                 cameraGizmos[i].scene = null;
                 cameraGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
                 return;
             }
         }
@@ -519,7 +562,17 @@ Item {
             if (particleSystemIconGizmos[i].targetNode === obj) {
                 particleSystemIconGizmos[i].scene = null;
                 particleSystemIconGizmos[i].targetNode = null;
-                _generalHelper.unregisterGizmoTarget(obj);
+                return;
+            }
+        }
+    }
+
+    function releaseParticleEmitterGizmo(obj)
+    {
+        for (var i = 0; i < particleEmitterGizmos.length; ++i) {
+            if (particleEmitterGizmos[i].targetNode === obj) {
+                particleEmitterGizmos[i].scene = null;
+                particleEmitterGizmos[i].targetNode = null;
                 return;
             }
         }
@@ -550,6 +603,16 @@ Item {
         for (var i = 0; i < particleSystemIconGizmos.length; ++i) {
             if (particleSystemIconGizmos[i].targetNode === obj) {
                 particleSystemIconGizmos[i].scene = scene;
+                return;
+            }
+        }
+    }
+
+    function updateParticleEmitterGizmoScene(scene, obj)
+    {
+        for (var i = 0; i < particleEmitterGizmos.length; ++i) {
+            if (particleEmitterGizmos[i].targetNode === obj) {
+                particleEmitterGizmos[i].scene = scene;
                 return;
             }
         }
@@ -588,7 +651,6 @@ Item {
                     return;
                 }
             }
-
         }
         function onHiddenStateChanged(node)
         {
@@ -607,6 +669,15 @@ Item {
             for (var i = 0; i < particleSystemIconGizmos.length; ++i) {
                 if (particleSystemIconGizmos[i].targetNode === node) {
                     particleSystemIconGizmos[i].hidden = _generalHelper.isHidden(node);
+                    return;
+                }
+            }
+            for (var i = 0; i < particleEmitterGizmos.length; ++i) {
+                if (particleEmitterGizmos[i].targetNode === node) {
+                    particleEmitterGizmos[i].hidden = _generalHelper.isHidden(node);
+                    return;
+                } else if (particleEmitterGizmos[i].targetNode && particleEmitterGizmos[i].targetNode.system === node) {
+                    particleEmitterGizmos[i].systemHidden = _generalHelper.isHidden(node);
                     return;
                 }
             }
@@ -810,9 +881,16 @@ Item {
 
                 onPressed: (mouse)=> {
                     if (viewRoot.editView) {
-                        var pickResult = _generalHelper.pickViewAt(viewRoot.editView, mouse.x, mouse.y);
-                        handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
-                                            mouse.modifiers & Qt.ControlModifier);
+                        // First pick overlay to check for hits there
+                        var pickResult = _generalHelper.pickViewAt(overlayView, mouse.x, mouse.y);
+                        var resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
+                        if (!resolvedResult) {
+                            // No hits from overlay view, pick the main scene
+                            pickResult = _generalHelper.pickViewAt(viewRoot.editView, mouse.x, mouse.y);
+                            resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
+                        }
+
+                        handleObjectClicked(resolvedResult, mouse.modifiers & Qt.ControlModifier);
 
                         if (pickResult.objectHit) {
                             if (transformMode === EditView3D.TransformMode.Move)
