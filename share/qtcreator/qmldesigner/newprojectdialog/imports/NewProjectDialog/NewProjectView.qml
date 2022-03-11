@@ -101,6 +101,9 @@ ScrollView {
             height: DialogValues.presetItemHeight
 
             onClicked: delegate.GridView.view.currentIndex = index
+            onDoubleClicked: {
+                BackendApi.accept()
+            }
 
             background: Rectangle {
                 id: delegateBackground
