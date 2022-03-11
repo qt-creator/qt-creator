@@ -4242,9 +4242,6 @@ void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &da
         lineRect.moveTop(lineRect.top() + blockRect.top());
         lineRect.setLeft(0);
         lineRect.setRight(data.viewportRect.width());
-        // set alpha, otherwise we cannot see block highlighting and find scope underneath
-        if (!data.eventRect.contains(lineRect.toAlignedRect()))
-            q->viewport()->update(lineRect.toAlignedRect());
         painter.fillRect(lineRect, color);
     }
 }
@@ -5109,25 +5106,28 @@ void TextEditorWidgetPrivate::updateCurrentLineHighlight()
 
     // the extra area shows information for the entire current block, not just the currentline.
     // This is why we must force a bigger update region.
-    QList<int> cursorBlockNumbers;
     const QPointF offset = q->contentOffset();
+    auto updateBlock = [&](const QTextBlock &block) {
+        if (block.isValid() && block.isVisible()) {
+            QRect updateRect = q->blockBoundingGeometry(block).translated(offset).toAlignedRect();
+            m_extraArea->update(updateRect);
+            updateRect.setLeft(0);
+            updateRect.setRight(q->viewport()->width());
+            q->viewport()->update(updateRect);
+        }
+    };
+    QList<int> cursorBlockNumbers;
     for (const QTextCursor &c : m_cursors) {
         int cursorBlockNumber = c.blockNumber();
-        if (!m_cursorBlockNumbers.contains(cursorBlockNumber)) {
-            QTextBlock block = c.block();
-            if (block.isValid() && block.isVisible())
-                m_extraArea->update(q->blockBoundingGeometry(block).translated(offset).toAlignedRect());
-        }
+        if (!m_cursorBlockNumbers.contains(cursorBlockNumber))
+            updateBlock(c.block());
         if (!cursorBlockNumbers.contains(c.blockNumber()))
             cursorBlockNumbers << c.blockNumber();
     }
     if (m_cursorBlockNumbers != cursorBlockNumbers) {
         for (int oldBlock : m_cursorBlockNumbers) {
-            if (cursorBlockNumbers.contains(oldBlock))
-                continue;
-            QTextBlock block = m_document->document()->findBlockByNumber(oldBlock);
-            if (block.isValid() && block.isVisible())
-                m_extraArea->update(q->blockBoundingGeometry(block).translated(offset).toAlignedRect());
+            if (!cursorBlockNumbers.contains(oldBlock))
+                updateBlock(m_document->document()->findBlockByNumber(oldBlock));
         }
         m_cursorBlockNumbers = cursorBlockNumbers;
     }
