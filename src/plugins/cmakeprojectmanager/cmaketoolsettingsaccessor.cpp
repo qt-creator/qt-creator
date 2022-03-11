@@ -128,7 +128,12 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
         std::unique_ptr<CMakeTool> userTool = std::move(userTools[0]);
         userTools.erase(std::begin(userTools));
 
-        int userToolIndex = Utils::indexOf(result, Utils::equal(&CMakeTool::id, userTool->id()));
+        int userToolIndex = Utils::indexOf(result, [&userTool](const std::unique_ptr<CMakeTool> &tool) {
+            // Id should be sufficient, but we have older "mis-registered" docker based items.
+            // Make sure that these don't override better new values from the sdk by
+            // also checking the actual executable.
+            return userTool->id() == tool->id() && userTool->cmakeExecutable() == tool->cmakeExecutable();
+        });
         if (userToolIndex >= 0) {
             // Replace the sdk tool with the user tool, so any user changes do not get lost
             result[userToolIndex] = std::move(userTool);
