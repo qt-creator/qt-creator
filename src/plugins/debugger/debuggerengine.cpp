@@ -185,7 +185,6 @@ void LocationMark::updateIcon()
     if (m_engine && EngineManager::currentEngine() == m_engine)
         icon = m_engine->isReverseDebugging() ? &Icons::REVERSE_LOCATION : &Icons::LOCATION;
     setIcon(icon->icon());
-    updateMarker();
 }
 
 bool LocationMark::isDraggable() const

@@ -102,7 +102,6 @@ public:
     void setIcon(const QIcon &icon);
     void setIconProvider(const std::function<QIcon()> &iconProvider);
     const QIcon icon() const;
-    // call this if the icon has changed.
     void updateMarker();
     Priority priority() const { return m_priority;}
     void setPriority(Priority prioriy);
@@ -122,7 +121,7 @@ public:
     void setBaseTextDocument(TextDocument *baseTextDocument) { m_baseTextDocument = baseTextDocument; }
 
     QString lineAnnotation() const { return m_lineAnnotation; }
-    void setLineAnnotation(const QString &lineAnnotation) { m_lineAnnotation = lineAnnotation; }
+    void setLineAnnotation(const QString &lineAnnotation);
 
     QString toolTip() const;
     void setToolTip(const QString &toolTip);

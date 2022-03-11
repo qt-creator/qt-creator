@@ -348,11 +348,13 @@ void TextMark::setIcon(const QIcon &icon)
 {
     m_icon = icon;
     m_iconProvider = std::function<QIcon()>();
+    updateMarker();
 }
 
 void TextMark::setIconProvider(const std::function<QIcon ()> &iconProvider)
 {
     m_iconProvider = iconProvider;
+    updateMarker();
 }
 
 const QIcon TextMark::icon() const
@@ -368,6 +370,13 @@ Utils::optional<Theme::Color> TextMark::color() const
 void TextMark::setColor(const Theme::Color &color)
 {
     m_color = color;
+    updateMarker();
+}
+
+void TextMark::setLineAnnotation(const QString &lineAnnotation)
+{
+    m_lineAnnotation = lineAnnotation;
+    updateMarker();
 }
 
 void TextMark::setToolTipProvider(const std::function<QString()> &toolTipProvider)

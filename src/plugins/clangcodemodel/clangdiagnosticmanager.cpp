@@ -392,7 +392,6 @@ void ClangDiagnosticManager::invalidateDiagnostics()
     for (ClangTextMark *textMark : m_clangTextMarks) {
         textMark->setColor(::Utils::Theme::Color::IconsDisabledColor);
         textMark->updateIcon(/*valid=*/ false);
-        textMark->updateMarker();
     }
 }
 

@@ -89,7 +89,6 @@ void DiagnosticMark::disable()
     else
         setIcon(Utils::Icons::CODEMODEL_DISABLED_WARNING.icon());
     setColor(Utils::Theme::Color::IconsDisabledColor);
-    updateMarker();
 }
 
 bool DiagnosticMark::enabled() const
