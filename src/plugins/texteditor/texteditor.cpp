@@ -4637,8 +4637,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
             d->paintAdditionalVisualWhitespaces(data, painter, blockData.boundingRect.top());
             d->paintReplacement(data, painter, blockData.boundingRect.top());
+            d->updateLineAnnotation(data, blockData, painter);
         }
-        d->updateLineAnnotation(data, blockData, painter);
 
         data.offset.ry() += blockData.boundingRect.height();
 
