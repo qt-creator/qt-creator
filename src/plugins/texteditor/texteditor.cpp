@@ -4020,8 +4020,13 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
-        if (data.eventRect.intersects(boundingRect.toRect()))
-            mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2, q->contentOffset());
+
+        mark->paintAnnotation(painter,
+                              data.eventRect,
+                              &boundingRect,
+                              offset,
+                              itemOffset / 2,
+                              q->contentOffset());
 
         x = boundingRect.right();
         offset = itemOffset / 2;

@@ -72,8 +72,11 @@ public:
     int lineNumber() const;
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
-    virtual void paintAnnotation(QPainter &painter, QRectF *annotationRect,
-                                 const qreal fadeInOffset, const qreal fadeOutOffset,
+    virtual void paintAnnotation(QPainter &painter,
+                                 const QRect &eventRect,
+                                 QRectF *annotationRect,
+                                 const qreal fadeInOffset,
+                                 const qreal fadeOutOffset,
                                  const QPointF &contentOffset) const;
     struct AnnotationRects
     {
