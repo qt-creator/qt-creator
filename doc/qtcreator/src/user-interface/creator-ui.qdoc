@@ -608,7 +608,7 @@
     To specify whether to open the \uicontrol {Compile Output} view on output
     when building applications, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Build & Run} > \uicontrol {Compile Output}, and then select the
-    \uicontrol {Open view when building} check box.
+    \uicontrol {Open Compile Output when building} check box.
     In the \uicontrol {Limit output to} field, you can specify the maximum
     amount of build output lines to display.
 
