@@ -3970,7 +3970,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return;
 
     TextMarks marks = Utils::filtered(blockUserData->marks(), [](const TextMark* mark){
-        return !mark->lineAnnotation().isEmpty();
+        return !mark->lineAnnotation().isEmpty() && mark->isVisible();
     });
 
     const bool annotationsVisible = !marks.isEmpty();
@@ -4015,8 +4015,6 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     }
 
     for (const TextMark *mark : qAsConst(marks)) {
-        if (!mark->isVisible())
-            continue;
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
