@@ -4030,12 +4030,6 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         offset = itemOffset / 2;
         m_annotationRects[data.block.blockNumber()].append({boundingRect, mark});
     }
-
-    QRect updateRect(lineRect.toRect().topRight(), boundingRect.toRect().bottomRight());
-    updateRect.setLeft(qBound(0, updateRect.left(), q->viewport()->width() - 1));
-    updateRect.setRight(qBound(0, updateRect.right(), q->viewport()->width() - 1));
-    if (!updateRect.isEmpty() && !data.eventRect.contains(q->viewport()->rect() & updateRect))
-        q->viewport()->update(updateRect);
 }
 
 QColor blendRightMarginColor(const FontSettings &settings, bool areaColor)
