@@ -196,6 +196,11 @@ void PathListEditor::setFileDialogTitle(const QString &l)
     d->fileDialogTitle = l;
 }
 
+void PathListEditor::setPlaceholderText(const QString &placeholder)
+{
+    d->edit->setPlaceholderText(placeholder);
+}
+
 void PathListEditor::clear()
 {
     d->edit->clear();

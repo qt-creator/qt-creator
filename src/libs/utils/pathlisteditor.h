@@ -57,6 +57,7 @@ public:
     void setPathList(const QStringList &l);
     void setPathList(const QString &pathString);
     void setFileDialogTitle(const QString &l);
+    void setPlaceholderText(const QString &placeholder);
 
 signals:
     void changed();
