@@ -301,6 +301,7 @@ void tst_QtcProcess::cleanupTestCase()
 
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
 Q_DECLARE_METATYPE(Utils::OsType)
+Q_DECLARE_METATYPE(Utils::ProcessResult)
 
 void tst_QtcProcess::splitArgs_data()
 {
@@ -990,7 +991,8 @@ void tst_QtcProcess::runBlockingStdOut_data()
     // calls the callback handler and tries to stop the process forcefully what is no-op
     // at this point in time since the process is already finished.
     QTest::newRow("Long timeout without end of line")
-            << false << 20 << ProcessResult::FinishedWithSuccess;}
+            << false << 20 << ProcessResult::FinishedWithSuccess;
+}
 
 void tst_QtcProcess::runBlockingStdOut()
 {
