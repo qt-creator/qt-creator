@@ -205,7 +205,7 @@ Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
             = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
     // FIXME: Use real device?
     const Toolchains autodetectedTcs =
-        autoDetectToolChains(ToolchainDetector(autodetectedUserFileTcs, {}));
+        autoDetectToolChains(ToolchainDetector(autodetectedUserFileTcs, {}, {}));
 
     // merge tool chains and register those that we need to keep:
     const ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);

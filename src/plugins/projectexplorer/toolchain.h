@@ -250,13 +250,16 @@ public:
 class PROJECTEXPLORER_EXPORT ToolchainDetector
 {
 public:
-    ToolchainDetector(const Toolchains &alreadyKnown, const IDevice::ConstPtr &device);
+    ToolchainDetector(const Toolchains &alreadyKnown,
+                      const IDevice::ConstPtr &device,
+                      const Utils::FilePaths &searchPaths);
 
     bool isBadToolchain(const Utils::FilePath &toolchain) const;
     void addBadToolchain(const Utils::FilePath &toolchain) const;
 
     const Toolchains alreadyKnown;
     const IDevice::ConstPtr device;
+    const Utils::FilePaths searchPaths; // If empty use device path and/or magic.
 };
 
 class PROJECTEXPLORER_EXPORT ToolChainFactory

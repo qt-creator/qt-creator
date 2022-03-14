@@ -725,7 +725,7 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
     emit q->logOutput('\n' + tr("Searching toolchains..."));
     for (ToolChainFactory *factory : factories) {
         emit q->logOutput(tr("Searching toolchains of type %1").arg(factory->displayName()));
-        const ToolchainDetector detector(alreadyKnown, m_device);
+        const ToolchainDetector detector(alreadyKnown, m_device, m_searchPaths);
         const Toolchains newToolChains = factory->autoDetect(detector);
         for (ToolChain *toolChain : newToolChains) {
             emit q->logOutput(tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
@@ -1809,6 +1809,12 @@ QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) cons
     QTC_ASSERT(m_shell && m_shell->isRunning(), return {});
     QMutexLocker l(&m_shellMutex);
     m_shell->readAllStandardOutput(); // clean possible left-overs
+    const QByteArray oldError = m_shell->readAllStandardError(); // clean possible left-overs
+    if (!oldError.isEmpty()) {
+        LOG("Unexpected old stderr: " << oldError);
+        QTC_CHECK(false);
+    }
+
     const QByteArray markerWithNewLine("___QC_DOCKER_" + randomHex() + "_OUTPUT_MARKER___\n");
     m_shell->write(cmd.toUserOutput().toUtf8() + "\necho -n \"" + markerWithNewLine + "\"\n");
     QByteArray output;
@@ -1820,6 +1826,11 @@ QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd) cons
     LOG("Run command in shell:" << cmd.toUserOutput() << "output size:" << output.size());
     if (QTC_GUARD(output.endsWith(markerWithNewLine)))
         output.chop(markerWithNewLine.size());
+    const QByteArray currentError = m_shell->readAllStandardError();
+    if (!currentError.isEmpty()) {
+        LOG("Unexpected current stderr: " << currentError);
+        QTC_CHECK(false);
+    }
     return output;
 }
 

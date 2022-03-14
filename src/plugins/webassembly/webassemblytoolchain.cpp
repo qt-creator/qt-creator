@@ -126,7 +126,7 @@ void WebAssemblyToolChain::registerToolChains()
             return f->supportedToolChainType() == Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID;
     });
     QTC_ASSERT(factory, return);
-    for (auto toolChain : factory->autoDetect(ToolchainDetector({}, {})))
+    for (auto toolChain : factory->autoDetect(ToolchainDetector({}, {}, {})))
         ToolChainManager::registerToolChain(toolChain);
 
     // Let kits pick up the new toolchains
