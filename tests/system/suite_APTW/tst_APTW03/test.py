@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -65,7 +65,7 @@ def handleInsertVirtualFunctions(expected, toAdd):
 def checkSimpleCppLib(projectName, static):
     projectName, className = createNewCPPLib(tempDir(), projectName, "MyClass",
                                              Targets.desktopTargetClasses(),
-                                             static)
+                                             static, buildSystem="qmake")
     for kit, config in iterateBuildConfigs("Release"):
         verifyBuildConfig(kit, config, False, True)
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
@@ -87,7 +87,8 @@ def main():
     checkSimpleCppLib("SampleApp2", True)
 
     pluginTargets = (Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT)
-    projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin", pluginTargets)
+    projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin", pluginTargets,
+                                               buildSystem="qmake")
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):
         verifyBuildConfig(kit, config, True, True)

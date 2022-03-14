@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -224,15 +224,19 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
                 available.discard(currentItem)
 
+
 # Creates a Qt GUI project
 # param path specifies where to create the project
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
-def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl = "<None>"):
+# param addToVersionControl selects the specified VCS from Creator's wizard
+# param buildSystem selects the specified build system from Creator's wizard
+def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<None>",
+                         buildSystem=None):
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application (Qt)", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    buildSystem = __handleBuildSystem__(None)
+    buildSystem = __handleBuildSystem__(buildSystem)
 
     if checks:
         exp_filename = "mainwindow"
@@ -375,7 +379,8 @@ def createNewNonQtProject(workingDir, projectName, target, plainC=False, buildSy
     __createProjectHandleLastPage__()
     return projectName
 
-def createNewCPPLib(projectDir, projectName, className, target, isStatic):
+
+def createNewCPPLib(projectDir, projectName, className, target, isStatic, buildSystem=None):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", False, True)
     if isStatic:
         libType = LibType.STATIC
@@ -384,7 +389,7 @@ def createNewCPPLib(projectDir, projectName, className, target, isStatic):
     if projectDir == None:
         projectDir = tempDir()
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False)
-    __handleBuildSystem__(None)
+    __handleBuildSystem__(buildSystem)
     selectFromCombo(waitForObject("{name='Type' type='QComboBox' visible='1' "
                                   "window=':New_ProjectExplorer::JsonWizard'}"),
                     LibType.getStringForLib(libType))
@@ -396,10 +401,12 @@ def createNewCPPLib(projectDir, projectName, className, target, isStatic):
     __createProjectHandleLastPage__()
     return projectName, className
 
-def createNewQtPlugin(projectDir, projectName, className, target, baseClass="QGenericPlugin"):
+
+def createNewQtPlugin(projectDir, projectName, className, target, baseClass="QGenericPlugin",
+                      buildSystem=None):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", False, True)
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False)
-    __handleBuildSystem__(None)
+    __handleBuildSystem__(buildSystem)
     selectFromCombo(waitForObject("{name='Type' type='QComboBox' visible='1' "
                                   "window=':New_ProjectExplorer::JsonWizard'}"),
                     LibType.getStringForLib(LibType.QT_PLUGIN))

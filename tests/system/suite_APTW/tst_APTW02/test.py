@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -30,7 +30,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createNewQtQuickApplication(tempDir(), "SampleApp")
+    createNewQtQuickApplication(tempDir(), "SampleApp", buildSystem="qmake")
     # run project for debug and release and verify results
     runVerify()
     #close Qt Creator
