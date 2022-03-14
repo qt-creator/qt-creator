@@ -51,6 +51,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overridecursor.h>
 #include <utils/pathlisteditor.h>
@@ -1859,12 +1860,19 @@ public:
         m_log = new QTextBrowser;
         m_log->setVisible(false);
 
+        const QString fail = QString{"Docker: "}
+                + QCoreApplication::translate("Debugger::Internal::GdbEngine",
+                                              "Process failed to start.");
+        auto errorLabel = new Utils::InfoLabel(fail, Utils::InfoLabel::Error, this);
+        errorLabel->setVisible(false);
+
         m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
         using namespace Layouting;
         Column {
             m_view,
             m_log,
+            errorLabel,
             m_buttons,
         }.attachTo(this);
 
@@ -1900,6 +1908,13 @@ public:
         connect(m_process, &Utils::QtcProcess::readyReadStandardError, this, [this] {
             const QString out = DockerDevice::tr("Error: %1").arg(m_process->stdErr());
             m_log->append(DockerDevice::tr("Error: %1").arg(out));
+        });
+
+        connect(m_process, &Utils::QtcProcess::finished,
+                this, [this, errorLabel]() {
+            if (m_process->exitCode() != 0) {
+                errorLabel->setVisible(true);
+            }
         });
 
         connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
