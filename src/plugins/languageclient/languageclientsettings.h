@@ -98,8 +98,8 @@ public:
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const { return new BaseSettings(*this); }
     virtual bool isValid() const;
-    Client *createClient();
-    Client *createClient(ProjectExplorer::Project *project);
+    Client *createClient() const;
+    Client *createClient(ProjectExplorer::Project *project) const;
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &map);
 

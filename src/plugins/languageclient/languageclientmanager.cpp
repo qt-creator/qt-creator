@@ -176,7 +176,8 @@ void LanguageClientManager::clientFinished(Client *client)
         emit managerInstance->shutdownFinished();
 }
 
-Client *LanguageClientManager::startClient(BaseSettings *setting, ProjectExplorer::Project *project)
+Client *LanguageClientManager::startClient(const BaseSettings *setting,
+                                           ProjectExplorer::Project *project)
 {
     QTC_ASSERT(managerInstance, return nullptr);
     QTC_ASSERT(setting, return nullptr);

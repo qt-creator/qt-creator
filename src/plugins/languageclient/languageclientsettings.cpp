@@ -571,12 +571,12 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-Client *BaseSettings::createClient()
+Client *BaseSettings::createClient() const
 {
-    return createClient(nullptr);
+    return createClient(static_cast<ProjectExplorer::Project *>(nullptr));
 }
 
-Client *BaseSettings::createClient(ProjectExplorer::Project *project)
+Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
 {
     if (!isValid() || !m_enabled)
         return nullptr;
