@@ -27,18 +27,18 @@
 
 #include "pythonconstants.h"
 #include "pythonplugin.h"
+#include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythonutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-
 #include <languageclient/languageclientmanager.h>
-
+#include <languageserverprotocol/workspace.h>
+#include <projectexplorer/session.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
@@ -471,9 +471,50 @@ void PyLSSettings::setInterpreter(const QString &interpreterId)
     m_executable = interpreter.command;
 }
 
+static PythonProject *projectForFile(const FilePath &pythonFile)
+{
+    for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
+        if (auto pythonProject = qobject_cast<PythonProject *>(project)) {
+            if (pythonProject->isKnownFile(pythonFile))
+                return pythonProject;
+        }
+    }
+    return nullptr;
+}
+
+class PyLSClient : public Client
+{
+public:
+    using Client::Client;
+    void openDocument(TextEditor::TextDocument *document) override
+    {
+        using namespace LanguageServerProtocol;
+        if (reachable()) {
+            const FilePath documentPath = document->filePath();
+            if (isSupportedDocument(document) && !projectForFile(documentPath)) {
+                const FilePath workspacePath = documentPath.parentDir();
+                if (!extraWorkspaceDirs.contains(workspacePath)) {
+                    WorkspaceFoldersChangeEvent event;
+                    event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(workspacePath),
+                                                    workspacePath.fileName())});
+                    DidChangeWorkspaceFoldersParams params;
+                    params.setEvent(event);
+                    DidChangeWorkspaceFoldersNotification change(params);
+                    sendContent(change);
+                    extraWorkspaceDirs.append(workspacePath);
+                }
+            }
+        }
+        Client::openDocument(document);
+    }
+
+private:
+    FilePaths extraWorkspaceDirs;
+};
+
 Client *PyLSSettings::createClient(BaseClientInterface *interface) const
 {
-    return new Client(interface);
+    return new PyLSClient(interface);
 }
 
 QJsonObject PyLSSettings::defaultConfiguration()

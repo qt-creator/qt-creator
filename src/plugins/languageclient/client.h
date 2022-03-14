@@ -143,7 +143,7 @@ public:
     bool isSupportedDocument(const TextEditor::TextDocument *document) const;
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
-    void openDocument(TextEditor::TextDocument *document);
+    virtual void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document);
     void activateDocument(TextEditor::TextDocument *document);
     void deactivateDocument(TextEditor::TextDocument *document);
