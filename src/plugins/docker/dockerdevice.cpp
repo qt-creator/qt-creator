@@ -362,13 +362,26 @@ public:
         });
 #endif
 
+        m_pathsListLabel = new InfoLabel(tr("Paths to mount:"));
+        // FIXME: 8.0: use
+        //m_pathsListLabel->setToolTip(tr("Source directory list should not be empty"));
+
         m_pathsListEdit = new PathListEditor;
+        // FIXME: 8.0: use
+        //m_pathsListEdit->setPlaceholderText(tr("Host directories to mount into the container"));
         m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
                                        "docker container."));
         m_pathsListEdit->setPathList(data.mounts);
 
-        connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, this]() {
+        auto markupMounts = [this] {
+            const bool isEmpty = m_pathsListEdit->pathList().isEmpty();
+            m_pathsListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
+        };
+        markupMounts();
+
+        connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, markupMounts, this] {
             dockerDevice->setMounts(m_pathsListEdit->pathList());
+            markupMounts();
         });
 
         auto logView = new QTextBrowser;
@@ -384,6 +397,8 @@ public:
         searchDirsComboBox->addItem(tr("Search in Selected Directories"));
 
         auto searchDirsLineEdit = new FancyLineEdit;
+        // FIXME: 8.0: use
+        //searchDirsLineEdit->setPlaceholderText(tr("Semicolon-separated list of directories"));
         searchDirsLineEdit->setToolTip(
             tr("Select the paths in the docker image that should be scanned for kit entries."));
         searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
@@ -438,7 +453,7 @@ public:
             m_usePathMapping, Break(),
 #endif
             Column {
-                new QLabel(tr("Paths to mount:")),
+                m_pathsListLabel,
                 m_pathsListEdit,
             }, Break(),
             Column {
@@ -481,7 +496,8 @@ private:
 #ifdef ALLOW_LOCAL_ACCESS
     QCheckBox *m_usePathMapping;
 #endif
-    Utils::PathListEditor *m_pathsListEdit;
+    InfoLabel *m_pathsListLabel;
+    PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
 };
