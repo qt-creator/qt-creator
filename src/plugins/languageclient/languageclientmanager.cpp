@@ -286,7 +286,7 @@ void LanguageClientManager::applySettings()
 
     for (BaseSettings *setting : restarts) {
         QList<TextEditor::TextDocument *> documents;
-        const QList<Client *> currentClients = clientForSetting(setting);
+        const QList<Client *> currentClients = clientsForSetting(setting);
         for (Client *client : currentClients) {
             documents << managerInstance->m_clientForDocument.keys(client);
             shutdownClient(client);
@@ -367,7 +367,7 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId)
     managerInstance->applySettings();
 }
 
-QList<Client *> LanguageClientManager::clientForSetting(const BaseSettings *setting)
+QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});
     auto instance = managerInstance;
@@ -506,7 +506,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     for (BaseSettings *setting : settings) {
         if (setting->isValid() && setting->m_enabled
             && setting->m_languageFilter.isSupported(document)) {
-            QList<Client *> clients = clientForSetting(setting);
+            QList<Client *> clients = clientsForSetting(setting);
             if (setting->m_startBehavior == BaseSettings::RequiresProject) {
                 const Utils::FilePath &filePath = document->filePath();
                 for (ProjectExplorer::Project *project :
@@ -569,7 +569,7 @@ void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
         if (setting->isValid()
             && setting->m_enabled
             && setting->m_startBehavior == BaseSettings::RequiresProject) {
-            if (Utils::findOrDefault(clientForSetting(setting),
+            if (Utils::findOrDefault(clientsForSetting(setting),
                                      [project](const QPointer<Client> &client) {
                                          return client->project() == project;
                                      })

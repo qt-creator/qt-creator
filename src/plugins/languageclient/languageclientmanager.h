@@ -81,7 +81,7 @@ public:
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId);
-    static QList<Client *> clientForSetting(const BaseSettings *setting);
+    static QList<Client *> clientsForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForDocument(TextEditor::TextDocument *document);
     static Client *clientForFilePath(const Utils::FilePath &filePath);

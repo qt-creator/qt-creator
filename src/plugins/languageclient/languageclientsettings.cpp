@@ -326,7 +326,7 @@ void LanguageClientSettingsPage::apply()
     LanguageClientManager::applySettings();
 
     for (BaseSettings *setting : m_model.removed()) {
-        for (Client *client : LanguageClientManager::clientForSetting(setting))
+        for (Client *client : LanguageClientManager::clientsForSetting(setting))
             LanguageClientManager::shutdownClient(client);
     }
 

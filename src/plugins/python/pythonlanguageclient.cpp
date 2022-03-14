@@ -442,7 +442,7 @@ bool PyLSSettings::applyFromSettingsWidget(QWidget *widget)
     if (m_configuration != pylswidget->configuration()) {
         m_configuration = pylswidget->configuration();
         if (!changed) { // if only the settings configuration changed just send an update
-            const QList<Client *> clients = LanguageClientManager::clientForSetting(this);
+            const QList<Client *> clients = LanguageClientManager::clientsForSetting(this);
             for (Client *client : clients)
                 client->updateConfiguration(configuration());
         }
@@ -540,7 +540,7 @@ static Client *registerLanguageServer(const FilePath &python)
     settings->m_name = PyLSConfigureAssistant::tr("Python Language Server (%1)")
                            .arg(pythonName(python));
     LanguageClientManager::registerClientSettings(settings);
-    Client *client = LanguageClientManager::clientForSetting(settings).value(0);
+    Client *client = LanguageClientManager::clientsForSetting(settings).value(0);
     PyLSConfigureAssistant::updateEditorInfoBars(python, client);
     return client;
 }
@@ -663,7 +663,7 @@ static void enablePythonLanguageServer(const FilePath &python,
     if (const StdIOSettings *setting = PyLSConfigureAssistant::languageServerForPython(python)) {
         LanguageClientManager::enableClientSettings(setting->m_id);
         if (const StdIOSettings *setting = PyLSConfigureAssistant::languageServerForPython(python)) {
-            if (Client *client = LanguageClientManager::clientForSetting(setting).value(0)) {
+            if (Client *client = LanguageClientManager::clientsForSetting(setting).value(0)) {
                 LanguageClientManager::openDocumentWithClient(document, client);
                 PyLSConfigureAssistant::updateEditorInfoBars(python, client);
             }
@@ -719,7 +719,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         return;
     if (state.state == PythonLanguageServerState::AlreadyConfigured) {
         if (const StdIOSettings *setting = languageServerForPython(python)) {
-            if (Client *client = LanguageClientManager::clientForSetting(setting).value(0))
+            if (Client *client = LanguageClientManager::clientsForSetting(setting).value(0))
                 LanguageClientManager::openDocumentWithClient(document, client);
         }
         return;
