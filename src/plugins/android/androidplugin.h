@@ -44,9 +44,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
     class AndroidPluginPrivate *d = nullptr;
 
-public:
     ShutdownFlag aboutToShutdown() final;
-
 #ifdef WITH_TESTS
 private slots:
    void testAndroidSdkManagerProgressParser_data();

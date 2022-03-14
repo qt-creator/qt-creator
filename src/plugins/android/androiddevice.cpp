@@ -35,8 +35,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/iplugin.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitinformation.h>
@@ -621,28 +619,6 @@ void AndroidDeviceManager::setupDevicesWatcher()
     updateAvdsList();
 }
 
-void AndroidDeviceManager::shutdownDevicesWatcher()
-{
-    m_avdsFutureWatcher.waitForFinished();
-    m_removeAvdFutureWatcher.waitForFinished();
-
-    if (m_adbDeviceWatcherProcess) {
-        m_adbDeviceWatcherProcess->terminate();
-        m_adbDeviceWatcherProcess->waitForFinished();
-        m_adbDeviceWatcherProcess.reset();
-
-        // Despite terminate/waitForFinished, the process may still
-        // be around and remain if Qt Creator finishes too early.
-        QTimer::singleShot(1000, this, [this] { emit devicesWatcherShutdownFinished(); });
-    }
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag AndroidDeviceManager::devicesShutdownFlag() const
-{
-    return m_adbDeviceWatcherProcess ? ExtensionSystem::IPlugin::AsynchronousShutdown
-                                     : ExtensionSystem::IPlugin::SynchronousShutdown;
-}
-
 void AndroidDeviceManager::HandleAvdsListChange()
 {
     DeviceManager *const devMgr = DeviceManager::instance();
@@ -704,6 +680,13 @@ void AndroidDeviceManager::HandleAvdsListChange()
             }
         }
     }
+}
+
+void AndroidDeviceManager::shutdownDevicesWatcher()
+{
+    m_avdsFutureWatcher.waitForFinished();
+    m_removeAvdFutureWatcher.waitForFinished();
+    m_adbDeviceWatcherProcess.reset();
 }
 
 void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)

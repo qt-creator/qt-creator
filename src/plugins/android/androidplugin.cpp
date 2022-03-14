@@ -160,17 +160,10 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     return true;
 }
 
-AndroidPlugin::ShutdownFlag AndroidPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag AndroidPlugin::aboutToShutdown()
 {
-    AndroidDeviceManager *dm = AndroidDeviceManager::instance();
-    const IPlugin::ShutdownFlag sf = dm->devicesShutdownFlag();
-
-    if (sf == AsynchronousShutdown)
-        connect(dm, &AndroidDeviceManager::devicesWatcherShutdownFinished,
-                this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
-
-    dm->shutdownDevicesWatcher();
-    return sf;
+    AndroidDeviceManager::instance()->shutdownDevicesWatcher();
+    return ExtensionSystem::IPlugin::SynchronousShutdown;
 }
 
 void AndroidPlugin::kitsRestored()
