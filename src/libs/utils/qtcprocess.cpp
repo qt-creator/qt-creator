@@ -59,13 +59,6 @@
 #include <limits>
 #include <memory>
 
-#ifdef Q_OS_WIN
-#ifdef QTCREATOR_PCH_H
-#define CALLBACK WINAPI
-#endif
-#include <qt_windows.h>
-#endif
-
 using namespace Utils::Internal;
 
 namespace Utils {
@@ -412,9 +405,9 @@ public:
     QByteArray readAllStandardError() override { return m_process->readAllStandardError(); }
 
     void interrupt() override
-    { QTC_CHECK(false); } // TODO: provide default impl
+    { ProcessHelper::interruptProcess(m_process); }
     void terminate() override
-    { m_process->terminate(); }
+    { ProcessHelper::terminateProcess(m_process); }
     void kill() override
     { m_process->kill(); }
     void close() override
@@ -462,6 +455,7 @@ private:
             m_process->setLowPriority();
         if (m_setup->m_unixTerminalDisabled)
             m_process->setUnixTerminalDisabled();
+        m_process->setUseCtrlCStub(m_setup->m_useCtrlCStub);
         m_process->start(program, arguments, handler->openMode());
         handler->handleProcessStart();
     }
@@ -510,7 +504,10 @@ public:
     QByteArray readAllStandardError() override { return m_handle->readAllStandardError(); }
 
     void interrupt() override
-    { QTC_CHECK(false); } // TODO: send it to process launcher and use there a default impl of QProcessImpl
+    {
+        if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
+            ProcessHelper::interruptPid(processId());
+    }
     void terminate() override { cancel(); } // TODO: what are differences among terminate, kill and close?
     void kill() override { cancel(); } // TODO: see above
     void close() override { cancel(); } // TODO: see above
@@ -863,10 +860,10 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
     // Do not use the stub in debug mode. Activating the stub will shut down
     // Qt Creator otherwise, because they share the same Windows console.
     // See QTCREATORBUG-11995 for details.
-#ifndef QT_DEBUG
-    d->m_setup.m_useCtrlCStub = enabled;
-#else
+#ifdef QT_DEBUG
     Q_UNUSED(enabled)
+#else
+    d->m_setup.m_useCtrlCStub = enabled;
 #endif
 }
 
@@ -900,49 +897,14 @@ void QtcProcess::start()
     d->m_process->start();
 }
 
-#ifdef Q_OS_WIN
-static BOOL sendMessage(UINT message, HWND hwnd, LPARAM lParam)
-{
-    DWORD dwProcessID;
-    GetWindowThreadProcessId(hwnd, &dwProcessID);
-    if ((DWORD)lParam == dwProcessID) {
-        SendNotifyMessage(hwnd, message, 0, 0);
-        return FALSE;
-    }
-    return TRUE;
-}
-
-BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
-{
-    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
-    return sendMessage(uiShutDownMessage, hwnd, lParam);
-}
-
-BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
-{
-    static UINT uiInterruptMessage = RegisterWindowMessage(L"qtcctrlcstub_interrupt");
-    return sendMessage(uiInterruptMessage, hwnd, lParam);
-}
-#endif
-
 void QtcProcess::terminate()
 {
-#ifdef Q_OS_WIN
-    if (d->m_setup.m_useCtrlCStub)
-        EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, processId());
-    else
-#endif
     if (d->m_process)
         d->m_process->terminate();
 }
 
 void QtcProcess::interrupt()
 {
-#ifdef Q_OS_WIN
-    if (d->m_setup.m_useCtrlCStub)
-        EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, processId());
-    else
-#endif
     if (d->m_process)
         d->m_process->interrupt();
 }

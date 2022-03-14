@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "processreaper.h"
+#include "processutils.h"
 #include "qtcassert.h"
 
 #include <QCoreApplication>
@@ -116,8 +117,7 @@ signals:
 private:
     void terminate()
     {
-        // TODO: do a custom terminate here for ctrlCStub
-        m_reaperSetup.m_process->terminate();
+        ProcessHelper::terminateProcess(m_reaperSetup.m_process);
         QTimer::singleShot(m_reaperSetup.m_timeoutMs, this, &Reaper::handleTerminateTimeout);
     }
 

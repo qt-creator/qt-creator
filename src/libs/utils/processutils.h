@@ -26,6 +26,7 @@
 #pragma once
 
 #include "processenums.h"
+#include "processreaper.h"
 
 #include <QIODevice>
 #include <QProcess>
@@ -52,6 +53,8 @@ private:
 
 class ProcessHelper : public QProcess
 {
+    Q_OBJECT
+
 public:
     ProcessHelper(QObject *parent) : QProcess(parent), m_processStartHandler(this)
     {
@@ -70,11 +73,19 @@ public:
 
     void setLowPriority() { m_lowPriority = true; }
     void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
+    void setUseCtrlCStub(bool enabled); // release only
+
+    static void terminateProcess(QProcess *process);
+    static void interruptProcess(QProcess *process);
+    static void interruptPid(qint64 pid);
 
 private:
+    void terminateProcess();
     void setupChildProcess_impl();
+
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
+    bool m_useCtrlCStub = false; // release only
     ProcessStartHandler m_processStartHandler;
 };
 

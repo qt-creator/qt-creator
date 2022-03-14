@@ -26,6 +26,9 @@
 #include "processutils.h"
 
 #ifdef Q_OS_WIN
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
 #include <qt_windows.h>
 #else
 #include <errno.h>
@@ -82,6 +85,79 @@ void ProcessStartHandler::setNativeArguments(const QString &arguments)
 #endif // Q_OS_WIN
 }
 
+#ifdef Q_OS_WIN
+static BOOL sendMessage(UINT message, HWND hwnd, LPARAM lParam)
+{
+    DWORD dwProcessID;
+    GetWindowThreadProcessId(hwnd, &dwProcessID);
+    if ((DWORD)lParam == dwProcessID) {
+        SendNotifyMessage(hwnd, message, 0, 0);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+{
+    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
+    return sendMessage(uiShutDownMessage, hwnd, lParam);
+}
+
+BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+{
+    static UINT uiInterruptMessage = RegisterWindowMessage(L"qtcctrlcstub_interrupt");
+    return sendMessage(uiInterruptMessage, hwnd, lParam);
+}
+#endif
+
+void ProcessHelper::setUseCtrlCStub(bool enabled)
+{
+    // Do not use the stub in debug mode. Activating the stub will shut down
+    // Qt Creator otherwise, because they share the same Windows console.
+    // See QTCREATORBUG-11995 for details.
+#ifdef QT_DEBUG
+    Q_UNUSED(enabled)
+#else
+    m_useCtrlCStub = enabled;
+#endif
+}
+
+void ProcessHelper::terminateProcess()
+{
+#ifdef Q_OS_WIN
+    if (m_useCtrlCStub)
+        EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, processId());
+    else
+        terminate();
+#else
+    terminate();
+#endif
+}
+
+void ProcessHelper::terminateProcess(QProcess *process)
+{
+    ProcessHelper *helper = qobject_cast<ProcessHelper *>(process);
+    if (helper)
+        helper->terminateProcess();
+    else
+        process->terminate();
+}
+
+void ProcessHelper::interruptPid(qint64 pid)
+{
+#ifdef Q_OS_WIN
+    EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, pid);
+#else
+    Q_UNUSED(pid)
+#endif
+}
+
+void ProcessHelper::interruptProcess(QProcess *process)
+{
+    ProcessHelper *helper = qobject_cast<ProcessHelper *>(process);
+    if (helper && helper->m_useCtrlCStub)
+        ProcessHelper::interruptPid(process->processId());
+}
 
 void ProcessHelper::setupChildProcess_impl()
 {

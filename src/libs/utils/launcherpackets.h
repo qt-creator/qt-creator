@@ -119,6 +119,7 @@ public:
     QString nativeArguments;
     bool lowPriority = false;
     bool unixTerminalDisabled = false;
+    bool useCtrlCStub = false;
 
 private:
     void doSerialize(QDataStream &stream) const override;

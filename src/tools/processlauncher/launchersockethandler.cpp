@@ -216,6 +216,7 @@ void LauncherSocketHandler::handleStartPacket()
         process->setLowPriority();
     if (packet.unixTerminalDisabled)
         process->setUnixTerminalDisabled();
+    process->setUseCtrlCStub(packet.useCtrlCStub);
     process->start(packet.command, packet.arguments, handler->openMode());
     handler->handleProcessStart();
 }

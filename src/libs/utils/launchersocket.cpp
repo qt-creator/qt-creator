@@ -402,6 +402,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p->nativeArguments = m_setup->m_nativeArguments;
     p->lowPriority = m_setup->m_lowPriority;
     p->unixTerminalDisabled = m_setup->m_unixTerminalDisabled;
+    p->useCtrlCStub = m_setup->m_useCtrlCStub;
     m_startPacket.reset(p);
     if (LauncherInterface::isReady())
         doStart();
