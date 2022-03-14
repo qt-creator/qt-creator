@@ -123,6 +123,7 @@ public:
 
 private:
     AndroidDeviceManager(QObject *parent = nullptr);
+    ~AndroidDeviceManager();
     void HandleDevicesListChange(const QString &serialNumber);
     void HandleAvdsListChange();
     void handleAvdRemoved();
@@ -135,6 +136,8 @@ private:
     std::unique_ptr<Utils::QtcProcess> m_adbDeviceWatcherProcess;
     AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
+
+    friend class AndroidPluginPrivate;
 };
 
 } // namespace Internal

@@ -136,6 +136,7 @@ public:
     };
 
     AndroidBuildApkStepFactory buildApkStepFactory;
+    AndroidDeviceManager deviceManager;
 };
 
 AndroidPlugin::~AndroidPlugin()
