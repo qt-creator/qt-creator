@@ -382,12 +382,12 @@ public:
         searchDirsComboBox->addItem(tr("Search in PATH"));
         searchDirsComboBox->addItem(tr("Search in Selected Directories"));
 
-        auto searchDirsLineEdit = new QLineEdit;
-        searchDirsLineEdit->setText("/usr/bin;/opt");
+        auto searchDirsLineEdit = new FancyLineEdit;
         searchDirsLineEdit->setToolTip(
             tr("Select the paths in the docker image that should be scanned for kit entries."));
+        searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
 
-        auto searchPaths = [this, searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
+        auto searchPaths = [searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
             FilePaths paths;
             if (searchDirsComboBox->currentIndex() == 0) {
                 paths = dockerDevice->systemEnvironment().path();
@@ -458,8 +458,10 @@ public:
         }.attachTo(this);
 
         searchDirsLineEdit->setVisible(false);
-        auto updateDirectoriesLineEdit = [this, searchDirsLineEdit](int index) {
+        auto updateDirectoriesLineEdit = [searchDirsLineEdit](int index) {
             searchDirsLineEdit->setVisible(index == 1);
+            if (index == 1)
+                searchDirsLineEdit->setFocus();
         };
         QObject::connect(searchDirsComboBox, qOverload<int>(&QComboBox::activated),
                          this, updateDirectoriesLineEdit);
