@@ -141,7 +141,7 @@ QString NodeListView::setNodeId(int internalId, const QString &id)
 {
     ModelNode node = modelNodeForInternalId(internalId);
     if (node.isValid()) {
-        QString newId = generateNewId(id);
+        QString newId = model()->generateNewId(id);
         node.setIdWithRefactoring(newId);
         return newId;
     }

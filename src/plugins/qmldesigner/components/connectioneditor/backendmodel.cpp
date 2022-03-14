@@ -241,7 +241,7 @@ void BackendModel::addNewBackend()
         if (!model->hasImport(import))
             model->changeImports({import}, {});
 
-        QString propertyName = m_connectionView->generateNewId(typeName);
+        QString propertyName = m_connectionView->model()->generateNewId(typeName);
 
         NodeMetaInfo metaInfo = model->metaInfo(typeName.toUtf8());
 

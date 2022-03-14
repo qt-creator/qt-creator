@@ -142,9 +142,10 @@ void ItemLibraryAssetImporter::addInfo(const QString &infoMsg, const QString &sr
     emit infoReported(infoMsg, srcPath);
 }
 
-void ItemLibraryAssetImporter::importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void ItemLibraryAssetImporter::importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
+                                                     int importId)
 {
-    Q_UNUSED(exitStatus)
+    Q_UNUSED(exitCode)
 
     ++m_qmlImportFinishedCount;
 
@@ -154,9 +155,32 @@ void ItemLibraryAssetImporter::importProcessFinished(int exitCode, QProcess::Exi
         return !entry || entry->state() == QProcess::NotRunning;
     }));
 
-    if (m_parseData.contains(-exitCode)) {
-        const ParseData pd = m_parseData.take(-exitCode);
-        addError(tr("Asset import process failed for: \"%1\".").arg(pd.sourceInfo.absoluteFilePath()));
+    if (m_parseData.contains(importId)) {
+        const ParseData &pd = m_parseData[importId];
+        QString errStr;
+        if (exitStatus == QProcess::ExitStatus::CrashExit) {
+            errStr = tr("Import process crashed.");
+        } else {
+            bool unknownFail = !pd.outDir.exists() || pd.outDir.isEmpty();
+            if (!unknownFail) {
+                QFile errorLog(pd.outDir.filePath("__error.log"));
+                if (errorLog.exists()) {
+                    if (errorLog.open(QIODevice::ReadOnly))
+                        errStr = QString::fromUtf8(errorLog.readAll());
+                    else
+                        unknownFail = true;
+                }
+            }
+            if (unknownFail)
+                errStr = tr("Import failed for unknown reason.");
+        }
+
+        if (!errStr.isEmpty()) {
+            addError(tr("Asset import process failed: \"%1\".")
+                     .arg(pd.sourceInfo.absoluteFilePath()));
+            addError(errStr);
+            m_parseData.remove(importId);
+        }
     }
 
     if (m_qmlImportFinishedCount == m_qmlPuppetCount) {
@@ -565,15 +589,14 @@ bool ItemLibraryAssetImporter::startImportProcess(const ParseData &pd)
         QJsonDocument optDoc(pd.options);
 
         puppetArgs << "--import3dAsset" << pd.sourceInfo.absoluteFilePath()
-                   << pd.outDir.absolutePath() << QString::number(pd.importId)
-                   << QString::fromUtf8(optDoc.toJson());
+                   << pd.outDir.absolutePath() << QString::fromUtf8(optDoc.toJson());
 
         QProcessUniquePointer process = puppetCreator.createPuppetProcess(
             "custom",
             {},
             [&] {},
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
-                importProcessFinished(exitCode, exitStatus);
+                importProcessFinished(exitCode, exitStatus, pd.importId);
             },
             puppetArgs);
 

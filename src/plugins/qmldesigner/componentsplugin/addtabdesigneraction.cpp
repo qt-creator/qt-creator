@@ -131,7 +131,7 @@ void AddTabDesignerAction::addNewTab()
                                                                                        tabViewModelNode.majorVersion(),
                                                                                        tabViewModelNode.minorVersion(),
                                                                                        propertyList);
-                newTabModelNode.setIdWithRefactoring(newTabModelNode.view()->generateNewId(tabName));
+                newTabModelNode.setIdWithRefactoring(newTabModelNode.model()->generateNewId(tabName));
                 tabViewModelNode.defaultNodeAbstractProperty().reparentHere(newTabModelNode);
             }
         }

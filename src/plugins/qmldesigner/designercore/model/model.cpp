@@ -67,6 +67,8 @@
 
 #include <utils/algorithm.h>
 
+#include <QRegularExpression>
+
 /*!
 \defgroup CoreModel
 */
@@ -1442,6 +1444,57 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
     }
 
     return false;
+}
+
+bool Model::hasId(const QString &id) const
+{
+    return d->hasId(id);
+}
+
+static QString firstCharToLower(const QString &string)
+{
+    QString resultString = string;
+
+    if (!resultString.isEmpty())
+        resultString[0] = resultString.at(0).toLower();
+
+    return resultString;
+}
+
+QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
+{
+    // First try just the prefixName without number as postfix, then continue with 2 and further
+    // as postfix until id does not already exist.
+    // Properties of the root node are not allowed for ids, because they are available in the
+    // complete context without qualification.
+
+    int counter = 0;
+
+    QString newBaseId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
+    newBaseId.remove(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_]")));
+
+    if (!newBaseId.isEmpty()) {
+        QChar firstChar = newBaseId.at(0);
+        if (firstChar.isDigit())
+            newBaseId.prepend('_');
+    } else {
+        newBaseId = fallbackPrefix;
+    }
+
+    QString newId = newBaseId;
+
+    while (!ModelNode::isValidId(newId) || hasId(newId)
+           || d->rootNode()->hasProperty(newId.toUtf8())) {
+        ++counter;
+        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(newBaseId)).arg(counter);
+    }
+
+    return newId;
+}
+
+QString Model::generateNewId(const QString &prefixName) const
+{
+    return generateNewId(prefixName, QStringLiteral("element"));
 }
 
 bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion) const

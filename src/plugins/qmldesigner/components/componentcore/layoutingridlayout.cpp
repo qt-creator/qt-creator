@@ -419,7 +419,7 @@ void LayoutInGridLayout::fillEmptyCells()
                 newItemNode.setVariantProperty("y", yPos);
                 newItemNode.setVariantProperty("width", 14);
                 newItemNode.setVariantProperty("height", 14);
-                newItemNode.setId(m_selectionContext.view()->generateNewId("spacer"));
+                newItemNode.setId(m_selectionContext.view()->model()->generateNewId("spacer"));
             }
     m_layoutedNodes.append(m_spacerNodes);
 }

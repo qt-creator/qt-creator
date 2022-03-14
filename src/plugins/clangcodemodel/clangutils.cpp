@@ -379,6 +379,8 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
 {
     QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
+    QTC_ASSERT(projectInfo, return GenerateCompilationDbResult(QString(),
+        "Could not retrieve project info."));
     QTC_CHECK(baseDir.ensureWritableDir());
     QFile compileCommandsFile(baseDir.toString() + "/compile_commands.json");
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);

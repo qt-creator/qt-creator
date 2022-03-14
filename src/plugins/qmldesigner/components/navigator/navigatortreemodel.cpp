@@ -910,8 +910,8 @@ ModelNode NavigatorTreeModel::handleItemLibraryShaderDrop(const QString &shaderP
 
             // Rename the node based on shader source
             QFileInfo fi(relPath);
-            newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(),
-                                                                       "shader"));
+            newModelNode.setIdWithoutRefactoring(
+                m_view->model()->generateNewId(fi.baseName(), "shader"));
             // Passes can't have children, so move shader node under parent
             if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass")) {
                 BindingProperty listProp = targetNode.bindingProperty("shaders");
@@ -956,9 +956,9 @@ ModelNode NavigatorTreeModel::handleItemLibrarySoundDrop(const QString &soundPat
 
         // Rename the node based on source
         QFileInfo fi(relPath);
-        newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(),
-                                                                   "soundEffect"));
-        }
+        newModelNode.setIdWithoutRefactoring(
+            m_view->model()->generateNewId(fi.baseName(), "soundEffect"));
+    }
 
     return newModelNode;
 }
@@ -1073,7 +1073,8 @@ ModelNode NavigatorTreeModel::createTextureNode(const NodeAbstractProperty &targ
 
         // Rename the node based on source image
         QFileInfo fi(imagePath);
-        newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(), "textureImage"));
+        newModelNode.setIdWithoutRefactoring(
+            m_view->model()->generateNewId(fi.baseName(), "textureImage"));
         return newModelNode;
     }
     return {};

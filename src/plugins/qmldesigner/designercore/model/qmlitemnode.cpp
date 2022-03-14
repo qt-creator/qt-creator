@@ -117,7 +117,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         parentproperty.reparentHere(newQmlItemNode);
 
         QFileInfo fi(relativeImageName);
-        newQmlItemNode.setId(view->generateNewId(fi.baseName(), "image"));
+        newQmlItemNode.setId(view->model()->generateNewId(fi.baseName(), "image"));
 
         newQmlItemNode.modelNode().variantProperty("fillMode").setEnumeration("Image.PreserveAspectFit");
 
@@ -168,7 +168,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
                                                            metaInfo.minorVersion(), propertyPairList));
         parentproperty.reparentHere(newQmlItemNode);
 
-        newQmlItemNode.setId(view->generateNewId("text", "text"));
+        newQmlItemNode.setId(view->model()->generateNewId("text", "text"));
 
         Q_ASSERT(newQmlItemNode.isValid());
     };

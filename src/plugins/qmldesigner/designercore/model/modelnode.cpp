@@ -25,7 +25,6 @@
 
 #include "modelnode.h"
 #include <abstractproperty.h>
-#include <abstractview.h>
 #include <model.h>
 #include <nodemetainfo.h>
 #include "internalnode_p.h"
@@ -144,7 +143,7 @@ QString ModelNode::id() const
 QString ModelNode::validId()
 {
     if (id().isEmpty())
-        setIdWithRefactoring(view()->generateNewId(simplifiedTypeName()));
+        setIdWithRefactoring(model()->generateNewId(simplifiedTypeName()));
 
     return id();
 }
@@ -270,7 +269,8 @@ void ModelNode::setIdWithoutRefactoring(const QString &id)
     if (id == m_internalNode->id())
         return;
 
-    if (view()->hasId(id))
+
+    if (model()->hasId(id))
         throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::DuplicateId);
 
     m_model.data()->d->changeNodeId(internalNode(), id);
