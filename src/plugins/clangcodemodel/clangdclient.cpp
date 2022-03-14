@@ -1727,7 +1727,7 @@ QString ClangdClient::displayNameFromDocumentSymbol(SymbolKind kind, const QStri
 void ClangdClient::handleUiHeaderChange(const QString &fileName)
 {
     const QRegularExpression includeRex("#include.*" + fileName + R"([>"])");
-    const QVector<Client *> &allClients = LanguageClientManager::clients();
+    const QList<Client *> &allClients = LanguageClientManager::clients();
     for (Client * const client : allClients) {
         if (!client->reachable() || !qobject_cast<ClangdClient *>(client))
             continue;

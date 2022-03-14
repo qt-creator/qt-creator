@@ -100,7 +100,7 @@ public:
     /// request workspace symbols for all clients with enabled locator
     void prepareSearch(const QString &entry) override;
     /// force request workspace symbols for all given clients
-    void prepareSearch(const QString &entry, const QVector<Client *> &clients);
+    void prepareSearch(const QString &entry, const QList<Client *> &clients);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(const Core::LocatorFilterEntry &selection,
@@ -117,7 +117,7 @@ protected:
     void setMaxResultCount(qint64 limit) { m_maxResultCount = limit; }
 
 private:
-    void prepareSearch(const QString &entry, const QVector<Client *> &clients, bool force);
+    void prepareSearch(const QString &entry, const QList<Client *> &clients, bool force);
     void handleResponse(Client *client,
                         const LanguageServerProtocol::WorkspaceSymbolRequest::Response &response);
 

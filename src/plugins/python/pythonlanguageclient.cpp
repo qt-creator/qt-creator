@@ -442,7 +442,7 @@ bool PyLSSettings::applyFromSettingsWidget(QWidget *widget)
     if (m_configuration != pylswidget->configuration()) {
         m_configuration = pylswidget->configuration();
         if (!changed) { // if only the settings configuration changed just send an update
-            const QVector<Client *> clients = LanguageClientManager::clientForSetting(this);
+            const QList<Client *> clients = LanguageClientManager::clientForSetting(this);
             for (Client *client : clients)
                 client->updateConfiguration(configuration());
         }

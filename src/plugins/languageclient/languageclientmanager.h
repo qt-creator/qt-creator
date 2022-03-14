@@ -62,7 +62,7 @@ public:
     static void clientStarted(Client *client);
     static void clientFinished(Client *client);
     static Client *startClient(BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
-    static QVector<Client *> clients();
+    static QList<Client *> clients();
     static void addClient(Client *client);
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
@@ -81,7 +81,7 @@ public:
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId);
-    static QVector<Client *> clientForSetting(const BaseSettings *setting);
+    static QList<Client *> clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForDocument(TextEditor::TextDocument *document);
     static Client *clientForFilePath(const Utils::FilePath &filePath);
@@ -117,12 +117,12 @@ private:
     void updateProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project *project);
 
-    QVector<Client *> reachableClients();
+    QList<Client *> reachableClients();
 
     bool m_shuttingDown = false;
-    QVector<Client *> m_clients;
+    QList<Client *> m_clients;
     QList<BaseSettings *>  m_currentSettings; // owned
-    QMap<QString, QVector<Client *>> m_clientsForSetting;
+    QMap<QString, QList<Client *>> m_clientsForSetting;
     QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;

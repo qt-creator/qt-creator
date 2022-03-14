@@ -157,7 +157,7 @@ ClangGlobalSymbolFilter::~ClangGlobalSymbolFilter()
 void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
 {
     m_cppFilter->prepareSearch(entry);
-    QVector<LanguageClient::Client *> clients;
+    QList<LanguageClient::Client *> clients;
     for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
         LanguageClient::Client * const client
                 = ClangModelManagerSupport::instance()->clientForProject(project);

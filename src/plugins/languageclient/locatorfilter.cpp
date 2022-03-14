@@ -253,13 +253,13 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry)
     prepareSearch(entry, LanguageClientManager::clients(), false);
 }
 
-void WorkspaceLocatorFilter::prepareSearch(const QString &entry, const QVector<Client *> &clients)
+void WorkspaceLocatorFilter::prepareSearch(const QString &entry, const QList<Client *> &clients)
 {
     prepareSearch(entry, clients, true);
 }
 
 void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
-                                           const QVector<Client *> &clients,
+                                           const QList<Client *> &clients,
                                            bool force)
 {
     m_pendingRequests.clear();

@@ -189,7 +189,7 @@ Client *LanguageClientManager::startClient(BaseSettings *setting, ProjectExplore
     return client;
 }
 
-QVector<Client *> LanguageClientManager::clients()
+QList<Client *> LanguageClientManager::clients()
 {
     QTC_ASSERT(managerInstance, return {});
     return managerInstance->m_clients;
@@ -233,7 +233,7 @@ void LanguageClientManager::deleteClient(Client *client)
     qCDebug(Log) << "delete client: " << client->name() << client;
     client->disconnect(managerInstance);
     managerInstance->m_clients.removeAll(client);
-    for (QVector<Client *> &clients : managerInstance->m_clientsForSetting)
+    for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
     if (managerInstance->m_shuttingDown) {
         delete client;
@@ -272,7 +272,7 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(const TextEdito
     QTC_ASSERT(doc, return {};);
     return Utils::filtered(managerInstance->reachableClients(), [doc](Client *client) {
         return client->isSupportedDocument(doc);
-    }).toList();
+    });
 }
 
 void LanguageClientManager::applySettings()
@@ -286,7 +286,7 @@ void LanguageClientManager::applySettings()
 
     for (BaseSettings *setting : restarts) {
         QList<TextEditor::TextDocument *> documents;
-        const QVector<Client *> currentClients = clientForSetting(setting);
+        const QList<Client *> currentClients = clientForSetting(setting);
         for (Client *client : currentClients) {
             documents << managerInstance->m_clientForDocument.keys(client);
             shutdownClient(client);
@@ -367,7 +367,7 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId)
     managerInstance->applySettings();
 }
 
-QVector<Client *> LanguageClientManager::clientForSetting(const BaseSettings *setting)
+QList<Client *> LanguageClientManager::clientForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});
     auto instance = managerInstance;
@@ -414,7 +414,7 @@ const QList<Client *> LanguageClientManager::clientsForProject(
 {
     return Utils::filtered(managerInstance->m_clients, [project](const Client *c) {
         return c->project() == project;
-    }).toList();
+    });
 }
 
 void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document, Client *client)
@@ -455,7 +455,7 @@ void LanguageClientManager::showInspector()
     inspectorWidget->show();
 }
 
-QVector<Client *> LanguageClientManager::reachableClients()
+QList<Client *> LanguageClientManager::reachableClients()
 {
     return Utils::filtered(m_clients, &Client::reachable);
 }
@@ -506,7 +506,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     for (BaseSettings *setting : settings) {
         if (setting->isValid() && setting->m_enabled
             && setting->m_languageFilter.isSupported(document)) {
-            QVector<Client *> clients = clientForSetting(setting);
+            QList<Client *> clients = clientForSetting(setting);
             if (setting->m_startBehavior == BaseSettings::RequiresProject) {
                 const Utils::FilePath &filePath = document->filePath();
                 for (ProjectExplorer::Project *project :
@@ -548,7 +548,7 @@ void LanguageClientManager::documentClosed(Core::IDocument *document)
 void LanguageClientManager::documentContentsSaved(Core::IDocument *document)
 {
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        const QVector<Client *> &clients = reachableClients();
+        const QList<Client *> &clients = reachableClients();
         for (Client *client : clients)
             client->documentContentsSaved(textDocument);
     }
@@ -557,7 +557,7 @@ void LanguageClientManager::documentContentsSaved(Core::IDocument *document)
 void LanguageClientManager::documentWillSave(Core::IDocument *document)
 {
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        const QVector<Client *> &clients = reachableClients();
+        const QList<Client *> &clients = reachableClients();
         for (Client *client : clients)
             client->documentWillSave(textDocument);
     }
@@ -598,7 +598,7 @@ void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
     connect(project, &ProjectExplorer::Project::fileListChanged, this, [this, project]() {
         updateProject(project);
     });
-    const QVector<Client *> &clients = reachableClients();
+    const QList<Client *> &clients = reachableClients();
     for (Client *client : clients)
         client->projectOpened(project);
 }
