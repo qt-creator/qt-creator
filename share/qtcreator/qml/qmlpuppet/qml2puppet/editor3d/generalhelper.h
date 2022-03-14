@@ -33,6 +33,7 @@
 #include <QPointer>
 #include <QQuaternion>
 #include <QTimer>
+#include <QUrl>
 #include <QVariant>
 #include <QVector3D>
 #include <QtQuick3D/private/qquick3dpickresult_p.h>
@@ -58,6 +59,7 @@ public:
 
     Q_INVOKABLE void requestOverlayUpdate();
     Q_INVOKABLE QString generateUniqueName(const QString &nameRoot);
+    Q_INVOKABLE QUrl resolveAbsoluteSourceUrl(const QQuick3DModel *sourceModel);
 
     Q_INVOKABLE void orbitCamera(QQuick3DCamera *camera, const QVector3D &startRotation,
                                  const QVector3D &lookAtPoint, const QVector3D &pressPos,

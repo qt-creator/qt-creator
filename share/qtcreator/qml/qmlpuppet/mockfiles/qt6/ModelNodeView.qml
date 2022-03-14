@@ -37,7 +37,7 @@ View3D {
     function fitToViewPort()
     {
         // The magic number is the distance from camera default pos to origin
-        _generalHelper.calculateNodeBoundsAndFocusCamera(theCamera, importScene, root,
+        _generalHelper.calculateNodeBoundsAndFocusCamera(theCamera, sourceModel, root,
                                                          1040);
     }
 
@@ -65,7 +65,7 @@ View3D {
 
     Model {
         id: model
-        source: sourceModel.source
+        source: _generalHelper.resolveAbsoluteSourceUrl(sourceModel)
         geometry: sourceModel.geometry
 
         materials: [

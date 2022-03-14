@@ -42,6 +42,7 @@
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
 #include <QtQuick3DUtils/private/qssgutils_p.h>
+#include <QtQml/qqml.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmath.h>
@@ -91,6 +92,26 @@ QString GeneralHelper::generateUniqueName(const QString &nameRoot)
     static QHash<QString, int> counters;
     int count = counters[nameRoot]++;
     return QStringLiteral("%1_%2").arg(nameRoot).arg(count);
+}
+
+// Resolves absolute model source path
+QUrl GeneralHelper::resolveAbsoluteSourceUrl(const QQuick3DModel *sourceModel)
+{
+    if (!sourceModel)
+        return {};
+
+    const QUrl source = sourceModel->source();
+    if (source.hasFragment()) {
+        // Fragment is part of the url separated by '#', check if it is an index or primitive
+        bool isNumber = false;
+        source.fragment().toInt(&isNumber);
+        // If it wasn't an index, then it was a primitive and we can return it as-is
+        if (!isNumber)
+            return source;
+    }
+
+    const QQmlContext *context = qmlContext(sourceModel);
+    return context ? context->resolvedUrl(source) : source;
 }
 
 void GeneralHelper::orbitCamera(QQuick3DCamera *camera, const QVector3D &startRotation,
