@@ -42,6 +42,7 @@ class QStandardItemModel;
 QT_END_NAMESPACE
 
 namespace StudioWelcome {
+
 class QdsNewDialog : public QObject, public Core::NewDialog
 {
     Q_OBJECT
@@ -151,6 +152,7 @@ private:
     QString projectDescription() const { return m_qmlProjectDescription; }
 
     void updateScreenSizes();
+    bool eventFilter(QObject *obj, QEvent *ev) override;
 
 private slots:
     void onDeletingWizard();
