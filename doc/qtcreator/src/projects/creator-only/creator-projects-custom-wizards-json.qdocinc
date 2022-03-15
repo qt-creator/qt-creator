@@ -659,28 +659,22 @@
             value of the widget, the user-provided value is stored and will
             become the new default value the next time the wizard is run.
 
-        \li \c data specifies settings for the widget:
+        \li \c visible is set to \c true if the widget is visible, otherwise
+            it is set to \c false. By default, it is set to \c true.
 
-        \list
+        \li \c enabled is set to \c true if the widget is enabled, otherwise
+            it is set to \c false. By default, it is set to \c true.
 
-            \li \c visible is set to \c true if the widget is visible, otherwise
-                it is set to \c false. By default, it is set to \c true.
+        \li \c mandatory is set to \c true if this widget must have a value
+            for the \uicontrol Next button to become enabled. By default, it
+            is set to \c true.
 
-            \li \c enabled is set to \c true if the widget is enabled, otherwise
-                it is set to \c false. By default, it is set to \c true.
+        \li \c span is set to hide the label and to span the form. By
+            default, it is set to \c false. For more information, see
+            \l{Using Variables in Wizards}.
 
-            \li \c mandatory is set to \c true if this widget must have a value
-                for the \uicontrol Next button to become enabled. By default, it
-                is set to \c true.
-
-            \li \c span is set to hide the label and to span the form. By
-                default, it is set to \c false. For more information, see
-                \l{Using Variables in Wizards}.
-
-       \endlist
-
-       The additional settings available for a particular widget are described
-       in the following sections.
+        \li \c data specifies additional settings for the particular widget type, as described
+            in the following sections.
 
     \endlist
 
