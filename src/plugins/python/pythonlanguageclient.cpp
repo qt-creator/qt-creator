@@ -635,19 +635,6 @@ static void enablePythonLanguageServer(const FilePath &python,
     }
 }
 
-void PyLSConfigureAssistant::documentOpened(Core::IDocument *document)
-{
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-    if (!textDocument || textDocument->mimeType() != Constants::C_PY_MIMETYPE)
-        return;
-
-    const FilePath &python = detectPython(textDocument->filePath());
-    if (!python.exists())
-        return;
-
-    instance()->openDocumentWithPython(python, textDocument);
-}
-
 void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                                     TextEditor::TextDocument *document)
 {

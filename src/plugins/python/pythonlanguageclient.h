@@ -72,7 +72,6 @@ public:
 
     static const LanguageClient::StdIOSettings *languageServerForPython(
         const Utils::FilePath &python);
-    static void documentOpened(Core::IDocument *document);
     static void updateEditorInfoBars(const Utils::FilePath &python, LanguageClient::Client *client);
 
     void openDocumentWithPython(const Utils::FilePath &python, TextEditor::TextDocument *document);

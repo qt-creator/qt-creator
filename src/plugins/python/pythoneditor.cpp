@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "pythoneditor.h"
+
 #include "pythonconstants.h"
 #include "pythonhighlighter.h"
 #include "pythonindenter.h"
+#include "pythonlanguageclient.h"
 #include "pythonsettings.h"
 #include "pythonutils.h"
 
@@ -102,6 +104,23 @@ static QWidget *createEditorWidget()
     return widget;
 }
 
+class PythonDocument : public TextEditor::TextDocument
+{
+public:
+    PythonDocument() : TextEditor::TextDocument(Constants::C_PYTHONEDITOR_ID) {}
+
+    void setFilePath(const Utils::FilePath &filePath) override
+    {
+        TextEditor::TextDocument::setFilePath(filePath);
+
+        const Utils::FilePath &python = detectPython(filePath);
+        if (!python.exists())
+            return;
+
+        PyLSConfigureAssistant::instance()->openDocumentWithPython(python, this);
+    }
+};
+
 PythonEditorFactory::PythonEditorFactory()
 {
     registerReplAction(this);
@@ -116,7 +135,7 @@ PythonEditorFactory::PythonEditorFactory()
                             | TextEditor::TextEditorActionHandler::UnCollapseAll
                             | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
 
-    setDocumentCreator([] { return new TextEditor::TextDocument(Constants::C_PYTHONEDITOR_ID); });
+    setDocumentCreator([]() { return new PythonDocument; });
     setEditorWidgetCreator(createEditorWidget);
     setIndenterCreator([](QTextDocument *doc) { return new PythonIndenter(doc); });
     setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
