@@ -25,6 +25,7 @@
 
 #include "pythonlanguageclient.h"
 
+#include "pipsupport.h"
 #include "pythonconstants.h"
 #include "pythonplugin.h"
 #include "pythonproject.h"
@@ -586,95 +587,6 @@ static Client *registerLanguageServer(const FilePath &python)
     return client;
 }
 
-class PythonLSInstallHelper : public QObject
-{
-    Q_OBJECT
-public:
-    PythonLSInstallHelper(const FilePath &python, QPointer<TextEditor::TextDocument> document)
-        : m_python(python)
-        , m_document(document)
-    {
-        m_watcher.setFuture(m_future.future());
-    }
-
-    void run()
-    {
-        Core::ProgressManager::addTask(m_future.future(), "Install PyLS", installPylsTaskId);
-        connect(&m_process, &QtcProcess::finished, this, &PythonLSInstallHelper::installFinished);
-        connect(&m_process,
-                &QtcProcess::readyReadStandardError,
-                this,
-                &PythonLSInstallHelper::errorAvailable);
-        connect(&m_process,
-                &QtcProcess::readyReadStandardOutput,
-                this,
-                &PythonLSInstallHelper::outputAvailable);
-
-        connect(&m_killTimer, &QTimer::timeout, this, &PythonLSInstallHelper::cancel);
-        connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PythonLSInstallHelper::cancel);
-
-        QStringList arguments = {"-m", "pip", "install", "python-lsp-server[all]"};
-
-        // add --user to global pythons, but skip it for venv pythons
-        if (!QDir(m_python.parentDir().toString()).exists("activate"))
-            arguments << "--user";
-
-        m_process.setCommand({m_python, arguments});
-        m_process.start();
-
-        Core::MessageManager::writeDisrupting(
-            tr("Running \"%1\" to install Python language server.")
-                .arg(m_process.commandLine().toUserOutput()));
-
-        m_killTimer.setSingleShot(true);
-        m_killTimer.start(5 /*minutes*/ * 60 * 1000);
-    }
-
-private:
-    void cancel()
-    {
-        m_process.stopProcess();
-        Core::MessageManager::writeFlashing(
-            tr("The Python language server installation was canceled by %1.")
-                .arg(m_killTimer.isActive() ? tr("user") : tr("time out")));
-    }
-
-    void installFinished()
-    {
-        m_future.reportFinished();
-        if (m_process.result() == ProcessResult::FinishedWithSuccess) {
-            if (Client *client = registerLanguageServer(m_python))
-                LanguageClientManager::openDocumentWithClient(m_document, client);
-        } else {
-            Core::MessageManager::writeFlashing(
-                tr("Installing the Python language server failed with exit code %1")
-                    .arg(m_process.exitCode()));
-        }
-        deleteLater();
-    }
-
-    void outputAvailable()
-    {
-        const QString &stdOut = QString::fromLocal8Bit(m_process.readAllStandardOutput().trimmed());
-        if (!stdOut.isEmpty())
-            Core::MessageManager::writeSilently(stdOut);
-    }
-
-    void errorAvailable()
-    {
-        const QString &stdErr = QString::fromLocal8Bit(m_process.readAllStandardError().trimmed());
-        if (!stdErr.isEmpty())
-            Core::MessageManager::writeSilently(stdErr);
-    }
-
-    QFutureInterface<void> m_future;
-    QFutureWatcher<void> m_watcher;
-    QtcProcess m_process;
-    QTimer m_killTimer;
-    const FilePath m_python;
-    QPointer<TextEditor::TextDocument> m_document;
-};
-
 void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
                                                          QPointer<TextEditor::TextDocument> document)
 {
@@ -685,7 +597,19 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
     for (TextEditor::TextDocument *additionalDocument : m_infoBarEntries[python])
         additionalDocument->infoBar()->removeInfo(installPylsInfoBarId);
 
-    auto install = new PythonLSInstallHelper(python, document);
+    auto install = new PipInstallTask(python);
+
+    connect(install, &PipInstallTask::finished, this, [=](const bool success) {
+        if (success) {
+            if (Client *client = registerLanguageServer(python)) {
+                if (document)
+                    LanguageClientManager::openDocumentWithClient(document, client);
+            }
+        }
+        install->deleteLater();
+    });
+
+    install->setPackage(PipPackage{"python-lsp-server[all]", "Python Language Server"});
     install->run();
 }
 
@@ -839,5 +763,3 @@ PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)
 
 } // namespace Internal
 } // namespace Python
-
-#include "pythonlanguageclient.moc"

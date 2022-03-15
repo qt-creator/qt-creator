@@ -17,6 +17,8 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "pipsupport.cpp",
+            "pipsupport.h",
             "python.qrc",
             "pythonconstants.h",
             "pythoneditor.cpp",
