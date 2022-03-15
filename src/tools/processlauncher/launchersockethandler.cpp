@@ -136,15 +136,19 @@ void LauncherSocketHandler::handleSocketClosed()
 void LauncherSocketHandler::handleProcessError()
 {
     Process * proc = senderProcess();
+
+    // In case of FailedToStart we won't receive finished signal, so we send the error
+    // packet and remove the process here and now. For all other errors we should expect
+    // corresponding finished signal to appear, so we will send the error data together with
+    // the finished packet later on.
+    if (proc->error() != QProcess::FailedToStart)
+        return;
+
     ProcessErrorPacket packet(proc->token());
     packet.error = proc->error();
     packet.errorString = proc->errorString();
     sendPacket(packet);
-
-    // In case of FailedToStart we won't receive finished signal, so we remove the process here.
-    // For all other errors we should expect corresponding finished signal to appear.
-    if (proc->error() == QProcess::FailedToStart)
-        removeProcess(proc->token());
+    removeProcess(proc->token());
 }
 
 void LauncherSocketHandler::handleProcessStarted()

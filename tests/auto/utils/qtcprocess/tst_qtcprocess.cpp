@@ -201,6 +201,7 @@ private slots:
     void killBlockingProcess_data();
     void killBlockingProcess();
     void flushFinishedWhileWaitingForReadyRead();
+    void emitOneErrorOnCrash();
 
     void cleanupTestCase();
 
@@ -219,6 +220,7 @@ private:
     SUB_CREATOR_PROCESS(ProcessChannelForwarding);
     SUB_CREATOR_PROCESS(SubProcessChannelForwarding);
     SUB_CREATOR_PROCESS(KillBlockingProcess);
+    SUB_CREATOR_PROCESS(EmitOneErrorOnCrash);
 
     // In order to get a value associated with the certain subprocess use SubProcessClass::envVar().
     // The classes above define different custom executables. Inside initTestCase()
@@ -1310,6 +1312,29 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
     QCOMPARE(process.state(), QProcess::NotRunning);
     QVERIFY(!timer.hasExpired());
     QVERIFY(reply.contains(simpleTestData));
+}
+
+void tst_QtcProcess::EmitOneErrorOnCrash::main()
+{
+    abort();
+}
+
+void tst_QtcProcess::emitOneErrorOnCrash()
+{
+    SubCreatorConfig subConfig(EmitOneErrorOnCrash::envVar(), {});
+    TestProcess process;
+    subConfig.setupSubProcess(&process);
+
+    int errorCount = 0;
+    connect(&process, &QtcProcess::errorOccurred, this, [&errorCount] { ++errorCount; });
+    process.start();
+    QVERIFY(process.waitForStarted(1000));
+
+    QEventLoop loop;
+    connect(&process, &QtcProcess::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    QCOMPARE(errorCount, 1);
 }
 
 QTEST_MAIN(tst_QtcProcess)
