@@ -111,7 +111,7 @@ def performDebugging(projectName):
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         placeCursorToLine(editor, "int main.*", True)
         type(editor, "<Down>")
-        invokeMenuItem("Debug", "Toggle Breakpoint")
+        invokeMenuItem("Debug", "Enable or Disable Breakpoint")
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
         handleDebuggerWarnings(config, isMsvc)
         clickButton(waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton"))

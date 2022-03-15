@@ -84,7 +84,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
             editor = getEditorForFileSuffix(curFile, True)
             if not placeCursorToLine(editor, curLine, True):
                 return None
-            invokeMenuItem("Debug", "Toggle Breakpoint")
+            invokeMenuItem("Debug", "Enable or Disable Breakpoint")
             filePath = str(waitForObjectExists(":Qt Creator_FilenameQComboBox").toolTip)
             breakPointList.append({filePath:lineNumberWithCursor(editor)})
             test.log('Set breakpoint in %s' % curFile, curLine)
