@@ -88,7 +88,7 @@ const QMetaObject *TipLabel::metaObject() const
     struct qt_meta_stringdata_Utils_t {
         const uint offsetsAndSize[2];
         char stringdata0[24];
-    } qt_meta_stringdata =  { 8, sizeof("QTipLabel"), "QTipLabel" };
+    } qt_meta_stringdata =  { {8, sizeof("QTipLabel")}, "QTipLabel" };
 
     static const QMetaObject tipMetaObject {
         &QLabel::staticMetaObject,                    // SuperData superdata
