@@ -224,6 +224,11 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
                 available.discard(currentItem)
 
+def __getProjectFileName__(projectName, buildSystem):
+    if buildSystem is None or buildSystem == "CMake":
+        return "CMakeLists.txt"
+    else:
+        return projectName + (".pro" if buildSystem == "qmake" else ".qbs")
 
 # Creates a Qt GUI project
 # param path specifies where to create the project
@@ -243,7 +248,7 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
         h_file = exp_filename + ".h"
         cpp_file = exp_filename + ".cpp"
         ui_file = exp_filename + ".ui"
-        pro_file = projectName + ".pro"
+        projectFile = __getProjectFileName__(projectName, buildSystem)
 
         waitFor("object.exists(':headerFileLineEdit_Utils::FileNameValidatingLineEdit')", 20000)
         waitFor("object.exists(':sourceFileLineEdit_Utils::FileNameValidatingLineEdit')", 20000)
@@ -263,7 +268,7 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         expectedFiles = [path]
-        expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, pro_file]))
+        expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, projectFile]))
     __createProjectHandleLastPage__(expectedFiles, addToVersionControl)
 
     waitForProjectParsing()
@@ -287,9 +292,9 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         cpp_file = "main.cpp"
-        pro_file = projectName + ".pro"
+        projectFile = __getProjectFileName__(projectName, buildSystem)
         expectedFiles = [path]
-        expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, pro_file]))
+        expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, projectFile]))
     __createProjectHandleLastPage__(expectedFiles)
 
     waitForProjectParsing()
