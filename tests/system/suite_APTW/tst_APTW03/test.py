@@ -67,7 +67,7 @@ def checkSimpleCppLib(projectName, static):
                                              Targets.desktopTargetClasses(),
                                              static, buildSystem="qmake")
     for kit, config in iterateBuildConfigs("Release"):
-        verifyBuildConfig(kit, config, False, True)
+        verifyBuildConfig(kit, config, False, True, buildSystem="qmake")
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
         waitForCompile(10000)
         checkCompile()
@@ -91,7 +91,7 @@ def main():
                                                buildSystem="qmake")
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):
-        verifyBuildConfig(kit, config, True, True)
+        verifyBuildConfig(kit, config, True, True, buildSystem="qmake")
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
         waitForCompile(10000)
         if not virtualFunctionsAdded:

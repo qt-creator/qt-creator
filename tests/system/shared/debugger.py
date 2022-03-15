@@ -175,8 +175,24 @@ def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQ
 def isMsvcConfig(currentKit):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.BUILD)
-    clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
-    isMsvc = " -spec win32-msvc" in str(waitForObject(":Qt Creator.Effective qmake call:_QTextEdit").plainText)
+
+    waitForObject(":Projects.ProjectNavigationTreeView")
+    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
+    wantedKitName = Targets.getStringForTarget(currentKit)
+    wantedKitIndexString = getQModelIndexStr("text='%s'" % wantedKitName, bAndRIndex)
+    if not test.verify(__kitIsActivated__(findObject(wantedKitIndexString)),
+                       "Verifying target '%s' is enabled." % wantedKitName):
+        raise Exception("Kit '%s' is not activated in the project." % wantedKitName)
+    index = waitForObject(wantedKitIndexString)
+    toolTip = str(index.data(Qt.ToolTipRole).toString())
+    compilerPattern = re.compile("<tr><td><b>Compiler:</b></td><td>(?P<compiler>.+)</td></tr>")
+    match = compilerPattern.search(toolTip)
+    if match is None:
+        test.warning("UI seems to have changed - failed to check for compiler.")
+        return False
+
+    compiler = str(match.group("compiler"))
+    isMsvc = compiler.startswith("MSVC") or compiler.startswith("Microsoft Visual C")
     switchViewTo(ViewConstants.EDIT)
     return isMsvc
 

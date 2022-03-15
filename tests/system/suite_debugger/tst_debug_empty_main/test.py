@@ -98,7 +98,7 @@ def __handleAppOutputWaitForDebuggerFinish__():
 def performDebugging(projectName):
     for kit, config in iterateBuildConfigs("Debug"):
         test.log("Selecting '%s' as build config" % config)
-        verifyBuildConfig(kit, config, True, True)
+        verifyBuildConfig(kit, config, True, True, buildSystem="qmake")
         waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton")
         selectFromLocator("t rebuild", "Rebuild (Rebuild All Projects)")
         waitForCompile()
