@@ -110,7 +110,7 @@ QUrl GeneralHelper::resolveAbsoluteSourceUrl(const QQuick3DModel *sourceModel)
             return source;
     }
 
-    const QQmlContext *context = qmlContext(sourceModel);
+    QQmlContext *context = qmlContext(sourceModel);
     return context ? context->resolvedUrl(source) : source;
 }
 
