@@ -82,7 +82,7 @@ public:
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
     Q_INVOKABLE void handleExtFilesDrop(const QStringList &simpleFilesPaths,
                                         const QStringList &complexFilesPaths,
-                                        const QString &targetDirPath);
+                                        const QString &targetDirPath = {});
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
 
 signals:

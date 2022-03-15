@@ -218,11 +218,16 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QStringList &simpleFilesPaths
                                              const QString &targetDirPath)
 {
     if (!simpleFilesPaths.isEmpty()) {
-        AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilesPaths, targetDirPath);
-        if (result == AddFilesResult::Failed) {
-            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                  tr("Could not add %1 to project.")
-                                                      .arg(simpleFilesPaths.join(' ')));
+        if (targetDirPath.isEmpty()) {
+            addResources(simpleFilesPaths);
+        } else {
+            AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilesPaths,
+                                                                           targetDirPath);
+            if (result == AddFilesResult::Failed) {
+                Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                      tr("Could not add %1 to project.")
+                                                          .arg(simpleFilesPaths.join(' ')));
+            }
         }
     }
 
