@@ -114,7 +114,7 @@
             \uicontrol {Define Project Details} dialog.
 
         \li Select the Qt version to develop with in the
-            \uicontrol {Minimal required Qt version} field.
+            \uicontrol {Minimum required Qt version} field.
             The Qt version determines the Qt Quick imports
             that are used in the QML files.
 
@@ -200,7 +200,7 @@
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Project Details} dialog.
 
-        \li In the \uicontrol {Minimal required Qt version} field, select the Qt
+        \li In the \uicontrol {Minimum required Qt version} field, select the Qt
             version to develop with. The Qt version determines the Qt Quick
             imports that are used in the QML files.
 

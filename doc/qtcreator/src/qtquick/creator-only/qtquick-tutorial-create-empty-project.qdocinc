@@ -56,7 +56,7 @@
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
-        \li In the \uicontrol {Minimal required Qt version} field, select
+        \li In the \uicontrol {Minimum required Qt version} field, select
             Qt 6.2.
 
         \li Select \uicontrol Next to open the \uicontrol {Translation File}

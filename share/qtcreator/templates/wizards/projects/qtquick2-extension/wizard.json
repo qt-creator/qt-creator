@@ -80,7 +80,7 @@
             [
                 {
                     "name": "QtVersion",
-                    "trDisplayName": "Minimal required Qt version:",
+                    "trDisplayName": "Minimum required Qt version:",
                     "type": "ComboBox",
                     "persistenceKey": "QtQuick.minimumQtVersion",
                     "data":
