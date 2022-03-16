@@ -102,6 +102,9 @@ Flickable {
                         onDragStarted: categories.dragging = true
                         onDragStopped: categories.dragging = false
                         draggerParent: categories
+                        contentY: categories.contentY
+                        contentHeight: categories.contentHeight
+                        visibleHeight: categories.height
                         width: 150
                         height: parent.height
                         dragOffset: loader.y

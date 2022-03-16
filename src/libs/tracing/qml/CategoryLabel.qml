@@ -41,7 +41,10 @@ Item {
     property int visualIndex
     property int dragOffset
     property Item draggerParent
-    property int contentBottom: draggerParent.contentY + draggerParent.height - dragOffset
+    property real contentY: 0
+    property real contentHeight: draggerParent.height
+    property real visibleHeight: contentHeight
+    property int contentBottom: contentY + visibleHeight - dragOffset
 
     signal dragStarted;
     signal dragStopped;
@@ -59,7 +62,7 @@ Item {
         drag.target: dragger
         cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
         drag.minimumY: dragging ? 0 : -dragOffset // Account for parent change below
-        drag.maximumY: draggerParent.height - (dragging ? 0 : dragOffset)
+        drag.maximumY: visibleHeight - (dragging ? 0 : dragOffset)
         drag.axis: Drag.YAxis
         hoverEnabled: true
         ToolTip {
@@ -112,8 +115,7 @@ Item {
 
                 // Initially y == 0 for all the items. Don't enable them until they have been moved
                 // into place.
-                property int offset: (index === 0 || y > 0) ? (y + txt.height)
-                                                            : draggerParent.contentHeight
+                property int offset: (index === 0 || y > 0) ? (y + txt.height) : contentHeight
                 active: contentBottom > offset
                 width: labelContainer.width
                 height: labelsArea.parentModel ? labelsArea.parentModel.rowHeight(index + 1) : 0
