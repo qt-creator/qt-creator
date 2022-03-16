@@ -69,10 +69,8 @@ def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     __chooseTargets__([]) # uncheck all
-    targetToChoose = Targets.DESKTOP_4_8_7_DEFAULT # FIXME make the intended target a parameter
-    if not qt4Available:
-        targetToChoose = Targets.DESKTOP_5_14_1_DEFAULT
-    __chooseTargets__([targetToChoose], additionalFunc=additionalFunction)
+    # FIXME make the intended target a parameter
+    __chooseTargets__([Targets.DESKTOP_5_14_1_DEFAULT], additionalFunc=additionalFunction)
     clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
