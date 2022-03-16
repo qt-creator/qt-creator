@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(%{ProjectName} LANGUAGES CXX)
+project(%{ProjectName}App LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
