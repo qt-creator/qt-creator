@@ -77,25 +77,6 @@ struct PythonLanguageServerState
     FilePath pylsModulePath;
 };
 
-static QString pythonName(const FilePath &pythonPath)
-{
-    static QHash<FilePath, QString> nameForPython;
-    if (!pythonPath.exists())
-        return {};
-    QString name = nameForPython.value(pythonPath);
-    if (name.isEmpty()) {
-        QtcProcess pythonProcess;
-        pythonProcess.setTimeoutS(2);
-        pythonProcess.setCommand({pythonPath, {"--version"}});
-        pythonProcess.runBlocking();
-        if (pythonProcess.result() != ProcessResult::FinishedWithSuccess)
-            return {};
-        name = pythonProcess.allOutput().trimmed();
-        nameForPython[pythonPath] = name;
-    }
-    return name;
-}
-
 FilePath getPylsModulePath(CommandLine pylsCommand)
 {
     static QMutex mutex; // protect the access to the cache

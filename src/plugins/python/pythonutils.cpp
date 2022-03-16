@@ -127,5 +127,24 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     process->start();
 }
 
+QString pythonName(const FilePath &pythonPath)
+{
+    static QHash<FilePath, QString> nameForPython;
+    if (!pythonPath.exists())
+        return {};
+    QString name = nameForPython.value(pythonPath);
+    if (name.isEmpty()) {
+        QtcProcess pythonProcess;
+        pythonProcess.setTimeoutS(2);
+        pythonProcess.setCommand({pythonPath, {"--version"}});
+        pythonProcess.runBlocking();
+        if (pythonProcess.result() != ProcessResult::FinishedWithSuccess)
+            return {};
+        name = pythonProcess.allOutput().trimmed();
+        nameForPython[pythonPath] = name;
+    }
+    return name;
+}
+
 } // namespace Internal
 } // namespace Python
