@@ -45,11 +45,14 @@ class FileSystemAccessTest : public QObject
 
 private slots:
     void initTestCase();
-    void cleanupTestCase();
 
-    void testDirStatuses();
+    void testCreateRemoteFile_data();
+    void testCreateRemoteFile();
+    void testDirStatus();
     void testBytesAvailable();
     void testFileActions();
+
+    void cleanupTestCase();
 
 private:
     TestLinuxDeviceFactory m_testLinuxDeviceFactory;
