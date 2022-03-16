@@ -45,7 +45,7 @@ public:
     QString interpreter() const;
 
 private:
-    void updateLanguageServer();
+    void interpreterChanged();
 
     bool supportsDebugger() const;
     QString mainScript() const;

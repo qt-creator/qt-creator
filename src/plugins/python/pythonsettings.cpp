@@ -549,6 +549,12 @@ Interpreter PythonSettings::defaultInterpreter()
     return interpreterOptionsPage().defaultInterpreter();
 }
 
+Interpreter PythonSettings::interpreter(const QString &interpreterId)
+{
+    const QList<Interpreter> interpreters = PythonSettings::interpreters();
+    return Utils::findOrDefault(interpreters, Utils::equal(&Interpreter::id, interpreterId));
+}
+
 } // namespace Internal
 } // namespace Python
 

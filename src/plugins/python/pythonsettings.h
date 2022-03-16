@@ -62,6 +62,7 @@ public:
 
     static QList<Interpreter> interpreters();
     static Interpreter defaultInterpreter();
+    static Interpreter interpreter(const QString &interpreterId);
     static void setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId);
     static void addInterpreter(const Interpreter &interpreter, bool isDefault = false);
     static PythonSettings *instance();

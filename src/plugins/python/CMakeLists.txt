@@ -3,6 +3,7 @@ add_qtc_plugin(Python
   PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor
   SOURCES
     pipsupport.cpp pipsupport.h
+    pyside.cpp pyside.h
     python.qrc
     pythonconstants.h
     pythoneditor.cpp pythoneditor.h

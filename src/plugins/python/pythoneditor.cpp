@@ -25,6 +25,7 @@
 
 #include "pythoneditor.h"
 
+#include "pyside.h"
 #include "pythonconstants.h"
 #include "pythonhighlighter.h"
 #include "pythonindenter.h"
@@ -118,6 +119,7 @@ public:
             return;
 
         PyLSConfigureAssistant::instance()->openDocumentWithPython(python, this);
+        PySideInstaller::instance()->checkPySideInstallation(python, this);
     }
 };
 
