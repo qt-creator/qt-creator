@@ -330,6 +330,8 @@ bool QmlDesignerPlugin::delayedInitialize()
             Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
     }
 
+    MetaInfo::global();
+
     return true;
 }
 
