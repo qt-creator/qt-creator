@@ -326,7 +326,7 @@ WidgetInfo TransitionEditorView::widgetInfo()
                             "TransitionEditor",
                             WidgetInfo::BottomPane,
                             0,
-                            tr("Transition Editor"));
+                            tr("Transitions"));
 }
 
 void TransitionEditorView::openSettingsDialog()
