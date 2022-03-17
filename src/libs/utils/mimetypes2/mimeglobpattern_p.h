@@ -171,4 +171,6 @@ public:
 
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
 Q_DECLARE_SHARED(Utils::MimeGlobPattern)
+QT_END_NAMESPACE

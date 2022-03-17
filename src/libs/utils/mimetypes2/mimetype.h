@@ -132,9 +132,11 @@ protected:
 
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
 #ifndef QT_NO_DEBUG_STREAM
 class QDebug;
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
 #endif
 
 Q_DECLARE_SHARED(Utils::MimeType)
+QT_END_NAMESPACE

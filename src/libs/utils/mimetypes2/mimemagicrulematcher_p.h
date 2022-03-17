@@ -90,4 +90,6 @@ private:
 
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
 Q_DECLARE_SHARED(Utils::MimeMagicRuleMatcher)
+QT_END_NAMESPACE
