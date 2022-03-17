@@ -175,9 +175,11 @@ class CollectionTask : protected Visitor
 {
 public:
     CollectionTask(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
-                   const QmlJSTools::SemanticInfo &semanticInfo)
+                   const QmlJSTools::SemanticInfo &semanticInfo,
+                   const TextEditor::FontSettings &fontSettings)
         : m_futureInterface(futureInterface)
         , m_semanticInfo(semanticInfo)
+        , m_fontSettings(fontSettings)
         , m_scopeChain(semanticInfo.scopeChain())
         , m_scopeBuilder(&m_scopeChain)
         , m_lineOfLastUse(0)
@@ -408,13 +410,11 @@ protected:
                 length = end-begin;
             }
 
-            const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
-
             QTextCharFormat format;
             if (d.isWarning())
-                format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+                format = m_fontSettings.toTextCharFormat(TextEditor::C_WARNING);
             else
-                format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
+                format = m_fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
             format.setToolTip(d.message);
 
@@ -445,17 +445,15 @@ protected:
                 length = end-begin;
             }
 
-            const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
-
             QTextCharFormat format;
             if (d.severity == Severity::Warning
                     || d.severity == Severity::MaybeWarning
                     || d.severity == Severity::ReadingTypeInfoWarning) {
-                format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+                format = m_fontSettings.toTextCharFormat(TextEditor::C_WARNING);
             } else if (d.severity == Severity::Error || d.severity == Severity::MaybeError) {
-                format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
+                format = m_fontSettings.toTextCharFormat(TextEditor::C_ERROR);
             } else if (d.severity == Severity::Hint) {
-                format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+                format = m_fontSettings.toTextCharFormat(TextEditor::C_WARNING);
                 format.setUnderlineColor(Qt::darkGreen);
             }
 
@@ -534,6 +532,7 @@ private:
 
     QFutureInterface<SemanticHighlighter::Use> &m_futureInterface;
     const QmlJSTools::SemanticInfo &m_semanticInfo;
+    const TextEditor::FontSettings &m_fontSettings;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
     QStringList m_stateNames;
@@ -565,8 +564,11 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
     m_watcher.cancel();
 
     m_startRevision = m_document->document()->revision();
-    auto future = Utils::runAsync(QThread::LowestPriority, &SemanticHighlighter::run,
-                                  this, semanticInfo);
+    auto future = Utils::runAsync(QThread::LowestPriority,
+                                  &SemanticHighlighter::run,
+                                  this,
+                                  semanticInfo,
+                                  TextEditor::TextEditorSettings::fontSettings());
     m_watcher.setFuture(future);
     m_futureSynchronizer.addFuture(future);
 }
@@ -600,9 +602,11 @@ void SemanticHighlighter::finished()
                 m_document->syntaxHighlighter(), m_watcher.future());
 }
 
-void SemanticHighlighter::run(QFutureInterface<SemanticHighlighter::Use> &futureInterface, const QmlJSTools::SemanticInfo &semanticInfo)
+void SemanticHighlighter::run(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
+                              const QmlJSTools::SemanticInfo &semanticInfo,
+                              const TextEditor::FontSettings &fontSettings)
 {
-    CollectionTask task(futureInterface, semanticInfo);
+    CollectionTask task(futureInterface, semanticInfo, fontSettings);
     reportMessagesInfo(task.diagnosticRanges(), task.extraFormats());
     task.run();
 }

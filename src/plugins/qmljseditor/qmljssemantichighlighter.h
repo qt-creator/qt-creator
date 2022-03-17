@@ -82,7 +82,9 @@ public:
 private:
     void applyResults(int from, int to);
     void finished();
-    void run(QFutureInterface<Use> &futureInterface, const QmlJSTools::SemanticInfo &semanticInfo);
+    void run(QFutureInterface<Use> &futureInterface,
+             const QmlJSTools::SemanticInfo &semanticInfo,
+             const TextEditor::FontSettings &fontSettings);
 
     QFutureWatcher<Use>  m_watcher;
     QmlJSEditorDocument *m_document;
