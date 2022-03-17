@@ -360,9 +360,9 @@ void Edit3DView::createEdit3DActions()
 
     m_showParticleEmitterAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_SHOW_PARTICLE_EMITTER, View3DActionCommand::ShowParticleEmitter,
-                QCoreApplication::translate("ShowParticleEmitterAction", "Always Show Particle Emitters"),
+                QCoreApplication::translate("ShowParticleEmitterAction", "Always Show Particle Emitters And Attractors"),
                 QKeySequence(Qt::Key_M), true, false, {}, {}, nullptr,
-                QCoreApplication::translate("ShowParticleEmitterAction", "Toggle between always showing the particle emitter visualization and only showing it when the emitter is selected."));
+                QCoreApplication::translate("ShowParticleEmitterAction", "Toggle between always showing the particle emitter and attractor visualizations and only showing them when the emitter or attractor is selected."));
 
     SelectionContextOperation resetTrigger = [this](const SelectionContext &) {
         m_particlesPlayAction->action()->setEnabled(particlemode);
