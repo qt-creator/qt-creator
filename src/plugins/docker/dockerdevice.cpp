@@ -51,6 +51,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/overridecursor.h>
 #include <utils/pathlisteditor.h>
@@ -324,13 +325,26 @@ public:
             data.useLocalUidGid = on;
         });
 
+        m_pathsListLabel = new InfoLabel(tr("Paths to mount:"));
+        // FIXME: 8.0: use
+        //m_pathsListLabel->setToolTip(tr("Source directory list should not be empty"));
+
         m_pathsListEdit = new PathListEditor;
+        // FIXME: 8.0: use
+        //m_pathsListEdit->setPlaceholderText(tr("Host directories to mount into the container"));
         m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
                                        "docker container."));
         m_pathsListEdit->setPathList(data.mounts);
 
-        connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, this]() {
+        auto markupMounts = [this] {
+            const bool isEmpty = m_pathsListEdit->pathList().isEmpty();
+            m_pathsListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
+        };
+        markupMounts();
+
+        connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, markupMounts, this] {
             dockerDevice->setMounts(m_pathsListEdit->pathList());
+            markupMounts();
         });
 
         auto logView = new QTextBrowser;
@@ -346,6 +360,8 @@ public:
         searchDirsComboBox->addItem(tr("Search in Selected Directories"));
 
         auto searchDirsLineEdit = new FancyLineEdit;
+        // FIXME: 8.0: use
+        //searchDirsLineEdit->setPlaceholderText(tr("Semicolon-separated list of directories"));
         searchDirsLineEdit->setToolTip(
             tr("Select the paths in the docker image that should be scanned for kit entries."));
         searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
@@ -397,7 +413,7 @@ public:
             daemonStateLabel, m_daemonReset, m_daemonState, Break(),
             m_runAsOutsideUser, Break(),
             Column {
-                new QLabel(tr("Paths to mount:")),
+                m_pathsListLabel,
                 m_pathsListEdit,
             }, Break(),
             Column {
@@ -437,7 +453,8 @@ private:
     QToolButton *m_daemonReset;
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
-    Utils::PathListEditor *m_pathsListEdit;
+    InfoLabel *m_pathsListLabel;
+    PathListEditor *m_pathsListEdit;
 
     KitDetector m_kitItemDetector;
 };
@@ -1545,12 +1562,19 @@ public:
         m_log = new QTextBrowser;
         m_log->setVisible(false);
 
+        const QString fail = QString{"Docker: "}
+                + QCoreApplication::translate("Debugger::Internal::GdbEngine",
+                                              "Process failed to start.");
+        auto errorLabel = new Utils::InfoLabel(fail, Utils::InfoLabel::Error, this);
+        errorLabel->setVisible(false);
+
         m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
         using namespace Layouting;
         Column {
             m_view,
             m_log,
+            errorLabel,
             m_buttons,
         }.attachTo(this);
 
@@ -1586,6 +1610,13 @@ public:
         connect(m_process, &Utils::QtcProcess::readyReadStandardError, this, [this] {
             const QString out = DockerDevice::tr("Error: %1").arg(m_process->stdErr());
             m_log->append(DockerDevice::tr("Error: %1").arg(out));
+        });
+
+        connect(m_process, &Utils::QtcProcess::finished,
+                this, [this, errorLabel]() {
+            if (m_process->exitCode() != 0) {
+                errorLabel->setVisible(true);
+            }
         });
 
         connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, [this] {

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(%{ProjectName} LANGUAGES CXX)
+project(%{ProjectName}App LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 COMPONENTS Gui Qml Quick)
-add_executable(%{ProjectExecutableName} src/main.cpp)
+qt_add_executable(%{ProjectExecutableName} src/main.cpp)
 
 qt_add_resources(%{ProjectExecutableName} "configuration"
     PREFIX "/"

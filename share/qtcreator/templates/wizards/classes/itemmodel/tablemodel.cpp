@@ -75,7 +75,7 @@ bool %{CN}::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (data(index, role) != value) {
         // FIXME: Implement me!
-        emit dataChanged(index, index, QVector<int>() << role);
+        emit dataChanged(index, index, {role});
         return true;
     }
     return false;
@@ -86,7 +86,7 @@ Qt::ItemFlags %{CN}::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    return Qt::ItemIsEditable; // FIXME: Implement me!
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable; // FIXME: Implement me!
 }
 @endif
 @if %{AddData}
@@ -96,6 +96,7 @@ bool %{CN}::insertRows(int row, int count, const QModelIndex &parent)
     beginInsertRows(parent, row, row + count - 1);
     // FIXME: Implement me!
     endInsertRows();
+    return true;
 }
 
 bool %{CN}::insertColumns(int column, int count, const QModelIndex &parent)
@@ -103,6 +104,7 @@ bool %{CN}::insertColumns(int column, int count, const QModelIndex &parent)
     beginInsertColumns(parent, column, column + count - 1);
     // FIXME: Implement me!
     endInsertColumns();
+    return true;
 }
 @endif
 @if %{RemoveData}
@@ -112,6 +114,7 @@ bool %{CN}::removeRows(int row, int count, const QModelIndex &parent)
     beginRemoveRows(parent, row, row + count - 1);
     // FIXME: Implement me!
     endRemoveRows();
+    return true;
 }
 
 bool %{CN}::removeColumns(int column, int count, const QModelIndex &parent)
@@ -119,6 +122,7 @@ bool %{CN}::removeColumns(int column, int count, const QModelIndex &parent)
     beginRemoveColumns(parent, column, column + count - 1);
     // FIXME: Implement me!
     endRemoveColumns();
+    return true;
 }
 @endif
 %{JS: Cpp.closeNamespaces('%{Class}')}\

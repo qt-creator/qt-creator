@@ -53,6 +53,7 @@ private slots:
 
 private:
     TestLinuxDeviceFactory m_testLinuxDeviceFactory;
+    bool m_skippedAtWhole = false;
 };
 
 } // Internal

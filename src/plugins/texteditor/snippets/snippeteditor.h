@@ -42,6 +42,7 @@ signals:
 
 protected:
     void focusOutEvent(QFocusEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
 
     int extraAreaWidth(int * /* markWidthPtr */ = nullptr) const override { return 0; }
 };

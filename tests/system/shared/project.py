@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -69,10 +69,8 @@ def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     __chooseTargets__([]) # uncheck all
-    targetToChoose = Targets.DESKTOP_4_8_7_DEFAULT # FIXME make the intended target a parameter
-    if not qt4Available:
-        targetToChoose = Targets.DESKTOP_5_14_1_DEFAULT
-    __chooseTargets__([targetToChoose], additionalFunc=additionalFunction)
+    # FIXME make the intended target a parameter
+    __chooseTargets__([Targets.DESKTOP_5_14_1_DEFAULT], additionalFunc=additionalFunction)
     clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
@@ -224,22 +222,31 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
                 available.discard(currentItem)
 
+def __getProjectFileName__(projectName, buildSystem):
+    if buildSystem is None or buildSystem == "CMake":
+        return "CMakeLists.txt"
+    else:
+        return projectName + (".pro" if buildSystem == "qmake" else ".qbs")
+
 # Creates a Qt GUI project
 # param path specifies where to create the project
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
-def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl = "<None>"):
+# param addToVersionControl selects the specified VCS from Creator's wizard
+# param buildSystem selects the specified build system from Creator's wizard
+def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<None>",
+                         buildSystem=None):
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application (Qt)", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    buildSystem = __handleBuildSystem__(None)
+    buildSystem = __handleBuildSystem__(buildSystem)
 
     if checks:
         exp_filename = "mainwindow"
         h_file = exp_filename + ".h"
         cpp_file = exp_filename + ".cpp"
         ui_file = exp_filename + ".ui"
-        pro_file = projectName + ".pro"
+        projectFile = __getProjectFileName__(projectName, buildSystem)
 
         waitFor("object.exists(':headerFileLineEdit_Utils::FileNameValidatingLineEdit')", 20000)
         waitFor("object.exists(':sourceFileLineEdit_Utils::FileNameValidatingLineEdit')", 20000)
@@ -259,7 +266,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         expectedFiles = [path]
-        expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, pro_file]))
+        expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, projectFile]))
     __createProjectHandleLastPage__(expectedFiles, addToVersionControl)
 
     waitForProjectParsing()
@@ -283,9 +290,9 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         cpp_file = "main.cpp"
-        pro_file = projectName + ".pro"
+        projectFile = __getProjectFileName__(projectName, buildSystem)
         expectedFiles = [path]
-        expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, pro_file]))
+        expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, projectFile]))
     __createProjectHandleLastPage__(expectedFiles)
 
     waitForProjectParsing()
@@ -375,7 +382,8 @@ def createNewNonQtProject(workingDir, projectName, target, plainC=False, buildSy
     __createProjectHandleLastPage__()
     return projectName
 
-def createNewCPPLib(projectDir, projectName, className, target, isStatic):
+
+def createNewCPPLib(projectDir, projectName, className, target, isStatic, buildSystem=None):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", False, True)
     if isStatic:
         libType = LibType.STATIC
@@ -384,7 +392,7 @@ def createNewCPPLib(projectDir, projectName, className, target, isStatic):
     if projectDir == None:
         projectDir = tempDir()
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False)
-    __handleBuildSystem__(None)
+    __handleBuildSystem__(buildSystem)
     selectFromCombo(waitForObject("{name='Type' type='QComboBox' visible='1' "
                                   "window=':New_ProjectExplorer::JsonWizard'}"),
                     LibType.getStringForLib(libType))
@@ -396,10 +404,12 @@ def createNewCPPLib(projectDir, projectName, className, target, isStatic):
     __createProjectHandleLastPage__()
     return projectName, className
 
-def createNewQtPlugin(projectDir, projectName, className, target, baseClass="QGenericPlugin"):
+
+def createNewQtPlugin(projectDir, projectName, className, target, baseClass="QGenericPlugin",
+                      buildSystem=None):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", False, True)
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False)
-    __handleBuildSystem__(None)
+    __handleBuildSystem__(buildSystem)
     selectFromCombo(waitForObject("{name='Type' type='QComboBox' visible='1' "
                                   "window=':New_ProjectExplorer::JsonWizard'}"),
                     LibType.getStringForLib(LibType.QT_PLUGIN))

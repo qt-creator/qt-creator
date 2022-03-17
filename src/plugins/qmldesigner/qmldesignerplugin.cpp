@@ -35,6 +35,7 @@
 #include "qmldesignerconstants.h"
 #include "qmldesignerprojectmanager.h"
 #include "settingspage.h"
+#include "dynamiclicensecheck.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -312,14 +313,24 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TransitionTool>());
 
     if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+        d->mainWidget.initialize();
+
         emitUsageStatistics("StandaloneMode");
         if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
             emitUsageStatistics("QDSlaunchedFromQtC");
-         emitUsageStatistics("QDSstartupCount");
+        emitUsageStatistics("QDSstartupCount");
+
+        FoundLicense license = checkLicense();
+        if (license == FoundLicense::enterprise)
+            Core::ICore::appendAboutInformation(tr("License: Enterprise"));
+        else if (license == FoundLicense::professional)
+            Core::ICore::appendAboutInformation(tr("License: Professional"));
+
+        if (!licensee().isEmpty())
+            Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
     }
 
-    if (QmlProjectManager::QmlProject::isQtDesignStudio())
-        d->mainWidget.initialize();
+    MetaInfo::global();
 
     return true;
 }

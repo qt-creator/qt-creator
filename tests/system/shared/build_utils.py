@@ -163,13 +163,17 @@ def selectBuildConfig(wantedKit, configName, afterSwitchTo=ViewConstants.EDIT):
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
-def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
+def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False,
+                      enableQmlDebug=False, buildSystem=None):
     selectBuildConfig(currentTarget, configName, None)
     ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
-    ensureChecked("{leftWidget={text='Shadow build:' type='QLabel' unnamed='1' visible='1' "
-                               "window=':Qt Creator_Core::Internal::MainWindow'} "
-                  "type='QCheckBox' unnamed='1' visible='1' "
-                  "window=':Qt Creator_Core::Internal::MainWindow'}", enableShadowBuild)
+
+    if buildSystem == "qmake":
+        ensureChecked("{leftWidget={text='Shadow build:' type='QLabel' unnamed='1' visible='1' "
+                                    "window=':Qt Creator_Core::Internal::MainWindow'} "
+                      "type='QCheckBox' unnamed='1' visible='1' "
+                      "window=':Qt Creator_Core::Internal::MainWindow'}", enableShadowBuild)
+
     buildCfCombo = waitForObject("{leftWidget=':scrollArea.Edit build configuration:_QLabel' "
                                  "type='QComboBox' unnamed='1' visible='1'}")
     if shouldBeDebug:
@@ -184,11 +188,15 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
             pass
         # Since waitForObject waits for the object to be enabled,
         # it will wait here until compilation of the debug libraries has finished.
+        runCMakeButton = ("{type='QPushButton' text='Run CMake' unnamed='1' "
+                          "window=':Qt Creator_Core::Internal::MainWindow'}")
         if currentTarget not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
             qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
             if selectFromCombo(qmlDebuggingCombo, 'Enable'):
-                # Don't rebuild now
-                clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+                if buildSystem is None or buildSystem == "CMake": # re-run cmake to apply
+                    clickButton(waitForObject(runCMakeButton))
+                elif buildSystem == "qmake": # Don't rebuild now
+                    clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
         try:
             problemFound = waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' "
                                          "type='QLabel' name='problemLabel' visible='1'}", 1000)
@@ -201,8 +209,10 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
             qmlDebuggingCombo = findObject(':Qt Creator.QML debugging and profiling:_QComboBox')
             if selectFromCombo(qmlDebuggingCombo, "Disable"):
                 test.log("Qml debugging libraries are available - unchecked qml debugging.")
-                # Don't rebuild now
-                clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+                if buildSystem is None or buildSystem == "CMake": # re-run cmake to apply
+                    clickButton(waitForObject(runCMakeButton))
+                elif buildSystem == "qmake": # Don't rebuild now
+                    clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
 

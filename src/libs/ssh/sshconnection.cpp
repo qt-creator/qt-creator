@@ -404,4 +404,95 @@ SftpTransferPtr SshConnection::setupTransfer(
                                             d->connectionArgs(SshSettings::sftpFilePath())));
 }
 
+#ifdef WITH_TESTS
+namespace SshTest {
+const QString getHostFromEnvironment()
+{
+    const QString host = QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_HOST"));
+    if (host.isEmpty() && qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
+        return QString("127.0.0.1");
+    return host;
+}
+
+quint16 getPortFromEnvironment()
+{
+    const int port = qEnvironmentVariableIntValue("QTC_SSH_TEST_PORT");
+    return port != 0 ? quint16(port) : 22;
+}
+
+const QString getUserFromEnvironment()
+{
+    return QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_USER"));
+}
+
+const QString getKeyFileFromEnvironment()
+{
+    const FilePath defaultKeyFile = FileUtils::homePath() / ".ssh/id_rsa";
+    const QString keyFile = QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_KEYFILE"));
+    if (keyFile.isEmpty()) {
+        if (qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
+            return defaultKeyFile.toString();
+    }
+    return keyFile;
+}
+
+const QString userAtHost()
+{
+    QString userMidFix = getUserFromEnvironment();
+    if (!userMidFix.isEmpty())
+        userMidFix.append('@');
+    return userMidFix + getHostFromEnvironment();
+}
+
+SshConnectionParameters getParameters()
+{
+    SshConnectionParameters params;
+    if (!qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS")) {
+        params.setUserName(getUserFromEnvironment());
+        params.privateKeyFile = Utils::FilePath::fromUserInput(getKeyFileFromEnvironment());
+    }
+    params.setHost(getHostFromEnvironment());
+    params.setPort(getPortFromEnvironment());
+    params.timeout = 10;
+    params.authenticationType = !params.privateKeyFile.isEmpty()
+            ? QSsh::SshConnectionParameters::AuthenticationTypeSpecificKey
+            : QSsh::SshConnectionParameters::AuthenticationTypeAll;
+    return params;
+}
+
+bool checkParameters(const QSsh::SshConnectionParameters &params)
+{
+    if (qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
+        return true;
+    if (params.host().isEmpty()) {
+        qWarning("No hostname provided. Set QTC_SSH_TEST_HOST.");
+        return false;
+    }
+    if (params.userName().isEmpty())
+        qWarning("No user name provided - test may fail with empty default. Set QTC_SSH_TEST_USER.");
+    if (params.privateKeyFile.isEmpty()) {
+        qWarning("No key file provided. Set QTC_SSH_TEST_KEYFILE.");
+        return false;
+    }
+    return true;
+}
+
+void printSetupHelp()
+{
+    qInfo() << "In order to run this test properly it requires some setup (example for fedora):\n"
+               "1. Run a server on the host to connect to:\n"
+               "   systemctl start sshd\n"
+               "2. Create your own ssh key (needed only once). For fedora it needs ecdsa type:\n"
+               "   ssh-keygen -t ecdsa\n"
+               "3. Make your public key known to the server (needed only once):\n"
+               "   ssh-copy-id -i [full path to your public key] [user@host]\n"
+               "4. Set the env variables before executing test:\n"
+               "   QTC_SSH_TEST_HOST=127.0.0.1\n"
+               "   QTC_SSH_TEST_KEYFILE=[full path to your private key]\n"
+               "   QTC_SSH_TEST_USER=[your user name]\n";
+}
+
+} // namespace SshTest
+#endif
+
 } // namespace QSsh

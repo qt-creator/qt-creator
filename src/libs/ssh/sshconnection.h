@@ -139,6 +139,19 @@ private:
     SshConnectionPrivate * const d;
 };
 
+#ifdef WITH_TESTS
+namespace SshTest {
+const QString QSSH_EXPORT getHostFromEnvironment();
+quint16 QSSH_EXPORT getPortFromEnvironment();
+const QString QSSH_EXPORT getUserFromEnvironment();
+const QString QSSH_EXPORT getKeyFileFromEnvironment();
+const QSSH_EXPORT QString userAtHost();
+SshConnectionParameters QSSH_EXPORT getParameters();
+bool QSSH_EXPORT checkParameters(const SshConnectionParameters &params);
+void QSSH_EXPORT printSetupHelp();
+} // namespace SshTest
+#endif
+
 } // namespace QSsh
 
 Q_DECLARE_METATYPE(QSsh::SshConnectionParameters::AuthenticationType)

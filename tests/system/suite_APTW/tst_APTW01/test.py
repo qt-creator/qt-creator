@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -31,7 +31,7 @@ def main():
     # warnings from the clang code model in "issues" view
     if not startCreatorVerifyingClang(False):
         return
-    createProject_Qt_GUI(tempDir(), "SampleApp")
+    createProject_Qt_GUI(tempDir(), "SampleApp", buildSystem="qmake")
     # run project for debug and release and verify results
     runVerify()
     #close Qt Creator

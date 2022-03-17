@@ -130,7 +130,7 @@
         \li \l {Textures}{Texture} (four instances)
     \endlist
 
-    We start by creating a \l{Using Project Wizards}{Qt Quick 3D Application}
+    We start by creating a \l{Creating a Project}{Qt Quick 3D Application}
     project and adding the assets to it. We then follow the instructions above
     to add the \uicontrol {Particle System} component instance, which provides
     us with our first \uicontrol Emitter, \uicontrol {Sprite Particle}, and

@@ -32,9 +32,9 @@
 #include <coreplugin/messagebox.h>
 #include "pluginmanager/widgetpluginmanager.h"
 
-
 #include <QDebug>
 #include <QMessageBox>
+#include <QMutex>
 
 enum {
     debug = false
@@ -107,6 +107,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
 using QmlDesigner::Internal::MetaInfoPrivate;
 
 MetaInfo MetaInfo::s_global;
+QMutex s_lock;
 QStringList MetaInfo::s_pluginDirs;
 
 
@@ -157,6 +158,8 @@ ItemLibraryInfo *MetaInfo::itemLibraryInfo() const
   */
 MetaInfo MetaInfo::global()
 {
+    QMutexLocker locker(&s_lock);
+
     if (!s_global.m_p->m_isInitialized) {
         s_global.m_p = QSharedPointer<MetaInfoPrivate>(new MetaInfoPrivate(&s_global));
         s_global.m_p->initialize();

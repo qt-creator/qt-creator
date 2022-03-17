@@ -624,7 +624,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
     }
 
     QVector<Id> connectedDevs;
-    for (auto item : m_avdsFutureWatcher.result()) {
+    for (const AndroidDeviceInfo &item : m_avdsFutureWatcher.result()) {
         const Utils::Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = AndroidDevice::displayNameFromInfo(item);
         IDevice::ConstPtr dev = devMgr->find(deviceId);

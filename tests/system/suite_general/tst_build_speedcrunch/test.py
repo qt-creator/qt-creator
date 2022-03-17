@@ -41,10 +41,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    targetToChoose = Targets.DESKTOP_4_8_7_DEFAULT
-    if not qt4Available:
-        targetToChoose = Targets.DESKTOP_5_14_1_DEFAULT
-    openQmakeProject(SpeedCrunchPath, [targetToChoose])
+    openQmakeProject(SpeedCrunchPath, [Targets.DESKTOP_5_14_1_DEFAULT])
     waitForProjectParsing()
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")

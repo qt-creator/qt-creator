@@ -42,27 +42,48 @@ enum FoundLicense {
     enterprise
 };
 
-FoundLicense checkLicense() {
+namespace Internal {
+ExtensionSystem::IPlugin *licenseCheckerPlugin()
+{
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
         Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker")));
 
-    if (!pluginSpec)
-        return community;
-
-    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
-
-    if (!plugin)
-        return community;
-
-    bool retVal = false;
-    bool success = QMetaObject::invokeMethod(plugin,
-                                             "qdsEnterpriseLicense",
-                                             Qt::DirectConnection,
-                                             Q_RETURN_ARG(bool, retVal));
-    if (success && retVal)
-        return enterprise;
-
-    return professional;
+    if (pluginSpec)
+        return pluginSpec->plugin();
+    return nullptr;
 }
+} // namespace Internal
+
+
+FoundLicense checkLicense()
+{
+    if (auto plugin = Internal::licenseCheckerPlugin()) {
+        bool retVal = false;
+        bool success = QMetaObject::invokeMethod(plugin,
+                                                 "qdsEnterpriseLicense",
+                                                 Qt::DirectConnection,
+                                                 Q_RETURN_ARG(bool, retVal));
+        if (success && retVal)
+            return enterprise;
+        else
+            return professional;
+    }
+    return community;
+}
+
+QString licensee()
+{
+    if (auto plugin = Internal::licenseCheckerPlugin()) {
+        QString retVal;
+        bool success = QMetaObject::invokeMethod(plugin,
+                                                 "licensee",
+                                                 Qt::DirectConnection,
+                                                 Q_RETURN_ARG(QString, retVal));
+        if (success)
+            return retVal;
+    }
+    return {};
+}
+
 } // namespace Utils

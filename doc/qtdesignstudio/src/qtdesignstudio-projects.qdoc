@@ -37,35 +37,27 @@
     Creating a project enables you to:
 
     \list
-        \li Group files together
+        \li Group files together.
         \li Include \l{UI Files}{UI files} (.ui.qml), component files (.qml),
-            and assets files
-        \li Specify settings for previewing UIs
+            and assets files.
+        \li Specify settings for previewing UIs.
     \endlist
 
-    Setting up a new project in \QDS is aided by a wizard that guides you
-    step-by-step through the project creation process. The wizard templates
-    prompt you to enter the settings needed for a particular type of project
-    and create the necessary files for you.
+    Setting up a new project in \QDS is aided by a wizard with a set of
+    presets that you can choose from. You can adjust project settings and save
+    custom presets. When you create a project, all necessary files are created.
 
-    To test how well your designs work, you can preview the
-    UIs on the desktop, embedded Linux devices, or Android devices. For more
-    information, see \l{Validating with Target Hardware}.
-
-    \image studio-project-wizards.png "A list of project wizards"
-
-    You can export designs from other design tools and import them to projects
-    or create them from scratch using the following wizard presets:
+    The following presets are available:
 
     \table
     \header
         \li Category
-        \li Wizard Preset
+        \li Preset
         \li Purpose
     \row
         \li Recents
         \li
-        \li Lists the most recent presets that you have used.
+        \li Lists your most recently used presets.
     \row
         \li {1,2} General
         \li Empty
@@ -100,15 +92,30 @@
         \li Launcher
         \li Creates a project that uses default components such as rectangles,
             images, and text, and defines a launcher application.
+   \row
+        \li Custom
+        \li
+        \li Lists your saved custom presets.
+            \note This tab is not visible if there are no saved custom presets.
     \endtable
 
-    \section1 Using Project Wizards
+    \image studio-project-wizards.png "The Create Project wizard"
 
-    To create a new project:
+    To test how well your designs work, you can preview the
+    UIs on the desktop, embedded Linux devices, or Android devices. For more
+    information, see \l{Validating with Target Hardware}.
+
+    You can export designs from other design tools and import them to projects.
+    For more information, see \l{Exporting from Design Tools} and
+    \l{Importing Designs From Other Design Tools}.
+
+    \section1 Creating a Project
+
+    To create a project:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project}.
-        \li In the \uicontrol Presets tab, select a wizard preset.
+        \li In the \uicontrol Presets tab, select a preset.
         \li In the \uicontrol Details tab:
             \list
                 \li Enter a name for the project. Keep in mind that projects
@@ -167,9 +174,24 @@
     \uicontrol Assets > \inlineimage icons/plus.png
     .
 
+    \section1 Using Custom Presets
+
+    You can save project settings as custom presets. All saved custom presets
+    are available on the \uicontrol Custom tab in the
+    \uicontrol {Create Project} wizard. You cannot modify custom presets once
+    you have created them.
+
+    To create a custom preset:
+    \list 1
+      \li In the \uicontrol {Create Project} wizard, set the details and style
+          that you want to use.
+      \li Select \uicontrol {Save Custom Preset} and give a name for the custom
+      preset.
+    \endlist
+
     \section1 Adding Files to Projects
 
-    You can use wizard templates also to add individual files to projects.
+    You can use wizard templates to add individual files to projects.
 
     The wizard templates in the \uicontrol {Qt Quick Controls} category create
     stylable versions of the components in the \uicontrol {Qt Quick Controls}

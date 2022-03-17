@@ -98,7 +98,7 @@ def __handleAppOutputWaitForDebuggerFinish__():
 def performDebugging(projectName):
     for kit, config in iterateBuildConfigs("Debug"):
         test.log("Selecting '%s' as build config" % config)
-        verifyBuildConfig(kit, config, True, True)
+        verifyBuildConfig(kit, config, True, True, buildSystem="qmake")
         waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton")
         selectFromLocator("t rebuild", "Rebuild (Rebuild All Projects)")
         waitForCompile()
@@ -111,7 +111,7 @@ def performDebugging(projectName):
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         placeCursorToLine(editor, "int main.*", True)
         type(editor, "<Down>")
-        invokeMenuItem("Debug", "Toggle Breakpoint")
+        invokeMenuItem("Debug", "Enable or Disable Breakpoint")
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
         handleDebuggerWarnings(config, isMsvc)
         clickButton(waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton"))

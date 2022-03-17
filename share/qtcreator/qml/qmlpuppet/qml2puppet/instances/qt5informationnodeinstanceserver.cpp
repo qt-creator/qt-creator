@@ -1091,9 +1091,15 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
             m_modelNode3DImageViewData.window->resize(renderSize);
             m_modelNode3DImageViewData.rootItem->setSize(renderSize);
 
-            QMetaObject::invokeMethod(
-                        m_modelNode3DImageViewData.rootItem, "createViewForObject",
-                        Q_ARG(QVariant, objectToVariant(instanceObj)));
+            if (createdFromComponent) {
+                QMetaObject::invokeMethod(
+                            m_modelNode3DImageViewData.rootItem, "createViewForNode",
+                            Q_ARG(QVariant, objectToVariant(instanceObj)));
+            } else {
+                QMetaObject::invokeMethod(
+                            m_modelNode3DImageViewData.rootItem, "createViewForObject",
+                            Q_ARG(QVariant, objectToVariant(instanceObj)));
+            }
 
             // Need to render twice, first render updates spatial nodes
             for (int i = 0; i < 2; ++i) {

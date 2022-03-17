@@ -22,6 +22,8 @@ General
 * Added `Tools > Debug Qt Creator > Show Logs` for viewing Qt Creator debug logs
 * Moved C++ code model and language client inspectors to `Tools > Debug Qt
   Creator`
+* Fixed persistence of `Show Folders on Top` in `File System`
+  (QTCREATORBUG-27131)
 
 Editing
 -------
@@ -30,23 +32,33 @@ Editing
 * Added support for choosing external editor as default editor
   (QTCREATORBUG-13880)
 * Fixed copy action in text editing macros (QTCREATORBUG-26363)
+* Fixed cursor position after backspace and going up or down
+  (QTCREATORBUG-27035)
 
 ### C++
 
+* Switched to LLVM 14 in binary packages
 * Switched to Clangd by default (QTCREATORBUG-22917)
 * Fixed that compilation errors appeared below code model errors in `Issues`
   pane (QTCREATORBUG-23655)
 * Fixed that duplication files did not adapt header guard (QTCREATORBUG-26654)
 * Fixed highlighting and indentation of raw string literals (QTCREATORBUG-26211)
 * Fixed performance issue in global indexer (QTCREATORBUG-26841)
+* Fixed tiny refactoring icon on HiDPI screens (QTCREATORBUG-26905)
+* Fixed dot to arrow conversion with extra characters (QTCREATORBUG-27034)
 * clang-format
   * Moved settings to `Code Style` editor
   * Added synchronization between `clang-format` settings and custom code style
 * Clangd
+  * Added support for parse contexts (QTCREATORBUG-27009)
   * Added memory usage inspector to language client inspector
   * Added highlighting of `Q_PROPERTY` declarations
   * Improved display of diagnostic messages
   * Fixed access type categorization for functions
+  * Fixed highlighting issues (QTCREATORBUG-27059, QTCREATORBUG-27111)
+  * Fixed generating `Q_PROPERTY` members (QTCREATORBUG-27063)
+  * Fixed display of outdated diagnostics (QTCREATORBUG-26585)
+  * Fixed that `Unknown argument` diagnostics were shown (QTCREATORBUG-27113)
 
 ### QML
 
@@ -64,6 +76,7 @@ Editing
   (QTCREATORBUG-26624)
 * Fixed that outdated diagnostic could be shown (QTCREATORBUG-26585)
 * Fixed issue with re-highlighting (QTCREATORBUG-26624)
+* Fixed crash when rapidly closing documents (QTCREATORBUG-26534)
 
 ### FakeVim
 
@@ -76,7 +89,11 @@ Projects
 * Added multiple selection to `Issues` pane (QTCREATORBUG-25547,
   QTCREATORBUG-26720)
 * Improved automatic (re-)detection of toolchains (QTCREATORBUG-26460)
+* Changed default C++ standard for project wizards to C++17 (QTCREATORBUG-27045)
 * Fixed unnecessary toolchain calls at startup
+* Fixed warning that file is not part of any project (QTCREATORBUG-26987)
+* Fixed that leading spaces could break custom output parsers
+  (QTCREATORBUG-26892)
 
 ### CMake
 
@@ -92,6 +109,12 @@ Projects
 * Added context menu actions for resolving mismatches between kit, initial and
   current configuration
 * Added `Help` to context menu for variable names
+* Fixed that CMake was unnecessarily run after Kit update
+* Fixed crash when Kit has no toolchain (QTCREATORBUG-26777)
+
+### Qbs
+
+* Fixed that `cpp.cFlags` and `cpp.cxxFlags` were not considered for code model
 
 ### Generic
 
@@ -100,6 +123,10 @@ Projects
 ### Autotools
 
 * Fixed parsing of `SUBDIRS`
+
+### Mercurial
+
+* Fixed saving of settings (QTCREATORBUG-27091)
 
 Debugging
 ---------
@@ -143,11 +170,23 @@ Test Integration
 Platforms
 ---------
 
+### Windows
+
+* Fixed auto-detection of MinGW compiler (QTCREATORBUG-27057)
+* Fixed missing compile `Issues` for MSVC (QTCREATORBUG-27056)
+* Fixed wrong path separator when using `-client` (QTCREATORBUG-27075)
+
+### Linux
+
+* Added Wayland backend (QTCREATORBUG-26867)
+
 ### macOS
 
 * Fixed that macOS dark mode was not used for dark themes (QTCREATORBUG-22477)
 * Fixed that user applications inherited access permissions from Qt Creator
   (QTCREATORBUG-26743)
+* Fixed key repeat (QTCREATORBUG-26925)
+* Fixed environment when opening `Terminal` with `zsh`
 
 ### Android
 
@@ -159,10 +198,14 @@ Platforms
   (QTCREATORBUG-26709)
 * Fixed detection of available NDK platforms for recent NDKs
   (QTCREATORBUG-26772)
+* Fixed naming of devices that are connected via USB and WiFi at the same time
+* Fixed deployment if Kit fails to determine ABI (QTCREATORBUG-27103)
 
 ### Remote Linux
 
 * Fixed UI state after stopping remote applications (QTCREATORBUG-26848)
+* Fixed missing error message in `Application Output` when remote application
+  crashes (QTCREATORBUG-27007)
 
 ### WebAssembly
 
@@ -181,20 +224,26 @@ Platforms
 Credits for these changes go to:
 --------------------------------
 Aaron Barany  
+Aleksei German  
 Alessandro Portale  
 Alexander Drozdov  
 Allan Sandfeld Jensen  
+Andre Hartmann  
 André Pönitz  
 Anton Alimoff  
+Antti Määttä  
 Artem Sokolovskii  
 Assam Boudjelthia  
+Björn Schäpers  
 Christiaan Janssen  
 Christian Kandeler  
 Christian Stenger  
+Christian Strømme  
 Cristian Adam  
 Cristián Maureira-Fredes  
 David Schulz  
 Eike Ziller  
+Erik Verbruggen  
 Fawzi Mohamed  
 Henning Gruendl  
 Huixiong Cao  
@@ -209,20 +258,28 @@ Knud Dollereder
 Leena Miettinen  
 Mahmoud Badri  
 Marco Bubke  
+Mats Honkamaa  
 Maximilian Goldstein  
 Miikka Heikkinen  
 Morten Johan Sørvig  
 Orgad Shaneh  
+Oswald Buddenhagen  
 Petar Perisin  
 Piotr Mikolajczyk  
+Piotr Mućko  
+Rafael Roquetto  
 Robert Löhning  
 Samuel Ghinet  
+Tapani Mattila  
 Tasuku Suzuki  
+Thiago Macieira  
 Thomas Hartmann  
 Tim Jenssen  
 Tony Leinonen  
 Topi Reinio  
 Tor Arne Vestbø  
+Tuomo Pelkonen  
 Ulf Hermann  
 Ville Nummela  
+Xiaofeng Wang  
 XutaxKamay  

@@ -210,7 +210,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                     QmlJS::ModelManagerInterface *modelManager
                         = QmlJS::ModelManagerInterface::instance();
 
-                    if (!editor)
+                    if (!editor || !modelManager)
                         return;
 
                     if (d->lastMessageBox)

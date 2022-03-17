@@ -34,7 +34,7 @@
     development. In this manual, we indicate which components are supported at
     the time of writing.
 
-    To develop for MCUs, \l{Using Project Wizards}{create an MCU project}. Only
+    To develop for MCUs, \l{Creating a Project}{create an MCU project}. Only
     the components available on MCUs are displayed in \l Components. Only a
     subset of properties is supported for the supported components. The
     properties that are not available on MCUs are marked in the \l Properties
