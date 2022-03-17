@@ -84,11 +84,10 @@ public:
         return new ClangFormatIndenter(doc);
     }
 
-    std::pair<CppEditor::CppCodeStyleWidget *, QString> additionalTab(QWidget *parent) const override
+    std::pair<CppEditor::CppCodeStyleWidget *, QString> additionalTab(
+        ProjectExplorer::Project *project, QWidget *parent) const override
     {
-        if (!parent)
-            return {new ClangFormatConfigWidget(),  tr("ClangFormat")};
-        return {new ClangFormatConfigWidget(SessionManager::startupProject()), tr("ClangFormat")};
+        return {new ClangFormatConfigWidget(project, parent), tr("ClangFormat")};
     }
 };
 

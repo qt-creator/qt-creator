@@ -131,14 +131,13 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
 
     initChecksAndPreview();
 
+    m_ui->applyButton->show();
     if (m_project) {
-        m_ui->applyButton->show();
         hideGlobalCheckboxes();
         m_ui->fallbackConfig->hide();
         m_ui->overrideDefault->setChecked(
             m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
     } else {
-        m_ui->applyButton->hide();
         showGlobalCheckboxes();
         m_ui->overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
         m_ui->overrideDefault->setToolTip(
@@ -179,12 +178,13 @@ void ClangFormatConfigWidget::initChecksAndPreview()
     m_preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);
 
     Utils::FilePath fileName;
+    connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
     if (m_project) {
-        connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
         fileName = m_project->projectFilePath().pathAppended("snippet.cpp");
     } else {
         fileName = Core::ICore::userResourcePath("snippet.cpp");
     }
+
     m_preview->textDocument()->indenter()->setFileName(fileName);
 }
 

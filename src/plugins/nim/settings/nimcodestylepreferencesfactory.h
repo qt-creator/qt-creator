@@ -40,6 +40,7 @@ public:
     QString displayName() override;
     TextEditor::ICodeStylePreferences *createCodeStyle() const override;
     QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
+                          ProjectExplorer::Project *project,
                           QWidget *parent) const override;
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
     QString snippetProviderGroupId() const override;

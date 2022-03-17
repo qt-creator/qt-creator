@@ -33,6 +33,8 @@
 
 #include <QWidget>
 
+namespace  ProjectExplorer { class Project; }
+
 namespace TextEditor {
 
 class ICodeStylePreferences;
@@ -57,11 +59,14 @@ public:
     virtual ~ICodeStylePreferencesFactory() = default;
 
     virtual CodeStyleEditorWidget *createCodeStyleEditor(ICodeStylePreferences *codeStyle,
+                                                         ProjectExplorer::Project *project = nullptr,
                                                          QWidget *parent = nullptr);
     virtual Utils::Id languageId() = 0;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
-    virtual QWidget *createEditor(ICodeStylePreferences *preferences, QWidget *parent) const = 0;
+    virtual QWidget *createEditor(ICodeStylePreferences *preferences,
+                                  ProjectExplorer::Project *project = nullptr,
+                                  QWidget *parent = nullptr) const = 0;
     virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
     virtual QString snippetProviderGroupId() const = 0;
     virtual QString previewText() const = 0;

@@ -98,7 +98,8 @@ TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeSty
 }
 
 QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePreferences *preferences,
-                                                           QWidget *parent) const
+                                                      ProjectExplorer::Project *project,
+                                                      QWidget *parent) const
 {
     auto cppPreferences = qobject_cast<CppCodeStylePreferences *>(preferences);
     if (!cppPreferences)
@@ -108,7 +109,7 @@ QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePref
     widget->layout()->setContentsMargins(0, 0, 0, 0);
     widget->setCodeStyle(cppPreferences);
 
-    const auto tab = additionalTab(parent);
+    const auto tab = additionalTab(project, parent);
     widget->addTab(tab.first, tab.second);
 
     return widget;
@@ -129,9 +130,10 @@ QString CppCodeStylePreferencesFactory::previewText() const
     return QLatin1String(defaultPreviewText);
 }
 
-std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(QWidget *parent) const
+std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(ProjectExplorer::Project *project, QWidget *parent) const
 {
     Q_UNUSED(parent)
+    Q_UNUSED(project)
     return {nullptr, ""};
 }
 
