@@ -33,6 +33,7 @@ SliderPopup 1.0 SliderPopup.qml
 SpinBox 1.0 SpinBox.qml
 SpinBoxIndicator 1.0 SpinBoxIndicator.qml
 SpinBoxInput 1.0 SpinBoxInput.qml
+Switch 1.0 Switch.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml
 TextArea 1.0 TextArea.qml
