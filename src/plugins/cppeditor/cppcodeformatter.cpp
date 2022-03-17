@@ -172,6 +172,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_COLON:       enter(member_init_open); enter(member_init_expected); break;
             case T_OPERATOR:    enter(operator_declaration); break;
             case T_GREATER_GREATER: break;
+            case T_LBRACKET: break;
             default:            tryExpression(true); break;
             } break;
 
