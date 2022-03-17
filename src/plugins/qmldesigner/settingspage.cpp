@@ -260,7 +260,9 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 #else
     const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool();
 #endif
-    m_ui.debugGroupBox->setVisible(!standaloneMode || showDebugSettings);
+    const bool showAdvancedFeatures = !standaloneMode || showDebugSettings;
+    m_ui.emulationGroupBox->setVisible(showAdvancedFeatures);
+    m_ui.debugGroupBox->setVisible(showAdvancedFeatures);
     m_ui.featureTimelineEditorCheckBox->setVisible(standaloneMode);
 }
 
