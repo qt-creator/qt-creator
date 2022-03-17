@@ -57,6 +57,7 @@
 #include <QLoggingCategory>
 #include <QMutex>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QThread>
 
 using namespace ProjectExplorer;
@@ -233,6 +234,7 @@ public:
     {
         QTC_ASSERT(m_shell, return false);
         QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
+        QTC_CHECK(m_shell->readAllStandardError().isNull()); // clean possible left-overs
 
         const QByteArray prefix = !data.isEmpty()
                 ? QByteArray("echo '" + data.toBase64() + "' | base64 -d | ") : QByteArray("");
@@ -255,26 +257,29 @@ public:
     {
         QTC_ASSERT(m_shell, return {});
         QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
+        QTC_CHECK(m_shell->readAllStandardError().isNull()); // clean possible left-overs
+        auto cleanup = qScopeGuard([this] { m_shell->readAllStandardOutput(); }); // clean on assert
 
-        static int val = 0;
-        const QByteArray delim = QString::number(++val, 16).toUtf8();
+        const QByteArray suffix = QByteArray(" 2> /dev/null \necho $? 1>&2\n");
+        const QByteArray command = cmd.toUtf8() + suffix;
 
-        DEBUG("RUN2 " << cmd);
-        const QByteArray marker = "___QTC___" + delim + "_OUTPUT_MARKER___";
-        DEBUG(" CMD: " << cmd.toUtf8() + "\necho " + marker + "\n");
-        m_shell->write(cmd.toUtf8() + "\necho " + marker + "\n");
-        QByteArray output;
-        while (!output.contains(marker)) {
-            DEBUG("OUTPUT" << output);
+        m_shell->write(command);
+        DEBUG("RUN2 " << cmd.toUserOutput());
+
+        while (true) {
             m_shell->waitForReadyRead();
-            output.append(m_shell->readAllStandardOutput());
+            const QByteArray error = m_shell->readAllStandardError();
+            if (!error.isNull()) {
+                bool ok = false;
+                const int result = error.toInt(&ok);
+                QTC_ASSERT(ok, return {});
+                QTC_ASSERT(!result, return {});
+                break;
+            }
         }
+        const QByteArray output = m_shell->readAllStandardOutput();
         DEBUG("GOT2 " << output);
         LOG("Run command in shell:" << cmd << "output size:" << output.size());
-        const int pos = output.indexOf(marker);
-        if (pos >= 0)
-            output = output.left(pos);
-        DEBUG("CHOPPED2 " << output);
         return output;
     }
 
