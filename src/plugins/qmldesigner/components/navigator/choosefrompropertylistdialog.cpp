@@ -51,6 +51,11 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     //  -> InstanceList
     // Pass
     //  -> Effect
+    // Particle3D
+    //  -> ParticleEmitter3D
+    // ParticleAbstractShape3D
+    //  -> ParticleEmitter3D
+    //  -> Attractor3D
 
     const TypeName textureType = "QtQuick3D.Texture";
     if (insertInfo.isSubclassOf(textureType)) {
@@ -92,6 +97,13 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     } else if (insertInfo.isSubclassOf("QtQuick3D.Pass")) {
         if (parentInfo.isSubclassOf("QtQuick3D.Effect"))
             propertyList.append("passes");
+    } else if (insertInfo.isSubclassOf("QtQuick3D.Particles3D.Particle3D")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.ParticleEmitter3D"))
+            propertyList.append("particle");
+    } else if (insertInfo.isSubclassOf("QQuick3DParticleAbstractShape")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.ParticleEmitter3D")
+                || parentInfo.isSubclassOf("QtQuick3D.Particles3D.Attractor3D"))
+            propertyList.append("shape");
     }
 }
 
