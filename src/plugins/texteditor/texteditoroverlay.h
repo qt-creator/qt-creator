@@ -100,8 +100,8 @@ protected:
 
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
-    void paintSelection(QPainter *painter, const OverlaySelection &selection);
-    void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color);
+    void paintSelection(QPainter *painter, const OverlaySelection &selection, const QRect &clip);
+    void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color, const QRect &clip);
 
     bool m_visible;
     bool m_alpha;

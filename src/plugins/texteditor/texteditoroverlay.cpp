@@ -312,7 +312,8 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 }
 
 void TextEditorOverlay::paintSelection(QPainter *painter,
-                                       const OverlaySelection &selection)
+                                       const OverlaySelection &selection,
+                                       const QRect &clip)
 {
 
     QTextCursor begin = selection.m_cursor_begin;
@@ -325,7 +326,7 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
     if (begin.isNull() || end.isNull() || begin.position() > end.position() || !bg.isValid())
         return;
 
-    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
+    QPainterPath path = createSelectionPath(begin, end, clip);
 
     painter->save();
     QColor penColor = fg;
@@ -374,14 +375,15 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
 
 void TextEditorOverlay::fillSelection(QPainter *painter,
                                       const OverlaySelection &selection,
-                                      const QColor &color)
+                                      const QColor &color,
+                                      const QRect &clip)
 {
     const QTextCursor &begin = selection.m_cursor_begin;
     const QTextCursor &end= selection.m_cursor_end;
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
         return;
 
-    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
+    QPainterPath path = createSelectionPath(begin, end, clip);
 
     painter->save();
     painter->translate(-.5, -.5);
@@ -402,7 +404,7 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
             != selection.m_fixedLength)
             continue;
 
-        paintSelection(painter, selection);
+        paintSelection(painter, selection, clip);
     }
     for (int i = m_selections.size()-1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
@@ -413,7 +415,7 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
             != selection.m_fixedLength)
             continue;
 
-        paintSelection(painter, selection);
+        paintSelection(painter, selection, clip);
     }
 }
 
@@ -444,7 +446,7 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
             != selection.m_fixedLength)
             continue;
 
-        fillSelection(painter, selection, color);
+        fillSelection(painter, selection, color, clip);
     }
     for (int i = m_selections.size()-1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
@@ -455,7 +457,7 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
             != selection.m_fixedLength)
             continue;
 
-        fillSelection(painter, selection, color);
+        fillSelection(painter, selection, color, clip);
     }
 }
 
