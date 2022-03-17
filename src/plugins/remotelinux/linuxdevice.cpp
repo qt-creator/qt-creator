@@ -193,8 +193,13 @@ class ShellThreadHandler : public QObject
 public:
     ~ShellThreadHandler()
     {
-        if (m_shell)
-            delete m_shell;
+        if (!m_shell)
+            return;
+        if (m_shell->isRunning()) {
+            m_shell->write("exit\n");
+            m_shell->waitForFinished();
+        }
+        delete m_shell;
     }
 
     bool startFailed(const SshConnectionParameters &parameters)
