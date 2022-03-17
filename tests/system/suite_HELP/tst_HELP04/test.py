@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -26,9 +26,9 @@
 source("../../shared/qtcreator.py")
 
 # test search in help mode and advanced search
-searchKeywordDictionary = { "abundance":True, "deplmint":False, "QODBC":True, "bldx":False }
-urlDictionary = { "abundance":"qthelp://com.trolltech.qt.487/qdoc/gettingstarted-develop.html",
-                  "QODBC":"qthelp://com.trolltech.qt.487/qdoc/sql-driver.html" }
+searchKeywordDictionary = { "compass":True, "deplmint":False, "QODBC":True, "bldx":False }
+urlDictionary = {"compass":"qthelp://org.qt-project.qtdoc.5141/qtdoc/mobiledevelopment.html",
+                 "QODBC":"qthelp://org.qt-project.qtsql.5141/qtsql/sql-driver.html" }
 
 
 def __getSelectedText__():
@@ -69,8 +69,9 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    if qt4Available:
-        addHelpDocumentation([os.path.join(qt4Path, "doc", "qch", "qt.qch")])
+    docFiles = ["qtdoc.qch", "qtsql.qch"]
+    docFiles = [os.path.join(Qt5Path.docsPath(Targets.DESKTOP_5_14_1_DEFAULT), file) for file in docFiles]
+    addHelpDocumentation(docFiles)
     # switch to help mode
     switchViewTo(ViewConstants.HELP)
     # verify that search widget is accessible
@@ -87,9 +88,6 @@ def main():
     test.verify(waitFor("noMatch in "
                         "str(resultWidget.plainText)", 2000),
                         "Verifying if search did not match anything.")
-    # workaround for "endless waiting cursor"
-    mouseClick(waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
-                             "text='Qt Reference Documentation' type='QModelIndex'}"))
     # try to search keyword from list
     searchLineEdit = getChildByClass(waitForObject("{type='QHelpSearchQueryWidget' unnamed='1' visible='1' "
                                                    "window=':Qt Creator_Core::Internal::MainWindow'}"),
