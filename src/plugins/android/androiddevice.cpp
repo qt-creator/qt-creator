@@ -35,6 +35,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitinformation.h>
@@ -588,6 +590,8 @@ void AndroidDeviceManager::setupDevicesWatcher()
     m_adbDeviceWatcherProcess->setCommand(command);
     m_adbDeviceWatcherProcess->setEnvironment(AndroidConfigurations::toolsEnvironment(m_androidConfig));
     m_adbDeviceWatcherProcess->start();
+    qCDebug(androidDeviceLog).noquote() << "ADB device watcher started:"
+                                        << command.toUserOutput();
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped
@@ -609,6 +613,28 @@ void AndroidDeviceManager::setupDevicesWatcher()
     });
     // Call initial update
     updateAvdsList();
+}
+
+void AndroidDeviceManager::shutdownDevicesWatcher()
+{
+    m_avdsFutureWatcher.waitForFinished();
+    m_removeAvdFutureWatcher.waitForFinished();
+
+    if (m_adbDeviceWatcherProcess) {
+        m_adbDeviceWatcherProcess->terminate();
+        m_adbDeviceWatcherProcess->waitForFinished();
+        m_adbDeviceWatcherProcess.reset();
+
+        // Despite terminate/waitForFinished, the process may still
+        // be around and remain if Qt Creator finishes too early.
+        QTimer::singleShot(1000, this, [this] { emit devicesWatcherShutdownFinished(); });
+    }
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag AndroidDeviceManager::devicesShutdownFlag() const
+{
+    return m_adbDeviceWatcherProcess ? ExtensionSystem::IPlugin::AsynchronousShutdown
+                                     : ExtensionSystem::IPlugin::SynchronousShutdown;
 }
 
 void AndroidDeviceManager::HandleAvdsListChange()
@@ -764,16 +790,6 @@ AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
       m_androidConfig(AndroidConfigurations::currentConfig()),
       m_avdManager(m_androidConfig)
 {
-    connect(qApp, &QCoreApplication::aboutToQuit, this, [this]() {
-        if (m_adbDeviceWatcherProcess) {
-            m_adbDeviceWatcherProcess->terminate();
-            m_adbDeviceWatcherProcess->waitForFinished();
-            m_adbDeviceWatcherProcess.reset();
-        }
-        m_avdsFutureWatcher.waitForFinished();
-        m_removeAvdFutureWatcher.waitForFinished();
-    });
-
     connect(&m_removeAvdFutureWatcher, &QFutureWatcherBase::finished,
             this, &AndroidDeviceManager::handleAvdRemoved);
 }

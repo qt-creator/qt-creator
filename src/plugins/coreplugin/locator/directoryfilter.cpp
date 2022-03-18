@@ -141,10 +141,10 @@ void DirectoryFilter::restoreState(const QByteArray &state)
         setIncludedByDefault(defaultFilter);
 
         locker.unlock();
-        updateFileIterator();
     } else {
         ILocatorFilter::restoreState(state);
     }
+    updateFileIterator();
 }
 
 bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
