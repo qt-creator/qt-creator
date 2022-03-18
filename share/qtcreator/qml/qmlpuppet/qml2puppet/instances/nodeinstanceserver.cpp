@@ -1576,6 +1576,9 @@ void NodeInstanceServer::setupState(qint32 stateInstanceId)
 
 void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
 {
+    if (!resourceUrl.isValid())
+        return;
+
     // Autoregister all fonts found inside the project
     QDirIterator it {QFileInfo(resourceUrl.toLocalFile()).absoluteFilePath(),
                      {"*.ttf", "*.otf"}, QDir::Files, QDirIterator::Subdirectories};
