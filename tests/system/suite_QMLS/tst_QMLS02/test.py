@@ -41,7 +41,7 @@ def main():
     type(editorArea, "<Return>")
     type(editorArea, testingCodeLine)
 
-    invokeMenuItem("View", "Output Panes", "Issues")
+    invokeMenuItem("View", "Output", "Issues")
     issuesView = waitForObject(":Qt Creator.Issues_QListView")
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 
