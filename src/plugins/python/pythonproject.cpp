@@ -257,6 +257,7 @@ void PythonBuildSystem::triggerParsing()
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(filePath, displayName, fileType));
         if (fileType == FileType::Source) {
             BuildTargetInfo bti;
+            bti.displayName = displayName;
             bti.buildKey = f;
             bti.targetFilePath = filePath;
             bti.projectFilePath = projectFilePath();
