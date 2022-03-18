@@ -50,9 +50,10 @@ def main():
                            'Waiter();'])
     # Rely on code completion for closing bracket
     invokeMenuItem("File", "Save All")
-    openDocument(project + "." + project + "\\.pro")
-    proEditor = waitForObject(":Qt Creator_TextEditor::TextEditorWidget")
-    test.verify("CONFIG += c++11 console" in str(proEditor.plainText),
+    openDocument(project + ".CMakeLists\\.txt")
+    projectFileEditor = waitForObject(":Qt Creator_TextEditor::TextEditorWidget")
+    projectFileContent = str(projectFileEditor.plainText)
+    test.verify("Widgets" not in projectFileContent and "MACOSX_BUNDLE" not in projectFileContent,
                 "Verifying that program is configured with console")
 
     availableConfigs = iterateBuildConfigs()
@@ -88,7 +89,7 @@ def main():
 
         test.log("Debugging application")
         isMsvc = isMsvcConfig(kit)
-        invokeMenuItem("Debug", "Start Debugging", "Start debugging of startup project")
+        invokeMenuItem("Debug", "Start Debugging", "Start Debugging of Startup Project")
         handleDebuggerWarnings(config, isMsvc)
         ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
