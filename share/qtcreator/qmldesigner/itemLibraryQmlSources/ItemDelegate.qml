@@ -88,6 +88,8 @@ Item {
 
             onShowContextMenu: delegateRoot.showContextMenu()
             onPressed: (mouse)=> {
+                allowTooltip = false
+                hide()
                 if (mouse.button === Qt.LeftButton)
                     rootView.startDragAndDrop(itemLibraryEntry, mapToGlobal(mouse.x, mouse.y))
             }

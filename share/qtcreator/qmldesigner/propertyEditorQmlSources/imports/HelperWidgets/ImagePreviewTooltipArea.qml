@@ -30,6 +30,8 @@ import HelperWidgets 2.0
 MouseArea {
     id: mouseArea
 
+    property bool allowTooltip: true
+
     signal showContextMenu()
 
     function hide()
@@ -38,7 +40,12 @@ MouseArea {
     }
 
     onExited: tooltipBackend.hideTooltip()
-    onCanceled: tooltipBackend.hideTooltip()
+    onEntered: allowTooltip = true
+    onCanceled: {
+        tooltipBackend.hideTooltip()
+        allowTooltip = true
+    }
+    onReleased: allowTooltip = true
     onPositionChanged: tooltipBackend.reposition()
     onClicked: function(mouse) {
         forceActiveFocus()
@@ -51,7 +58,7 @@ MouseArea {
 
     Timer {
         interval: 1000
-        running: mouseArea.containsMouse
+        running: mouseArea.containsMouse && mouseArea.allowTooltip
         onTriggered: {
             tooltipBackend.name = itemName
             tooltipBackend.path = componentPath

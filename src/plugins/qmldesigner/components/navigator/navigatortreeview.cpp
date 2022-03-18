@@ -293,8 +293,15 @@ void NavigatorTreeView::mousePressEvent(QMouseEvent *event)
 
 void NavigatorTreeView::startDrag(Qt::DropActions supportedActions)
 {
-    if (m_dragAllowed)
+    if (m_dragAllowed) {
+        if (m_previewToolTip) {
+            // Workaround to ensure tooltip doesn't linger during drag, as drag grabs all mouse
+            // events on some platforms (e.g. mac)
+            m_previewToolTip->hide();
+            m_previewToolTipNodeId = -1;
+        }
         QTreeView::startDrag(supportedActions);
+    }
 }
 
 }
