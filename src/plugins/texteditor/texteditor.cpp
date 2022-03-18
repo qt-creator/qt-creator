@@ -3254,8 +3254,8 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
                           BaseTextEditor::tr("More than one highlight definition was found for this file. "
                                              "Which one should be used to highlight this file?"));
         info.setComboInfo(Utils::transform(definitions, &Highlighter::Definition::name),
-                          [this](const QString &definition) {
-            this->configureGenericHighlighter(Highlighter::definitionForName(definition));
+                          [this](const InfoBarEntry::ComboInfo &info) {
+            this->configureGenericHighlighter(Highlighter::definitionForName(info.displayText));
         });
 
         info.addCustomButton(BaseTextEditor::tr("Remember My Choice"), [multiple, this]() {

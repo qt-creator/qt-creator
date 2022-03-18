@@ -103,7 +103,15 @@ void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBac
     m_cancelButtonCallBack = callBack;
 }
 
-void InfoBarEntry::setComboInfo(const QStringList &list, InfoBarEntry::ComboCallBack callBack)
+void InfoBarEntry::setComboInfo(const QStringList &list, ComboCallBack callBack)
+{
+    m_comboInfo = Utils::transform(list, [](const QString &string) {
+        return ComboInfo{string, string};
+    });
+    m_comboCallBack = callBack;
+}
+
+void InfoBarEntry::setComboInfo(const QList<ComboInfo> &list, ComboCallBack callBack)
 {
     m_comboCallBack = callBack;
     m_comboInfo = list;
@@ -308,9 +316,10 @@ void InfoBarDisplay::update()
 
         if (!info.m_comboInfo.isEmpty()) {
             auto cb = new QComboBox();
-            cb->addItems(info.m_comboInfo);
-            connect(cb, &QComboBox::currentTextChanged, [info](const QString &text) {
-                info.m_comboCallBack(text);
+            for (const InfoBarEntry::ComboInfo &comboInfo : qAsConst(info.m_comboInfo))
+                cb->addItem(comboInfo.displayText, comboInfo.data);
+            connect(cb, &QComboBox::currentIndexChanged, [cb, info]() {
+                info.m_comboCallBack({cb->currentText(), cb->currentData()});
             });
 
             hbox->addWidget(cb);

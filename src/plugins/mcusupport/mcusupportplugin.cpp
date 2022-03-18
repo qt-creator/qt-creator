@@ -143,12 +143,15 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade()
     Utils::InfoBarEntry info(upgradeMcuSupportKits,
                              tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    static McuKitManager::UpgradeOption selectedOption = McuKitManager::UpgradeOption::Keep;
+    using McuKitManager::UpgradeOption;
+    static UpgradeOption selectedOption = UpgradeOption::Keep;
 
-    const QStringList options = {tr("Create new kits"), tr("Replace existing kits")};
-    info.setComboInfo(options, [options](const QString &selected) {
-        selectedOption = options.indexOf(selected) == 0 ? McuKitManager::UpgradeOption::Keep
-                                                        : McuKitManager::UpgradeOption::Replace;
+    const QList<Utils::InfoBarEntry::ComboInfo> infos
+        = {{tr("Create new kits"), QVariant::fromValue(UpgradeOption::Keep)},
+           {tr("Replace existing kits"), QVariant::fromValue(UpgradeOption::Replace)}};
+
+    info.setComboInfo(infos, [](const Utils::InfoBarEntry::ComboInfo &selected) {
+        selectedOption = selected.data.value<UpgradeOption>();
     });
 
     info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits] {
