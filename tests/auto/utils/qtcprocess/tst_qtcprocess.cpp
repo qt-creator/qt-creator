@@ -1233,6 +1233,8 @@ enum class BlockType {
     EventLoop
 };
 
+Q_DECLARE_METATYPE(BlockType)
+
 void tst_QtcProcess::KillBlockingProcess::main()
 {
     std::cout << "Blocking process successfully executed." << std::endl;
