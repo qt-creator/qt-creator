@@ -673,8 +673,10 @@ void ToolChainFactory::setUserCreatable(bool userCreatable)
     m_userCreatable = userCreatable;
 }
 
-ToolchainDetector::ToolchainDetector(const Toolchains &alreadyKnown, const IDevice::ConstPtr &device)
-    : alreadyKnown(alreadyKnown), device(device)
+ToolchainDetector::ToolchainDetector(const Toolchains &alreadyKnown,
+                                     const IDevice::ConstPtr &device,
+                                     const FilePaths &searchPaths)
+    : alreadyKnown(alreadyKnown), device(device), searchPaths(searchPaths)
 {}
 
 BadToolchain::BadToolchain(const Utils::FilePath &filePath)

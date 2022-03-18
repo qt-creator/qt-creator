@@ -21,7 +21,7 @@
 :Add Bookmark.treeView_QTreeView	{name='treeView' type='QTreeView' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark_BookmarkDialog	{name='BookmarkDialog' type='BookmarkDialog' visible='1' windowTitle='Add Bookmark'}
 :Add to Version Control.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':Add to Version Control_QMessageBox'}
-:Add to Version Control_QMessageBox	{text~='Add the file.*to version control (.*)?' type='QMessageBox' unnamed='1' visible='1'}
+:Add to Version Control_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Add to Version Control'}
 :Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox	{container=':DebugModeWidget.Toolbar_QDockWidget' name='PerspectiveChooser' type='QComboBox' visible='1'}
 :Analyzer Toolbar.Clear_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
 :Analyzer Toolbar.Elapsed:_QLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' text~='Elapsed:    \\\\d+.\\\\d s' type='QLabel' unnamed='1' visible='1'}

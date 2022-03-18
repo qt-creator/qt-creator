@@ -767,12 +767,16 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
                 const CppComponentValue *qmlValue = value_cast<CppComponentValue>(objectValue);
+
                 if (qmlValue) {
                     if (m_majorVersion == -1 && m_minorVersion == -1) {
                         m_majorVersion = qmlValue->componentVersion().majorVersion();
                         m_minorVersion = qmlValue->componentVersion().minorVersion();
-                        m_qualfiedTypeName = qmlValue->moduleName().toUtf8() + '.' + qmlValue->className().toUtf8();
-                    } else if (m_majorVersion == qmlValue->componentVersion().majorVersion() && m_minorVersion == qmlValue->componentVersion().minorVersion()) {
+                        m_qualfiedTypeName = qmlValue->moduleName().toUtf8() + '.'
+                                             + qmlValue->className().toUtf8();
+
+                    } else if (m_majorVersion == qmlValue->componentVersion().majorVersion()
+                               && m_minorVersion == qmlValue->componentVersion().minorVersion()) {
                         m_qualfiedTypeName = qmlValue->moduleName().toUtf8() + '.' + qmlValue->className().toUtf8();
                     } else {
                         return;
@@ -780,10 +784,16 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                 } else {
                     m_isFileComponent = true;
                     const Imports *imports = context()->imports(document());
-                    ImportInfo importInfo = imports->info(lookupNameComponent().constLast(), context().data());
-                    if (importInfo.isValid() && importInfo.type() == ImportType::Library) {
-                        m_majorVersion = importInfo.version().majorVersion();
-                        m_minorVersion = importInfo.version().minorVersion();
+                    const ImportInfo importInfo = imports->info(lookupNameComponent().constLast(), context().data());
+                    if (importInfo.isValid()) {
+                        if (importInfo.type() == ImportType::Library) {
+                            m_majorVersion = importInfo.version().majorVersion();
+                            m_minorVersion = importInfo.version().minorVersion();
+                        }
+                        bool prepandName = (importInfo.type() == ImportType::Library || importInfo.type() == ImportType::Directory)
+                                && !m_qualfiedTypeName.contains('.');
+                        if (prepandName)
+                                m_qualfiedTypeName.prepend(importInfo.name().toUtf8() + '.');
                     }
                 }
                 m_objectValue = objectValue;

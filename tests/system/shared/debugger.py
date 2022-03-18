@@ -42,7 +42,8 @@ def handleDebuggerWarnings(config, isMsvcBuild=False):
             clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Dialog_Debugger::Internal::SymbolPathsDialog'}", 10000))
         except LookupError:
             pass # No warning. Fine.
-    if "Release" in config and (isMsvcBuild or platform.system() == "Linux"):
+    isReleaseConfig = "Release" in config and not "with Debug Information" in config
+    if isReleaseConfig and (isMsvcBuild or platform.system() == "Linux"):
         msgBox = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Warning'}"
         message = waitForObject("{name='qt_msgbox_label' type='QLabel' visible='1' window=%s}" % msgBox)
         messageText = str(message.text)

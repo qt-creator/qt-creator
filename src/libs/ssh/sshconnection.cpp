@@ -479,7 +479,8 @@ bool checkParameters(const QSsh::SshConnectionParameters &params)
 
 void printSetupHelp()
 {
-    qInfo() << "In order to run this test properly it requires some setup (example for fedora):\n"
+    qInfo() << "\n\n"
+               "In order to run this test properly it requires some setup (example for fedora):\n"
                "1. Run a server on the host to connect to:\n"
                "   systemctl start sshd\n"
                "2. Create your own ssh key (needed only once). For fedora it needs ecdsa type:\n"

@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -53,7 +53,7 @@ def main():
             checkCodeModelSettings(useClang)
             changeAutocompleteToManual(False)
 # Step 2: Open .cpp file in Edit mode.
-            if not openDocument("SampleApp.Sources.main\\.cpp"):
+            if not openDocument("SampleApp.SampleApp.Source Files.main\\.cpp"):
                 test.fatal("Could not open main.cpp")
                 invokeMenuItem("File", "Exit")
                 return

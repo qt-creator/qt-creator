@@ -158,7 +158,7 @@ void WebAssemblyToolChain::registerToolChains()
     };
 
     // Create new toolchains and register them
-    ToolchainDetector detector({}, {});
+    ToolchainDetector detector({}, {}, {});
     const Toolchains toolchains = doAutoDetect(detector);
     for (auto toolChain : toolchains)
         ToolChainManager::registerToolChain(toolChain);

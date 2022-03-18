@@ -232,11 +232,14 @@ public:
     bool runInShell(const CommandLine &cmd, const QByteArray &data = {})
     {
         QTC_ASSERT(m_shell, return false);
-        const QByteArray prefix = !data.isEmpty() ? QByteArray("echo " + data + " | ")
-                                                  : QByteArray("");
+        QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
 
-        m_shell->readAllStandardOutput(); // clean possible left-overs
-        m_shell->write(prefix + cmd.toUserOutput().toUtf8() + "\necho $?\n");
+        const QByteArray prefix = !data.isEmpty()
+                ? QByteArray("echo '" + data.toBase64() + "' | base64 -d | ") : QByteArray("");
+        const QByteArray suffix = QByteArray(" > /dev/null 2>&1\necho $?\n");
+        const QByteArray command = prefix + cmd.toUserOutput().toUtf8() + suffix;
+
+        m_shell->write(command);
         DEBUG("RUN1 " << cmd.toUserOutput());
         m_shell->waitForReadyRead();
         const QByteArray output = m_shell->readAllStandardOutput();
@@ -244,18 +247,19 @@ public:
         bool ok = false;
         const int result = output.toInt(&ok);
         LOG("Run command in shell:" << cmd.toUserOutput() << "result: " << output << " ==>" << result);
-        return ok && result == 0;
+        QTC_ASSERT(ok, return false);
+        return !result;
     }
 
     QByteArray outputForRunInShell(const QString &cmd)
     {
         QTC_ASSERT(m_shell, return {});
+        QTC_CHECK(m_shell->readAllStandardOutput().isNull()); // clean possible left-overs
 
         static int val = 0;
         const QByteArray delim = QString::number(++val, 16).toUtf8();
 
         DEBUG("RUN2 " << cmd);
-        m_shell->readAllStandardOutput(); // clean possible left-overs
         const QByteArray marker = "___QTC___" + delim + "_OUTPUT_MARKER___";
         DEBUG(" CMD: " << cmd.toUtf8() + "\necho " + marker + "\n");
         m_shell->write(cmd.toUtf8() + "\necho " + marker + "\n");
@@ -342,11 +346,9 @@ LinuxDevice::LinuxDevice()
         proc->start();
     });
 
-    if (Utils::HostOsInfo::isAnyUnixHost()) {
-        addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
-            device->openTerminal(Environment(), FilePath());
-        }});
-    }
+    addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
+                         device->openTerminal(Environment(), FilePath());
+                     }});
 }
 
 LinuxDevice::~LinuxDevice()
@@ -734,9 +736,6 @@ QByteArray LinuxDevice::fileContents(const FilePath &filePath, qint64 limit, qin
 bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-
-// This following would be the generic Unix solution.
-// But it doesn't pass input. FIXME: Why?
     return d->runInShell({"dd", {"of=" + filePath.path()}}, data);
 }
 

@@ -113,6 +113,7 @@
 #include <QtQuick3DParticles/private/qquick3dparticle_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticleaffector_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticleemitter_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticleattractor_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticletrailemitter_p.h>
 #endif
 
@@ -775,7 +776,8 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed(QObject *obj)
     } else if (qobject_cast<QQuick3DParticleSystem *>(obj)) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseParticleSystemGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
-    } else if (qobject_cast<QQuick3DParticleEmitter *>(obj)
+    } else if ((qobject_cast<QQuick3DParticleEmitter *>(obj)
+                || qobject_cast<QQuick3DParticleAttractor *>(obj))
                && !qobject_cast<QQuick3DParticleTrailEmitter *>(obj)) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseParticleEmitterGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
@@ -887,7 +889,8 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
                 QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateParticleSystemGizmoScene",
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
                                           Q_ARG(QVariant, objectToVariant(node)));
-            } else if (qobject_cast<QQuick3DParticleEmitter *>(node)
+            } else if ((qobject_cast<QQuick3DParticleEmitter *>(node)
+                        || qobject_cast<QQuick3DParticleAttractor *>(node))
                        && !qobject_cast<QQuick3DParticleTrailEmitter *>(node)) {
                 QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateParticleEmitterGizmoScene",
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
@@ -1469,7 +1472,8 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
             lights[find3DSceneRoot(instance)] << instance.internalObject();
         } else if (instance.isSubclassOf("QQuick3DParticleSystem")) {
             particleSystems[find3DSceneRoot(instance)] << instance.internalObject();
-        } else if (instance.isSubclassOf("QQuick3DParticleEmitter")
+        } else if ((instance.isSubclassOf("QQuick3DParticleEmitter")
+                    || instance.isSubclassOf("QQuick3DParticleAttractor"))
                    && !instance.isSubclassOf("QQuick3DParticleTrailEmitter")) {
             particleEmitters[find3DSceneRoot(instance)] << instance.internalObject();
         }
@@ -2016,7 +2020,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
 #ifdef QUICK3D_PARTICLES_MODULE
                     || qobject_cast<QQuick3DParticleSystem *>(object)
                     || qobject_cast<QQuick3DParticleEmitter *>(object)
-
+                    || qobject_cast<QQuick3DParticleAttractor *>(object)
 #endif
                 ) {
                     return true;

@@ -1090,10 +1090,11 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
     return {};
 }
 
-static FilePaths findCompilerCandidates(const IDevice::ConstPtr &device,
+static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                                         const QString &compilerName,
                                         bool detectVariants)
 {
+    const IDevice::ConstPtr device = detector.device;
     const QFileInfo fi(compilerName);
     if (device.isNull() && fi.isAbsolute() && fi.isFile())
         return {FilePath::fromString(compilerName)};
@@ -1119,7 +1120,9 @@ static FilePaths findCompilerCandidates(const IDevice::ConstPtr &device,
 
     if (!device.isNull()) {
         // FIXME: Merge with block below
-        FilePaths searchPaths = device->systemEnvironment().path();
+        FilePaths searchPaths = detector.searchPaths;
+        if (searchPaths.isEmpty())
+            searchPaths = device->systemEnvironment().path();
         for (const FilePath &deviceDir : qAsConst(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
             const auto callBack = [&compilerPaths, compilerName](const FilePath &candidate) {
@@ -1135,16 +1138,19 @@ static FilePaths findCompilerCandidates(const IDevice::ConstPtr &device,
         }
     } else {
         // The normal, local host case.
-        FilePaths searchPaths = Environment::systemEnvironment().path();
-        searchPaths << gnuSearchPathsFromRegistry();
-        searchPaths << atmelSearchPathsFromRegistry();
-        searchPaths << renesasRl78SearchPathsFromRegistry();
-        if (HostOsInfo::isAnyUnixHost()) {
-            FilePath ccachePath = "/usr/lib/ccache/bin";
-            if (!ccachePath.exists())
-                ccachePath = "/usr/lib/ccache";
-            if (ccachePath.exists() && !searchPaths.contains(ccachePath))
-                searchPaths << ccachePath;
+        FilePaths searchPaths = detector.searchPaths;
+        if (searchPaths.isEmpty()) {
+            searchPaths = Environment::systemEnvironment().path();
+            searchPaths << gnuSearchPathsFromRegistry();
+            searchPaths << atmelSearchPathsFromRegistry();
+            searchPaths << renesasRl78SearchPathsFromRegistry();
+            if (HostOsInfo::isAnyUnixHost()) {
+                FilePath ccachePath = "/usr/lib/ccache/bin";
+                if (!ccachePath.exists())
+                    ccachePath = "/usr/lib/ccache";
+                if (ccachePath.exists() && !searchPaths.contains(ccachePath))
+                    searchPaths << ccachePath;
+            }
         }
         for (const FilePath &dir : qAsConst(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
@@ -1173,7 +1179,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
         const ToolchainChecker &checker) const
 {
     const FilePaths compilerPaths =
-        findCompilerCandidates(detector.device, compilerName, detectVariants == DetectVariants::Yes);
+        findCompilerCandidates(detector, compilerName, detectVariants == DetectVariants::Yes);
     Toolchains existingCandidates = filtered(detector.alreadyKnown,
             [language](const ToolChain *tc) { return tc->language() == language; });
     Toolchains result;
@@ -1748,7 +1754,7 @@ Toolchains ClangToolChainFactory::autoDetect(const ToolchainDetector &detector) 
         const FilePath clang = compilerPath.parentDir().pathAppended("clang").withExecutableSuffix();
         tcs.append(autoDetectToolchains(clang.toString(), DetectVariants::No,
                                         Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
-                                        ToolchainDetector(known, detector.device)));
+                                        ToolchainDetector(known, detector.device, detector.searchPaths)));
     }
 
     return tcs;

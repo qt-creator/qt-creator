@@ -39,7 +39,12 @@ Item {
     property string contextFilePath: ""
     property var contextDir: undefined
     property bool isDirContextMenu: false
-    property var dropExtFiles: [] // array of supported externally dropped files
+
+    // Array of supported externally dropped files that are imported as-is
+    property var dropSimpleExtFiles: []
+
+    // Array of supported externally dropped files that trigger custom import process
+    property var dropComplexExtFiles: []
 
     function clearSearchFilter()
     {
@@ -48,18 +53,23 @@ Item {
 
     function updateDropExtFiles(drag)
     {
-        root.dropExtFiles = []
+        root.dropSimpleExtFiles = []
+        root.dropComplexExtFiles = []
+        var simpleSuffixes = rootView.supportedAssetSuffixes(false);
+        var complexSuffixes = rootView.supportedAssetSuffixes(true);
         for (const u of drag.urls) {
             var url = u.toString();
             if (url.startsWith("file:///")) // remove file scheme (happens on Windows)
                 url = url.substr(8)
 
-            var ext = url.slice(url.lastIndexOf('.') + 1).toLowerCase()
-            if (rootView.supportedDropSuffixes().includes('*.' + ext))
-                root.dropExtFiles.push(url)
+            var ext = '*.' + url.slice(url.lastIndexOf('.') + 1).toLowerCase()
+            if (simpleSuffixes.includes(ext))
+                root.dropSimpleExtFiles.push(url)
+            else if (complexSuffixes.includes(ext))
+                root.dropComplexExtFiles.push(url)
         }
 
-        drag.accepted = root.dropExtFiles.length > 0
+        drag.accepted = root.dropSimpleExtFiles.length > 0 || root.dropComplexExtFiles.length > 0
     }
 
     DropArea { // handles external drop on empty area of the view (goes to root folder)
@@ -73,13 +83,14 @@ Item {
         }
 
         onDropped: {
-            rootView.handleExtFilesDrop(root.dropExtFiles, assetsModel.rootDir().dirPath)
+            rootView.handleExtFilesDrop(root.dropSimpleExtFiles, root.dropComplexExtFiles,
+                                        assetsModel.rootDir().dirPath)
         }
 
         Canvas { // marker for the drop area
             id: dropCanvas
             anchors.fill: parent
-            visible: dropArea.containsDrag
+            visible: dropArea.containsDrag && root.dropSimpleExtFiles.length > 0
 
             onWidthChanged: dropCanvas.requestPaint()
             onHeightChanged: dropCanvas.requestPaint()
@@ -458,49 +469,61 @@ Item {
             visible: assetsModel.isEmpty && searchBox.isEmpty()
             clip: true
 
-            Column {
-                id: colNoAssets
+            DropArea { // handles external drop (goes into default folder based on suffix)
+                anchors.fill: parent
 
-                spacing: 20
-                x: 20
-                width: root.width - 2 * x
-                anchors.verticalCenter: parent.verticalCenter
-
-                Text {
-                    text: qsTr("Looks like you don't have any assets yet.")
-                    color: StudioTheme.Values.themeTextColor
-                    font.pixelSize: 18
-                    width: colNoAssets.width
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.WordWrap
+                onEntered: (drag)=> {
+                    root.updateDropExtFiles(drag)
                 }
 
-                Image {
-                    source: "image://qmldesigner_assets/browse"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    scale: maBrowse.containsMouse ? 1.2 : 1
-                    Behavior on scale {
-                        NumberAnimation {
-                            duration: 300
-                            easing.type: Easing.OutQuad
+                onDropped: {
+                    rootView.handleExtFilesDrop(root.dropSimpleExtFiles, root.dropComplexExtFiles)
+                }
+
+                Column {
+                    id: colNoAssets
+
+                    spacing: 20
+                    x: 20
+                    width: root.width - 2 * x
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        text: qsTr("Looks like you don't have any assets yet.")
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: 18
+                        width: colNoAssets.width
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Image {
+                        source: "image://qmldesigner_assets/browse"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        scale: maBrowse.containsMouse ? 1.2 : 1
+                        Behavior on scale {
+                            NumberAnimation {
+                                duration: 300
+                                easing.type: Easing.OutQuad
+                            }
+                        }
+
+                        MouseArea {
+                            id: maBrowse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: rootView.handleAddAsset();
                         }
                     }
 
-                    MouseArea {
-                        id: maBrowse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: rootView.handleAddAsset();
+                    Text {
+                        text: qsTr("Drag-and-drop your assets here or click the '+' button to browse assets from the file system.")
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: 18
+                        width: colNoAssets.width
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
                     }
-                }
-
-                Text {
-                    text: qsTr("Drag-and-drop your assets here or click the '+' button to browse assets from the file system.")
-                    color: StudioTheme.Values.themeTextColor
-                    font.pixelSize: 18
-                    width: colNoAssets.width
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.WordWrap
                 }
             }
         }
@@ -546,7 +569,7 @@ Item {
 
                         onDropEnter: (drag)=> {
                             root.updateDropExtFiles(drag)
-                            section.highlight = drag.accepted
+                            section.highlight = drag.accepted && root.dropSimpleExtFiles.length > 0
                         }
 
                         onDropExit: {
@@ -555,7 +578,9 @@ Item {
 
                         onDrop: {
                             section.highlight = false
-                            rootView.handleExtFilesDrop(root.dropExtFiles, dirPath)
+                            rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
+                                                        root.dropComplexExtFiles,
+                                                        dirPath)
                         }
 
                         onShowContextMenu: {

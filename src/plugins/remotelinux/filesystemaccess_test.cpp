@@ -95,7 +95,11 @@ void FileSystemAccessTest::initTestCase()
         QVERIFY(!newDev.isNull());
         devMgr->addDevice(newDev);
     }
+    if (filePath.exists()) // Do initial cleanup after possible leftovers from previously failed test
+        QVERIFY(filePath.removeRecursively());
+    QVERIFY(!filePath.exists());
     QVERIFY(filePath.createDir());
+    QVERIFY(filePath.exists());
 }
 
 void FileSystemAccessTest::cleanupTestCase()
@@ -106,7 +110,43 @@ void FileSystemAccessTest::cleanupTestCase()
     QVERIFY(baseFilePath().removeRecursively());
 }
 
-void FileSystemAccessTest::testDirStatuses()
+void FileSystemAccessTest::testCreateRemoteFile_data()
+{
+    QTest::addColumn<QByteArray>("data");
+
+    QTest::newRow("Spaces") << QByteArray("Line with spaces");
+    QTest::newRow("Newlines") << QByteArray("Some \n\n newlines \n");
+    QTest::newRow("Carriage return") << QByteArray("Line with carriage \r return");
+    QTest::newRow("Tab") << QByteArray("Line with \t tab");
+    QTest::newRow("Apostrophe") << QByteArray("Line with apostrophe's character");
+    QTest::newRow("Quotation marks") << QByteArray("Line with \"quotation marks\"");
+    QTest::newRow("Backslash 1") << QByteArray("Line with \\ backslash");
+    QTest::newRow("Backslash 2") << QByteArray("Line with \\\" backslash");
+    QTest::newRow("Command output") << QByteArray("The date is: $(date +%D)");
+
+    const int charSize = sizeof(char) * 0x100;
+    QByteArray charString(charSize, Qt::Uninitialized);
+    char *data = charString.data();
+    for (int c = 0; c < charSize; ++c)
+        data[c] = c;
+    QTest::newRow("All Characters") << charString;
+}
+
+void FileSystemAccessTest::testCreateRemoteFile()
+{
+    QFETCH(QByteArray, data);
+
+    const FilePath testFilePath = baseFilePath() / "test_file";
+
+    QVERIFY(!testFilePath.exists());
+    QVERIFY(testFilePath.writeFileContents(data));
+    QVERIFY(testFilePath.exists());
+    QCOMPARE(testFilePath.fileContents(), data);
+    QVERIFY(testFilePath.removeFile());
+    QVERIFY(!testFilePath.exists());
+}
+
+void FileSystemAccessTest::testDirStatus()
 {
     FilePath filePath = baseFilePath();
     QVERIFY(filePath.exists());
@@ -142,7 +182,7 @@ void FileSystemAccessTest::testBytesAvailable()
 
 void FileSystemAccessTest::testFileActions()
 {
-    FilePath testFilePath = createFile("test");
+    const FilePath testFilePath = createFile("test");
     QVERIFY(testFilePath.exists());
     QVERIFY(testFilePath.isFile());
 
@@ -153,15 +193,17 @@ void FileSystemAccessTest::testFileActions()
     QVERIFY(testFilePath.isReadableFile());
     QVERIFY(testFilePath.isExecutableFile());
 
-    QByteArray content("Test");
+    const QByteArray content("Test");
     testFilePath.writeFileContents(content);
-    // ToDo: remove ".contains", make fileContents exact equal content
-    QVERIFY(testFilePath.fileContents().contains(content));
+    QCOMPARE(testFilePath.fileContents(), content);
 
-    QVERIFY(testFilePath.renameFile(baseFilePath() / "test1"));
+    const FilePath newTestFilePath = baseFilePath() / "test1";
     // It is Ok that FilePath doesn't change itself after rename.
-    FilePath newTestFilePath = baseFilePath() / "test1";
+    // FilePath::renameFile() is a const method!
+    QVERIFY(testFilePath.renameFile(newTestFilePath));
+    QVERIFY(!testFilePath.exists());
     QVERIFY(newTestFilePath.exists());
+    QCOMPARE(newTestFilePath.fileContents(), content);
     QVERIFY(!testFilePath.removeFile());
     QVERIFY(newTestFilePath.exists());
     QVERIFY(newTestFilePath.removeFile());

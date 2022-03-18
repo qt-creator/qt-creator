@@ -170,6 +170,8 @@ private: // functions
 
     NodeInstance loadNode(const ModelNode &node);
 
+    void clearErrors();
+
     void removeAllInstanceNodeRelationships();
 
     void removeRecursiveChildRelationship(const ModelNode &removedNode);

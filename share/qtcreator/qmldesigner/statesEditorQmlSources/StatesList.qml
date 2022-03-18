@@ -161,7 +161,7 @@ FocusScope {
                     Text {
                         text: "+"
                         anchors.centerIn: parent
-                        anchors.verticalCenterOffset: -5
+                        anchors.verticalCenterOffset: -16
                         font.pixelSize: parent.height * .5
                         color: Qt.lighter(StudioTheme.Values.themeControlBackgroundInteraction, addState.containsMouse ? 1.5 : 1)
                     }

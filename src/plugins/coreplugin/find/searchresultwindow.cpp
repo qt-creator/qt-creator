@@ -111,6 +111,7 @@ namespace Internal {
         void popupRequested(bool focus);
         void handleExpandCollapseToolButton(bool checked);
         void updateFilterButton();
+        QList<QWidget *> toolBarWidgets();
 
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
@@ -120,9 +121,9 @@ namespace Internal {
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand;
         QWidget *m_spacer;
-        QLabel *m_historyLabel;
+        QLabel *m_historyLabel = nullptr;
         QWidget *m_spacer2;
-        QComboBox *m_recentSearchesBox;
+        QComboBox *m_recentSearchesBox = nullptr;
         QStackedWidget *m_widget;
         QList<SearchResult *> m_searchResults;
         int m_currentIndex;
@@ -139,20 +140,13 @@ namespace Internal {
         m_expandCollapseButton(nullptr),
         m_expandCollapseAction(new QAction(tr("Expand All"), window)),
         m_spacer(new QWidget),
-        m_historyLabel(new QLabel(tr("History:"))),
         m_spacer2(new QWidget),
-        m_recentSearchesBox(new QComboBox),
         m_widget(new QStackedWidget),
         m_currentIndex(0),
         m_tabWidth(8)
     {
         m_spacer->setMinimumWidth(30);
         m_spacer2->setMinimumWidth(5);
-        m_recentSearchesBox->setProperty("drawleftborder", true);
-        m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        m_recentSearchesBox->addItem(tr("New Search"));
-        connect(m_recentSearchesBox, QOverload<int>::of(&QComboBox::activated),
-                this, &SearchResultWindowPrivate::setCurrentIndexWithFocus);
 
         m_widget->setWindowTitle(q->displayName());
 
@@ -194,6 +188,7 @@ namespace Internal {
 
     void SearchResultWindowPrivate::setCurrentIndex(int index, bool focus)
     {
+        QTC_ASSERT(m_recentSearchesBox, return );
         if (isSearchVisible())
             m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(false);
         m_currentIndex = index;
@@ -217,6 +212,7 @@ namespace Internal {
 
     void SearchResultWindowPrivate::moveWidgetToTop()
     {
+        QTC_ASSERT(m_recentSearchesBox, return );
         auto widget = qobject_cast<SearchResultWidget *>(sender());
         QTC_ASSERT(widget, return);
         const int index = m_searchResultWidgets.indexOf(widget);
@@ -458,8 +454,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return {d->m_expandCollapseButton, d->m_filterButton, d->m_newSearchButton, d->m_spacer,
-            d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox};
+    return d->toolBarWidgets();
 }
 
 /*!
@@ -497,16 +492,19 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                                                  PreserveCaseMode preserveCaseMode,
                                                  const QString &cfgGroup)
 {
-    if (d->m_searchResults.size() >= MAX_SEARCH_HISTORY) {
-        if (d->m_currentIndex >= d->m_recentSearchesBox->count() - 1) {
-            // temporarily set the index to the last but one existing
-            d->m_currentIndex = d->m_recentSearchesBox->count() - 2;
+    if (QTC_GUARD(d->m_recentSearchesBox)) {
+        if (d->m_searchResults.size() >= MAX_SEARCH_HISTORY) {
+            if (d->m_currentIndex >= d->m_recentSearchesBox->count() - 1) {
+                // temporarily set the index to the last but one existing
+                d->m_currentIndex = d->m_recentSearchesBox->count() - 2;
+            }
+            d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
+            // widget first, because that might send interesting signals to SearchResult
+            delete d->m_searchResultWidgets.takeLast();
+            delete d->m_searchResults.takeLast();
+            d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count() - 1);
         }
-        d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
-        // widget first, because that might send interesting signals to SearchResult
-        delete d->m_searchResultWidgets.takeLast();
-        delete d->m_searchResults.takeLast();
-        d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count()-1);
+        d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));
     }
     auto widget = new SearchResultWidget;
     connect(widget, &SearchResultWidget::filterInvalidated, this, [this, widget] {
@@ -532,7 +530,6 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     widget->setInfo(label, toolTip, searchTerm);
     auto result = new SearchResult(widget);
     d->m_searchResults.prepend(result);
-    d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));
     if (d->m_currentIndex > 0)
         ++d->m_currentIndex; // so setCurrentIndex still knows about the right "currentIndex" and its widget
     d->setCurrentIndexWithFocus(1);
@@ -544,8 +541,10 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
 */
 void SearchResultWindow::clearContents()
 {
-    for (int i = d->m_recentSearchesBox->count() - 1; i > 0 /* don't want i==0 */; --i)
-        d->m_recentSearchesBox->removeItem(i);
+    if (QTC_GUARD(d->m_recentSearchesBox)) {
+        for (int i = d->m_recentSearchesBox->count() - 1; i > 0 /* don't want i==0 */; --i)
+            d->m_recentSearchesBox->removeItem(i);
+    }
     foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
         widget->notifyVisibilityChanged(false);
     qDeleteAll(d->m_searchResultWidgets);
@@ -640,6 +639,29 @@ void SearchResultWindowPrivate::updateFilterButton()
 {
     m_filterButton->setEnabled(isSearchVisible()
                                && m_searchResultWidgets.at(visibleSearchIndex())->hasFilter());
+}
+
+QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
+{
+    if (!m_historyLabel)
+        m_historyLabel = new QLabel(tr("History:"));
+    if (!m_recentSearchesBox) {
+        m_recentSearchesBox = new QComboBox;
+        m_recentSearchesBox->setProperty("drawleftborder", true);
+        m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_recentSearchesBox->addItem(tr("New Search"));
+        connect(m_recentSearchesBox,
+                QOverload<int>::of(&QComboBox::activated),
+                this,
+                &SearchResultWindowPrivate::setCurrentIndexWithFocus);
+    }
+    return {m_expandCollapseButton,
+            m_filterButton,
+            m_newSearchButton,
+            m_spacer,
+            m_historyLabel,
+            m_spacer2,
+            m_recentSearchesBox};
 }
 
 /*!

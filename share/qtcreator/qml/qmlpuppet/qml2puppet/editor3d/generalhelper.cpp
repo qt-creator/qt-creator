@@ -51,6 +51,7 @@
 #include <QtQuick3DParticles/private/qquick3dparticlemodelshape_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticleemitter_p.h>
 #include <QtQuick3DParticles/private/qquick3dparticletrailemitter_p.h>
+#include <QtQuick3DParticles/private/qquick3dparticleattractor_p.h>
 #endif
 
 #include <limits>
@@ -477,11 +478,15 @@ QQuick3DNode *GeneralHelper::createParticleEmitterGizmoModel(QQuick3DNode *emitt
                                                              QQuick3DMaterial *material) const
 {
 #ifdef QUICK3D_PARTICLES_MODULE
-    auto e = qobject_cast<QQuick3DParticleEmitter *>(emitter);
-    if (!e || qobject_cast<QQuick3DParticleTrailEmitter *>(e) || !material)
+    if (qobject_cast<QQuick3DParticleTrailEmitter *>(emitter) || !material)
         return nullptr;
 
-    auto shape = qobject_cast<QQuick3DParticleModelShape *>(e->shape());
+    QQuick3DParticleModelShape *shape = nullptr;
+    if (auto e = qobject_cast<QQuick3DParticleEmitter *>(emitter))
+        shape = qobject_cast<QQuick3DParticleModelShape *>(e->shape());
+    else if (auto a = qobject_cast<QQuick3DParticleAttractor *>(emitter))
+        shape = qobject_cast<QQuick3DParticleModelShape *>(a->shape());
+
     if (shape && shape->delegate()) {
         if (auto model = qobject_cast<QQuick3DModel *>(
                     shape->delegate()->create(shape->delegate()->creationContext()))) {

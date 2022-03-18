@@ -27,6 +27,9 @@ import QtQuick
 import QtQuick3D
 import QtQuick3D.Particles3D
 
+// Note: This gizmo is also used to visualize Attractor3D in addition to ParticleEmitter3D,
+//       as the two are very similar.
+
 Node {
     id: root
 
@@ -41,6 +44,7 @@ Node {
     property bool globalShow: false
     property bool canBeVisible: activeScene === scene && targetNode && !hidden && !systemHidden
     property bool partOfActiveSystem: root.targetNode && root.targetNode.system === activeParticleSystem
+    property bool isEmitter: targetNode && targetNode instanceof ParticleEmitter3D
 
     opacity: 0.15
 
@@ -120,7 +124,10 @@ Node {
 
     DefaultMaterial {
         id: defaultMaterial
-        diffuseColor: root.selected ? "#FF0000" : partOfActiveSystem ? "#FFFF00" : "#AAAAAA"
+        diffuseColor: root.selected ? "#FF0000"
+                                    : root.partOfActiveSystem
+                                      ? root.isEmitter ? "#FFFF00" : "#0000FF"
+                                      : "#AAAAAA"
         lighting: DefaultMaterial.NoLighting
         cullMode: Material.NoCulling
     }

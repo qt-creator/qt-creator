@@ -36,7 +36,8 @@
     \title Adding States
 
     You can define states for components and component instances in the
-    \l States view by selecting \uicontrol {Create New State}.
+    \l States view by selecting \inlineimage icons/plus.png
+    .
 
     \image qmldesigner-transitions.png "States view"
 
@@ -181,7 +182,7 @@
             \inlineimage icons/eye_open.png
             icon in \l Navigator to hide components on the canvas that are
             not part of a view.
-        \li In \uicontrol States, select \uicontrol {Create New State} to create
+        \li In \uicontrol States, select the \uicontrol + symbol to create
             a new state and give it a name. For example, \c Normal.
         \li In \l Properties (2), deselect the \uicontrol Visibility
             check box or set \uicontrol Opacity to 0 for each component that

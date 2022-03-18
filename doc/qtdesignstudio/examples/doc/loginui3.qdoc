@@ -102,7 +102,8 @@
     components in \uicontrol {Form Editor}, depending on the current page:
 
     \list 1
-        \li In the \l States view, select \uicontrol {Create New State}.
+        \li In the \l States view, select \inlineimage icons/plus.png
+        .
         \li Enter \e login as the state name.
             \image loginui3-login-state.jpg "States view"
         \li Select \e repeatPassword in \uicontrol Navigator to display its

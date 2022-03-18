@@ -213,34 +213,38 @@ void AssetsLibraryWidget::handleAddAsset()
     addResources({});
 }
 
-void AssetsLibraryWidget::handleExtFilesDrop(const QStringList &filesPaths, const QString &targetDirPath)
+void AssetsLibraryWidget::handleExtFilesDrop(const QStringList &simpleFilesPaths,
+                                             const QStringList &complexFilesPaths,
+                                             const QString &targetDirPath)
 {
-    QStringList assetPaths;
-    QStringList otherPaths; // as of now 3D models, and 3D Studio presentations
-    std::tie(assetPaths, otherPaths) = Utils::partition(filesPaths, [](const QString &path) {
-        QString suffix = "*." + path.split('.').last().toLower();
-        return AssetsLibraryModel::supportedSuffixes().contains(suffix);
-    });
-
-    AddFilesResult result = ModelNodeOperations::addFilesToProject(assetPaths, targetDirPath);
-    if (result == AddFilesResult::Failed) {
-        Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                              tr("Could not add %1 to project.")
-                                                  .arg(filesPaths.join(' ')));
+    if (!simpleFilesPaths.isEmpty()) {
+        if (targetDirPath.isEmpty()) {
+            addResources(simpleFilesPaths);
+        } else {
+            AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilesPaths,
+                                                                           targetDirPath);
+            if (result == AddFilesResult::Failed) {
+                Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                      tr("Could not add %1 to project.")
+                                                          .arg(simpleFilesPaths.join(' ')));
+            }
+        }
     }
 
-    if (!otherPaths.empty())
-        addResources(otherPaths);
+    if (!complexFilesPaths.empty())
+        addResources(complexFilesPaths);
 }
 
-QSet<QString> AssetsLibraryWidget::supportedDropSuffixes()
+QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
 {
     const QList<AddResourceHandler> handlers = QmlDesignerPlugin::instance()->viewManager()
                                                    .designerActionManager().addResourceHandler();
 
     QSet<QString> suffixes;
-    for (const AddResourceHandler &handler : handlers)
-        suffixes.insert(handler.filter);
+    for (const AddResourceHandler &handler : handlers) {
+        if (AssetsLibraryModel::supportedSuffixes().contains(handler.filter) != complex)
+            suffixes.insert(handler.filter);
+    }
 
     return suffixes;
 }

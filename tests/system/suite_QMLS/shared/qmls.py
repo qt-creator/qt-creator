@@ -32,7 +32,7 @@ def startQtCreatorWithNewAppAtQMLEditor(projectDir, projectName, line = None):
     # create qt quick application
     createNewQtQuickApplication(projectDir, projectName)
     # open qml file
-    qmlFile = projectName + ".Resources.qml\.qrc./.main\\.qml"
+    qmlFile =  "%s.%s.qml\.qrc./.main\\.qml" % (projectName, projectName)
     if not openDocument(qmlFile):
         test.fatal("Could not open %s" % qmlFile)
         invokeMenuItem("File", "Exit")
