@@ -1462,6 +1462,13 @@ bool Model::hasId(const QString &id) const
     return d->hasId(id);
 }
 
+bool Model::hasImport(const QString &importUrl) const
+{
+    return Utils::anyOf(imports(), [&](const Import &import) {
+        return import.url() == importUrl;
+    });
+}
+
 static QString firstCharToLower(const QString &string)
 {
     QString resultString = string;

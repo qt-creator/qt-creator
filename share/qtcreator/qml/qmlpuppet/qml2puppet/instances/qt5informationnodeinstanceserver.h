@@ -139,8 +139,8 @@ private:
     void doRender3DEditView();
     void renderModelNodeImageView();
     void doRenderModelNodeImageView();
-    void doRenderModelNode3DImageView();
-    void doRenderModelNode2DImageView();
+    void doRenderModelNode3DImageView(const RequestModelNodePreviewImageCommand &cmd);
+    void doRenderModelNode2DImageView(const RequestModelNodePreviewImageCommand &cmd);
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
     void handleInputEvents();
     void resolveImportSupport();
@@ -159,7 +159,7 @@ private:
     RenderViewData m_modelNode2DImageViewData;
 
     bool m_editView3DSetupDone = false;
-    RequestModelNodePreviewImageCommand m_modelNodePreviewImageCommand;
+    QSet<RequestModelNodePreviewImageCommand> m_modelNodePreviewImageCommands;
     QHash<QString, QImage> m_modelNodePreviewImageCache;
     QSet<QObject *> m_view3Ds;
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node

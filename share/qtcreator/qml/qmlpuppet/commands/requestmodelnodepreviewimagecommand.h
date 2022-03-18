@@ -55,6 +55,20 @@ private:
     qint32 m_renderItemId;
 };
 
+inline bool operator==(const RequestModelNodePreviewImageCommand &first,
+                       const RequestModelNodePreviewImageCommand &second)
+{
+    return first.instanceId() == second.instanceId()
+        && first.size() == second.size()
+        && first.componentPath() == second.componentPath()
+        && first.renderItemId() == second.renderItemId();
+}
+
+inline size_t qHash(const RequestModelNodePreviewImageCommand &key, size_t seed)
+{
+    return qHashMulti(seed, key.instanceId(), key.size(), key.componentPath(), key.renderItemId());
+}
+
 QDataStream &operator<<(QDataStream &out, const RequestModelNodePreviewImageCommand &command);
 QDataStream &operator>>(QDataStream &in, RequestModelNodePreviewImageCommand &command);
 

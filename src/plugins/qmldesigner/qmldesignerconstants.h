@@ -84,6 +84,7 @@ const char QUICK_3D_ASSET_IMPORT_DATA_NAME[] = "_importdata.json";
 const char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 const char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
+const char MATERIAL_LIB_ID[] = "__materialLibrary__";
 
 const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";

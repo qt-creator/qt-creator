@@ -143,10 +143,12 @@ public:
     Q_INVOKABLE bool idListAdd(const QString &value);
     Q_INVOKABLE bool idListRemove(int idx);
     Q_INVOKABLE bool idListReplace(int idx, const QString &value);
+    Q_INVOKABLE void commitDrop(const QString &path);
 
 public slots:
     void resetValue();
     void setEnumeration(const QString &scope, const QString &name);
+    bool isSupportedDrop(const QString &path);
 
 signals:
     void valueChanged(const QString &name, const QVariant&);

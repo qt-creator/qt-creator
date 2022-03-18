@@ -80,6 +80,7 @@ const char mergeTemplateCommandId[] = "MergeTemplate";
 const char goToImplementationCommandId[] = "GoToImplementation";
 const char addSignalHandlerCommandId[] = "AddSignalHandler";
 const char moveToComponentCommandId[] = "MoveToComponent";
+const char editMaterialCommandId[] = "EditMaterial";
 const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
 const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer";
 const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
@@ -134,6 +135,7 @@ const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char addSignalHandlerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add New Signal Handler");
 const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Move Component into Separate File");
+const char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Material");
 const char editAnnotationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotation");
 
 const char openSignalDialogDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Signal Dialog");

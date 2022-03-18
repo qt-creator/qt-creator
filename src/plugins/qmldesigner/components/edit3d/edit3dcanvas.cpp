@@ -30,6 +30,11 @@
 #include "nodehints.h"
 #include "qmlvisualnode.h"
 
+#include <bindingproperty.h>
+#include <nodemetainfo.h>
+#include <nodelistproperty.h>
+#include <variantproperty.h>
+
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
@@ -181,13 +186,41 @@ void Edit3DCanvas::dragEnterEvent(QDragEnterEvent *e)
 
 void Edit3DCanvas::dropEvent(QDropEvent *e)
 {
-    Q_UNUSED(e)
-
     auto modelNode = QmlVisualNode::createQml3DNode(m_parent->view(), m_itemLibraryEntry, m_activeScene).modelNode();
+    QTC_ASSERT(modelNode.isValid(), return);
 
-    if (modelNode.isValid()) {
-        e->accept();
-        m_parent->view()->setSelectedModelNode(modelNode);
+    e->accept();
+    m_parent->view()->setSelectedModelNode(modelNode);
+
+    // if added node is a Model, assign it a material
+    if (modelNode.isSubclassOf("QtQuick3D.Model")) {
+        ModelNode matLib = m_parent->view()->modelNodeForId(Constants::MATERIAL_LIB_ID);
+        QTC_ASSERT(matLib.isValid(), return);
+
+        const QList<ModelNode> materials = matLib.directSubModelNodes();
+        ModelNode material;
+        if (materials.size() > 0) {
+            for (const ModelNode &mat : materials) {
+                if (mat.isSubclassOf("QtQuick3D.Material")) {
+                    material = mat;
+                    break;
+                }
+            }
+        }
+
+        // if no valid material, create a new default material
+        if (!material.isValid()) {
+            NodeMetaInfo metaInfo = m_parent->view()->model()->metaInfo("QtQuick3D.DefaultMaterial");
+            material = m_parent->view()->createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
+                                                                                      metaInfo.minorVersion());
+            VariantProperty matNameProp = material.variantProperty("objectName");
+            matNameProp.setValue("New Material");
+            material.validId();
+            matLib.defaultNodeListProperty().reparentHere(material);
+        }
+
+        BindingProperty modelMatsProp = modelNode.bindingProperty("materials");
+        modelMatsProp.setExpression(material.id());
     }
 }
 

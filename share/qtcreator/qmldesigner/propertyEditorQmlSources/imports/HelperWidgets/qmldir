@@ -37,6 +37,7 @@ GradientPropertySpinBox 2.0 GradientPropertySpinBox.qml
 HorizontalScrollBar 2.0 HorizontalScrollBar.qml
 HueSlider 2.0 HueSlider.qml
 IconIndicator 2.0 IconIndicator.qml
+IconButton 2.0 IconButton.qml
 IconLabel 2.0 IconLabel.qml
 ImagePreviewTooltipArea 2.0 ImagePreviewTooltipArea.qml
 ImageSection 2.0 ImageSection.qml
@@ -59,6 +60,7 @@ RoundedPanel 2.0 RoundedPanel.qml
 ScrollView 2.0 ScrollView.qml
 SecondColumnLayout 2.0 SecondColumnLayout.qml
 Section 2.0 Section.qml
+SearchBox 2.0 SearchBox.qml
 SectionLayout 2.0 SectionLayout.qml
 Spacer 2.0 Spacer.qml
 SpinBox 2.0 SpinBox.qml

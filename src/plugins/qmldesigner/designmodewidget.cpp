@@ -583,9 +583,9 @@ CrumbleBar *DesignModeWidget::crumbleBar() const
     return m_crumbleBar;
 }
 
-void DesignModeWidget::showInternalTextEditor()
+void DesignModeWidget::showDockWidget(const QString &objectName)
 {
-    auto dockWidget = m_dockManager->findDockWidget("TextEditor");
+    auto dockWidget = m_dockManager->findDockWidget(objectName);
     if (dockWidget)
         dockWidget->toggleView(true);
 }

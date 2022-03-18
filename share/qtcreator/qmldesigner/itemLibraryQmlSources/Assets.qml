@@ -442,10 +442,12 @@ Item {
                 width: parent.width - addAssetButton.width - 5
             }
 
-            PlusButton {
+            IconButton {
                 id: addAssetButton
                 anchors.verticalCenter: parent.verticalCenter
                 tooltip: qsTr("Add a new asset to the project.")
+                icon: StudioTheme.Constants.plus
+                buttonSize: parent.height
 
                 onClicked: rootView.handleAddAsset()
             }
