@@ -734,8 +734,10 @@ QtcProcess::QtcProcess(QObject *parent)
             qCDebug(processLog).nospace() << "Process " << number << " finished: "
                                           << "result=" << int(result())
                                           << ", ex=" << exitCode()
-                                          << ", " << stdOut().size() << " bytes stdout"
-                                          << ", " << stdErr().size() << " bytes stderr"
+                                          << ", " << stdOut().size() << " bytes stdout: "
+                                          << stdOut().left(20)
+                                          << ", " << stdErr().size() << " bytes stderr: "
+                                          << stdErr().left(1000)
                                           << ", " << msElapsed << " ms elapsed";
             if (processStdoutLog().isDebugEnabled() && !stdOut().isEmpty())
                 qCDebug(processStdoutLog).nospace()
