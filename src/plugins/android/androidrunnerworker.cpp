@@ -88,18 +88,15 @@ static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
     return timedOut;
 }
 
-static qint64 extractPID(const QByteArray &output, const QString &packageName)
+static qint64 extractPID(const QString &output, const QString &packageName)
 {
     qint64 pid = -1;
-    foreach (auto tuple, output.split('\n')) {
-        tuple = tuple.simplified();
-        if (!tuple.isEmpty()) {
-            auto parts = tuple.split(':');
-            QString commandName = QString::fromLocal8Bit(parts.first());
-            if (parts.length() == 2 && commandName == packageName) {
-                pid = parts.last().toLongLong();
-                break;
-            }
+    for (const QString &tuple : output.split('\n')) {
+        // Make sure to remove null characters which might be present in the provided output
+        const QStringList parts = tuple.simplified().remove('\0').split(':');
+        if (parts.length() == 2 && parts.first() == packageName) {
+            pid = parts.last().toLongLong();
+            break;
         }
     }
     return pid;
@@ -126,7 +123,7 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
         QtcProcess proc;
         proc.setCommand({adbPath, args});
         proc.runBlocking();
-        const QByteArray out = proc.allRawOutput();
+        const QString out = proc.allOutput();
         if (preNougat) {
             processPID = extractPID(out, packageName);
         } else {
