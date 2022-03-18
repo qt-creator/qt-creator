@@ -59,7 +59,7 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.Resources.qml\\.qrc./.MyComponent\\.qml"
+    myCompTE = "SampleApp.SampleApp.qml\\.qrc./.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 5000)
