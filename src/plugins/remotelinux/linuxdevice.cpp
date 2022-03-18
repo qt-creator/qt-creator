@@ -347,11 +347,9 @@ LinuxDevice::LinuxDevice()
         proc->start(runnable);
     });
 
-    if (Utils::HostOsInfo::isAnyUnixHost()) {
-        addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
-            device->openTerminal(Environment(), FilePath());
-        }});
-    }
+    addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
+                         device->openTerminal(Environment(), FilePath());
+                     }});
 }
 
 LinuxDevice::~LinuxDevice()
