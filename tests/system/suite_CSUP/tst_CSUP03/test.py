@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -78,10 +78,8 @@ def main():
                 continue
             if not startCreatorVerifyingClang(useClang):
                 continue
-            targetToChoose = Targets.DESKTOP_4_8_7_DEFAULT
-            if not qt4Available:
-                targetToChoose = Targets.DESKTOP_5_14_1_DEFAULT
-            projectName = createNewNonQtProject(tempDir(), "project-csup03", [targetToChoose])
+            projectName = createNewNonQtProject(tempDir(), "project-csup03",
+                                                [Targets.DESKTOP_5_14_1_DEFAULT])
             checkCodeModelSettings(useClang)
             openDocument("%s.Sources.main\\.cpp" % projectName)
             editor = getEditorForFileSuffix("main.cpp")

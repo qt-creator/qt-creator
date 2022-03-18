@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -36,10 +36,7 @@ def main():
         return
 
     runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
-    targetToChoose = Targets.DESKTOP_4_8_7_DEFAULT
-    if not qt4Available:
-        targetToChoose = Targets.DESKTOP_5_14_1_DEFAULT
-    openQmakeProject(pathSpeedcrunch, [targetToChoose])
+    openQmakeProject(pathSpeedcrunch, [Targets.DESKTOP_5_14_1_DEFAULT])
     # Wait for parsing to complete
     waitFor("runButton.enabled", 30000)
     # Starting before opening, because this is where Creator froze (QTCREATORBUG-10733)
