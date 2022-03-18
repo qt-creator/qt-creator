@@ -44,12 +44,12 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
 
         Packages targetPackages = createPackages(desc);
         packages.append(targetPackages);
-        mcuTargets.emplace_back(new McuTarget{QVersionNumber::fromString(desc.qulVersion),
-                                              platform,
-                                              deduceOperatingSystem(desc),
-                                              targetPackages,
-                                              new McuToolChainPackage{{}, {}, {}, {}, {}},
-                                              colorDepth});
+        mcuTargets.append(new McuTarget{QVersionNumber::fromString(desc.qulVersion),
+                                        platform,
+                                        deduceOperatingSystem(desc),
+                                        targetPackages,
+                                        new McuToolChainPackage{{}, {}, {}, {}, {}},
+                                        colorDepth});
     }
     return {mcuTargets, packages};
 }
@@ -69,7 +69,7 @@ Packages McuTargetFactory::createPackages(const McuTargetDescription &desc)
     QList<PackageDescription> packageDescriptions = aggregatePackageEntries(desc);
 
     for (const PackageDescription &pkgDesc : packageDescriptions) {
-        packages.emplace_back(new McuPackage{
+        packages.append(new McuPackage{
             pkgDesc.label,
             pkgDesc.defaultPath,
             pkgDesc.validationPath,

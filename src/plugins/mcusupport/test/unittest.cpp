@@ -62,7 +62,8 @@ const QString stm32f7{"STM32F7"};
 const QString nxp1170{"EVK_MIMXRT1170"};
 const QString nxp1050{"IMXRT1050"};
 const QString nxp1064{"IMXRT1064"};
-const QStringList jsonFiles{armgcc_nxp_1050_json, armgcc_nxp_1064_json};
+const QStringList jsonFiles{QString::fromUtf8(armgcc_nxp_1050_json),
+                            QString::fromUtf8(armgcc_nxp_1064_json)};
 constexpr bool RUN_LEGACY{true};
 constexpr int colorDepth{32};
 const QString id{"id"};

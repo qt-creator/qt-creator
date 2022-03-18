@@ -53,36 +53,36 @@ QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const McuTargetDe
         // Desktop toolchains don't need any additional settings
         if (tcPkg && !tcPkg->isDesktopToolchain()
             && tcPkg->toolchainType() != McuToolChainPackage::ToolChainType::Unsupported) {
-            required3rdPartyPkgs.emplace_back(tcPkg);
+            required3rdPartyPkgs.append(tcPkg);
         }
 
         //  Add setting specific to platform IDE.
         if (vendorPkgs.contains(desc.platform.vendor)) {
-            required3rdPartyPkgs.emplace_back(vendorPkgs.value(desc.platform.vendor));
+            required3rdPartyPkgs.append(vendorPkgs.value(desc.platform.vendor));
         }
 
         // Board SDK specific settings
         Utils::FilePath boardSdkDefaultPath;
         if (!desc.boardSdk.envVar.isEmpty()) {
             if (!boardSdkPkgs.contains(desc.boardSdk.envVar)) {
-                const McuAbstractPackage *boardSdkPkg = createBoardSdkPackage(desc);
-                boardSdkPkgs.emplace(desc.boardSdk.envVar, boardSdkPkg);
+                McuAbstractPackage *boardSdkPkg = createBoardSdkPackage(desc);
+                boardSdkPkgs.insert(desc.boardSdk.envVar, boardSdkPkg);
             }
             McuAbstractPackage *boardSdkPkg{boardSdkPkgs.value(desc.boardSdk.envVar)};
             boardSdkPkg->setVersions(desc.boardSdk.versions);
             boardSdkDefaultPath = boardSdkPkg->defaultPath();
-            required3rdPartyPkgs.emplace_back(boardSdkPkg);
+            required3rdPartyPkgs.append(boardSdkPkg);
         }
 
         // Free RTOS specific settings.
         if (!desc.freeRTOS.envVar.isEmpty()) {
             if (!freeRTOSPkgs.contains(desc.freeRTOS.envVar)) {
-                freeRTOSPkgs.emplace(desc.freeRTOS.envVar,
+                freeRTOSPkgs.insert(desc.freeRTOS.envVar,
                                      createFreeRTOSSourcesPackage(desc.freeRTOS.envVar,
                                                                   boardSdkDefaultPath,
                                                                   desc.freeRTOS.boardSdkSubDir));
             }
-            required3rdPartyPkgs.emplace_back(freeRTOSPkgs.value(desc.freeRTOS.envVar));
+            required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOS.envVar));
         }
 
         packages.append(required3rdPartyPkgs);

@@ -457,10 +457,10 @@ QPair<Targets, Packages> targetsFromDescriptions(const QList<McuTargetDescriptio
     if (isLegacy) {
         auto [toolchainPkgs, vendorPkgs]{targetFactory->getAdditionalPackages()};
         for (McuAbstractPackage *package : toolchainPkgs) {
-            mcuPackages.emplace_back(package);
+            mcuPackages.append(package);
         }
         for (McuAbstractPackage *package : vendorPkgs) {
-            mcuPackages.emplace_back(package);
+            mcuPackages.append(package);
         }
     }
     return {mcuTargets, mcuPackages};
@@ -646,7 +646,9 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
             }
         }
     }
-    std::tie(repo->mcuTargets, repo->packages) = targetsFromDescriptions(descriptions, isLegacy);
+    const auto tmpTargetLists = targetsFromDescriptions(descriptions, isLegacy);
+    repo->mcuTargets = tmpTargetLists.first;
+    repo->packages = tmpTargetLists.second;
 
     // Keep targets sorted lexicographically
     std::sort(repo->mcuTargets.begin(),
