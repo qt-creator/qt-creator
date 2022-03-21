@@ -332,10 +332,13 @@ bool RefactoringFile::apply()
     }
 
     // open / activate / goto position
+    bool ensureCursorVisible = false;
     if (m_openEditor && !m_filePath.isEmpty()) {
         int line = -1, column = -1;
-        if (m_editorCursorPosition != -1)
+        if (m_editorCursorPosition != -1) {
             lineAndColumn(m_editorCursorPosition, &line, &column);
+            ensureCursorVisible = true;
+        }
         m_editor = RefactoringChanges::openEditor(m_filePath, m_activateEditor, line, column);
         m_openEditor = false;
         m_activateEditor = false;
@@ -395,6 +398,9 @@ bool RefactoringFile::apply()
                 m_editor->textDocument()->save(nullptr, m_filePath, false);
         }
     }
+
+    if (m_editor && ensureCursorVisible)
+        m_editor->ensureCursorVisible();
 
     m_appliedOnce = true;
     return result;
