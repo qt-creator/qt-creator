@@ -694,6 +694,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const bool hasCurrentItem = current.isValid();
     QAction *actionOpenFile = nullptr;
     QAction *newFolder = nullptr;
+    QAction *removeFolder = nullptr;
     const bool isDir = m_fileSystemModel->isDir(current);
     const Utils::FilePath filePath = hasCurrentItem ? Utils::FilePath::fromString(
                                                           m_fileSystemModel->filePath(current))
@@ -719,6 +720,13 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
             menu.addAction(Core::ActionManager::command(RENAMEFILE)->action());
         newFolder = menu.addAction(tr("New Folder"));
+        if (isDir) {
+            QDirIterator it(filePath.toString(),
+                            QDir::AllEntries | QDir::Hidden | QDir::System | QDir::NoDotAndDotDot);
+            // only allow removing folders that are empty
+            if (!it.hasNext())
+                removeFolder = menu.addAction(tr("Remove Folder"));
+        }
     }
 
     menu.addSeparator();
@@ -736,6 +744,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             createNewFolder(current);
         else
             createNewFolder(current.parent());
+    } else if (action == removeFolder) {
+        QDir().rmdir(filePath.toString());
     } else if (action == collapseAllAction) {
         m_listView->collapseAll();
     }
