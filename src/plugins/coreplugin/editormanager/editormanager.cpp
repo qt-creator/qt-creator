@@ -2395,8 +2395,9 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
         // the locator line edit) first activates the window and sets focus to its focus widget.
         // Only afterwards the focus is shifted to the widget that received the click.
         d->m_scheduledCurrentEditor = editor;
-        QMetaObject::invokeMethod(d, &EditorManagerPrivate::setCurrentEditorFromContextChange,
-                                  Qt::QueuedConnection);
+        QTimer::singleShot(QApplication::doubleClickInterval() + 10,
+                           d,
+                           &EditorManagerPrivate::setCurrentEditorFromContextChange);
     } else {
         updateActions();
     }
