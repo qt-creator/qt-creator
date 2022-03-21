@@ -49,6 +49,43 @@
 
 using namespace Utils;
 
+// This handler is inspired by the one used in qtbase/tests/auto/corelib/io/qfile/tst_qfile.cpp
+class MessageHandler {
+public:
+    MessageHandler(QtMessageHandler messageHandler = handler)
+    {
+        s_oldMessageHandler = qInstallMessageHandler(messageHandler);
+    }
+
+    ~MessageHandler()
+    {
+        qInstallMessageHandler(s_oldMessageHandler);
+    }
+
+    static int destroyCount()
+    {
+        return s_destroyCount;
+    }
+
+protected:
+    static void handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+    {
+        if (msg.contains("QProcess: Destroyed while process")
+                && msg.contains("is still running.")) {
+            ++s_destroyCount;
+        }
+        // Defer to old message handler.
+        if (s_oldMessageHandler)
+            s_oldMessageHandler(type, context, msg);
+    }
+
+    static QtMessageHandler s_oldMessageHandler;
+    static int s_destroyCount;
+};
+
+int MessageHandler::s_destroyCount = 0;
+QtMessageHandler MessageHandler::s_oldMessageHandler = 0;
+
 using SubProcessMain = std::function<void ()>;
 static QMap<const char *, SubProcessMain> s_subProcesses = {};
 
@@ -246,6 +283,8 @@ private:
     MacroMapExpander mxUnix;
     QString homeStr;
     QString home;
+
+    MessageHandler *msgHandler = nullptr;
 };
 
 void tst_QtcProcess::SimpleTest::main()
@@ -256,6 +295,7 @@ void tst_QtcProcess::SimpleTest::main()
 
 void tst_QtcProcess::initTestCase()
 {
+    msgHandler = new MessageHandler;
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                 + Core::Constants::IDE_CASED_ID + "-XXXXXX");
     Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
@@ -307,6 +347,11 @@ void tst_QtcProcess::initTestCase()
 void tst_QtcProcess::cleanupTestCase()
 {
     Utils::Singleton::deleteAll();
+    const int destroyCount = msgHandler->destroyCount();
+    delete msgHandler;
+    if (destroyCount)
+        qDebug() << "Received" << destroyCount << "messages about destroying running QProcess!";
+    QCOMPARE(destroyCount, 0);
 }
 
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
@@ -1195,44 +1240,6 @@ void tst_QtcProcess::processChannelForwarding()
     QCOMPARE(error.contains(QByteArray(forwardedErrorData)), errorForwarded);
 }
 
-// This handler is inspired by the one used in qtbase/tests/auto/corelib/io/qfile/tst_qfile.cpp
-class MessageHandler {
-public:
-    MessageHandler(QtMessageHandler messageHandler = handler)
-    {
-        ok = true;
-        oldMessageHandler = qInstallMessageHandler(messageHandler);
-    }
-
-    ~MessageHandler()
-    {
-        qInstallMessageHandler(oldMessageHandler);
-    }
-
-    static bool testPassed()
-    {
-        return ok;
-    }
-
-protected:
-    static void handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-    {
-        if (msg.startsWith("QProcess: Destroyed while process")
-                && msg.endsWith("is still running.")) {
-            ok = false;
-        }
-        // Defer to old message handler.
-        if (oldMessageHandler)
-            oldMessageHandler(type, context, msg);
-    }
-
-    static QtMessageHandler oldMessageHandler;
-    static bool ok;
-};
-
-bool MessageHandler::ok = true;
-QtMessageHandler MessageHandler::oldMessageHandler = 0;
-
 enum class BlockType {
     EndlessLoop,
     InfiniteSleep,
@@ -1286,16 +1293,11 @@ void tst_QtcProcess::killBlockingProcess()
 
     SubCreatorConfig subConfig(KillBlockingProcess::envVar(), QString::number(int(blockType)));
 
-    MessageHandler msgHandler;
-    {
-        TestProcess process;
-        subConfig.setupSubProcess(&process);
-        process.start();
-        QVERIFY(process.waitForStarted());
-        QVERIFY(!process.waitForFinished(1000));
-    }
-
-    QVERIFY(msgHandler.testPassed());
+    TestProcess process;
+    subConfig.setupSubProcess(&process);
+    process.start();
+    QVERIFY(process.waitForStarted());
+    QVERIFY(!process.waitForFinished(1000));
 }
 
 void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
