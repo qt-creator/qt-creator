@@ -244,11 +244,9 @@ QbsSession::~QbsSession()
     if (d->qbsProcess) {
         d->qbsProcess->disconnect(this);
         quit();
-        if (d->qbsProcess->state() == QProcess::Running && !d->qbsProcess->waitForFinished(10000))
-            d->qbsProcess->terminate();
-        if (d->qbsProcess->state() == QProcess::Running && !d->qbsProcess->waitForFinished(10000))
-            d->qbsProcess->kill();
-        d->qbsProcess->waitForFinished(1000);
+        if (d->qbsProcess->state() == QProcess::Running)
+            d->qbsProcess->waitForFinished(10000);
+        delete d->qbsProcess;
     }
     delete d;
 }
