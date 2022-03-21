@@ -112,7 +112,6 @@ private:
     Utils::FilePath m_command;
     Utils::FilePath m_workingDirectory;
     Utils::Environment m_environment;
-    Utils::QtcProcess *m_process = nullptr;
     AndroidDeviceInfo m_deviceInfo;
 };
 

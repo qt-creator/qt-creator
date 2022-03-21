@@ -324,53 +324,51 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         cmd.addArgs({"install", "-r", m_apkPath.toString()});
     }
 
-    m_process = new QtcProcess;
-    m_process->setCommand(cmd);
-    m_process->setWorkingDirectory(m_workingDirectory);
-    m_process->setEnvironment(m_environment);
-    m_process->setUseCtrlCStub(true);
+    QtcProcess process;
+    process.setCommand(cmd);
+    process.setWorkingDirectory(m_workingDirectory);
+    process.setEnvironment(m_environment);
+    process.setUseCtrlCStub(true);
 
     DeployErrorCode deployError = NoError;
 
-    m_process->setStdOutLineCallback([this, &deployError](const QString &line) {
+    process.setStdOutLineCallback([this, &deployError](const QString &line) {
         deployError |= parseDeployErrors(line);
         stdOutput(line);
     });
-    m_process->setStdErrLineCallback([this, &deployError](const QString &line) {
+    process.setStdErrLineCallback([this, &deployError](const QString &line) {
         deployError |= parseDeployErrors(line);
         stdError(line);
     });
 
-    m_process->start();
+    process.start();
 
     emit addOutput(tr("Starting: \"%1\"").arg(cmd.toUserOutput()), OutputFormat::NormalMessage);
 
-    while (!m_process->waitForFinished(200)) {
-        if (m_process->state() == QProcess::NotRunning)
+    while (!process.waitForFinished(200)) {
+        if (process.state() == QProcess::NotRunning)
             break;
 
         if (isCanceled()) {
-            m_process->kill();
-            m_process->waitForFinished();
+            process.kill();
+            process.waitForFinished();
         }
     }
 
-    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
+    QString line = QString::fromLocal8Bit(process.readAllStandardError());
     if (!line.isEmpty()) {
         deployError |= parseDeployErrors(line);
         stdError(line);
     }
 
-    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    line = QString::fromLocal8Bit(process.readAllStandardOutput());
     if (!line.isEmpty()) {
         deployError |= parseDeployErrors(line);
         stdOutput(line);
     }
 
-    QProcess::ExitStatus exitStatus = m_process->exitStatus();
-    int exitCode = m_process->exitCode();
-    delete m_process;
-    m_process = nullptr;
+    const QProcess::ExitStatus exitStatus = process.exitStatus();
+    const int exitCode = process.exitCode();
 
     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command.toUserOutput()),
