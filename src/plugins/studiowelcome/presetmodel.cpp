@@ -47,7 +47,7 @@ QString PresetData::recentsTabName()
 
 void PresetData::setData(const PresetsByCategory &presetsByCategory,
                          const std::vector<UserPresetData> &userPresetsData,
-                         const std::vector<RecentPresetData> &loadedRecentsData)
+                         const std::vector<UserPresetData> &loadedRecentsData)
 {
     QTC_ASSERT(!presetsByCategory.empty(), return );
     m_recents = loadedRecentsData;
@@ -60,16 +60,13 @@ void PresetData::setData(const PresetsByCategory &presetsByCategory,
 
     PresetItems wizardPresets = Utils::flatten(m_presets);
 
-    PresetItems userPresetItems = makeUserPresets(wizardPresets);
+    PresetItems userPresetItems = makeUserPresets(wizardPresets, m_userPresets);
     if (!userPresetItems.empty()) {
         m_categories.push_back(CustomTabName);
         m_presets.push_back(userPresetItems);
     }
 
-    PresetItems allWizardPresets = std::move(wizardPresets);
-    Utils::concat(allWizardPresets, userPresetItems);
-
-    PresetItems recentPresets = makeRecentPresets(allWizardPresets);
+    PresetItems recentPresets = makeUserPresets(wizardPresets, m_recents);
     if (!recentPresets.empty()) {
         Utils::prepend(m_categories, RecentsTabName);
         Utils::prepend(m_presets, recentPresets);
@@ -79,7 +76,7 @@ void PresetData::setData(const PresetsByCategory &presetsByCategory,
 }
 
 void PresetData::reload(const std::vector<UserPresetData> &userPresetsData,
-                        const std::vector<RecentPresetData> &loadedRecentsData)
+                        const std::vector<UserPresetData> &loadedRecentsData)
 {
     m_categories.clear();
     m_presets.clear();
@@ -96,11 +93,12 @@ std::shared_ptr<PresetItem> PresetData::findPresetItemForUserPreset(const UserPr
     });
 }
 
-PresetItems PresetData::makeUserPresets(const PresetItems &wizardPresets)
+PresetItems PresetData::makeUserPresets(const PresetItems &wizardPresets,
+                                        const std::vector<UserPresetData> &data)
 {
     PresetItems result;
 
-    for (const UserPresetData &userPresetData : m_userPresets) {
+    for (const UserPresetData &userPresetData : data) {
         std::shared_ptr<PresetItem> foundPreset = findPresetItemForUserPreset(userPresetData,
                                                                               wizardPresets);
         if (!foundPreset)
@@ -123,35 +121,6 @@ PresetItems PresetData::makeUserPresets(const PresetItems &wizardPresets)
         presetItem->qmlPath = foundPreset->qmlPath;
 
         result.push_back(presetItem);
-    }
-
-    return result;
-}
-
-std::shared_ptr<PresetItem> PresetData::findPresetItemForRecent(const RecentPresetData &recent, const PresetItems &wizardPresets)
-{
-    return Utils::findOrDefault(wizardPresets, [&recent](const std::shared_ptr<PresetItem> &item) {
-        bool sameName = item->categoryId == recent.category
-                        && item->displayName() == recent.presetName;
-
-        bool sameType = (recent.isUserPreset ? item->isUserPreset() : !item->isUserPreset());
-
-        return sameName && sameType;
-    });
-}
-
-PresetItems PresetData::makeRecentPresets(const PresetItems &wizardPresets)
-{
-    PresetItems result;
-
-    for (const RecentPresetData &recent : m_recents) {
-        std::shared_ptr<PresetItem> preset = findPresetItemForRecent(recent, wizardPresets);
-
-        if (preset) {
-            auto clone = std::shared_ptr<PresetItem>{preset->clone()};
-            clone->screenSizeName = recent.sizeName;
-            result.push_back(clone);
-        }
     }
 
     return result;

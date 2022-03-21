@@ -100,6 +100,14 @@ UserPresetData aUserPreset(const QString &categId, const QString &wizardName, co
     return preset;
 }
 
+UserPresetData aRecentPreset(const QString &categId, const QString &wizardName, const QString &screenSizeName)
+{
+    UserPresetData preset = aUserPreset(categId, wizardName, wizardName);
+    preset.screenSize = screenSizeName;
+
+    return preset;
+}
+
 MATCHER_P2(PresetIs, category, name, PrintToString(PresetItem{name, category}))
 {
     return arg->categoryId == category && arg->wizardName == name;
@@ -139,6 +147,7 @@ TEST(QdsPresetModel, haveSameArraySizeForPresetsAndCategories)
     PresetData data;
 
     data.setData(
+        /*wizard presets*/
         {
             aCategory("A.categ", "A", {"item a", "item b"}),
             aCategory("B.categ", "B", {"item c", "item d"}),
@@ -157,6 +166,7 @@ TEST(QdsPresetModel, haveWizardPresetsNoRecents)
 
     // When
     data.setData(
+        /*wizard presets*/
         {
             aCategory("A.categ", "A", {"item a", "item b"}),
             aCategory("B.categ", "B", {"item c", "item d"}),
@@ -179,6 +189,7 @@ TEST(QdsPresetModel, whenHaveUserPresetsButNoWizardPresetsReturnEmpty)
 
     // When
     data.setData({/*builtin presets*/},
+                 /*user presets*/
                  {
                      aUserPreset("A.Mobile", "Scroll", "iPhone5"),
                      aUserPreset("B.Desktop", "Launcher", "MacBook"),
@@ -196,9 +207,10 @@ TEST(QdsPresetModel, haveRecentsNoWizardPresets)
 
     data.setData({/*wizardPresets*/},
                  {/*user presets*/},
+                 /*recent presets*/
                  {
-                     {"A.categ", "Desktop", "640 x 480"},
-                     {"B.categ", "Mobile", "800 x 600"},
+                     aRecentPreset("A.categ", "Desktop", "640 x 480"),
+                     aRecentPreset("B.categ", "Mobile", "800 x 600"),
                  });
 
     ASSERT_THAT(data.categories(), IsEmpty());
@@ -220,8 +232,8 @@ TEST(QdsPresetModel, recentsAddedWithWizardPresets)
         {/*user presets*/},
         /*recents*/
         {
-            {"A.categ", "Desktop", "800 x 600"},
-            {"B.categ", "Mobile", "640 x 480"},
+            aRecentPreset("A.categ", "Desktop", "800 x 600"),
+            aRecentPreset("B.categ", "Mobile", "640 x 480"),
         });
 
     // Then
@@ -247,6 +259,7 @@ TEST(QdsPresetModel, userPresetsAddedWithWizardPresets)
             aCategory("A.categ", "A", {"Desktop", "item b"}),
             aCategory("B.categ", "B", {"Mobile"}),
         },
+        /*user presets*/
         {
             aUserPreset("A.categ", "Desktop", "Windows10"),
         },
@@ -272,6 +285,7 @@ TEST(QdsPresetModel, doesNotAddUserPresetsOfNonExistingCategory)
         {
             aCategory("A.categ", "A", {"Desktop"}), // Only category "A.categ" exists
         },
+        /*user presets*/
         {
             aUserPreset("Bad.Categ", "Desktop", "Windows8"), // Bad.Categ does not exist
         },
@@ -293,6 +307,7 @@ TEST(QdsPresetModel, doesNotAddUserPresetIfWizardPresetItRefersToDoesNotExist)
         {
             aCategory("A.categ", "A", {"Desktop"}),
         },
+        /*user presets*/
         {
             aUserPreset("B.categ", "BadWizard", "Tablet"),   // BadWizard referenced does not exist
         },
@@ -314,6 +329,7 @@ TEST(QdsPresetModel, userPresetWithSameNameAsWizardPreset)
         {
             aCategory("A.categ", "A", {"Desktop"}),
         },
+        /*user presets*/
         {
             aUserPreset("A.categ", "Desktop", "Desktop"),
         },
@@ -326,58 +342,7 @@ TEST(QdsPresetModel, userPresetWithSameNameAsWizardPreset)
                             ElementsAre(UserPresetIs("A.categ", "Desktop", "Desktop"))));
 }
 
-TEST(QdsPresetModel, recentOfUserPresetReferringToExistingWizardPreset)
-{
-    // Given
-    PresetData data;
-
-    // When
-    data.setData(
-        /*wizard presets*/
-        {
-            aCategory("A.categ", "A", {"Desktop"}),
-        },
-        {
-            aUserPreset("A.categ", "Desktop", "Windows 7"),
-        },
-        /*recents*/
-        {
-            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
-        });
-
-    // Then
-    ASSERT_THAT(data.categories(), ElementsAre("Recents", "A", "Custom"));
-    ASSERT_THAT(data.presets(),
-                ElementsAre(ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows 7")),
-                            ElementsAre(PresetIs("A.categ", "Desktop")),
-                            ElementsAre(UserPresetIs("A.categ", "Desktop", "Windows 7"))));
-}
-
-TEST(QdsPresetModel, recentOfUserPresetReferringToNonexistingWizardPreset)
-{
-    // Given
-    PresetData data;
-
-    // When
-    data.setData(
-        /*wizard presets*/
-        {
-            aCategory("A.categ", "A", {"Desktop"}),
-        },
-        {
-            aUserPreset("A.categ", "Not-Desktop", "Windows 7"), // Non-existing Wizard Preset
-        },
-        /*recents*/
-        {
-            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
-        });
-
-    // Then
-    ASSERT_THAT(data.categories(), ElementsAre("A"));
-    ASSERT_THAT(data.presets(), ElementsAre(ElementsAre(PresetIs("A.categ", "Desktop"))));
-}
-
-TEST(QdsPresetModel, recentOfNonExistentUserPreset)
+TEST(QdsPresetModel, recentOfNonExistentWizardPreset)
 {
     // Given
     PresetData data;
@@ -391,7 +356,7 @@ TEST(QdsPresetModel, recentOfNonExistentUserPreset)
         {/*user presets*/},
         /*recents*/
         {
-            {"A.categ", "Windows 7", "200 x 300", /*is user*/true}
+            aRecentPreset("A.categ", "Windows 7", "200 x 300")
         });
 
     // Then
@@ -415,9 +380,9 @@ TEST(QdsPresetModel, recentsShouldNotBeSorted)
         {/*user presets*/},
         /*recents*/
         {
-            {"Z.categ", "Z.desktop", "200 x 300"},
-            {"B.categ", "Mobile", "200 x 300"},
-            {"A.categ", "Desktop", "200 x 300"},
+            aRecentPreset("Z.categ", "Z.desktop", "200 x 300"),
+            aRecentPreset("B.categ", "Mobile", "200 x 300"),
+            aRecentPreset("A.categ", "Desktop", "200 x 300"),
         });
 
     // Then
@@ -442,9 +407,9 @@ TEST(QdsPresetModel, recentsOfSameWizardProjectButDifferentSizesAreRecognizedAsD
         {/*user presets*/},
         /*recents*/
         {
-            {"B.categ", "Mobile", "400 x 400"},
-            {"B.categ", "Mobile", "200 x 300"},
-            {"A.categ", "Desktop", "640 x 480"},
+            aRecentPreset("B.categ", "Mobile", "400 x 400"),
+            aRecentPreset("B.categ", "Mobile", "200 x 300"),
+            aRecentPreset("A.categ", "Desktop", "640 x 480"),
         });
 
     // Then
@@ -452,6 +417,35 @@ TEST(QdsPresetModel, recentsOfSameWizardProjectButDifferentSizesAreRecognizedAsD
                 ElementsAre(PresetIs("B.categ", "Mobile", "400 x 400"),
                             PresetIs("B.categ", "Mobile", "200 x 300"),
                             PresetIs("A.categ", "Desktop", "640 x 480")));
+}
+
+TEST(QdsPresetModel, allowRecentsWithTheSameName)
+{
+    // Given
+    PresetData data;
+
+    // When
+    data.setData(
+        /*wizard presets*/
+        {
+            aCategory("A.categ", "A", {"Desktop"}),
+        },
+        {/*user presets*/},
+        /*recents*/
+        {
+            /* NOTE: it is assumed recents with the same name and size have other fields that
+             * distinguishes them from one another. It is the responsibility of the caller, who
+             * calls data.setData() to make sure that the recents do not contain duplicates. */
+            aRecentPreset("A.categ", "Desktop", "200 x 300"),
+            aRecentPreset("A.categ", "Desktop", "200 x 300"),
+            aRecentPreset("A.categ", "Desktop", "200 x 300"),
+        });
+
+    // Then
+    ASSERT_THAT(data.presets()[0],
+                ElementsAre(PresetIs("A.categ", "Desktop"),
+                            PresetIs("A.categ", "Desktop"),
+                            PresetIs("A.categ", "Desktop")));
 }
 
 TEST(QdsPresetModel, outdatedRecentsAreNotShown)
@@ -469,8 +463,8 @@ TEST(QdsPresetModel, outdatedRecentsAreNotShown)
         {/*user presets*/},
         /*recents*/
         {
-            {"B.categ", "NoLongerExists", "400 x 400"},
-            {"A.categ", "Desktop", "640 x 480"},
+            aRecentPreset("B.categ", "NoLongerExists", "400 x 400"),
+            aRecentPreset("A.categ", "Desktop", "640 x 480"),
         });
 
     // Then

@@ -24,43 +24,75 @@
 ****************************************************************************/
 
 #include "userpresets.h"
+#include "algorithm.h"
+
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
 
 #include <coreplugin/icore.h>
-#include <utils/algorithm.h>
+#include <memory>
 #include <utils/qtcassert.h>
 
 using namespace StudioWelcome;
 
-constexpr char PREFIX[] = "UserPresets";
-
-UserPresetsStore::UserPresetsStore()
-{
-    m_settings = std::make_unique<QSettings>(fullFilePath(), QSettings::IniFormat);
-}
-
-UserPresetsStore::UserPresetsStore(std::unique_ptr<QSettings> &&settings)
-    : m_settings{std::move(settings)}
+FileStoreIo::FileStoreIo(const QString &fileName)
+    : m_file{std::make_unique<QFile>(fullFilePath(fileName))}
 {}
 
-void UserPresetsStore::savePresets(const std::vector<UserPresetData> &presets)
+QByteArray FileStoreIo::read() const
 {
-    m_settings->beginWriteArray(PREFIX, static_cast<int>(presets.size()));
+    m_file->open(QFile::ReadOnly | QFile::Text);
+    QByteArray data = m_file->readAll();
+    m_file->close();
 
-    for (size_t i = 0; i < presets.size(); ++i) {
-        m_settings->setArrayIndex(static_cast<int>(i));
-        const auto &preset = presets[i];
+    return data;
+}
 
-        m_settings->setValue("categoryId", preset.categoryId);
-        m_settings->setValue("wizardName", preset.wizardName);
-        m_settings->setValue("name", preset.name);
-        m_settings->setValue("screenSize", preset.screenSize);
-        m_settings->setValue("useQtVirtualKeyboard", preset.useQtVirtualKeyboard);
-        m_settings->setValue("qtVersion", preset.qtVersion);
-        m_settings->setValue("styleName", preset.styleName);
+void FileStoreIo::write(const QByteArray &data)
+{
+    m_file->open(QFile::WriteOnly | QFile::Text);
+    m_file->write(data);
+    m_file->close();
+}
+
+QString FileStoreIo::fullFilePath(const QString &fileName) const
+{
+    return Core::ICore::userResourcePath(fileName).toString();
+}
+
+UserPresetsStore::UserPresetsStore(const QString &fileName, StorePolicy policy)
+    : m_store{std::make_unique<FileStoreIo>(fileName)}
+    , m_policy{policy}
+{}
+
+UserPresetsStore::UserPresetsStore(std::unique_ptr<StoreIo> &&fileStore,
+                                   StorePolicy policy)
+    : m_store{std::move(fileStore)}
+    , m_policy{policy}
+{}
+
+void UserPresetsStore::savePresets(const std::vector<UserPresetData> &presetItems)
+{
+    QJsonArray jsonArray;
+
+    for (const auto &preset : presetItems) {
+        QJsonObject obj({{"categoryId", preset.categoryId},
+                         {"wizardName", preset.wizardName},
+                         {"name", preset.name},
+                         {"screenSize", preset.screenSize},
+                         {"useQtVirtualKeyboard", preset.useQtVirtualKeyboard},
+                         {"qtVersion", preset.qtVersion},
+                         {"styleName", preset.styleName}});
+
+        jsonArray.append(QJsonValue{obj});
     }
-    m_settings->endArray();
-    m_settings->sync();
 
+    QJsonDocument doc(jsonArray);
+    QByteArray data = doc.toJson();
+
+    m_store->write(data);
 }
 
 bool UserPresetsStore::save(const UserPresetData &newPreset)
@@ -68,12 +100,30 @@ bool UserPresetsStore::save(const UserPresetData &newPreset)
     QTC_ASSERT(newPreset.isValid(), return false);
 
     std::vector<UserPresetData> presetItems = fetchAll();
-    if (Utils::anyOf(presetItems,
-                     [&newPreset](const UserPresetData &p) { return p.name == newPreset.name; })) {
-        return false;
+
+    if (m_policy == StorePolicy::UniqueNames) {
+        if (Utils::anyOf(presetItems, [&newPreset](const UserPresetData &p) {
+                return p.name == newPreset.name;
+            })) {
+            return false;
+        }
+    } else if (m_policy == StorePolicy::UniqueValues) {
+        if (Utils::containsItem(presetItems, newPreset))
+            return false;
     }
 
-    presetItems.push_back(newPreset);
+    if (m_reverse)
+        Utils::prepend(presetItems, newPreset);
+    else
+        presetItems.push_back(newPreset);
+
+    if (m_maximum > -1 && static_cast<int>(presetItems.size()) > m_maximum) {
+        if (m_reverse)
+            presetItems.pop_back();
+        else
+            presetItems.erase(std::cbegin(presetItems));
+    }
+
     savePresets(presetItems);
 
     return true;
@@ -92,34 +142,45 @@ void UserPresetsStore::remove(const QString &category, const QString &name)
     savePresets(presetItems);
 }
 
-std::vector<UserPresetData> UserPresetsStore::fetchAll() const
+std::vector<UserPresetData> UserPresetsStore::remove(const UserPresetData &preset)
 {
-    std::vector<UserPresetData> result;
-    int size = m_settings->beginReadArray(PREFIX);
-    if (size >= 0)
-        result.reserve(static_cast<size_t>(size) + 1);
+    std::vector<UserPresetData> presetItems = fetchAll();
+    bool erased = Utils::erase_one(presetItems, preset);
+    if (erased)
+        savePresets(presetItems);
 
-    for (int i = 0; i < size; ++i) {
-        m_settings->setArrayIndex(i);
-
-        UserPresetData preset;
-        preset.categoryId = m_settings->value("categoryId").toString();
-        preset.wizardName = m_settings->value("wizardName").toString();
-        preset.name = m_settings->value("name").toString();
-        preset.screenSize = m_settings->value("screenSize").toString();
-        preset.useQtVirtualKeyboard = m_settings->value("useQtVirtualKeyboard").toBool();
-        preset.qtVersion = m_settings->value("qtVersion").toString();
-        preset.styleName = m_settings->value("styleName").toString();
-
-        if (preset.isValid())
-            result.push_back(std::move(preset));
-    }
-    m_settings->endArray();
-
-    return result;
+    return presetItems;
 }
 
-QString UserPresetsStore::fullFilePath() const
+std::vector<UserPresetData> UserPresetsStore::fetchAll() const
 {
-    return Core::ICore::userResourcePath("UserPresets.ini").toString();
+    QByteArray data = m_store->read();
+
+    const QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isArray())
+        return {};
+
+    std::vector<UserPresetData> result;
+    const QJsonArray jsonArray = doc.array();
+
+    for (const QJsonValue &value: jsonArray) {
+        if (!value.isObject())
+            continue;
+
+        const QJsonObject obj = value.toObject();
+        UserPresetData preset;
+
+        preset.categoryId = obj["categoryId"].toString();
+        preset.wizardName = obj["wizardName"].toString();
+        preset.name = obj["name"].toString();
+        preset.screenSize = obj["screenSize"].toString();
+        preset.useQtVirtualKeyboard = obj["useQtVirtualKeyboard"].toBool();
+        preset.qtVersion = obj["qtVersion"].toString();
+        preset.styleName = obj["styleName"].toString();
+
+        if (preset.isValid())
+            result.push_back(preset);
+    }
+
+    return result;
 }

@@ -42,6 +42,16 @@ template<typename C, typename F>
     return it == end ? nullopt : make_optional(*it);
 }
 
+template<typename C>
+[[nodiscard]] bool containsItem(const C &container, const typename C::value_type &item)
+{
+    auto begin = std::cbegin(container);
+    auto end = std::cend(container);
+
+    auto it = std::find(begin, end, item);
+    return it == end ? false : true;
+}
+
 ///////// FILTER
 template<typename C, typename T = typename C::value_type>
 [[nodiscard]] C filterOut(const C &container, const T &value = T())
@@ -67,13 +77,14 @@ void concat(C &out, const SC &container)
 }
 
 template<typename C, typename T>
-void erase_one(C &container, const T &value)
+bool erase_one(C &container, const T &value)
 {
     typename C::const_iterator i = std::find(std::cbegin(container), std::cend(container), value);
     if (i == std::cend(container))
-        return;
+        return false;
 
     container.erase(i);
+    return true;
 }
 
 template<typename C, typename T>
