@@ -80,3 +80,5 @@ void removeOutdatedKits();
 } // namespace McuKitManager
 } // namespace Internal
 } // namespace McuSupport
+
+Q_DECLARE_METATYPE(McuSupport::Internal::McuKitManager::UpgradeOption)

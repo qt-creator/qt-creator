@@ -318,7 +318,7 @@ void InfoBarDisplay::update()
             auto cb = new QComboBox();
             for (const InfoBarEntry::ComboInfo &comboInfo : qAsConst(info.m_comboInfo))
                 cb->addItem(comboInfo.displayText, comboInfo.data);
-            connect(cb, &QComboBox::currentIndexChanged, [cb, info]() {
+            connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), [cb, info]() {
                 info.m_comboCallBack({cb->currentText(), cb->currentData()});
             });
 
