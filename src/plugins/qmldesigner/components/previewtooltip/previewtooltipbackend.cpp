@@ -55,10 +55,10 @@ void PreviewTooltipBackend::showTooltip()
 
     m_cache.requestImage(
         m_path,
-        [tooltip = QPointer<PreviewImageTooltip>(m_tooltip.get())](const QImage &image) {
-            QMetaObject::invokeMethod(tooltip, [tooltip, image] {
+        [tooltip = QPointer<PreviewImageTooltip>(m_tooltip.get()), scaleImage = m_scaleImage](const QImage &image) {
+            QMetaObject::invokeMethod(tooltip, [tooltip, image, scaleImage] {
                 if (tooltip) {
-                    tooltip->setImage(image);
+                    tooltip->setImage(image, scaleImage);
                     tooltip->show();
                 }
             });
@@ -126,9 +126,10 @@ QString PreviewTooltipBackend::name() const
 
 void PreviewTooltipBackend::setName(const QString &name)
 {
-    m_name = name;
-    if (m_name != name)
+    if (m_name != name) {
+        m_name = name;
         emit nameChanged();
+    }
 }
 
 QString PreviewTooltipBackend::path() const
@@ -138,9 +139,10 @@ QString PreviewTooltipBackend::path() const
 
 void PreviewTooltipBackend::setPath(const QString &path)
 {
-    m_path = path;
-    if (m_path != path)
+    if (m_path != path) {
+        m_path = path;
         emit pathChanged();
+    }
 }
 
 QString PreviewTooltipBackend::info() const
@@ -150,9 +152,10 @@ QString PreviewTooltipBackend::info() const
 
 void PreviewTooltipBackend::setInfo(const QString &info)
 {
-    m_info = info;
-    if (m_info != info)
+    if (m_info != info) {
+        m_info = info;
         emit infoChanged();
+    }
 }
 
 QString PreviewTooltipBackend::extraId() const
@@ -163,9 +166,23 @@ QString PreviewTooltipBackend::extraId() const
 // Sets the imageCache extraId hint. Valid content depends on image cache collector used.
 void PreviewTooltipBackend::setExtraId(const QString &extraId)
 {
-    m_extraId = extraId;
-    if (m_extraId != extraId)
+    if (m_extraId != extraId) {
+        m_extraId = extraId;
         emit extraIdChanged();
+    }
+}
+
+bool PreviewTooltipBackend::scaleImage() const
+{
+    return m_scaleImage;
+}
+
+void PreviewTooltipBackend::setScaleImage(bool scale)
+{
+    if (m_scaleImage != scale) {
+        m_scaleImage = scale;
+        emit scaleImageChanged();
+    }
 }
 
 } // namespace QmlDesigner

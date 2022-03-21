@@ -253,11 +253,8 @@ const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
     return retList;
 }
 
-AssetsLibraryModel::AssetsLibraryModel(SynchronousImageCache &fontImageCache,
-                                               Utils::FileSystemWatcher *fileSystemWatcher,
-                                               QObject *parent)
+AssetsLibraryModel::AssetsLibraryModel(Utils::FileSystemWatcher *fileSystemWatcher, QObject *parent)
     : QAbstractListModel(parent)
-    , m_fontImageCache(fontImageCache)
     , m_fileSystemWatcher(fileSystemWatcher)
 {
     // add role names
