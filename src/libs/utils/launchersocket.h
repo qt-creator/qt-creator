@@ -84,7 +84,7 @@ public:
     // Returns the list of flushed signals.
     QList<SignalType> flush();
     QList<SignalType> flushFor(SignalType signalType);
-    bool shouldFlushFor(SignalType signalType) const;
+    bool shouldFlush() const;
     // Called from launcher's thread exclusively.
     void appendSignal(LauncherSignal *launcherSignal);
 
@@ -122,8 +122,8 @@ signals:
     void readyReadStandardError();
 
 private:
-    bool waitForSignal(int msecs, CallerHandle::SignalType newSignal);
-    bool canWaitFor(SignalType newSignal) const; // TODO: employ me before calling waitForSignal()
+    bool waitForSignal(int msecs, SignalType newSignal);
+    bool canWaitFor(SignalType newSignal) const;
 
     // Called from caller's or launcher's thread. Call me with mutex locked.
     void doStart();

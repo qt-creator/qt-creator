@@ -129,39 +129,39 @@ bool CallerHandle::waitForFinished(int msecs)
 
 QList<CallerHandle::SignalType> CallerHandle::flush()
 {
-    return flushFor(CallerHandle::SignalType::NoSignal);
+    return flushFor(SignalType::NoSignal);
 }
 
-QList<CallerHandle::SignalType> CallerHandle::flushFor(CallerHandle::SignalType signalType)
+QList<CallerHandle::SignalType> CallerHandle::flushFor(SignalType signalType)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return {});
     QList<LauncherSignal *> oldSignals;
-    QList<CallerHandle::SignalType> flushedSignals;
+    QList<SignalType> flushedSignals;
     {
         // 1. If signalType is no signal - flush all
         // 2. Flush all if we have any error
         // 3. If we are flushing for Finished or ReadyRead, flush all, too
         // 4. If we are flushing for Started, flush Started only
 
+        // In short: only when we are flushing for Started, flush started only signal,
+        // otherwise flush always all. (note: we can't flush for Error, since we don't have
+        // waitForError() method).
+
         QMutexLocker locker(&m_mutex);
 
-        const QList<CallerHandle::SignalType> storedSignals =
+        const QList<SignalType> storedSignals =
                 Utils::transform(qAsConst(m_signals), [](const LauncherSignal *launcherSignal) {
                                    return launcherSignal->signalType();
         });
 
-        const bool flushAll = (signalType == CallerHandle::SignalType::NoSignal)
-                           || (signalType == CallerHandle::SignalType::ReadyRead)
-                           || (signalType == CallerHandle::SignalType::Finished)
-                           || storedSignals.contains(CallerHandle::SignalType::Error);
+        const bool flushAll = (signalType != SignalType::Started)
+                           || storedSignals.contains(SignalType::Error);
         if (flushAll) {
             oldSignals = m_signals;
             m_signals = {};
             flushedSignals = storedSignals;
         } else {
             auto matchingIndex = storedSignals.lastIndexOf(signalType);
-            if (matchingIndex < 0 && (signalType == CallerHandle::SignalType::ReadyRead))
-                matchingIndex = storedSignals.lastIndexOf(CallerHandle::SignalType::Started);
             if (matchingIndex >= 0) {
                 oldSignals = m_signals.mid(0, matchingIndex + 1);
                 m_signals = m_signals.mid(matchingIndex + 1);
@@ -170,7 +170,7 @@ QList<CallerHandle::SignalType> CallerHandle::flushFor(CallerHandle::SignalType 
         }
     }
     for (const LauncherSignal *storedSignal : qAsConst(oldSignals)) {
-        const CallerHandle::SignalType storedSignalType = storedSignal->signalType();
+        const SignalType storedSignalType = storedSignal->signalType();
         switch (storedSignalType) {
         case SignalType::NoSignal:
             break;
@@ -193,21 +193,11 @@ QList<CallerHandle::SignalType> CallerHandle::flushFor(CallerHandle::SignalType 
 }
 
 // Called from caller's thread exclusively.
-bool CallerHandle::shouldFlushFor(SignalType signalType) const
+bool CallerHandle::shouldFlush() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return false);
-    // TODO: Should we always flush when the list isn't empty?
     QMutexLocker locker(&m_mutex);
-    for (const LauncherSignal *storedSignal : m_signals) {
-        const CallerHandle::SignalType storedSignalType = storedSignal->signalType();
-        if (storedSignalType == signalType)
-            return true;
-        if (storedSignalType == SignalType::Error)
-            return true;
-        if (storedSignalType == SignalType::Finished)
-            return true;
-    }
-    return false;
+    return !m_signals.isEmpty();
 }
 
 void CallerHandle::handleError(const ErrorSignal *launcherSignal)
@@ -260,25 +250,49 @@ void CallerHandle::handleFinished(const FinishedSignal *launcherSignal)
 }
 
 // Called from launcher's thread exclusively.
-void CallerHandle::appendSignal(LauncherSignal *launcherSignal)
+void CallerHandle::appendSignal(LauncherSignal *newSignal)
 {
     QTC_ASSERT(!isCalledFromCallersThread(), return);
-    if (launcherSignal->signalType() == SignalType::NoSignal)
-        return;
+    QTC_ASSERT(newSignal->signalType() != SignalType::NoSignal, delete newSignal; return);
 
     QMutexLocker locker(&m_mutex);
     QTC_ASSERT(isCalledFromLaunchersThread(), return);
-    // Merge ReadyRead signals into one.
-    if (launcherSignal->signalType() == CallerHandle::SignalType::ReadyRead
-            && !m_signals.isEmpty()
-            && m_signals.last()->signalType() == CallerHandle::SignalType::ReadyRead) {
-        ReadyReadSignal *lastSignal = static_cast<ReadyReadSignal *>(m_signals.last());
-        ReadyReadSignal *newSignal = static_cast<ReadyReadSignal *>(launcherSignal);
-        lastSignal->mergeWith(newSignal);
-        delete newSignal;
-        return;
+
+    // TODO: we might assert if the caller's state is proper, e.g.
+    // start signal can't appear if we are in Running or NotRunning state,
+    // or finish signal can't appear if we are in NotRunning or Starting state,
+    // or readyRead signal can't appear if we are in NotRunning or Starting state,
+    // or error signal can't appear if we are in NotRunning state
+    // or FailedToStart error signal can't appear if we are in Running state
+    // or other than FailedToStart error signal can't appear if we are in Starting state.
+    if (!m_signals.isEmpty()) {
+        LauncherSignal *lastSignal = m_signals.last();
+
+        QTC_ASSERT(lastSignal->signalType() != SignalType::Finished,
+                   qWarning() << "Buffering new signal for process" << m_command
+                   << "while the last finished() signal wasn't flushed yet.");
+
+        if (lastSignal->signalType() == SignalType::Error) {
+            ErrorSignal *lastError = static_cast<ErrorSignal *>(lastSignal);
+            QTC_ASSERT(lastError->error() != QProcess::FailedToStart,
+                       qWarning() << "Buffering new signal for process" << m_command
+                       << "while the last FailedToStart error signal wasn't flushed yet.");
+            QTC_ASSERT(newSignal->signalType() == SignalType::Finished,
+                       qWarning() << "Buffering non finished signal for process" << m_command
+                       << "while the last buffered signal was an error.");
+        }
+
+        // Merge ReadyRead signals into one.
+        if (lastSignal->signalType() == SignalType::ReadyRead
+                && newSignal->signalType() == SignalType::ReadyRead) {
+            ReadyReadSignal *lastRead = static_cast<ReadyReadSignal *>(lastSignal);
+            ReadyReadSignal *newRead = static_cast<ReadyReadSignal *>(newSignal);
+            lastRead->mergeWith(newRead);
+            delete newRead;
+            return;
+        }
     }
-    m_signals.append(launcherSignal);
+    m_signals.append(newSignal);
 }
 
 QProcess::ProcessState CallerHandle::state() const
@@ -452,7 +466,7 @@ QProcess::ExitStatus CallerHandle::exitStatus() const
     return m_exitStatus;
 }
 
-bool CallerHandle::waitForSignal(int msecs, CallerHandle::SignalType newSignal)
+bool CallerHandle::waitForSignal(int msecs, SignalType newSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return false);
     if (!canWaitFor(newSignal))
@@ -521,13 +535,11 @@ bool LauncherHandle::doWaitForSignal(QDeadlineTimer deadline, CallerHandle::Sign
     QMutexLocker locker(&m_mutex);
     QTC_ASSERT(isCalledFromCallersThread(), return false);
     QTC_ASSERT(m_waitingFor == CallerHandle::SignalType::NoSignal, return false);
-    // It may happen, that after calling start() and before calling waitForStarted() we might have
-    // reached the Running (or even Finished) state already. In this case we should have
-    // collected Started (or even Finished) signal to be flushed - so we return true
-    // and we are going to flush pending signals synchronously.
-    // It could also happen, that some new readyRead data has appeared, so before we wait for
-    // more we flush it, too.
-    if (m_callerHandle->shouldFlushFor(newSignal))
+
+    // Flush, if we have any stored signals.
+    // This must be called when holding laucher's mutex locked prior to the call to wait,
+    // so that it's done atomically.
+    if (m_callerHandle->shouldFlush())
         return true;
 
     m_waitingFor = newSignal;
