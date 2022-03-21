@@ -29,6 +29,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QFutureWatcher>
+#include <QTimer>
 
 namespace Python {
 namespace Internal {
