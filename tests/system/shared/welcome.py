@@ -46,10 +46,10 @@ def getWelcomeScreenSideBarButton(buttonLabel, isUrlButton = False):
                             "unnamed='1'}")
     return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar, isUrlButton)
 
-def getWelcomeScreenMainButton(buttonLabel):
-    stackedWidget = waitForObject(":Qt Creator.WelcomeScreenStackedWidget")
-    currentStackWidget = stackedWidget.currentWidget()
-    return __getWelcomeScreenButtonHelper__(buttonLabel, currentStackWidget)
+def getWelcomeScreenBottomButton(buttonLabel):
+    bottomArea = waitForObject("{type='Welcome::Internal::BottomArea' unnamed='1' "
+                               "window=':Qt Creator_Core::Internal::MainWindow'}")
+    return __getWelcomeScreenButtonHelper__(buttonLabel, bottomArea, False)
 
 def getWelcomeTreeView(treeViewLabel):
     try:
