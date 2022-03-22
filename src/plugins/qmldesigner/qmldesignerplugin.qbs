@@ -680,6 +680,8 @@ Project {
                 "navigator/nameitemdelegate.cpp",
                 "navigator/nameitemdelegate.h",
                 "navigator/navigator.qrc",
+                "navigator/navigatorsearchwidget.cpp",
+                "navigator/navigatorsearchwidget.h",
                 "navigator/navigatortreemodel.cpp",
                 "navigator/navigatortreemodel.h",
                 "navigator/navigatortreeview.cpp",

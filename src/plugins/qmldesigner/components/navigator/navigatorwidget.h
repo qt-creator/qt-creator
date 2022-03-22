@@ -39,6 +39,7 @@ QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
 namespace QmlDesigner {
 
 class NavigatorView;
+class NavigatorSearchWidget;
 
 class NavigatorWidget: public QFrame
 {
@@ -59,6 +60,8 @@ public:
     void setDragType(const QByteArray &type);
     QByteArray dragType() const;
 
+    void clearSearch();
+
 signals:
     void leftButtonClicked();
     void rightButtonClicked();
@@ -66,6 +69,7 @@ signals:
     void downButtonClicked();
     void filterToggled(bool);
     void reverseOrderToggled(bool);
+    void textFilterChanged(const QString &name);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
@@ -77,6 +81,7 @@ private:
     NavigatorTreeView *m_treeView;
     QPointer<NavigatorView> m_navigatorView;
     QByteArray m_dragType;
+    NavigatorSearchWidget *m_searchWidget;
 };
 
 }

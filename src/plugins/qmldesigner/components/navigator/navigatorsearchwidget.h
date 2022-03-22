@@ -1,7 +1,6 @@
-
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,29 +25,25 @@
 
 #pragma once
 
-#include <modelnode.h>
-
-QT_BEGIN_NAMESPACE
-class QItemSelection;
-class QModelIndex;
-QT_END_NAMESPACE
+#include <QLineEdit>
 
 namespace QmlDesigner {
 
-class NavigatorModelInterface
+class NavigatorSearchWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
-    virtual QModelIndex indexForModelNode(const ModelNode &modelNode) const = 0;
-    virtual void notifyDataChanged(const ModelNode &modelNode) = 0;
-    virtual void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes) = 0;
-    virtual void notifyModelNodesInserted(const QList<ModelNode> &modelNodes) = 0;
-    virtual void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) = 0;
-    virtual void notifyIconsChanged() = 0;
-    virtual void setFilter(bool showObjects) = 0;
-    virtual void setNameFilter(const QString &filter) = 0;
-    virtual void setOrder(bool reverse) = 0;
-    virtual void resetModel() = 0;
+    NavigatorSearchWidget(QWidget *parent = nullptr);
+
+    void clear();
+
+signals:
+    void textChanged(const QString &text);
+
+private:
+
+    QLineEdit *m_textField;
 };
 
 } //QmlDesigner
-

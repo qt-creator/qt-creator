@@ -276,6 +276,7 @@ extend_qtc_plugin(QmlDesigner
     nameitemdelegate.cpp nameitemdelegate.h
     navigator.qrc
     navigatormodelinterface.h
+    navigatorsearchwidget.cpp navigatorsearchwidget.h
     navigatortreemodel.cpp navigatortreemodel.h
     navigatortreeview.cpp navigatortreeview.h
     navigatorview.cpp navigatorview.h

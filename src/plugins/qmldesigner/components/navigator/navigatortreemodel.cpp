@@ -324,14 +324,25 @@ QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &proper
         return it.value();
 
     QList<ModelNode> list;
+    QList<ModelNode> propertyNodes = property.toModelNodeList();
+    QList<ModelNode> nameFilteredList;
+
+    if (m_nameFilter.isEmpty()) {
+        nameFilteredList = propertyNodes;
+    } else {
+        nameFilteredList.append(Utils::filtered(propertyNodes, [&] (const ModelNode &arg){
+            const bool value = m_nameFilteredList.contains(arg);
+            return value;
+        }));
+    }
 
     if (filter) {
-        list.append(Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
+        list.append(Utils::filtered(nameFilteredList, [] (const ModelNode &arg) {
             const bool value = QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
             return value;
         }));
     } else {
-        list = property.toModelNodeList();
+        list = nameFilteredList;
     }
 
     appendForcedNodes(property, list);
@@ -1219,6 +1230,35 @@ void NavigatorTreeModel::setFilter(bool showOnlyVisibleItems)
 {
     m_showOnlyVisibleItems = showOnlyVisibleItems;
     m_rowCache.clear();
+    resetModel();
+}
+
+void NavigatorTreeModel::setNameFilter(const QString &filter)
+{
+    m_nameFilter = filter;
+    m_rowCache.clear();
+
+    ModelNode rootNode = m_view->rootModelNode();
+    QList<ModelNode> allNodes = rootNode.allSubModelNodes();
+    m_nameFilteredList.clear();
+
+    if (filter.isEmpty()) {
+        m_nameFilteredList = allNodes;
+    } else {
+        for (ModelNode &node : rootNode.allSubModelNodes()) {
+            if (node.displayName().contains(filter, Qt::CaseSensitivity::CaseInsensitive)) {
+                m_nameFilteredList.append(node);
+                ModelNode n = node;
+                while (n.hasParentProperty()) {
+                    n = n.parentProperty().parentModelNode();
+                    if (n.isRootNode() || m_nameFilteredList.contains(n))
+                        break;
+                    m_nameFilteredList.append(n);
+                }
+            }
+        }
+    }
+
     resetModel();
 }
 

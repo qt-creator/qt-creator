@@ -118,6 +118,8 @@ private:
     void filterToggled(bool);
     void reverseOrderToggled(bool);
 
+    void textFilterChanged(const QString &text);
+
 protected: //functions
     QTreeView *treeWidget() const;
     NavigatorTreeModel *treeModel();

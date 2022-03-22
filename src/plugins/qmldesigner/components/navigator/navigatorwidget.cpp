@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "navigatorsearchwidget.h"
 #include "navigatorwidget.h"
 #include "navigatorview.h"
 
@@ -160,6 +161,10 @@ QToolBar *NavigatorWidget::createToolBar()
     for (auto toolButton : buttons)
         toolBar->addWidget(toolButton);
 
+    m_searchWidget = new NavigatorSearchWidget();
+    connect(m_searchWidget, &NavigatorSearchWidget::textChanged, this, &NavigatorWidget::textFilterChanged);
+    toolBar->addWidget(m_searchWidget);
+
     return toolBar;
 }
 
@@ -209,6 +214,11 @@ void NavigatorWidget::setDragType(const QByteArray &type)
 QByteArray NavigatorWidget::dragType() const
 {
     return m_dragType;
+}
+
+void NavigatorWidget::clearSearch()
+{
+    m_searchWidget->clear();
 }
 
 }
