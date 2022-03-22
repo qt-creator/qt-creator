@@ -416,15 +416,6 @@ QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
     return m_qmlComponent;
 }
 
-void PropertyEditorContextObject::setGlobalBaseUrl(const QUrl &newBaseUrl)
-{
-    if (newBaseUrl == m_globalBaseUrl)
-        return;
-
-    m_globalBaseUrl = newBaseUrl;
-    emit globalBaseUrlChanged();
-}
-
 void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
 {
     if (newSpecificsUrl == m_specificsUrl)

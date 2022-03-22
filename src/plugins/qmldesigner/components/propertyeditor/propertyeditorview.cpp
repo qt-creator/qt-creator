@@ -498,7 +498,6 @@ void PropertyEditorView::setupQmlBackend()
         if (specificQmlData.isEmpty())
             currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
 
-        currentQmlBackend->contextObject()->setGlobalBaseUrl(qmlFile);
         currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
         currentQmlBackend->setSource(qmlFile);
     } else {
@@ -511,7 +510,6 @@ void PropertyEditorView::setupQmlBackend()
         if (specificQmlData.isEmpty())
             currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
         currentQmlBackend->setup(*qmlObjectNode, currentStateName, qmlSpecificsFile, this);
-        currentQmlBackend->contextObject()->setGlobalBaseUrl(qmlFile);
         currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     }
 
