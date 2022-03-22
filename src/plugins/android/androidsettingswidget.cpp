@@ -591,13 +591,6 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         return;
     }
 
-    const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
-    QtcProcess *gitCloner = new QtcProcess(this);
-    CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo, openSslPath.toString()});
-    gitCloner->setCommand(gitCloneCommand);
-
-    qCDebug(androidsettingswidget) << "Cloning OpenSSL repo: " << gitCloneCommand.toUserOutput();
-
     QDir openSslDir(openSslPath.toString());
     const bool isEmptyDir = openSslDir.isEmpty(QDir::AllEntries | QDir::NoDotAndDotDot
                                                | QDir::Hidden | QDir::System);
@@ -618,7 +611,14 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     openSslProgressDialog->setWindowTitle(openSslCloneTitle);
     openSslProgressDialog->setFixedSize(openSslProgressDialog->sizeHint());
 
-    connect(openSslProgressDialog, &QProgressDialog::canceled, gitCloner, &QtcProcess::kill);
+    const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
+    QtcProcess *gitCloner = new QtcProcess(this);
+    CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo, openSslPath.toString()});
+    gitCloner->setCommand(gitCloneCommand);
+
+    qCDebug(androidsettingswidget) << "Cloning OpenSSL repo: " << gitCloneCommand.toUserOutput();
+
+    connect(openSslProgressDialog, &QProgressDialog::canceled, gitCloner, &QObject::deleteLater);
 
     auto failDialog = [=](const QString &msgSuffix = {}) {
         QStringList sl;
@@ -637,7 +637,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         openButton->deleteLater();
     };
 
-    connect(gitCloner, &QtcProcess::finished, [=] {
+    connect(gitCloner, &QtcProcess::finished, this, [=] {
                 openSslProgressDialog->close();
                 validateOpenSsl();
                 m_ui.openSslPathChooser->triggerChanged(); // After cloning, the path exists
