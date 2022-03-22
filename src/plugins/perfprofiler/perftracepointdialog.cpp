@@ -80,15 +80,7 @@ PerfTracePointDialog::PerfTracePointDialog() :
                                             ? QLatin1String("pkexec") : QLatin1String("n.a."));
 }
 
-PerfTracePointDialog::~PerfTracePointDialog()
-{
-    if (m_process && m_process->state() != QProcess::NotRunning) {
-        QtcProcess *process = m_process.release();
-        connect(process, &QtcProcess::finished, process, &QObject::deleteLater);
-        process->kill();
-        QTimer::singleShot(10000, process, &QObject::deleteLater);
-    }
-}
+PerfTracePointDialog::~PerfTracePointDialog() = default;
 
 void PerfTracePointDialog::runScript()
 {

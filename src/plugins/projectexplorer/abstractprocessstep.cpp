@@ -216,7 +216,7 @@ void AbstractProcessStep::doRun()
             ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 
-    d->m_process.reset(new QtcProcess());
+    d->m_process.reset(new QtcProcess);
     d->m_process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
     d->m_process->setWorkingDirectory(wd);
     // Enforce PWD in the environment because some build tools use that.

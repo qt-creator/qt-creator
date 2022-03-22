@@ -127,7 +127,6 @@ static FormatTask format(FormatTask task)
             return task;
         }
         if (!process.waitForFinished(5000)) {
-            process.kill();
             task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
                                                    "Cannot call %1 or some other error occurred. Timeout "
                                                    "reached while formatting file %2."))

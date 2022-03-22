@@ -294,7 +294,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
                               .arg(m_config.emulatorToolPath().toString()));
         return false;
     }
-    auto avdProcess = new QtcProcess();
+    auto avdProcess = new QtcProcess;
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess, &QtcProcess::finished, avdProcess,
                      [avdProcess] { avdProcessFinished(avdProcess->exitCode(), avdProcess); });

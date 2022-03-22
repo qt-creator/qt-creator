@@ -106,7 +106,6 @@ ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, I
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
 {
-    terminateProcess();
     delete m_ui;
 }
 
@@ -182,16 +181,6 @@ void ChangeSelectionDialog::enableButtons(bool b)
     m_ui->checkoutButton->setEnabled(b);
 }
 
-void ChangeSelectionDialog::terminateProcess()
-{
-    if (!m_process)
-        return;
-    m_process->kill();
-    m_process->waitForFinished();
-    delete m_process;
-    m_process = nullptr;
-}
-
 void ChangeSelectionDialog::recalculateCompletion()
 {
     const FilePath workingDir = workingDirectory();
@@ -214,7 +203,6 @@ void ChangeSelectionDialog::recalculateCompletion()
 
 void ChangeSelectionDialog::recalculateDetails()
 {
-    terminateProcess();
     enableButtons(true);
 
     const FilePath workingDir = workingDirectory();
@@ -229,12 +217,12 @@ void ChangeSelectionDialog::recalculateDetails()
         return;
     }
 
-    m_process = new QtcProcess(this);
+    m_process.reset(new QtcProcess);
     m_process->setWorkingDirectory(workingDir);
     m_process->setEnvironment(m_gitEnvironment);
     m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80", ref}});
 
-    connect(m_process, &QtcProcess::finished, this, &ChangeSelectionDialog::setDetails);
+    connect(m_process.get(), &QtcProcess::finished, this, &ChangeSelectionDialog::setDetails);
 
     m_process->start();
     if (!m_process->waitForStarted())

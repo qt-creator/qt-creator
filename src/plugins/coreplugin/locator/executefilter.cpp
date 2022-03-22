@@ -186,7 +186,7 @@ void ExecuteFilter::createProcess()
     if (m_process)
         return;
 
-    m_process = new Utils::QtcProcess();
+    m_process = new Utils::QtcProcess;
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
     connect(m_process, &QtcProcess::finished, this, &ExecuteFilter::finished);
     connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);

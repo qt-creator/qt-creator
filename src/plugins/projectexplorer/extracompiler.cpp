@@ -426,11 +426,8 @@ void ProcessExtraCompiler::runInThread(
         if (process.waitForFinished(200))
             break;
 
-    if (futureInterface.isCanceled()) {
-        process.kill();
-        process.waitForFinished();
+    if (futureInterface.isCanceled())
         return;
-    }
 
     futureInterface.reportResult(handleProcessFinished(&process));
 }

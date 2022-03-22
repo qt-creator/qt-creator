@@ -27,7 +27,8 @@
 
 #include "../abstractsettings.h"
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+
+namespace Utils { class QtcProcess; }
 
 namespace Beautifier {
 namespace Internal {
@@ -38,6 +39,7 @@ class UncrustifySettings : public AbstractSettings
 
 public:
     UncrustifySettings();
+    ~UncrustifySettings() override;
 
     bool useOtherFiles() const;
     void setUseOtherFiles(bool useOtherFiles);
@@ -66,8 +68,7 @@ public:
     void setUseSpecificConfigFile(bool useConfigFile);
 
 private:
-    Utils::QtcProcess m_versionProcess;
-    void parseVersionProcessResult();
+    std::unique_ptr<Utils::QtcProcess> m_versionProcess;
 };
 
 } // namespace Internal

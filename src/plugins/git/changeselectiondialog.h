@@ -72,11 +72,10 @@ private:
     void acceptCommand(ChangeCommand command);
 
     void enableButtons(bool b);
-    void terminateProcess();
 
     Ui::ChangeSelectionDialog *m_ui;
 
-    Utils::QtcProcess *m_process = nullptr;
+    std::unique_ptr<Utils::QtcProcess> m_process;
     Utils::FilePath m_gitExecutable;
     Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;

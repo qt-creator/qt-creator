@@ -70,7 +70,7 @@ std::future<QProcessUniquePointer> ProcessCreator::createProcess() const
 {
     return std::async(std::launch::async, [&] {
         checkIfProcessPathExists();
-        auto process = QProcessUniquePointer(new QtcProcess());
+        auto process = QProcessUniquePointer(new QtcProcess);
         process->setProcessChannelMode(QProcess::ForwardedChannels);
         process->setEnvironment(processEnvironment());
         process->setCommand(CommandLine(FilePath::fromString(m_processPath), m_arguments));

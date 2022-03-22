@@ -56,9 +56,6 @@ const char SETTINGS_NAME[]                 = "uncrustify";
 UncrustifySettings::UncrustifySettings() :
     AbstractSettings(SETTINGS_NAME, ".cfg")
 {
-    connect(&m_versionProcess, &QtcProcess::finished,
-            this, &UncrustifySettings::parseVersionProcessResult);
-
     setCommand("uncrustify");
     m_settings.insert(USE_OTHER_FILES, QVariant(true));
     m_settings.insert(USE_HOME_FILE, QVariant(false));
@@ -69,6 +66,8 @@ UncrustifySettings::UncrustifySettings() :
     m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant());
     read();
 }
+
+UncrustifySettings::~UncrustifySettings() = default;
 
 bool UncrustifySettings::useOtherFiles() const
 {
@@ -227,21 +226,16 @@ static bool parseVersion(const QString &text, int &version)
 
 void UncrustifySettings::updateVersion()
 {
-    if (m_versionProcess.state() != QProcess::NotRunning) {
-        m_versionProcess.kill();
-        m_versionProcess.waitForFinished();
-    }
-    m_versionProcess.setCommand({ command(), { "--version" } });
-    m_versionProcess.start();
-}
-
-void UncrustifySettings::parseVersionProcessResult()
-{
-    if (m_versionProcess.exitStatus() != QProcess::NormalExit)
-        return;
-
-    if (!parseVersion(QString::fromUtf8(m_versionProcess.readAllStandardOutput()), m_version))
-        parseVersion(QString::fromUtf8(m_versionProcess.readAllStandardError()), m_version);
+    m_versionProcess.reset(new QtcProcess);
+    connect(m_versionProcess.get(), &QtcProcess::finished, this, [this] {
+        if (m_versionProcess->exitStatus() == QProcess::NormalExit) {
+            if (!parseVersion(QString::fromUtf8(m_versionProcess->readAllStandardOutput()), m_version))
+                parseVersion(QString::fromUtf8(m_versionProcess->readAllStandardError()), m_version);
+        }
+        m_versionProcess.release()->deleteLater();
+    });
+    m_versionProcess->setCommand({ command(), { "--version" } });
+    m_versionProcess->start();
 }
 
 } // namespace Internal
