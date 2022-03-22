@@ -169,6 +169,11 @@ private:
     QHash<QString, QString> m_map;
 };
 
+static void doCrash()
+{
+    qFatal("The application has crashed purposefully!");
+}
+
 class tst_QtcProcess : public QObject
 {
     Q_OBJECT
@@ -1320,7 +1325,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
 
 void tst_QtcProcess::EmitOneErrorOnCrash::main()
 {
-    abort();
+    doCrash();
 }
 
 void tst_QtcProcess::emitOneErrorOnCrash()
@@ -1339,12 +1344,13 @@ void tst_QtcProcess::emitOneErrorOnCrash()
     loop.exec();
 
     QCOMPARE(errorCount, 1);
+    QCOMPARE(process.error(), QProcess::Crashed);
 }
 
 void tst_QtcProcess::CrashAfterOneSecond::main()
 {
     QThread::sleep(1);
-    abort();
+    doCrash();
 }
 
 void tst_QtcProcess::crashAfterOneSecond()
@@ -1361,6 +1367,8 @@ void tst_QtcProcess::crashAfterOneSecond()
     // it doesn't (try running this test with QTC_USE_QPROCESS=)
     QVERIFY(process.waitForFinished(2000));
     QVERIFY(timer.elapsed() < 2000);
+    QCOMPARE(process.state(), QProcess::NotRunning);
+    QCOMPARE(process.error(), QProcess::Crashed);
 }
 
 QTEST_MAIN(tst_QtcProcess)
