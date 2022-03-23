@@ -33,11 +33,13 @@
 
 #include "settings.h"
 
+#include <QtTest>
+
 #include <iostream>
 
-static char VERSION[] = "Version";
-static char FLAVORS[] = "Flavors";
-static char ABI_FILE_ID[] = "abi";
+const char VERSION[] = "Version";
+const char FLAVORS[] = "Flavors";
+const char ABI_FILE_ID[] = "abi";
 
 QString AddAbiFlavor::name() const
 {
@@ -109,24 +111,30 @@ int AddAbiFlavor::execute() const
 bool AddAbiFlavor::test() const
 {
     QVariantMap map = initializeAbiFlavors();
-    if (map.count() != 1
-            || !map.contains(QLatin1String(VERSION)))
+    if (map.count() != 1)
+        return false;
+    if (!map.contains(QLatin1String(VERSION)))
         return false;
 
     map = AddAbiFlavorData{{"linux", "windows"}, "foo"}.addAbiFlavor(map);
 
-    if (map.count() != 2
-            || !map.contains(QLatin1String(VERSION))
-            || !map.contains(QLatin1String(FLAVORS)))
+    if (map.count() != 2)
+        return false;
+    if (!map.contains(QLatin1String(VERSION)))
+        return false;
+    if (!map.contains(QLatin1String(FLAVORS)))
         return false;
 
     const QVariantMap flavorMap = map.value(QLatin1String(FLAVORS)).toMap();
-    if (flavorMap.count() != 1
-            || flavorMap.value("foo").toStringList() != QStringList({"linux", "windows"}))
+    if (flavorMap.count() != 1)
+        return false;
+    if (flavorMap.value("foo").toStringList() != QStringList({"linux", "windows"}))
         return false;
 
     // Ignore known flavors:
-    const QVariantMap result = AddAbiFlavorData({{"linux"}, "foo"}).addAbiFlavor(map);;
+    QTest::ignoreMessage(QtWarningMsg,
+                         QRegularExpression("Error: flavor .* already defined as extra ABI flavor."));
+    const QVariantMap result = AddAbiFlavorData({{"linux"}, "foo"}).addAbiFlavor(map);
 
     if (map != result)
         return false;
