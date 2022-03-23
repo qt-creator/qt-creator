@@ -35,5 +35,8 @@ void openPythonRepl(QObject *parent, const Utils::FilePath &file, ReplType type)
 Utils::FilePath detectPython(const Utils::FilePath &documentPath);
 QString pythonName(const Utils::FilePath &pythonPath);
 
+class PythonProject;
+PythonProject *pythonProjectForFile(const Utils::FilePath &pythonFile);
+
 } // namespace Internal
 } // namespace Python

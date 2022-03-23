@@ -452,17 +452,6 @@ void PyLSSettings::setInterpreter(const QString &interpreterId)
     m_executable = interpreter.command;
 }
 
-static PythonProject *projectForFile(const FilePath &pythonFile)
-{
-    for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
-        if (auto pythonProject = qobject_cast<PythonProject *>(project)) {
-            if (pythonProject->isKnownFile(pythonFile))
-                return pythonProject;
-        }
-    }
-    return nullptr;
-}
-
 class PyLSClient : public Client
 {
 public:
@@ -472,7 +461,7 @@ public:
         using namespace LanguageServerProtocol;
         if (reachable()) {
             const FilePath documentPath = document->filePath();
-            if (isSupportedDocument(document) && !projectForFile(documentPath)) {
+            if (isSupportedDocument(document) && !pythonProjectForFile(documentPath)) {
                 const FilePath workspacePath = documentPath.parentDir();
                 if (!extraWorkspaceDirs.contains(workspacePath)) {
                     WorkspaceFoldersChangeEvent event;

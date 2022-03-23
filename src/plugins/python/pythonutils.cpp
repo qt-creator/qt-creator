@@ -146,5 +146,16 @@ QString pythonName(const FilePath &pythonPath)
     return name;
 }
 
+PythonProject *pythonProjectForFile(const FilePath &pythonFile)
+{
+    for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
+        if (auto pythonProject = qobject_cast<PythonProject *>(project)) {
+            if (pythonProject->isKnownFile(pythonFile))
+                return pythonProject;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace Internal
 } // namespace Python
