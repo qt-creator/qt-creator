@@ -322,9 +322,9 @@ void InfoBarDisplay::update()
                 cb->addItem(comboInfo.displayText, comboInfo.data);
             if (info.m_currentComboIndex >= 0 && info.m_currentComboIndex < cb->count())
                 cb->setCurrentIndex(info.m_currentComboIndex);
-            connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), [cb, info]() {
+            connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [cb, info]() {
                 info.m_comboCallBack({cb->currentText(), cb->currentData()});
-            });
+            }, Qt::QueuedConnection);
 
             hbox->addWidget(cb);
         }
