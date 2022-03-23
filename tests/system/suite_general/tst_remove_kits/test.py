@@ -54,9 +54,9 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createProject_Qt_Console(tempDir(), "SquishProject")
+    createProject_Qt_Console(tempDir(), "SquishProject", buildSystem = "qmake")
     switchViewTo(ViewConstants.PROJECTS)
-    verifyProjectsMode(Targets.getTargetsAsStrings(Targets.availableTargetClasses()))
+    verifyProjectsMode(Targets.getTargetsAsStrings(Targets.availableTargetClasses(True)))
     iterateKits(True, False, __removeKit__)
     clickButton(waitForObject(":Options.OK_QPushButton"))
     verifyProjectsMode([])
