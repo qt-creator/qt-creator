@@ -236,8 +236,6 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     if (!main.isEmpty())
         ProcessArgs::addArg(&args, main, osType);
 
-    if (m_multiLanguageAspect && m_multiLanguageAspect->value())
-        ProcessArgs::addArg(&args, "-qmljsdebugger=file:unused_if_debugger_arguments_added,services:DebugTranslation", osType);
 
     return args;
 }
