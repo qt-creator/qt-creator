@@ -227,7 +227,7 @@
                     "target": "%{ObjectHdr}"
                 },
                 {
-                    "source": "object.qml",
+                    "source": "object.qml.tpl",
                     "target": "%{ObjectQml}"
                 },
                 {
@@ -236,7 +236,7 @@
                     "condition": "%{JS: value('CreateExampleProject')}"
                 },
                 {
-                    "source": "example/example.qml",
+                    "source": "example/example.qml.tpl",
                     "target": "example/example.qml",
                     "condition": "%{JS: value('CreateExampleProject')}"
                 },
