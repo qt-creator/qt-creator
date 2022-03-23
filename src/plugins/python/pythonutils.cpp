@@ -59,7 +59,7 @@ FilePath detectPython(const FilePath &documentPath)
         if (auto target = project->activeTarget()) {
             if (auto runConfig = qobject_cast<PythonRunConfiguration *>(
                     target->activeRunConfiguration())) {
-                python = FilePath::fromString(runConfig->interpreter());
+                python = runConfig->interpreter().command;
             }
         }
     }

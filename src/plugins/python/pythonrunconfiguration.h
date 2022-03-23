@@ -31,18 +31,22 @@
 namespace Python {
 namespace Internal {
 
+class Interpreter;
+
 class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
     Q_PROPERTY(bool supportsDebugger READ supportsDebugger)
-    Q_PROPERTY(QString interpreter READ interpreter)
+    Q_PROPERTY(QString interpreter READ interpreterPath)
     Q_PROPERTY(QString mainScript READ mainScript)
     Q_PROPERTY(QString arguments READ arguments)
 
 public:
     PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-    QString interpreter() const;
+    Interpreter interpreter() const;
+    QString interpreterPath() const;
+    void setInterpreter(const Interpreter &interpreterId);
 
 private:
     void interpreterChanged();
