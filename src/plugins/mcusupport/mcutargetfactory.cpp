@@ -26,12 +26,40 @@
 #include "mcutargetfactory.h"
 #include "mcuhelpers.h"
 #include "mcupackage.h"
+#include "mcusupportconstants.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QVersionNumber>
 
 namespace McuSupport::Internal::Sdk {
+
+bool isToolchainDescriptionValid(const McuTargetDescription::Toolchain &t)
+{
+    bool result{true};
+    if (t.packages.isEmpty() || t.id.isEmpty())
+        result = false;
+    return result;
+}
+
+bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
+{
+    return type == McuToolChainPackage::ToolChainType::MSVC
+           || type == McuToolChainPackage::ToolChainType::GCC;
+}
+
+const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapping{
+    {"iar", McuToolChainPackage::ToolChainType::IAR},
+    {"keil", McuToolChainPackage::ToolChainType::KEIL},
+    {"msvc", McuToolChainPackage::ToolChainType::MSVC},
+    {"gcc", McuToolChainPackage::ToolChainType::GCC},
+    {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
+    {"ghs", McuToolChainPackage::ToolChainType::GHS},
+    {"ghsarm", McuToolChainPackage::ToolChainType::GHSArm},
+};
 
 QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescription &desc)
 {
@@ -42,16 +70,17 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         const McuTarget::Platform platform(
             {desc.platform.id, desc.platform.name, desc.platform.vendor});
 
+        auto *toolchain = createToolchain(desc.toolchain);
+        if (toolchain == nullptr)
+            continue;
         Packages targetPackages = createPackages(desc);
         packages.unite(targetPackages);
-        mcuTargets.append(McuTargetPtr{
-            new McuTarget{QVersionNumber::fromString(desc.qulVersion),
-                          platform,
-                          deduceOperatingSystem(desc),
-                          targetPackages,
-                          McuToolChainPackagePtr{new McuToolChainPackage{
-                              {}, {}, {}, {}, McuToolChainPackage::ToolChainType::Unsupported}},
-                          colorDepth}});
+        mcuTargets.append(McuTargetPtr{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
+                                                     platform,
+                                                     deduceOperatingSystem(desc),
+                                                     targetPackages,
+                                                     McuToolChainPackagePtr{toolchain},
+                                                     colorDepth}});
     }
     return {mcuTargets, packages};
 }
@@ -71,17 +100,50 @@ Packages McuTargetFactory::createPackages(const McuTargetDescription &desc)
     QList<PackageDescription> packageDescriptions = aggregatePackageEntries(desc);
 
     for (const PackageDescription &pkgDesc : packageDescriptions) {
-        packages.insert(McuPackagePtr{new McuPackage{
-            pkgDesc.label,
-            pkgDesc.defaultPath,
-            pkgDesc.validationPath,
-            pkgDesc.setting,
-            pkgDesc.cmakeVar,
-            pkgDesc.envVar,
-        }});
+        packages.insert(createPackage(pkgDesc));
     }
 
     return packages;
+}
+
+McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
+{
+    return McuPackagePtr{new McuPackage{
+        pkgDesc.label,
+        pkgDesc.defaultPath,
+        pkgDesc.validationPath,
+        pkgDesc.setting,
+        pkgDesc.cmakeVar,
+        pkgDesc.envVar,
+    }};
+}
+
+McuToolChainPackage *McuTargetFactory::createToolchain(
+    const McuTargetDescription::Toolchain &toolchain)
+{
+    const PackageDescription compilerDescription
+        = Utils::findOrDefault(toolchain.packages, [](const PackageDescription &desc) {
+              return desc.cmakeVar == Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE;
+          });
+
+    McuToolChainPackage::ToolChainType toolchainType
+        = toolchainTypeMapping.value(toolchain.id, McuToolChainPackage::ToolChainType::Unsupported);
+
+    if (isDesktopToolchain(toolchainType))
+        return new McuToolChainPackage{{}, {}, {}, {}, toolchainType};
+    else if (!isToolchainDescriptionValid(toolchain))
+        return nullptr;
+
+    return new McuToolChainPackage{
+        compilerDescription.label,
+        compilerDescription.defaultPath,
+        compilerDescription.validationPath,
+        compilerDescription.setting,
+        toolchainType,
+        compilerDescription.cmakeVar,
+        compilerDescription.envVar,
+        nullptr,
+    };
 }
 
 } // namespace McuSupport::Internal::Sdk

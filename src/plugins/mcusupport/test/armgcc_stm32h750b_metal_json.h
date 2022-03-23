@@ -62,7 +62,7 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     "versions": [
       "9.3.1"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ARMGCC_DIR",
         "description": "GNU Arm Embedded Toolchain",

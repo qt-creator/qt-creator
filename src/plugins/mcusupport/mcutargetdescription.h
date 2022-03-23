@@ -52,7 +52,7 @@ struct McuTargetDescription
 
     QString qulVersion;
     QString compatVersion;
-    struct
+    struct Platform
     {
         QString id;
         QString name;
@@ -60,13 +60,13 @@ struct McuTargetDescription
         QVector<int> colorDepths;
         TargetType type;
     } platform;
-    struct
+    struct Toolchain
     {
         QString id;
         QStringList versions;
         QList<PackageDescription> packages;
     } toolchain;
-    struct
+    struct BoardSdk
     {
         QString name;
         QString defaultPath;
@@ -74,7 +74,7 @@ struct McuTargetDescription
         QStringList versions;
         QList<PackageDescription> packages;
     } boardSdk;
-    struct
+    struct FreeRTOS
     {
         QString envVar;
         QString boardSdkSubDir;

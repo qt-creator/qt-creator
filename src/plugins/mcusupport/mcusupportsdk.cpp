@@ -62,7 +62,6 @@ namespace Sdk {
 
 namespace {
 const char CMAKE_ENTRIES[]{"cmakeEntries"};
-const char ID[]{"id"};
 } // namespace
 
 static FilePath findInProgramFiles(const QString &folder)
@@ -171,17 +170,17 @@ McuToolChainPackage *createUnsupportedToolChainPackage()
     return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::ToolChainType::Unsupported);
 }
 
-static McuToolChainPackage *createMsvcToolChainPackage()
+McuToolChainPackage *createMsvcToolChainPackage()
 {
     return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::ToolChainType::MSVC);
 }
 
-static McuToolChainPackage *createGccToolChainPackage()
+McuToolChainPackage *createGccToolChainPackage()
 {
     return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::ToolChainType::GCC);
 }
 
-static McuToolChainPackage *createArmGccToolchainPackage()
+McuToolChainPackage *createArmGccToolchainPackage()
 {
     const char envVar[] = "ARMGCC_DIR";
 
@@ -210,12 +209,12 @@ static McuToolChainPackage *createArmGccToolchainPackage()
                                    detectionPath,
                                    "GNUArmEmbeddedToolchain",                  // settingsKey
                                    McuToolChainPackage::ToolChainType::ArmGcc, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR",                 // cmake var
+                                   Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,    // cmake var
                                    envVar,                                     // env var
                                    versionDetector);
 }
 
-static McuToolChainPackage *createGhsToolchainPackage()
+McuToolChainPackage *createGhsToolchainPackage()
 {
     const char envVar[] = "GHS_COMPILER_DIR";
 
@@ -231,12 +230,12 @@ static McuToolChainPackage *createGhsToolchainPackage()
                                    FilePath("ccv850").withExecutableSuffix(), // detectionPath
                                    "GHSToolchain",                            // settingsKey
                                    McuToolChainPackage::ToolChainType::GHS,   // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR",                // cmake var
+                                   Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,   // cmake var
                                    envVar,                                    // env var
                                    versionDetector);
 }
 
-static McuToolChainPackage *createGhsArmToolchainPackage()
+McuToolChainPackage *createGhsArmToolchainPackage()
 {
     const char envVar[] = "GHS_ARM_COMPILER_DIR";
 
@@ -252,12 +251,12 @@ static McuToolChainPackage *createGhsArmToolchainPackage()
                                    FilePath("cxarm").withExecutableSuffix(),   // detectionPath
                                    "GHSArmToolchain",                          // settingsKey
                                    McuToolChainPackage::ToolChainType::GHSArm, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR",                 // cmake var
+                                   Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,    // cmake var
                                    envVar,                                     // env var
                                    versionDetector);
 }
 
-static McuToolChainPackage *createIarToolChainPackage()
+McuToolChainPackage *createIarToolChainPackage()
 {
     const char envVar[] = "IAR_ARM_COMPILER_DIR";
 
@@ -286,7 +285,7 @@ static McuToolChainPackage *createIarToolChainPackage()
                                    detectionPath,
                                    "IARToolchain",                          // settings key
                                    McuToolChainPackage::ToolChainType::IAR, // toolchainType
-                                   "QUL_TARGET_TOOLCHAIN_DIR",              // cmake var
+                                   Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE, // cmake var
                                    envVar,                                  // env var
                                    versionDetector);
 }
@@ -481,7 +480,7 @@ static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
     QList<PackageDescription> result;
     for (const auto &cmakeEntryRef : cmakeEntries) {
         const QJsonObject cmakeEntry{cmakeEntryRef.toObject()};
-        result.push_back({cmakeEntry[ID].toString(),
+        result.push_back({cmakeEntry["id"].toString(),
                           cmakeEntry["envVar"].toString(),
                           cmakeEntry["cmakeVar"].toString(),
                           cmakeEntry["description"].toString(),
@@ -505,10 +504,12 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
     const QJsonObject boardSdk = target.value("boardSdk").toObject();
     const QJsonObject freeRTOS = target.value("freeRTOS").toObject();
 
-    QJsonArray cmakeEntries = freeRTOS.value(CMAKE_ENTRIES).toArray();
-    cmakeEntries.append(toolchain.value(CMAKE_ENTRIES).toArray());
-    cmakeEntries.append(boardSdk.value(CMAKE_ENTRIES).toArray());
-    const QList<PackageDescription> freeRtosEntries = parsePackages(cmakeEntries);
+    const QList<PackageDescription> toolchainEntries = parsePackages(
+        toolchain.value(CMAKE_ENTRIES).toArray());
+    const QList<PackageDescription> boardSDKEntries = parsePackages(
+        boardSdk.value(CMAKE_ENTRIES).toArray());
+    const QList<PackageDescription> freeRtosEntries = parsePackages(
+        freeRTOS.value(CMAKE_ENTRIES).toArray());
 
     const QVariantList toolchainVersions = toolchain.value("versions").toArray().toVariantList();
     const auto toolchainVersionsList = Utils::transform<QStringList>(toolchainVersions,
@@ -538,13 +539,13 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
                 platformName == "Desktop" ? McuTargetDescription::TargetType::Desktop
                                           : McuTargetDescription::TargetType::MCU,
             },
-            {toolchain.value("id").toString(), toolchainVersionsList, {}},
+            {toolchain.value("id").toString(), toolchainVersionsList, toolchainEntries},
             {
                 boardSdk.value("name").toString(),
                 boardSdk.value("defaultPath").toString(),
                 boardSdk.value("envVar").toString(),
                 boardSdkVersionsList,
-                {},
+                boardSDKEntries,
             },
             {
                 freeRTOS.value("envVar").toString(),

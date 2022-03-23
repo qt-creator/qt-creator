@@ -67,8 +67,8 @@ public:
     ~McuPackage() override = default;
 
     QString label() const override;
-    const QString &cmakeVariableName() const override;
-    const QString &environmentVariableName() const override;
+    QString cmakeVariableName() const override;
+    QString environmentVariableName() const override;
     bool isAddToSystemPath() const override;
     void setVersions(const QStringList &versions) override;
 

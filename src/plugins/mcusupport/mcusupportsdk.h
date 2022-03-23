@@ -60,6 +60,13 @@ Utils::FilePath packagePathFromSettings(const QString &settingsKey,
                                         const Utils::FilePath &defaultPath);
 
 McuToolChainPackage *createUnsupportedToolChainPackage();
+McuToolChainPackage *createIarToolChainPackage();
+McuToolChainPackage *createGccToolChainPackage();
+McuToolChainPackage *createArmGccToolchainPackage();
+McuToolChainPackage *createMsvcToolChainPackage();
+McuToolChainPackage *createGhsToolchainPackage();
+McuToolChainPackage *createGhsArmToolchainPackage();
+
 McuAbstractPackage *createBoardSdkPackage(const McuTargetDescription &desc);
 McuAbstractPackage *createFreeRTOSSourcesPackage(const QString &envVar,
                                                  const Utils::FilePath &boardSdkDir,

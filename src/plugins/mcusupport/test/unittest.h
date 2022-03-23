@@ -30,6 +30,7 @@
 #include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
 #include "mcutarget.h"
+#include "mcutargetfactory.h"
 #include "packagemock.h"
 
 #include <projectexplorer/kit.h>
@@ -52,27 +53,45 @@ private slots:
 
     void test_addNewKit();
     void test_parseBasicInfoFromJson();
+    void test_parseCmakeEntries();
+    void test_parseToolchainFromJSON();
+    void test_mapParsedToolchainIdToCorrespondingType_data();
+    void test_mapParsedToolchainIdToCorrespondingType();
+    void test_defaultToolchainPackageCtorShouldReturnDefaultToolchainFileName();
     void test_createPackagesWithCorrespondingSettings();
     void test_createPackagesWithCorrespondingSettings_data();
     void test_createFreeRtosPackageWithCorrectSetting_data();
     void test_createFreeRtosPackageWithCorrectSetting();
-    void test_createTargetsTheNewWay_data();
-    void test_createTargetsTheNewWay();
+    void test_skipTargetCreationWhenToolchainInfoIsMissing();
+    void test_returnNullWhenCreatingToolchainIfInfoIsMissing();
+    void test_returnNullWhenCreatingToolchainIfIdIsEmpty();
+    void test_createTargets();
     void test_createPackages();
-    void test_parseCmakeEntries();
+    void test_addFreeRtosCmakeVarToKit();
+    void test_legacy_createIarToolchain();
+    void test_createIarToolchain();
+    void test_legacy_createDesktopGccToolchain();
+    void test_createDesktopGccToolchain();
     void test_removeRtosSuffix_data();
     void test_removeRtosSuffix();
     void test_2dot1UsesLegacyImplementation();
 
 private:
     QVersionNumber currentQulVersion{2, 0};
-    const QString id{"target_id"};
-    const QString name{"target_name"};
-    const QString vendor{"target_vendor"};
-
-    const QString freeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
-    const QString freeRtosCmakeVar{"FREERTOS_DIR"};
-    const QString defaultfreeRtosPath{"/opt/freertos/default"};
+    PackageMock *freeRtosPackage{new PackageMock};
+    PackageMock *sdkPackage{new PackageMock};
+    McuPackagePtr freeRtosPackagePtr{freeRtosPackage};
+    McuPackagePtr sdkPackagePtr{sdkPackage};
+    Sdk::McuTargetFactory targetFactory;
+    Sdk::McuTargetDescription targetDescription;
+    McuToolChainPackagePtr toolchainPackagePtr{
+        new McuToolChainPackage{{},                                              // label
+                                {},                                              // defaultPath
+                                {},                                              // detectionPath
+                                {},                                              // settingsKey
+                                McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
+                                {},                                              // cmake var name
+                                {}}};                                            // env var name
 }; // class McuSupportTest
 
 } // namespace McuSupport::Internal::Test

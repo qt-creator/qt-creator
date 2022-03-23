@@ -25,10 +25,12 @@
 
 #include "unittest.h"
 #include "armgcc_nxp_1050_json.h"
-#include "armgcc_nxp_1064_json.h"
 #include "armgcc_stm32f769i_freertos_json.h"
 #include "armgcc_stm32h750b_metal_json.h"
+#include "gcc_desktop_json.h"
+#include "iar_nxp_1064_json.h"
 #include "iar_stm32f469i_metal_json.h"
+
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
 #include "mcusupportconstants.h"
@@ -36,49 +38,143 @@
 #include "mcutargetdescription.h"
 #include "mcutargetfactory.h"
 #include "mcutargetfactorylegacy.h"
+
+#include <baremetal/baremetalconstants.h>
+#include <cmakeprojectmanager/cmakeconfigitem.h>
+#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <gmock/gmock-actions.h>
+#include <gmock/gmock.h>
+#include <projectexplorer/customtoolchain.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 
-#include <cmakeprojectmanager/cmakeconfigitem.h>
-#include <cmakeprojectmanager/cmakekitinformation.h>
-#include <gmock/gmock.h>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <qtestcase.h>
 
 #include <algorithm>
-#include <ciso646>
 
 namespace McuSupport::Internal::Test {
 
 namespace {
-// clazy:excludeall=non-pod-global-static
-const QString freeRtosCMakeVar{"FREERTOS_DIR"};
-const QString nxp1050FreeRtosEnvVar{"IMXRT1050_FREERTOS_DIR"};
-const QString nxp1064FreeRtosEnvVar{"IMXRT1064_FREERTOS_DIR"};
-const QString nxp1170FreeRtosEnvVar{"EVK_MIMXRT1170_FREERTOS_PATH"};
-const QString stm32f7FreeRtosEnvVar{"STM32F7_FREERTOS_DIR"};
-const QString stm32f7{"STM32F7"};
-const QString nxp1170{"EVK_MIMXRT1170"};
-const QString nxp1050{"IMXRT1050"};
-const QString nxp1064{"IMXRT1064"};
+const char id[]{"target_id"};
+const char name[]{"target_name"};
+const char vendor[]{"target_vendor"};
+
+const char armgcc[]{"armgcc"};
+const char cmakeExtension[]{".cmake"};
+const char defaultfreeRtosPath[]{"/opt/freertos/default"};
+const char freeRtosCMakeVar[]{"FREERTOS_DIR"};
+const char freeRtosEnvVar[]{"EVK_MIMXRT1170_FREERTOS_PATH"};
+const char gcc[]{"armgcc"};
+const char iarEnvVar[]{"IAR_ARM_COMPILER_DIR"};
+const char iarLabel[]{"IAR ARM Compiler"};
+const char iarSetting[]{"IARToolchain"};
+const char iar[]{"iar"};
+const char nxp1050FreeRtosEnvVar[]{"IMXRT1050_FREERTOS_DIR"};
+const char nxp1050[]{"IMXRT1050"};
+const char nxp1064FreeRtosEnvVar[]{"IMXRT1064_FREERTOS_DIR"};
+const char nxp1064[]{"IMXRT1064"};
+const char nxp1170FreeRtosEnvVar[]{"EVK_MIMXRT1170_FREERTOS_PATH"};
+const char nxp1170[]{"EVK_MIMXRT1170"};
+const char stm32f7FreeRtosEnvVar[]{"STM32F7_FREERTOS_DIR"};
+const char stm32f7[]{"STM32F7"};
+const char unsupported[]{"unsupported"};
+
 const QStringList jsonFiles{QString::fromUtf8(armgcc_nxp_1050_json),
-                            QString::fromUtf8(armgcc_nxp_1064_json)};
-constexpr bool RUN_LEGACY{true};
-constexpr int colorDepth{32};
-const QString id{"id"};
+                            QString::fromUtf8(iar_nxp_1064_json)};
+
+const bool runLegacy{true};
+const int colorDepth{32};
+
+const Sdk::McuTargetDescription::Platform platform{id,
+                                                   "",
+                                                   "",
+                                                   {colorDepth},
+                                                   Sdk::McuTargetDescription::TargetType::MCU};
+const Utils::Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
 
 using CMakeProjectManager::CMakeConfigItem;
 using CMakeProjectManager::CMakeConfigurationKitAspect;
+using ProjectExplorer::EnvironmentKitAspect;
+using ProjectExplorer::Kit;
 using ProjectExplorer::KitManager;
+using ProjectExplorer::ToolChain;
+using ProjectExplorer::ToolChainManager;
+
+using testing::Return;
 using Utils::FilePath;
 
-void McuSupportTest::initTestCase() {}
+void verifyIarToolchain(const McuToolChainPackage *iarToolchainPackage)
+{
+    QVERIFY(iarToolchainPackage != nullptr);
+    QCOMPARE(iarToolchainPackage->cmakeToolChainFileName(), QString{iar}.append(cmakeExtension));
+    QCOMPARE(iarToolchainPackage->cmakeVariableName(), Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE);
+    QCOMPARE(iarToolchainPackage->environmentVariableName(), iarEnvVar);
+    QCOMPARE(iarToolchainPackage->isDesktopToolchain(), false);
+    QCOMPARE(iarToolchainPackage->toolChainName(), iar);
+    QCOMPARE(iarToolchainPackage->toolchainType(), McuToolChainPackage::ToolChainType::IAR);
+
+    ProjectExplorer::ToolChainFactory toolchainFactory;
+    Utils::Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
+    ToolChain *iar{toolchainFactory.createToolChain(iarId)};
+    iar->setLanguage(cxxLanguageId);
+    ToolChainManager::instance()->registerToolChain(iar);
+
+    ToolChain *iarToolchain{iarToolchainPackage->toolChain(cxxLanguageId)};
+    QVERIFY(iarToolchain != nullptr);
+    QCOMPARE(iarToolchain->displayName(), "IAREW");
+    QCOMPARE(iarToolchain->detection(), ToolChain::UninitializedDetection);
+}
+
+void verifyGccToolchain(const McuToolChainPackage *gccPackage)
+{
+    QVERIFY(gccPackage != nullptr);
+    QCOMPARE(gccPackage->cmakeToolChainFileName(), QString{unsupported}.append(cmakeExtension));
+    QCOMPARE(gccPackage->cmakeVariableName(), "");
+    QCOMPARE(gccPackage->environmentVariableName(), "");
+    QCOMPARE(gccPackage->isDesktopToolchain(), true);
+    QCOMPARE(gccPackage->toolChainName(), unsupported);
+    QCOMPARE(gccPackage->toolchainType(), McuToolChainPackage::ToolChainType::GCC);
+}
+
+void McuSupportTest::initTestCase()
+{
+    targetDescription = Sdk::McuTargetDescription{
+        "2.0.1",
+        "2",
+        platform,
+        Sdk::McuTargetDescription::Toolchain{},
+        Sdk::McuTargetDescription::BoardSdk{},
+        Sdk::McuTargetDescription::FreeRTOS{},
+    };
+
+    EXPECT_CALL(*freeRtosPackage, environmentVariableName())
+        .WillRepeatedly(Return(QString{freeRtosEnvVar}));
+    EXPECT_CALL(*freeRtosPackage, cmakeVariableName())
+        .WillRepeatedly(Return(QString{freeRtosCMakeVar}));
+    EXPECT_CALL(*freeRtosPackage, isValidStatus()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*freeRtosPackage, path())
+        .WillRepeatedly(Return(FilePath::fromString(defaultfreeRtosPath)));
+    EXPECT_CALL(*freeRtosPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*freeRtosPackage, detectionPath()).WillRepeatedly(Return(Utils::FilePath{}));
+
+    EXPECT_CALL(*sdkPackage, environmentVariableName())
+        .WillRepeatedly(Return(QString{freeRtosEnvVar}));
+    EXPECT_CALL(*sdkPackage, cmakeVariableName()).WillRepeatedly(Return(QString{freeRtosCMakeVar}));
+    EXPECT_CALL(*sdkPackage, isValidStatus()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*sdkPackage, path())
+        .WillRepeatedly(Return(FilePath::fromString(defaultfreeRtosPath)));
+    EXPECT_CALL(*sdkPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*sdkPackage, detectionPath()).WillRepeatedly(Return(Utils::FilePath{}));
+}
 
 void McuSupportTest::test_parseBasicInfoFromJson()
 {
-    const auto description = Sdk::parseDescriptionJson(armgcc_nxp_1064_json);
+    const auto description = Sdk::parseDescriptionJson(iar_nxp_1064_json);
 
     QVERIFY(!description.freeRTOS.envVar.isEmpty());
     QVERIFY(description.freeRTOS.boardSdkSubDir.isEmpty());
@@ -86,49 +182,54 @@ void McuSupportTest::test_parseBasicInfoFromJson()
 
 void McuSupportTest::test_parseCmakeEntries()
 {
-    const auto description{Sdk::parseDescriptionJson(armgcc_nxp_1064_json)};
+    const auto description{Sdk::parseDescriptionJson(iar_nxp_1064_json)};
 
-    QVERIFY(not description.freeRTOS.packages.isEmpty());
+    QVERIFY(!description.freeRTOS.packages.isEmpty());
     auto &freeRtosPackage = description.freeRTOS.packages[0];
     QCOMPARE(freeRtosPackage.envVar, nxp1064FreeRtosEnvVar);
+}
+
+void McuSupportTest::test_parseToolchainFromJSON()
+{
+    Sdk::McuTargetDescription description{Sdk::parseDescriptionJson(iar_stm32f469i_metal_json)};
+    QCOMPARE(description.toolchain.id, iar);
+    QCOMPARE(description.toolchain.packages.size(), 2);
+
+    const Sdk::PackageDescription &compilerPackage{description.toolchain.packages.at(0)};
+    QCOMPARE(compilerPackage.cmakeVar, Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE);
+    QCOMPARE(compilerPackage.envVar, "IAR_ARM_COMPILER_DIR");
+
+    const Sdk::PackageDescription &toolchainFilePackage{description.toolchain.packages.at(1)};
+    QCOMPARE(toolchainFilePackage.label, "IAR_CMAKE_TOOLCHAIN_FILE");
+    QCOMPARE(toolchainFilePackage.envVar, QString{});
+    QCOMPARE(toolchainFilePackage.cmakeVar, Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
+    QCOMPARE(toolchainFilePackage.description, "CMake Toolchain File");
+    QCOMPARE(toolchainFilePackage.defaultPath, "$Qul_ROOT/lib/cmake/Qul/toolchain/iar.cmake");
 }
 
 void McuSupportTest::test_addNewKit()
 {
     const QString cmakeVar = "CMAKE_SDK";
-    McuPackagePtr sdkPackage{new McuPackage{"sdk",    // label
-                                            {},       // defaultPath
-                                            {},       // detectionPath
-                                            "sdk",    // settingsKey
-                                            cmakeVar, // cmake var
-                                            {}}};     // env var
-    ProjectExplorer::Kit kit;
+    EXPECT_CALL(*sdkPackage, cmakeVariableName()).WillRepeatedly(Return(cmakeVar));
+    Kit kit;
 
-    McuToolChainPackagePtr toolchainPackage{
-        new McuToolChainPackage{{},                                              // label
-                                {},                                              // defaultPath
-                                {},                                              // detectionPath
-                                {},                                              // settingsKey
-                                McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
-                                {},                                              // cmake var name
-                                {}}};                                            // env var name
     const McuTarget::Platform platform{id, name, vendor};
-    McuTarget mcuTarget{currentQulVersion,       // version
-                        platform,                // platform
-                        McuTarget::OS::FreeRTOS, // os
-                        {sdkPackage},            // packages
-                        toolchainPackage};       // toolchain packages
+    McuTarget mcuTarget{currentQulVersion,                   // version
+                        platform,                            // platform
+                        McuTarget::OS::FreeRTOS,             // os
+                        {sdkPackagePtr, freeRtosPackagePtr}, // packages
+                        toolchainPackagePtr};                // toolchain packages
 
     auto &kitManager{*KitManager::instance()};
 
     QSignalSpy kitAddedSpy(&kitManager, &KitManager::kitAdded);
 
-    auto *newKit{McuKitManager::newKit(&mcuTarget, sdkPackage)};
+    auto *newKit{McuKitManager::newKit(&mcuTarget, sdkPackagePtr)};
     QVERIFY(newKit != nullptr);
 
     QCOMPARE(kitAddedSpy.count(), 1);
     QList<QVariant> arguments = kitAddedSpy.takeFirst();
-    auto *createdKit = qvariant_cast<ProjectExplorer::Kit *>(arguments.at(0));
+    auto *createdKit = qvariant_cast<Kit *>(arguments.at(0));
     QVERIFY(createdKit != nullptr);
     QCOMPARE(createdKit, newKit);
 
@@ -139,6 +240,110 @@ void McuSupportTest::test_addNewKit()
                                return item.key == cmakeVar.toUtf8();
                            })
             != -1);
+}
+
+void McuSupportTest::test_addFreeRtosCmakeVarToKit()
+{
+    Kit kit;
+    const McuTarget::Platform platform{id, name, vendor};
+    McuTarget mcuTarget{currentQulVersion,
+                        platform,
+                        McuTarget::OS::FreeRTOS,
+                        {sdkPackagePtr, freeRtosPackagePtr},
+                        toolchainPackagePtr};
+    McuKitManager::upgradeKitInPlace(&kit, &mcuTarget, sdkPackagePtr);
+
+    QVERIFY(kit.hasValue(EnvironmentKitAspect::id()));
+    QVERIFY(kit.isValid());
+    QVERIFY(!kit.allKeys().empty());
+
+    const auto &cmakeConfig{CMakeConfigurationKitAspect::configuration(&kit)};
+    QCOMPARE(cmakeConfig.size(), 8);
+
+    CMakeConfigItem
+        expectedCmakeVar{freeRtosCMakeVar,
+                         FilePath::fromString(defaultfreeRtosPath).toUserOutput().toLocal8Bit()};
+    QVERIFY(cmakeConfig.contains(expectedCmakeVar));
+    const auto config = CMakeConfigurationKitAspect::configuration(&kit);
+    QVERIFY(config.size() > 0);
+}
+
+void McuSupportTest::test_legacy_createIarToolchain()
+{
+    McuToolChainPackage *iarToolchainPackage = Sdk::createIarToolChainPackage();
+    verifyIarToolchain(iarToolchainPackage);
+}
+
+void McuSupportTest::test_createIarToolchain()
+{
+    const auto description = Sdk::parseDescriptionJson(iar_stm32f469i_metal_json);
+
+    McuToolChainPackage *iarToolchainPackage{targetFactory.createToolchain(description.toolchain)};
+    verifyIarToolchain(iarToolchainPackage);
+}
+
+void McuSupportTest::test_legacy_createDesktopGccToolchain()
+{
+    McuToolChainPackage *gccPackage = Sdk::createGccToolChainPackage();
+    verifyGccToolchain(gccPackage);
+}
+
+void McuSupportTest::test_createDesktopGccToolchain()
+{
+    const auto description = Sdk::parseDescriptionJson(gcc_desktop_json);
+    McuToolChainPackage *gccPackage{targetFactory.createToolchain(description.toolchain)};
+    verifyGccToolchain(gccPackage);
+}
+
+void McuSupportTest::test_skipTargetCreationWhenToolchainInfoIsMissing()
+{
+    const auto [targets, packages]{targetFactory.createTargets(targetDescription)};
+    QVERIFY(targets.isEmpty());
+}
+
+void McuSupportTest::test_returnNullWhenCreatingToolchainIfInfoIsMissing()
+{
+    Sdk::McuTargetDescription::Toolchain toolchainDescription{};
+    toolchainDescription.id = iar;
+    McuToolChainPackage *toolchain{targetFactory.createToolchain(toolchainDescription)};
+    QCOMPARE(toolchain, nullptr);
+}
+
+void McuSupportTest::test_returnNullWhenCreatingToolchainIfIdIsEmpty()
+{
+    McuToolChainPackage *toolchain{targetFactory.createToolchain({})};
+    QCOMPARE(toolchain, nullptr);
+}
+
+void McuSupportTest::test_defaultToolchainPackageCtorShouldReturnDefaultToolchainFileName()
+{
+    QVERIFY(!toolchainPackagePtr->cmakeToolChainFileName().isEmpty());
+    QCOMPARE(toolchainPackagePtr->cmakeToolChainFileName(),
+             QString{unsupported}.append(cmakeExtension));
+}
+
+void McuSupportTest::test_mapParsedToolchainIdToCorrespondingType_data()
+{
+    QTest::addColumn<Sdk::McuTargetDescription>("description");
+    QTest::addColumn<McuToolChainPackage::ToolChainType>("toolchainType");
+
+    QTest::newRow("armgcc_stm32h750b") << Sdk::parseDescriptionJson(armgcc_stm32h750b_metal_json)
+                                       << McuToolChainPackage::ToolChainType::ArmGcc;
+    QTest::newRow("iar_nxp1064") << Sdk::parseDescriptionJson(iar_nxp_1064_json)
+                                 << McuToolChainPackage::ToolChainType::IAR;
+    QTest::newRow("iar_stm32f469i") << Sdk::parseDescriptionJson(iar_stm32f469i_metal_json)
+                                    << McuToolChainPackage::ToolChainType::IAR;
+}
+
+void McuSupportTest::test_mapParsedToolchainIdToCorrespondingType()
+{
+    QFETCH(Sdk::McuTargetDescription, description);
+    QFETCH(McuToolChainPackage::ToolChainType, toolchainType);
+
+    const McuToolChainPackage *toolchain{targetFactory.createToolchain(description.toolchain)};
+
+    QVERIFY(toolchain != nullptr);
+    QCOMPARE(toolchain->toolchainType(), toolchainType);
 }
 
 void McuSupportTest::test_createPackagesWithCorrespondingSettings_data()
@@ -155,7 +360,7 @@ void McuSupportTest::test_createPackagesWithCorrespondingSettings_data()
                                  {"RenesasFlashProgrammer"},
                                  {"Stm32CubeProgrammer"}};
 
-    QTest::newRow("nxp1064") << armgcc_nxp_1064_json
+    QTest::newRow("nxp1064") << iar_nxp_1064_json
                              << QSet<QString>{{"EVK_MIMXRT1064_SDK_PATH"},
                                               {QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}
                                                    .append("IMXRT1064")}}
@@ -180,7 +385,7 @@ void McuSupportTest::test_createPackagesWithCorrespondingSettings()
 {
     QFETCH(QString, json);
     const Sdk::McuTargetDescription description = Sdk::parseDescriptionJson(json.toLocal8Bit());
-    const auto [targets, packages]{Sdk::targetsFromDescriptions({description}, RUN_LEGACY)};
+    const auto [targets, packages]{Sdk::targetsFromDescriptions({description}, runLegacy)};
     Q_UNUSED(targets);
 
     QSet<QString> settings = Utils::transform<QSet<QString>>(packages, [](const auto &package) {
@@ -205,19 +410,8 @@ void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting_data()
                              << QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(stm32f7);
 }
 
-//TODO(piotr.mucko): Enable when mcutargetfactory is delivered.
 void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
 {
-    // Sdk::targetsAndPackages(jsonFile, &mcuSdkRepo);
-    //
-    // QVector<Package *> mcuPackages;
-    // auto mcuTargets = Sdk::targetsFromDescriptions({description}, &mcuPackages);
-    // QVERIFY(mcuPackages contains freertos package)
-    // QVERIFY(freertos package is not empty & has proper value)
-
-    // McuSupportOptions mcuSuportOptions{};
-    // mcuSuportOptions.createAutomaticKits();
-
     QFETCH(QString, freeRtosEnvVar);
     QFETCH(QString, expectedSettingsKey);
 
@@ -225,23 +419,9 @@ void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
     QVERIFY(package != nullptr);
 
     QCOMPARE(package->settingsKey(), expectedSettingsKey);
-
-    // QVERIFY(freertos package is not empty & has proper value)
-    // static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar,
-    //                                                 const FilePath &boardSdkDir,
-    //                                                 const QString &freeRTOSBoardSdkSubDir)
-    // createFreeRtosPackage
-    // verify that package's setting is Package_FreeRTOSSourcePackage_IMXRT1064.
-    //TODO(me): write settings
-    // auto *freeRtosPackage
-    // = new McuPackage;
-    // freeRtosPackage->writeToSettings();
-    //TODO(me): verify that setting is the same as in 2.0.0
 }
 
-void McuSupportTest::test_createTargetsTheNewWay_data() {}
-
-void McuSupportTest::test_createTargetsTheNewWay()
+void McuSupportTest::test_createTargets()
 {
     Sdk::PackageDescription packageDescription{id,
                                                nxp1064FreeRtosEnvVar,
@@ -252,23 +432,16 @@ void McuSupportTest::test_createTargetsTheNewWay()
                                                "",
                                                {},
                                                true};
+    targetDescription.freeRTOS.packages.append(packageDescription);
+    targetDescription.toolchain.id = armgcc;
+    targetDescription.toolchain.packages.append(Sdk::PackageDescription{});
 
-    Sdk::McuTargetDescription description{
-        "2.0.1",
-        "2",
-        {id, "", "", {colorDepth}, Sdk::McuTargetDescription::TargetType::MCU},
-        {},                             // toolchain
-        {},                             // boardSDK
-        {"", "", {packageDescription}}, //freertos
-    };
-
-    Sdk::McuTargetFactory targetFactory{};
-    const auto [targets, packages]{targetFactory.createTargets(description)};
-    QVERIFY(not targets.empty());
+    const auto [targets, packages]{targetFactory.createTargets(targetDescription)};
+    QVERIFY(!targets.empty());
     const McuTargetPtr target{*targets.constBegin()};
     QCOMPARE(target->colorDepth(), colorDepth);
     const auto &tgtPackages{target->packages()};
-    QVERIFY(not tgtPackages.empty());
+    QVERIFY(!tgtPackages.empty());
     const auto rtosPackage{*tgtPackages.constBegin()};
     QCOMPARE(rtosPackage->environmentVariableName(), nxp1064FreeRtosEnvVar);
 }
@@ -284,18 +457,10 @@ void McuSupportTest::test_createPackages()
                                                "",
                                                {},
                                                true};
-    Sdk::McuTargetDescription targetDescription{
-        "2.0.1",
-        "2",
-        {id, id, id, {colorDepth}, Sdk::McuTargetDescription::TargetType::MCU},
-        {},                             // toolchain
-        {},                             // boardSDK
-        {"", "", {packageDescription}}, //freertos
-    };
+    targetDescription.freeRTOS.packages.append(packageDescription);
 
-    Sdk::McuTargetFactory targetFactory;
     const auto packages{targetFactory.createPackages(targetDescription)};
-    QVERIFY(not packages.empty());
+    QVERIFY(!packages.empty());
 }
 
 void McuSupportTest::test_removeRtosSuffix_data()

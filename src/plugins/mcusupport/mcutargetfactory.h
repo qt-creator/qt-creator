@@ -26,14 +26,19 @@
 #pragma once
 
 #include "mcuabstracttargetfactory.h"
+#include "mcutargetdescription.h"
 
 namespace McuSupport::Internal::Sdk {
+
+struct PackageDescription;
 
 class McuTargetFactory : public McuAbstractTargetFactory
 {
 public:
     QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
     Packages createPackages(const McuTargetDescription &);
+    McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &);
+    McuPackagePtr createPackage(const PackageDescription &);
 }; // struct McuTargetFactory
 
 } // namespace McuSupport::Internal::Sdk

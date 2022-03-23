@@ -25,20 +25,20 @@
 
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
-#include "mcusupportversiondetection.h"
 #include "mcusupportsdk.h"
+#include "mcusupportversiondetection.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchainmanager.h>
-#include <debugger/debuggeritem.h>
-#include <debugger/debuggeritemmanager.h>
 
 #include <QDesktopServices>
 #include <QGridLayout>
@@ -83,12 +83,12 @@ QString McuPackage::settingsKey() const
     return m_settingsKey;
 }
 
-const QString &McuPackage::cmakeVariableName() const
+QString McuPackage::cmakeVariableName() const
 {
     return m_cmakeVariableName;
 }
 
-const QString &McuPackage::environmentVariableName() const
+QString McuPackage::environmentVariableName() const
 {
     return m_environmentVariableName;
 }
@@ -285,7 +285,14 @@ McuToolChainPackage::McuToolChainPackage(const QString &label,
                                          const QString &cmakeVarName,
                                          const QString &envVarName,
                                          const McuPackageVersionDetector *versionDetector)
-    : McuPackage(label, defaultPath, detectionPath, settingsKey, cmakeVarName, envVarName, {}, versionDetector)
+    : McuPackage(label,
+                 defaultPath,
+                 detectionPath,
+                 settingsKey,
+                 cmakeVarName,
+                 envVarName,
+                 {},
+                 versionDetector)
     , m_type(type)
 {}
 
@@ -398,7 +405,7 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
         const QLatin1String compilerName(
             language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
         const QString comp = QLatin1String(m_type == ToolChainType::ArmGcc ? "/bin/arm-none-eabi-%1"
-                                                                  : "/bar/foo-keil-%1")
+                                                                           : "/bar/foo-keil-%1")
                                  .arg(compilerName);
         const FilePath compiler = path().pathAppended(comp).withExecutableSuffix();
 

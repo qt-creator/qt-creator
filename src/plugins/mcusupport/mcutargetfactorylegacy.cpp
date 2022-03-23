@@ -89,12 +89,12 @@ QPair<Targets, Packages> McuTargetFactoryLegacy::createTargets(const McuTargetDe
         packages.unite(required3rdPartyPkgs);
         const McuTarget::Platform platform(
             {desc.platform.id, desc.platform.name, desc.platform.vendor});
-        mcuTargets.push_back(McuTargetPtr{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
-                                                        platform,
-                                                        deduceOperatingSystem(desc),
-                                                        required3rdPartyPkgs,
-                                                        tcPkg,
-                                                        colorDepth}});
+        mcuTargets.append(McuTargetPtr{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
+                                                     platform,
+                                                     deduceOperatingSystem(desc),
+                                                     required3rdPartyPkgs,
+                                                     tcPkg,
+                                                     colorDepth}});
     }
     return {mcuTargets, packages};
 }
