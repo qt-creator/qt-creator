@@ -190,6 +190,8 @@ Platforms
 
 ### Android
 
+* Improved monitoring for connected devices by using `track-devices` command and
+  file watching instead of polling (QTCREATORBUG-23991)
 * Added option for default NDK (QTCREATORBUG-21755, QTCREATORBUG-22389,
   QTCREATORBUG-24248, QTCREATORBUG-26281)
 * Fixed that `Include prebuilt OpenSSL libraries` could add it to the wrong
