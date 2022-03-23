@@ -75,6 +75,7 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 

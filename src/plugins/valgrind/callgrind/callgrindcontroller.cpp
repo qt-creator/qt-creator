@@ -25,18 +25,7 @@
 
 #include "callgrindcontroller.h"
 
-#include <ssh/sftpsession.h>
-#include <ssh/sshconnectionmanager.h>
-
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
-
-#include <QDebug>
-#include <QDir>
-#include <QEventLoop>
 
 #define CALLGRIND_CONTROL_DEBUG 0
 
@@ -189,37 +178,11 @@ void CallgrindController::getLocalDataFile()
         m_hostOutputFile = FilePath::fromString(dataFile.fileName());
     }
 
-//        ///TODO: error handling
-//        emit statusMessage(tr("Downloading remote profile data..."));
-//        m_ssh = m_valgrindProc->connection();
-// [...]
-//    m_sftp = m_ssh->createSftpSession();
-//    connect(m_sftp.get(), &QSsh::SftpSession::commandFinished,
-//            this, &CallgrindController::sftpJobFinished);
-//    connect(m_sftp.get(), &QSsh::SftpSession::started,
-//            this, &CallgrindController::sftpInitialized);
-//    m_sftp->start();
-
     const auto afterCopy = [this](bool res) {
         QTC_CHECK(res);
         emit localParseDataAvailable(m_hostOutputFile);
     };
     m_valgrindOutputFile.asyncCopyFile(afterCopy, m_hostOutputFile);
-}
-
-void CallgrindController::sftpInitialized()
-{
-    m_downloadJob = m_sftp->downloadFile(m_valgrindOutputFile.path(), m_hostOutputFile.path());
-}
-
-void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &error)
-{
-    QTC_ASSERT(job == m_downloadJob, return);
-
-    m_sftp->quit();
-
-    if (error.isEmpty())
-        emit localParseDataAvailable(m_hostOutputFile);
 }
 
 void CallgrindController::cleanupTempFile()

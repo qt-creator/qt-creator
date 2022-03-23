@@ -25,9 +25,6 @@
 
 #pragma once
 
-#include <ssh/sftpdefs.h>
-#include <ssh/sshremoteprocess.h>
-
 #include <projectexplorer/runcontrol.h>
 
 #include <QProcess>
@@ -72,12 +69,9 @@ signals:
 private:
     void handleControllerProcessError(QProcess::ProcessError);
 
-    void sftpInitialized();
-    void sftpJobFinished(QSsh::SftpJobId job, const QString &error);
     void cleanupTempFile();
 
     void controllerProcessFinished();
-    void controllerProcessError(QProcess::ProcessError);
 
     ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;
     ProjectExplorer::Runnable m_valgrindRunnable;
@@ -88,8 +82,6 @@ private:
     // remote callgrind support
     Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
     Utils::FilePath m_hostOutputFile; // On the device that runs creator
-    QSsh::SftpSessionPtr m_sftp;
-    QSsh::SftpJobId m_downloadJob = 0;
 };
 
 } // namespace Callgrind
