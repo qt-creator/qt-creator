@@ -54,6 +54,7 @@ T.TextField {
     color: StudioTheme.Values.themeTextColor
     selectionColor: StudioTheme.Values.themeTextSelectionColor
     selectedTextColor: StudioTheme.Values.themeTextSelectedTextColor
+    placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
 
     readOnly: false
     selectByMouse: true
@@ -107,6 +108,23 @@ T.TextField {
         height: actionIndicator.visible ? myTextField.__actionIndicatorHeight : 0
     }
 
+    Text {
+        id: placeholder
+        x: myTextField.leftPadding
+        y: myTextField.topPadding
+        width: myTextField.width - (myTextField.leftPadding + myTextField.rightPadding)
+        height: myTextField.height - (myTextField.topPadding + myTextField.bottomPadding)
+
+        text: myTextField.placeholderText
+        font: myTextField.font
+        color: myTextField.placeholderTextColor
+        verticalAlignment: myTextField.verticalAlignment
+        visible: !myTextField.length && !myTextField.preeditText
+                 && (!myTextField.activeFocus || myTextField.horizontalAlignment !== Qt.AlignHCenter)
+        elide: Text.ElideRight
+        renderType: myTextField.renderType
+    }
+
     background: Rectangle {
         id: textFieldBackground
         color: StudioTheme.Values.themeControlBackground
@@ -138,6 +156,7 @@ T.TextField {
             PropertyChanges {
                 target: myTextField
                 color: StudioTheme.Values.themeTextColor
+                placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
             }
             PropertyChanges {
                 target: mouseArea
@@ -156,6 +175,7 @@ T.TextField {
             PropertyChanges {
                 target: myTextField
                 color: StudioTheme.Values.themeTextColor
+                placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
             }
         },
         State {
@@ -170,6 +190,7 @@ T.TextField {
             PropertyChanges {
                 target: myTextField
                 color: StudioTheme.Values.themeTextColor
+                placeholderTextColor: StudioTheme.Values.themePlaceholderTextColor
             }
         },
         State {
@@ -183,6 +204,7 @@ T.TextField {
             PropertyChanges {
                 target: myTextField
                 color: StudioTheme.Values.themeTextColor
+                placeholderTextColor: StudioTheme.Values.themePlaceholderTextColorInteraction
             }
             PropertyChanges {
                 target: mouseArea
@@ -200,6 +222,7 @@ T.TextField {
             PropertyChanges {
                 target: myTextField
                 color: StudioTheme.Values.themeTextColorDisabled
+                placeholderTextColor: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

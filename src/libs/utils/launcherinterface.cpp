@@ -140,8 +140,9 @@ void LauncherInterfacePrivate::doStop()
     m_server->close();
     QTC_ASSERT(m_process, return);
     m_socket->shutdown();
-    m_process->waitForFinished(3000);
-    ProcessReaper::reap(m_process);
+    m_process->waitForFinished(-1); // Let the process interface finish so that it finishes
+                                    // reaping any possible processes it has started.
+    delete m_process;
     m_process = nullptr;
 }
 

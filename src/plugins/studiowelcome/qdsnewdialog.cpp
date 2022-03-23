@@ -99,6 +99,8 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     QObject::connect(&m_wizard, &WizardHandler::statusMessageChanged, this, &QdsNewDialog::onStatusMessageChanged);
     QObject::connect(&m_wizard, &WizardHandler::projectCanBeCreated, this, &QdsNewDialog::onProjectCanBeCreatedChanged);
 
+    m_dialog->installEventFilter(this);
+
     QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this]() {
         QMessageBox::critical(m_dialog, tr("New project"), tr("Failed to initialize data"));
         reject();
@@ -108,6 +110,17 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     QObject::connect(m_styleModel.data(), &StyleModel::modelAboutToBeReset, this, [this]() {
         m_qmlStyleIndex = -1;
     });
+}
+
+bool QdsNewDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_dialog && event->type() == QEvent::KeyPress
+        && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
+        reject();
+        return true;
+    }
+
+    return false;
 }
 
 void QdsNewDialog::onDeletingWizard()

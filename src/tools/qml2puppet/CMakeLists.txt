@@ -256,7 +256,7 @@ extend_qtc_executable(qml2puppet
     qmlprivategate_56.cpp qmlprivategate.h
 )
 
-if(DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY)
+if(DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY AND Qt6_VERSION VERSION_GREATER_EQUAL 6.2.1)
   add_subdirectory(${MULTILANGUAGE_SUPPORT_SUBDIRECTORY} multilanguagesupport_static_build)
 endif()
 

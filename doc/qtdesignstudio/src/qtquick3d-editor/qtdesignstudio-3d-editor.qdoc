@@ -279,6 +279,11 @@
         \li Always Show Camera Frustums
         \li Toggles between always showing the camera frustum and showing it
         only for cameras selected in \uicontrol {3D Editor}.
+      \row
+        \li Always Show Particle Emitters and Attractors
+        \li Toggle between always showing the particle emitter and attractor
+        visualizations and only showing them when the emitter or attractor is
+        selected in \uicontrol {3D Editor}.
     \endtable
 
     \section1 Particle Editor

@@ -549,8 +549,6 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     contextObject()->setIsBaseState(true);
 
     contextObject()->setSpecificQmlData(QStringLiteral(""));
-
-    contextObject()->setGlobalBaseUrl(QUrl());
 }
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath()

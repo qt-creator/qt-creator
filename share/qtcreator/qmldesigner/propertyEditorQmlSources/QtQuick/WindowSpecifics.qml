@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,21 +23,7 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.15
+import "Window" as Original
 
-#include <QQuickWidget>
-
-
-namespace QmlDesigner {
-
-class Quick2PropertyEditorView : public QQuickWidget
-{
-    Q_OBJECT
-
-public:
-    explicit Quick2PropertyEditorView(QWidget *parent = nullptr);
-
-    static void registerQmlTypes();
-};
-
-} //QmlDesigner
+Original.WindowSpecifics {}

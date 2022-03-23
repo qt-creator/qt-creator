@@ -42,7 +42,6 @@ class PropertyEditorContextObject : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QUrl globalBaseUrl READ globalBaseUrl WRITE setGlobalBaseUrl NOTIFY globalBaseUrlChanged)
     Q_PROPERTY(QUrl specificsUrl READ specificsUrl WRITE setSpecificsUrl NOTIFY specificsUrlChanged)
 
     Q_PROPERTY(QString specificQmlData READ specificQmlData WRITE setSpecificQmlData NOTIFY specificQmlDataChanged)
@@ -68,7 +67,6 @@ class PropertyEditorContextObject : public QObject
 public:
     PropertyEditorContextObject(QObject *parent = nullptr);
 
-    QUrl globalBaseUrl() const {return m_globalBaseUrl; }
     QUrl specificsUrl() const {return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
     QString stateName() const {return m_stateName; }
@@ -122,7 +120,6 @@ public:
     bool hasAliasExport() const { return m_aliasExport; }
 
 signals:
-    void globalBaseUrlChanged();
     void specificsUrlChanged();
     void specificQmlDataChanged();
     void stateNameChanged();
@@ -139,7 +136,6 @@ signals:
     void hasActiveTimelineChanged();
 
 public slots:
-     void setGlobalBaseUrl(const QUrl &newBaseUrl);
 
      void setSpecificsUrl(const QUrl &newSpecificsUrl);
 
@@ -161,7 +157,6 @@ public slots:
      void setHasAliasExport(bool hasAliasExport);
 
 private:
-    QUrl m_globalBaseUrl;
     QUrl m_specificsUrl;
 
     QString m_specificQmlData;

@@ -729,8 +729,9 @@
     \l {Model Shape} component to use. The shape is scaled, positioned, and
     rotated based on the emitter node properties. When the shape \uicontrol Fill
     property is set to false, particles are emitted only from the surface of the
-    shape. When the shape is not defined, particles are emitted from the center
-    point of the emitter.
+    shape. When the shape is defined, it is visualized in
+    \uicontrol {3D Editor}. When the shape is not defined, particles are emitted
+    from the center point of the emitter.
 
     In \uicontrol {Life span}, specify the lifespan of a single particle
     in milliseconds. Specify variation in the particle lifespan in
@@ -883,7 +884,8 @@
 
     In \uicontrol Shape, select an instance of the \l {Particle Shape} or
     \l {Model Shape} component to attract particles into a random position
-    inside the shape.
+    inside the shape. When the shape is defined, it is visualized in
+    \uicontrol {3D Editor}.
 
     \uicontrol Duration specifies the duration in milliseconds that it takes
     for particles to reach the attraction position. When the value is -1,

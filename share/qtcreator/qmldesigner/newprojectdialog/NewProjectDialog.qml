@@ -265,7 +265,7 @@ Item {
                                     anchors.fill: parent
                                     anchors.margins: DialogValues.gridMargins
 
-                                    NewProjectView {
+                                    PresetView {
                                         id: presetView
                                         anchors.fill: parent
 

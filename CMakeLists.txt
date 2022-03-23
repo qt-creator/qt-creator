@@ -89,7 +89,9 @@ endif()
 # Crashpad
 set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
 set(BUILD_WITH_CRASHPAD OFF)
-if(CRASHPAD_BACKEND_URL AND (WIN32 OR APPLE)) # Linux is not supported for now
+# Linux is not supported for now
+# x86_64;arm64 is not supported for now
+if(CRASHPAD_BACKEND_URL AND (WIN32 OR (APPLE AND NOT "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "x86_64;arm64")))
   find_package(Crashpad QUIET)
   if(TARGET Crashpad::Crashpad)
     set(BUILD_WITH_CRASHPAD ON)

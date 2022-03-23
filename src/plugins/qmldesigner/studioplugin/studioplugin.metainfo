@@ -26,7 +26,14 @@ MetaInfo {
         "QtQuick.Controls.Imagine",
         "QtQuick.Controls.Universal",
         "QtQuick.Controls.Material",
-        "QtQuick.Controls.NativeStyle"
+        "QtQuick.Controls.NativeStyle",
+        "QtQuick.NativeStyle",
+        "QtRemoteObjects",
+        "Qt5Compat.GraphicalEffects",
+        "QtQuick.Templates",
+        "QtQuick.Shapes",
+        "QtQuick.Studio.EventSystem",
+        "QtQuick.Studio.EventSimulator"
         ]
 
     showTagsForImports: [

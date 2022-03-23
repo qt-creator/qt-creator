@@ -195,6 +195,7 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
         return;
     }
 
+    ProcessReaper::instance();
     new Internal::Reaper(process, timeoutMs);
 }
 

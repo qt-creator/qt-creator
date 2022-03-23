@@ -25,7 +25,7 @@
 
 source("../../shared/qtcreator.py")
 
-getStarted = 'Get Started Now'
+getStarted = 'Get Started'
 
 def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
     global getStarted
@@ -41,7 +41,7 @@ def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
                        "Verifying: '%s' button is being displayed." % getStarted)
 def buttonActive(button):
     # colors of the default theme for active button on Welcome page
-    (activeRed, activeGreen, activeBlue) = (64, 65, 66)
+    (activeRed, activeGreen, activeBlue) = (69, 206, 85)
     # QPalette::Window (used background color of Welcome page buttons)
     enumQPaletteWindow = 10
     color = button.palette.color(enumQPaletteWindow)
@@ -92,8 +92,8 @@ def main():
 
     # select Projects and roughly check this
     switchToSubMode('Projects')
-    for button in ['New', 'Open']:
-        wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton(button)
+    for button in ['Create Project...', 'Open Project...']:
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(button)
         if test.verify(all((wsButtonFrame, wsButtonLabel)),
                        "Verified whether '%s' button is shown." % button):
             test.verify(not buttonActive(wsButtonFrame),
@@ -111,7 +111,7 @@ def main():
                         'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                         }
             for text, url in textUrls.items():
-                button, label = getWelcomeScreenSideBarButton(text, True)
+                button, label = getWelcomeScreenBottomButton(text)
                 if test.verify(all((button, label)),
                                "Verifying whether link button (%s) exists." % text):
                     test.compare(str(button.toolTip), url, "Verifying URL for %s" % text)
@@ -135,7 +135,7 @@ def main():
     switchToSubMode('Examples')
     test.verify(waitForButtonsState(False, True, False), "Buttons' states have changed.")
 
-    expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
+    expect = (("QListView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "examples list"),
               ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),
               ("QComboBox", "currentText~='.*Qt.*'", "Qt version combo box"))
@@ -149,7 +149,7 @@ def main():
     # select Tutorials and roughly check them
     switchToSubMode('Tutorials')
     test.verify(waitForButtonsState(False, False, True), "Buttons' states have changed.")
-    expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
+    expect = (("QListView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "tutorials list"),
               ("QLineEdit", "placeholderText='Search in Tutorials...'",
                "tutorials search line edit"))

@@ -140,6 +140,7 @@ Item {
                         id: delegateId
                         width: stylesList.width
                         height: DialogValues.styleListItemHeight
+                        hoverEnabled: true
 
                         onClicked: stylesList.currentIndex = index
 
@@ -161,13 +162,13 @@ Item {
                                     height: DialogValues.styleImageHeight
                                             + 2 * DialogValues.styleImageBorderWidth
 
-                                    border.color: itemRectMouseArea.containsMouse
+                                    border.color: delegateId.hovered
                                                   ? DialogValues.textColor
                                                   : (index === stylesList.currentIndex
                                                      ? DialogValues.textColorInteraction
                                                      : "transparent")
 
-                                    border.width: index === stylesList.currentIndex || itemRectMouseArea.containsMouse
+                                    border.width: index === stylesList.currentIndex || delegateId.hovered
                                                   ? DialogValues.styleImageBorderWidth
                                                   : 0
 
@@ -181,12 +182,6 @@ Item {
                                         height: DialogValues.styleImageHeight
                                         asynchronous: false
                                         source: "image://newprojectdialog_library/" + BackendApi.styleModel.iconId(model.index)
-                                    }
-
-                                    MouseArea {
-                                        id: itemRectMouseArea
-                                        anchors.fill: parent
-                                        hoverEnabled: true
                                     }
                                 } // Rectangle
 
