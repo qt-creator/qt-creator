@@ -958,6 +958,12 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
         int majorVersion = importKey.majorVersion;
         if (majorVersion >= 0) {
             int minorVersion = (importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion;
+
+            if (libraryName.contains("QtQuick.Studio")) {
+                majorVersion = 1;
+                minorVersion = 0;
+            }
+
             QString version = QStringLiteral("%1.%2").arg(majorVersion).arg(minorVersion);
             if (!libraryName.endsWith(".impl"))
                 possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
