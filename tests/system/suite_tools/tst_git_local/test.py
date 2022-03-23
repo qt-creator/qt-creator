@@ -165,7 +165,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")
+    createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git", buildSystem = "qmake")
     openVcsLog()
     vcsLog = waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}").plainText
