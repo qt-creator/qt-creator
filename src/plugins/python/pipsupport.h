@@ -64,7 +64,7 @@ private:
     void cancel();
     void installFinished();
     void handleOutput();
-    void hanleError();
+    void handleError();
 
     const Utils::FilePath m_python;
     PipPackage m_package;

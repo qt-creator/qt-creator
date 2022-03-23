@@ -67,7 +67,7 @@ void PipInstallTask::run()
     const QString taskTitle = tr("Install %1").arg(m_package.displayName);
     Core::ProgressManager::addTask(m_future.future(), taskTitle, pipInstallTaskId);
     connect(&m_process, &QtcProcess::finished, this, &PipInstallTask::installFinished);
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, &PipInstallTask::hanleError);
+    connect(&m_process, &QtcProcess::readyReadStandardError, this, &PipInstallTask::handleError);
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
 
     connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
@@ -120,7 +120,7 @@ void PipInstallTask::handleOutput()
         Core::MessageManager::writeSilently(stdOut);
 }
 
-void PipInstallTask::hanleError()
+void PipInstallTask::handleError()
 {
     const QString &stdErr = QString::fromLocal8Bit(m_process.readAllStandardError().trimmed());
     if (!stdErr.isEmpty())
