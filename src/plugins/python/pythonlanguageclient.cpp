@@ -64,7 +64,6 @@ namespace Internal {
 static constexpr char startPylsInfoBarId[] = "Python::StartPyls";
 static constexpr char installPylsInfoBarId[] = "Python::InstallPyls";
 static constexpr char enablePylsInfoBarId[] = "Python::EnablePyls";
-static constexpr char installPylsTaskId[] = "Python::InstallPylsTask";
 
 struct PythonLanguageServerState
 {
