@@ -103,18 +103,20 @@ void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBac
     m_cancelButtonCallBack = callBack;
 }
 
-void InfoBarEntry::setComboInfo(const QStringList &list, ComboCallBack callBack)
+void InfoBarEntry::setComboInfo(const QStringList &list, ComboCallBack callBack, int currentIndex)
 {
     m_comboInfo = Utils::transform(list, [](const QString &string) {
         return ComboInfo{string, string};
     });
     m_comboCallBack = callBack;
+    m_currentComboIndex = currentIndex;
 }
 
-void InfoBarEntry::setComboInfo(const QList<ComboInfo> &list, ComboCallBack callBack)
+void InfoBarEntry::setComboInfo(const QList<ComboInfo> &list, ComboCallBack callBack, int currentIndex)
 {
     m_comboCallBack = callBack;
     m_comboInfo = list;
+    m_currentComboIndex = currentIndex;
 }
 
 void InfoBarEntry::removeCancelButton()
@@ -318,6 +320,8 @@ void InfoBarDisplay::update()
             auto cb = new QComboBox();
             for (const InfoBarEntry::ComboInfo &comboInfo : qAsConst(info.m_comboInfo))
                 cb->addItem(comboInfo.displayText, comboInfo.data);
+            if (info.m_currentComboIndex >= 0 && info.m_currentComboIndex < cb->count())
+                cb->setCurrentIndex(info.m_currentComboIndex);
             connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), [cb, info]() {
                 info.m_comboCallBack({cb->currentText(), cb->currentData()});
             });

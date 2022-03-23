@@ -66,8 +66,8 @@ public:
         QVariant data;
     };
     using ComboCallBack = std::function<void(const ComboInfo &)>;
-    void setComboInfo(const QStringList &list, ComboCallBack callBack);
-    void setComboInfo(const QList<ComboInfo> &infos, ComboCallBack callBack);
+    void setComboInfo(const QStringList &list, ComboCallBack callBack, int currentIndex = -1);
+    void setComboInfo(const QList<ComboInfo> &infos, ComboCallBack callBack, int currentIndex = -1);
     void removeCancelButton();
 
     using DetailsWidgetCreator = std::function<QWidget*()>;
@@ -90,6 +90,7 @@ private:
     bool m_useCancelButton = true;
     ComboCallBack m_comboCallBack;
     QList<ComboInfo> m_comboInfo;
+    int m_currentComboIndex = -1;
     friend class InfoBar;
     friend class InfoBarDisplay;
 };
