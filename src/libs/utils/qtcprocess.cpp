@@ -1030,15 +1030,15 @@ void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
     s_deviceHooks = hooks;
 }
 
-bool QtcProcess::stopProcess()
+void QtcProcess::stopProcess()
 {
     if (state() == QProcess::NotRunning)
-        return true;
+        return;
     terminate();
     if (waitForFinished(300))
-        return true;
+        return;
     kill();
-    return waitForFinished(300);
+    waitForFinished(300);
 }
 
 static bool askToKill(const QString &command)

@@ -166,7 +166,7 @@ public:
     void setStdErrCallback(const std::function<void(const QString &)> &callback);
     void setStdErrLineCallback(const std::function<void(const QString &)> &callback);
 
-    bool stopProcess();
+    void stopProcess();
     bool readDataFromProcess(int timeoutS, QByteArray *stdOut, QByteArray *stdErr,
                              bool showTimeOutMessageBox);
 
