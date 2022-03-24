@@ -355,18 +355,6 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         }
     }
 
-    QString line = QString::fromLocal8Bit(process.readAllStandardError());
-    if (!line.isEmpty()) {
-        deployError |= parseDeployErrors(line);
-        stdError(line);
-    }
-
-    line = QString::fromLocal8Bit(process.readAllStandardOutput());
-    if (!line.isEmpty()) {
-        deployError |= parseDeployErrors(line);
-        stdOutput(line);
-    }
-
     const QProcess::ExitStatus exitStatus = process.exitStatus();
     const int exitCode = process.exitCode();
 
