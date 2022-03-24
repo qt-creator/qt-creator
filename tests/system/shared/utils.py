@@ -361,7 +361,7 @@ def getConfiguredKits():
     # collect kits and their Qt versions
     qtVersionNames = iterateQtVersions()
     # update collected Qt versions with their configured device and version
-    iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
+    iterateKits(False, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
     for kit, qtVersion in kitsWithQtVersionName.iteritems():
         if qtVersion in qtVersionNames:
@@ -414,25 +414,23 @@ def iterateQtVersions():
 
 
 # function that opens Options Dialog (if necessary) and parses the configured Kits
-# param keepOptionsOpen set to True if the Options dialog should stay open when
-#       leaving this function
+# param clickOkWhenDone set to True if the Options dialog should be closed by clicking the
+#       "OK" button. If False, the dialog will stay open
 # param alreadyOnOptionsDialog set to True if you already have opened the Options Dialog
-#       (if False this functions will open it via the MenuBar -> Tools -> Options...)
+#       (if False this function will open it via the MenuBar -> Tools -> Options...)
 # param additionalFunction pass a function or name of a defined function to execute
 #       for each configured item on the list of Kits
-#       this function must take at least 2 parameters - the first is the item (QModelIndex)
-#       of the current Kit (if you need to click on it) and the second the Kit name itself
-# param argsForAdditionalFunc you can specify as much parameters as you want to pass
+#       this function must take at least 2 parameters - the first is the full string
+#       of the kit which can be used in waitForObjectItem(), the second the Kit name itself
+# param argsForAdditionalFunc you can specify as many parameters as you want to pass
 #       to additionalFunction from the outside
-# the function returns a list of Kit names if used without an additional function
-# WATCH OUT! if you're using the additionalFunction parameter - this function will
-# return the list mentioned above as well as the returned value(s) from
+# this function will return a list of Kit names as well as the returned value(s) from
 # additionalFunction. You MUST call this function like
-# result, additionalResult = _iterateQtVersions(...)
+# result, additionalResult = iterateKits(...)
 # where additionalResult is the result of all executions of additionalFunction which
 # means it is a list of results.
-def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
-                additionalFunction=None, *argsForAdditionalFunc):
+def iterateKits(clickOkWhenDone, alreadyOnOptionsDialog,
+                additionalFunction, *argsForAdditionalFunc):
     result = []
     additionalResult = []
     if not alreadyOnOptionsDialog:
@@ -449,31 +447,22 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
     for section in [autoDetected, manual]:
         for currentItem in dumpItems(model, section):
-            kitName = currentItem
-            if (kitName.endswith(" (default)")):
-                kitName = kitName.rsplit(" (default)", 1)[0]
+            kitName = currentItem.rsplit(" (default)", 1)[0]
             result.append(kitName)
-            item = ".".join([str(section.data().toString()),
-                             currentItem.replace(".", "\\.")])
-            if additionalFunction:
-                try:
-                    if isString(additionalFunction):
-                        currResult = globals()[additionalFunction](item, kitName, *argsForAdditionalFunc)
-                    else:
-                        currResult = additionalFunction(item, kitName, *argsForAdditionalFunc)
-                except:
-                    t,v,_ = sys.exc_info()
-                    currResult = None
-                    test.fatal("Function to additionally execute on Options Dialog could not be "
-                               "found or an exception occurred while executing it.", "%s(%s)" %
-                               (str(t), str(v)))
-                additionalResult.append(currResult)
-    if not keepOptionsOpen:
-        clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    if additionalFunction:
-        return result, additionalResult
-    else:
-        return result
+            try:
+                item = ".".join([str(section.data().toString()),
+                                 currentItem.replace(".", "\\.")])
+                currResult = additionalFunction(item, kitName, *argsForAdditionalFunc)
+            except:
+                t, v, _ = sys.exc_info()
+                currResult = None
+                test.fatal("Function to additionally execute on Options Dialog could not be "
+                           "found or an exception occurred while executing it.", "%s(%s)" %
+                           (str(t), str(v)))
+            additionalResult.append(currResult)
+    if clickOkWhenDone:
+        clickButton(waitForObject(":Options.OK_QPushButton"))
+    return result, additionalResult
 
 # set a help viewer that will always be used, regardless of Creator's width
 
