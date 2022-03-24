@@ -32,8 +32,9 @@ def cmakeSupported():
     versionLines = filter(lambda line: "cmake version " in line,
                           getOutputFromCmdline(["cmake", "--version"]).splitlines())
     try:
-        test.log("Using " + versionLines[0])
-        matcher = re.match("cmake version (\d+)\.(\d+)\.\d+", versionLines[0])
+        versionLine = list(versionLines)[0]
+        test.log("Using " + versionLine)
+        matcher = re.match("cmake version (\d+)\.(\d+)\.\d+", versionLine)
         major = __builtin__.int(matcher.group(1))
         minor = __builtin__.int(matcher.group(2))
     except:
