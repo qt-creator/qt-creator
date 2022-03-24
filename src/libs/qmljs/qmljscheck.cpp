@@ -570,7 +570,8 @@ public:
                        "x",     "y",      "opacity", "parent",  "item",   "flow",
                        "color", "margin", "padding", "print",   "border", "font",
                        "text",  "source", "state",   "visible", "focus",  "data",
-                       "clip",  "layer",  "scale",   "enabled", "anchors"})
+                      "clip",  "layer",  "scale",   "enabled", "anchors",
+                      "texture", "shaderInfo", "sprite", "spriteSequence", "baseState"})
     {}
 };
 
