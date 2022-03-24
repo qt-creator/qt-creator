@@ -25,8 +25,10 @@
 
 #pragma once
 
-#include <vector>
+#include <QDebug>
 #include <QSettings>
+
+#include <vector>
 
 namespace StudioWelcome {
 
