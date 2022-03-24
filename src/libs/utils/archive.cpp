@@ -26,16 +26,11 @@
 #include "archive.h"
 
 #include "algorithm.h"
-#include "checkablemessagebox.h"
-#include "environment.h"
 #include "mimeutils.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
 
-#include <QDir>
-#include <QPushButton>
 #include <QSettings>
-#include <QTimer>
 
 namespace Utils {
 
@@ -163,99 +158,48 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
     return true;
 }
 
-bool Archive::unarchive(const FilePath &src, const FilePath &dest, QWidget *parent)
-{
-    Archive *archive = unarchive(src, dest);
-    QTC_ASSERT(archive, return false);
-
-    CheckableMessageBox box(parent);
-    box.setIcon(QMessageBox::Information);
-    box.setWindowTitle(tr("Unarchiving File"));
-    box.setText(tr("Unzipping \"%1\" to \"%2\".").arg(src.toUserOutput(), dest.toUserOutput()));
-    box.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    box.button(QDialogButtonBox::Ok)->setEnabled(false);
-    box.setCheckBoxVisible(false);
-    QObject::connect(archive, &Archive::outputReceived, &box, [&box](const QString &output) {
-        box.setDetailedText(box.detailedText() + output);
-    });
-    bool success = false;
-    QObject::connect(archive, &Archive::finished, [&box, &success](bool ret) {
-        box.button(QDialogButtonBox::Ok)->setEnabled(true);
-        box.button(QDialogButtonBox::Cancel)->setEnabled(false);
-        success = ret;
-    });
-    QObject::connect(&box, &QMessageBox::rejected, archive, &Archive::cancel);
-    box.exec();
-    return success;
-}
-
-Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
+Archive::Archive(const FilePath &src, const FilePath &dest)
 {
     const Utils::optional<Tool> tool = unzipTool(src, dest);
-    QTC_ASSERT(tool, return nullptr);
-
-    auto archive = new Archive;
-
-    const FilePath workingDirectory = dest.absolutePath();
-    workingDirectory.ensureWritableDir();
-
-    archive->m_process = new QtcProcess;
-    archive->m_process->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(
-        archive->m_process,
-        &QtcProcess::readyReadStandardOutput,
-        archive,
-        [archive]() {
-            if (!archive->m_process)
-                return;
-            emit archive->outputReceived(QString::fromUtf8(
-                                             archive->m_process->readAllStandardOutput()));
-        },
-        Qt::QueuedConnection);
-    QObject::connect(
-        archive->m_process,
-        &QtcProcess::finished,
-        archive,
-        [archive] {
-            if (!archive->m_process)
-                return;
-            emit archive->finished(archive->m_process->result() == ProcessResult::FinishedWithSuccess);
-            archive->m_process->deleteLater();
-            archive->m_process = nullptr;
-            archive->deleteLater();
-        },
-        Qt::QueuedConnection);
-    QObject::connect(
-        archive->m_process,
-        &QtcProcess::errorOccurred,
-        archive,
-        [archive](QProcess::ProcessError) {
-            if (!archive->m_process)
-                return;
-            emit archive->outputReceived(tr("Command failed."));
-            emit archive->finished(false);
-            archive->m_process->deleteLater();
-            archive->m_process = nullptr;
-            archive->deleteLater();
-        },
-        Qt::QueuedConnection);
-
-    QTimer::singleShot(0, archive, [archive, tool, workingDirectory] {
-        emit archive->outputReceived(
-            tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
-                .arg(tool->command.toUserOutput(), workingDirectory.toUserOutput()));
-    });
-
-    archive->m_process->setCommand(tool->command);
-    archive->m_process->setWorkingDirectory(workingDirectory);
-    archive->m_process->start();
-    return archive;
+    if (!tool)
+        return;
+    m_commandLine = tool->command;
+    m_workingDirectory = dest.absoluteFilePath();
 }
 
-void Archive::cancel()
+Archive::~Archive() = default;
+
+bool Archive::isValid() const
 {
-    if (m_process)
-        m_process->stopProcess();
+    return !m_commandLine.isEmpty();
+}
+
+void Archive::unarchive()
+{
+    QTC_ASSERT(isValid(), return);
+    QTC_ASSERT(!m_process, return);
+
+    m_workingDirectory.ensureWritableDir();
+
+    m_process.reset(new QtcProcess);
+    m_process->setProcessChannelMode(QProcess::MergedChannels);
+    QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
+        emit outputReceived(QString::fromUtf8(m_process->readAllStandardOutput()));
+    });
+    QObject::connect(m_process.get(), &QtcProcess::finished, this, [this] {
+        emit finished(m_process->result() == ProcessResult::FinishedWithSuccess);
+    });
+    QObject::connect(m_process.get(), &QtcProcess::errorOccurred, this, [this] {
+        emit outputReceived(tr("Command failed."));
+        emit finished(false);
+    });
+
+    emit outputReceived(tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
+                 .arg(m_commandLine.toUserOutput(), m_workingDirectory.toUserOutput()));
+
+    m_process->setCommand(m_commandLine);
+    m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->start();
 }
 
 } // namespace Utils

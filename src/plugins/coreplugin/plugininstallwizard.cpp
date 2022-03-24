@@ -207,60 +207,66 @@ public:
         m_cancelButton->setVisible(true);
         m_output->clear();
 
-        m_archive = Archive::unarchive(m_data->sourcePath, m_tempDir->path());
-
-        if (!m_archive) {
+        m_archive.reset(new Archive(m_data->sourcePath, m_tempDir->path()));
+        if (!m_archive->isValid()) {
             m_label->setType(InfoLabel::Error);
             m_label->setText(PluginInstallWizard::tr("The file is not an archive."));
-
             return;
         }
-        QObject::connect(m_archive, &Archive::outputReceived, this, [this](const QString &output) {
+        QObject::connect(m_archive.get(), &Archive::outputReceived, this,
+                         [this](const QString &output) {
             m_output->append(output);
         });
-        QObject::connect(m_archive, &Archive::finished, this, [this](bool success) {
-            m_archive = nullptr; // we don't own it
-            m_cancelButton->disconnect();
-            if (!success) { // unarchiving failed
+        QObject::connect(m_archive.get(), &Archive::finished, this, [this](bool success) {
+            m_archive.release()->deleteLater();
+            handleFinished(success);
+        });
+        QObject::connect(m_cancelButton, &QPushButton::clicked, this, [this] {
+            m_canceled = true;
+            m_archive.reset();
+            handleFinished(false);
+        });
+        m_archive->unarchive();
+    }
+
+    void handleFinished(bool success)
+    {
+        m_cancelButton->disconnect();
+        if (!success) { // unarchiving failed
+            m_cancelButton->setVisible(false);
+            if (m_canceled) {
+                m_label->setType(InfoLabel::Information);
+                m_label->setText(PluginInstallWizard::tr("Canceled."));
+            } else {
+                m_label->setType(InfoLabel::Error);
+                m_label->setText(
+                    PluginInstallWizard::tr("There was an error while unarchiving."));
+            }
+        } else { // unarchiving was successful, run a check
+            m_archiveCheck = Utils::runAsync(
+                [this](QFutureInterface<ArchiveIssue> &fi) { return checkContents(fi); });
+            Utils::onFinished(m_archiveCheck, this, [this](const QFuture<ArchiveIssue> &f) {
                 m_cancelButton->setVisible(false);
-                if (m_canceled) {
+                m_cancelButton->disconnect();
+                const bool ok = f.resultCount() == 0 && !f.isCanceled();
+                if (f.isCanceled()) {
                     m_label->setType(InfoLabel::Information);
                     m_label->setText(PluginInstallWizard::tr("Canceled."));
+                } else if (ok) {
+                    m_label->setType(InfoLabel::Ok);
+                    m_label->setText(PluginInstallWizard::tr("Archive is OK."));
                 } else {
-                    m_label->setType(InfoLabel::Error);
-                    m_label->setText(
-                        PluginInstallWizard::tr("There was an error while unarchiving."));
+                    const ArchiveIssue issue = f.result();
+                    m_label->setType(issue.type);
+                    m_label->setText(issue.message);
                 }
-            } else { // unarchiving was successful, run a check
-                m_archiveCheck = Utils::runAsync(
-                    [this](QFutureInterface<ArchiveIssue> &fi) { return checkContents(fi); });
-                Utils::onFinished(m_archiveCheck, this, [this](const QFuture<ArchiveIssue> &f) {
-                    m_cancelButton->setVisible(false);
-                    m_cancelButton->disconnect();
-                    const bool ok = f.resultCount() == 0 && !f.isCanceled();
-                    if (f.isCanceled()) {
-                        m_label->setType(InfoLabel::Information);
-                        m_label->setText(PluginInstallWizard::tr("Canceled."));
-                    } else if (ok) {
-                        m_label->setType(InfoLabel::Ok);
-                        m_label->setText(PluginInstallWizard::tr("Archive is OK."));
-                    } else {
-                        const ArchiveIssue issue = f.result();
-                        m_label->setType(issue.type);
-                        m_label->setText(issue.message);
-                    }
-                    m_isComplete = ok;
-                    emit completeChanged();
-                });
-                QObject::connect(m_cancelButton, &QPushButton::clicked, this, [this] {
-                    m_archiveCheck.cancel();
-                });
-            }
-        });
-        QObject::connect(m_cancelButton, &QPushButton::clicked, m_archive, [this] {
-            m_canceled = true;
-            m_archive->cancel();
-        });
+                m_isComplete = ok;
+                emit completeChanged();
+            });
+            QObject::connect(m_cancelButton, &QPushButton::clicked, this, [this] {
+                m_archiveCheck.cancel();
+            });
+        }
     }
 
     // Async. Result is set if any issue was found.
@@ -311,11 +317,7 @@ public:
     {
         // back button pressed
         m_cancelButton->disconnect();
-        if (m_archive) {
-            m_archive->disconnect();
-            m_archive->cancel();
-            m_archive = nullptr; // we don't own it
-        }
+        m_archive.reset();
         if (m_archiveCheck.isRunning()) {
             m_archiveCheck.cancel();
             m_archiveCheck.waitForFinished();
@@ -326,7 +328,7 @@ public:
     bool isComplete() const final { return m_isComplete; }
 
     std::unique_ptr<TemporaryDirectory> m_tempDir;
-    Archive *m_archive = nullptr;
+    std::unique_ptr<Archive> m_archive;
     QFuture<ArchiveIssue> m_archiveCheck;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;

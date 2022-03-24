@@ -378,9 +378,9 @@ void FileExtractor::extract()
     // Create a new directory to generate a proper creation date
     targetDir.mkdir(targetFolder);
 
-    Utils::Archive *archive = Utils::Archive::unarchive(m_sourceFile, m_targetPath);
+    Utils::Archive *archive = new Utils::Archive(m_sourceFile, m_targetPath);
+    QTC_ASSERT(archive->isValid(), delete archive; return);
     archive->setParent(this);
-    QTC_ASSERT(archive, return );
 
     m_timer.start();
     qint64 bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
@@ -429,6 +429,7 @@ void FileExtractor::extract()
 
         emit targetFolderExistsChanged();
         emit finishedChanged();
-        QTC_ASSERT(ret, ;);
+        QTC_CHECK(ret);
     });
+    archive->unarchive();
 }
