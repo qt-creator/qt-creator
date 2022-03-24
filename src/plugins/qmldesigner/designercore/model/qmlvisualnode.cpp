@@ -335,7 +335,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         if (!newQmlObjectNode.isValid())
             return;
 
-        newQmlObjectNode.modelNode().setIdWithoutRefactoring(view->model()->generateNewId(itemLibraryEntry.name()));
+        if (newQmlObjectNode.id().isEmpty())
+            newQmlObjectNode.modelNode().setIdWithoutRefactoring(view->model()->generateNewId(itemLibraryEntry.name()));
 
         for (const auto &propertyBindingEntry : propertyBindingList)
             newQmlObjectNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
