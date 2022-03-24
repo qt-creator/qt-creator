@@ -124,6 +124,7 @@ public:
             r.command = emrunCommand(runControl->runConfiguration(),
                                      browserId,
                                      QString::number(portsGatherer->findEndPoint().port()));
+            r.environment = runControl->buildEnvironment();
             SimpleTargetRunner::doStart(r, {});
         });
     }
