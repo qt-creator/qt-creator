@@ -5,6 +5,7 @@ QtcTool {
 
     Depends { name: "Qt.core" }
     Depends { name: "app_version_header" }
+    Depends { name: "Qt.testlib"; condition: project.withAutotests }
 
     property string libsDir: path + "/../../libs"
 

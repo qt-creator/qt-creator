@@ -33,7 +33,9 @@
 
 #include "settings.h"
 
+#ifdef WITH_TESTS
 #include <QtTest>
+#endif
 
 #include <iostream>
 
