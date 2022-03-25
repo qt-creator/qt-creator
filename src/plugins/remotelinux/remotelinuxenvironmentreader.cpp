@@ -124,8 +124,6 @@ void RemoteLinuxEnvironmentReader::destroyProcess()
     if (!m_deviceProcess)
         return;
     m_deviceProcess->disconnect(this);
-    if (m_deviceProcess->state() != QProcess::NotRunning)
-        m_deviceProcess->terminate();
     m_deviceProcess->deleteLater();
     m_deviceProcess = nullptr;
 }
