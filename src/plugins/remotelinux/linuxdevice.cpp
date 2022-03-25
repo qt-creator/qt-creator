@@ -447,7 +447,11 @@ FilePath LinuxDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
 {
-    return filePath.scheme() == "ssh" && filePath.host() == userAtHost();
+    if (filePath.scheme() == "device" && filePath.host() == id().toString())
+        return true;
+    if (filePath.scheme() == "ssh" && filePath.host() == userAtHost())
+        return true;
+    return false;
 }
 
 CommandLine LinuxDevicePrivate::fullLocalCommandLine(const CommandLine &remoteCommand,

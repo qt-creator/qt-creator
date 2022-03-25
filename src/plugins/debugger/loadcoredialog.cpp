@@ -139,6 +139,7 @@ void SelectRemoteFileDialog::attachToDevice(Kit *k)
     IDevice::ConstPtr device = DeviceKitAspect::device(k);
     QTC_ASSERT(device, return);
     SshConnectionParameters sshParams = device->sshParameters();
+    // TODO: change into setDevice()
     m_fileSystemModel.setSshConnection(sshParams);
 }
 
