@@ -85,9 +85,11 @@ InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _
 {
 }
 
-void InfoBarEntry::addCustomButton(const QString &buttonText, CallBack callBack)
+void InfoBarEntry::addCustomButton(const QString &buttonText,
+                                   CallBack callBack,
+                                   const QString &tooltip)
 {
-    m_buttons.append({buttonText, callBack});
+    m_buttons.append({buttonText, callBack, tooltip});
 }
 
 void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
@@ -103,20 +105,26 @@ void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBac
     m_cancelButtonCallBack = callBack;
 }
 
-void InfoBarEntry::setComboInfo(const QStringList &list, ComboCallBack callBack, int currentIndex)
+void InfoBarEntry::setComboInfo(const QStringList &list,
+                                ComboCallBack callBack,
+                                const QString &tooltip,
+                                int currentIndex)
 {
-    m_comboInfo = Utils::transform(list, [](const QString &string) {
+    auto comboInfos = Utils::transform(list, [](const QString &string) {
         return ComboInfo{string, string};
     });
-    m_comboCallBack = callBack;
-    m_currentComboIndex = currentIndex;
+    setComboInfo(comboInfos, callBack, tooltip, currentIndex);
 }
 
-void InfoBarEntry::setComboInfo(const QList<ComboInfo> &list, ComboCallBack callBack, int currentIndex)
+void InfoBarEntry::setComboInfo(const QList<ComboInfo> &list,
+                                ComboCallBack callBack,
+                                const QString &tooltip,
+                                int currentIndex)
 {
-    m_comboCallBack = callBack;
-    m_comboInfo = list;
-    m_currentComboIndex = currentIndex;
+    m_combo.entries = list;
+    m_combo.callback = callBack;
+    m_combo.tooltip = tooltip;
+    m_combo.currentIndex = currentIndex;
 }
 
 void InfoBarEntry::removeCancelButton()
@@ -316,14 +324,15 @@ void InfoBarDisplay::update()
             m_isShowingDetailsWidget = false;
         }
 
-        if (!info.m_comboInfo.isEmpty()) {
+        if (!info.m_combo.entries.isEmpty()) {
             auto cb = new QComboBox();
-            for (const InfoBarEntry::ComboInfo &comboInfo : qAsConst(info.m_comboInfo))
+            cb->setToolTip(info.m_combo.tooltip);
+            for (const InfoBarEntry::ComboInfo &comboInfo : qAsConst(info.m_combo.entries))
                 cb->addItem(comboInfo.displayText, comboInfo.data);
-            if (info.m_currentComboIndex >= 0 && info.m_currentComboIndex < cb->count())
-                cb->setCurrentIndex(info.m_currentComboIndex);
+            if (info.m_combo.currentIndex >= 0 && info.m_combo.currentIndex < cb->count())
+                cb->setCurrentIndex(info.m_combo.currentIndex);
             connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [cb, info]() {
-                info.m_comboCallBack({cb->currentText(), cb->currentData()});
+                info.m_combo.callback({cb->currentText(), cb->currentData()});
             }, Qt::QueuedConnection);
 
             hbox->addWidget(cb);
@@ -332,6 +341,7 @@ void InfoBarDisplay::update()
         for (const InfoBarEntry::Button &button : qAsConst(info.m_buttons)) {
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
+            infoWidgetButton->setToolTip(button.tooltip);
             connect(infoWidgetButton, &QAbstractButton::clicked, [button]() { button.callback(); });
             hbox->addWidget(infoWidgetButton);
         }

@@ -57,7 +57,7 @@ public:
     InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression = GlobalSuppression::Disabled);
 
     using CallBack = std::function<void()>;
-    void addCustomButton(const QString &_buttonText, CallBack callBack);
+    void addCustomButton(const QString &_buttonText, CallBack callBack, const QString &tooltip = {});
     void setCancelButtonInfo(CallBack callBack);
     void setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack);
     struct ComboInfo
@@ -66,8 +66,8 @@ public:
         QVariant data;
     };
     using ComboCallBack = std::function<void(const ComboInfo &)>;
-    void setComboInfo(const QStringList &list, ComboCallBack callBack, int currentIndex = -1);
-    void setComboInfo(const QList<ComboInfo> &infos, ComboCallBack callBack, int currentIndex = -1);
+    void setComboInfo(const QStringList &list, ComboCallBack callBack, const QString &tooltip = {}, int currentIndex = -1);
+    void setComboInfo(const QList<ComboInfo> &infos, ComboCallBack callBack, const QString &tooltip = {}, int currentIndex = -1);
     void removeCancelButton();
 
     using DetailsWidgetCreator = std::function<QWidget*()>;
@@ -78,6 +78,15 @@ private:
     {
         QString text;
         CallBack callback;
+        QString tooltip;
+    };
+
+    struct Combo
+    {
+        ComboCallBack callback;
+        QList<ComboInfo> entries;
+        QString tooltip;
+        int currentIndex = -1;
     };
 
     Id m_id;
@@ -88,9 +97,7 @@ private:
     GlobalSuppression m_globalSuppression;
     DetailsWidgetCreator m_detailsWidgetCreator;
     bool m_useCancelButton = true;
-    ComboCallBack m_comboCallBack;
-    QList<ComboInfo> m_comboInfo;
-    int m_currentComboIndex = -1;
+    Combo m_combo;
     friend class InfoBar;
     friend class InfoBarDisplay;
 };
