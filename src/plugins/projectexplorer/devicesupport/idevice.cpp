@@ -773,6 +773,15 @@ void IDevice::setMachineType(MachineType machineType)
     d->machineType = machineType;
 }
 
+FilePath IDevice::rootPath() const
+{
+    FilePath root;
+    root.setScheme("device");
+    root.setHost(id().toString());
+    root.setPath("/");
+    return root;
+}
+
 FilePath IDevice::debugServerPath() const
 {
     return d->debugServerPath;
