@@ -116,9 +116,6 @@ public:
 private:
     ~CoreUnpacker() final
     {
-        m_coreUnpackProcess.blockSignals(true);
-        m_coreUnpackProcess.terminate();
-        m_coreUnpackProcess.deleteLater();
         if (m_tempCoreFile.isOpen())
             m_tempCoreFile.close();
 
