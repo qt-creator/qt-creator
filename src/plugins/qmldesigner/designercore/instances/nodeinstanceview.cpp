@@ -92,12 +92,18 @@
 #include <hdrimage.h>
 #endif
 
+#include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+
+#include <qtsupport/qtkitinformation.h>
 
 #include <QUrl>
 #include <QMultiHash>
@@ -161,6 +167,18 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
         m_pendingUpdateDirs.clear();
     });
 
+    // Since generating qsb files is asynchronous and can trigger directory changes, which in turn
+    // can trigger qsb generation, compressing qsb generation is necessary to avoid a lot of
+    // unnecessary generation when project with multiple shaders is opened.
+    m_generateQsbFilesTimer.setSingleShot(true);
+    m_generateQsbFilesTimer.setInterval(100);
+    QObject::connect(&m_generateQsbFilesTimer, &QTimer::timeout, [this] {
+        handleShaderChanges();
+
+        if (m_qsbPath.isEmpty() || m_remainingQsbTargets <= 0)
+            m_resetTimer.start();
+    });
+
     connect(m_fileSystemWatcher, &QFileSystemWatcher::directoryChanged,
             [this](const QString &path) {
         const QSet<QString> pendingDirs = m_pendingUpdateDirs;
@@ -177,8 +195,9 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
         m_updateWatcherTimer.start();
 
     });
-    connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, [this] {
-        m_resetTimer.start();
+    connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, [this](const QString &path) {
+        m_pendingQsbTargets.insert(path);
+        m_generateQsbFilesTimer.start();
     });
 
     m_rotBlockTimer.setSingleShot(true);
@@ -1461,6 +1480,17 @@ void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
 {
     if (m_currentTarget != newTarget) {
         m_currentTarget = newTarget;
+        if (m_currentTarget && m_currentTarget->kit()) {
+            if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(m_currentTarget->kit())) {
+                m_qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
+                if (!m_qsbPath.exists())
+                    m_qsbPath.clear();
+            }
+        }
+
+        m_generateQsbFilesTimer.stop();
+        m_pendingQsbTargets.clear();
+        m_remainingQsbTargets = 0;
         restartProcess();
     }
 }
@@ -1904,7 +1934,86 @@ void NodeInstanceView::updateWatcher(const QString &path)
             m_fileSystemWatcher->removePaths(oldFiles);
         if (!newFiles.isEmpty())
             m_fileSystemWatcher->addPaths(newFiles);
+
+        for (const auto &newFile : qAsConst(newFiles)) {
+            if (!oldFiles.contains(newFile))
+                m_pendingQsbTargets.insert(newFile);
+        }
+
+        if (!m_pendingQsbTargets.isEmpty())
+            m_generateQsbFilesTimer.start();
     }
+}
+
+void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const QString &shader)
+{
+    --m_remainingQsbTargets;
+
+    QString errStr = qsbProcess->errorString();
+    QByteArray stdErrStr = qsbProcess->readAllStandardError();
+
+    if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
+        Core::MessageManager::writeSilently(
+            QCoreApplication::translate("QmlDesigner::NodeInstanceView",
+                                        "Failed to generate QSB file for: %1")
+                .arg(shader));
+        if (!errStr.isEmpty())
+            Core::MessageManager::writeSilently(errStr);
+        if (!stdErrStr.isEmpty())
+            Core::MessageManager::writeSilently(QString::fromUtf8(stdErrStr));
+    }
+
+    if (m_remainingQsbTargets <= 0)
+        m_resetTimer.start();
+
+    qsbProcess->deleteLater();
+}
+
+void NodeInstanceView::handleShaderChanges()
+{
+    m_remainingQsbTargets += m_pendingQsbTargets.size();
+
+    for (const auto &shader : qAsConst(m_pendingQsbTargets)) {
+        // Run qsb for changed shader file
+        if (!m_qsbPath.isEmpty() && !shader.isEmpty()) {
+            const Utils::FilePath sourceFile = Utils::FilePath::fromString(shader);
+            const Utils::FilePath srcPath = sourceFile.absolutePath();
+            const Utils::FilePath outPath = Utils::FilePath::fromString(shader + ".qsb");
+
+            if (!sourceFile.exists() || (outPath.exists() && outPath.lastModified() > sourceFile.lastModified())) {
+                --m_remainingQsbTargets;
+                continue;
+            }
+
+            // Run QSB with same parameters as Qt build does
+            // TODO: Parameters should be configurable (QDS-6590)
+            const QStringList args = {"-s", "--glsl", "100 es,120,150", "--hlsl", "50", "--msl", "12",
+                                      "-o", outPath.toString(), shader};
+            auto qsbProcess = new Utils::QtcProcess;
+            qsbProcess->setWorkingDirectory(srcPath);
+            qsbProcess->setCommand({m_qsbPath, args});
+            qsbProcess->start();
+
+            if (!qsbProcess->waitForStarted()) {
+                handleQsbProcessExit(qsbProcess, shader);
+                continue;
+            }
+
+            if (qsbProcess->state() == QProcess::Running) {
+                connect(qsbProcess, &Utils::QtcProcess::finished,
+                        [thisView = QPointer<NodeInstanceView>(this), qsbProcess, shader]() {
+                    if (thisView)
+                        thisView->handleQsbProcessExit(qsbProcess, shader);
+                    else
+                        qsbProcess->deleteLater();
+                });
+            } else {
+                handleQsbProcessExit(qsbProcess, shader);
+            }
+        }
+    }
+
+    m_pendingQsbTargets.clear();
 }
 
 void NodeInstanceView::updateRotationBlocks()
