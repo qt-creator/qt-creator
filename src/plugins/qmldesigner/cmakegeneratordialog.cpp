@@ -34,7 +34,8 @@
 #include <QPushButton>
 #include <QLayout>
 #include <QLabel>
-#include <QTreeView>
+
+#include <QSplitter>
 
 using namespace Utils;
 
@@ -49,36 +50,62 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
     setWindowTitle(QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                                "Select Files to Generate"));
 
-    m_model = new CMakeGeneratorDialogTreeModel(rootDir, files, this);
+    QLabel *mainLabel = new QLabel(QCoreApplication::translate("QmlDesigner::GenerateCmake",
+                                                               "Start CMakeFiles.txt generation"),
+                                   this);
+    mainLabel->setMargin(30);
 
     QVBoxLayout *dialogLayout = new QVBoxLayout(this);
-    dialogLayout->setSizeConstraint(QLayout::SetFixedSize);
+    dialogLayout->addWidget(mainLabel);
+    dialogLayout->addWidget(createDetailsWidget());
+    dialogLayout->addWidget(createButtons());
     setLayout(dialogLayout);
 
-    QWidget *advancedInnerWidget = new QWidget(this);
-    QVBoxLayout *advancedInnerLayout = new QVBoxLayout(advancedInnerWidget);
-    advancedInnerWidget->setLayout(advancedInnerLayout);
-    advancedInnerWidget->setMinimumHeight(640);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setMaximumHeight(layout()->totalSizeHint().height());
+
+    refreshNotificationText();
+}
+
+QTreeView* CmakeGeneratorDialog::createFileTree()
+{
+    m_model = new CMakeGeneratorDialogTreeModel(m_rootDir, m_files, this);
 
     QTreeView *tree = new QTreeView(this);
     tree->setModel(m_model);
     tree->expandAll();
     tree->setHeaderHidden(true);
 
+    return tree;
+}
+
+QWidget* CmakeGeneratorDialog::createDetailsWidget()
+{
+    QTreeView* tree = createFileTree();
+
     m_notifications = new QTextEdit(this);
     m_warningIcon = Utils::Icons::WARNING.pixmap();
 
-    refreshNotificationText();
-
-    advancedInnerLayout->addWidget(tree, 2);
-    advancedInnerLayout->addWidget(m_notifications, 1);
+    QSplitter *advancedInnerWidget = new QSplitter(this);
+    advancedInnerWidget->addWidget(tree);
+    advancedInnerWidget->addWidget(m_notifications);
+    advancedInnerWidget->setStretchFactor(0, 2);
+    advancedInnerWidget->setStretchFactor(1, 1);
+    advancedInnerWidget->setOrientation(Qt::Vertical);
+    advancedInnerWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::MinimumExpanding);
 
     DetailsWidget *advancedWidget = new DetailsWidget(this);
     advancedWidget->setMinimumWidth(600);
     advancedWidget->setWidget(advancedInnerWidget);
     advancedWidget->setSummaryText(QCoreApplication::translate("QmlDesigner::GenerateCmake",
                                                                "Advanced Options"));
+    connect(advancedWidget, &DetailsWidget::expanded, this, &CmakeGeneratorDialog::advancedVisibilityChanged);
 
+    return advancedWidget;
+}
+
+QWidget* CmakeGeneratorDialog::createButtons()
+{
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
     auto *okButton = buttons->button(QDialogButtonBox::Ok);
     okButton->setDefault(true);
@@ -87,14 +114,7 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(m_model, &CMakeGeneratorDialogTreeModel::checkedStateChanged, this, &CmakeGeneratorDialog::refreshNotificationText);
 
-    QLabel *mainLabel = new QLabel(QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                               "Start CMakeFiles.txt generation"),
-                                   this);
-    mainLabel->setMargin(50);
-
-    dialogLayout->addWidget(mainLabel);
-    dialogLayout->addWidget(advancedWidget);
-    dialogLayout->addWidget(buttons);
+    return buttons;
 }
 
 FilePaths CmakeGeneratorDialog::getFilePaths()
@@ -148,6 +168,20 @@ void CmakeGeneratorDialog::refreshNotificationText()
             cursor.insertImage(iformat);
             cursor.insertText(QString(FILE_OVERWRITE_NOTIFICATION).arg(relativePath));
         }
+    }
+}
+
+void CmakeGeneratorDialog::advancedVisibilityChanged(bool visible)
+{
+    if (visible) {
+        setMaximumHeight(QWIDGETSIZE_MAX);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    }
+    else {
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        int height = layout()->totalSizeHint().height();
+        setMaximumHeight(height);
+        resize(width(), height);
     }
 }
 
