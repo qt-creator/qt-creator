@@ -82,6 +82,7 @@ const char nxp1170[]{"EVK_MIMXRT1170"};
 const char stm32f7FreeRtosEnvVar[]{"STM32F7_FREERTOS_DIR"};
 const char stm32f7[]{"STM32F7"};
 const char unsupported[]{"unsupported"};
+const char cmakeToolchainLabel[]{"CMake Toolchain File"};
 
 const QStringList jsonFiles{QString::fromUtf8(armgcc_nxp_1050_json),
                             QString::fromUtf8(iar_nxp_1064_json)};
@@ -117,6 +118,7 @@ void verifyIarToolchain(const McuToolChainPackage *iarToolchainPackage)
     QCOMPARE(iarToolchainPackage->isDesktopToolchain(), false);
     QCOMPARE(iarToolchainPackage->toolChainName(), iar);
     QCOMPARE(iarToolchainPackage->toolchainType(), McuToolChainPackage::ToolChainType::IAR);
+    QCOMPARE(iarToolchainPackage->label(), iarLabel);
 
     ProjectExplorer::ToolChainFactory toolchainFactory;
     Utils::Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
@@ -197,13 +199,12 @@ void McuSupportTest::test_parseToolchainFromJSON()
 
     const Sdk::PackageDescription &compilerPackage{description.toolchain.packages.at(0)};
     QCOMPARE(compilerPackage.cmakeVar, Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE);
-    QCOMPARE(compilerPackage.envVar, "IAR_ARM_COMPILER_DIR");
+    QCOMPARE(compilerPackage.envVar, iarEnvVar);
 
     const Sdk::PackageDescription &toolchainFilePackage{description.toolchain.packages.at(1)};
-    QCOMPARE(toolchainFilePackage.label, "IAR_CMAKE_TOOLCHAIN_FILE");
+    QCOMPARE(toolchainFilePackage.label, cmakeToolchainLabel);
     QCOMPARE(toolchainFilePackage.envVar, QString{});
     QCOMPARE(toolchainFilePackage.cmakeVar, Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
-    QCOMPARE(toolchainFilePackage.description, "CMake Toolchain File");
     QCOMPARE(toolchainFilePackage.defaultPath, "$Qul_ROOT/lib/cmake/Qul/toolchain/iar.cmake");
 }
 

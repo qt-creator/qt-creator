@@ -37,7 +37,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
     "pathEntries": [
       {
         "id": "STM32CubeProgrammer_PATH",
-        "description": "STM32CubeProgrammer",
+        "label": "STM32CubeProgrammer",
         "type": "path",
         "defaultValue": {
           "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
@@ -50,7 +50,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
     "cmakeEntries": [
       {
         "id": "Qul_DIR",
-        "description": "Qt for MCUs SDK",
+        "label": "Qt for MCUs SDK",
         "type": "path",
         "cmakeVar": "Qul_ROOT",
         "optional": false
@@ -67,14 +67,14 @@ constexpr auto iar_stm32f469i_metal_json = R"({
         "id": "IARToolchain",
         "setting": "IARToolchain",
         "envVar": "IAR_ARM_COMPILER_DIR",
-        "description": "IAR ARM Compiler",
+        "label": "IAR ARM Compiler",
         "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
         "type": "path",
         "optional": false
       },
       {
         "id": "IAR_CMAKE_TOOLCHAIN_FILE",
-        "description": "CMake Toolchain File",
+        "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
         "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/iar.cmake",
@@ -91,7 +91,7 @@ constexpr auto iar_stm32f469i_metal_json = R"({
     "cmakeEntries": [
       {
         "id": "ST_SDK_DIR",
-        "description": "Board SDK for STM32F469I-Discovery",
+        "label": "Board SDK for STM32F469I-Discovery",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
         "optional": false

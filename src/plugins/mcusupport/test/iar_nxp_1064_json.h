@@ -32,7 +32,7 @@ constexpr auto iar_nxp_1064_json = R"({
         "cmakeEntries": [
             {
                 "cmakeVar": "QUL_BOARD_SDK_DIR",
-                "description": "Board SDK for MIMXRT1064-EVK",
+                "label": "Board SDK for MIMXRT1064-EVK",
                 "id": "NXP_SDK_DIR",
                 "optional": false,
                 "type": "path",
@@ -50,7 +50,7 @@ constexpr auto iar_nxp_1064_json = R"({
                 "cmakeVar": "FREERTOS_DIR",
                 "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
                 "label": "FreeRTOS Sources (IMXRT1064) ",
-                "description": "FreeRTOS SDK for MIMXRT1064-EVK",
+                "label": "FreeRTOS SDK for MIMXRT1064-EVK",
                 "id": "NXP_FREERTOS_DIR",
                 "optional": false,
                 "type": "path"
@@ -62,7 +62,7 @@ constexpr auto iar_nxp_1064_json = R"({
         "cmakeEntries": [
             {
                 "cmakeVar": "Qul_ROOT",
-                "description": "Qt for MCUs SDK",
+                "label": "Qt for MCUs SDK",
                 "id": "Qul_DIR",
                 "optional": false,
                 "type": "path"
@@ -87,7 +87,7 @@ constexpr auto iar_nxp_1064_json = R"({
             {
                 "id": "IAR_DIR",
                 "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
-                "description": "IAR ARM Compiler",
+                "label": "IAR ARM Compiler",
                 "optional": false,
                 "type": "path"
             }

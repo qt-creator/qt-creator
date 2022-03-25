@@ -37,7 +37,7 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     "pathEntries": [
       {
         "id": "STM32CubeProgrammer_PATH",
-        "description": "STM32CubeProgrammer",
+        "label": "STM32CubeProgrammer",
         "type": "path",
         "defaultValue": {
           "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
@@ -47,12 +47,12 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
       }
     ],
     "environmentEntries": [],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "Qul_DIR",
-        "description": "Qt for MCUs SDK",
+        "label": "Qt for MCUs SDK",
         "type": "path",
-        "cmakeOptionName": "Qul_ROOT",
+        "cmakeVar": "Qul_ROOT",
         "optional": false
       }
     ]
@@ -65,15 +65,17 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     "cmakeEntries": [
       {
         "id": "ARMGCC_DIR",
-        "description": "GNU Arm Embedded Toolchain",
-        "cmakeOptionName": "QUL_TARGET_TOOLCHAIN_DIR",
+        "label": "GNU Arm Embedded Toolchain",
+        "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
+        "envVar": "ARMGCC_DIR",
+        "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
         "optional": false
       },
       {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
-        "description": "CMake Toolchain File",
-        "cmakeOptionName": "CMAKE_TOOLCHAIN_FILE",
+        "label": "CMake Toolchain File",
+        "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
         "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
@@ -86,11 +88,11 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
     "versions": [
       "1.5.0"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ST_SDK_DIR",
-        "description": "Board SDK for STM32H750B-Discovery",
-        "cmakeOptionName": "QUL_BOARD_SDK_DIR",
+        "label": "Board SDK for STM32H750B-Discovery",
+        "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
         "optional": false
       }

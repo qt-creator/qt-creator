@@ -38,7 +38,7 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
       {
         "id": "STM32CubeProgrammer_PATH",
         "id": "STM32CubeProgrammer_PATH",
-        "description": "STM32CubeProgrammer",
+        "label": "STM32CubeProgrammer",
         "type": "path",
         "defaultValue": {
           "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
@@ -48,12 +48,12 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
       }
     ],
     "environmentEntries": [],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "Qul_DIR",
-        "description": "Qt for MCUs SDK",
+        "label": "Qt for MCUs SDK",
         "type": "path",
-        "cmakeOptionName": "Qul_ROOT",
+        "cmakeVar": "Qul_ROOT",
         "optional": false
       }
     ]
@@ -63,18 +63,20 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
     "versions": [
       "9.3.1"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ARMGCC_DIR",
-        "description": "GNU Arm Embedded Toolchain",
-        "cmakeOptionName": "QUL_TARGET_TOOLCHAIN_DIR",
+        "label": "GNU Arm Embedded Toolchain",
+        "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
+        "envVar": "ARMGCC_DIR",
+        "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
         "optional": false
       },
       {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
-        "description": "CMake Toolchain File",
-        "cmakeOptionName": "CMAKE_TOOLCHAIN_FILE",
+        "label": "CMake Toolchain File",
+        "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
         "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
@@ -87,11 +89,11 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
     "versions": [
       "1.16.0"
     ],
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ST_SDK_DIR",
-        "description": "Board SDK for STM32F769I-Discovery",
-        "cmakeOptionName": "QUL_BOARD_SDK_DIR",
+        "label": "Board SDK for STM32F769I-Discovery",
+        "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
         "optional": false
       }
@@ -99,11 +101,11 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
   },
   "freeRTOS": {
     "envVar": "STM32F7_FREERTOS_DIR",
-    "cmakeCacheEntries": [
+    "cmakeEntries": [
       {
         "id": "ST_FREERTOS_DIR",
-        "description": "FreeRTOS SDK for STM32F769I-Discovery",
-        "cmakeOptionName": "FREERTOS_DIR",
+        "label": "FreeRTOS SDK for STM32F769I-Discovery",
+        "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "$QUL_BOARD_SDK_DIR/Middlewares/Third_Party/FreeRTOS/Source",
         "type": "path",
         "optional": false

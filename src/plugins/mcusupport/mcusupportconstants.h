@@ -49,5 +49,6 @@ const char SETTINGS_KEY_AUTOMATIC_KIT_CREATION[]{"AutomaticKitCreation"};
 
 const char TOOLCHAIN_DIR_CMAKE_VARIABLE[]{"QUL_TARGET_TOOLCHAIN_DIR"};
 const char TOOLCHAIN_FILE_CMAKE_VARIABLE[]{"CMAKE_TOOLCHAIN_FILE"};
+
 } // namespace Constants
 } // namespace McuSupport

@@ -480,7 +480,7 @@ static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
     QList<PackageDescription> result;
     for (const auto &cmakeEntryRef : cmakeEntries) {
         const QJsonObject cmakeEntry{cmakeEntryRef.toObject()};
-        result.push_back({cmakeEntry["id"].toString(),
+        result.push_back({cmakeEntry["label"].toString(),
                           cmakeEntry["envVar"].toString(),
                           cmakeEntry["cmakeVar"].toString(),
                           cmakeEntry["description"].toString(),

@@ -39,14 +39,14 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "cmakeEntries": [
       {
         "id": "Qul_DIR",
-        "description": "Qt for MCUs SDK",
+        "label": "Qt for MCUs SDK",
         "type": "path",
         "cmakeVar": "Qul_ROOT",
         "optional": false
       },
       {
         "id": "MCU_XPRESSO_PATH",
-        "description": "MCUXpresso IDE",
+        "label": "MCUXpresso IDE",
         "type": "path",
         "cmakeVar": "MCUXPRESSO_IDE_PATH",
         "defaultValue": {
@@ -65,14 +65,16 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "cmakeEntries": [
       {
         "id": "ARMGCC_DIR",
-        "description": "GNU Arm Embedded Toolchain",
+        "label": "GNU Arm Embedded Toolchain",
         "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
+        "envVar": "ARMGCC_DIR",
+        "setting": "GNUArmEmbeddedToolchain",
         "type": "path",
         "optional": false
       },
       {
         "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
-        "description": "CMake Toolchain File",
+        "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
         "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake",
@@ -89,7 +91,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "cmakeEntries": [
       {
         "id": "NXP_SDK_DIR",
-        "description": "Board SDK for MIMXRT1050-EVK",
+        "label": "Board SDK for MIMXRT1050-EVK",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
         "optional": false
@@ -101,7 +103,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "cmakeEntries": [
       {
         "id": "NXP_FREERTOS_DIR",
-        "description": "FreeRTOS SDK for MIMXRT1050-EVK",
+        "label": "FreeRTOS SDK for MIMXRT1050-EVK",
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
         "type": "path",
