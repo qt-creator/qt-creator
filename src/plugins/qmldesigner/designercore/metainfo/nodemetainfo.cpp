@@ -97,6 +97,9 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
         if (const CppComponentValue * componentObjectValue = value->asCppComponentValue()) {
             type = componentObjectValue->className().toUtf8();
             dotProperties = getObjectTypes(componentObjectValue, context);
+        }  else if (const ObjectValue * objectValue = value->asObjectValue()) {
+            type = objectValue->className().toUtf8();
+            dotProperties = getObjectTypes(objectValue, context);
         }
 
         if (type == "alias") {
