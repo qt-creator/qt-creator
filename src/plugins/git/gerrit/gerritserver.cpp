@@ -157,8 +157,7 @@ bool GerritServer::fillFromRemote(const QString &remote,
     port = r.port;
     user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
     if (type == GerritServer::Ssh) {
-        resolveVersion(parameters, forceReload);
-        return true;
+        return resolveVersion(parameters, forceReload);
     }
     curlBinary = parameters.curl;
     if (curlBinary.isEmpty() || !curlBinary.exists())
@@ -172,7 +171,8 @@ bool GerritServer::fillFromRemote(const QString &remote,
         // (can be http://example.net/review)
         ascendPath();
         if (resolveRoot()) {
-            resolveVersion(parameters, forceReload);
+            if (!resolveVersion(parameters, forceReload))
+                return false;
             saveSettings(Valid);
             return true;
         }
@@ -180,8 +180,7 @@ bool GerritServer::fillFromRemote(const QString &remote,
     case NotGerrit:
         return false;
     case Valid:
-        resolveVersion(parameters, false);
-        return true;
+        return resolveVersion(parameters, false);
     }
     return true;
 }
@@ -332,14 +331,14 @@ bool GerritServer::resolveRoot()
     return false;
 }
 
-void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
+bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
 {
     static GitClient *const client = GitClient::instance();
     QSettings *settings = Core::ICore::settings();
     const QString fullVersionKey = "Gerrit/" + host + '/' + versionKey;
     version = settings->value(fullVersionKey).toString();
     if (!version.isEmpty() && !forceReload)
-        return;
+        return true;
     if (type == Ssh) {
         QtcProcess proc;
         QStringList arguments;
@@ -350,6 +349,8 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         QString stdOut = proc.stdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
+        if (version.isEmpty())
+            return false;
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
         QtcProcess proc;
@@ -360,7 +361,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QString output = proc.stdOut();
             if (output.isEmpty())
-                return;
+                return false;
             output.remove(0, output.indexOf('\n')); // Strip first line
             output.remove('\n');
             output.remove('"');
@@ -368,6 +369,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         }
     }
     settings->setValue(fullVersionKey, version);
+    return true;
 }
 
 } // namespace Internal

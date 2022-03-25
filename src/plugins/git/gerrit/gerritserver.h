@@ -94,7 +94,7 @@ private:
     bool setupAuthentication();
     bool ascendPath();
     bool resolveRoot();
-    void resolveVersion(const GerritParameters &p, bool forceReload);
+    bool resolveVersion(const GerritParameters &p, bool forceReload);
 };
 
 } // namespace Internal
