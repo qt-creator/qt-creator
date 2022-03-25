@@ -162,14 +162,6 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         }
     }
 
-    // Kill the running process.
-    if (proc.state() != QProcess::NotRunning) {
-        proc.terminate();
-        if (!proc.waitForFinished(3000))
-            proc.kill();
-    }
-
-    QTC_CHECK(proc.state() == QProcess::NotRunning);
     result.error = errorOutput;
     return result;
 }
