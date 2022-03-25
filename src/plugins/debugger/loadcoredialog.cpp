@@ -31,18 +31,16 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <ssh/sftpfilesystemmodel.h>
-#include <ssh/sshconnection.h>
+#include <projectexplorer/devicesupport/devicefilesystemmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/temporaryfile.h>
 
 #include <QCheckBox>
-#include <QDebug>
-#include <QDir>
-
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QFutureWatcher>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -53,7 +51,6 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace QSsh;
 using namespace Utils;
 
 namespace Debugger {
@@ -71,26 +68,24 @@ class SelectRemoteFileDialog : public QDialog
 
 public:
     explicit SelectRemoteFileDialog(QWidget *parent);
+    ~SelectRemoteFileDialog();
 
     void attachToDevice(Kit *k);
     FilePath localFile() const { return m_localFile; }
     FilePath remoteFile() const { return m_remoteFile; }
 
 private:
-    void handleSftpOperationFinished(SftpJobId, const QString &error);
-    void handleSftpOperationFailed(const QString &errorMessage);
-    void handleConnectionError(const QString &errorMessage);
-    void handleRemoteError(const QString &errorMessage);
     void selectFile();
+    void clearWatcher();
 
     QSortFilterProxyModel m_model;
-    SftpFileSystemModel m_fileSystemModel;
+    DeviceFileSystemModel m_fileSystemModel;
     QTreeView *m_fileSystemView;
     QTextBrowser *m_textBrowser;
     QDialogButtonBox *m_buttonBox;
     FilePath m_localFile;
     FilePath m_remoteFile;
-    SftpJobId m_sftpJobId;
+    QFutureWatcher<bool> *m_watcher = nullptr;
 };
 
 SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
@@ -109,7 +104,7 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
     m_fileSystemView->header()->setStretchLastSection(true);
 
     m_textBrowser = new QTextBrowser(this);
-    m_textBrowser->setEnabled(false);
+    m_textBrowser->setReadOnly(true);
 
     m_buttonBox = new QDialogButtonBox(this);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -121,15 +116,13 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
     layout->addWidget(m_textBrowser);
     layout->addWidget(m_buttonBox);
 
-    connect(m_buttonBox, &QDialogButtonBox::rejected,
-            this, &QDialog::reject);
-    connect(m_buttonBox, &QDialogButtonBox::accepted,
-            this, &SelectRemoteFileDialog::selectFile);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &SelectRemoteFileDialog::selectFile);
+}
 
-    connect(&m_fileSystemModel, &SftpFileSystemModel::sftpOperationFailed,
-            this, &SelectRemoteFileDialog::handleSftpOperationFailed);
-    connect(&m_fileSystemModel, &SftpFileSystemModel::connectionError,
-            this, &SelectRemoteFileDialog::handleConnectionError);
+SelectRemoteFileDialog::~SelectRemoteFileDialog()
+{
+    clearWatcher();
 }
 
 void SelectRemoteFileDialog::attachToDevice(Kit *k)
@@ -138,37 +131,23 @@ void SelectRemoteFileDialog::attachToDevice(Kit *k)
     QTC_ASSERT(k, return);
     IDevice::ConstPtr device = DeviceKitAspect::device(k);
     QTC_ASSERT(device, return);
-    SshConnectionParameters sshParams = device->sshParameters();
-    // TODO: change into setDevice()
-    m_fileSystemModel.setSshConnection(sshParams);
+    m_fileSystemModel.setDevice(device);
 }
 
-void SelectRemoteFileDialog::handleSftpOperationFailed(const QString &errorMessage)
+static void copyFile(QFutureInterface<bool> &futureInterface, const FilePath &remoteSource,
+                     const FilePath &localDestination)
 {
-    m_textBrowser->append(errorMessage);
-    //reject();
-}
+    // TODO: this should be implemented transparently in FilePath::copyFile()
+    // The code here should be just:
+    //
+    // futureInterface.reportResult(remoteSource.copyFile(localDestination));
+    //
+    // The implementation below won't handle really big files, like core files.
 
-void SelectRemoteFileDialog::handleConnectionError(const QString &errorMessage)
-{
-    m_textBrowser->append(errorMessage);
-    //reject();
-}
-
-void SelectRemoteFileDialog::handleSftpOperationFinished(SftpJobId, const QString &error)
-{
-    if (error.isEmpty()) {
-        m_textBrowser->append(tr("Download of remote file succeeded."));
-        accept();
-    } else {
-        m_textBrowser->append(error);
-        //reject();
-    }
-}
-
-void SelectRemoteFileDialog::handleRemoteError(const QString &errorMessage)
-{
-    m_textBrowser->append(errorMessage);
+    const QByteArray data = remoteSource.fileContents();
+    if (futureInterface.isCanceled())
+        return;
+    futureInterface.reportResult(localDestination.writeFileContents(data));
 }
 
 void SelectRemoteFileDialog::selectFile()
@@ -180,9 +159,6 @@ void SelectRemoteFileDialog::selectFile()
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     m_fileSystemView->setEnabled(false);
 
-    connect(&m_fileSystemModel, &SftpFileSystemModel::sftpOperationFinished,
-            this, &SelectRemoteFileDialog::handleSftpOperationFinished);
-
     {
         Utils::TemporaryFile localFile("remotecore-XXXXXX");
         localFile.open();
@@ -190,8 +166,35 @@ void SelectRemoteFileDialog::selectFile()
     }
 
     idx = idx.sibling(idx.row(), 1);
-    m_remoteFile = FilePath::fromVariant(m_fileSystemModel.data(idx, SftpFileSystemModel::PathRole));
-    m_sftpJobId = m_fileSystemModel.downloadFile(idx, m_localFile.toString());
+    m_remoteFile = FilePath::fromVariant(m_fileSystemModel.data(idx, DeviceFileSystemModel::PathRole));
+
+    clearWatcher();
+    m_watcher = new QFutureWatcher<bool>(this);
+    auto future = runAsync(copyFile, m_remoteFile, m_localFile);
+    connect(m_watcher, &QFutureWatcher<bool>::finished, this, [this] {
+        const bool success = m_watcher->result();
+        if (success) {
+            m_textBrowser->append(tr("Download of remote file succeeded."));
+            accept();
+        } else {
+            m_textBrowser->append(tr("Download of remote file failed."));
+            m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+            m_fileSystemView->setEnabled(true);
+        }
+    });
+    m_watcher->setFuture(future);
+}
+
+void SelectRemoteFileDialog::clearWatcher()
+{
+    if (!m_watcher)
+        return;
+
+    m_watcher->disconnect();
+    m_watcher->future().cancel();
+    m_watcher->future().waitForFinished();
+    delete m_watcher;
+    m_watcher = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////
