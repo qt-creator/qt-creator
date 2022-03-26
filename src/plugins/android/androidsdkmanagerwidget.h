@@ -80,7 +80,7 @@ public:
                             QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget() override;
 
-    void installEssentials(const QString &extraMessage = {});
+    void installEssentials();
 
 signals:
     void updatingSdk();

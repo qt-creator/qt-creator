@@ -515,11 +515,8 @@ void AndroidSettingsWidget::validateSdk()
                                                         PlatformSdkInstalledRow,
                                                         AllEssentialsInstalledRow});
     m_androidConfig.setSdkFullyConfigured(sdkToolsOk && componentsOk);
-    if (sdkToolsOk && !componentsOk) {
-        m_sdkManagerWidget->installEssentials(
-                    "Android SDK installation is missing necessary packages. "
-                    "Do you want to install the missing packages?");
-    }
+    if (sdkToolsOk && !componentsOk)
+        m_sdkManagerWidget->installEssentials();
 
     updateNdkList();
     updateUI();

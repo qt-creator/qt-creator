@@ -206,7 +206,7 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
     delete m_ui;
 }
 
-void AndroidSdkManagerWidget::installEssentials(const QString &extraMessage)
+void AndroidSdkManagerWidget::installEssentials()
 {
     m_sdkModel->selectMissingEssentials();
     if (!m_sdkModel->missingEssentials().isEmpty()) {
@@ -217,7 +217,8 @@ void AndroidSdkManagerWidget::installEssentials(const QString &extraMessage)
                                  .arg(Core::Constants::IDE_DISPLAY_NAME)
                                  .arg(m_sdkModel->missingEssentials().join("\", \"")));
     }
-    onApplyButton(extraMessage);
+    onApplyButton(tr("Android SDK installation is missing necessary packages. "
+                     "Do you want to install the missing packages?"));
 }
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
