@@ -108,9 +108,6 @@ const char macOsKey[] = "mac";
 
 
 namespace {
-    const char jdk8SettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\Java Development Kit";
-    const char jdkLatestSettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\";
-
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
     const QLatin1String CustomNdkLocationsKey("CustomNdkLocations");
@@ -1482,7 +1479,7 @@ Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
     Environment env = Environment::systemEnvironment();
     FilePath jdkLocation = config.openJDKLocation();
     if (!jdkLocation.isEmpty()) {
-        env.set("JAVA_HOME", jdkLocation.toUserOutput());
+        env.set(Constants::JAVA_HOME_ENV_VAR, jdkLocation.toUserOutput());
         env.prependOrSetPath(jdkLocation.pathAppended("bin"));
     }
     return env;
@@ -1539,51 +1536,40 @@ static FilePath androidStudioPath()
 
 FilePath AndroidConfig::getJdkPath()
 {
-    FilePath jdkHome;
+    FilePath jdkHome = FilePath::fromString(qEnvironmentVariable(Constants::JAVA_HOME_ENV_VAR));
+    if (jdkHome.exists())
+        return jdkHome;
 
     if (HostOsInfo::isWindowsHost()) {
-        QStringList allVersions;
-        std::unique_ptr<QSettings> settings(
-            new QSettings(jdk8SettingsPath, QSettings::NativeFormat));
-        allVersions = settings->childGroups();
-#ifdef Q_OS_WIN
-        if (allVersions.isEmpty()) {
-            settings.reset(new QSettings(jdk8SettingsPath, QSettings::Registry64Format));
-            allVersions = settings->childGroups();
+        // Look for Android Studio's jdk first
+        const FilePath androidStudioSdkPath = androidStudioPath();
+        if (!androidStudioSdkPath.isEmpty()) {
+            const FilePath androidStudioSdkJrePath = androidStudioSdkPath / "jre";
+            if (androidStudioSdkJrePath.exists())
+                jdkHome = androidStudioSdkJrePath;
         }
-#endif // Q_OS_WIN
 
-        // If no jdk 1.8 can be found, look for jdk versions above 1.8
-        // Android section would warn if sdkmanager cannot run with newer jdk versions
-        if (allVersions.isEmpty()) {
-            settings.reset(new QSettings(jdkLatestSettingsPath, QSettings::NativeFormat));
-            allVersions = settings->childGroups();
+        if (jdkHome.isEmpty()) {
+            QStringList allVersions;
+            QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\",
+                               QSettings::NativeFormat);
+            allVersions = settings.childGroups();
 #ifdef Q_OS_WIN
             if (allVersions.isEmpty()) {
-                settings.reset(new QSettings(jdkLatestSettingsPath, QSettings::Registry64Format));
-                allVersions = settings->childGroups();
+                settings.setDefaultFormat(QSettings::Registry64Format);
+                allVersions = settings.childGroups();
             }
 #endif // Q_OS_WIN
-        }
 
-        for (const QString &version : qAsConst(allVersions)) {
-            settings->beginGroup(version);
-            jdkHome = FilePath::fromUserInput(settings->value("JavaHome").toString());
-            settings->endGroup();
-            if (version.startsWith("1.8")) {
-                if (!jdkHome.exists())
-                    continue;
-                break;
-            }
-        }
-
-        // Nothing found yet? Let's try finding Android Studio's jdk
-        if (jdkHome.isEmpty()) {
-            const FilePath androidStudioSdkPath = androidStudioPath();
-            if (!androidStudioSdkPath.isEmpty()) {
-                const FilePath androidStudioSdkJrePath = androidStudioSdkPath / "jre";
-                if (androidStudioSdkJrePath.exists())
-                    jdkHome = androidStudioSdkJrePath;
+            // Look for the highest existing JDK
+            allVersions.sort();
+            std::reverse(allVersions.begin(), allVersions.end()); // Order descending
+            for (const QString &version : qAsConst(allVersions)) {
+                settings.beginGroup(version);
+                jdkHome = FilePath::fromUserInput(settings.value("JavaHome").toString());
+                settings.endGroup();
+                if (jdkHome.exists())
+                    break;
             }
         }
     } else {

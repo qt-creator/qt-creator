@@ -120,7 +120,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHostFromNdk(m_ndkLocation));
     const Utils::FilePath javaHome = config.openJDKLocation();
     if (javaHome.exists()) {
-        env.set(QLatin1String("JAVA_HOME"), javaHome.toUserOutput());
+        env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
         const FilePath currentJavaFilePath = env.searchInPath("java");
         if (!currentJavaFilePath.isChildOf(javaBin))

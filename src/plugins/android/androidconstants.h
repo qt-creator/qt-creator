@@ -72,6 +72,7 @@ const char ANDROID_ABIS[] = "ANDROID_ABIS";
 const char ANDROID_APPLICATION_ARGUMENTS[] = "ANDROID_APPLICATION_ARGUMENTS";
 const char ANDROID_DEPLOYMENT_SETTINGS_FILE[] = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
 const char ANDROID_SO_LIBS_PATHS[] = "ANDROID_SO_LIBS_PATHS";
+const char JAVA_HOME_ENV_VAR[] = "JAVA_HOME";
 
 const char ANDROID_PACKAGE_INSTALL_STEP_ID[] = "Qt4ProjectManager.AndroidPackageInstallationStep";
 const char ANDROID_BUILD_APK_ID[] = "QmakeProjectManager.AndroidBuildApkStep";
