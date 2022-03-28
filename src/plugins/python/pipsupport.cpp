@@ -108,7 +108,7 @@ void PipInstallTask::installFinished()
     if (!success) {
         Core::MessageManager::writeFlashing(
             tr("Installing the %1 failed with exit code %2")
-                .arg(m_package.displayName, m_process.exitCode()));
+                .arg(m_package.displayName).arg(m_process.exitCode()));
     }
     emit finished(success);
 }
