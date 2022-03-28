@@ -27,6 +27,7 @@
 #include "qtcassert.h"
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QElapsedTimer>
 #include <QHash>
 #include <QProcess>
