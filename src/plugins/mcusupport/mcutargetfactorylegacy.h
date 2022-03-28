@@ -35,20 +35,18 @@ namespace McuSupport::Internal::Sdk {
 class McuTargetFactoryLegacy : public McuAbstractTargetFactory
 {
 public:
-    McuTargetFactoryLegacy(const QHash<QString, McuToolChainPackage *> &tcPkgs,
-                           const QHash<QString, McuAbstractPackage *> &vendorPkgs)
+    McuTargetFactoryLegacy(const QHash<QString, McuToolChainPackagePtr> &tcPkgs,
+                           const QHash<QString, McuPackagePtr> &vendorPkgs)
         : tcPkgs(tcPkgs)
         , vendorPkgs(vendorPkgs)
     {}
 
     QPair<Targets, Packages> createTargets(const McuTargetDescription &) override;
-    using AdditionalPackages
-        = QPair<QHash<QString, McuToolChainPackage *>, QHash<QString, McuAbstractPackage *>>;
     AdditionalPackages getAdditionalPackages() const override;
 
 private:
-    const QHash<QString, McuToolChainPackage *> tcPkgs;
-    const QHash<QString, McuAbstractPackage *> vendorPkgs;
+    const QHash<QString, McuToolChainPackagePtr> tcPkgs;
+    const QHash<QString, McuPackagePtr> vendorPkgs;
 }; // struct McuTargetFactoryLegacy
 
 } // namespace McuSupport::Internal::Sdk

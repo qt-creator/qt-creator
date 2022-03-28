@@ -96,34 +96,34 @@ void McuSupportTest::test_parseCmakeEntries()
 void McuSupportTest::test_addNewKit()
 {
     const QString cmakeVar = "CMAKE_SDK";
-    McuPackage sdkPackage{"sdk",    // label
-                          {},       // defaultPath
-                          {},       // detectionPath
-                          "sdk",    // settingsKey
-                          cmakeVar, // cmake var
-                          {}};      // env var
+    McuPackagePtr sdkPackage{new McuPackage{"sdk",    // label
+                                            {},       // defaultPath
+                                            {},       // detectionPath
+                                            "sdk",    // settingsKey
+                                            cmakeVar, // cmake var
+                                            {}}};     // env var
     ProjectExplorer::Kit kit;
 
-    McuToolChainPackage
-        toolchainPackage{{},                                              // label
-                         {},                                              // defaultPath
-                         {},                                              // detectionPath
-                         {},                                              // settingsKey
-                         McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
-                         {},                                              // cmake var name
-                         {}};                                             // env var name
+    McuToolChainPackagePtr toolchainPackage{
+        new McuToolChainPackage{{},                                              // label
+                                {},                                              // defaultPath
+                                {},                                              // detectionPath
+                                {},                                              // settingsKey
+                                McuToolChainPackage::ToolChainType::Unsupported, // toolchain type
+                                {},                                              // cmake var name
+                                {}}};                                            // env var name
     const McuTarget::Platform platform{id, name, vendor};
     McuTarget mcuTarget{currentQulVersion,       // version
                         platform,                // platform
                         McuTarget::OS::FreeRTOS, // os
-                        {&sdkPackage},           // packages
-                        &toolchainPackage};      // toolchain packages
+                        {sdkPackage},            // packages
+                        toolchainPackage};       // toolchain packages
 
     auto &kitManager{*KitManager::instance()};
 
     QSignalSpy kitAddedSpy(&kitManager, &KitManager::kitAdded);
 
-    auto *newKit{McuKitManager::newKit(&mcuTarget, &sdkPackage)};
+    auto *newKit{McuKitManager::newKit(&mcuTarget, sdkPackage)};
     QVERIFY(newKit != nullptr);
 
     QCOMPARE(kitAddedSpy.count(), 1);
@@ -265,10 +265,11 @@ void McuSupportTest::test_createTargetsTheNewWay()
     Sdk::McuTargetFactory targetFactory{};
     const auto [targets, packages]{targetFactory.createTargets(description)};
     QVERIFY(not targets.empty());
-    QCOMPARE(targets.at(0)->colorDepth(), colorDepth);
-    const auto &tgtPackages{targets.at(0)->packages()};
+    const McuTargetPtr target{*targets.constBegin()};
+    QCOMPARE(target->colorDepth(), colorDepth);
+    const auto &tgtPackages{target->packages()};
     QVERIFY(not tgtPackages.empty());
-    const auto rtosPackage{tgtPackages.first()};
+    const auto rtosPackage{*tgtPackages.constBegin()};
     QCOMPARE(rtosPackage->environmentVariableName(), nxp1064FreeRtosEnvVar);
 }
 

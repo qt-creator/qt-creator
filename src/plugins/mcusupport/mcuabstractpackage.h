@@ -45,6 +45,8 @@ public:
         ValidPackage
     };
 
+    virtual ~McuAbstractPackage() = default;
+
     virtual QString label() const = 0;
     virtual const QString &cmakeVariableName() const = 0;
     virtual const QString &environmentVariableName() const = 0;

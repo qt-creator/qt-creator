@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <QtGlobal>
 #include <QList>
+#include <QSharedPointer>
 #include <QVersionNumber>
+#include <QtGlobal>
 
 #if defined(MCUSUPPORT_LIBRARY)
 #define MCUSUPPORTSHARED_EXPORT Q_DECL_EXPORT
@@ -39,9 +40,14 @@ namespace McuSupport::Internal {
 
 class McuTarget;
 class McuAbstractPackage;
+class McuToolChainPackage;
 
-using Targets = QList<McuTarget*>;
-using Packages = QList<McuAbstractPackage*>;
-static const QVersionNumber legacyVersion {2, 0, 0};
+using McuPackagePtr = QSharedPointer<McuAbstractPackage>;
+using McuToolChainPackagePtr = QSharedPointer<McuToolChainPackage>;
+using McuTargetPtr = QSharedPointer<McuTarget>;
 
-}
+using Targets = QList<McuTargetPtr>;
+using Packages = QSet<McuPackagePtr>;
+static const QVersionNumber legacyVersion{2, 0, 0};
+
+} // namespace McuSupport::Internal

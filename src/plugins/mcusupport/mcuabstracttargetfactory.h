@@ -34,9 +34,6 @@
 
 namespace McuSupport::Internal {
 
-class McuAbstractPackage;
-class McuToolChainPackage;
-
 namespace Sdk {
 struct McuTargetDescription;
 
@@ -44,11 +41,11 @@ class McuAbstractTargetFactory
 {
 public:
     using Ptr = std::unique_ptr<McuAbstractTargetFactory>;
-    ~McuAbstractTargetFactory() = default;
+    virtual ~McuAbstractTargetFactory() = default;
 
     virtual QPair<Targets, Packages> createTargets(const McuTargetDescription &) = 0;
     using AdditionalPackages
-        = QPair<QHash<QString, McuToolChainPackage *>, QHash<QString, McuAbstractPackage *>>;
+        = QPair<QHash<QString, McuToolChainPackagePtr>, QHash<QString, McuPackagePtr>>;
     virtual AdditionalPackages getAdditionalPackages() const { return {}; }
 }; // struct McuAbstractTargetFactory
 } // namespace Sdk

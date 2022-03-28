@@ -239,10 +239,7 @@ bool McuPackage::writeToSettings() const
 
 QWidget *McuPackage::widget()
 {
-    if (m_widget)
-        return m_widget;
-
-    m_widget = new QWidget;
+    auto *widget = new QWidget;
     m_fileChooser = new PathChooser;
     m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
@@ -250,7 +247,7 @@ QWidget *McuPackage::widget()
         m_fileChooser->setFilePath(m_defaultPath);
     });
 
-    auto layout = new QGridLayout(m_widget);
+    auto layout = new QGridLayout(widget);
     layout->setContentsMargins(0, 0, 0, 0);
     m_infoLabel = new InfoLabel();
 
@@ -277,7 +274,7 @@ QWidget *McuPackage::widget()
     });
 
     updateStatus();
-    return m_widget;
+    return widget;
 }
 
 McuToolChainPackage::McuToolChainPackage(const QString &label,

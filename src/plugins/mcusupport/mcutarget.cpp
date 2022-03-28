@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "mcutarget.h"
-#include "mcupackage.h"
 #include "mcukitmanager.h"
+#include "mcupackage.h"
 #include "mcusupportplugin.h"
 
 #include <utils/algorithm.h>
@@ -37,8 +37,8 @@ namespace McuSupport::Internal {
 McuTarget::McuTarget(const QVersionNumber &qulVersion,
                      const Platform &platform,
                      OS os,
-                     const Packages& packages,
-                     const McuToolChainPackage *toolChainPackage,
+                     const Packages &packages,
+                     const McuToolChainPackagePtr &toolChainPackage,
                      int colorDepth)
     : m_qulVersion(qulVersion)
     , m_platform(platform)
@@ -48,12 +48,12 @@ McuTarget::McuTarget(const QVersionNumber &qulVersion,
     , m_colorDepth(colorDepth)
 {}
 
-const Packages &McuTarget::packages() const
+Packages McuTarget::packages() const
 {
     return m_packages;
 }
 
-const McuToolChainPackage *McuTarget::toolChainPackage() const
+McuToolChainPackagePtr McuTarget::toolChainPackage() const
 {
     return m_toolChainPackage;
 }
@@ -63,14 +63,14 @@ McuTarget::OS McuTarget::os() const
     return m_os;
 }
 
-const McuTarget::Platform &McuTarget::platform() const
+McuTarget::Platform McuTarget::platform() const
 {
     return m_platform;
 }
 
 bool McuTarget::isValid() const
 {
-    return Utils::allOf(packages(), [](McuAbstractPackage *package) {
+    return Utils::allOf(packages(), [](const McuPackagePtr &package) {
         package->updateStatus();
         return package->isValidStatus();
     });
@@ -95,7 +95,7 @@ void McuTarget::printPackageProblems() const
     }
 }
 
-const QVersionNumber &McuTarget::qulVersion() const
+QVersionNumber McuTarget::qulVersion() const
 {
     return m_qulVersion;
 }

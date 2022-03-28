@@ -52,7 +52,6 @@
 #include <QJsonObject>
 #include <QVariant>
 
-#include <ciso646>
 #include <memory>
 
 using namespace Utils;
@@ -416,22 +415,22 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy)
 {
     McuAbstractTargetFactory::Ptr result;
     if (isLegacy) {
-        static const QHash<QString, McuToolChainPackage *> tcPkgs = {
-            {{"armgcc"}, createArmGccToolchainPackage()},
-            {{"greenhills"}, createGhsToolchainPackage()},
-            {{"iar"}, createIarToolChainPackage()},
-            {{"msvc"}, createMsvcToolChainPackage()},
-            {{"gcc"}, createGccToolChainPackage()},
-            {{"arm-greenhills"}, createGhsArmToolchainPackage()},
+        static const QHash<QString, McuToolChainPackagePtr> tcPkgs = {
+            {{"armgcc"}, McuToolChainPackagePtr{createArmGccToolchainPackage()}},
+            {{"greenhills"}, McuToolChainPackagePtr{createGhsToolchainPackage()}},
+            {{"iar"}, McuToolChainPackagePtr{createIarToolChainPackage()}},
+            {{"msvc"}, McuToolChainPackagePtr{createMsvcToolChainPackage()}},
+            {{"gcc"}, McuToolChainPackagePtr{createGccToolChainPackage()}},
+            {{"arm-greenhills"}, McuToolChainPackagePtr{createGhsArmToolchainPackage()}},
         };
 
         // Note: the vendor name (the key of the hash) is case-sensitive. It has to match the "platformVendor" key in the
         // json file.
-        static const QHash<QString, McuAbstractPackage *> vendorPkgs = {
-            {{"ST"}, createStm32CubeProgrammerPackage()},
-            {{"NXP"}, createMcuXpressoIdePackage()},
-            {{"CYPRESS"}, createCypressProgrammerPackage()},
-            {{"RENESAS"}, createRenesasProgrammerPackage()},
+        static const QHash<QString, McuPackagePtr> vendorPkgs = {
+            {{"ST"}, McuPackagePtr{createStm32CubeProgrammerPackage()}},
+            {{"NXP"}, McuPackagePtr{createMcuXpressoIdePackage()}},
+            {{"CYPRESS"}, McuPackagePtr{createCypressProgrammerPackage()}},
+            {{"RENESAS"}, McuPackagePtr{createRenesasProgrammerPackage()}},
         };
 
         result = std::make_unique<McuTargetFactoryLegacy>(tcPkgs, vendorPkgs);
@@ -441,8 +440,8 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy)
     return result;
 }
 
-QPair<Targets, Packages> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
-                                                 bool isLegacy)
+McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
+                                         bool isLegacy)
 {
     Targets mcuTargets;
     Packages mcuPackages;
@@ -451,19 +450,19 @@ QPair<Targets, Packages> targetsFromDescriptions(const QList<McuTargetDescriptio
     for (const McuTargetDescription &desc : descriptions) {
         auto [targets, packages] = targetFactory->createTargets(desc);
         mcuTargets.append(targets);
-        mcuPackages.append(packages);
+        mcuPackages.unite(packages);
     }
 
     if (isLegacy) {
         auto [toolchainPkgs, vendorPkgs]{targetFactory->getAdditionalPackages()};
-        for (McuAbstractPackage *package : toolchainPkgs) {
-            mcuPackages.append(package);
+        for (McuToolChainPackagePtr &package : toolchainPkgs) {
+            mcuPackages.insert(package);
         }
-        for (McuAbstractPackage *package : vendorPkgs) {
-            mcuPackages.append(package);
+        for (McuPackagePtr &package : vendorPkgs) {
+            mcuPackages.insert(package);
         }
     }
-    return {mcuTargets, mcuPackages};
+    return McuSdkRepository{mcuTargets, mcuPackages};
 }
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir)
@@ -587,7 +586,7 @@ bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
     return false;
 }
 
-void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
+McuSdkRepository targetsAndPackages(const Utils::FilePath &dir)
 {
     QList<McuTargetDescription> descriptions;
 
@@ -637,26 +636,23 @@ void targetsAndPackages(const Utils::FilePath &dir, McuSdkRepository *repo)
             printMessage(McuTarget::tr("No valid kit descriptions found at %1.")
                              .arg(kitsPath(dir).toUserOutput()),
                          true);
-            return;
+            return McuSdkRepository{};
         } else {
             QString deprecationMessage;
             if (checkDeprecatedSdkError(dir, deprecationMessage)) {
                 printMessage(deprecationMessage, true);
-                return;
+                return McuSdkRepository{};
             }
         }
     }
-    const auto tmpTargetLists = targetsFromDescriptions(descriptions, isLegacy);
-    repo->mcuTargets = tmpTargetLists.first;
-    repo->packages = tmpTargetLists.second;
+    McuSdkRepository repo = targetsFromDescriptions(descriptions, isLegacy);
 
     // Keep targets sorted lexicographically
-    std::sort(repo->mcuTargets.begin(),
-              repo->mcuTargets.end(),
-              [](const McuTarget *lhs, const McuTarget *rhs) {
-                  return McuKitManager::generateKitNameFromTarget(lhs)
-                         < McuKitManager::generateKitNameFromTarget(rhs);
-              });
+    Utils::sort(repo.mcuTargets, [](const McuTargetPtr &lhs, const McuTargetPtr &rhs) {
+        return McuKitManager::generateKitNameFromTarget(lhs.get())
+               < McuKitManager::generateKitNameFromTarget(rhs.get());
+    });
+    return repo;
 }
 
 FilePath packagePathFromSettings(const QString &settingsKey,

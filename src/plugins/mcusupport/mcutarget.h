@@ -63,14 +63,14 @@ public:
     McuTarget(const QVersionNumber &qulVersion,
               const Platform &platform,
               OS os,
-              const Packages& packages,
-              const McuToolChainPackage *toolChainPackage,
+              const Packages &packages,
+              const McuToolChainPackagePtr &toolChainPackage,
               int colorDepth = UnspecifiedColorDepth);
 
-    const QVersionNumber &qulVersion() const;
-    const Packages &packages() const;
-    const McuToolChainPackage *toolChainPackage() const;
-    const Platform &platform() const;
+    QVersionNumber qulVersion() const;
+    Packages packages() const;
+    McuToolChainPackagePtr toolChainPackage() const;
+    Platform platform() const;
     OS os() const;
     int colorDepth() const;
     bool isValid() const;
@@ -81,7 +81,7 @@ private:
     const Platform m_platform;
     const OS m_os;
     const Packages m_packages;
-    const McuToolChainPackage* m_toolChainPackage;
+    McuToolChainPackagePtr m_toolChainPackage;
     const int m_colorDepth;
 }; // class McuTarget
 

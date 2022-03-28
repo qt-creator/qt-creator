@@ -45,36 +45,26 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-using CMakeProjectManager::CMakeConfigItem;
-using CMakeProjectManager::CMakeConfigurationKitAspect;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
-void McuSdkRepository::deletePackagesAndTargets()
-{
-    qDeleteAll(packages);
-    packages.clear();
-    mcuTargets.clear();
+namespace {
+const QString automaticKitCreationSettingsKey = QLatin1String(Constants::SETTINGS_GROUP) + '/'
+                                                + QLatin1String(
+                                                    Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
 }
 
 McuSupportOptions::McuSupportOptions(QObject *parent)
     : QObject(parent)
     , qtForMCUsSdkPackage(Sdk::createQtForMCUsPackage())
 {
-    connect(qtForMCUsSdkPackage,
+    connect(qtForMCUsSdkPackage.get(),
             &McuAbstractPackage::changed,
             this,
             &McuSupportOptions::populatePackagesAndTargets);
     m_automaticKitCreation = automaticKitCreationFromSettings();
-}
-
-McuSupportOptions::~McuSupportOptions()
-{
-    deletePackagesAndTargets();
-    delete qtForMCUsSdkPackage;
 }
 
 void McuSupportOptions::populatePackagesAndTargets()
@@ -129,12 +119,16 @@ const QVersionNumber &McuSupportOptions::minimalQulVersion()
 
 void McuSupportOptions::setQulDir(const FilePath &dir)
 {
-    deletePackagesAndTargets();
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->isValidStatus())
-        Sdk::targetsAndPackages(dir, &sdkRepository);
+        sdkRepository = Sdk::targetsAndPackages(dir);
+    else
+        sdkRepository = McuSdkRepository{};
     for (const auto &package : qAsConst(sdkRepository.packages))
-        connect(package, &McuAbstractPackage::changed, this, &McuSupportOptions::packagesChanged);
+        connect(package.get(),
+                &McuAbstractPackage::changed,
+                this,
+                &McuSupportOptions::packagesChanged);
 
     emit packagesChanged();
 }
@@ -167,19 +161,14 @@ McuKitManager::UpgradeOption McuSupportOptions::askForKitUpgrades()
     return McuKitManager::UpgradeOption::Ignore;
 }
 
-void McuSupportOptions::deletePackagesAndTargets()
-{
-    sdkRepository.deletePackagesAndTargets();
-}
-
 void McuSupportOptions::checkUpgradeableKits()
 {
-    if (!qtForMCUsSdkPackage->isValidStatus() || sdkRepository.mcuTargets.size() == 0)
+    if (!qtForMCUsSdkPackage->isValidStatus() || sdkRepository.mcuTargets.isEmpty())
         return;
 
-    if (Utils::anyOf(sdkRepository.mcuTargets, [this](const McuTarget *target) {
-            return !McuKitManager::upgradeableKits(target, this->qtForMCUsSdkPackage).empty()
-                   && McuKitManager::matchingKits(target, this->qtForMCUsSdkPackage).empty();
+    if (Utils::anyOf(sdkRepository.mcuTargets, [this](const McuTargetPtr &target) {
+            return !McuKitManager::upgradeableKits(target.get(), this->qtForMCUsSdkPackage).empty()
+                   && McuKitManager::matchingKits(target.get(), this->qtForMCUsSdkPackage).empty();
         }))
         McuKitManager::upgradeKitsByCreatingNewPackage(askForKitUpgrades());
 }
@@ -203,20 +192,15 @@ void McuSupportOptions::setAutomaticKitCreationEnabled(const bool enabled)
 
 void McuSupportOptions::writeGeneralSettings() const
 {
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
     QSettings *settings = Core::ICore::settings(QSettings::UserScope);
-    settings->setValue(key, m_automaticKitCreation);
+    settings->setValue(automaticKitCreationSettingsKey, m_automaticKitCreation);
 }
 
 bool McuSupportOptions::automaticKitCreationFromSettings()
 {
     QSettings *settings = Core::ICore::settings(QSettings::UserScope);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-    const bool automaticKitCreation = settings->value(key, true).toBool();
+    const bool automaticKitCreation = settings->value(automaticKitCreationSettingsKey, true).toBool();
     return automaticKitCreation;
 }
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal

@@ -25,10 +25,10 @@
 
 #include "mcusupportplugin.h"
 #include "mcukitinformation.h"
+#include "mcukitmanager.h"
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
 #include "mcusupportoptions.h"
-#include "mcukitmanager.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
 
@@ -51,6 +51,10 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+
+namespace {
+constexpr char setupMcuSupportKits[]{"SetupMcuSupportKits"};
+}
 
 namespace McuSupport {
 namespace Internal {
@@ -114,8 +118,6 @@ void McuSupportPlugin::extensionsInitialized()
 
 void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
 {
-    const char setupMcuSupportKits[] = "SetupMcuSupportKits";
-
     if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
         || McuSupportOptions::qulDirFromSettings().isEmpty()
         || !McuKitManager::existingKits(nullptr).isEmpty())
@@ -126,7 +128,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
                                 "To do it later, select Options > Devices > MCU."),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     // clazy:excludeall=connect-3arg-lambda
-    info.addCustomButton(tr("Create Kits for Qt for MCUs"), [setupMcuSupportKits] {
+    info.addCustomButton(tr("Create Kits for Qt for MCUs"), [] {
         ICore::infoBar()->removeInfo(setupMcuSupportKits);
         QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
     });

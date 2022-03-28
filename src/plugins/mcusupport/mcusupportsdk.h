@@ -29,7 +29,6 @@
 
 #include <utils/filepath.h>
 
-#include <QPair>
 #include <QSettings>
 
 namespace McuSupport::Internal {
@@ -49,10 +48,10 @@ McuAbstractPackage *createQtForMCUsPackage();
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
-void targetsAndPackages(const Utils::FilePath &qulDir, McuSdkRepository *repo);
+McuSdkRepository targetsAndPackages(const Utils::FilePath &qulDir);
 
 McuTargetDescription parseDescriptionJson(const QByteArray &);
-QPair<Targets, Packages> targetsFromDescriptions(const QList<McuTargetDescription> &, bool isLegacy);
+McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &, bool isLegacy);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);
 

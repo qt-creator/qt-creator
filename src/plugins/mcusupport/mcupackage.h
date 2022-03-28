@@ -64,6 +64,8 @@ public:
                const bool addToPath = false,
                const Utils::FilePath &relativePathModifier = Utils::FilePath());
 
+    ~McuPackage() override = default;
+
     QString label() const override;
     const QString &cmakeVariableName() const override;
     const QString &environmentVariableName() const override;
@@ -89,7 +91,6 @@ private:
     void updatePath();
     void updateStatusUi();
 
-    QWidget *m_widget = nullptr;
     Utils::PathChooser *m_fileChooser = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
 
@@ -113,6 +114,7 @@ private:
 
 class McuToolChainPackage : public McuPackage
 {
+    Q_OBJECT
 public:
     enum class ToolChainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, Unsupported };
 

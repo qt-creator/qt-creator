@@ -35,8 +35,7 @@ namespace ProjectExplorer {
 class Kit;
 } // namespace ProjectExplorer
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuAbstractPackage;
 class McuTarget;
@@ -45,21 +44,21 @@ namespace McuKitManager {
 enum class UpgradeOption { Ignore, Keep, Replace };
 
 // Kit Factory
-ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuAbstractPackage *qtForMCUsSdk);
+ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuPackagePtr &qtForMCUsSdk);
 
 // Kit information
 QString generateKitNameFromTarget(const McuTarget *mcuTarget);
 QVersionNumber kitQulVersion(const ProjectExplorer::Kit *kit);
 bool kitIsUpToDate(const ProjectExplorer::Kit *kit,
                    const McuTarget *mcuTarget,
-                   const McuAbstractPackage *qtForMCUsSdkPackage);
+                   const McuPackagePtr &qtForMCUsSdkPackage);
 
 // Queries
 QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget);
 QList<ProjectExplorer::Kit *> matchingKits(const McuTarget *mcuTarget,
-                                           const McuAbstractPackage *qtForMCUsSdkPackage);
+                                           const McuPackagePtr &qtForMCUsSdkPackage);
 QList<ProjectExplorer::Kit *> upgradeableKits(const McuTarget *mcuTarget,
-                                              const McuAbstractPackage *qtForMCUsSdkPackage);
+                                              const McuPackagePtr &qtForMCUsSdkPackage);
 QList<ProjectExplorer::Kit *> kitsWithMismatchedDependencies(const McuTarget *mcuTarget);
 QList<ProjectExplorer::Kit *> outdatedKits();
 
@@ -68,7 +67,7 @@ void createAutomaticKits();
 void upgradeKitsByCreatingNewPackage(UpgradeOption upgradeOption);
 void upgradeKitInPlace(ProjectExplorer::Kit *kit,
                        const McuTarget *mcuTarget,
-                       const McuAbstractPackage *qtForMCUsSdk);
+                       const McuPackagePtr &qtForMCUsSdk);
 
 // Fixing kits:
 void updatePathsInExistingKits();
@@ -78,7 +77,6 @@ void fixExistingKits();
 void removeOutdatedKits();
 
 } // namespace McuKitManager
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal
 
 Q_DECLARE_METATYPE(McuSupport::Internal::McuKitManager::UpgradeOption)
