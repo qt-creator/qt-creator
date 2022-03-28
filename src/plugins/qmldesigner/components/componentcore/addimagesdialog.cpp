@@ -126,7 +126,6 @@ QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QStrin
             setDirectoryForComboBox(newDir);
     });
 
-    mainLayout->addWidget(new QLabel(QCoreApplication::translate("AddImageToResources", "In directory:")), 1, 0);
     mainLayout->addWidget(directoryComboBox, 1, 0, 1, 3);
     mainLayout->addWidget(browseButton, 1, 3, 1 , 1);
 
