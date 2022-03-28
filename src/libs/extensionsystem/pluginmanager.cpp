@@ -1553,12 +1553,14 @@ void PluginManagerPrivate::checkForProblematicPlugins()
                                             ? tr("%1 > About Plugins")
                                                   .arg(QGuiApplication::applicationDisplayName())
                                             : tr("Help > About Plugins");
-            const QString otherPluginsText = tr("The following plugins depend on "
-                                                "%1 and are also disabled: %2.\n\n")
-                                                 .arg(spec->name(), dependentsList);
+            const QString otherPluginsText
+                = tr("If you temporarily disable %1, the following plugins that depend on "
+                     "it are also disabled: %2.\n\n")
+                      .arg(spec->name(), dependentsList);
             const QString detailsText = (dependents.isEmpty() ? QString() : otherPluginsText)
                                         + tr("Disable plugins permanently in %1.").arg(pluginsMenu);
-            const QString text = tr("It looks like %1 closed because of a problem with the \"%2\" "
+            const QString text = tr("The last time you started %1, it seems to have closed because "
+                                    "of a problem with the \"%2\" "
                                     "plugin. Temporarily disable the plugin?")
                                      .arg(QGuiApplication::applicationDisplayName(), spec->name());
             QMessageBox dialog;
