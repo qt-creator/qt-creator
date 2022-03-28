@@ -253,7 +253,7 @@ public:
     {
         const QByteArray ba = QByteArray::fromHex(rawData.toUtf8());
         const auto p = (const T*)ba.data();
-        for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
+        for (int i = 0, n = int(ba.size() / sizeof(T)); i < n; ++i) {
             auto child = new WatchItem;
             child->arrayIndex = i;
             child->value = decodeItemHelper(p[i]);

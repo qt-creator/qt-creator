@@ -62,10 +62,16 @@ void PreviewImageTooltip::setInfo(const QString &info)
     m_ui->infoLabel->setText(info);
 }
 
-void PreviewImageTooltip::setImage(const QImage &image)
+void PreviewImageTooltip::setImage(const QImage &image, bool scale)
 {
-    m_ui->imageLabel->setPixmap(QPixmap::fromImage({image}).scaled(m_ui->imageLabel->width(),
-                                                                   m_ui->imageLabel->height(),
-                                                                   Qt::KeepAspectRatio));
+    QPixmap pm = QPixmap::fromImage({image});
+    if (scale) {
+        m_ui->imageLabel->setPixmap(pm.scaled(m_ui->imageLabel->width(),
+                                              m_ui->imageLabel->height(),
+                                              Qt::KeepAspectRatio));
+    } else {
+        m_ui->imageLabel->setPixmap(pm);
+    }
 }
+
 }

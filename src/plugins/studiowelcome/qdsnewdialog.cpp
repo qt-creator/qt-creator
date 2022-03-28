@@ -72,9 +72,13 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     , m_presetModel{new PresetModel(&m_presetData, this)}
     , m_screenSizeModel{new ScreenSizeModel(this)}
     , m_styleModel{new StyleModel(this)}
-    , m_recentsStore{Core::ICore::settings()}
+    , m_recentsStore{"RecentPresets.json", StorePolicy::UniqueValues}
+    , m_userPresetsStore{"UserPresets.json", StorePolicy::UniqueNames}
 {
     setParent(m_dialog);
+
+    m_recentsStore.setReverseOrder();
+    m_recentsStore.setMaximum(10);
 
     m_dialog->setResizeMode(QQuickWidget::SizeRootObjectToView); // SizeViewToRootObject
     m_dialog->engine()->addImageProvider(QStringLiteral("newprojectdialog_library"),
@@ -190,8 +194,11 @@ void QdsNewDialog::updateScreenSizes()
 
 void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandardItemModel *styleModel)
 {
-    m_screenSizeModel->setBackendModel(screenSizeModel);
-    m_styleModel->setBackendModel(styleModel);
+    if (screenSizeModel)
+        m_screenSizeModel->setBackendModel(screenSizeModel);
+
+    if (styleModel)
+        m_styleModel->setBackendModel(styleModel);
 
     auto userPreset = m_currentPreset->asUserPreset();
 
@@ -326,7 +333,7 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
 
     WizardFactories factories{factories_, m_dialog, platform};
 
-    std::vector<RecentPresetData> recents = m_recentsStore.fetchAll();
+    std::vector<UserPresetData> recents = m_recentsStore.fetchAll();
     std::vector<UserPresetData> userPresets =  m_userPresetsStore.fetchAll();
     m_presetData.setData(factories.presetsGroupedByCategory(), userPresets, recents);
 
@@ -360,33 +367,13 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
      * sure that all events have occurred before we go ahead and configure the wizard.
     */
 
-    auto userPreset = m_currentPreset->asUserPreset();
+    /* onWizardCreated will have been called by this time, as a result of m_presetModel->reset(),
+     * but at that time the Details and Styles panes haven't been loaded yet - only the backend
+     * models loaded. We call it again, cause at this point those panes are now loaded, and we can
+     * set them up.
+     */
 
-    if (m_qmlDetailsLoaded) {
-        updateScreenSizes();
-
-        if (m_wizard.haveTargetQtVersion()) {
-            int index = (userPreset ? m_wizard.targetQtVersionIndex(userPreset->qtVersion)
-                                    : m_wizard.targetQtVersionIndex());
-            if (index != -1)
-                setTargetQtVersionIndex(index);
-        }
-
-        if (m_wizard.haveVirtualKeyboard() && userPreset)
-            setUseVirtualKeyboard(userPreset->useQtVirtualKeyboard);
-
-        emit haveVirtualKeyboardChanged();
-        emit haveTargetQtVersionChanged();
-    }
-
-    if (m_qmlStylesLoaded && m_wizard.haveStyleModel()) {
-        if (userPreset) {
-            int index = m_wizard.styleIndex(userPreset->styleName);
-            if (index != -1)
-                setStyleIndex(index);
-        }
-        m_styleModel->reset();
-    }
+    onWizardCreated(nullptr, nullptr);
 }
 
 QString QdsNewDialog::recentsTabName() const
@@ -431,7 +418,8 @@ void QdsNewDialog::accept()
     std::shared_ptr<PresetItem> item = m_wizard.preset();
     QString customSizeName = m_qmlCustomWidth + " x " + m_qmlCustomHeight;
 
-    m_recentsStore.add(item->categoryId, item->displayName(), customSizeName, item->isUserPreset());
+    UserPresetData preset = currentUserPresetData(m_currentPreset->displayName());
+    m_recentsStore.save(preset);
 
     m_dialog->close();
     m_dialog->deleteLater();
@@ -471,7 +459,7 @@ void QdsNewDialog::setSelectedPreset(int selection)
     }
 }
 
-void QdsNewDialog::savePresetDialogAccept()
+UserPresetData QdsNewDialog::currentUserPresetData(const QString &displayName) const
 {
     QString screenSize = m_qmlCustomWidth + " x " + m_qmlCustomHeight;
     QString targetQtVersion = "";
@@ -489,11 +477,18 @@ void QdsNewDialog::savePresetDialogAccept()
 
     UserPresetData preset = {m_currentPreset->categoryId,
                              m_currentPreset->wizardName,
-                             m_qmlPresetName,
+                             displayName,
                              screenSize,
                              useVirtualKeyboard,
                              targetQtVersion,
                              styleName};
+
+    return preset;
+}
+
+void QdsNewDialog::savePresetDialogAccept()
+{
+    UserPresetData preset = currentUserPresetData(m_qmlPresetName);
 
     if (!m_userPresetsStore.save(preset)) {
         QMessageBox::warning(m_dialog,
@@ -503,7 +498,7 @@ void QdsNewDialog::savePresetDialogAccept()
     }
 
     // reload model
-    std::vector<RecentPresetData> recents = m_recentsStore.fetchAll();
+    std::vector<UserPresetData> recents = m_recentsStore.fetchAll();
     std::vector<UserPresetData> userPresets = m_userPresetsStore.fetchAll();
     m_presetData.reload(userPresets, recents);
 
@@ -520,8 +515,8 @@ void QdsNewDialog::removeCurrentPreset()
     }
 
     // remove preset & reload model
-    std::vector<RecentPresetData> recents = m_recentsStore.remove(m_currentPreset->categoryId,
-                                                                  m_currentPreset->displayName());
+    UserPresetData currentPreset = currentUserPresetData(m_qmlPresetName);
+    std::vector<UserPresetData> recents = m_recentsStore.remove(currentPreset);
 
     auto userPreset = m_currentPreset->asUserPreset();
     m_userPresetsStore.remove(userPreset->categoryId, userPreset->displayName());

@@ -37,8 +37,6 @@ QtcPlugin {
         "wizardfactories.h",
         "wizardhandler.cpp",
         "wizardhandler.h",
-        "recentpresets.cpp",
-        "recentpresets.h",
         "userpresets.cpp",
         "userpresets.h"
     ]

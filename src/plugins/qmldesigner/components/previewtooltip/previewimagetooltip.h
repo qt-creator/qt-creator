@@ -46,7 +46,7 @@ public:
     void setName(const QString &name);
     void setPath(const QString &path);
     void setInfo(const QString &info);
-    void setImage(const QImage &pixmap);
+    void setImage(const QImage &image, bool scale = true);
 
 private:
     std::unique_ptr<Ui::PreviewImageTooltip> m_ui;

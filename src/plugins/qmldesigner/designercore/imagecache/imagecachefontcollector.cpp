@@ -131,7 +131,7 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
         auto &&auxiliaryData = Utils::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
         QColor textColor = auxiliaryData.colorName;
         QSize size = auxiliaryData.size;
-        QString text = font.family() + "\n\n" + auxiliaryData.text;
+        QString text = font.family() + "\n" + auxiliaryData.text;
 
         QImage image = createFontImage(text, textColor, font, size);
 

@@ -207,7 +207,7 @@ def __verifyFileCreation__(path, expectedFiles):
 def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
     versionFinder = re.compile("^Desktop (\\d{1}\.\\d{1,2}\.\\d{1,2}).*$")
     tmp = list(available) # we need a deep copy
-    if Qt5Path.toVersionTuple(requiredQt) > (4,8,7):
+    if Qt5Path.toVersionTuple(requiredQt) > (4,8,7) and qt4Available:
         toBeRemoved = Targets.EMBEDDED_LINUX
         if asStrings:
             toBeRemoved = Targets.getStringForTarget(toBeRemoved)
@@ -221,6 +221,8 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
         if found:
             if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
                 available.discard(currentItem)
+        elif currentItem.endswith(" (invalid)"):
+            available.discard(currentItem)
 
 def __getProjectFileName__(projectName, buildSystem):
     if buildSystem is None or buildSystem == "CMake":
@@ -523,7 +525,9 @@ def __closeSubprocessByPushingStop__(isQtQuickUI):
 # configured Qt versions and Toolchains and cannot be looked up the same way
 # if you set getAsStrings to True this function returns a list of strings instead
 # of the constants defined in Targets
-def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
+# ignoreValidity if true kits will be considered available even if they are configured
+# to use an invalid Qt
+def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreValidity=False):
     reqPattern = re.compile("requires qt (?P<version>\d+\.\d+(\.\d+)?)", re.IGNORECASE)
     res = reqPattern.search(text)
     if res:
@@ -536,11 +540,12 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")
         result = set()
         if 'Desktop' in supports:
-            if (version == None or version < "5.0") and not templateName.startswith("Qt Quick 2"):
-                if qt4Available:
+            if (version == None or version < "5.0") and not templateName.startswith("Qt Quick"):
+                neverIgnoreValidity = templateName in ("Qt Custom Designer Widget", "Code Snippet", "Subdirs Project")
+                if qt4Available or ignoreValidity and not neverIgnoreValidity:
                     result.add(Targets.DESKTOP_4_8_7_DEFAULT)
-                if platform.system() in ("Linux", "Darwin"):
-                    result.add(Targets.EMBEDDED_LINUX)
+                    if platform.system() in ("Linux", "Darwin"):
+                        result.add(Targets.EMBEDDED_LINUX)
             result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]))
             if platform.system() != 'Darwin':
                 result.add(Targets.DESKTOP_5_4_1_GCC)

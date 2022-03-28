@@ -151,6 +151,8 @@ void NavigatorView::modelAttached(Model *model)
     treeView->setIndentation(20);
 
     m_currentModelInterface->setFilter(false);
+    m_currentModelInterface->setNameFilter("");
+    m_widget->clearSearch();
 
     QTimer::singleShot(0, this, [this, treeView]() {
         m_currentModelInterface->setFilter(
@@ -575,6 +577,12 @@ void NavigatorView::reverseOrderToggled(bool flag)
     DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
 }
 
+void NavigatorView::textFilterChanged(const QString &text)
+{
+    m_treeModel->setNameFilter(text);
+    treeWidget()->expandAll();
+}
+
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
 {
     if (m_blockSelectionChangedSignal)
@@ -702,6 +710,8 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
     connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
+
+    connect(m_widget.data(), &NavigatorWidget::textFilterChanged, this, &NavigatorView::textFilterChanged);
 
 #ifndef QMLDESIGNER_TEST
     const QString fontName = "qtds_propertyIconFont.ttf";

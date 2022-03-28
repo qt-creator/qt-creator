@@ -366,6 +366,9 @@ def getConfiguredKits():
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
         mouseClick(waitForObjectItem(":BuildAndRun_QTreeView", kit))
         qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
+        invalid = qtVersionStr.endswith(" (invalid)")
+        if invalid:
+            qtVersionStr = qtVersionStr[:-10]
         kitsQtVersionName[kitName] = qtVersionStr
     # end of internal function for iterate kits
 

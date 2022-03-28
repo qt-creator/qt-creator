@@ -45,6 +45,7 @@ class PreviewTooltipBackend : public QObject
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
     Q_PROPERTY(QString info READ info WRITE setInfo NOTIFY infoChanged)
     Q_PROPERTY(QString extraId READ extraId WRITE setExtraId NOTIFY extraIdChanged)
+    Q_PROPERTY(bool scaleImage READ scaleImage WRITE setScaleImage NOTIFY scaleImageChanged)
 
 public:
     PreviewTooltipBackend(AsynchronousImageCache &cache);
@@ -62,6 +63,8 @@ public:
     void setInfo(const QString &info);
     QString extraId() const;
     void setExtraId(const QString &extraId);
+    bool scaleImage() const;
+    void setScaleImage(bool scale);
 
     bool isVisible() const;
 
@@ -75,12 +78,14 @@ signals:
     void pathChanged();
     void infoChanged();
     void extraIdChanged();
+    void scaleImageChanged();
 
 private:
     QString m_name;
     QString m_path;
     QString m_info;
     QString m_extraId;
+    bool m_scaleImage = true;
     std::unique_ptr<PreviewImageTooltip> m_tooltip;
     ImageCache::AuxiliaryData m_auxiliaryData;
     AsynchronousImageCache &m_cache;

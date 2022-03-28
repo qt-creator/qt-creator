@@ -101,6 +101,7 @@ public:
     void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) override;
     void notifyIconsChanged() override;
     void setFilter(bool showOnlyVisibleItems) override;
+    void setNameFilter(const QString &filter) override;
     void setOrder(bool reverseItemOrder) override;
     void resetModel() override;
 
@@ -140,6 +141,8 @@ private:
     bool m_showOnlyVisibleItems = true;
     bool m_reverseItemOrder = false;
     DesignerActionManager *m_actionManager = nullptr;
+    QString m_nameFilter;
+    QList<ModelNode> m_nameFilteredList;
 };
 
 } // namespace QmlDesigner

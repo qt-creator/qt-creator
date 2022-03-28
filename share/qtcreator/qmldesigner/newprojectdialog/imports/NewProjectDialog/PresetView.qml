@@ -222,6 +222,8 @@ ScrollView {
                                                                    : Qt.ArrowCursor
 
                         onClicked: {
+                            delegate.GridView.view.currentIndex = index
+
                             removePresetDialog.presetName = presetName.text
                             removePresetDialog.open()
                         }

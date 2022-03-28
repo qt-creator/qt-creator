@@ -1,6 +1,6 @@
 ############################################################################
 #
-# Copyright (C) 2016 The Qt Company Ltd.
+# Copyright (C) 2022 The Qt Company Ltd.
 # Contact: https://www.qt.io/licensing/
 #
 # This file is part of Qt Creator.
@@ -93,8 +93,8 @@ def main():
     example = findExampleOrTutorial(listView, ".*", True)
     test.verify(example is None, "Verifying: No example is shown.")
 
-    proFiles = map(lambda p: os.path.join(p, "opengl", "2dpainting", "2dpainting.pro"),
-                   Qt5Path.getPaths(Qt5Path.EXAMPLES))
+    proFiles = [os.path.join(p, "opengl", "2dpainting", "2dpainting.pro")
+                for p in Qt5Path.getPaths(Qt5Path.EXAMPLES)]
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
@@ -115,8 +115,8 @@ def main():
 
     # go to "Welcome" page and choose another example
     switchViewTo(ViewConstants.WELCOME)
-    proFiles = map(lambda p: os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro"),
-                   Qt5Path.getPaths(Qt5Path.EXAMPLES))
+    proFiles = [os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro")
+                for p in Qt5Path.getPaths(Qt5Path.EXAMPLES)]
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))

@@ -565,9 +565,11 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
         // Reset puppet when particle emitter/affector is reparented to work around issue in
         // autodetecting the particle system it belongs to. QTBUG-101157
-        if ((node.isSubclassOf("QtQuick.Particles3D.ParticleEmitter3D")
-             || node.isSubclassOf("QtQuick.Particles3D.Affector3D"))
-            && node.property("system").toBindingProperty().expression().isEmpty()) {
+        // Reset is also needed when particle shapes are reparented. QTBUG-101882
+        if (((node.isSubclassOf("QtQuick.Particles3D.ParticleEmitter3D")
+              || node.isSubclassOf("QtQuick.Particles3D.Affector3D"))
+             && node.property("system").toBindingProperty().expression().isEmpty())
+            || node.isSubclassOf("QQuick3DParticleAbstractShape")) {
             resetPuppet();
         }
     }

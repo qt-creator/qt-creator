@@ -665,15 +665,23 @@ Item {
                         MouseArea {
                             id: mouseArea
 
+                            property bool allowTooltip: true
+
                             anchors.fill: parent
                             hoverEnabled: true
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                             onExited: tooltipBackend.hideTooltip()
-                            onCanceled: tooltipBackend.hideTooltip()
+                            onEntered: allowTooltip = true
+                            onCanceled: {
+                                tooltipBackend.hideTooltip()
+                                allowTooltip = true
+                            }
                             onPositionChanged: tooltipBackend.reposition()
                             onPressed: (mouse)=> {
                                 forceActiveFocus()
+                                allowTooltip = false
+                                tooltipBackend.hideTooltip()
                                 var ctrlDown = mouse.modifiers & Qt.ControlModifier
                                 if (mouse.button === Qt.LeftButton) {
                                     if (!root.selectedAssets[filePath] && !ctrlDown)
@@ -698,12 +706,12 @@ Item {
                                     root.contextDir = model.fileDir
                                     root.isDirContextMenu = false
 
-                                    tooltipBackend.hideTooltip()
                                     contextMenu.popup()
                                 }
                             }
 
                             onReleased: (mouse)=> {
+                                allowTooltip = true
                                 if (mouse.button === Qt.LeftButton) {
                                     if (!(mouse.modifiers & Qt.ControlModifier))
                                         root.selectedAssets = {}
@@ -720,7 +728,7 @@ Item {
 
                             Timer {
                                 interval: 1000
-                                running: mouseArea.containsMouse
+                                running: mouseArea.containsMouse && mouseArea.allowTooltip
                                 onTriggered: {
                                     if (suffix === ".ttf" || suffix === ".otf") {
                                         tooltipBackend.name = fileName

@@ -42,7 +42,7 @@ DocumentMessage::DocumentMessage(Exception *exception):
         m_line(exception->line()),
         m_column(-1),
         m_description(exception->description()),
-        m_url(exception->file())
+        m_url(QUrl::fromLocalFile(exception->file()))
 {
 }
 
@@ -84,14 +84,14 @@ QString DocumentMessage::toString() const
     if (line() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
-        str += ::QmlDesigner::DocumentMessage::tr("line %1").arg(line());
+        str += ::QmlDesigner::DocumentMessage::tr("line %1\n").arg(line());
     }
 
     if (column() != -1) {
         if (!str.isEmpty())
             str += QLatin1Char(' ');
 
-        str += ::QmlDesigner::DocumentMessage::tr("column %1").arg(column());
+        str += ::QmlDesigner::DocumentMessage::tr("column %1\n").arg(column());
     }
 
     if (!str.isEmpty())

@@ -47,9 +47,7 @@ class AssetsLibraryModel : public QAbstractListModel
     Q_PROPERTY(bool isEmpty READ isEmpty WRITE setIsEmpty NOTIFY isEmptyChanged)
 
 public:
-    AssetsLibraryModel(QmlDesigner::SynchronousImageCache &fontImageCache,
-                           Utils::FileSystemWatcher *fileSystemWatcher,
-                           QObject *parent = nullptr);
+    AssetsLibraryModel(Utils::FileSystemWatcher *fileSystemWatcher, QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -97,7 +95,6 @@ private:
 
     void setIsEmpty(bool empty);
 
-    SynchronousImageCache &m_fontImageCache;
     QHash<QString, QPair<QDateTime, QIcon>> m_iconCache;
 
     QString m_searchText;

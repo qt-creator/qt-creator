@@ -185,13 +185,13 @@ void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
     QQuickDesignerSupportProperties::registerNodeInstanceMetaObject(object, engine);
 }
 
-static bool isQuickStyleItemMetaObject(const QMetaObject *metaObject)
+static bool isMetaObjectofType(const QMetaObject *metaObject, const QByteArray &type)
 {
     if (metaObject) {
-        if (metaObject->className() == QByteArrayLiteral("QQuickStyleItem"))
+        if (metaObject->className() == type)
             return true;
 
-        return isQuickStyleItemMetaObject(metaObject->superClass());
+        return isMetaObjectofType(metaObject->superClass(), type);
     }
 
     return false;
@@ -200,7 +200,15 @@ static bool isQuickStyleItemMetaObject(const QMetaObject *metaObject)
 static bool isQuickStyleItem(QObject *object)
 {
     if (object)
-        return isQuickStyleItemMetaObject(object->metaObject());
+        return isMetaObjectofType(object->metaObject(), "QQuickStyleItem");
+
+    return false;
+}
+
+static bool isDelegateModel(QObject *object)
+{
+    if (object)
+        return isMetaObjectofType(object->metaObject(), "QQmlDelegateModel");
 
     return false;
 }
@@ -400,7 +408,7 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
                 doComponentCompleteRecursive(child, nodeInstanceServer);
         }
 
-        if (!isQuickStyleItem(item)) {
+        if (!isQuickStyleItem(object) && !isDelegateModel(object)) {
             if (item) {
                 static_cast<QQmlParserStatus *>(item)->componentComplete();
             } else {

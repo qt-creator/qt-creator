@@ -156,7 +156,7 @@ def __createProject__(category, template):
     origTxt = safeGetTextBrowserText()
     mouseClick(waitForObjectItem(templatesView, template))
     waitFor("origTxt != safeGetTextBrowserText() != ''", 2000)
-    displayedPlatforms = __getSupportedPlatforms__(safeGetTextBrowserText(), template, True)[0]
+    displayedPlatforms = __getSupportedPlatforms__(safeGetTextBrowserText(), template, True, True)[0]
     safeClickButton("Choose...")
     # don't check because project could exist
     __createProjectSetNameAndPath__(os.path.expanduser("~"), 'untitled', False)

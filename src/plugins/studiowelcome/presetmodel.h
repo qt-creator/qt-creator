@@ -33,7 +33,6 @@
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
 
-#include "recentpresets.h"
 #include "userpresets.h"
 
 namespace Utils {
@@ -169,10 +168,10 @@ class PresetData
 {
 public:
     void reload(const std::vector<UserPresetData> &userPresets,
-                const std::vector<RecentPresetData> &loadedRecents);
+                const std::vector<UserPresetData> &loadedRecents);
     void setData(const PresetsByCategory &presets,
                  const std::vector<UserPresetData> &userPresets,
-                 const std::vector<RecentPresetData> &recents);
+                 const std::vector<UserPresetData> &recents);
 
     const std::vector<PresetItems> &presets() const { return m_presets; }
     const Categories &categories() const { return m_categories; }
@@ -180,16 +179,13 @@ public:
     static QString recentsTabName();
 
 private:
-    PresetItems makeRecentPresets(const PresetItems &wizardPresets);
-    PresetItems makeUserPresets(const PresetItems &wizardPresets);
-
+    PresetItems makeUserPresets(const PresetItems &wizardPresets, const std::vector<UserPresetData> &data);
     std::shared_ptr<PresetItem> findPresetItemForUserPreset(const UserPresetData &preset, const PresetItems &wizardPresets);
-    std::shared_ptr<PresetItem> findPresetItemForRecent(const RecentPresetData &recent, const PresetItems &wizardPresets);
 
 private:
     std::vector<PresetItems> m_presets;
     Categories m_categories;
-    std::vector<RecentPresetData> m_recents;
+    std::vector<UserPresetData> m_recents;
     std::vector<UserPresetData> m_userPresets;
     PresetsByCategory m_presetsByCategory;
 };

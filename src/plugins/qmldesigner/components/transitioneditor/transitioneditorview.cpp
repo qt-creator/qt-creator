@@ -227,6 +227,8 @@ ModelNode TransitionEditorView::addNewTransition()
                 const QString targetId = target.id();
                 for (const VariantProperty &property : change.modelNode().variantProperties()) {
                     TypeName typeName = target.metaInfo().propertyTypeName(property.name());
+                    if (typeName.startsWith("<cpp>."))
+                        typeName.remove(0, 6);
 
                     if (validProperties.contains(typeName))
                         locList.append(QString::fromUtf8(property.name()));

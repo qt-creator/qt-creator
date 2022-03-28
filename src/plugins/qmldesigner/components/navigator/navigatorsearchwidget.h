@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,27 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import HelperWidgets 2.0
+#pragma once
 
-MouseArea {
-    id: mouseArea
+#include <QLineEdit>
 
-    property bool allowTooltip: true
+namespace QmlDesigner {
 
-    signal showContextMenu()
+class NavigatorSearchWidget : public QWidget
+{
+    Q_OBJECT
 
-    function hide()
-    {
-        tooltipBackend.hideTooltip()
-    }
+public:
+    NavigatorSearchWidget(QWidget *parent = nullptr);
 
-    onExited: tooltipBackend.hideTooltip()
-    onEntered: allowTooltip = true
-    onCanceled: {
-        tooltipBackend.hideTooltip()
-        allowTooltip = true
-    }
-    onReleased: allowTooltip = true
-    onPositionChanged: tooltipBackend.reposition()
-    onClicked: function(mouse) {
-        forceActiveFocus()
-        if (mouse.button === Qt.RightButton)
-            showContextMenu()
-    }
+    void clear();
 
-    hoverEnabled: true
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+signals:
+    void textChanged(const QString &text);
 
-    Timer {
-        interval: 1000
-        running: mouseArea.containsMouse && mouseArea.allowTooltip
-        onTriggered: {
-            tooltipBackend.name = itemName
-            tooltipBackend.path = componentPath
-            tooltipBackend.showTooltip()
-        }
-    }
-}
+private:
+
+    QLineEdit *m_textField;
+};
+
+} //QmlDesigner
