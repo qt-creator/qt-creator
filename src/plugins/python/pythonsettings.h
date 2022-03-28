@@ -42,7 +42,8 @@ public:
                 bool windowedSuffix = false);
     Interpreter(const QString &id,
                 const QString &name,
-                const Utils::FilePath &command);
+                const Utils::FilePath &command,
+                bool autoDetected = true);
 
     inline bool operator==(const Interpreter &other) const
     {
@@ -52,6 +53,7 @@ public:
     QString id = QUuid::createUuid().toString();
     QString name;
     Utils::FilePath command;
+    bool autoDetected = true;
 };
 
 class PythonSettings : public QObject

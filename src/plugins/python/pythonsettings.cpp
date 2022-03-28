@@ -229,7 +229,7 @@ void InterpreterOptionsWidget::detailsChanged()
 void InterpreterOptionsWidget::addItem()
 {
     const QModelIndex &index = m_model.indexForItem(
-                m_model.appendItem({QUuid::createUuid().toString(), QString("Python"), FilePath()}));
+        m_model.appendItem({QUuid::createUuid().toString(), QString("Python"), FilePath(), false}));
     QTC_ASSERT(index.isValid(), return);
     m_view.setCurrentIndex(index);
 }
@@ -330,10 +330,14 @@ Interpreter::Interpreter(const FilePath &python, const QString &defaultName, boo
         name += QString(" (%1 Virtual Environment)").arg(pythonDir.dirName());
 }
 
-Interpreter::Interpreter(const QString &_id, const QString &_name, const FilePath &_command)
+Interpreter::Interpreter(const QString &_id,
+                         const QString &_name,
+                         const FilePath &_command,
+                         bool _autoDetected)
     : id(_id)
     , name(_name)
     , command(_command)
+    , autoDetected(_autoDetected)
 {}
 
 static InterpreterOptionsPage &interpreterOptionsPage()
@@ -371,14 +375,28 @@ static SavedSettings fromSettings(QSettings *settings)
     QList<Interpreter> pythons;
     settings->beginGroup(settingsGroupKey);
     const QVariantList interpreters = settings->value(interpreterKey).toList();
+    QList<Interpreter> oldSettings;
     for (const QVariant &interpreterVar : interpreters) {
         auto interpreterList = interpreterVar.toList();
-        if (interpreterList.size() != 3)
-            continue;
-        pythons << Interpreter{interpreterList.value(0).toString(),
-                               interpreterList.value(1).toString(),
-                               FilePath::fromVariant(interpreterList.value(2))};
+        const Interpreter interpreter{interpreterList.value(0).toString(),
+                                      interpreterList.value(1).toString(),
+                                      FilePath::fromVariant(interpreterList.value(2)),
+                                      interpreterList.value(3, true).toBool()};
+        if (interpreterList.size() == 3)
+            oldSettings << interpreter;
+        else if (interpreterList.size() == 4)
+            pythons << interpreter;
     }
+
+    for (const Interpreter &interpreter : qAsConst(oldSettings)) {
+        if (Utils::anyOf(pythons, Utils::equal(&Interpreter::id, interpreter.id)))
+            continue;
+        pythons << interpreter;
+    }
+
+    pythons = Utils::filtered(pythons, [](const Interpreter &interpreter){
+        return !interpreter.autoDetected || interpreter.command.isExecutableFile();
+    });
 
     const QString defaultId = settings->value(defaultKey).toString();
 
@@ -390,10 +408,15 @@ static SavedSettings fromSettings(QSettings *settings)
 static void toSettings(QSettings *settings, const SavedSettings &savedSettings)
 {
     settings->beginGroup(settingsGroupKey);
-    const QVariantList interpretersVar
-        = Utils::transform(savedSettings.pythons, [](const Interpreter &interpreter) {
-              return QVariant({interpreter.id, interpreter.name, interpreter.command.toVariant()});
-          });
+    QVariantList interpretersVar;
+    for (const Interpreter &interpreter : savedSettings.pythons) {
+        QVariantList interpreterVar{interpreter.id,
+                                    interpreter.name,
+                                    interpreter.command.toVariant()};
+        interpretersVar.append(QVariant(interpreterVar)); // old settings
+        interpreterVar.append(interpreter.autoDetected);
+        interpretersVar.append(QVariant(interpreterVar)); // new settings
+    }
     settings->setValue(interpreterKey, interpretersVar);
     settings->setValue(defaultKey, savedSettings.defaultId);
     settings->endGroup();
