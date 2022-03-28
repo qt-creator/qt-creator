@@ -294,14 +294,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
                 tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
                 [] { return usePragmaOnce() ? QString("true") : QString(); });
 
-    const auto clangdPanelFactory = new ProjectPanelFactory;
-    clangdPanelFactory->setPriority(100);
-    clangdPanelFactory->setDisplayName(tr("Clangd"));
-    clangdPanelFactory->setCreateWidgetFunction([](Project *project) {
-        return new ClangdProjectSettingsWidget(project);
-    });
-    ProjectPanelFactory::registerFactory(clangdPanelFactory);
-
     const auto quickFixSettingsPanelFactory = new ProjectPanelFactory;
     quickFixSettingsPanelFactory->setPriority(100);
     quickFixSettingsPanelFactory->setId(Constants::QUICK_FIX_PROJECT_PANEL_ID);
@@ -441,8 +433,17 @@ void CppEditorPlugin::extensionsInitialized()
     d->m_fileSettings.fromSettings(ICore::settings());
     if (!d->m_fileSettings.applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
-    if (CppModelManager::instance()->isClangCodeModelActive())
+
+    if (CppModelManager::instance()->isClangCodeModelActive()) {
         d->m_clangdSettingsPage = new ClangdSettingsPage;
+        const auto clangdPanelFactory = new ProjectPanelFactory;
+        clangdPanelFactory->setPriority(100);
+        clangdPanelFactory->setDisplayName(tr("Clangd"));
+        clangdPanelFactory->setCreateWidgetFunction([](Project *project) {
+            return new ClangdProjectSettingsWidget(project);
+        });
+        ProjectPanelFactory::registerFactory(clangdPanelFactory);
+    }
 
     // Add the hover handler factories here instead of in initialize()
     // so that the Clang Code Model has a chance to hook in.
