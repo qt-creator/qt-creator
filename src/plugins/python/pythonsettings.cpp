@@ -113,13 +113,16 @@ private:
     InterpreterDetailsWidget *m_detailsWidget = nullptr;
     QPushButton *m_deleteButton = nullptr;
     QPushButton *m_makeDefaultButton = nullptr;
+    QPushButton *m_cleanButton = nullptr;
     QString m_defaultId;
 
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
     void detailsChanged();
+    void updateCleanButton();
     void addItem();
     void deleteItem();
     void makeDefault();
+    void cleanUp();
 };
 
 InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &interpreters, const QString &defaultInterpreter)
@@ -174,6 +177,13 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     m_makeDefaultButton->setEnabled(false);
     connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
 
+    m_cleanButton = new QPushButton(PythonSettings::tr("&Clean Up"));
+    connect(m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
+    m_cleanButton->setToolTip(
+        PythonSettings::tr("Remove all python interpreters without a valid executable."));
+
+    updateCleanButton();
+
     m_detailsWidget->hide();
     connect(m_detailsWidget,
             &InterpreterDetailsWidget::changed,
@@ -184,6 +194,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
         addButton,
         m_deleteButton,
         m_makeDefaultButton,
+        m_cleanButton,
         Stretch()
     };
 
@@ -224,6 +235,14 @@ void InterpreterOptionsWidget::detailsChanged()
         m_model.itemAt(index.row())->itemData = m_detailsWidget->toInterpreter();
         emit m_model.dataChanged(index, index);
     }
+    updateCleanButton();
+}
+
+void InterpreterOptionsWidget::updateCleanButton()
+{
+    m_cleanButton->setEnabled(Utils::anyOf(m_model.allData(), [](const Interpreter &interpreter) {
+        return !interpreter.command.isExecutableFile();
+    }));
 }
 
 void InterpreterOptionsWidget::addItem()
@@ -232,6 +251,7 @@ void InterpreterOptionsWidget::addItem()
         m_model.appendItem({QUuid::createUuid().toString(), QString("Python"), FilePath(), false}));
     QTC_ASSERT(index.isValid(), return);
     m_view.setCurrentIndex(index);
+    updateCleanButton();
 }
 
 void InterpreterOptionsWidget::deleteItem()
@@ -239,6 +259,7 @@ void InterpreterOptionsWidget::deleteItem()
     const QModelIndex &index = m_view.currentIndex();
     if (index.isValid())
         m_model.destroyItem(m_model.itemAt(index.row()));
+    updateCleanButton();
 }
 
 class InterpreterOptionsPage : public Core::IOptionsPage
@@ -358,6 +379,13 @@ void InterpreterOptionsWidget::makeDefault()
         if (defaultIndex.isValid())
             emit m_model.dataChanged(defaultIndex, defaultIndex, {Qt::FontRole});
     }
+}
+
+void InterpreterOptionsWidget::cleanUp()
+{
+    m_model.destroyItems(
+        [](const Interpreter &interpreter) { return !interpreter.command.isExecutableFile(); });
+    updateCleanButton();
 }
 
 constexpr char settingsGroupKey[] = "Python";
