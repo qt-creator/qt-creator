@@ -589,10 +589,22 @@ bool LocalHelpManager::openOnlineHelp(const QUrl &url)
 
     if (canOpenOnlineHelp(url)) {
         QString urlPrefix = "http://doc.qt.io/";
-        if (url.authority().startsWith(unversionedLocalDomainName))
+        if (url.authority().startsWith(unversionedLocalDomainName)) {
             urlPrefix.append(Core::Constants::IDE_ID);
-        else
-            urlPrefix.append("qt-5");
+        } else {
+            const auto host = url.host();
+            const auto dot = host.lastIndexOf('.');
+            if (dot < 0) {
+                urlPrefix.append("qt-5");
+            } else {
+                const auto version = host.mid(dot + 1);
+                if (version.startsWith('6')) {
+                    urlPrefix.append("qt-6");
+                } else {
+                    urlPrefix.append("qt-5");
+                }
+            }
+        }
         const QString address = url.toString();
         QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')))));
         return true;
