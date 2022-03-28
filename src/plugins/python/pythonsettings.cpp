@@ -39,6 +39,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QLabel>
@@ -57,12 +58,16 @@ using namespace Layouting;
 
 class InterpreterDetailsWidget : public QWidget
 {
+    Q_OBJECT
 public:
     InterpreterDetailsWidget()
         : m_name(new QLineEdit)
-        , m_executable(new Utils::PathChooser())
+        , m_executable(new PathChooser())
     {
-        m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_executable->setExpectedKind(PathChooser::ExistingCommand);
+
+        connect(m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
+        connect(m_executable, &PathChooser::filePathChanged, this, &InterpreterDetailsWidget::changed);
 
         Form {
             PythonSettings::tr("Name:"), m_name, Break(),
@@ -72,23 +77,30 @@ public:
 
     void updateInterpreter(const Interpreter &interpreter)
     {
+        QSignalBlocker blocker(this); // do not emit changed when we change the controls here
+        m_currentInterpreter = interpreter;
         m_name->setText(interpreter.name);
         m_executable->setFilePath(interpreter.command);
-        m_currentId = interpreter.id;
     }
 
     Interpreter toInterpreter()
     {
-        return {m_currentId, m_name->text(), m_executable->filePath()};
+        m_currentInterpreter.command = m_executable->filePath();
+        m_currentInterpreter.name = m_name->text();
+        return m_currentInterpreter;
     }
     QLineEdit *m_name = nullptr;
     PathChooser *m_executable = nullptr;
-    QString m_currentId;
+    Interpreter m_currentInterpreter;
+
+signals:
+    void changed();
 };
 
 
 class InterpreterOptionsWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Python::Internal::InterpreterOptionsWidget)
 public:
     InterpreterOptionsWidget(const QList<Interpreter> &interpreters,
                              const QString &defaultInterpreter);
@@ -104,6 +116,7 @@ private:
     QString m_defaultId;
 
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
+    void detailsChanged();
     void addItem();
     void deleteItem();
     void makeDefault();
@@ -113,13 +126,29 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     : m_detailsWidget(new InterpreterDetailsWidget())
     , m_defaultId(defaultInterpreter)
 {
-    m_model.setDataAccessor([this](const Interpreter &interpreter, int, int role) -> QVariant {
-        if (role == Qt::DisplayRole)
+    m_model.setDataAccessor([this](const Interpreter &interpreter, int column, int role) -> QVariant {
+        switch (role) {
+        case Qt::DisplayRole:
             return interpreter.name;
-        if (role == Qt::FontRole) {
+        case Qt::FontRole: {
             QFont f = font();
             f.setBold(interpreter.id == m_defaultId);
             return f;
+        }
+        case Qt::ToolTipRole:
+            if (interpreter.command.isEmpty())
+                return tr("Executable is empty.");
+            if (!interpreter.command.exists())
+                return tr("%1 does not exist.").arg(interpreter.command.toUserOutput());
+            if (!interpreter.command.isExecutableFile())
+                return tr("%1 is not an executable file.").arg(interpreter.command.toUserOutput());
+            break;
+        case Qt::DecorationRole:
+            if (column == 0 && !interpreter.command.isExecutableFile())
+                return Utils::Icons::CRITICAL.icon();
+            break;
+        default:
+            break;
         }
         return {};
     });
@@ -146,6 +175,10 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
 
     m_detailsWidget->hide();
+    connect(m_detailsWidget,
+            &InterpreterDetailsWidget::changed,
+            this,
+            &InterpreterOptionsWidget::detailsChanged);
 
     Column buttons {
         addButton,
@@ -162,12 +195,6 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
 
 void InterpreterOptionsWidget::apply()
 {
-    const QModelIndex &index = m_view.currentIndex();
-    if (index.isValid()) {
-        m_model.itemAt(index.row())->itemData = m_detailsWidget->toInterpreter();
-        emit m_model.dataChanged(index, index);
-    }
-
     QList<Interpreter> interpreters;
     for (const TreeItem *treeItem : m_model)
         interpreters << static_cast<const ListItem<Interpreter> *>(treeItem)->itemData;
@@ -188,6 +215,15 @@ void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QM
     }
     m_deleteButton->setEnabled(index.isValid());
     m_makeDefaultButton->setEnabled(index.isValid());
+}
+
+void InterpreterOptionsWidget::detailsChanged()
+{
+    const QModelIndex &index = m_view.currentIndex();
+    if (index.isValid()) {
+        m_model.itemAt(index.row())->itemData = m_detailsWidget->toInterpreter();
+        emit m_model.dataChanged(index, index);
+    }
 }
 
 void InterpreterOptionsWidget::addItem()
