@@ -205,8 +205,6 @@ void LauncherSocketHandler::handleStartPacket()
     process->setEnvironment(packet.env);
     process->setWorkingDirectory(packet.workingDir);
     // Forwarding is handled by the LauncherInterface
-    process->setProcessChannelMode(packet.processChannelMode == QProcess::MergedChannels
-                                   ? QProcess::MergedChannels : QProcess::SeparateChannels);
     process->setStandardInputFile(packet.standardInputFile);
     ProcessStartHandler *handler = process->processStartHandler();
     handler->setProcessMode(packet.processMode);

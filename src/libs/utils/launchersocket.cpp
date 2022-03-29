@@ -222,21 +222,28 @@ void CallerHandle::handleStarted(const StartedSignal *launcherSignal)
 void CallerHandle::handleReadyRead(const ReadyReadSignal *launcherSignal)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    if (m_setup->m_processChannelMode == QProcess::ForwardedOutputChannel
-            || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
-        std::cout << launcherSignal->stdOut().constData() << std::flush;
-    } else {
+    if (m_setup->m_processChannelMode == QProcess::MergedChannels) {
         m_stdout += launcherSignal->stdOut();
+        m_stdout += launcherSignal->stdErr();
         if (!m_stdout.isEmpty())
             emit readyReadStandardOutput();
-    }
-    if (m_setup->m_processChannelMode == QProcess::ForwardedErrorChannel
-            || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
-        std::cerr << launcherSignal->stdErr().constData() << std::flush;
     } else {
-        m_stderr += launcherSignal->stdErr();
-        if (!m_stderr.isEmpty())
-            emit readyReadStandardError();
+        if (m_setup->m_processChannelMode == QProcess::ForwardedOutputChannel
+                || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
+            std::cout << launcherSignal->stdOut().constData() << std::flush;
+        } else {
+            m_stdout += launcherSignal->stdOut();
+            if (!m_stdout.isEmpty())
+                emit readyReadStandardOutput();
+        }
+        if (m_setup->m_processChannelMode == QProcess::ForwardedErrorChannel
+                || m_setup->m_processChannelMode == QProcess::ForwardedChannels) {
+            std::cerr << launcherSignal->stdErr().constData() << std::flush;
+        } else {
+            m_stderr += launcherSignal->stdErr();
+            if (!m_stderr.isEmpty())
+                emit readyReadStandardError();
+        }
     }
 }
 
