@@ -1122,8 +1122,12 @@ void CMakeConfigurationKitAspect::fromStringList(Kit *k, const QStringList &in)
 
 QStringList CMakeConfigurationKitAspect::toArgumentsList(const Kit *k)
 {
-    return Utils::transform(CMakeConfigurationKitAspect::configuration(k).toList(),
-                            [](const CMakeConfigItem &i) { return i.toArgument(nullptr); });
+    QStringList current = Utils::transform(CMakeConfigurationKitAspect::configuration(k).toList(),
+                                           [](const CMakeConfigItem &i) {
+                                               return i.toArgument(nullptr);
+                                           });
+    current = Utils::filtered(current, [](const QString &s) { return s != "-D" || s != "-U"; });
+    return current;
 }
 
 CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
