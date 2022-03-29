@@ -924,6 +924,10 @@ static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &pat
 
     std::function<void(const QString &)> checkDir;
     checkDir = [&](const QString &checkPath) {
+
+       if (QFileInfo(checkPath).isRoot())
+            return;
+
         const QStringList entries = QDir(checkPath).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
         const QString checkPathDelim = checkPath + delimeter;
         for (const QString &entry : entries) {
@@ -1007,7 +1011,8 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
 
     QList<QmlDesigner::Import> possibleImports = generatePossibleLibraryImports(filteredPossibleImportKeys);
 
-    possibleImports.append(generatePossibleFileImports(document()->path(), imports->all()));
+    if (document()->fileName() != "<internal>")
+        possibleImports.append(generatePossibleFileImports(document()->path(), imports->all()));
 
     if (m_rewriterView->isAttached())
         m_rewriterView->model()->setPossibleImports(possibleImports);
