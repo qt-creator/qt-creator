@@ -26,6 +26,7 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QTimer>
