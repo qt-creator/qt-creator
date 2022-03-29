@@ -78,6 +78,8 @@ static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
 static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderInsertion"); }
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
+static QString clangdSizeThresholdEnabledKey() { return QLatin1String("ClangdSizeThresholdEnabled"); }
+static QString clangdSizeThresholdKey() { return QLatin1String("ClangdSizeThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
 static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
 
@@ -350,6 +352,11 @@ FilePath ClangdSettings::clangdFilePath() const
     return fallbackClangdFilePath();
 }
 
+bool ClangdSettings::sizeIsOkay(const Utils::FilePath &fp) const
+{
+    return !sizeThresholdEnabled() || sizeThresholdInKb() * 1024 >= fp.fileSize();
+}
+
 ClangdSettings::Granularity ClangdSettings::granularity() const
 {
     if (m_data.sessionsWithOneClangd.contains(ProjectExplorer::SessionManager::activeSession()))
@@ -479,6 +486,8 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
+    map.insert(clangdSizeThresholdEnabledKey(), sizeThresholdEnabled);
+    map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
     map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
     return map;
 }
@@ -491,6 +500,8 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
+    sizeThresholdEnabled = map.value(clangdSizeThresholdEnabledKey(), false).toBool();
+    sizeThresholdInKb = map.value(clangdSizeThresholdKey(), 1024).toLongLong();
     sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
 }
 

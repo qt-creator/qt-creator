@@ -367,8 +367,11 @@ void ClangModelManagerSupport::updateLanguageClient(
 
             // Acquaint the client with all open C++ documents for this project.
             bool hasDocuments = false;
+            const ClangdSettings settings(ClangdProjectSettings(project).settings());
             for (TextEditor::TextDocument * const doc : allCppDocuments()) {
                 const Client * const currentClient = LanguageClientManager::clientForDocument(doc);
+                if (!settings.sizeIsOkay(doc->filePath()))
+                    continue;
                 if (!currentClient || !currentClient->project()
                         || currentClient->state() != Client::Initialized
                         || project->isKnownFile(doc->filePath())) {
@@ -466,6 +469,8 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
             continue;
         }
         ClangEditorDocumentProcessor::clearTextMarks(doc->filePath());
+        if (!ClangdSettings::instance().sizeIsOkay(doc->filePath()))
+            continue;
         client->openDocument(doc);
     }
 }
@@ -568,6 +573,9 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
 
         ProjectExplorer::Project * project
                 = ProjectExplorer::SessionManager::projectForFile(document->filePath());
+        const ClangdSettings settings(ClangdProjectSettings(project).settings());
+        if (!settings.sizeIsOkay(textDocument->filePath()))
+            return;
         if (!project)
             project = fallbackProject();
         if (ClangdClient * const client = clientForProject(project))

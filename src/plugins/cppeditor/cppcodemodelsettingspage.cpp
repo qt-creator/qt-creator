@@ -50,6 +50,8 @@
 #include <QVBoxLayout>
 #include <QVersionNumber>
 
+#include <limits>
+
 namespace CppEditor::Internal {
 
 class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
@@ -206,8 +208,10 @@ public:
     QCheckBox useClangdCheckBox;
     QCheckBox indexingCheckBox;
     QCheckBox autoIncludeHeadersCheckBox;
+    QCheckBox sizeThresholdCheckBox;
     QSpinBox threadLimitSpinBox;
     QSpinBox documentUpdateThreshold;
+    QSpinBox sizeThresholdSpinBox;
     Utils::PathChooser clangdChooser;
     Utils::InfoLabel versionWarningLabel;
     QGroupBox *sessionsGroupBox = nullptr;
@@ -243,6 +247,15 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         tr("Defines the amount of time Qt Creator waits before sending document changes to the "
            "server.\n"
            "If the document changes again while waiting, this timeout resets.\n"));
+    d->sizeThresholdCheckBox.setText(tr("Ignore files greater than"));
+    d->sizeThresholdCheckBox.setChecked(settings.sizeThresholdEnabled());
+    d->sizeThresholdSpinBox.setMinimum(1);
+    d->sizeThresholdSpinBox.setMaximum(std::numeric_limits<int>::max());
+    d->sizeThresholdSpinBox.setSuffix(" KB");
+    d->sizeThresholdSpinBox.setValue(settings.sizeThresholdInKb());
+    d->sizeThresholdSpinBox.setToolTip(tr(
+            "Files greater than this will not be opened as documents in clangd.\n"
+            "The built-in code model will handle highlighting, completion and so on."));
 
     const auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -265,6 +278,10 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     documentUpdateThresholdLayout->addStretch(1);
     const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
     formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
+    const auto sizeThresholdLayout = new QHBoxLayout;
+    sizeThresholdLayout->addWidget(&d->sizeThresholdSpinBox);
+    sizeThresholdLayout->addStretch(1);
+    formLayout->addRow(&d->sizeThresholdCheckBox, sizeThresholdLayout);
     layout->addLayout(formLayout);
 
     if (!isForProject) {
@@ -381,6 +398,10 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->threadLimitSpinBox, qOverload<int>(&QSpinBox::valueChanged),
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->sizeThresholdCheckBox, &QCheckBox::toggled,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->sizeThresholdSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->clangdChooser, &Utils::PathChooser::pathChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
 }
@@ -399,6 +420,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();
+    data.sizeThresholdEnabled = d->sizeThresholdCheckBox.isChecked();
+    data.sizeThresholdInKb = d->sizeThresholdSpinBox.value();
     data.sessionsWithOneClangd = d->sessionsModel.stringList();
     return data;
 }

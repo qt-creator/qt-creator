@@ -115,17 +115,21 @@ public:
                     && s1.workerThreadLimit == s2.workerThreadLimit
                     && s1.enableIndexing == s2.enableIndexing
                     && s1.autoIncludeHeaders == s2.autoIncludeHeaders
-                    && s1.documentUpdateThreshold == s2.documentUpdateThreshold;
+                    && s1.documentUpdateThreshold == s2.documentUpdateThreshold
+                    && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
+                    && s1.sizeThresholdInKb == s2.sizeThresholdInKb;
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
         int workerThreadLimit = 0;
+        int documentUpdateThreshold = 500;
+        qint64 sizeThresholdInKb = 1024;
         bool useClangd = true;
         bool enableIndexing = true;
         bool autoIncludeHeaders = false;
-        int documentUpdateThreshold = 500;
+        bool sizeThresholdEnabled = false;
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}
@@ -139,6 +143,9 @@ public:
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
     int workerThreadLimit() const { return m_data.workerThreadLimit; }
     int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }
+    qint64 sizeThresholdInKb() const { return m_data.sizeThresholdInKb; }
+    bool sizeThresholdEnabled() const { return m_data.sizeThresholdEnabled; }
+    bool sizeIsOkay(const Utils::FilePath &fp) const;
 
     enum class Granularity { Project, Session };
     Granularity granularity() const;
