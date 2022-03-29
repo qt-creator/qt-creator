@@ -30,13 +30,14 @@
 #include "environment.h"
 #include "commandline.h"
 #include "processenums.h"
-#include "processinterface.h"
 #include "qtcassert.h"
 
 #include <QProcess>
 
-QT_FORWARD_DECLARE_CLASS(QDebug)
-QT_FORWARD_DECLARE_CLASS(QTextCodec)
+QT_BEGIN_NAMESPACE
+class QDebug;
+class QTextCodec;
+QT_END_NAMESPACE
 
 class tst_QtcProcess;
 
@@ -45,8 +46,9 @@ namespace Utils {
 namespace Internal { class QtcProcessPrivate; }
 
 class DeviceProcessHooks;
+class ProcessInterface;
 
-class QTCREATOR_UTILS_EXPORT QtcProcess : public ProcessInterface
+class QTCREATOR_UTILS_EXPORT QtcProcess : public QObject
 {
     Q_OBJECT
 
@@ -56,31 +58,31 @@ public:
 
     // ProcessInterface related
 
-    void start() override;
-    void interrupt() override;
-    void terminate() override;
-    void kill() override;
-    void close() final;
+    virtual void start();
+    virtual void interrupt();
+    virtual void terminate();
+    virtual void kill();
+    void close();
 
-    QByteArray readAllStandardOutput() override;
-    QByteArray readAllStandardError() override;
-    qint64 write(const QByteArray &input) override;
+    virtual QByteArray readAllStandardOutput();
+    virtual QByteArray readAllStandardError();
+    virtual qint64 write(const QByteArray &input);
 
-    qint64 processId() const override;
-    QProcess::ProcessState state() const override;
-    int exitCode() const override;
-    QProcess::ExitStatus exitStatus() const override;
+    virtual qint64 processId() const;
+    virtual QProcess::ProcessState state() const;
+    virtual int exitCode() const;
+    virtual QProcess::ExitStatus exitStatus() const;
 
-    QProcess::ProcessError error() const final;
-    QString errorString() const override;
-    void setErrorString(const QString &str) final;
+    QProcess::ProcessError error() const;
+    virtual QString errorString() const;
+    void setErrorString(const QString &str);
 
-    bool waitForStarted(int msecs = 30000) final;
-    bool waitForReadyRead(int msecs = 30000) final;
-    bool waitForFinished(int msecs = 30000) final;
+    bool waitForStarted(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
+    bool waitForFinished(int msecs = 30000);
 
-    void kickoffProcess() final;
-    qint64 applicationMainThreadID() const final;
+    void kickoffProcess();
+    qint64 applicationMainThreadID() const;
 
     // ProcessSetupData related
 
@@ -184,6 +186,13 @@ public:
     QString exitMessage();
 
     QString toStandaloneCommandLine() const;
+
+signals:
+    void started();
+    void finished();
+    void errorOccurred(QProcess::ProcessError error);
+    void readyReadStandardOutput();
+    void readyReadStandardError();
 
 protected:
     // TODO: remove these methods on QtcProcess de-virtualization

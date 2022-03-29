@@ -131,7 +131,7 @@ public:
     }
 
     void start() override { m_target->start(); }
-    void interrupt() override { m_target->interrupt(); };
+    void interrupt() override { m_target->interrupt(); }
     void terminate() override { m_target->terminate(); }
     void kill() override { m_target->kill(); }
     void close() override { m_target->close(); }
