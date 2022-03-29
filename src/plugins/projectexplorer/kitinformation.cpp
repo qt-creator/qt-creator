@@ -1240,11 +1240,20 @@ BuildDeviceKitAspect::BuildDeviceKitAspect()
             this, &BuildDeviceKitAspect::kitsWereLoaded);
 }
 
-QVariant BuildDeviceKitAspect::defaultValue(const Kit *k) const
+void BuildDeviceKitAspect::setup(Kit *k)
 {
-    Q_UNUSED(k);
-    IDevice::ConstPtr defaultDevice = DeviceManager::defaultDesktopDevice();
-    return defaultDevice->id().toString();
+    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return );
+    IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
+    if (!dev.isNull() && dev->isCompatibleWith(k))
+        return;
+
+    dev = defaultDevice();
+    setDeviceId(k, dev ? dev->id() : Id());
+}
+
+IDevice::ConstPtr BuildDeviceKitAspect::defaultDevice()
+{
+    return DeviceManager::defaultDesktopDevice();
 }
 
 Tasks BuildDeviceKitAspect::validate(const Kit *k) const
@@ -1314,10 +1323,8 @@ IDevice::ConstPtr BuildDeviceKitAspect::device(const Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
     IDevice::ConstPtr dev = DeviceManager::instance()->find(deviceId(k));
-    // Use the "run" device as fallback if no build device is present.
-    // FIXME: Think about whether this shouldn't be the other way round.
     if (!dev)
-        dev = DeviceKitAspect::device(k);
+        dev = defaultDevice();
     return dev;
 }
 

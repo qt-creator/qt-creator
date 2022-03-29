@@ -182,6 +182,7 @@ class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect : public KitAspect
 public:
     BuildDeviceKitAspect();
 
+    void setup(Kit *k) override;
     Tasks validate(const Kit *k) const override;
 
     KitAspectWidget *createConfigWidget(Kit *k) const override;
@@ -199,7 +200,7 @@ public:
     static void setDeviceId(Kit *k, Utils::Id dataId);
 
 private:
-    QVariant defaultValue(const Kit *k) const;
+    static IDevice::ConstPtr defaultDevice();
 
     void kitsWereLoaded();
     void deviceUpdated(Utils::Id dataId);
