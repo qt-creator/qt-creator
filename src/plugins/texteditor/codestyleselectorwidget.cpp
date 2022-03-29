@@ -104,7 +104,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
     m_codeStyle->setValue(codeStyle->value());
     m_codeStyle->setId(codeStyle->id());
     m_codeStyle->setDisplayName(m_originalDisplayName);
-    QWidget *editor = factory->createEditor(m_codeStyle, this);
+    TextEditor::CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, this);
 
     m_buttons = new QDialogButtonBox(
                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -120,6 +120,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
 
     connect(m_lineEdit, &QLineEdit::textChanged, this, &CodeStyleDialog::slotDisplayNameChanged);
     connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttons, &QDialogButtonBox::accepted, editor, &TextEditor::CodeStyleEditorWidget::apply);
     connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 

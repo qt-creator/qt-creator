@@ -26,6 +26,8 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+
 #include <QWidget>
 #include <QPointer>
 
@@ -45,7 +47,7 @@ namespace Internal {
 
 namespace Ui { class QmlJSCodeStyleSettingsPage; }
 
-class QmlJSCodeStylePreferencesWidget : public QWidget
+class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 

@@ -66,7 +66,7 @@ namespace Internal {
 
 namespace Ui { class CppCodeStyleSettingsPage; }
 
-class CppCodeStylePreferencesWidget : public QWidget
+class CppCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 public:
@@ -75,6 +75,7 @@ public:
 
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
     void addTab(CppCodeStyleWidget *page, QString tabName);
+    void apply() override;
 
 private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
@@ -96,6 +97,7 @@ private:
 signals:
     void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);
+    void applyEmitted();
 };
 
 

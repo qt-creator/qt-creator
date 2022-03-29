@@ -71,8 +71,9 @@ TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeS
     return new TextEditor::SimpleCodeStylePreferences();
 }
 
-QWidget *QmlJSCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePreferences *preferences,
-                                                           QWidget *parent) const
+TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEditor(
+    TextEditor::ICodeStylePreferences *preferences,
+    QWidget *parent) const
 {
     auto widget = new Internal::QmlJSCodeStylePreferencesWidget(parent);
     widget->layout()->setContentsMargins(0, 0, 0, 0);

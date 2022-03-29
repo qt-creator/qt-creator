@@ -51,7 +51,7 @@ namespace Internal {
 // ------------------ CppCodeStyleSettingsWidget
 
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent) :
-    QWidget(parent),
+    TextEditor::CodeStyleEditorWidget(parent),
     m_ui(new Ui::QmlJSCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);

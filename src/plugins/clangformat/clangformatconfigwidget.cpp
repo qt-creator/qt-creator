@@ -201,11 +201,6 @@ void ClangFormatConfigWidget::showCombobox()
     m_ui->indentingOrFormatting->insertItem(indentIndex(), tr("Indenting only"));
     m_ui->indentingOrFormatting->insertItem(formatIndex(), tr("Full formatting"));
 
-    connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
-        if (m_project)
-            apply();
-    });
-
     if (ClangFormatSettings::instance().formatCodeInsteadOfIndent())
         m_ui->indentingOrFormatting->setCurrentIndex(formatIndex());
     else

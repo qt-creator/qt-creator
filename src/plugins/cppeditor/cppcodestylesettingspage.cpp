@@ -97,7 +97,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 // ------------------ CppCodeStyleSettingsWidget
 
 CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
-    : QWidget(parent),
+    : TextEditor::CodeStyleEditorWidget(parent),
       m_ui(new Ui::CppCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
@@ -363,7 +363,15 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
     connect(this, &CppCodeStylePreferencesWidget::tabSettingsChanged,
             page, &CppCodeStyleWidget::setTabSettings);
 
+    connect(this, &CppCodeStylePreferencesWidget::applyEmitted,
+            page, &CppCodeStyleWidget::apply);
+
     page->synchronize();
+}
+
+void CppCodeStylePreferencesWidget::apply()
+{
+    emit applyEmitted();
 }
 
 // ------------------ CppCodeStyleSettingsPage

@@ -44,7 +44,7 @@ using namespace TextEditor;
 namespace Nim {
 
 NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences, QWidget *parent)
-    : QWidget(parent)
+    : TextEditor::CodeStyleEditorWidget(parent)
     , m_preferences(preferences)
     , m_ui(new Ui::NimCodeStylePreferencesWidget())
 {

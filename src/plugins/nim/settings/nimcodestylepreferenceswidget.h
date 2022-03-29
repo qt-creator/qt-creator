@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QWidget>
+#include <texteditor/icodestylepreferencesfactory.h>
 
 namespace TextEditor {
 class ICodeStylePreferences;
@@ -36,7 +37,7 @@ namespace Nim {
 
 namespace Ui { class NimCodeStylePreferencesWidget; }
 
-class NimCodeStylePreferencesWidget : public QWidget
+class NimCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 

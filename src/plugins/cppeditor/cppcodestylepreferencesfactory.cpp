@@ -97,8 +97,9 @@ TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeSty
     return new CppCodeStylePreferences();
 }
 
-QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePreferences *preferences,
-                                                           QWidget *parent) const
+TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
+    TextEditor::ICodeStylePreferences *preferences,
+    QWidget *parent) const
 {
     auto cppPreferences = qobject_cast<CppCodeStylePreferences *>(preferences);
     if (!cppPreferences)
@@ -129,7 +130,8 @@ QString CppCodeStylePreferencesFactory::previewText() const
     return QLatin1String(defaultPreviewText);
 }
 
-std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(QWidget *parent) const
+std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(
+    QWidget *parent) const
 {
     Q_UNUSED(parent)
     return {nullptr, ""};

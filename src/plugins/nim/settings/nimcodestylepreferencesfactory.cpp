@@ -59,8 +59,9 @@ TextEditor::ICodeStylePreferences *NimCodeStylePreferencesFactory::createCodeSty
     return new TextEditor::SimpleCodeStylePreferences();
 }
 
-QWidget *NimCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePreferences *preferences,
-                                                      QWidget *parent) const
+TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
+    TextEditor::ICodeStylePreferences *preferences,
+    QWidget *parent) const
 {
     auto result = new NimCodeStylePreferencesWidget(preferences, parent);
     result->layout()->setContentsMargins(0, 0, 0, 0);
