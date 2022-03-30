@@ -13,7 +13,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z {{.Env.LLVM_BASE_URL}}-linux-Ubuntu18.04-gcc9.3-x86_64.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z {{.Env.LLVM_BASE_URL}}-linux-Rhel8.2-gcc9.2-x86_64.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
@@ -40,7 +40,7 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z {{.Env.LLVM_BASE_URL}}-mac.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z {{.Env.LLVM_BASE_URL}}-macos-universal.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
