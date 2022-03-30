@@ -607,6 +607,9 @@ void CppEditorWidget::setProposals(const TextEditor::IAssistProposal *immediateP
     QTC_ASSERT(isInTestMode(), return);
 #ifdef WITH_TESTS
     emit proposalsReady(immediateProposal, finalProposal);
+#else
+    Q_UNUSED(immediateProposal)
+    Q_UNUSED(finalProposal)
 #endif
 }
 
