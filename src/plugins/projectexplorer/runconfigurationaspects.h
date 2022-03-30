@@ -244,7 +244,7 @@ public:
 
     Interpreter currentInterpreter() const;
     void updateInterpreters(const QList<Interpreter> &interpreters);
-    void setDefaultInterpreter(const Interpreter &interpreter) { m_defaultId = interpreter.id; }
+    void setDefaultInterpreter(const Interpreter &interpreter);
     void setCurrentInterpreter(const Interpreter &interpreter);
     void setSettingsDialogId(Utils::Id id) { m_settingsDialogId = id; }
 

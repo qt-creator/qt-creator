@@ -25,6 +25,7 @@
 
 #include "pythonplugin.h"
 
+#include "pysidebuildconfiguration.h"
 #include "pythonconstants.h"
 #include "pythoneditor.h"
 #include "pythonlanguageclient.h"
@@ -61,6 +62,8 @@ public:
     PythonEditorFactory editorFactory;
     PythonOutputFormatterFactory outputFormatterFactory;
     PythonRunConfigurationFactory runConfigFactory;
+    PySideBuildStepFactory buildStepFactory;
+    PySideBuildConfigurationFactory buildConfigFactory;
 
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<SimpleTargetRunner>(),

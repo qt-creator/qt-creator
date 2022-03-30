@@ -807,6 +807,13 @@ void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreter
         updateComboBox();
 }
 
+void InterpreterAspect::setDefaultInterpreter(const Interpreter &interpreter)
+{
+    m_defaultId = interpreter.id;
+    if (m_currentId.isEmpty())
+        m_currentId = m_defaultId;
+}
+
 void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
 {
     m_currentId = interpreter.id;
@@ -820,7 +827,8 @@ void InterpreterAspect::fromMap(const QVariantMap &map)
 
 void InterpreterAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, m_currentId, QString(), settingsKey());
+    if (m_currentId != m_defaultId)
+        saveToMap(map, m_currentId, QString(), settingsKey());
 }
 
 void InterpreterAspect::addToLayout(LayoutBuilder &builder)

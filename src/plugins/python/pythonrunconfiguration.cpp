@@ -26,6 +26,7 @@
 #include "pythonrunconfiguration.h"
 
 #include "pyside.h"
+#include "pysidebuildconfiguration.h"
 #include "pythonconstants.h"
 #include "pythonlanguageclient.h"
 #include "pythonproject.h"
@@ -36,6 +37,7 @@
 
 #include <languageclient/languageclientmanager.h>
 
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -145,27 +147,21 @@ public:
         interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
         interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-        connect(interpreterAspect, &InterpreterAspect::changed, this, [this, interpreterAspect] {
-            using namespace LanguageClient;
-            const FilePath python = interpreterAspect->currentInterpreter().command;
-
-            for (FilePath &file : project()->files(Project::AllFiles)) {
-                if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
-                    if (document->mimeType() == Constants::C_PY_MIMETYPE) {
-                        PyLSConfigureAssistant::openDocumentWithPython(python, document);
-                        PySideInstaller::checkPySideInstallation(python, document);
-                    }
-                }
-            }
-        });
+        connect(interpreterAspect, &InterpreterAspect::changed,
+                this, &PythonRunConfiguration::currentInterpreterChanged);
 
         connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
                 interpreterAspect, &InterpreterAspect::updateInterpreters);
 
-        QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(project()->projectDirectory());
+        QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
+            project()->projectDirectory());
         interpreterAspect->updateInterpreters(PythonSettings::interpreters());
-        interpreterAspect->setDefaultInterpreter(
-                    interpreters.isEmpty() ? PythonSettings::defaultInterpreter() : interpreters.first());
+        Interpreter defaultInterpreter = interpreters.isEmpty()
+                                             ? PythonSettings::defaultInterpreter()
+                                             : interpreters.first();
+        if (!defaultInterpreter.command.isExecutableFile())
+            defaultInterpreter = PythonSettings::interpreters().value(0);
+        interpreterAspect->setDefaultInterpreter(defaultInterpreter);
 
         auto bufferedAspect = addAspect<BoolAspect>();
         bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
@@ -203,6 +199,24 @@ public:
         });
 
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    }
+
+    void currentInterpreterChanged()
+    {
+        const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
+
+        BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
+        if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
+            pySideBuildStep->updateInterpreter(python);
+
+        for (FilePath &file : project()->files(Project::AllFiles)) {
+            if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
+                if (document->mimeType() == Constants::C_PY_MIMETYPE) {
+                    PyLSConfigureAssistant::openDocumentWithPython(python, document);
+                    PySideInstaller::checkPySideInstallation(python, document);
+                }
+            }
+        }
     }
 };
 

@@ -21,6 +21,8 @@ QtcPlugin {
             "pipsupport.h",
             "pyside.cpp",
             "pyside.h",
+            "pysidebuildconfiguration.cpp",
+            "pysidebuildconfiguration.h",
             "python.qrc",
             "pythonconstants.h",
             "pythoneditor.cpp",

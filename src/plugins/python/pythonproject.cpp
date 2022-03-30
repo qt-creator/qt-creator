@@ -220,7 +220,6 @@ PythonProject::PythonProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
 
-    setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
 }
 
