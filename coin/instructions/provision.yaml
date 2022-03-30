@@ -76,5 +76,3 @@ instructions:
           property: target.arch
           equals_value: X86_64
 
-  - !include "{{qt-creator/qt-creator}}/make_instructions.yaml"
-
