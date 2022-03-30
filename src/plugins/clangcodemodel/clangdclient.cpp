@@ -1989,7 +1989,10 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
             const QList<AstNode> astPath = getAstPath(ast, linkPos);
             bool isVar = false;
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
-                if (it->role() == "declaration" && it->kind() == "Function") {
+                if (it->role() == "declaration"
+                        && (it->kind() == "Function" || it->kind() == "CXXMethod"
+                            || it->kind() == "CXXConstructor" || it->kind() == "CXXDestructor"
+                            || it->kind() == "Lambda")) {
                     if (!isVar)
                         break;
 
