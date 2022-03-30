@@ -32,7 +32,7 @@ instructions:
       property: host.os
       in_values: [MacOS, Linux, Windows]
   - type: ExecuteCommand
-    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix=-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix=-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360
@@ -42,7 +42,7 @@ instructions:
       property: host.os
       equals_value: Linux
   - type: ExecuteCommand
-    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix=-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix=-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360
@@ -61,7 +61,7 @@ instructions:
       property: host.os
       equals_value: Windows
   - type: ExecuteCommand
-    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix=-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64.7z --opengl32sw7z http://master.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z --d3dcompiler7z http://master.qt.io/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z --openssl7z http://ci-files02-hki.intra.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/install_qt.py --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --temp-path {{.AgentWorkingDir}}/build/qt_temp --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix=-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64.7z --opengl32sw7z http://master.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z --d3dcompiler7z http://master.qt.io/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z --openssl7z http://ci-files02-hki.intra.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360

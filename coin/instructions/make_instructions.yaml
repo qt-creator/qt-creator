@@ -23,7 +23,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --elfutils-path {{.AgentWorkingDir}}/build/qt_temp/elfutils --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang --with-tests --no-zip --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+        command: "python -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --elfutils-path {{.AgentWorkingDir}}/build/qt_temp/elfutils --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang --with-tests --no-zip --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
@@ -50,7 +50,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang --keychain-unlock-script /Users/qt/unlock-keychain.sh --with-tests --no-zip --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
+        command: "python -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang --keychain-unlock-script /Users/qt/unlock-keychain.sh --with-tests --no-zip --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
@@ -92,7 +92,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt5_install_dir --python-path {{.AgentWorkingDir}}\\build\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\buid\\qt_temp\\elfutils --llvm-path {{.AgentWorkingDir}}\\build\\qt_temp\\libclang --with-tests --no-zip --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache --add-config=-DWITH_SCCACHE_SUPPORT=ON"
+        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --python-path {{.AgentWorkingDir}}\\build\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\buid\\qt_temp\\elfutils --llvm-path {{.AgentWorkingDir}}\\build\\qt_temp\\libclang --with-tests --no-zip --add-config=-DCMAKE_C_COMPILER_LAUNCHER=sccache --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=sccache --add-config=-DWITH_SCCACHE_SUPPORT=ON"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
