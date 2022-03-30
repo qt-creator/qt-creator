@@ -118,19 +118,6 @@ private:\
 \
 SubProcessClass m_ ## SubProcessClass
 
-const char simpleTestData[] = "Test process successfully executed.";
-const char forwardedOutputData[] = "This is the output message.";
-const char forwardedErrorData[] = "This is the error message.";
-const char runBlockingStdOutSubProcessMagicWord[] = "42";
-
-// Expect ending lines detected at '|':
-const char lineCallbackData[] =
-       "This is the first line\r\n|"
-       "Here comes the second one\r\n|"
-       "And a line without LF\n|"
-       "Rebasing (1/10)\r| <delay> Rebasing (2/10)\r| <delay> ...\r\n|"
-       "And no end";
-
 static Environment subEnvironment(const char *envVar, const QString &envVal)
 {
     Environment env = Environment::systemEnvironment();
@@ -238,8 +225,10 @@ private slots:
     void lineCallbackIntern();
     void waitForStartedAndFinished();
     void notRunningAfterStartingNonExistingProgram();
-    void processChannelForwarding_data();
-    void processChannelForwarding();
+    void channelForwarding_data();
+    void channelForwarding();
+    void mergedChannels_data();
+    void mergedChannels();
     void killBlockingProcess_data();
     void killBlockingProcess();
     void flushFinishedWhileWaitingForReadyRead();
@@ -261,7 +250,7 @@ private:
     SUB_CREATOR_PROCESS(RunBlockingStdOut);
     SUB_CREATOR_PROCESS(LineCallback);
     SUB_CREATOR_PROCESS(ProcessChannelForwarding);
-    SUB_CREATOR_PROCESS(SubProcessChannelForwarding);
+    SUB_CREATOR_PROCESS(StandardOutputAndErrorWriter);
     SUB_CREATOR_PROCESS(KillBlockingProcess);
     SUB_CREATOR_PROCESS(EmitOneErrorOnCrash);
     SUB_CREATOR_PROCESS(CrashAfterOneSecond);
@@ -287,9 +276,11 @@ private:
     MessageHandler *msgHandler = nullptr;
 };
 
+static const char s_simpleTestData[] = "Test process successfully executed.";
+
 void tst_QtcProcess::SimpleTest::main()
 {
-    std::cout << simpleTestData << std::endl;
+    std::cout << s_simpleTestData << std::endl;
     exit(0);
 }
 
@@ -1014,12 +1005,14 @@ void tst_QtcProcess::exitCode()
     }
 }
 
+static const char s_runBlockingStdOutSubProcessMagicWord[] = "42";
+
 void tst_QtcProcess::RunBlockingStdOut::main()
 {
     std::cout << "Wait for the Answer to the Ultimate Question of Life, "
                  "The Universe, and Everything..." << std::endl;
     QThread::msleep(300);
-    std::cout << runBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
+    std::cout << s_runBlockingStdOutSubProcessMagicWord << "...Now wait for the question...";
     if (qEnvironmentVariable(envVar()) == "true")
         std::cout << std::endl;
     else
@@ -1062,7 +1055,7 @@ void tst_QtcProcess::runBlockingStdOut()
     process.setTimeoutS(timeOutS);
     bool readLastLine = false;
     process.setStdOutCallback([&readLastLine, &process](const QString &out) {
-        if (out.startsWith(runBlockingStdOutSubProcessMagicWord)) {
+        if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
             process.kill();
         }
@@ -1075,13 +1068,22 @@ void tst_QtcProcess::runBlockingStdOut()
     QVERIFY2(readLastLine, "Last line was read.");
 }
 
+// Expect ending lines detected at '|':
+const char s_lineCallbackData[] =
+       "This is the first line\r\n|"
+       "Here comes the second one\r\n|"
+       "And a line without LF\n|"
+       "Rebasing (1/10)\r| <delay> Rebasing (2/10)\r| <delay> ...\r\n|"
+       "And no end";
+
+
 void tst_QtcProcess::LineCallback::main()
 {
 #ifdef Q_OS_WIN
     // Prevent \r\n -> \r\r\n translation.
     _setmode(_fileno(stderr), O_BINARY);
 #endif
-    fprintf(stderr, "%s", QByteArray(lineCallbackData).replace('|', "").data());
+    fprintf(stderr, "%s", QByteArray(s_lineCallbackData).replace('|', "").data());
     exit(0);
 }
 
@@ -1091,7 +1093,7 @@ void tst_QtcProcess::lineCallback()
     TestProcess process;
     subConfig.setupSubProcess(&process);
 
-    QStringList lines = QString(lineCallbackData).split('|');
+    QStringList lines = QString(s_lineCallbackData).split('|');
     int lineNumber = 0;
     process.setStdErrLineCallback([lines, &lineNumber](const QString &actual) {
         QString expected = lines.at(lineNumber);
@@ -1111,7 +1113,7 @@ void tst_QtcProcess::lineCallback()
 void tst_QtcProcess::lineCallbackIntern()
 {
     TestProcess process;
-    QStringList lines = QString(lineCallbackData).split('|');
+    QStringList lines = QString(s_lineCallbackData).split('|');
     int lineNumber = 0;
     process.setStdOutLineCallback([lines, &lineNumber](const QString &actual) {
         QString expected = lines.at(lineNumber);
@@ -1124,7 +1126,7 @@ void tst_QtcProcess::lineCallbackIntern()
         QCOMPARE(actual, expected);
     });
     process.beginFeed();
-    process.feedStdOut(QByteArray(lineCallbackData).replace('|', ""));
+    process.feedStdOut(QByteArray(s_lineCallbackData).replace('|', ""));
     process.endFeed();
     QCOMPARE(lineNumber, lines.size());
 }
@@ -1180,15 +1182,18 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
 
 // So we start two processes in chain instead. On the beginning the processChannelForwarding()
 // test starts the ProcessChannelForwarding::main() - this one will start another process
-// SubProcessChannelForwarding::main() with forwarding options.
-// The SubProcessChannelForwarding::main() is very simple - it just puts something to the output
+// StandardOutputAndErrorWriter::main() with forwarding options.
+// The StandardOutputAndErrorWriter::main() is very simple - it just puts something to the output
 // and the error channels. Then ProcessChannelForwarding::main() either forwards these channels
 // or not - we check it in the outer processChannelForwarding() test.
 
-void tst_QtcProcess::SubProcessChannelForwarding::main()
+static const char s_outputData[] = "This is the output message.";
+static const char s_errorData[] = "This is the error message.";
+
+void tst_QtcProcess::StandardOutputAndErrorWriter::main()
 {
-    std::cout << forwardedOutputData << std::endl;
-    std::cerr << forwardedErrorData << std::endl;
+    std::cout << s_outputData << std::endl;
+    std::cerr << s_errorData << std::endl;
     exit(0);
 }
 
@@ -1198,7 +1203,7 @@ void tst_QtcProcess::ProcessChannelForwarding::main()
             = QProcess::ProcessChannelMode(qEnvironmentVariableIntValue(envVar()));
     qunsetenv(envVar());
 
-    SubCreatorConfig subConfig(SubProcessChannelForwarding::envVar(), {});
+    SubCreatorConfig subConfig(StandardOutputAndErrorWriter::envVar(), {});
     TestProcess process;
     subConfig.setupSubProcess(&process);
 
@@ -1208,19 +1213,20 @@ void tst_QtcProcess::ProcessChannelForwarding::main()
     exit(0);
 }
 
-void tst_QtcProcess::processChannelForwarding_data()
+void tst_QtcProcess::channelForwarding_data()
 {
     QTest::addColumn<QProcess::ProcessChannelMode>("channelMode");
     QTest::addColumn<bool>("outputForwarded");
     QTest::addColumn<bool>("errorForwarded");
 
     QTest::newRow("SeparateChannels") << QProcess::SeparateChannels << false << false;
+    QTest::newRow("MergedChannels") << QProcess::MergedChannels << false << false;
     QTest::newRow("ForwardedChannels") << QProcess::ForwardedChannels << true << true;
     QTest::newRow("ForwardedOutputChannel") << QProcess::ForwardedOutputChannel << true << false;
     QTest::newRow("ForwardedErrorChannel") << QProcess::ForwardedErrorChannel << false << true;
 }
 
-void tst_QtcProcess::processChannelForwarding()
+void tst_QtcProcess::channelForwarding()
 {
     QFETCH(QProcess::ProcessChannelMode, channelMode);
     QFETCH(bool, outputForwarded);
@@ -1236,8 +1242,54 @@ void tst_QtcProcess::processChannelForwarding()
     const QByteArray output = process.readAllStandardOutput();
     const QByteArray error = process.readAllStandardError();
 
-    QCOMPARE(output.contains(QByteArray(forwardedOutputData)), outputForwarded);
-    QCOMPARE(error.contains(QByteArray(forwardedErrorData)), errorForwarded);
+    QCOMPARE(output.contains(QByteArray(s_outputData)), outputForwarded);
+    QCOMPARE(error.contains(QByteArray(s_errorData)), errorForwarded);
+}
+
+void tst_QtcProcess::mergedChannels_data()
+{
+    QTest::addColumn<QProcess::ProcessChannelMode>("channelMode");
+    QTest::addColumn<bool>("outputOnOutput");
+    QTest::addColumn<bool>("outputOnError");
+    QTest::addColumn<bool>("errorOnOutput");
+    QTest::addColumn<bool>("errorOnError");
+
+    QTest::newRow("SeparateChannels") << QProcess::SeparateChannels
+                  << true << false << false << true;
+    QTest::newRow("MergedChannels") << QProcess::MergedChannels
+                  << true << false << true << false;
+    QTest::newRow("ForwardedChannels") << QProcess::ForwardedChannels
+                  << false << false << false << false;
+    QTest::newRow("ForwardedOutputChannel") << QProcess::ForwardedOutputChannel
+                  << false << false << false << true;
+    QTest::newRow("ForwardedErrorChannel") << QProcess::ForwardedErrorChannel
+                  << true << false << false << false;
+
+}
+
+void tst_QtcProcess::mergedChannels()
+{
+    QFETCH(QProcess::ProcessChannelMode, channelMode);
+    QFETCH(bool, outputOnOutput);
+    QFETCH(bool, outputOnError);
+    QFETCH(bool, errorOnOutput);
+    QFETCH(bool, errorOnError);
+
+    SubCreatorConfig subConfig(StandardOutputAndErrorWriter::envVar(), {});
+    TestProcess process;
+    subConfig.setupSubProcess(&process);
+
+    process.setProcessChannelMode(channelMode);
+    process.start();
+    QVERIFY(process.waitForFinished());
+
+    const QByteArray output = process.readAllStandardOutput();
+    const QByteArray error = process.readAllStandardError();
+
+    QCOMPARE(output.contains(QByteArray(s_outputData)), outputOnOutput);
+    QCOMPARE(error.contains(QByteArray(s_outputData)), outputOnError);
+    QCOMPARE(output.contains(QByteArray(s_errorData)), errorOnOutput);
+    QCOMPARE(error.contains(QByteArray(s_errorData)), errorOnError);
 }
 
 enum class BlockType {
@@ -1322,7 +1374,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
 
     QCOMPARE(process.state(), QProcess::NotRunning);
     QVERIFY(!timer.hasExpired());
-    QVERIFY(reply.contains(simpleTestData));
+    QVERIFY(reply.contains(s_simpleTestData));
 }
 
 void tst_QtcProcess::EmitOneErrorOnCrash::main()
