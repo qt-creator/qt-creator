@@ -396,7 +396,6 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p->workingDir = m_setup->m_workingDirectory.path();
     p->processMode = m_setup->m_processMode;
     p->writeData = m_setup->m_writeData;
-    p->processChannelMode = m_setup->m_processChannelMode;
     p->standardInputFile = m_setup->m_standardInputFile;
     p->belowNormalPriority = m_setup->m_belowNormalPriority;
     p->nativeArguments = m_setup->m_nativeArguments;
