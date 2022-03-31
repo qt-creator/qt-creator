@@ -212,62 +212,6 @@ public:
     bool keepRawData = true;
 };
 
-class TerminalImpl : public ProcessInterface
-{
-public:
-    TerminalImpl() : m_terminal(this)
-    {
-        connect(&m_terminal, &Internal::TerminalProcess::started,
-                this, &ProcessInterface::started);
-        connect(&m_terminal, &Internal::TerminalProcess::finished,
-                this, &ProcessInterface::finished);
-        connect(&m_terminal, &Internal::TerminalProcess::errorOccurred,
-                this, &ProcessInterface::errorOccurred);
-    }
-    ~TerminalImpl() override
-    {
-    }
-
-    QByteArray readAllStandardOutput() override { QTC_CHECK(false); return {}; }
-    QByteArray readAllStandardError() override { QTC_CHECK(false); return {}; }
-
-    void start() override
-    {
-        m_terminal.setProcessImpl(m_setup->m_processImpl);
-        m_terminal.setTerminalMode(m_setup->m_terminalMode);
-        m_terminal.setAbortOnMetaChars(m_setup->m_abortOnMetaChars);
-        m_terminal.setCommand(m_setup->m_commandLine);
-        m_terminal.setWorkingDirectory(m_setup->m_workingDirectory);
-        m_terminal.setEnvironment(m_setup->m_environment);
-        m_terminal.start();
-    }
-    void interrupt() override { m_terminal.interrupt(); }
-    void terminate() override { m_terminal.stopProcess(); }
-    void kill() override { m_terminal.stopProcess(); }
-    void close() override { m_terminal.stopProcess(); }
-    qint64 write(const QByteArray &) override { QTC_CHECK(false); return -1; }
-
-    QProcess::ProcessError error() const override { return m_terminal.error(); }
-    QProcess::ProcessState state() const override { return m_terminal.state(); }
-    qint64 processId() const override { return m_terminal.processId(); }
-    int exitCode() const override { return m_terminal.exitCode(); }
-    QProcess::ExitStatus exitStatus() const override { return m_terminal.exitStatus(); }
-    QString errorString() const override { return m_terminal.errorString(); }
-    void setErrorString(const QString &) override { QTC_CHECK(false); }
-
-    // intentionally no-op without an assert
-    bool waitForStarted(int) override   { return false; }
-    bool waitForReadyRead(int) override { QTC_CHECK(false); return false; }
-    // intentionally no-op without an assert
-    bool waitForFinished(int) override  { return false; }
-
-    void kickoffProcess() override { m_terminal.kickoffProcess(); }
-    qint64 applicationMainThreadID() const override { return m_terminal.applicationMainThreadID(); }
-
-private:
-    Internal::TerminalProcess m_terminal;
-};
-
 class DefaultImpl : public ProcessInterface
 {
 public:
