@@ -435,6 +435,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
         rootChildText = str(rootIndex.data()).replace(".", "\\.").replace("_", "\\_")
         for subIndex in dumpIndices(model, rootIndex):
             subChildText = str(subIndex.data()).replace(".", "\\.").replace("_", "\\_")
+            treeView.scrollTo(subIndex)
             mouseClick(waitForObjectItem(treeView, ".".join([rootChildText,subChildText])))
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
             matches = pattern.match(currentText)
