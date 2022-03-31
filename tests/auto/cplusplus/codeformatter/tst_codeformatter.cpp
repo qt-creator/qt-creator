@@ -128,6 +128,7 @@ private Q_SLOTS:
     void initializerWithinFunctionArg();
     void shiftWithinInitializer();
     void lambdaWithReturnType();
+    void structuredBinding();
 };
 
 struct Line {
@@ -2204,6 +2205,17 @@ void tst_CodeFormatter::lambdaWithReturnType()
          << Line("    hello([]() -> void {")
          << Line("        cout << \"world\";") // OK, same indentation/padding as above.
          << Line("    });")
+         << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::structuredBinding()
+{
+    QList<Line> data;
+    data << Line("int main() {")
+         << Line("    auto [v1, v2] = tuple_func();")
+         << Line("    return 0;")
          << Line("}")
             ;
     checkIndent(data);

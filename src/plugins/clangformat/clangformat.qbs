@@ -20,6 +20,12 @@ QtcPlugin {
                && (!qbs.targetOS.contains("windows") || libclang.llvmBuildModeMatches)
 
     cpp.cxxFlags: base.concat(libclang.llvmToolingCxxFlags)
+    cpp.linkerFlags: {
+        var flags = base;
+        if (qbs.targetOS.contains("unix") && !qbs.targetOS.contains("macos"))
+            flags.push("--exclude-libs", "ALL");
+        return flags;
+    }
     cpp.includePaths: base.concat(libclang.llvmIncludeDir)
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
     cpp.dynamicLibraries: base.concat(libclang.llvmFormattingLibs)

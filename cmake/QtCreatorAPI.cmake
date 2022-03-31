@@ -399,6 +399,7 @@ function(add_qtc_plugin target_name)
 
   ### Configure plugin.json file:
   if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.json.in")
+    list(APPEND _arg_SOURCES ${name}.json.in)
     file(READ "${name}.json.in" plugin_json_in)
     string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
     string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})

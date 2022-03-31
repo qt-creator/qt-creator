@@ -287,6 +287,7 @@ void TestRunner::scheduleNext()
         reportResult(ResultType::MessageFatal,
             tr("Failed to start test for project \"%1\".").arg(m_currentConfig->displayName())
                 + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
+        onProcessFinished();
     }
 }
 

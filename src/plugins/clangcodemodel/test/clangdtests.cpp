@@ -434,8 +434,8 @@ void ClangdTestLocalReferences::test_data()
             /* QList<Range>{{40, 7, 3}, {43, 9, 3}} */;
     QTest::newRow("instantiated template object") << 52 << 19
                                                   << QList<Range>{{52, 19, 3}, {53, 5, 3}};
-    QTest::newRow("variable in template") << 62 << 13 << QList<Range>()
-            /* QList<Range>{{62, 13, 3}, {63, 11, 3}} */;
+    QTest::newRow("variable in template") << 62 << 13
+                                          << QList<Range>{{62, 13, 3}, {63, 11, 3}};
     QTest::newRow("member in template") << 67 << 7 << QList<Range>()
             /* QList<Range>{{64, 16, 3}, {67, 7, 3}} */;
     QTest::newRow("template type") << 58 << 19 << QList<Range>()

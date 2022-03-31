@@ -148,8 +148,7 @@ QStringList GenerateResource::getFileList(const QList<ResourceFile> &fileNames)
 
 bool skipSuffix(const QString &fileName)
 {
-    const QStringList suffixes = {".qmlproject",
-                                  ".pri",
+    const QStringList suffixes = {".pri",
                                   ".pro",
                                   ".user",
                                   ".qrc",
@@ -158,7 +157,10 @@ bool skipSuffix(const QString &fileName)
                                   ".db",
                                   ".tmp",
                                   ".TMP",
-                                  ".metainfo"};
+                                  ".metainfo",
+                                  ".qtds",
+                                  ".db-shm",
+                                  ".db-wal"};
 
     for (const auto &suffix : suffixes)
         if (fileName.endsWith(suffix))

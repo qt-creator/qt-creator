@@ -60,7 +60,8 @@ common_environment: &common_environment
 make_instructions: &make_instructions
   type: Group
   instructions:
-    - !include "{{qt-creator/qt-creator}}/qmake_module_build.yaml"
+    - !include "{{qt-creator/qt-creator}}/provision.yaml"
+    - !include "{{qt-creator/qt-creator}}/build.yaml"
 
 
 instructions:

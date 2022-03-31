@@ -68,7 +68,13 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
     m_viewer->setResourceHandler([](const QUrl &url) { return getData(url); });
     m_viewer->setFrameStyle(QFrame::NoFrame);
     m_viewer->viewport()->installEventFilter(this);
-    connect(m_viewer, &QLiteHtmlWidget::linkClicked, this, &LiteHtmlHelpViewer::setSource);
+    connect(m_viewer, &QLiteHtmlWidget::linkClicked, this, [this](const QUrl &url) {
+        const Qt::KeyboardModifiers modifiers = QGuiApplication::keyboardModifiers();
+        if (modifiers == Qt::ControlModifier)
+            emit newPageRequested(url);
+        else
+            setSource(url);
+    });
     connect(m_viewer,
             &QLiteHtmlWidget::contextMenuRequested,
             this,

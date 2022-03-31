@@ -34,6 +34,8 @@
 #include <nodeinstanceclientinterface.h>
 #include <nodeinstanceserverinterface.h>
 
+#include <utils/filepath.h>
+
 #include <QElapsedTimer>
 #include <QHash>
 #include <QImage>
@@ -49,6 +51,10 @@ QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 
 namespace ProjectExplorer {
 class Target;
+}
+
+namespace Utils {
+class QtcProcess;
 }
 
 namespace QmlDesigner {
@@ -229,7 +235,8 @@ private: // functions
     void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
 
     void updateWatcher(const QString &path);
-
+    void handleShaderChanges();
+    void handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const QString &shader);
     void updateRotationBlocks();
     void maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
                                     PropertyChangeFlags flags);
@@ -278,7 +285,11 @@ private:
     QFileSystemWatcher *m_fileSystemWatcher;
     QTimer m_resetTimer;
     QTimer m_updateWatcherTimer;
+    QTimer m_generateQsbFilesTimer;
+    Utils::FilePath m_qsbPath;
     QSet<QString> m_pendingUpdateDirs;
+    QSet<QString> m_pendingQsbTargets;
+    int m_remainingQsbTargets;
     QTimer m_rotBlockTimer;
 };
 

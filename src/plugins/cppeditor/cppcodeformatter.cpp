@@ -172,6 +172,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_COLON:       enter(member_init_open); enter(member_init_expected); break;
             case T_OPERATOR:    enter(operator_declaration); break;
             case T_GREATER_GREATER: break;
+            case T_LBRACKET: break;
             default:            tryExpression(true); break;
             } break;
 
@@ -825,8 +826,11 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
         break;
     }
 
-    if (m_currentToken.isStringLiteral())
-        newState = m_currentToken.kind() == T_RAW_STRING_LITERAL ? raw_string_open : string_open;
+    if (m_currentToken.isStringLiteral()) {
+        newState = m_currentToken.kind() >= T_FIRST_RAW_STRING_LITERAL
+                && m_currentToken.kind() <= T_LAST_RAW_STRING_LITERAL ? raw_string_open
+                                                                      : string_open;
+    }
 
     if (newState != -1) {
         if (alsoExpression)

@@ -7,13 +7,13 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.2/6.2.3-final-released/Qt6.2.3"
+        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.2/6.2.4-final-released/Qt6.2.4"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_120-based
+        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_140-based
       - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: 10.14

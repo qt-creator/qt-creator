@@ -33,7 +33,8 @@
 
 #include <QDialog>
 #include <QTextEdit>
-
+#include <QTreeView>
+#include <QLabel>
 
 namespace QmlDesigner {
 namespace GenerateCmake {
@@ -48,6 +49,12 @@ public:
 
 public slots:
     void refreshNotificationText();
+    void advancedVisibilityChanged(bool visible);
+
+private:
+    QTreeView* createFileTree();
+    QWidget* createDetailsWidget();
+    QWidget* createButtons();
 
 private:
     CMakeGeneratorDialogTreeModel *m_model;
@@ -57,7 +64,7 @@ private:
     Utils::FilePaths m_files;
 };
 
-}
-}
+} //GenerateCmake
+} //QmlDesigner
 
 #endif // CMAKEGENERATORDIALOG_H

@@ -101,7 +101,8 @@ private:
     StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;
     QWidget *m_summaryProgressWidget;
-    QHBoxLayout *m_summaryProgressLayout;
+    QWidget *m_statusDetailsWidgetContainer = nullptr;
+    QHBoxLayout *m_statusDetailsWidgetLayout = nullptr;
     QWidget *m_currentStatusDetailsWidget = nullptr;
     QPointer<FutureProgress> m_currentStatusDetailsProgress;
     QLabel *m_statusDetailsLabel = nullptr;
