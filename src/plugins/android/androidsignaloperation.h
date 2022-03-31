@@ -26,7 +26,6 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QTimer>
@@ -38,7 +37,7 @@ class AndroidSignalOperation : public ProjectExplorer::DeviceProcessSignalOperat
 {
     Q_OBJECT
 public:
-    ~AndroidSignalOperation() override = default;
+    ~AndroidSignalOperation() override;
     void killProcess(qint64 pid) override;
     void killProcess(const QString &filePath) override;
     void interruptProcess(qint64 pid) override;

@@ -42,6 +42,8 @@ AndroidSignalOperation::AndroidSignalOperation()
     connect(m_timeout, &QTimer::timeout, this, &AndroidSignalOperation::handleTimeout);
 }
 
+AndroidSignalOperation::~AndroidSignalOperation() = default;
+
 void AndroidSignalOperation::adbFindRunAsFinished()
 {
     QTC_ASSERT(m_state == RunAs, return);
