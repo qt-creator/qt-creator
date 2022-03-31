@@ -213,6 +213,7 @@ bool Evaluate::visit(AST::UiQualifiedId *ast)
 
 bool Evaluate::visit(AST::TemplateLiteral *ast)
 {
+    Q_UNUSED(ast)
     _result = _valueOwner->stringValue();
     return false;
 }

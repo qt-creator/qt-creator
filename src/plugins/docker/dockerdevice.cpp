@@ -1208,6 +1208,7 @@ QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) con
 
 bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permissions permissions) const
 {
+    Q_UNUSED(permissions)
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
     QTC_CHECK(false); // FIXME: Implement.

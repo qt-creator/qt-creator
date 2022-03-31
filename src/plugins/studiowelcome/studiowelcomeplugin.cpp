@@ -727,9 +727,9 @@ WelcomeMode::WelcomeMode()
 
         QShortcut *updateShortcut = nullptr;
         if (Utils::HostOsInfo::isMacHost())
-            updateShortcut = new QShortcut(QKeySequence(Qt::ALT + Qt::Key_F5), m_modeWidget);
+            updateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F5), m_modeWidget);
         else
-            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), m_modeWidget);
+            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), m_modeWidget);
         connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
             m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
         });

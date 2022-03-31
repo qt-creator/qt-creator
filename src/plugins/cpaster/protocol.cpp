@@ -48,6 +48,8 @@
 #include <QApplication>
 #include <QPushButton>
 
+#include <memory>
+
 namespace CodePaster {
 
 Protocol::Protocol()
@@ -215,19 +217,19 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHtt
         url.prepend(useHttps ? httpsPrefix : httpPrefix);
         url.append(QLatin1Char('/'));
     }
-    QScopedPointer<QNetworkReply> reply(httpGet(url));
+    std::unique_ptr<QNetworkReply> reply(httpGet(url));
     QMessageBox box(QMessageBox::Information,
                     tr("Checking connection"),
                     tr("Connecting to %1...").arg(url),
                     QMessageBox::Cancel,
                     Core::ICore::dialogParent());
-    connect(reply.data(), &QNetworkReply::finished, &box, &QWidget::close);
+    connect(reply.get(), &QNetworkReply::finished, &box, &QWidget::close);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     box.exec();
     QApplication::restoreOverrideCursor();
     // User canceled, discard and be happy.
     if (!reply->isFinished()) {
-        QNetworkReply *replyPtr = reply.take();
+        QNetworkReply *replyPtr = reply.release();
         connect(replyPtr, &QNetworkReply::finished, replyPtr, &QNetworkReply::deleteLater);
         return false;
     }
