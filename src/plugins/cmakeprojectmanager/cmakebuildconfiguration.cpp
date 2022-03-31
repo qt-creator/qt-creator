@@ -1104,7 +1104,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
             if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
                 const QString targetTriple = tc->originalTargetTriple();
                 cmd.addArg("-DCMAKE_C_COMPILER_TARGET:STRING=" + targetTriple);
-                cmd.addArg("-DCMAKE_CXX_COMPILER_TARGET:STRING=%1" + targetTriple);
+                cmd.addArg("-DCMAKE_CXX_COMPILER_TARGET:STRING=" + targetTriple);
             }
         }
     }
