@@ -40,12 +40,14 @@ qul_add_qml_module(ConstantsModule
         imports/Constants/Constants.qml
 )
 
-# Using recurse search to find all qml files in project directory
-# Excluding Constants folder because it is part of another qml module
-# Excluding MCUDefaultStyle because it exists for compatibility purposes with QDS
+message(WARNING "It is recommended to replace the recursive search with the actual list of .qml files in your project.")
 file(GLOB_RECURSE qmlSources "*.qml")
+# Excluding Constants folder because it is part of another qml module
 list(FILTER qmlSources EXCLUDE REGEX ".*/imports/Constants/.*")
+# Excluding MCUDefaultStyle because it exists for compatibility purposes with QDS
 list(FILTER qmlSources EXCLUDE REGEX ".*/MCUDefaultStyle/.*")
+# Excluding binary directory because it can break builds in source dir
+list(FILTER qmlSources EXCLUDE REGEX "${CMAKE_CURRENT_BINARY_DIR}/.*")
 qul_target_qml_sources(%{ProjectName} ${qmlSources})
 
 if (Qul_VERSION VERSION_GREATER_EQUAL "2.0")
