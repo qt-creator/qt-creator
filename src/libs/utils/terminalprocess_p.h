@@ -40,21 +40,16 @@ namespace Internal {
 class TerminalProcess : public QObject
 {
     Q_OBJECT
+
 public:
     explicit TerminalProcess(QObject *parent);
     ~TerminalProcess() override;
 
     void setProcessImpl(ProcessImpl processImpl);
     void setTerminalMode(TerminalMode mode);
-
     void setCommand(const CommandLine &command);
-    const CommandLine &commandLine() const;
-
     void setWorkingDirectory(const FilePath &dir);
-    FilePath workingDirectory() const;
-
     void setEnvironment(const Environment &env);
-    const Environment &environment() const;
 
     QProcess::ProcessError error() const;
     QString errorString() const;

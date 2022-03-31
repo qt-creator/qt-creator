@@ -187,11 +187,6 @@ void TerminalProcess::setCommand(const CommandLine &command)
     d->m_commandLine = command;
 }
 
-const CommandLine &TerminalProcess::commandLine() const
-{
-    return d->m_commandLine;
-}
-
 void TerminalProcess::setAbortOnMetaChars(bool abort)
 {
     d->m_abortOnMetaChars = abort;
@@ -279,7 +274,7 @@ void TerminalProcess::start()
     d->m_pid = new PROCESS_INFORMATION;
     ZeroMemory(d->m_pid, sizeof(PROCESS_INFORMATION));
 
-    QString workDir = workingDirectory().toUserOutput();
+    QString workDir = d->m_workingDir.toUserOutput();
     if (!workDir.isEmpty() && !workDir.endsWith(QLatin1Char('\\')))
         workDir.append(QLatin1Char('\\'));
 
@@ -442,7 +437,7 @@ void TerminalProcess::start()
             << modeOption(d->m_terminalMode)
             << d->m_stubServer.fullServerName()
             << msgPromptToClose()
-            << workingDirectory().path()
+            << d->m_workingDir.path()
             << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
             << QString::number(getpid())
             << pcmd
@@ -656,7 +651,7 @@ void TerminalProcess::readStubOutput()
 #ifdef Q_OS_WIN
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(d->m_workingDir, winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emitError(QProcess::FailedToStart, msgCannotExecute(d->m_commandLine.executable().toUserOutput(), winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
@@ -696,7 +691,7 @@ void TerminalProcess::readStubOutput()
 #else
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
-            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(d->m_workingDir, errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emitError(QProcess::FailedToStart, msgCannotExecute(d->m_commandLine.executable().toString(), errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("spid ")) {
@@ -786,19 +781,9 @@ void TerminalProcess::setWorkingDirectory(const FilePath &dir)
     d->m_workingDir = dir;
 }
 
-FilePath TerminalProcess::workingDirectory() const
-{
-    return d->m_workingDir;
-}
-
 void TerminalProcess::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
-}
-
-const Environment &TerminalProcess::environment() const
-{
-    return d->m_environment;
 }
 
 QProcess::ProcessError TerminalProcess::error() const
