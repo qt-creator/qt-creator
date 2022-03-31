@@ -66,11 +66,18 @@
 
 static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarningMsg);
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
 const char OPTIONS_PAGE_ID[] = "B.ProjectExplorer.AppOutputOptions";
-
+const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
+const char C_APP_OUTPUT[] = "ProjectExplorer.ApplicationOutput";
+const char POP_UP_FOR_RUN_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowRunOutput";
+const char POP_UP_FOR_DEBUG_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowDebugOutput";
+const char CLEAN_OLD_OUTPUT_KEY[] = "ProjectExplorer/Settings/CleanOldAppOutput";
+const char MERGE_CHANNELS_KEY[] = "ProjectExplorer/Settings/MergeStdErrAndStdOut";
+const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapAppOutput";
+const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxAppOutputLines";
 
 static QObject *debuggerPlugin()
 {
@@ -83,20 +90,6 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
            AppOutputPane::tr("Attach debugger to this process") :
            AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
 }
-
-namespace {
-const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
-const char C_APP_OUTPUT[] = "ProjectExplorer.ApplicationOutput";
-const char POP_UP_FOR_RUN_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowRunOutput";
-const char POP_UP_FOR_DEBUG_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowDebugOutput";
-const char CLEAN_OLD_OUTPUT_KEY[] = "ProjectExplorer/Settings/CleanOldAppOutput";
-const char MERGE_CHANNELS_KEY[] = "ProjectExplorer/Settings/MergeStdErrAndStdOut";
-const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapAppOutput";
-const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxAppOutputLines";
-}
-
-namespace ProjectExplorer {
-namespace Internal {
 
 class TabWidget : public QTabWidget
 {
