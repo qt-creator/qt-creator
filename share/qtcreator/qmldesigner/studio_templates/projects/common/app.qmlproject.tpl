@@ -95,6 +95,15 @@ Project {
 @if %{IsQt6Project}
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
     widgetApp: true
+
+    /* args: Specifies command line arguments for qsb tool to generate shaders.
+       files: Specifies target files for qsb tool. If path is included, it must be relative to this file.
+              Wildcard '*' can be used in the file name part of the path.
+              e.g. files: [ "content/shaders/*.vert", "*.frag" ]  */
+    ShaderTool {
+        args: "-s --glsl \\\"100 es,120,150\\\" --hlsl 50 --msl 12"
+        files: [ "content/shaders/*" ]
+    }
 @endif
 
     multilanguageSupport: true

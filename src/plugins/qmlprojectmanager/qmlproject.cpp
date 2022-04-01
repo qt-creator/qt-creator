@@ -625,6 +625,20 @@ bool QmlBuildSystem::widgetApp() const
     return false;
 }
 
+QStringList QmlBuildSystem::shaderToolArgs() const
+{
+    if (m_projectItem)
+        return m_projectItem->shaderToolArgs();
+    return {};
+}
+
+QStringList QmlBuildSystem::shaderToolFiles() const
+{
+    if (m_projectItem)
+        return m_projectItem->shaderToolFiles();
+    return {};
+}
+
 bool QmlBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *)
 {
     if (!dynamic_cast<QmlProjectNode *>(context))

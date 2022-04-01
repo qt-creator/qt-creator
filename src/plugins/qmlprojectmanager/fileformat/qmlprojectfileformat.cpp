@@ -161,6 +161,26 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
                     projectItem->addToEnviroment(i.key(), i.value().value.toString());
                     ++i;
                 }
+            } else if (childNode->name() == "ShaderTool") {
+                QmlJS::SimpleReaderNode::Property commandLine = childNode->property("args");
+                if (commandLine.isValid()) {
+                    const QStringList quotedArgs = commandLine.value.toString().split('\"');
+                    QStringList args;
+                    for (int i = 0; i < quotedArgs.size(); ++i) {
+                        // Each odd arg in this list is a single quoted argument, which we should
+                        // not be split further
+                        if (i % 2 == 0)
+                            args.append(quotedArgs[i].trimmed().split(' '));
+                        else
+                            args.append(quotedArgs[i]);
+                    }
+                    args.removeAll({});
+                    args.append("-o"); // Prepare for adding output file as next arg
+                    projectItem->setShaderToolArgs(args);
+                }
+                QmlJS::SimpleReaderNode::Property files = childNode->property("files");
+                if (files.isValid())
+                    projectItem->setShaderToolFiles(files.value.toStringList());
             } else {
                 qWarning() << "Unknown type:" << childNode->name();
             }

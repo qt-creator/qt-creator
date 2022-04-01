@@ -98,6 +98,7 @@
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
+#include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -113,6 +114,8 @@
 #include <QDirIterator>
 #include <QFileSystemWatcher>
 #include <QScopedPointer>
+#include <QThread>
+#include <QApplication>
 
 enum {
     debug = false
@@ -174,9 +177,6 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     m_generateQsbFilesTimer.setInterval(100);
     QObject::connect(&m_generateQsbFilesTimer, &QTimer::timeout, [this] {
         handleShaderChanges();
-
-        if (m_qsbPath.isEmpty() || m_remainingQsbTargets <= 0)
-            m_resetTimer.start();
     });
 
     connect(m_fileSystemWatcher, &QFileSystemWatcher::directoryChanged,
@@ -196,8 +196,12 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
 
     });
     connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, [this](const QString &path) {
-        m_pendingQsbTargets.insert(path);
-        m_generateQsbFilesTimer.start();
+        if (m_qsbTargets.contains(path)) {
+            m_qsbTargets.insert(path, true);
+            m_generateQsbFilesTimer.start();
+        } else if (m_remainingQsbTargets <= 0) {
+            m_resetTimer.start();
+        }
     });
 
     m_rotBlockTimer.setSingleShot(true);
@@ -277,7 +281,15 @@ void NodeInstanceView::modelAttached(Model *model)
         activateState(newStateInstance);
     }
 
-    updateWatcher({});
+    // If model gets attached on non-main thread of the application, do not attempt to monitor
+    // file changes. Such models are typically short lived for specific purpose, and timers
+    // will not work at all, if the thread is not based on QThread.
+    if (QThread::currentThread() == qApp->thread()) {
+        m_generateQsbFilesTimer.stop();
+        m_qsbTargets.clear();
+        updateQsbPathToFilterMap();
+        updateWatcher({});
+    }
 }
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
@@ -303,6 +315,9 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
     m_pendingUpdateDirs.clear();
     m_fileSystemWatcher->removePaths(m_fileSystemWatcher->directories());
     m_fileSystemWatcher->removePaths(m_fileSystemWatcher->files());
+
+    m_generateQsbFilesTimer.stop();
+    m_qsbTargets.clear();
 }
 
 void NodeInstanceView::handleCrash()
@@ -1488,9 +1503,6 @@ void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
             }
         }
 
-        m_generateQsbFilesTimer.stop();
-        m_pendingQsbTargets.clear();
-        m_remainingQsbTargets = 0;
         restartProcess();
     }
 }
@@ -1885,12 +1897,18 @@ void NodeInstanceView::updateWatcher(const QString &path)
     QStringList oldDirs;
     QStringList newFiles;
     QStringList newDirs;
+    QStringList qsbFiles;
+#ifndef QMLDESIGNER_TEST
+    const QString projPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
+#else
+    const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
+#endif
 
     const QStringList files = m_fileSystemWatcher->files();
     const QStringList directories = m_fileSystemWatcher->directories();
     if (path.isEmpty()) {
         // Do full update
-        rootPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
+        rootPath = projPath;
         if (!directories.isEmpty())
             m_fileSystemWatcher->removePaths(directories);
         if (!files.isEmpty())
@@ -1916,11 +1934,46 @@ void NodeInstanceView::updateWatcher(const QString &path)
     // Common shader suffixes
     static const QStringList filterList {"*.frag", "*.vert",
                                          "*.glsl", "*.glslv", "*.glslf",
-                                         "*.vsh","*.fsh"};
+                                         "*.vsh", "*.fsh"};
 
     QDirIterator fileIterator(rootPath, filterList, QDir::Files, QDirIterator::Subdirectories);
     while (fileIterator.hasNext())
         newFiles.append(fileIterator.next());
+
+    // Find out which shader files need qsb files generated for them.
+    // Go through all configured paths and find files that match the specified filter in that path.
+    bool generateQsb = false;
+    QHash<QString, QStringList>::const_iterator it = m_qsbPathToFilterMap.constBegin();
+    while (it != m_qsbPathToFilterMap.constEnd()) {
+        if (!it.key().isEmpty() && !it.key().startsWith(rootPath)) {
+            ++it;
+            continue;
+        }
+
+        QDirIterator qsbIterator(it.key().isEmpty() ? rootPath : it.key(),
+                                 it.value(), QDir::Files,
+                                 it.key().isEmpty() ? QDirIterator::Subdirectories
+                                                    : QDirIterator::NoIteratorFlags);
+
+        while (qsbIterator.hasNext()) {
+            QString qsbFile = qsbIterator.next();
+
+            if (qsbFile.endsWith(".qsb"))
+                continue; // Skip any generated files that are caught by wildcards
+
+            // Filters may specify shader files with non-default suffixes, so add them to newFiles
+            if (!newFiles.contains(qsbFile))
+                newFiles.append(qsbFile);
+
+            // Only generate qsb files for newly detected files. This avoids immediately regenerating
+            // qsb file if it's manually deleted, as directory change triggers calling this method.
+            if (!oldFiles.contains(qsbFile)) {
+                m_qsbTargets.insert(qsbFile, true);
+                generateQsb = true;
+            }
+        }
+        ++it;
+    }
 
     if (oldDirs != newDirs) {
         if (!oldDirs.isEmpty())
@@ -1934,15 +1987,10 @@ void NodeInstanceView::updateWatcher(const QString &path)
             m_fileSystemWatcher->removePaths(oldFiles);
         if (!newFiles.isEmpty())
             m_fileSystemWatcher->addPaths(newFiles);
-
-        for (const auto &newFile : qAsConst(newFiles)) {
-            if (!oldFiles.contains(newFile))
-                m_pendingQsbTargets.insert(newFile);
-        }
-
-        if (!m_pendingQsbTargets.isEmpty())
-            m_generateQsbFilesTimer.start();
     }
+
+    if (generateQsb)
+        m_generateQsbFilesTimer.start();
 }
 
 void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const QString &shader)
@@ -1969,51 +2017,102 @@ void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const
     qsbProcess->deleteLater();
 }
 
-void NodeInstanceView::handleShaderChanges()
+void NodeInstanceView::updateQsbPathToFilterMap()
 {
-    m_remainingQsbTargets += m_pendingQsbTargets.size();
+    m_qsbPathToFilterMap.clear();
+    if (m_currentTarget && !m_qsbPath.isEmpty()) {
+        const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
+        const QStringList shaderToolFiles = bs->shaderToolFiles();
 
-    for (const auto &shader : qAsConst(m_pendingQsbTargets)) {
-        // Run qsb for changed shader file
-        if (!m_qsbPath.isEmpty() && !shader.isEmpty()) {
-            const Utils::FilePath sourceFile = Utils::FilePath::fromString(shader);
-            const Utils::FilePath srcPath = sourceFile.absolutePath();
-            const Utils::FilePath outPath = Utils::FilePath::fromString(shader + ".qsb");
-
-            if (!sourceFile.exists() || (outPath.exists() && outPath.lastModified() > sourceFile.lastModified())) {
-                --m_remainingQsbTargets;
-                continue;
-            }
-
-            // Run QSB with same parameters as Qt build does
-            // TODO: Parameters should be configurable (QDS-6590)
-            const QStringList args = {"-s", "--glsl", "100 es,120,150", "--hlsl", "50", "--msl", "12",
-                                      "-o", outPath.toString(), shader};
-            auto qsbProcess = new Utils::QtcProcess;
-            qsbProcess->setWorkingDirectory(srcPath);
-            qsbProcess->setCommand({m_qsbPath, args});
-            qsbProcess->start();
-
-            if (!qsbProcess->waitForStarted()) {
-                handleQsbProcessExit(qsbProcess, shader);
-                continue;
-            }
-
-            if (qsbProcess->state() == QProcess::Running) {
-                connect(qsbProcess, &Utils::QtcProcess::finished,
-                        [thisView = QPointer<NodeInstanceView>(this), qsbProcess, shader]() {
-                    if (thisView)
-                        thisView->handleQsbProcessExit(qsbProcess, shader);
-                    else
-                        qsbProcess->deleteLater();
-                });
+#ifndef QMLDESIGNER_TEST
+        const QString projPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
+#else
+        const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
+#endif
+        // Parse ShaderTool files from project configuration.
+        // Separate files to path and file name (called filter here as it can contain wildcards)
+        // and group filters by paths. Blank path indicates project-wide file wildcard.
+        for (const auto &file : shaderToolFiles) {
+            int idx = file.lastIndexOf('/');
+            QString key;
+            QString filter;
+            if (idx >= 0) {
+                key = projPath + "/" + file.left(idx);
+                filter = file.mid(idx + 1);
             } else {
-                handleQsbProcessExit(qsbProcess, shader);
+                filter = file;
             }
+            m_qsbPathToFilterMap[key].append(filter);
         }
     }
+}
 
-    m_pendingQsbTargets.clear();
+void NodeInstanceView::handleShaderChanges()
+{
+    if (!m_currentTarget)
+        return;
+
+    const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
+    QStringList baseArgs = bs->shaderToolArgs();
+    if (baseArgs.isEmpty())
+        return;
+
+    QStringList newShaders;
+    QHash<QString, bool>::iterator it = m_qsbTargets.begin();
+    while (it != m_qsbTargets.end()) {
+        if (it.value()) {
+            newShaders.append(it.key());
+            it.value() = false;
+        }
+        ++it;
+    }
+
+    if (newShaders.isEmpty())
+        return;
+
+    m_remainingQsbTargets += newShaders.size();
+
+    for (const auto &shader : qAsConst(newShaders)) {
+        const Utils::FilePath srcFile = Utils::FilePath::fromString(shader);
+        const Utils::FilePath srcPath = srcFile.absolutePath();
+        const Utils::FilePath outPath = Utils::FilePath::fromString(shader + ".qsb");
+
+        if (!srcFile.exists()) {
+            m_qsbTargets.remove(shader);
+            --m_remainingQsbTargets;
+            continue;
+        }
+
+        if ((outPath.exists() && outPath.lastModified() > srcFile.lastModified())) {
+            --m_remainingQsbTargets;
+            continue;
+        }
+
+        QStringList args = baseArgs;
+        args.append(outPath.toString());
+        args.append(shader);
+        auto qsbProcess = new Utils::QtcProcess;
+        qsbProcess->setWorkingDirectory(srcPath);
+        qsbProcess->setCommand({m_qsbPath, args});
+        qsbProcess->start();
+
+        if (!qsbProcess->waitForStarted()) {
+            handleQsbProcessExit(qsbProcess, shader);
+            continue;
+        }
+
+        if (qsbProcess->state() == QProcess::Running) {
+            connect(qsbProcess, &Utils::QtcProcess::finished,
+                    [thisView = QPointer<NodeInstanceView>(this), qsbProcess, shader]() {
+                if (thisView)
+                    thisView->handleQsbProcessExit(qsbProcess, shader);
+                else
+                    qsbProcess->deleteLater();
+            });
+        } else {
+            handleQsbProcessExit(qsbProcess, shader);
+        }
+    }
 }
 
 void NodeInstanceView::updateRotationBlocks()
