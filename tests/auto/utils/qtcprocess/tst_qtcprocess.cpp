@@ -249,7 +249,7 @@ private:
     SUB_CREATOR_PROCESS(ExitCode);
     SUB_CREATOR_PROCESS(RunBlockingStdOut);
     SUB_CREATOR_PROCESS(LineCallback);
-    SUB_CREATOR_PROCESS(ProcessChannelForwarding);
+    SUB_CREATOR_PROCESS(ChannelForwarding);
     SUB_CREATOR_PROCESS(StandardOutputAndErrorWriter);
     SUB_CREATOR_PROCESS(KillBlockingProcess);
     SUB_CREATOR_PROCESS(EmitOneErrorOnCrash);
@@ -1180,12 +1180,12 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
 // a process and start it, because in this case there is no way on how to check whether something
 // went into our output channels or not.
 
-// So we start two processes in chain instead. On the beginning the processChannelForwarding()
-// test starts the ProcessChannelForwarding::main() - this one will start another process
+// So we start two processes in chain instead. On the beginning the channelForwarding()
+// test starts the ChannelForwarding::main() - this one will start another process
 // StandardOutputAndErrorWriter::main() with forwarding options.
 // The StandardOutputAndErrorWriter::main() is very simple - it just puts something to the output
-// and the error channels. Then ProcessChannelForwarding::main() either forwards these channels
-// or not - we check it in the outer processChannelForwarding() test.
+// and the error channels. Then ChannelForwarding::main() either forwards these channels
+// or not - we check it in the outer channelForwarding() test.
 
 static const char s_outputData[] = "This is the output message.";
 static const char s_errorData[] = "This is the error message.";
@@ -1197,7 +1197,7 @@ void tst_QtcProcess::StandardOutputAndErrorWriter::main()
     exit(0);
 }
 
-void tst_QtcProcess::ProcessChannelForwarding::main()
+void tst_QtcProcess::ChannelForwarding::main()
 {
     const QProcess::ProcessChannelMode channelMode
             = QProcess::ProcessChannelMode(qEnvironmentVariableIntValue(envVar()));
@@ -1232,7 +1232,7 @@ void tst_QtcProcess::channelForwarding()
     QFETCH(bool, outputForwarded);
     QFETCH(bool, errorForwarded);
 
-    SubCreatorConfig subConfig(ProcessChannelForwarding::envVar(), QString::number(int(channelMode)));
+    SubCreatorConfig subConfig(ChannelForwarding::envVar(), QString::number(int(channelMode)));
     TestProcess process;
     subConfig.setupSubProcess(&process);
 
