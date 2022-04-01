@@ -162,6 +162,7 @@ private slots:
     void flushFinishedWhileWaitingForReadyRead();
     void emitOneErrorOnCrash();
     void crashAfterOneSecond();
+    void recursiveCrashingProcess();
 
     void cleanupTestCase();
 
@@ -1206,6 +1207,20 @@ void tst_QtcProcess::crashAfterOneSecond()
     QCOMPARE(process.error(), QProcess::Crashed);
 }
 
+void tst_QtcProcess::recursiveCrashingProcess()
+{
+    const int recursionDepth = 5; // must be at least 1
+    SubProcessConfig subConfig(ProcessTestApp::RecursiveCrashingProcess::envVar(),
+                               QString::number(recursionDepth));
+    TestProcess process;
+    subConfig.setupSubProcess(&process);
+    process.start();
+    QVERIFY(process.waitForStarted(1000));
+    QVERIFY(process.waitForFinished(3000));
+    QCOMPARE(process.state(), QProcess::NotRunning);
+    QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+    QCOMPARE(process.exitCode(), s_crashCode);
+}
 QTEST_MAIN(tst_QtcProcess)
 
 #include "tst_qtcprocess.moc"

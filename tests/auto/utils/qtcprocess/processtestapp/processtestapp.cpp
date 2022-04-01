@@ -206,3 +206,21 @@ int ProcessTestApp::CrashAfterOneSecond::main()
     doCrash();
     return 1;
 }
+
+int ProcessTestApp::RecursiveCrashingProcess::main()
+{
+    const int currentDepth = qEnvironmentVariableIntValue(envVar());
+    if (currentDepth == 0) {
+        QThread::sleep(1);
+        doCrash();
+        return 1;
+    }
+    SubProcessConfig subConfig(envVar(), QString::number(currentDepth - 1));
+    QtcProcess process;
+    subConfig.setupSubProcess(&process);
+    process.start();
+    process.waitForFinished();
+    if (process.exitStatus() == QProcess::NormalExit)
+        return process.exitCode();
+    return s_crashCode;
+}

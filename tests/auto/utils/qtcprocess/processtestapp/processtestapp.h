@@ -70,6 +70,7 @@ public:
     SUB_PROCESS(KillBlockingProcess);
     SUB_PROCESS(EmitOneErrorOnCrash);
     SUB_PROCESS(CrashAfterOneSecond);
+    SUB_PROCESS(RecursiveCrashingProcess);
 
     // In order to get a value associated with the certain subprocess use SubProcessClass::envVar().
     // The classes above define different custom executables. Inside invokeSubProcess(), called
@@ -100,7 +101,7 @@ static const char s_simpleTestData[] = "Test process successfully executed.";
 static const char s_runBlockingStdOutSubProcessMagicWord[] = "42";
 
 // Expect ending lines detected at '|':
-const char s_lineCallbackData[] =
+static const char s_lineCallbackData[] =
        "This is the first line\r\n|"
        "Here comes the second one\r\n|"
        "And a line without LF\n|"
@@ -116,5 +117,7 @@ enum class BlockType {
     MutexDeadlock,
     EventLoop
 };
+
+static const int s_crashCode = 123;
 
 Q_DECLARE_METATYPE(BlockType)
