@@ -1427,20 +1427,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     }
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
-
-    const auto textMarkCreator = [this](const Utils::FilePath &filePath,
-            const Diagnostic &diag, bool isProjectFile) {
-        if (d->isTesting)
-            emit textMarkCreated(filePath);
-        return new ClangdTextMark(filePath, diag, isProjectFile, this);
-    };
-    const auto hideDiagsHandler = []{ ClangDiagnosticManager::clearTaskHubIssues(); };
-    static const auto diagsFilter = [](const Diagnostic &diag) {
-        const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
-        const QString * const codeString = Utils::get_if<QString>(&code);
-        return !codeString || *codeString != "drv_unknown_argument";
-    };
-    setDiagnosticsHandlers(textMarkCreator, hideDiagsHandler, diagsFilter);
     setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                                     int version, bool force) {
@@ -1613,6 +1599,44 @@ QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &curso
 const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
 {
     return {std::make_pair(new MemoryUsageWidget(this), tr("Memory Usage"))};
+}
+
+class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
+{
+public:
+    using LanguageClient::DiagnosticManager::DiagnosticManager;
+
+    void hideDiagnostics(const Utils::FilePath &filePath) override
+    {
+        DiagnosticManager::hideDiagnostics(filePath);
+        ClangDiagnosticManager::clearTaskHubIssues();
+    }
+
+    QList<Diagnostic> filteredDiagnostics(const QList<Diagnostic> &diagnostics) const override
+    {
+        return Utils::filtered(diagnostics, [](const Diagnostic &diag){
+            const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
+            const QString * const codeString = Utils::get_if<QString>(&code);
+            return !codeString || *codeString != "drv_unknown_argument";
+        });
+    }
+
+    TextMark *createTextMark(const Utils::FilePath &filePath,
+                             const Diagnostic &diagnostic,
+                             bool isProjectFile) const override
+    {
+        return new ClangdTextMark(filePath, diagnostic, isProjectFile, client());
+    }
+};
+
+DiagnosticManager *ClangdClient::createDiagnosticManager()
+{
+    auto diagnosticManager = new ClangdDiagnosticManager(this);
+    if (d->isTesting) {
+        connect(diagnosticManager, &DiagnosticManager::textMarkCreated,
+                this, &ClangdClient::textMarkCreated);
+    }
+    return diagnosticManager;
 }
 
 RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const

@@ -188,8 +188,6 @@ public:
         const QTextCursor &cursor) const;
     bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
                        const LanguageServerProtocol::Diagnostic &diag) const;
-    void setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
-                                const HideDiagnosticsHandler &hideHandler, const DiagnosticsFilter &filter);
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
     LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
@@ -227,6 +225,7 @@ protected:
                                   const QString &message);
     void handleMessage(const LanguageServerProtocol::BaseMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
+    virtual DiagnosticManager *createDiagnosticManager();
 
 private:
     void sendMessage(const LanguageServerProtocol::BaseMessage &message);
@@ -300,7 +299,7 @@ private:
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;
-    DiagnosticManager m_diagnosticManager;
+    DiagnosticManager *m_diagnosticManager = nullptr;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;

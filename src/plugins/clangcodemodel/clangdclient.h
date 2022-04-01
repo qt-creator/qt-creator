@@ -112,6 +112,7 @@ private:
                                               TextEditor::TextDocument *doc) override;
     const CustomInspectorTabs createCustomInspectorTabs() override;
     TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const override;
+    LanguageClient::DiagnosticManager *createDiagnosticManager() override;
 
     class Private;
     class FollowSymbolData;

@@ -81,7 +81,6 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMs
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
     , m_clientInterface(clientInterface)
-    , m_diagnosticManager(this)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)
@@ -158,6 +157,7 @@ Client::~Client()
     // do not handle messages while shutting down
     disconnect(m_clientInterface.data(), &BaseClientInterface::messageReceived,
                this, &Client::handleMessage);
+    delete m_diagnosticManager;
 }
 
 static ClientCapabilities generateClientCapabilities()
@@ -598,7 +598,8 @@ void Client::activateDocument(TextEditor::TextDocument *document)
 {
     const FilePath &filePath = document->filePath();
     auto uri = DocumentUri::fromFilePath(filePath);
-    m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(filePath));
+    if (m_diagnosticManager)
+        m_diagnosticManager->showDiagnostics(uri, m_documentVersions.value(filePath));
     m_tokenSupport.updateSemanticTokens(document);
     // only replace the assist provider if the language server support it
     updateCompletionProvider(document);
@@ -622,7 +623,8 @@ void Client::activateDocument(TextEditor::TextDocument *document)
 
 void Client::deactivateDocument(TextEditor::TextDocument *document)
 {
-    m_diagnosticManager.hideDiagnostics(document->filePath());
+    if (m_diagnosticManager)
+        m_diagnosticManager->hideDiagnostics(document->filePath());
     resetAssistProviders(document);
     document->setFormatter(nullptr);
     m_tokenSupport.clearHighlight(document);
@@ -1075,20 +1077,22 @@ void Client::removeAssistProcessor(TextEditor::IAssistProcessor *processor)
 
 QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const QTextCursor &cursor) const
 {
-    return m_diagnosticManager.diagnosticsAt(uri, cursor);
+    if (m_diagnosticManager)
+        return m_diagnosticManager->diagnosticsAt(uri, cursor);
+    return {};
 }
 
 bool Client::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
                            const LanguageServerProtocol::Diagnostic &diag) const
 {
-    return m_diagnosticManager.hasDiagnostic(uri, documentForFilePath(uri.toFilePath()), diag);
+    if (m_diagnosticManager)
+        return m_diagnosticManager->hasDiagnostic(uri, documentForFilePath(uri.toFilePath()), diag);
+    return false;
 }
 
-void Client::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
-                                    const HideDiagnosticsHandler &hideHandler,
-                                    const DiagnosticsFilter &filter)
+DiagnosticManager *Client::createDiagnosticManager()
 {
-    m_diagnosticManager.setDiagnosticsHandlers(textMarkCreator, hideHandler, filter);
+    return new DiagnosticManager(this);
 }
 
 void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
@@ -1165,7 +1169,8 @@ bool Client::reset()
     updateEditorToolBar(m_openedDocument.keys());
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
-    m_diagnosticManager.clearDiagnostics();
+    if (m_diagnosticManager)
+        m_diagnosticManager->clearDiagnostics();
     for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
         it.key()->disconnect(this);
     m_openedDocument.clear();
@@ -1503,9 +1508,11 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     const DocumentUri &uri = params.uri();
 
     const QList<Diagnostic> &diagnostics = params.diagnostics();
-    m_diagnosticManager.setDiagnostics(uri, diagnostics, params.version());
+    if (!m_diagnosticManager)
+        m_diagnosticManager = createDiagnosticManager();
+    m_diagnosticManager->setDiagnostics(uri, diagnostics, params.version());
     if (LanguageClientManager::clientForUri(uri) == this) {
-        m_diagnosticManager.showDiagnostics(uri, m_documentVersions.value(uri.toFilePath()));
+        m_diagnosticManager->showDiagnostics(uri, m_documentVersions.value(uri.toFilePath()));
         if (m_autoRequestCodeActions)
             requestCodeActions(uri, diagnostics);
     }

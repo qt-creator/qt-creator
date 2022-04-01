@@ -75,9 +75,6 @@ private:
 DiagnosticManager::DiagnosticManager(Client *client)
     : m_client(client)
 {
-    m_textMarkCreator = [this](const FilePath &filePath, const Diagnostic &diagnostic, bool /*isProjectFile*/) {
-        return createTextMark(filePath, diagnostic);
-    };
 }
 
 DiagnosticManager::~DiagnosticManager()
@@ -85,25 +82,26 @@ DiagnosticManager::~DiagnosticManager()
     clearDiagnostics();
 }
 
-void DiagnosticManager::setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
-                                       const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
+void DiagnosticManager::setDiagnostics(const DocumentUri &uri,
+                                       const QList<Diagnostic> &diagnostics,
                                        const Utils::optional<int> &version)
 {
     hideDiagnostics(uri.toFilePath());
-    const QList<Diagnostic> filteredDiags = m_filter
-            ? Utils::filtered(diagnostics, m_filter) : diagnostics;
-    m_diagnostics[uri] = {version, filteredDiags};
+    m_diagnostics[uri] = {version, filteredDiagnostics(diagnostics)};
 }
 
 void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
 {
-    if (m_hideHandler)
-        m_hideHandler();
     if (auto doc = TextDocument::textDocumentForFilePath(filePath)) {
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc))
             editor->editorWidget()->setExtraSelections(TextEditorWidget::CodeWarningsSelection, {});
     }
     qDeleteAll(m_marks.take(filePath));
+}
+
+QList<Diagnostic> DiagnosticManager::filteredDiagnostics(const QList<Diagnostic> &diagnostics) const
+{
+    return diagnostics;
 }
 
 static QTextEdit::ExtraSelection toDiagnosticsSelections(const Diagnostic &diagnostic,
@@ -134,8 +132,10 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
                                        && m_client->project()->isKnownFile(filePath);
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
                 extraSelections << toDiagnosticsSelections(diagnostic, doc->document());
-                marks.append(m_textMarkCreator(filePath, diagnostic, isProjectFile));
+                marks.append(createTextMark(filePath, diagnostic, isProjectFile));
             }
+            if (!marks.isEmpty())
+                emit textMarkCreated(filePath);
         }
 
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(doc)) {
@@ -146,7 +146,8 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
 }
 
 TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath,
-                                                        const Diagnostic &diagnostic) const
+                                                        const Diagnostic &diagnostic,
+                                                        bool isProjectFile) const
 {
     static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
     static const QString tooltip = tr("Copy to Clipboard");
@@ -200,15 +201,6 @@ bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri 
     if (revision != it->version.value_or(revision))
         return false;
     return it->diagnostics.contains(diag);
-}
-
-void DiagnosticManager::setDiagnosticsHandlers(const TextMarkCreator &textMarkCreator,
-                                               const HideDiagnosticsHandler &removalHandler,
-                                               const DiagnosticsFilter &filter)
-{
-    m_textMarkCreator = textMarkCreator;
-    m_hideHandler = removalHandler;
-    m_filter = filter;
 }
 
 } // namespace LanguageClient
