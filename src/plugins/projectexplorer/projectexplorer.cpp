@@ -1213,8 +1213,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_sessionManagerAction = new QAction(tr("&Manage..."), this);
     dd->m_sessionMenu->addAction(dd->m_sessionManagerAction);
     dd->m_sessionMenu->addSeparator();
+    cmd = ActionManager::registerAction(dd->m_sessionManagerAction,
+                                        "ProjectExplorer.ManageSessions");
     cmd->setDefaultKeySequence(QKeySequence());
-
 
     // unload action
     dd->m_unloadAction = new ParameterAction(tr("Close Project"), tr("Close Pro&ject \"%1\""),
