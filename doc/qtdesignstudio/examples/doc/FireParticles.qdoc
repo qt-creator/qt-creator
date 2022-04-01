@@ -1,0 +1,227 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page fire-particle-effect.html
+    \ingroup gstutorials
+    \sa Particles
+
+    \title Particle System: Fire Effect
+    \brief Illustrates how to create a fire effect with the \QDS
+    particle system.
+
+    \image fire-particles.png
+
+    The \e{Fire Effect} tutorial illustrates how you can add a fire effect to
+    your scene using the \QDS particle system.
+
+    In this tutorial, you create a project from the beginning. You can download
+    the completed project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/fire-particles}
+    {here}.
+
+    This tutorial requires that you know the basics of \QDS, see
+    \l{Getting Started}.
+
+    \section1 Tutorial Assets
+
+    You need the following assets to complete this tutorial:
+    \list
+      \li \e fire-sprites.png
+      \li \e fire-color-table.png
+    \endlist
+
+    You can download the assets from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/fire-particles/FireParticles/content/images}
+    {here}.
+
+    \section1 Creating a Fire Effect
+
+    \section2 Creating a Project
+
+    To create a new project:
+
+    \list 1
+      \li Open \QDS.
+      \li On the \uicontrol {Welcome Screen}, select \uicontrol
+      {Create Project}.
+      \li In the \uicontrol Presets section, select \uicontrol General >
+      \uicontrol {3D}.
+      \li In the \uicontrol Details section, set the name to \e FireParticles
+      and select the folder where you want to save the project.
+      \li Select \uicontrol {Create}.
+    \endlist
+
+    Next, remove unwanted default components from the project:
+
+    \list 1
+      \li In \uicontrol {Navigator}, select \e Text and select the \key Delete
+      key.
+      \li In the same way, delete \e {cubeModel}.
+    \endlist
+
+    For a better visual effect, set the background color to black:
+
+    \list
+      \li In \uicontrol {Navigator}, select \e Rectangle and in
+      \uicontrol {Properties}, set \uicontrol {Fill Color} to #000000.
+    \endlist
+
+
+    \section2 Adding a Particle System to Your Scene
+
+    To add a particle system, you first need to import the QtQuick3D.Particles3D
+    module to your project:
+
+    \list 1
+      \li In the \uicontrol Components view, select \inlineimage icons/plus.png
+      .
+      \li Find QtQuick3D.Particles3D, and select it to add it to your project.
+    \endlist
+
+    In this project, you use an animated sprite to simulate a fire. For
+    this, use the Animated Sprite particle system template:
+
+    \list
+      \li From \uicontrol Components >
+      \uicontrol{Qt Quick 3D Particle System Templates} drag an
+      \uicontrol {Animated Sprite} component to \uicontrol{3D Editor}. You can
+      also drag it to \e scene in \uicontrol {Navigator}.
+    \endlist
+
+    \image fire-particles-navigator.png
+
+    You now have the particle system in place. To preview it, select
+    \key Alt + \key{P}. You can also preview the particle system in
+    \uicontrol {3D Editor} by using the \l {Particle Editor} tools.
+
+    \section2 Adding Sprites and Sprite Animations
+
+    First, import the sprite to use for the fire:
+
+    \list 1
+      \li In \uicontrol {Assets}, select \inlineimage icons/plus.png
+      .
+      \li Select \e {fire-sprites.png}.
+    \endlist
+
+    \image fire-particles-assets.png
+
+    Next, add the sprite to the particle system and create the animation:
+
+    \list 1
+      \li From \uicontrol{Assets}, drag \e {fire-sprites.png} to
+      \e animatedTexture in \uicontrol {Navigator}.
+      \li In \uicontrol{Navigator}, select \e{animatedSequence} and in
+      \uicontrol {Properties}, set:
+        \list
+          \li \uicontrol{Frame Count} to 3.
+          There are 3 sprites in \e {fire-sprites.png} so you want to
+          divide the image into 3 different sprites for this animation.
+          \li \uicontrol Interpolate to true. This makes the animation between
+          the sprites smooth.
+          \li \uicontrol{Random Start} to true.
+          This sets the animation for each particle to start from any of the
+          3 sprites, creating some randomness to the effect.
+        \endlist
+    \endlist
+
+    \image fire-particles-sprite-sequence.png
+
+    To add color to the sprites, use a \e{color table}. With a color table, you
+    change the color of a single sprite during its life span. In this
+    project, you use a gradient color table ranging from yellow to dark orange.
+    This results in the sprites being yellow when they are emitted and dark
+    orange at the end of the life span.
+
+    To set the color table:
+    \list 1
+      \li Import \e{fire-color-table.png} to your project.
+      \li From \uicontrol{Components}, drag a \uicontrol Texture to
+      \e animatedSpriteParticle in \uicontrol{Navigator}.
+      \li Rename the texture to \e {fireColorTable}.
+      \li In \uicontrol {Navigator}, select \e {fireColorTable} and  in
+      \uicontrol {Properties}, set \uicontrol Source to
+      \e{fire-color-table.png}.
+      \li In \uicontrol {Navigator}, select \e {animatedSpriteParticle} and:
+        \list
+          \li Ensure that \uicontrol Sprite is set to \e {animatedTexture}.
+          \li Set \uicontrol {Particle Scale} to 5.
+          \li Set \uicontrol {Color Table} to \e{fireColorTable}.
+        \endlist
+    \endlist
+
+    \image fire-particles-sprite-textures.png
+
+    \section2 Adjusting the Particle Emitter
+
+    The next step is to adjust the particle emitter properties:
+
+    \list 1
+      \li In \uicontrol{Navigator}, select \e animatedSpriteEmitter and in
+      \uicontrol {Properties}, set:
+      \list
+        \li \uicontrol {Emit Rate} to 300.
+        \li \uicontrol {Life Span} to 2500.
+        \li \uicontrol {Life Span Variation} to 100.
+        \li \uicontrol {Particle End Scale} to 1,50.
+      \endlist
+      This sets the emitter to emit 300 particles per second. The life span of
+      each particle is ranging from 2.4 to 2.6 seconds. The size of each
+      particle is increasing slightly throughout its life span.
+      \li In \uicontrol{Navigator}, select \e animatedSpriteParticle and in
+      \uicontrol {Properties}, set:
+      \list
+        \li \uicontrol {Blend Mode} to Screen.
+        \li \uicontrol {Max Amount} to 1000.
+        \li \uicontrol {Color Variation} > \uicontrol W to 0,50. This adds
+        randomness to the opacity of the sprites.
+      \endlist
+      \li In \uicontrol{Navigator}, select \e animatedSpriteDirection and in
+      \uicontrol {Properties}, set:
+      \list
+        \li \uicontrol Direction > \uicontrol Y to 20.
+        \li \uicontrol {Direction Variation} > \uicontrol X to 3.
+        \li \uicontrol {Direction Variation} > \uicontrol Y to 10.
+      \endlist
+      This makes the particles go straight up with a small amount of randomness
+      to the direction.
+    \endlist
+
+    \section1 Previewing
+
+    Now, the fire effect is done. Before you preview it, adjust the camera:
+    \list 1
+      \li In \uicontrol {Navigator}, select \e sceneCamera and in
+      \uicontrol {Properties}, set:
+      \list
+        \li \uicontrol {Field of View} to 20.
+        \li \uicontrol {Translation} > \uicontrol Y to 35.
+      \endlist
+    \endlist
+
+    Now, preview the fire effect by selecting \key Alt + \key{P}.
+
+*/
