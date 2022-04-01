@@ -2,20 +2,6 @@
 <ui version="4.0">
  <class>Core::Internal::FindDialog</class>
  <widget class="QWidget" name="Core::Internal::FindDialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>673</width>
-    <height>240</height>
-   </rect>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>680</width>
-    <height>16777215</height>
-   </size>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetFixedSize</enum>
@@ -201,6 +187,12 @@
        <horstretch>0</horstretch>
        <verstretch>10</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>680</width>
+       <height>0</height>
+      </size>
      </property>
     </widget>
    </item>
