@@ -38,6 +38,10 @@
 #ifdef Q_OS_WIN
 #include <fcntl.h>
 #include <io.h>
+#else
+#include <atomic>
+#include <signal.h>
+#include <unistd.h>
 #endif
 
 using namespace Utils;
@@ -210,7 +214,7 @@ int ProcessTestApp::CrashAfterOneSecond::main()
 int ProcessTestApp::RecursiveCrashingProcess::main()
 {
     const int currentDepth = qEnvironmentVariableIntValue(envVar());
-    if (currentDepth == 0) {
+    if (currentDepth == 1) {
         QThread::sleep(1);
         doCrash();
         return 1;
@@ -220,6 +224,59 @@ int ProcessTestApp::RecursiveCrashingProcess::main()
     subConfig.setupSubProcess(&process);
     process.start();
     process.waitForFinished();
+    if (process.exitStatus() == QProcess::NormalExit)
+        return process.exitCode();
+    return s_crashCode;
+}
+
+#ifndef Q_OS_WIN
+static std::atomic_bool s_terminate = false;
+
+void terminate(int signum)
+{
+    Q_UNUSED(signum)
+    s_terminate.store(true);
+}
+#endif
+
+int ProcessTestApp::RecursiveBlockingProcess::main()
+{
+#ifndef Q_OS_WIN
+    struct sigaction action;
+    memset(&action, 0, sizeof(struct sigaction));
+    action.sa_handler = terminate;
+    sigaction(SIGTERM, &action, NULL);
+#endif
+
+    const int currentDepth = qEnvironmentVariableIntValue(envVar());
+    if (currentDepth == 1) {
+        std::cout << s_leafProcessStarted << std::flush;
+        while (true) {
+            QThread::sleep(1);
+#ifndef Q_OS_WIN
+            if (s_terminate.load()) {
+                std::cout << s_leafProcessTerminated << std::flush;
+                return s_crashCode;
+            }
+#endif
+        }
+    }
+    SubProcessConfig subConfig(envVar(), QString::number(currentDepth - 1));
+    QtcProcess process;
+    subConfig.setupSubProcess(&process);
+    process.setProcessChannelMode(QProcess::ForwardedChannels);
+    process.start();
+    while (true) {
+        if (process.waitForFinished(1000))
+            return 0;
+#ifndef Q_OS_WIN
+        if (s_terminate.load()) {
+            process.terminate();
+            process.waitForFinished(-1);
+            break;
+        }
+#endif
+    }
     if (process.exitStatus() == QProcess::NormalExit)
         return process.exitCode();
     return s_crashCode;

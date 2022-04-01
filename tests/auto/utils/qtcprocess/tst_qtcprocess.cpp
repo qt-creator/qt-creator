@@ -31,6 +31,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
 #include <utils/porting.h>
+#include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/singleton.h>
@@ -162,6 +163,7 @@ private slots:
     void emitOneErrorOnCrash();
     void crashAfterOneSecond();
     void recursiveCrashingProcess();
+    void recursiveBlockingProcess();
 
     void cleanupTestCase();
 
@@ -1187,7 +1189,7 @@ void tst_QtcProcess::crashAfterOneSecond()
 
 void tst_QtcProcess::recursiveCrashingProcess()
 {
-    const int recursionDepth = 5; // must be at least 1
+    const int recursionDepth = 5; // must be at least 2
     SubProcessConfig subConfig(ProcessTestApp::RecursiveCrashingProcess::envVar(),
                                QString::number(recursionDepth));
     TestProcess process;
@@ -1199,6 +1201,48 @@ void tst_QtcProcess::recursiveCrashingProcess()
     QCOMPARE(process.exitStatus(), QProcess::NormalExit);
     QCOMPARE(process.exitCode(), s_crashCode);
 }
+
+static int runningTestProcessCount()
+{
+    int testProcessCounter = 0;
+    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+    for (const ProcessInfo &processInfo : processInfoList) {
+        if (FilePath::fromString(processInfo.executable).baseName() == "processtestapp")
+            ++testProcessCounter;
+    }
+    return testProcessCounter;
+}
+
+void tst_QtcProcess::recursiveBlockingProcess()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Windows implementation of this test is lacking handling of WM_CLOSE message.");
+
+    Singleton::deleteAll();
+    QCOMPARE(runningTestProcessCount(), 0);
+    const int recursionDepth = 5; // must be at least 2
+    SubProcessConfig subConfig(ProcessTestApp::RecursiveBlockingProcess::envVar(),
+                               QString::number(recursionDepth));
+    {
+        TestProcess process;
+        subConfig.setupSubProcess(&process);
+        process.start();
+        QVERIFY(process.waitForStarted(1000));
+        QVERIFY(process.waitForReadyRead(1000));
+        QCOMPARE(process.readAllStandardOutput(), s_leafProcessStarted);
+        QCOMPARE(runningTestProcessCount(), recursionDepth);
+        QVERIFY(!process.waitForFinished(1000));
+        process.terminate();
+        QVERIFY(process.waitForReadyRead());
+        QCOMPARE(process.readAllStandardOutput(), s_leafProcessTerminated);
+        QVERIFY(process.waitForFinished());
+        QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+        QCOMPARE(process.exitCode(), s_crashCode);
+    }
+    Singleton::deleteAll();
+    QCOMPARE(runningTestProcessCount(), 0);
+}
+
 QTEST_MAIN(tst_QtcProcess)
 
 #include "tst_qtcprocess.moc"

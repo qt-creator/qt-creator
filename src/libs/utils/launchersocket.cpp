@@ -308,25 +308,44 @@ QProcess::ProcessState CallerHandle::state() const
     return m_processState;
 }
 
-void CallerHandle::cancel()
+bool CallerHandle::isStartPacketAwaitingAndClear()
+{
+    QMutexLocker locker(&m_mutex);
+    const bool startPacketExisted = m_startPacket.get();
+    m_startPacket.reset();
+    return startPacketExisted;
+}
+
+void CallerHandle::sendStopPacket(StopProcessPacket::SignalType signalType)
+{
+    if (m_processState == QProcess::NotRunning)
+        return;
+
+    if (m_processState == QProcess::Running || !isStartPacketAwaitingAndClear()) {
+        StopProcessPacket packet(m_token);
+        packet.signalType = signalType;
+        sendPacket(packet);
+        return;
+    }
+
+    m_processState.store(QProcess::NotRunning);
+    m_result.m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
+                                                "Process was canceled before it was started.");
+    m_result.m_error = QProcess::FailedToStart;
+    emit errorOccurred(m_result.m_error);
+}
+
+
+void CallerHandle::terminate()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    switch (m_processState.exchange(QProcess::NotRunning)) {
-    case QProcess::NotRunning:
-        break;
-    case QProcess::Starting:
-        m_result.m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
-                                 "Process was canceled before it was started.");
-        m_result.m_error = QProcess::FailedToStart;
-        if (LauncherInterface::isReady()) // TODO: race condition with m_processState???
-            sendPacket(StopProcessPacket(m_token));
-        else
-            emit errorOccurred(m_result.m_error);
-        break;
-    case QProcess::Running:
-        sendPacket(StopProcessPacket(m_token));
-        break;
-    }
+    sendStopPacket(StopProcessPacket::SignalType::Terminate);
+}
+
+void CallerHandle::kill()
+{
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    sendStopPacket(StopProcessPacket::SignalType::Kill);
 }
 
 QByteArray CallerHandle::readAllStandardOutput()
@@ -416,7 +435,7 @@ void CallerHandle::doStart()
     if (!m_startPacket)
         return;
     sendPacket(*m_startPacket);
-    m_startPacket.reset(nullptr);
+    m_startPacket.reset();
 }
 
 // Called from caller's or launcher's thread.

@@ -114,12 +114,14 @@ StopProcessPacket::StopProcessPacket(quintptr token)
 
 void StopProcessPacket::doSerialize(QDataStream &stream) const
 {
-    Q_UNUSED(stream);
+    stream << int(signalType);
 }
 
 void StopProcessPacket::doDeserialize(QDataStream &stream)
 {
-    Q_UNUSED(stream);
+    int sig;
+    stream >> sig;
+    signalType = SignalType(sig);
 }
 
 void WritePacket::doSerialize(QDataStream &stream) const

@@ -71,6 +71,7 @@ public:
     SUB_PROCESS(EmitOneErrorOnCrash);
     SUB_PROCESS(CrashAfterOneSecond);
     SUB_PROCESS(RecursiveCrashingProcess);
+    SUB_PROCESS(RecursiveBlockingProcess);
 
     // In order to get a value associated with the certain subprocess use SubProcessClass::envVar().
     // The classes above define different custom executables. Inside invokeSubProcess(), called
@@ -119,5 +120,7 @@ enum class BlockType {
 };
 
 static const int s_crashCode = 123;
+static const char s_leafProcessStarted[] = "Leaf process started";
+static const char s_leafProcessTerminated[] = "Leaf process terminated";
 
 Q_DECLARE_METATYPE(BlockType)

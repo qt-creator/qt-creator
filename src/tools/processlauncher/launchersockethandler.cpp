@@ -247,6 +247,15 @@ void LauncherSocketHandler::handleStopPacket()
         logDebug("Got stop request for unknown process");
         return;
     }
+    const auto packet = LauncherPacket::extractPacket<StopProcessPacket>(
+                m_packetParser.token(),
+                m_packetParser.packetData());
+
+    if (packet.signalType == StopProcessPacket::SignalType::Terminate) {
+        process->terminate();
+        return;
+    }
+
     if (process->state() == QProcess::NotRunning) {
         // This shouldn't happen, since as soon as process finishes or error occurrs
         // the process is being removed.

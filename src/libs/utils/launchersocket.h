@@ -90,7 +90,10 @@ public:
 
     // Called from caller's or launcher's thread.
     QProcess::ProcessState state() const;
-    void cancel();
+    bool isStartPacketAwaitingAndClear();
+    void sendStopPacket(StopProcessPacket::SignalType signalType);
+    void terminate();
+    void kill();
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();

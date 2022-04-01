@@ -98,7 +98,7 @@ static QList<ProcessInfo> getLocalProcessesUsingProc()
 
         if (proc.executable.isEmpty()) {
             QFile statFile(root + QLatin1String("/stat"));
-            if (!statFile.open(QIODevice::ReadOnly)) {
+            if (statFile.open(QIODevice::ReadOnly)) {
                 const QStringList data = QString::fromLocal8Bit(statFile.readAll()).split(QLatin1Char(' '));
                 if (data.size() < 2)
                     continue;

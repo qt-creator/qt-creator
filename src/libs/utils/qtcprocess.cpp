@@ -422,7 +422,7 @@ public:
     }
     ~ProcessLauncherImpl() final
     {
-        cancel();
+        m_handle->kill();
         LauncherInterface::unregisterHandle(token());
         m_handle = nullptr;
     }
@@ -435,9 +435,9 @@ public:
         if (m_setup->m_useCtrlCStub) // bypass launcher and interrupt directly
             ProcessHelper::interruptPid(processId());
     }
-    void terminate() final { cancel(); } // TODO: what are differences among terminate, kill and close?
-    void kill() final { cancel(); } // TODO: see above
-    void close() final { cancel(); } // TODO: see above
+    void terminate() final { m_handle->terminate(); }
+    void kill() final { m_handle->kill(); }
+    void close() final { m_handle->kill(); } // TODO: is it more like terminate or kill?
     qint64 write(const QByteArray &data) final { return m_handle->write(data); }
 
     ProcessResultData resultData() const final { return m_handle->resultData(); };
@@ -456,19 +456,12 @@ private:
         m_handle->start(program, arguments);
     }
 
-    void cancel();
-
     quintptr token() const { return m_token; }
 
     const uint m_token = 0;
     // Lives in caller's thread.
     CallerHandle *m_handle = nullptr;
 };
-
-void ProcessLauncherImpl::cancel()
-{
-    m_handle->cancel();
-}
 
 static ProcessImpl defaultProcessImpl()
 {

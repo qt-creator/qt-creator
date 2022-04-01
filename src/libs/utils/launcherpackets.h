@@ -142,6 +142,13 @@ class StopProcessPacket : public LauncherPacket
 public:
     StopProcessPacket(quintptr token);
 
+    enum class SignalType {
+        Kill,
+        Terminate
+    };
+
+    SignalType signalType = SignalType::Kill;
+
 private:
     void doSerialize(QDataStream &stream) const override;
     void doDeserialize(QDataStream &stream) override;
