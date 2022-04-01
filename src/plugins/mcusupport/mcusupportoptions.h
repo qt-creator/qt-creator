@@ -76,6 +76,7 @@ public:
     static void registerExamples();
 
     static const QVersionNumber &minimalQulVersion();
+    static bool isLegacyVersion(const QVersionNumber &version);
 
     void checkUpgradeableKits();
     void populatePackagesAndTargets();

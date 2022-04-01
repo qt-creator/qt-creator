@@ -316,4 +316,14 @@ void McuSupportTest::test_removeRtosSuffix()
     QCOMPARE(removeRtosSuffix(freeRtosEnvVar), expectedEnvVarWithoutSuffix);
 }
 
+void McuSupportTest::test_2dot1UsesLegacyImplementation()
+{
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 1}), true);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 0}), true);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 0, 0}), true);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 0, 1}), true);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 0}), false);
+    QCOMPARE(McuSupportOptions::isLegacyVersion({2, 2, 1}), false);
+}
+
 } // namespace McuSupport::Internal::Test

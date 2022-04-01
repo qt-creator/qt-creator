@@ -46,8 +46,9 @@ using McuPackagePtr = QSharedPointer<McuAbstractPackage>;
 using McuToolChainPackagePtr = QSharedPointer<McuToolChainPackage>;
 using McuTargetPtr = QSharedPointer<McuTarget>;
 
+static const QVersionNumber minimalVersion{2, 0, 0};
+static const QVersionNumber newVersion{2, 2};
 using Targets = QList<McuTargetPtr>;
 using Packages = QSet<McuPackagePtr>;
-static const QVersionNumber legacyVersion{2, 0, 0};
 
 } // namespace McuSupport::Internal

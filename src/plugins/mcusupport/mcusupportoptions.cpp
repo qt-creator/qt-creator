@@ -114,7 +114,12 @@ void McuSupportOptions::registerExamples()
 
 const QVersionNumber &McuSupportOptions::minimalQulVersion()
 {
-    return legacyVersion;
+    return minimalVersion;
+}
+
+bool McuSupportOptions::isLegacyVersion(const QVersionNumber &version)
+{
+    return version < newVersion;
 }
 
 void McuSupportOptions::setQulDir(const FilePath &dir)

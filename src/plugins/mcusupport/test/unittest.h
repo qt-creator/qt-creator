@@ -62,10 +62,10 @@ private slots:
     void test_parseCmakeEntries();
     void test_removeRtosSuffix_data();
     void test_removeRtosSuffix();
+    void test_2dot1UsesLegacyImplementation();
 
 private:
     QVersionNumber currentQulVersion{2, 0};
-
     const QString id{"target_id"};
     const QString name{"target_name"};
     const QString vendor{"target_vendor"};

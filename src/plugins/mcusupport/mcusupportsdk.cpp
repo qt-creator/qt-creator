@@ -589,8 +589,7 @@ bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message)
 McuSdkRepository targetsAndPackages(const Utils::FilePath &dir)
 {
     QList<McuTargetDescription> descriptions;
-
-    bool isLegacy = false;
+    bool isLegacy{false};
 
     auto descriptionFiles = targetDescriptionFiles(dir);
     for (const QFileInfo &fileInfo : descriptionFiles) {
@@ -610,8 +609,7 @@ McuSdkRepository targetsAndPackages(const Utils::FilePath &dir)
         }
 
         const auto qulVersion{QVersionNumber::fromString(desc.qulVersion)};
-        if (qulVersion == McuSupportOptions::minimalQulVersion())
-            isLegacy = true;
+        isLegacy = McuSupportOptions::isLegacyVersion(qulVersion);
 
         if (qulVersion < McuSupportOptions::minimalQulVersion()) {
             const QString legacyVersion = legacySupportVersionFor(desc.qulVersion);
