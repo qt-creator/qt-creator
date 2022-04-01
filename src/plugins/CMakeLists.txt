@@ -61,6 +61,7 @@ add_subdirectory(languageclient)
 # Level 6:
 add_subdirectory(cmakeprojectmanager)
 add_subdirectory(debugger)
+add_subdirectory(coco)
 
 # Level 7:
 add_subdirectory(android)

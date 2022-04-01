@@ -368,6 +368,47 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              tr("Names of static fields or member functions."),
                              FormatDescription::ShowAllControls);
 
+    formatDescr.emplace_back(C_COCO_CODE_ADDED,
+                             tr("Code Coverage Added Code"),
+                             tr("New code that was not checked for tests."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_PARTIALLY_COVERED,
+                             tr("Partially Covered Code"),
+                             tr("Partial branch/condition coverage."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_NOT_COVERED,
+                             tr("Uncovered Code"),
+                             tr("Not covered at all."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_FULLY_COVERED,
+                             tr("Fully Covered Code"),
+                             tr("Fully covered code."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_MANUALLY_VALIDATED,
+                             tr("Manually Validated Code"),
+                             tr("User added validation."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_DEAD_CODE,
+                             tr("Code Coverage Dead Code"),
+                             tr("Unreachable code."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_EXECUTION_COUNT_TOO_LOW,
+                             tr("Code Coverage Execution Count To Low"),
+                             tr("Minimum count not reached."),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_NOT_COVERED_INFO,
+                             tr("Implicitly Not Covered Code"),
+                             tr("PLACEHOLDER"),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_COVERED_INFO,
+                             tr("Implicitly Covered Code"),
+                             tr("PLACEHOLDER"),
+                             FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_COCO_MANUALLY_VALIDATED_INFO,
+                             tr("Implicit Manual Coverage Validation"),
+                             tr("PLACEHOLDER"),
+                             FormatDescription::ShowAllControls);
+
     return formatDescr;
 }
 

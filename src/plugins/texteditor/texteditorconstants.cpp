@@ -117,6 +117,18 @@ const char *nameForStyle(TextStyle style)
     case C_OUTPUT_ARGUMENT:     return "OutputArgument";
     case C_STATIC_MEMBER:       return "StaticMember";
 
+    case C_COCO_CODE_ADDED: return "CocoCodeAdded";
+    case C_COCO_PARTIALLY_COVERED: return "CocoPartiallyCovered";
+    case C_COCO_NOT_COVERED: return "CocoNotCovered";
+    case C_COCO_FULLY_COVERED: return "CocoFullyCovered";
+    case C_COCO_MANUALLY_VALIDATED: return "CocoManuallyValidated";
+    case C_COCO_DEAD_CODE: return "CocoDeadCode";
+    case C_COCO_EXECUTION_COUNT_TOO_LOW: return "CocoExecutionCountTooLow";
+    case C_COCO_NOT_COVERED_INFO: return "CocoNotCoveredInfo";
+    case C_COCO_COVERED_INFO: return "CocoCoveredInfo";
+    case C_COCO_MANUALLY_VALIDATED_INFO: return "CocoManuallyValidatedInfo";
+
+
     case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
     }
     return "Unknown Style";

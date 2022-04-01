@@ -20,6 +20,7 @@ Project {
         "clearcase/clearcase.qbs",
         "cmakeprojectmanager/cmakeprojectmanager.qbs",
         "mesonprojectmanager/mesonprojectmanager.qbs",
+        "coco/coco.qbs",
         "compilationdatabaseprojectmanager/compilationdatabaseprojectmanager.qbs",
         "conan/conan.qbs",
         "coreplugin/coreplugin.qbs",

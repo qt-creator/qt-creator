@@ -110,8 +110,12 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
             const bool isProjectFile = m_client->project()
                                        && m_client->project()->isKnownFile(filePath);
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
-                extraSelections << createDiagnosticSelection(diagnostic, doc->document());
-                marks.append(createTextMark(filePath, diagnostic, isProjectFile));
+                const QTextEdit::ExtraSelection selection
+                    = createDiagnosticSelection(diagnostic, doc->document());
+                if (!selection.cursor.isNull())
+                    extraSelections << selection;
+                if (TextEditor::TextMark *mark = createTextMark(filePath, diagnostic, isProjectFile))
+                    marks.append(mark);
             }
             if (!marks.isEmpty())
                 emit textMarkCreated(filePath);
