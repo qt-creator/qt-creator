@@ -3375,6 +3375,8 @@ QIcon ClangdCompletionItem::icon() const
     case SpecialQtType::None:
         break;
     }
+    if (item().kind().value_or(CompletionItemKind::Text) == CompletionItemKind::Property)
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::VarPublicStatic);
     return LanguageClientCompletionItem::icon();
 }
 
