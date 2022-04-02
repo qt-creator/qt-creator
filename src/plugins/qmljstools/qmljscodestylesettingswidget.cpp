@@ -23,13 +23,48 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "qmljscodestylesettingswidget.h"
+#include "ui_qmljscodestylesettingswidget.h"
+#include "qmljscodestylesettings.h"
 
-#include "qmljs_global.h"
+#include <QTextStream>
 
-#include "qmljsdocument.h"
+namespace QmlJSTools {
 
-namespace QmlJS {
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc);
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc, int indentSize, int tabSize, int lineLength);
-} // namespace QmlJS
+QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent) :
+    QGroupBox(parent),
+    ui(new Internal::Ui::QmlJSCodeStyleSettingsWidget)
+{
+    ui->setupUi(this);
+
+    auto spinValueChanged = QOverload<int>::of(&QSpinBox::valueChanged);
+    connect(ui->lineLengthSpinBox, spinValueChanged,
+            this, &QmlJSCodeStyleSettingsWidget::slotSettingsChanged);
+}
+
+QmlJSCodeStyleSettingsWidget::~QmlJSCodeStyleSettingsWidget()
+{
+    delete ui;
+}
+
+void QmlJSCodeStyleSettingsWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings& s)
+{
+    QSignalBlocker blocker(this);
+    ui->lineLengthSpinBox->setValue(s.lineLength);
+}
+
+QmlJSCodeStyleSettings QmlJSCodeStyleSettingsWidget::codeStyleSettings() const
+{
+    QmlJSCodeStyleSettings set;
+
+    set.lineLength = ui->lineLengthSpinBox->value();
+
+    return set;
+}
+
+void QmlJSCodeStyleSettingsWidget::slotSettingsChanged()
+{
+    emit settingsChanged(codeStyleSettings());
+}
+
+} // namespace TextEditor

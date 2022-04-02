@@ -37,12 +37,13 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
     class FontSettings;
-    class TabSettings;
     class CodeStyleEditor;
-    class ICodeStylePreferences;
 }
 
 namespace QmlJSTools {
+class QmlJSCodeStylePreferences;
+class QmlJSCodeStyleSettings;
+
 namespace Internal {
 
 namespace Ui { class QmlJSCodeStyleSettingsPage; }
@@ -55,7 +56,7 @@ public:
     explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = nullptr);
     ~QmlJSCodeStylePreferencesWidget() override;
 
-    void setPreferences(TextEditor::ICodeStylePreferences *preferences);
+    void setPreferences(QmlJSCodeStylePreferences* preferences);
 
 private:
     void decorateEditor(const TextEditor::FontSettings &fontSettings);
@@ -63,7 +64,7 @@ private:
     void slotSettingsChanged();
     void updatePreview();
 
-    TextEditor::ICodeStylePreferences *m_preferences = nullptr;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
     Ui::QmlJSCodeStyleSettingsPage *m_ui;
 };
 
@@ -78,7 +79,7 @@ public:
     void finish() override;
 
 private:
-    TextEditor::ICodeStylePreferences *m_pageTabPreferences = nullptr;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
     QPointer<TextEditor::CodeStyleEditor> m_widget;
 };
 

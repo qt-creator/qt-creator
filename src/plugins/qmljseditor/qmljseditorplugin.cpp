@@ -38,6 +38,8 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <qmljstools/qmljstoolsconstants.h>
+#include <qmljstools/qmljstoolssettings.h>
+#include <qmljstools/qmljscodestylepreferences.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -274,7 +276,8 @@ void QmlJSEditorPluginPrivate::reformatFile()
         TextEditor::TabSettings tabSettings = m_currentDocument->tabSettings();
         const QString &newText = QmlJS::reformat(document,
                                                  tabSettings.m_indentSize,
-                                                 tabSettings.m_tabSize);
+                                                 tabSettings.m_tabSize,
+                                                 QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->currentCodeStyleSettings().lineLength);
 
         //  QTextDocument::setPlainText cannot be used, as it would reset undo/redo history
         const auto setNewText = [this, &newText]() {

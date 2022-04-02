@@ -25,11 +25,41 @@
 
 #pragma once
 
-#include "qmljs_global.h"
+#include "qmljstools_global.h"
+#include "qmljscodestylesettings.h"
 
-#include "qmljsdocument.h"
+#include <texteditor/icodestylepreferences.h>
 
-namespace QmlJS {
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc);
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc, int indentSize, int tabSize, int lineLength);
-} // namespace QmlJS
+namespace QmlJSTools {
+
+class QMLJSTOOLS_EXPORT QmlJSCodeStylePreferences : public TextEditor::ICodeStylePreferences
+{
+    Q_OBJECT
+public:
+    explicit QmlJSCodeStylePreferences(QObject *parent = nullptr);
+
+    QVariant value() const override;
+    void setValue(const QVariant &) override;
+
+    QmlJSCodeStyleSettings codeStyleSettings() const;
+
+    // tracks parent hierarchy until currentParentSettings is null
+    QmlJSCodeStyleSettings currentCodeStyleSettings() const;
+
+    QVariantMap toMap() const override;
+    void fromMap(const QVariantMap &map) override;
+
+public slots:
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &data);
+
+signals:
+    void codeStyleSettingsChanged(const QmlJSCodeStyleSettings &);
+    void currentCodeStyleSettingsChanged(const QmlJSCodeStyleSettings &);
+
+private:
+    void slotCurrentValueChanged(const QVariant &);
+
+    QmlJSCodeStyleSettings m_data;
+};
+
+} // namespace QmlJSTools

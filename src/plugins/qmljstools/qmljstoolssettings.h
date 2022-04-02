@@ -29,9 +29,8 @@
 
 #include <QObject>
 
-namespace TextEditor { class SimpleCodeStylePreferences; }
-
 namespace QmlJSTools {
+class QmlJSCodeStylePreferences;
 
 /**
  * This class provides a central place for cpp tools settings.
@@ -44,7 +43,7 @@ public:
     explicit QmlJSToolsSettings();
     ~QmlJSToolsSettings() override;
 
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
+    static QmlJSCodeStylePreferences *globalCodeStyle();
 };
 
 } // namespace QmlJSTools

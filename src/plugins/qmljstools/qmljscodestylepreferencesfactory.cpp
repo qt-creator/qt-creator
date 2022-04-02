@@ -28,7 +28,7 @@
 #include "qmljstoolsconstants.h"
 #include "qmljsindenter.h"
 
-#include <texteditor/simplecodestylepreferences.h>
+#include <qmljscodestylepreferences.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
 
@@ -68,16 +68,19 @@ QString QmlJSCodeStylePreferencesFactory::displayName()
 
 TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const
 {
-    return new TextEditor::SimpleCodeStylePreferences();
+    return new QmlJSCodeStylePreferences();
 }
 
 TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEditor(
     TextEditor::ICodeStylePreferences *preferences,
     QWidget *parent) const
 {
+    auto qmlJSPreferences = qobject_cast<QmlJSCodeStylePreferences *>(preferences);
+    if (!qmlJSPreferences)
+        return nullptr;
     auto widget = new Internal::QmlJSCodeStylePreferencesWidget(parent);
     widget->layout()->setContentsMargins(0, 0, 0, 0);
-    widget->setPreferences(preferences);
+    widget->setPreferences(qmlJSPreferences);
     return widget;
 }
 

@@ -98,6 +98,7 @@ class Rewriter : protected Visitor
     bool _hadEmptyLine = false;
     int _binaryExpDepth = 0;
     bool _hasOpenComment = false;
+    int _lineLength = 80;
 
 public:
     Rewriter(Document::Ptr doc)
@@ -107,6 +108,7 @@ public:
 
     void setIndentSize(int size) { _formatter.setIndentSize(size); }
     void setTabSize(int size) { _formatter.setTabSize(size); }
+    void setLineLength(int size) { _lineLength = size; }
 
     QString operator()(Node *node)
     {
@@ -286,10 +288,10 @@ protected:
         QStringList lines;
         qreal badnessFromSplits;
 
-        qreal badness()
+        qreal badness(int lineLength)
         {
-            const int maxLineLength = 80;
-            const int strongMaxLineLength = 100;
+            const int maxLineLength = lineLength;
+            const int strongMaxLineLength = lineLength + 20;
             const int minContentLength = 10;
 
             qreal result = badnessFromSplits;
@@ -369,7 +371,7 @@ protected:
 
             nested.lines.prepend(newContextLine);
             nested.badnessFromSplits += possibleSplits.at(i).badness;
-            if (nested.badness() < result.badness())
+            if (nested.badness(_lineLength) < result.badness(_lineLength))
                 result = nested;
         }
 
@@ -391,13 +393,15 @@ protected:
             _indent = tryIndent(_line);
             adjustIndent(&_line, &_possibleSplits, _indent);
 
-            // maybe make multi-line?
-            BestSplit split = computeBestSplits(QStringList(), _line, _possibleSplits);
-            if (!split.lines.isEmpty() && split.lines.size() > 1) {
-                for (int i = 0; i < split.lines.size(); ++i) {
-                    _line = split.lines.at(i);
-                    if (i != split.lines.size() - 1)
-                        finishLine();
+            if (_lineLength > 0) {
+                // maybe make multi-line?
+                BestSplit split = computeBestSplits(QStringList(), _line, _possibleSplits);
+                if (!split.lines.isEmpty() && split.lines.size() > 1) {
+                    for (int i = 0; i < split.lines.size(); ++i) {
+                        _line = split.lines.at(i);
+                        if (i != split.lines.size() - 1)
+                            finishLine();
+                    }
                 }
             }
         }
@@ -1414,10 +1418,11 @@ QString QmlJS::reformat(const Document::Ptr &doc)
     return rewriter(doc->ast());
 }
 
-QString QmlJS::reformat(const Document::Ptr &doc, int indentSize, int tabSize)
+QString QmlJS::reformat(const Document::Ptr &doc, int indentSize, int tabSize, int lineLength)
 {
     Rewriter rewriter(doc);
     rewriter.setIndentSize(indentSize);
     rewriter.setTabSize(tabSize);
+    rewriter.setLineLength(lineLength);
     return rewriter(doc->ast());
 }

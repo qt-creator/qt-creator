@@ -25,11 +25,36 @@
 
 #pragma once
 
-#include "qmljs_global.h"
+#include "qmljstools_global.h"
 
-#include "qmljsdocument.h"
+#include <QWidget>
 
-namespace QmlJS {
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc);
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc, int indentSize, int tabSize, int lineLength);
-} // namespace QmlJS
+namespace TextEditor {
+class ICodeStylePreferences;
+}
+
+namespace QmlJSTools {
+class QmlJSCodeStyleSettings;
+class QmlJSCodeStyleSettingsWidget;
+class QmlJSCodeStylePreferences;
+
+namespace Ui { class TabPreferencesWidget; }
+
+class QMLJSTOOLS_EXPORT QmlJSCodeStylePreferencesWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = nullptr);
+
+    void setPreferences(QmlJSCodeStylePreferences *tabPreferences);
+
+private:
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences* preferences);
+    void slotSettingsChanged(const QmlJSCodeStyleSettings &settings);
+
+    QmlJSCodeStyleSettingsWidget *m_codeStyleSettingsWidget;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
+};
+
+} // namespace QmlJSTools

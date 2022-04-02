@@ -25,11 +25,34 @@
 
 #pragma once
 
-#include "qmljs_global.h"
+#include "qmljstools_global.h"
 
-#include "qmljsdocument.h"
+#include <utils/optional.h>
 
-namespace QmlJS {
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc);
-QMLJS_EXPORT QString reformat(const Document::Ptr &doc, int indentSize, int tabSize, int lineLength);
-} // namespace QmlJS
+#include <QVariantMap>
+
+namespace TextEditor { class TabSettings; }
+
+namespace QmlJSTools {
+
+class QMLJSTOOLS_EXPORT QmlJSCodeStyleSettings
+{
+public:
+    QmlJSCodeStyleSettings();
+
+    int lineLength = 80;
+
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
+
+    bool equals(const QmlJSCodeStyleSettings &rhs) const;
+    bool operator==(const QmlJSCodeStyleSettings &s) const { return equals(s); }
+    bool operator!=(const QmlJSCodeStyleSettings &s) const { return !equals(s); }
+
+    static QmlJSCodeStyleSettings currentGlobalCodeStyle();
+    static TextEditor::TabSettings currentGlobalTabSettings();
+};
+
+} // namespace CppEditor
+
+Q_DECLARE_METATYPE(QmlJSTools::QmlJSCodeStyleSettings)

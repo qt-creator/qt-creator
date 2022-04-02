@@ -5,6 +5,10 @@ add_qtc_plugin(QmlJSTools
   SOURCES
     qmljsbundleprovider.cpp qmljsbundleprovider.h
     qmljscodestylepreferencesfactory.cpp qmljscodestylepreferencesfactory.h
+    qmljscodestylepreferences.cpp qmljscodestylepreferences.h
+    qmljscodestylepreferenceswidget.cpp qmljscodestylepreferenceswidget.h
+    qmljscodestylesettings.cpp qmljscodestylesettings.h
+    qmljscodestylesettingswidget.cpp qmljscodestylesettingswidget.h qmljscodestylesettingswidget.ui
     qmljscodestylesettingspage.cpp qmljscodestylesettingspage.h qmljscodestylesettingspage.ui
     qmljsfunctionfilter.cpp qmljsfunctionfilter.h
     qmljsindenter.cpp qmljsindenter.h

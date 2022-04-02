@@ -28,12 +28,12 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsindenter.h>
+#include <qmljstools/qmljscodestylepreferences.h>
 #include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljscomponentfromobjectdef.h>
 #include <qmljseditor/qmljscompletionassist.h>
 #include <qmljstools/qmljstoolssettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/simplecodestylepreferences.h>
 #include <utils/changeset.h>
 
 #include <typeinfo>
