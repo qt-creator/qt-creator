@@ -83,3 +83,5 @@ struct McuTargetDescription
 };
 
 } // namespace McuSupport::Internal::Sdk
+
+Q_DECLARE_METATYPE(McuSupport::Internal::Sdk::McuTargetDescription)

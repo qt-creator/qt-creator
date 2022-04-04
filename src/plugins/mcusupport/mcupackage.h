@@ -140,3 +140,5 @@ private:
 
 } // namespace Internal
 } // namespace McuSupport
+
+Q_DECLARE_METATYPE(McuSupport::Internal::McuToolChainPackage::ToolChainType)
