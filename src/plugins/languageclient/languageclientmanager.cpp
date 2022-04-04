@@ -236,12 +236,9 @@ void LanguageClientManager::deleteClient(Client *client)
     managerInstance->m_clients.removeAll(client);
     for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
-    if (managerInstance->m_shuttingDown) {
-        delete client;
-    } else {
-        client->deleteLater();
+    client->deleteLater();
+    if (!managerInstance->m_shuttingDown)
         emit instance()->clientRemoved(client);
-    }
 }
 
 void LanguageClientManager::shutdown()

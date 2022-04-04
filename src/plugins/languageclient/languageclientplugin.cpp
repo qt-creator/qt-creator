@@ -87,7 +87,7 @@ ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
     QTC_ASSERT(LanguageClientManager::instance(),
                return ExtensionSystem::IPlugin::SynchronousShutdown);
     connect(LanguageClientManager::instance(), &LanguageClientManager::shutdownFinished,
-            this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
+            this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished, Qt::QueuedConnection);
     return ExtensionSystem::IPlugin::AsynchronousShutdown;
 }
 
