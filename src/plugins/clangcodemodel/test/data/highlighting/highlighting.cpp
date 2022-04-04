@@ -978,3 +978,24 @@ void nestedCall()
     my_struct* s = get_my_struct();
     new my_struct2(s->method(0));
 }
+
+template<typename T>
+class my_class
+{
+private:
+    struct my_int
+    {
+        int n;
+    };
+
+    std::vector<my_int> vec;
+
+public:
+    void foo()
+    {
+        auto it = vec.begin(), end = vec.end();
+
+        T* ptr = nullptr;
+        ptr->bar();
+    }
+};

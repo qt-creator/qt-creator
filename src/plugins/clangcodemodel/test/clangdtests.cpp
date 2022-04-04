@@ -1315,6 +1315,12 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("deref operator (object)") << 960 << 10 << 960 << 11 << QList<int>{C_LOCAL} << 0;
     QTest::newRow("deref operator (member)") << 960 << 12 << 960 << 13 << QList<int>{C_FIELD} << 0;
     QTest::newRow("nested call") << 979 << 20 << 979 << 21 << QList<int>{C_LOCAL} << 0;
+    QTest::newRow("member call on dependent (1)") << 996 << 19 << 996 << 22
+                                                  << QList<int>{C_FIELD} << 0;
+    QTest::newRow("member call on dependent (2)") << 996 << 38 << 996 << 41
+                                                  << QList<int>{C_FIELD} << 0;
+    QTest::newRow("member call on dependent (3)") << 999 << 9 << 999 << 12
+                                                  << QList<int>{C_LOCAL} << 0;
 }
 
 void ClangdTestHighlighting::test()
