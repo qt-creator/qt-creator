@@ -274,7 +274,7 @@ void ProgressManagerPrivate::init()
     summaryProgressLayout->setSpacing(0);
     m_summaryProgressWidget->setLayout(summaryProgressLayout);
     m_statusDetailsWidgetContainer = new QWidget(m_summaryProgressWidget);
-    m_statusDetailsWidgetLayout = new QHBoxLayout(m_summaryProgressWidget);
+    m_statusDetailsWidgetLayout = new QHBoxLayout(m_statusDetailsWidgetContainer);
     m_statusDetailsWidgetLayout->setContentsMargins(0, 0, 0, 0);
     m_statusDetailsWidgetLayout->setSpacing(0);
     m_statusDetailsWidgetLayout->addStretch(1);

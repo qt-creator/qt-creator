@@ -37,10 +37,10 @@ const int transitionEditorPropertyItemUserType = QGraphicsItem::UserType + 7;
 
 const char C_QMLTRANSITIONS[] = "QmlDesigner::Transitions";
 
-const char C_SETTINGS[] = "QmlDesigner.SettingsTransitions";
-const char C_CURVE_PICKER[] = "QmlDesigner.CurvePickerTransitions";
-const char C_ZOOM_IN[] = "QmlDesigner.ZoomInTransition";
-const char C_ZOOM_OUT[] = "QmlDesigner.ZoomOutTransitions";
+const char C_SETTINGS[] = "QmlDesigner.Transitions.Settings";
+const char C_CURVE_PICKER[] = "QmlDesigner.Transitions.CurvePicker";
+const char C_ZOOM_IN[] = "QmlDesigner.Transitions.ZoomIn";
+const char C_ZOOM_OUT[] = "QmlDesigner.Transitions.ZoomOut";
 
 } // namespace TransitionEditorConstants
 } // namespace QmlDesigner

@@ -29,7 +29,6 @@
     \page studio-3d-particles.html
     \previouspage studio-3d-loader-3d.html
     \nextpage studio-3d-particle-system.html
-
     \title Particles
 
     A \e {particle system} enables you to use sprites, 3D models, or images to
@@ -96,144 +95,7 @@
             particle instance in \uicontrol Navigator.
     \endlist
 
-    Add instances of other components according to your use case. The following
-    section describes how to modify particle system component property values by
-    using the simulation of fire as an example.
-
-    \section1 Example: Fire
-
-    \image studio-3d-particles-fire.gif "Fire simulated by using particles"
-
-    In this section, we explore using particle system components and modifying
-    their property values, such as particle source images and their color, life
-    span, and fading effects, to simulate fire.
-
-    You can download the completed project from
-    \l {https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/FireParticles}{here}.
-
-    We will need the following \l{Assets}{assets}:
-
-    \list
-        \li Two images of flames: \e flame_01.png and \e flame_03.png
-        \li An image of smoke: \e smoke_01.png
-    \endlist
-
-    \image studio-3d-particles-fire-assets.png "The assets in Assets"
-
-    We will also need instances of the following components:
-
-    \list
-        \li \l {Particle System} (one instance)
-        \li \l {Sprite Particle} (four instances)
-        \li \l {Emitter} (four instances)
-        \li \l {Vector Direction} (four instances)
-        \li \l {Textures}{Texture} (four instances)
-    \endlist
-
-    We start by creating a \l{Creating a Project}{Qt Quick 3D Application}
-    project and adding the assets to it. We then follow the instructions above
-    to add the \uicontrol {Particle System} component instance, which provides
-    us with our first \uicontrol Emitter, \uicontrol {Sprite Particle}, and
-    \uicontrol {Vector Direction} instances.
-
-    We add a \uicontrol Texture component instance with \e flame_01.png as the
-    source, and then add the texture as the sprite to use for the sprite
-    particle. We now have all the component instances we need for our first
-    emitter. To keep all the component instances together, we drag-and-drop the
-    sprite particle instance to the emitter instance in \uicontrol Navigator.
-
-    \image studio-3d-particles-fire-emitter1.png "First emitter in fire example in Navigator"
-
-    We need more than one particle to realistically simulate a fire, so we will
-    add three more emitter instances to the particle system. We can copy-paste
-    the first instance in \uicontrol Navigator, and just modify two of the
-    texture instances to use \e flame_03.png as the source and one of them to
-    use \e smoke_01.png as the source. We use three different flame particles
-    to be able to layer them and to hide the fact that two of them actually use
-    the same texture.
-
-    \image studio-3d-particles-fire-components.png "Fire particle system component instances in Navigator"
-
-    We can now start playing with the particle system component properties to
-    achieve the artistic effect that we want. To see how the changes in property
-    values affect the simulation, we will open the live preview by selecting
-    \inlineimage icons/live_preview.png
-    on the main toolbar (or by pressing \key {Alt+P}).
-
-    First, we will specify property values for the \uicontrol {Particle System}
-    component. We want to spawn some particles before the simulation starts, so
-    that the fire will be roaring at start. To achieve this, we set the value of
-    \uicontrol Properties > \uicontrol {Particle System} >
-    \uicontrol {Start Time} to \e 2000 milliseconds. We will
-    use the default values for the other properties.
-
-    \image studio-3d-particles-fire-properties-particle-system.png "Particle System properties"
-
-    Then, we will specify how individual particles are spawned. We set the
-    value of \uicontrol Properties > \uicontrol {Particle Emitter} >
-    \uicontrol {Emit rate} to \e 40.00 for the flame particles and \e 20.00
-    for the smoke particle, because we want to have more flames than smoke.
-
-    \image studio-3d-particles-fire-properties-particle-emitter.png "Particle Emitter properties"
-
-    To increase the visibility of the smoke at the top, we set the value of
-    \uicontrol {Life span} to \e 1200 milliseconds for the smoke particles
-    and \e 900, \e 1000, and \e 600 milliseconds for the flame particles.
-    Further, we set \uicontrol {Life span variation} to \e 100, \e 200, and
-    \e 300 for the flame particles to have some of them expire sooner than
-    others.
-
-    To scale the particles during their lifespan, we set
-    \uicontrol {Particle scale} to \e 2.00 for all particles and
-    \uicontrol {Particle end scale} to \e 5.00 for the flame
-    particles and to \e 6.00 for the smoke particles.
-
-    We can now modify the appearance of the particles by selecting the
-    \e spriteParticle in \uicontrol Navigator and then setting their color in
-    \uicontrol Properties > \uicontrol Particle. We select transparent yellow,
-    orange, and transparent gray in \uicontrol Color and set values for
-    \uicontrol {Color variation} to use slightly different colors for the
-    individual particles.
-
-    We can also try changing the \uicontrol{Blend Mode} for the particle to get
-    a more realistic fire effect.
-
-    \image studio-3d-particles-fire-properties-particle.png "Particle properties"
-
-    We set \uicontrol {Fade in effect} and \uicontrol {Fade out effect} values
-    to \uicontrol FadeOpacity to change particle opacity between 0 and 1 over
-    the time specified in milliseconds in \uicontrol {Fade in duration} and
-    \uicontrol {Fade out duration}. Fading duration is calculated into the
-    particle lifespan, and therefore the smoke particles are actually never
-    fully visible with our settings.
-
-    To specify that the particle texture should always be aligned face towards
-    the screen, we enable \uicontrol Properties > \uicontrol {Sprite Particle} >
-    \uicontrol Billboard for all the particle component instances.
-
-    \image studio-3d-particles-fire-properties-sprite-particle.png "Sprite Particle properties"
-
-    In \uicontrol{Particle Rotation}, we also need to set \uicontrol Rotation
-    and \uicontrol{Velocity Variation} for all emitters to 0.
-
-    \image studio-3d-particles-fire-properties-rotation.png "Emitter rotation properties"
-
-    Finally, we will specify the direction in which the particles move by
-    modifying the property values of the \uicontrol {Vector Direction} component
-    instances in \uicontrol Properties > \uicontrol {Particle Vector Direction}.
-
-    In \uicontrol Direction, we set \uicontrol Y to \e 100.00 to make particles
-    move \e up, and \uicontrol Z to \e -100.00 to make them move in the
-    direction opposite to the target vector. We set the \uicontrol Direction
-    value to \e -50.00 for one of the flame particles and to \e -80.00 for the
-    smoke particle.
-
-    \image studio-3d-particles-fire-properties-vector-direction.png "Vector Direction properties"
-
-    We set the \uicontrol {Direction Variation} values for the different
-    vector direction instances to \e 10.00, \e 8.00, and \e 12.00 to make some
-    flames spread wider than others. You can try different values until you
-    get the effect you want.
+    Add instances of other components according to your use case.
 
     \section1 Performance Considerations
 
@@ -344,6 +206,13 @@
         \li Wander
         \li Applies random wave curves to particles.
     \endtable
+
+    \section1 Particle System Tutorials
+
+    \list
+      \li \l{Particle System: Fire Effect}
+      \li \l{Particle System: Rain and Snow Effect}
+    \endlist
 */
 
 /*!

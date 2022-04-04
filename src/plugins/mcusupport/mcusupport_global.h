@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QList>
+#include <QSet>
 #include <QSharedPointer>
 #include <QVersionNumber>
 #include <QtGlobal>
