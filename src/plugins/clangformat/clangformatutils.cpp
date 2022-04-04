@@ -200,6 +200,17 @@ QString currentProjectUniqueId()
                                  .toHex(0));
 }
 
+void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
+{
+    std::string styleStr = clang::format::configurationAsText(style);
+
+    // workaround: configurationAsText() add comment "# " before BasedOnStyle line
+    const int pos = styleStr.find("# BasedOnStyle");
+    if (pos != int(std::string::npos))
+        styleStr.erase(pos, 2);
+    filePath.writeFileContents(QByteArray::fromStdString(styleStr));
+}
+
 static bool useProjectOverriddenSettings()
 {
     const Project *project = SessionManager::startupProject();
@@ -371,7 +382,7 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
     }
 }
 
-static std::string readFile(const QString &path)
+std::string readFile(const QString &path)
 {
     const std::string defaultStyle = clang::format::configurationAsText(qtcStyle());
 

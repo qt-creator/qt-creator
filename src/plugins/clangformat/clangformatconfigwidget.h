@@ -48,7 +48,8 @@ class ClangFormatConfigWidget : public CppEditor::CppCodeStyleWidget
     Q_OBJECT
 
 public:
-    explicit ClangFormatConfigWidget(ProjectExplorer::Project *project = nullptr,
+    explicit ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
+                                     ProjectExplorer::Project *project = nullptr,
                                      QWidget *parent = nullptr);
     ~ClangFormatConfigWidget() override;
     void apply() override;

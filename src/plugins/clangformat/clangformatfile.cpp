@@ -25,6 +25,7 @@
 
 #include "clangformatfile.h"
 #include "clangformatsettings.h"
+#include "clangformatutils.h"
 #include <cppeditor/cppcodestylesettings.h>
 #include <projectexplorer/project.h>
 #include <texteditor/tabsettings.h>
@@ -34,11 +35,18 @@
 
 using namespace ClangFormat;
 
-ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
+ClangFormatFile::ClangFormatFile(Utils::FilePath filePath, bool isReadOnly)
     : m_filePath(filePath)
+    , m_isReadOnly(isReadOnly)
 {
     if (!m_filePath.exists()) {
-        resetStyleToLLVM();
+        // create file and folder
+        m_filePath.parentDir().createDir();
+        std::fstream newStyleFile(m_filePath.path().toStdString(), std::fstream::out);
+        if (newStyleFile.is_open()) {
+            newStyleFile.close();
+        }
+        resetStyleToQtC();
         return;
     }
 
@@ -46,7 +54,7 @@ ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
     const std::error_code error
         = clang::format::parseConfiguration(m_filePath.fileContents().toStdString(), &m_style);
     if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
-        resetStyleToLLVM();
+        resetStyleToQtC();
     }
 }
 
@@ -65,10 +73,15 @@ void ClangFormatFile::setStyle(clang::format::FormatStyle style)
     saveNewFormat();
 }
 
-void ClangFormatFile::resetStyleToLLVM()
+bool ClangFormatFile::isReadOnly() const
 {
-    m_style = clang::format::getLLVMStyle();
-    saveNewFormat();
+    return m_isReadOnly;
+}
+
+void ClangFormatFile::resetStyleToQtC()
+{
+    m_style = qtcStyle();
+    saveStyleToFile(m_style, m_filePath);
 }
 
 void ClangFormatFile::setBasedOnStyle(QString styleName)
@@ -107,17 +120,17 @@ QString ClangFormatFile::changeFields(QList<Field> fields)
 
 void ClangFormatFile::saveNewFormat()
 {
-    std::string style = clang::format::configurationAsText(m_style);
+    if (m_isReadOnly)
+        return;
 
-    // workaround: configurationAsText() add comment "# " before BasedOnStyle line
-    const int pos = style.find("# BasedOnStyle");
-    if (pos != int(std::string::npos))
-        style.erase(pos, 2);
-    m_filePath.writeFileContents(QByteArray::fromStdString(style));
+    saveStyleToFile(m_style, m_filePath);
 }
 
 void ClangFormatFile::saveNewFormat(QByteArray style)
 {
+    if (m_isReadOnly)
+        return;
+
     m_filePath.writeFileContents(style);
 }
 

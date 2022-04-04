@@ -109,7 +109,7 @@ TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
     widget->layout()->setContentsMargins(0, 0, 0, 0);
     widget->setCodeStyle(cppPreferences);
 
-    const auto tab = additionalTab(parent);
+    const auto tab = additionalTab(preferences, parent);
     widget->addTab(tab.first, tab.second);
 
     return widget;
@@ -131,8 +131,9 @@ QString CppCodeStylePreferencesFactory::previewText() const
 }
 
 std::pair<CppCodeStyleWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(
-    QWidget *parent) const
+    TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent) const
 {
+    Q_UNUSED(codeStyle)
     Q_UNUSED(parent)
     return {nullptr, ""};
 }

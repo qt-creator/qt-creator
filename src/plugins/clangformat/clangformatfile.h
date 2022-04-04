@@ -37,11 +37,11 @@ namespace ClangFormat {
 class ClangFormatFile
 {
 public:
-    explicit ClangFormatFile(Utils::FilePath file);
+    explicit ClangFormatFile(Utils::FilePath file, bool isReadOnly);
     clang::format::FormatStyle format();
 
     Utils::FilePath filePath();
-    void resetStyleToLLVM();
+    void resetStyleToQtC();
     void setBasedOnStyle(QString styleName);
     void setStyle(clang::format::FormatStyle style);
     QString setStyle(QString style);
@@ -54,6 +54,7 @@ public:
     TextEditor::TabSettings toTabSettings(ProjectExplorer::Project *project) const;
     void fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings);
     void fromTabSettings(const TextEditor::TabSettings &settings);
+    bool isReadOnly() const;
 
 private:
     void saveNewFormat();
@@ -62,6 +63,7 @@ private:
 private:
     Utils::FilePath m_filePath;
     clang::format::FormatStyle m_style;
+    const bool m_isReadOnly;
 };
 
 } // namespace ClangFormat

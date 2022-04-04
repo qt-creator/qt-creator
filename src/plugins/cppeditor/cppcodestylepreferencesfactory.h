@@ -45,7 +45,8 @@ public:
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
     QString snippetProviderGroupId() const override;
     QString previewText() const override;
-    virtual std::pair<CppCodeStyleWidget *, QString> additionalTab(QWidget *parent) const;
+    virtual std::pair<CppCodeStyleWidget *, QString> additionalTab(
+        TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent) const;
 };
 
 } // namespace CppEditor

@@ -43,7 +43,9 @@
 #include <extensionsystem/pluginspec.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/editorconfiguration.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -100,19 +102,22 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *project, QWidget *parent)
+ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
+                                                 ProjectExplorer::Project *project,
+                                                 QWidget *parent)
     : CppCodeStyleWidget(parent)
     , m_project(project)
     , m_checks(std::make_unique<Ui::ClangFormatChecksWidget>())
     , m_ui(std::make_unique<Ui::ClangFormatConfigWidget>())
 {
     m_ui->setupUi(this);
+    setEnabled(!codeStyle->isReadOnly());
 
     Utils::FilePath filePath = Core::ICore::userResourcePath();
-    if (m_project)
-        filePath = filePath / "clang-format/" / currentProjectUniqueId();
-    filePath = filePath / QLatin1String(Constants::SETTINGS_FILE_NAME);
-    m_config = std::make_unique<ClangFormatFile>(filePath);
+    filePath = filePath / "clang-format/"
+               / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
+               / QLatin1String(Constants::SETTINGS_FILE_NAME);
+    m_config = std::make_unique<ClangFormatFile>(filePath, codeStyle->isReadOnly());
 
     initChecksAndPreview();
     showCombobox();
@@ -329,8 +334,7 @@ void ClangFormatConfigWidget::fillTable()
     Utils::ExecuteOnDestruction executeOnDestruction([this]() { m_disableTableUpdate = false; });
     m_disableTableUpdate = true;
 
-    const std::string configText = m_project ? currentProjectConfigText()
-                                             : currentGlobalConfigText();
+    const std::string configText = readFile(m_config->filePath().path());
 
     for (QObject *child : m_checksWidget->children()) {
         if (!qobject_cast<QComboBox *>(child) && !qobject_cast<QLineEdit *>(child)

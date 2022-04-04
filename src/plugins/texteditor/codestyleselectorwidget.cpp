@@ -104,6 +104,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
     m_codeStyle->setValue(codeStyle->value());
     m_codeStyle->setId(codeStyle->id());
     m_codeStyle->setDisplayName(m_originalDisplayName);
+    m_codeStyle->setReadOnly(codeStyle->isReadOnly());
     TextEditor::CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, this);
 
     m_buttons = new QDialogButtonBox(
