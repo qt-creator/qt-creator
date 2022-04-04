@@ -1624,11 +1624,8 @@ public:
             m_log->append(DockerDevice::tr("Error: %1").arg(out));
         });
 
-        connect(m_process, &Utils::QtcProcess::finished,
-                this, [this, errorLabel]() {
-            if (m_process->exitCode() != 0) {
-                errorLabel->setVisible(true);
-            }
+        connect(m_process, &QtcProcess::done, errorLabel, [errorLabel, this] {
+            errorLabel->setVisible(m_process->result() != ProcessResult::FinishedWithSuccess);
         });
 
         connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
