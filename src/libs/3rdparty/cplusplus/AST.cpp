@@ -1393,7 +1393,6 @@ int ForeachStatementAST::lastToken() const
     return 1;
 }
 
-/** \generated */
 int FunctionDeclaratorAST::firstToken() const
 {
     if (lparen_token)
@@ -1403,40 +1402,50 @@ int FunctionDeclaratorAST::firstToken() const
             return candidate;
     if (rparen_token)
         return rparen_token;
-    if (cv_qualifier_list)
-        if (int candidate = cv_qualifier_list->firstToken())
-            return candidate;
-    if (ref_qualifier_token)
+    const int firstQualListToken = cv_qualifier_list ? cv_qualifier_list->firstToken() : 0;
+    const auto isBeforeFirstQualListToken = [firstQualListToken](int token) {
+        return token && (!firstQualListToken || token < firstQualListToken);
+    };
+    if (isBeforeFirstQualListToken(ref_qualifier_token))
         return ref_qualifier_token;
-    if (exception_specification)
-        if (int candidate = exception_specification->firstToken())
+    if (exception_specification) {
+        const int candidate = exception_specification->firstToken();
+        if (isBeforeFirstQualListToken(candidate))
             return candidate;
-    if (trailing_return_type)
-        if (int candidate = trailing_return_type->firstToken())
+    }
+    if (trailing_return_type) {
+        const int candidate = trailing_return_type->firstToken();
+        if (isBeforeFirstQualListToken(candidate))
             return candidate;
+    }
+    if (firstQualListToken)
+        return firstQualListToken;
     if (as_cpp_initializer)
         if (int candidate = as_cpp_initializer->firstToken())
             return candidate;
     return 0;
 }
 
-/** \generated */
 int FunctionDeclaratorAST::lastToken() const
 {
     if (as_cpp_initializer)
         if (int candidate = as_cpp_initializer->lastToken())
             return candidate;
-    if (trailing_return_type)
-        if (int candidate = trailing_return_type->lastToken())
-            return candidate;
-    if (exception_specification)
-        if (int candidate = exception_specification->lastToken())
-            return candidate;
-    if (ref_qualifier_token)
-        return ref_qualifier_token + 1;
-    if (cv_qualifier_list)
-        if (int candidate = cv_qualifier_list->lastToken())
-            return candidate;
+    const int lastQualListToken = cv_qualifier_list ? cv_qualifier_list->lastToken() : 0;
+    const auto tokenOrLastQualListToken = [lastQualListToken](int token) {
+        return std::max(token ? token + 1 : 0, lastQualListToken);
+    };
+    const auto tokenFromAstOrLastQualListToken = [lastQualListToken](const AST *ast) {
+        return std::max(ast ? ast->lastToken() : 0, lastQualListToken);
+    };
+    if (int candidate = tokenFromAstOrLastQualListToken(trailing_return_type))
+        return candidate;
+    if (int candidate = tokenFromAstOrLastQualListToken(exception_specification))
+        return candidate;
+    if (int candidate = tokenOrLastQualListToken(ref_qualifier_token))
+        return candidate;
+    if (lastQualListToken)
+        return lastQualListToken;
     if (rparen_token)
         return rparen_token + 1;
     if (parameter_declaration_clause)
