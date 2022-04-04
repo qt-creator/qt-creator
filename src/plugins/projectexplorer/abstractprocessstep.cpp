@@ -286,7 +286,8 @@ void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus st
     const bool returnValue = q->processSucceeded(exitCode, status)
                                 || m_ignoreReturnValue;
 
-    m_process.reset();
+    if (m_process)
+        m_process.release()->deleteLater();
 
     // Report result
     q->finish(returnValue);
