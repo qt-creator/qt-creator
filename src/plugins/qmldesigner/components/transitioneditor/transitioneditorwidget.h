@@ -49,6 +49,15 @@ class TransitionEditorToolBar;
 class TransitionEditorGraphicsScene;
 class ModelNode;
 
+class TransitionContext : public Core::IContext
+{
+    Q_OBJECT
+
+public:
+    explicit TransitionContext(QWidget *widget);
+    void contextHelp(const HelpCallback &callback) const override;
+};
+
 class TransitionEditorWidget : public QWidget
 {
     Q_OBJECT

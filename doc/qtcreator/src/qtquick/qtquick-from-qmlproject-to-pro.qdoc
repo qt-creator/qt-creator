@@ -173,17 +173,18 @@
 
     If you use Qt Quick Studio Components or Effects in your project, you have
     to check out and install the \e {Qt Quick Designer Components} module from
-    \l{https://codereview.qt-project.org/admin/repos/qt-labs/qtquickdesigner-components}
+    \l{https://code.qt.io/cgit/qt-labs/qtquickdesigner-components.git/}
     {Qt Code Review}.
 
     For example:
     \badcode
-    git clone "https://codereview.qt-project.org/qt-labs/qtquickdesigner-components"
+    git clone https://code.qt.io/qt-labs/qtquickdesigner-components.git
     \endcode
 
     Then use qmake from your Qt installation to build the module and to add it
     to your Qt. Switch to the directory that contains the sources (usually,
-    qtquickdesigner-components), and enter the following commands:
+    qtquickdesigner-components), make sure you checkout the qmake branch, and enter
+    the following commands:
 
     \badcode
     <path_to_qmake>\qmake -r
@@ -192,6 +193,18 @@
     \endcode
 
     On Windows, use the \c nmake and \c {nmake install} commands instead.
+
+    If you prefer CMake instead and you want to benefit from the QML compilation,
+    then you can checkout the dev branch instead. CMake is only supported since Qt 6.2.
+    Enter the following commands:
+
+    \badcode
+    mkdir build
+    cd build
+    cmake -GNinja -DCMAKE_INSTALL_PREFIX=<path_to_qt_install_directory> <path_to_qtquickdesigner-components>
+    cmake --build .
+    cmake --install .
+    \endcode
 
     \section1 Adding Qt Quick Timeline Module to Qt Installations
 

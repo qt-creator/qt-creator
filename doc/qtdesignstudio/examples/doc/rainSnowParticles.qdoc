@@ -26,8 +26,9 @@
 /*!
     \page rain-snow-particle-effect.html
     \ingroup gstutorials
+    \sa Particles
 
-    \title Rain and Snow Effect
+    \title Particle System: Rain and Snow Effect
     \brief Illustrates how to create a rain and snow effect with the \QDS
     particle system.
 

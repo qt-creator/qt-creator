@@ -6,17 +6,93 @@ instructions:
         variableName: QTC_BUILD_TYPE
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
+        variableName: LLVM_BASE_URL
+        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_140-based
+
+  - type: Group
+    instructions:
+      - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
         variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.2/6.2.4-final-released/Qt6.2.4"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations"
       - type: EnvironmentVariable
-        variableName: LLVM_BASE_URL
-        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_140-based
-      - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: 10.14
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64.7z"
+        enable_if:
+          condition: property
+          property: target.os
+          equals_value: Windows
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z"
+        enable_if:
+          condition: property
+          property: target.os
+          equals_value: Linux
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z"
+        enable_if:
+          condition: property
+          property: target.os
+          equals_value: MacOS
+    enable_if:
+      condition: property
+      property: features
+      not_contains_value: "Qt5"
+  - type: Group
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_BASE_URL
+        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/5.15/5.15.2-final-released/latest"
+      - type: EnvironmentVariable
+        variableName: QTC_QT_MODULES
+        variableValue: "qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtsvg qttools qttranslations"
+      - type: EnvironmentVariable
+        variableName: MACOSX_DEPLOYMENT_TARGET
+        variableValue: 10.13
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z"
+        enable_if:
+          condition: property
+          property: target.os
+          equals_value: Windows
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-Linux-RHEL_7_6-GCC-Linux-RHEL_7_6-X86_64.7z"
+        enable_if:
+          condition: property
+          property: target.os
+          equals_value: Linux
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z"
+        enable_if:
+          condition: property
+          property: target.os
+          equals_value: MacOS
+    enable_if:
+      condition: property
+      property: features
+      contains_value: "Qt5"
 
   - type: PrependToEnvironmentVariable
     variableName: PATH

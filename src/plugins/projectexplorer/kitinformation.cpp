@@ -1244,7 +1244,7 @@ void BuildDeviceKitAspect::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return );
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    if (!dev.isNull() && dev->isCompatibleWith(k))
+    if (!dev.isNull())
         return;
 
     dev = defaultDevice();

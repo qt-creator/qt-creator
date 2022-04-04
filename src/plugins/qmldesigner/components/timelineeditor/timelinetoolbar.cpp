@@ -103,13 +103,12 @@ static QAction *createAction(const Utils::Id &id,
                       const QString &name,
                       const QKeySequence &shortcut)
 {
-    QString text = QString("%1 (%2)").arg(name).arg(shortcut.toString());
-
     Core::Context context(TimelineConstants::C_QMLTIMELINE);
 
-    auto *action = new QAction(icon, text);
+    auto *action = new QAction(icon, name);
     auto *command = Core::ActionManager::registerAction(action, id, context);
     command->setDefaultKeySequence(shortcut);
+    command->augmentActionWithShortcutToolTip(action);
 
     return action;
 }

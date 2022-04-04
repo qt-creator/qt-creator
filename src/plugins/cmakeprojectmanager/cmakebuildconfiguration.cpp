@@ -1101,7 +1101,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     if (!isIos(k)) { // iOS handles this differently
         const QString sysRoot = SysRootKitAspect::sysRoot(k).path();
         if (!sysRoot.isEmpty()) {
-            cmd.addArg("-DCMAKE_SYSROOT:PATH" + sysRoot);
+            cmd.addArg("-DCMAKE_SYSROOT:PATH=" + sysRoot);
             if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
                 const QString targetTriple = tc->originalTargetTriple();
                 cmd.addArg("-DCMAKE_C_COMPILER_TARGET:STRING=" + targetTriple);

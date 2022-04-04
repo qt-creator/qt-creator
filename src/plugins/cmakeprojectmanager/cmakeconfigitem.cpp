@@ -349,7 +349,8 @@ CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unk
 
         unknownOptions.append(i);
     }
-    return result;
+
+    return Utils::filtered(result, [](const CMakeConfigItem &item) { return !item.key.isEmpty(); });
 }
 
 CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *errorMessage)

@@ -68,6 +68,19 @@
 
 namespace QmlDesigner {
 
+TransitionContext::TransitionContext(QWidget *widget)
+    : IContext(widget)
+{
+    setWidget(widget);
+    setContext(Core::Context(TransitionEditorConstants::C_QMLTRANSITIONS));
+}
+
+void TransitionContext::contextHelp(const Core::IContext::HelpCallback &callback) const
+{
+    if (auto *widget = qobject_cast<TransitionEditorWidget *>(m_widget))
+        widget->contextHelp(callback);
+}
+
 class Eventfilter : public QObject
 {
 public:
