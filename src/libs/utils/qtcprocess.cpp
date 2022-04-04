@@ -528,7 +528,7 @@ public:
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,
-                q, &QtcProcess::emitStarted);
+                this, &QtcProcessPrivate::emitStarted);
         connect(m_process.get(), &ProcessInterface::finished,
                 this, &QtcProcessPrivate::slotFinished);
         connect(m_process.get(), &ProcessInterface::errorOccurred,
@@ -543,14 +543,14 @@ public:
     {
         m_stdOut.append(m_process->readAllStandardOutput());
         m_hangTimerCount = 0;
-        emit q->readyReadStandardOutput();
+        emitReadyReadStandardOutput();
     }
 
     void handleReadyReadStandardError()
     {
         m_stdErr.append(m_process->readAllStandardError());
         m_hangTimerCount = 0;
-        emit q->readyReadStandardError();
+        emitReadyReadStandardError();
     }
 
     CommandLine fullCommandLine() const
@@ -590,7 +590,11 @@ public:
     void handleError(QProcess::ProcessError error);
     void clearForRun();
 
+    void emitStarted();
+    void emitFinished();
     void emitErrorOccurred(QProcess::ProcessError error);
+    void emitReadyReadStandardOutput();
+    void emitReadyReadStandardError();
 
     ProcessResult interpretExitCode(int exitCode);
 
@@ -606,7 +610,18 @@ public:
     StartFailure m_startFailure = NoFailure;
     bool m_timeOutMessageBoxEnabled = false;
     bool m_waitingForUser = false;
+
+    class Guard {
+    public:
+        Guard(int &guard) : m_guard(guard) { ++guard; }
+        ~Guard() { --m_guard; }
+    private:
+        int &m_guard;
+    };
+    int m_callStackGuard = 0;
 };
+
+#define CALL_STACK_GUARD() Guard guard(m_callStackGuard)
 
 void QtcProcessPrivate::clearForRun()
 {
@@ -692,6 +707,7 @@ QtcProcess::QtcProcess(QObject *parent)
 
 QtcProcess::~QtcProcess()
 {
+    QTC_CHECK(d->m_callStackGuard == 0);
     delete d;
 }
 
@@ -703,7 +719,6 @@ void QtcProcess::emitStarted()
 void QtcProcess::emitFinished()
 {
     emit finished();
-    emit done();
 }
 
 void QtcProcess::setProcessInterface(ProcessInterface *interface)
@@ -1607,7 +1622,7 @@ void QtcProcessPrivate::slotTimeout()
 void QtcProcessPrivate::slotFinished()
 {
     handleFinished(m_process->exitCode(), m_process->exitStatus());
-    q->emitFinished();
+    emitFinished();
 }
 
 void QtcProcessPrivate::handleFinished(int exitCode, QProcess::ExitStatus status)
@@ -1648,11 +1663,37 @@ void QtcProcessPrivate::handleError(QProcess::ProcessError error)
     emitErrorOccurred(error);
 }
 
+void QtcProcessPrivate::emitStarted()
+{
+    CALL_STACK_GUARD();
+    q->emitStarted();
+}
+
+void QtcProcessPrivate::emitFinished()
+{
+    CALL_STACK_GUARD();
+    q->emitFinished();
+    emit q->done();
+}
+
 void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)
 {
+    CALL_STACK_GUARD();
     emit q->errorOccurred(error);
     if (error == QProcess::FailedToStart)
         emit q->done();
+}
+
+void QtcProcessPrivate::emitReadyReadStandardOutput()
+{
+    CALL_STACK_GUARD();
+    emit q->readyReadStandardOutput();
+}
+
+void QtcProcessPrivate::emitReadyReadStandardError()
+{
+    CALL_STACK_GUARD();
+    emit q->readyReadStandardError();
 }
 
 } // namespace Utils
