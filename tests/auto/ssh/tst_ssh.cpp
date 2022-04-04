@@ -48,6 +48,7 @@
 #include <cstdlib>
 
 using namespace QSsh;
+using namespace Utils;
 
 class tst_Ssh : public QObject
 {
@@ -76,10 +77,10 @@ void tst_Ssh::initTestCase()
     if (!SshTest::checkParameters(params))
         SshTest::printSetupHelp();
 
-    Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
-                                                + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
-                                                           + "/qtc-ssh-autotest-XXXXXX");
+    LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
+                                         + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+    TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
+                                                    + "/qtc-ssh-autotest-XXXXXX");
 }
 
 void tst_Ssh::errorHandling_data()
@@ -118,7 +119,7 @@ void tst_Ssh::errorHandling()
     params.setUserName(user);
     params.timeout = 3;
     params.authenticationType = authType;
-    params.privateKeyFile = Utils::FilePath::fromString(keyFile);
+    params.privateKeyFile = FilePath::fromString(keyFile);
     SshConnection connection(params);
     QEventLoop loop;
     bool disconnected = false;
@@ -240,12 +241,12 @@ void tst_Ssh::remoteProcessChannels()
     SshRemoteProcessPtr echoProcess
             = connection.createRemoteProcess("printf " + QString::fromUtf8(testString) + " >&2");
     QEventLoop loop;
-    connect(echoProcess.get(), &SshRemoteProcess::finished, &loop, &QEventLoop::quit);
-    connect(echoProcess.get(), &Utils::QtcProcess::readyReadStandardError,
+    connect(echoProcess.get(), &QtcProcess::done, &loop, &QEventLoop::quit);
+    connect(echoProcess.get(), &QtcProcess::readyReadStandardError,
             [&remoteData, p = echoProcess.get()] { remoteData += p->readAllStandardError(); });
-    connect(echoProcess.get(), &SshRemoteProcess::readyReadStandardOutput,
+    connect(echoProcess.get(), &QtcProcess::readyReadStandardOutput,
             [&remoteStdout, p = echoProcess.get()] { remoteStdout += p->readAllStandardOutput(); });
-    connect(echoProcess.get(), &SshRemoteProcess::readyReadStandardError,
+    connect(echoProcess.get(), &QtcProcess::readyReadStandardError,
             [&remoteStderr] { remoteStderr = testString; });
     echoProcess->start();
     QTimer timer;
@@ -273,10 +274,10 @@ void tst_Ssh::remoteProcessInput()
     QVERIFY(waitForConnection(connection));
 
     SshRemoteProcessPtr catProcess = connection.createRemoteProcess("/bin/cat");
-    catProcess->setProcessMode(Utils::ProcessMode::Writer);
+    catProcess->setProcessMode(ProcessMode::Writer);
     QEventLoop loop;
-    connect(catProcess.get(), &SshRemoteProcess::started, &loop, &QEventLoop::quit);
-    connect(catProcess.get(), &SshRemoteProcess::finished, &loop, &QEventLoop::quit);
+    connect(catProcess.get(), &QtcProcess::started, &loop, &QEventLoop::quit);
+    connect(catProcess.get(), &QtcProcess::done, &loop, &QEventLoop::quit);
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.setSingleShot(true);
@@ -289,7 +290,7 @@ void tst_Ssh::remoteProcessInput()
     QVERIFY(catProcess->isRunning());
 
     static QString testString = "x\r\n";
-    connect(catProcess.get(), &Utils::QtcProcess::readyReadStandardOutput, &loop, &QEventLoop::quit);
+    connect(catProcess.get(), &QtcProcess::readyReadStandardOutput, &loop, &QEventLoop::quit);
 
     catProcess->write(testString.toUtf8());
     timer.start();
@@ -460,7 +461,7 @@ void tst_Ssh::sftp()
     QVERIFY(success);
 
     // The same again, with a non-interactive download.
-    FilesToTransfer filesToDownload = Utils::transform(filesToUpload, [&](const FileToTransfer &fileToUpload) {
+    const FilesToTransfer filesToDownload = transform(filesToUpload, [&](const FileToTransfer &fileToUpload) {
         return FileToTransfer(fileToUpload.targetFile,
                               getDownloadFilePath(dir2ForFilesToDownload,
                                                   QFileInfo(fileToUpload.sourceFile).fileName()));
@@ -574,7 +575,7 @@ void tst_Ssh::sftp()
 
 void tst_Ssh::cleanupTestCase()
 {
-    Utils::Singleton::deleteAll();
+    Singleton::deleteAll();
 }
 
 bool tst_Ssh::waitForConnection(SshConnection &connection)

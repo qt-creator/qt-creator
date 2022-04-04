@@ -36,6 +36,8 @@
     running a remote process over an SSH connection.
 */
 
+using namespace Utils;
+
 namespace QSsh {
 namespace Internal {
 namespace {
@@ -109,13 +111,13 @@ void SshRemoteProcessRunner::handleConnected()
     setState(Connected);
 
     d->m_process = d->m_connection->createRemoteProcess(d->m_command);
-    connect(d->m_process.get(), &SshRemoteProcess::started,
+    connect(d->m_process.get(), &QtcProcess::started,
             this, &SshRemoteProcessRunner::handleProcessStarted);
-    connect(d->m_process.get(), &SshRemoteProcess::finished,
+    connect(d->m_process.get(), &QtcProcess::done,
             this, &SshRemoteProcessRunner::handleProcessFinished);
-    connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardOutput,
+    connect(d->m_process.get(), &QtcProcess::readyReadStandardOutput,
             this, &SshRemoteProcessRunner::readyReadStandardOutput);
-    connect(d->m_process.get(), &SshRemoteProcess::readyReadStandardError,
+    connect(d->m_process.get(), &QtcProcess::readyReadStandardError,
             this, &SshRemoteProcessRunner::readyReadStandardError);
     d->m_process->start();
 }

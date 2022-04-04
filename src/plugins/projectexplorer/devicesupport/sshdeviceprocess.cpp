@@ -197,14 +197,14 @@ void SshDeviceProcess::handleConnected()
         setCommand(d->remoteProcess->fullLocalCommandLine(true));
         QtcProcess::start();
     } else {
-        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::started,
+        connect(d->remoteProcess.get(), &QtcProcess::started,
                 this, &SshDeviceProcess::handleProcessStarted);
-        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::finished, this, [this] {
+        connect(d->remoteProcess.get(), &QtcProcess::done, this, [this] {
                 handleProcessFinished(d->remoteProcess->errorString());
         });
-        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
+        connect(d->remoteProcess.get(), &QtcProcess::readyReadStandardOutput,
                 this, &QtcProcess::readyReadStandardOutput);
-        connect(d->remoteProcess.get(), &QSsh::SshRemoteProcess::readyReadStandardError,
+        connect(d->remoteProcess.get(), &QtcProcess::readyReadStandardError,
                 this, &QtcProcess::readyReadStandardError);
         d->remoteProcess->start();
     }

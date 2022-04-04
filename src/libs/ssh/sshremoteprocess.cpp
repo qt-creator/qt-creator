@@ -62,14 +62,7 @@ void SshRemoteProcess::emitFinished()
 {
     if (exitStatus() == QProcess::CrashExit)
         m_errorString = tr("The ssh process crashed: %1").arg(errorString());
-    emit finished();
-}
-
-void SshRemoteProcess::emitErrorOccurred(QProcess::ProcessError error)
-{
-    if (error == QProcess::FailedToStart)
-        emit finished();
-    emit errorOccurred(error);
+    QtcProcess::emitFinished();
 }
 
 void SshRemoteProcess::start()

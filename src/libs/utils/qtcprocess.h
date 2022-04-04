@@ -189,6 +189,8 @@ public:
 signals:
     void started();
     void finished();
+    void done(); // The same as finished() with the addition it's being also emitted after
+                 // FailedToStart error occurred.
     void errorOccurred(QProcess::ProcessError error);
     void readyReadStandardOutput();
     void readyReadStandardError();
@@ -197,7 +199,6 @@ protected:
     // TODO: remove these methods on QtcProcess de-virtualization
     virtual void emitStarted();
     virtual void emitFinished();
-    virtual void emitErrorOccurred(QProcess::ProcessError error);
 
 private:
     void setProcessInterface(ProcessInterface *interface);

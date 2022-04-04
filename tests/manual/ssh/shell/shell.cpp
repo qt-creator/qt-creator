@@ -35,6 +35,7 @@
 #include <iostream>
 
 using namespace QSsh;
+using namespace Utils;
 
 Shell::Shell(const SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
@@ -70,12 +71,12 @@ void Shell::handleConnectionError()
 void Shell::handleConnected()
 {
     m_shell = m_connection->createRemoteShell();
-    connect(m_shell.get(), &SshRemoteProcess::started, this, &Shell::handleShellStarted);
-    connect(m_shell.get(), &SshRemoteProcess::readyReadStandardOutput,
+    connect(m_shell.get(), &QtcProcess::started, this, &Shell::handleShellStarted);
+    connect(m_shell.get(), &QtcProcess::readyReadStandardOutput,
             this, &Shell::handleRemoteStdout);
-    connect(m_shell.get(), &SshRemoteProcess::readyReadStandardError,
+    connect(m_shell.get(), &QtcProcess::readyReadStandardError,
             this, &Shell::handleRemoteStderr);
-    connect(m_shell.get(), &SshRemoteProcess::finished, this, &Shell::handleChannelClosed);
+    connect(m_shell.get(), &QtcProcess::done, this, &Shell::handleChannelClosed);
     m_shell->start();
 }
 

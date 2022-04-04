@@ -590,6 +590,8 @@ public:
     void handleError(QProcess::ProcessError error);
     void clearForRun();
 
+    void emitErrorOccurred(QProcess::ProcessError error);
+
     ProcessResult interpretExitCode(int exitCode);
 
     QTextCodec *m_codec = QTextCodec::codecForLocale();
@@ -701,11 +703,7 @@ void QtcProcess::emitStarted()
 void QtcProcess::emitFinished()
 {
     emit finished();
-}
-
-void QtcProcess::emitErrorOccurred(QProcess::ProcessError error)
-{
-    emit errorOccurred(error);
+    emit done();
 }
 
 void QtcProcess::setProcessInterface(ProcessInterface *interface)
@@ -1647,7 +1645,14 @@ void QtcProcessPrivate::handleError(QProcess::ProcessError error)
     if (m_eventLoop)
         m_eventLoop->quit();
 
-    q->emitErrorOccurred(error);
+    emitErrorOccurred(error);
+}
+
+void QtcProcessPrivate::emitErrorOccurred(QProcess::ProcessError error)
+{
+    emit q->errorOccurred(error);
+    if (error == QProcess::FailedToStart)
+        emit q->done();
 }
 
 } // namespace Utils

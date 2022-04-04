@@ -50,7 +50,6 @@ public:
 
 protected:
     void emitFinished() override;
-    void emitErrorOccurred(QProcess::ProcessError error) override;
 
 private:
     QString m_remoteCommand;

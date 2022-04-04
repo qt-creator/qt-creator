@@ -38,6 +38,7 @@
 
 using namespace ProjectExplorer;
 using namespace QSsh;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -55,7 +56,7 @@ public:
     SshRemoteProcessPtr process;
     DeviceUsedPortsGatherer portsGatherer;
     SftpTransferPtr sftpTransfer;
-    Utils::QtcProcess rsyncProcess;
+    QtcProcess rsyncProcess;
     State state = Inactive;
     bool sftpWorks = false;
 };
@@ -126,7 +127,7 @@ void GenericLinuxDeviceTester::handleConnected()
     QTC_ASSERT(d->state == Connecting, return);
 
     d->process = d->connection->createRemoteProcess("uname -rsm");
-    connect(d->process.get(), &SshRemoteProcess::finished,
+    connect(d->process.get(), &QtcProcess::done,
             this, &GenericLinuxDeviceTester::handleProcessFinished);
 
     emit progressMessage(tr("Checking kernel version..."));
@@ -183,7 +184,7 @@ void GenericLinuxDeviceTester::handlePortListReady()
         emit progressMessage(tr("All specified ports are available.") + QLatin1Char('\n'));
     } else {
         QString portList;
-        foreach (const Utils::Port port, d->portsGatherer.usedPorts())
+        foreach (const Port port, d->portsGatherer.usedPorts())
             portList += QString::number(port.number()) + QLatin1String(", ");
         portList.remove(portList.count() - 2, 2);
         emit errorMessage(tr("The following specified ports are currently in use: %1")
@@ -221,18 +222,18 @@ void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
 void GenericLinuxDeviceTester::testRsync()
 {
     emit progressMessage(tr("Checking whether rsync works..."));
-    connect(&d->rsyncProcess, &Utils::QtcProcess::errorOccurred, [this] {
+    connect(&d->rsyncProcess, &QtcProcess::errorOccurred, [this] {
         if (d->rsyncProcess.error() == QProcess::FailedToStart)
             handleRsyncFinished();
     });
-    connect(&d->rsyncProcess, &Utils::QtcProcess::finished, this, [this] {
+    connect(&d->rsyncProcess, &QtcProcess::finished, this, [this] {
         handleRsyncFinished();
     });
     const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection,
                                                                    RsyncDeployStep::defaultFlags());
     const QStringList args = QStringList(cmdLine.options)
             << "-n" << "--exclude=*" << (cmdLine.remoteHostSpec + ":/tmp");
-    d->rsyncProcess.setCommand(Utils::CommandLine("rsync", args));
+    d->rsyncProcess.setCommand(CommandLine("rsync", args));
     d->rsyncProcess.start();
 }
 
