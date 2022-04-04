@@ -315,7 +315,12 @@ VcsOutputWindow::VcsOutputWindow()
                     TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
     };
 
+    auto updateFontSettings = [] {
+        d->widget.setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
+    };
+
     updateBehaviorSettings();
+    updateFontSettings();
     setupContext(Internal::C_VCS_OUTPUT_PANE, &d->widget);
 
     connect(this, &IOutputPane::zoomInRequested, &d->widget, &Core::OutputWindow::zoomIn);
@@ -323,6 +328,8 @@ VcsOutputWindow::VcsOutputWindow()
     connect(this, &IOutputPane::resetZoomRequested, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
+    connect(TextEditor::TextEditorSettings::instance(),
+            &TextEditor::TextEditorSettings::fontSettingsChanged, this, updateFontSettings);
 }
 
 static QString filterPasswordFromUrls(QString input)
