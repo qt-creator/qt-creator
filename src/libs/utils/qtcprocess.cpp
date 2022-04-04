@@ -221,6 +221,7 @@ protected:
     void defaultStart();
 
 private:
+    virtual void setErrorString(const QString &str) = 0;
     virtual void doDefaultStart(const QString &program, const QStringList &arguments) = 0;
     bool dissolveCommand(QString *program, QStringList *arguments);
     bool ensureProgramExists(const QString &program);
@@ -394,7 +395,6 @@ private:
         m_process->setWorkingDirectory(m_setup->m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup->m_standardInputFile);
         m_process->setProcessChannelMode(m_setup->m_processChannelMode);
-        m_process->setErrorString(m_setup->m_errorString);
         if (m_setup->m_lowPriority)
             m_process->setLowPriority();
         if (m_setup->m_unixTerminalDisabled)
@@ -525,7 +525,6 @@ public:
     void setProcessInterface(ProcessInterface *process)
     {
         m_process.reset(process);
-        m_setup.m_errorString.clear();
         m_process->setParent(this);
 
         connect(m_process.get(), &ProcessInterface::started,
@@ -1182,15 +1181,7 @@ QString QtcProcess::errorString() const
 {
     if (d->m_process)
         return d->m_process->errorString();
-    return d->m_setup.m_errorString;
-}
-
-void QtcProcess::setErrorString(const QString &str)
-{
-    if (d->m_process)
-        d->m_process->setErrorString(str);
-    else
-        d->m_setup.m_errorString = str;
+    return {};
 }
 
 qint64 QtcProcess::processId() const

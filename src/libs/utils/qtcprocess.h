@@ -75,7 +75,6 @@ public:
 
     QProcess::ProcessError error() const;
     virtual QString errorString() const;
-    void setErrorString(const QString &str);
 
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);

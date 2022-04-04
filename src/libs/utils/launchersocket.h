@@ -164,6 +164,7 @@ private:
     QByteArray m_stdout;
     QByteArray m_stderr;
     QProcess::ProcessError m_error = QProcess::UnknownError;
+    QString m_errorString;
 
     QString m_command;
     QStringList m_arguments;

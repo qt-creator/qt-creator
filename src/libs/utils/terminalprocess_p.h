@@ -49,7 +49,6 @@ public:
     QByteArray readAllStandardError() final { QTC_CHECK(false); return {}; }
 
     qint64 write(const QByteArray &) final { QTC_CHECK(false); return -1; }
-    void setErrorString(const QString &) final { QTC_CHECK(false); }
 
     void terminate() final { stopProcess(); }
     void kill() final { stopProcess(); }

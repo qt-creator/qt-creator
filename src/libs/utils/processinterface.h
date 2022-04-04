@@ -52,7 +52,6 @@ public:
     QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     QVariantHash m_extraData;
     QString m_standardInputFile;
-    QString m_errorString; // partial internal
     QString m_nativeArguments; // internal, dependent on specific code path
 
     bool m_abortOnMetaChars = true;
@@ -89,7 +88,6 @@ public:
 
     virtual QProcess::ProcessError error() const = 0;
     virtual QString errorString() const = 0;
-    virtual void setErrorString(const QString &str) = 0;
 
     virtual bool waitForStarted(int msecs) = 0;
     virtual bool waitForReadyRead(int msecs) = 0;
@@ -147,7 +145,6 @@ public:
 
     QProcess::ProcessError error() const override { return m_target->error(); }
     QString errorString() const override { return m_target->errorString(); }
-    void setErrorString(const QString &str) override { m_target->setErrorString(str); }
 
     bool waitForStarted(int msecs) override { return m_target->waitForStarted(msecs); }
     bool waitForReadyRead(int msecs) override { return m_target->waitForReadyRead(msecs); }

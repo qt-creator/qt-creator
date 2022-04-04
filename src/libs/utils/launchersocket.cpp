@@ -205,7 +205,8 @@ void CallerHandle::handleError(const ErrorSignal *launcherSignal)
     QTC_ASSERT(isCalledFromCallersThread(), return);
     m_processState = QProcess::NotRunning;
     m_error = launcherSignal->error();
-    m_setup->m_errorString = launcherSignal->errorString();
+    if (!launcherSignal->errorString().isEmpty())
+        m_errorString = launcherSignal->errorString();
     if (m_error == QProcess::FailedToStart)
         m_exitCode = 255; // This code is being returned by QProcess when FailedToStart error occurred
     emit errorOccurred(m_error);
@@ -314,7 +315,7 @@ void CallerHandle::cancel()
     case QProcess::NotRunning:
         break;
     case QProcess::Starting:
-        m_setup->m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
+        m_errorString = QCoreApplication::translate("Utils::LauncherHandle",
                                  "Process was canceled before it was started.");
         m_error = QProcess::FailedToStart;
         if (LauncherInterface::isReady()) // TODO: race condition with m_processState???
@@ -355,13 +356,13 @@ int CallerHandle::exitCode() const
 QString CallerHandle::errorString() const
 {
     QTC_ASSERT(isCalledFromCallersThread(), return {});
-    return m_setup->m_errorString;
+    return m_errorString;
 }
 
 void CallerHandle::setErrorString(const QString &str)
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    m_setup->m_errorString = str;
+    m_errorString = str;
 }
 
 void CallerHandle::start(const QString &program, const QStringList &arguments)
